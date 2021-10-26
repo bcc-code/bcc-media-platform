@@ -13,7 +13,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetMedia(ctx context.Context, id int64) (Medium, error) {
-	row := q.db.QueryRowContext(ctx, getMedia, id)
+	row := q.db.QueryRow(ctx, getMedia, id)
 	var i Medium
 	err := row.Scan(
 		&i.ID,
@@ -39,7 +39,7 @@ ORDER BY name
 `
 
 func (q *Queries) GetMedias(ctx context.Context) ([]Medium, error) {
-	rows, err := q.db.QueryContext(ctx, getMedias)
+	rows, err := q.db.Query(ctx, getMedias)
 	if err != nil {
 		return nil, err
 	}
@@ -65,9 +65,6 @@ func (q *Queries) GetMedias(ctx context.Context) ([]Medium, error) {
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

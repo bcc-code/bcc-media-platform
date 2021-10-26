@@ -4,10 +4,9 @@ package db
 
 import (
 	"database/sql"
-	"encoding/json"
 	"time"
 
-	"github.com/tabbed/pqtype"
+	"github.com/jackc/pgtype"
 )
 
 type Agerating struct {
@@ -77,11 +76,11 @@ type Collectable struct {
 }
 
 type Collection struct {
-	ID          int64                 `json:"id"`
-	Type        sql.NullString        `json:"type"`
-	QueryID     sql.NullInt64         `json:"queryID"`
-	QueryParams pqtype.NullRawMessage `json:"queryParams"`
-	PageID      sql.NullInt64         `json:"pageID"`
+	ID          int64          `json:"id"`
+	Type        sql.NullString `json:"type"`
+	QueryID     sql.NullInt64  `json:"queryID"`
+	QueryParams pgtype.JSONB   `json:"queryParams"`
+	PageID      sql.NullInt64  `json:"pageID"`
 }
 
 type CollectionCollectable struct {
@@ -198,17 +197,17 @@ type PageT struct {
 }
 
 type Query struct {
-	ID            int64           `json:"id"`
-	Template      json.RawMessage `json:"template"`
-	Parameters    json.RawMessage `json:"parameters"`
-	SystemDefined bool            `json:"systemDefined"`
+	ID            int64        `json:"id"`
+	Template      pgtype.JSONB `json:"template"`
+	Parameters    pgtype.JSONB `json:"parameters"`
+	SystemDefined bool         `json:"systemDefined"`
 }
 
 type Section struct {
-	ID              int64                 `json:"id"`
-	Type            string                `json:"type"`
-	CollectionID    sql.NullInt64         `json:"collectionID"`
-	VisibilityRules pqtype.NullRawMessage `json:"visibilityRules"`
+	ID              int64         `json:"id"`
+	Type            string        `json:"type"`
+	CollectionID    sql.NullInt64 `json:"collectionID"`
+	VisibilityRules pgtype.JSONB  `json:"visibilityRules"`
 }
 
 type SectionItem struct {
