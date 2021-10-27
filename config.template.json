@@ -1,0 +1,3 @@
+{
+    "database": "postgres://localhost:5432/database"
+}

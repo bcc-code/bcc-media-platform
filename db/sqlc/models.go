@@ -3,335 +3,336 @@
 package db
 
 import (
-	"database/sql"
+	"encoding/json"
 	"time"
 
-	"github.com/jackc/pgtype"
+	"github.com/tabbed/pqtype"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 type Agerating struct {
-	Code      string         `json:"code"`
-	Title     sql.NullString `json:"title"`
-	SortOrder int16          `json:"sortOrder"`
+	Code      string         `db:"code" json:"code"`
+	Title     null_v4.String `db:"title" json:"title"`
+	SortOrder int16          `db:"sort_order" json:"sortOrder"`
 }
 
 type AgeratingT struct {
-	ID            int32          `json:"id"`
-	AgeratingCode sql.NullString `json:"ageratingCode"`
-	LanguageCode  string         `json:"languageCode"`
+	ID            int32          `db:"id" json:"id"`
+	AgeratingCode null_v4.String `db:"agerating_code" json:"ageratingCode"`
+	LanguageCode  string         `db:"language_code" json:"languageCode"`
 }
 
 type Asset struct {
-	ID                 int64          `json:"id"`
-	SourceID           sql.NullString `json:"sourceID"`
-	PublishedVersionID sql.NullInt64  `json:"publishedVersionID"`
-	Name               int16          `json:"name"`
+	ID                 int64          `db:"id" json:"id"`
+	SourceID           null_v4.String `db:"source_id" json:"sourceID"`
+	PublishedVersionID null_v4.Int    `db:"published_version_id" json:"publishedVersionID"`
+	Name               int16          `db:"name" json:"name"`
 }
 
 type AssetFormat struct {
-	ID      int64          `json:"id"`
-	Name    sql.NullString `json:"name"`
-	Url     sql.NullString `json:"url"`
-	Bitrate sql.NullInt64  `json:"bitrate"`
+	ID      int64          `db:"id" json:"id"`
+	Name    null_v4.String `db:"name" json:"name"`
+	Url     null_v4.String `db:"url" json:"url"`
+	Bitrate null_v4.Int    `db:"bitrate" json:"bitrate"`
 }
 
 type AssetVersion struct {
-	ID      int64         `json:"id"`
-	AssetID sql.NullInt64 `json:"assetID"`
+	ID      int64       `db:"id" json:"id"`
+	AssetID null_v4.Int `db:"asset_id" json:"assetID"`
 }
 
 type AssetVersionFormat struct {
-	ID             int64         `json:"id"`
-	AssetversionID sql.NullInt64 `json:"assetversionID"`
-	AssetformatID  sql.NullInt64 `json:"assetformatID"`
+	ID             int64       `db:"id" json:"id"`
+	AssetversionID null_v4.Int `db:"assetversion_id" json:"assetversionID"`
+	AssetformatID  null_v4.Int `db:"assetformat_id" json:"assetformatID"`
 }
 
 type CalendarEvent struct {
-	ID               int64          `json:"id"`
-	EventID          sql.NullString `json:"eventID"`
-	Start            sql.NullTime   `json:"start"`
-	End              sql.NullTime   `json:"end"`
-	Locked           bool           `json:"locked"`
-	UseImageFromBcco bool           `json:"useImageFromBcco"`
-	ImageID          sql.NullInt64  `json:"imageID"`
-	AudienceID       sql.NullInt64  `json:"audienceID"`
+	ID               int64          `db:"id" json:"id"`
+	EventID          null_v4.String `db:"event_id" json:"eventID"`
+	Start            null_v4.Time   `db:"start" json:"start"`
+	End              null_v4.Time   `db:"end" json:"end"`
+	Locked           bool           `db:"locked" json:"locked"`
+	UseImageFromBcco bool           `db:"use_image_from_bcco" json:"useImageFromBcco"`
+	ImageID          null_v4.Int    `db:"image_id" json:"imageID"`
+	AudienceID       null_v4.Int    `db:"audience_id" json:"audienceID"`
 }
 
 type CalendareventT struct {
-	ID              int64          `json:"id"`
-	CalendareventID int64          `json:"calendareventID"`
-	LanguageCode    string         `json:"languageCode"`
-	Name            sql.NullString `json:"name"`
-	ImageID         sql.NullInt64  `json:"imageID"`
+	ID              int64          `db:"id" json:"id"`
+	CalendareventID int64          `db:"calendarevent_id" json:"calendareventID"`
+	LanguageCode    string         `db:"language_code" json:"languageCode"`
+	Name            null_v4.String `db:"name" json:"name"`
+	ImageID         null_v4.Int    `db:"image_id" json:"imageID"`
 }
 
 type Collectable struct {
-	ID            int64          `json:"id"`
-	Type          sql.NullString `json:"type"`
-	AvailableFrom sql.NullTime   `json:"availableFrom"`
-	AvailableTo   sql.NullTime   `json:"availableTo"`
-	Status        int16          `json:"status"`
-	CreatedAt     time.Time      `json:"createdAt"`
-	UpdatedAt     time.Time      `json:"updatedAt"`
+	ID            int64          `db:"id" json:"id"`
+	Type          null_v4.String `db:"type" json:"type"`
+	AvailableFrom null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo   null_v4.Time   `db:"available_to" json:"availableTo"`
+	Status        int16          `db:"status" json:"status"`
+	CreatedAt     time.Time      `db:"created_at" json:"createdAt"`
+	UpdatedAt     time.Time      `db:"updated_at" json:"updatedAt"`
 }
 
 type Collection struct {
-	ID          int64          `json:"id"`
-	Type        sql.NullString `json:"type"`
-	QueryID     sql.NullInt64  `json:"queryID"`
-	QueryParams pgtype.JSONB   `json:"queryParams"`
-	PageID      sql.NullInt64  `json:"pageID"`
+	ID          int64                 `db:"id" json:"id"`
+	Type        null_v4.String        `db:"type" json:"type"`
+	QueryID     null_v4.Int           `db:"query_id" json:"queryID"`
+	QueryParams pqtype.NullRawMessage `db:"query_params" json:"queryParams"`
+	PageID      null_v4.Int           `db:"page_id" json:"pageID"`
 }
 
 type CollectionCollectable struct {
-	ID            int64         `json:"id"`
-	CollectionID  sql.NullInt64 `json:"collectionID"`
-	CollectableID sql.NullInt64 `json:"collectableID"`
-	SortOrder     int16         `json:"sortOrder"`
+	ID            int64       `db:"id" json:"id"`
+	CollectionID  null_v4.Int `db:"collection_id" json:"collectionID"`
+	CollectableID null_v4.Int `db:"collectable_id" json:"collectableID"`
+	SortOrder     int16       `db:"sort_order" json:"sortOrder"`
 }
 
 type Faq struct {
-	ID       int16 `json:"id"`
-	Category int16 `json:"category"`
+	ID       int16 `db:"id" json:"id"`
+	Category int16 `db:"category" json:"category"`
 }
 
 type FaqT struct {
-	ID           int16          `json:"id"`
-	FaqID        int16          `json:"faqID"`
-	LanguageCode string         `json:"languageCode"`
-	Question     sql.NullString `json:"question"`
-	Answer       sql.NullString `json:"answer"`
+	ID           int16          `db:"id" json:"id"`
+	FaqID        int16          `db:"faq_id" json:"faqID"`
+	LanguageCode string         `db:"language_code" json:"languageCode"`
+	Question     null_v4.String `db:"question" json:"question"`
+	Answer       null_v4.String `db:"answer" json:"answer"`
 }
 
 type Faqcategory struct {
-	ID        int16 `json:"id"`
-	SortOrder int16 `json:"sortOrder"`
-	Status    int16 `json:"status"`
+	ID        int16 `db:"id" json:"id"`
+	SortOrder int16 `db:"sort_order" json:"sortOrder"`
+	Status    int16 `db:"status" json:"status"`
 }
 
 type FaqcategoryT struct {
-	ID            int16  `json:"id"`
-	FaqcategoryID int16  `json:"faqcategoryID"`
-	LanguageCode  string `json:"languageCode"`
-	Title         int16  `json:"title"`
+	ID            int16  `db:"id" json:"id"`
+	FaqcategoryID int16  `db:"faqcategory_id" json:"faqcategoryID"`
+	LanguageCode  string `db:"language_code" json:"languageCode"`
+	Title         int16  `db:"title" json:"title"`
 }
 
 type Image struct {
-	ID  int64  `json:"id"`
-	Url string `json:"url"`
+	ID  int64  `db:"id" json:"id"`
+	Url string `db:"url" json:"url"`
 }
 
 type Language struct {
-	Code string `json:"code"`
-	Name string `json:"name"`
+	Code string `db:"code" json:"code"`
+	Name string `db:"name" json:"name"`
+}
+
+type Media struct {
+	ID                int64          `db:"id" json:"id"`
+	CollectableType   null_v4.String `db:"collectable_type" json:"collectableType"`
+	MediaType         null_v4.String `db:"media_type" json:"mediaType"`
+	PrimaryGroupID    null_v4.Int    `db:"primary_group_id" json:"primaryGroupID"`
+	SubclippedMediaID null_v4.Int    `db:"subclipped_media_id" json:"subclippedMediaID"`
+	ReferenceMediaID  null_v4.Int    `db:"reference_media_id" json:"referenceMediaID"`
+	SequenceNumber    int16          `db:"sequence_number" json:"sequenceNumber"`
+	// for subclips and markers
+	StartTime null_v4.Int `db:"start_time" json:"startTime"`
+	// for subclips
+	EndTime   null_v4.Int    `db:"end_time" json:"endTime"`
+	AssetID   null_v4.Int    `db:"asset_id" json:"assetID"`
+	Agerating null_v4.String `db:"agerating" json:"agerating"`
+	CreatedAt time.Time      `db:"created_at" json:"createdAt"`
+	UpdatedAt time.Time      `db:"updated_at" json:"updatedAt"`
 }
 
 type MediaT struct {
-	ID              int64          `json:"id"`
-	MediaID         sql.NullInt64  `json:"mediaID"`
-	LanguageCode    string         `json:"languageCode"`
-	Title           sql.NullString `json:"title"`
-	Description     sql.NullString `json:"description"`
-	LongDescription sql.NullString `json:"longDescription"`
-	ImageID         sql.NullInt64  `json:"imageID"`
-}
-
-type Medium struct {
-	ID                int64          `json:"id"`
-	CollectableType   sql.NullString `json:"collectableType"`
-	MediaType         sql.NullString `json:"mediaType"`
-	PrimaryGroupID    sql.NullInt64  `json:"primaryGroupID"`
-	SubclippedMediaID sql.NullInt64  `json:"subclippedMediaID"`
-	ReferenceMediaID  sql.NullInt64  `json:"referenceMediaID"`
-	SequenceNumber    int16          `json:"sequenceNumber"`
-	// for subclips and markers
-	StartTime sql.NullFloat64 `json:"startTime"`
-	// for subclips
-	EndTime   sql.NullFloat64 `json:"endTime"`
-	AssetID   sql.NullInt64   `json:"assetID"`
-	Agerating sql.NullString  `json:"agerating"`
-	CreatedAt time.Time       `json:"createdAt"`
-	UpdatedAt time.Time       `json:"updatedAt"`
+	ID              int64          `db:"id" json:"id"`
+	MediaID         null_v4.Int    `db:"media_id" json:"mediaID"`
+	LanguageCode    string         `db:"language_code" json:"languageCode"`
+	Title           null_v4.String `db:"title" json:"title"`
+	Description     null_v4.String `db:"description" json:"description"`
+	LongDescription null_v4.String `db:"long_description" json:"longDescription"`
+	ImageID         null_v4.Int    `db:"image_id" json:"imageID"`
 }
 
 type Notification struct {
-	ID            int64          `json:"id"`
-	CohortID      string         `json:"cohortID"`
-	Action        sql.NullString `json:"action"`
-	InternalUrl   sql.NullString `json:"internalUrl"`
-	ExternalUrl   sql.NullString `json:"externalUrl"`
-	Badge         int16          `json:"badge"`
-	ScheduledTime sql.NullTime   `json:"scheduledTime"`
+	ID            int64          `db:"id" json:"id"`
+	CohortID      string         `db:"cohort_id" json:"cohortID"`
+	Action        null_v4.String `db:"action" json:"action"`
+	InternalUrl   null_v4.String `db:"internal_url" json:"internalUrl"`
+	ExternalUrl   null_v4.String `db:"external_url" json:"externalUrl"`
+	Badge         int16          `db:"badge" json:"badge"`
+	ScheduledTime null_v4.Time   `db:"scheduled_time" json:"scheduledTime"`
 }
 
 type NotificationAction struct {
-	Code string         `json:"code"`
-	Name sql.NullString `json:"name"`
+	Code string         `db:"code" json:"code"`
+	Name null_v4.String `db:"name" json:"name"`
 }
 
 type NotificationT struct {
-	ID             int64          `json:"id"`
-	NotificationID sql.NullInt64  `json:"notificationID"`
-	LanguageCode   string         `json:"languageCode"`
-	Title          sql.NullString `json:"title"`
-	Message        sql.NullString `json:"message"`
+	ID             int64          `db:"id" json:"id"`
+	NotificationID null_v4.Int    `db:"notification_id" json:"notificationID"`
+	LanguageCode   string         `db:"language_code" json:"languageCode"`
+	Title          null_v4.String `db:"title" json:"title"`
+	Message        null_v4.String `db:"message" json:"message"`
 }
 
 type Page struct {
-	ID              int64          `json:"id"`
-	CollectableType sql.NullString `json:"collectableType"`
+	ID              int64          `db:"id" json:"id"`
+	CollectableType null_v4.String `db:"collectable_type" json:"collectableType"`
 }
 
 type PageSection struct {
-	ID        int64         `json:"id"`
-	PageID    sql.NullInt64 `json:"pageID"`
-	SectionID sql.NullInt64 `json:"sectionID"`
+	ID        int64       `db:"id" json:"id"`
+	PageID    null_v4.Int `db:"page_id" json:"pageID"`
+	SectionID null_v4.Int `db:"section_id" json:"sectionID"`
 }
 
 type PageT struct {
-	ID           int64          `json:"id"`
-	LanguageCode string         `json:"languageCode"`
-	PageID       sql.NullInt64  `json:"pageID"`
-	Title        sql.NullString `json:"title"`
-	Description  sql.NullString `json:"description"`
+	ID           int64          `db:"id" json:"id"`
+	LanguageCode string         `db:"language_code" json:"languageCode"`
+	PageID       null_v4.Int    `db:"page_id" json:"pageID"`
+	Title        null_v4.String `db:"title" json:"title"`
+	Description  null_v4.String `db:"description" json:"description"`
 }
 
 type Query struct {
-	ID            int64        `json:"id"`
-	Template      pgtype.JSONB `json:"template"`
-	Parameters    pgtype.JSONB `json:"parameters"`
-	SystemDefined bool         `json:"systemDefined"`
+	ID            int64           `db:"id" json:"id"`
+	Template      json.RawMessage `db:"template" json:"template"`
+	Parameters    json.RawMessage `db:"parameters" json:"parameters"`
+	SystemDefined bool            `db:"system_defined" json:"systemDefined"`
 }
 
 type Section struct {
-	ID              int64         `json:"id"`
-	Type            string        `json:"type"`
-	CollectionID    sql.NullInt64 `json:"collectionID"`
-	VisibilityRules pgtype.JSONB  `json:"visibilityRules"`
+	ID              int64                 `db:"id" json:"id"`
+	Type            string                `db:"type" json:"type"`
+	CollectionID    null_v4.Int           `db:"collection_id" json:"collectionID"`
+	VisibilityRules pqtype.NullRawMessage `db:"visibility_rules" json:"visibilityRules"`
 }
 
 type SectionItem struct {
-	ID            int64          `json:"id"`
-	SectionID     int64          `json:"sectionID"`
-	Type          string         `json:"type"`
-	CollectableID sql.NullInt64  `json:"collectableID"`
-	Url           sql.NullString `json:"url"`
-	CollectionID  sql.NullInt64  `json:"collectionID"`
-	SortOrder     int16          `json:"sortOrder"`
+	ID            int64          `db:"id" json:"id"`
+	SectionID     int64          `db:"section_id" json:"sectionID"`
+	Type          string         `db:"type" json:"type"`
+	CollectableID null_v4.Int    `db:"collectable_id" json:"collectableID"`
+	Url           null_v4.String `db:"url" json:"url"`
+	CollectionID  null_v4.Int    `db:"collection_id" json:"collectionID"`
+	SortOrder     int16          `db:"sort_order" json:"sortOrder"`
 }
 
 type SectionItemT struct {
-	ID            int64          `json:"id"`
-	LanguageCode  string         `json:"languageCode"`
-	SectionItemID sql.NullInt64  `json:"sectionItemID"`
-	Title         sql.NullString `json:"title"`
+	ID            int64          `db:"id" json:"id"`
+	LanguageCode  string         `db:"language_code" json:"languageCode"`
+	SectionItemID null_v4.Int    `db:"section_item_id" json:"sectionItemID"`
+	Title         null_v4.String `db:"title" json:"title"`
 }
 
 type SectionT struct {
-	ID           int64          `json:"id"`
-	SectionID    sql.NullInt64  `json:"sectionID"`
-	LanguageCode string         `json:"languageCode"`
-	Title        sql.NullString `json:"title"`
+	ID           int64          `db:"id" json:"id"`
+	SectionID    null_v4.Int    `db:"section_id" json:"sectionID"`
+	LanguageCode string         `db:"language_code" json:"languageCode"`
+	Title        null_v4.String `db:"title" json:"title"`
 }
 
 type SectionitemUsergroup struct {
-	ID            int64          `json:"id"`
-	SectionitemID sql.NullInt64  `json:"sectionitemID"`
-	UsergroupID   sql.NullString `json:"usergroupID"`
+	ID            int64          `db:"id" json:"id"`
+	SectionitemID null_v4.Int    `db:"sectionitem_id" json:"sectionitemID"`
+	UsergroupID   null_v4.String `db:"usergroup_id" json:"usergroupID"`
 }
 
 type Systemdatum struct {
-	ID                  int16         `json:"id"`
-	Live                bool          `json:"live"`
-	FullMaintenanceMode bool          `json:"fullMaintenanceMode"`
-	MetaImageID         sql.NullInt64 `json:"metaImageID"`
+	ID                  int16       `db:"id" json:"id"`
+	Live                bool        `db:"live" json:"live"`
+	FullMaintenanceMode bool        `db:"full_maintenance_mode" json:"fullMaintenanceMode"`
+	MetaImageID         null_v4.Int `db:"meta_image_id" json:"metaImageID"`
 }
 
 type Tag struct {
-	ID int64 `json:"id"`
+	ID int64 `db:"id" json:"id"`
 	// speaker, composer, etc.
-	Type sql.NullString `json:"type"`
+	Type null_v4.String `db:"type" json:"type"`
 }
 
 type TagCollectable struct {
-	ID            int64         `json:"id"`
-	CollectableID sql.NullInt64 `json:"collectableID"`
-	TagID         sql.NullInt64 `json:"tagID"`
+	ID            int64       `db:"id" json:"id"`
+	CollectableID null_v4.Int `db:"collectable_id" json:"collectableID"`
+	TagID         null_v4.Int `db:"tag_id" json:"tagID"`
 }
 
 type TagT struct {
-	ID           int64         `json:"id"`
-	TagID        sql.NullInt64 `json:"tagID"`
-	LanguageCode string        `json:"languageCode"`
-	Title        int16         `json:"title"`
+	ID           int64       `db:"id" json:"id"`
+	TagID        null_v4.Int `db:"tag_id" json:"tagID"`
+	LanguageCode string      `db:"language_code" json:"languageCode"`
+	Title        int16       `db:"title" json:"title"`
 }
 
 type Tvguideentry struct {
-	ID                int64         `json:"id"`
-	Start             sql.NullTime  `json:"start"`
-	End               sql.NullTime  `json:"end"`
-	EventID           sql.NullInt64 `json:"eventID"`
-	MediaID           sql.NullInt64 `json:"mediaID"`
-	ImageID           sql.NullInt64 `json:"imageID"`
-	UseImageFromMedia bool          `json:"useImageFromMedia"`
+	ID                int64        `db:"id" json:"id"`
+	Start             null_v4.Time `db:"start" json:"start"`
+	End               null_v4.Time `db:"end" json:"end"`
+	EventID           null_v4.Int  `db:"event_id" json:"eventID"`
+	MediaID           null_v4.Int  `db:"media_id" json:"mediaID"`
+	ImageID           null_v4.Int  `db:"image_id" json:"imageID"`
+	UseImageFromMedia bool         `db:"use_image_from_media" json:"useImageFromMedia"`
 }
 
 type TvguideentryT struct {
-	ID             int64          `json:"id"`
-	TvguideentryID sql.NullInt64  `json:"tvguideentryID"`
-	LanguageCode   string         `json:"languageCode"`
-	ImageID        sql.NullInt64  `json:"imageID"`
-	Title          sql.NullString `json:"title"`
-	Description    sql.NullString `json:"description"`
+	ID             int64          `db:"id" json:"id"`
+	TvguideentryID null_v4.Int    `db:"tvguideentry_id" json:"tvguideentryID"`
+	LanguageCode   string         `db:"language_code" json:"languageCode"`
+	ImageID        null_v4.Int    `db:"image_id" json:"imageID"`
+	Title          null_v4.String `db:"title" json:"title"`
+	Description    null_v4.String `db:"description" json:"description"`
 }
 
 type UserDataDevice struct {
-	ID        int64          `json:"id"`
-	UserID    string         `json:"userID"`
-	PushToken sql.NullString `json:"pushToken"`
-	App       string         `json:"app"`
+	ID        int64          `db:"id" json:"id"`
+	UserID    string         `db:"user_id" json:"userID"`
+	PushToken null_v4.String `db:"push_token" json:"pushToken"`
+	App       string         `db:"app" json:"app"`
 }
 
 type UserDataList struct {
-	ID     int64  `json:"id"`
-	Name   string `json:"name"`
-	UserID string `json:"userID"`
+	ID     int64  `db:"id" json:"id"`
+	Name   string `db:"name" json:"name"`
+	UserID string `db:"user_id" json:"userID"`
 }
 
 type UserDataListMedium struct {
-	ID        int64         `json:"id"`
-	MediaID   int64         `json:"mediaID"`
-	ListID    sql.NullInt64 `json:"listID"`
-	SortOrder int16         `json:"sortOrder"`
+	ID        int64       `db:"id" json:"id"`
+	MediaID   int64       `db:"media_id" json:"mediaID"`
+	ListID    null_v4.Int `db:"list_id" json:"listID"`
+	SortOrder int16       `db:"sort_order" json:"sortOrder"`
 }
 
 type UserDataMediaProgress struct {
-	ID          int64          `json:"id"`
-	MediaID     sql.NullInt64  `json:"mediaID"`
-	UserID      sql.NullString `json:"userID"`
-	Seconds     sql.NullInt32  `json:"seconds"`
-	LastUpdated sql.NullTime   `json:"lastUpdated"`
+	ID          int64          `db:"id" json:"id"`
+	MediaID     null_v4.Int    `db:"media_id" json:"mediaID"`
+	UserID      null_v4.String `db:"user_id" json:"userID"`
+	Seconds     null_v4.Int    `db:"seconds" json:"seconds"`
+	LastUpdated null_v4.Time   `db:"last_updated" json:"lastUpdated"`
 }
 
 type UserDataUserList struct {
-	ID        int64         `json:"id"`
-	UserID    string        `json:"userID"`
-	ListID    sql.NullInt64 `json:"listID"`
-	SortOrder int16         `json:"sortOrder"`
+	ID        int64       `db:"id" json:"id"`
+	UserID    string      `db:"user_id" json:"userID"`
+	ListID    null_v4.Int `db:"list_id" json:"listID"`
+	SortOrder int16       `db:"sort_order" json:"sortOrder"`
 }
 
 type UserDataUsergroupUser struct {
-	ID          int64  `json:"id"`
-	UsergroupID string `json:"usergroupID"`
-	UserID      string `json:"userID"`
+	ID          int64  `db:"id" json:"id"`
+	UsergroupID string `db:"usergroup_id" json:"usergroupID"`
+	UserID      string `db:"user_id" json:"userID"`
 }
 
 type Usergroup struct {
-	ID string `json:"id"`
+	ID string `db:"id" json:"id"`
 }
 
 type UsergroupCollectable struct {
-	ID            int64          `json:"id"`
-	UsergroupID   sql.NullString `json:"usergroupID"`
-	CollectableID sql.NullInt64  `json:"collectableID"`
+	ID            int64          `db:"id" json:"id"`
+	UsergroupID   null_v4.String `db:"usergroup_id" json:"usergroupID"`
+	CollectableID null_v4.Int    `db:"collectable_id" json:"collectableID"`
 }
