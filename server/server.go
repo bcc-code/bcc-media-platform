@@ -39,14 +39,15 @@ func (s *Server) GetMedia(c *gin.Context) {
 	c.JSON(200, media)
 }
 
-type GetListQuery struct {
-	Ids   []int  `form:"id"`
-	Sort  string `form:"sort"`
-	Order string `form:"order"`
+type GetMediaListQuery struct {
+	Ids              []int  `form:"id"`
+	Sort             string `form:"sort"`
+	Order            string `form:"order"`
+	ReferenceMediaID string `form:"referenceMediaID"`
 }
 
 func (s *Server) GetMedias(c *gin.Context) {
-	var params GetListQuery
+	var params GetMediaListQuery
 	if err := c.ShouldBind(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -66,6 +67,9 @@ func (s *Server) GetMedias(c *gin.Context) {
 	query := goqu.From("media")
 	if len(params.Ids) > 0 {
 		query = query.Where(goqu.C("id").In(params.Ids))
+	}
+	if params.ReferenceMediaID != "" {
+		query = query.Where(goqu.C("reference_media_id").In(params.ReferenceMediaID))
 	}
 
 	if orderedExpression != nil {
