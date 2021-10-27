@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -38,18 +39,35 @@ func (s *Server) GetMedia(c *gin.Context) {
 	c.JSON(200, media)
 }
 
+type GetListQuery struct {
+	Ids   []int  `form:"id"`
+	Sort  string `form:"sort"`
+	Order string `form:"order"`
+}
+
 func (s *Server) GetMedias(c *gin.Context) {
-	if()
+	var params GetListQuery
+	if err := c.ShouldBind(&params); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	sort := strings.ToLower(c.Query("sort"))
-	sortCol := goqu.C(sort)
 	order := strings.ToLower(c.Query("order"))
+
+	sortCol := goqu.C(sort)
 	var orderedExpression exp.OrderedExpression
 	if order == "asc" {
 		orderedExpression = sortCol.Asc()
 	} else if order == "desc" {
 		orderedExpression = sortCol.Desc()
 	}
+
 	query := goqu.From("media")
+	if len(params.Ids) > 0 {
+		query = query.Where(goqu.C("id").In(params.Ids))
+	}
+
 	if orderedExpression != nil {
 		query = query.Order(orderedExpression)
 	}
