@@ -1,4 +1,4 @@
-import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput } from 'react-admin';
+import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton } from 'react-admin';
 // in src/App.js
 import React from 'react';
 
@@ -32,9 +32,9 @@ export const MediaList: React.FC<ListProps> = props => (
     </List>
 );
 
-export const MediEdit: React.FC<ListProps> = props => (
-    <List {...props}>
-        <Datagrid rowClick="edit">
+export const MediaEdit: React.FC<ListProps> = props => (
+    <Edit {...props}>
+        <SimpleForm>
             <TextField source="id" />
             <SelectInput source="mediaType" choices={MediaTypes}/>
             <TextField source="mediaType" />
@@ -48,7 +48,7 @@ export const MediEdit: React.FC<ListProps> = props => (
             <TextField source="agerating" />
             <DateField source="createdAt" />
             <DateField source="updatedAt" />
-            <EditButton></EditButton>
-        </Datagrid>
-    </List>
+            <SaveButton></SaveButton>
+        </SimpleForm>
+    </Edit>
 );

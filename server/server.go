@@ -27,7 +27,8 @@ type Server struct {
 func (s *Server) GetMedia(c *gin.Context) {
 	// os.Getenv("DATABASE_URL")
 	ctx := context.Background()
-	id, err := strconv.ParseInt(c.Query("id"), 10, 64)
+	idString, _ := c.Params.Get("id")
+	id, err := strconv.ParseInt(idString, 10, 64)
 	media, err := s.queries.GetMedia(ctx, id)
 	if err != nil {
 		fmt.Println(err)
@@ -38,6 +39,7 @@ func (s *Server) GetMedia(c *gin.Context) {
 }
 
 func (s *Server) GetMedias(c *gin.Context) {
+	if()
 	sort := strings.ToLower(c.Query("sort"))
 	sortCol := goqu.C(sort)
 	order := strings.ToLower(c.Query("order"))
