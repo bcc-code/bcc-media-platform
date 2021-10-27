@@ -63,5 +63,6 @@ func (s *Server) GetMedias(c *gin.Context) {
 		return
 	}
 
+	c.Header("X-Total-Count", strconv.Itoa(len(results)))
 	c.JSON(200, results)
 }
