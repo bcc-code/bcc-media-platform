@@ -136,9 +136,9 @@ type Media struct {
 	ReferenceMediaID  null_v4.Int    `db:"reference_media_id" json:"referenceMediaID"`
 	SequenceNumber    int16          `db:"sequence_number" json:"sequenceNumber"`
 	// for subclips and markers
-	StartTime null_v4.Int `db:"start_time" json:"startTime"`
+	StartTime null_v4.Float `db:"start_time" json:"startTime"`
 	// for subclips
-	EndTime   null_v4.Int    `db:"end_time" json:"endTime"`
+	EndTime   null_v4.Float  `db:"end_time" json:"endTime"`
 	AssetID   null_v4.Int    `db:"asset_id" json:"assetID"`
 	Agerating null_v4.String `db:"agerating" json:"agerating"`
 	CreatedAt time.Time      `db:"created_at" json:"createdAt"`

@@ -21,7 +21,7 @@ overrides:
     db_type: "pg_catalog.int4"
   - go_type: 
       import: "gopkg.in/guregu/null.v4"
-      type: "Int"
+      type: "Float"
     nullable: true
     db_type: "pg_catalog.float4"
   - go_type: 

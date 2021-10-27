@@ -12,7 +12,7 @@ import (
 
 func main() {
 
-	conn, err := sql.Open("pgx", "host=localhost user=postgres dbname=vod_v3 password=password sslmode=disable")
+	conn, err := sql.Open("pgx", "host=localhost user=postgres dbname=vod password=password sslmode=disable")
 	if err != nil {
 		fmt.Println(err)
 		return
