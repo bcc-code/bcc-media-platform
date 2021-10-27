@@ -64,7 +64,7 @@ func (s *Server) GetMedias(c *gin.Context) {
 		orderedExpression = sortCol.Desc()
 	}
 
-	query := goqu.From("media")
+	query := goqu.From("media_collectable")
 	if len(params.Ids) > 0 {
 		query = query.Where(goqu.C("id").In(params.Ids))
 	}
@@ -79,7 +79,7 @@ func (s *Server) GetMedias(c *gin.Context) {
 	sql, _, _ := query.ToSQL()
 	s.dbx.Rebind(sql)
 
-	var results []db.Media
+	var results []db.MediaCollectable
 	err := s.dbx.Select(&results, sql)
 
 	if err != nil {
@@ -89,4 +89,8 @@ func (s *Server) GetMedias(c *gin.Context) {
 
 	c.Header("X-Total-Count", strconv.Itoa(len(results)))
 	c.JSON(200, results)
+}
+
+func (s *Server) CreateMedia(c *gin.Context) {
+	c.JSON(200, "test")
 }

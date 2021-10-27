@@ -145,6 +145,26 @@ type Media struct {
 	UpdatedAt time.Time      `db:"updated_at" json:"updatedAt"`
 }
 
+type MediaCollectable struct {
+	Status            int16          `db:"status" json:"status"`
+	Type              null_v4.String `db:"type" json:"type"`
+	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
+	ID                int64          `db:"id" json:"id"`
+	CollectableType   null_v4.String `db:"collectable_type" json:"collectableType"`
+	MediaType         null_v4.String `db:"media_type" json:"mediaType"`
+	PrimaryGroupID    null_v4.Int    `db:"primary_group_id" json:"primaryGroupID"`
+	SubclippedMediaID null_v4.Int    `db:"subclipped_media_id" json:"subclippedMediaID"`
+	ReferenceMediaID  null_v4.Int    `db:"reference_media_id" json:"referenceMediaID"`
+	SequenceNumber    int16          `db:"sequence_number" json:"sequenceNumber"`
+	StartTime         null_v4.Float  `db:"start_time" json:"startTime"`
+	EndTime           null_v4.Float  `db:"end_time" json:"endTime"`
+	AssetID           null_v4.Int    `db:"asset_id" json:"assetID"`
+	Agerating         null_v4.String `db:"agerating" json:"agerating"`
+	CreatedAt         time.Time      `db:"created_at" json:"createdAt"`
+	UpdatedAt         time.Time      `db:"updated_at" json:"updatedAt"`
+}
+
 type MediaT struct {
 	ID              int64          `db:"id" json:"id"`
 	MediaID         null_v4.Int    `db:"media_id" json:"mediaID"`

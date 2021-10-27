@@ -5,23 +5,29 @@ package db
 
 import (
 	"context"
+
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getAllMedias = `-- name: GetAllMedias :many
-SELECT id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at FROM media
+SELECT status, type, available_from, available_to, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at FROM media_collectable
 ORDER BY name
 `
 
-func (q *Queries) GetAllMedias(ctx context.Context) ([]Media, error) {
+func (q *Queries) GetAllMedias(ctx context.Context) ([]MediaCollectable, error) {
 	rows, err := q.db.QueryContext(ctx, getAllMedias)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Media
+	var items []MediaCollectable
 	for rows.Next() {
-		var i Media
+		var i MediaCollectable
 		if err := rows.Scan(
+			&i.Status,
+			&i.Type,
+			&i.AvailableFrom,
+			&i.AvailableTo,
 			&i.ID,
 			&i.CollectableType,
 			&i.MediaType,
@@ -50,14 +56,18 @@ func (q *Queries) GetAllMedias(ctx context.Context) ([]Media, error) {
 }
 
 const getMedia = `-- name: GetMedia :one
-SELECT id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at FROM media
+SELECT status, type, available_from, available_to, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at FROM media_collectable
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetMedia(ctx context.Context, id int64) (Media, error) {
+func (q *Queries) GetMedia(ctx context.Context, id int64) (MediaCollectable, error) {
 	row := q.db.QueryRowContext(ctx, getMedia, id)
-	var i Media
+	var i MediaCollectable
 	err := row.Scan(
+		&i.Status,
+		&i.Type,
+		&i.AvailableFrom,
+		&i.AvailableTo,
 		&i.ID,
 		&i.CollectableType,
 		&i.MediaType,
@@ -75,45 +85,93 @@ func (q *Queries) GetMedia(ctx context.Context, id int64) (Media, error) {
 	return i, err
 }
 
-const getMediasWithFilter = `-- name: GetMediasWithFilter :many
-SELECT id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at FROM media
-
-ORDER BY name
+const insertMedia = `-- name: InsertMedia :one
+WITH new_collectable AS (
+    INSERT INTO collectable (
+        type,
+        available_from,
+        available_to,
+        status
+    ) VALUES (
+        $1,
+        $2,
+        $3
+    ) RETURNING id
+)
+INSERT INTO media (
+    id,
+    collectable_type,
+    media_type,
+    primary_group_id,
+    subclipped_media_id,
+    reference_media_id,
+    sequence_number,
+	start_time,
+	end_time,
+	asset_id,
+	agerating
+) VALUES (
+    new_collectable.id,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13
+) RETURNING id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at
 `
 
-func (q *Queries) GetMediasWithFilter(ctx context.Context) ([]Media, error) {
-	rows, err := q.db.QueryContext(ctx, getMediasWithFilter)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Media
-	for rows.Next() {
-		var i Media
-		if err := rows.Scan(
-			&i.ID,
-			&i.CollectableType,
-			&i.MediaType,
-			&i.PrimaryGroupID,
-			&i.SubclippedMediaID,
-			&i.ReferenceMediaID,
-			&i.SequenceNumber,
-			&i.StartTime,
-			&i.EndTime,
-			&i.AssetID,
-			&i.Agerating,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+type InsertMediaParams struct {
+	Type              null_v4.String `db:"type" json:"type"`
+	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
+	CollectableType   null_v4.String `db:"collectable_type" json:"collectableType"`
+	MediaType         null_v4.String `db:"media_type" json:"mediaType"`
+	PrimaryGroupID    null_v4.Int    `db:"primary_group_id" json:"primaryGroupID"`
+	SubclippedMediaID null_v4.Int    `db:"subclipped_media_id" json:"subclippedMediaID"`
+	ReferenceMediaID  null_v4.Int    `db:"reference_media_id" json:"referenceMediaID"`
+	SequenceNumber    int16          `db:"sequence_number" json:"sequenceNumber"`
+	StartTime         null_v4.Float  `db:"start_time" json:"startTime"`
+	EndTime           null_v4.Float  `db:"end_time" json:"endTime"`
+	AssetID           null_v4.Int    `db:"asset_id" json:"assetID"`
+	Agerating         null_v4.String `db:"agerating" json:"agerating"`
+}
+
+func (q *Queries) InsertMedia(ctx context.Context, arg InsertMediaParams) (Media, error) {
+	row := q.db.QueryRowContext(ctx, insertMedia,
+		arg.Type,
+		arg.AvailableFrom,
+		arg.AvailableTo,
+		arg.CollectableType,
+		arg.MediaType,
+		arg.PrimaryGroupID,
+		arg.SubclippedMediaID,
+		arg.ReferenceMediaID,
+		arg.SequenceNumber,
+		arg.StartTime,
+		arg.EndTime,
+		arg.AssetID,
+		arg.Agerating,
+	)
+	var i Media
+	err := row.Scan(
+		&i.ID,
+		&i.CollectableType,
+		&i.MediaType,
+		&i.PrimaryGroupID,
+		&i.SubclippedMediaID,
+		&i.ReferenceMediaID,
+		&i.SequenceNumber,
+		&i.StartTime,
+		&i.EndTime,
+		&i.AssetID,
+		&i.Agerating,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
