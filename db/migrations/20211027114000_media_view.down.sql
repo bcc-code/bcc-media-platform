@@ -1,1 +1,1 @@
-DROP VIEW mediacollectable
+DROP VIEW media_collectable

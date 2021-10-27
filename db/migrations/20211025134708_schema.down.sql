@@ -1,0 +1,3 @@
+DROP SCHEMA public CASCADE;
+DROP SCHEMA user_data CASCADE;
+CREATE SCHEMA public;

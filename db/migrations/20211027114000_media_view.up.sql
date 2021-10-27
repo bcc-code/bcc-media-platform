@@ -6,5 +6,5 @@ SELECT
     c.available_to,
     m.*
 FROM media m
-JOIN collectable c
-using (id)
+JOIN collectable c USING (id)
+JOIN media_t t ON t.media_id = m.id AND language_code = 'no'
