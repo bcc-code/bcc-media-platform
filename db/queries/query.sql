@@ -84,7 +84,7 @@ WITH c AS (
         available_to = $2,
         status = $3
     WHERE c1.id = $4
-    RETURNING *
+    RETURNING c1.*
 ),
 m AS (
     UPDATE media m1
@@ -100,7 +100,7 @@ m AS (
         agerating = $5
     FROM c
     WHERE m1.id = c.id
-    RETURNING *
+    RETURNING m1.*
 ),
 t AS (
     UPDATE media_t t1
@@ -110,7 +110,7 @@ t AS (
         long_description = $8
     FROM c
     WHERE t1.media_id = c.id AND t1.language_code = 'no'
-    RETURNING *
+    RETURNING t1.*
 )
 SELECT 
     c.status,

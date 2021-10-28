@@ -35,7 +35,8 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 	r.GET("/medias", s.GetMedias)
-	r.GET("/medias/:id", s.GetMedia)
 	r.POST("/medias", s.CreateMedia)
+	r.GET("/medias/:id", s.GetMedia)
+	r.PUT("/medias/:id", s.UpdateMedia)
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

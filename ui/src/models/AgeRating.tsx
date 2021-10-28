@@ -1,7 +1,7 @@
 
 export const AgeRatingChoices = [
-    {id: 'show', name: 'Show'},
-    {id: 'season', name: 'Season'},
-    {id: 'episode', name: 'Episode'},
-    {id: 'standalone', name: 'Standalone'},
+    {id: 'a', name: 'A'},
+    {id: 'b', name: 'B'},
+    {id: 'c', name: 'C'},
+    {id: 'd', name: 'D'},
 ];

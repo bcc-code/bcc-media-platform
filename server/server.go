@@ -107,3 +107,20 @@ func (s *Server) CreateMedia(c *gin.Context) {
 
 	c.JSON(200, media)
 }
+
+func (s *Server) UpdateMedia(c *gin.Context) {
+	var params db.UpdateMediaParams
+	if err := c.ShouldBind(&params); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	// os.Getenv("DATABASE_URL")
+	ctx := context.Background()
+	media, err := s.queries.UpdateMedia(ctx, params)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	c.JSON(200, media)
+}
