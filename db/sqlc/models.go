@@ -150,6 +150,11 @@ type MediaCollectable struct {
 	Type              null_v4.String `db:"type" json:"type"`
 	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
 	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
+	Title             null_v4.String `db:"title" json:"title"`
+	Description       null_v4.String `db:"description" json:"description"`
+	LongDescription   null_v4.String `db:"long_description" json:"longDescription"`
+	ImageID           null_v4.Int    `db:"image_id" json:"imageID"`
+	TranslationID     null_v4.Int    `db:"translation_id" json:"translationID"`
 	ID                int64          `db:"id" json:"id"`
 	CollectableType   null_v4.String `db:"collectable_type" json:"collectableType"`
 	MediaType         null_v4.String `db:"media_type" json:"mediaType"`

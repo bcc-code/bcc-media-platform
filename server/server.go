@@ -12,6 +12,7 @@ import (
 	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	"gopkg.in/guregu/null.v4"
 )
 
 // ServerConfig for easier config of new server
@@ -92,5 +93,16 @@ func (s *Server) GetMedias(c *gin.Context) {
 }
 
 func (s *Server) CreateMedia(c *gin.Context) {
-	c.JSON(200, "test")
+	// os.Getenv("DATABASE_URL")
+	ctx := context.Background()
+	media, err := s.queries.InsertMedia(ctx, db.InsertMediaParams{
+		MediaType: null.StringFrom("standalone"),
+		Title:     null.StringFrom("Hei fra go"),
+	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	c.JSON(200, media)
 }

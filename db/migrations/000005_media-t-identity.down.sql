@@ -1,0 +1,1 @@
+ALTER TABLE user_data.device DROP CONSTRAINT IF EXISTS app_check CASCADE;

@@ -5,12 +5,13 @@ package db
 
 import (
 	"context"
+	"time"
 
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getAllMedias = `-- name: GetAllMedias :many
-SELECT status, type, available_from, available_to, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at FROM media_collectable
+SELECT status, type, available_from, available_to, title, description, long_description, image_id, translation_id, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at FROM media_collectable
 ORDER BY name
 `
 
@@ -28,6 +29,11 @@ func (q *Queries) GetAllMedias(ctx context.Context) ([]MediaCollectable, error) 
 			&i.Type,
 			&i.AvailableFrom,
 			&i.AvailableTo,
+			&i.Title,
+			&i.Description,
+			&i.LongDescription,
+			&i.ImageID,
+			&i.TranslationID,
 			&i.ID,
 			&i.CollectableType,
 			&i.MediaType,
@@ -56,7 +62,7 @@ func (q *Queries) GetAllMedias(ctx context.Context) ([]MediaCollectable, error) 
 }
 
 const getMedia = `-- name: GetMedia :one
-SELECT status, type, available_from, available_to, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at FROM media_collectable
+SELECT status, type, available_from, available_to, title, description, long_description, image_id, translation_id, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at FROM media_collectable
 WHERE id = $1 LIMIT 1
 `
 
@@ -68,6 +74,11 @@ func (q *Queries) GetMedia(ctx context.Context, id int64) (MediaCollectable, err
 		&i.Type,
 		&i.AvailableFrom,
 		&i.AvailableTo,
+		&i.Title,
+		&i.Description,
+		&i.LongDescription,
+		&i.ImageID,
+		&i.TranslationID,
 		&i.ID,
 		&i.CollectableType,
 		&i.MediaType,
@@ -86,49 +97,98 @@ func (q *Queries) GetMedia(ctx context.Context, id int64) (MediaCollectable, err
 }
 
 const insertMedia = `-- name: InsertMedia :one
-WITH new_collectable AS (
+WITH c AS (
     INSERT INTO collectable (
         type,
         available_from,
         available_to,
         status
     ) VALUES (
+        'media',
         $1,
         $2,
         $3
-    ) RETURNING id
+    ) RETURNING id, type, available_from, available_to, status, created_at, updated_at
+),
+m AS (
+    INSERT INTO media (
+        id,
+        collectable_type,
+        media_type,
+        primary_group_id,
+        subclipped_media_id,
+        reference_media_id,
+        sequence_number,
+        start_time,
+        end_time,
+        asset_id,
+        agerating
+    ) SELECT
+        c.id,
+        c.type,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12
+    FROM c RETURNING id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at
+),
+t AS (
+    INSERT INTO media_t (
+        media_id,
+        language_code,
+        title
+    ) SELECT 
+        c.id,
+        'no',
+        $13
+    FROM c RETURNING id, media_id, language_code, title, description, long_description, image_id
 )
-INSERT INTO media (
-    id,
-    collectable_type,
-    media_type,
-    primary_group_id,
-    subclipped_media_id,
-    reference_media_id,
-    sequence_number,
-	start_time,
-	end_time,
-	asset_id,
-	agerating
-) VALUES (
-    new_collectable.id,
-    $4,
-    $5,
-    $6,
-    $7,
-    $8,
-    $9,
-    $10,
-    $11,
-    $12,
-    $13
-) RETURNING id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at
+SELECT 
+    c.status,
+    c.type,
+    c.available_from,
+    c.available_to,
+	t.title,
+	t.description,
+	t.long_description,
+	t.image_id,
+	t.id as translation_id,
+    m.id, m.collectable_type, m.media_type, m.primary_group_id, m.subclipped_media_id, m.reference_media_id, m.sequence_number, m.start_time, m.end_time, m.asset_id, m.agerating, m.created_at, m.updated_at
+    FROM c,t,m
 `
 
 type InsertMediaParams struct {
+	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
+	Status            int16          `db:"status" json:"status"`
+	MediaType         null_v4.String `db:"media_type" json:"mediaType"`
+	PrimaryGroupID    null_v4.Int    `db:"primary_group_id" json:"primaryGroupID"`
+	SubclippedMediaID null_v4.Int    `db:"subclipped_media_id" json:"subclippedMediaID"`
+	ReferenceMediaID  null_v4.Int    `db:"reference_media_id" json:"referenceMediaID"`
+	SequenceNumber    int16          `db:"sequence_number" json:"sequenceNumber"`
+	StartTime         null_v4.Float  `db:"start_time" json:"startTime"`
+	EndTime           null_v4.Float  `db:"end_time" json:"endTime"`
+	AssetID           null_v4.Int    `db:"asset_id" json:"assetID"`
+	Agerating         null_v4.String `db:"agerating" json:"agerating"`
+	Title             null_v4.String `db:"title" json:"title"`
+}
+
+type InsertMediaRow struct {
+	Status            int16          `db:"status" json:"status"`
 	Type              null_v4.String `db:"type" json:"type"`
 	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
 	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
+	Title             null_v4.String `db:"title" json:"title"`
+	Description       null_v4.String `db:"description" json:"description"`
+	LongDescription   null_v4.String `db:"long_description" json:"longDescription"`
+	ImageID           null_v4.Int    `db:"image_id" json:"imageID"`
+	TranslationID     int64          `db:"translation_id" json:"translationID"`
+	ID                int64          `db:"id" json:"id"`
 	CollectableType   null_v4.String `db:"collectable_type" json:"collectableType"`
 	MediaType         null_v4.String `db:"media_type" json:"mediaType"`
 	PrimaryGroupID    null_v4.Int    `db:"primary_group_id" json:"primaryGroupID"`
@@ -139,14 +199,15 @@ type InsertMediaParams struct {
 	EndTime           null_v4.Float  `db:"end_time" json:"endTime"`
 	AssetID           null_v4.Int    `db:"asset_id" json:"assetID"`
 	Agerating         null_v4.String `db:"agerating" json:"agerating"`
+	CreatedAt         time.Time      `db:"created_at" json:"createdAt"`
+	UpdatedAt         time.Time      `db:"updated_at" json:"updatedAt"`
 }
 
-func (q *Queries) InsertMedia(ctx context.Context, arg InsertMediaParams) (Media, error) {
+func (q *Queries) InsertMedia(ctx context.Context, arg InsertMediaParams) (InsertMediaRow, error) {
 	row := q.db.QueryRowContext(ctx, insertMedia,
-		arg.Type,
 		arg.AvailableFrom,
 		arg.AvailableTo,
-		arg.CollectableType,
+		arg.Status,
 		arg.MediaType,
 		arg.PrimaryGroupID,
 		arg.SubclippedMediaID,
@@ -156,9 +217,19 @@ func (q *Queries) InsertMedia(ctx context.Context, arg InsertMediaParams) (Media
 		arg.EndTime,
 		arg.AssetID,
 		arg.Agerating,
+		arg.Title,
 	)
-	var i Media
+	var i InsertMediaRow
 	err := row.Scan(
+		&i.Status,
+		&i.Type,
+		&i.AvailableFrom,
+		&i.AvailableTo,
+		&i.Title,
+		&i.Description,
+		&i.LongDescription,
+		&i.ImageID,
+		&i.TranslationID,
 		&i.ID,
 		&i.CollectableType,
 		&i.MediaType,
