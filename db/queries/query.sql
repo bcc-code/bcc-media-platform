@@ -74,3 +74,52 @@ SELECT
 	t.id as translation_id,
     m.*
     FROM c,t,m;
+
+
+-- name: UpdateMedia :one
+WITH c AS (
+    UPDATE collectable c1
+    SET
+        available_from = $1,
+        available_to = $2,
+        status = $3
+    WHERE c1.id = $4
+    RETURNING *
+),
+m AS (
+    UPDATE media m1
+    SET
+        /* media_type,
+        primary_group_id,
+        subclipped_media_id,
+        reference_media_id,
+        sequence_number,
+        start_time,
+        end_time,
+        asset_id, */
+        agerating = $5
+    FROM c
+    WHERE m1.id = c.id
+    RETURNING *
+),
+t AS (
+    UPDATE media_t t1
+    SET
+        title = $6,
+        description = $7,
+        long_description = $8
+    FROM c
+    WHERE t1.media_id = c.id AND t1.language_code = 'no'
+    RETURNING *
+)
+SELECT 
+    c.status,
+    c.type,
+    c.available_from,
+    c.available_to,
+	t.title,
+	t.description,
+	t.long_description,
+	t.image_id,
+    m.*
+    FROM c,t,m;

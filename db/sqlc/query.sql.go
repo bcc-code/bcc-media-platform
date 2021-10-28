@@ -254,3 +254,139 @@ func (q *Queries) InsertMedia(ctx context.Context, arg InsertMediaParams) (Inser
 	)
 	return i, err
 }
+
+const updateMedia = `-- name: UpdateMedia :one
+WITH c AS (
+    UPDATE collectable c1
+    SET
+        available_from = $1,
+        available_to = $2,
+        status = $3
+    WHERE c1.id = $4
+    RETURNING id, type, available_from, available_to, status, created_at, updated_at
+),
+m AS (
+    UPDATE media m1
+    SET
+        /* media_type,
+        primary_group_id,
+        subclipped_media_id,
+        reference_media_id,
+        sequence_number,
+        start_time,
+        end_time,
+        asset_id, */
+        agerating = $5
+    FROM c
+    WHERE m1.id = c.id
+    RETURNING c.id, type, available_from, available_to, status, c.created_at, c.updated_at, m1.id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, m1.created_at, m1.updated_at
+),
+t AS (
+    UPDATE media_t t1
+    SET
+        title = $6,
+        description = $7,
+        long_description = $8
+    FROM c
+    WHERE t1.media_id = c.id AND t1.language_code = 'no'
+    RETURNING c.id, type, available_from, available_to, status, created_at, updated_at, t1.id, media_id, language_code, title, description, long_description, image_id
+)
+SELECT 
+    c.status,
+    c.type,
+    c.available_from,
+    c.available_to,
+	t.title,
+	t.description,
+	t.long_description,
+	t.image_id,
+    m.id, m.type, m.available_from, m.available_to, m.status, m.created_at, m.updated_at, m.id, m.collectable_type, m.media_type, m.primary_group_id, m.subclipped_media_id, m.reference_media_id, m.sequence_number, m.start_time, m.end_time, m.asset_id, m.agerating, m.created_at, m.updated_at
+    FROM c,t,m
+`
+
+type UpdateMediaParams struct {
+	AvailableFrom   null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo     null_v4.Time   `db:"available_to" json:"availableTo"`
+	Status          int16          `db:"status" json:"status"`
+	ID              int64          `db:"id" json:"id"`
+	Agerating       null_v4.String `db:"agerating" json:"agerating"`
+	Title           null_v4.String `db:"title" json:"title"`
+	Description     null_v4.String `db:"description" json:"description"`
+	LongDescription null_v4.String `db:"long_description" json:"longDescription"`
+}
+
+type UpdateMediaRow struct {
+	Status            int16          `db:"status" json:"status"`
+	Type              null_v4.String `db:"type" json:"type"`
+	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
+	Title             null_v4.String `db:"title" json:"title"`
+	Description       null_v4.String `db:"description" json:"description"`
+	LongDescription   null_v4.String `db:"long_description" json:"longDescription"`
+	ImageID           null_v4.Int    `db:"image_id" json:"imageID"`
+	ID                int64          `db:"id" json:"id"`
+	Type_2            null_v4.String `db:"type_2" json:"type2"`
+	AvailableFrom_2   null_v4.Time   `db:"available_from_2" json:"availableFrom2"`
+	AvailableTo_2     null_v4.Time   `db:"available_to_2" json:"availableTo2"`
+	Status_2          int16          `db:"status_2" json:"status2"`
+	CreatedAt         time.Time      `db:"created_at" json:"createdAt"`
+	UpdatedAt         time.Time      `db:"updated_at" json:"updatedAt"`
+	ID_2              int64          `db:"id_2" json:"id2"`
+	CollectableType   null_v4.String `db:"collectable_type" json:"collectableType"`
+	MediaType         null_v4.String `db:"media_type" json:"mediaType"`
+	PrimaryGroupID    null_v4.Int    `db:"primary_group_id" json:"primaryGroupID"`
+	SubclippedMediaID null_v4.Int    `db:"subclipped_media_id" json:"subclippedMediaID"`
+	ReferenceMediaID  null_v4.Int    `db:"reference_media_id" json:"referenceMediaID"`
+	SequenceNumber    int16          `db:"sequence_number" json:"sequenceNumber"`
+	StartTime         null_v4.Float  `db:"start_time" json:"startTime"`
+	EndTime           null_v4.Float  `db:"end_time" json:"endTime"`
+	AssetID           null_v4.Int    `db:"asset_id" json:"assetID"`
+	Agerating         null_v4.String `db:"agerating" json:"agerating"`
+	CreatedAt_2       time.Time      `db:"created_at_2" json:"createdAt2"`
+	UpdatedAt_2       time.Time      `db:"updated_at_2" json:"updatedAt2"`
+}
+
+func (q *Queries) UpdateMedia(ctx context.Context, arg UpdateMediaParams) (UpdateMediaRow, error) {
+	row := q.db.QueryRowContext(ctx, updateMedia,
+		arg.AvailableFrom,
+		arg.AvailableTo,
+		arg.Status,
+		arg.ID,
+		arg.Agerating,
+		arg.Title,
+		arg.Description,
+		arg.LongDescription,
+	)
+	var i UpdateMediaRow
+	err := row.Scan(
+		&i.Status,
+		&i.Type,
+		&i.AvailableFrom,
+		&i.AvailableTo,
+		&i.Title,
+		&i.Description,
+		&i.LongDescription,
+		&i.ImageID,
+		&i.ID,
+		&i.Type_2,
+		&i.AvailableFrom_2,
+		&i.AvailableTo_2,
+		&i.Status_2,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ID_2,
+		&i.CollectableType,
+		&i.MediaType,
+		&i.PrimaryGroupID,
+		&i.SubclippedMediaID,
+		&i.ReferenceMediaID,
+		&i.SequenceNumber,
+		&i.StartTime,
+		&i.EndTime,
+		&i.AssetID,
+		&i.Agerating,
+		&i.CreatedAt_2,
+		&i.UpdatedAt_2,
+	)
+	return i, err
+}
