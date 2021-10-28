@@ -51,11 +51,15 @@ t AS (
     INSERT INTO media_t (
         media_id,
         language_code,
-        title
+        title,
+        description,
+        long_description
     ) SELECT 
         c.id,
         'no',
-        $13
+        $13,
+        $14,
+        $15
     FROM c RETURNING *
 )
 SELECT 

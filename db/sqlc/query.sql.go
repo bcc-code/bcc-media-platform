@@ -141,11 +141,15 @@ t AS (
     INSERT INTO media_t (
         media_id,
         language_code,
-        title
+        title,
+        description,
+        long_description
     ) SELECT 
         c.id,
         'no',
-        $13
+        $13,
+        $14,
+        $15
     FROM c RETURNING id, media_id, language_code, title, description, long_description, image_id
 )
 SELECT 
@@ -176,6 +180,8 @@ type InsertMediaParams struct {
 	AssetID           null_v4.Int    `db:"asset_id" json:"assetID"`
 	Agerating         null_v4.String `db:"agerating" json:"agerating"`
 	Title             null_v4.String `db:"title" json:"title"`
+	Description       null_v4.String `db:"description" json:"description"`
+	LongDescription   null_v4.String `db:"long_description" json:"longDescription"`
 }
 
 type InsertMediaRow struct {
@@ -218,6 +224,8 @@ func (q *Queries) InsertMedia(ctx context.Context, arg InsertMediaParams) (Inser
 		arg.AssetID,
 		arg.Agerating,
 		arg.Title,
+		arg.Description,
+		arg.LongDescription,
 	)
 	var i InsertMediaRow
 	err := row.Scan(
