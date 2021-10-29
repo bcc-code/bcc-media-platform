@@ -1,4 +1,4 @@
-import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField } from 'react-admin';
+import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar } from 'react-admin';
 // in src/App.js
 import React from 'react';
 import { AgeRatingChoices } from '../models/AgeRating';
@@ -25,7 +25,7 @@ function getParentType(mediaType: string): string {
 
 
 export const MediaList: React.FC<ListProps> = props => (
-    <List {...props}>
+    <List {...props} filter={{mediaType: "show"}}>
         <Datagrid rowClick="edit">
             <TextField source="id" />
             <TextField source="collectableType" />
@@ -52,7 +52,7 @@ export const MediaList: React.FC<ListProps> = props => (
 
 export const MediaEdit: React.FC<EditProps> = props => (
     <Edit {...props}>
-        <FormWithRedirect render={formProps =>
+        <FormWithRedirect warnWhenUnsavedChanges render={formProps =>
             <form>
                 <div className="p-4 flex flex-col">
                     <div className='text-sm'>#{formProps.record?.id} <span className="capitalize">{formProps.record?.mediaType}</span></div>
@@ -88,6 +88,7 @@ export const MediaEdit: React.FC<EditProps> = props => (
                     
                     <SaveButton
                     saving={formProps.saving}
+                    disabled={formProps.pristine}
                     handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
                     <div className="mt-2">
                         Child media
@@ -103,6 +104,7 @@ export const MediaEdit: React.FC<EditProps> = props => (
                                 </Datagrid>
                             </ArrayField>
                         </ReferenceManyField>
+                        
                     </div>
                 </div>
             </form>
@@ -112,7 +114,7 @@ export const MediaEdit: React.FC<EditProps> = props => (
 
 export const MediaCreate: React.FC<CreateProps> = props => (
     <Create {...props}>
-        <FormWithRedirect render={formProps =>
+        <FormWithRedirect warnWhenUnsavedChanges render={formProps =>
             <form>
                 <div className="p-4 flex flex-col">
                     <TextField source="title" variant='h6'/>
@@ -141,9 +143,11 @@ export const MediaCreate: React.FC<CreateProps> = props => (
                     <NumberInput source="assetID" />
                     <DateField source="createdAt" showTime />
                     <DateField source="updatedAt" showTime />
-                    <SaveButton
-                    saving={formProps.saving}
-                    handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
+                    <Toolbar>
+                        <SaveButton
+                        saving={formProps.saving}
+                        handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
+                    </Toolbar>
                 </div>
             </form>
         }/>
