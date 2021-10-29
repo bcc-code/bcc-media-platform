@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -40,10 +41,18 @@ func (s *Server) GetMedia(c *gin.Context) {
 }
 
 type GetMediaListQuery struct {
-	Ids              []int  `form:"id"`
-	Sort             string `form:"sort"`
-	Order            string `form:"order"`
-	ReferenceMediaID string `form:"referenceMediaID"`
+	Ids   []int  `form:"id"`
+	Sort  string `form:"_sort"`
+	Order string `form:"_order"`
+}
+
+func (q GetMediaListQuery) GetFieldNames() []string {
+	val := reflect.ValueOf(q)
+	var result []string
+	for i := 0; i < val.Type().NumField(); i++ {
+		result = append(result, val.Type().Field(i).Tag.Get("form"))
+	}
+	return result
 }
 
 func (s *Server) GetMedias(c *gin.Context) {
@@ -68,10 +77,28 @@ func (s *Server) GetMedias(c *gin.Context) {
 	if len(params.Ids) > 0 {
 		query = query.Where(goqu.C("id").In(params.Ids))
 	}
-	if params.ReferenceMediaID != "" {
-		query = query.Where(goqu.C("reference_media_id").In(params.ReferenceMediaID))
+	q := c.Request.URL.Query()
+	fieldNames := params.GetFieldNames()
+QueryStringLoop:
+	for key, element := range q {
+		for _, fieldName := range fieldNames {
+			if key[0] == '_' || strings.ToLower(fieldName) == strings.ToLower(key) {
+				continue QueryStringLoop
+			}
+		}
+		mediaStructFields := db.MediaCollectable{}.GetFields()
+		for _, field := range mediaStructFields {
+			if field.Tag.Get("json") != key {
+				continue
+			}
+			col := field.Tag.Get("db")
+			if col == "" {
+				continue QueryStringLoop
+			}
+			query = query.Where(goqu.C(col).In(element))
+			break
+		}
 	}
-
 	if orderedExpression != nil {
 		query = query.Order(orderedExpression)
 	}
@@ -79,7 +106,7 @@ func (s *Server) GetMedias(c *gin.Context) {
 	sql, _, _ := query.ToSQL()
 	s.dbx.Rebind(sql)
 
-	var results []db.MediaCollectable
+	results := []db.MediaCollectable{}
 	err := s.dbx.Select(&results, sql)
 
 	if err != nil {
@@ -109,14 +136,14 @@ func (s *Server) CreateMedia(c *gin.Context) {
 }
 
 func (s *Server) UpdateMedia(c *gin.Context) {
-	var params db.UpdateMediaParams
+	var params db.UpsertMediaParams
 	if err := c.ShouldBind(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	// os.Getenv("DATABASE_URL")
 	ctx := context.Background()
-	media, err := s.queries.UpdateMedia(ctx, params)
+	media, err := s.queries.UpsertMedia(ctx, params)
 	if err != nil {
 		fmt.Println(err)
 		return
