@@ -1,0 +1,219 @@
+RandomDataForMissingTables: true
+Custom:
+- Schema: public
+  Table: agerating
+  Column:
+  - Name: code
+    Type: text
+    UserData: ["a","b","c","d","e","f","g","h","j","k"]
+    Realistic: ""
+  - Name: title
+    Type: text
+    UserData: []
+    Realistic: ""
+  - Name: sort_order
+    Type: smallint
+    UserData: []
+    Realistic: ""
+- Schema: public
+  Table: asset
+  Column:
+  - Name: id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: source_id
+    Type: text
+    UserData: []
+    Realistic: ""
+  - Name: published_version_id
+    Type: bigint
+    UserData: [null]
+    Realistic: ""
+  - Name: name
+    Type: smallint
+    UserData: []
+    Realistic: ""
+- Schema: public
+  Table: collectable
+  Column:
+  - Name: id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: type
+    Type: text
+    UserData: ["media", "page"]
+    Realistic: ""
+  - Name: available_from
+    Type: timestamp with time zone
+    UserData: []
+    Realistic: ""
+  - Name: available_to
+    Type: timestamp with time zone
+    UserData: []
+    Realistic: ""
+  - Name: status
+    Type: smallint
+    UserData: [0,1,2]
+    Realistic: ""
+- Schema: public
+  Table: collection
+  Column:
+  - Name: id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: type
+    Type: text
+    UserData: ["manual", "dynamic"]
+    Realistic: ""
+  - Name: query_id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: query_params
+    Type: jsonb
+    UserData: []
+    Realistic: ""
+  - Name: page_id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+- Schema: public
+  Table: image
+  Column:
+  - Name: id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: url
+    Type: text
+    UserData: []
+    Realistic: ""
+- Schema: public
+  Table: language
+  Column:
+  - Name: code
+    Type: text
+    UserData: ["no", "en", "de", "fr", "nl"]
+    Realistic: ""
+  - Name: name
+    Type: text
+    UserData: []
+    Realistic: "AddressCountryCode"
+- Schema: public
+  Table: media
+  Column:
+  - Name: id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: collectable_type
+    Type: text
+    UserData: ["media"]
+    Realistic: ""
+  - Name: media_type
+    Type: text
+    UserData: ["episode", "standalone", "season", "show"]
+    Realistic: ""
+  - Name: primary_group_id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: subclipped_media_id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: reference_media_id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: sequence_number
+    Type: smallint
+    UserData: []
+    Realistic: ""
+  - Name: start_time
+    Type: double precision
+    UserData: []
+    Realistic: ""
+  - Name: end_time
+    Type: double precision
+    UserData: []
+    Realistic: ""
+  - Name: asset_id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: agerating
+    Type: text
+    UserData: []
+    Realistic: ""
+- Schema: public
+  Table: notification
+  Column:
+  - Name: id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: cohort_id
+    Type: text
+    UserData: []
+    Realistic: ""
+  - Name: action
+    Type: text
+    UserData: []
+    Realistic: ""
+  - Name: internal_url
+    Type: text
+    UserData: []
+    Realistic: ""
+  - Name: external_url
+    Type: text
+    UserData: []
+    Realistic: ""
+  - Name: badge
+    Type: smallint
+    UserData: []
+    Realistic: ""
+  - Name: scheduled_time
+    Type: timestamp with time zone
+    UserData: []
+    Realistic: ""
+- Schema: public
+  Table: page
+  Column:
+  - Name: id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: collectable_type
+    Type: text
+    UserData: ["page"]
+    Realistic: ""
+- Schema: public
+  Table: section
+  Column:
+  - Name: id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: type
+    Type: text
+    UserData: ["a","b","c"]
+    Realistic: ""
+  - Name: collection_id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: visibility_rules
+    Type: jsonb
+    UserData: []
+    Realistic: ""
+- Schema: public
+  Table: usergroup
+  Column:
+  - Name: id
+    Type: text
+    UserData: []
+    Realistic: ""
