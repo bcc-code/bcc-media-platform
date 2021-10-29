@@ -88,15 +88,15 @@ WITH c AS (
 m AS (
     UPDATE media m1
     SET
-        /* media_type,
-        primary_group_id,
-        subclipped_media_id,
-        reference_media_id,
-        sequence_number,
-        start_time,
-        end_time,
-        asset_id, */
-        agerating = $5
+        media_type = $5,
+        primary_group_id = $6,
+        subclipped_media_id = $7,
+        reference_media_id = $8,
+        sequence_number = $9,
+        start_time = $10,
+        end_time = $11,
+        asset_id = $12,
+        agerating = $13
     FROM c
     WHERE m1.id = c.id
     RETURNING m1.*
@@ -111,15 +111,15 @@ t AS (
     ) SELECT 
         c.id,
         'no',
-        $6,
-        $7,
-        $8
+        $14,
+        $15,
+        $16
     FROM c
     ON CONFLICT (media_id, language_code)
         DO UPDATE SET
-            title = $6,
-            description = $7,
-            long_description = $8
+            title = $14,
+            description = $15,
+            long_description = $16
     RETURNING *
 )
 SELECT 
@@ -147,15 +147,15 @@ WITH c AS (
 m AS (
     UPDATE media m1
     SET
-        /* media_type,
-        primary_group_id,
-        subclipped_media_id,
-        reference_media_id,
-        sequence_number,
-        start_time,
-        end_time,
-        asset_id, */
-        agerating = $5
+        media_type = $5,
+        primary_group_id = $6,
+        subclipped_media_id = $7,
+        reference_media_id = $8,
+        sequence_number = $9,
+        start_time = $10,
+        end_time = $11,
+        asset_id = $12,
+        agerating = $13
     FROM c
     WHERE m1.id = c.id
     RETURNING m1.*
@@ -163,9 +163,9 @@ m AS (
 t AS (
     UPDATE media_t t1
     SET
-        title = $6,
-        description = $7,
-        long_description = $8
+        title = $14,
+        description = $15,
+        long_description = $16
     FROM c
     WHERE t1.media_id = c.id AND t1.language_code = 'no'
     RETURNING t1.*

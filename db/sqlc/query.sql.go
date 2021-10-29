@@ -268,15 +268,15 @@ WITH c AS (
 m AS (
     UPDATE media m1
     SET
-        /* media_type,
-        primary_group_id,
-        subclipped_media_id,
-        reference_media_id,
-        sequence_number,
-        start_time,
-        end_time,
-        asset_id, */
-        agerating = $5
+        media_type = $5,
+        primary_group_id = $6,
+        subclipped_media_id = $7,
+        reference_media_id = $8,
+        sequence_number = $9,
+        start_time = $10,
+        end_time = $11,
+        asset_id = $12,
+        agerating = $13
     FROM c
     WHERE m1.id = c.id
     RETURNING m1.id, m1.collectable_type, m1.media_type, m1.primary_group_id, m1.subclipped_media_id, m1.reference_media_id, m1.sequence_number, m1.start_time, m1.end_time, m1.asset_id, m1.agerating, m1.created_at, m1.updated_at
@@ -284,9 +284,9 @@ m AS (
 t AS (
     UPDATE media_t t1
     SET
-        title = $6,
-        description = $7,
-        long_description = $8
+        title = $14,
+        description = $15,
+        long_description = $16
     FROM c
     WHERE t1.media_id = c.id AND t1.language_code = 'no'
     RETURNING t1.id, t1.media_id, t1.language_code, t1.title, t1.description, t1.long_description, t1.image_id
@@ -305,14 +305,22 @@ SELECT
 `
 
 type UpdateMediaParams struct {
-	AvailableFrom   null_v4.Time   `db:"available_from" json:"availableFrom"`
-	AvailableTo     null_v4.Time   `db:"available_to" json:"availableTo"`
-	Status          int16          `db:"status" json:"status"`
-	ID              int64          `db:"id" json:"id"`
-	Agerating       null_v4.String `db:"agerating" json:"agerating"`
-	Title           null_v4.String `db:"title" json:"title"`
-	Description     null_v4.String `db:"description" json:"description"`
-	LongDescription null_v4.String `db:"long_description" json:"longDescription"`
+	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
+	Status            int16          `db:"status" json:"status"`
+	ID                int64          `db:"id" json:"id"`
+	MediaType         null_v4.String `db:"media_type" json:"mediaType"`
+	PrimaryGroupID    null_v4.Int    `db:"primary_group_id" json:"primaryGroupID"`
+	SubclippedMediaID null_v4.Int    `db:"subclipped_media_id" json:"subclippedMediaID"`
+	ReferenceMediaID  null_v4.Int    `db:"reference_media_id" json:"referenceMediaID"`
+	SequenceNumber    int16          `db:"sequence_number" json:"sequenceNumber"`
+	StartTime         null_v4.Float  `db:"start_time" json:"startTime"`
+	EndTime           null_v4.Float  `db:"end_time" json:"endTime"`
+	AssetID           null_v4.Int    `db:"asset_id" json:"assetID"`
+	Agerating         null_v4.String `db:"agerating" json:"agerating"`
+	Title             null_v4.String `db:"title" json:"title"`
+	Description       null_v4.String `db:"description" json:"description"`
+	LongDescription   null_v4.String `db:"long_description" json:"longDescription"`
 }
 
 type UpdateMediaRow struct {
@@ -345,6 +353,14 @@ func (q *Queries) UpdateMedia(ctx context.Context, arg UpdateMediaParams) (Updat
 		arg.AvailableTo,
 		arg.Status,
 		arg.ID,
+		arg.MediaType,
+		arg.PrimaryGroupID,
+		arg.SubclippedMediaID,
+		arg.ReferenceMediaID,
+		arg.SequenceNumber,
+		arg.StartTime,
+		arg.EndTime,
+		arg.AssetID,
 		arg.Agerating,
 		arg.Title,
 		arg.Description,
@@ -390,15 +406,15 @@ WITH c AS (
 m AS (
     UPDATE media m1
     SET
-        /* media_type,
-        primary_group_id,
-        subclipped_media_id,
-        reference_media_id,
-        sequence_number,
-        start_time,
-        end_time,
-        asset_id, */
-        agerating = $5
+        media_type = $5,
+        primary_group_id = $6,
+        subclipped_media_id = $7,
+        reference_media_id = $8,
+        sequence_number = $9,
+        start_time = $10,
+        end_time = $11,
+        asset_id = $12,
+        agerating = $13
     FROM c
     WHERE m1.id = c.id
     RETURNING m1.id, m1.collectable_type, m1.media_type, m1.primary_group_id, m1.subclipped_media_id, m1.reference_media_id, m1.sequence_number, m1.start_time, m1.end_time, m1.asset_id, m1.agerating, m1.created_at, m1.updated_at
@@ -413,15 +429,15 @@ t AS (
     ) SELECT 
         c.id,
         'no',
-        $6,
-        $7,
-        $8
+        $14,
+        $15,
+        $16
     FROM c
     ON CONFLICT (media_id, language_code)
         DO UPDATE SET
-            title = $6,
-            description = $7,
-            long_description = $8
+            title = $14,
+            description = $15,
+            long_description = $16
     RETURNING id, media_id, language_code, title, description, long_description, image_id
 )
 SELECT 
@@ -438,14 +454,22 @@ SELECT
 `
 
 type UpsertMediaParams struct {
-	AvailableFrom   null_v4.Time   `db:"available_from" json:"availableFrom"`
-	AvailableTo     null_v4.Time   `db:"available_to" json:"availableTo"`
-	Status          int16          `db:"status" json:"status"`
-	ID              int64          `db:"id" json:"id"`
-	Agerating       null_v4.String `db:"agerating" json:"agerating"`
-	Title           null_v4.String `db:"title" json:"title"`
-	Description     null_v4.String `db:"description" json:"description"`
-	LongDescription null_v4.String `db:"long_description" json:"longDescription"`
+	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
+	Status            int16          `db:"status" json:"status"`
+	ID                int64          `db:"id" json:"id"`
+	MediaType         null_v4.String `db:"media_type" json:"mediaType"`
+	PrimaryGroupID    null_v4.Int    `db:"primary_group_id" json:"primaryGroupID"`
+	SubclippedMediaID null_v4.Int    `db:"subclipped_media_id" json:"subclippedMediaID"`
+	ReferenceMediaID  null_v4.Int    `db:"reference_media_id" json:"referenceMediaID"`
+	SequenceNumber    int16          `db:"sequence_number" json:"sequenceNumber"`
+	StartTime         null_v4.Float  `db:"start_time" json:"startTime"`
+	EndTime           null_v4.Float  `db:"end_time" json:"endTime"`
+	AssetID           null_v4.Int    `db:"asset_id" json:"assetID"`
+	Agerating         null_v4.String `db:"agerating" json:"agerating"`
+	Title             null_v4.String `db:"title" json:"title"`
+	Description       null_v4.String `db:"description" json:"description"`
+	LongDescription   null_v4.String `db:"long_description" json:"longDescription"`
 }
 
 type UpsertMediaRow struct {
@@ -478,6 +502,14 @@ func (q *Queries) UpsertMedia(ctx context.Context, arg UpsertMediaParams) (Upser
 		arg.AvailableTo,
 		arg.Status,
 		arg.ID,
+		arg.MediaType,
+		arg.PrimaryGroupID,
+		arg.SubclippedMediaID,
+		arg.ReferenceMediaID,
+		arg.SequenceNumber,
+		arg.StartTime,
+		arg.EndTime,
+		arg.AssetID,
 		arg.Agerating,
 		arg.Title,
 		arg.Description,
