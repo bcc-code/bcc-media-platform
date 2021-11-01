@@ -4,7 +4,7 @@ import "strconv"
 
 func StringArrayToIntArray(t []string) ([]int, error) {
 	// https://stackoverflow.com/a/24973010
-	var t2 = []int{}
+	    t2 := make([]int, 0, len(t))
 
 	for _, i := range t {
 		j, err := strconv.Atoi(i)

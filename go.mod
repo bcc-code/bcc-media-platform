@@ -1,4 +1,4 @@
-module admin.brunstad.tv/app
+module go.bcc.media/brunstadtv
 
 go 1.17
 

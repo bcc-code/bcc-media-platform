@@ -86,5 +86,5 @@ QueryStringLoop:
 	}
 
 	c.Header("X-Total-Count", strconv.Itoa(len(results)))
-	c.JSON(200, results)
+	c.JSON(http.StatusOK, results)
 }
