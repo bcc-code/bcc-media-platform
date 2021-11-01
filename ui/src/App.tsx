@@ -1,6 +1,6 @@
 // in src/App.js
 import * as React from "react";
-import { Admin, createMuiTheme, EditGuesser, Resource } from 'react-admin';
+import { Admin, createMuiTheme, EditGuesser, ListGuesser, Resource } from 'react-admin';
 import jsonServerProvider from 'ra-data-json-server';
 import { MediaList, MediaEdit, MediaCreate } from "./resources/Media";
 import './index.css';
@@ -18,6 +18,7 @@ const App = () => (
         dataProvider={dataProvider}
         menu={Menu}>
             <Resource name="medias" list={MediaList} edit={MediaEdit} create={MediaCreate} />
+            <Resource name="assets" list={ListGuesser} edit={EditGuesser} />
         </Admin>
     </ThemeProvider>
 );

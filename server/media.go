@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 	"strconv"
 	"strings"
 
@@ -12,19 +11,7 @@ import (
 	"github.com/doug-martin/goqu/v9"
 	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/gin-gonic/gin"
-	"github.com/jmoiron/sqlx"
 )
-
-// ServerConfig for easier config of new server
-type ServerConfig struct {
-}
-
-// Server holds shared resources for the webserver
-// so they can be accessed by all requests
-type Server struct {
-	queries *db.Queries
-	dbx     *sqlx.DB
-}
 
 func (s *Server) GetMedia(c *gin.Context) {
 	// os.Getenv("DATABASE_URL")
@@ -40,23 +27,8 @@ func (s *Server) GetMedia(c *gin.Context) {
 	c.JSON(200, media)
 }
 
-type GetMediaListQuery struct {
-	Ids   []int  `form:"id"`
-	Sort  string `form:"_sort"`
-	Order string `form:"_order"`
-}
-
-func (q GetMediaListQuery) GetFieldNames() []string {
-	val := reflect.ValueOf(q)
-	var result []string
-	for i := 0; i < val.Type().NumField(); i++ {
-		result = append(result, val.Type().Field(i).Tag.Get("form"))
-	}
-	return result
-}
-
 func (s *Server) GetMedias(c *gin.Context) {
-	var params GetMediaListQuery
+	var params GetListQuery
 	if err := c.ShouldBind(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

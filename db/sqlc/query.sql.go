@@ -10,55 +10,33 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const getAllMedias = `-- name: GetAllMedias :many
-SELECT status, type, available_from, available_to, title, description, long_description, image_id, translation_id, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at FROM media_collectable
-ORDER BY name
+const getAsset = `-- name: GetAsset :one
+SELECT id, source_id, published_version_id, name FROM asset
+WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetAllMedias(ctx context.Context) ([]MediaCollectable, error) {
-	rows, err := q.db.QueryContext(ctx, getAllMedias)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []MediaCollectable
-	for rows.Next() {
-		var i MediaCollectable
-		if err := rows.Scan(
-			&i.Status,
-			&i.Type,
-			&i.AvailableFrom,
-			&i.AvailableTo,
-			&i.Title,
-			&i.Description,
-			&i.LongDescription,
-			&i.ImageID,
-			&i.TranslationID,
-			&i.ID,
-			&i.CollectableType,
-			&i.MediaType,
-			&i.PrimaryGroupID,
-			&i.SubclippedMediaID,
-			&i.ReferenceMediaID,
-			&i.SequenceNumber,
-			&i.StartTime,
-			&i.EndTime,
-			&i.AssetID,
-			&i.Agerating,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) GetAsset(ctx context.Context, id int64) (Asset, error) {
+	row := q.db.QueryRowContext(ctx, getAsset, id)
+	var i Asset
+	err := row.Scan(
+		&i.ID,
+		&i.SourceID,
+		&i.PublishedVersionID,
+		&i.Name,
+	)
+	return i, err
+}
+
+const getAssetVersions = `-- name: GetAssetVersions :one
+SELECT id, asset_id FROM asset_version
+ORDER BY id
+`
+
+func (q *Queries) GetAssetVersions(ctx context.Context) (AssetVersion, error) {
+	row := q.db.QueryRowContext(ctx, getAssetVersions)
+	var i AssetVersion
+	err := row.Scan(&i.ID, &i.AssetID)
+	return i, err
 }
 
 const getMedia = `-- name: GetMedia :one

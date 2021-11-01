@@ -12,6 +12,17 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// ServerConfig for easier config of new server
+type ServerConfig struct {
+}
+
+// Server holds shared resources for the webserver
+// so they can be accessed by all requests
+type Server struct {
+	queries *db.Queries
+	dbx     *sqlx.DB
+}
+
 func main() {
 
 	conn, err := sql.Open("pgx", "host=localhost user=postgres dbname=vod password=password sslmode=disable")
@@ -35,6 +46,8 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 	r.GET("/medias", s.GetMedias)
+	r.GET("/assets", s.GetAssets)
+	r.GET("/assets/:id", s.GetAsset)
 	r.POST("/medias", s.CreateMedia)
 	r.GET("/medias/:id", s.GetMedia)
 	r.PUT("/medias/:id", s.UpdateMedia)

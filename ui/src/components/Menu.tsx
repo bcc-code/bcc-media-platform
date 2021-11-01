@@ -13,6 +13,6 @@ export const Menu = () => (
         <MenuItemLink to={{ pathname: "/medias", search: "mediaType=" + MediaType.Season }} primaryText="Seasons" leftIcon={<BookIcon />}/>
         <MenuItemLink to={{ pathname: "/medias", search: "mediaType=" + MediaType.Episode }} primaryText="Episodes" leftIcon={<BookIcon />}/>
         <MenuItemLink to="/categories" primaryText="Categories" leftIcon={<BookIcon />}/>
-        <MenuItemLink to="/videos" primaryText="Videos" leftIcon={<BookIcon />}/>
+        <MenuItemLink to="/assets" primaryText="Assets" leftIcon={<BookIcon />}/>
     </div>
 );

@@ -2,9 +2,13 @@
 SELECT * FROM media_collectable
 WHERE id = $1 LIMIT 1;
 
--- name: GetAllMedias :many
-SELECT * FROM media_collectable
-ORDER BY name;
+-- name: GetAsset :one
+SELECT * FROM asset
+WHERE id = $1 LIMIT 1;
+
+-- name: GetAssetVersions :one
+SELECT * FROM asset_version
+ORDER BY id;
 
 -- name: InsertMedia :one
 WITH c AS (
