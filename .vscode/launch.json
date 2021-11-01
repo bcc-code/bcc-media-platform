@@ -9,8 +9,7 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "./server",
-            "args": ["-gcflags=-G=3"]
+            "program": "./server"
         }
     ]
 }
