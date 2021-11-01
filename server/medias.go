@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 
 	db "admin.brunstad.tv/app/db/sqlc"
 	"github.com/doug-martin/goqu/v9"
-	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,59 +34,52 @@ func (s *Server) GetMedias(c *gin.Context) {
 		return
 	}
 
-	sort := strings.ToLower(c.Query("sort"))
-	order := strings.ToLower(c.Query("order"))
-
-	sortCol := goqu.C(sort)
-	var orderedExpression exp.OrderedExpression
-	if order == "asc" {
-		orderedExpression = sortCol.Asc()
-	} else if order == "desc" {
-		orderedExpression = sortCol.Desc()
-	}
+	sort := strings.ToLower(params.Sort)
+	order := strings.ToLower(params.Order)
 
 	query := goqu.From("media_collectable")
 	if len(params.Ids) > 0 {
 		query = query.Where(goqu.C("id").In(params.Ids))
 	}
-	q := c.Request.URL.Query()
-	fieldNames := params.GetFieldNames()
-QueryStringLoop:
-	for key, element := range q {
-		for _, fieldName := range fieldNames {
-			if key[0] == '_' || strings.ToLower(fieldName) == strings.ToLower(key) {
-				continue QueryStringLoop
-			}
-		}
-		mediaStructFields := db.MediaCollectable{}.GetFields()
-		for _, field := range mediaStructFields {
-			if field.Tag.Get("json") != key {
-				continue
-			}
-			col := field.Tag.Get("db")
-			if col == "" {
-				continue QueryStringLoop
-			}
-			query = query.Where(goqu.C(col).In(element))
-			break
+	if col := JsonToDbName(reflect.TypeOf(db.MediaCollectable{}), sort); col != "" {
+		sortCol := goqu.C(col)
+		if order == "asc" {
+			query = query.Order(sortCol.Asc())
+		} else if order == "desc" {
+			query = query.Order(sortCol.Desc())
 		}
 	}
-	if orderedExpression != nil {
-		query = query.Order(orderedExpression)
+	if params.Start.Valid {
+		query = query.Offset(uint(params.Start.Int64))
+	}
+	if params.End.Valid {
+		query = query.Limit((uint)(params.End.Int64 - params.Start.ValueOrZero()))
+	}
+
+	q := c.Request.URL.Query()
+	unhandled := GetUnhandledParams(q)
+	for _, key := range unhandled {
+		if col := JsonToDbName(reflect.TypeOf(db.MediaCollectable{}), key); col != "" {
+			query = query.Where(goqu.C(col).In(q.Get(key)))
+		}
 	}
 
 	sql, _, _ := query.ToSQL()
 	s.dbx.Rebind(sql)
 
 	results := []db.MediaCollectable{}
-	err := s.dbx.Select(&results, sql)
-
-	if err != nil {
+	if err := s.dbx.Select(&results, sql); err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	c.Header("X-Total-Count", strconv.Itoa(len(results)))
+	var count int
+	if err := s.dbx.Get(&count, "SELECT COUNT(*) FROM media_collectable"); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	c.Header("X-Total-Count", strconv.Itoa(count))
 	c.JSON(200, results)
 }
 
