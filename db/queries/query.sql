@@ -6,9 +6,6 @@ WHERE id = $1 LIMIT 1;
 SELECT * FROM asset
 WHERE id = $1 LIMIT 1;
 
--- name: GetAssetVersions :one
-SELECT * FROM asset_version
-ORDER BY id;
 
 -- name: InsertMedia :one
 WITH c AS (

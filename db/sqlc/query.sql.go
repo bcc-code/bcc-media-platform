@@ -27,18 +27,6 @@ func (q *Queries) GetAsset(ctx context.Context, id int64) (Asset, error) {
 	return i, err
 }
 
-const getAssetVersions = `-- name: GetAssetVersions :one
-SELECT id, asset_id FROM asset_version
-ORDER BY id
-`
-
-func (q *Queries) GetAssetVersions(ctx context.Context) (AssetVersion, error) {
-	row := q.db.QueryRowContext(ctx, getAssetVersions)
-	var i AssetVersion
-	err := row.Scan(&i.ID, &i.AssetID)
-	return i, err
-}
-
 const getMedia = `-- name: GetMedia :one
 SELECT status, type, available_from, available_to, title, description, long_description, image_id, translation_id, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at FROM media_collectable
 WHERE id = $1 LIMIT 1

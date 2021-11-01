@@ -14,7 +14,6 @@ import (
 )
 
 func (s *Server) GetAsset(c *gin.Context) {
-	// os.Getenv("DATABASE_URL")
 	ctx := context.Background()
 	idString, _ := c.Params.Get("id")
 	id, err := strconv.ParseInt(idString, 10, 64)

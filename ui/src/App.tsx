@@ -19,6 +19,7 @@ const App = () => (
         menu={Menu}>
             <Resource name="medias" list={MediaList} edit={MediaEdit} create={MediaCreate} />
             <Resource name="assets" list={ListGuesser} edit={EditGuesser} />
+            <Resource name="asset-versions" list={ListGuesser} edit={EditGuesser} />
         </Admin>
     </ThemeProvider>
 );

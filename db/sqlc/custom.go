@@ -19,3 +19,11 @@ func (q Asset) GetFields() []reflect.StructField {
 	}
 	return result
 }
+
+func GetFields(t reflect.Type) []reflect.StructField {
+	var result []reflect.StructField
+	for i := 0; i < t.NumField(); i++ {
+		result = append(result, t.Field(i))
+	}
+	return result
+}

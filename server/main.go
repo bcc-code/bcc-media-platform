@@ -46,6 +46,7 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 	r.GET("/medias", s.GetMedias)
+	r.GET("/asset-versions", s.GetAssetVersions)
 	r.GET("/assets", s.GetAssets)
 	r.GET("/assets/:id", s.GetAsset)
 	r.POST("/medias", s.CreateMedia)
