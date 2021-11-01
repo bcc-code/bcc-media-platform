@@ -5,7 +5,7 @@ Custom:
   Column:
   - Name: code
     Type: text
-    UserData: ["a","b","c","d","e","f","g","h","j","k"]
+    UserData: ["a","b","c"]
     Realistic: ""
   - Name: title
     Type: text
@@ -149,6 +149,29 @@ Custom:
     Type: text
     UserData: []
     Realistic: ""
+- Schema: public
+  Table: media_t
+  Column:
+  - Name: language_code
+    Type: text
+    UserData: ["no"]
+    Realistic: ""
+  - Name: media_id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: title
+    Type: text
+    UserData: []
+    Realistic: "LoremWord"
+  - Name: description
+    Type: text
+    UserData: []
+    Realistic: "LoremSentence"
+  - Name: long_description
+    Type: text
+    UserData: []
+    Realistic: "HackerSaySomethingSmart"
 - Schema: public
   Table: notification
   Column:

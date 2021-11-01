@@ -1,2 +1,3 @@
 config.json
 *.debug.go
+*-debug.log
