@@ -15,7 +15,7 @@ In order to be able to run migrations use install https://github.com/golang-migr
 Create a new migration
 
 ```
-migrate create -ext sql -dir db/migrations name
+migrate create -ext sql -seq -dir db/migrations name
 ```
 
 Run migrations
