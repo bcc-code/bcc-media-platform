@@ -20,7 +20,7 @@ migrate create -ext sql -seq -dir db/migrations name
 
 Run migrations
 ```
-migrate -database "postgres://postgres:password@localhost:5432/vod?sslmode=disable" -path db/migrations` <up|down>
+migrate -database "postgres://postgres:password@localhost:5432/vod?sslmode=disable" -path backend/db/migrations` <up|down>
 ```
 
 ## Mocking
