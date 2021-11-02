@@ -4,6 +4,7 @@ specifiers:
   '@craco/craco': ^6.4.0
   '@emotion/react': ^11.5.0
   '@emotion/styled': ^11.3.0
+  '@material-ui/icons': ^4.11.2
   '@mui/material': ^5.0.6
   '@testing-library/jest-dom': ^5.11.4
   '@testing-library/react': ^11.1.0
@@ -32,6 +33,7 @@ dependencies:
   '@craco/craco': 6.4.0_0cba77744dd339cef7c5475a2443f81b
   '@emotion/react': 11.5.0_74cdfb704b70bfbe5b519e0c4564d995
   '@emotion/styled': 11.3.0_a52010db4c91eadb6c09af1366ee3612
+  '@material-ui/icons': 4.11.2_14fc3c4d570feae7d722fbbd1b906730
   '@mui/material': 5.0.6_548ab84a18f5953b71f8bdc6185934b5
   '@testing-library/jest-dom': 5.14.1
   '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
@@ -2025,6 +2027,24 @@ packages:
       react-dom: 17.0.2_react@17.0.2
       react-is: 17.0.2
       react-transition-group: 4.4.2_react-dom@17.0.2+react@17.0.2
+    dev: false
+
+  /@material-ui/icons/4.11.2_14fc3c4d570feae7d722fbbd1b906730:
+    resolution: {integrity: sha512-fQNsKX2TxBmqIGJCSi3tGTO/gZ+eJgWmMJkgDiOfyNaunNaxcklJQFaFogYcFl0qFuaEz1qaXYXboa/bUXVSOQ==}
+    engines: {node: '>=8.0.0'}
+    peerDependencies:
+      '@material-ui/core': ^4.0.0
+      '@types/react': ^16.8.6 || ^17.0.0
+      react: ^16.8.0 || ^17.0.0
+      react-dom: ^16.8.0 || ^17.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.15.4
+      '@types/react': 17.0.33
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
     dev: false
 
   /@material-ui/icons/4.11.2_e1da6087c1c875602416a1c0ed1d9c19:
