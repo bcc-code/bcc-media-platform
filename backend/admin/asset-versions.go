@@ -7,9 +7,10 @@ import (
 	"strconv"
 	"strings"
 
-	db "admin.brunstad.tv/app/db/sqlc"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/gin-gonic/gin"
+
+	db "go.bcc.media/brunstadtv/db/sqlc"
 )
 
 func (s *Server) GetAssetVersions(c *gin.Context) {

@@ -5,8 +5,9 @@ import (
 	"reflect"
 	"strings"
 
-	db "admin.brunstad.tv/app/db/sqlc"
 	"gopkg.in/guregu/null.v4"
+
+	db "go.bcc.media/brunstadtv/db/sqlc"
 )
 
 type GetListQuery struct {

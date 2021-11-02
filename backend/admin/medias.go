@@ -8,13 +8,12 @@ import (
 	"strconv"
 	"strings"
 
-	db "admin.brunstad.tv/app/db/sqlc"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/gin-gonic/gin"
+	db "go.bcc.media/brunstadtv/db/sqlc"
 )
 
 func (s *Server) GetMedia(c *gin.Context) {
-	// os.Getenv("DATABASE_URL")
 	ctx := context.Background()
 	idString, _ := c.Params.Get("id")
 	id, err := strconv.ParseInt(idString, 10, 64)

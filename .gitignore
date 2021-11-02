@@ -1,3 +1,9 @@
 config.json
 *.debug.go
 *-debug.log
+
+tmp
+*~
+*.bak
+*.bac
+*.swp
