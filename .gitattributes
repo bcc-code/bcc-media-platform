@@ -1,0 +1,4 @@
+go.sum linguist-generated
+sqlc/db.go linguist-generated
+sqlc/models.go linguist-generated
+sqlc/*.sql.go linguist-generated
