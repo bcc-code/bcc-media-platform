@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	db "admin.brunstad.tv/app/db/sqlc"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/jmoiron/sqlx"
+
+	db "go.bcc.media/brunstadtv/db/sqlc"
 )
 
 // ServerConfig for easier config of new server
