@@ -21,6 +21,7 @@ specifiers:
   react: ^17.0.2
   react-admin: ^3.19.0
   react-dom: ^17.0.2
+  react-final-form: ^6.5.7
   react-router-dom: ^5.3.0
   react-scripts: 4.0.3
   tailwindcss: npm:@tailwindcss/postcss7-compat@^2.2.17
@@ -42,10 +43,11 @@ dependencies:
   '@types/react-router-dom': 5.3.2
   classnames: 2.3.1
   prop-types: 15.7.2
-  ra-data-json-server: 3.19.0_bf6b0f1caee2d48c24ef92ff3cada851
+  ra-data-json-server: 3.19.0_dfff78cc034bdf3dce5c3dab6ae0213f
   react: 17.0.2
   react-admin: 3.19.0_14fc3c4d570feae7d722fbbd1b906730
   react-dom: 17.0.2_react@17.0.2
+  react-final-form: 6.5.7_react@17.0.2
   react-router-dom: 5.3.0_react@17.0.2
   react-scripts: 4.0.3_react@17.0.2+typescript@4.4.4
   typescript: 4.4.4
@@ -10419,7 +10421,7 @@ packages:
       reselect: 3.0.1
     dev: false
 
-  /ra-core/3.19.0_bf6b0f1caee2d48c24ef92ff3cada851:
+  /ra-core/3.19.0_dfff78cc034bdf3dce5c3dab6ae0213f:
     resolution: {integrity: sha512-ae5+RGme36zjjgMLlSxnJW0yuaJtHny1C+slgaPZSr+KA78t5t5AJkAuk+9yGuYQ0qK3dqgnJYaZuJt8KMzHyw==}
     peerDependencies:
       connected-react-router: ^6.5.2
@@ -10442,15 +10444,16 @@ packages:
       query-string: 5.1.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
+      react-final-form: 6.5.7_react@17.0.2
       react-router-dom: 5.3.0_react@17.0.2
       reselect: 3.0.1
     dev: false
 
-  /ra-data-json-server/3.19.0_bf6b0f1caee2d48c24ef92ff3cada851:
+  /ra-data-json-server/3.19.0_dfff78cc034bdf3dce5c3dab6ae0213f:
     resolution: {integrity: sha512-1jQZtp1WG5D5QwwLch3vNw8WkiWVwhJ9iedgpZn9jNN/8R+dguz9Klpxz9kfsfJJwSG99DJdZFZRGQkDUZM8tA==}
     dependencies:
       query-string: 5.1.1
-      ra-core: 3.19.0_bf6b0f1caee2d48c24ef92ff3cada851
+      ra-core: 3.19.0_dfff78cc034bdf3dce5c3dab6ae0213f
     transitivePeerDependencies:
       - connected-react-router
       - final-form
@@ -10704,6 +10707,16 @@ packages:
     dependencies:
       '@babel/runtime': 7.15.4
       final-form: 4.20.4
+      react: 17.0.2
+    dev: false
+
+  /react-final-form/6.5.7_react@17.0.2:
+    resolution: {integrity: sha512-o7tvJXB+McGiXOILqIC8lnOcX4aLhIBiF/Xi9Qet35b7XOS8R7KL8HLRKTfnZWQJm6MCE15v1U0SFive0NcxyA==}
+    peerDependencies:
+      final-form: 4.20.4
+      react: ^16.8.0 || ^17.0.0
+    dependencies:
+      '@babel/runtime': 7.15.4
       react: 17.0.2
     dev: false
 

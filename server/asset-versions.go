@@ -65,5 +65,5 @@ func (s *Server) GetAssetVersions(c *gin.Context) {
 	}
 
 	c.Header("X-Total-Count", strconv.Itoa(count))
-	c.JSON(200, results)
+	c.JSON(http.StatusOK, results)
 }

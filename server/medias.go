@@ -24,7 +24,7 @@ func (s *Server) GetMedia(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, media)
+	c.JSON(http.StatusOK, media)
 }
 
 func (s *Server) GetMedias(c *gin.Context) {
@@ -80,7 +80,7 @@ func (s *Server) GetMedias(c *gin.Context) {
 	}
 
 	c.Header("X-Total-Count", strconv.Itoa(count))
-	c.JSON(200, results)
+	c.JSON(http.StatusOK, results)
 }
 
 func (s *Server) CreateMedia(c *gin.Context) {
@@ -97,7 +97,7 @@ func (s *Server) CreateMedia(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, media)
+	c.JSON(http.StatusOK, media)
 }
 
 func (s *Server) UpdateMedia(c *gin.Context) {
@@ -114,5 +114,5 @@ func (s *Server) UpdateMedia(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, media)
+	c.JSON(http.StatusOK, media)
 }
