@@ -26,6 +26,7 @@ func (s *Server) GetMedia(c *gin.Context) {
 	c.JSON(http.StatusOK, media)
 }
 
+// GET http://my.api.url/medias?_sort=title&_order=ASC&_start=0&_end=24&title=bar
 func (s *Server) GetMedias(c *gin.Context) {
 	var params GetListQuery
 	if err := c.ShouldBind(&params); err != nil {
@@ -36,7 +37,7 @@ func (s *Server) GetMedias(c *gin.Context) {
 	sort := strings.ToLower(params.Sort)
 	order := strings.ToLower(params.Order)
 
-	query := goqu.From("media_collectable")
+	query := goqu.Select().From("media_collectable")
 	if len(params.Ids) > 0 {
 		query = query.Where(goqu.C("id").In(params.Ids))
 	}
@@ -48,12 +49,6 @@ func (s *Server) GetMedias(c *gin.Context) {
 			query = query.Order(sortCol.Desc())
 		}
 	}
-	if params.Start.Valid {
-		query = query.Offset(uint(params.Start.Int64))
-	}
-	if params.End.Valid {
-		query = query.Limit((uint)(params.End.Int64 - params.Start.ValueOrZero()))
-	}
 
 	q := c.Request.URL.Query()
 	unhandled := GetUnhandledParams(q)
@@ -61,6 +56,17 @@ func (s *Server) GetMedias(c *gin.Context) {
 		if col := JsonToDbName(reflect.TypeOf(db.MediaCollectable{}), key); col != "" {
 			query = query.Where(goqu.C(col).In(q.Get(key)))
 		}
+	}
+
+	sqlBeforePagination, _, _ := query.ToSQL()
+	countQuery := "SELECT COUNT(a.*) FROM (" + sqlBeforePagination + ") a"
+	s.dbx.Rebind(countQuery)
+
+	if params.Start.Valid {
+		query = query.Offset(uint(params.Start.Int64))
+	}
+	if params.End.Valid {
+		query = query.Limit((uint)(params.End.Int64 - params.Start.ValueOrZero()))
 	}
 
 	sql, _, _ := query.ToSQL()
@@ -73,7 +79,7 @@ func (s *Server) GetMedias(c *gin.Context) {
 	}
 
 	var count int
-	if err := s.dbx.Get(&count, "SELECT COUNT(*) FROM media_collectable"); err != nil {
+	if err := s.dbx.Get(&count, countQuery); err != nil {
 		fmt.Println(err)
 		return
 	}
