@@ -36,6 +36,29 @@ func main() {
 		queries: queries,
 		dbx:     sqlx.NewDb(conn, "pgx"),
 	}
+	media := &MediaServer{
+		Server: s,
+	}
+	episode := &MediaServer{
+		FilterByType: "episode",
+		Server:       s,
+	}
+	season := &MediaServer{
+		FilterByType: "season",
+		Server:       s,
+	}
+	show := &MediaServer{
+		FilterByType: "show",
+		Server:       s,
+	}
+	standalone := &MediaServer{
+		FilterByType: "standalone",
+		Server:       s,
+	}
+	subclip := &MediaServer{
+		FilterByType: "subclip",
+		Server:       s,
+	}
 
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
@@ -46,12 +69,33 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-	r.GET("/medias", s.GetMedias)
+
 	r.GET("/asset-versions", s.GetAssetVersions)
 	r.GET("/assets", s.GetAssets)
 	r.GET("/assets/:id", s.GetAsset)
-	r.POST("/medias", s.CreateMedia)
-	r.GET("/medias/:id", s.GetMedia)
-	r.PUT("/medias/:id", s.UpdateMedia)
+	r.GET("/media", media.GetList)
+	r.POST("/media", media.Create)
+	r.GET("/media/:id", media.Get)
+	r.PUT("/media/:id", media.Update)
+	r.GET("/episode", episode.GetList)
+	r.POST("/episode", episode.Create)
+	r.GET("/episode/:id", episode.Get)
+	r.PUT("/episode/:id", episode.Update)
+	r.GET("/show", show.GetList)
+	r.POST("/show", show.Create)
+	r.GET("/show/:id", show.Get)
+	r.PUT("/show/:id", show.Update)
+	r.GET("/season", season.GetList)
+	r.POST("/season", season.Create)
+	r.GET("/season/:id", season.Get)
+	r.PUT("/season/:id", season.Update)
+	r.GET("/standalone", standalone.GetList)
+	r.POST("/standalone", standalone.Create)
+	r.GET("/standalone/:id", standalone.Get)
+	r.PUT("/standalone/:id", standalone.Update)
+	r.GET("/subclip", subclip.GetList)
+	r.POST("/subclip", subclip.Create)
+	r.GET("/subclip/:id", subclip.Get)
+	r.PUT("/subclip/:id", subclip.Update)
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

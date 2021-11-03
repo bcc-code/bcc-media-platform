@@ -1,21 +1,6 @@
 // in src/Menu.js
 import React from 'react';
 import { DashboardMenuItem, MenuItemLink } from 'react-admin';
-import { Book as BookIcon} from '@material-ui/icons';
-import { MediaType } from '../models/MediaType';
-/* 
-export const Menu = () => (
-    <div className="mt-6">
-        <DashboardMenuItem />
-        <MenuItemLink to="/medias" primaryText="All" leftIcon={<BookIcon />}/>
-        <MenuItemLink to="/standalones" primaryText="Standalones" leftIcon={<BookIcon />}/>
-        <MenuItemLink to="/shows" primaryText="Shows" leftIcon={<BookIcon />}/>
-        <MenuItemLink to="/seasons" primaryText="Seasons" leftIcon={<BookIcon />}/>
-        <MenuItemLink to="/episodes" primaryText="Episodes" leftIcon={<BookIcon />}/>
-        <MenuItemLink to="/categories" primaryText="Categories" leftIcon={<BookIcon />}/>
-        <MenuItemLink to="/assets" primaryText="Assets" leftIcon={<BookIcon />}/>
-    </div>
-); */
 
 import { ReactNode } from 'react';
 import PropTypes from 'prop-types';
@@ -65,10 +50,6 @@ const Menu = (props: MenuProps) => {
         children = (
             <>
                 {hasDashboard && <DashboardMenuItem dense={dense} />}
-                <MenuItemLink to="/shows" primaryText="Shows" leftIcon={<BookIcon />}/>
-                <MenuItemLink to="/seasons" primaryText="Seasons" leftIcon={<BookIcon />}/>
-                <MenuItemLink to="/episodes" primaryText="Episodes" leftIcon={<BookIcon />}/>
-                <MenuItemLink to="/standalones" primaryText="Standalones" leftIcon={<BookIcon />}/>
                 {resources
                     .filter(r => r.hasList)
                     .map(resource => (
@@ -109,7 +90,8 @@ const Menu = (props: MenuProps) => {
                     [classes.open]: open,
                     [classes.closed]: !open,
                 },
-                className
+                className,
+                "pt-12"
             )}
             {...rest}
         >
