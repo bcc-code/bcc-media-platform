@@ -31,9 +31,9 @@ Custom:
     UserData: [null]
     Realistic: ""
   - Name: name
-    Type: smallint
+    Type: text
     UserData: []
-    Realistic: ""
+    Realistic: "TeamName"
 - Schema: public
   Table: collectable
   Column:

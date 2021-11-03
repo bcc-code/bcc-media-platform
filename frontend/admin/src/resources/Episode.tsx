@@ -19,14 +19,10 @@ export const EpisodeList: React.FC<ListProps> = props => {
     return (
         <List actions={<ListActions/>} {...props}  >
             <Datagrid rowClick="edit">
-                <TextField source="mediaType" />
                 <TextField source="title" />
                 <TextField source="description" />
-                <NumberField source="startTime" />
-                <NumberField source="endTime" />
                 <DateField source="createdAt" />
                 <DateField source="updatedAt" />
-                <EditButton/>
             </Datagrid>
         </List>
     );
@@ -52,6 +48,8 @@ export const EpisodeEdit: React.FC<EditProps> = props => {
                         <TextInput source="title" />
                         <TextInput source="description" />
                         <TextInput source="longDescription" />
+                        <DateTimeInput source="availableFrom"/>
+                        <DateTimeInput source="availableTo"/>
                         <SelectInput source="agerating" choices={AgeRatingChoices}/>
                         <ReferenceInput source="assetID" reference="assets" label="Asset">
                             <SelectInput optionText="name" />
@@ -63,7 +61,7 @@ export const EpisodeEdit: React.FC<EditProps> = props => {
                         handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
 
                         <div className="mt-4">
-                            <h4>Suclips</h4>
+                            <h4>Subclips</h4>
                             <Link to={{
                                 pathname: "/subclip/create",
                                 state: { initialValues: { primaryGroupID: formProps.record?.id } }
@@ -78,7 +76,6 @@ export const EpisodeEdit: React.FC<EditProps> = props => {
                                         <TextField source="id" />
                                         <TextField source="title" />
                                         <TextField source="description" />
-                                        <EditButton/>
                                     </Datagrid>
                                 </ArrayField>
                             </ReferenceManyField>

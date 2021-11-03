@@ -28,14 +28,14 @@ const App = () => (
             <Route exact path="/standalones" render={MediaListWithFilter({mediaType: "standalone"})} />,
         ]} */
         menu={Menu}>
-            <Resource name="media" edit={MediaEdit} create={MediaCreate} icon={Icons.PermMedia}/>
             <Resource name="show" list={ShowList} edit={ShowEdit} create={ShowCreate} />
             <Resource name="season" list={SeasonList} edit={SeasonEdit} create={SeasonCreate} />
             <Resource name="episode" list={EpisodeList} edit={EpisodeEdit} create={EpisodeCreate} />
             <Resource name="standalone" list={MediaList} edit={MediaEdit} create={MediaCreate} />
             <Resource name="subclip" list={MediaList} edit={MediaEdit} create={MediaCreate} />
-            <Resource name="assets" list={AssetList} edit={AssetEdit} />
-            <Resource name="asset-versions" list={ListGuesser} edit={EditGuesser} />
+            <Resource name="assets" list={AssetList} />
+            <Resource name="media" edit={MediaEdit} create={MediaCreate} icon={Icons.PermMedia}/>
+            <Resource name="asset-versions"/>
         </Admin>
     </ThemeProvider>
 );

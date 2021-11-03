@@ -26,7 +26,7 @@ type Asset struct {
 	ID                 int64          `db:"id" json:"id"`
 	SourceID           null_v4.String `db:"source_id" json:"sourceID"`
 	PublishedVersionID null_v4.Int    `db:"published_version_id" json:"publishedVersionID"`
-	Name               int16          `db:"name" json:"name"`
+	Name               null_v4.String `db:"name" json:"name"`
 }
 
 type AssetFormat struct {

@@ -19,11 +19,8 @@ export const ShowList: React.FC<ListProps> = props => {
     return (
         <List actions={<ListActions/>} {...props}  >
             <Datagrid rowClick="edit">
-                <TextField source="mediaType" />
                 <TextField source="title" />
                 <TextField source="description" />
-                <NumberField source="startTime" />
-                <NumberField source="endTime" />
                 <DateField source="createdAt" />
                 <DateField source="updatedAt" />
                 <ReferenceManyField 
@@ -33,7 +30,6 @@ export const ShowList: React.FC<ListProps> = props => {
                 >
                     <Total/>
                 </ReferenceManyField>
-                <EditButton/>
             </Datagrid>
         </List>
     );
@@ -55,6 +51,8 @@ export const ShowEdit: React.FC<EditProps> = props => {
                         <TextInput source="title" />
                         <TextInput source="description" />
                         <SelectInput source="agerating" choices={AgeRatingChoices}/>
+                        <DateTimeInput source="availableFrom"/>
+                        <DateTimeInput source="availableTo"/>
                         
                         <SaveButton
                         saving={formProps.saving}
@@ -77,7 +75,6 @@ export const ShowEdit: React.FC<EditProps> = props => {
                                         <TextField source="id" />
                                         <TextField source="title" />
                                         <TextField source="description" />
-                                        <EditButton/>
                                     </Datagrid>
                                 </ArrayField>
                             </ReferenceManyField>
