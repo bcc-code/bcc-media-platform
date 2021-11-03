@@ -2,15 +2,16 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/jmoiron/sqlx"
+	"github.com/rs/zerolog"
 
 	db "go.bcc.media/brunstadtv/db/sqlc"
+	"go.bcc.media/brunstadtv/log"
 )
 
 // ServerConfig for easier config of new server
@@ -25,10 +26,11 @@ type Server struct {
 }
 
 func main() {
+	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 
 	conn, err := sql.Open("pgx", "host=localhost user=postgres dbname=vod password=password sslmode=disable")
 	if err != nil {
-		fmt.Println(err)
+		log.L.Fatal().Err(err).Msg("Failed to establish DB connection")
 		return
 	}
 	queries := db.New(conn)

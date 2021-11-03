@@ -3,3 +3,6 @@ help: .PHONY
 
 migrate:
 	migrate -database "postgres://postgres:password@localhost:5432/vod?sslmode=disable" -path ./backend/db/migrations up
+
+run-admin-backend:
+	cd ./backend/admin/ && go run .
