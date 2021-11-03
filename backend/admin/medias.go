@@ -17,6 +17,10 @@ func (s *Server) GetMedia(c *gin.Context) {
 	ctx := context.Background()
 	idString, _ := c.Params.Get("id")
 	id, err := strconv.ParseInt(idString, 10, 64)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	media, err := s.queries.GetMedia(ctx, id)
 	if err != nil {
 		fmt.Println(err)

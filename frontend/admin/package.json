@@ -6,27 +6,31 @@
     "@craco/craco": "^6.4.0",
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
+    "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.2",
     "@mui/material": "^5.0.6",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
+    "@testing-library/jest-dom": "^5.15.0",
+    "@testing-library/react": "^11.2.7",
+    "@testing-library/user-event": "^12.8.3",
     "@types/jest": "^27.0.2",
     "@types/node": "^16.11.6",
-    "@types/react": "^17.0.33",
-    "@types/react-dom": "^17.0.10",
+    "@types/react": "^17.0.34",
+    "@types/react-dom": "^17.0.11",
     "@types/react-router-dom": "^5.3.2",
     "classnames": "^2.3.1",
+    "lodash": "^4.17.21",
     "prop-types": "^15.7.2",
+    "ra-core": "^3.19.0",
     "ra-data-json-server": "^3.19.0",
     "react": "^17.0.2",
     "react-admin": "^3.19.0",
     "react-dom": "^17.0.2",
     "react-final-form": "^6.5.7",
+    "react-redux": "^7.2.6",
     "react-router-dom": "^5.3.0",
     "react-scripts": "4.0.3",
     "typescript": "^4.4.4",
-    "web-vitals": "^1.0.1"
+    "web-vitals": "^1.1.2"
   },
   "scripts": {
     "start": "craco start",
@@ -35,6 +39,10 @@
     "eject": "craco eject"
   },
   "eslintConfig": {
+    "ignorePatterns": [
+      "src/*",
+      "!src/test.js"
+    ],
     "extends": [
       "react-app",
       "react-app/jest"
@@ -53,8 +61,9 @@
     ]
   },
   "devDependencies": {
-    "autoprefixer": "^9",
-    "postcss": "^7",
+    "@types/lodash": "^4.14.176",
+    "autoprefixer": "^9.8.8",
+    "postcss": "^7.0.39",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17"
   }
 }

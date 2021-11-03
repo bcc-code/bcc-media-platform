@@ -1,6 +1,6 @@
-import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, createMuiTheme, Link } from 'react-admin';
+import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, createMuiTheme, Link, TopToolbar, CreateButton, ExportButton, Button } from 'react-admin';
 // in src/App.js
-import React from 'react';
+import React, { cloneElement } from 'react';
 import { AgeRatingChoices } from '../models/AgeRating';
 import ContentAdd from '@material-ui/icons/Add';
 import { useLocation } from 'react-router-dom';
@@ -38,19 +38,17 @@ function getChildType(mediaType: MediaType): MediaType | undefined {
     }
 }
 
+const ListActions = () => (
+    <TopToolbar>
+        <CreateButton/>
+        <ExportButton/>
+    </TopToolbar>
+);  
 
-export const MediaList: React.FC<ListProps> = props => {
-    let filter = {};
-    const search = props.location?.search;
-    if (search) {
-        const params = new URLSearchParams(search);
-        const mediaType = params.get('mediaType'); // bar
-        filter = {
-            mediaType: mediaType
-        }
-    }
+type FilteredMediaList = (filter: Media | undefined) => React.FC<ListProps>
+export const MediaListWithFilter: FilteredMediaList = filter => props => {
     return (
-        <List {...props} filter={filter}>
+        <List actions={<ListActions/>} basePath="medias" resource="medias" filter={filter} {...props}  >
             <Datagrid rowClick="edit">
                 <TextField source="mediaType" />
                 <TextField source="title" />

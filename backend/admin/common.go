@@ -29,12 +29,14 @@ func (q GetListQuery) GetFieldNames() []string {
 
 func GetUnhandledParams(q url.Values) (result []string) {
 	fieldNames := GetListQuery{}.GetFieldNames()
+outerLoop:
 	for key := range q {
 		for _, fieldName := range fieldNames {
-			if key[0] != '_' && strings.ToLower(fieldName) != strings.ToLower(key) {
-				result = append(result, key)
+			if key[0] == '_' || strings.EqualFold(fieldName, key) {
+				continue outerLoop
 			}
 		}
+		result = append(result, key)
 	}
 	return result
 }
