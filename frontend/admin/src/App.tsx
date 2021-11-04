@@ -14,6 +14,7 @@ import { AssetEdit, AssetList } from "./resources/Assets";
 import { ShowCreate, ShowEdit, ShowList } from "./resources/Show";
 import { SeasonCreate, SeasonEdit, SeasonList } from "./resources/Season";
 import { EpisodeCreate, EpisodeEdit, EpisodeList } from "./resources/Episode";
+import { StandaloneCreate, StandaloneEdit, StandaloneList } from "./resources/Standalone";
 const baseTheme = createMuiTheme();
 
 const dataProvider = jsonServerProvider('http://localhost:8080');
@@ -31,7 +32,7 @@ const App = () => (
             <Resource name="show" list={ShowList} edit={ShowEdit} create={ShowCreate} />
             <Resource name="season" list={SeasonList} edit={SeasonEdit} create={SeasonCreate} />
             <Resource name="episode" list={EpisodeList} edit={EpisodeEdit} create={EpisodeCreate} />
-            <Resource name="standalone" list={MediaList} edit={MediaEdit} create={MediaCreate} />
+            <Resource name="standalone" list={StandaloneList} edit={StandaloneEdit} create={StandaloneCreate} />
             <Resource name="subclip" list={MediaList} edit={MediaEdit} create={MediaCreate} />
             <Resource name="assets" list={AssetList} />
             <Resource name="media" edit={MediaEdit} create={MediaCreate} icon={Icons.PermMedia}/>

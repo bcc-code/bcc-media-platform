@@ -41,9 +41,6 @@ export const StandaloneEdit: React.FC<EditProps> = props => {
                             <span>Created</span> <DateField source="createdAt" showTime />
                             &nbsp;| <span>Last updated </span> <DateField source="updatedAt" showTime />
                         </div></div>
-                        <ReferenceInput required source="primaryGroupID" reference="season" label="Belongs to season">
-                            <SelectInput optionText="title" />
-                        </ReferenceInput>
                         <NumberInput source="sequenceNumber" />
                         <TextInput source="title" />
                         <TextInput source="description" />
