@@ -2,7 +2,7 @@ import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButto
 // in src/App.js
 import React, { cloneElement } from 'react';
 import { AgeRatingChoices } from '../models/AgeRating';
-import ContentAdd from '@material-ui/icons/Add';
+import ContentAdd from '@mui/icons-material/Add';
 import { useLocation } from 'react-router-dom';
 import { Media } from '../models/Media';
 
