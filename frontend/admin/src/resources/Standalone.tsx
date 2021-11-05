@@ -1,10 +1,10 @@
-import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, createMuiTheme, Link, TopToolbar, CreateButton, ExportButton, Button } from 'react-admin';
+import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, Button } from 'react-admin';
 // in src/App.js
 import React, { cloneElement } from 'react';
-import { AgeRatingChoices } from '../models/AgeRating';
+import { AgeRatingChoices } from '../types/AgeRating';
 import ContentAdd from '@mui/icons-material/Add';
 import { useLocation } from 'react-router-dom';
-import { Media } from '../models/Media';
+import { Media } from '../types/Media';
 
 const ListActions = () => (
     <TopToolbar>
@@ -33,7 +33,7 @@ export const StandaloneEdit: React.FC<EditProps> = props => {
         <Edit {...props}>
             <FormWithRedirect warnWhenUnsavedChanges render={formProps =>
                 <form>
-                    <div className="p-4 flex flex-col">
+                    <div className="p-4 flex flex-col w-full lg:w-2/3 xl:w-1/2">
                         <div className='text-sm'>#{formProps.record?.id} <span className="capitalize">Standalone</span></div>
                         <TextField source="title" variant='h6'/>
                         <div>
@@ -51,34 +51,36 @@ export const StandaloneEdit: React.FC<EditProps> = props => {
                         <ReferenceInput source="assetID" reference="assets" label="Asset">
                             <SelectInput optionText="name" />
                         </ReferenceInput>
-                        
-                        <SaveButton
-                        saving={formProps.saving}
-                        disabled={formProps.pristine}
-                        handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
-
-                        <div className="mt-4">
-                            <h4>Subclips</h4>
-                            <Link to={{
-                                pathname: "/subclip/create",
-                                state: { initialValues: { primaryGroupID: formProps.record?.id } }
-                            }}>
-                                <button type="button">
-                                    <ContentAdd />Create subclip
-                                </button>
-                            </Link>
-                            <ReferenceManyField label="Standalones" reference="subclip" target="subclippedMediaID">
-                                <ArrayField>
-                                    <Datagrid rowClick="edit">
-                                        <TextField source="id" />
-                                        <TextField source="title" />
-                                        <TextField source="description" />
-                                    </Datagrid>
-                                </ArrayField>
-                            </ReferenceManyField>
+                        <div className='mt-2'>
+                            <SaveButton
+                            saving={formProps.saving}
+                            disabled={formProps.pristine}
+                            handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
                         </div>
                     </div>
+                    
+                    <div className="p-4 flex flex-col mt-4">
+                        <h4>Subclips</h4>
+                        <Link to={{
+                            pathname: "/subclip/create",
+                            state: { initialValues: { primaryGroupID: formProps.record?.id } }
+                        }}>
+                            <button type="button">
+                                <ContentAdd />Create subclip
+                            </button>
+                        </Link>
+                        <ReferenceManyField label="Standalones" reference="subclip" target="subclippedMediaID">
+                            <ArrayField>
+                                <Datagrid rowClick="edit">
+                                    <TextField source="id" />
+                                    <TextField source="title" />
+                                    <TextField source="description" />
+                                </Datagrid>
+                            </ArrayField>
+                        </ReferenceManyField>
+                    </div>
                 </form>
+                
             }/>
         </Edit>
     )

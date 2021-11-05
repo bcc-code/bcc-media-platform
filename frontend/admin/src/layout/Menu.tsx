@@ -21,13 +21,13 @@ export const Menu = (props: MenuProps) => {
                 {resources
                     .filter(r => r.hasList)
                     .map(resource => (
-                        <MenuItemLink
+                        <StyledMenuLink
                             key={resource.name}
                             to={{
                                 pathname: `/${resource.name}`,
                                 state: { _scrollToTop: true },
                             }}
-                            primaryText={getResourceLabel(resource.name, 2)}
+                            primaryText={resource.name}
                             leftIcon={
                                 resource.icon ? (
                                     <resource.icon />
@@ -77,12 +77,16 @@ export const MenuClasses = {
     closed: `${PREFIX}-closed`,
 };
 
+const StyledMenuLink = styled(MenuItemLink)(({ theme }) => ({
+    textTransform: 'capitalize'
+}));
+
 const Root = styled('div', { name: PREFIX })(({ theme }) => ({
     [`&.${MenuClasses.main}`]: {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
-        marginTop: '0.5em',
+        marginTop: '2em',
         marginBottom: '1em',
         [theme.breakpoints.only('xs')]: {
             marginTop: 0,

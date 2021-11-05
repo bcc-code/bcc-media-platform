@@ -1,10 +1,11 @@
 import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, Button } from 'react-admin';
 // in src/App.js
 import React, { cloneElement } from 'react';
-import { AgeRatingChoices } from '../models/AgeRating';
+import { AgeRatingChoices } from '../types/AgeRating';
 import ContentAdd from '@mui/icons-material/Add';
 import { useLocation } from 'react-router-dom';
-import { Media } from '../models/Media';
+import { Media } from '../types/Media';
+import { Typography } from '@mui/material';
 
 const ListActions = () => (
     <TopToolbar>
@@ -14,17 +15,22 @@ const ListActions = () => (
 );  
 
 const Total = (props: any) => <div>{props.total}</div>;
-
+const episodeFilters = [
+    <TextInput label="Search" source="q" alwaysOn />,
+];
 export const EpisodeList: React.FC<ListProps> = props => {
     return (
-        <List actions={<ListActions/>} {...props}  >
-            <Datagrid rowClick="edit">
-                <TextField source="title" />
-                <TextField source="description" />
-                <DateField source="createdAt" />
-                <DateField source="updatedAt" />
-            </Datagrid>
-        </List>
+        <div>
+            <Typography variant="h5">Episodes</Typography>
+            <List actions={<ListActions/>} {...props} filters={episodeFilters} title="Episodes" >
+                <Datagrid rowClick="edit">
+                    <TextField source="title" />
+                    <TextField source="description" />
+                    <DateField source="createdAt" />
+                    <DateField source="updatedAt" />
+                </Datagrid>
+            </List>
+        </div>
     );
 };
 

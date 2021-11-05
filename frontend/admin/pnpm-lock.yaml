@@ -29,6 +29,7 @@ specifiers:
   react-redux: ^7.2.6
   react-router-dom: ^5.3.0
   react-scripts: 4.0.3
+  redux: ^4.1.2
   tailwindcss: npm:@tailwindcss/postcss7-compat@^2.2.17
   typescript: ^4.4.4
   web-vitals: ^1.1.2
@@ -50,8 +51,8 @@ dependencies:
   classnames: 2.3.1
   lodash: 4.17.21
   prop-types: 15.7.2
-  ra-core: 4.0.0-alpha.0_bec484c40b2d6934f1679db6fbf6f1b7
-  ra-data-json-server: 4.0.0-alpha.0_bec484c40b2d6934f1679db6fbf6f1b7
+  ra-core: 4.0.0-alpha.0_0a7f6117d4322a2103a356b9dfdbfe00
+  ra-data-json-server: 4.0.0-alpha.0_0a7f6117d4322a2103a356b9dfdbfe00
   react: 17.0.2
   react-admin: 4.0.0-alpha.0_c8c53a2a5a2c84791ce34d6dbdd05753
   react-dom: 17.0.2_react@17.0.2
@@ -59,6 +60,7 @@ dependencies:
   react-redux: 7.2.6_react-dom@17.0.2+react@17.0.2
   react-router-dom: 5.3.0_react@17.0.2
   react-scripts: 4.0.3_react@17.0.2+typescript@4.4.4
+  redux: 4.1.2
   typescript: 4.4.4
   web-vitals: 1.1.2
 
@@ -10191,6 +10193,35 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
+  /ra-core/4.0.0-alpha.0_0a7f6117d4322a2103a356b9dfdbfe00:
+    resolution: {integrity: sha512-vk5FOIeRKhT7yB8DgGkMedigy6cbZvgUFoJgAlW+Lp1fuBnz2IOwg8XrPdGRBT7c46XhEInBg2q27LezMGuqqQ==}
+    peerDependencies:
+      connected-react-router: ^6.5.2
+      final-form: ^4.20.2
+      react: ^16.9.0 || ^17.0.0
+      react-dom: ^16.9.0 || ^17.0.0
+      react-final-form: ^6.5.2
+      react-redux: ^7.1.0
+      react-router: ^5.1.0
+      react-router-dom: ^5.1.0
+      redux: ^3.7.2 || ^4.0.3
+    dependencies:
+      classnames: 2.2.6
+      date-fns: 1.30.1
+      eventemitter3: 3.1.2
+      inflection: 1.12.0
+      lodash: 4.17.21
+      prop-types: 15.7.2
+      query-string: 5.1.1
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-final-form: 6.5.7_react@17.0.2
+      react-redux: 7.2.6_react-dom@17.0.2+react@17.0.2
+      react-router-dom: 5.3.0_react@17.0.2
+      redux: 4.1.2
+      reselect: 3.0.1
+    dev: false
+
   /ra-core/4.0.0-alpha.0_5fb34914b42050d3d8743f22bc190047:
     resolution: {integrity: sha512-vk5FOIeRKhT7yB8DgGkMedigy6cbZvgUFoJgAlW+Lp1fuBnz2IOwg8XrPdGRBT7c46XhEInBg2q27LezMGuqqQ==}
     peerDependencies:
@@ -10223,39 +10254,11 @@ packages:
       reselect: 3.0.1
     dev: false
 
-  /ra-core/4.0.0-alpha.0_bec484c40b2d6934f1679db6fbf6f1b7:
-    resolution: {integrity: sha512-vk5FOIeRKhT7yB8DgGkMedigy6cbZvgUFoJgAlW+Lp1fuBnz2IOwg8XrPdGRBT7c46XhEInBg2q27LezMGuqqQ==}
-    peerDependencies:
-      connected-react-router: ^6.5.2
-      final-form: ^4.20.2
-      react: ^16.9.0 || ^17.0.0
-      react-dom: ^16.9.0 || ^17.0.0
-      react-final-form: ^6.5.2
-      react-redux: ^7.1.0
-      react-router: ^5.1.0
-      react-router-dom: ^5.1.0
-      redux: ^3.7.2 || ^4.0.3
-    dependencies:
-      classnames: 2.2.6
-      date-fns: 1.30.1
-      eventemitter3: 3.1.2
-      inflection: 1.12.0
-      lodash: 4.17.21
-      prop-types: 15.7.2
-      query-string: 5.1.1
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
-      react-final-form: 6.5.7_react@17.0.2
-      react-redux: 7.2.6_react-dom@17.0.2+react@17.0.2
-      react-router-dom: 5.3.0_react@17.0.2
-      reselect: 3.0.1
-    dev: false
-
-  /ra-data-json-server/4.0.0-alpha.0_bec484c40b2d6934f1679db6fbf6f1b7:
+  /ra-data-json-server/4.0.0-alpha.0_0a7f6117d4322a2103a356b9dfdbfe00:
     resolution: {integrity: sha512-FAOYBYRKozGP+kFwU8mCTriaRVhz/YUFOP40HuwkrSmlCwgHLA/S7K7fYsVuohZpfNgPjRp0wWo3IJeHXCWbVA==}
     dependencies:
       query-string: 5.1.1
-      ra-core: 4.0.0-alpha.0_bec484c40b2d6934f1679db6fbf6f1b7
+      ra-core: 4.0.0-alpha.0_0a7f6117d4322a2103a356b9dfdbfe00
     transitivePeerDependencies:
       - connected-react-router
       - final-form
