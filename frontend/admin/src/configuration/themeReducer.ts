@@ -11,6 +11,13 @@ const themeReducer: Reducer<ThemeName, Action> = (
     action
 ) => {
     if (action.type === CHANGE_THEME) {
+        if (action.payload == "dark"){
+            document.getElementById("body")?.classList.add("dark");
+            document.getElementById("body")?.classList.remove("light");
+        } else {
+            document.getElementById("body")?.classList.remove("dark");
+            document.getElementById("body")?.classList.add("light");
+        }
         return action.payload;
     }
     return previousState;

@@ -5,6 +5,7 @@ import { AgeRatingChoices } from '../types/AgeRating';
 import ContentAdd from '@mui/icons-material/Add';
 import { useLocation } from 'react-router-dom';
 import { Media } from '../types/Media';
+import { Box } from '@mui/material';
 
 const ListActions = () => (
     <TopToolbar>
@@ -33,14 +34,13 @@ export const StandaloneEdit: React.FC<EditProps> = props => {
         <Edit {...props}>
             <FormWithRedirect warnWhenUnsavedChanges render={formProps =>
                 <form>
-                    <div className="p-4 flex flex-col w-full lg:w-2/3 xl:w-1/2">
+                   <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
                         <div className='text-sm'>#{formProps.record?.id} <span className="capitalize">Standalone</span></div>
                         <TextField source="title" variant='h6'/>
-                        <div>
-                        <div className="bg-gray-100 p-2 rounded mt-2 mb-6 text-sm">
+                        <Box sx={{ backgroundColor: 'background.paper', color: 'text.secondary', padding: '10px', borderRadius: '10px' }}>
                             <span>Created</span> <DateField source="createdAt" showTime />
                             &nbsp;| <span>Last updated </span> <DateField source="updatedAt" showTime />
-                        </div></div>
+                        </Box>
                         <NumberInput source="sequenceNumber" />
                         <TextInput source="title" />
                         <TextInput source="description" />
@@ -57,9 +57,9 @@ export const StandaloneEdit: React.FC<EditProps> = props => {
                             disabled={formProps.pristine}
                             handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
                         </div>
-                    </div>
+                    </Box>
                     
-                    <div className="p-4 flex flex-col mt-4">
+                    <div className="p-4 flex flex-col w-full lg:w-2/3 xl:w-1/2 mt-4">
                         <h4>Subclips</h4>
                         <Link to={{
                             pathname: "/subclip/create",
@@ -92,7 +92,7 @@ export const StandaloneCreate: React.FC<CreateProps> = props => {
     <Create {...props}>
         <FormWithRedirect warnWhenUnsavedChanges initialValues={location.state?.initialValues} render={formProps =>
             <form>
-                <div className="p-4 flex flex-col">
+               <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
                     <ReferenceInput required source="primaryGroupID" reference="season" label="Belongs to season">
                         <SelectInput optionText="title" />
                     </ReferenceInput>
@@ -111,7 +111,7 @@ export const StandaloneCreate: React.FC<CreateProps> = props => {
                         saving={formProps.saving}
                         handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
                     </Toolbar>
-                </div>
+                </Box>
             </form>
         }/>
     </Create>

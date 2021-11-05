@@ -5,6 +5,7 @@ import { AgeRatingChoices } from '../types/AgeRating';
 import ContentAdd from '@mui/icons-material/Add';
 import { useLocation } from 'react-router-dom';
 import { Media } from '../types/Media';
+import { Box } from '@mui/material';
 
 const ListActions = () => (
     <TopToolbar>
@@ -40,14 +41,13 @@ export const ShowEdit: React.FC<EditProps> = props => {
         <Edit {...props}>
             <FormWithRedirect warnWhenUnsavedChanges render={formProps =>
                 <form>
-                    <div className="p-4 flex flex-col">
+                   <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
                         <div className='text-sm'>#{formProps.record?.id} <span className="capitalize">Show</span></div>
                         <TextField source="title" variant='h6'/>
-                        <div>
-                        <div className="bg-gray-100 p-2 rounded mt-2 mb-6 text-sm">
+                        <Box sx={{ backgroundColor: 'background.paper', color: 'text.secondary', padding: '10px', borderRadius: '10px' }}>
                             <span>Created</span> <DateField source="createdAt" showTime />
                             &nbsp;| <span>Last updated </span> <DateField source="updatedAt" showTime />
-                        </div></div>
+                        </Box>
                         <TextInput source="title" />
                         <TextInput source="description" />
                         <SelectInput source="agerating" choices={AgeRatingChoices}/>
@@ -79,7 +79,7 @@ export const ShowEdit: React.FC<EditProps> = props => {
                                 </ArrayField>
                             </ReferenceManyField>
                         </div>
-                    </div>
+                    </Box>
                 </form>
             }/>
         </Edit>
@@ -92,7 +92,7 @@ export const ShowCreate: React.FC<CreateProps> = props => {
     <Create {...props}>
         <FormWithRedirect warnWhenUnsavedChanges initialValues={location.state?.initialValues} render={formProps =>
             <form>
-                <div className="p-4 flex flex-col">
+               <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
                     <TextField source="title" variant='h6'/>
                     <TextInput source="title" />
                     <TextInput source="description" />
@@ -104,7 +104,7 @@ export const ShowCreate: React.FC<CreateProps> = props => {
                         saving={formProps.saving}
                         handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
                     </Toolbar>
-                </div>
+                </Box>
             </form>
         }/>
     </Create>
