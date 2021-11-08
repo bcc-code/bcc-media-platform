@@ -6,6 +6,7 @@ specifiers:
   '@emotion/styled': ^11.3.0
   '@mui/icons-material': ^5.0.5
   '@mui/material': ^5.0.6
+  '@mui/system': ^5.0.6
   '@testing-library/jest-dom': ^5.15.0
   '@testing-library/react': ^11.2.7
   '@testing-library/user-event': ^12.8.3
@@ -37,6 +38,7 @@ dependencies:
   '@emotion/styled': 11.3.0_4e86505ff6f3e0b8d0f6b2c7f9d7b098
   '@mui/icons-material': 5.0.5_6f8b071973a8a55760ef9e3ee086f55a
   '@mui/material': 5.0.6_3906d6946435037e500f96d844e71e47
+  '@mui/system': 5.0.6_af8478b1f25295880f25acdf7385e0f8
   '@testing-library/jest-dom': 5.15.0
   '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
   '@testing-library/user-event': 12.8.3

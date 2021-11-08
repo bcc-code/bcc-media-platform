@@ -1,11 +1,11 @@
-import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, Button } from 'react-admin';
+import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton } from 'react-admin';
 // in src/App.js
 import React, { cloneElement } from 'react';
 import { AgeRatingChoices } from '../types/AgeRating';
 import ContentAdd from '@mui/icons-material/Add';
 import { useLocation } from 'react-router-dom';
 import { Media } from '../types/Media';
-import { Box } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 
 const ListActions = () => (
     <TopToolbar>
@@ -18,14 +18,19 @@ const Total = (props: any) => <div>{props.total}</div>;
 
 export const StandaloneList: React.FC<ListProps> = props => {
     return (
-        <List actions={<ListActions/>} {...props}  >
-            <Datagrid rowClick="edit">
-                <TextField source="title" />
-                <TextField source="description" />
-                <DateField source="createdAt" />
-                <DateField source="updatedAt" />
-            </Datagrid>
-        </List>
+        <>
+            <Typography sx={{mt:3}} variant="h5">Standalones</Typography>
+            <List actions={<ListActions/>} {...props} filters={[
+                <TextInput sx={{mb:2}} size='small' label="Search" source="q" alwaysOn />
+            ]}>
+                <Datagrid rowClick="edit">
+                    <TextField source="title" />
+                    <TextField source="description" />
+                    <DateField source="createdAt" />
+                    <DateField source="updatedAt" />
+                </Datagrid>
+            </List>
+        </>
     );
 };
 
@@ -57,28 +62,30 @@ export const StandaloneEdit: React.FC<EditProps> = props => {
                             disabled={formProps.pristine}
                             handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
                         </div>
+                        
+                        <Box sx={{mt:4}}>
+                            <Typography variant="h6">Subclips</Typography>
+                            <Link to={{
+                                pathname: "/subclip/create",
+                                state: { initialValues: { primaryGroupID: formProps.record?.id } }
+                            }}>
+                                <Button 
+                                size="small"
+                                startIcon={<ContentAdd/>}>
+                                    Create subclip
+                                </Button>
+                            </Link>
+                            <ReferenceManyField reference="subclip" target="subclippedMediaID">
+                                <ArrayField>
+                                    <Datagrid rowClick="edit">
+                                        <TextField source="id" />
+                                        <TextField source="title" />
+                                        <TextField source="description" />
+                                    </Datagrid>
+                                </ArrayField>
+                            </ReferenceManyField>
+                        </Box>
                     </Box>
-                    
-                    <div className="p-4 flex flex-col w-full lg:w-2/3 xl:w-1/2 mt-4">
-                        <h4>Subclips</h4>
-                        <Link to={{
-                            pathname: "/subclip/create",
-                            state: { initialValues: { primaryGroupID: formProps.record?.id } }
-                        }}>
-                            <button type="button">
-                                <ContentAdd />Create subclip
-                            </button>
-                        </Link>
-                        <ReferenceManyField label="Standalones" reference="subclip" target="subclippedMediaID">
-                            <ArrayField>
-                                <Datagrid rowClick="edit">
-                                    <TextField source="id" />
-                                    <TextField source="title" />
-                                    <TextField source="description" />
-                                </Datagrid>
-                            </ArrayField>
-                        </ReferenceManyField>
-                    </div>
                 </form>
                 
             }/>

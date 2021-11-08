@@ -47,7 +47,9 @@ const ListActions = () => (
 export const MediaList: React.FC<ListProps> = props => {
     const parentType = getParentType(props.resource!)
     return (
-        <List actions={<ListActions/>} {...props}  >
+        <List actions={<ListActions/>} {...props} filters={[
+            <TextInput sx={{mb:2}} size='small' label="Search" source="q" alwaysOn />
+        ]}>
             <Datagrid rowClick="edit">
                 <TextField source="mediaType" />
                 <TextField source="title" />

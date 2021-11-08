@@ -11,11 +11,12 @@ import (
 )
 
 type GetListQuery struct {
-	Ids   []int    `form:"id"`
-	Sort  string   `form:"_sort"`
-	Order string   `form:"_order"`
-	Start null.Int `form:"_start"`
-	End   null.Int `form:"_end"`
+	Ids     []int    `form:"id"`
+	SearchQ string   `form:"q"`
+	Sort    string   `form:"_sort"`
+	Order   string   `form:"_order"`
+	Start   null.Int `form:"_start"`
+	End     null.Int `form:"_end"`
 }
 
 func (q GetListQuery) GetFieldNames() []string {
@@ -44,7 +45,7 @@ outerLoop:
 func JsonToDbName(t reflect.Type, json string) string {
 	fields := db.GetFields(t)
 	for _, field := range fields {
-		if strings.ToLower(field.Tag.Get("json")) != strings.ToLower(json) {
+		if !strings.EqualFold(json, field.Tag.Get("json")) {
 			continue
 		}
 		col := field.Tag.Get("db")

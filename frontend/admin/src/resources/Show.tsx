@@ -1,11 +1,11 @@
-import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, Button } from 'react-admin';
+import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton } from 'react-admin';
 // in src/App.js
 import React, { cloneElement } from 'react';
 import { AgeRatingChoices } from '../types/AgeRating';
 import ContentAdd from '@mui/icons-material/Add';
 import { useLocation } from 'react-router-dom';
 import { Media } from '../types/Media';
-import { Box } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 
 const ListActions = () => (
     <TopToolbar>
@@ -18,21 +18,26 @@ const Total = (props: any) => <div>{props.total}</div>;
 
 export const ShowList: React.FC<ListProps> = props => {
     return (
-        <List actions={<ListActions/>} {...props}  >
-            <Datagrid rowClick="edit">
-                <TextField source="title" />
-                <TextField source="description" />
-                <DateField source="createdAt" />
-                <DateField source="updatedAt" />
-                <ReferenceManyField 
-                label="Seasons" 
-                reference="season" 
-                target="primaryGroupID" 
-                >
-                    <Total/>
-                </ReferenceManyField>
-            </Datagrid>
-        </List>
+        <>
+            <Typography sx={{mt:3}} variant="h5">Shows</Typography>
+            <List actions={<ListActions/>} {...props} filters={[
+                <TextInput sx={{mb:2}} size='small' label="Search" source="q" alwaysOn />
+            ]}>
+                <Datagrid rowClick="edit">
+                    <TextField source="title" />
+                    <TextField source="description" />
+                    <DateField source="createdAt" />
+                    <DateField source="updatedAt" />
+                    <ReferenceManyField 
+                    label="Seasons" 
+                    reference="season" 
+                    target="primaryGroupID" 
+                    >
+                        <Total/>
+                    </ReferenceManyField>
+                </Datagrid>
+            </List>
+        </>
     );
 };
 
@@ -59,15 +64,17 @@ export const ShowEdit: React.FC<EditProps> = props => {
                         disabled={formProps.pristine}
                         handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
 
-                        <div className="mt-4">
-                            <h4>Child media</h4>
+                        <Box sx={{mt:4}}>
+                            <Typography variant="h6">Seasons</Typography>
                             <Link to={{
                                 pathname: "/season/create",
                                 state: { initialValues: { primaryGroupID: formProps.record?.id } }
                             }}>
-                                <button type="button">
-                                    <ContentAdd />Create season
-                                </button>
+                                <Button 
+                                size="small"
+                                startIcon={<ContentAdd/>}>
+                                    Create season
+                                </Button>
                             </Link>
                             <ReferenceManyField label="Child media" reference="media" target="primaryGroupID">
                                 <ArrayField>
@@ -78,7 +85,7 @@ export const ShowEdit: React.FC<EditProps> = props => {
                                     </Datagrid>
                                 </ArrayField>
                             </ReferenceManyField>
-                        </div>
+                        </Box>
                     </Box>
                 </form>
             }/>

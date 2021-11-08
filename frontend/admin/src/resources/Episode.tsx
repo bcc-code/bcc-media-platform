@@ -1,11 +1,11 @@
-import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, Button, AutocompleteInput } from 'react-admin';
+import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, AutocompleteInput } from 'react-admin';
 // in src/App.js
 import React, { cloneElement } from 'react';
 import { AgeRatingChoices } from '../types/AgeRating';
 import ContentAdd from '@mui/icons-material/Add';
 import { useLocation } from 'react-router-dom';
 import { Media } from '../types/Media';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 
 const ListActions = () => (
     <TopToolbar>
@@ -15,14 +15,13 @@ const ListActions = () => (
 );  
 
 const Total = (props: any) => <div>{props.total}</div>;
-const episodeFilters = [
-    <TextInput label="Search" source="q" alwaysOn />,
-];
 export const EpisodeList: React.FC<ListProps> = props => {
     return (
         <div>
-            <Typography variant="h5">Episodes</Typography>
-            <List actions={<ListActions/>} {...props} filters={episodeFilters} title="Episodes" >
+            <Typography sx={{mt:3}} variant="h5">Episodes</Typography>
+            <List actions={<ListActions/>} {...props} filters={[
+                <TextInput sx={{mb:2}} size='small' label="Search" source="q" alwaysOn />
+            ]}>
                 <Datagrid rowClick="edit">
                     <TextField source="title" />
                     <TextField source="description" />
@@ -65,17 +64,19 @@ export const EpisodeEdit: React.FC<EditProps> = props => {
                         disabled={formProps.pristine}
                         handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
 
-                        <div className="mt-4">
-                            <h4>Subclips</h4>
+                        <Box sx={{mt:4}}>
+                            <Typography variant="h6">Subclips</Typography>
                             <Link to={{
                                 pathname: "/subclip/create",
                                 state: { initialValues: { primaryGroupID: formProps.record?.id } }
                             }}>
-                                <button type="button">
-                                    <ContentAdd />Create subclip
-                                </button>
+                                <Button 
+                                size="small"
+                                startIcon={<ContentAdd/>}>
+                                    Create subclip
+                                </Button>
                             </Link>
-                            <ReferenceManyField label="Episodes" reference="subclip" target="subclippedMediaID">
+                            <ReferenceManyField reference="subclip" target="subclippedMediaID">
                                 <ArrayField>
                                     <Datagrid rowClick="edit">
                                         <TextField source="id" />
@@ -84,7 +85,7 @@ export const EpisodeEdit: React.FC<EditProps> = props => {
                                     </Datagrid>
                                 </ArrayField>
                             </ReferenceManyField>
-                        </div>
+                        </Box>
                     </Box>
                 </form>
             }/>

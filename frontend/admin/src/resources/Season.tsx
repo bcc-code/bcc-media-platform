@@ -1,11 +1,11 @@
-import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, Button } from 'react-admin';
+import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton } from 'react-admin';
 // in src/App.js
 import React, { cloneElement } from 'react';
 import { AgeRatingChoices } from '../types/AgeRating';
 import ContentAdd from '@mui/icons-material/Add';
 import { useLocation } from 'react-router-dom';
 import { Media } from '../types/Media';
-import { Box } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 
 const ListActions = () => (
     <TopToolbar>
@@ -18,7 +18,9 @@ const Total = (props: any) => <div>{props.total}</div>;
 
 export const SeasonList: React.FC<ListProps> = props => {
     return (
-        <List actions={<ListActions/>} {...props}  >
+        <List actions={<ListActions/>} {...props} filters={[
+            <TextInput sx={{mb:2}} size='small' label="Search" source="q" alwaysOn />
+        ]}>
             <Datagrid rowClick="edit">
                 <TextField source="title" />
                 <TextField source="description" />
@@ -63,26 +65,28 @@ export const SeasonEdit: React.FC<EditProps> = props => {
                         disabled={formProps.pristine}
                         handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
 
-                        <div className="mt-4">
-                            <h4>Episodes</h4>
+                        <Box sx={{mt:4}}>
+                            <Typography variant="h6">Episodes</Typography>
                             <Link to={{
                                 pathname: "/episode/create",
                                 state: { initialValues: { primaryGroupID: formProps.record?.id } }
                             }}>
-                                <button type="button">
-                                    <ContentAdd />Create episode
-                                </button>
+                                <Button 
+                                size="small"
+                                startIcon={<ContentAdd/>}>
+                                    Create episode
+                                </Button>
                             </Link>
-                            <ReferenceManyField label="Episodes" reference="episode" target="primaryGroupID">
+                            <ReferenceManyField label="Episodes" reference="episode" sortBy='sequenceNumber' target="primaryGroupID">
                                 <ArrayField>
                                     <Datagrid rowClick="edit">
-                                        <TextField source="id" />
+                                        <NumberField source="sequenceNumber" />
                                         <TextField source="title" />
                                         <TextField source="description" />
                                     </Datagrid>
                                 </ArrayField>
                             </ReferenceManyField>
-                        </div>
+                        </Box>
                     </Box>
                 </form>
             }/>

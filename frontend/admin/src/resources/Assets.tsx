@@ -4,7 +4,9 @@ import { useFormState } from 'react-final-form';
 
 
 export const AssetList: React.FC<ListProps> = props => (
-    <List {...props}>
+    <List {...props} filters={[
+        <TextInput sx={{mb:2}} size='small' label="Search" source="q" alwaysOn />
+    ]}>
         <Datagrid>
             <TextField source="id" />
             <TextField source="sourceID" />

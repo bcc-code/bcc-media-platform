@@ -57,6 +57,9 @@ func (s *MediaServer) GetList(c *gin.Context) {
 	if len(params.Ids) > 0 {
 		query = query.Where(goqu.C("id").In(params.Ids))
 	}
+	if params.SearchQ != "" {
+		query = query.Where(goqu.L("? <% immutable_concat_ws(' ', title, description, long_description)", params.SearchQ))
+	}
 	if col := JsonToDbName(reflect.TypeOf(db.MediaCollectable{}), sort); col != "" {
 		sortCol := goqu.C(col)
 		if order == "asc" {

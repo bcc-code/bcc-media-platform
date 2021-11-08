@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 
 	"github.com/doug-martin/goqu/v9"
-	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/gin-gonic/gin"
 
 	db "go.bcc.media/brunstadtv/db/sqlc"
@@ -18,6 +18,10 @@ func (s *Server) GetAsset(c *gin.Context) {
 	ctx := context.Background()
 	idString, _ := c.Params.Get("id")
 	id, err := strconv.ParseInt(idString, 10, 64)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	result, err := s.queries.GetAsset(ctx, id)
 	if err != nil {
 		fmt.Println(err)
@@ -34,58 +38,59 @@ func (s *Server) GetAssets(c *gin.Context) {
 		return
 	}
 
-	sort := strings.ToLower(c.Query("sort"))
-	order := strings.ToLower(c.Query("order"))
+	sort := strings.ToLower(params.Sort)
+	order := strings.ToLower(params.Order)
 
-	sortCol := goqu.C(sort)
-	var orderedExpression exp.OrderedExpression
-	if order == "asc" {
-		orderedExpression = sortCol.Asc()
-	} else if order == "desc" {
-		orderedExpression = sortCol.Desc()
-	}
-
-	query := goqu.From("asset")
+	query := goqu.Select().From("asset")
 	if len(params.Ids) > 0 {
 		query = query.Where(goqu.C("id").In(params.Ids))
 	}
-	q := c.Request.URL.Query()
-	fieldNames := params.GetFieldNames()
-QueryStringLoop:
-	for key, element := range q {
-		for _, fieldName := range fieldNames {
-			if key[0] == '_' || strings.ToLower(fieldName) == strings.ToLower(key) {
-				continue QueryStringLoop
-			}
-		}
-		mediaStructFields := db.Asset{}.GetFields()
-		for _, field := range mediaStructFields {
-			if field.Tag.Get("json") != key {
-				continue
-			}
-			col := field.Tag.Get("db")
-			if col == "" {
-				continue QueryStringLoop
-			}
-			query = query.Where(goqu.C(col).In(element))
-			break
+	if params.SearchQ != "" {
+		query = query.Where(goqu.L("? <% immutable_concat_ws(' ', name, id::text)", params.SearchQ))
+	}
+	if col := JsonToDbName(reflect.TypeOf(db.Asset{}), sort); col != "" {
+		sortCol := goqu.C(col)
+		if order == "asc" {
+			query = query.Order(sortCol.Asc())
+		} else if order == "desc" {
+			query = query.Order(sortCol.Desc())
 		}
 	}
-	if orderedExpression != nil {
-		query = query.Order(orderedExpression)
+
+	q := c.Request.URL.Query()
+	unhandled := GetUnhandledParams(q)
+	for _, key := range unhandled {
+		if col := JsonToDbName(reflect.TypeOf(db.Asset{}), key); col != "" {
+			query = query.Where(goqu.C(col).In(q.Get(key)))
+		}
+	}
+
+	sqlBeforePagination, _, _ := query.ToSQL()
+	countQuery := "SELECT COUNT(a.*) FROM (" + sqlBeforePagination + ") a"
+	s.dbx.Rebind(countQuery)
+
+	if params.Start.Valid {
+		query = query.Offset(uint(params.Start.Int64))
+	}
+	if params.End.Valid {
+		query = query.Limit((uint)(params.End.Int64 - params.Start.ValueOrZero()))
 	}
 
 	sql, _, _ := query.ToSQL()
 	s.dbx.Rebind(sql)
 
 	results := []db.Asset{}
-	err := s.dbx.Select(&results, sql)
-
-	if err != nil {
+	if err := s.dbx.Select(&results, sql); err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	c.Header("X-Total-Count", strconv.Itoa(len(results)))
+	var count int
+	if err := s.dbx.Get(&count, countQuery); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	c.Header("X-Total-Count", strconv.Itoa(count))
 	c.JSON(http.StatusOK, results)
 }
