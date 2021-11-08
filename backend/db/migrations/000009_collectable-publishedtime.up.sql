@@ -1,0 +1,1 @@
+ALTER TABLE collectable ADD COLUMN published_time timestamptz;

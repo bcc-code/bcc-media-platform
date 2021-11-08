@@ -1,0 +1,1 @@
+ALTER TABLE collectable DROP COLUMN published_time;
