@@ -13,12 +13,14 @@ WITH c AS (
         type,
         available_from,
         available_to,
+        published_time,
         status
     ) VALUES (
         'media',
         $1,
         $2,
-        $3
+        $3,
+        $16
     ) RETURNING *
 ),
 m AS (
@@ -66,6 +68,7 @@ t AS (
 SELECT 
     c.status,
     c.type,
+    c.published_time,
     c.available_from,
     c.available_to,
 	t.title,
@@ -82,6 +85,7 @@ WITH c AS (
     SET
         available_from = $1,
         available_to = $2,
+        published_time = $17,
         status = $3
     WHERE c1.id = $4
     RETURNING c1.*
@@ -141,6 +145,7 @@ WITH c AS (
     SET
         available_from = $1,
         available_to = $2,
+        published_time = $17,
         status = $3
     WHERE c1.id = $4
     RETURNING c1.*
@@ -175,6 +180,7 @@ SELECT
     c.status,
     c.type,
     c.available_from,
+    c.published_time,
     c.available_to,
 	t.title,
 	t.description,

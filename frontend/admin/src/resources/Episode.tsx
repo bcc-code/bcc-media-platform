@@ -25,6 +25,7 @@ export const EpisodeList: React.FC<ListProps> = props => {
                 <Datagrid rowClick="edit">
                     <TextField source="title" />
                     <TextField source="description" />
+                    <DateField source="publishedTime" />
                     <DateField source="createdAt" />
                     <DateField source="updatedAt" />
                 </Datagrid>
@@ -52,6 +53,7 @@ export const EpisodeEdit: React.FC<EditProps> = props => {
                         <TextInput source="title" />
                         <TextInput source="description" />
                         <TextInput source="longDescription" />
+                        <DateTimeInput source="publishedTime"/>
                         <DateTimeInput source="availableFrom"/>
                         <DateTimeInput source="availableTo"/>
                         <SelectInput source="agerating" choices={AgeRatingChoices}/>

@@ -28,7 +28,7 @@ func (q *Queries) GetAsset(ctx context.Context, id int64) (Asset, error) {
 }
 
 const getMedia = `-- name: GetMedia :one
-SELECT status, type, available_from, available_to, title, description, long_description, image_id, translation_id, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at FROM media_collectable
+SELECT status, type, available_from, available_to, title, description, long_description, image_id, translation_id, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at, published_time FROM media_collectable
 WHERE id = $1 LIMIT 1
 `
 
@@ -58,6 +58,7 @@ func (q *Queries) GetMedia(ctx context.Context, id int64) (MediaCollectable, err
 		&i.Agerating,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.PublishedTime,
 	)
 	return i, err
 }
@@ -68,13 +69,15 @@ WITH c AS (
         type,
         available_from,
         available_to,
+        published_time,
         status
     ) VALUES (
         'media',
         $1,
         $2,
-        $3
-    ) RETURNING id, type, available_from, available_to, status, created_at, updated_at
+        $3,
+        $16
+    ) RETURNING id, type, available_from, available_to, status, created_at, updated_at, published_time
 ),
 m AS (
     INSERT INTO media (
@@ -121,6 +124,7 @@ t AS (
 SELECT 
     c.status,
     c.type,
+    c.published_time,
     c.available_from,
     c.available_to,
 	t.title,
@@ -135,7 +139,7 @@ SELECT
 type InsertMediaParams struct {
 	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
 	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
-	Status            int16          `db:"status" json:"status"`
+	PublishedTime     null_v4.Time   `db:"published_time" json:"publishedTime"`
 	MediaType         null_v4.String `db:"media_type" json:"mediaType"`
 	PrimaryGroupID    null_v4.Int    `db:"primary_group_id" json:"primaryGroupID"`
 	SubclippedMediaID null_v4.Int    `db:"subclipped_media_id" json:"subclippedMediaID"`
@@ -148,11 +152,13 @@ type InsertMediaParams struct {
 	Title             null_v4.String `db:"title" json:"title"`
 	Description       null_v4.String `db:"description" json:"description"`
 	LongDescription   null_v4.String `db:"long_description" json:"longDescription"`
+	Status            int16          `db:"status" json:"status"`
 }
 
 type InsertMediaRow struct {
 	Status            int16          `db:"status" json:"status"`
 	Type              null_v4.String `db:"type" json:"type"`
+	PublishedTime     null_v4.Time   `db:"published_time" json:"publishedTime"`
 	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
 	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
 	Title             null_v4.String `db:"title" json:"title"`
@@ -179,7 +185,7 @@ func (q *Queries) InsertMedia(ctx context.Context, arg InsertMediaParams) (Inser
 	row := q.db.QueryRowContext(ctx, insertMedia,
 		arg.AvailableFrom,
 		arg.AvailableTo,
-		arg.Status,
+		arg.PublishedTime,
 		arg.MediaType,
 		arg.PrimaryGroupID,
 		arg.SubclippedMediaID,
@@ -192,11 +198,13 @@ func (q *Queries) InsertMedia(ctx context.Context, arg InsertMediaParams) (Inser
 		arg.Title,
 		arg.Description,
 		arg.LongDescription,
+		arg.Status,
 	)
 	var i InsertMediaRow
 	err := row.Scan(
 		&i.Status,
 		&i.Type,
+		&i.PublishedTime,
 		&i.AvailableFrom,
 		&i.AvailableTo,
 		&i.Title,
@@ -227,9 +235,10 @@ WITH c AS (
     SET
         available_from = $1,
         available_to = $2,
+        published_time = $17,
         status = $3
     WHERE c1.id = $4
-    RETURNING c1.id, c1.type, c1.available_from, c1.available_to, c1.status, c1.created_at, c1.updated_at
+    RETURNING c1.id, c1.type, c1.available_from, c1.available_to, c1.status, c1.created_at, c1.updated_at, c1.published_time
 ),
 m AS (
     UPDATE media m1
@@ -261,6 +270,7 @@ SELECT
     c.status,
     c.type,
     c.available_from,
+    c.published_time,
     c.available_to,
 	t.title,
 	t.description,
@@ -287,12 +297,14 @@ type UpdateMediaParams struct {
 	Title             null_v4.String `db:"title" json:"title"`
 	Description       null_v4.String `db:"description" json:"description"`
 	LongDescription   null_v4.String `db:"long_description" json:"longDescription"`
+	PublishedTime     null_v4.Time   `db:"published_time" json:"publishedTime"`
 }
 
 type UpdateMediaRow struct {
 	Status            int16          `db:"status" json:"status"`
 	Type              null_v4.String `db:"type" json:"type"`
 	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
+	PublishedTime     null_v4.Time   `db:"published_time" json:"publishedTime"`
 	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
 	Title             null_v4.String `db:"title" json:"title"`
 	Description       null_v4.String `db:"description" json:"description"`
@@ -331,12 +343,14 @@ func (q *Queries) UpdateMedia(ctx context.Context, arg UpdateMediaParams) (Updat
 		arg.Title,
 		arg.Description,
 		arg.LongDescription,
+		arg.PublishedTime,
 	)
 	var i UpdateMediaRow
 	err := row.Scan(
 		&i.Status,
 		&i.Type,
 		&i.AvailableFrom,
+		&i.PublishedTime,
 		&i.AvailableTo,
 		&i.Title,
 		&i.Description,
@@ -365,9 +379,10 @@ WITH c AS (
     SET
         available_from = $1,
         available_to = $2,
+        published_time = $17,
         status = $3
     WHERE c1.id = $4
-    RETURNING c1.id, c1.type, c1.available_from, c1.available_to, c1.status, c1.created_at, c1.updated_at
+    RETURNING c1.id, c1.type, c1.available_from, c1.available_to, c1.status, c1.created_at, c1.updated_at, c1.published_time
 ),
 m AS (
     UPDATE media m1
@@ -436,6 +451,7 @@ type UpsertMediaParams struct {
 	Title             null_v4.String `db:"title" json:"title"`
 	Description       null_v4.String `db:"description" json:"description"`
 	LongDescription   null_v4.String `db:"long_description" json:"longDescription"`
+	PublishedTime     null_v4.Time   `db:"published_time" json:"publishedTime"`
 }
 
 type UpsertMediaRow struct {
@@ -480,6 +496,7 @@ func (q *Queries) UpsertMedia(ctx context.Context, arg UpsertMediaParams) (Upser
 		arg.Title,
 		arg.Description,
 		arg.LongDescription,
+		arg.PublishedTime,
 	)
 	var i UpsertMediaRow
 	err := row.Scan(

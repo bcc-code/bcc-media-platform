@@ -24,6 +24,7 @@ export const SeasonList: React.FC<ListProps> = props => {
             <Datagrid rowClick="edit">
                 <TextField source="title" />
                 <TextField source="description" />
+                <DateField source="publishedTime" />
                 <DateField source="createdAt" />
                 <DateField source="updatedAt" />
                 <ReferenceManyField 
@@ -57,6 +58,7 @@ export const SeasonEdit: React.FC<EditProps> = props => {
                         <TextInput source="title" />
                         <TextInput source="description" />
                         <SelectInput source="agerating" choices={AgeRatingChoices}/>
+                        <DateTimeInput source="publishedTime"/>
                         <DateTimeInput source="availableFrom"/>
                         <DateTimeInput source="availableTo"/>
                         

@@ -74,6 +74,7 @@ type Collectable struct {
 	Status        int16          `db:"status" json:"status"`
 	CreatedAt     time.Time      `db:"created_at" json:"createdAt"`
 	UpdatedAt     time.Time      `db:"updated_at" json:"updatedAt"`
+	PublishedTime null_v4.Time   `db:"published_time" json:"publishedTime"`
 }
 
 type Collection struct {
@@ -168,6 +169,7 @@ type MediaCollectable struct {
 	Agerating         null_v4.String `db:"agerating" json:"agerating"`
 	CreatedAt         time.Time      `db:"created_at" json:"createdAt"`
 	UpdatedAt         time.Time      `db:"updated_at" json:"updatedAt"`
+	PublishedTime     null_v4.Time   `db:"published_time" json:"publishedTime"`
 }
 
 type MediaT struct {
