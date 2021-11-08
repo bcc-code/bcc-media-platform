@@ -1,4 +1,4 @@
-import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton } from 'react-admin';
+import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, ReferenceArrayInput } from 'react-admin';
 // in src/App.js
 import React, { cloneElement } from 'react';
 import { AgeRatingChoices } from '../types/AgeRating';
@@ -61,6 +61,10 @@ export const ShowEdit: React.FC<EditProps> = props => {
                         <DateTimeInput source="availableFrom"/>
                         <DateTimeInput source="availableTo"/>
                         
+                        <ReferenceArrayInput source="usergroups" reference="usergroups">
+                            <SelectArrayInput optionText="id" />
+                        </ReferenceArrayInput>
+                        
                         <SaveButton
                         saving={formProps.saving}
                         disabled={formProps.pristine}
@@ -108,6 +112,9 @@ export const ShowCreate: React.FC<CreateProps> = props => {
                     <SelectInput source="agerating" choices={AgeRatingChoices}/>
                     <DateField source="createdAt" showTime />
                     <DateField source="updatedAt" showTime />
+                    <ReferenceArrayInput source="usergroups" reference="usergroups">
+                        <SelectArrayInput optionText="id" />
+                    </ReferenceArrayInput>
                     <Toolbar>
                         <SaveButton
                         saving={formProps.saving}

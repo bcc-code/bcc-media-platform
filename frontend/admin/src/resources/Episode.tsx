@@ -1,4 +1,4 @@
-import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, AutocompleteInput } from 'react-admin';
+import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, AutocompleteInput, ReferenceArrayInput } from 'react-admin';
 // in src/App.js
 import React, { cloneElement } from 'react';
 import { AgeRatingChoices } from '../types/AgeRating';
@@ -60,6 +60,9 @@ export const EpisodeEdit: React.FC<EditProps> = props => {
                         <ReferenceInput source="assetID" reference="assets" label="Asset" className="w-full" >
                             <AutocompleteInput optionText="name" />
                         </ReferenceInput>
+                        <ReferenceArrayInput source="usergroups" reference="usergroups">
+                            <SelectArrayInput optionText="id" />
+                        </ReferenceArrayInput>
                         
                         <SaveButton
                         saving={formProps.saving}
@@ -113,6 +116,9 @@ export const EpisodeCreate: React.FC<CreateProps> = props => {
                     <ReferenceInput source="assetID" reference="assets" label="Asset">
                         <SelectInput optionText="name" />
                     </ReferenceInput>
+                    <ReferenceArrayInput source="usergroups" reference="usergroups">
+                        <SelectArrayInput optionText="id" />
+                    </ReferenceArrayInput>
                     <DateField source="createdAt" showTime />
                     <DateField source="updatedAt" showTime />
                     <Toolbar>

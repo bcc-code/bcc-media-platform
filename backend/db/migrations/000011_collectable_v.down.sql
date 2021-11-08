@@ -10,7 +10,10 @@ SELECT
 	t.long_description,
 	t.image_id,
 	t.id as translation_id,
-    m.*
+    m.*,
+    c.published_time
 FROM media m
 JOIN collectable c USING (id)
-LEFT JOIN media_t t ON t.media_id = m.id AND language_code = 'no'
+LEFT JOIN media_t t ON t.media_id = m.id AND language_code = 'no';
+
+DROP VIEW collectable_v;

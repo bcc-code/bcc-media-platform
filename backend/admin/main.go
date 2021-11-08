@@ -72,6 +72,7 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
+	r.GET("/usergroups", s.GetUserGroups)
 	r.GET("/asset-versions", s.GetAssetVersions)
 	r.GET("/assets", s.GetAssets)
 	r.GET("/assets/:id", s.GetAsset)

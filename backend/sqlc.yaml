@@ -9,6 +9,14 @@ packages:
     emit_db_tags: true
     json_tags_case_style: camel
 overrides:
+  - column: "media_collectable.usergroups"
+    go_type:
+      import: "github.com/lib/pq"
+      type: "StringArray"
+  - column: "collectable_v.usergroups"
+    go_type:
+      import: "github.com/lib/pq"
+      type: "StringArray"
   - go_type:
       import: "gopkg.in/guregu/null.v4"
       type: "String"

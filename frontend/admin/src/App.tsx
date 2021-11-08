@@ -33,6 +33,7 @@ const App = () => (
         <Resource name="assets" list={AssetList} />
         <Resource name="media" edit={MediaEdit} create={MediaCreate} icon={Icons.PermMedia}/>
         <Resource name="asset-versions"/>
+        <Resource name="usergroups" list={ListGuesser}/>
     </Admin>
 );
 

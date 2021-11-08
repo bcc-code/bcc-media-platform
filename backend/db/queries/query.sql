@@ -83,27 +83,26 @@ SELECT
 WITH c AS (
     UPDATE collectable c1
     SET
-        available_from = $1,
-        available_to = $2,
-        published_time = $17,
-        status = $3
-    WHERE c1.id = $4
+        available_from = sqlc.arg(available_from),
+        available_to = sqlc.arg(available_to),
+        published_time = sqlc.arg(published_time),
+        status = sqlc.arg(status)
+    WHERE c1.id = sqlc.arg(id)
     RETURNING c1.*
 ),
 m AS (
     UPDATE media m1
     SET
-        media_type = $5,
-        primary_group_id = $6,
-        subclipped_media_id = $7,
-        reference_media_id = $8,
-        sequence_number = $9,
-        start_time = $10,
-        end_time = $11,
-        asset_id = $12,
-        agerating = $13
-    FROM c
-    WHERE m1.id = c.id
+        media_type = sqlc.arg(media_type),
+        primary_group_id = sqlc.arg(primary_group_id),
+        subclipped_media_id = sqlc.arg(subclipped_media_id),
+        reference_media_id = sqlc.arg(reference_media_id),
+        sequence_number = sqlc.arg(sequence_number),
+        start_time = sqlc.arg(start_time),
+        end_time = sqlc.arg(end_time),
+        asset_id = sqlc.arg(asset_id),
+        agerating = sqlc.arg(agerating)
+    WHERE m1.id = sqlc.arg(id)
     RETURNING m1.*
 ),
 t AS (
@@ -114,27 +113,34 @@ t AS (
         description,
         long_description
     ) SELECT 
-        c.id,
+        sqlc.arg(id),
         'no',
-        $14,
-        $15,
-        $16
-    FROM c
+        sqlc.arg(title),
+        sqlc.arg(description),
+        sqlc.arg(long_description)
     ON CONFLICT (media_id, language_code)
         DO UPDATE SET
-            title = $14,
-            description = $15,
-            long_description = $16
+            title = sqlc.arg(title),
+            description = sqlc.arg(description),
+            long_description = sqlc.arg(long_description)
     RETURNING *
+),
+ug_del AS (
+    DELETE FROM usergroup_collectable
+    where collectable_id=sqlc.arg(id) and usergroup_id not in (select ug.id from unnest(sqlc.arg(usergroups)::text[]) as ug(id))
+),
+ug_ins AS (
+    INSERT INTO usergroup_collectable(usergroup_id, collectable_id)
+    select ug.id, sqlc.arg(id)
+    from unnest(sqlc.arg(usergroups)::text[]) as ug(id)
+    ON CONFLICT (usergroup_id, collectable_id) DO NOTHING
 )
 SELECT 
-    c.status,
-    c.type,
-    c.available_from,
-    c.available_to,
+    m.*,
+    c.*,
+    sqlc.arg(usergroups)::text[] as usergroups,
 	t.title,
 	t.description,
 	t.long_description,
-	t.image_id,
-    m.*
+	t.image_id
     FROM c,t,m;

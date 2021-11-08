@@ -8,6 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/jackc/pgx/v4 v4.13.0
 	github.com/jmoiron/sqlx v1.3.4
+	github.com/lib/pq v1.10.3
 	github.com/rs/zerolog v1.26.0
 	github.com/tabbed/pqtype v0.1.1
 	gopkg.in/guregu/null.v4 v4.0.0

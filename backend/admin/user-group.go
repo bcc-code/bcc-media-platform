@@ -13,7 +13,7 @@ import (
 	db "go.bcc.media/brunstadtv/db/sqlc"
 )
 
-func (s *Server) GetAssetVersions(c *gin.Context) {
+func (s *Server) GetUserGroups(c *gin.Context) {
 	var params GetListQuery
 	if err := c.ShouldBind(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -23,14 +23,14 @@ func (s *Server) GetAssetVersions(c *gin.Context) {
 	sort := strings.ToLower(params.Sort)
 	order := strings.ToLower(params.Order)
 
-	query := goqu.Select().From("asset_version")
+	query := goqu.Select().From("usergroup")
 	if len(params.Ids) > 0 {
 		query = query.Where(goqu.C("id").In(params.Ids))
 	}
 	if params.SearchQ != "" {
 		query = query.Where(goqu.L("? <% immutable_concat_ws(' ', title, description, long_description)", params.SearchQ))
 	}
-	if col := JsonToDbName(reflect.TypeOf(db.AssetVersion{}), sort); col != "" {
+	if col := JsonToDbName(reflect.TypeOf(db.Usergroup{}), sort); col != "" {
 		sortCol := goqu.C(col)
 		if order == "asc" {
 			query = query.Order(sortCol.Asc())
@@ -42,7 +42,7 @@ func (s *Server) GetAssetVersions(c *gin.Context) {
 	q := c.Request.URL.Query()
 	unhandled := GetUnhandledParams(q)
 	for _, key := range unhandled {
-		if col := JsonToDbName(reflect.TypeOf(db.AssetVersion{}), key); col != "" {
+		if col := JsonToDbName(reflect.TypeOf(db.Usergroup{}), key); col != "" {
 			query = query.Where(goqu.C(col).In(q.Get(key)))
 		}
 	}
@@ -61,7 +61,7 @@ func (s *Server) GetAssetVersions(c *gin.Context) {
 	sql, _, _ := query.ToSQL()
 	s.dbx.Rebind(sql)
 
-	results := []db.AssetVersion{}
+	results := []db.Usergroup{}
 	if err := s.dbx.Select(&results, sql); err != nil {
 		fmt.Println(err)
 		return

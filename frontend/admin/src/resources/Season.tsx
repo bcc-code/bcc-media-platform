@@ -1,4 +1,4 @@
-import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton } from 'react-admin';
+import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, ReferenceArrayInput } from 'react-admin';
 // in src/App.js
 import React, { cloneElement } from 'react';
 import { AgeRatingChoices } from '../types/AgeRating';
@@ -61,6 +61,9 @@ export const SeasonEdit: React.FC<EditProps> = props => {
                         <DateTimeInput source="publishedTime"/>
                         <DateTimeInput source="availableFrom"/>
                         <DateTimeInput source="availableTo"/>
+                        <ReferenceArrayInput source="usergroups" reference="usergroups">
+                            <SelectArrayInput optionText="id" />
+                        </ReferenceArrayInput>
                         
                         <SaveButton
                         saving={formProps.saving}
@@ -110,6 +113,9 @@ export const SeasonCreate: React.FC<CreateProps> = props => {
                     <TextInput source="title" />
                     <TextInput source="description" />
                     <SelectInput source="agerating" choices={AgeRatingChoices}/>
+                    <ReferenceArrayInput source="usergroups" reference="usergroups">
+                        <SelectArrayInput optionText="id" />
+                    </ReferenceArrayInput>
                     <DateField source="createdAt" showTime />
                     <DateField source="updatedAt" showTime />
                     <Toolbar>

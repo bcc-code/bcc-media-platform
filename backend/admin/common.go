@@ -11,12 +11,13 @@ import (
 )
 
 type GetListQuery struct {
-	Ids     []int    `form:"id"`
-	SearchQ string   `form:"q"`
-	Sort    string   `form:"_sort"`
-	Order   string   `form:"_order"`
-	Start   null.Int `form:"_start"`
-	End     null.Int `form:"_end"`
+	Ids       []int    `form:"id"`
+	IdStrings []string `form:"id"`
+	SearchQ   string   `form:"q"`
+	Sort      string   `form:"_sort"`
+	Order     string   `form:"_order"`
+	Start     null.Int `form:"_start"`
+	End       null.Int `form:"_end"`
 }
 
 func (q GetListQuery) GetFieldNames() []string {

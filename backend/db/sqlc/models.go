@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
@@ -75,6 +76,19 @@ type Collectable struct {
 	CreatedAt     time.Time      `db:"created_at" json:"createdAt"`
 	UpdatedAt     time.Time      `db:"updated_at" json:"updatedAt"`
 	PublishedTime null_v4.Time   `db:"published_time" json:"publishedTime"`
+}
+
+type CollectableV struct {
+	ID            int64          `db:"id" json:"id"`
+	Type          null_v4.String `db:"type" json:"type"`
+	AvailableFrom null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo   null_v4.Time   `db:"available_to" json:"availableTo"`
+	Status        int16          `db:"status" json:"status"`
+	CreatedAt     time.Time      `db:"created_at" json:"createdAt"`
+	UpdatedAt     time.Time      `db:"updated_at" json:"updatedAt"`
+	PublishedTime null_v4.Time   `db:"published_time" json:"publishedTime"`
+	Tags          []int64        `db:"tags" json:"tags"`
+	Usergroups    pq.StringArray `db:"usergroups" json:"usergroups"`
 }
 
 type Collection struct {
@@ -170,6 +184,7 @@ type MediaCollectable struct {
 	CreatedAt         time.Time      `db:"created_at" json:"createdAt"`
 	UpdatedAt         time.Time      `db:"updated_at" json:"updatedAt"`
 	PublishedTime     null_v4.Time   `db:"published_time" json:"publishedTime"`
+	Usergroups        pq.StringArray `db:"usergroups" json:"usergroups"`
 }
 
 type MediaT struct {
