@@ -50,13 +50,13 @@ SELECT
 type InsertTagParams struct {
 	Type         null_v4.String `db:"type" json:"type"`
 	LanguageCode string         `db:"language_code" json:"languageCode"`
-	Title        int16          `db:"title" json:"title"`
+	Title        null_v4.String `db:"title" json:"title"`
 }
 
 type InsertTagRow struct {
 	ID    int64          `db:"id" json:"id"`
 	Type  null_v4.String `db:"type" json:"type"`
-	Title int16          `db:"title" json:"title"`
+	Title null_v4.String `db:"title" json:"title"`
 }
 
 func (q *Queries) InsertTag(ctx context.Context, arg InsertTagParams) (InsertTagRow, error) {

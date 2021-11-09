@@ -32,6 +32,7 @@ const App = () => (
         <Resource name="subclip" list={MediaList} edit={MediaEdit} create={MediaCreate} />
         <Resource name="assets" list={AssetList} />
         <Resource name="media" edit={MediaEdit} create={MediaCreate} icon={Icons.PermMedia}/>
+        <Resource name="tags" edit={EditGuesser} list={ListGuesser} icon={Icons.Tag}/>
         <Resource name="asset-versions"/>
         <Resource name="usergroups" list={ListGuesser}/>
     </Admin>

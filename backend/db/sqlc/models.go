@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
@@ -20,7 +21,7 @@ type AdminCollectable struct {
 	UpdatedAt     time.Time      `db:"updated_at" json:"updatedAt"`
 	PublishedTime null_v4.Time   `db:"published_time" json:"publishedTime"`
 	Tags          []int64        `db:"tags" json:"tags"`
-	Usergroups    []string       `db:"usergroups" json:"usergroups"`
+	Usergroups    pq.StringArray `db:"usergroups" json:"usergroups"`
 }
 
 type AdminMedia struct {
@@ -47,7 +48,7 @@ type AdminMedia struct {
 	CreatedAt         time.Time      `db:"created_at" json:"createdAt"`
 	UpdatedAt         time.Time      `db:"updated_at" json:"updatedAt"`
 	PublishedTime     null_v4.Time   `db:"published_time" json:"publishedTime"`
-	Usergroups        []string       `db:"usergroups" json:"usergroups"`
+	Usergroups        pq.StringArray `db:"usergroups" json:"usergroups"`
 }
 
 type AdminTag struct {
@@ -55,7 +56,7 @@ type AdminTag struct {
 	Type          null_v4.String `db:"type" json:"type"`
 	TranslationID null_v4.Int    `db:"translation_id" json:"translationID"`
 	LanguageCode  null_v4.String `db:"language_code" json:"languageCode"`
-	Title         int16          `db:"title" json:"title"`
+	Title         null_v4.String `db:"title" json:"title"`
 }
 
 type Agerating struct {
@@ -310,10 +311,10 @@ type TagCollectable struct {
 }
 
 type TagT struct {
-	ID           int64       `db:"id" json:"id"`
-	TagID        null_v4.Int `db:"tag_id" json:"tagID"`
-	LanguageCode string      `db:"language_code" json:"languageCode"`
-	Title        int16       `db:"title" json:"title"`
+	ID           int64          `db:"id" json:"id"`
+	TagID        null_v4.Int    `db:"tag_id" json:"tagID"`
+	LanguageCode string         `db:"language_code" json:"languageCode"`
+	Title        null_v4.String `db:"title" json:"title"`
 }
 
 type Tvguideentry struct {

@@ -5,16 +5,27 @@ Custom:
   Column:
   - Name: code
     Type: text
-    UserData: ["a","b","c"]
+    UserData: ["A","6","9","12","15","18"]
     Realistic: ""
   - Name: title
     Type: text
     UserData: []
-    Realistic: ""
+    Realistic: "LoremWord"
   - Name: sort_order
     Type: smallint
     UserData: []
     Realistic: ""
+- Schema: public
+  Table: tag
+  Column:
+  - Name: id
+    Type: bigint
+    UserData: []
+    Realistic: ""
+  - Name: type
+    Type: text
+    UserData: []
+    Realistic: "LoremCharacters"
 - Schema: public
   Table: asset
   Column:
@@ -90,7 +101,7 @@ Custom:
   - Name: url
     Type: text
     UserData: []
-    Realistic: ""
+    Realistic: "LoremCharacters"
 - Schema: public
   Table: language
   Column:
@@ -147,7 +158,7 @@ Custom:
     Realistic: ""
   - Name: agerating
     Type: text
-    UserData: []
+    UserData: ["A","6","9","12","15","18"]
     Realistic: ""
 - Schema: public
   Table: media_t
@@ -182,19 +193,19 @@ Custom:
   - Name: cohort_id
     Type: text
     UserData: []
-    Realistic: ""
+    Realistic: "LoremCharacters"
   - Name: action
     Type: text
     UserData: []
-    Realistic: ""
+    Realistic: "LoremCharacters"
   - Name: internal_url
     Type: text
     UserData: []
-    Realistic: ""
+    Realistic: "LoremCharacters"
   - Name: external_url
     Type: text
     UserData: []
-    Realistic: ""
+    Realistic: "LoremCharacters"
   - Name: badge
     Type: smallint
     UserData: []
@@ -239,4 +250,4 @@ Custom:
   - Name: id
     Type: text
     UserData: []
-    Realistic: ""
+    Realistic: "LoremCharacters"

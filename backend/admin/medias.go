@@ -50,7 +50,7 @@ func (s *MediaServer) GetList(c *gin.Context) {
 	sort := strings.ToLower(params.Sort)
 	order := strings.ToLower(params.Order)
 
-	query := goqu.Select().From("media_collectable")
+	query := goqu.Select().From("admin.media")
 	if s.FilterByType != "" {
 		query = query.Where(goqu.C("media_type").Eq(s.FilterByType))
 	}

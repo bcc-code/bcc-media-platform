@@ -60,7 +60,7 @@ func (q *Queries) GetMedia(ctx context.Context, id int64) (AdminMedia, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.PublishedTime,
-		pq.Array(&i.Usergroups),
+		&i.Usergroups,
 	)
 	return i, err
 }

@@ -9,11 +9,11 @@ packages:
     emit_db_tags: true
     json_tags_case_style: camel
 overrides:
-  - column: "media_collectable.usergroups"
+  - column: "admin.media.usergroups"
     go_type:
       import: "github.com/lib/pq"
       type: "StringArray"
-  - column: "collectable_v.usergroups"
+  - column: "admin.collectable.usergroups"
     go_type:
       import: "github.com/lib/pq"
       type: "StringArray"
