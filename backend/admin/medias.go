@@ -60,7 +60,7 @@ func (s *MediaServer) GetList(c *gin.Context) {
 	if params.SearchQ != "" {
 		query = query.Where(goqu.L("? <% immutable_concat_ws(' ', title, description, long_description)", params.SearchQ))
 	}
-	if col := JsonToDbName(reflect.TypeOf(db.MediaCollectable{}), sort); col != "" {
+	if col := JsonToDbName(reflect.TypeOf(db.AdminMedia{}), sort); col != "" {
 		sortCol := goqu.C(col)
 		if order == "asc" {
 			query = query.Order(sortCol.Asc())
@@ -72,7 +72,7 @@ func (s *MediaServer) GetList(c *gin.Context) {
 	q := c.Request.URL.Query()
 	unhandled := GetUnhandledParams(q)
 	for _, key := range unhandled {
-		if col := JsonToDbName(reflect.TypeOf(db.MediaCollectable{}), key); col != "" {
+		if col := JsonToDbName(reflect.TypeOf(db.AdminMedia{}), key); col != "" {
 			query = query.Where(goqu.C(col).In(q.Get(key)))
 		}
 	}
@@ -91,7 +91,7 @@ func (s *MediaServer) GetList(c *gin.Context) {
 	sql, _, _ := query.ToSQL()
 	s.Server.dbx.Rebind(sql)
 
-	results := []db.MediaCollectable{}
+	results := []db.AdminMedia{}
 	if err := s.Server.dbx.Select(&results, sql); err != nil {
 		fmt.Println(err)
 		return

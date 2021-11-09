@@ -23,7 +23,7 @@ type AdminCollectable struct {
 	Usergroups    []string       `db:"usergroups" json:"usergroups"`
 }
 
-type AdminMedium struct {
+type AdminMedia struct {
 	Status            int16          `db:"status" json:"status"`
 	Type              null_v4.String `db:"type" json:"type"`
 	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`

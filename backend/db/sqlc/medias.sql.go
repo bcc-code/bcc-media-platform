@@ -33,9 +33,9 @@ SELECT status, type, available_from, available_to, title, description, long_desc
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetMedia(ctx context.Context, id int64) (AdminMedium, error) {
+func (q *Queries) GetMedia(ctx context.Context, id int64) (AdminMedia, error) {
 	row := q.db.QueryRowContext(ctx, getMedia, id)
-	var i AdminMedium
+	var i AdminMedia
 	err := row.Scan(
 		&i.Status,
 		&i.Type,

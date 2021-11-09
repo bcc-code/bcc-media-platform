@@ -2,7 +2,7 @@ package db
 
 import "reflect"
 
-func (q MediaCollectable) GetFields() []reflect.StructField {
+func (q AdminMedia) GetFields() []reflect.StructField {
 	val := reflect.ValueOf(q)
 	var result []reflect.StructField
 	for i := 0; i < val.Type().NumField(); i++ {

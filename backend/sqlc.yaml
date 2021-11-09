@@ -53,4 +53,5 @@ overrides:
     nullable: true
     db_type: "timestamptz"
 rename:
+  admin_medium: AdminMedia
   medium: Media
