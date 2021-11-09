@@ -1,5 +1,5 @@
 -- name: GetMedia :one
-SELECT * FROM media_collectable
+SELECT * FROM admin.media
 WHERE id = $1 LIMIT 1;
 
 -- name: GetAsset :one

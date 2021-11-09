@@ -6,10 +6,57 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
+
+type AdminCollectable struct {
+	ID            int64          `db:"id" json:"id"`
+	Type          null_v4.String `db:"type" json:"type"`
+	AvailableFrom null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo   null_v4.Time   `db:"available_to" json:"availableTo"`
+	Status        int16          `db:"status" json:"status"`
+	CreatedAt     time.Time      `db:"created_at" json:"createdAt"`
+	UpdatedAt     time.Time      `db:"updated_at" json:"updatedAt"`
+	PublishedTime null_v4.Time   `db:"published_time" json:"publishedTime"`
+	Tags          []int64        `db:"tags" json:"tags"`
+	Usergroups    []string       `db:"usergroups" json:"usergroups"`
+}
+
+type AdminMedium struct {
+	Status            int16          `db:"status" json:"status"`
+	Type              null_v4.String `db:"type" json:"type"`
+	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
+	Title             null_v4.String `db:"title" json:"title"`
+	Description       null_v4.String `db:"description" json:"description"`
+	LongDescription   null_v4.String `db:"long_description" json:"longDescription"`
+	ImageID           null_v4.Int    `db:"image_id" json:"imageID"`
+	TranslationID     null_v4.Int    `db:"translation_id" json:"translationID"`
+	ID                int64          `db:"id" json:"id"`
+	CollectableType   null_v4.String `db:"collectable_type" json:"collectableType"`
+	MediaType         null_v4.String `db:"media_type" json:"mediaType"`
+	PrimaryGroupID    null_v4.Int    `db:"primary_group_id" json:"primaryGroupID"`
+	SubclippedMediaID null_v4.Int    `db:"subclipped_media_id" json:"subclippedMediaID"`
+	ReferenceMediaID  null_v4.Int    `db:"reference_media_id" json:"referenceMediaID"`
+	SequenceNumber    int16          `db:"sequence_number" json:"sequenceNumber"`
+	StartTime         null_v4.Float  `db:"start_time" json:"startTime"`
+	EndTime           null_v4.Float  `db:"end_time" json:"endTime"`
+	AssetID           null_v4.Int    `db:"asset_id" json:"assetID"`
+	Agerating         null_v4.String `db:"agerating" json:"agerating"`
+	CreatedAt         time.Time      `db:"created_at" json:"createdAt"`
+	UpdatedAt         time.Time      `db:"updated_at" json:"updatedAt"`
+	PublishedTime     null_v4.Time   `db:"published_time" json:"publishedTime"`
+	Usergroups        []string       `db:"usergroups" json:"usergroups"`
+}
+
+type AdminTag struct {
+	ID            int64          `db:"id" json:"id"`
+	Type          null_v4.String `db:"type" json:"type"`
+	TranslationID null_v4.Int    `db:"translation_id" json:"translationID"`
+	LanguageCode  null_v4.String `db:"language_code" json:"languageCode"`
+	Title         int16          `db:"title" json:"title"`
+}
 
 type Agerating struct {
 	Code      string         `db:"code" json:"code"`
@@ -76,19 +123,6 @@ type Collectable struct {
 	CreatedAt     time.Time      `db:"created_at" json:"createdAt"`
 	UpdatedAt     time.Time      `db:"updated_at" json:"updatedAt"`
 	PublishedTime null_v4.Time   `db:"published_time" json:"publishedTime"`
-}
-
-type CollectableV struct {
-	ID            int64          `db:"id" json:"id"`
-	Type          null_v4.String `db:"type" json:"type"`
-	AvailableFrom null_v4.Time   `db:"available_from" json:"availableFrom"`
-	AvailableTo   null_v4.Time   `db:"available_to" json:"availableTo"`
-	Status        int16          `db:"status" json:"status"`
-	CreatedAt     time.Time      `db:"created_at" json:"createdAt"`
-	UpdatedAt     time.Time      `db:"updated_at" json:"updatedAt"`
-	PublishedTime null_v4.Time   `db:"published_time" json:"publishedTime"`
-	Tags          []int64        `db:"tags" json:"tags"`
-	Usergroups    pq.StringArray `db:"usergroups" json:"usergroups"`
 }
 
 type Collection struct {
@@ -158,33 +192,6 @@ type Media struct {
 	Agerating null_v4.String `db:"agerating" json:"agerating"`
 	CreatedAt time.Time      `db:"created_at" json:"createdAt"`
 	UpdatedAt time.Time      `db:"updated_at" json:"updatedAt"`
-}
-
-type MediaCollectable struct {
-	Status            int16          `db:"status" json:"status"`
-	Type              null_v4.String `db:"type" json:"type"`
-	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
-	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
-	Title             null_v4.String `db:"title" json:"title"`
-	Description       null_v4.String `db:"description" json:"description"`
-	LongDescription   null_v4.String `db:"long_description" json:"longDescription"`
-	ImageID           null_v4.Int    `db:"image_id" json:"imageID"`
-	TranslationID     null_v4.Int    `db:"translation_id" json:"translationID"`
-	ID                int64          `db:"id" json:"id"`
-	CollectableType   null_v4.String `db:"collectable_type" json:"collectableType"`
-	MediaType         null_v4.String `db:"media_type" json:"mediaType"`
-	PrimaryGroupID    null_v4.Int    `db:"primary_group_id" json:"primaryGroupID"`
-	SubclippedMediaID null_v4.Int    `db:"subclipped_media_id" json:"subclippedMediaID"`
-	ReferenceMediaID  null_v4.Int    `db:"reference_media_id" json:"referenceMediaID"`
-	SequenceNumber    int16          `db:"sequence_number" json:"sequenceNumber"`
-	StartTime         null_v4.Float  `db:"start_time" json:"startTime"`
-	EndTime           null_v4.Float  `db:"end_time" json:"endTime"`
-	AssetID           null_v4.Int    `db:"asset_id" json:"assetID"`
-	Agerating         null_v4.String `db:"agerating" json:"agerating"`
-	CreatedAt         time.Time      `db:"created_at" json:"createdAt"`
-	UpdatedAt         time.Time      `db:"updated_at" json:"updatedAt"`
-	PublishedTime     null_v4.Time   `db:"published_time" json:"publishedTime"`
-	Usergroups        pq.StringArray `db:"usergroups" json:"usergroups"`
 }
 
 type MediaT struct {

@@ -29,13 +29,13 @@ func (q *Queries) GetAsset(ctx context.Context, id int64) (Asset, error) {
 }
 
 const getMedia = `-- name: GetMedia :one
-SELECT status, type, available_from, available_to, title, description, long_description, image_id, translation_id, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at, published_time, usergroups FROM media_collectable
+SELECT status, type, available_from, available_to, title, description, long_description, image_id, translation_id, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at, published_time, usergroups FROM admin.media
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetMedia(ctx context.Context, id int64) (MediaCollectable, error) {
+func (q *Queries) GetMedia(ctx context.Context, id int64) (AdminMedium, error) {
 	row := q.db.QueryRowContext(ctx, getMedia, id)
-	var i MediaCollectable
+	var i AdminMedium
 	err := row.Scan(
 		&i.Status,
 		&i.Type,
@@ -60,7 +60,7 @@ func (q *Queries) GetMedia(ctx context.Context, id int64) (MediaCollectable, err
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.PublishedTime,
-		&i.Usergroups,
+		pq.Array(&i.Usergroups),
 	)
 	return i, err
 }
