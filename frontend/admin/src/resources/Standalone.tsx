@@ -1,4 +1,4 @@
-import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton } from 'react-admin';
+import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, ReferenceArrayInput } from 'react-admin';
 // in src/App.js
 import React, { cloneElement } from 'react';
 import { AgeRatingChoices } from '../types/AgeRating';
@@ -37,7 +37,7 @@ export const StandaloneList: React.FC<ListProps> = props => {
 
 export const StandaloneEdit: React.FC<EditProps> = props => {
     return (
-        <Edit {...props}>
+        <Edit {...props} undoable={false}>
             <FormWithRedirect warnWhenUnsavedChanges render={formProps =>
                 <form>
                    <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
@@ -47,7 +47,6 @@ export const StandaloneEdit: React.FC<EditProps> = props => {
                             <span>Created</span> <DateField source="createdAt" showTime />
                             &nbsp;| <span>Last updated </span> <DateField source="updatedAt" showTime />
                         </Box>
-                        <NumberInput source="sequenceNumber" />
                         <TextInput source="title" />
                         <TextInput source="description" />
                         <TextInput source="longDescription" />
@@ -58,6 +57,12 @@ export const StandaloneEdit: React.FC<EditProps> = props => {
                         <ReferenceInput source="assetID" reference="assets" label="Asset">
                             <SelectInput optionText="name" />
                         </ReferenceInput>
+                        <ReferenceArrayInput source="usergroups" reference="usergroups">
+                            <SelectArrayInput optionText="id" />
+                        </ReferenceArrayInput>
+                        <ReferenceArrayInput source="tags" reference="tags">
+                            <SelectArrayInput optionText={(r) => r.title ?? "Error: no title"} />
+                        </ReferenceArrayInput>
                         <div className='mt-2'>
                             <SaveButton
                             saving={formProps.saving}
@@ -102,10 +107,6 @@ export const StandaloneCreate: React.FC<CreateProps> = props => {
         <FormWithRedirect warnWhenUnsavedChanges initialValues={location.state?.initialValues} render={formProps =>
             <form>
                <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
-                    <ReferenceInput required source="primaryGroupID" reference="season" label="Belongs to season">
-                        <SelectInput optionText="title" />
-                    </ReferenceInput>
-                    <NumberInput source="sequenceNumber" />
                     <TextInput source="title" />
                     <TextInput source="description" />
                     <TextInput source="longDescription" />

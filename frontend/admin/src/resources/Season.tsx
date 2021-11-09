@@ -41,7 +41,7 @@ export const SeasonList: React.FC<ListProps> = props => {
 
 export const SeasonEdit: React.FC<EditProps> = props => {
     return (
-        <Edit {...props}>
+        <Edit {...props} undoable={false}>
             <FormWithRedirect warnWhenUnsavedChanges render={formProps =>
                 <form>
                    <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
@@ -63,6 +63,9 @@ export const SeasonEdit: React.FC<EditProps> = props => {
                         <DateTimeInput source="availableTo"/>
                         <ReferenceArrayInput source="usergroups" reference="usergroups">
                             <SelectArrayInput optionText="id" />
+                        </ReferenceArrayInput>
+                        <ReferenceArrayInput source="tags" reference="tags">
+                            <SelectArrayInput optionText={(r) => r.title ?? "Error: no title"} />
                         </ReferenceArrayInput>
                         
                         <SaveButton
@@ -113,9 +116,6 @@ export const SeasonCreate: React.FC<CreateProps> = props => {
                     <TextInput source="title" />
                     <TextInput source="description" />
                     <SelectInput source="agerating" choices={AgeRatingChoices}/>
-                    <ReferenceArrayInput source="usergroups" reference="usergroups">
-                        <SelectArrayInput optionText="id" />
-                    </ReferenceArrayInput>
                     <DateField source="createdAt" showTime />
                     <DateField source="updatedAt" showTime />
                     <Toolbar>

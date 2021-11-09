@@ -19,7 +19,7 @@ export const AssetList: React.FC<ListProps> = props => (
 );
 
 export const AssetEdit: React.FC<EditProps> = props => (
-    <Edit {...props}>
+    <Edit {...props} undoable={false}>
         <FormWithRedirect warnWhenUnsavedChanges render={formProps => (
             <SimpleForm {...formProps}>
                 <NumberInput source="id" />

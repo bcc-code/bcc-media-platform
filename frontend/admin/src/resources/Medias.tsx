@@ -1,4 +1,4 @@
-import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, Button } from 'react-admin';
+import { Datagrid, List, NumberField, TextField, DateField, ListProps, EditButton, SelectInput, Edit, SimpleForm, SaveButton, EditProps, CreateProps, Create, TextInput, NumberInput, ReferenceInput, SelectArrayInput, ReferenceField, FormDataConsumer, SimpleFormView, TabbedForm, Tab, FormTab, FormWithRedirect, DateTimeInput, ReferenceManyField, ArrayField, useWarnWhenUnsavedChanges, Toolbar, Link, TopToolbar, CreateButton, ExportButton, Button, ReferenceArrayInput } from 'react-admin';
 // in src/App.js
 import React, { cloneElement } from 'react';
 import { AgeRatingChoices } from '../types/AgeRating';
@@ -74,7 +74,7 @@ export const MediaList: React.FC<ListProps> = props => {
 
 export const MediaEdit: React.FC<EditProps> = props => {
     return (
-        <Edit {...props}>
+        <Edit {...props} undoable={false}>
             <FormWithRedirect warnWhenUnsavedChanges render={formProps =>
                 <form>
                    <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
@@ -106,7 +106,14 @@ export const MediaEdit: React.FC<EditProps> = props => {
                             <SelectInput optionText="title" />
                         </ReferenceInput>
                         <NumberInput source="assetID" />
-                        
+
+                        <ReferenceArrayInput source="usergroups" reference="usergroups">
+                            <SelectArrayInput optionText="id" />
+                        </ReferenceArrayInput>
+                        <ReferenceArrayInput source="tags" reference="tags">
+                            <SelectArrayInput optionText={(r) => r.title ?? "Error: no title"} />
+                        </ReferenceArrayInput>
+
                         <SaveButton
                         saving={formProps.saving}
                         disabled={formProps.pristine}

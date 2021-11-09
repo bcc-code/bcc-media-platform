@@ -36,7 +36,7 @@ export const EpisodeList: React.FC<ListProps> = props => {
 
 export const EpisodeEdit: React.FC<EditProps> = props => {
     return (
-        <Edit {...props}>
+        <Edit {...props} undoable={false}>
             <FormWithRedirect warnWhenUnsavedChanges render={formProps =>
                 <form>
                     <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
@@ -119,9 +119,6 @@ export const EpisodeCreate: React.FC<CreateProps> = props => {
                     <ReferenceInput source="assetID" reference="assets" label="Asset">
                         <SelectInput optionText="name" />
                     </ReferenceInput>
-                    <ReferenceArrayInput source="usergroups" reference="usergroups">
-                        <SelectArrayInput optionText="id" />
-                    </ReferenceArrayInput>
                     <DateField source="createdAt" showTime />
                     <DateField source="updatedAt" showTime />
                     <Toolbar>

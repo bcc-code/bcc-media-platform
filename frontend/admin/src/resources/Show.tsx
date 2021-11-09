@@ -44,7 +44,7 @@ export const ShowList: React.FC<ListProps> = props => {
 
 export const ShowEdit: React.FC<EditProps> = props => {
     return (
-        <Edit {...props}>
+        <Edit {...props} undoable={false}>
             <FormWithRedirect warnWhenUnsavedChanges render={formProps =>
                 <form>
                    <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
@@ -63,6 +63,9 @@ export const ShowEdit: React.FC<EditProps> = props => {
                         
                         <ReferenceArrayInput source="usergroups" reference="usergroups">
                             <SelectArrayInput optionText="id" />
+                        </ReferenceArrayInput>
+                        <ReferenceArrayInput source="tags" reference="tags">
+                            <SelectArrayInput optionText={(r) => r.title ?? "Error: no title"} />
                         </ReferenceArrayInput>
                         
                         <SaveButton
@@ -112,9 +115,6 @@ export const ShowCreate: React.FC<CreateProps> = props => {
                     <SelectInput source="agerating" choices={AgeRatingChoices}/>
                     <DateField source="createdAt" showTime />
                     <DateField source="updatedAt" showTime />
-                    <ReferenceArrayInput source="usergroups" reference="usergroups">
-                        <SelectArrayInput optionText="id" />
-                    </ReferenceArrayInput>
                     <Toolbar>
                         <SaveButton
                         saving={formProps.saving}

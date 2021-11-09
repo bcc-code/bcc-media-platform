@@ -11,7 +11,7 @@ export const TagList: React.FC<ListProps> = props => (
 );
 
 export const TagEdit: React.FC<EditProps> = props => (
-    <Edit {...props}>
+    <Edit {...props} undoable={false}>
         <SimpleForm>
             <TextInput source="title" />
             <TextInput source="type" />
