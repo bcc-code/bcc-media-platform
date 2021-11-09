@@ -63,6 +63,9 @@ export const EpisodeEdit: React.FC<EditProps> = props => {
                         <ReferenceArrayInput source="usergroups" reference="usergroups">
                             <SelectArrayInput optionText="id" />
                         </ReferenceArrayInput>
+                        <ReferenceArrayInput source="tags" reference="tags">
+                            <SelectArrayInput optionText={(r) => r.title ?? "Error: no title"} />
+                        </ReferenceArrayInput>
                         
                         <SaveButton
                         saving={formProps.saving}

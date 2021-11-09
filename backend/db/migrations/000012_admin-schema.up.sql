@@ -31,7 +31,8 @@ SELECT
 	t.id as translation_id,
     m.id, m.collectable_type, m.media_type, m.primary_group_id, m.subclipped_media_id, m.reference_media_id, m.sequence_number, m.start_time, m.end_time, m.asset_id, m.agerating, m.created_at, m.updated_at,
     c.published_time,
-    c.usergroups
+    c.usergroups,
+    c.tags
 FROM media m
 JOIN admin.collectable c USING (id)
 LEFT JOIN media_t t ON t.media_id = m.id AND language_code = 'no';

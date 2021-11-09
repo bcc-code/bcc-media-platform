@@ -10,14 +10,20 @@ import (
 )
 
 const getTag = `-- name: GetTag :one
-SELECT id, type FROM tag
+SELECT id, type, translation_id, language_code, title FROM admin.tag
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetTag(ctx context.Context, id int64) (Tag, error) {
+func (q *Queries) GetTag(ctx context.Context, id int64) (AdminTag, error) {
 	row := q.db.QueryRowContext(ctx, getTag, id)
-	var i Tag
-	err := row.Scan(&i.ID, &i.Type)
+	var i AdminTag
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.TranslationID,
+		&i.LanguageCode,
+		&i.Title,
+	)
 	return i, err
 }
 
@@ -62,6 +68,56 @@ type InsertTagRow struct {
 func (q *Queries) InsertTag(ctx context.Context, arg InsertTagParams) (InsertTagRow, error) {
 	row := q.db.QueryRowContext(ctx, insertTag, arg.Type, arg.LanguageCode, arg.Title)
 	var i InsertTagRow
+	err := row.Scan(&i.ID, &i.Type, &i.Title)
+	return i, err
+}
+
+const upsertTag = `-- name: UpsertTag :one
+WITH t AS (
+    INSERT INTO tag (
+        type
+    ) VALUES (
+        $1
+    )
+    ON CONFLICT (id)
+    DO UPDATE SET type = $1
+    RETURNING id, type
+),
+tt AS (
+    INSERT INTO tag_t (
+        tag_id,
+        language_code,
+        title
+    ) SELECT
+        t.id,
+        'no',
+        $2
+    FROM t
+    ON CONFLICT (tag_id,language_code)
+    DO UPDATE SET title = $2
+    RETURNING id, tag_id, language_code, title
+)
+SELECT 
+    t.id,
+    t.type,
+    tt.title
+    FROM t,tt
+`
+
+type UpsertTagParams struct {
+	Type  null_v4.String `db:"type" json:"type"`
+	Title null_v4.String `db:"title" json:"title"`
+}
+
+type UpsertTagRow struct {
+	ID    int64          `db:"id" json:"id"`
+	Type  null_v4.String `db:"type" json:"type"`
+	Title null_v4.String `db:"title" json:"title"`
+}
+
+func (q *Queries) UpsertTag(ctx context.Context, arg UpsertTagParams) (UpsertTagRow, error) {
+	row := q.db.QueryRowContext(ctx, upsertTag, arg.Type, arg.Title)
+	var i UpsertTagRow
 	err := row.Scan(&i.ID, &i.Type, &i.Title)
 	return i, err
 }

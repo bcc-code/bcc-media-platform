@@ -1,6 +1,6 @@
 // in src/App.js
 import * as React from "react";
-import { Admin, EditGuesser, InputHelperText, ListGuesser, Resource } from 'react-admin';
+import { Admin, EditGuesser, ListGuesser, Resource } from 'react-admin';
 import { createTheme } from '@mui/material/styles';
 import jsonServerProvider from 'ra-data-json-server';
 import { MediaList, MediaEdit, MediaCreate } from "./resources/Medias";
@@ -17,6 +17,7 @@ import { EpisodeCreate, EpisodeEdit, EpisodeList } from "./resources/Episode";
 import { StandaloneCreate, StandaloneEdit, StandaloneList } from "./resources/Standalone";
 import { BtvLayout } from "./layout/CustomLayout";
 import themeReducer from "./configuration/themeReducer";
+import { TagEdit, TagList } from "./resources/Tags";
 
 const dataProvider = jsonServerProvider('http://localhost:8080');
 const App = () => (
@@ -32,7 +33,7 @@ const App = () => (
         <Resource name="subclip" list={MediaList} edit={MediaEdit} create={MediaCreate} />
         <Resource name="assets" list={AssetList} />
         <Resource name="media" edit={MediaEdit} create={MediaCreate} icon={Icons.PermMedia}/>
-        <Resource name="tags" edit={EditGuesser} list={ListGuesser} icon={Icons.Tag}/>
+        <Resource name="tags" edit={TagEdit} list={TagList} icon={Icons.Tag}/>
         <Resource name="asset-versions"/>
         <Resource name="usergroups" list={ListGuesser}/>
     </Admin>

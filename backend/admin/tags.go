@@ -94,3 +94,19 @@ func (s *Server) GetTags(c *gin.Context) {
 	c.Header("X-Total-Count", strconv.Itoa(count))
 	c.JSON(http.StatusOK, results)
 }
+
+func (s *Server) UpsertTag(c *gin.Context) {
+	var params db.UpsertTagParams
+	if err := c.ShouldBind(&params); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	ctx := context.Background()
+	result, err := s.queries.UpsertTag(ctx, params)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}

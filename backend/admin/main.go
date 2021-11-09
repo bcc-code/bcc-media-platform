@@ -74,6 +74,8 @@ func main() {
 
 	r.GET("/tags", s.GetTags)
 	r.GET("/tags/:id", s.GetTag)
+	r.PUT("/tags/:id", s.UpsertTag)
+	r.POST("/tags", s.UpsertTag)
 	r.GET("/usergroups", s.GetUserGroups)
 	r.GET("/asset-versions", s.GetAssetVersions)
 	r.GET("/assets", s.GetAssets)

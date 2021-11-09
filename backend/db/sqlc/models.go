@@ -20,7 +20,7 @@ type AdminCollectable struct {
 	CreatedAt     time.Time      `db:"created_at" json:"createdAt"`
 	UpdatedAt     time.Time      `db:"updated_at" json:"updatedAt"`
 	PublishedTime null_v4.Time   `db:"published_time" json:"publishedTime"`
-	Tags          []int64        `db:"tags" json:"tags"`
+	Tags          pq.Int64Array  `db:"tags" json:"tags"`
 	Usergroups    pq.StringArray `db:"usergroups" json:"usergroups"`
 }
 
@@ -49,6 +49,7 @@ type AdminMedia struct {
 	UpdatedAt         time.Time      `db:"updated_at" json:"updatedAt"`
 	PublishedTime     null_v4.Time   `db:"published_time" json:"publishedTime"`
 	Usergroups        pq.StringArray `db:"usergroups" json:"usergroups"`
+	Tags              pq.Int64Array  `db:"tags" json:"tags"`
 }
 
 type AdminTag struct {

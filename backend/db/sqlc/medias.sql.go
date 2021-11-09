@@ -29,7 +29,7 @@ func (q *Queries) GetAsset(ctx context.Context, id int64) (Asset, error) {
 }
 
 const getMedia = `-- name: GetMedia :one
-SELECT status, type, available_from, available_to, title, description, long_description, image_id, translation_id, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at, published_time, usergroups FROM admin.media
+SELECT status, type, available_from, available_to, title, description, long_description, image_id, translation_id, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at, published_time, usergroups, tags FROM admin.media
 WHERE id = $1 LIMIT 1
 `
 
@@ -61,6 +61,7 @@ func (q *Queries) GetMedia(ctx context.Context, id int64) (AdminMedia, error) {
 		&i.UpdatedAt,
 		&i.PublishedTime,
 		&i.Usergroups,
+		&i.Tags,
 	)
 	return i, err
 }
@@ -235,26 +236,26 @@ const upsertMedia = `-- name: UpsertMedia :one
 WITH c AS (
     UPDATE collectable c1
     SET
-        available_from = $2,
-        available_to = $3,
-        published_time = $4,
-        status = $5
-    WHERE c1.id = $6
+        available_from = $3,
+        available_to = $4,
+        published_time = $5,
+        status = $6
+    WHERE c1.id = $7
     RETURNING c1.id, c1.type, c1.available_from, c1.available_to, c1.status, c1.created_at, c1.updated_at, c1.published_time
 ),
 m AS (
     UPDATE media m1
     SET
-        media_type = $7,
-        primary_group_id = $8,
-        subclipped_media_id = $9,
-        reference_media_id = $10,
-        sequence_number = $11,
-        start_time = $12,
-        end_time = $13,
-        asset_id = $14,
-        agerating = $15
-    WHERE m1.id = $6
+        media_type = $8,
+        primary_group_id = $9,
+        subclipped_media_id = $10,
+        reference_media_id = $11,
+        sequence_number = $12,
+        start_time = $13,
+        end_time = $14,
+        asset_id = $15,
+        agerating = $16
+    WHERE m1.id = $7
     RETURNING m1.id, m1.collectable_type, m1.media_type, m1.primary_group_id, m1.subclipped_media_id, m1.reference_media_id, m1.sequence_number, m1.start_time, m1.end_time, m1.asset_id, m1.agerating, m1.created_at, m1.updated_at
 ),
 t AS (
@@ -265,32 +266,49 @@ t AS (
         description,
         long_description
     ) SELECT 
-        $6,
+        $7,
         'no',
-        $16,
         $17,
-        $18
+        $18,
+        $19
     ON CONFLICT (media_id, language_code)
         DO UPDATE SET
-            title = $16,
-            description = $17,
-            long_description = $18
+            title = $17,
+            description = $18,
+            long_description = $19
     RETURNING id, media_id, language_code, title, description, long_description, image_id
 ),
 ug_del AS (
     DELETE FROM usergroup_collectable
-    where collectable_id=$6 and usergroup_id not in (select ug.id from unnest($1::text[]) as ug(id))
+    where collectable_id=$7 and usergroup_id not in (select ug.id from unnest($1::text[]) as ug(id))
 ),
 ug_ins AS (
     INSERT INTO usergroup_collectable(usergroup_id, collectable_id)
-    select ug.id, $6
+    select ug.id, $7
     from unnest($1::text[]) as ug(id)
-    ON CONFLICT (usergroup_id, collectable_id) DO NOTHING
+    /*
+        Add this when constraints exist. They get deleted by mock-data
+        ON CONFLICT (usergroup_id, collectable_id) DO NOTHING
+    */
+),
+tg_del AS (
+    DELETE FROM tag_collectable
+    where collectable_id=$7 and tag_id not in (select tg.id from unnest($2::bigint[]) as tg(id))
+),
+tg_ins AS (
+    INSERT INTO tag_collectable(tag_id, collectable_id)
+    select tg.id, $7
+    from unnest($2::bigint[]) as tg(id)
+    /*
+        Add this when constraints exist. They get deleted by mock-data
+        ON CONFLICT (usergroup_id, collectable_id) DO NOTHING
+    */
 )
 SELECT 
     m.id, m.collectable_type, m.media_type, m.primary_group_id, m.subclipped_media_id, m.reference_media_id, m.sequence_number, m.start_time, m.end_time, m.asset_id, m.agerating, m.created_at, m.updated_at,
     c.id, c.type, c.available_from, c.available_to, c.status, c.created_at, c.updated_at, c.published_time,
     $1::text[] as usergroups,
+    $2::bigint[] as tags,
 	t.title,
 	t.description,
 	t.long_description,
@@ -300,6 +318,7 @@ SELECT
 
 type UpsertMediaParams struct {
 	Usergroups        []string       `db:"usergroups" json:"usergroups"`
+	Tags              []int64        `db:"tags" json:"tags"`
 	AvailableFrom     null_v4.Time   `db:"available_from" json:"availableFrom"`
 	AvailableTo       null_v4.Time   `db:"available_to" json:"availableTo"`
 	PublishedTime     null_v4.Time   `db:"published_time" json:"publishedTime"`
@@ -342,6 +361,7 @@ type UpsertMediaRow struct {
 	UpdatedAt_2       time.Time      `db:"updated_at_2" json:"updatedAt2"`
 	PublishedTime     null_v4.Time   `db:"published_time" json:"publishedTime"`
 	Usergroups        []string       `db:"usergroups" json:"usergroups"`
+	Tags              []int64        `db:"tags" json:"tags"`
 	Title             null_v4.String `db:"title" json:"title"`
 	Description       null_v4.String `db:"description" json:"description"`
 	LongDescription   null_v4.String `db:"long_description" json:"longDescription"`
@@ -351,6 +371,7 @@ type UpsertMediaRow struct {
 func (q *Queries) UpsertMedia(ctx context.Context, arg UpsertMediaParams) (UpsertMediaRow, error) {
 	row := q.db.QueryRowContext(ctx, upsertMedia,
 		pq.Array(arg.Usergroups),
+		pq.Array(arg.Tags),
 		arg.AvailableFrom,
 		arg.AvailableTo,
 		arg.PublishedTime,
@@ -393,6 +414,7 @@ func (q *Queries) UpsertMedia(ctx context.Context, arg UpsertMediaParams) (Upser
 		&i.UpdatedAt_2,
 		&i.PublishedTime,
 		pq.Array(&i.Usergroups),
+		pq.Array(&i.Tags),
 		&i.Title,
 		&i.Description,
 		&i.LongDescription,

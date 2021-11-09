@@ -133,12 +133,29 @@ ug_ins AS (
     INSERT INTO usergroup_collectable(usergroup_id, collectable_id)
     select ug.id, sqlc.arg(id)
     from unnest(sqlc.arg(usergroups)::text[]) as ug(id)
-    ON CONFLICT (usergroup_id, collectable_id) DO NOTHING
+    /*
+        Add this when constraints exist. They get deleted by mock-data
+        ON CONFLICT (usergroup_id, collectable_id) DO NOTHING
+    */
+),
+tg_del AS (
+    DELETE FROM tag_collectable
+    where collectable_id=sqlc.arg(id) and tag_id not in (select tg.id from unnest(sqlc.arg(tags)::bigint[]) as tg(id))
+),
+tg_ins AS (
+    INSERT INTO tag_collectable(tag_id, collectable_id)
+    select tg.id, sqlc.arg(id)
+    from unnest(sqlc.arg(tags)::bigint[]) as tg(id)
+    /*
+        Add this when constraints exist. They get deleted by mock-data
+        ON CONFLICT (usergroup_id, collectable_id) DO NOTHING
+    */
 )
 SELECT 
     m.*,
     c.*,
     sqlc.arg(usergroups)::text[] as usergroups,
+    sqlc.arg(tags)::bigint[] as tags,
 	t.title,
 	t.description,
 	t.long_description,
