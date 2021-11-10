@@ -11,7 +11,7 @@ type DockerContext struct {
 	network *dockertest.Network
 }
 
-func SetupPool() *DockerContext {
+func SetupDocker() *DockerContext {
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)

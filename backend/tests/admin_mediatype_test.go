@@ -16,9 +16,10 @@ func TestMain(m *testing.M) {
 }
 
 func TestMediaTypeEndpoint(t *testing.T) {
-	pool := SetupPool()
-	sqlDB, dbInternalUrl := SetupDB(pool)
-	adminUrl := SetupAdmin(pool, dbInternalUrl)
+	dockerCtx := SetupDocker()
+	defer dockerCtx.network.Close()
+	sqlDB, dbInternalUrl := SetupDB(dockerCtx)
+	adminUrl := SetupAdmin(dockerCtx, dbInternalUrl)
 
 	queries := db.New(sqlDB)
 	media, err := queries.InsertMedia(context.Background(), db.InsertMediaParams{
