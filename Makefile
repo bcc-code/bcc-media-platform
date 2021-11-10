@@ -10,6 +10,9 @@ mock:
 run-admin-backend:
 	cd ./backend/admin/ && go run .
 
-test:
+test-build:
 	docker build -t brunstadtv-admin-test:latest -f ./backend/Dockerfile.test ./backend --progress=plain
-	cd backend && go test ./...
+
+test:
+	make test-build
+	cd backend && go test ./... -v
