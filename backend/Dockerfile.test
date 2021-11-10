@@ -1,0 +1,10 @@
+FROM golang:alpine AS builder
+RUN mkdir /work
+WORKDIR /work
+COPY . .
+RUN go get -d -v ./admin
+RUN go build -o /work/server ./admin
+
+FROM alpine
+COPY --from=builder /work/server/ /bin/server
+ENTRYPOINT ["/bin/server"]

@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -28,11 +29,16 @@ type Server struct {
 func main() {
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 
-	conn, err := sql.Open("pgx", "host=localhost user=postgres dbname=vod password=password sslmode=disable")
+	pgConnStr := os.Getenv("POSTGRES_CONNECTIONSTRING")
+	if pgConnStr == "" {
+		pgConnStr = "host=localhost user=postgres dbname=vod password=password sslmode=disable"
+	}
+	conn, err := sql.Open("pgx", pgConnStr)
 	if err != nil {
 		log.L.Fatal().Err(err).Msg("Failed to establish DB connection")
 		return
 	}
+
 	queries := db.New(conn)
 	s := &Server{
 		queries: queries,
