@@ -2,6 +2,9 @@
 SELECT * FROM admin.media
 WHERE id = $1 LIMIT 1;
 
+-- name: GetMedias :many
+SELECT * FROM admin.media;
+
 -- name: GetAsset :one
 SELECT * FROM asset
 WHERE id = $1 LIMIT 1;

@@ -1,8 +1,8 @@
 -- Diff code generated with pgModeler (PostgreSQL Database Modeler)
 -- pgModeler version: 0.9.4-beta
 -- Diff date: 2021-10-27 09:38:48
--- Source model: vod
--- Database: vod
+-- Source model: postgres
+-- Database: postgres
 -- PostgreSQL version: 13.0
 
 -- [ Diff summary ]

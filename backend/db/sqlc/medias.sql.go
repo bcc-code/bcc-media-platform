@@ -66,6 +66,59 @@ func (q *Queries) GetMedia(ctx context.Context, id int64) (AdminMedia, error) {
 	return i, err
 }
 
+const getMedias = `-- name: GetMedias :many
+SELECT status, type, available_from, available_to, title, description, long_description, image_id, translation_id, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at, published_time, usergroups, tags FROM admin.media
+`
+
+func (q *Queries) GetMedias(ctx context.Context) ([]AdminMedia, error) {
+	rows, err := q.db.QueryContext(ctx, getMedias)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AdminMedia
+	for rows.Next() {
+		var i AdminMedia
+		if err := rows.Scan(
+			&i.Status,
+			&i.Type,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			&i.Title,
+			&i.Description,
+			&i.LongDescription,
+			&i.ImageID,
+			&i.TranslationID,
+			&i.ID,
+			&i.CollectableType,
+			&i.MediaType,
+			&i.PrimaryGroupID,
+			&i.SubclippedMediaID,
+			&i.ReferenceMediaID,
+			&i.SequenceNumber,
+			&i.StartTime,
+			&i.EndTime,
+			&i.AssetID,
+			&i.Agerating,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.PublishedTime,
+			&i.Usergroups,
+			&i.Tags,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const insertMedia = `-- name: InsertMedia :one
 WITH c AS (
     INSERT INTO collectable (

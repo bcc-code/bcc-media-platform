@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 
 	db "go.bcc.media/brunstadtv/db/sqlc"
@@ -27,23 +28,30 @@ type Server struct {
 }
 
 func main() {
+	godotenv.Load("../.env")
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 
 	pgConnStr := os.Getenv("POSTGRES_CONNECTIONSTRING")
 	if pgConnStr == "" {
-		pgConnStr = "host=localhost user=postgres dbname=vod password=password sslmode=disable"
+		pgConnStr = "host=localhost user=postgres dbname=postgres password=password sslmode=disable"
 	}
 	conn, err := sql.Open("pgx", pgConnStr)
 	if err != nil {
 		log.L.Fatal().Err(err).Msg("Failed to establish DB connection")
 		return
 	}
-
 	queries := db.New(conn)
 	s := &Server{
 		queries: queries,
 		dbx:     sqlx.NewDb(conn, "pgx"),
 	}
+
+	search := &SearchServer{
+		Server:       s,
+		TypesenseUrl: os.Getenv("TYPESENSE_SERVER"),
+		ApiKey:       os.Getenv("TYPESENSE_API_KEY"),
+	}
+
 	media := &MediaServer{
 		Server: s,
 	}
@@ -78,6 +86,7 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
+	r.POST("/index", search.Index)
 	r.GET("/tags", s.GetTags)
 	r.GET("/tags/:id", s.GetTag)
 	r.PUT("/tags/:id", s.UpsertTag)
