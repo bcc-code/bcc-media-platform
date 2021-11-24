@@ -1,14 +1,12 @@
 version: "3"
 services:
-  typesense:
-    image: typesense/typesense:0.22.0.rcs28
-    entrypoint: sh -c "/opt/typesense-server --data-dir /data --api-key=abc --enable-cors"
-    ports:
-      - "8108:8108"
-    volumes:
-      - typesense-data:/data
   pg:
     image: postgres:latest
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=postgres
@@ -16,8 +14,16 @@ services:
       - "5432:5432"
     volumes:
       - pg-data:/var/lib/postgresql/data/
-      - ./db/migrations/:/docker-entrypoint-initdb.d/
-      - ./local-setup/init.sql:/docker-entrypoint-initdb.d/99999_local_init.sql
+  typesense:
+    image: typesense/typesense:0.22.0.rcs28
+    entrypoint: sh -c "/opt/typesense-server --data-dir /data --api-key=abc --enable-cors"
+    depends_on:
+      pg:
+        condition: service_healthy
+    ports:
+      - "8108:8108"
+    volumes:
+      - typesense-data:/data
 volumes:
   pg-data:
     driver: local

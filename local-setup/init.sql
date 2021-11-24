@@ -1,1 +1,0 @@
-INSERT INTO language (language_code, name) VALUES ('no', 'Norsk')

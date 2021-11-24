@@ -16,3 +16,9 @@ test-build:
 test:
 	make test-build
 	cd backend && go test ./... -v
+
+local-setup:
+	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+	cp backend/.env.example backend/.env
+	docker-compose up -d
+	make migrate
