@@ -1,7 +1,15 @@
 # List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
 tasks:
-  - init: echo 'init script' # runs during prebuild
-    command: make local-setup
+  - init: |
+      make dependencies # runs during prebuild
+      gp sync-done dependencies
+  - name: Admin Frontend
+    init: gp sync-await dependencies
+    command: make admin-backend
+  - name: Admin Backend
+    init: gp sync-await dependencies
+    command: make admin-frontend
+    openMode: split-right
 
 # List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
 ports:
