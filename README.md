@@ -14,11 +14,13 @@
 ### First steps
 
 - Run `docker-compose up` in the repository root folder. This sets up a postgres database and Typesense.
+- Run migrations. See [Migrations](#migrations)
 - Open the go project at `backend/admin/` (or run `make run-admin-backend`)
 - Open `frontend` and run `pnpm install` and `pnpm start`
 
 ## More details
 ### Database
+<a name="migrations"></a>
 #### Migrations
 
 In order to be able to run migrations install this: https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
