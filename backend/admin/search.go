@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -30,17 +31,8 @@ func (s *SearchServer) Index(c *gin.Context) {
 		Name: collectionName,
 		Fields: []api.Field{
 			{
-				Name: "title",
+				Name: "Title",
 				Type: "string",
-			},
-			{
-				Name: "parent_id",
-				Type: "int64",
-			},
-			{
-				Name:  "tags",
-				Type:  "string[]",
-				Facet: true,
 			},
 		},
 	}
@@ -60,8 +52,13 @@ func (s *SearchServer) Index(c *gin.Context) {
 	}
 
 	var documents []interface{}
-	for media := range medias {
-		documents = append(documents, media)
+	for _, media := range medias {
+		doc := struct {
+			Title string
+		}{}
+		jsoned, _ := json.Marshal(media)
+		json.Unmarshal(jsoned, &doc)
+		documents = append(documents, doc)
 	}
 
 	client.Collection(collectionName).Documents().Import(documents, &api.ImportDocumentsParams{})
