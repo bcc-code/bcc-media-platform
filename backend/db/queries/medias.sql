@@ -9,6 +9,8 @@ SELECT * FROM admin.media;
 SELECT * FROM asset
 WHERE id = $1 LIMIT 1;
 
+-- name: GetMediaTranslations :many
+SELECT * from public.media_t;
 
 -- name: InsertMedia :one
 WITH c AS (

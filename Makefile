@@ -11,12 +11,10 @@ local-setup:
 	docker-compose up -d
 	make migrate
 	docker-compose down
-	cd frontend/admin
-	pnpm install
+	cd frontend/admin && pnpm install
 
 admin-frontend:
-	cd ./frontend/admin/
-	pnpm start
+	cd ./frontend/admin/ && pnpm start
 	
 admin-backend:
 	cd ./backend/admin/ && go run .
