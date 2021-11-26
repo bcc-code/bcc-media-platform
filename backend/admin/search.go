@@ -20,6 +20,7 @@ type SearchServer struct {
 	Server       *Server
 }
 
+// This is meant to be run on a schedule
 func (s *SearchServer) Index(c *gin.Context) {
 	client := typesense.NewClient(
 		typesense.WithServer(s.TypesenseUrl),
@@ -29,6 +30,11 @@ func (s *SearchServer) Index(c *gin.Context) {
 		typesense.WithCircuitBreakerInterval(2*time.Minute),
 		typesense.WithCircuitBreakerTimeout(1*time.Minute),
 	)
+
+	previousCollection, err := client.Alias("medias").Retrieve()
+	if err != nil {
+		log.L.Warn().Msg("Couldnt retrieve previous collection. Err: " + err.Error())
+	}
 
 	fields := []api.Field{
 		{
@@ -40,7 +46,7 @@ func (s *SearchServer) Index(c *gin.Context) {
 			Type: "string",
 		},
 		{
-			Name:  "type",
+			Name:  "mediaType",
 			Type:  "string",
 			Facet: true,
 		},
@@ -134,6 +140,7 @@ func (s *SearchServer) Index(c *gin.Context) {
 			},
 		}...)
 	}
+
 	collectionName := "medias_" + time.Now().Format("20060102150405")
 	schema := &api.CollectionSchema{
 		Name:   collectionName,
@@ -147,16 +154,34 @@ func (s *SearchServer) Index(c *gin.Context) {
 		return
 	}
 
+	wasSuccessful := false
+	abort := func() {
+		_, err := client.Collection(collectionName).Delete()
+		if err != nil {
+			log.L.Error().Msg("Typesense collection delete also failed. Err: " + err.Error())
+			c.Status(500)
+		}
+	}
+	// TODO: There is a more idiomatic way of doing this with select {}
+	go func() {
+		<-c.Request.Context().Done()
+		if !wasSuccessful {
+			abort()
+		}
+	}()
+
 	medias, err := s.Server.queries.GetMediaSearchDocs(c.Request.Context())
 	if err != nil {
 		log.L.Error().Msg("Couldnt get medias. Err: " + err.Error())
 		c.Status(500)
+		abort()
 		return
 	}
 	mediaTranslations, err := s.Server.queries.GetMediaTranslations(c.Request.Context())
 	if err != nil {
 		log.L.Error().Msg("Couldnt get mediatranslations. Err: " + err.Error())
 		c.Status(500)
+		abort()
 		return
 	}
 
@@ -209,6 +234,7 @@ func (s *SearchServer) Index(c *gin.Context) {
 	if err != nil {
 		log.L.Error().Msg("Typesense import failed. Err: " + err.Error())
 		c.Status(500)
+		abort()
 		return
 	}
 	defer res.Close()
@@ -222,6 +248,7 @@ func (s *SearchServer) Index(c *gin.Context) {
 			log.L.Error().Msgf("Error: %s", response.Error)
 			log.L.Error().Msgf("Document: %s", response.Document)
 			c.Status(500)
+			abort()
 			return
 		}
 	}
@@ -229,6 +256,13 @@ func (s *SearchServer) Index(c *gin.Context) {
 	if err != nil {
 		log.L.Error().Msg("Typesense alias upsert failed. Err: " + err.Error())
 		c.Status(500)
+		abort()
 		return
+	}
+
+	wasSuccessful = true
+	_, err = client.Collection(previousCollection.CollectionName).Delete()
+	if err != nil {
+		log.L.Error().Msg("Old collection delete failed. Err: " + err.Error())
 	}
 }
