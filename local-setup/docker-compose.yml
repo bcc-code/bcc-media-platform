@@ -25,6 +25,11 @@ services:
       - "8108:8108"
     volumes:
       - typesense-data:/data
+  cron:
+    build: 
+      context: ./
+      dockerfile: cron.dockerfile
+      network: host
 volumes:
   pg-data:
     driver: local

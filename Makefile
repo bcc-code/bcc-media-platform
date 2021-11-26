@@ -8,9 +8,9 @@ dependencies:
 
 local-setup:
 	cp backend/.env.example backend/.env
-	docker-compose up -d
+	cd local-setup && docker-compose up -d
 	make migrate
-	docker-compose down
+	cd local-setup && docker-compose down
 	cd frontend/admin && pnpm install
 
 admin-frontend:
