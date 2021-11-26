@@ -19,6 +19,9 @@ admin-frontend:
 admin-backend:
 	cd ./backend/admin/ && go run .
 
+m: 
+	@echo migrate -database "postgres://postgres:password@localhost:5432/postgres?sslmode=disable" -path ./backend/db/migrations
+
 migrate:
 	migrate -database "postgres://postgres:password@localhost:5432/postgres?sslmode=disable" -path ./backend/db/migrations up
 

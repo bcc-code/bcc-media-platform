@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/typesense/typesense-go/typesense"
 	"github.com/typesense/typesense-go/typesense/api"
+	"github.com/typesense/typesense-go/typesense/api/pointer"
 	"go.bcc.media/brunstadtv/log"
 )
 
@@ -28,62 +30,117 @@ func (s *SearchServer) Index(c *gin.Context) {
 		typesense.WithCircuitBreakerTimeout(1*time.Minute),
 	)
 
-	// TODO: also build schema with translated fields: {field}.{languageCode}
-	collectionName := "medias_" + time.Now().Format("20060102150405")
-	schema := &api.CollectionSchema{
-		Name: collectionName,
-		Fields: []api.Field{
-			{
-				Name: "id",
-				Type: "string",
-			},
-			{
-				Name: "type",
-				Type: "string",
-			},
-			{
-				Name: "title",
-				Type: "string",
-			},
-			{
-				Name:     "showTitle",
-				Type:     "string",
-				Optional: true,
-			},
-			{
-				Name:     "seasonTitle",
-				Type:     "string",
-				Optional: true,
-			},
-			{
-				Name:     "sequenceNumber",
-				Type:     "int32",
-				Optional: true,
-			},
-			{
-				Name:     "tags",
-				Type:     "string[]",
-				Optional: true,
-			},
-			{
-				Name:     "title",
-				Type:     "string",
-				Optional: true,
-			},
-			{
-				Name:     "description",
-				Type:     "string[]",
-				Optional: true,
-			},
-			{
-				Name:     "longDescription",
-				Type:     "string[]",
-				Optional: true,
-			},
+	fields := []api.Field{
+		{
+			Name: "id",
+			Type: "string",
+		},
+		{
+			Name: "title",
+			Type: "string",
+		},
+		{
+			Name:  "type",
+			Type:  "string",
+			Facet: true,
+		},
+		{
+			Name:     "availableFrom",
+			Type:     "int64",
+			Optional: true,
+		},
+		{
+			Name:     "availableTo",
+			Type:     "int64",
+			Optional: true,
+		},
+		{
+			Name:     "usergroups",
+			Type:     "string[]",
+			Optional: false,
+		},
+		{
+			Name:     "sequenceNumber",
+			Type:     "int32",
+			Optional: true,
+		},
+		{
+			Name:     "TranslatedFields",
+			Type:     "string",
+			Index:    pointer.False(),
+			Optional: true,
 		},
 	}
 
-	_, err := client.Collections().Create(schema)
+	languages, err := s.Server.queries.GetLanguages(c.Request.Context())
+	if err != nil {
+		log.L.Error().Msg("Couldnt get languages. Err: " + err.Error())
+		c.Status(500)
+		return
+	}
+
+	for _, language := range languages {
+		fields = append(fields, []api.Field{
+			{
+				Name:     "title." + language.Code,
+				Type:     "string",
+				Optional: true,
+			},
+			{
+				Name:     "description." + language.Code,
+				Type:     "string",
+				Optional: true,
+			},
+			{
+				Name:     "longDescription." + language.Code,
+				Type:     "string",
+				Optional: true,
+			},
+			{
+				Name:     "parentTitle." + language.Code,
+				Type:     "string",
+				Optional: true,
+			},
+			{
+				Name:     "parentDescription." + language.Code,
+				Type:     "string",
+				Optional: true,
+			},
+			{
+				Name:     "parentLongDescription." + language.Code,
+				Type:     "string",
+				Optional: true,
+			},
+			{
+				Name:     "grandparentTitle." + language.Code,
+				Type:     "string",
+				Optional: true,
+			},
+			{
+				Name:     "grandparentDescription." + language.Code,
+				Type:     "string",
+				Optional: true,
+			},
+			{
+				Name:     "grandparentLongDescription." + language.Code,
+				Type:     "string",
+				Optional: true,
+			},
+			{
+				Name:     "tags." + language.Code,
+				Facet:    true,
+				Type:     "string[]",
+				Optional: true,
+			},
+		}...)
+	}
+	collectionName := "medias_" + time.Now().Format("20060102150405")
+	schema := &api.CollectionSchema{
+		Name:   collectionName,
+		Fields: fields,
+	}
+
+	_, err = client.Collections().Create(schema)
 	if err != nil {
 		log.L.Error().Msg("Couldnt create collection. Err: " + err.Error())
 		c.Status(500)
@@ -105,7 +162,9 @@ func (s *SearchServer) Index(c *gin.Context) {
 
 	documents := ""
 	for _, media := range medias {
-
+		if media.Usergroups == nil {
+			media.Usergroups = []string{}
+		}
 		// So first marshal the mediasearchdoc to { "id": "something", "sequenceNumber": 2, "primaryGroupID": 1012, ... }
 		initialJson, _ := json.Marshal(media)
 		mediaMap := make(map[string]interface{})
@@ -143,21 +202,33 @@ func (s *SearchServer) Index(c *gin.Context) {
 		documents += string(mediaJson) + "\n"
 	}
 
-	params := &api.ImportDocumentsParams{
-		Action:    "",
-		BatchSize: 40,
-	}
-	res, err := client.Collection(collectionName).Documents().ImportJsonl(strings.NewReader(documents), params)
+	params := &api.ImportDocumentsParams{Action: "create"}
+	fmt.Println(documents)
+	reader := strings.NewReader(documents)
+	res, err := client.Collection(collectionName).Documents().ImportJsonl(reader, params)
 	if err != nil {
-		log.L.Error().Msg("Typesense api call failed. Err: " + err.Error())
+		log.L.Error().Msg("Typesense import failed. Err: " + err.Error())
 		c.Status(500)
 		return
 	}
 	defer res.Close()
 	jd := json.NewDecoder(res)
 	for jd.More() {
-		var response string
+		var response api.ImportDocumentResponse
 		jd.Decode(&response)
-		print(response)
+		fmt.Print(string(response.Error))
+		fmt.Print(string(response.Document))
+		if !response.Success {
+			log.L.Error().Msgf("Error: %s", response.Error)
+			log.L.Error().Msgf("Document: %s", response.Document)
+			c.Status(500)
+			return
+		}
+	}
+	_, err = client.Aliases().Upsert("medias", &api.CollectionAliasSchema{CollectionName: collectionName})
+	if err != nil {
+		log.L.Error().Msg("Typesense alias upsert failed. Err: " + err.Error())
+		c.Status(500)
+		return
 	}
 }
