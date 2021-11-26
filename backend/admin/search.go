@@ -21,7 +21,7 @@ type SearchServer struct {
 }
 
 // This is meant to be run on a schedule
-func (s *SearchServer) Index(c *gin.Context) {
+func (s *SearchServer) Synchronize(c *gin.Context) {
 	client := typesense.NewClient(
 		typesense.WithServer(s.TypesenseUrl),
 		typesense.WithAPIKey(s.ApiKey),

@@ -86,7 +86,7 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	r.POST("/index", search.Index)
+	r.POST("/search/sync", search.Synchronize)
 	r.GET("/tags", s.GetTags)
 	r.GET("/tags/:id", s.GetTag)
 	r.PUT("/tags/:id", s.UpsertTag)
