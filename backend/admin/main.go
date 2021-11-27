@@ -119,5 +119,5 @@ func main() {
 	r.POST("/subclip", subclip.Create)
 	r.GET("/subclip/:id", subclip.Get)
 	r.PUT("/subclip/:id", subclip.Update)
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.Run("0.0.0.0:8080") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
