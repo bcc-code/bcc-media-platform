@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -20,7 +19,7 @@ type MediaServer struct {
 }
 
 func (s *MediaServer) Get(c *gin.Context) {
-	ctx := context.Background()
+	ctx := c.Request.Context()
 	idString, _ := c.Params.Get("id")
 	id, err := strconv.ParseInt(idString, 10, 64)
 	if err != nil {
@@ -126,7 +125,7 @@ func (s *MediaServer) Create(c *gin.Context) {
 		params.MediaType = null.StringFrom(s.FilterByType)
 	}
 	// os.Getenv("DATABASE_URL")
-	ctx := context.Background()
+	ctx := c.Request.Context()
 	media, err := s.Server.queries.InsertMedia(ctx, params)
 	if err != nil {
 		fmt.Println(err)
@@ -155,7 +154,7 @@ func (s *MediaServer) Update(c *gin.Context) {
 		return
 	}
 	// os.Getenv("DATABASE_URL")
-	ctx := context.Background()
+	ctx := c.Request.Context()
 	media, err := s.Server.queries.UpsertMedia(ctx, params)
 	if err != nil {
 		fmt.Println(err)

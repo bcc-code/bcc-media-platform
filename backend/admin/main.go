@@ -86,7 +86,7 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	r.POST("/index", search.Index)
+	r.POST("/search/sync", search.Synchronize)
 	r.GET("/tags", s.GetTags)
 	r.GET("/tags/:id", s.GetTag)
 	r.PUT("/tags/:id", s.UpsertTag)
@@ -119,5 +119,5 @@ func main() {
 	r.POST("/subclip", subclip.Create)
 	r.GET("/subclip/:id", subclip.Get)
 	r.PUT("/subclip/:id", subclip.Update)
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.Run("0.0.0.0:8080") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

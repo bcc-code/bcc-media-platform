@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -15,7 +14,7 @@ import (
 )
 
 func (s *Server) GetTag(c *gin.Context) {
-	ctx := context.Background()
+	ctx := c.Request.Context()
 	idString, _ := c.Params.Get("id")
 	id, err := strconv.ParseInt(idString, 10, 64)
 	if err != nil {
@@ -101,7 +100,7 @@ func (s *Server) UpsertTag(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	ctx := context.Background()
+	ctx := c.Request.Context()
 	result, err := s.queries.UpsertTag(ctx, params)
 	if err != nil {
 		fmt.Println(err)

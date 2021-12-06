@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -15,7 +14,7 @@ import (
 )
 
 func (s *Server) GetAsset(c *gin.Context) {
-	ctx := context.Background()
+	ctx := c.Request.Context()
 	idString, _ := c.Params.Get("id")
 	id, err := strconv.ParseInt(idString, 10, 64)
 	if err != nil {

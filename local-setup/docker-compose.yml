@@ -10,6 +10,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
     ports:
       - "5432:5432"
     volumes:
@@ -24,6 +25,12 @@ services:
       - "8108:8108"
     volumes:
       - typesense-data:/data
+  cron:
+    build: 
+      context: ./
+      dockerfile: cron.dockerfile
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 volumes:
   pg-data:
     driver: local

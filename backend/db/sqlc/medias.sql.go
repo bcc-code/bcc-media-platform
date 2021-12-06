@@ -66,6 +66,41 @@ func (q *Queries) GetMedia(ctx context.Context, id int64) (AdminMedia, error) {
 	return i, err
 }
 
+const getMediaTranslations = `-- name: GetMediaTranslations :many
+SELECT id, media_id, language_code, title, description, long_description, image_id from public.media_t
+`
+
+func (q *Queries) GetMediaTranslations(ctx context.Context) ([]MediaT, error) {
+	rows, err := q.db.QueryContext(ctx, getMediaTranslations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MediaT
+	for rows.Next() {
+		var i MediaT
+		if err := rows.Scan(
+			&i.ID,
+			&i.MediaID,
+			&i.LanguageCode,
+			&i.Title,
+			&i.Description,
+			&i.LongDescription,
+			&i.ImageID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getMedias = `-- name: GetMedias :many
 SELECT status, type, available_from, available_to, title, description, long_description, image_id, translation_id, id, collectable_type, media_type, primary_group_id, subclipped_media_id, reference_media_id, sequence_number, start_time, end_time, asset_id, agerating, created_at, updated_at, published_time, usergroups, tags FROM admin.media
 `

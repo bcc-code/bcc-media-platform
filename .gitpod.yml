@@ -3,6 +3,10 @@ tasks:
   - init: |
       make dependencies # runs during prebuild
       gp sync-done dependencies
+  - name: Docker
+    init: gp sync-await dependencies
+    command: docker-compose up -d
+    openMode: split-right
   - name: Admin Frontend
     init: gp sync-await dependencies
     command: make admin-backend
