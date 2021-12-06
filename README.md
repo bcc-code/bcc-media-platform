@@ -13,7 +13,7 @@
 
 ### First steps
 
-- Run `docker-compose up` in the repository root folder. This sets up a postgres database and Typesense.
+- Run `docker-compose up` in the /local-setup folder. This sets up a postgres database and Typesense.
 - Run migrations. See [Migrations](#migrations)
 - Open the go project at `backend/admin/` (or run `make admin-backend`)
 - Open `frontend` and run `pnpm install` and `pnpm start`
