@@ -15,10 +15,10 @@ const ListActions = () => (
 );  
 
 const Total = (props: any) => <div>{props.total}</div>;
-export const EpisodeList: React.FC<ListProps> = props => {
+export const PageList: React.FC<ListProps> = props => {
     return (
         <div>
-            <Typography sx={{mt:3}} variant="h5">Episodes</Typography>
+            <Typography sx={{mt:3}} variant="h5">Pages</Typography>
             <List actions={<ListActions/>} {...props} filters={[
                 <TextInput sx={{mb:2}} size='small' label="Search" source="q" alwaysOn />
             ]}>
@@ -34,32 +34,23 @@ export const EpisodeList: React.FC<ListProps> = props => {
     );
 };
 
-export const EpisodeEdit: React.FC<EditProps> = props => {
+export const PageEdit: React.FC<EditProps> = props => {
     return (
         <Edit {...props} undoable={false}>
             <FormWithRedirect warnWhenUnsavedChanges render={formProps =>
                 <form>
                     <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
-                        <div className='text-sm'>#{formProps.record?.id} <span className="capitalize">Episode</span></div>
+                        <div className='text-sm'>#{formProps.record?.id} <span className="capitalize">Page</span></div>
                         <TextField source="title" variant='h6'/>
                             <Box sx={{ backgroundColor: 'background.paper', color: 'text.secondary', padding: '10px', borderRadius: '10px' }}>
                                 <span>Created</span> <DateField source="createdAt" showTime />
                                 &nbsp;| <span>Last updated </span> <DateField source="updatedAt" showTime />
                             </Box>
-                        <ReferenceInput required source="primaryGroupID" reference="season" label="Belongs to season">
-                            <SelectInput optionText="title" />
-                        </ReferenceInput>
-                        <NumberInput source="sequenceNumber" />
                         <TextInput source="title" />
                         <TextInput source="description" />
-                        <TextInput source="longDescription" />
                         <DateTimeInput source="publishedTime"/>
                         <DateTimeInput source="availableFrom"/>
                         <DateTimeInput source="availableTo"/>
-                        <SelectInput source="agerating" choices={AgeRatingChoices}/>
-                        <ReferenceInput source="assetID" reference="assets" label="Asset" className="w-full" >
-                            <AutocompleteInput optionText="name" />
-                        </ReferenceInput>
                         <ReferenceArrayInput source="usergroups" reference="usergroups">
                             <SelectArrayInput optionText="id" />
                         </ReferenceArrayInput>
@@ -73,18 +64,18 @@ export const EpisodeEdit: React.FC<EditProps> = props => {
                         handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
 
                         <Box sx={{mt:4}}>
-                            <Typography variant="h6">Subclips</Typography>
+                            <Typography variant="h6">Sections</Typography>
                             <Link to={{
-                                pathname: "/subclip/create",
+                                pathname: "/section/create",
                                 state: { initialValues: { primaryGroupID: formProps.record?.id } }
                             }}>
                                 <Button 
                                 size="small"
                                 startIcon={<ContentAdd/>}>
-                                    Create subclip
+                                    Create section
                                 </Button>
                             </Link>
-                            <ReferenceManyField reference="subclip" target="subclippedMediaID">
+                            <ReferenceManyField reference="sections" target="pageID">
                                 <ArrayField>
                                     <Datagrid rowClick="edit">
                                         <TextField source="id" />
@@ -101,26 +92,15 @@ export const EpisodeEdit: React.FC<EditProps> = props => {
     )
 };
 
-export const EpisodeCreate: React.FC<CreateProps> = props => {
+export const PageCreate: React.FC<CreateProps> = props => {
     const location = useLocation<{initialValues: Media}>();
     return (
     <Create {...props}>
         <FormWithRedirect warnWhenUnsavedChanges initialValues={location.state?.initialValues} render={formProps =>
             <form>
                <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
-                    <ReferenceInput required source="primaryGroupID" reference="season" label="Belongs to season">
-                        <SelectInput optionText="title" />
-                    </ReferenceInput>
-                    <NumberInput source="sequenceNumber" />
                     <TextInput source="title" />
                     <TextInput source="description" />
-                    <TextInput source="longDescription" />
-                    <SelectInput source="agerating" choices={AgeRatingChoices}/>
-                    <ReferenceInput source="assetID" reference="assets" label="Asset">
-                        <SelectInput optionText="name" />
-                    </ReferenceInput>
-                    <DateField source="createdAt" showTime />
-                    <DateField source="updatedAt" showTime />
                     <Toolbar>
                         <SaveButton
                         saving={formProps.saving}

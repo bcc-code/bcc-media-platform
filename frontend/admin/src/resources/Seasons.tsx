@@ -5,7 +5,7 @@ import { AgeRatingChoices } from '../types/AgeRating';
 import ContentAdd from '@mui/icons-material/Add';
 import { useLocation } from 'react-router-dom';
 import { Media } from '../types/Media';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 
 const ListActions = () => (
     <TopToolbar>
@@ -16,51 +16,51 @@ const ListActions = () => (
 
 const Total = (props: any) => <div>{props.total}</div>;
 
-export const ShowList: React.FC<ListProps> = props => {
+export const SeasonList: React.FC<ListProps> = props => {
     return (
-        <>
-            <Typography sx={{mt:3}} variant="h5">Shows</Typography>
-            <List actions={<ListActions/>} {...props} filters={[
-                <TextInput sx={{mb:2}} size='small' label="Search" source="q" alwaysOn />
-            ]}>
-                <Datagrid rowClick="edit">
-                    <TextField source="title" />
-                    <TextField source="description" />
-                    <DateField source="publishedTime" />
-                    <DateField source="createdAt" />
-                    <DateField source="updatedAt" />
-                    <ReferenceManyField 
-                    label="Seasons" 
-                    reference="season" 
-                    target="primaryGroupID" 
-                    >
-                        <Total/>
-                    </ReferenceManyField>
-                </Datagrid>
-            </List>
-        </>
+        <List actions={<ListActions/>} {...props} filters={[
+            <TextInput sx={{mb:2}} size='small' label="Search" source="q" alwaysOn />
+        ]}>
+            <Datagrid rowClick="edit">
+                <TextField source="title" />
+                <TextField source="description" />
+                <DateField source="publishedTime" />
+                <DateField source="createdAt" />
+                <DateField source="updatedAt" />
+                <ReferenceManyField 
+                label="Episodes" 
+                reference="episodes" 
+                target="primaryGroupID" 
+                >
+                    <Total/>
+                </ReferenceManyField>
+            </Datagrid>
+        </List>
     );
 };
 
-export const ShowEdit: React.FC<EditProps> = props => {
+export const SeasonEdit: React.FC<EditProps> = props => {
     return (
         <Edit {...props} undoable={false}>
             <FormWithRedirect warnWhenUnsavedChanges render={formProps =>
                 <form>
                    <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
-                        <div className='text-sm'>#{formProps.record?.id} <span className="capitalize">Show</span></div>
+                        <div className='text-sm'>#{formProps.record?.id} <span className="capitalize">Season</span></div>
                         <TextField source="title" variant='h6'/>
                         <Box sx={{ backgroundColor: 'background.paper', color: 'text.secondary', padding: '10px', borderRadius: '10px' }}>
                             <span>Created</span> <DateField source="createdAt" showTime />
                             &nbsp;| <span>Last updated </span> <DateField source="updatedAt" showTime />
                         </Box>
+                        <ReferenceInput source="primaryGroupID" reference="shows" label="Belongs to">
+                            <SelectInput optionText="title" />
+                        </ReferenceInput>
+                        <NumberInput source="sequenceNumber" />
                         <TextInput source="title" />
                         <TextInput source="description" />
                         <SelectInput source="agerating" choices={AgeRatingChoices}/>
                         <DateTimeInput source="publishedTime"/>
                         <DateTimeInput source="availableFrom"/>
                         <DateTimeInput source="availableTo"/>
-                        
                         <ReferenceArrayInput source="usergroups" reference="usergroups">
                             <SelectArrayInput optionText="id" />
                         </ReferenceArrayInput>
@@ -74,21 +74,21 @@ export const ShowEdit: React.FC<EditProps> = props => {
                         handleSubmitWithRedirect={formProps.handleSubmitWithRedirect}/>
 
                         <Box sx={{mt:4}}>
-                            <Typography variant="h6">Seasons</Typography>
+                            <Typography variant="h6">Episodes</Typography>
                             <Link to={{
-                                pathname: "/season/create",
+                                pathname: "/episode/create",
                                 state: { initialValues: { primaryGroupID: formProps.record?.id } }
                             }}>
                                 <Button 
                                 size="small"
                                 startIcon={<ContentAdd/>}>
-                                    Create season
+                                    Create episode
                                 </Button>
                             </Link>
-                            <ReferenceManyField label="Child media" reference="media" target="primaryGroupID">
+                            <ReferenceManyField label="Episodes" reference="episodes" sortBy='sequenceNumber' target="primaryGroupID">
                                 <ArrayField>
                                     <Datagrid rowClick="edit">
-                                        <TextField source="id" />
+                                        <NumberField source="sequenceNumber" />
                                         <TextField source="title" />
                                         <TextField source="description" />
                                     </Datagrid>
@@ -102,14 +102,17 @@ export const ShowEdit: React.FC<EditProps> = props => {
     )
 };
 
-export const ShowCreate: React.FC<CreateProps> = props => {
+export const SeasonCreate: React.FC<CreateProps> = props => {
     const location = useLocation<{initialValues: Media}>();
     return (
     <Create {...props}>
         <FormWithRedirect warnWhenUnsavedChanges initialValues={location.state?.initialValues} render={formProps =>
             <form>
                <Box sx={{p:4,display:'flex',flexDirection:'column',width:{xs: '100%', lg: '66%', xl: '50%'}}}>
-                    <TextField source="title" variant='h6'/>
+                    <ReferenceInput source="primaryGroupID" reference="shows" label="shows">
+                        <SelectInput optionText="title" />
+                    </ReferenceInput>
+                    <NumberInput source="sequenceNumber" />
                     <TextInput source="title" />
                     <TextInput source="description" />
                     <SelectInput source="agerating" choices={AgeRatingChoices}/>

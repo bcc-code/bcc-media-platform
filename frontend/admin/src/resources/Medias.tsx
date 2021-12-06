@@ -92,7 +92,7 @@ export const MediaEdit: React.FC<EditProps> = props => {
                             {({formData}) => formData.mediaType === "subclip" &&
                                 <>
                                     <h4 style={{textTransform: "capitalize"}}>Subclip settings</h4>
-                                    <ReferenceInput source="subclippedMediaID" reference="media" label='Subclipped media'>
+                                    <ReferenceInput source="subclippedMediaID" reference="medias" label='Subclipped media'>
                                         <SelectInput optionText="title" />
                                     </ReferenceInput>
                                     <NumberInput source="startTime" />
@@ -102,7 +102,7 @@ export const MediaEdit: React.FC<EditProps> = props => {
                         </FormDataConsumer>
                         <SelectInput source="agerating" choices={AgeRatingChoices}/>
                         
-                        <ReferenceInput source="primaryGroupID" reference="media" label={getParentType(formProps.record?.mediaType)}>
+                        <ReferenceInput source="primaryGroupID" reference="medias" label={getParentType(formProps.record?.mediaType)}>
                             <SelectInput optionText="title" />
                         </ReferenceInput>
                         <NumberInput source="assetID" />
@@ -129,7 +129,7 @@ export const MediaEdit: React.FC<EditProps> = props => {
                                     <ContentAdd />Create {getChildType(formProps.record?.mediaType)}
                                 </button>
                             </Link>
-                            <ReferenceManyField label="Child media" reference="media" target="primaryGroupID">
+                            <ReferenceManyField label="Child media" reference="medias" target="primaryGroupID">
                                 <ArrayField>
                                     <Datagrid rowClick="edit">
                                         <TextField source="id" />
@@ -162,7 +162,7 @@ export const MediaCreate: React.FC<CreateProps> = props => {
                     <SelectInput source="mediaType" choices={MediaTypes}/>
                     <NumberInput source="sequenceNumber" />
                     <SelectInput source="agerating" choices={AgeRatingChoices}/>
-                    <ReferenceInput source="primaryGroupID" reference="media" label={getParentType(formProps.record?.mediaType)}>
+                    <ReferenceInput source="primaryGroupID" reference="medias" label={getParentType(formProps.record?.mediaType)}>
                         <SelectInput optionText="title" />
                     </ReferenceInput>
                     <NumberInput source="assetID" />
