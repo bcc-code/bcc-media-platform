@@ -52,6 +52,21 @@ type AdminMedia struct {
 	Tags              pq.Int64Array  `db:"tags" json:"tags"`
 }
 
+type AdminPage struct {
+	Status          int16          `db:"status" json:"status"`
+	Type            null_v4.String `db:"type" json:"type"`
+	AvailableFrom   null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo     null_v4.Time   `db:"available_to" json:"availableTo"`
+	Title           null_v4.String `db:"title" json:"title"`
+	Description     null_v4.String `db:"description" json:"description"`
+	TranslationID   null_v4.Int    `db:"translation_id" json:"translationID"`
+	ID              int64          `db:"id" json:"id"`
+	CollectableType null_v4.String `db:"collectable_type" json:"collectableType"`
+	PublishedTime   null_v4.Time   `db:"published_time" json:"publishedTime"`
+	Usergroups      pq.StringArray `db:"usergroups" json:"usergroups"`
+	Tags            pq.Int64Array  `db:"tags" json:"tags"`
+}
+
 type AdminTag struct {
 	ID            int64          `db:"id" json:"id"`
 	Type          null_v4.String `db:"type" json:"type"`
@@ -383,7 +398,7 @@ type Usergroup struct {
 }
 
 type UsergroupCollectable struct {
-	ID            int64          `db:"id" json:"id"`
-	UsergroupID   null_v4.String `db:"usergroup_id" json:"usergroupID"`
-	CollectableID null_v4.Int    `db:"collectable_id" json:"collectableID"`
+	ID            int64  `db:"id" json:"id"`
+	UsergroupID   string `db:"usergroup_id" json:"usergroupID"`
+	CollectableID int64  `db:"collectable_id" json:"collectableID"`
 }

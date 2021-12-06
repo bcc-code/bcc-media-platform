@@ -17,6 +17,14 @@ overrides:
     go_type:
       import: "github.com/lib/pq"
       type: "Int64Array"
+  - column: "admin.page.usergroups"
+    go_type:
+      import: "github.com/lib/pq"
+      type: "StringArray"
+  - column: "admin.page.tags"
+    go_type:
+      import: "github.com/lib/pq"
+      type: "Int64Array"
   - column: "admin.collectable.tags"
     go_type:
       import: "github.com/lib/pq"

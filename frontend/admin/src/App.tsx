@@ -18,6 +18,7 @@ import { StandaloneCreate, StandaloneEdit, StandaloneList } from "./resources/St
 import { BtvLayout } from "./layout/CustomLayout";
 import themeReducer from "./configuration/themeReducer";
 import { TagEdit, TagList } from "./resources/Tags";
+import { PageCreate, PageEdit, PageList } from "./resources/Page";
 
 const dataProvider = jsonServerProvider('http://localhost:8080');
 const App = () => (
@@ -26,9 +27,11 @@ const App = () => (
     customReducers={[themeReducer]}
     dataProvider={dataProvider}
     menu={Menu}>
+        <Resource name="section"></Resource>
         <Resource name="show" list={ShowList} edit={ShowEdit} create={ShowCreate} />
         <Resource name="season" list={SeasonList} edit={SeasonEdit} create={SeasonCreate} />
         <Resource name="episode" list={EpisodeList} edit={EpisodeEdit} create={EpisodeCreate} />
+        <Resource name="pages" list={PageList} edit={PageEdit} create={PageCreate} />
         <Resource name="standalone" list={StandaloneList} edit={StandaloneEdit} create={StandaloneCreate} />
         <Resource name="subclip" list={MediaList} edit={MediaEdit} create={MediaCreate} />
         <Resource name="assets" list={AssetList} />

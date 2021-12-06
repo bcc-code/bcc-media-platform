@@ -1,0 +1,1 @@
+DROP view admin.page;
