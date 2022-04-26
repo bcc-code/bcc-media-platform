@@ -1,5 +1,5 @@
 
-# BrunstadTV Admin
+# BrunstadTV CMS
 
 ## Local setup
 
