@@ -1,5 +1,7 @@
 
-## Sqlc
+## Manual installation
+
+### Sqlc
 
 Sqlc manages the "sqlc" folder
 The sqlc.yaml file mostly is because I wanted to use guregu instead of sql.Null-whatever.
