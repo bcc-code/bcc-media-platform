@@ -1,0 +1,16 @@
+version: '3'
+services:
+  mydb:
+    image: postgres
+    volumes:
+    - db-data:/var/lib/postgresql/data
+    ports:
+    - 5432:5432/tcp
+    environment:
+    - POSTGRES_USER=btv
+    - POSTGRES_PASSWORD=btv123
+
+volumes:
+  db-data:
+    driver: local
+  
