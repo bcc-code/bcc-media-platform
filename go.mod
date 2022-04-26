@@ -5,11 +5,14 @@ go 1.18
 require (
 	contrib.go.opencensus.io/exporter/stackdriver v0.13.12
 	github.com/bcc-code/mediabank-bridge v1.1.1
-	github.com/gin-contrib/logger v0.2.2
 	github.com/gin-gonic/gin v1.7.7
+	github.com/google/uuid v1.3.0
+	github.com/lib/pq v1.10.5
 	github.com/rs/zerolog v1.26.0
 	github.com/stretchr/testify v1.7.1
+	github.com/tabbed/pqtype v0.1.1
 	go.opencensus.io v0.23.0
+	gopkg.in/guregu/null.v4 v4.0.0
 )
 
 require (
