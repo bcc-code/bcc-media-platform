@@ -41,7 +41,7 @@ func main() {
 
 	apiGroup := router.Group("api")
 	{
-		apiGroup.POST("ingest-vod", server.IngestVod)
+		apiGroup.POST("message", server.ProcessMessage)
 	}
 
 	zGroup := router.Group("z")
