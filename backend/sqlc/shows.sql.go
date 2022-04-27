@@ -3,7 +3,7 @@
 //   sqlc v1.13.0
 // source: shows.sql
 
-package db
+package sqlc
 
 import (
 	"context"
