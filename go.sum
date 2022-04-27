@@ -67,6 +67,8 @@ github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAE
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/aws/aws-sdk-go v1.37.0 h1:GzFnhOIsrGyQ69s7VgqtrG2BG8v7X7vwB3Xpbd/DBBk=
 github.com/aws/aws-sdk-go v1.37.0/go.mod h1:hcU610XS61/+aQV88ixoOzUoG7v3b31pl2zKMmprdro=
+github.com/aws/aws-sdk-go v1.44.1 h1:w34ZmPT6K4NTd7Yap1P7SLXPTii0ABmBz3KEh4KJdKc=
+github.com/aws/aws-sdk-go v1.44.1/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/bcc-code/mediabank-bridge v1.1.1 h1:9nnoicJvAnIY0IeNamQwKnj0/LRS2jLYF8ZOcHYvzDM=
 github.com/bcc-code/mediabank-bridge v1.1.1/go.mod h1:q4CQKCNK/y0JnytZ8rTouRN2TVXOh0tJlz2U8qFHtNk=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
