@@ -4,11 +4,13 @@ package main
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"go.opencensus.io/trace"
 )
@@ -22,18 +24,32 @@ func main() {
 	// Here you can get a tracedHttpClient if useful anywhere
 	_ = utils.MustSetupTracing()
 
+	// TODO: Proper auth and SSL verification for prod
+	rawDB, err := sql.Open("postgres", "user=btv dbname=btv sslmode=disable")
+	if err != nil {
+		// TODO: Better messages
+		panic(err)
+	}
+
 	ctx, initTrace := trace.StartSpan(ctx, "init")
 
 	log.L.Debug().Msg("Set up HTTP server")
 
 	router := gin.Default()
 
-	server := server.NewServer()
+	server := server.NewServer(rawDB)
 
 	apiGroup := router.Group("api")
 	{
-		apiGroup.POST("ingest-vod", server.IngestVod)
+		apiGroup.POST("message", server.ProcessMessage)
+	}
+
+	zGroup := router.Group("z")
+	{
+		zGroup.GET("db", server.ZDBStatus)
 	}
 
 	initTrace.End()
+
+	router.Run(":8078")
 }

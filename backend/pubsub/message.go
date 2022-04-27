@@ -66,6 +66,11 @@ func ExtractData[T any](m Message, out *T) error {
 	return json.Unmarshal(decoded, out)
 }
 
+// Bytes returns the decoded bytes of the message
+func (m Message) Bytes() ([]byte, error) {
+	return base64.StdEncoding.DecodeString(m.Message.Data)
+}
+
 // Validate if the message is signed with the correct key
 func (m Message) Validate(sharedKey string) bool {
 	var msgHash string
