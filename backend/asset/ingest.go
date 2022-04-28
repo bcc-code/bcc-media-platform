@@ -8,6 +8,7 @@ import (
 
 	"github.com/ansel1/merry"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -82,6 +83,8 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	}
 
 	spew.Dump(assetMeta)
+
+	mps := mediapackagevod.New()
 
 	return nil
 }
