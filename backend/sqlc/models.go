@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.13.0
 
-package db
+package sqlc
 
 import (
 	"database/sql"
@@ -38,6 +38,7 @@ type Assetfiles struct {
 	Type        null_v4.String `db:"type" json:"type"`
 	Storage     null_v4.String `db:"storage" json:"storage"`
 	AssetID     null_v4.Int    `db:"asset_id" json:"assetID"`
+	Service     null_v4.String `db:"service" json:"service"`
 }
 
 type Assets struct {
@@ -47,6 +48,7 @@ type Assets struct {
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 	DateUpdated sql.NullTime   `db:"date_updated" json:"dateUpdated"`
 	Name        null_v4.String `db:"name" json:"name"`
+	MediabankID null_v4.String `db:"mediabank_id" json:"mediabankID"`
 }
 
 type Calendarevent struct {
