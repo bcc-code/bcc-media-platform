@@ -24,6 +24,8 @@ require (
 	cloud.google.com/go/kms v1.4.0 // indirect
 	cloud.google.com/go/monitoring v1.1.0 // indirect
 	cloud.google.com/go/trace v1.0.0 // indirect
+	github.com/ansel1/merry v1.6.2 // indirect
+	github.com/ansel1/merry/v2 v2.0.1 // indirect
 	github.com/aws/aws-sdk-go v1.44.1 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
 	github.com/cloudevents/sdk-go/v2 v2.6.0 // indirect
@@ -60,5 +62,5 @@ require (
 	google.golang.org/grpc v1.44.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

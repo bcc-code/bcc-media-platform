@@ -18,11 +18,11 @@ type dbStats struct {
 func (s server) ZDBStatus(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	err := s.rawDB.PingContext(ctx)
-	stats := s.rawDB.Stats()
+	err := s.services.RawDB.PingContext(ctx)
+	stats := s.services.RawDB.Stats()
 
 	c.JSON(http.StatusOK, gin.H{
-		"ping":      err != nil,
+		"ping":      err == nil,
 		"idle":      stats.Idle,
 		"used":      stats.InUse,
 		"open":      stats.OpenConnections,
