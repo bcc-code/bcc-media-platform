@@ -1,4 +1,4 @@
-.PHONY: schema-update run schema-snapshot init reset
+.PHONY: schema-update run schema-snapshot init reset s
 
 init:
 	npm i
@@ -21,3 +21,7 @@ schema-update:
 
 schema-snapshot:
 	npx directus schema snapshot schema.yml -y
+
+s:
+	docker-compose up -d
+	npx directus start
