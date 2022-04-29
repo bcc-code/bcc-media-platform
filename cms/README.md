@@ -4,12 +4,9 @@
 ## Local setup
 
 First you need to create a localized version of `.template.env` file.
-```
-npm i
-docker compose up -d
-npx directus bootstrap
-make schema-update
-```
+
+Then you can run `make init`, which sets up the database and migrates it to the latest version.
+You can quickly destroy your local db and run migrations again with `make reset`.
 
 ## Starting locally
 
@@ -19,7 +16,6 @@ The initial credentials are:
 
 Username: admin@brunstad.tv
 Pass: btv123
-
 
 ## Issues
 
