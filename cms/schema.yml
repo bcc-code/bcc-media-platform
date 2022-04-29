@@ -504,7 +504,7 @@ collections:
       collection: seasons
       icon: format_list_numbered
       note: null
-      display_template: null
+      display_template: '{{translations}}'
       hidden: false
       singleton: false
       translations: null
@@ -3349,7 +3349,7 @@ fields:
       display_options: null
       readonly: true
       hidden: true
-      sort: 10
+      sort: 9
       width: half
       translations: null
       note: null
@@ -3392,7 +3392,7 @@ fields:
         relative: true
       readonly: true
       hidden: true
-      sort: 11
+      sort: 10
       width: half
       translations: null
       note: null
@@ -3435,7 +3435,7 @@ fields:
       display_options: null
       readonly: true
       hidden: true
-      sort: 12
+      sort: 11
       width: half
       translations: null
       note: null
@@ -3478,7 +3478,7 @@ fields:
         relative: true
       readonly: true
       hidden: true
-      sort: 13
+      sort: 12
       width: half
       translations: null
       note: null
@@ -3686,7 +3686,7 @@ fields:
       display_options: null
       readonly: true
       hidden: false
-      sort: 14
+      sort: 13
       width: full
       translations: null
       note: null
@@ -3817,7 +3817,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 15
+      sort: 14
       width: full
       translations: null
       note: null
@@ -3858,12 +3858,53 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: null
+      sort: 15
       width: full
       translations: null
       note: null
       conditions: null
       required: false
+      group: null
+      validation: null
+      validation_message: null
+  - collection: episodes
+    field: episode_number
+    type: integer
+    schema:
+      name: episode_number
+      table: episodes
+      schema: public
+      data_type: integer
+      is_nullable: false
+      generation_expression: null
+      default_value: null
+      is_generated: false
+      max_length: null
+      comment: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: episodes
+      field: episode_number
+      special: null
+      interface: input
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 5
+      width: full
+      translations: null
+      note: For showing "S1:E2" and for sorting.
+      conditions: null
+      required: true
       group: null
       validation: null
       validation_message: null
@@ -6240,14 +6281,14 @@ fields:
       validation: null
       validation_message: null
   - collection: seasons
-    field: season_no
+    field: season_number
     type: integer
     schema:
-      name: season_no
+      name: season_number
       table: seasons
       schema: public
       data_type: integer
-      is_nullable: true
+      is_nullable: false
       generation_expression: null
       default_value: null
       is_generated: false
@@ -6263,11 +6304,10 @@ fields:
       foreign_key_column: null
     meta:
       collection: seasons
-      field: season_no
+      field: season_number
       special: null
       interface: input
-      options:
-        iconLeft: format_list_numbered
+      options: null
       display: null
       display_options: null
       readonly: false
@@ -6275,9 +6315,9 @@ fields:
       sort: 4
       width: full
       translations: null
-      note: null
+      note: Used for "S1:E2" and for sorting.
       conditions: null
-      required: false
+      required: true
       group: null
       validation: null
       validation_message: null
@@ -9611,6 +9651,31 @@ fields:
       validation: null
       validation_message: null
   - collection: episodes
+    field: usergroups
+    type: alias
+    schema: null
+    meta:
+      collection: episodes
+      field: usergroups
+      special:
+        - m2m
+      interface: list-m2m
+      options:
+        enableCreate: false
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 3
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: availability
+      validation: null
+      validation_message: null
+  - collection: episodes
     field: availability
     type: alias
     schema: null
@@ -9638,31 +9703,6 @@ fields:
       validation: null
       validation_message: null
   - collection: episodes
-    field: usergroups
-    type: alias
-    schema: null
-    meta:
-      collection: episodes
-      field: usergroups
-      special:
-        - m2m
-      interface: list-m2m
-      options:
-        enableCreate: false
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 3
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: availability
-      validation: null
-      validation_message: null
-  - collection: episodes
     field: translations
     type: alias
     schema: null
@@ -9682,7 +9722,7 @@ fields:
         defaultLanguage: 'no'
       readonly: false
       hidden: false
-      sort: null
+      sort: 16
       width: full
       translations: null
       note: null
@@ -9707,7 +9747,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: null
+      sort: 17
       width: full
       translations: null
       note: null
@@ -9733,7 +9773,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: null
+      sort: 18
       width: full
       translations: null
       note: null
@@ -9855,6 +9895,30 @@ fields:
       validation: null
       validation_message: null
   - collection: seasons
+    field: episodes
+    type: alias
+    schema: null
+    meta:
+      collection: seasons
+      field: episodes
+      special:
+        - o2m
+      interface: list-o2m
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 14
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+      validation: null
+      validation_message: null
+  - collection: seasons
     field: translations
     type: alias
     schema: null
@@ -9871,33 +9935,10 @@ fields:
         userLanguage: true
         languageField: code
         template: '{{title}}'
+        defaultLanguage: 'no'
       readonly: false
       hidden: false
       sort: 13
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-      validation: null
-      validation_message: null
-  - collection: seasons
-    field: episodes
-    type: alias
-    schema: null
-    meta:
-      collection: seasons
-      field: episodes
-      special:
-        - o2m
-      interface: list-o2m
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 14
       width: full
       translations: null
       note: null
@@ -10007,6 +10048,35 @@ fields:
       group: null
       validation: null
       validation_message: null
+  - collection: shows
+    field: translations
+    type: alias
+    schema: null
+    meta:
+      collection: shows
+      field: translations
+      special:
+        - translations
+      interface: translations
+      options:
+        languageField: code
+      display: translations
+      display_options:
+        userLanguage: true
+        languageField: name
+        template: '{{title}}'
+        defaultLanguage: 'no'
+      readonly: false
+      hidden: false
+      sort: 5
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+      validation: null
+      validation_message: null
   - collection: tvguideentry
     field: link
     type: alias
@@ -10049,35 +10119,6 @@ fields:
       readonly: false
       hidden: false
       sort: null
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-      validation: null
-      validation_message: null
-  - collection: shows
-    field: translations
-    type: alias
-    schema: null
-    meta:
-      collection: shows
-      field: translations
-      special:
-        - translations
-      interface: translations
-      options:
-        languageField: code
-      display: translations
-      display_options:
-        userLanguage: true
-        languageField: name
-        template: '{{title}}'
-        defaultLanguage: 'no'
-      readonly: false
-      hidden: false
-      sort: 5
       width: full
       translations: null
       note: null
@@ -10704,28 +10745,6 @@ relations:
       sort_field: null
       one_deselect_action: nullify
   - collection: seasons
-    field: show_id
-    related_collection: shows
-    schema:
-      constraint_name: seasons_show_id_foreign
-      table: seasons
-      column: show_id
-      foreign_key_schema: public
-      foreign_key_table: shows
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: seasons
-      many_field: show_id
-      one_collection: shows
-      one_field: seasons
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: seasons
     field: image_file_id
     related_collection: directus_files
     schema:
@@ -10808,6 +10827,28 @@ relations:
       many_field: agerating_code
       one_collection: ageratings
       one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: seasons
+    field: show_id
+    related_collection: shows
+    schema:
+      constraint_name: seasons_show_id_foreign
+      table: seasons
+      column: show_id
+      foreign_key_schema: public
+      foreign_key_table: shows
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: CASCADE
+    meta:
+      many_collection: seasons
+      many_field: show_id
+      one_collection: shows
+      one_field: seasons
       one_collection_field: null
       one_allowed_collections: null
       junction_field: null
