@@ -3288,6 +3288,7 @@ fields:
             value: draft
           - text: $t:archived
             value: archived
+        icon: visibility
       display: labels
       display_options:
         showAsDot: true
@@ -3306,8 +3307,8 @@ fields:
             background: var(--warning)
       readonly: false
       hidden: false
-      sort: 3
-      width: full
+      sort: 2
+      width: half
       translations: null
       note: null
       conditions: null
@@ -3349,7 +3350,7 @@ fields:
       display_options: null
       readonly: true
       hidden: true
-      sort: 9
+      sort: 6
       width: half
       translations: null
       note: null
@@ -3392,7 +3393,7 @@ fields:
         relative: true
       readonly: true
       hidden: true
-      sort: 10
+      sort: 7
       width: half
       translations: null
       note: null
@@ -3435,7 +3436,7 @@ fields:
       display_options: null
       readonly: true
       hidden: true
-      sort: 11
+      sort: 8
       width: half
       translations: null
       note: null
@@ -3478,7 +3479,7 @@ fields:
         relative: true
       readonly: true
       hidden: true
-      sort: 12
+      sort: 9
       width: half
       translations: null
       note: null
@@ -3520,7 +3521,7 @@ fields:
       readonly: false
       hidden: false
       sort: 1
-      width: full
+      width: half
       translations: null
       note: null
       conditions: null
@@ -3561,7 +3562,7 @@ fields:
       readonly: false
       hidden: false
       sort: 2
-      width: full
+      width: half
       translations: null
       note: null
       conditions: null
@@ -3602,13 +3603,13 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 7
-      width: full
+      sort: 5
+      width: half
       translations: null
       note: null
       conditions: null
       required: false
-      group: null
+      group: metadata
       validation: null
       validation_message: null
   - collection: episodes
@@ -3644,13 +3645,19 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 4
-      width: full
+      sort: 2
+      width: half
       translations: null
       note: null
-      conditions: null
+      conditions:
+        - name: Hide when standalone
+          rule:
+            _and:
+              - type:
+                  _eq: standalone
+          hidden: true
       required: false
-      group: null
+      group: metadata
       validation: null
       validation_message: null
   - collection: episodes
@@ -3686,13 +3693,13 @@ fields:
       display_options: null
       readonly: true
       hidden: false
-      sort: 13
+      sort: 1
       width: full
       translations: null
       note: null
       conditions: null
       required: false
-      group: null
+      group: technical_details
       validation: null
       validation_message: null
   - collection: episodes
@@ -3727,13 +3734,13 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 6
-      width: full
+      sort: 4
+      width: half
       translations: null
       note: null
       conditions: null
       required: true
-      group: null
+      group: metadata
       validation: null
       validation_message: null
   - collection: episodes
@@ -3746,7 +3753,7 @@ fields:
       data_type: character varying
       is_nullable: false
       generation_expression: null
-      default_value: null
+      default_value: episode
       is_generated: false
       max_length: 255
       comment: null
@@ -3769,17 +3776,30 @@ fields:
             value: episode
           - text: Standalone
             value: standalone
+        icon: build
       display: null
       display_options: null
       readonly: false
       hidden: false
-      sort: 2
+      sort: 1
       width: full
       translations: null
       note: null
-      conditions: null
+      conditions:
+        - name: Disable when season is set
+          rule:
+            _and:
+              - season_id:
+                  _nnull: true
+          readonly: true
+        - name: Disable when episode number is set
+          rule:
+            _and:
+              - episode_number:
+                  _nnull: true
+          readonly: true
       required: true
-      group: null
+      group: metadata
       validation: null
       validation_message: null
   - collection: episodes
@@ -3817,13 +3837,13 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 14
+      sort: 6
       width: full
       translations: null
       note: null
       conditions: null
       required: false
-      group: null
+      group: metadata
       validation: null
       validation_message: null
   - collection: episodes
@@ -3856,15 +3876,15 @@ fields:
       options: null
       display: null
       display_options: null
-      readonly: false
+      readonly: true
       hidden: false
-      sort: 15
+      sort: 2
       width: full
       translations: null
       note: null
       conditions: null
       required: false
-      group: null
+      group: technical_details
       validation: null
       validation_message: null
   - collection: episodes
@@ -3875,7 +3895,7 @@ fields:
       table: episodes
       schema: public
       data_type: integer
-      is_nullable: false
+      is_nullable: true
       generation_expression: null
       default_value: null
       is_generated: false
@@ -3894,18 +3914,25 @@ fields:
       field: episode_number
       special: null
       interface: input
-      options: null
+      options:
+        iconLeft: numbers
       display: null
       display_options: null
       readonly: false
       hidden: false
-      sort: 5
-      width: full
+      sort: 3
+      width: half
       translations: null
       note: For showing "S1:E2" and for sorting.
-      conditions: null
-      required: true
-      group: null
+      conditions:
+        - name: Hide when standalone
+          rule:
+            _and:
+              - type:
+                  _eq: standalone
+          hidden: true
+      required: false
+      group: metadata
       validation: null
       validation_message: null
   - collection: episodes_translations
@@ -4039,7 +4066,7 @@ fields:
       table: episodes_translations
       schema: public
       data_type: character varying
-      is_nullable: false
+      is_nullable: true
       generation_expression: null
       default_value: null
       is_generated: false
@@ -4058,7 +4085,8 @@ fields:
       field: title
       special: null
       interface: input
-      options: null
+      options:
+        iconLeft: title
       display: null
       display_options: null
       readonly: false
@@ -4099,7 +4127,8 @@ fields:
       field: description
       special: null
       interface: input
-      options: null
+      options:
+        iconLeft: description
       display: null
       display_options: null
       readonly: false
@@ -4140,7 +4169,8 @@ fields:
       field: extra_description
       special: null
       interface: input
-      options: null
+      options:
+        iconLeft: description
       display: null
       display_options: null
       readonly: false
@@ -4186,7 +4216,7 @@ fields:
       display: null
       display_options: null
       readonly: false
-      hidden: false
+      hidden: true
       sort: 8
       width: full
       translations: null
@@ -4227,7 +4257,7 @@ fields:
       display: null
       display_options: null
       readonly: false
-      hidden: false
+      hidden: true
       sort: 9
       width: full
       translations: null
@@ -4268,7 +4298,7 @@ fields:
       display: null
       display_options: null
       readonly: false
-      hidden: false
+      hidden: true
       sort: 10
       width: full
       translations: null
@@ -4309,7 +4339,7 @@ fields:
       display: null
       display_options: null
       readonly: false
-      hidden: false
+      hidden: true
       sort: 11
       width: full
       translations: null
@@ -4350,7 +4380,7 @@ fields:
       display: null
       display_options: null
       readonly: false
-      hidden: false
+      hidden: true
       sort: 12
       width: full
       translations: null
@@ -4387,7 +4417,8 @@ fields:
       field: legacy_tags
       special: null
       interface: input
-      options: null
+      options:
+        iconLeft: tag
       display: null
       display_options: null
       readonly: false
@@ -9651,6 +9682,31 @@ fields:
       validation: null
       validation_message: null
   - collection: episodes
+    field: earlyaccess_usergroups
+    type: alias
+    schema: null
+    meta:
+      collection: episodes
+      field: earlyaccess_usergroups
+      special:
+        - m2m
+      interface: list-m2m
+      options:
+        enableCreate: false
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 4
+      width: half
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: availability
+      validation: null
+      validation_message: null
+  - collection: episodes
     field: usergroups
     type: alias
     schema: null
@@ -9676,6 +9732,32 @@ fields:
       validation: null
       validation_message: null
   - collection: episodes
+    field: download_usergroups
+    type: alias
+    schema: null
+    meta:
+      collection: episodes
+      field: download_usergroups
+      special:
+        - m2m
+      interface: list-m2m
+      options:
+        enableCreate: false
+        template: '{{usergroups_code.name}}'
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 5
+      width: half
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: availability
+      validation: null
+      validation_message: null
+  - collection: episodes
     field: availability
     type: alias
     schema: null
@@ -9693,7 +9775,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 8
+      sort: 5
       width: full
       translations: null
       note: null
@@ -9722,64 +9804,13 @@ fields:
         defaultLanguage: 'no'
       readonly: false
       hidden: false
-      sort: 16
+      sort: 1
       width: full
       translations: null
       note: null
       conditions: null
       required: false
-      group: null
-      validation: null
-      validation_message: null
-  - collection: episodes
-    field: earlyaccess_usergroups
-    type: alias
-    schema: null
-    meta:
-      collection: episodes
-      field: earlyaccess_usergroups
-      special:
-        - m2m
-      interface: list-m2m
-      options:
-        enableCreate: false
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 17
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-      validation: null
-      validation_message: null
-  - collection: episodes
-    field: download_usergroups
-    type: alias
-    schema: null
-    meta:
-      collection: episodes
-      field: download_usergroups
-      special:
-        - m2m
-      interface: list-m2m
-      options:
-        enableCreate: false
-        template: '{{usergroups_code.name}}'
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 18
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
+      group: translatable_details
       validation: null
       validation_message: null
   - collection: pages
@@ -10119,6 +10150,88 @@ fields:
       readonly: false
       hidden: false
       sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+      validation: null
+      validation_message: null
+  - collection: episodes
+    field: metadata
+    type: alias
+    schema: null
+    meta:
+      collection: episodes
+      field: metadata
+      special:
+        - alias
+        - no-data
+        - group
+      interface: group-detail
+      options:
+        headerIcon: display_settings
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 4
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+      validation: null
+      validation_message: null
+  - collection: episodes
+    field: technical_details
+    type: alias
+    schema: null
+    meta:
+      collection: episodes
+      field: technical_details
+      special:
+        - alias
+        - no-data
+        - group
+      interface: group-detail
+      options:
+        start: closed
+        headerIcon: code
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 10
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+      validation: null
+      validation_message: null
+  - collection: episodes
+    field: translatable_details
+    type: alias
+    schema: null
+    meta:
+      collection: episodes
+      field: translatable_details
+      special:
+        - alias
+        - no-data
+        - group
+      interface: group-detail
+      options:
+        headerIcon: text_snippet
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 3
       width: full
       translations: null
       note: null
