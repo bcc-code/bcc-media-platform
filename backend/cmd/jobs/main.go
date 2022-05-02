@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -17,7 +18,6 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"go.opencensus.io/trace"
-	"gopkg.in/guregu/null.v4"
 )
 
 func main() {
@@ -40,29 +40,28 @@ func main() {
 
 	sqlcQueries := sqlc.New(rawDB)
 
-	jobsUserID, err := sqlcQueries.GetUserIDByEmail(ctx, null.StringFrom(config.JobsUserEmail))
-	if err != nil {
-		// TODO: Better messages
-		panic(err)
-	}
-
 	serverConfig := server.ConfigData{
-		IngestBucket: config.IngestBucket,
-		JobsUserID:   jobsUserID.String(),
+		IngestBucket:       config.AWS.IngestBucket,
+		PackagingGroupID:   config.AWS.PackagingGroupARN,
+		MediapackageRole:   config.AWS.MediapackageRoleARN,
+		MediapackageSource: config.AWS.MediapackageSourceARN,
 	}
 
 	sess := session.Must(session.NewSession())
-	sess.Config.Region = aws.String(config.AWS["S3"].Region)
-	sess.Config.Endpoint = aws.String(config.AWS["S3"].Endpoint)
+	sess.Config.Region = aws.String(config.AWS.Region)
+	sess.Config.Endpoint = aws.String(config.AWS.Endpoint)
+
 	s3Client := s3.New(sess)
+	mediaPackageVOD := mediapackagevod.New(sess)
 
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
 
 	handlers := server.NewServer(server.ExternalServices{
-		RawDB:    rawDB,
-		DB:       sqlcQueries,
-		S3Client: s3Client,
+		RawDB:           rawDB,
+		DB:              sqlcQueries,
+		S3Client:        s3Client,
+		MediaPackageVOD: mediaPackageVOD,
 	}, serverConfig)
 
 	apiGroup := router.Group("api")
