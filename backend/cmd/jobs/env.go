@@ -3,32 +3,37 @@ package main
 import "os"
 
 type awsConfig struct {
-	Region   string
-	Endpoint string
+	Region                string
+	Endpoint              string
+	PackagingGroupARN     string
+	MediapackageRoleARN   string
+	MediapackageSourceARN string
+	IngestBucket          string
 }
+
 type postgres struct {
 	ConnectionString string
 }
 
 type envConfig struct {
-	AWS           map[string]awsConfig
+	AWS           awsConfig
 	PG            postgres
-	IngestBucket  string
 	JobsUserEmail string
 }
 
 func getEnvConfig() envConfig {
 	return envConfig{
-		AWS: map[string]awsConfig{
-			"S3": {
-				Region:   os.Getenv("AWS_REGION"),
-				Endpoint: os.Getenv("AWS_S3_ENDPOINT"),
-			},
+		AWS: awsConfig{
+			Region:                os.Getenv("AWS_DEFAULT_REGION"),
+			Endpoint:              os.Getenv("AWS_S3_ENDPOINT"),
+			PackagingGroupARN:     os.Getenv("AWS_PACKAGING_GROUP"),
+			MediapackageRoleARN:   os.Getenv("AWS_MEDIAPACKAGE_ROLE"),
+			MediapackageSourceARN: os.Getenv("AWS_MEDIAPACKAGE_SOURCE"),
+			IngestBucket:          os.Getenv("AWS_INGEST_BUCKET"),
 		},
 		PG: postgres{
 			ConnectionString: os.Getenv("DB_CONNECTION"),
 		},
-		IngestBucket:  os.Getenv("AWS_INGEST_BUCKET"),
 		JobsUserEmail: os.Getenv("JOBS_USER_EMAIL"),
 	}
 }
