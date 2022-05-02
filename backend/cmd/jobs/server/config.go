@@ -1,17 +1,32 @@
 package server
 
-// Config that can be passed to other things
+import "github.com/aws/aws-sdk-go/aws"
+
+// ConfigData that can be passed to other things
 type ConfigData struct {
-	IngestBucket string
-	JobsUserID   string
+	IngestBucket       string
+	PackagingGroupID   string
+	MediapackageRole   string
+	MediapackageSource string
 }
 
-// GetIngestBucket as defined in the struct
-func (c ConfigData) GetIngestBucket() string {
-	return c.IngestBucket
+// GetIngestBucket that contains the new assets
+// the MediapackageSource ARN should correspond to this bucket
+func (c ConfigData) GetIngestBucket() *string {
+	return aws.String(c.IngestBucket)
 }
 
-// GetJobsUserID as defined in the struct
-func (c ConfigData) GetJobsUserID() string {
-	return c.JobsUserID
+// GetPackagingGroup that the assets should be ingested into
+func (c ConfigData) GetPackagingGroup() *string {
+	return aws.String(c.PackagingGroupID)
+}
+
+// GetMediapackageRole ARN that should be used for ingesting the assets
+func (c ConfigData) GetMediapackageRole() *string {
+	return aws.String(c.MediapackageRole)
+}
+
+// GetMediapackageSource S3 ARN that the MediapackageRole has access to
+func (c ConfigData) GetMediapackageSource() *string {
+	return aws.String(c.MediapackageSource)
 }
