@@ -3,11 +3,13 @@ package asset
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"time"
 
 	"github.com/ansel1/merry"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -19,13 +21,19 @@ var (
 	ErrDurationEmpty = merry.New("duration string can not be empty")
 )
 
+type smilFormat struct {
+}
+
 type externalServices interface {
 	GetS3Client() *s3.S3
+	GetMediaPackageVOD() *mediapackagevod.MediaPackageVod
 }
 
 type config interface {
-	GetIngestBucket() string
-	GetJobsUserID() string
+	GetIngestBucket() *string
+	GetPackagingGroup() *string
+	GetMediapackageRole() *string
+	GetMediapackageSource() *string
 }
 
 type assetIngestJSONMeta struct {
@@ -63,7 +71,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	}
 
 	jsonObjectOut, err := services.GetS3Client().GetObject(&s3.GetObjectInput{
-		Bucket: aws.String(config.GetIngestBucket()),
+		Bucket: config.GetIngestBucket(),
 		Key:    aws.String("/" + msg.Prefix + "/meta.json"),
 	})
 	if err != nil {
@@ -82,6 +90,40 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	}
 
 	spew.Dump(assetMeta)
+
+	/*
+	   // Don't need to do that yet
+	   	xmlObjOut, err := services.GetS3Client().GetObject(&s3.GetObjectInput{
+	   		Bucket: config.GetIngestBucket(),
+	   		Key:    aws.String("/" + msg.Prefix + "/meta.smil"),
+	   	})
+	   	if err != nil {
+	   		return merry.Wrap(err)
+	   	}
+	   	xmlBytes, err := ioutil.ReadAll(xmlObjOut.Body)
+	   	if err != nil {
+	   		return merry.Wrap(err)
+	   	}
+
+	   	xml.Unmarshal(xmlBytes, &smil)
+	*/
+
+	source := fmt.Sprintf("%s/%s/meta.smil", *config.GetMediapackageSource(), msg.Prefix)
+
+	mpc := services.GetMediaPackageVOD()
+	_, err = mpc.CreateAsset(&mediapackagevod.CreateAssetInput{
+		Id:               aws.String("TODO"),
+		PackagingGroupId: config.GetPackagingGroup(),
+		SourceArn:        aws.String(source),
+		SourceRoleArn:    config.GetMediapackageRole(),
+	})
+
+	pg, err := mpc.ListPackagingGroups(&mediapackagevod.ListPackagingGroupsInput{})
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	spew.Dump(pg)
 
 	return nil
 }
