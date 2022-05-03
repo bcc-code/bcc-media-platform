@@ -1,6 +1,6 @@
 package server
 
-import "github.com/aws/aws-sdk-go/aws"
+import "github.com/aws/aws-sdk-go-v2/aws"
 
 // ConfigData that can be passed to other things
 type ConfigData struct {

@@ -3,17 +3,20 @@ package asset
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"time"
 
 	"github.com/ansel1/merry"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/mediapackagevod"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/bcc-code/brunstadtv/backend/events"
+	"github.com/bcc-code/mediabank-bridge/log"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/google/uuid"
 )
 
 // Sentinel errors
@@ -25,8 +28,8 @@ type smilFormat struct {
 }
 
 type externalServices interface {
-	GetS3Client() *s3.S3
-	GetMediaPackageVOD() *mediapackagevod.MediaPackageVod
+	GetS3Client() *s3.Client
+	GetMediaPackageVOD() *mediapackagevod.Client
 }
 
 type config interface {
@@ -43,20 +46,43 @@ type assetIngestJSONMeta struct {
 	duration time.Duration
 }
 
-func (a *assetIngestJSONMeta) FromJSON(data []byte) error {
-	err := json.Unmarshal(data, &a)
-	if err != nil {
-		return merry.Wrap(err)
-	}
-
-	return a.parseDuration()
-}
-
 func (a *assetIngestJSONMeta) parseDuration() error {
 	// TODO: Implement
 	// This should chop off the frame count, and convert x:y:z format to seconds
 	if a.Duration == "" {
 		return ErrDurationEmpty.Here()
+	}
+
+	return nil
+}
+
+func readJSONFromS3[T any](ctx context.Context, client *s3.Client, bucket *string, path string, obj *T) error {
+
+	jsonObjectOut, err := client.GetObject(
+		ctx,
+		&s3.GetObjectInput{
+			Bucket: bucket,
+			Key:    aws.String(path),
+		},
+	)
+
+	if err != nil {
+		var nsk *types.NoSuchKey
+		if errors.As(err, &nsk) {
+			log.L.Warn().Err(err).Str("path", path).Msg("Unable to retrieve json")
+		}
+		return merry.Wrap(err)
+
+	}
+
+	jsonBytes, err := ioutil.ReadAll(jsonObjectOut.Body)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	err = json.Unmarshal(jsonBytes, obj)
+	if err != nil {
+		return merry.Wrap(err)
 	}
 
 	return nil
@@ -70,60 +96,32 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		return merry.Wrap(err)
 	}
 
-	jsonObjectOut, err := services.GetS3Client().GetObject(&s3.GetObjectInput{
-		Bucket: config.GetIngestBucket(),
-		Key:    aws.String("/" + msg.Prefix + "/meta.json"),
-	})
-	if err != nil {
-		return merry.Wrap(err)
-	}
-
-	jsonBytes, err := ioutil.ReadAll(jsonObjectOut.Body)
-	if err != nil {
-		return merry.Wrap(err)
-	}
-
+	jsonPath := msg.Prefix + "/meta.json"
 	assetMeta := assetIngestJSONMeta{}
-	err = assetMeta.FromJSON(jsonBytes)
+	err = readJSONFromS3(ctx, services.GetS3Client(), config.GetIngestBucket(), jsonPath, &assetMeta)
 	if err != nil {
 		return merry.Wrap(err)
 	}
-
-	spew.Dump(assetMeta)
-
-	/*
-	   // Don't need to do that yet
-	   	xmlObjOut, err := services.GetS3Client().GetObject(&s3.GetObjectInput{
-	   		Bucket: config.GetIngestBucket(),
-	   		Key:    aws.String("/" + msg.Prefix + "/meta.smil"),
-	   	})
-	   	if err != nil {
-	   		return merry.Wrap(err)
-	   	}
-	   	xmlBytes, err := ioutil.ReadAll(xmlObjOut.Body)
-	   	if err != nil {
-	   		return merry.Wrap(err)
-	   	}
-
-	   	xml.Unmarshal(xmlBytes, &smil)
-	*/
 
 	source := fmt.Sprintf("%s/%s/meta.smil", *config.GetMediapackageSource(), msg.Prefix)
-
 	mpc := services.GetMediaPackageVOD()
-	_, err = mpc.CreateAsset(&mediapackagevod.CreateAssetInput{
-		Id:               aws.String("TODO"),
-		PackagingGroupId: config.GetPackagingGroup(),
-		SourceArn:        aws.String(source),
-		SourceRoleArn:    config.GetMediapackageRole(),
-	})
-
-	pg, err := mpc.ListPackagingGroups(&mediapackagevod.ListPackagingGroupsInput{})
+	asset, err := mpc.CreateAsset(ctx,
+		&mediapackagevod.CreateAssetInput{
+			Id:               aws.String(uuid.New().String()),
+			PackagingGroupId: config.GetPackagingGroup(),
+			SourceArn:        aws.String(source),
+			SourceRoleArn:    config.GetMediapackageRole(),
+		})
 	if err != nil {
 		return merry.Wrap(err)
 	}
 
-	spew.Dump(pg)
+	for _, e := range asset.EgressEndpoints {
+		log.L.Debug().
+			Str("status", *e.Status).
+			Str("url", *e.Url).
+			Msg("")
+	}
 
 	return nil
 }
