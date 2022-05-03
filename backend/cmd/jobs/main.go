@@ -4,13 +4,11 @@ package main
 
 import (
 	"context"
-	"database/sql"
 
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
@@ -30,14 +28,6 @@ func main() {
 	ctx, initTrace := trace.StartSpan(ctx, "init")
 
 	config := getEnvConfig()
-
-	rawDB, err := sql.Open("postgres", config.PG.ConnectionString)
-	if err != nil {
-		// TODO: Better messages
-		panic(err)
-	}
-
-	sqlcQueries := sqlc.New(rawDB)
 
 	serverConfig := server.ConfigData{
 		IngestBucket:       config.AWS.IngestBucket,
@@ -59,8 +49,6 @@ func main() {
 	router := gin.Default()
 
 	handlers := server.NewServer(server.ExternalServices{
-		RawDB:           rawDB,
-		DB:              sqlcQueries,
 		S3Client:        s3Client,
 		MediaPackageVOD: mediaPackageVOD,
 	}, serverConfig)
@@ -68,11 +56,6 @@ func main() {
 	apiGroup := router.Group("api")
 	{
 		apiGroup.POST("message", handlers.ProcessMessage)
-	}
-
-	zGroup := router.Group("z")
-	{
-		zGroup.GET("db", handlers.ZDBStatus)
 	}
 
 	initTrace.End()
