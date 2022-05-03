@@ -6,10 +6,9 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/mediapackagevod"
-	"github.com/aws/aws-sdk-go/service/s3"
+	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -47,12 +46,14 @@ func main() {
 		MediapackageSource: config.AWS.MediapackageSourceARN,
 	}
 
-	sess := session.Must(session.NewSession())
-	sess.Config.Region = aws.String(config.AWS.Region)
-	sess.Config.Endpoint = aws.String(config.AWS.Endpoint)
+	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
+	if err != nil {
+		// TODO: Better messages
+		panic(err)
+	}
 
-	s3Client := s3.New(sess)
-	mediaPackageVOD := mediapackagevod.New(sess)
+	s3Client := s3.NewFromConfig(awsConfig)
+	mediaPackageVOD := mediapackagevod.NewFromConfig(awsConfig)
 
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
