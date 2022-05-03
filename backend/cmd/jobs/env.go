@@ -15,9 +15,7 @@ type postgres struct {
 }
 
 type envConfig struct {
-	AWS           awsConfig
-	PG            postgres
-	JobsUserEmail string
+	AWS awsConfig
 }
 
 func getEnvConfig() envConfig {
@@ -29,9 +27,5 @@ func getEnvConfig() envConfig {
 			MediapackageSourceARN: os.Getenv("AWS_MEDIAPACKAGE_SOURCE"),
 			IngestBucket:          os.Getenv("AWS_INGEST_BUCKET"),
 		},
-		PG: postgres{
-			ConnectionString: os.Getenv("DB_CONNECTION"),
-		},
-		JobsUserEmail: os.Getenv("JOBS_USER_EMAIL"),
 	}
 }
