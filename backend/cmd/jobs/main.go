@@ -4,14 +4,11 @@ package main
 
 import (
 	"context"
-	"database/sql"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/mediapackagevod"
-	"github.com/aws/aws-sdk-go/service/s3"
+	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
@@ -32,14 +29,6 @@ func main() {
 
 	config := getEnvConfig()
 
-	rawDB, err := sql.Open("postgres", config.PG.ConnectionString)
-	if err != nil {
-		// TODO: Better messages
-		panic(err)
-	}
-
-	sqlcQueries := sqlc.New(rawDB)
-
 	serverConfig := server.ConfigData{
 		IngestBucket:       config.AWS.IngestBucket,
 		PackagingGroupID:   config.AWS.PackagingGroupARN,
@@ -47,19 +36,19 @@ func main() {
 		MediapackageSource: config.AWS.MediapackageSourceARN,
 	}
 
-	sess := session.Must(session.NewSession())
-	sess.Config.Region = aws.String(config.AWS.Region)
-	sess.Config.Endpoint = aws.String(config.AWS.Endpoint)
+	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
+	if err != nil {
+		// TODO: Better messages
+		panic(err)
+	}
 
-	s3Client := s3.New(sess)
-	mediaPackageVOD := mediapackagevod.New(sess)
+	s3Client := s3.NewFromConfig(awsConfig)
+	mediaPackageVOD := mediapackagevod.NewFromConfig(awsConfig)
 
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
 
 	handlers := server.NewServer(server.ExternalServices{
-		RawDB:           rawDB,
-		DB:              sqlcQueries,
 		S3Client:        s3Client,
 		MediaPackageVOD: mediaPackageVOD,
 	}, serverConfig)
@@ -67,11 +56,6 @@ func main() {
 	apiGroup := router.Group("api")
 	{
 		apiGroup.POST("message", handlers.ProcessMessage)
-	}
-
-	zGroup := router.Group("z")
-	{
-		zGroup.GET("db", handlers.ZDBStatus)
 	}
 
 	initTrace.End()

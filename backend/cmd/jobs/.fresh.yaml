@@ -1,5 +1,5 @@
 version: "1"
-root: .
+root: ../../
 main_path: ""
 tmp_path: ./tmp
 build_name: runner-build

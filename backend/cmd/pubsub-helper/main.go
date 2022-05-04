@@ -30,7 +30,7 @@ func create(projectID, topicID string) {
 	t, err := client.CreateSubscription(ctx, "bgjobs", pubsub.SubscriptionConfig{
 		Topic: topic,
 		PushConfig: pubsub.PushConfig{
-			Endpoint: "http://10.12.128.175:8078/api/message",
+			Endpoint: "http://10.12.128.91:8078/api/message",
 		},
 	})
 	if err != nil {
@@ -51,7 +51,7 @@ func send(projectID, topicID string) {
 	e.SetSource(events.SourceMediaBanken)
 	e.SetType(events.TypeAssetDelivered)
 	e.SetData(cloudevents.ApplicationJSON, &events.AssetDelivered{
-		Prefix: "",
+		Prefix: "randomstring",
 	})
 
 	data, err := json.Marshal(e)
@@ -88,7 +88,6 @@ func del(projectID, topicID string) {
 func main() {
 	create("btv-local", "background-jobs")
 
-	send("btv-local", "background-jobs")
 	send("btv-local", "background-jobs")
 
 	time.Sleep(1 * time.Second)
