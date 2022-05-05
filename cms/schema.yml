@@ -54,7 +54,7 @@ collections:
       collection: assetfiles
       icon: file_present
       note: Downloadable videos, subtitles, etc.
-      display_template: null
+      display_template: '{{storage}}/{{path}}'
       hidden: false
       singleton: false
       translations: null
@@ -2393,7 +2393,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: null
+      sort: 8
       width: full
       translations: null
       note: null
@@ -2434,7 +2434,53 @@ fields:
       display_options: null
       readonly: false
       hidden: true
-      sort: null
+      sort: 9
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+      validation: null
+      validation_message: null
+  - collection: assets
+    field: encoding_version
+    type: string
+    schema:
+      name: encoding_version
+      table: assets
+      schema: public
+      data_type: character varying
+      is_nullable: true
+      generation_expression: null
+      default_value: null
+      is_generated: false
+      max_length: 255
+      comment: null
+      numeric_precision: null
+      numeric_scale: null
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: assets
+      field: encoding_version
+      special: null
+      interface: select-dropdown
+      options:
+        choices:
+          - text: btv
+            value: btv
+          - text: azure_media_services
+            value: azure_media_services
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 10
       width: full
       translations: null
       note: null
@@ -2767,7 +2813,7 @@ fields:
       table: assetstreams
       schema: public
       data_type: character varying
-      is_nullable: true
+      is_nullable: false
       generation_expression: null
       default_value: null
       is_generated: false
@@ -2975,6 +3021,47 @@ fields:
       note: null
       conditions: null
       required: true
+      group: null
+      validation: null
+      validation_message: null
+  - collection: assetstreams
+    field: encryption_key_id
+    type: string
+    schema:
+      name: encryption_key_id
+      table: assetstreams
+      schema: public
+      data_type: character varying
+      is_nullable: true
+      generation_expression: null
+      default_value: null
+      is_generated: false
+      max_length: 255
+      comment: null
+      numeric_precision: null
+      numeric_scale: null
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: assetstreams
+      field: encryption_key_id
+      special: null
+      interface: input
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
       group: null
       validation: null
       validation_message: null
@@ -13370,32 +13457,6 @@ fields:
       group: null
       validation: null
       validation_message: null
-  - collection: assets
-    field: files
-    type: alias
-    schema: null
-    meta:
-      collection: assets
-      field: files
-      special:
-        - o2m
-      interface: list-o2m
-      options:
-        template: '{{filename}}'
-        enableCreate: false
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 8
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-      validation: null
-      validation_message: null
   - collection: assetstreams
     field: audio_languages
     type: alias
@@ -13460,8 +13521,34 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: null
-      width: full
+      sort: 12
+      width: half
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+      validation: null
+      validation_message: null
+  - collection: assets
+    field: files
+    type: alias
+    schema: null
+    meta:
+      collection: assets
+      field: files
+      special:
+        - o2m
+      interface: list-o2m
+      options:
+        template: '{{storage}}/{{path}}'
+        enableCreate: false
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 11
+      width: half
       translations: null
       note: null
       conditions: null
