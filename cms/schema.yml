@@ -13457,54 +13457,6 @@ fields:
       group: null
       validation: null
       validation_message: null
-  - collection: assetstreams
-    field: audio_languages
-    type: alias
-    schema: null
-    meta:
-      collection: assetstreams
-      field: audio_languages
-      special:
-        - m2m
-      interface: list-m2m
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 12
-      width: half
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-      validation: null
-      validation_message: null
-  - collection: assetstreams
-    field: subtitle_languages
-    type: alias
-    schema: null
-    meta:
-      collection: assetstreams
-      field: subtitle_languages
-      special:
-        - m2m
-      interface: list-m2m
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 13
-      width: half
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-      validation: null
-      validation_message: null
   - collection: assets
     field: streams
     type: alias
@@ -13548,6 +13500,54 @@ fields:
       readonly: false
       hidden: false
       sort: 11
+      width: half
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+      validation: null
+      validation_message: null
+  - collection: assetstreams
+    field: audio_languages
+    type: alias
+    schema: null
+    meta:
+      collection: assetstreams
+      field: audio_languages
+      special:
+        - m2m
+      interface: list-m2m
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 12
+      width: half
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+      validation: null
+      validation_message: null
+  - collection: assetstreams
+    field: subtitle_languages
+    type: alias
+    schema: null
+    meta:
+      collection: assetstreams
+      field: subtitle_languages
+      special:
+        - m2m
+      interface: list-m2m
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 13
       width: half
       translations: null
       note: null
