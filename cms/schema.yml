@@ -1579,7 +1579,7 @@ fields:
       display_options: null
       readonly: true
       hidden: true
-      sort: 5
+      sort: 6
       width: half
       translations: null
       note: null
@@ -1622,7 +1622,7 @@ fields:
         relative: true
       readonly: true
       hidden: true
-      sort: 6
+      sort: 7
       width: half
       translations: null
       note: null
@@ -1665,7 +1665,7 @@ fields:
       display_options: null
       readonly: true
       hidden: true
-      sort: 7
+      sort: 8
       width: half
       translations: null
       note: null
@@ -1708,7 +1708,7 @@ fields:
         relative: true
       readonly: true
       hidden: true
-      sort: 8
+      sort: 9
       width: half
       translations: null
       note: null
@@ -1725,7 +1725,7 @@ fields:
       table: assetfiles
       schema: public
       data_type: character varying
-      is_nullable: true
+      is_nullable: false
       generation_expression: null
       default_value: null
       is_generated: false
@@ -1752,10 +1752,6 @@ fields:
             value: audio
           - text: Subtitle
             value: subtitle
-          - text: HLS CMAF Manifest
-            value: hls-cmaf
-          - text: DASH Manifest
-            value: dash
       display: null
       display_options: null
       readonly: false
@@ -1801,58 +1797,12 @@ fields:
       display_options: null
       readonly: false
       hidden: true
-      sort: 9
+      sort: 10
       width: full
       translations: null
       note: null
       conditions: null
       required: false
-      group: null
-      validation: null
-      validation_message: null
-  - collection: assetfiles
-    field: service
-    type: string
-    schema:
-      name: service
-      table: assetfiles
-      schema: public
-      data_type: character varying
-      is_nullable: true
-      generation_expression: null
-      default_value: null
-      is_generated: false
-      max_length: 255
-      comment: null
-      numeric_precision: null
-      numeric_scale: null
-      is_unique: false
-      is_primary_key: false
-      has_auto_increment: false
-      foreign_key_schema: null
-      foreign_key_table: null
-      foreign_key_column: null
-    meta:
-      collection: assetfiles
-      field: service
-      special: null
-      interface: select-radio
-      options:
-        choices:
-          - text: azure_blob_storage
-            value: azure_blob_storage
-          - text: s3
-            value: s3
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 3
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: true
       group: null
       validation: null
       validation_message: null
@@ -1889,7 +1839,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 10
+      sort: 11
       width: full
       translations: null
       note: null
@@ -1973,7 +1923,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: null
+      sort: 12
       width: half
       translations: null
       note: null
@@ -2016,12 +1966,100 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: null
+      sort: 13
       width: half
       translations: null
       note: null
       conditions: null
       required: false
+      group: null
+      validation: null
+      validation_message: null
+  - collection: assetfiles
+    field: mime_type
+    type: string
+    schema:
+      name: mime_type
+      table: assetfiles
+      schema: public
+      data_type: character varying
+      is_nullable: false
+      generation_expression: null
+      default_value: null
+      is_generated: false
+      max_length: 255
+      comment: null
+      numeric_precision: null
+      numeric_scale: null
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: assetfiles
+      field: mime_type
+      special: null
+      interface: input
+      options:
+        iconLeft: category
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 5
+      width: half
+      translations: null
+      note: null
+      conditions: null
+      required: true
+      group: null
+      validation: null
+      validation_message: null
+  - collection: assetfiles
+    field: storage
+    type: string
+    schema:
+      name: storage
+      table: assetfiles
+      schema: public
+      data_type: character varying
+      is_nullable: false
+      generation_expression: null
+      default_value: null
+      is_generated: false
+      max_length: 255
+      comment: null
+      numeric_precision: null
+      numeric_scale: null
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: assetfiles
+      field: storage
+      special: null
+      interface: select-radio
+      options:
+        choices:
+          - text: az_vods1
+            value: az_vods1
+          - text: s3_assets
+            value: s3_assets
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 3
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: true
       group: null
       validation: null
       validation_message: null
@@ -5592,7 +5630,7 @@ fields:
       display_options: null
       readonly: true
       hidden: true
-      sort: 9
+      sort: 8
       width: half
       translations: null
       note: null
@@ -5635,7 +5673,7 @@ fields:
         relative: true
       readonly: true
       hidden: true
-      sort: 10
+      sort: 9
       width: half
       translations: null
       note: null
@@ -5759,7 +5797,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 4
+      sort: 5
       width: half
       translations: null
       note: null
@@ -5802,7 +5840,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 8
+      sort: 2
       width: half
       translations: null
       note: null
@@ -5814,7 +5852,7 @@ fields:
                   _eq: standalone
           hidden: true
       required: false
-      group: null
+      group: metadata
       validation: null
       validation_message: null
   - collection: episodes
@@ -5891,7 +5929,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 3
+      sort: 4
       width: half
       translations: null
       note: null
@@ -5994,7 +6032,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 6
+      sort: 7
       width: full
       translations: null
       note: null
@@ -6077,7 +6115,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 2
+      sort: 3
       width: half
       translations: null
       note: For showing "S1:E2" and for sorting.
@@ -6167,7 +6205,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 5
+      sort: 6
       width: full
       translations: null
       note: null
@@ -13806,30 +13844,6 @@ fields:
       validation: null
       validation_message: null
   - collection: episodes
-    field: categories
-    type: alias
-    schema: null
-    meta:
-      collection: episodes
-      field: categories
-      special:
-        - m2m
-      interface: list-m2m
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 8
-      width: half
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: metadata
-      validation: null
-      validation_message: null
-  - collection: episodes
     field: tags
     type: alias
     schema: null
@@ -13844,7 +13858,31 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 7
+      sort: 8
+      width: half
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: metadata
+      validation: null
+      validation_message: null
+  - collection: episodes
+    field: categories
+    type: alias
+    schema: null
+    meta:
+      collection: episodes
+      field: categories
+      special:
+        - m2m
+      interface: list-m2m
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 9
       width: half
       translations: null
       note: null
@@ -13872,7 +13910,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 11
+      sort: 10
       width: full
       translations: null
       note: null
