@@ -9,6 +9,32 @@ import (
 	"github.com/Khan/genqlient/graphql"
 )
 
+// CreateAssetCreate_assets_itemAssets includes the requested fields of the GraphQL type assets.
+type CreateAssetCreate_assets_itemAssets struct {
+	Id       string `json:"id"`
+	Name     string `json:"name"`
+	Duration string `json:"duration"`
+}
+
+// GetId returns CreateAssetCreate_assets_itemAssets.Id, and is useful for accessing the field via an interface.
+func (v *CreateAssetCreate_assets_itemAssets) GetId() string { return v.Id }
+
+// GetName returns CreateAssetCreate_assets_itemAssets.Name, and is useful for accessing the field via an interface.
+func (v *CreateAssetCreate_assets_itemAssets) GetName() string { return v.Name }
+
+// GetDuration returns CreateAssetCreate_assets_itemAssets.Duration, and is useful for accessing the field via an interface.
+func (v *CreateAssetCreate_assets_itemAssets) GetDuration() string { return v.Duration }
+
+// CreateAssetResponse is returned by CreateAsset on success.
+type CreateAssetResponse struct {
+	Create_assets_item *CreateAssetCreate_assets_itemAssets `json:"create_assets_item"`
+}
+
+// GetCreate_assets_item returns CreateAssetResponse.Create_assets_item, and is useful for accessing the field via an interface.
+func (v *CreateAssetResponse) GetCreate_assets_item() *CreateAssetCreate_assets_itemAssets {
+	return v.Create_assets_item
+}
+
 type Create_assetfiles_input struct {
 	Id                string                       `json:"id"`
 	User_created      *Create_directus_users_input `json:"user_created,omitempty"`
@@ -21,6 +47,7 @@ type Create_assetfiles_input struct {
 	Type              string                       `json:"type"`
 	Asset_id          *Create_assets_input         `json:"asset_id,omitempty"`
 	Service           string                       `json:"service"`
+	Metadata          string                       `json:"metadata"`
 }
 
 // GetId returns Create_assetfiles_input.Id, and is useful for accessing the field via an interface.
@@ -64,6 +91,9 @@ func (v *Create_assetfiles_input) GetAsset_id() *Create_assets_input { return v.
 // GetService returns Create_assetfiles_input.Service, and is useful for accessing the field via an interface.
 func (v *Create_assetfiles_input) GetService() string { return v.Service }
 
+// GetMetadata returns Create_assetfiles_input.Metadata, and is useful for accessing the field via an interface.
+func (v *Create_assetfiles_input) GetMetadata() string { return v.Metadata }
+
 type Create_assets_input struct {
 	Id                string                       `json:"id"`
 	User_created      *Create_directus_users_input `json:"user_created,omitempty"`
@@ -73,7 +103,7 @@ type Create_assets_input struct {
 	Date_updated      time.Time                    `json:"date_updated"`
 	Date_updated_func *Datetime_functionsInput     `json:"date_updated_func,omitempty"`
 	Name              string                       `json:"name"`
-	Mediabank_id      string                       `json:"mediabank_id"`
+	Duration          string                       `json:"duration"`
 	Files             []*Create_assetfiles_input   `json:"files,omitempty"`
 }
 
@@ -105,8 +135,8 @@ func (v *Create_assets_input) GetDate_updated_func() *Datetime_functionsInput {
 // GetName returns Create_assets_input.Name, and is useful for accessing the field via an interface.
 func (v *Create_assets_input) GetName() string { return v.Name }
 
-// GetMediabank_id returns Create_assets_input.Mediabank_id, and is useful for accessing the field via an interface.
-func (v *Create_assets_input) GetMediabank_id() string { return v.Mediabank_id }
+// GetDuration returns Create_assets_input.Duration, and is useful for accessing the field via an interface.
+func (v *Create_assets_input) GetDuration() string { return v.Duration }
 
 // GetFiles returns Create_assets_input.Files, and is useful for accessing the field via an interface.
 func (v *Create_assets_input) GetFiles() []*Create_assetfiles_input { return v.Files }
@@ -400,94 +430,34 @@ func (v *Datetime_functionsInput) GetMinute() int { return v.Minute }
 // GetSecond returns Datetime_functionsInput.Second, and is useful for accessing the field via an interface.
 func (v *Datetime_functionsInput) GetSecond() int { return v.Second }
 
-// GetAssetsAssets includes the requested fields of the GraphQL type assets.
-type GetAssetsAssets struct {
-	Mediabank_id string `json:"mediabank_id"`
-	Name         string `json:"name"`
-}
-
-// GetMediabank_id returns GetAssetsAssets.Mediabank_id, and is useful for accessing the field via an interface.
-func (v *GetAssetsAssets) GetMediabank_id() string { return v.Mediabank_id }
-
-// GetName returns GetAssetsAssets.Name, and is useful for accessing the field via an interface.
-func (v *GetAssetsAssets) GetName() string { return v.Name }
-
-// GetAssetsResponse is returned by GetAssets on success.
-type GetAssetsResponse struct {
-	Assets []*GetAssetsAssets `json:"assets"`
-}
-
-// GetAssets returns GetAssetsResponse.Assets, and is useful for accessing the field via an interface.
-func (v *GetAssetsResponse) GetAssets() []*GetAssetsAssets { return v.Assets }
-
-// __asdasdInput is used internally by genqlient
-type __asdasdInput struct {
+// __CreateAssetInput is used internally by genqlient
+type __CreateAssetInput struct {
 	Data *Create_assets_input `json:"data,omitempty"`
 }
 
-// GetData returns __asdasdInput.Data, and is useful for accessing the field via an interface.
-func (v *__asdasdInput) GetData() *Create_assets_input { return v.Data }
+// GetData returns __CreateAssetInput.Data, and is useful for accessing the field via an interface.
+func (v *__CreateAssetInput) GetData() *Create_assets_input { return v.Data }
 
-// asdasdCreate_assets_itemAssets includes the requested fields of the GraphQL type assets.
-type asdasdCreate_assets_itemAssets struct {
-	Id string `json:"id"`
-}
-
-// GetId returns asdasdCreate_assets_itemAssets.Id, and is useful for accessing the field via an interface.
-func (v *asdasdCreate_assets_itemAssets) GetId() string { return v.Id }
-
-// asdasdResponse is returned by asdasd on success.
-type asdasdResponse struct {
-	Create_assets_item *asdasdCreate_assets_itemAssets `json:"create_assets_item"`
-}
-
-// GetCreate_assets_item returns asdasdResponse.Create_assets_item, and is useful for accessing the field via an interface.
-func (v *asdasdResponse) GetCreate_assets_item() *asdasdCreate_assets_itemAssets {
-	return v.Create_assets_item
-}
-
-func GetAssets(
-	ctx context.Context,
-	client graphql.Client,
-) (*GetAssetsResponse, error) {
-	var err error
-
-	var retval GetAssetsResponse
-	err = client.MakeRequest(
-		ctx,
-		"GetAssets",
-		`
-query GetAssets {
-	assets {
-		mediabank_id
-		name
-	}
-}
-`,
-		&retval,
-		nil,
-	)
-	return &retval, err
-}
-
-func asdasd(
+func CreateAsset(
 	ctx context.Context,
 	client graphql.Client,
 	data *Create_assets_input,
-) (*asdasdResponse, error) {
-	__input := __asdasdInput{
+) (*CreateAssetResponse, error) {
+	__input := __CreateAssetInput{
 		Data: data,
 	}
 	var err error
 
-	var retval asdasdResponse
+	var retval CreateAssetResponse
 	err = client.MakeRequest(
 		ctx,
-		"asdasd",
+		"CreateAsset",
 		`
-mutation asdasd ($data: create_assets_input!) {
+mutation CreateAsset ($data: create_assets_input!) {
 	create_assets_item(data: $data) {
 		id
+		name
+		duration
 	}
 }
 `,

@@ -1,0 +1,10 @@
+mutation CreateAsset($data: create_assets_input!)
+{
+	create_assets_item(data: $data)
+    {
+      id
+      name
+      duration
+    }
+}
+
