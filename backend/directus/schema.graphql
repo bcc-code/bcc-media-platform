@@ -81,7 +81,8 @@ type assetfiles {
   filename: String
   type: String
   asset_id(filter: assets_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): assets
-  service: String
+  service: String!
+  metadata: JSON
 }
 
 type assetfiles_aggregated {
@@ -113,6 +114,7 @@ input assetfiles_filter {
   type: string_filter_operators
   asset_id: assets_filter
   service: string_filter_operators
+  metadata: string_filter_operators
   _and: [assetfiles_filter]
   _or: [assetfiles_filter]
 }
@@ -120,13 +122,13 @@ input assetfiles_filter {
 type assets {
   id: ID
   user_created(filter: directus_users_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_users
-  date_created: Date!
+  date_created: Date
   date_created_func: datetime_functions
   user_updated(filter: directus_users_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_users
   date_updated: Date
   date_updated_func: datetime_functions
   name: String
-  mediabank_id: String
+  duration: String!
   files(filter: assetfiles_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [assetfiles]
 }
 
@@ -155,10 +157,122 @@ input assets_filter {
   date_updated: date_filter_operators
   date_updated_func: datetime_function_filter_operators
   name: string_filter_operators
-  mediabank_id: string_filter_operators
+  duration: string_filter_operators
   files: assetfiles_filter
   _and: [assets_filter]
   _or: [assets_filter]
+}
+
+type assetstreams {
+  id: ID
+  status: String!
+  user_created(filter: directus_users_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_users
+  date_created: Date
+  date_created_func: datetime_functions
+  user_updated(filter: directus_users_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_users
+  date_updated: Date
+  date_updated_func: datetime_functions
+  url: String!
+  type: String!
+  extra_metadata: JSON
+  audio_languages(filter: assetstreams_audio_languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [assetstreams_audio_languages]
+  subtitle_languages(filter: assetstreams_subtitle_languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [assetstreams_subtitle_languages]
+}
+
+type assetstreams_aggregated {
+  group: JSON
+  avg: assetstreams_aggregated_fields
+  sum: assetstreams_aggregated_fields
+  count: assetstreams_aggregated_fields
+  countDistinct: assetstreams_aggregated_fields
+  avgDistinct: assetstreams_aggregated_fields
+  sumDistinct: assetstreams_aggregated_fields
+  min: assetstreams_aggregated_fields
+  max: assetstreams_aggregated_fields
+}
+
+type assetstreams_aggregated_fields {
+  id: Float
+}
+
+type assetstreams_audio_languages {
+  id: ID
+  assetstreams_id(filter: assetstreams_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): assetstreams
+  languages_code(filter: languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): languages
+}
+
+type assetstreams_audio_languages_aggregated {
+  group: JSON
+  avg: assetstreams_audio_languages_aggregated_fields
+  sum: assetstreams_audio_languages_aggregated_fields
+  count: assetstreams_audio_languages_aggregated_fields
+  countDistinct: assetstreams_audio_languages_aggregated_fields
+  avgDistinct: assetstreams_audio_languages_aggregated_fields
+  sumDistinct: assetstreams_audio_languages_aggregated_fields
+  min: assetstreams_audio_languages_aggregated_fields
+  max: assetstreams_audio_languages_aggregated_fields
+}
+
+type assetstreams_audio_languages_aggregated_fields {
+  id: Float
+  assetstreams_id: Float
+}
+
+input assetstreams_audio_languages_filter {
+  id: number_filter_operators
+  assetstreams_id: assetstreams_filter
+  languages_code: languages_filter
+  _and: [assetstreams_audio_languages_filter]
+  _or: [assetstreams_audio_languages_filter]
+}
+
+input assetstreams_filter {
+  id: number_filter_operators
+  status: string_filter_operators
+  user_created: directus_users_filter
+  date_created: date_filter_operators
+  date_created_func: datetime_function_filter_operators
+  user_updated: directus_users_filter
+  date_updated: date_filter_operators
+  date_updated_func: datetime_function_filter_operators
+  url: string_filter_operators
+  type: string_filter_operators
+  extra_metadata: string_filter_operators
+  audio_languages: assetstreams_audio_languages_filter
+  subtitle_languages: assetstreams_subtitle_languages_filter
+  _and: [assetstreams_filter]
+  _or: [assetstreams_filter]
+}
+
+type assetstreams_subtitle_languages {
+  id: ID
+  assetstreams_id(filter: assetstreams_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): assetstreams
+  languages_code(filter: languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): languages
+}
+
+type assetstreams_subtitle_languages_aggregated {
+  group: JSON
+  avg: assetstreams_subtitle_languages_aggregated_fields
+  sum: assetstreams_subtitle_languages_aggregated_fields
+  count: assetstreams_subtitle_languages_aggregated_fields
+  countDistinct: assetstreams_subtitle_languages_aggregated_fields
+  avgDistinct: assetstreams_subtitle_languages_aggregated_fields
+  sumDistinct: assetstreams_subtitle_languages_aggregated_fields
+  min: assetstreams_subtitle_languages_aggregated_fields
+  max: assetstreams_subtitle_languages_aggregated_fields
+}
+
+type assetstreams_subtitle_languages_aggregated_fields {
+  id: Float
+  assetstreams_id: Float
+}
+
+input assetstreams_subtitle_languages_filter {
+  id: number_filter_operators
+  assetstreams_id: assetstreams_filter
+  languages_code: languages_filter
+  _and: [assetstreams_subtitle_languages_filter]
+  _or: [assetstreams_subtitle_languages_filter]
 }
 
 input boolean_filter_operators {
@@ -228,10 +342,11 @@ type categories {
   date_updated: Date
   date_updated_func: datetime_functions
   appear_in_search: Boolean
-  title: String
   parent_id(filter: categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): categories
+  legacy_id: Int
   subcategories(filter: categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [categories]
-  episodes(filter: categories_episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [categories_episodes]
+  translations(filter: categories_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [categories_translations]
+  episodes(filter: episodes_categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_categories]
 }
 
 type categories_aggregated {
@@ -250,38 +365,7 @@ type categories_aggregated_fields {
   id: Float
   sort: Float
   parent_id: Float
-}
-
-type categories_episodes {
-  id: ID
-  categories_id(filter: categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): categories
-  episodes_id(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): episodes
-}
-
-type categories_episodes_aggregated {
-  group: JSON
-  avg: categories_episodes_aggregated_fields
-  sum: categories_episodes_aggregated_fields
-  count: categories_episodes_aggregated_fields
-  countDistinct: categories_episodes_aggregated_fields
-  avgDistinct: categories_episodes_aggregated_fields
-  sumDistinct: categories_episodes_aggregated_fields
-  min: categories_episodes_aggregated_fields
-  max: categories_episodes_aggregated_fields
-}
-
-type categories_episodes_aggregated_fields {
-  id: Float
-  categories_id: Float
-  episodes_id: Float
-}
-
-input categories_episodes_filter {
-  id: number_filter_operators
-  categories_id: categories_filter
-  episodes_id: episodes_filter
-  _and: [categories_episodes_filter]
-  _or: [categories_episodes_filter]
+  legacy_id: Float
 }
 
 input categories_filter {
@@ -294,12 +378,46 @@ input categories_filter {
   date_updated: date_filter_operators
   date_updated_func: datetime_function_filter_operators
   appear_in_search: boolean_filter_operators
-  title: string_filter_operators
   parent_id: categories_filter
+  legacy_id: number_filter_operators
   subcategories: categories_filter
-  episodes: categories_episodes_filter
+  translations: categories_translations_filter
+  episodes: episodes_categories_filter
   _and: [categories_filter]
   _or: [categories_filter]
+}
+
+type categories_translations {
+  id: ID
+  categories_id(filter: categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): categories
+  languages_code(filter: languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): languages
+  name: String!
+}
+
+type categories_translations_aggregated {
+  group: JSON
+  avg: categories_translations_aggregated_fields
+  sum: categories_translations_aggregated_fields
+  count: categories_translations_aggregated_fields
+  countDistinct: categories_translations_aggregated_fields
+  avgDistinct: categories_translations_aggregated_fields
+  sumDistinct: categories_translations_aggregated_fields
+  min: categories_translations_aggregated_fields
+  max: categories_translations_aggregated_fields
+}
+
+type categories_translations_aggregated_fields {
+  id: Float
+  categories_id: Float
+}
+
+input categories_translations_filter {
+  id: number_filter_operators
+  categories_id: categories_filter
+  languages_code: languages_filter
+  name: string_filter_operators
+  _and: [categories_translations_filter]
+  _or: [categories_translations_filter]
 }
 
 type collections {
@@ -311,12 +429,13 @@ type collections {
   user_updated(filter: directus_users_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_users
   date_updated: Date
   date_updated_func: datetime_functions
-  title: String
-  content: String
+  content: String!
   legacy_order_by: String
-  show_episodes_in_slider: Boolean
   show_id(filter: shows_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): shows
-  category_id(filter: categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): categories
+  show_episodes_in_section: Boolean
+  legacy_category_id: Int
+  list_id(filter: lists_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): lists
+  translations(filter: collections_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [collections_translations]
 }
 
 type collections_aggregated {
@@ -335,7 +454,43 @@ type collections_aggregated_fields {
   id: Float
   sort: Float
   show_id: Float
-  category_id: Float
+  legacy_category_id: Float
+  list_id: Float
+}
+
+type collections_episodes {
+  id: ID
+  collections_id(filter: collections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): collections
+  episodes_id(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): episodes
+  sort: Int
+}
+
+type collections_episodes_aggregated {
+  group: JSON
+  avg: collections_episodes_aggregated_fields
+  sum: collections_episodes_aggregated_fields
+  count: collections_episodes_aggregated_fields
+  countDistinct: collections_episodes_aggregated_fields
+  avgDistinct: collections_episodes_aggregated_fields
+  sumDistinct: collections_episodes_aggregated_fields
+  min: collections_episodes_aggregated_fields
+  max: collections_episodes_aggregated_fields
+}
+
+type collections_episodes_aggregated_fields {
+  id: Float
+  collections_id: Float
+  episodes_id: Float
+  sort: Float
+}
+
+input collections_episodes_filter {
+  id: number_filter_operators
+  collections_id: collections_filter
+  episodes_id: episodes_filter
+  sort: number_filter_operators
+  _and: [collections_episodes_filter]
+  _or: [collections_episodes_filter]
 }
 
 input collections_filter {
@@ -347,14 +502,147 @@ input collections_filter {
   user_updated: directus_users_filter
   date_updated: date_filter_operators
   date_updated_func: datetime_function_filter_operators
-  title: string_filter_operators
   content: string_filter_operators
   legacy_order_by: string_filter_operators
-  show_episodes_in_slider: boolean_filter_operators
   show_id: shows_filter
-  category_id: categories_filter
+  show_episodes_in_section: boolean_filter_operators
+  legacy_category_id: number_filter_operators
+  list_id: lists_filter
+  translations: collections_translations_filter
   _and: [collections_filter]
   _or: [collections_filter]
+}
+
+type collections_relations {
+  id: ID
+  collections_id(filter: collections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): collections
+  item: collections_relations_item_union
+  collection: String
+}
+
+type collections_relations_aggregated {
+  group: JSON
+  avg: collections_relations_aggregated_fields
+  sum: collections_relations_aggregated_fields
+  count: collections_relations_aggregated_fields
+  countDistinct: collections_relations_aggregated_fields
+  avgDistinct: collections_relations_aggregated_fields
+  sumDistinct: collections_relations_aggregated_fields
+  min: collections_relations_aggregated_fields
+  max: collections_relations_aggregated_fields
+}
+
+type collections_relations_aggregated_fields {
+  id: Float
+  collections_id: Float
+}
+
+input collections_relations_filter {
+  id: number_filter_operators
+  collections_id: collections_filter
+  item: string_filter_operators
+  collection: string_filter_operators
+  _and: [collections_relations_filter]
+  _or: [collections_relations_filter]
+}
+
+union collections_relations_item_union = shows | episodes
+
+type collections_seasons {
+  id: ID
+  collections_id(filter: collections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): collections
+  seasons_id(filter: seasons_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): seasons
+}
+
+type collections_seasons_aggregated {
+  group: JSON
+  avg: collections_seasons_aggregated_fields
+  sum: collections_seasons_aggregated_fields
+  count: collections_seasons_aggregated_fields
+  countDistinct: collections_seasons_aggregated_fields
+  avgDistinct: collections_seasons_aggregated_fields
+  sumDistinct: collections_seasons_aggregated_fields
+  min: collections_seasons_aggregated_fields
+  max: collections_seasons_aggregated_fields
+}
+
+type collections_seasons_aggregated_fields {
+  id: Float
+  collections_id: Float
+  seasons_id: Float
+}
+
+input collections_seasons_filter {
+  id: number_filter_operators
+  collections_id: collections_filter
+  seasons_id: seasons_filter
+  _and: [collections_seasons_filter]
+  _or: [collections_seasons_filter]
+}
+
+type collections_shows {
+  id: ID
+  collections_id(filter: collections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): collections
+  shows_id(filter: shows_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): shows
+}
+
+type collections_shows_aggregated {
+  group: JSON
+  avg: collections_shows_aggregated_fields
+  sum: collections_shows_aggregated_fields
+  count: collections_shows_aggregated_fields
+  countDistinct: collections_shows_aggregated_fields
+  avgDistinct: collections_shows_aggregated_fields
+  sumDistinct: collections_shows_aggregated_fields
+  min: collections_shows_aggregated_fields
+  max: collections_shows_aggregated_fields
+}
+
+type collections_shows_aggregated_fields {
+  id: Float
+  collections_id: Float
+  shows_id: Float
+}
+
+input collections_shows_filter {
+  id: number_filter_operators
+  collections_id: collections_filter
+  shows_id: shows_filter
+  _and: [collections_shows_filter]
+  _or: [collections_shows_filter]
+}
+
+type collections_translations {
+  id: ID
+  collections_id(filter: collections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): collections
+  languages_code(filter: languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): languages
+  title: String
+}
+
+type collections_translations_aggregated {
+  group: JSON
+  avg: collections_translations_aggregated_fields
+  sum: collections_translations_aggregated_fields
+  count: collections_translations_aggregated_fields
+  countDistinct: collections_translations_aggregated_fields
+  avgDistinct: collections_translations_aggregated_fields
+  sumDistinct: collections_translations_aggregated_fields
+  min: collections_translations_aggregated_fields
+  max: collections_translations_aggregated_fields
+}
+
+type collections_translations_aggregated_fields {
+  id: Float
+  collections_id: Float
+}
+
+input collections_translations_filter {
+  id: number_filter_operators
+  collections_id: collections_filter
+  languages_code: languages_filter
+  title: string_filter_operators
+  _and: [collections_translations_filter]
+  _or: [collections_translations_filter]
 }
 
 input create_ageratings_input {
@@ -386,20 +674,49 @@ input create_assetfiles_input {
   filename: String
   type: String
   asset_id: create_assets_input
-  service: String
+  service: String!
+  metadata: JSON
 }
 
 input create_assets_input {
   id: ID
   user_created: create_directus_users_input
-  date_created: Date!
+  date_created: Date
   date_created_func: datetime_functionsInput
   user_updated: create_directus_users_input
   date_updated: Date
   date_updated_func: datetime_functionsInput
   name: String
-  mediabank_id: String
+  duration: String!
   files: [create_assetfiles_input]
+}
+
+input create_assetstreams_audio_languages_input {
+  id: ID
+  assetstreams_id: create_assetstreams_input
+  languages_code: create_languages_input
+}
+
+input create_assetstreams_input {
+  id: ID
+  status: String!
+  user_created: create_directus_users_input
+  date_created: Date
+  date_created_func: datetime_functionsInput
+  user_updated: create_directus_users_input
+  date_updated: Date
+  date_updated_func: datetime_functionsInput
+  url: String!
+  type: String!
+  extra_metadata: JSON
+  audio_languages: [create_assetstreams_audio_languages_input]
+  subtitle_languages: [create_assetstreams_subtitle_languages_input]
+}
+
+input create_assetstreams_subtitle_languages_input {
+  id: ID
+  assetstreams_id: create_assetstreams_input
+  languages_code: create_languages_input
 }
 
 input create_calendarevent_input {
@@ -418,12 +735,6 @@ input create_calendarevent_input {
   title: String
 }
 
-input create_categories_episodes_input {
-  id: ID
-  categories_id: create_categories_input
-  episodes_id: create_episodes_input
-}
-
 input create_categories_input {
   id: ID
   sort: Int
@@ -434,10 +745,25 @@ input create_categories_input {
   date_updated: Date
   date_updated_func: datetime_functionsInput
   appear_in_search: Boolean
-  title: String
   parent_id: create_categories_input
+  legacy_id: Int
   subcategories: [create_categories_input]
-  episodes: [create_categories_episodes_input]
+  translations: [create_categories_translations_input]
+  episodes: [create_episodes_categories_input]
+}
+
+input create_categories_translations_input {
+  id: ID
+  categories_id: create_categories_input
+  languages_code: create_languages_input
+  name: String!
+}
+
+input create_collections_episodes_input {
+  id: ID
+  collections_id: create_collections_input
+  episodes_id: create_episodes_input
+  sort: Int
 }
 
 input create_collections_input {
@@ -449,12 +775,39 @@ input create_collections_input {
   user_updated: create_directus_users_input
   date_updated: Date
   date_updated_func: datetime_functionsInput
-  title: String
-  content: String
+  content: String!
   legacy_order_by: String
-  show_episodes_in_slider: Boolean
   show_id: create_shows_input
-  category_id: create_categories_input
+  show_episodes_in_section: Boolean
+  legacy_category_id: Int
+  list_id: create_lists_input
+  translations: [create_collections_translations_input]
+}
+
+input create_collections_relations_input {
+  id: ID
+  collections_id: create_collections_input
+  item: String
+  collection: String
+}
+
+input create_collections_seasons_input {
+  id: ID
+  collections_id: create_collections_input
+  seasons_id: create_seasons_input
+}
+
+input create_collections_shows_input {
+  id: ID
+  collections_id: create_collections_input
+  shows_id: create_shows_input
+}
+
+input create_collections_translations_input {
+  id: ID
+  collections_id: create_collections_input
+  languages_code: create_languages_input
+  title: String
 }
 
 input create_directus_files_input {
@@ -527,6 +880,12 @@ input create_directus_users_input {
   email_notifications: Boolean
 }
 
+input create_episodes_categories_input {
+  id: ID
+  episodes_id: create_episodes_input
+  categories_id: create_categories_input
+}
+
 input create_episodes_input {
   id: ID
   status: String!
@@ -547,23 +906,57 @@ input create_episodes_input {
   publish_date_func: datetime_functionsInput
   type: String!
   image_file_id: create_directus_files_input
-  translations: [create_episodes_translations_input]
+  legacy_id: Int
+
+  """For showing "S1:E2" and for sorting."""
+  episode_number: Int
+  legacy_program_id: Int
+  earlyaccess_usergroups: [create_episodes_usergroups_earlyaccess_input]
   usergroups: [create_episodes_usergroups_input]
+  download_usergroups: [create_episodes_usergroups_download_input]
+  translations: [create_episodes_translations_input]
+  tags: [create_episodes_tags_input]
+  categories: [create_episodes_categories_input]
+}
+
+input create_episodes_tags_input {
+  id: ID
+  episodes_id: create_episodes_input
+  tags_id: create_tags_input
 }
 
 input create_episodes_translations_input {
   id: ID
   episodes_id: create_episodes_input
-  languages_id: create_languages_input
+  languages_code: create_languages_input
   title: String
   description: String
-  is_primary: Boolean
+  extra_description: String
+  is_primary: Boolean!
+  legacy_title_id: Int
+  legacy_description_id: Int
+  legacy_extra_description_id: Int
+  legacy_tags_id: Int
+  legacy_tags: String
+}
+
+input create_episodes_usergroups_download_input {
+  id: ID
+  episodes_id: create_episodes_input
+  usergroups_code: create_usergroups_input
+}
+
+input create_episodes_usergroups_earlyaccess_input {
+  id: ID
+  episodes_id: create_episodes_input
+  usergroups_code: create_usergroups_input
 }
 
 input create_episodes_usergroups_input {
   id: ID
   episodes_id: create_episodes_input
   usergroups_code: create_usergroups_input
+  type: String
 }
 
 input create_featureds_input {
@@ -585,6 +978,27 @@ input create_languages_input {
   legacy_2_letter_code: String
 }
 
+input create_lists_input {
+  id: ID
+  user_created: create_directus_users_input
+  date_created: Date
+  date_created_func: datetime_functionsInput
+  user_updated: create_directus_users_input
+  date_updated: Date
+  date_updated_func: datetime_functionsInput
+  name: String!
+  legacy_category_id: Int
+  relations: [create_lists_relations_input]
+}
+
+input create_lists_relations_input {
+  id: ID
+  lists_id: create_lists_input
+  item: String
+  collection: String
+  sort: Int
+}
+
 input create_pages_input {
   id: ID
   status: String!
@@ -596,6 +1010,7 @@ input create_pages_input {
   date_updated: Date
   date_updated_func: datetime_functionsInput
   code: String
+  system_page: Boolean
   sections: [create_sections_input]
 }
 
@@ -617,9 +1032,13 @@ input create_seasons_input {
   publish_date: Date!
   publish_date_func: datetime_functionsInput
   image_file_id: create_directus_files_input
+  legacy_id: Int
+
+  """Used for "S1:E2" and for sorting."""
+  season_number: Int!
+  usergroups: [create_seasons_usergroups_input]
   episodes: [create_episodes_input]
   translations: [create_seasons_translations_input]
-  usergroups: [create_seasons_usergroups_input]
 }
 
 input create_seasons_translations_input {
@@ -628,7 +1047,9 @@ input create_seasons_translations_input {
   languages_code: create_languages_input
   title: String
   description: String
-  legacy_tags: String
+  legacy_title_id: Int
+  legacy_description_id: Int
+  is_primary: Boolean!
 }
 
 input create_seasons_usergroups_input {
@@ -647,8 +1068,18 @@ input create_sections_input {
   date_updated: Date
   date_updated_func: datetime_functionsInput
   page: create_pages_input
-  title: String!
+  type: String!
+  display_contract: String
+  collection_id: create_collections_input
   usergroups: [create_sections_usergroups_input]
+  translations: [create_sections_translations_input]
+}
+
+input create_sections_translations_input {
+  id: ID
+  sections_id: create_sections_input
+  languages_code: create_languages_input
+  title: String!
 }
 
 input create_sections_usergroups_input {
@@ -666,8 +1097,6 @@ input create_shows_input {
   user_updated: create_directus_users_input
   date_updated: Date
   date_updated_func: datetime_functionsInput
-  title: String!
-  description: String
   image: create_directus_files_input
   available_from: Date
   available_from_func: datetime_functionsInput
@@ -679,14 +1108,49 @@ input create_shows_input {
   type: String!
   agerating_code: create_ageratings_input
   image_file_id: create_directus_files_input
+  legacy_id: Int
   seasons: [create_seasons_input]
   usergroups: [create_shows_usergroups_input]
+  translations: [create_shows_translations_input]
+}
+
+input create_shows_translations_input {
+  id: ID
+  shows_id: create_shows_input
+  languages_code: create_languages_input
+  title: String
+  description: String
+  legacy_tags: String
+  legacy_title_id: Int
+  legacy_description_id: Int
+  legacy_tags_id: Int
+  is_primary: Boolean!
 }
 
 input create_shows_usergroups_input {
   id: ID
   shows_id: create_shows_input
   usergroups_code: create_usergroups_input
+}
+
+input create_tags_input {
+  id: ID
+  user_created: create_directus_users_input
+  date_created: Date
+  date_created_func: datetime_functionsInput
+  user_updated: create_directus_users_input
+  date_updated: Date
+  date_updated_func: datetime_functionsInput
+  code: String
+  translations: [create_tags_translations_input]
+  episodes: [create_episodes_tags_input]
+}
+
+input create_tags_translations_input {
+  id: ID
+  tags_id: create_tags_input
+  languages_code: create_languages_input
+  name: String
 }
 
 input create_tvguideentry_input {
@@ -728,7 +1192,11 @@ input create_usergroups_input {
   user_updated: create_directus_users_input
   date_updated: Date
   date_updated_func: datetime_functionsInput
-  name: String
+  name: String!
+
+  """One per line"""
+  emails: String
+  episode_earlyaccess: [create_episodes_usergroups_earlyaccess_input]
 }
 
 """ISO8601 Date values"""
@@ -954,8 +1422,17 @@ type episodes {
   publish_date_func: datetime_functions
   type: String!
   image_file_id(filter: directus_files_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_files
-  translations(filter: episodes_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_translations]
+  legacy_id: Int
+
+  """For showing "S1:E2" and for sorting."""
+  episode_number: Int
+  legacy_program_id: Int
+  earlyaccess_usergroups(filter: episodes_usergroups_earlyaccess_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_usergroups_earlyaccess]
   usergroups(filter: episodes_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_usergroups]
+  download_usergroups(filter: episodes_usergroups_download_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_usergroups_download]
+  translations(filter: episodes_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_translations]
+  tags(filter: episodes_tags_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_tags]
+  categories(filter: episodes_categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_categories]
 }
 
 type episodes_aggregated {
@@ -973,6 +1450,43 @@ type episodes_aggregated {
 type episodes_aggregated_fields {
   id: Float
   season_id: Float
+  legacy_id: Float
+
+  """For showing "S1:E2" and for sorting."""
+  episode_number: Float
+  legacy_program_id: Float
+}
+
+type episodes_categories {
+  id: ID
+  episodes_id(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): episodes
+  categories_id(filter: categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): categories
+}
+
+type episodes_categories_aggregated {
+  group: JSON
+  avg: episodes_categories_aggregated_fields
+  sum: episodes_categories_aggregated_fields
+  count: episodes_categories_aggregated_fields
+  countDistinct: episodes_categories_aggregated_fields
+  avgDistinct: episodes_categories_aggregated_fields
+  sumDistinct: episodes_categories_aggregated_fields
+  min: episodes_categories_aggregated_fields
+  max: episodes_categories_aggregated_fields
+}
+
+type episodes_categories_aggregated_fields {
+  id: Float
+  episodes_id: Float
+  categories_id: Float
+}
+
+input episodes_categories_filter {
+  id: number_filter_operators
+  episodes_id: episodes_filter
+  categories_id: categories_filter
+  _and: [episodes_categories_filter]
+  _or: [episodes_categories_filter]
 }
 
 input episodes_filter {
@@ -995,19 +1509,64 @@ input episodes_filter {
   publish_date_func: datetime_function_filter_operators
   type: string_filter_operators
   image_file_id: directus_files_filter
-  translations: episodes_translations_filter
+  legacy_id: number_filter_operators
+  episode_number: number_filter_operators
+  legacy_program_id: number_filter_operators
+  earlyaccess_usergroups: episodes_usergroups_earlyaccess_filter
   usergroups: episodes_usergroups_filter
+  download_usergroups: episodes_usergroups_download_filter
+  translations: episodes_translations_filter
+  tags: episodes_tags_filter
+  categories: episodes_categories_filter
   _and: [episodes_filter]
   _or: [episodes_filter]
+}
+
+type episodes_tags {
+  id: ID
+  episodes_id(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): episodes
+  tags_id(filter: tags_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): tags
+}
+
+type episodes_tags_aggregated {
+  group: JSON
+  avg: episodes_tags_aggregated_fields
+  sum: episodes_tags_aggregated_fields
+  count: episodes_tags_aggregated_fields
+  countDistinct: episodes_tags_aggregated_fields
+  avgDistinct: episodes_tags_aggregated_fields
+  sumDistinct: episodes_tags_aggregated_fields
+  min: episodes_tags_aggregated_fields
+  max: episodes_tags_aggregated_fields
+}
+
+type episodes_tags_aggregated_fields {
+  id: Float
+  episodes_id: Float
+  tags_id: Float
+}
+
+input episodes_tags_filter {
+  id: number_filter_operators
+  episodes_id: episodes_filter
+  tags_id: tags_filter
+  _and: [episodes_tags_filter]
+  _or: [episodes_tags_filter]
 }
 
 type episodes_translations {
   id: ID
   episodes_id(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): episodes
-  languages_id(filter: languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): languages
+  languages_code(filter: languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): languages
   title: String
   description: String
-  is_primary: Boolean
+  extra_description: String
+  is_primary: Boolean!
+  legacy_title_id: Int
+  legacy_description_id: Int
+  legacy_extra_description_id: Int
+  legacy_tags_id: Int
+  legacy_tags: String
 }
 
 type episodes_translations_aggregated {
@@ -1025,15 +1584,25 @@ type episodes_translations_aggregated {
 type episodes_translations_aggregated_fields {
   id: Float
   episodes_id: Float
+  legacy_title_id: Float
+  legacy_description_id: Float
+  legacy_extra_description_id: Float
+  legacy_tags_id: Float
 }
 
 input episodes_translations_filter {
   id: number_filter_operators
   episodes_id: episodes_filter
-  languages_id: languages_filter
+  languages_code: languages_filter
   title: string_filter_operators
   description: string_filter_operators
+  extra_description: string_filter_operators
   is_primary: boolean_filter_operators
+  legacy_title_id: number_filter_operators
+  legacy_description_id: number_filter_operators
+  legacy_extra_description_id: number_filter_operators
+  legacy_tags_id: number_filter_operators
+  legacy_tags: string_filter_operators
   _and: [episodes_translations_filter]
   _or: [episodes_translations_filter]
 }
@@ -1042,6 +1611,7 @@ type episodes_usergroups {
   id: ID
   episodes_id(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): episodes
   usergroups_code(filter: usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): usergroups
+  type: String
 }
 
 type episodes_usergroups_aggregated {
@@ -1061,10 +1631,73 @@ type episodes_usergroups_aggregated_fields {
   episodes_id: Float
 }
 
+type episodes_usergroups_download {
+  id: ID
+  episodes_id(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): episodes
+  usergroups_code(filter: usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): usergroups
+}
+
+type episodes_usergroups_download_aggregated {
+  group: JSON
+  avg: episodes_usergroups_download_aggregated_fields
+  sum: episodes_usergroups_download_aggregated_fields
+  count: episodes_usergroups_download_aggregated_fields
+  countDistinct: episodes_usergroups_download_aggregated_fields
+  avgDistinct: episodes_usergroups_download_aggregated_fields
+  sumDistinct: episodes_usergroups_download_aggregated_fields
+  min: episodes_usergroups_download_aggregated_fields
+  max: episodes_usergroups_download_aggregated_fields
+}
+
+type episodes_usergroups_download_aggregated_fields {
+  id: Float
+  episodes_id: Float
+}
+
+input episodes_usergroups_download_filter {
+  id: number_filter_operators
+  episodes_id: episodes_filter
+  usergroups_code: usergroups_filter
+  _and: [episodes_usergroups_download_filter]
+  _or: [episodes_usergroups_download_filter]
+}
+
+type episodes_usergroups_earlyaccess {
+  id: ID
+  episodes_id(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): episodes
+  usergroups_code(filter: usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): usergroups
+}
+
+type episodes_usergroups_earlyaccess_aggregated {
+  group: JSON
+  avg: episodes_usergroups_earlyaccess_aggregated_fields
+  sum: episodes_usergroups_earlyaccess_aggregated_fields
+  count: episodes_usergroups_earlyaccess_aggregated_fields
+  countDistinct: episodes_usergroups_earlyaccess_aggregated_fields
+  avgDistinct: episodes_usergroups_earlyaccess_aggregated_fields
+  sumDistinct: episodes_usergroups_earlyaccess_aggregated_fields
+  min: episodes_usergroups_earlyaccess_aggregated_fields
+  max: episodes_usergroups_earlyaccess_aggregated_fields
+}
+
+type episodes_usergroups_earlyaccess_aggregated_fields {
+  id: Float
+  episodes_id: Float
+}
+
+input episodes_usergroups_earlyaccess_filter {
+  id: number_filter_operators
+  episodes_id: episodes_filter
+  usergroups_code: usergroups_filter
+  _and: [episodes_usergroups_earlyaccess_filter]
+  _or: [episodes_usergroups_earlyaccess_filter]
+}
+
 input episodes_usergroups_filter {
   id: number_filter_operators
   episodes_id: episodes_filter
   usergroups_code: usergroups_filter
+  type: string_filter_operators
   _and: [episodes_usergroups_filter]
   _or: [episodes_usergroups_filter]
 }
@@ -1133,7 +1766,92 @@ input languages_filter {
   _or: [languages_filter]
 }
 
+type lists {
+  id: ID
+  user_created(filter: directus_users_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_users
+  date_created: Date
+  date_created_func: datetime_functions
+  user_updated(filter: directus_users_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_users
+  date_updated: Date
+  date_updated_func: datetime_functions
+  name: String!
+  legacy_category_id: Int
+  relations(filter: lists_relations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [lists_relations]
+}
+
+type lists_aggregated {
+  group: JSON
+  avg: lists_aggregated_fields
+  sum: lists_aggregated_fields
+  count: lists_aggregated_fields
+  countDistinct: lists_aggregated_fields
+  avgDistinct: lists_aggregated_fields
+  sumDistinct: lists_aggregated_fields
+  min: lists_aggregated_fields
+  max: lists_aggregated_fields
+}
+
+type lists_aggregated_fields {
+  id: Float
+  legacy_category_id: Float
+}
+
+input lists_filter {
+  id: number_filter_operators
+  user_created: directus_users_filter
+  date_created: date_filter_operators
+  date_created_func: datetime_function_filter_operators
+  user_updated: directus_users_filter
+  date_updated: date_filter_operators
+  date_updated_func: datetime_function_filter_operators
+  name: string_filter_operators
+  legacy_category_id: number_filter_operators
+  relations: lists_relations_filter
+  _and: [lists_filter]
+  _or: [lists_filter]
+}
+
+type lists_relations {
+  id: ID
+  lists_id(filter: lists_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): lists
+  item: lists_relations_item_union
+  collection: String
+  sort: Int
+}
+
+type lists_relations_aggregated {
+  group: JSON
+  avg: lists_relations_aggregated_fields
+  sum: lists_relations_aggregated_fields
+  count: lists_relations_aggregated_fields
+  countDistinct: lists_relations_aggregated_fields
+  avgDistinct: lists_relations_aggregated_fields
+  sumDistinct: lists_relations_aggregated_fields
+  min: lists_relations_aggregated_fields
+  max: lists_relations_aggregated_fields
+}
+
+type lists_relations_aggregated_fields {
+  id: Float
+  lists_id: Float
+  sort: Float
+}
+
+input lists_relations_filter {
+  id: number_filter_operators
+  lists_id: lists_filter
+  item: string_filter_operators
+  collection: string_filter_operators
+  sort: number_filter_operators
+  _and: [lists_relations_filter]
+  _or: [lists_relations_filter]
+}
+
+union lists_relations_item_union = shows | episodes
+
 type Mutation {
+  create_assets_items(filter: assets_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_assets_input!]): [assets]
+  create_assets_item(data: create_assets_input!): assets
   create_ageratings_items(filter: ageratings_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_ageratings_input!]): [ageratings]
   create_ageratings_item(data: create_ageratings_input!): ageratings
   create_ageratings_translations_items(filter: ageratings_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_ageratings_translations_input!]): [ageratings_translations]
@@ -1142,30 +1860,58 @@ type Mutation {
   create_languages_item(data: create_languages_input!): languages
   create_assetfiles_items(filter: assetfiles_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_assetfiles_input!]): [assetfiles]
   create_assetfiles_item(data: create_assetfiles_input!): assetfiles
-  create_assets_items(filter: assets_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_assets_input!]): [assets]
-  create_assets_item(data: create_assets_input!): assets
+  create_assetstreams_items(filter: assetstreams_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_assetstreams_input!]): [assetstreams]
+  create_assetstreams_item(data: create_assetstreams_input!): assetstreams
+  create_assetstreams_audio_languages_items(filter: assetstreams_audio_languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_assetstreams_audio_languages_input!]): [assetstreams_audio_languages]
+  create_assetstreams_audio_languages_item(data: create_assetstreams_audio_languages_input!): assetstreams_audio_languages
+  create_assetstreams_subtitle_languages_items(filter: assetstreams_subtitle_languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_assetstreams_subtitle_languages_input!]): [assetstreams_subtitle_languages]
+  create_assetstreams_subtitle_languages_item(data: create_assetstreams_subtitle_languages_input!): assetstreams_subtitle_languages
   create_calendarevent_items(filter: calendarevent_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_calendarevent_input!]): [calendarevent]
   create_calendarevent_item(data: create_calendarevent_input!): calendarevent
   create_categories_items(filter: categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_categories_input!]): [categories]
   create_categories_item(data: create_categories_input!): categories
-  create_episodes_items(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_episodes_input!]): [episodes]
-  create_episodes_item(data: create_episodes_input!): episodes
-  create_categories_episodes_items(filter: categories_episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_categories_episodes_input!]): [categories_episodes]
-  create_categories_episodes_item(data: create_categories_episodes_input!): categories_episodes
+  create_categories_translations_items(filter: categories_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_categories_translations_input!]): [categories_translations]
+  create_categories_translations_item(data: create_categories_translations_input!): categories_translations
   create_collections_items(filter: collections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_collections_input!]): [collections]
   create_collections_item(data: create_collections_input!): collections
   create_shows_items(filter: shows_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_shows_input!]): [shows]
   create_shows_item(data: create_shows_input!): shows
+  create_lists_items(filter: lists_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_lists_input!]): [lists]
+  create_lists_item(data: create_lists_input!): lists
+  create_collections_episodes_items(filter: collections_episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_collections_episodes_input!]): [collections_episodes]
+  create_collections_episodes_item(data: create_collections_episodes_input!): collections_episodes
+  create_episodes_items(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_episodes_input!]): [episodes]
+  create_episodes_item(data: create_episodes_input!): episodes
+  create_collections_relations_items(filter: collections_relations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_collections_relations_input!]): [collections_relations]
+  create_collections_relations_item(data: create_collections_relations_input!): collections_relations
+  create_collections_seasons_items(filter: collections_seasons_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_collections_seasons_input!]): [collections_seasons]
+  create_collections_seasons_item(data: create_collections_seasons_input!): collections_seasons
   create_seasons_items(filter: seasons_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_seasons_input!]): [seasons]
   create_seasons_item(data: create_seasons_input!): seasons
+  create_collections_shows_items(filter: collections_shows_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_collections_shows_input!]): [collections_shows]
+  create_collections_shows_item(data: create_collections_shows_input!): collections_shows
+  create_collections_translations_items(filter: collections_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_collections_translations_input!]): [collections_translations]
+  create_collections_translations_item(data: create_collections_translations_input!): collections_translations
+  create_episodes_categories_items(filter: episodes_categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_episodes_categories_input!]): [episodes_categories]
+  create_episodes_categories_item(data: create_episodes_categories_input!): episodes_categories
+  create_episodes_tags_items(filter: episodes_tags_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_episodes_tags_input!]): [episodes_tags]
+  create_episodes_tags_item(data: create_episodes_tags_input!): episodes_tags
+  create_tags_items(filter: tags_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_tags_input!]): [tags]
+  create_tags_item(data: create_tags_input!): tags
   create_episodes_translations_items(filter: episodes_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_episodes_translations_input!]): [episodes_translations]
   create_episodes_translations_item(data: create_episodes_translations_input!): episodes_translations
-  create_usergroups_items(filter: usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_usergroups_input!]): [usergroups]
-  create_usergroups_item(data: create_usergroups_input!): usergroups
   create_episodes_usergroups_items(filter: episodes_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_episodes_usergroups_input!]): [episodes_usergroups]
   create_episodes_usergroups_item(data: create_episodes_usergroups_input!): episodes_usergroups
+  create_usergroups_items(filter: usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_usergroups_input!]): [usergroups]
+  create_usergroups_item(data: create_usergroups_input!): usergroups
+  create_episodes_usergroups_download_items(filter: episodes_usergroups_download_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_episodes_usergroups_download_input!]): [episodes_usergroups_download]
+  create_episodes_usergroups_download_item(data: create_episodes_usergroups_download_input!): episodes_usergroups_download
+  create_episodes_usergroups_earlyaccess_items(filter: episodes_usergroups_earlyaccess_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_episodes_usergroups_earlyaccess_input!]): [episodes_usergroups_earlyaccess]
+  create_episodes_usergroups_earlyaccess_item(data: create_episodes_usergroups_earlyaccess_input!): episodes_usergroups_earlyaccess
   create_featureds_items(filter: featureds_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_featureds_input!]): [featureds]
   create_featureds_item(data: create_featureds_input!): featureds
+  create_lists_relations_items(filter: lists_relations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_lists_relations_input!]): [lists_relations]
+  create_lists_relations_item(data: create_lists_relations_input!): lists_relations
   create_pages_items(filter: pages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_pages_input!]): [pages]
   create_pages_item(data: create_pages_input!): pages
   create_seasons_translations_items(filter: seasons_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_seasons_translations_input!]): [seasons_translations]
@@ -1174,14 +1920,22 @@ type Mutation {
   create_seasons_usergroups_item(data: create_seasons_usergroups_input!): seasons_usergroups
   create_sections_items(filter: sections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_sections_input!]): [sections]
   create_sections_item(data: create_sections_input!): sections
+  create_sections_translations_items(filter: sections_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_sections_translations_input!]): [sections_translations]
+  create_sections_translations_item(data: create_sections_translations_input!): sections_translations
   create_sections_usergroups_items(filter: sections_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_sections_usergroups_input!]): [sections_usergroups]
   create_sections_usergroups_item(data: create_sections_usergroups_input!): sections_usergroups
+  create_shows_translations_items(filter: shows_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_shows_translations_input!]): [shows_translations]
+  create_shows_translations_item(data: create_shows_translations_input!): shows_translations
   create_shows_usergroups_items(filter: shows_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_shows_usergroups_input!]): [shows_usergroups]
   create_shows_usergroups_item(data: create_shows_usergroups_input!): shows_usergroups
+  create_tags_translations_items(filter: tags_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_tags_translations_input!]): [tags_translations]
+  create_tags_translations_item(data: create_tags_translations_input!): tags_translations
   create_tvguideentry_items(filter: tvguideentry_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_tvguideentry_input!]): [tvguideentry]
   create_tvguideentry_item(data: create_tvguideentry_input!): tvguideentry
   create_tvguideentry_link_items(filter: tvguideentry_link_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [create_tvguideentry_link_input!]): [tvguideentry_link]
   create_tvguideentry_link_item(data: create_tvguideentry_link_input!): tvguideentry_link
+  update_assets_items(filter: assets_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_assets_input!): [assets]
+  update_assets_item(id: ID!, data: update_assets_input!): assets
   update_ageratings_items(filter: ageratings_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_ageratings_input!): [ageratings]
   update_ageratings_item(id: ID!, data: update_ageratings_input!): ageratings
   update_ageratings_translations_items(filter: ageratings_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_ageratings_translations_input!): [ageratings_translations]
@@ -1190,30 +1944,58 @@ type Mutation {
   update_languages_item(id: ID!, data: update_languages_input!): languages
   update_assetfiles_items(filter: assetfiles_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_assetfiles_input!): [assetfiles]
   update_assetfiles_item(id: ID!, data: update_assetfiles_input!): assetfiles
-  update_assets_items(filter: assets_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_assets_input!): [assets]
-  update_assets_item(id: ID!, data: update_assets_input!): assets
+  update_assetstreams_items(filter: assetstreams_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_assetstreams_input!): [assetstreams]
+  update_assetstreams_item(id: ID!, data: update_assetstreams_input!): assetstreams
+  update_assetstreams_audio_languages_items(filter: assetstreams_audio_languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_assetstreams_audio_languages_input!): [assetstreams_audio_languages]
+  update_assetstreams_audio_languages_item(id: ID!, data: update_assetstreams_audio_languages_input!): assetstreams_audio_languages
+  update_assetstreams_subtitle_languages_items(filter: assetstreams_subtitle_languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_assetstreams_subtitle_languages_input!): [assetstreams_subtitle_languages]
+  update_assetstreams_subtitle_languages_item(id: ID!, data: update_assetstreams_subtitle_languages_input!): assetstreams_subtitle_languages
   update_calendarevent_items(filter: calendarevent_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_calendarevent_input!): [calendarevent]
   update_calendarevent_item(id: ID!, data: update_calendarevent_input!): calendarevent
   update_categories_items(filter: categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_categories_input!): [categories]
   update_categories_item(id: ID!, data: update_categories_input!): categories
-  update_episodes_items(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_episodes_input!): [episodes]
-  update_episodes_item(id: ID!, data: update_episodes_input!): episodes
-  update_categories_episodes_items(filter: categories_episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_categories_episodes_input!): [categories_episodes]
-  update_categories_episodes_item(id: ID!, data: update_categories_episodes_input!): categories_episodes
+  update_categories_translations_items(filter: categories_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_categories_translations_input!): [categories_translations]
+  update_categories_translations_item(id: ID!, data: update_categories_translations_input!): categories_translations
   update_collections_items(filter: collections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_collections_input!): [collections]
   update_collections_item(id: ID!, data: update_collections_input!): collections
   update_shows_items(filter: shows_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_shows_input!): [shows]
   update_shows_item(id: ID!, data: update_shows_input!): shows
+  update_lists_items(filter: lists_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_lists_input!): [lists]
+  update_lists_item(id: ID!, data: update_lists_input!): lists
+  update_collections_episodes_items(filter: collections_episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_collections_episodes_input!): [collections_episodes]
+  update_collections_episodes_item(id: ID!, data: update_collections_episodes_input!): collections_episodes
+  update_episodes_items(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_episodes_input!): [episodes]
+  update_episodes_item(id: ID!, data: update_episodes_input!): episodes
+  update_collections_relations_items(filter: collections_relations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_collections_relations_input!): [collections_relations]
+  update_collections_relations_item(id: ID!, data: update_collections_relations_input!): collections_relations
+  update_collections_seasons_items(filter: collections_seasons_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_collections_seasons_input!): [collections_seasons]
+  update_collections_seasons_item(id: ID!, data: update_collections_seasons_input!): collections_seasons
   update_seasons_items(filter: seasons_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_seasons_input!): [seasons]
   update_seasons_item(id: ID!, data: update_seasons_input!): seasons
+  update_collections_shows_items(filter: collections_shows_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_collections_shows_input!): [collections_shows]
+  update_collections_shows_item(id: ID!, data: update_collections_shows_input!): collections_shows
+  update_collections_translations_items(filter: collections_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_collections_translations_input!): [collections_translations]
+  update_collections_translations_item(id: ID!, data: update_collections_translations_input!): collections_translations
+  update_episodes_categories_items(filter: episodes_categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_episodes_categories_input!): [episodes_categories]
+  update_episodes_categories_item(id: ID!, data: update_episodes_categories_input!): episodes_categories
+  update_episodes_tags_items(filter: episodes_tags_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_episodes_tags_input!): [episodes_tags]
+  update_episodes_tags_item(id: ID!, data: update_episodes_tags_input!): episodes_tags
+  update_tags_items(filter: tags_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_tags_input!): [tags]
+  update_tags_item(id: ID!, data: update_tags_input!): tags
   update_episodes_translations_items(filter: episodes_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_episodes_translations_input!): [episodes_translations]
   update_episodes_translations_item(id: ID!, data: update_episodes_translations_input!): episodes_translations
-  update_usergroups_items(filter: usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_usergroups_input!): [usergroups]
-  update_usergroups_item(id: ID!, data: update_usergroups_input!): usergroups
   update_episodes_usergroups_items(filter: episodes_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_episodes_usergroups_input!): [episodes_usergroups]
   update_episodes_usergroups_item(id: ID!, data: update_episodes_usergroups_input!): episodes_usergroups
+  update_usergroups_items(filter: usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_usergroups_input!): [usergroups]
+  update_usergroups_item(id: ID!, data: update_usergroups_input!): usergroups
+  update_episodes_usergroups_download_items(filter: episodes_usergroups_download_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_episodes_usergroups_download_input!): [episodes_usergroups_download]
+  update_episodes_usergroups_download_item(id: ID!, data: update_episodes_usergroups_download_input!): episodes_usergroups_download
+  update_episodes_usergroups_earlyaccess_items(filter: episodes_usergroups_earlyaccess_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_episodes_usergroups_earlyaccess_input!): [episodes_usergroups_earlyaccess]
+  update_episodes_usergroups_earlyaccess_item(id: ID!, data: update_episodes_usergroups_earlyaccess_input!): episodes_usergroups_earlyaccess
   update_featureds_items(filter: featureds_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_featureds_input!): [featureds]
   update_featureds_item(id: ID!, data: update_featureds_input!): featureds
+  update_lists_relations_items(filter: lists_relations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_lists_relations_input!): [lists_relations]
+  update_lists_relations_item(id: ID!, data: update_lists_relations_input!): lists_relations
   update_pages_items(filter: pages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_pages_input!): [pages]
   update_pages_item(id: ID!, data: update_pages_input!): pages
   update_seasons_translations_items(filter: seasons_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_seasons_translations_input!): [seasons_translations]
@@ -1222,14 +2004,22 @@ type Mutation {
   update_seasons_usergroups_item(id: ID!, data: update_seasons_usergroups_input!): seasons_usergroups
   update_sections_items(filter: sections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_sections_input!): [sections]
   update_sections_item(id: ID!, data: update_sections_input!): sections
+  update_sections_translations_items(filter: sections_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_sections_translations_input!): [sections_translations]
+  update_sections_translations_item(id: ID!, data: update_sections_translations_input!): sections_translations
   update_sections_usergroups_items(filter: sections_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_sections_usergroups_input!): [sections_usergroups]
   update_sections_usergroups_item(id: ID!, data: update_sections_usergroups_input!): sections_usergroups
+  update_shows_translations_items(filter: shows_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_shows_translations_input!): [shows_translations]
+  update_shows_translations_item(id: ID!, data: update_shows_translations_input!): shows_translations
   update_shows_usergroups_items(filter: shows_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_shows_usergroups_input!): [shows_usergroups]
   update_shows_usergroups_item(id: ID!, data: update_shows_usergroups_input!): shows_usergroups
+  update_tags_translations_items(filter: tags_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_tags_translations_input!): [tags_translations]
+  update_tags_translations_item(id: ID!, data: update_tags_translations_input!): tags_translations
   update_tvguideentry_items(filter: tvguideentry_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_tvguideentry_input!): [tvguideentry]
   update_tvguideentry_item(id: ID!, data: update_tvguideentry_input!): tvguideentry
   update_tvguideentry_link_items(filter: tvguideentry_link_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_tvguideentry_link_input!): [tvguideentry_link]
   update_tvguideentry_link_item(id: ID!, data: update_tvguideentry_link_input!): tvguideentry_link
+  delete_assets_items(ids: [ID]!): delete_many
+  delete_assets_item(id: ID!): delete_one
   delete_ageratings_items(ids: [ID]!): delete_many
   delete_ageratings_item(id: ID!): delete_one
   delete_ageratings_translations_items(ids: [ID]!): delete_many
@@ -1238,30 +2028,58 @@ type Mutation {
   delete_languages_item(id: ID!): delete_one
   delete_assetfiles_items(ids: [ID]!): delete_many
   delete_assetfiles_item(id: ID!): delete_one
-  delete_assets_items(ids: [ID]!): delete_many
-  delete_assets_item(id: ID!): delete_one
+  delete_assetstreams_items(ids: [ID]!): delete_many
+  delete_assetstreams_item(id: ID!): delete_one
+  delete_assetstreams_audio_languages_items(ids: [ID]!): delete_many
+  delete_assetstreams_audio_languages_item(id: ID!): delete_one
+  delete_assetstreams_subtitle_languages_items(ids: [ID]!): delete_many
+  delete_assetstreams_subtitle_languages_item(id: ID!): delete_one
   delete_calendarevent_items(ids: [ID]!): delete_many
   delete_calendarevent_item(id: ID!): delete_one
   delete_categories_items(ids: [ID]!): delete_many
   delete_categories_item(id: ID!): delete_one
-  delete_episodes_items(ids: [ID]!): delete_many
-  delete_episodes_item(id: ID!): delete_one
-  delete_categories_episodes_items(ids: [ID]!): delete_many
-  delete_categories_episodes_item(id: ID!): delete_one
+  delete_categories_translations_items(ids: [ID]!): delete_many
+  delete_categories_translations_item(id: ID!): delete_one
   delete_collections_items(ids: [ID]!): delete_many
   delete_collections_item(id: ID!): delete_one
   delete_shows_items(ids: [ID]!): delete_many
   delete_shows_item(id: ID!): delete_one
+  delete_lists_items(ids: [ID]!): delete_many
+  delete_lists_item(id: ID!): delete_one
+  delete_collections_episodes_items(ids: [ID]!): delete_many
+  delete_collections_episodes_item(id: ID!): delete_one
+  delete_episodes_items(ids: [ID]!): delete_many
+  delete_episodes_item(id: ID!): delete_one
+  delete_collections_relations_items(ids: [ID]!): delete_many
+  delete_collections_relations_item(id: ID!): delete_one
+  delete_collections_seasons_items(ids: [ID]!): delete_many
+  delete_collections_seasons_item(id: ID!): delete_one
   delete_seasons_items(ids: [ID]!): delete_many
   delete_seasons_item(id: ID!): delete_one
+  delete_collections_shows_items(ids: [ID]!): delete_many
+  delete_collections_shows_item(id: ID!): delete_one
+  delete_collections_translations_items(ids: [ID]!): delete_many
+  delete_collections_translations_item(id: ID!): delete_one
+  delete_episodes_categories_items(ids: [ID]!): delete_many
+  delete_episodes_categories_item(id: ID!): delete_one
+  delete_episodes_tags_items(ids: [ID]!): delete_many
+  delete_episodes_tags_item(id: ID!): delete_one
+  delete_tags_items(ids: [ID]!): delete_many
+  delete_tags_item(id: ID!): delete_one
   delete_episodes_translations_items(ids: [ID]!): delete_many
   delete_episodes_translations_item(id: ID!): delete_one
-  delete_usergroups_items(ids: [ID]!): delete_many
-  delete_usergroups_item(id: ID!): delete_one
   delete_episodes_usergroups_items(ids: [ID]!): delete_many
   delete_episodes_usergroups_item(id: ID!): delete_one
+  delete_usergroups_items(ids: [ID]!): delete_many
+  delete_usergroups_item(id: ID!): delete_one
+  delete_episodes_usergroups_download_items(ids: [ID]!): delete_many
+  delete_episodes_usergroups_download_item(id: ID!): delete_one
+  delete_episodes_usergroups_earlyaccess_items(ids: [ID]!): delete_many
+  delete_episodes_usergroups_earlyaccess_item(id: ID!): delete_one
   delete_featureds_items(ids: [ID]!): delete_many
   delete_featureds_item(id: ID!): delete_one
+  delete_lists_relations_items(ids: [ID]!): delete_many
+  delete_lists_relations_item(id: ID!): delete_one
   delete_pages_items(ids: [ID]!): delete_many
   delete_pages_item(id: ID!): delete_one
   delete_seasons_translations_items(ids: [ID]!): delete_many
@@ -1270,10 +2088,16 @@ type Mutation {
   delete_seasons_usergroups_item(id: ID!): delete_one
   delete_sections_items(ids: [ID]!): delete_many
   delete_sections_item(id: ID!): delete_one
+  delete_sections_translations_items(ids: [ID]!): delete_many
+  delete_sections_translations_item(id: ID!): delete_one
   delete_sections_usergroups_items(ids: [ID]!): delete_many
   delete_sections_usergroups_item(id: ID!): delete_one
+  delete_shows_translations_items(ids: [ID]!): delete_many
+  delete_shows_translations_item(id: ID!): delete_one
   delete_shows_usergroups_items(ids: [ID]!): delete_many
   delete_shows_usergroups_item(id: ID!): delete_one
+  delete_tags_translations_items(ids: [ID]!): delete_many
+  delete_tags_translations_item(id: ID!): delete_one
   delete_tvguideentry_items(ids: [ID]!): delete_many
   delete_tvguideentry_item(id: ID!): delete_one
   delete_tvguideentry_link_items(ids: [ID]!): delete_many
@@ -1304,6 +2128,7 @@ type pages {
   date_updated: Date
   date_updated_func: datetime_functions
   code: String
+  system_page: Boolean
   sections(filter: sections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [sections]
 }
 
@@ -1335,12 +2160,16 @@ input pages_filter {
   date_updated: date_filter_operators
   date_updated_func: datetime_function_filter_operators
   code: string_filter_operators
+  system_page: boolean_filter_operators
   sections: sections_filter
   _and: [pages_filter]
   _or: [pages_filter]
 }
 
 type Query {
+  assets(filter: assets_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [assets]
+  assets_by_id(id: ID!): assets
+  assets_aggregated(groupBy: [String], filter: assets_filter, limit: Int, search: String, sort: [String]): [assets_aggregated]
   ageratings(filter: ageratings_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [ageratings]
   ageratings_by_id(id: ID!): ageratings
   ageratings_aggregated(groupBy: [String], filter: ageratings_filter, limit: Int, search: String, sort: [String]): [ageratings_aggregated]
@@ -1352,42 +2181,84 @@ type Query {
   assetfiles(filter: assetfiles_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [assetfiles]
   assetfiles_by_id(id: ID!): assetfiles
   assetfiles_aggregated(groupBy: [String], filter: assetfiles_filter, limit: Int, search: String, sort: [String]): [assetfiles_aggregated]
-  assets(filter: assets_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [assets]
-  assets_by_id(id: ID!): assets
-  assets_aggregated(groupBy: [String], filter: assets_filter, limit: Int, search: String, sort: [String]): [assets_aggregated]
+  assetstreams(filter: assetstreams_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [assetstreams]
+  assetstreams_by_id(id: ID!): assetstreams
+  assetstreams_aggregated(groupBy: [String], filter: assetstreams_filter, limit: Int, search: String, sort: [String]): [assetstreams_aggregated]
+  assetstreams_audio_languages(filter: assetstreams_audio_languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [assetstreams_audio_languages]
+  assetstreams_audio_languages_by_id(id: ID!): assetstreams_audio_languages
+  assetstreams_audio_languages_aggregated(groupBy: [String], filter: assetstreams_audio_languages_filter, limit: Int, search: String, sort: [String]): [assetstreams_audio_languages_aggregated]
+  assetstreams_subtitle_languages(filter: assetstreams_subtitle_languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [assetstreams_subtitle_languages]
+  assetstreams_subtitle_languages_by_id(id: ID!): assetstreams_subtitle_languages
+  assetstreams_subtitle_languages_aggregated(groupBy: [String], filter: assetstreams_subtitle_languages_filter, limit: Int, search: String, sort: [String]): [assetstreams_subtitle_languages_aggregated]
   calendarevent(filter: calendarevent_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [calendarevent]
   calendarevent_by_id(id: ID!): calendarevent
   calendarevent_aggregated(groupBy: [String], filter: calendarevent_filter, limit: Int, search: String, sort: [String]): [calendarevent_aggregated]
   categories(filter: categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [categories]
   categories_by_id(id: ID!): categories
   categories_aggregated(groupBy: [String], filter: categories_filter, limit: Int, search: String, sort: [String]): [categories_aggregated]
-  episodes(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes]
-  episodes_by_id(id: ID!): episodes
-  episodes_aggregated(groupBy: [String], filter: episodes_filter, limit: Int, search: String, sort: [String]): [episodes_aggregated]
-  categories_episodes(filter: categories_episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [categories_episodes]
-  categories_episodes_by_id(id: ID!): categories_episodes
-  categories_episodes_aggregated(groupBy: [String], filter: categories_episodes_filter, limit: Int, search: String, sort: [String]): [categories_episodes_aggregated]
+  categories_translations(filter: categories_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [categories_translations]
+  categories_translations_by_id(id: ID!): categories_translations
+  categories_translations_aggregated(groupBy: [String], filter: categories_translations_filter, limit: Int, search: String, sort: [String]): [categories_translations_aggregated]
   collections(filter: collections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [collections]
   collections_by_id(id: ID!): collections
   collections_aggregated(groupBy: [String], filter: collections_filter, limit: Int, search: String, sort: [String]): [collections_aggregated]
   shows(filter: shows_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [shows]
   shows_by_id(id: ID!): shows
   shows_aggregated(groupBy: [String], filter: shows_filter, limit: Int, search: String, sort: [String]): [shows_aggregated]
+  lists(filter: lists_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [lists]
+  lists_by_id(id: ID!): lists
+  lists_aggregated(groupBy: [String], filter: lists_filter, limit: Int, search: String, sort: [String]): [lists_aggregated]
+  collections_episodes(filter: collections_episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [collections_episodes]
+  collections_episodes_by_id(id: ID!): collections_episodes
+  collections_episodes_aggregated(groupBy: [String], filter: collections_episodes_filter, limit: Int, search: String, sort: [String]): [collections_episodes_aggregated]
+  episodes(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes]
+  episodes_by_id(id: ID!): episodes
+  episodes_aggregated(groupBy: [String], filter: episodes_filter, limit: Int, search: String, sort: [String]): [episodes_aggregated]
+  collections_relations(filter: collections_relations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [collections_relations]
+  collections_relations_by_id(id: ID!): collections_relations
+  collections_relations_aggregated(groupBy: [String], filter: collections_relations_filter, limit: Int, search: String, sort: [String]): [collections_relations_aggregated]
+  collections_seasons(filter: collections_seasons_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [collections_seasons]
+  collections_seasons_by_id(id: ID!): collections_seasons
+  collections_seasons_aggregated(groupBy: [String], filter: collections_seasons_filter, limit: Int, search: String, sort: [String]): [collections_seasons_aggregated]
   seasons(filter: seasons_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [seasons]
   seasons_by_id(id: ID!): seasons
   seasons_aggregated(groupBy: [String], filter: seasons_filter, limit: Int, search: String, sort: [String]): [seasons_aggregated]
+  collections_shows(filter: collections_shows_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [collections_shows]
+  collections_shows_by_id(id: ID!): collections_shows
+  collections_shows_aggregated(groupBy: [String], filter: collections_shows_filter, limit: Int, search: String, sort: [String]): [collections_shows_aggregated]
+  collections_translations(filter: collections_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [collections_translations]
+  collections_translations_by_id(id: ID!): collections_translations
+  collections_translations_aggregated(groupBy: [String], filter: collections_translations_filter, limit: Int, search: String, sort: [String]): [collections_translations_aggregated]
+  episodes_categories(filter: episodes_categories_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_categories]
+  episodes_categories_by_id(id: ID!): episodes_categories
+  episodes_categories_aggregated(groupBy: [String], filter: episodes_categories_filter, limit: Int, search: String, sort: [String]): [episodes_categories_aggregated]
+  episodes_tags(filter: episodes_tags_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_tags]
+  episodes_tags_by_id(id: ID!): episodes_tags
+  episodes_tags_aggregated(groupBy: [String], filter: episodes_tags_filter, limit: Int, search: String, sort: [String]): [episodes_tags_aggregated]
+  tags(filter: tags_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [tags]
+  tags_by_id(id: ID!): tags
+  tags_aggregated(groupBy: [String], filter: tags_filter, limit: Int, search: String, sort: [String]): [tags_aggregated]
   episodes_translations(filter: episodes_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_translations]
   episodes_translations_by_id(id: ID!): episodes_translations
   episodes_translations_aggregated(groupBy: [String], filter: episodes_translations_filter, limit: Int, search: String, sort: [String]): [episodes_translations_aggregated]
-  usergroups(filter: usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [usergroups]
-  usergroups_by_id(id: ID!): usergroups
-  usergroups_aggregated(groupBy: [String], filter: usergroups_filter, limit: Int, search: String, sort: [String]): [usergroups_aggregated]
   episodes_usergroups(filter: episodes_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_usergroups]
   episodes_usergroups_by_id(id: ID!): episodes_usergroups
   episodes_usergroups_aggregated(groupBy: [String], filter: episodes_usergroups_filter, limit: Int, search: String, sort: [String]): [episodes_usergroups_aggregated]
+  usergroups(filter: usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [usergroups]
+  usergroups_by_id(id: ID!): usergroups
+  usergroups_aggregated(groupBy: [String], filter: usergroups_filter, limit: Int, search: String, sort: [String]): [usergroups_aggregated]
+  episodes_usergroups_download(filter: episodes_usergroups_download_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_usergroups_download]
+  episodes_usergroups_download_by_id(id: ID!): episodes_usergroups_download
+  episodes_usergroups_download_aggregated(groupBy: [String], filter: episodes_usergroups_download_filter, limit: Int, search: String, sort: [String]): [episodes_usergroups_download_aggregated]
+  episodes_usergroups_earlyaccess(filter: episodes_usergroups_earlyaccess_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_usergroups_earlyaccess]
+  episodes_usergroups_earlyaccess_by_id(id: ID!): episodes_usergroups_earlyaccess
+  episodes_usergroups_earlyaccess_aggregated(groupBy: [String], filter: episodes_usergroups_earlyaccess_filter, limit: Int, search: String, sort: [String]): [episodes_usergroups_earlyaccess_aggregated]
   featureds(filter: featureds_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [featureds]
   featureds_by_id(id: ID!): featureds
   featureds_aggregated(groupBy: [String], filter: featureds_filter, limit: Int, search: String, sort: [String]): [featureds_aggregated]
+  lists_relations(filter: lists_relations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [lists_relations]
+  lists_relations_by_id(id: ID!): lists_relations
+  lists_relations_aggregated(groupBy: [String], filter: lists_relations_filter, limit: Int, search: String, sort: [String]): [lists_relations_aggregated]
   pages(filter: pages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [pages]
   pages_by_id(id: ID!): pages
   pages_aggregated(groupBy: [String], filter: pages_filter, limit: Int, search: String, sort: [String]): [pages_aggregated]
@@ -1400,12 +2271,21 @@ type Query {
   sections(filter: sections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [sections]
   sections_by_id(id: ID!): sections
   sections_aggregated(groupBy: [String], filter: sections_filter, limit: Int, search: String, sort: [String]): [sections_aggregated]
+  sections_translations(filter: sections_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [sections_translations]
+  sections_translations_by_id(id: ID!): sections_translations
+  sections_translations_aggregated(groupBy: [String], filter: sections_translations_filter, limit: Int, search: String, sort: [String]): [sections_translations_aggregated]
   sections_usergroups(filter: sections_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [sections_usergroups]
   sections_usergroups_by_id(id: ID!): sections_usergroups
   sections_usergroups_aggregated(groupBy: [String], filter: sections_usergroups_filter, limit: Int, search: String, sort: [String]): [sections_usergroups_aggregated]
+  shows_translations(filter: shows_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [shows_translations]
+  shows_translations_by_id(id: ID!): shows_translations
+  shows_translations_aggregated(groupBy: [String], filter: shows_translations_filter, limit: Int, search: String, sort: [String]): [shows_translations_aggregated]
   shows_usergroups(filter: shows_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [shows_usergroups]
   shows_usergroups_by_id(id: ID!): shows_usergroups
   shows_usergroups_aggregated(groupBy: [String], filter: shows_usergroups_filter, limit: Int, search: String, sort: [String]): [shows_usergroups_aggregated]
+  tags_translations(filter: tags_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [tags_translations]
+  tags_translations_by_id(id: ID!): tags_translations
+  tags_translations_aggregated(groupBy: [String], filter: tags_translations_filter, limit: Int, search: String, sort: [String]): [tags_translations_aggregated]
   tvguideentry(filter: tvguideentry_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [tvguideentry]
   tvguideentry_by_id(id: ID!): tvguideentry
   tvguideentry_aggregated(groupBy: [String], filter: tvguideentry_filter, limit: Int, search: String, sort: [String]): [tvguideentry_aggregated]
@@ -1432,9 +2312,13 @@ type seasons {
   publish_date: Date!
   publish_date_func: datetime_functions
   image_file_id(filter: directus_files_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_files
+  legacy_id: Int
+
+  """Used for "S1:E2" and for sorting."""
+  season_number: Int!
+  usergroups(filter: seasons_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [seasons_usergroups]
   episodes(filter: episodes_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes]
   translations(filter: seasons_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [seasons_translations]
-  usergroups(filter: seasons_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [seasons_usergroups]
 }
 
 type seasons_aggregated {
@@ -1452,6 +2336,10 @@ type seasons_aggregated {
 type seasons_aggregated_fields {
   id: Float
   show_id: Float
+  legacy_id: Float
+
+  """Used for "S1:E2" and for sorting."""
+  season_number: Float
 }
 
 input seasons_filter {
@@ -1472,9 +2360,11 @@ input seasons_filter {
   publish_date: date_filter_operators
   publish_date_func: datetime_function_filter_operators
   image_file_id: directus_files_filter
+  legacy_id: number_filter_operators
+  season_number: number_filter_operators
+  usergroups: seasons_usergroups_filter
   episodes: episodes_filter
   translations: seasons_translations_filter
-  usergroups: seasons_usergroups_filter
   _and: [seasons_filter]
   _or: [seasons_filter]
 }
@@ -1485,7 +2375,9 @@ type seasons_translations {
   languages_code(filter: languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): languages
   title: String
   description: String
-  legacy_tags: String
+  legacy_title_id: Int
+  legacy_description_id: Int
+  is_primary: Boolean!
 }
 
 type seasons_translations_aggregated {
@@ -1503,6 +2395,8 @@ type seasons_translations_aggregated {
 type seasons_translations_aggregated_fields {
   id: Float
   seasons_id: Float
+  legacy_title_id: Float
+  legacy_description_id: Float
 }
 
 input seasons_translations_filter {
@@ -1511,7 +2405,9 @@ input seasons_translations_filter {
   languages_code: languages_filter
   title: string_filter_operators
   description: string_filter_operators
-  legacy_tags: string_filter_operators
+  legacy_title_id: number_filter_operators
+  legacy_description_id: number_filter_operators
+  is_primary: boolean_filter_operators
   _and: [seasons_translations_filter]
   _or: [seasons_translations_filter]
 }
@@ -1557,8 +2453,11 @@ type sections {
   date_updated: Date
   date_updated_func: datetime_functions
   page(filter: pages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): pages
-  title: String!
+  type: String!
+  display_contract: String
+  collection_id(filter: collections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): collections
   usergroups(filter: sections_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [sections_usergroups]
+  translations(filter: sections_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [sections_translations]
 }
 
 type sections_aggregated {
@@ -1576,6 +2475,7 @@ type sections_aggregated {
 type sections_aggregated_fields {
   id: Float
   page: Float
+  collection_id: Float
 }
 
 input sections_filter {
@@ -1588,10 +2488,46 @@ input sections_filter {
   date_updated: date_filter_operators
   date_updated_func: datetime_function_filter_operators
   page: pages_filter
-  title: string_filter_operators
+  type: string_filter_operators
+  display_contract: string_filter_operators
+  collection_id: collections_filter
   usergroups: sections_usergroups_filter
+  translations: sections_translations_filter
   _and: [sections_filter]
   _or: [sections_filter]
+}
+
+type sections_translations {
+  id: ID
+  sections_id(filter: sections_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): sections
+  languages_code(filter: languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): languages
+  title: String!
+}
+
+type sections_translations_aggregated {
+  group: JSON
+  avg: sections_translations_aggregated_fields
+  sum: sections_translations_aggregated_fields
+  count: sections_translations_aggregated_fields
+  countDistinct: sections_translations_aggregated_fields
+  avgDistinct: sections_translations_aggregated_fields
+  sumDistinct: sections_translations_aggregated_fields
+  min: sections_translations_aggregated_fields
+  max: sections_translations_aggregated_fields
+}
+
+type sections_translations_aggregated_fields {
+  id: Float
+  sections_id: Float
+}
+
+input sections_translations_filter {
+  id: number_filter_operators
+  sections_id: sections_filter
+  languages_code: languages_filter
+  title: string_filter_operators
+  _and: [sections_translations_filter]
+  _or: [sections_translations_filter]
 }
 
 type sections_usergroups {
@@ -1634,8 +2570,6 @@ type shows {
   user_updated(filter: directus_users_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_users
   date_updated: Date
   date_updated_func: datetime_functions
-  title: String!
-  description: String
   image(filter: directus_files_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_files
   available_from: Date
   available_from_func: datetime_functions
@@ -1647,8 +2581,10 @@ type shows {
   type: String!
   agerating_code(filter: ageratings_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): ageratings
   image_file_id(filter: directus_files_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_files
+  legacy_id: Int
   seasons(filter: seasons_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [seasons]
   usergroups(filter: shows_usergroups_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [shows_usergroups]
+  translations(filter: shows_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [shows_translations]
 }
 
 type shows_aggregated {
@@ -1665,6 +2601,7 @@ type shows_aggregated {
 
 type shows_aggregated_fields {
   id: Float
+  legacy_id: Float
 }
 
 input shows_filter {
@@ -1676,8 +2613,6 @@ input shows_filter {
   user_updated: directus_users_filter
   date_updated: date_filter_operators
   date_updated_func: datetime_function_filter_operators
-  title: string_filter_operators
-  description: string_filter_operators
   image: directus_files_filter
   available_from: date_filter_operators
   available_from_func: datetime_function_filter_operators
@@ -1689,10 +2624,60 @@ input shows_filter {
   type: string_filter_operators
   agerating_code: ageratings_filter
   image_file_id: directus_files_filter
+  legacy_id: number_filter_operators
   seasons: seasons_filter
   usergroups: shows_usergroups_filter
+  translations: shows_translations_filter
   _and: [shows_filter]
   _or: [shows_filter]
+}
+
+type shows_translations {
+  id: ID
+  shows_id(filter: shows_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): shows
+  languages_code(filter: languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): languages
+  title: String
+  description: String
+  legacy_tags: String
+  legacy_title_id: Int
+  legacy_description_id: Int
+  legacy_tags_id: Int
+  is_primary: Boolean!
+}
+
+type shows_translations_aggregated {
+  group: JSON
+  avg: shows_translations_aggregated_fields
+  sum: shows_translations_aggregated_fields
+  count: shows_translations_aggregated_fields
+  countDistinct: shows_translations_aggregated_fields
+  avgDistinct: shows_translations_aggregated_fields
+  sumDistinct: shows_translations_aggregated_fields
+  min: shows_translations_aggregated_fields
+  max: shows_translations_aggregated_fields
+}
+
+type shows_translations_aggregated_fields {
+  id: Float
+  shows_id: Float
+  legacy_title_id: Float
+  legacy_description_id: Float
+  legacy_tags_id: Float
+}
+
+input shows_translations_filter {
+  id: number_filter_operators
+  shows_id: shows_filter
+  languages_code: languages_filter
+  title: string_filter_operators
+  description: string_filter_operators
+  legacy_tags: string_filter_operators
+  legacy_title_id: number_filter_operators
+  legacy_description_id: number_filter_operators
+  legacy_tags_id: number_filter_operators
+  is_primary: boolean_filter_operators
+  _and: [shows_translations_filter]
+  _or: [shows_translations_filter]
 }
 
 type shows_usergroups {
@@ -1741,6 +2726,83 @@ input string_filter_operators {
   _nnull: Boolean
   _empty: Boolean
   _nempty: Boolean
+}
+
+type tags {
+  id: ID
+  user_created(filter: directus_users_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_users
+  date_created: Date
+  date_created_func: datetime_functions
+  user_updated(filter: directus_users_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_users
+  date_updated: Date
+  date_updated_func: datetime_functions
+  code: String
+  translations(filter: tags_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [tags_translations]
+  episodes(filter: episodes_tags_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_tags]
+}
+
+type tags_aggregated {
+  group: JSON
+  avg: tags_aggregated_fields
+  sum: tags_aggregated_fields
+  count: tags_aggregated_fields
+  countDistinct: tags_aggregated_fields
+  avgDistinct: tags_aggregated_fields
+  sumDistinct: tags_aggregated_fields
+  min: tags_aggregated_fields
+  max: tags_aggregated_fields
+}
+
+type tags_aggregated_fields {
+  id: Float
+}
+
+input tags_filter {
+  id: number_filter_operators
+  user_created: directus_users_filter
+  date_created: date_filter_operators
+  date_created_func: datetime_function_filter_operators
+  user_updated: directus_users_filter
+  date_updated: date_filter_operators
+  date_updated_func: datetime_function_filter_operators
+  code: string_filter_operators
+  translations: tags_translations_filter
+  episodes: episodes_tags_filter
+  _and: [tags_filter]
+  _or: [tags_filter]
+}
+
+type tags_translations {
+  id: ID
+  tags_id(filter: tags_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): tags
+  languages_code(filter: languages_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): languages
+  name: String
+}
+
+type tags_translations_aggregated {
+  group: JSON
+  avg: tags_translations_aggregated_fields
+  sum: tags_translations_aggregated_fields
+  count: tags_translations_aggregated_fields
+  countDistinct: tags_translations_aggregated_fields
+  avgDistinct: tags_translations_aggregated_fields
+  sumDistinct: tags_translations_aggregated_fields
+  min: tags_translations_aggregated_fields
+  max: tags_translations_aggregated_fields
+}
+
+type tags_translations_aggregated_fields {
+  id: Float
+  tags_id: Float
+}
+
+input tags_translations_filter {
+  id: number_filter_operators
+  tags_id: tags_filter
+  languages_code: languages_filter
+  name: string_filter_operators
+  _and: [tags_translations_filter]
+  _or: [tags_translations_filter]
 }
 
 type tvguideentry {
@@ -1871,6 +2933,7 @@ input update_assetfiles_input {
   type: String
   asset_id: update_assets_input
   service: String
+  metadata: JSON
 }
 
 input update_assets_input {
@@ -1882,8 +2945,36 @@ input update_assets_input {
   date_updated: Date
   date_updated_func: datetime_functionsInput
   name: String
-  mediabank_id: String
+  duration: String
   files: [update_assetfiles_input]
+}
+
+input update_assetstreams_audio_languages_input {
+  id: ID
+  assetstreams_id: update_assetstreams_input
+  languages_code: update_languages_input
+}
+
+input update_assetstreams_input {
+  id: ID
+  status: String
+  user_created: update_directus_users_input
+  date_created: Date
+  date_created_func: datetime_functionsInput
+  user_updated: update_directus_users_input
+  date_updated: Date
+  date_updated_func: datetime_functionsInput
+  url: String
+  type: String
+  extra_metadata: JSON
+  audio_languages: [update_assetstreams_audio_languages_input]
+  subtitle_languages: [update_assetstreams_subtitle_languages_input]
+}
+
+input update_assetstreams_subtitle_languages_input {
+  id: ID
+  assetstreams_id: update_assetstreams_input
+  languages_code: update_languages_input
 }
 
 input update_calendarevent_input {
@@ -1902,12 +2993,6 @@ input update_calendarevent_input {
   title: String
 }
 
-input update_categories_episodes_input {
-  id: ID
-  categories_id: update_categories_input
-  episodes_id: update_episodes_input
-}
-
 input update_categories_input {
   id: ID
   sort: Int
@@ -1918,10 +3003,25 @@ input update_categories_input {
   date_updated: Date
   date_updated_func: datetime_functionsInput
   appear_in_search: Boolean
-  title: String
   parent_id: update_categories_input
+  legacy_id: Int
   subcategories: [update_categories_input]
-  episodes: [update_categories_episodes_input]
+  translations: [update_categories_translations_input]
+  episodes: [update_episodes_categories_input]
+}
+
+input update_categories_translations_input {
+  id: ID
+  categories_id: update_categories_input
+  languages_code: update_languages_input
+  name: String
+}
+
+input update_collections_episodes_input {
+  id: ID
+  collections_id: update_collections_input
+  episodes_id: update_episodes_input
+  sort: Int
 }
 
 input update_collections_input {
@@ -1933,12 +3033,39 @@ input update_collections_input {
   user_updated: update_directus_users_input
   date_updated: Date
   date_updated_func: datetime_functionsInput
-  title: String
   content: String
   legacy_order_by: String
-  show_episodes_in_slider: Boolean
   show_id: update_shows_input
-  category_id: update_categories_input
+  show_episodes_in_section: Boolean
+  legacy_category_id: Int
+  list_id: update_lists_input
+  translations: [update_collections_translations_input]
+}
+
+input update_collections_relations_input {
+  id: ID
+  collections_id: update_collections_input
+  item: String
+  collection: String
+}
+
+input update_collections_seasons_input {
+  id: ID
+  collections_id: update_collections_input
+  seasons_id: update_seasons_input
+}
+
+input update_collections_shows_input {
+  id: ID
+  collections_id: update_collections_input
+  shows_id: update_shows_input
+}
+
+input update_collections_translations_input {
+  id: ID
+  collections_id: update_collections_input
+  languages_code: update_languages_input
+  title: String
 }
 
 input update_directus_files_input {
@@ -2011,6 +3138,12 @@ input update_directus_users_input {
   email_notifications: Boolean
 }
 
+input update_episodes_categories_input {
+  id: ID
+  episodes_id: update_episodes_input
+  categories_id: update_categories_input
+}
+
 input update_episodes_input {
   id: ID
   status: String
@@ -2031,23 +3164,57 @@ input update_episodes_input {
   publish_date_func: datetime_functionsInput
   type: String
   image_file_id: update_directus_files_input
-  translations: [update_episodes_translations_input]
+  legacy_id: Int
+
+  """For showing "S1:E2" and for sorting."""
+  episode_number: Int
+  legacy_program_id: Int
+  earlyaccess_usergroups: [update_episodes_usergroups_earlyaccess_input]
   usergroups: [update_episodes_usergroups_input]
+  download_usergroups: [update_episodes_usergroups_download_input]
+  translations: [update_episodes_translations_input]
+  tags: [update_episodes_tags_input]
+  categories: [update_episodes_categories_input]
+}
+
+input update_episodes_tags_input {
+  id: ID
+  episodes_id: update_episodes_input
+  tags_id: update_tags_input
 }
 
 input update_episodes_translations_input {
   id: ID
   episodes_id: update_episodes_input
-  languages_id: update_languages_input
+  languages_code: update_languages_input
   title: String
   description: String
+  extra_description: String
   is_primary: Boolean
+  legacy_title_id: Int
+  legacy_description_id: Int
+  legacy_extra_description_id: Int
+  legacy_tags_id: Int
+  legacy_tags: String
+}
+
+input update_episodes_usergroups_download_input {
+  id: ID
+  episodes_id: update_episodes_input
+  usergroups_code: update_usergroups_input
+}
+
+input update_episodes_usergroups_earlyaccess_input {
+  id: ID
+  episodes_id: update_episodes_input
+  usergroups_code: update_usergroups_input
 }
 
 input update_episodes_usergroups_input {
   id: ID
   episodes_id: update_episodes_input
   usergroups_code: update_usergroups_input
+  type: String
 }
 
 input update_featureds_input {
@@ -2069,6 +3236,27 @@ input update_languages_input {
   legacy_2_letter_code: String
 }
 
+input update_lists_input {
+  id: ID
+  user_created: update_directus_users_input
+  date_created: Date
+  date_created_func: datetime_functionsInput
+  user_updated: update_directus_users_input
+  date_updated: Date
+  date_updated_func: datetime_functionsInput
+  name: String
+  legacy_category_id: Int
+  relations: [update_lists_relations_input]
+}
+
+input update_lists_relations_input {
+  id: ID
+  lists_id: update_lists_input
+  item: String
+  collection: String
+  sort: Int
+}
+
 input update_pages_input {
   id: ID
   status: String
@@ -2080,6 +3268,7 @@ input update_pages_input {
   date_updated: Date
   date_updated_func: datetime_functionsInput
   code: String
+  system_page: Boolean
   sections: [update_sections_input]
 }
 
@@ -2101,9 +3290,13 @@ input update_seasons_input {
   publish_date: Date
   publish_date_func: datetime_functionsInput
   image_file_id: update_directus_files_input
+  legacy_id: Int
+
+  """Used for "S1:E2" and for sorting."""
+  season_number: Int
+  usergroups: [update_seasons_usergroups_input]
   episodes: [update_episodes_input]
   translations: [update_seasons_translations_input]
-  usergroups: [update_seasons_usergroups_input]
 }
 
 input update_seasons_translations_input {
@@ -2112,7 +3305,9 @@ input update_seasons_translations_input {
   languages_code: update_languages_input
   title: String
   description: String
-  legacy_tags: String
+  legacy_title_id: Int
+  legacy_description_id: Int
+  is_primary: Boolean
 }
 
 input update_seasons_usergroups_input {
@@ -2131,8 +3326,18 @@ input update_sections_input {
   date_updated: Date
   date_updated_func: datetime_functionsInput
   page: update_pages_input
-  title: String
+  type: String
+  display_contract: String
+  collection_id: update_collections_input
   usergroups: [update_sections_usergroups_input]
+  translations: [update_sections_translations_input]
+}
+
+input update_sections_translations_input {
+  id: ID
+  sections_id: update_sections_input
+  languages_code: update_languages_input
+  title: String
 }
 
 input update_sections_usergroups_input {
@@ -2150,8 +3355,6 @@ input update_shows_input {
   user_updated: update_directus_users_input
   date_updated: Date
   date_updated_func: datetime_functionsInput
-  title: String
-  description: String
   image: update_directus_files_input
   available_from: Date
   available_from_func: datetime_functionsInput
@@ -2163,14 +3366,49 @@ input update_shows_input {
   type: String
   agerating_code: update_ageratings_input
   image_file_id: update_directus_files_input
+  legacy_id: Int
   seasons: [update_seasons_input]
   usergroups: [update_shows_usergroups_input]
+  translations: [update_shows_translations_input]
+}
+
+input update_shows_translations_input {
+  id: ID
+  shows_id: update_shows_input
+  languages_code: update_languages_input
+  title: String
+  description: String
+  legacy_tags: String
+  legacy_title_id: Int
+  legacy_description_id: Int
+  legacy_tags_id: Int
+  is_primary: Boolean
 }
 
 input update_shows_usergroups_input {
   id: ID
   shows_id: update_shows_input
   usergroups_code: update_usergroups_input
+}
+
+input update_tags_input {
+  id: ID
+  user_created: update_directus_users_input
+  date_created: Date
+  date_created_func: datetime_functionsInput
+  user_updated: update_directus_users_input
+  date_updated: Date
+  date_updated_func: datetime_functionsInput
+  code: String
+  translations: [update_tags_translations_input]
+  episodes: [update_episodes_tags_input]
+}
+
+input update_tags_translations_input {
+  id: ID
+  tags_id: update_tags_input
+  languages_code: update_languages_input
+  name: String
 }
 
 input update_tvguideentry_input {
@@ -2213,6 +3451,10 @@ input update_usergroups_input {
   date_updated: Date
   date_updated_func: datetime_functionsInput
   name: String
+
+  """One per line"""
+  emails: String
+  episode_earlyaccess: [update_episodes_usergroups_earlyaccess_input]
 }
 
 type usergroups {
@@ -2224,7 +3466,11 @@ type usergroups {
   user_updated(filter: directus_users_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): directus_users
   date_updated: Date
   date_updated_func: datetime_functions
-  name: String
+  name: String!
+
+  """One per line"""
+  emails: String
+  episode_earlyaccess(filter: episodes_usergroups_earlyaccess_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [episodes_usergroups_earlyaccess]
 }
 
 type usergroups_aggregated {
@@ -2253,6 +3499,8 @@ input usergroups_filter {
   date_updated: date_filter_operators
   date_updated_func: datetime_function_filter_operators
   name: string_filter_operators
+  emails: string_filter_operators
+  episode_earlyaccess: episodes_usergroups_earlyaccess_filter
   _and: [usergroups_filter]
   _or: [usergroups_filter]
 }

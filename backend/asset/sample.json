@@ -1,0 +1,29 @@
+{
+	"duration": "1:2:3:4",
+	"title": "The Title",
+	"id": "AS-VX-123",
+	"smilFile":
+		{
+			"path": "laksjdlkajsdlka/stuff.smil"
+		},
+	"files": [
+		{
+			"mime": "video/mp4",
+			"path": "laksjdlkajsdlka/lakwjdlkwjd.mp4",
+			"lang": "de",
+			"fileSize": 123123123
+		},
+		{
+			"mime": "video/mp4",
+			"path": "lkadlkwjldkwjldkwj/kjasldkj.mp4",
+			"langs": "fr",
+			"fileSize": 123123123
+		},
+		{
+			"type": "audio/mp3",
+			"path": "lkadlkwjldkwjldkwj/kjasldkj.mp3",
+			"langs": "fr",
+			"fileSize": 123123123
+		}
+	]
+}

@@ -13,8 +13,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.26.7
 	github.com/bcc-code/mediabank-bridge v1.1.1
 	github.com/cloudevents/sdk-go/v2 v2.6.0
-	github.com/davecgh/go-spew v1.1.1
 	github.com/gin-gonic/gin v1.7.7
+	github.com/go-playground/assert/v2 v2.0.1
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.5
 	github.com/rs/zerolog v1.26.0
@@ -31,6 +31,9 @@ require (
 	cloud.google.com/go/kms v1.4.0 // indirect
 	cloud.google.com/go/monitoring v1.1.0 // indirect
 	cloud.google.com/go/trace v1.0.0 // indirect
+	github.com/agnivade/levenshtein v1.1.0 // indirect
+	github.com/alexflint/go-arg v1.4.2 // indirect
+	github.com/alexflint/go-scalar v1.0.0 // indirect
 	github.com/ansel1/merry/v2 v2.0.1 // indirect
 	github.com/aws/aws-sdk-go v1.44.1 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.1 // indirect
@@ -48,6 +51,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.4 // indirect
 	github.com/aws/smithy-go v1.11.2 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
@@ -71,11 +75,14 @@ require (
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.10.0 // indirect
 	golang.org/x/crypto v0.0.0-20201217014255-9d1352758620 // indirect
+	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
 	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/tools v0.1.7 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/api v0.70.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220222213610-43724f9ea8cf // indirect
