@@ -1,6 +1,11 @@
 .PHONY: schema-update run schema-snapshot init reset s
 
+s:
+	docker-compose up -d
+	npx directus start
+
 init:
+	cp -n .template.env .env
 	npm i
 	docker compose up -d
 	npx directus bootstrap
@@ -14,14 +19,10 @@ run:
 	npx directus start
 
 schema-update:
-	yq e '.collections.[].meta.group = null' schema.yml > temp.yml
+	docker run --rm -v "${PWD}":/workdir mikefarah/yq e '.collections.[].meta.group = null' schema.yml > temp.yml
 	npx directus schema apply temp.yml -y
 	npx directus schema apply schema.yml -y
 	rm temp.yml
 
 schema-snapshot:
 	npx directus schema snapshot schema.yml -y
-
-s:
-	docker-compose up -d
-	npx directus start
