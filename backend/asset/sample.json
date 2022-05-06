@@ -1,28 +1,16 @@
 {
-	"duration": "1:2:3:4",
+	"duration": 123,
 	"title": "The Title",
 	"id": "AS-VX-123",
 	"smilFile":
 		{
-			"path": "laksjdlkajsdlka/stuff.smil"
+			"path": "randomstring/meta.smil"
 		},
 	"files": [
 		{
 			"mime": "video/mp4",
-			"path": "laksjdlkajsdlka/lakwjdlkwjd.mp4",
-			"lang": "de",
-			"fileSize": 123123123
-		},
-		{
-			"mime": "video/mp4",
-			"path": "lkadlkwjldkwjldkwj/kjasldkj.mp4",
-			"langs": "fr",
-			"fileSize": 123123123
-		},
-		{
-			"type": "audio/mp3",
-			"path": "lkadlkwjldkwjldkwj/kjasldkj.mp3",
-			"langs": "fr",
+			"path": "randomstring/INTR_S02_E01_MAS_NOR_320x180_320.mp4",
+			"lang": "none",
 			"fileSize": 123123123
 		}
 	]
