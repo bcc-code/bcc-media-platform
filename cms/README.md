@@ -1,23 +1,34 @@
 
 # BrunstadTV CMS
 
-## Local setup
+# Local setup
 
-First you need to create a localized version of `.template.env` file.
+## Prerequisities
 
-Then you can run `make init`, which sets up the database and migrates it to the latest version.
-You can quickly destroy your local db and run migrations again with `make reset`.
+You need:
+- docker
+- npm
 
-## Starting locally
+If using windows (without wsl), you also need:
+- make for windows ([choco](https://chocolatey.org/install) install make)
+- some bash terminal, like git-bash
+
+## Setup
+
+Run `make init`, which sets up the database and migrates it to the latest version.
+
+Tip: You can quickly destroy your local db and run migrations again with `make reset`.
+
+## Start the cms
 
 You can start a local instance (after completing the above section) using `make run`
 
-The initial credentials are:
+The initial login credentials are:
 
 Username: admin@brunstad.tv
 Pass: btv123
 
-## Issues
+# Issues
 
 ###  Snapshots and apply
 
