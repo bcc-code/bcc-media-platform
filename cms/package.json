@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no tests\" && exit 1"
+    "test": "echo \"Error: no tests\" && exit 1",
+    "build": "tsc && npm run paths",
+    "paths": "tscpaths -p tsconfig.json -s ./src -o ./extensions",
+    "watch": "tsc-watch --onSuccess 'npm run paths'"
   },
   "keywords": [],
   "author": "",
@@ -12,5 +15,9 @@
   "dependencies": {
     "directus": "^9.8.0",
     "pg": "^8.7.3"
+  },
+  "devDependencies": {
+    "tsc-watch": "^5.0.3",
+    "tscpaths": "^0.0.9"
   }
 }
