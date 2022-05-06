@@ -5,3 +5,6 @@ node_modules
 # directus
 uploads
 .env
+
+# custom
+#extensions
