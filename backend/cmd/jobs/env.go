@@ -8,14 +8,21 @@ type awsConfig struct {
 	MediapackageRoleARN   string
 	MediapackageSourceARN string
 	IngestBucket          string
+	StorageBucket         string
 }
 
 type postgres struct {
 	ConnectionString string
 }
 
+type directusConfig struct {
+	BaseURL string
+	Key     string
+}
+
 type envConfig struct {
-	AWS awsConfig
+	AWS      awsConfig
+	Directus directusConfig
 }
 
 func getEnvConfig() envConfig {
@@ -26,6 +33,11 @@ func getEnvConfig() envConfig {
 			MediapackageRoleARN:   os.Getenv("AWS_MEDIAPACKAGE_ROLE"),
 			MediapackageSourceARN: os.Getenv("AWS_MEDIAPACKAGE_SOURCE"),
 			IngestBucket:          os.Getenv("AWS_INGEST_BUCKET"),
+			StorageBucket:         os.Getenv("AWS_STORAGE_BUCKET"),
+		},
+		Directus: directusConfig{
+			BaseURL: os.Getenv("DIRECTUS_URL"),
+			Key:     os.Getenv("DIRECTUS_KEY"),
 		},
 	}
 }

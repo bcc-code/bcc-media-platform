@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Khan/genqlient/graphql"
 	"github.com/ansel1/merry"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
@@ -21,7 +20,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/events"
 	"github.com/bcc-code/mediabank-bridge/log"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 )
 
@@ -42,6 +41,7 @@ type smilFormat struct {
 type externalServices interface {
 	GetS3Client() *s3.Client
 	GetMediaPackageVOD() *mediapackagevod.Client
+	GetDirectusClient() *resty.Client
 }
 
 type config interface {
@@ -66,23 +66,13 @@ type smilFileMeta struct {
 }
 
 type assetIngestJSONMeta struct {
-	Duration string           `json:"duration"`
+	Duration int              `json:"duration"`
 	Title    string           `json:"title"`
 	ID       string           `json:"id"`
 	SmilFile smilFileMeta     `json:"smilFile"`
 	Files    []ingestFileMeta `json:"files"`
 
 	duration time.Duration
-}
-
-func (a *assetIngestJSONMeta) parseDuration() error {
-	// TODO: Implement
-	// This should chop off the frame count, and convert x:y:z format to seconds
-	if a.Duration == "" {
-		return ErrDurationEmpty.Here()
-	}
-
-	return nil
 }
 
 func readJSONFromS3[T any](ctx context.Context, client *s3.Client, bucket *string, path string, obj *T) error {
@@ -150,41 +140,53 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		return merry.Wrap(err)
 	}
 
+	a := &directus.Asset{
+		Name:            assetMeta.Title,
+		MediabankenID:   assetMeta.ID,
+		Duration:        assetMeta.Duration,
+		EncodingVersion: "btv",
+	}
+
+	a, err = directus.SaveItem(services.GetDirectusClient(), *a)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
 	// Generate a sane name, in order to be able to search/browse the bucket
 	// This should not required for any functionality and can be changed
 	storagePrefix := fmt.Sprintf("%s-%s", SafeString(assetMeta.Title), uuid.NewString())
-	ingestBucketARN := fmt.Sprintf("arn:aws:s3:::%s", *config.GetIngestBucket())
-
-	movedFileMeta := []ingestFileMeta{}
 
 	for _, fileMeta := range assetMeta.Files {
 		// TODO: Parallelize?
 		target := path.Join(storagePrefix, "mux", path.Base(fileMeta.Path))
+
 		_, err := s3client.CopyObject(ctx, &s3.CopyObjectInput{
 			Bucket:     config.GetStorageBucket(),
 			Key:        aws.String(target),
-			CopySource: aws.String(fmt.Sprintf("%s/%s", ingestBucketARN, fileMeta.Path)),
-		}, nil)
+			CopySource: aws.String(fmt.Sprintf("/%s/%s", *config.GetIngestBucket(), fileMeta.Path)),
+		})
 
 		if err != nil {
 			return merry.Wrap(err)
 		}
 
 		fileMeta.Path = target
-		movedFileMeta = append(movedFileMeta, fileMeta)
-	}
 
-	c := graphql.NewClient("http://localhost:8055/graphql", nil)
+		af := directus.Assetfile{
+			Path:             fileMeta.Path,
+			Storage:          "s3_assets",
+			Type:             "video",
+			MimeType:         fileMeta.Mime,
+			AssetID:          a.ID,
+			AudioLanguge:     fileMeta.Language,
+			SubtitleLanguage: fileMeta.Language,
+		}
 
-	res, err := directus.CreateAsset(ctx, c, &directus.Create_assets_input{
-		Duration: assetMeta.Duration,
-		Id:       assetMeta.ID,
-		Name:     assetMeta.Title,
-	})
-	if err != nil {
-		return merry.Wrap(err)
+		_, err = directus.SaveItem(services.GetDirectusClient(), af)
+		if err != nil {
+			return merry.Wrap(err)
+		}
 	}
-	spew.Dump(res)
 
 	// TODO: Delete files. Should be done async as a message
 
