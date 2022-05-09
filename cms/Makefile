@@ -5,7 +5,7 @@ s:
 	npx directus start
 
 init:
-	cp -n .template.env .env
+	-cp -n .template.env .env
 	npm i
 	docker-compose up -d
 	npx directus bootstrap
