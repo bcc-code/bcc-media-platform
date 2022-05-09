@@ -1,5 +1,5 @@
 version: 1
-directus: 9.8.0
+directus: 9.10.0
 collections:
   - collection: ageratings
     meta:
@@ -6056,6 +6056,12 @@ fields:
               - episode_number:
                   _nnull: true
           readonly: true
+        - name: Disable when created
+          rule:
+            _and:
+              - id:
+                  _nnull: true
+          readonly: true
       required: true
       group: metadata
       validation: null
@@ -6089,7 +6095,7 @@ fields:
         - file
       interface: file-image
       options:
-        folder: 00000000-0000-0000-0000-000000000000
+        folder: null
         crop: false
       display: null
       display_options: null
@@ -6134,7 +6140,7 @@ fields:
       options: null
       display: null
       display_options: null
-      readonly: true
+      readonly: false
       hidden: false
       sort: 2
       width: full
@@ -6845,7 +6851,7 @@ fields:
       display: null
       display_options: null
       readonly: false
-      hidden: true
+      hidden: false
       sort: 9
       width: full
       translations: null
@@ -6886,7 +6892,7 @@ fields:
       display: null
       display_options: null
       readonly: false
-      hidden: true
+      hidden: false
       sort: 10
       width: full
       translations: null
@@ -6927,7 +6933,7 @@ fields:
       display: null
       display_options: null
       readonly: false
-      hidden: true
+      hidden: false
       sort: 11
       width: full
       translations: null
@@ -13691,6 +13697,35 @@ fields:
       group: null
       validation: null
       validation_message: null
+  - collection: sections
+    field: translations
+    type: alias
+    schema: null
+    meta:
+      collection: sections
+      field: translations
+      special:
+        - translations
+      interface: translations
+      options:
+        languageField: code
+      display: translations
+      display_options:
+        template: '{{title}}'
+        languageField: code
+        userLanguage: true
+        defaultLanguage: 'no'
+      readonly: false
+      hidden: false
+      sort: 1
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: translatable_details
+      validation: null
+      validation_message: null
   - collection: pages
     field: sections
     type: alias
@@ -13854,35 +13889,6 @@ fields:
       conditions: null
       required: false
       group: null
-      validation: null
-      validation_message: null
-  - collection: sections
-    field: translations
-    type: alias
-    schema: null
-    meta:
-      collection: sections
-      field: translations
-      special:
-        - translations
-      interface: translations
-      options:
-        languageField: code
-      display: translations
-      display_options:
-        template: '{{title}}'
-        languageField: code
-        userLanguage: true
-        defaultLanguage: 'no'
-      readonly: false
-      hidden: false
-      sort: 1
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: translatable_details
       validation: null
       validation_message: null
   - collection: sections
@@ -14787,6 +14793,160 @@ relations:
       junction_field: null
       sort_field: null
       one_deselect_action: nullify
+  - collection: shows
+    field: image_file_id
+    related_collection: directus_files
+    schema:
+      constraint_name: shows_image_file_id_foreign
+      table: shows
+      column: image_file_id
+      foreign_key_schema: public
+      foreign_key_table: directus_files
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: shows
+      many_field: image_file_id
+      one_collection: directus_files
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: shows
+    field: agerating_code
+    related_collection: ageratings
+    schema:
+      constraint_name: shows_agerating_code_foreign
+      table: shows
+      column: agerating_code
+      foreign_key_schema: public
+      foreign_key_table: ageratings
+      foreign_key_column: code
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: shows
+      many_field: agerating_code
+      one_collection: ageratings
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: shows
+    field: user_updated
+    related_collection: directus_users
+    schema:
+      constraint_name: shows_user_updated_foreign
+      table: shows
+      column: user_updated
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: shows
+      many_field: user_updated
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: shows
+    field: user_created
+    related_collection: directus_users
+    schema:
+      constraint_name: shows_user_created_foreign
+      table: shows
+      column: user_created
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: shows
+      many_field: user_created
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: shows
+    field: image
+    related_collection: directus_files
+    schema:
+      constraint_name: shows_image_foreign
+      table: shows
+      column: image
+      foreign_key_schema: public
+      foreign_key_table: directus_files
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: shows
+      many_field: image
+      one_collection: directus_files
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: lists
+    field: user_updated
+    related_collection: directus_users
+    schema:
+      constraint_name: lists_user_updated_foreign
+      table: lists
+      column: user_updated
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: lists
+      many_field: user_updated
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: lists
+    field: user_created
+    related_collection: directus_users
+    schema:
+      constraint_name: lists_user_created_foreign
+      table: lists
+      column: user_created
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: lists
+      many_field: user_created
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
   - collection: collections_episodes
     field: episodes_id
     related_collection: episodes
@@ -14831,160 +14991,6 @@ relations:
       junction_field: episodes_id
       sort_field: sort
       one_deselect_action: delete
-  - collection: collections_relations
-    field: collections_id
-    related_collection: collections
-    schema:
-      constraint_name: collections_relations_collections_id_foreign
-      table: collections_relations
-      column: collections_id
-      foreign_key_schema: public
-      foreign_key_table: collections
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: collections_relations
-      many_field: collections_id
-      one_collection: collections
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: item
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: collections_seasons
-    field: seasons_id
-    related_collection: seasons
-    schema:
-      constraint_name: collections_seasons_seasons_id_foreign
-      table: collections_seasons
-      column: seasons_id
-      foreign_key_schema: public
-      foreign_key_table: seasons
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: collections_seasons
-      many_field: seasons_id
-      one_collection: seasons
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: collections_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: collections_seasons
-    field: collections_id
-    related_collection: collections
-    schema:
-      constraint_name: collections_seasons_collections_id_foreign
-      table: collections_seasons
-      column: collections_id
-      foreign_key_schema: public
-      foreign_key_table: collections
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: collections_seasons
-      many_field: collections_id
-      one_collection: collections
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: seasons_id
-      sort_field: null
-      one_deselect_action: delete
-  - collection: collections_shows
-    field: shows_id
-    related_collection: shows
-    schema:
-      constraint_name: collections_shows_shows_id_foreign
-      table: collections_shows
-      column: shows_id
-      foreign_key_schema: public
-      foreign_key_table: shows
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: collections_shows
-      many_field: shows_id
-      one_collection: shows
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: collections_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: collections_shows
-    field: collections_id
-    related_collection: collections
-    schema:
-      constraint_name: collections_shows_collections_id_foreign
-      table: collections_shows
-      column: collections_id
-      foreign_key_schema: public
-      foreign_key_table: collections
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: collections_shows
-      many_field: collections_id
-      one_collection: collections
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: shows_id
-      sort_field: null
-      one_deselect_action: delete
-  - collection: collections_translations
-    field: collections_id
-    related_collection: collections
-    schema:
-      constraint_name: collections_translations_collections_id_foreign
-      table: collections_translations
-      column: collections_id
-      foreign_key_schema: public
-      foreign_key_table: collections
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: collections_translations
-      many_field: collections_id
-      one_collection: collections
-      one_field: translations
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: languages_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: collections_translations
-    field: languages_code
-    related_collection: languages
-    schema:
-      constraint_name: collections_translations_languages_code_foreign
-      table: collections_translations
-      column: languages_code
-      foreign_key_schema: public
-      foreign_key_table: languages
-      foreign_key_column: code
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: collections_translations
-      many_field: languages_code
-      one_collection: languages
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: collections_id
-      sort_field: null
-      one_deselect_action: nullify
   - collection: episodes
     field: image_file_id
     related_collection: directus_files
@@ -15117,380 +15123,72 @@ relations:
       junction_field: null
       sort_field: null
       one_deselect_action: nullify
-  - collection: episodes_categories
-    field: categories_id
-    related_collection: categories
+  - collection: collections_relations
+    field: collections_id
+    related_collection: collections
     schema:
-      constraint_name: episodes_categories_categories_id_foreign
-      table: episodes_categories
-      column: categories_id
+      constraint_name: collections_relations_collections_id_foreign
+      table: collections_relations
+      column: collections_id
       foreign_key_schema: public
-      foreign_key_table: categories
+      foreign_key_table: collections
       foreign_key_column: id
       on_update: NO ACTION
       on_delete: CASCADE
     meta:
-      many_collection: episodes_categories
-      many_field: categories_id
-      one_collection: categories
-      one_field: episodes
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: episodes_id
-      sort_field: null
-      one_deselect_action: delete
-  - collection: episodes_categories
-    field: episodes_id
-    related_collection: episodes
-    schema:
-      constraint_name: episodes_categories_episodes_id_foreign
-      table: episodes_categories
-      column: episodes_id
-      foreign_key_schema: public
-      foreign_key_table: episodes
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: episodes_categories
-      many_field: episodes_id
-      one_collection: episodes
-      one_field: categories
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: categories_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: episodes_tags
-    field: tags_id
-    related_collection: tags
-    schema:
-      constraint_name: episodes_tags_tags_id_foreign
-      table: episodes_tags
-      column: tags_id
-      foreign_key_schema: public
-      foreign_key_table: tags
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: episodes_tags
-      many_field: tags_id
-      one_collection: tags
-      one_field: episodes
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: episodes_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: episodes_tags
-    field: episodes_id
-    related_collection: episodes
-    schema:
-      constraint_name: episodes_tags_episodes_id_foreign
-      table: episodes_tags
-      column: episodes_id
-      foreign_key_schema: public
-      foreign_key_table: episodes
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: episodes_tags
-      many_field: episodes_id
-      one_collection: episodes
-      one_field: tags
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: tags_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: episodes_translations
-    field: episodes_id
-    related_collection: episodes
-    schema:
-      constraint_name: episodes_translations_episodes_id_foreign
-      table: episodes_translations
-      column: episodes_id
-      foreign_key_schema: public
-      foreign_key_table: episodes
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: episodes_translations
-      many_field: episodes_id
-      one_collection: episodes
-      one_field: translations
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: languages_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: episodes_translations
-    field: languages_code
-    related_collection: languages
-    schema:
-      constraint_name: episodes_translations_languages_code_foreign
-      table: episodes_translations
-      column: languages_code
-      foreign_key_schema: public
-      foreign_key_table: languages
-      foreign_key_column: code
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: episodes_translations
-      many_field: languages_code
-      one_collection: languages
+      many_collection: collections_relations
+      many_field: collections_id
+      one_collection: collections
       one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: episodes_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: episodes_usergroups
-    field: usergroups_code
-    related_collection: usergroups
-    schema:
-      constraint_name: episodes_usergroups_usergroups_code_foreign
-      table: episodes_usergroups
-      column: usergroups_code
-      foreign_key_schema: public
-      foreign_key_table: usergroups
-      foreign_key_column: code
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: episodes_usergroups
-      many_field: usergroups_code
-      one_collection: usergroups
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: episodes_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: episodes_usergroups
-    field: episodes_id
-    related_collection: episodes
-    schema:
-      constraint_name: episodes_usergroups_episodes_id_foreign
-      table: episodes_usergroups
-      column: episodes_id
-      foreign_key_schema: public
-      foreign_key_table: episodes
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: episodes_usergroups
-      many_field: episodes_id
-      one_collection: episodes
-      one_field: usergroups
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: usergroups_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: episodes_usergroups_download
-    field: episodes_id
-    related_collection: episodes
-    schema:
-      constraint_name: episodes_usergroups_download_episodes_id_foreign
-      table: episodes_usergroups_download
-      column: episodes_id
-      foreign_key_schema: public
-      foreign_key_table: episodes
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: episodes_usergroups_download
-      many_field: episodes_id
-      one_collection: episodes
-      one_field: download_usergroups
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: usergroups_code
-      sort_field: null
-      one_deselect_action: delete
-  - collection: episodes_usergroups_download
-    field: usergroups_code
-    related_collection: usergroups
-    schema:
-      constraint_name: episodes_usergroups_download_usergroups_code_foreign
-      table: episodes_usergroups_download
-      column: usergroups_code
-      foreign_key_schema: public
-      foreign_key_table: usergroups
-      foreign_key_column: code
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: episodes_usergroups_download
-      many_field: usergroups_code
-      one_collection: usergroups
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: episodes_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: episodes_usergroups_earlyaccess
-    field: episodes_id
-    related_collection: episodes
-    schema:
-      constraint_name: episodes_usergroups_earlyaccess_episodes_id_foreign
-      table: episodes_usergroups_earlyaccess
-      column: episodes_id
-      foreign_key_schema: public
-      foreign_key_table: episodes
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: episodes_usergroups_earlyaccess
-      many_field: episodes_id
-      one_collection: episodes
-      one_field: earlyaccess_usergroups
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: usergroups_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: episodes_usergroups_earlyaccess
-    field: usergroups_code
-    related_collection: usergroups
-    schema:
-      constraint_name: episodes_usergroups_earlyaccess_usergroups_code_foreign
-      table: episodes_usergroups_earlyaccess
-      column: usergroups_code
-      foreign_key_schema: public
-      foreign_key_table: usergroups
-      foreign_key_column: code
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: episodes_usergroups_earlyaccess
-      many_field: usergroups_code
-      one_collection: usergroups
-      one_field: episode_earlyaccess
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: episodes_id
-      sort_field: null
-      one_deselect_action: delete
-  - collection: lists
-    field: user_updated
-    related_collection: directus_users
-    schema:
-      constraint_name: lists_user_updated_foreign
-      table: lists
-      column: user_updated
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: lists
-      many_field: user_updated
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: lists
-    field: user_created
-    related_collection: directus_users
-    schema:
-      constraint_name: lists_user_created_foreign
-      table: lists
-      column: user_created
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: lists
-      many_field: user_created
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: lists_relations
-    field: lists_id
-    related_collection: lists
-    schema:
-      constraint_name: lists_relations_lists_id_foreign
-      table: lists_relations
-      column: lists_id
-      foreign_key_schema: public
-      foreign_key_table: lists
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: lists_relations
-      many_field: lists_id
-      one_collection: lists
-      one_field: relations
       one_collection_field: null
       one_allowed_collections: null
       junction_field: item
-      sort_field: sort
+      sort_field: null
       one_deselect_action: nullify
-  - collection: pages
-    field: user_updated
-    related_collection: directus_users
+  - collection: collections_seasons
+    field: seasons_id
+    related_collection: seasons
     schema:
-      constraint_name: pages_user_updated_foreign
-      table: pages
-      column: user_updated
+      constraint_name: collections_seasons_seasons_id_foreign
+      table: collections_seasons
+      column: seasons_id
       foreign_key_schema: public
-      foreign_key_table: directus_users
+      foreign_key_table: seasons
       foreign_key_column: id
       on_update: NO ACTION
-      on_delete: NO ACTION
+      on_delete: CASCADE
     meta:
-      many_collection: pages
-      many_field: user_updated
-      one_collection: directus_users
+      many_collection: collections_seasons
+      many_field: seasons_id
+      one_collection: seasons
       one_field: null
       one_collection_field: null
       one_allowed_collections: null
-      junction_field: null
+      junction_field: collections_id
       sort_field: null
       one_deselect_action: nullify
-  - collection: pages
-    field: user_created
-    related_collection: directus_users
+  - collection: collections_seasons
+    field: collections_id
+    related_collection: collections
     schema:
-      constraint_name: pages_user_created_foreign
-      table: pages
-      column: user_created
+      constraint_name: collections_seasons_collections_id_foreign
+      table: collections_seasons
+      column: collections_id
       foreign_key_schema: public
-      foreign_key_table: directus_users
+      foreign_key_table: collections
       foreign_key_column: id
       on_update: NO ACTION
-      on_delete: NO ACTION
+      on_delete: CASCADE
     meta:
-      many_collection: pages
-      many_field: user_created
-      one_collection: directus_users
+      many_collection: collections_seasons
+      many_field: collections_id
+      one_collection: collections
       one_field: null
       one_collection_field: null
       one_allowed_collections: null
-      junction_field: null
+      junction_field: seasons_id
       sort_field: null
-      one_deselect_action: nullify
+      one_deselect_action: delete
   - collection: seasons
     field: show_id
     related_collection: shows
@@ -15595,6 +15293,512 @@ relations:
       many_collection: seasons
       many_field: image_file_id
       one_collection: directus_files
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: collections_shows
+    field: shows_id
+    related_collection: shows
+    schema:
+      constraint_name: collections_shows_shows_id_foreign
+      table: collections_shows
+      column: shows_id
+      foreign_key_schema: public
+      foreign_key_table: shows
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: CASCADE
+    meta:
+      many_collection: collections_shows
+      many_field: shows_id
+      one_collection: shows
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: collections_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: collections_shows
+    field: collections_id
+    related_collection: collections
+    schema:
+      constraint_name: collections_shows_collections_id_foreign
+      table: collections_shows
+      column: collections_id
+      foreign_key_schema: public
+      foreign_key_table: collections
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: CASCADE
+    meta:
+      many_collection: collections_shows
+      many_field: collections_id
+      one_collection: collections
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: shows_id
+      sort_field: null
+      one_deselect_action: delete
+  - collection: collections_translations
+    field: collections_id
+    related_collection: collections
+    schema:
+      constraint_name: collections_translations_collections_id_foreign
+      table: collections_translations
+      column: collections_id
+      foreign_key_schema: public
+      foreign_key_table: collections
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: collections_translations
+      many_field: collections_id
+      one_collection: collections
+      one_field: translations
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: languages_code
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: collections_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      constraint_name: collections_translations_languages_code_foreign
+      table: collections_translations
+      column: languages_code
+      foreign_key_schema: public
+      foreign_key_table: languages
+      foreign_key_column: code
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: collections_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: collections_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: episodes_categories
+    field: categories_id
+    related_collection: categories
+    schema:
+      constraint_name: episodes_categories_categories_id_foreign
+      table: episodes_categories
+      column: categories_id
+      foreign_key_schema: public
+      foreign_key_table: categories
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: CASCADE
+    meta:
+      many_collection: episodes_categories
+      many_field: categories_id
+      one_collection: categories
+      one_field: episodes
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: episodes_id
+      sort_field: null
+      one_deselect_action: delete
+  - collection: episodes_categories
+    field: episodes_id
+    related_collection: episodes
+    schema:
+      constraint_name: episodes_categories_episodes_id_foreign
+      table: episodes_categories
+      column: episodes_id
+      foreign_key_schema: public
+      foreign_key_table: episodes
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: CASCADE
+    meta:
+      many_collection: episodes_categories
+      many_field: episodes_id
+      one_collection: episodes
+      one_field: categories
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: categories_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: episodes_tags
+    field: tags_id
+    related_collection: tags
+    schema:
+      constraint_name: episodes_tags_tags_id_foreign
+      table: episodes_tags
+      column: tags_id
+      foreign_key_schema: public
+      foreign_key_table: tags
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: episodes_tags
+      many_field: tags_id
+      one_collection: tags
+      one_field: episodes
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: episodes_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: episodes_tags
+    field: episodes_id
+    related_collection: episodes
+    schema:
+      constraint_name: episodes_tags_episodes_id_foreign
+      table: episodes_tags
+      column: episodes_id
+      foreign_key_schema: public
+      foreign_key_table: episodes
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: episodes_tags
+      many_field: episodes_id
+      one_collection: episodes
+      one_field: tags
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: tags_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: tags
+    field: user_created
+    related_collection: directus_users
+    schema:
+      constraint_name: tags_user_created_foreign
+      table: tags
+      column: user_created
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: tags
+      many_field: user_created
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: tags
+    field: user_updated
+    related_collection: directus_users
+    schema:
+      constraint_name: tags_user_updated_foreign
+      table: tags
+      column: user_updated
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: tags
+      many_field: user_updated
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: episodes_translations
+    field: episodes_id
+    related_collection: episodes
+    schema:
+      constraint_name: episodes_translations_episodes_id_foreign
+      table: episodes_translations
+      column: episodes_id
+      foreign_key_schema: public
+      foreign_key_table: episodes
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: CASCADE
+    meta:
+      many_collection: episodes_translations
+      many_field: episodes_id
+      one_collection: episodes
+      one_field: translations
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: languages_code
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: episodes_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      constraint_name: episodes_translations_languages_code_foreign
+      table: episodes_translations
+      column: languages_code
+      foreign_key_schema: public
+      foreign_key_table: languages
+      foreign_key_column: code
+      on_update: NO ACTION
+      on_delete: CASCADE
+    meta:
+      many_collection: episodes_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: episodes_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: episodes_usergroups
+    field: episodes_id
+    related_collection: episodes
+    schema:
+      constraint_name: episodes_usergroups_episodes_id_foreign
+      table: episodes_usergroups
+      column: episodes_id
+      foreign_key_schema: public
+      foreign_key_table: episodes
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: episodes_usergroups
+      many_field: episodes_id
+      one_collection: episodes
+      one_field: usergroups
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: usergroups_code
+      sort_field: null
+      one_deselect_action: delete
+  - collection: episodes_usergroups
+    field: usergroups_code
+    related_collection: usergroups
+    schema:
+      constraint_name: episodes_usergroups_usergroups_code_foreign
+      table: episodes_usergroups
+      column: usergroups_code
+      foreign_key_schema: public
+      foreign_key_table: usergroups
+      foreign_key_column: code
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: episodes_usergroups
+      many_field: usergroups_code
+      one_collection: usergroups
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: episodes_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: usergroups
+    field: user_updated
+    related_collection: directus_users
+    schema:
+      constraint_name: usergroups_user_updated_foreign
+      table: usergroups
+      column: user_updated
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: usergroups
+      many_field: user_updated
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: usergroups
+    field: user_created
+    related_collection: directus_users
+    schema:
+      constraint_name: usergroups_user_created_foreign
+      table: usergroups
+      column: user_created
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: usergroups
+      many_field: user_created
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: episodes_usergroups_download
+    field: episodes_id
+    related_collection: episodes
+    schema:
+      constraint_name: episodes_usergroups_download_episodes_id_foreign
+      table: episodes_usergroups_download
+      column: episodes_id
+      foreign_key_schema: public
+      foreign_key_table: episodes
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: CASCADE
+    meta:
+      many_collection: episodes_usergroups_download
+      many_field: episodes_id
+      one_collection: episodes
+      one_field: download_usergroups
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: usergroups_code
+      sort_field: null
+      one_deselect_action: delete
+  - collection: episodes_usergroups_download
+    field: usergroups_code
+    related_collection: usergroups
+    schema:
+      constraint_name: episodes_usergroups_download_usergroups_code_foreign
+      table: episodes_usergroups_download
+      column: usergroups_code
+      foreign_key_schema: public
+      foreign_key_table: usergroups
+      foreign_key_column: code
+      on_update: NO ACTION
+      on_delete: CASCADE
+    meta:
+      many_collection: episodes_usergroups_download
+      many_field: usergroups_code
+      one_collection: usergroups
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: episodes_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: episodes_usergroups_earlyaccess
+    field: episodes_id
+    related_collection: episodes
+    schema:
+      constraint_name: episodes_usergroups_earlyaccess_episodes_id_foreign
+      table: episodes_usergroups_earlyaccess
+      column: episodes_id
+      foreign_key_schema: public
+      foreign_key_table: episodes
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: CASCADE
+    meta:
+      many_collection: episodes_usergroups_earlyaccess
+      many_field: episodes_id
+      one_collection: episodes
+      one_field: earlyaccess_usergroups
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: usergroups_code
+      sort_field: null
+      one_deselect_action: delete
+  - collection: episodes_usergroups_earlyaccess
+    field: usergroups_code
+    related_collection: usergroups
+    schema:
+      constraint_name: episodes_usergroups_earlyaccess_usergroups_code_foreign
+      table: episodes_usergroups_earlyaccess
+      column: usergroups_code
+      foreign_key_schema: public
+      foreign_key_table: usergroups
+      foreign_key_column: code
+      on_update: NO ACTION
+      on_delete: CASCADE
+    meta:
+      many_collection: episodes_usergroups_earlyaccess
+      many_field: usergroups_code
+      one_collection: usergroups
+      one_field: episode_earlyaccess
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: episodes_id
+      sort_field: null
+      one_deselect_action: delete
+  - collection: lists_relations
+    field: lists_id
+    related_collection: lists
+    schema:
+      constraint_name: lists_relations_lists_id_foreign
+      table: lists_relations
+      column: lists_id
+      foreign_key_schema: public
+      foreign_key_table: lists
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: CASCADE
+    meta:
+      many_collection: lists_relations
+      many_field: lists_id
+      one_collection: lists
+      one_field: relations
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: item
+      sort_field: sort
+      one_deselect_action: nullify
+  - collection: pages
+    field: user_updated
+    related_collection: directus_users
+    schema:
+      constraint_name: pages_user_updated_foreign
+      table: pages
+      column: user_updated
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: pages
+      many_field: user_updated
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: pages
+    field: user_created
+    related_collection: directus_users
+    schema:
+      constraint_name: pages_user_created_foreign
+      table: pages
+      column: user_created
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: pages
+      many_field: user_created
+      one_collection: directus_users
       one_field: null
       one_collection_field: null
       one_allowed_collections: null
@@ -15865,116 +16069,6 @@ relations:
       junction_field: usergroups_code
       sort_field: null
       one_deselect_action: delete
-  - collection: shows
-    field: image_file_id
-    related_collection: directus_files
-    schema:
-      constraint_name: shows_image_file_id_foreign
-      table: shows
-      column: image_file_id
-      foreign_key_schema: public
-      foreign_key_table: directus_files
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: shows
-      many_field: image_file_id
-      one_collection: directus_files
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: shows
-    field: agerating_code
-    related_collection: ageratings
-    schema:
-      constraint_name: shows_agerating_code_foreign
-      table: shows
-      column: agerating_code
-      foreign_key_schema: public
-      foreign_key_table: ageratings
-      foreign_key_column: code
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: shows
-      many_field: agerating_code
-      one_collection: ageratings
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: shows
-    field: user_updated
-    related_collection: directus_users
-    schema:
-      constraint_name: shows_user_updated_foreign
-      table: shows
-      column: user_updated
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: shows
-      many_field: user_updated
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: shows
-    field: user_created
-    related_collection: directus_users
-    schema:
-      constraint_name: shows_user_created_foreign
-      table: shows
-      column: user_created
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: shows
-      many_field: user_created
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: shows
-    field: image
-    related_collection: directus_files
-    schema:
-      constraint_name: shows_image_foreign
-      table: shows
-      column: image
-      foreign_key_schema: public
-      foreign_key_table: directus_files
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: shows
-      many_field: image
-      one_collection: directus_files
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
   - collection: shows_translations
     field: languages_code
     related_collection: languages
@@ -16061,50 +16155,6 @@ relations:
       one_collection_field: null
       one_allowed_collections: null
       junction_field: usergroups_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: tags
-    field: user_created
-    related_collection: directus_users
-    schema:
-      constraint_name: tags_user_created_foreign
-      table: tags
-      column: user_created
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: tags
-      many_field: user_created
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: tags
-    field: user_updated
-    related_collection: directus_users
-    schema:
-      constraint_name: tags_user_updated_foreign
-      table: tags
-      column: user_updated
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: tags
-      many_field: user_updated
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
       sort_field: null
       one_deselect_action: nullify
   - collection: tags_translations
@@ -16259,50 +16309,6 @@ relations:
       one_collection_field: null
       one_allowed_collections: null
       junction_field: item
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: usergroups
-    field: user_updated
-    related_collection: directus_users
-    schema:
-      constraint_name: usergroups_user_updated_foreign
-      table: usergroups
-      column: user_updated
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: usergroups
-      many_field: user_updated
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: usergroups
-    field: user_created
-    related_collection: directus_users
-    schema:
-      constraint_name: usergroups_user_created_foreign
-      table: usergroups
-      column: user_created
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: usergroups
-      many_field: user_created
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
       sort_field: null
       one_deselect_action: nullify
   - collection: collections_relations
