@@ -5,15 +5,20 @@ import "github.com/aws/aws-sdk-go-v2/aws"
 // ConfigData that can be passed to other things
 type ConfigData struct {
 	IngestBucket       string
+	StorageBucket      string
 	PackagingGroupID   string
 	MediapackageRole   string
 	MediapackageSource string
 }
 
 // GetIngestBucket that contains the new assets
-// the MediapackageSource ARN should correspond to this bucket
 func (c ConfigData) GetIngestBucket() *string {
 	return aws.String(c.IngestBucket)
+}
+
+// GetStorageBucket where the assets are stored for consumption by Mediapackage
+func (c ConfigData) GetStorageBucket() *string {
+	return aws.String(c.StorageBucket)
 }
 
 // GetPackagingGroup that the assets should be ingested into

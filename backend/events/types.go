@@ -4,5 +4,5 @@ package events
 // That an update for a VOD episide is availble on the storage.
 // Note that this may trigger a creation of a new Episode as required
 type AssetDelivered struct {
-	Prefix string `json:"prefix"`
+	JSONMetaPath string `json:"jsonMetaPath"`
 }

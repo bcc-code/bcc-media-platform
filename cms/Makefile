@@ -7,7 +7,7 @@ s:
 init:
 	cp -n .template.env .env
 	npm i
-	docker compose up -d
+	docker-compose up -d
 	npx directus bootstrap
 	make schema-update
 

@@ -1,7 +1,7 @@
 version: '3'
 services:
   mydb:
-    image: postgres:14
+    image: postgres:13
     volumes:
     - db-data:/var/lib/postgresql/data
     ports:
@@ -13,4 +13,4 @@ services:
 volumes:
   db-data:
     driver: local
-  
+
