@@ -51,7 +51,7 @@ func send(projectID, topicID string) {
 	e.SetSource(events.SourceMediaBanken)
 	e.SetType(events.TypeAssetDelivered)
 	e.SetData(cloudevents.ApplicationJSON, &events.AssetDelivered{
-		Prefix: "randomstring",
+		JSONMetaPath: "randomstring/sample.json",
 	})
 
 	data, err := json.Marshal(e)

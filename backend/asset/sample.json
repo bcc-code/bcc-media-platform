@@ -1,0 +1,17 @@
+{
+	"duration": 123,
+	"title": "The Title",
+	"id": "AS-VX-123",
+	"smilFile":
+		{
+			"path": "randomstring/meta.smil"
+		},
+	"files": [
+		{
+			"mime": "video/mp4",
+			"path": "randomstring/INTR_S02_E01_MAS_NOR_320x180_320.mp4",
+			"lang": "none",
+			"fileSize": 123123123
+		}
+	]
+}

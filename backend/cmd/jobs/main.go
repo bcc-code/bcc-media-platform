@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
+	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
@@ -31,6 +32,7 @@ func main() {
 
 	serverConfig := server.ConfigData{
 		IngestBucket:       config.AWS.IngestBucket,
+		StorageBucket:      config.AWS.StorageBucket,
 		PackagingGroupID:   config.AWS.PackagingGroupARN,
 		MediapackageRole:   config.AWS.MediapackageRoleARN,
 		MediapackageSource: config.AWS.MediapackageSourceARN,
@@ -42,8 +44,11 @@ func main() {
 		panic(err)
 	}
 
+	awsConfig.Region = config.AWS.Region
+
 	s3Client := s3.NewFromConfig(awsConfig)
 	mediaPackageVOD := mediapackagevod.NewFromConfig(awsConfig)
+	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key)
 
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
@@ -51,6 +56,7 @@ func main() {
 	handlers := server.NewServer(server.ExternalServices{
 		S3Client:        s3Client,
 		MediaPackageVOD: mediaPackageVOD,
+		DirectusClient:  directusClient,
 	}, serverConfig)
 
 	apiGroup := router.Group("api")
