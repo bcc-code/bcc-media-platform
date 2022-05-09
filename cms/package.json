@@ -13,8 +13,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@rmp135/sql-ts": "^1.13.0",
     "directus": "^9.8.0",
-    "pg": "^8.7.3"
+    "knex": "^2.0.0",
+    "pg": "^8.7.3",
+    "tedious": "^14.5.0"
   },
   "devDependencies": {
     "tsc-watch": "^5.0.3",
