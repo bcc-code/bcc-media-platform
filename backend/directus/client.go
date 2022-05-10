@@ -24,7 +24,7 @@ type DSItem interface {
 }
 
 // SaveItem into Directus system
-func SaveItem[t DSItem](c *resty.Client, i t) (*t, error) {
+func SaveItem[t DSItem](c *resty.Client, i t, unmashall bool) (*t, error) {
 
 	// Define the wrapper structure as DS returns a `{ data: {}}` json
 	x := struct {
@@ -33,8 +33,12 @@ func SaveItem[t DSItem](c *resty.Client, i t) (*t, error) {
 
 	// Set up and perform the request
 	req := c.R().
-		SetResult(x).
 		SetBody(i)
+
+	if unmashall {
+		req.SetResult(x)
+	}
+
 	path := fmt.Sprintf("/items/%s", i.TypeName())
 
 	var err error
@@ -52,8 +56,12 @@ func SaveItem[t DSItem](c *resty.Client, i t) (*t, error) {
 		return nil, merry.New(string(res.Body()))
 	}
 
-	// Convert the result into a strong type and extract what we actually need
-	return &res.Result().(*struct{ Data t }).Data, nil
+	if unmashall {
+		// Convert the result into a strong type and extract what we actually need
+		return &res.Result().(*struct{ Data t }).Data, nil
+	}
+
+	return nil, nil
 }
 
 // Asset item in the DB
@@ -97,3 +105,48 @@ func (a Assetfile) UID() int {
 func (Assetfile) TypeName() string {
 	return "assetfiles"
 }
+
+// AssetStream item in the DB
+type AssetStream struct {
+	ID                int                            `json:"id,omitempty"`
+	Status            string                         `json:"status,omitempty"`
+	Type              string                         `json:"type"`
+	URL               string                         `json:"url"`
+	Path              string                         `json:"path"`
+	Service           string                         `json:"service"`
+	AudioLanguges     CRUDArrays[AssetStreamLanguge] `json:"audio_languages"`
+	SubtitleLanguages CRUDArrays[AssetStreamLanguge] `json:"subtitle_languages"`
+	AssetID           int                            `json:"asset_id"`
+}
+
+type CRUDArrays[t any] struct {
+	Create []t `json:"create"`
+	Update []t `json:"update"`
+	Delete []t `json:"delete"`
+}
+
+type LanguagesCode struct {
+	Code string `json:"code"`
+}
+
+type AssetStreamLanguge struct {
+	AssetStreamID string        `json:"assetstreams_id"`
+	LanguagesCode LanguagesCode `json:"languages_code"`
+}
+
+// UID returns the id of the Asset
+func (a AssetStream) UID() int {
+	return a.ID
+}
+
+// TypeName of the item. Statically set to "asset"
+func (AssetStream) TypeName() string {
+	return "assetstreams"
+}
+
+// Stream types
+const (
+	HLSCmaf = "hls-cmaf"
+	HLSTs   = "hls-ts"
+	Dash    = "dash"
+)

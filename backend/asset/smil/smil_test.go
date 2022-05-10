@@ -9,20 +9,28 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParseSmil(t *testing.T) {
-	// Open our xmlFile
-	xmlFile, err := os.Open("smil.xml")
-	// if we os.Open returns an error then handle it
-	if err != nil {
-		fmt.Println(err)
+func TestUnmarshall(t *testing.T) {
+
+	fileList := []string{
+		"smil.xml",
 	}
 
-	fmt.Println("Successfully Opened users.xml")
-	// defer the closing of our xmlFile so that we can parse it later on
-	defer xmlFile.Close()
+	for _, fileName := range fileList {
+		// Open our xmlFile
+		xmlFile, err := os.Open(fileName)
+		// if we os.Open returns an error then handle it
+		if err != nil {
+			fmt.Println(err)
+		}
 
-	byteValue, _ := ioutil.ReadAll(xmlFile)
+		fmt.Println("Successfully Opened users.xml")
+		// defer the closing of our xmlFile so that we can parse it later on
+		defer xmlFile.Close()
 
-	err = parse(byteValue)
-	assert.NoError(t, err)
+		byteValue, _ := ioutil.ReadAll(xmlFile)
+
+		_, err = Unmarshall(byteValue)
+		assert.NoError(t, err)
+	}
+
 }
