@@ -2,8 +2,6 @@ package smil
 
 import (
 	"encoding/xml"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 type Meta struct {
@@ -52,9 +50,9 @@ type Main struct {
 	Body    Body     `xml:"body"`
 }
 
-func parse(data []byte) error {
+// Unmarshall a XML file in smil format
+func Unmarshall(data []byte) (Main, error) {
 	var x Main
 	err := xml.Unmarshal(data, &x)
-	spew.Dump(x)
-	return err
+	return x, err
 }
