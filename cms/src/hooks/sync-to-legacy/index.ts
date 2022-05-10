@@ -527,8 +527,82 @@ export default defineHook(({ filter, action }, {services,database}) => {
 
         console.log("insert", patch)
 	});
+    // Update season
+	action('items.update', async (m,c) =>  {
+		console.log('Item updated!');
+		console.log(m);
+        if (m.collection != "seasons") {
+            return
+        }
+        // get legacy id
+		const itemsService = new ItemsService<episodes.components["schemas"]["ItemsSeasons"]>("seasons", {
+			knex: c.database as any,
+			schema: c.schema,
+		});
+        let e = await itemsService.readOne(Number(m.keys[0]), { fields: ['*.*.*'] })
+        let show = e.show_id as episodes.components["schemas"]["ItemsShows"]
+        let image = e.image_file_id as episodes.components["schemas"]["Files"]
+        console.log("directus", e)
 
+        // update it in original 
+        let patch: Partial<SeasonEntity> = {
+            SeasonNo: e.season_number,
+            SeriesId: show.legacy_id,
+            LastUpdate: new Date(),
+            Published: e.publish_date as unknown as Date,
+            AvailableTo: e.available_to as unknown as Date,
+            AvailableFrom: e.available_from as unknown as Date,
+            Status: getStatusFromNew(e.status)
+        }
 
+        if (image != null) {
+            patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
+        }
+
+        if (e.status == "published") {
+            patch.Status = 1
+        } else {
+            patch.Status = 0
+        }
+
+        let languages = await oldKnex<LanguageEntity>("language").select("*")
+        
+        for (let t of e.translations) {
+            t = t as episodes.components["schemas"]["ItemsSeasonsTranslations"]
+            let lang = (t.languages_code as episodes.components["schemas"]["ItemsLanguages"])    
+            if (lang.code != "no") {
+                // We want original to be source of truth for translations for now
+                continue
+            }
+            console.log("updating norwegian")
+            let oldLang = languages.find(l => l.CultureCode == lang.code)
+            await upsertLS(oldKnex, t.legacy_title_id, oldLang, t.title)
+            await upsertLS(oldKnex, t.legacy_description_id, oldLang, t.description)
+            console.log("done updating norwegian")
+        }
+
+        console.log("patch", patch)
+        if (!isObjectUseless(patch)) {
+            let a = await oldKnex<SeasonEntity>("season").where("id", e.legacy_id).update(patch).returning("*")
+            console.log("updated legacy season: ", a)
+        }
+	});
+
+	filter('items.delete', async (p, m, c) => {
+		console.log("items.delete", m);
+        if (m.collection !== "seasons") {
+            return
+        }
+		console.log('Season being deleted, deleting it in legacy...');
+
+        // get legacy ids
+        let seasons_id = p[0]
+        let season = (await database("seasons").select("*").where("id", seasons_id))[0];
+        console.log(season)
+      
+        let result = await oldKnex("Season").where("id", season.legacy_id).delete()
+        console.log("legacy season delete result:", result)
+	});
 
 	action('items.create', async (m, c) => {
 		console.log('Item created!');
