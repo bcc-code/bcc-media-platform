@@ -7,12 +7,16 @@ import { createLocalizable, getStatusFromNew, isObjectUseless, objectPatch, slee
 import { oldKnex } from './oldKnex';
 import { createEpisodeTranslation, createSeasonTranslation, createShowTranslation } from './filters/translations';
 import { createShow, updateShow } from './filters/shows';
+import { createEpisode } from './filters/episodes';
+import { createSeason } from './filters/seasons';
 
 
 export default defineHook(({ filter, action }, {services,database}) => {    
 
 	action('items.update', (m, c) => updateShow(database, m, c))
 	filter('items.create', createShow)
+	filter('items.create', createSeason)
+	filter('items.create', createEpisode)
     
 	filter('items.create', createShowTranslation);
 	filter('items.create', createSeasonTranslation);
@@ -101,126 +105,6 @@ export default defineHook(({ filter, action }, {services,database}) => {
                 console.log(a)
             }
         }
-	});
-    
-	filter('items.create', async (m, c) => {
-        if (m.collection != "episodes") {
-            return
-        }
-		console.log('episode created!');
-		console.log(m);
-        // get legacy id
-		const episodesService = new ItemsService<episodes.components["schemas"]["ItemsEpisodes"]>("episodes", {
-			knex: c.database as any,
-			schema: c.schema,
-		});
-        const episodeTranslationsService = new ItemsService<episodes.components["schemas"]["ItemsEpisodesTranslations"]>("episodes_translations", {
-			knex: c.database as any,
-			schema: c.schema,
-		});
-        let e = await episodesService.readOne(Number(m.key), { fields: ['*.*.*'] })
-        let season = e.season_id as episodes.components["schemas"]["ItemsSeasons"]
-        let asset = e.asset_id as episodes.components["schemas"]["ItemsAssets"]
-        let image = e.image_file_id as episodes.components["schemas"]["Files"]
-        console.log("directus", e)
-
-        // update it in original 
-        let patch: Partial<EpisodeEntity> = {
-            VideoId: asset?.legacy_id ?? 1041, // TODO: remove this temp id
-            Published: e.publish_date as unknown as Date,
-            AvailableTo: e.available_to as unknown as Date,
-            AvailableFrom: e.available_from as unknown as Date,
-            Status: getStatusFromNew(e.status),
-            LastUpdate: e.date_created as unknown as Date
-        }
-        if (e.type === "episode") {
-            patch.SeasonId = season.legacy_id
-            patch.EpisodeNo = e.episode_number
-
-            if (e.download_usergroups.some(ug => (ug as any).usergroups_code.code === "fktb-download" || (ug as any).usergroups_code.code === "fktb-early-access")) {
-                patch.AllowSpecialAccessFKTB = true
-            }
-            if (e.earlyaccess_usergroups.some(ug => (ug as any).usergroups_code.code === "kids-early-access")) {
-                patch.AllowSpecialAccess = true
-            }
-        }
-
-        if (image != null) {
-            patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
-        }
-
-        if (e.usergroups.some(ug => (ug as any).usergroups_code.code === "public") && e.usergroups.some(ug => (ug as any).usergroups_code.code === "bcc-members")) {
-            patch.Visibility = 3
-        } else if (e.usergroups.some(ug => (ug as any).usergroups_code.code === "public")) {
-            patch.Visibility = 2
-        } else {
-            patch.Visibility = 1
-        }
-
-        if (e.status == "published") {
-            patch.Status = 1
-        } else {
-            patch.Status = 0
-        }
-        
-        if (e.type === "episode") {
-            let legacyEpisode = await oldKnex<EpisodeEntity>("episode").insert(patch).returning("*")
-            console.log(legacyEpisode)
-            await c.database("episodes").update({legacy_id: legacyEpisode[0].Id}).where("id", e.id)
-        } else if (e.type === "standalone") {
-            let legacyProgram = await oldKnex<EpisodeEntity>("program").insert(patch).returning("*")
-            console.log(legacyProgram)
-            await c.database("episodes").update({legacy_program_id: legacyProgram[0].Id}).where("id", e.id)
-        }
-
-        console.log("insert", patch)
-	});
-
-    // Create seasons
-	filter('items.create', async (p, m, c) => {
-        if (m.collection != "seasons") {
-            return
-        }
-		console.log('Season created!');
-		console.log(p, m);
-
-        p = p as episodes.components["schemas"]["ItemsSeasons"]
-        let show = (await database("shows").select("*").where("id", p.show_id))[0];
-        
-        console.log("directus", p)
-
-        // update it in original        
-        let patch: Partial<any> = {
-            SeriesId: show.legacy_id,
-            SeasonNo: p.season_number,
-            Published: p.publish_date as unknown as Date,
-            AvailableTo: p.available_to as unknown as Date,
-            AvailableFrom: p.available_from as unknown as Date,
-            Status: getStatusFromNew(p.status),
-            LastUpdate: p.date_created as unknown as Date ?? new Date()
-        }
-        patch.TitleId = await createLocalizable(oldKnex)
-        patch.DescriptionId = await createLocalizable(oldKnex)
-        patch.LongDescriptionId = await createLocalizable(oldKnex)
-        p.legacy_title_id = patch.TitleId
-        p.legacy_description_id = patch.DescriptionId
-/* 
-        if (image != null) {
-            patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
-        } */
-
-        if (p.status == "published") {
-            patch.Status = 1
-        } else {
-            patch.Status = 0
-        }
-        
-        let legacySeason = await oldKnex<SeasonEntity>("season").insert(patch).returning("*")
-        console.log(legacySeason, "legacySeason")
-        //await c.database("seasons").update({legacy_id: legacySeason[0].Id}).where("id", p.id)
-        p.legacy_id = legacySeason[0].Id
-        console.log("insert", patch)
-        return p
 	});
 
     // Update season
