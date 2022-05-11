@@ -3,33 +3,23 @@ import { ItemsService } from 'directus';
 import episodes from '../../btv'
 import knex, { Knex } from 'knex'
 import { CategoryEntity, CategoryEpisodeEntity, CategoryProgramEntity, CategorySeriesEntity, EpisodeEntity, LanguageEntity, LocalizedStringEntity, ProgramEntity, SeasonEntity, SeriesEntity } from '@/Database';
-import { createLocalizable, getStatusFromNew, objectPatch, upsertLS } from './utils';
+import { createLocalizable, getStatusFromNew, isObjectUseless, objectPatch, sleep, upsertLS } from './utils';
+import { oldKnex } from './oldKnex';
+import { createEpisodeTranslation, createSeasonTranslation, createShowTranslation } from './filters/translations';
+import { createShow, updateShow } from './filters/shows';
 
-var oldKnex = knex({
-    client: 'mssql',
-    connection: {
-        "host": process.env.OLDDB_HOST,
-        "port": Number(process.env.OLDDB_PORT),
-        "user": process.env.OLDDB_USER,
-        "password": process.env.OLDDB_PASSWORD,
-        "database" : process.env.OLDDB_DATABASE,
-        "options": {
-            "encrypt": process.env.OLDDB_ENCRYPT === "true"
-        }
-    },
-});
-
-function isObjectUseless(patch: object) {
-    for (let k in patch) {
-        if( patch[k] != undefined) {
-            return false
-        }
-    }
-    return true
-} 
 
 export default defineHook(({ filter, action }, {services,database}) => {    
+
+	action('items.update', (m, c) => updateShow(database, m, c))
+	filter('items.create', createShow)
+    
+	filter('items.create', createShowTranslation);
+	filter('items.create', createSeasonTranslation);
+	filter('items.create', createEpisodeTranslation);
+
 	action('items.update', async (m,c) =>  {
+        await sleep(2000)
 		console.log('Item updated!');
 		console.log(m);
         if (m.collection != "episodes") {
@@ -37,7 +27,7 @@ export default defineHook(({ filter, action }, {services,database}) => {
         }
         // get legacy id
 		const itemsService = new ItemsService<episodes.components["schemas"]["ItemsEpisodes"]>("episodes", {
-			knex: c.database as any,
+			knex: database as any,
 			schema: c.schema,
 		});
         let e = await itemsService.readOne(Number(m.keys[0]), { fields: ['*.*.*'] })
@@ -113,12 +103,12 @@ export default defineHook(({ filter, action }, {services,database}) => {
         }
 	});
     
-	action('items.create', async (m, c) => {
-		console.log('Item created!');
-		console.log(m);
+	filter('items.create', async (m, c) => {
         if (m.collection != "episodes") {
             return
         }
+		console.log('episode created!');
+		console.log(m);
         // get legacy id
 		const episodesService = new ItemsService<episodes.components["schemas"]["ItemsEpisodes"]>("episodes", {
 			knex: c.database as any,
@@ -172,37 +162,6 @@ export default defineHook(({ filter, action }, {services,database}) => {
         } else {
             patch.Status = 0
         }
-
-        let languages = await oldKnex<LanguageEntity>("language").select("*")
-        
-        for (let t of e.translations) {
-            t = t as episodes.components["schemas"]["ItemsEpisodesTranslations"]
-            let lang = (t.languages_code as episodes.components["schemas"]["ItemsLanguages"])    
-            if (lang.code != "no") {
-                // We want original to be source of truth for translations for now
-                continue
-            }
-            console.log("adding norwegian")
-            console.log("t:", t)
-            let oldLang = languages.find(l => l.CultureCode == lang.code)
-            patch.TitleId = await createLocalizable(oldKnex)
-            patch.DescriptionId = await createLocalizable(oldKnex)
-            patch.LongDescriptionId = await createLocalizable(oldKnex)
-            console.log(patch)
-            //let ids = await ensureLocalizablesExist(oldKnex, 'episode', patch, {'title': 'legacy_title_id', 'description': 'legacy_description_id', 'long_description': 'legacy_extra_description_id'})
-            
-            t = {
-                ...t,
-                legacy_title_id: patch.TitleId,
-                legacy_description_id: patch.DescriptionId,
-                legacy_extra_description_id: patch.LongDescriptionId
-            }
-            await episodeTranslationsService.updateOne(t.id, t)
-            await upsertLS(oldKnex, t.legacy_title_id, oldLang, t.title)
-            await upsertLS(oldKnex, t.legacy_description_id, oldLang, t.description ?? "")
-            await upsertLS(oldKnex, t.legacy_extra_description_id, oldLang, t.extra_description)
-            console.log("done adding norwegian")
-        }
         
         if (e.type === "episode") {
             let legacyEpisode = await oldKnex<EpisodeEntity>("episode").insert(patch).returning("*")
@@ -217,214 +176,56 @@ export default defineHook(({ filter, action }, {services,database}) => {
         console.log("insert", patch)
 	});
 
-	action('items.update', async (m,c) =>  {
-		console.log('Item updated!');
-		console.log(m);
-        if (m.collection != "shows") {
-            return
-        }
-        // get legacy id
-		const itemsService = new ItemsService<episodes.components["schemas"]["ItemsShows"]>("shows", {
-			knex: c.database as any,
-			schema: c.schema,
-		});
-        let e = await itemsService.readOne(Number(m.keys[0]), { fields: ['*.*.*'] })
-        let image = e.image_file_id as episodes.components["schemas"]["Files"]
-        console.log("directus", e)
-
-        // update it in original 
-        let patch: Partial<SeriesEntity> = {
-            Published: e.publish_date as unknown as Date,
-            AvailableTo: e.available_to as unknown as Date,
-            AvailableFrom: e.available_from as unknown as Date,
-            Status: getStatusFromNew(e.status)
-        }
-
-        if (image != null) {
-            patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
-        }
-
-        if (e.status == "published") {
-            patch.Status = 1
-        } else {
-            patch.Status = 0
-        }
-
-        let languages = await oldKnex<LanguageEntity>("language").select("*")
-        
-        for (let t of e.translations) {
-            t = t as episodes.components["schemas"]["ItemsShowsTranslations"]
-            let lang = (t.languages_code as episodes.components["schemas"]["ItemsLanguages"])    
-            if (lang.code != "no") {
-                // We want original to be source of truth for translations for now
-                continue
-            }
-            console.log("updating norwegian")
-            let oldLang = languages.find(l => l.CultureCode == lang.code)
-            await upsertLS(oldKnex, t.legacy_title_id, oldLang, t.title)
-            await upsertLS(oldKnex, t.legacy_description_id, oldLang, t.description)
-            console.log("done updating norwegian")
-        }
-
-        console.log("patch", patch)
-        if (!isObjectUseless(patch)) {
-            let a = await oldKnex<SeriesEntity>("series").where("id", e.legacy_id).update(patch).returning("*")
-            console.log("updated legacy series: ", a)
-        }
-	});
-
-	action('items.create', async (m, c) => {
-		console.log('Item created!');
-		console.log(m);
-        if (m.collection != "shows") {
-            return
-        }
-        // get legacy id
-		const showsService = new ItemsService<episodes.components["schemas"]["ItemsShows"]>("shows", {
-			knex: c.database as any,
-			schema: c.schema,
-		});
-        const showTranslationsService = new ItemsService<episodes.components["schemas"]["ItemsShowsTranslations"]>("shows_translations", {
-			knex: c.database as any,
-			schema: c.schema,
-		});
-        let e = await showsService.readOne(Number(m.key), { fields: ['*.*.*'] })
-        let image = e.image_file_id as episodes.components["schemas"]["Files"]
-        console.log("directus", e)
-
-        // update it in original        
-        let patch: Partial<SeriesEntity> = {
-            IsCategory: e.type === "event" ? 1 : 0,
-            Published: e.publish_date as unknown as Date,
-            AvailableTo: e.available_to as unknown as Date,
-            AvailableFrom: e.available_from as unknown as Date,
-            Status: getStatusFromNew(e.status),
-            LastUpdate: e.date_created as unknown as Date
-        }
-
-        if (image != null) {
-            patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
-        }
-
-        if (e.status == "published") {
-            patch.Status = 1
-        } else {
-            patch.Status = 0
-        }
-
-        let languages = await oldKnex<LanguageEntity>("language").select("*")
-        
-        for (let t of e.translations) {
-            t = t as episodes.components["schemas"]["ItemsShowsTranslations"]
-            let lang = (t.languages_code as episodes.components["schemas"]["ItemsLanguages"])    
-            if (lang.code != "no") {
-                // We want original to be source of truth for translations for now
-                continue
-            }
-            console.log("adding norwegian")
-            console.log("t:", t)
-            let oldLang = languages.find(l => l.CultureCode == lang.code)
-            patch.TitleId = await createLocalizable(oldKnex)
-            patch.DescriptionId = await createLocalizable(oldKnex)
-            console.log(patch)
-            //let ids = await ensureLocalizablesExist(oldKnex, 'episode', patch, {'title': 'legacy_title_id', 'description': 'legacy_description_id', 'long_description': 'legacy_extra_description_id'})
-            
-            t = {
-                ...t,
-                legacy_title_id: patch.TitleId,
-                legacy_description_id: patch.DescriptionId,
-            }
-            await showTranslationsService.updateOne(t.id, t)
-            await upsertLS(oldKnex, t.legacy_title_id, oldLang, t.title)
-            await upsertLS(oldKnex, t.legacy_description_id, oldLang, t.description)
-            console.log("done adding norwegian")
-        }
-        
-        let legacyShow = await oldKnex<SeriesEntity>("series").insert(patch).returning("*")
-        console.log(legacyShow, "legacyShow")
-        await c.database("shows").update({legacy_id: legacyShow[0].Id}).where("id", e.id)
-
-        console.log("insert", patch)
-	});
-
     // Create seasons
-	action('items.create', async (m, c) => {
-		console.log('Item created!');
-		console.log(m);
+	filter('items.create', async (p, m, c) => {
         if (m.collection != "seasons") {
             return
         }
-        // get legacy id
-		const seasonsService = new ItemsService<episodes.components["schemas"]["ItemsSeasons"]>("seasons", {
-			knex: c.database as any,
-			schema: c.schema,
-		});
-        const seasonTranslationsService = new ItemsService<episodes.components["schemas"]["ItemsSeasonsTranslations"]>("seasons_translations", {
-			knex: c.database as any,
-			schema: c.schema,
-		});
-        let e = await seasonsService.readOne(Number(m.key), { fields: ['*.*.*'] })
-        let show = e.show_id as episodes.components["schemas"]["ItemsShows"]
-        let image = e.image_file_id as episodes.components["schemas"]["Files"]
-        console.log("directus", e)
+		console.log('Season created!');
+		console.log(p, m);
+
+        p = p as episodes.components["schemas"]["ItemsSeasons"]
+        let show = (await database("shows").select("*").where("id", p.show_id))[0];
+        
+        console.log("directus", p)
 
         // update it in original        
-        let patch: Partial<SeasonEntity> = {
+        let patch: Partial<any> = {
             SeriesId: show.legacy_id,
-            SeasonNo: e.season_number,
-            Published: e.publish_date as unknown as Date,
-            AvailableTo: e.available_to as unknown as Date,
-            AvailableFrom: e.available_from as unknown as Date,
-            Status: getStatusFromNew(e.status),
-            LastUpdate: e.date_created as unknown as Date
+            SeasonNo: p.season_number,
+            Published: p.publish_date as unknown as Date,
+            AvailableTo: p.available_to as unknown as Date,
+            AvailableFrom: p.available_from as unknown as Date,
+            Status: getStatusFromNew(p.status),
+            LastUpdate: p.date_created as unknown as Date ?? new Date()
         }
-
+        patch.TitleId = await createLocalizable(oldKnex)
+        patch.DescriptionId = await createLocalizable(oldKnex)
+        patch.LongDescriptionId = await createLocalizable(oldKnex)
+        p.legacy_title_id = patch.TitleId
+        p.legacy_description_id = patch.DescriptionId
+/* 
         if (image != null) {
             patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
-        }
+        } */
 
-        if (e.status == "published") {
+        if (p.status == "published") {
             patch.Status = 1
         } else {
             patch.Status = 0
-        }
-
-        let languages = await oldKnex<LanguageEntity>("language").select("*")
-        
-        for (let t of e.translations) {
-            t = t as episodes.components["schemas"]["ItemsSeasonsTranslations"]
-            let lang = (t.languages_code as episodes.components["schemas"]["ItemsLanguages"])    
-            if (lang.code != "no") {
-                // We want original to be source of truth for translations for now
-                continue
-            }
-            console.log("adding norwegian")
-            console.log("t:", t)
-            let oldLang = languages.find(l => l.CultureCode == lang.code)
-            patch.TitleId = await createLocalizable(oldKnex)
-            patch.DescriptionId = await createLocalizable(oldKnex)
-            console.log(patch)
-            //let ids = await ensureLocalizablesExist(oldKnex, 'episode', patch, {'title': 'legacy_title_id', 'description': 'legacy_description_id', 'long_description': 'legacy_extra_description_id'})
-            
-            t = {
-                ...t,
-                legacy_title_id: patch.TitleId,
-                legacy_description_id: patch.DescriptionId,
-            }
-            await seasonTranslationsService.updateOne(t.id, t)
-            await upsertLS(oldKnex, t.legacy_title_id, oldLang, t.title)
-            await upsertLS(oldKnex, t.legacy_description_id, oldLang, t.description)
-            console.log("done adding norwegian")
         }
         
         let legacySeason = await oldKnex<SeasonEntity>("season").insert(patch).returning("*")
         console.log(legacySeason, "legacySeason")
-        await c.database("seasons").update({legacy_id: legacySeason[0].Id}).where("id", e.id)
-
+        //await c.database("seasons").update({legacy_id: legacySeason[0].Id}).where("id", p.id)
+        p.legacy_id = legacySeason[0].Id
         console.log("insert", patch)
+        return p
 	});
+
     // Update season
 	action('items.update', async (m,c) =>  {
+        await sleep(2000)
 		console.log('Item updated!');
 		console.log(m);
         if (m.collection != "seasons") {
@@ -432,7 +233,7 @@ export default defineHook(({ filter, action }, {services,database}) => {
         }
         // get legacy id
 		const itemsService = new ItemsService<episodes.components["schemas"]["ItemsSeasons"]>("seasons", {
-			knex: c.database as any,
+			knex: database as any,
 			schema: c.schema,
 		});
         let e = await itemsService.readOne(Number(m.keys[0]), { fields: ['*.*.*'] })
@@ -484,23 +285,8 @@ export default defineHook(({ filter, action }, {services,database}) => {
         }
 	});
 
-	filter('items.delete', async (p, m, c) => {
-		console.log("items.delete", m);
-        if (m.collection !== "seasons") {
-            return
-        }
-		console.log('Season being deleted, deleting it in legacy...');
-
-        // get legacy ids
-        let seasons_id = p[0]
-        let season = (await database("seasons").select("*").where("id", seasons_id))[0];
-        console.log(season)
-      
-        let result = await oldKnex("Season").where("id", season.legacy_id).delete()
-        console.log("legacy season delete result:", result)
-	});
-
 	action('items.create', async (m, c) => {
+        await sleep(2000)
 		console.log('Item created!');
 		console.log(m);
         if (m.collection != "lists") {
@@ -508,7 +294,7 @@ export default defineHook(({ filter, action }, {services,database}) => {
         }
         // get legacy id
 		const itemService = new ItemsService<episodes.components["schemas"]["ItemsLists"]>("lists", {
-			knex: c.database as any,
+			knex: database as any,
 			schema: c.schema,
 		});
         let e = await itemService.readOne(Number(m.key), { fields: ['*.*.*'] })
@@ -525,13 +311,14 @@ export default defineHook(({ filter, action }, {services,database}) => {
         
         let legacyCategory = await oldKnex<CategoryEntity>("category").insert(patch).returning("*")
         console.log("legacyCategory", legacyCategory)
-        await c.database("lists").update({legacy_category_id: legacyCategory[0].Id}).where("id", e.id)
+        await database("lists").update({legacy_category_id: legacyCategory[0].Id}).where("id", e.id)
 
         console.log("insert", patch)
 	});
 
 
 	action('items.create', async (m, c) => {
+        await sleep(2000)
         if (m.collection != "lists_relations") {
             return
         }
@@ -578,6 +365,37 @@ export default defineHook(({ filter, action }, {services,database}) => {
         }
 	});
 
+	filter('items.delete', async (p, m, c) => {
+		console.log("items.delete", m);
+        if (m.collection !== "shows") {
+            return
+        }
+		console.log('show being deleted, deleting it in legacy...');
+
+        // get legacy ids
+        let shows_id = p[0]
+        let show = (await database("shows").select("*").where("id", shows_id))[0];
+        console.log(show)
+      
+        let result = await oldKnex("series").where("id", show.legacy_id).delete()
+        console.log("legacy show delete result:", result)
+	});
+
+	filter('items.delete', async (p, m, c) => {
+		console.log("items.delete", m);
+        if (m.collection !== "seasons") {
+            return
+        }
+		console.log('Season being deleted, deleting it in legacy...');
+
+        // get legacy ids
+        let seasons_id = p[0]
+        let season = (await database("seasons").select("*").where("id", seasons_id))[0];
+        console.log(season)
+      
+        let result = await oldKnex("Season").where("id", season.legacy_id).delete()
+        console.log("legacy season delete result:", result)
+	});
 
 	filter('items.delete', async (p, m, c) => {
 		console.log("items.delete", m);
