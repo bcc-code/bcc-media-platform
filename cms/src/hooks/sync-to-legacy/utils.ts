@@ -65,3 +65,16 @@ export function objectPatch(e: any, fields: {[field: string]: any}) {
         ...fields
     }
 }
+
+export function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function isObjectUseless(patch: object) {
+    for (let k in patch) {
+        if( patch[k] != undefined) {
+            return false
+        }
+    }
+    return true
+} 

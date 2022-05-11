@@ -1,0 +1,195 @@
+11:36:28 ✨ Loaded extensions: sync-to-legacy
+11:36:28 ⚠️  PUBLIC_URL should be a full URL
+11:36:28 🔍 [4.452ms] SELECT 1 []
+11:36:28 🔍 [6.481ms] select "oid" from "pg_proc" where "proname" = $1 [postgis_version]
+11:36:28 ⚠️  PostGIS isn't installed. Geometry type support will be limited.
+11:36:28 🔍 [11.420ms] 
+      SELECT
+        rel.relname AS name
+      FROM
+        pg_class rel
+      WHERE
+        rel.relnamespace IN ('public'::regnamespace)
+        AND rel.relkind = 'r'
+        AND rel.relname = $1
+      ORDER BY rel.relname
+     [directus_collections]
+11:36:28 🔍 [1.579ms] select "version" from "directus_migrations" []
+11:36:28 🔍 [2.710ms] 
+        SELECT relname as table_name
+          , pg_attribute.attname as column_name
+        FROM pg_index
+          , pg_class
+          , pg_attribute
+          , pg_namespace
+        WHERE
+          indrelid = pg_class.oid
+          AND nspname IN ($1)
+          AND pg_class.relnamespace = pg_namespace.oid
+          AND pg_attribute.attrelid = pg_class.oid
+          AND pg_attribute.attnum = ANY (pg_index.indkey)
+          AND indisprimary
+          AND indnatts = 1
+			 AND relkind != 'S'
+       [public]
+11:36:28 🔍 [14.104ms] 
+        SELECT c.table_name
+          , c.column_name
+          , c.column_default as default_value
+          , c.data_type
+			 		, c.character_maximum_length as max_length
+          , c.is_generated = 'ALWAYS' is_generated
+          , CASE WHEN c.is_identity = 'YES' THEN true ELSE false END is_identity
+          , CASE WHEN c.is_nullable = 'YES' THEN true ELSE false END is_nullable
+        FROM
+          information_schema.columns c
+        LEFT JOIN information_schema.tables t
+          ON c.table_name = t.table_name
+        WHERE
+          t.table_type = 'BASE TABLE'
+          AND c.table_schema IN ($1);
+       [public]
+11:36:28 🔍 [1.993ms] SELECT oid FROM pg_proc WHERE proname = 'postgis_version' []
+11:36:28 🔍 [1.537ms] select "collection", "singleton", "note", "sort_field", "accountability" from "directus_collections" []
+11:36:28 🔍 [2.863ms] select "id", "collection", "field", "special", "note", "validation" from "directus_fields" []
+11:36:28 🔍 [2.264ms] select "directus_relations"."id", "directus_relations"."many_collection", "directus_relations"."many_field", "directus_relations"."one_collection", "directus_relations"."one_field", "directus_relations"."one_collection_field", "directus_relations"."one_allowed_collections", "directus_relations"."junction_field", "directus_relations"."sort_field", "directus_relations"."one_deselect_action" from "directus_relations" order by "directus_relations"."id" asc []
+11:36:28 🔍 [2.854ms] 
+       SELECT
+          con.conname AS constraint_name,
+          rel.relname AS table,
+          att.attname AS column,
+          frel.relnamespace::regnamespace::text AS foreign_key_schema,
+          frel.relname AS foreign_key_table,
+          fatt.attname AS foreign_key_column,
+          CASE con.confupdtype
+            WHEN 'r' THEN
+              'RESTRICT'
+            WHEN 'c' THEN
+              'CASCADE'
+            WHEN 'n' THEN
+              'SET NULL'
+            WHEN 'd' THEN
+              'SET DEFAULT'
+            WHEN 'a' THEN
+              'NO ACTION'
+            ELSE
+              NULL
+          END AS on_update,
+          CASE con.confdeltype
+            WHEN 'r' THEN
+              'RESTRICT'
+            WHEN 'c' THEN
+              'CASCADE'
+            WHEN 'n' THEN
+              'SET NULL'
+            WHEN 'd' THEN
+              'SET DEFAULT'
+            WHEN 'a' THEN
+              'NO ACTION'
+            ELSE
+              NULL
+          END AS on_delete
+        FROM
+          pg_constraint con
+        LEFT JOIN pg_class rel ON con.conrelid = rel.oid
+        LEFT JOIN pg_class frel ON con.confrelid = frel.oid
+        LEFT JOIN pg_attribute att ON att.attrelid = con.conrelid AND att.attnum = con.conkey[1]
+        LEFT JOIN pg_attribute fatt ON fatt.attrelid = con.confrelid AND fatt.attnum = con.confkey[1]
+        WHERE con.connamespace IN ('public'::regnamespace)
+          AND array_length(con.conkey, 1) <= 1
+          AND (con.confkey IS NULL OR array_length(con.confkey, 1) = 1)
+          AND con.contype = 'f'
+          
+     []
+11:36:28 ✨ Watching extensions for changes...
+11:36:28 🔍 [3.574ms] select "directus_webhooks"."id", "directus_webhooks"."name", "directus_webhooks"."method", "directus_webhooks"."url", "directus_webhooks"."status", "directus_webhooks"."data", "directus_webhooks"."actions", "directus_webhooks"."collections", "directus_webhooks"."headers" from "directus_webhooks" where "directus_webhooks"."status" = $1 order by "directus_webhooks"."id" asc limit $2 [active, 100]
+11:36:28 ✨ Server started at http://0.0.0.0:8055
+11:36:30 🔍 [7.099ms] select "ip_access" from "directus_roles" where "id" is null limit $1 [1]
+11:36:30 🔍 [23.471ms] select * from "directus_permissions" where "role" is null []
+11:36:30 🔍 [2.672ms] select "s"."expires" as "session_expires", "u"."id" as "user_id", "u"."first_name" as "user_first_name", "u"."last_name" as "user_last_name", "u"."email" as "user_email", "u"."password" as "user_password", "u"."status" as "user_status", "u"."provider" as "user_provider", "u"."external_identifier" as "user_external_identifier", "u"."auth_data" as "user_auth_data", "r"."id" as "role_id", "r"."admin_access" as "role_admin_access", "r"."app_access" as "role_app_access", "d"."id" as "share_id", "d"."item" as "share_item", "d"."role" as "share_role", "d"."collection" as "share_collection", "d"."date_start" as "share_start", "d"."date_end" as "share_end", "d"."times_used" as "share_times_used", "d"."max_uses" as "share_max_uses" from "directus_sessions" as "s" left join "directus_users" as "u" on "s"."user" = "u"."id" left join "directus_shares" as "d" on "s"."share" = "d"."id" left join "directus_roles" as "r" on "r"."id" in ("u"."role", "d"."role") where "s"."token" = $1 and "s"."expires" >= $2 and ("d"."date_end" is null or "d"."date_end" >= $3) and ("d"."date_start" is null or "d"."date_start" <= $4) limit $5 [ns1q133ObrcA_tW9s3En7L9hhmNiowFYzNDs1lOp2cEXFCHJyEEnVkWJKyCMyoL0, Wed May 11 2022 11:36:30 GMT+0200 (Central European Summer Time), Wed May 11 2022 11:36:30 GMT+0200 (Central European Summer Time), Wed May 11 2022 11:36:30 GMT+0200 (Central European Summer Time), 1]
+11:36:30 🔍 [3.640ms] update "directus_sessions" set "token" = $1, "expires" = $2 where "token" = $3 [gLcaSzu3w1DTu9HiQvhK505RBzKsofppWGfb9Orz6FsaHzev6wKIoG3o19qoSSIY, Wed May 18 2022 11:36:30 GMT+0200 (Central European Summer Time), ns1q133ObrcA_tW9s3En7L9hhmNiowFYzNDs1lOp2cEXFCHJyEEnVkWJKyCMyoL0]
+11:36:30 🔍 [2.009ms] update "directus_users" set "last_access" = $1 where "id" = $2 [Wed May 11 2022 11:36:30 GMT+0200 (Central European Summer Time), 7d6fa1b2-1a7b-4691-ae83-26fad3b618a1]
+11:36:30 ✨ request completed POST 200 /auth/refresh 75ms
+11:36:33 🔍 [10.901ms] select "ip_access" from "directus_roles" where "id" = $1 limit $2 [a0f2c554-b3fe-481f-b623-607b9e6204be, 1]
+11:36:33 🔍 [4.927ms] 
+      SELECT
+        rel.relnamespace::regnamespace::text AS schema,
+        rel.relname AS name,
+        des.description AS comment
+      FROM
+        pg_class rel
+      LEFT JOIN pg_description des ON rel.oid = des.objoid AND des.objsubid = 0
+      WHERE
+        rel.relnamespace IN ('public'::regnamespace)
+        
+        AND rel.relkind = 'r'
+      ORDER BY rel.relname
+     []
+11:36:33 🔍 [3.532ms] select "directus_collections"."collection", "directus_collections"."icon", "directus_collections"."note", "directus_collections"."display_template", "directus_collections"."hidden", "directus_collections"."singleton", "directus_collections"."translations", "directus_collections"."archive_field", "directus_collections"."archive_app_filter", "directus_collections"."archive_value", "directus_collections"."unarchive_value", "directus_collections"."sort_field", "directus_collections"."accountability", "directus_collections"."color", "directus_collections"."item_duplication_fields", "directus_collections"."sort", "directus_collections"."group", "directus_collections"."collapse" from "directus_collections" order by "directus_collections"."collection" asc []
+11:36:33 ✨ request completed GET 304 /collections?limit=-1 49ms
+11:36:33 🔍 [4.800ms] select "ip_access" from "directus_roles" where "id" = $1 limit $2 [a0f2c554-b3fe-481f-b623-607b9e6204be, 1]
+11:36:33 🔍 [5.457ms] select "ip_access" from "directus_roles" where "id" = $1 limit $2 [a0f2c554-b3fe-481f-b623-607b9e6204be, 1]
+11:36:33 🔍 [4.849ms] select "directus_settings"."project_name", "directus_settings"."project_descriptor", "directus_settings"."project_logo", "directus_settings"."project_color", "directus_settings"."default_language", "directus_settings"."public_foreground", "directus_settings"."public_background", "directus_settings"."public_note", "directus_settings"."custom_css", "directus_settings"."id" from "directus_settings" order by "directus_settings"."id" asc limit $1 [1]
+11:36:33 ✨ request completed GET 200 /server/info 15ms
+11:36:33 🔍 [1.704ms] select "directus_notifications"."id", "directus_notifications"."subject", "directus_notifications"."collection", "directus_notifications"."item", "directus_notifications"."timestamp" from "directus_notifications" where ("directus_notifications"."recipient" = $1 and "directus_notifications"."status" = $2) order by "directus_notifications"."timestamp" desc limit $3 [7d6fa1b2-1a7b-4691-ae83-26fad3b618a1, inbox, 100]
+11:36:33 ✨ request completed GET 304 /notifications?filter=%7B%22_and%22:[%7B%22recipient%22:%7B%22_eq%22:%227d6fa1b2-1a7b-4691-ae83-26fad3b618a1%22%7D%7D,%7B%22status%22:%7B%22_eq%22:%22inbox%22%7D%7D]%7D&fields[]=id&fields[]=subject&fields[]=collection&fields[]=item&fields[]=timestamp&sort[]=-timestamp 13ms
+11:36:33 🔍 [1.390ms] select "ip_access" from "directus_roles" where "id" = $1 limit $2 [a0f2c554-b3fe-481f-b623-607b9e6204be, 1]
+11:36:33 🔍 [1.472ms] select "directus_settings"."project_name", "directus_settings"."project_descriptor", "directus_settings"."project_logo", "directus_settings"."project_color", "directus_settings"."default_language", "directus_settings"."public_foreground", "directus_settings"."public_background", "directus_settings"."public_note", "directus_settings"."custom_css", "directus_settings"."id" from "directus_settings" order by "directus_settings"."id" asc limit $1 [1]
+11:36:33 ✨ request completed GET 304 /server/info 6ms
+11:36:33 🔍 [1.411ms] select "ip_access" from "directus_roles" where "id" = $1 limit $2 [a0f2c554-b3fe-481f-b623-607b9e6204be, 1]
+11:36:33 🔍 [1.121ms] select count("directus_notifications"."id") as "count->id" from "directus_notifications" where ("directus_notifications"."recipient" = $1 and "directus_notifications"."status" = $2) limit $3 [7d6fa1b2-1a7b-4691-ae83-26fad3b618a1, inbox, 100]
+11:36:33 ✨ request completed GET 304 /notifications?filter=%7B%22_and%22:[%7B%22recipient%22:%7B%22_eq%22:%227d6fa1b2-1a7b-4691-ae83-26fad3b618a1%22%7D%7D,%7B%22status%22:%7B%22_eq%22:%22inbox%22%7D%7D]%7D&aggregate=%7B%22count%22:%22id%22%7D 7ms
+11:36:34 🔍 [6.734ms] select "ip_access" from "directus_roles" where "id" = $1 limit $2 [a0f2c554-b3fe-481f-b623-607b9e6204be, 1]
+11:36:34 🔍 [6.822ms] update "directus_users" set "last_page" = $1 where "id" in ($2) [/settings/data-model, 7d6fa1b2-1a7b-4691-ae83-26fad3b618a1]
+11:36:34 ✨ request completed PATCH 204 /users/me/track/page 33ms
+11:37:00 ✨ Reloading extensions
+11:37:31 ✨ Reloading extensions
+11:37:43 ✨ Reloading extensions
+11:37:43 ⚠️  Couldn't register hook "sync-to-legacy"
+11:37:43 ⚠️  Cannot find module './oldKnex'
+Require stack:
+- /Users/andreasgangso/Code/brunstadtv/cms/extensions/hooks/sync-to-legacy/filters/filters.js
+- /Users/andreasgangso/Code/brunstadtv/cms/extensions/hooks/sync-to-legacy/index.js
+- /Users/andreasgangso/Code/brunstadtv/cms/node_modules/directus/dist/extensions.js
+- /Users/andreasgangso/Code/brunstadtv/cms/node_modules/directus/dist/services/graphql.js
+- /Users/andreasgangso/Code/brunstadtv/cms/node_modules/directus/dist/services/index.js
+- /Users/andreasgangso/Code/brunstadtv/cms/node_modules/directus/dist/middleware/respond.js
+- /Users/andreasgangso/Code/brunstadtv/cms/node_modules/directus/dist/controllers/activity.js
+- /Users/andreasgangso/Code/brunstadtv/cms/node_modules/directus/dist/app.js
+- /Users/andreasgangso/Code/brunstadtv/cms/node_modules/directus/dist/server.js
+- /Users/andreasgangso/Code/brunstadtv/cms/node_modules/directus/dist/cli/index.js
+- /Users/andreasgangso/Code/brunstadtv/cms/node_modules/directus/dist/cli/run.js
+11:37:45 ✨ Reloading extensions
+11:37:53 ✨ Reloading extensions
+11:37:58 ✨ Reloading extensions
+11:38:38 ✨ Reloading extensions
+11:40:11 ✨ Reloading extensions
+11:40:17 ✨ Reloading extensions
+11:40:23 ✨ Reloading extensions
+11:41:16 ✨ Reloading extensions
+11:41:16 ⚠️  Couldn't register hook "sync-to-legacy"
+11:41:16 ⚠️  createShow is not defined
+11:41:19 ✨ Reloading extensions
+11:41:19 ⚠️  Couldn't register hook "sync-to-legacy"
+11:41:19 ⚠️  createShow is not defined
+11:41:25 ✨ Reloading extensions
+11:41:25 ⚠️  Couldn't register hook "sync-to-legacy"
+11:41:25 ⚠️  createShow is not defined
+11:41:27 ✨ Reloading extensions
+11:41:27 ⚠️  Couldn't register hook "sync-to-legacy"
+11:41:27 ⚠️  createShow is not defined
+11:42:05 ✨ Reloading extensions
+11:42:05 ⚠️  Couldn't register hook "sync-to-legacy"
+11:42:05 ⚠️  createShow is not defined
+11:42:10 ✨ Reloading extensions
+11:42:10 ⚠️  Couldn't register hook "sync-to-legacy"
+11:42:10 ⚠️  createShow is not defined
+11:42:43 ✨ Reloading extensions
+11:42:43 ⚠️  Couldn't register hook "sync-to-legacy"
+11:42:43 ⚠️  createShow is not defined
+11:42:44 ✨ Reloading extensions
+11:42:44 ⚠️  Couldn't register hook "sync-to-legacy"
+11:42:44 ⚠️  createShow is not defined
+11:42:51 ✨ Reloading extensions
+11:42:51 ⚠️  Couldn't register hook "sync-to-legacy"
+11:42:51 ⚠️  createShow is not defined
