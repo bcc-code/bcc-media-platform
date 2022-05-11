@@ -19,6 +19,9 @@ export function getStatusFromNew(status: string): number {
 }
 
 export async function upsertLS(oldKnex: knex.Knex<any, unknown[]>, parentId: number, lang: LanguageEntity, value: string) {
+    if (value == undefined) {
+        value = ""
+    }
     console.log(value)
     let c = await oldKnex<LocalizedStringEntity>("localizedstring")
     .innerJoin("language", "localizedstring.languageid", "language.id")
