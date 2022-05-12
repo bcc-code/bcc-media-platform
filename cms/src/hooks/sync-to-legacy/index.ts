@@ -12,7 +12,6 @@ import { createSeason, deleteSeason, updateSeason } from './filters/seasons';
 import { createEpisodesUsergroup, deleteEpisodesUsergroup, deleteEpisodesUsergroupEarlyAccess, createEpisodesUsergroupEarlyAccess, updateUsergroup } from './filters/usergroups';
 import { createList, deleteList, updateList } from './filters/lists';
 import { createListRelation, deleteListRelation } from './filters/lists_relations';
-import { createSection } from './filters/sections';
 
 
 export default defineHook(({ filter, action }, {services,database}) => {    
