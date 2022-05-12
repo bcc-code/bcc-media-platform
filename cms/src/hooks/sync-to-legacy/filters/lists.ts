@@ -35,9 +35,9 @@ export async function updateList(p, m, c) {
     console.log(p,m,c)
     let languages = await oldKnex<LanguageEntity>("language").select("*")
     let oldLang = languages.find(l => l.CultureCode == "no")
-    let list = (await c.database("lists").select("*").where("id", m.keys[0]))[0];
+    let listBeforeUpdate = (await c.database("lists").select("*").where("id", m.keys[0]))[0];
     if (p.name) {
-        await upsertLS(oldKnex, list.legacy_name_id, oldLang, p.name)
+        await upsertLS(oldKnex, listBeforeUpdate.legacy_name_id, oldLang, p.name)
     }
 };
 

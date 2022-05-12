@@ -10,41 +10,39 @@ export async function updateShow (p, m, c) {
         return
     }
     console.log('Show updating!');
-    console.log("p",p);
-    console.log("m",m);
-    console.log("c",c);
     // get legacy id
     const itemsService = new ItemsService<episodes.components["schemas"]["ItemsShows"]>("shows", {
         knex: c.database as any,
         schema: c.schema,
     });
-    let e = await itemsService.readOne(Number(m.keys[0]), { fields: ['*.*.*'] })
-    let image = e.image_file_id as episodes.components["schemas"]["Files"]
-    console.log("directus", e)
+    let showBeforeUpdate = await itemsService.readOne(Number(m.keys[0]), { fields: ['*.*.*'] })
+    console.log("update", p)
 
     // update it in original 
+    
     let patch: Partial<SeriesEntity> = {
-        IsCategory: p.type === "event" ? 1 : 0,
         Published: p.publish_date as unknown as Date,
         AvailableTo: p.available_to as unknown as Date,
         AvailableFrom: p.available_from as unknown as Date,
-        Status: getStatusFromNew(p.status),
         LastUpdate: new Date()
     }
-
-    if (image != null) {
-        patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
+    if (p.type) {
+        patch.IsCategory = p.type === "event" ? 1 : 0
+    }
+    if (p.status) {
+        patch.Status = getStatusFromNew(p.status)
     }
 
-    if (e.status == "published") {
-        patch.Status = 1
-    } else {
-        patch.Status = 0
+    if (p.image_file_id) {
+        let image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
+        patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
+    } if (p.image_file_id === null) {
+        patch.Image = null
     }
 
     console.log("patch", patch)
     if (!isObjectUseless(patch)) {
-        let a = await oldKnex<SeriesEntity>("series").where("id", e.legacy_id).update(patch).returning("*")
+        let a = await oldKnex<SeriesEntity>("series").where("id", showBeforeUpdate.legacy_id).update(patch).returning("*")
         console.log("updated legacy series: ", a)
     }
 };

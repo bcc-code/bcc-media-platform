@@ -80,8 +80,12 @@ export async function updateShowTranslation(p: episodes.components["schemas"]["I
     }
     console.log("updating norwegian in legacy")
     let oldLang = languages.find(l => l.CultureCode == lang.code)
-    await upsertLS(oldKnex, show.legacy_title_id, oldLang, p.title)
-    await upsertLS(oldKnex, show.legacy_description_id, oldLang, p.description)
+    if (p.hasOwnProperty('title')) {
+        await upsertLS(oldKnex, show.legacy_title_id, oldLang, p.title)
+    }
+    if (p.hasOwnProperty('description')) {
+        await upsertLS(oldKnex, show.legacy_description_id, oldLang, p.description)
+    }
     console.log("done updating norwegian")
     return p
 }
@@ -103,8 +107,12 @@ export async function updateSeasonTranslation(p: episodes.components["schemas"][
     }
     console.log("updating norwegian in legacy")
     let oldLang = languages.find(l => l.CultureCode == lang.code)
-    await upsertLS(oldKnex, season.legacy_title_id, oldLang, p.title)
-    await upsertLS(oldKnex, season.legacy_description_id, oldLang, p.description)
+    if (p.hasOwnProperty('title')) {
+        await upsertLS(oldKnex, season.legacy_title_id, oldLang, p.title)
+    }
+    if (p.hasOwnProperty('description')) {
+        await upsertLS(oldKnex, season.legacy_description_id, oldLang, p.description)
+    }
     console.log("done updating norwegian")
     return p
 }
@@ -126,8 +134,15 @@ export async function updateEpisodeTranslation(p: episodes.components["schemas"]
     }
     console.log("updating norwegian in legacy")
     let oldLang = languages.find(l => l.CultureCode == lang.code)
-    await upsertLS(oldKnex, episode.legacy_title_id, oldLang, p.title)
-    await upsertLS(oldKnex, episode.legacy_description_id, oldLang, p.description)
+    if (p.hasOwnProperty('title')) {
+        await upsertLS(oldKnex, episode.legacy_title_id, oldLang, p.title)
+    }
+    if (p.hasOwnProperty('description')) {
+        await upsertLS(oldKnex, episode.legacy_description_id, oldLang, p.description)
+    }
+    if (p.hasOwnProperty('extra_description')) {
+        await upsertLS(oldKnex, episode.legacy_extra_description_id, oldLang, p.extra_description)
+    }
     console.log("done updating norwegian")
     return p
 }
