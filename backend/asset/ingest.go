@@ -154,7 +154,6 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	var wg sync.WaitGroup
 
 	copyErrors := []error{}
-	// TODO: Get copy errors
 
 	// S3 files added here will be deleted if everyting else is sucessful
 	objectsToDelete := []types.ObjectIdentifier{
