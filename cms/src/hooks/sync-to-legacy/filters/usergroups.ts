@@ -1,7 +1,7 @@
 import { oldKnex } from "../oldKnex";
 import { createLocalizable, getStatusFromNew, isObjectUseless, upsertLS } from "../utils";
 import episodes from '../../../btv';
-import { EpisodeEntity, LanguageEntity, SeriesEntity } from "@/Database";
+import { EpisodeEntity, LanguageEntity, SeriesEntity, SystemDataEntity } from "@/Database";
 import { ItemsService } from "directus";
 
 enum Visibility {
@@ -160,3 +160,31 @@ export async function deleteEpisodesUsergroupEarlyAccess(p, m, c) {
 
     console.log("update", patch)
 }
+
+export async function updateUsergroup(p, m, c) {
+    if (m.collection != "usergroups") {
+        return
+    }
+    console.log("updating usergroup")
+    console.log(p,m,c)
+
+    let ug_code = m.keys[0]
+    
+    if (!p.emails) {
+        return
+    }
+
+    let sdKey = undefined
+    if (ug_code === "fktb-download") {
+        sdKey = "SpecialAccessFKTBDownloadMembers"
+    } else if (ug_code === "fktb-early-access") {
+        sdKey = "SpecialAccessFKTBMembers"
+    } else if (ug_code === "kids-early-access") {
+        sdKey = "SpecialAccessMembers"
+    }
+    if (sdKey) {
+        await oldKnex<SystemDataEntity>("SystemData")
+        .update({ Value: p.emails.split('\n').join(',') })
+        .where("Key", sdKey)
+    }
+};
