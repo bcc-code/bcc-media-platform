@@ -1365,7 +1365,7 @@ fields:
       table: ageratings_translations
       schema: public
       data_type: character varying
-      is_nullable: true
+      is_nullable: false
       generation_expression: null
       default_value: null
       is_generated: false
@@ -1406,7 +1406,7 @@ fields:
       table: ageratings_translations
       schema: public
       data_type: character varying
-      is_nullable: true
+      is_nullable: false
       generation_expression: null
       default_value: null
       is_generated: false
@@ -1440,10 +1440,10 @@ fields:
       validation: null
       validation_message: null
   - collection: ageratings_translations
-    field: title
+    field: description
     type: string
     schema:
-      name: title
+      name: description
       table: ageratings_translations
       schema: public
       data_type: character varying
@@ -1463,7 +1463,7 @@ fields:
       foreign_key_column: null
     meta:
       collection: ageratings_translations
-      field: title
+      field: description
       special: null
       interface: input
       options: null
@@ -11217,7 +11217,7 @@ fields:
       display: null
       display_options: null
       readonly: false
-      hidden: false
+      hidden: true
       sort: 15
       width: full
       translations: null
@@ -14747,50 +14747,6 @@ relations:
       junction_field: null
       sort_field: null
       one_deselect_action: nullify
-  - collection: ageratings_translations
-    field: ageratings_code
-    related_collection: ageratings
-    schema:
-      constraint_name: ageratings_translations_ageratings_code_foreign
-      table: ageratings_translations
-      column: ageratings_code
-      foreign_key_schema: public
-      foreign_key_table: ageratings
-      foreign_key_column: code
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: ageratings_translations
-      many_field: ageratings_code
-      one_collection: ageratings
-      one_field: translations
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: languages_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: ageratings_translations
-    field: languages_code
-    related_collection: languages
-    schema:
-      constraint_name: ageratings_translations_languages_code_foreign
-      table: ageratings_translations
-      column: languages_code
-      foreign_key_schema: public
-      foreign_key_table: languages
-      foreign_key_column: code
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: ageratings_translations
-      many_field: languages_code
-      one_collection: languages
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: ageratings_code
-      sort_field: null
-      one_deselect_action: nullify
   - collection: assetfiles
     field: audio_language_id
     related_collection: languages
@@ -15845,6 +15801,50 @@ relations:
       one_collection_field: null
       one_allowed_collections: null
       junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: ageratings_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      constraint_name: ageratings_translations_languages_code_foreign
+      table: ageratings_translations
+      column: languages_code
+      foreign_key_schema: public
+      foreign_key_table: languages
+      foreign_key_column: code
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: ageratings_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: ageratings_code
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: ageratings_translations
+    field: ageratings_code
+    related_collection: ageratings
+    schema:
+      constraint_name: ageratings_translations_ageratings_code_foreign
+      table: ageratings_translations
+      column: ageratings_code
+      foreign_key_schema: public
+      foreign_key_table: ageratings
+      foreign_key_column: code
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: ageratings_translations
+      many_field: ageratings_code
+      one_collection: ageratings
+      one_field: translations
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: languages_code
       sort_field: null
       one_deselect_action: nullify
   - collection: episodes_translations
