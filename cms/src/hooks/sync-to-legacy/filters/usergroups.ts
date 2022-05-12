@@ -36,7 +36,7 @@ export async function createEpisodesUsergroup(p, m, c) {
     }
     
     if (episode.type === "episode") {
-        let legacyEpisode = await oldKnex<EpisodeEntity>("episode").update(patch).where("id", episode.legacy_program_id).returning("*")
+        let legacyEpisode = await oldKnex<EpisodeEntity>("episode").update(patch).where("id", episode.legacy_id).returning("*")
         console.log("legacyEpisode", legacyEpisode)
     } else if (episode.type === "standalone") {
         let legacyProgram = await oldKnex<EpisodeEntity>("program").update(patch).where("id", episode.legacy_program_id).returning("*")
@@ -77,7 +77,7 @@ export async function deleteEpisodesUsergroup(p, m, c) {
     }
     
     if (episode.type === "episode") {
-        let legacyEpisode = await oldKnex<EpisodeEntity>("episode").update(patch).where("id", episode.legacy_program_id).returning("*")
+        let legacyEpisode = await oldKnex<EpisodeEntity>("episode").update(patch).where("id", episode.legacy_id).returning("*")
         console.log("legacyEpisode", legacyEpisode)
     } else if (episode.type === "standalone") {
         let legacyProgram = await oldKnex<EpisodeEntity>("program").update(patch).where("id", episode.legacy_program_id).returning("*")
@@ -110,7 +110,7 @@ export async function createEpisodesUsergroupEarlyAccess(p, m, c) {
     patch.AllowSpecialAccess = ug_codes.some(ug => ug === "kids-early-access")
     
     if (episode.type === "episode") {
-        let legacyEpisode = await oldKnex<EpisodeEntity>("episode").update(patch).where("id", episode.legacy_program_id).returning("*")
+        let legacyEpisode = await oldKnex<EpisodeEntity>("episode").update(patch).where("id", episode.legacy_id).returning("*")
         console.log("legacyEpisode", legacyEpisode)
     } else if (episode.type === "standalone") {
         let legacyProgram = await oldKnex<EpisodeEntity>("program").update(patch).where("id", episode.legacy_program_id).returning("*")
@@ -151,7 +151,7 @@ export async function deleteEpisodesUsergroupEarlyAccess(p, m, c) {
     patch.AllowSpecialAccess = ug_codes.some(ug => ug === "kids-early-access")
     
     if (episode.type === "episode") {
-        let legacyEpisode = await oldKnex<EpisodeEntity>("episode").update(patch).where("id", episode.legacy_program_id).returning("*")
+        let legacyEpisode = await oldKnex<EpisodeEntity>("episode").update(patch).where("id", episode.legacy_id).returning("*")
         console.log("legacyEpisode", legacyEpisode)
     } else if (episode.type === "standalone") {
         let legacyProgram = await oldKnex<EpisodeEntity>("program").update(patch).where("id", episode.legacy_program_id).returning("*")
