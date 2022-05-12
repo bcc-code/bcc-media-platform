@@ -9,12 +9,13 @@ import { createEpisodeTranslation, createSeasonTranslation, createShowTranslatio
 import { createShow, updateShow } from './filters/shows';
 import { createEpisode } from './filters/episodes';
 import { createSeason } from './filters/seasons';
-import { createUsergroupEpisode, deleteUsergroupEpisode } from './filters/usergroups';
+import { createEpisodesUsergroup, deleteEpisodesUsergroup, deleteEpisodesUsergroupEarlyAccess, createEpisodesUsergroupEarlyAccess } from './filters/usergroups';
 
 
 export default defineHook(({ filter, action }, {services,database}) => {    
 
 	action('items.update', (m, c) => updateShow(database, m, c))
+    
 	filter('items.create', createShow)
 	filter('items.create', createSeason)
 	filter('items.create', createEpisode)
@@ -22,8 +23,11 @@ export default defineHook(({ filter, action }, {services,database}) => {
 	filter('items.create', createShowTranslation);
 	filter('items.create', createSeasonTranslation);
 	filter('items.create', createEpisodeTranslation);
-	filter('items.create', createUsergroupEpisode);
-	filter('items.delete', deleteUsergroupEpisode);
+	filter('items.create', createEpisodesUsergroup);
+	filter('items.create', createEpisodesUsergroupEarlyAccess);
+
+	filter('items.delete', deleteEpisodesUsergroup);
+	filter('items.delete', deleteEpisodesUsergroupEarlyAccess);
 
 	action('items.update', async (m,c) =>  {
         await sleep(2000)
