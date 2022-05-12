@@ -1,42 +1,55 @@
 package smil
 
+// https://www.w3.org/TR/SMIL2/
+
 import (
 	"encoding/xml"
 )
 
+// Meta data for the SMIL file in general
 type Meta struct {
 	XMLName xml.Name `xml:"meta"`
 	Name    string   `xml:"name,attr"`
 	Content string   `xml:"content,attr"`
 }
 
+// Head of the SMIL file, mostly for overall metadata
 type Head struct {
 	XMLName xml.Name `xml:"head"`
 	Meta    []Meta   `xml:"meta"`
 }
 
+// Body of the smil file
 type Body struct {
 	XMLName xml.Name `xml:"body"`
 	Switch  Switch   `xml:"switch"`
 }
 
+// Switch element allows an author to specify a set of alternative elements from which only the first acceptable element is chosen.
+// ^^ Above is copy pasted from https://www.w3.org/TR/SMIL2/smil-content.html#edef-switch
+// Basically it's a wrapper saying everything in here is the same material in different formats
 type Switch struct {
 	XMLName xml.Name `xml:"switch"`
 	Videos  []Video  `xml:"video"`
 	Audios  []Audio  `xml:"audio"`
 }
 
+// Video source
 type Video struct {
 	XMLName xml.Name `xml:"video"`
 	Src     string   `xml:"src,attr"`
+	Params  []Param  `xml:"param"`
 }
 
+// Audio source
 type Audio struct {
 	XMLName xml.Name `xml:"audio"`
 	Src     string   `xml:"src,attr"`
 	Params  []Param  `xml:"param"`
 }
 
+// Param contains additional informaion for Audio, Video, Text such as
+// resolution, language, etc.
 type Param struct {
 	XMLName   xml.Name `xml:"param"`
 	Name      string   `xml:"name,attr"`
@@ -44,6 +57,7 @@ type Param struct {
 	ValueType string   `xml:"valuetype,attr"`
 }
 
+// Main is the base SMIL struct
 type Main struct {
 	XMLName xml.Name `xml:"smil"`
 	Head    Head     `xml:"head"`

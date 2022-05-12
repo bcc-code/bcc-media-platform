@@ -2,10 +2,7 @@ package asset
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"path"
 	"regexp"
@@ -17,8 +14,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
-	"github.com/bcc-code/brunstadtv/backend/asset/smil"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	"github.com/bcc-code/mediabank-bridge/log"
@@ -37,9 +32,6 @@ var (
 	regexSafeStringReplace = regexp.MustCompile("[" + regexp.QuoteMeta(" !:?/|\\<{[(')]}>~@#$%^&*+=") + "]")
 	regexSafeStringChars   = regexp.MustCompile("[^0-9A-Z_.]")
 )
-
-type smilFormat struct {
-}
 
 type externalServices interface {
 	GetS3Client() *s3.Client
@@ -71,67 +63,6 @@ type assetIngestJSONMeta struct {
 	BasePath string
 
 	duration time.Duration
-}
-
-func readJSONFromS3[T any](ctx context.Context, client *s3.Client, bucket *string, path string, obj *T) error {
-
-	jsonObjectOut, err := client.GetObject(
-		ctx,
-		&s3.GetObjectInput{
-			Bucket: bucket,
-			Key:    aws.String(path),
-		},
-	)
-
-	if err != nil {
-		var nsk *types.NoSuchKey
-		if errors.As(err, &nsk) {
-			log.L.Warn().Err(err).Str("path", path).Msg("Unable to retrieve json")
-		}
-		return merry.Wrap(err)
-
-	}
-
-	jsonBytes, err := ioutil.ReadAll(jsonObjectOut.Body)
-	if err != nil {
-		return merry.Wrap(err)
-	}
-
-	err = json.Unmarshal(jsonBytes, obj)
-	if err != nil {
-		return merry.Wrap(err)
-	}
-
-	return nil
-}
-
-func readSmilFroms3(ctx context.Context, client *s3.Client, bucket *string, path string) (*smil.Main, error) {
-
-	smilObjectOut, err := client.GetObject(
-		ctx,
-		&s3.GetObjectInput{
-			Bucket: bucket,
-			Key:    aws.String(path),
-		},
-	)
-
-	if err != nil {
-		var nsk *types.NoSuchKey
-		if errors.As(err, &nsk) {
-			log.L.Warn().Err(err).Str("path", path).Msg("Unable to retrieve json")
-		}
-		return nil, merry.Wrap(err)
-
-	}
-
-	xmlBytes, err := ioutil.ReadAll(smilObjectOut.Body)
-	if err != nil {
-		return nil, merry.Wrap(err)
-	}
-
-	result, err := smil.Unmarshall(xmlBytes)
-
-	return &result, merry.Wrap(err)
 }
 
 // SafeString takes an arbitrary string and returns a safe version.
@@ -167,6 +98,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		return merry.Wrap(err)
 	}
 
+	// Calculate the base path on the ingest S3 bucket
 	assetMeta.BasePath = path.Dir(msg.JSONMetaPath)
 
 	a := &directus.Asset{
@@ -184,49 +116,6 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	// Generate a sane name, in order to be able to search/browse the bucket
 	// This should not required for any functionality and can be changed
 	storagePrefix := fmt.Sprintf("%s-%s", SafeString(assetMeta.Title), uuid.NewString())
-
-	var wg sync.WaitGroup
-
-	// TODO: Get copy errors
-
-	for _, fileMeta := range assetMeta.Files {
-		wg.Add(1)
-
-		m := fileMeta
-		go func() {
-			defer wg.Done()
-			target := path.Join(storagePrefix, "mux", path.Base(m.Path))
-
-			_, err := s3client.CopyObject(ctx, &s3.CopyObjectInput{
-				Bucket:     config.GetStorageBucket(),
-				Key:        aws.String(target),
-				CopySource: aws.String(path.Join("/", *config.GetIngestBucket(), assetMeta.BasePath, m.Path)),
-			})
-
-			if err != nil {
-				return //merry.Wrap(err)
-			}
-
-			log.L.Info().Str("file", target).Msg("File copied")
-
-			m.Path = target
-
-			af := directus.Assetfile{
-				Path:             m.Path,
-				Storage:          "s3_assets",
-				Type:             "video",
-				MimeType:         m.Mime,
-				AssetID:          a.ID,
-				AudioLanguge:     m.AudioLanguge,
-				SubtitleLanguage: m.SubtitleLanguage,
-			}
-
-			_, err = directus.SaveItem(services.GetDirectusClient(), af, false)
-			if err != nil {
-				return //merry.Wrap(err)
-			}
-		}()
-	}
 
 	smil, err := readSmilFroms3(ctx, s3client, config.GetIngestBucket(), assetMeta.SmilFile)
 	if err != nil {
@@ -256,6 +145,51 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		}
 	}
 
+	var wg sync.WaitGroup
+
+	copyErrors := []error{}
+	// TODO: Get copy errors
+
+	for _, fileMeta := range assetMeta.Files {
+		wg.Add(1)
+
+		m := fileMeta
+		go func() {
+			defer wg.Done()
+			target := path.Join(storagePrefix, "mux", path.Base(m.Path))
+
+			_, err := s3client.CopyObject(ctx, &s3.CopyObjectInput{
+				Bucket:     config.GetStorageBucket(),
+				Key:        aws.String(target),
+				CopySource: aws.String(path.Join("/", *config.GetIngestBucket(), assetMeta.BasePath, m.Path)),
+			})
+
+			if err != nil {
+				copyErrors = append(copyErrors, merry.Wrap(err))
+				return
+			}
+
+			log.L.Info().Str("file", target).Msg("File copied")
+
+			m.Path = target
+
+			af := directus.Assetfile{
+				Path:             m.Path,
+				Storage:          "s3_assets",
+				Type:             "video",
+				MimeType:         m.Mime,
+				AssetID:          a.ID,
+				AudioLanguge:     m.AudioLanguge,
+				SubtitleLanguage: m.SubtitleLanguage,
+			}
+
+			_, err = directus.SaveItem(services.GetDirectusClient(), af, false)
+			if err != nil {
+				copyErrors = append(copyErrors, merry.Wrap(err))
+				return
+			}
+		}()
+	}
 	for _, file := range filesToCopy {
 		wg.Add(1)
 
