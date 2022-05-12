@@ -47,7 +47,7 @@ func readJSONFromS3[T any](ctx context.Context, client *s3.Client, bucket *strin
 }
 
 func readSmilFroms3(ctx context.Context, client *s3.Client, bucket *string, path string) (*smil.Main, error) {
-
+	log.L.Debug().Str("smilPath", path).Msg("reading smil file")
 	smilObjectOut, err := client.GetObject(
 		ctx,
 		&s3.GetObjectInput{

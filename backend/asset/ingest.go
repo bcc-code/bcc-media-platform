@@ -14,17 +14,21 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	"github.com/bcc-code/mediabank-bridge/log"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 // Sentinel errors
 var (
 	ErrDurationEmpty = merry.New("duration string can not be empty")
+	ErrDuringCopy    = merry.New("error copying files on S3. See log for more details")
 )
 
 // Regexes
@@ -117,7 +121,9 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	// This should not required for any functionality and can be changed
 	storagePrefix := fmt.Sprintf("%s-%s", SafeString(assetMeta.Title), uuid.NewString())
 
-	smil, err := readSmilFroms3(ctx, s3client, config.GetIngestBucket(), assetMeta.SmilFile)
+	spew.Dump(assetMeta)
+	smilPath := path.Join(assetMeta.BasePath, assetMeta.SmilFile)
+	smil, err := readSmilFroms3(ctx, s3client, config.GetIngestBucket(), smilPath)
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -150,6 +156,11 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	copyErrors := []error{}
 	// TODO: Get copy errors
 
+	// S3 files added here will be deleted if everyting else is sucessful
+	objectsToDelete := []types.ObjectIdentifier{
+		{Key: aws.String(msg.JSONMetaPath)},
+	}
+
 	for _, fileMeta := range assetMeta.Files {
 		wg.Add(1)
 
@@ -157,15 +168,16 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		go func() {
 			defer wg.Done()
 			target := path.Join(storagePrefix, "mux", path.Base(m.Path))
+			source := path.Join("/", *config.GetIngestBucket(), assetMeta.BasePath, m.Path)
 
 			_, err := s3client.CopyObject(ctx, &s3.CopyObjectInput{
 				Bucket:     config.GetStorageBucket(),
 				Key:        aws.String(target),
-				CopySource: aws.String(path.Join("/", *config.GetIngestBucket(), assetMeta.BasePath, m.Path)),
+				CopySource: aws.String(source),
 			})
 
 			if err != nil {
-				copyErrors = append(copyErrors, merry.Wrap(err))
+				copyErrors = append(copyErrors, merry.Wrap(err).Append(source))
 				return
 			}
 
@@ -188,6 +200,11 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 				copyErrors = append(copyErrors, merry.Wrap(err))
 				return
 			}
+
+			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{
+				Key: aws.String(path.Join(assetMeta.BasePath, m.Path)),
+			})
+
 		}()
 	}
 	for _, file := range filesToCopy {
@@ -205,24 +222,31 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			})
 
 			if err != nil {
-				log.L.Warn().Err(err).Str("path", filePath).Msg("Unable to copy path")
-				return //merry.Wrap(err)
+				copyErrors = append(copyErrors, merry.Wrap(err).Append(filePath))
+				return
 			}
 
 			log.L.Info().Str("file", target).Msg("File copied")
+
+			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{
+				Key: aws.String(filePath),
+			})
 		}()
 	}
 
 	wg.Wait()
 
+	if len(copyErrors) > 0 {
+		log.L.Error().Errs("copyErrors", copyErrors).Msg("Errors while copying files")
+		return ErrDuringCopy.Here()
+	}
+
 	log.L.Info().Msg("Done copying files")
 
-	// TODO: Delete files. Should be done async as a message
-
-	// TODO: For now we just asume that there is no pre-existing asset. Implement updates/replaces
-	//storageBucketARN := fmt.Sprintf("arn:aws:s3:::%s", *config.GetStorageBucket())
+	// Construct the source as an ARN
 	source := fmt.Sprintf("arn:aws:s3:::%s", path.Join(*config.GetStorageBucket(), storagePrefix, "stream", path.Base(assetMeta.SmilFile)))
 	log.L.Debug().Str("Smil source ARN", source).Msg("Calculated source ARN for MediaPackager")
+
 	mpc := services.GetMediaPackageVOD()
 	asset, err := mpc.CreateAsset(ctx,
 		&mediapackagevod.CreateAssetInput{
@@ -235,6 +259,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		return merry.Wrap(err)
 	}
 
+	// Insert all stream endpoints into the CMS
 	for _, e := range asset.EgressEndpoints {
 		log.L.Debug().
 			Str("status", *e.Status).
@@ -272,5 +297,21 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		}
 	}
 
+	deleteInputs := &s3.DeleteObjectsInput{
+		Bucket: config.GetIngestBucket(),
+		Delete: &types.Delete{
+			Objects: objectsToDelete,
+		},
+	}
+
+	if false {
+		s3client.DeleteObjects(ctx, deleteInputs)
+	} else {
+		fileList := lo.Map(objectsToDelete, func(x types.ObjectIdentifier, _ int) string {
+			return *x.Key
+		})
+
+		log.L.Debug().Str("objectsToDelete", fmt.Sprintf("%v", fileList)).Msg("Deleting disabled. Would have deleted this files")
+	}
 	return nil
 }
