@@ -1,0 +1,19 @@
+version: '3'
+services:
+  pubsub:
+    ports:
+      - "8681:8681"
+    image: thekevjames/gcloud-pubsub-emulator:latest
+  background-jobs:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile.background-worker
+      target: dev
+    ports:
+      - "8078:8078"
+    env_file: ./backend/cmd/jobs/.env
+    volumes:
+      - type: bind
+        source: ./
+        target: /mounted
+
