@@ -9,6 +9,7 @@ import { createEpisodeTranslation, createSeasonTranslation, createShowTranslatio
 import { createShow, updateShow } from './filters/shows';
 import { createEpisode } from './filters/episodes';
 import { createSeason } from './filters/seasons';
+import { createUsergroupEpisode, deleteUsergroupEpisode } from './filters/usergroups';
 
 
 export default defineHook(({ filter, action }, {services,database}) => {    
@@ -21,6 +22,8 @@ export default defineHook(({ filter, action }, {services,database}) => {
 	filter('items.create', createShowTranslation);
 	filter('items.create', createSeasonTranslation);
 	filter('items.create', createEpisodeTranslation);
+	filter('items.create', createUsergroupEpisode);
+	filter('items.delete', deleteUsergroupEpisode);
 
 	action('items.update', async (m,c) =>  {
         await sleep(2000)
