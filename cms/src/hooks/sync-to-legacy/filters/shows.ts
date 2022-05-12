@@ -5,15 +5,17 @@ import { LanguageEntity, SeriesEntity } from "@/Database";
 import { ItemsService } from "directus";
 
 
-export async function updateShow (database, m, c) {
-    console.log('Item updated!');
-    console.log(m);
+export async function updateShow (p, m, c) {
     if (m.collection != "shows") {
         return
     }
+    console.log('Show updating!');
+    console.log("p",p);
+    console.log("m",m);
+    console.log("c",c);
     // get legacy id
     const itemsService = new ItemsService<episodes.components["schemas"]["ItemsShows"]>("shows", {
-        knex: database as any,
+        knex: c.database as any,
         schema: c.schema,
     });
     let e = await itemsService.readOne(Number(m.keys[0]), { fields: ['*.*.*'] })
@@ -22,10 +24,12 @@ export async function updateShow (database, m, c) {
 
     // update it in original 
     let patch: Partial<SeriesEntity> = {
-        Published: e.publish_date as unknown as Date,
-        AvailableTo: e.available_to as unknown as Date,
-        AvailableFrom: e.available_from as unknown as Date,
-        Status: getStatusFromNew(e.status)
+        IsCategory: p.type === "event" ? 1 : 0,
+        Published: p.publish_date as unknown as Date,
+        AvailableTo: p.available_to as unknown as Date,
+        AvailableFrom: p.available_from as unknown as Date,
+        Status: getStatusFromNew(p.status),
+        LastUpdate: new Date()
     }
 
     if (image != null) {
@@ -88,4 +92,20 @@ export async function createShow(p, m, c) {
     return p
     //await c.database("shows").update({legacy_id: legacyShow[0].Id}).where("id", e.id)
 
+};
+
+export async function deleteShow(p, m, c) {
+    console.log("items.delete", m);
+    if (m.collection !== "shows") {
+        return
+    }
+    console.log('show being deleted, deleting it in legacy...');
+
+    // get legacy ids
+    let shows_id = p[0]
+    let show = (await c.database("shows").select("*").where("id", shows_id))[0];
+    console.log(show)
+  
+    let result = await oldKnex("series").where("id", show.legacy_id).delete()
+    console.log("legacy show delete result:", result)
 };

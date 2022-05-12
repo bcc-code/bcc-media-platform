@@ -8023,6 +8023,47 @@ fields:
       group: null
       validation: null
       validation_message: null
+  - collection: lists
+    field: legacy_name_id
+    type: integer
+    schema:
+      name: legacy_name_id
+      table: lists
+      schema: public
+      data_type: integer
+      is_nullable: true
+      generation_expression: null
+      default_value: null
+      is_generated: false
+      max_length: null
+      comment: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: lists
+      field: legacy_name_id
+      special: null
+      interface: input
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+      validation: null
+      validation_message: null
   - collection: lists_relations
     field: id
     type: integer
@@ -15212,50 +15253,6 @@ relations:
       junction_field: categories_id
       sort_field: null
       one_deselect_action: nullify
-  - collection: lists
-    field: user_created
-    related_collection: directus_users
-    schema:
-      constraint_name: lists_user_created_foreign
-      table: lists
-      column: user_created
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: lists
-      many_field: user_created
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: lists
-    field: user_updated
-    related_collection: directus_users
-    schema:
-      constraint_name: lists_user_updated_foreign
-      table: lists
-      column: user_updated
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: lists
-      many_field: user_updated
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
   - collection: collections
     field: user_created
     related_collection: directus_users
@@ -15672,6 +15669,50 @@ relations:
       one_collection_field: null
       one_allowed_collections: null
       junction_field: episodes_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: lists
+    field: user_created
+    related_collection: directus_users
+    schema:
+      constraint_name: lists_user_created_foreign
+      table: lists
+      column: user_created
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: lists
+      many_field: user_created
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: lists
+    field: user_updated
+    related_collection: directus_users
+    schema:
+      constraint_name: lists_user_updated_foreign
+      table: lists
+      column: user_updated
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: lists
+      many_field: user_updated
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
       sort_field: null
       one_deselect_action: nullify
   - collection: episodes
