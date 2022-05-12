@@ -56,17 +56,17 @@ type config interface {
 }
 
 type ingestFileMeta struct {
-	Mime     string `json:"mimt"`
-	Path     string `json:"path"`
-	Language string `json:"lang"`
-	FileSize uint64 `json:"fileSize"`
+	Mime             string `json:"mimt"`
+	Path             string `json:"path"`
+	AudioLanguge     string `json:"audio_language"`
+	SubtitleLanguage string `json:"subtitle_language"`
 }
 
 type assetIngestJSONMeta struct {
 	Duration int              `json:"duration"`
 	Title    string           `json:"title"`
 	ID       string           `json:"id"`
-	SmilFile string           `json:"smilFile"`
+	SmilFile string           `json:"smil_file"`
 	Files    []ingestFileMeta `json:"files"`
 	BasePath string
 
@@ -217,8 +217,8 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 				Type:             "video",
 				MimeType:         m.Mime,
 				AssetID:          a.ID,
-				AudioLanguge:     m.Language,
-				SubtitleLanguage: m.Language,
+				AudioLanguge:     m.AudioLanguge,
+				SubtitleLanguage: m.SubtitleLanguage,
 			}
 
 			_, err = directus.SaveItem(services.GetDirectusClient(), af, false)
