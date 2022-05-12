@@ -19,8 +19,19 @@ import (
 // * TRACE_SAMPLING_FREQUENCY - A number between 0.0 and 1.0 that determines how often requests should be traced.
 //  1.0 means every request. Default is 0.1, 10% of requests
 func MustSetupTracing() *http.Client {
+	project := os.Getenv("GOOGLE_CLOUD_PROJECT")
+	if project == "" {
+		log.L.Warn().Msg("Unable to determine GOOGLE_CLOUD_PROJECT. Skipping tracing")
+		return &http.Client{
+			Transport: &ochttp.Transport{
+				// Use Google Cloud propagation format.
+				Propagation: &propagation.HTTPFormat{},
+			},
+		}
+	}
+
 	exporter, err := stackdriver.NewExporter(stackdriver.Options{
-		ProjectID: os.Getenv("GOOGLE_CLOUD_PROJECT"),
+		ProjectID: project,
 	})
 
 	if err != nil {

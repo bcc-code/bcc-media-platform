@@ -22,7 +22,7 @@ func main() {
 	ctx := context.Background()
 
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
-	log.L.Debug().Msg("Seting up tracing")
+	log.L.Debug().Msg("Seting up tracing!")
 
 	// Here you can get a tracedHttpClient if useful anywhere
 	_ = utils.MustSetupTracing()
@@ -66,5 +66,5 @@ func main() {
 
 	initTrace.End()
 
-	router.Run(":8078")
+	router.Run(":" + config.Port)
 }

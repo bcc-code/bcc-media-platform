@@ -1,8 +1,8 @@
 version: "1"
-root: ../../
-main_path: ""
+root: .
+main_path: "./cmd/jobs"
 tmp_path: ./tmp
-build_name: runner-build
+build_name: jobs
 build_args: ""
 run_args: ""
 build_log: runner-build-errors.log

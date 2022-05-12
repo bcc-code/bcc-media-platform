@@ -23,10 +23,12 @@ type directusConfig struct {
 type envConfig struct {
 	AWS      awsConfig
 	Directus directusConfig
+	Port     string
 }
 
 func getEnvConfig() envConfig {
 	return envConfig{
+		Port: os.Getenv("PORT"),
 		AWS: awsConfig{
 			Region:                os.Getenv("AWS_DEFAULT_REGION"),
 			PackagingGroupARN:     os.Getenv("AWS_PACKAGING_GROUP"),

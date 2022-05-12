@@ -1,14 +1,19 @@
 # Start by building the application.
 FROM golang:1.18-alpine as build
+RUN go install github.com/zzwx/fresh@v1.3.4
 
 WORKDIR /go/src
 ADD go.mod /go/src/go.mod
 ADD go.sum /go/src/go.sum
-RUN go get -d -v ./...
+RUN go mod download
 
 ADD ./backend /go/src/backend
 RUN CGO_ENABLED=0 go build -o /app ./backend/cmd/jobs
 
-FROM gcr.io/distroless/static
+FROM build as dev
+WORKDIR /mounted/backend/
+CMD ["fresh", "-c", "./cmd/jobs/.fresh.yaml"]
+
+FROM gcr.io/distroless/static AS prod
 COPY --from=build /app /app
 CMD ["/app"]
