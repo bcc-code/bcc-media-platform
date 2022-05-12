@@ -9,9 +9,10 @@ import { createEpisodeTranslation, createSeasonTranslation, createShowTranslatio
 import { createShow, deleteShow, updateShow } from './filters/shows';
 import { createEpisode, deleteEpisode, updateEpisode } from './filters/episodes';
 import { createSeason, deleteSeason, updateSeason } from './filters/seasons';
-import { createEpisodesUsergroup, deleteEpisodesUsergroup, deleteEpisodesUsergroupEarlyAccess, createEpisodesUsergroupEarlyAccess } from './filters/usergroups';
+import { createEpisodesUsergroup, deleteEpisodesUsergroup, deleteEpisodesUsergroupEarlyAccess, createEpisodesUsergroupEarlyAccess, updateUsergroup } from './filters/usergroups';
 import { createList, deleteList, updateList } from './filters/lists';
 import { createListRelation, deleteListRelation } from './filters/lists_relations';
+import { createSection } from './filters/sections';
 
 
 export default defineHook(({ filter, action }, {services,database}) => {    
@@ -34,6 +35,7 @@ export default defineHook(({ filter, action }, {services,database}) => {
 	filter('items.update', updateShowTranslation)
 	filter('items.update', updateSeasonTranslation)
 	filter('items.update', updateEpisodeTranslation)
+	filter('items.update', updateUsergroup)
 
 	filter('items.delete', deleteEpisodesUsergroup);
 	filter('items.delete', deleteEpisodesUsergroupEarlyAccess);

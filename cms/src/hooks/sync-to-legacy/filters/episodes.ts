@@ -73,47 +73,48 @@ export async function updateEpisode(p, m, c) {
         return
     }
     // get legacy id
-    const itemsService = new ItemsService<episodes.components["schemas"]["ItemsEpisodes"]>("episodes", {
-        knex: c.database as any,
-        schema: c.schema,
-    });
-    let e = await itemsService.readOne(Number(m.keys[0]), { fields: ['*.*.*'] })
-    let season = (await c.database("seasons").select("*").where("id", e.season_id))[0];
-    let asset = (await c.database("assets").select("*").where("id", e.asset_id))[0];
-    let image = e.image_file_id as episodes.components["schemas"]["Files"]
-    console.log("directus", e)
+    let epBeforeUpdate = (await c.database("episodes").select("*").where("id", m.keys[0]))[0];
 
     // update it in original 
     let patch: Partial<EpisodeEntity> = {
-        VideoId: asset?.legacy_id ?? 1041, // TODO: remove this temp id
-        Published: e.publish_date as unknown as Date,
-        AvailableTo: e.available_to as unknown as Date,
-        AvailableFrom: e.available_from as unknown as Date,
-        Status: getStatusFromNew(e.status),
+        Published: p.publish_date as unknown as Date,
+        AvailableTo: p.available_to as unknown as Date,
+        AvailableFrom: p.available_from as unknown as Date,
         LastUpdate: new Date()
     }
-    if (e.type === "episode") {
-        patch.SeasonId = season.legacy_id
-        patch.EpisodeNo = e.episode_number
+    if (p.asset_id) {
+        let asset = (await c.database("assets").select("*").where("id", p.asset_id))[0];
+        patch.VideoId = asset.legacy_id
+    } else if (p.asset_id === null) {
+        patch.VideoId = null
     }
-
-    if (image != null) {
+    
+    if (p.image_file_id) {
+        let image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
         patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
+    } if (p.image_file_id === null) {
+        patch.Image = null
     }
 
-    if (e.status == "published") {
-        patch.Status = 1
-    } else {
-        patch.Status = 0
+    if (p.status) {
+        patch.Status = getStatusFromNew(p.status)
+    }
+
+    if (epBeforeUpdate.type === "episode") {
+        if (p.season_id) {
+            let season = (await c.database("seasons").select("*").where("id", p.season_id))[0];
+            patch.SeasonId = season.legacy_id
+        }
+        patch.EpisodeNo = p.episode_number
     }
 
     console.log("patch", patch)
     if (!isObjectUseless(patch)) {
-        if (e.type === "episode") {
-            let a = await oldKnex<EpisodeEntity>("episode").where("id", e.legacy_id).update(patch).returning("*")
+        if (epBeforeUpdate.type === "episode") {
+            let a = await oldKnex<EpisodeEntity>("episode").where("id", epBeforeUpdate.legacy_id).update(patch).returning("*")
             console.log(a)
-        } else if (e.type === "standalone") {
-            let a = await oldKnex<ProgramEntity>("program").where("id", e.legacy_program_id).update(patch).returning("*")
+        } else if (epBeforeUpdate.type === "standalone") {
+            let a = await oldKnex<ProgramEntity>("program").where("id", epBeforeUpdate.legacy_program_id).update(patch).returning("*")
             console.log(a)
         }
     }

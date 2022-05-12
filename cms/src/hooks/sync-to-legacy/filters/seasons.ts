@@ -11,7 +11,6 @@ export async function createSeason(p, m, c) {
     console.log('Season created!');
     console.log(p, m);
 
-    p = p as episodes.components["schemas"]["ItemsSeasons"]
     let show = (await c.database("shows").select("*").where("id", p.show_id))[0];
     
     console.log("directus", p)
@@ -24,7 +23,8 @@ export async function createSeason(p, m, c) {
         AvailableTo: p.available_to as unknown as Date,
         AvailableFrom: p.available_from as unknown as Date,
         Status: getStatusFromNew(p.status),
-        LastUpdate: p.date_created as unknown as Date ?? new Date()
+        LastUpdate: p.date_created as unknown as Date ?? new Date(),
+        AgeRatingCode: p.agerating_code
     }
     patch.TitleId = await createLocalizable(oldKnex)
     patch.DescriptionId = await createLocalizable(oldKnex)
@@ -57,39 +57,38 @@ export async function updateSeason(p, m, c) {
         return
     }
     // get legacy id
-    const itemsService = new ItemsService<episodes.components["schemas"]["ItemsSeasons"]>("seasons", {
-        knex: c.database as any,
-        schema: c.schema,
-    });
-    let e = await itemsService.readOne(Number(m.keys[0]), { fields: ['*.*.*'] })
-    let show = (await c.database("shows").select("*").where("id", e.show_id))[0];
-    let image = e.image_file_id as episodes.components["schemas"]["Files"]
-    console.log("directus", e)
+    let seasonBeforeupdate = (await c.database("seasons").select("*").where("id", Number(m.keys[0])))[0];
+    console.log("directus", p)
 
     // update it in original 
     let patch: Partial<SeasonEntity> = {
-        SeasonNo: e.season_number,
-        SeriesId: show.legacy_id,
+        SeasonNo: p.season_number,
         LastUpdate: new Date(),
-        Published: e.publish_date as unknown as Date,
-        AvailableTo: e.available_to as unknown as Date,
-        AvailableFrom: e.available_from as unknown as Date,
-        Status: getStatusFromNew(e.status)
+        Published: p.publish_date as unknown as Date,
+        AvailableTo: p.available_to as unknown as Date,
+        AvailableFrom: p.available_from as unknown as Date,
+        AgeRatingCode: p.agerating_code,
+    }
+    if (p.status) {
+        patch.Status = getStatusFromNew(p.status)
+    }
+    if (p.show_id) {
+        let new_show = (await c.database("shows").select("*").where("id", p.show_id))[0];
+        patch.SeriesId = new_show.legacy_id
+    } else if (p.show_id === null) {
+        patch.SeriesId = null
     }
 
-    if (image != null) {
+    if (p.image_file_id) {
+        let image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
         patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
-    }
-
-    if (e.status == "published") {
-        patch.Status = 1
-    } else {
-        patch.Status = 0
+    } if (p.image_file_id === null) {
+        patch.Image = null
     }
 
     console.log("patch", patch)
     if (!isObjectUseless(patch)) {
-        let a = await oldKnex<SeasonEntity>("season").where("id", e.legacy_id).update(patch).returning("*")
+        let a = await oldKnex<SeasonEntity>("season").where("id", seasonBeforeupdate.legacy_id).update(patch).returning("*")
         console.log("updated legacy season: ", a)
     }
 };
