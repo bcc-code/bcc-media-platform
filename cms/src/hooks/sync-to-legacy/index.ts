@@ -14,6 +14,7 @@ import { createList, deleteList, updateList } from './filters/lists';
 import { createListRelation, deleteListRelation } from './filters/lists_relations';
 import { createAsset, deleteAsset, updateAsset } from './filters/assets';
 import { createAssetstream, deleteAssetstream, updateAssetstream } from './filters/assetstreams';
+import { createEpisodeTag, deleteEpisodeTag } from './filters/tags';
 
 
 export default defineHook(({ filter, action }, {services,database}) => {    
@@ -30,6 +31,7 @@ export default defineHook(({ filter, action }, {services,database}) => {
 	filter('items.create', createListRelation);
 	filter('items.create', createAsset);
 	filter('items.create', createAssetstream);
+	filter('items.create', createEpisodeTag);
 
 	filter('items.update', updateShow)
 	filter('items.update', updateSeason)
@@ -51,6 +53,7 @@ export default defineHook(({ filter, action }, {services,database}) => {
 	filter('items.delete', deleteListRelation);
 	filter('items.delete', deleteAsset);
 	filter('items.delete', deleteAssetstream);
+	filter('items.delete', deleteEpisodeTag);
 
 });
 
