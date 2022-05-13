@@ -12,6 +12,8 @@ import { createSeason, deleteSeason, updateSeason } from './filters/seasons';
 import { createEpisodesUsergroup, deleteEpisodesUsergroup, deleteEpisodesUsergroupEarlyAccess, createEpisodesUsergroupEarlyAccess, updateUsergroup } from './filters/usergroups';
 import { createList, deleteList, updateList } from './filters/lists';
 import { createListRelation, deleteListRelation } from './filters/lists_relations';
+import { createAsset, deleteAsset, updateAsset } from './filters/assets';
+import { createAssetstream, deleteAssetstream, updateAssetstream } from './filters/assetstreams';
 
 
 export default defineHook(({ filter, action }, {services,database}) => {    
@@ -26,6 +28,8 @@ export default defineHook(({ filter, action }, {services,database}) => {
 	filter('items.create', createEpisodesUsergroup);
 	filter('items.create', createEpisodesUsergroupEarlyAccess);
 	filter('items.create', createListRelation);
+	filter('items.create', createAsset);
+	filter('items.create', createAssetstream);
 
 	filter('items.update', updateShow)
 	filter('items.update', updateSeason)
@@ -35,6 +39,8 @@ export default defineHook(({ filter, action }, {services,database}) => {
 	filter('items.update', updateSeasonTranslation)
 	filter('items.update', updateEpisodeTranslation)
 	filter('items.update', updateUsergroup)
+	filter('items.update', updateAsset)
+	filter('items.update', updateAssetstream)
 
 	filter('items.delete', deleteEpisodesUsergroup);
 	filter('items.delete', deleteEpisodesUsergroupEarlyAccess);
@@ -43,6 +49,8 @@ export default defineHook(({ filter, action }, {services,database}) => {
 	filter('items.delete', deleteShow);
 	filter('items.delete', deleteList);
 	filter('items.delete', deleteListRelation);
+	filter('items.delete', deleteAsset);
+	filter('items.delete', deleteAssetstream);
 
 });
 
