@@ -1010,30 +1010,6 @@ collections:
       schema: public
       name: tags
       comment: null
-  - collection: tags_translations
-    meta:
-      collection: tags_translations
-      icon: import_export
-      note: null
-      display_template: null
-      hidden: true
-      singleton: false
-      translations: null
-      archive_field: null
-      archive_app_filter: true
-      archive_value: null
-      unarchive_value: null
-      sort_field: null
-      accountability: all
-      color: null
-      item_duplication_fields: null
-      sort: 27
-      group: null
-      collapse: open
-    schema:
-      schema: public
-      name: tags_translations
-      comment: null
   - collection: tvguideentry
     meta:
       collection: tvguideentry
@@ -3025,6 +3001,47 @@ fields:
     meta:
       collection: assetstreams
       field: encryption_key_id
+      special: null
+      interface: input
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+      validation: null
+      validation_message: null
+  - collection: assetstreams
+    field: legacy_videourl_id
+    type: integer
+    schema:
+      name: legacy_videourl_id
+      table: assetstreams
+      schema: public
+      data_type: integer
+      is_nullable: true
+      generation_expression: null
+      default_value: null
+      is_generated: false
+      max_length: null
+      comment: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: assetstreams
+      field: legacy_videourl_id
       special: null
       interface: input
       options: null
@@ -12174,7 +12191,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 6
+      sort: 7
       width: full
       translations: null
       note: null
@@ -12186,138 +12203,15 @@ fields:
           - code:
               _regex: '[a-z_]+'
       validation_message: null
-  - collection: tags_translations
-    field: id
-    type: integer
-    schema:
-      name: id
-      table: tags_translations
-      schema: public
-      data_type: integer
-      is_nullable: false
-      generation_expression: null
-      default_value: nextval('tags_translations_id_seq'::regclass)
-      is_generated: false
-      max_length: null
-      comment: null
-      numeric_precision: 32
-      numeric_scale: 0
-      is_unique: true
-      is_primary_key: true
-      has_auto_increment: true
-      foreign_key_schema: null
-      foreign_key_table: null
-      foreign_key_column: null
-    meta:
-      collection: tags_translations
-      field: id
-      special: null
-      interface: null
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: true
-      sort: null
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-      validation: null
-      validation_message: null
-  - collection: tags_translations
-    field: tags_id
-    type: integer
-    schema:
-      name: tags_id
-      table: tags_translations
-      schema: public
-      data_type: integer
-      is_nullable: true
-      generation_expression: null
-      default_value: null
-      is_generated: false
-      max_length: null
-      comment: null
-      numeric_precision: 32
-      numeric_scale: 0
-      is_unique: false
-      is_primary_key: false
-      has_auto_increment: false
-      foreign_key_schema: public
-      foreign_key_table: tags
-      foreign_key_column: id
-    meta:
-      collection: tags_translations
-      field: tags_id
-      special: null
-      interface: null
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: true
-      sort: null
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-      validation: null
-      validation_message: null
-  - collection: tags_translations
-    field: languages_code
-    type: string
-    schema:
-      name: languages_code
-      table: tags_translations
-      schema: public
-      data_type: character varying
-      is_nullable: true
-      generation_expression: null
-      default_value: null
-      is_generated: false
-      max_length: 255
-      comment: null
-      numeric_precision: null
-      numeric_scale: null
-      is_unique: false
-      is_primary_key: false
-      has_auto_increment: false
-      foreign_key_schema: public
-      foreign_key_table: languages
-      foreign_key_column: code
-    meta:
-      collection: tags_translations
-      field: languages_code
-      special: null
-      interface: null
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: true
-      sort: null
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-      validation: null
-      validation_message: null
-  - collection: tags_translations
+  - collection: tags
     field: name
     type: string
     schema:
       name: name
-      table: tags_translations
+      table: tags
       schema: public
       data_type: character varying
-      is_nullable: true
+      is_nullable: false
       generation_expression: null
       default_value: null
       is_generated: false
@@ -12332,17 +12226,18 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
     meta:
-      collection: tags_translations
+      collection: tags
       field: name
       special: null
       interface: input
       options:
+        placeholder: null
         iconLeft: title
       display: null
       display_options: null
       readonly: false
       hidden: false
-      sort: null
+      sort: 6
       width: full
       translations: null
       note: null
@@ -14401,31 +14296,6 @@ fields:
       validation: null
       validation_message: null
   - collection: tags
-    field: translations
-    type: alias
-    schema: null
-    meta:
-      collection: tags
-      field: translations
-      special:
-        - translations
-      interface: translations
-      options:
-        languageField: code
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 7
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-      validation: null
-      validation_message: null
-  - collection: tags
     field: episodes
     type: alias
     schema: null
@@ -14440,7 +14310,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: null
+      sort: 9
       width: full
       translations: null
       note: null
@@ -14747,6 +14617,72 @@ relations:
       junction_field: null
       sort_field: null
       one_deselect_action: nullify
+  - collection: assetstreams
+    field: asset_id
+    related_collection: assets
+    schema:
+      constraint_name: assetstreams_asset_id_foreign
+      table: assetstreams
+      column: asset_id
+      foreign_key_schema: public
+      foreign_key_table: assets
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: CASCADE
+    meta:
+      many_collection: assetstreams
+      many_field: asset_id
+      one_collection: assets
+      one_field: streams
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: assetstreams
+    field: user_updated
+    related_collection: directus_users
+    schema:
+      constraint_name: assetstreams_user_updated_foreign
+      table: assetstreams
+      column: user_updated
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: assetstreams
+      many_field: user_updated
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: assetstreams
+    field: user_created
+    related_collection: directus_users
+    schema:
+      constraint_name: assetstreams_user_created_foreign
+      table: assetstreams
+      column: user_created
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: assetstreams
+      many_field: user_created
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
   - collection: assetfiles
     field: audio_language_id
     related_collection: languages
@@ -14894,72 +14830,6 @@ relations:
     meta:
       many_collection: assets
       many_field: user_updated
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: assetstreams
-    field: asset_id
-    related_collection: assets
-    schema:
-      constraint_name: assetstreams_asset_id_foreign
-      table: assetstreams
-      column: asset_id
-      foreign_key_schema: public
-      foreign_key_table: assets
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: CASCADE
-    meta:
-      many_collection: assetstreams
-      many_field: asset_id
-      one_collection: assets
-      one_field: streams
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: assetstreams
-    field: user_updated
-    related_collection: directus_users
-    schema:
-      constraint_name: assetstreams_user_updated_foreign
-      table: assetstreams
-      column: user_updated
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: assetstreams
-      many_field: user_updated
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: assetstreams
-    field: user_created
-    related_collection: directus_users
-    schema:
-      constraint_name: assetstreams_user_created_foreign
-      table: assetstreams
-      column: user_created
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: assetstreams
-      many_field: user_created
       one_collection: directus_users
       one_field: null
       one_collection_field: null
@@ -15539,50 +15409,6 @@ relations:
       junction_field: episodes_id
       sort_field: null
       one_deselect_action: delete
-  - collection: tags
-    field: user_updated
-    related_collection: directus_users
-    schema:
-      constraint_name: tags_user_updated_foreign
-      table: tags
-      column: user_updated
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: tags
-      many_field: user_updated
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: tags
-    field: user_created
-    related_collection: directus_users
-    schema:
-      constraint_name: tags_user_created_foreign
-      table: tags
-      column: user_created
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: tags
-      many_field: user_created
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
   - collection: episodes_tags
     field: episodes_id
     related_collection: episodes
@@ -15845,6 +15671,50 @@ relations:
       one_collection_field: null
       one_allowed_collections: null
       junction_field: languages_code
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: tags
+    field: user_updated
+    related_collection: directus_users
+    schema:
+      constraint_name: tags_user_updated_foreign
+      table: tags
+      column: user_updated
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: tags
+      many_field: user_updated
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: tags
+    field: user_created
+    related_collection: directus_users
+    schema:
+      constraint_name: tags_user_created_foreign
+      table: tags
+      column: user_created
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: tags
+      many_field: user_created
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
       sort_field: null
       one_deselect_action: nullify
   - collection: episodes_translations
@@ -16483,50 +16353,6 @@ relations:
       one_collection_field: null
       one_allowed_collections: null
       junction_field: shows_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: tags_translations
-    field: tags_id
-    related_collection: tags
-    schema:
-      constraint_name: tags_translations_tags_id_foreign
-      table: tags_translations
-      column: tags_id
-      foreign_key_schema: public
-      foreign_key_table: tags
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: tags_translations
-      many_field: tags_id
-      one_collection: tags
-      one_field: translations
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: languages_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: tags_translations
-    field: languages_code
-    related_collection: languages
-    schema:
-      constraint_name: tags_translations_languages_code_foreign
-      table: tags_translations
-      column: languages_code
-      foreign_key_schema: public
-      foreign_key_table: languages
-      foreign_key_column: code
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: tags_translations
-      many_field: languages_code
-      one_collection: languages
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: tags_id
       sort_field: null
       one_deselect_action: nullify
   - collection: tvguideentry
