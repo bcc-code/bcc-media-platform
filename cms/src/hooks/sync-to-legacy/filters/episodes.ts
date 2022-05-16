@@ -8,8 +8,8 @@ export async function createEpisode(p, m, c) {
     if (m.collection != "episodes") {
         return
     }
-    console.log('episode created!');
-    console.log(m);
+    
+    
     // get legacy id
     let asset: any
     if (p.asset_id) {
@@ -19,7 +19,7 @@ export async function createEpisode(p, m, c) {
     if (p.image_file_id != null) {
         image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
     }
-    console.log("directus", p)
+    
 
     // update it in original 
     let patch: Partial<EpisodeEntity> = {
@@ -56,19 +56,19 @@ export async function createEpisode(p, m, c) {
         patch.EpisodeNo = p.episode_number
         let legacyEpisode = await oldKnex<EpisodeEntity>("episode").insert(patch).returning("*")
         p.legacy_id = legacyEpisode[0].Id
-        console.log(legacyEpisode)
+        
     } else if (p.type === "standalone") {
         let legacyProgram = await oldKnex<EpisodeEntity>("program").insert(patch).returning("*")
-        console.log(legacyProgram)
+        
         p.legacy_program_id = legacyProgram[0].Id
     }
 
-    console.log("insert", patch)
+    
 }
 
 export async function updateEpisode(p, m, c) {
-    console.log('Item updated!');
-    console.log(m);
+    
+    
     if (m.collection != "episodes") {
         return
     }
@@ -108,36 +108,36 @@ export async function updateEpisode(p, m, c) {
         patch.EpisodeNo = p.episode_number
     }
 
-    console.log("patch", patch)
+    
     if (!isObjectUseless(patch)) {
         if (epBeforeUpdate.type === "episode") {
             let a = await oldKnex<EpisodeEntity>("episode").where("id", epBeforeUpdate.legacy_id).update(patch).returning("*")
-            console.log(a)
+            
         } else if (epBeforeUpdate.type === "standalone") {
             let a = await oldKnex<ProgramEntity>("program").where("id", epBeforeUpdate.legacy_program_id).update(patch).returning("*")
-            console.log(a)
+            
         }
     }
 };
 
 export async function deleteEpisode(p, m, c) {
-    console.log("items.delete", m);
+    
     if (m.collection !== "episodes") {
         return
     }
-    console.log('Episode being deleted, deleting it in legacy...');
+    
 
     // get legacy ids
     let episodes_id = p[0]
     let episode = (await c.database("episodes").select("*").where("id", episodes_id))[0];
-    console.log(episode)
+    
     
     // should be cascade deleted instead
     if (episode.type === "episode") {
         let result = await oldKnex("Episode").where("id", episode.legacy_id).delete()
-        console.log("legacy episode delete result:", result)
+        
     } else if (episode.type === "standalone") {
         let result = await oldKnex("Program").where("id", episode.legacy_program_id).delete()
-        console.log("legacy program delete result:", result)
+        
     }
 }
