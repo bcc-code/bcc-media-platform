@@ -55,3 +55,45 @@ export async function deleteEpisodeTag(p, m, c) {
     console.log("updated tags: ", tags)
     console.log("result", result)
 }
+
+
+export async function updateTag(p, m, c) {
+    if (m.collection != "tags") {
+        return
+    }
+    console.log('updating a tag');
+    console.log(p,m,c);
+
+    if (!p.name) {
+        // We only care about name updates
+        return
+    }
+
+    let db = c.database as Knex<any>
+    let episodeTags = (await db("episodes_tags").select("*").where("tags_id", m.keys[0]));
+    let episodes = (await db("episodes").select("*").whereIn("id", episodeTags.map(et => et.episodes_id)));
+    console.log("episodeTags",episodeTags)
+    console.log("episodes",episodes)
+    
+    for (var episode of episodes) {
+        let tag_ids = (await db("episodes_tags").select("tags_id").where("episodes_id", episode.id)).map(t => t.tags_id);
+        console.log("tag_ids", tag_ids)
+        console.log("m.keys[0]", m.keys[0])
+        
+        // Remove it here because we push the new version later
+        const index = tag_ids.indexOf(Number(m.keys[0]));
+        console.log("index", index)
+        console.log("tag_ids", tag_ids)
+        if (index > -1) {
+            tag_ids.splice(index, 1);
+        }
+    
+        let tags = (await db("tags").select("name").whereIn("id", tag_ids)).map(t => t.name)
+        tags.push(p.name)
+        console.log("tags", tags)
+        let result = await upsertLS(oldKnex, episode.legacy_tags_id, {CultureCode: "no", Id: 1, Name: "Norsk"}, tags.join(","))
+    
+        console.log("updated tags: ", tags)
+        console.log("result", result)
+    }
+}
