@@ -23,7 +23,7 @@ export async function createEpisode(p, m, c) {
 
     // update it in original 
     let patch: Partial<EpisodeEntity> = {
-        VideoId: asset?.legacy_id ?? 1041, // TODO: remove this temp id
+        VideoId: asset?.legacy_id ?? 3022, // 3022 is placeholder. videoId isnt nullable in the legacy system, but it is in the new one
         Published: p.publish_date as unknown as Date,
         AvailableTo: p.available_to as unknown as Date,
         AvailableFrom: p.available_from as unknown as Date,

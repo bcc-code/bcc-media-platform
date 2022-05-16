@@ -50,14 +50,6 @@ export async function createListRelation(p, m, c) {
     }
 }
 
-
-export async function updateListRelation(p, m, c) {
-    if (m.collection != "lists_relations") {
-        return
-    }
-};
-
-
 export async function deleteListRelation(p, m, c) {
     console.log("items.delete", m);
     if (m.collection != "lists_relations") {

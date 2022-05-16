@@ -14,7 +14,7 @@ import { createList, deleteList, updateList } from './filters/lists';
 import { createListRelation, deleteListRelation } from './filters/lists_relations';
 import { createAsset, deleteAsset, updateAsset } from './filters/assets';
 import { createAssetstream, deleteAssetstream, updateAssetstream } from './filters/assetstreams';
-import { createEpisodeTag, deleteEpisodeTag } from './filters/tags';
+import { createEpisodeTag, deleteEpisodeTag, updateTag } from './filters/tags';
 
 
 export default defineHook(({ filter, action }, {services,database}) => {    
@@ -43,6 +43,7 @@ export default defineHook(({ filter, action }, {services,database}) => {
 	filter('items.update', updateUsergroup)
 	filter('items.update', updateAsset)
 	filter('items.update', updateAssetstream)
+	filter('items.update', updateTag)
 
 	filter('items.delete', deleteEpisodesUsergroup);
 	filter('items.delete', deleteEpisodesUsergroupEarlyAccess);
