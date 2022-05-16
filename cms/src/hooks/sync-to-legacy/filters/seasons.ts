@@ -8,12 +8,12 @@ export async function createSeason(p, m, c) {
     if (m.collection != "seasons") {
         return
     }
-    console.log('Season created!');
-    console.log(p, m);
+    
+    
 
     let show = (await c.database("shows").select("*").where("id", p.show_id))[0];
     
-    console.log("directus", p)
+    
 
     // update it in original        
     let patch: Partial<any> = {
@@ -42,23 +42,23 @@ export async function createSeason(p, m, c) {
     }
     
     let legacySeason = await oldKnex<SeasonEntity>("season").insert(patch).returning("*")
-    console.log(legacySeason, "legacySeason")
+    
     //await c.database("seasons").update({legacy_id: legacySeason[0].Id}).where("id", p.id)
     p.legacy_id = legacySeason[0].Id
-    console.log("insert", patch)
+    
     return p
 }
 
 
 export async function updateSeason(p, m, c) {
-    console.log('Item updated!');
-    console.log(m);
+    
+    
     if (m.collection != "seasons") {
         return
     }
     // get legacy id
     let seasonBeforeupdate = (await c.database("seasons").select("*").where("id", Number(m.keys[0])))[0];
-    console.log("directus", p)
+    
 
     // update it in original 
     let patch: Partial<SeasonEntity> = {
@@ -86,26 +86,26 @@ export async function updateSeason(p, m, c) {
         patch.Image = null
     }
 
-    console.log("patch", patch)
+    
     if (!isObjectUseless(patch)) {
         let a = await oldKnex<SeasonEntity>("season").where("id", seasonBeforeupdate.legacy_id).update(patch).returning("*")
-        console.log("updated legacy season: ", a)
+        
     }
 };
 
 
 export async function deleteSeason(p, m, c) {
-    console.log("items.delete", m);
+    
     if (m.collection !== "seasons") {
         return
     }
-    console.log('Season being deleted, deleting it in legacy...');
+    
 
     // get legacy ids
     let seasons_id = p[0]
     let season = (await c.database("seasons").select("*").where("id", seasons_id))[0];
-    console.log(season)
+    
   
     let result = await oldKnex("Season").where("id", season.legacy_id).delete()
-    console.log("legacy season delete result:", result)
+    
 };
