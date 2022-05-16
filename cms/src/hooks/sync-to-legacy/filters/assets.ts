@@ -16,12 +16,12 @@ export async function createAsset(p, m, c) {
     if (m.collection != "assets") {
         return
     }
-    console.log('Asset created!');
-    console.log(p,m,c);
+    
+    
     // get legacy id
     p = p as episodes.components["schemas"]["ItemsAssets"]
     //let image = e.image_file_id as episodes.components["schemas"]["Files"]
-    console.log("directus", p)
+    
 
     // update it in original        
     let patch: Partial<VideoEntity> = {
@@ -42,11 +42,11 @@ export async function createAsset(p, m, c) {
         patch.EncodingVersion = EncodingVersion.AMS
     }
 
-    console.log("inserting video", patch)
+    
     let legacyAsset = await oldKnex<VideoEntity>("video").insert(patch).returning("*")
-    console.log("legacyAsset", legacyAsset)
+    
     p.legacy_id = legacyAsset[0].Id
-    console.log("p", p)
+    
     return p
     //await c.database("assets").update({legacy_id: legacyAsset[0].Id}).where("id", e.id)
 
@@ -56,14 +56,14 @@ export async function updateAsset (p, m, c) {
     if (m.collection != "assets") {
         return
     }
-    console.log('Asset updating!');
+    
     // get legacy id
     const itemsService = new ItemsService<episodes.components["schemas"]["ItemsAssets"]>("assets", {
         knex: c.database as any,
         schema: c.schema,
     });
     let assetBeforeUpdate = await itemsService.readOne(Number(m.keys[0]), { fields: ['*.*.*'] })
-    console.log("update", p)
+    
     
     let patch: Partial<VideoEntity> = {
         EncodingStatus: 2,
@@ -83,25 +83,25 @@ export async function updateAsset (p, m, c) {
         patch.EncodingVersion = EncodingVersion.AMS
     }
 
-    console.log("patch", patch)
+    
     if (!isObjectUseless(patch)) {
         let a = await oldKnex<VideoEntity>("video").where("id", assetBeforeUpdate.legacy_id).update(patch).returning("*")
-        console.log("updated legacy video: ", a)
+        
     }
 };
 
 export async function deleteAsset(p, m, c) {
-    console.log("items.delete", m);
+    
     if (m.collection !== "assets") {
         return
     }
-    console.log('asset being deleted, deleting it in legacy...');
+    
 
     // get legacy ids
     let assets_id = p[0]
     let asset = (await c.database("assets").select("*").where("id", assets_id))[0];
-    console.log(asset)
+    
   
     let result = await oldKnex("video").where("id", asset.legacy_id).delete()
-    console.log("legacy asset delete result:", result)
+    
 };

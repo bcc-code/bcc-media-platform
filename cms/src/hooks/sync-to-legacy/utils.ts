@@ -22,7 +22,7 @@ export async function upsertLS(oldKnex: knex.Knex<any, unknown[]>, parentId: num
     if (value == undefined) {
         value = ""
     }
-    console.log(value)
+    
     let c = await oldKnex<LocalizedStringEntity>("localizedstring")
     .innerJoin("language", "localizedstring.languageid", "language.id")
     .where("ParentId", parentId)
@@ -42,7 +42,7 @@ export async function upsertLS(oldKnex: knex.Knex<any, unknown[]>, parentId: num
             LanguageId: lang.Id,
             Value: value
         }).returning("*")
-        console.log("inserted", inserted)
+        
     }
 }
 /* 
