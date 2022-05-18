@@ -9,6 +9,7 @@ type Asset struct {
 	Duration        int    `json:"duration"`
 	MediabankenID   string `json:"mediabanken_id"`
 	EncodingVersion string `json:"encoding_version"`
+	MainStoragePath string `json:"main_storage_path"`
 }
 
 // UID returns the id of the Asset

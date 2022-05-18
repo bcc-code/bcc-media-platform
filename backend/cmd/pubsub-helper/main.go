@@ -30,7 +30,7 @@ func create(projectID, topicID string) {
 	t, err := client.CreateSubscription(ctx, "bgjobs", pubsub.SubscriptionConfig{
 		Topic: topic,
 		PushConfig: pubsub.PushConfig{
-			Endpoint: "http://background-jobs:8078/api/message",
+			Endpoint: "http://10.12.128.112:8078/api/message",
 		},
 	})
 	if err != nil {
