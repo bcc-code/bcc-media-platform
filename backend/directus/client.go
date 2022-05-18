@@ -67,6 +67,6 @@ func SaveItem[t DSItem](c *resty.Client, i t, unmashall bool) (*t, error) {
 // CRUDArrays are a special wrapper in directus for creating and updating many-many relations
 type CRUDArrays[t any] struct {
 	Create []t   `json:"create"`
-	Update []int `json:"update"`
-	Delete []t   `json:"delete"`
+	Update []t   `json:"update"`
+	Delete []int `json:"delete"`
 }

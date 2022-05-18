@@ -19,7 +19,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/events"
 	"github.com/bcc-code/mediabank-bridge/log"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -105,11 +104,16 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	// Calculate the base path on the ingest S3 bucket
 	assetMeta.BasePath = path.Dir(msg.JSONMetaPath)
 
+	// Generate a sane name, in order to be able to search/browse the bucket
+	// This should not required for any functionality and can be changed
+	storagePrefix := fmt.Sprintf("%s-%s", SafeString(assetMeta.Title), uuid.NewString())
+
 	a := &directus.Asset{
 		Name:            assetMeta.Title,
 		MediabankenID:   assetMeta.ID,
 		Duration:        assetMeta.Duration,
 		EncodingVersion: "btv",
+		MainStoragePath: storagePrefix,
 	}
 
 	a, err = directus.SaveItem(services.GetDirectusClient(), *a, true)
@@ -117,11 +121,6 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		return merry.Wrap(err)
 	}
 
-	// Generate a sane name, in order to be able to search/browse the bucket
-	// This should not required for any functionality and can be changed
-	storagePrefix := fmt.Sprintf("%s-%s", SafeString(assetMeta.Title), uuid.NewString())
-
-	spew.Dump(assetMeta)
 	smilPath := path.Join(assetMeta.BasePath, assetMeta.SmilFile)
 	smil, err := readSmilFroms3(ctx, s3client, config.GetIngestBucket(), smilPath)
 	if err != nil {
@@ -280,12 +279,12 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			AudioLanguges: directus.CRUDArrays[directus.AssetStreamLanguge]{
 				Create: audioLanguages,
 				Update: []directus.AssetStreamLanguge{},
-				Delete: []directus.AssetStreamLanguge{},
+				Delete: []int{},
 			},
 			SubtitleLanguages: directus.CRUDArrays[directus.AssetStreamLanguge]{
 				Create: []directus.AssetStreamLanguge{},
 				Update: []directus.AssetStreamLanguge{},
-				Delete: []directus.AssetStreamLanguge{},
+				Delete: []int{},
 			},
 			AssetID: a.ID,
 		}
