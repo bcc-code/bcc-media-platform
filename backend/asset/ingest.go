@@ -85,6 +85,44 @@ func SafeString(s string) string {
 	return s
 }
 
+func copyObjects(
+	ctx context.Context,
+	s3client s3.Client,
+	filesToCopy []*s3.CopyObjectInput,
+) []error {
+
+	copyErrors := []error{}
+	var wg sync.WaitGroup
+
+	wg.Add(len(filesToCopy))
+	for _, file := range filesToCopy {
+		f := file
+		go func() {
+			defer wg.Done()
+			_, err := s3client.CopyObject(ctx, f)
+
+			if err != nil {
+				log.L.Error().
+					Str("dst bucket", *f.Bucket).
+					Str("source path", *f.CopySource).
+					Str("dst path", *f.Key).
+					Msg("File copy failed")
+
+				copyErrors = append(copyErrors, merry.Wrap(err))
+				return
+			}
+
+			log.L.Info().
+				Str("dst bucket", *f.Bucket).
+				Str("source path", *f.CopySource).
+				Str("dst path", *f.Key).
+				Msg("File copied")
+		}()
+	}
+	wg.Wait()
+	return copyErrors
+}
+
 // Ingest asset from storage based on the prefix.
 func Ingest(ctx context.Context, services externalServices, config config, event cloudevents.Event) error {
 	msg := events.AssetDelivered{}
@@ -127,17 +165,43 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		return merry.Wrap(err)
 	}
 
-	filesToCopy := []string{
-		path.Base(assetMeta.SmilFile),
+	filesToCopy := []*s3.CopyObjectInput{
+		{
+			Bucket:     config.GetStorageBucket(),
+			Key:        aws.String(path.Join(storagePrefix, "stream", path.Base(assetMeta.SmilFile))),
+			CopySource: aws.String(path.Join(*config.GetIngestBucket(), assetMeta.BasePath, assetMeta.SmilFile)),
+		},
+	}
+
+	// S3 files added here will be deleted if everyting else is sucessful
+	objectsToDelete := []types.ObjectIdentifier{
+		{Key: aws.String(msg.JSONMetaPath)},
 	}
 
 	audioLanguages := []directus.AssetStreamLanguge{}
+	assetfiles := []directus.Assetfile{}
 
 	for _, file := range smil.Body.Switch.Videos {
-		filesToCopy = append(filesToCopy, file.Src)
+		target := path.Join(storagePrefix, "stream", path.Base(file.Src))
+		src := fmt.Sprintf("/%s/%s/%s", *config.GetIngestBucket(), assetMeta.BasePath, file.Src)
+		co := &s3.CopyObjectInput{
+			Bucket:     config.GetStorageBucket(),
+			Key:        aws.String(target),
+			CopySource: aws.String(src),
+		}
+		filesToCopy = append(filesToCopy, co)
+		objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
 	}
+
 	for _, file := range smil.Body.Switch.Audios {
-		filesToCopy = append(filesToCopy, file.Src)
+		target := path.Join(storagePrefix, "stream", path.Base(file.Src))
+		src := path.Join(*config.GetIngestBucket(), assetMeta.BasePath, file.Src)
+		co := &s3.CopyObjectInput{
+			Bucket:     config.GetStorageBucket(),
+			Key:        aws.String(target),
+			CopySource: aws.String(src),
+		}
+		filesToCopy = append(filesToCopy, co)
 		for _, p := range file.Params {
 			if p.Name == "systemLanguage" {
 				audioLanguages = append(audioLanguages, directus.AssetStreamLanguge{
@@ -148,99 +212,50 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 				})
 			}
 		}
-	}
 
-	var wg sync.WaitGroup
-
-	copyErrors := []error{}
-
-	// S3 files added here will be deleted if everyting else is sucessful
-	objectsToDelete := []types.ObjectIdentifier{
-		{Key: aws.String(msg.JSONMetaPath)},
+		objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
 	}
 
 	for _, fileMeta := range assetMeta.Files {
-		wg.Add(1)
-
 		m := fileMeta
-		go func() {
-			defer wg.Done()
-			target := path.Join(storagePrefix, "mux", path.Base(m.Path))
-			source := path.Join("/", *config.GetIngestBucket(), assetMeta.BasePath, m.Path)
+		target := path.Join(storagePrefix, "mux", path.Base(m.Path))
+		source := path.Join("/", *config.GetIngestBucket(), assetMeta.BasePath, m.Path)
 
-			_, err := s3client.CopyObject(ctx, &s3.CopyObjectInput{
-				Bucket:     config.GetStorageBucket(),
-				Key:        aws.String(target),
-				CopySource: aws.String(source),
-			})
+		co := &s3.CopyObjectInput{
+			Bucket:     config.GetStorageBucket(),
+			Key:        aws.String(target),
+			CopySource: aws.String(source),
+		}
 
-			if err != nil {
-				copyErrors = append(copyErrors, merry.Wrap(err).Append(source))
-				return
-			}
+		filesToCopy = append(filesToCopy, co)
 
-			log.L.Info().Str("file", target).Msg("File copied")
+		objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{
+			Key: aws.String(path.Join(assetMeta.BasePath, m.Path)),
+		})
 
-			m.Path = target
+		af := directus.Assetfile{
+			Path:             target,
+			Storage:          "s3_assets",
+			Type:             "video",
+			MimeType:         m.Mime,
+			AssetID:          a.ID,
+			AudioLanguge:     m.AudioLanguge,
+			SubtitleLanguage: m.SubtitleLanguage,
+		}
 
-			af := directus.Assetfile{
-				Path:             m.Path,
-				Storage:          "s3_assets",
-				Type:             "video",
-				MimeType:         m.Mime,
-				AssetID:          a.ID,
-				AudioLanguge:     m.AudioLanguge,
-				SubtitleLanguage: m.SubtitleLanguage,
-			}
+		assetfiles = append(assetfiles, af)
 
-			_, err = directus.SaveItem(services.GetDirectusClient(), af, false)
-			if err != nil {
-				copyErrors = append(copyErrors, merry.Wrap(err))
-				return
-			}
-
-			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{
-				Key: aws.String(path.Join(assetMeta.BasePath, m.Path)),
-			})
-
-		}()
-	}
-	for _, file := range filesToCopy {
-		wg.Add(1)
-
-		filePath := path.Join(assetMeta.BasePath, file)
-		target := path.Join(storagePrefix, "stream", path.Base(file))
-
-		go func() {
-			defer wg.Done()
-			_, err := s3client.CopyObject(ctx, &s3.CopyObjectInput{
-				Bucket:     config.GetStorageBucket(),
-				Key:        aws.String(target),
-				CopySource: aws.String(fmt.Sprintf("/%s/%s", *config.GetIngestBucket(), filePath)),
-			})
-
-			if err != nil {
-				copyErrors = append(copyErrors, merry.Wrap(err).Append(filePath))
-				return
-			}
-
-			log.L.Info().Str("file", target).Msg("File copied")
-
-			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{
-				Key: aws.String(filePath),
-			})
-		}()
 	}
 
-	wg.Wait()
-
+	// This will copy the objects in parallel and return upon completion of all tasks
+	copyErrors := copyObjects(ctx, *s3client, filesToCopy)
 	if len(copyErrors) > 0 {
 		log.L.Error().Errs("copyErrors", copyErrors).Msg("Errors while copying files")
 		return ErrDuringCopy.Here()
 	}
-
 	log.L.Info().Msg("Done copying files")
 
+	log.L.Info().Msg("Creating Streams")
 	// Construct the source as an ARN
 	source := fmt.Sprintf("arn:aws:s3:::%s", path.Join(*config.GetStorageBucket(), storagePrefix, "stream", path.Base(assetMeta.SmilFile)))
 	log.L.Debug().Str("Smil source ARN", source).Msg("Calculated source ARN for MediaPackager")
@@ -294,6 +309,16 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			return merry.Wrap(err)
 		}
 	}
+	log.L.Debug().Msg("Done creating streams")
+
+	log.L.Debug().Msg("Insert stuff into Directus")
+	for _, af := range assetfiles {
+		_, err = directus.SaveItem(services.GetDirectusClient(), af, false)
+		if err != nil {
+			return merry.Wrap(err)
+		}
+	}
+	log.L.Debug().Msg("Done inserting stuff into Directus")
 
 	deleteInputs := &s3.DeleteObjectsInput{
 		Bucket: config.GetIngestBucket(),
@@ -311,5 +336,6 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 		log.L.Debug().Str("objectsToDelete", fmt.Sprintf("%v", fileList)).Msg("Deleting disabled. Would have deleted this files")
 	}
+
 	return nil
 }
