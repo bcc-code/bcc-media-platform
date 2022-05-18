@@ -22,6 +22,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"go.opencensus.io/trace"
 )
 
 // Sentinel errors
@@ -90,6 +91,8 @@ func copyObjects(
 	s3client s3.Client,
 	filesToCopy []*s3.CopyObjectInput,
 ) []error {
+	ctx, span := trace.StartSpan(ctx, "copyObjects")
+	defer span.End()
 
 	copyErrors := []error{}
 	var wg sync.WaitGroup
@@ -125,6 +128,8 @@ func copyObjects(
 
 // Ingest asset from storage based on the prefix.
 func Ingest(ctx context.Context, services externalServices, config config, event cloudevents.Event) error {
+	ctx, span := trace.StartSpan(ctx, "ingest")
+	defer span.End()
 	msg := events.AssetDelivered{}
 	err := event.DataAs(&msg)
 	if err != nil {

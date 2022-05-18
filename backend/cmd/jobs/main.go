@@ -25,7 +25,7 @@ func main() {
 	log.L.Debug().Msg("Seting up tracing!")
 
 	// Here you can get a tracedHttpClient if useful anywhere
-	_ = utils.MustSetupTracing()
+	tracedHTTPClient := utils.MustSetupTracing()
 	ctx, initTrace := trace.StartSpan(ctx, "init")
 
 	config := getEnvConfig()
@@ -48,7 +48,7 @@ func main() {
 
 	s3Client := s3.NewFromConfig(awsConfig)
 	mediaPackageVOD := mediapackagevod.NewFromConfig(awsConfig)
-	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key)
+	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key, tracedHTTPClient)
 
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
@@ -65,6 +65,5 @@ func main() {
 	}
 
 	initTrace.End()
-
 	router.Run(":" + config.Port)
 }
