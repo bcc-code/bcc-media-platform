@@ -13,7 +13,7 @@ import (
 func copyObjects(
 	ctx context.Context,
 	s3client s3.Client,
-	filesToCopy []*s3.CopyObjectInput,
+	filesToCopy map[string]*s3.CopyObjectInput,
 ) []error {
 	ctx, span := trace.StartSpan(ctx, "copyObjects")
 	defer span.End()
@@ -26,6 +26,7 @@ func copyObjects(
 		f := file
 		go func() {
 			defer wg.Done()
+
 			_, err := s3client.CopyObject(ctx, f)
 
 			if err != nil {

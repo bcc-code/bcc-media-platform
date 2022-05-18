@@ -103,12 +103,45 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		return merry.Wrap(err)
 	}
 
+	oldAsset, err := directus.FindNewestAssetByMediabankenID(services.GetDirectusClient(), assetMeta.ID)
+
+	if err != nil && !merry.Is(err, directus.ErrNotFound) {
+		return err
+	}
+
 	// Calculate the base path on the ingest S3 bucket
 	assetMeta.BasePath = path.Dir(msg.JSONMetaPath)
 
 	// Generate a sane name, in order to be able to search/browse the bucket
 	// This should not required for any functionality and can be changed
 	storagePrefix := fmt.Sprintf("%s-%s", SafeString(assetMeta.Title), uuid.NewString())
+
+	filesToCopy := map[string]*s3.CopyObjectInput{}
+
+	// Prepare to copy the old files. Because the new files get the same destination,
+	// they will replace the copy instructions and we will not unnecessarily copy old files
+	// that will just get replaced
+	if oldAsset != nil {
+		res, err := s3client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
+			Bucket: config.GetStorageBucket(),
+			Prefix: aws.String(oldAsset.MainStoragePath),
+		})
+
+		if err != nil {
+			return merry.Wrap(err)
+		}
+
+		for _, x := range res.Contents {
+			key := strings.Replace(*x.Key, oldAsset.MainStoragePath, storagePrefix, 1)
+			coi := &s3.CopyObjectInput{
+				Bucket:     config.GetStorageBucket(),
+				Key:        aws.String(key),
+				CopySource: aws.String(path.Join(*config.GetIngestBucket(), *x.Key)),
+			}
+
+			filesToCopy[*coi.Key] = coi
+		}
+	}
 
 	// Create BASE Directus asset
 	a := &directus.Asset{
@@ -129,7 +162,6 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		{Key: aws.String(msg.JSONMetaPath)},
 	}
 
-	filesToCopy := []*s3.CopyObjectInput{}
 	audioLanguages := []directus.AssetStreamLanguge{}
 	assetfiles := []directus.Assetfile{}
 
@@ -142,34 +174,35 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		if err != nil {
 			return merry.Wrap(err)
 		}
-
-		filesToCopy = append(filesToCopy, &s3.CopyObjectInput{
+		coi := &s3.CopyObjectInput{
 			Bucket:     config.GetStorageBucket(),
 			Key:        aws.String(path.Join(storagePrefix, "stream", path.Base(assetMeta.SmilFile))),
 			CopySource: aws.String(path.Join(*config.GetIngestBucket(), assetMeta.BasePath, assetMeta.SmilFile)),
-		})
+		}
+
+		filesToCopy[*coi.Key] = coi
 
 		for _, file := range smil.Body.Switch.Videos {
 			target := path.Join(storagePrefix, "stream", path.Base(file.Src))
 			src := fmt.Sprintf("/%s/%s/%s", *config.GetIngestBucket(), assetMeta.BasePath, file.Src)
-			co := &s3.CopyObjectInput{
+			coi := &s3.CopyObjectInput{
 				Bucket:     config.GetStorageBucket(),
 				Key:        aws.String(target),
 				CopySource: aws.String(src),
 			}
-			filesToCopy = append(filesToCopy, co)
+			filesToCopy[*coi.Key] = coi
 			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
 		}
 
 		for _, file := range smil.Body.Switch.Audios {
 			target := path.Join(storagePrefix, "stream", path.Base(file.Src))
 			src := path.Join(*config.GetIngestBucket(), assetMeta.BasePath, file.Src)
-			co := &s3.CopyObjectInput{
+			coi := &s3.CopyObjectInput{
 				Bucket:     config.GetStorageBucket(),
 				Key:        aws.String(target),
 				CopySource: aws.String(src),
 			}
-			filesToCopy = append(filesToCopy, co)
+			filesToCopy[*coi.Key] = coi
 			for _, p := range file.Params {
 				if p.Name == "systemLanguage" {
 					audioLanguages = append(audioLanguages, directus.AssetStreamLanguge{
@@ -190,13 +223,13 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		target := path.Join(storagePrefix, "mux", path.Base(m.Path))
 		source := path.Join("/", *config.GetIngestBucket(), assetMeta.BasePath, m.Path)
 
-		co := &s3.CopyObjectInput{
+		coi := &s3.CopyObjectInput{
 			Bucket:     config.GetStorageBucket(),
 			Key:        aws.String(target),
 			CopySource: aws.String(source),
 		}
 
-		filesToCopy = append(filesToCopy, co)
+		filesToCopy[*coi.Key] = coi
 
 		objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{
 			Key: aws.String(path.Join(assetMeta.BasePath, m.Path)),
