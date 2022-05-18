@@ -10,6 +10,7 @@ import (
 	"github.com/bcc-code/mediabank-bridge/log"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/gin-gonic/gin"
+	"go.opencensus.io/trace"
 )
 
 var (
@@ -34,8 +35,11 @@ type server struct {
 // IngestVod processes the message for ingesting a VOD asset
 func (s server) ProcessMessage(c *gin.Context) {
 	ctx := c.Request.Context()
+	ctx, span := trace.StartSpan(ctx, "ProcessMessage")
+	defer span.End()
 
 	msg, err := pubsub.MessageFromCtx(c)
+	span.AddMessageReceiveEvent(msg.Message.PublishTime.UnixMilli(), c.Request.ContentLength, 0)
 	if err != nil {
 		// TODO
 		log.L.Error().Msgf("%+v", err)

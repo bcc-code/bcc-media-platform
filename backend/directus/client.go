@@ -2,14 +2,15 @@ package directus
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/ansel1/merry"
 	"github.com/go-resty/resty/v2"
 )
 
 // New client for Directus
-func New(url, key string) *resty.Client {
-	rest := resty.New().
+func New(url, key string, httpClient *http.Client) *resty.Client {
+	rest := resty.NewWithClient(httpClient).
 		SetBaseURL(url).
 		SetAuthToken(key).
 		SetRetryCount(5).
