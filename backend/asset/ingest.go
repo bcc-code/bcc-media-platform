@@ -7,7 +7,6 @@ import (
 	"path"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/ansel1/merry"
@@ -52,7 +51,7 @@ type config interface {
 }
 
 type ingestFileMeta struct {
-	Mime             string `json:"mimt"`
+	Mime             string `json:"mime"`
 	Path             string `json:"path"`
 	AudioLanguge     string `json:"audio_language"`
 	SubtitleLanguage string `json:"subtitle_language"`
@@ -86,46 +85,6 @@ func SafeString(s string) string {
 	return s
 }
 
-func copyObjects(
-	ctx context.Context,
-	s3client s3.Client,
-	filesToCopy []*s3.CopyObjectInput,
-) []error {
-	ctx, span := trace.StartSpan(ctx, "copyObjects")
-	defer span.End()
-
-	copyErrors := []error{}
-	var wg sync.WaitGroup
-
-	wg.Add(len(filesToCopy))
-	for _, file := range filesToCopy {
-		f := file
-		go func() {
-			defer wg.Done()
-			_, err := s3client.CopyObject(ctx, f)
-
-			if err != nil {
-				log.L.Error().
-					Str("dst bucket", *f.Bucket).
-					Str("source path", *f.CopySource).
-					Str("dst path", *f.Key).
-					Msg("File copy failed")
-
-				copyErrors = append(copyErrors, merry.Wrap(err))
-				return
-			}
-
-			log.L.Info().
-				Str("dst bucket", *f.Bucket).
-				Str("source path", *f.CopySource).
-				Str("dst path", *f.Key).
-				Msg("File copied")
-		}()
-	}
-	wg.Wait()
-	return copyErrors
-}
-
 // Ingest asset from storage based on the prefix.
 func Ingest(ctx context.Context, services externalServices, config config, event cloudevents.Event) error {
 	ctx, span := trace.StartSpan(ctx, "ingest")
@@ -151,6 +110,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	// This should not required for any functionality and can be changed
 	storagePrefix := fmt.Sprintf("%s-%s", SafeString(assetMeta.Title), uuid.NewString())
 
+	// Create BASE Directus asset
 	a := &directus.Asset{
 		Name:            assetMeta.Title,
 		MediabankenID:   assetMeta.ID,
@@ -164,61 +124,65 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		return merry.Wrap(err)
 	}
 
-	smilPath := path.Join(assetMeta.BasePath, assetMeta.SmilFile)
-	smil, err := readSmilFroms3(ctx, s3client, config.GetIngestBucket(), smilPath)
-	if err != nil {
-		return merry.Wrap(err)
-	}
-
-	filesToCopy := []*s3.CopyObjectInput{
-		{
-			Bucket:     config.GetStorageBucket(),
-			Key:        aws.String(path.Join(storagePrefix, "stream", path.Base(assetMeta.SmilFile))),
-			CopySource: aws.String(path.Join(*config.GetIngestBucket(), assetMeta.BasePath, assetMeta.SmilFile)),
-		},
-	}
-
 	// S3 files added here will be deleted if everyting else is sucessful
 	objectsToDelete := []types.ObjectIdentifier{
 		{Key: aws.String(msg.JSONMetaPath)},
 	}
 
+	filesToCopy := []*s3.CopyObjectInput{}
 	audioLanguages := []directus.AssetStreamLanguge{}
 	assetfiles := []directus.Assetfile{}
 
-	for _, file := range smil.Body.Switch.Videos {
-		target := path.Join(storagePrefix, "stream", path.Base(file.Src))
-		src := fmt.Sprintf("/%s/%s/%s", *config.GetIngestBucket(), assetMeta.BasePath, file.Src)
-		co := &s3.CopyObjectInput{
-			Bucket:     config.GetStorageBucket(),
-			Key:        aws.String(target),
-			CopySource: aws.String(src),
-		}
-		filesToCopy = append(filesToCopy, co)
-		objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
-	}
+	// If we have a "smilFile" then we have defined streams
+	hasStreams := assetMeta.SmilFile != ""
 
-	for _, file := range smil.Body.Switch.Audios {
-		target := path.Join(storagePrefix, "stream", path.Base(file.Src))
-		src := path.Join(*config.GetIngestBucket(), assetMeta.BasePath, file.Src)
-		co := &s3.CopyObjectInput{
-			Bucket:     config.GetStorageBucket(),
-			Key:        aws.String(target),
-			CopySource: aws.String(src),
+	if hasStreams {
+		smilPath := path.Join(assetMeta.BasePath, assetMeta.SmilFile)
+		smil, err := readSmilFroms3(ctx, s3client, config.GetIngestBucket(), smilPath)
+		if err != nil {
+			return merry.Wrap(err)
 		}
-		filesToCopy = append(filesToCopy, co)
-		for _, p := range file.Params {
-			if p.Name == "systemLanguage" {
-				audioLanguages = append(audioLanguages, directus.AssetStreamLanguge{
-					AssetStreamID: "+", // This is a placeholder for "new asset" in Directus
-					LanguagesCode: directus.LanguagesCode{
-						Code: p.Value,
-					},
-				})
+
+		filesToCopy = append(filesToCopy, &s3.CopyObjectInput{
+			Bucket:     config.GetStorageBucket(),
+			Key:        aws.String(path.Join(storagePrefix, "stream", path.Base(assetMeta.SmilFile))),
+			CopySource: aws.String(path.Join(*config.GetIngestBucket(), assetMeta.BasePath, assetMeta.SmilFile)),
+		})
+
+		for _, file := range smil.Body.Switch.Videos {
+			target := path.Join(storagePrefix, "stream", path.Base(file.Src))
+			src := fmt.Sprintf("/%s/%s/%s", *config.GetIngestBucket(), assetMeta.BasePath, file.Src)
+			co := &s3.CopyObjectInput{
+				Bucket:     config.GetStorageBucket(),
+				Key:        aws.String(target),
+				CopySource: aws.String(src),
 			}
+			filesToCopy = append(filesToCopy, co)
+			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
 		}
 
-		objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
+		for _, file := range smil.Body.Switch.Audios {
+			target := path.Join(storagePrefix, "stream", path.Base(file.Src))
+			src := path.Join(*config.GetIngestBucket(), assetMeta.BasePath, file.Src)
+			co := &s3.CopyObjectInput{
+				Bucket:     config.GetStorageBucket(),
+				Key:        aws.String(target),
+				CopySource: aws.String(src),
+			}
+			filesToCopy = append(filesToCopy, co)
+			for _, p := range file.Params {
+				if p.Name == "systemLanguage" {
+					audioLanguages = append(audioLanguages, directus.AssetStreamLanguge{
+						AssetStreamID: "+", // This is a placeholder for "new asset" in Directus
+						LanguagesCode: directus.LanguagesCode{
+							Code: p.Value,
+						},
+					})
+				}
+			}
+
+			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
+		}
 	}
 
 	for _, fileMeta := range assetMeta.Files {
