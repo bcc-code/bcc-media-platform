@@ -4,7 +4,13 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/ansel1/merry"
 	"github.com/go-resty/resty/v2"
+)
+
+// Sentinel errors
+var (
+	ErrNotFound = merry.New("No objct was found")
 )
 
 // Asset item in the DB
@@ -54,8 +60,14 @@ func FindNewestAssetByMediabankenID(c *resty.Client, mediabankenID string) (*Ass
 
 	res, err := req.Get(q.String())
 	if err != nil {
-		return nil, err
+		return nil, merry.Wrap(err)
 	}
+
 	assetList := res.Result().(*struct{ Data []Asset })
+
+	if len(assetList.Data) == 0 {
+		return nil, ErrNotFound.Here().WithValue("mediabankenID", mediabankenID)
+	}
+
 	return &assetList.Data[0], nil
 }
