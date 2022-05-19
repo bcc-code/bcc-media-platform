@@ -12,6 +12,7 @@ import (
 	"cloud.google.com/go/pubsub"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/davecgh/go-spew/spew"
 )
 
 func create(projectID, topicID string) {
@@ -55,6 +56,7 @@ func send(projectID, topicID string) {
 	})
 
 	data, err := json.Marshal(e)
+	spew.Dump(string(data))
 	topic := client.Topic(topicID)
 	msg := topic.Publish(ctx, &pubsub.Message{
 		Data: data,
