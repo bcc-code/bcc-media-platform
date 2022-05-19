@@ -9,6 +9,10 @@ services:
     environment:
     - POSTGRES_USER=btv
     - POSTGRES_PASSWORD=btv123
+  cms:
+    image: du:latest
+    ports:
+    - 8055:8055/tcp
 
 volumes:
   db-data:
