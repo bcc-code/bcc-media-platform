@@ -10,6 +10,8 @@ services:
     - POSTGRES_USER=btv
     - POSTGRES_PASSWORD=btv123
   cms:
+    env_file:
+    - .env
     image: du:latest
     ports:
     - 8055:8055/tcp
