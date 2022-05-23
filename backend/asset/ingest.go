@@ -323,7 +323,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	}
 
 	a.Status = directus.StatusPublished
-	a, err = directus.SaveItem(services.GetDirectusClient(), *a, true)
+	a, err = directus.SaveItem(services.GetDirectusClient(), *a, false)
 	if err != nil {
 		return merry.Wrap(err)
 	}

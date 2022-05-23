@@ -9,12 +9,16 @@ import (
 )
 
 // New client for Directus
-func New(url, key string, httpClient *http.Client) *resty.Client {
+//
+// Note: Setting debug to `true` will dump all data sent and recieved as logs
+// This may include tokens and other sensitive information. Please only use locally
+func New(url, key string, debug bool, httpClient *http.Client) *resty.Client {
 	rest := resty.NewWithClient(httpClient).
 		SetBaseURL(url).
 		SetAuthToken(key).
 		SetRetryCount(5).
-		EnableTrace()
+		EnableTrace().
+		SetDebug(false)
 	return rest
 }
 
@@ -22,6 +26,7 @@ func New(url, key string, httpClient *http.Client) *resty.Client {
 type DSItem interface {
 	UID() int
 	TypeName() string
+	ForUpdate() interface{}
 }
 
 // SaveItem into Directus system
@@ -32,22 +37,23 @@ func SaveItem[t DSItem](c *resty.Client, i t, unmashall bool) (*t, error) {
 		Data t
 	}{}
 
-	// Set up and perform the request
-	req := c.R().
-		SetBody(i)
+	req := c.R()
 
 	if unmashall {
 		req.SetResult(x)
 	}
 
-	path := fmt.Sprintf("/items/%s", i.TypeName())
-
 	var err error
 	var res *resty.Response
 
 	if i.UID() != 0 {
+		path := fmt.Sprintf("/items/%s/%d", i.TypeName(), i.UID())
+		req.SetBody(i.ForUpdate())
 		res, err = req.Patch(path)
+
 	} else {
+		path := fmt.Sprintf("/items/%s", i.TypeName())
+		req.SetBody(i)
 		res, err = req.Post(path)
 	}
 

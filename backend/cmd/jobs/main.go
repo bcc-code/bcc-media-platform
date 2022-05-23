@@ -48,7 +48,9 @@ func main() {
 
 	s3Client := s3.NewFromConfig(awsConfig)
 	mediaPackageVOD := mediapackagevod.NewFromConfig(awsConfig)
-	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key, tracedHTTPClient)
+
+	debugDirectus := false
+	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key, debugDirectus, tracedHTTPClient)
 
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
