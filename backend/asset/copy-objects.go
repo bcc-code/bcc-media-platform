@@ -31,6 +31,7 @@ func copyObjects(
 
 			if err != nil {
 				log.L.Error().
+					Err(err).
 					Str("dst bucket", *f.Bucket).
 					Str("source path", *f.CopySource).
 					Str("dst path", *f.Key).
