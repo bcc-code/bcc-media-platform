@@ -1,4 +1,4 @@
 #!/bin/sh
 npx directus bootstrap
-make schema-apply
+make schema-update
 npx directus start

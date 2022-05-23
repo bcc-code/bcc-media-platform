@@ -19,7 +19,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 1
-      group: config
+      group: null
       collapse: open
     schema:
       schema: public
@@ -67,7 +67,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 3
-      group: asset_management
+      group: null
       collapse: open
     schema:
       schema: public
@@ -112,7 +112,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 1
-      group: asset_management
+      group: null
       collapse: open
     schema:
       schema: public
@@ -136,7 +136,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 2
-      group: asset_management
+      group: null
       collapse: open
     schema:
       schema: public
@@ -229,7 +229,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 2
-      group: calendar
+      group: null
       collapse: open
     schema:
       schema: public
@@ -253,7 +253,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 7
-      group: page_management
+      group: null
       collapse: open
     schema:
       schema: public
@@ -308,7 +308,7 @@ collections:
         - show_episodes_in_section
         - translations
       sort: 4
-      group: page_management
+      group: null
       collapse: open
     schema:
       schema: public
@@ -460,7 +460,7 @@ collections:
       collection: episodes
       icon: slow_motion_video
       note: null
-      display_template: "{{season_id.show_id.translations}}\_-\_{{translations}}"
+      display_template: "{{season_id.show_id.translations}} - {{translations}}"
       hidden: false
       singleton: false
       translations: null
@@ -482,7 +482,7 @@ collections:
         - season_id
         - image
       sort: 3
-      group: main_content
+      group: null
       collapse: open
     schema:
       schema: public
@@ -650,7 +650,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 3
-      group: config
+      group: null
       collapse: open
     schema:
       schema: public
@@ -674,7 +674,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 5
-      group: page_management
+      group: null
       collapse: open
     schema:
       schema: public
@@ -764,7 +764,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 1
-      group: page_management
+      group: null
       collapse: open
     schema:
       schema: public
@@ -788,7 +788,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 2
-      group: main_content
+      group: null
       collapse: open
     schema:
       schema: public
@@ -860,7 +860,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 3
-      group: page_management
+      group: null
       collapse: open
     schema:
       schema: public
@@ -932,7 +932,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 1
-      group: main_content
+      group: null
       collapse: open
     schema:
       schema: public
@@ -1004,7 +1004,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 6
-      group: page_management
+      group: null
       collapse: open
     schema:
       schema: public
@@ -1028,7 +1028,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 1
-      group: calendar
+      group: null
       collapse: open
     schema:
       schema: public
@@ -1076,7 +1076,7 @@ collections:
       color: null
       item_duplication_fields: null
       sort: 2
-      group: config
+      group: null
       collapse: open
     schema:
       schema: public
@@ -13661,8 +13661,7 @@ fields:
       interface: presentation-notice
       options:
         text: >-
-          This page is managed by the system, and some fields are therefore
-          disabled.
+          This page is managed by the system, and some fields are therefore disabled.
         icon: info
         color: info
       display: null
