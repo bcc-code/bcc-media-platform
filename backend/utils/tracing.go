@@ -20,15 +20,6 @@ import (
 //  1.0 means every request. Default is 0.1, 10% of requests
 func MustSetupTracing() *http.Client {
 	project := os.Getenv("GOOGLE_CLOUD_PROJECT")
-	if project == "" {
-		log.L.Warn().Msg("Unable to determine GOOGLE_CLOUD_PROJECT. Skipping tracing")
-		return &http.Client{
-			Transport: &ochttp.Transport{
-				// Use Google Cloud propagation format.
-				Propagation: &propagation.HTTPFormat{},
-			},
-		}
-	}
 
 	exporter, err := stackdriver.NewExporter(stackdriver.Options{
 		ProjectID: project,
