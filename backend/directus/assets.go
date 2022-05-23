@@ -27,12 +27,18 @@ const (
 type Asset struct {
 	ID              int         `json:"id,omitempty"`
 	Name            string      `json:"name"`
-	Files           []Assetfile `json:"files"`
+	Files           []Assetfile `json:"files,omitempty"`
 	Duration        int         `json:"duration"`
 	MediabankenID   string      `json:"mediabanken_id"`
 	EncodingVersion string      `json:"encoding_version"`
 	MainStoragePath string      `json:"main_storage_path"`
 	Status          Status      `json:"status"`
+}
+
+// ForUpdate prepares a copy of the struct for Directus update op
+func (a Asset) ForUpdate() interface{} {
+	a.Files = nil
+	return a
 }
 
 // UID returns the id of the Asset

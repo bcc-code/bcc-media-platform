@@ -22,3 +22,8 @@ func (a Assetfile) UID() int {
 func (Assetfile) TypeName() string {
 	return "assetfiles"
 }
+
+// ForUpdate prepares a copy of the struct for Directus update op
+func (a Assetfile) ForUpdate() interface{} {
+	return a
+}

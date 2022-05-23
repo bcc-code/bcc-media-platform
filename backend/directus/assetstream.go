@@ -31,7 +31,12 @@ func (a AssetStream) UID() int {
 	return a.ID
 }
 
-// TypeName of the item. Statically set to "asset"
+// TypeName of the item. Statically set to "assetstreams"
 func (AssetStream) TypeName() string {
 	return "assetstreams"
+}
+
+// ForUpdate prepares a copy of the struct for Directus update op
+func (a AssetStream) ForUpdate() interface{} {
+	return a
 }
