@@ -2090,7 +2090,7 @@ fields:
       display_options: null
       readonly: true
       hidden: true
-      sort: 3
+      sort: 4
       width: half
       translations: null
       note: null
@@ -2133,7 +2133,7 @@ fields:
         relative: true
       readonly: true
       hidden: true
-      sort: 4
+      sort: 5
       width: half
       translations: null
       note: null
@@ -2176,7 +2176,7 @@ fields:
       display_options: null
       readonly: true
       hidden: true
-      sort: 5
+      sort: 6
       width: half
       translations: null
       note: null
@@ -2219,7 +2219,7 @@ fields:
         relative: true
       readonly: true
       hidden: true
-      sort: 6
+      sort: 7
       width: half
       translations: null
       note: null
@@ -2303,7 +2303,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 7
+      sort: 8
       width: full
       translations: null
       note: null
@@ -2345,7 +2345,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 8
+      sort: 9
       width: full
       translations: null
       note: null
@@ -2386,7 +2386,7 @@ fields:
       display_options: null
       readonly: false
       hidden: true
-      sort: 9
+      sort: 10
       width: full
       translations: null
       note: null
@@ -2432,7 +2432,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 10
+      sort: 11
       width: full
       translations: null
       note: null
@@ -2473,12 +2473,61 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 11
+      sort: 12
       width: full
       translations: null
       note: null
       conditions: null
       required: false
+      group: null
+      validation: null
+      validation_message: null
+  - collection: assets
+    field: status
+    type: string
+    schema:
+      name: status
+      table: assets
+      schema: public
+      data_type: character varying
+      is_nullable: true
+      generation_expression: null
+      default_value: draft
+      is_generated: false
+      max_length: 255
+      comment: null
+      numeric_precision: null
+      numeric_scale: null
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: assets
+      field: status
+      special: null
+      interface: select-dropdown
+      options:
+        choices:
+          - text: Draft
+            value: draft
+          - text: Published
+            value: published
+          - text: Archived
+            value: archived
+        icon: visibility
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 3
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: true
       group: null
       validation: null
       validation_message: null
@@ -14149,6 +14198,31 @@ fields:
       validation: null
       validation_message: null
   - collection: assets
+    field: streams
+    type: alias
+    schema: null
+    meta:
+      collection: assets
+      field: streams
+      special:
+        - o2m
+      interface: list-o2m
+      options:
+        template: '{{service}}/{{path}}'
+      display: related-values
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 14
+      width: half
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+      validation: null
+      validation_message: null
+  - collection: assets
     field: files
     type: alias
     schema: null
@@ -14162,31 +14236,6 @@ fields:
         template: '{{storage}}/{{path}}'
         enableCreate: false
       display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 12
-      width: half
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-      validation: null
-      validation_message: null
-  - collection: assets
-    field: streams
-    type: alias
-    schema: null
-    meta:
-      collection: assets
-      field: streams
-      special:
-        - o2m
-      interface: list-o2m
-      options:
-        template: '{{service}}/{{path}}'
-      display: related-values
       display_options: null
       readonly: false
       hidden: false
@@ -15969,6 +16018,50 @@ relations:
       junction_field: item
       sort_field: null
       one_deselect_action: nullify
+  - collection: assets
+    field: user_updated
+    related_collection: directus_users
+    schema:
+      constraint_name: assets_user_updated_foreign
+      table: assets
+      column: user_updated
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: assets
+      many_field: user_updated
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: assets
+    field: user_created
+    related_collection: directus_users
+    schema:
+      constraint_name: assets_user_created_foreign
+      table: assets
+      column: user_created
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: assets
+      many_field: user_created
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
   - collection: sections
     field: collection_id
     related_collection: collections
@@ -16101,50 +16194,6 @@ relations:
       junction_field: languages_code
       sort_field: null
       one_deselect_action: delete
-  - collection: assets
-    field: user_updated
-    related_collection: directus_users
-    schema:
-      constraint_name: assets_user_updated_foreign
-      table: assets
-      column: user_updated
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: assets
-      many_field: user_updated
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: assets
-    field: user_created
-    related_collection: directus_users
-    schema:
-      constraint_name: assets_user_created_foreign
-      table: assets
-      column: user_created
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: assets
-      many_field: user_created
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
   - collection: assetstreams
     field: asset_id
     related_collection: assets
