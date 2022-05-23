@@ -19,13 +19,12 @@ run:
 	npx directus start
 
 schema-update:
-	docker run --rm -v "${PWD}":/workdir mikefarah/yq e '.collections.[].meta.group = null' schema.yml > temp.yml
-	npx directus schema apply temp.yml -y
+	npx directus schema apply base-schema.yml -y
 	npx directus schema apply schema.yml -y
-	rm temp.yml
 
 schema-snapshot:
 	npx directus schema snapshot schema.yml -y
+	docker run --rm -v "${PWD}":/workdir mikefarah/yq e '.collections.[].meta.group = null' schema.yml > base-schema.yml
 
 generate-types:
 	npx directus-typescript-gen --host http://localhost:8055 --email admin@brunstad.tv --password btv123 --typeName episodes --outFile types/btv.d.ts
