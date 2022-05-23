@@ -150,6 +150,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		Duration:        assetMeta.Duration,
 		EncodingVersion: "btv",
 		MainStoragePath: storagePrefix,
+		Status:          directus.StatusDraft,
 	}
 
 	a, err = directus.SaveItem(services.GetDirectusClient(), *a, true)
@@ -320,6 +321,13 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			return merry.Wrap(err)
 		}
 	}
+
+	a.Status = directus.StatusPublished
+	a, err = directus.SaveItem(services.GetDirectusClient(), *a, true)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
 	log.L.Debug().Msg("Done inserting stuff into Directus")
 
 	deleteInputs := &s3.DeleteObjectsInput{

@@ -13,6 +13,16 @@ var (
 	ErrNotFound = merry.New("No objct was found")
 )
 
+// Status is a global enum for directus status
+type Status string
+
+// Status constants
+const (
+	StatusDraft     = Status("draft")
+	StatusPublished = Status("published")
+	StatusArchived  = Status("archived")
+)
+
 // Asset item in the DB
 type Asset struct {
 	ID              int         `json:"id,omitempty"`
@@ -22,6 +32,7 @@ type Asset struct {
 	MediabankenID   string      `json:"mediabanken_id"`
 	EncodingVersion string      `json:"encoding_version"`
 	MainStoragePath string      `json:"main_storage_path"`
+	Status          Status      `json:"status"`
 }
 
 // UID returns the id of the Asset
@@ -49,7 +60,7 @@ func FindNewestAssetByMediabankenID(c *resty.Client, mediabankenID string) (*Ass
 	qq.Add("fields[]", "main_storage_path")
 	qq.Add("fields[]", "files.path")
 
-	qq.Add("filter", fmt.Sprintf(`{"_and":[{"mediabanken_id":{"_eq":"%s"}}]}`, mediabankenID))
+	qq.Add("filter", fmt.Sprintf(`{"_and":[{"mediabanken_id":{"_eq":"%s"}}, {"status": "_eq": "%s"}]}`, mediabankenID, StatusPublished))
 
 	x := struct {
 		Data []Asset
