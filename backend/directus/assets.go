@@ -28,7 +28,7 @@ type Asset struct {
 	ID              int         `json:"id,omitempty"`
 	Name            string      `json:"name"`
 	Files           []Assetfile `json:"files,omitempty"`
-	Duration        int         `json:"duration"`
+	Duration        int64       `json:"duration"`
 	MediabankenID   string      `json:"mediabanken_id"`
 	EncodingVersion string      `json:"encoding_version"`
 	MainStoragePath string      `json:"main_storage_path"`

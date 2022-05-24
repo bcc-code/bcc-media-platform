@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"path"
 	"regexp"
+	"strconv"
 	"strings"
-	"time"
 
 	"github.com/ansel1/merry"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -58,14 +58,41 @@ type ingestFileMeta struct {
 }
 
 type assetIngestJSONMeta struct {
-	Duration int              `json:"duration"`
+	Duration string           `json:"duration"`
 	Title    string           `json:"title"`
 	ID       string           `json:"id"`
 	SmilFile string           `json:"smil_file"`
 	Files    []ingestFileMeta `json:"files"`
 	BasePath string
 
-	duration time.Duration
+	DurationInS int64
+}
+
+func (a *assetIngestJSONMeta) CalculateDuration() {
+	r := regexp.MustCompile(`([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2}):[0-9]{1,2}`)
+	matches := r.FindStringSubmatch(a.Duration)
+
+	if len(matches) != 4 {
+		return
+	}
+
+	seconds, err := strconv.ParseInt(matches[3], 10, 0)
+	if err != nil {
+		log.L.Warn().Err(err).Str("BasePath", a.BasePath).Msg("Unable to parse duration")
+	}
+
+	minutes, err := strconv.ParseInt(matches[2], 10, 0)
+	if err != nil {
+		log.L.Warn().Err(err).Str("BasePath", a.BasePath).Msg("Unable to parse duration")
+	}
+
+	hours, err := strconv.ParseInt(matches[1], 10, 0)
+	if err != nil {
+		log.L.Warn().Err(err).Str("BasePath", a.BasePath).Msg("Unable to parse duration")
+	}
+
+	seconds += minutes*60 + hours*60*60
+	a.DurationInS = seconds
 }
 
 // SafeString takes an arbitrary string and returns a safe version.
@@ -102,6 +129,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	if err != nil {
 		return merry.Wrap(err)
 	}
+	assetMeta.CalculateDuration()
 
 	oldAsset, err := directus.FindNewestAssetByMediabankenID(services.GetDirectusClient(), assetMeta.ID)
 
@@ -147,7 +175,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	a := &directus.Asset{
 		Name:            assetMeta.Title,
 		MediabankenID:   assetMeta.ID,
-		Duration:        assetMeta.Duration,
+		Duration:        assetMeta.DurationInS,
 		EncodingVersion: "btv",
 		MainStoragePath: storagePrefix,
 		Status:          directus.StatusDraft,
