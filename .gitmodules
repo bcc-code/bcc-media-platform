@@ -1,0 +1,3 @@
+[submodule "cms/directus"]
+	path = cms/directus
+	url = https://github.com/BCC-Media/directus
