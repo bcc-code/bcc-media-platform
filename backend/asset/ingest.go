@@ -197,12 +197,14 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	// If we have a "smilFile" then we have defined streams
 	hasStreams := assetMeta.SmilFile != ""
 
+	log.L.Debug().Str("smilFile", assetMeta.SmilFile).Msg("Smil Path")
 	if hasStreams {
 		smilPath := path.Join(assetMeta.BasePath, assetMeta.SmilFile)
 		smil, err := readSmilFroms3(ctx, s3client, config.GetIngestBucket(), smilPath)
 		if err != nil {
 			return merry.Wrap(err)
 		}
+
 		coi := &s3.CopyObjectInput{
 			Bucket:     config.GetStorageBucket(),
 			Key:        aws.String(path.Join(storagePrefix, "stream", path.Base(assetMeta.SmilFile))),
@@ -213,7 +215,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 		for _, file := range smil.Body.Switch.Videos {
 			target := path.Join(storagePrefix, "stream", path.Base(file.Src))
-			src := fmt.Sprintf("/%s/%s/%s", *config.GetIngestBucket(), assetMeta.BasePath, file.Src)
+			src := path.Join(*config.GetIngestBucket(), assetMeta.BasePath, file.Src)
 			coi := &s3.CopyObjectInput{
 				Bucket:     config.GetStorageBucket(),
 				Key:        aws.String(target),
@@ -291,56 +293,58 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	source := fmt.Sprintf("arn:aws:s3:::%s", path.Join(*config.GetStorageBucket(), storagePrefix, "stream", path.Base(assetMeta.SmilFile)))
 	log.L.Debug().Str("Smil source ARN", source).Msg("Calculated source ARN for MediaPackager")
 
-	mpc := services.GetMediaPackageVOD()
-	asset, err := mpc.CreateAsset(ctx,
-		&mediapackagevod.CreateAssetInput{
-			Id:               &storagePrefix,
-			PackagingGroupId: config.GetPackagingGroup(),
-			SourceArn:        aws.String(source),
-			SourceRoleArn:    config.GetMediapackageRole(),
-		})
-	if err != nil {
-		return merry.Wrap(err)
-	}
-
-	// Insert all stream endpoints into the CMS
-	for _, e := range asset.EgressEndpoints {
-		log.L.Debug().
-			Str("status", *e.Status).
-			Str("url", *e.Url).
-			Msg("Egress endpoints")
-
-		streamURL, _ := url.Parse(*e.Url)
-
-		streamType := directus.HLSCmaf
-		if strings.HasSuffix(*e.Url, "index.mpd") {
-			streamType = directus.Dash
-		}
-
-		stream := directus.AssetStream{
-			Type:    streamType,
-			URL:     *e.Url,
-			Path:    streamURL.Path,
-			Service: "mediapackage",
-			AudioLanguges: directus.CRUDArrays[directus.AssetStreamLanguge]{
-				Create: audioLanguages,
-				Update: []directus.AssetStreamLanguge{},
-				Delete: []int{},
-			},
-			SubtitleLanguages: directus.CRUDArrays[directus.AssetStreamLanguge]{
-				Create: []directus.AssetStreamLanguge{},
-				Update: []directus.AssetStreamLanguge{},
-				Delete: []int{},
-			},
-			AssetID: a.ID,
-		}
-
-		_, err := directus.SaveItem(services.GetDirectusClient(), stream, false)
+	if hasStreams {
+		mpc := services.GetMediaPackageVOD()
+		asset, err := mpc.CreateAsset(ctx,
+			&mediapackagevod.CreateAssetInput{
+				Id:               &storagePrefix,
+				PackagingGroupId: config.GetPackagingGroup(),
+				SourceArn:        aws.String(source),
+				SourceRoleArn:    config.GetMediapackageRole(),
+			})
 		if err != nil {
 			return merry.Wrap(err)
 		}
+
+		// Insert all stream endpoints into the CMS
+		for _, e := range asset.EgressEndpoints {
+			log.L.Debug().
+				Str("status", *e.Status).
+				Str("url", *e.Url).
+				Msg("Egress endpoints")
+
+			streamURL, _ := url.Parse(*e.Url)
+
+			streamType := directus.HLSCmaf
+			if strings.HasSuffix(*e.Url, "index.mpd") {
+				streamType = directus.Dash
+			}
+
+			stream := directus.AssetStream{
+				Type:    streamType,
+				URL:     *e.Url,
+				Path:    streamURL.Path,
+				Service: "mediapackage",
+				AudioLanguges: directus.CRUDArrays[directus.AssetStreamLanguge]{
+					Create: audioLanguages,
+					Update: []directus.AssetStreamLanguge{},
+					Delete: []int{},
+				},
+				SubtitleLanguages: directus.CRUDArrays[directus.AssetStreamLanguge]{
+					Create: []directus.AssetStreamLanguge{},
+					Update: []directus.AssetStreamLanguge{},
+					Delete: []int{},
+				},
+				AssetID: a.ID,
+			}
+
+			_, err := directus.SaveItem(services.GetDirectusClient(), stream, false)
+			if err != nil {
+				return merry.Wrap(err)
+			}
+		}
+		log.L.Debug().Msg("Done creating streams")
 	}
-	log.L.Debug().Msg("Done creating streams")
 
 	log.L.Debug().Msg("Insert stuff into Directus")
 	for _, af := range assetfiles {
