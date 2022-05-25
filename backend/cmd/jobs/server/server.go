@@ -9,6 +9,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/pubsub"
 	"github.com/bcc-code/mediabank-bridge/log"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"go.opencensus.io/trace"
 )
@@ -49,7 +50,10 @@ func (s server) ProcessMessage(c *gin.Context) {
 	e := cloudevents.NewEvent()
 	err = pubsub.ExtractData(*msg, &e)
 	if err != nil {
-		log.L.Error().Err(err).Msgf("Could not create could event. Likely bad format")
+		log.L.Error().
+			Err(err).
+			Str("msg", spew.Sdump(msg)).
+			Msgf("Could not create could event. Likely bad format")
 		c.Status(http.StatusOK)
 		return
 	}
@@ -62,7 +66,10 @@ func (s server) ProcessMessage(c *gin.Context) {
 	}
 
 	if err != nil {
-		log.L.Error().Err(err).Msgf("Error procesing message. See log for more details")
+		log.L.Error().
+			Err(err).
+			Str("msg", spew.Sdump(msg)).
+			Msgf("Error procesing message. See log for more details")
 		c.Status(http.StatusOK)
 		return
 	}
