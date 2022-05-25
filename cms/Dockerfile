@@ -2,7 +2,7 @@ FROM node:16 AS build-env
 COPY . /app
 WORKDIR /app
 
-RUN npm ci --omit=dev
+RUN npm ci
 RUN npm run build
 
 FROM node:16 AS prod
