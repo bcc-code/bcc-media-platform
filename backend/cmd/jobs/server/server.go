@@ -58,6 +58,11 @@ func (s server) ProcessMessage(c *gin.Context) {
 		return
 	}
 
+	log.L.Debug().
+		Str("MsgId", e.ID()).
+		Str("Source", e.Source()).
+		Msg("processing message")
+
 	switch e.Type() {
 	case events.TypeAssetDelivered:
 		err = asset.Ingest(ctx, s.services, s.config, e)
