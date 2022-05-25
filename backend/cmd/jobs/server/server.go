@@ -41,18 +41,16 @@ func (s server) ProcessMessage(c *gin.Context) {
 	msg, err := pubsub.MessageFromCtx(c)
 	span.AddMessageReceiveEvent(msg.Message.PublishTime.UnixMilli(), c.Request.ContentLength, 0)
 	if err != nil {
-		// TODO
-		log.L.Error().Msgf("%+v", err)
-		c.AbortWithError(http.StatusInternalServerError, err)
+		log.L.Error().Err(err).Msgf("Could not extract message from context")
+		c.Status(http.StatusOK)
 		return
 	}
 
 	e := cloudevents.NewEvent()
 	err = pubsub.ExtractData(*msg, &e)
 	if err != nil {
-		// TODO
-		log.L.Error().Msgf("%+v", err)
-		c.AbortWithError(http.StatusInternalServerError, err)
+		log.L.Error().Err(err).Msgf("Could not create could event. Likely bad format")
+		c.Status(http.StatusOK)
 		return
 	}
 
@@ -64,9 +62,8 @@ func (s server) ProcessMessage(c *gin.Context) {
 	}
 
 	if err != nil {
-		// TODO
-		log.L.Error().Msgf("%+v", err)
-		c.AbortWithError(http.StatusInternalServerError, err)
+		log.L.Error().Err(err).Msgf("Error procesing message. See log for more details")
+		c.Status(http.StatusOK)
 		return
 	}
 }
