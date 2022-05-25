@@ -58,6 +58,8 @@ func (s server) ProcessMessage(c *gin.Context) {
 		return
 	}
 
+	span.AddAttributes(trace.StringAttribute("MsgId", e.ID()), trace.StringAttribute("MessageSource", e.Source()))
+
 	log.L.Debug().
 		Str("MsgId", e.ID()).
 		Str("Source", e.Source()).
