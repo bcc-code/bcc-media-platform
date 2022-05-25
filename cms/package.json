@@ -7,14 +7,15 @@
     "test": "echo \"Error: no tests\" && exit 1",
     "build": "tsc && npm run paths",
     "paths": "tscpaths -p tsconfig.json -s ./src -o ./extensions",
-    "watch": "tsc-watch --onSuccess 'npm run paths'"
+    "watch": "tsc-watch --onSuccess 'npm run paths'",
+    "postinstall": "./translations_interface_fix.sh"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@rmp135/sql-ts": "^1.13.0",
-    "directus": "^9.8.0",
+    "directus": "^9.11.1",
     "knex": "^2.0.0",
     "pg": "^8.7.3",
     "tedious": "^14.5.0"
