@@ -66,7 +66,7 @@ func FindNewestAssetByMediabankenID(c *resty.Client, mediabankenID string) (*Ass
 	qq.Add("fields[]", "main_storage_path")
 	qq.Add("fields[]", "files.path")
 
-	qq.Add("filter", fmt.Sprintf(`{"_and":[{"mediabanken_id":{"_eq":"%s"}}, {"status": "_eq": "%s"}]}`, mediabankenID, StatusPublished))
+	qq.Add("filter", fmt.Sprintf(`{"_and":[{"mediabanken_id":{"_eq":"%s"}}, {"status": {"_eq": "%s"}}]}`, mediabankenID, StatusPublished))
 
 	x := struct {
 		Data []Asset
