@@ -757,7 +757,7 @@ collections:
       color: null
       display_template: '{{code}}'
       group: page_management
-      hidden: false
+      hidden: true
       icon: pages
       item_duplication_fields: null
       note: null
@@ -5896,7 +5896,7 @@ fields:
       display_options: null
       field: agerating_code
       group: metadata
-      hidden: false
+      hidden: true
       interface: select-dropdown-m2o
       note: null
       options: null
@@ -9292,14 +9292,14 @@ fields:
       display: null
       display_options: null
       field: agerating_code
-      group: null
+      group: metadata
       hidden: false
       interface: select-dropdown-m2o
       note: null
       options: null
       readonly: false
       required: false
-      sort: 12
+      sort: 5
       special:
         - m2o
       translations: null
@@ -9342,7 +9342,7 @@ fields:
         headerIcon: visibility
       readonly: false
       required: false
-      sort: 11
+      sort: 9
       special:
         - alias
         - group
@@ -9373,7 +9373,7 @@ fields:
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       comment: null
       data_type: timestamp without time zone
@@ -9414,7 +9414,7 @@ fields:
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       comment: null
       data_type: timestamp without time zone
@@ -9451,7 +9451,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 6
+      sort: 4
       special:
         - date-created
       translations: null
@@ -9494,7 +9494,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 8
+      sort: 6
       special:
         - date-updated
       translations: null
@@ -9529,14 +9529,14 @@ fields:
       display: null
       display_options: null
       field: episodes
-      group: null
+      group: related
       hidden: false
       interface: list-o2m
       note: null
       options: null
       readonly: false
       required: false
-      sort: 14
+      sort: 1
       special:
         - o2m
       translations: null
@@ -9594,7 +9594,7 @@ fields:
       display: null
       display_options: null
       field: image_file_id
-      group: null
+      group: metadata
       hidden: false
       interface: file-image
       note: null
@@ -9603,7 +9603,7 @@ fields:
         folder: 00000000-0000-0000-0000-000000000000
       readonly: false
       required: false
-      sort: 10
+      sort: 3
       special:
         - file
       translations:
@@ -9640,14 +9640,14 @@ fields:
       display: null
       display_options: null
       field: legacy_description_id
-      group: null
-      hidden: false
+      group: technical_details
+      hidden: true
       interface: input
       note: null
       options: null
       readonly: false
       required: false
-      sort: null
+      sort: 3
       special: null
       translations: null
       validation: null
@@ -9681,14 +9681,14 @@ fields:
       display: null
       display_options: null
       field: legacy_id
-      group: null
+      group: technical_details
       hidden: false
       interface: input
       note: null
       options: null
-      readonly: false
+      readonly: true
       required: false
-      sort: 15
+      sort: 1
       special: null
       translations: null
       validation: null
@@ -9722,14 +9722,14 @@ fields:
       display: null
       display_options: null
       field: legacy_title_id
-      group: null
-      hidden: false
+      group: technical_details
+      hidden: true
       interface: input
       note: null
       options: null
       readonly: false
       required: false
-      sort: null
+      sort: 2
       special: null
       translations: null
       validation: null
@@ -9756,6 +9756,33 @@ fields:
       table: seasons
     type: integer
   - collection: seasons
+    field: metadata
+    meta:
+      collection: seasons
+      conditions: null
+      display: null
+      display_options: null
+      field: metadata
+      group: null
+      hidden: false
+      interface: group-detail
+      note: null
+      options:
+        headerIcon: display_settings
+      readonly: false
+      required: false
+      sort: 8
+      special:
+        - alias
+        - group
+        - no-data
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: seasons
     field: publish_date
     meta:
       collection: seasons
@@ -9763,14 +9790,14 @@ fields:
       display: null
       display_options: null
       field: publish_date
-      group: null
+      group: metadata
       hidden: false
       interface: datetime
       note: null
       options: null
       readonly: false
       required: true
-      sort: 9
+      sort: 4
       special: null
       translations: null
       validation: null
@@ -9797,6 +9824,33 @@ fields:
       table: seasons
     type: dateTime
   - collection: seasons
+    field: related
+    meta:
+      collection: seasons
+      conditions: null
+      display: null
+      display_options: null
+      field: related
+      group: null
+      hidden: false
+      interface: group-detail
+      note: null
+      options:
+        headerIcon: share
+      readonly: false
+      required: false
+      sort: 10
+      special:
+        - alias
+        - group
+        - no-data
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: seasons
     field: season_number
     meta:
       collection: seasons
@@ -9804,19 +9858,19 @@ fields:
       display: null
       display_options: null
       field: season_number
-      group: null
+      group: metadata
       hidden: false
       interface: input
       note: Used for "S1:E2" and for sorting.
       options: null
       readonly: false
       required: true
-      sort: 4
+      sort: 2
       special: null
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       comment: null
       data_type: integer
@@ -9845,14 +9899,14 @@ fields:
       display: null
       display_options: null
       field: show_id
-      group: null
+      group: metadata
       hidden: false
       interface: select-dropdown-m2o
       note: null
       options: null
       readonly: false
       required: true
-      sort: 3
+      sort: 1
       special:
         - m2o
       translations:
@@ -9860,7 +9914,7 @@ fields:
           translation: Show
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       comment: null
       data_type: integer
@@ -9944,6 +9998,34 @@ fields:
       table: seasons
     type: string
   - collection: seasons
+    field: technical_details
+    meta:
+      collection: seasons
+      conditions: null
+      display: null
+      display_options: null
+      field: technical_details
+      group: null
+      hidden: false
+      interface: group-detail
+      note: null
+      options:
+        headerIcon: code
+        start: closed
+      readonly: false
+      required: false
+      sort: 11
+      special:
+        - alias
+        - group
+        - no-data
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: seasons
     field: translations
     meta:
       collection: seasons
@@ -9963,7 +10045,7 @@ fields:
         languageField: code
       readonly: false
       required: false
-      sort: 13
+      sort: 7
       special:
         - translations
       translations: null
@@ -9988,7 +10070,7 @@ fields:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 5
+      sort: 3
       special:
         - user-created
       translations: null
@@ -10031,7 +10113,7 @@ fields:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 7
+      sort: 5
       special:
         - user-updated
       translations: null
@@ -10067,7 +10149,7 @@ fields:
       display_options: null
       field: usergroups
       group: availability
-      hidden: false
+      hidden: true
       interface: list-m2m
       note: null
       options:
@@ -11511,7 +11593,7 @@ fields:
         template: '{{title}}'
       readonly: false
       required: false
-      sort: 15
+      sort: 10
       special:
         - m2o
       translations: null
@@ -11554,7 +11636,7 @@ fields:
         headerIcon: visibility
       readonly: false
       required: false
-      sort: 8
+      sort: 5
       special:
         - alias
         - group
@@ -11585,7 +11667,7 @@ fields:
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       comment: null
       data_type: timestamp without time zone
@@ -11626,7 +11708,7 @@ fields:
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       comment: null
       data_type: timestamp without time zone
@@ -11663,7 +11745,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 10
+      sort: 7
       special:
         - date-created
       translations: null
@@ -11706,7 +11788,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 12
+      sort: 9
       special:
         - date-updated
       translations: null
@@ -11775,48 +11857,6 @@ fields:
       table: shows
     type: integer
   - collection: shows
-    field: image
-    meta:
-      collection: shows
-      conditions: null
-      display: null
-      display_options: null
-      field: image
-      group: null
-      hidden: false
-      interface: file-image
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 4
-      special:
-        - file
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: uuid
-      default_value: null
-      foreign_key_column: id
-      foreign_key_schema: public
-      foreign_key_table: directus_files
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: image
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: shows
-    type: uuid
-  - collection: shows
     field: image_file_id
     meta:
       collection: shows
@@ -11824,7 +11864,7 @@ fields:
       display: null
       display_options: null
       field: image_file_id
-      group: null
+      group: metadata
       hidden: false
       interface: file-image
       note: null
@@ -11833,7 +11873,7 @@ fields:
         folder: 00000000-0000-0000-0000-000000000000
       readonly: false
       required: false
-      sort: 7
+      sort: 3
       special:
         - file
       translations: null
@@ -11868,14 +11908,14 @@ fields:
       display: null
       display_options: null
       field: legacy_description_id
-      group: null
+      group: technical_details
       hidden: false
       interface: input
       note: null
       options: null
-      readonly: false
+      readonly: true
       required: false
-      sort: null
+      sort: 3
       special: null
       translations: null
       validation: null
@@ -11909,14 +11949,14 @@ fields:
       display: null
       display_options: null
       field: legacy_id
-      group: null
+      group: technical_details
       hidden: false
       interface: input
       note: null
       options: null
       readonly: true
       required: false
-      sort: null
+      sort: 1
       special: null
       translations: null
       validation: null
@@ -11950,14 +11990,14 @@ fields:
       display: null
       display_options: null
       field: legacy_title_id
-      group: null
+      group: technical_details
       hidden: false
       interface: input
       note: null
       options: null
-      readonly: false
+      readonly: true
       required: false
-      sort: null
+      sort: 2
       special: null
       translations: null
       validation: null
@@ -11984,47 +12024,32 @@ fields:
       table: shows
     type: integer
   - collection: shows
-    field: migration_data
+    field: metadata
     meta:
       collection: shows
       conditions: null
       display: null
       display_options: null
-      field: migration_data
+      field: metadata
       group: null
       hidden: false
-      interface: input-code
+      interface: group-detail
       note: null
-      options: null
+      options:
+        headerIcon: display_settings
       readonly: false
       required: false
-      sort: 14
+      sort: 4
       special:
-        - cast-json
+        - alias
+        - group
+        - no-data
       translations: null
       validation: null
       validation_message: null
       width: full
-    schema:
-      comment: null
-      data_type: json
-      default_value: null
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: migration_data
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: shows
-    type: json
+    schema: null
+    type: alias
   - collection: shows
     field: publish_date
     meta:
@@ -12033,19 +12058,19 @@ fields:
       display: null
       display_options: null
       field: publish_date
-      group: null
+      group: metadata
       hidden: false
       interface: datetime
       note: null
       options: {}
       readonly: false
       required: false
-      sort: 6
+      sort: 2
       special: null
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       comment: null
       data_type: timestamp without time zone
@@ -12067,6 +12092,33 @@ fields:
       table: shows
     type: dateTime
   - collection: shows
+    field: related
+    meta:
+      collection: shows
+      conditions: null
+      display: null
+      display_options: null
+      field: related
+      group: null
+      hidden: false
+      interface: group-detail
+      note: null
+      options:
+        headerIcon: share
+      readonly: false
+      required: false
+      sort: 11
+      special:
+        - alias
+        - group
+        - no-data
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: shows
     field: seasons
     meta:
       collection: shows
@@ -12074,14 +12126,14 @@ fields:
       display: null
       display_options: null
       field: seasons
-      group: null
+      group: related
       hidden: false
       interface: list-o2m
       note: null
       options: null
       readonly: false
       required: false
-      sort: 13
+      sort: 1
       special:
         - o2m
       translations: null
@@ -12153,6 +12205,34 @@ fields:
       table: shows
     type: string
   - collection: shows
+    field: technical_details
+    meta:
+      collection: shows
+      conditions: null
+      display: null
+      display_options: null
+      field: technical_details
+      group: null
+      hidden: false
+      interface: group-detail
+      note: null
+      options:
+        headerIcon: code
+        start: closed
+      readonly: false
+      required: false
+      sort: 12
+      special:
+        - alias
+        - group
+        - no-data
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: shows
     field: translations
     meta:
       collection: shows
@@ -12172,7 +12252,7 @@ fields:
         languageField: code
       readonly: false
       required: false
-      sort: 5
+      sort: 3
       special:
         - translations
       translations: null
@@ -12189,7 +12269,7 @@ fields:
       display: null
       display_options: null
       field: type
-      group: null
+      group: metadata
       hidden: false
       interface: select-dropdown
       note: null
@@ -12201,12 +12281,12 @@ fields:
             value: event
       readonly: false
       required: true
-      sort: 3
+      sort: 1
       special: null
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       comment: null
       data_type: character varying
@@ -12243,7 +12323,7 @@ fields:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 9
+      sort: 6
       special:
         - user-created
       translations: null
@@ -12286,7 +12366,7 @@ fields:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 11
+      sort: 8
       special:
         - user-updated
       translations: null
@@ -12322,7 +12402,7 @@ fields:
       display_options: null
       field: usergroups
       group: availability
-      hidden: false
+      hidden: true
       interface: list-m2m
       note: null
       options:
@@ -16048,28 +16128,6 @@ relations:
       foreign_key_column: code
       foreign_key_schema: public
       foreign_key_table: ageratings
-      on_delete: SET NULL
-      on_update: NO ACTION
-      table: shows
-  - collection: shows
-    field: image
-    meta:
-      junction_field: null
-      many_collection: shows
-      many_field: image
-      one_allowed_collections: null
-      one_collection: directus_files
-      one_collection_field: null
-      one_deselect_action: nullify
-      one_field: null
-      sort_field: null
-    related_collection: directus_files
-    schema:
-      column: image
-      constraint_name: shows_image_foreign
-      foreign_key_column: id
-      foreign_key_schema: public
-      foreign_key_table: directus_files
       on_delete: SET NULL
       on_update: NO ACTION
       table: shows
