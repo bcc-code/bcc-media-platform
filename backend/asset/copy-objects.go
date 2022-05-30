@@ -26,6 +26,8 @@ func copyObjects(
 		f := file
 		go func() {
 			defer wg.Done()
+			ctx, span := trace.StartSpan(ctx, "copyObject")
+			defer span.End()
 
 			_, err := s3client.CopyObject(ctx, f)
 

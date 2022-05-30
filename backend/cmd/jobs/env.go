@@ -1,6 +1,9 @@
 package main
 
-import "os"
+import (
+	"os"
+	"strconv"
+)
 
 type awsConfig struct {
 	Region                string
@@ -21,14 +24,21 @@ type directusConfig struct {
 }
 
 type envConfig struct {
-	AWS      awsConfig
-	Directus directusConfig
-	Port     string
+	AWS               awsConfig
+	Directus          directusConfig
+	Port              string
+	DeleteIngestFiles bool
 }
 
 func getEnvConfig() envConfig {
+
+	deleteIngestFilesString := os.Getenv("DELETE_INGEST_FILES")
+	// Error is intentionally ignored, if not set default to FALSE
+	deleteIngestFilesStringBool, _ := strconv.ParseBool(deleteIngestFilesString)
+
 	return envConfig{
-		Port: os.Getenv("PORT"),
+		Port:              os.Getenv("PORT"),
+		DeleteIngestFiles: deleteIngestFilesStringBool,
 		AWS: awsConfig{
 			Region:                os.Getenv("AWS_DEFAULT_REGION"),
 			PackagingGroupARN:     os.Getenv("AWS_PACKAGING_GROUP"),
