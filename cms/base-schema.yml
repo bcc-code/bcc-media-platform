@@ -10175,7 +10175,7 @@ fields:
       display_options: null
       field: is_primary
       group: null
-      hidden: false
+      hidden: true
       interface: boolean
       note: null
       options: null
@@ -10258,7 +10258,7 @@ fields:
       display_options: null
       field: legacy_description_id
       group: null
-      hidden: false
+      hidden: true
       interface: input
       note: null
       options: null
@@ -10299,7 +10299,7 @@ fields:
       display_options: null
       field: legacy_title_id
       group: null
-      hidden: false
+      hidden: true
       interface: input
       note: null
       options: null
@@ -12429,7 +12429,7 @@ fields:
       display_options: null
       field: is_primary
       group: null
-      hidden: false
+      hidden: true
       interface: boolean
       note: null
       options: null
@@ -12512,7 +12512,7 @@ fields:
       display_options: null
       field: legacy_description_id
       group: null
-      hidden: false
+      hidden: true
       interface: input
       note: null
       options: null
@@ -12553,7 +12553,7 @@ fields:
       display_options: null
       field: legacy_tags
       group: null
-      hidden: false
+      hidden: true
       interface: input
       note: null
       options: null
@@ -12594,7 +12594,7 @@ fields:
       display_options: null
       field: legacy_tags_id
       group: null
-      hidden: false
+      hidden: true
       interface: input
       note: null
       options: null
@@ -12635,7 +12635,7 @@ fields:
       display_options: null
       field: legacy_title_id
       group: null
-      hidden: false
+      hidden: true
       interface: input
       note: null
       options: null
