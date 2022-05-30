@@ -44,6 +44,9 @@ export async function updateList(p, m, c) {
 
 export async function deleteList(p, m, c) {
     
+    if (p.length > 1) {
+        throw new Error("Syncing bulk-deletes hasn't been implemented. Contact Andreas if that's slowing you down much.")
+    }
     if (m.collection !== "lists") {
         return
     }

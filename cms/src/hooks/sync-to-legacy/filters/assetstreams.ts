@@ -74,6 +74,9 @@ export async function updateAssetstream (p, m, c) {
 };
 
 export async function deleteAssetstream(p, m, c) {
+    if (p.length > 1) {
+        throw new Error("Syncing bulk-deletes hasn't been implemented. Contact Andreas if that's slowing you down much.")
+    }
     
     if (m.collection !== "assetstreams") {
         return
