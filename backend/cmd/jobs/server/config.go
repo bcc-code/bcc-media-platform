@@ -4,11 +4,12 @@ import "github.com/aws/aws-sdk-go-v2/aws"
 
 // ConfigData that can be passed to other things
 type ConfigData struct {
-	IngestBucket       string
-	StorageBucket      string
-	PackagingGroupID   string
-	MediapackageRole   string
-	MediapackageSource string
+	IngestBucket          string
+	StorageBucket         string
+	PackagingGroupID      string
+	MediapackageRole      string
+	MediapackageSource    string
+	DeleteIngestFilesFlag bool
 }
 
 // GetIngestBucket that contains the new assets
@@ -34,4 +35,10 @@ func (c ConfigData) GetMediapackageRole() *string {
 // GetMediapackageSource S3 ARN that the MediapackageRole has access to
 func (c ConfigData) GetMediapackageSource() *string {
 	return aws.String(c.MediapackageSource)
+}
+
+// GetDeleteIngestFilesFlag controls if the ingest files get deleted after
+// a succesful import
+func (c ConfigData) GetDeleteIngestFilesFlag() bool {
+	return c.DeleteIngestFilesFlag
 }

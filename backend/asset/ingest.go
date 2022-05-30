@@ -48,6 +48,7 @@ type config interface {
 	GetPackagingGroup() *string
 	GetMediapackageRole() *string
 	GetMediapackageSource() *string
+	GetDeleteIngestFilesFlag() bool
 }
 
 type ingestFileMeta struct {
@@ -369,7 +370,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		},
 	}
 
-	if false {
+	if config.GetDeleteIngestFilesFlag() {
 		s3client.DeleteObjects(ctx, deleteInputs)
 	} else {
 		fileList := lo.Map(objectsToDelete, func(x types.ObjectIdentifier, _ int) string {
