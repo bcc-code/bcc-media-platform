@@ -2,17 +2,16 @@
 const knex = require('../node_modules/knex')
 const child_process = require('child_process')
 
-let config = {
-    "host": process.env.DB_HOST,
-    "port": Number(process.env.DB_PORT),
-    "user": process.env.DB_USER,
-    "password": process.env.DB_PASSWORD,
-    "database" : process.env.DB_DATABASE
-}
-
 const db = knex.knex({
     client: 'pg',
-    connection: config,
+    connection: {
+        "host": process.env.DB_HOST,
+        "port": Number(process.env.DB_PORT),
+        "user": process.env.DB_USER,
+        "password": process.env.DB_PASSWORD,
+        "database" : process.env.DB_DATABASE,
+        "connectionString": process.env.DB_CONNECTION_STRING
+    },
 });
 
 async function run() {
