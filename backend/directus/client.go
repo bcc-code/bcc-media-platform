@@ -1,11 +1,13 @@
 package directus
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
 	"github.com/ansel1/merry"
 	"github.com/go-resty/resty/v2"
+	"go.opencensus.io/trace"
 )
 
 // New client for Directus
@@ -30,7 +32,9 @@ type DSItem interface {
 }
 
 // SaveItem into Directus system
-func SaveItem[t DSItem](c *resty.Client, i t, unmashall bool) (*t, error) {
+func SaveItem[t DSItem](ctx context.Context, c *resty.Client, i t, unmashall bool) (*t, error) {
+	ctx, span := trace.StartSpan(ctx, "directus.SaveItem")
+	defer span.End()
 
 	// Define the wrapper structure as DS returns a `{ data: {}}` json
 	x := struct {
@@ -49,12 +53,15 @@ func SaveItem[t DSItem](c *resty.Client, i t, unmashall bool) (*t, error) {
 	if i.UID() != 0 {
 		path := fmt.Sprintf("/items/%s/%d", i.TypeName(), i.UID())
 		req.SetBody(i.ForUpdate())
+		span.AddMessageSendEvent(req.Time.Unix(), req.RawRequest.ContentLength, 0)
 		res, err = req.Patch(path)
-
+		span.AddMessageSendEvent(req.Time.Unix(), res.Size(), 0)
 	} else {
 		path := fmt.Sprintf("/items/%s", i.TypeName())
 		req.SetBody(i)
+		span.AddMessageSendEvent(req.Time.Unix(), req.RawRequest.ContentLength, 0)
 		res, err = req.Post(path)
+		span.AddMessageSendEvent(req.Time.Unix(), res.Size(), 0)
 	}
 
 	if err != nil {
