@@ -4,16 +4,17 @@ services:
     ports:
       - "8681:8681"
     image: thekevjames/gcloud-pubsub-emulator:latest
-  background-jobs:
-    build:
-      context: .
-      dockerfile: ./backend/Dockerfile.background-worker
-      target: dev
-    ports:
-      - "8078:8078"
-    env_file: ./backend/cmd/jobs/.env
+  db:
+    image: postgres:13
     volumes:
-      - type: bind
-        source: ./
-        target: /mounted
+    - db-data:/var/lib/postgresql/data
+    ports:
+    - 5432:5432/tcp
+    environment:
+    - POSTGRES_USER=btv
+    - POSTGRES_PASSWORD=btv123
+
+volumes:
+  db-data:
+    driver: local
 
