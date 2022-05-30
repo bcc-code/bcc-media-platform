@@ -19,7 +19,7 @@ async function run() {
     
     if (lock_result?.rows?.[0]?.pg_try_advisory_lock !== true) {
         console.error("Skipping, because another instance is doing a migration")
-        process.exit(1)
+        process.exit(0)
     }
     
     child_process.execSync("npx directus bootstrap", {stdio: 'inherit'})
