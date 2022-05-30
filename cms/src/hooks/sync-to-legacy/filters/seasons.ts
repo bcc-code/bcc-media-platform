@@ -96,6 +96,9 @@ export async function updateSeason(p, m, c) {
 
 export async function deleteSeason(p, m, c) {
     
+    if (p.length > 1) {
+        throw new Error("Syncing bulk-deletes hasn't been implemented. Contact Andreas if that's slowing you down much.")
+    }
     if (m.collection !== "seasons") {
         return
     }

@@ -121,6 +121,9 @@ export async function updateEpisode(p, m, c) {
 };
 
 export async function deleteEpisode(p, m, c) {
+    if (p.length > 1) {
+        throw new Error("Syncing bulk-deletes hasn't been implemented. Contact Andreas if that's slowing you down much.")
+    }
     
     if (m.collection !== "episodes") {
         return
@@ -131,8 +134,6 @@ export async function deleteEpisode(p, m, c) {
     let episodes_id = p[0]
     let episode = (await c.database("episodes").select("*").where("id", episodes_id))[0];
     
-    
-    // should be cascade deleted instead
     if (episode.type === "episode") {
         let result = await oldKnex("Episode").where("id", episode.legacy_id).delete()
         

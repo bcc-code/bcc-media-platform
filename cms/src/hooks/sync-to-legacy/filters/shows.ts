@@ -94,6 +94,9 @@ export async function createShow(p, m, c) {
 
 export async function deleteShow(p, m, c) {
     
+    if (p.length > 1) {
+        throw new Error("Syncing bulk-deletes hasn't been implemented. Contact Andreas if that's slowing you down much.")
+    }
     if (m.collection !== "shows") {
         return
     }

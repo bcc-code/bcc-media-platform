@@ -91,6 +91,9 @@ export async function updateAsset (p, m, c) {
 };
 
 export async function deleteAsset(p, m, c) {
+    if (p.length > 1) {
+        throw new Error("Syncing bulk-deletes hasn't been implemented. Contact Andreas if that's slowing you down much.")
+    }
     
     if (m.collection !== "assets") {
         return

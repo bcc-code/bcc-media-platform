@@ -51,7 +51,9 @@ export async function createListRelation(p, m, c) {
 }
 
 export async function deleteListRelation(p, m, c) {
-    
+    if (p.length > 1) {
+        throw new Error("Syncing bulk-deletes hasn't been implemented. Contact Andreas if that's slowing you down much.")
+    }
     if (m.collection != "lists_relations") {
         return
     }
