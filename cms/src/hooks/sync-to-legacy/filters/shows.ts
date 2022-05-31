@@ -34,7 +34,7 @@ export async function updateShow (p, m, c) {
     }
 
     if (p.image_file_id) {
-        let image = (await c.database("directus_files").select("*").where("Id", p.image_file_id))[0];
+        let image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
         patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
     } if (p.image_file_id === null) {
         patch.Image = null
@@ -88,7 +88,7 @@ export async function createShow(p, m, c) {
     p.legacy_id = legacyShow[0].Id
     
     return p
-    //await c.database("shows").update({legacy_id: legacyShow[0].Id}).where("Id", e.id)
+    //await c.database("shows").update({legacy_id: legacyShow[0].Id}).where("id", e.id)
 
 };
 
@@ -104,7 +104,7 @@ export async function deleteShow(p, m, c) {
 
     // get legacy ids
     let shows_id = p[0]
-    let show = (await c.database("shows").select("*").where("Id", shows_id))[0];
+    let show = (await c.database("shows").select("*").where("id", shows_id))[0];
     
   
     let result = await oldKnex("Series").where("Id", show.legacy_id).delete()

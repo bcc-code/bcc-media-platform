@@ -7,7 +7,7 @@ export async function createShowTranslation(p: episodes.components["schemas"]["I
     if (m.collection != "shows_translations") {
         return
     }
-    let show = (await c.database("shows").select("*").where("Id", (p.shows_id as number)))[0];
+    let show = (await c.database("shows").select("*").where("id", (p.shows_id as number)))[0];
     let languages = await oldKnex<LanguageEntity>("Language").select("*")
     let lang = (p.languages_code as episodes.components["schemas"]["ItemsLanguages"])    
     if (lang.code != "no") {
@@ -26,7 +26,7 @@ export async function createSeasonTranslation(p: episodes.components["schemas"][
     if (m.collection != "seasons_translations") {
         return
     }
-    let season = (await c.database("seasons").select("*").where("Id", (p.seasons_id as number)))[0];
+    let season = (await c.database("seasons").select("*").where("id", (p.seasons_id as number)))[0];
     let languages = await oldKnex<LanguageEntity>("Language").select("*")
     let lang = (p.languages_code as episodes.components["schemas"]["ItemsLanguages"])    
     if (lang.code != "no") {
@@ -45,7 +45,7 @@ export async function createEpisodeTranslation(p: episodes.components["schemas"]
     if (m.collection != "episodes_translations") {
         return
     }
-    let episode = (await c.database("episodes").select("*").where("Id", (p.episodes_id as number)))[0];
+    let episode = (await c.database("episodes").select("*").where("id", (p.episodes_id as number)))[0];
     let languages = await oldKnex<LanguageEntity>("Language").select("*")
     let lang = (p.languages_code as episodes.components["schemas"]["ItemsLanguages"])    
     if (lang.code != "no") {
@@ -69,8 +69,8 @@ export async function updateShowTranslation(p: episodes.components["schemas"]["I
     }
     
     
-    let translation = (await c.database("shows_translations").select("*").where("Id", (m.keys[0] as number)))[0];
-    let show = (await c.database("shows").select("*").where("Id", (translation.shows_id as number)))[0];
+    let translation = (await c.database("shows_translations").select("*").where("id", (m.keys[0] as number)))[0];
+    let show = (await c.database("shows").select("*").where("id", (translation.shows_id as number)))[0];
     
     let languages = await oldKnex<LanguageEntity>("Language").select("*")
     let lang = (p.languages_code as episodes.components["schemas"]["ItemsLanguages"])    
@@ -96,8 +96,8 @@ export async function updateSeasonTranslation(p: episodes.components["schemas"][
     }
     
     
-    let translation = (await c.database("seasons_translations").select("*").where("Id", (m.keys[0] as number)))[0];
-    let season = (await c.database("seasons").select("*").where("Id", (translation.seasons_id as number)))[0];
+    let translation = (await c.database("seasons_translations").select("*").where("id", (m.keys[0] as number)))[0];
+    let season = (await c.database("seasons").select("*").where("id", (translation.seasons_id as number)))[0];
     
     let languages = await oldKnex<LanguageEntity>("Language").select("*")
     let lang = (p.languages_code as episodes.components["schemas"]["ItemsLanguages"])    
@@ -123,8 +123,8 @@ export async function updateEpisodeTranslation(p: episodes.components["schemas"]
     }
     
     
-    let translation = (await c.database("episodes_translations").select("*").where("Id", (m.keys[0] as number)))[0];
-    let episode = (await c.database("episodes").select("*").where("Id", (translation.episodes_id as number)))[0];
+    let translation = (await c.database("episodes_translations").select("*").where("id", (m.keys[0] as number)))[0];
+    let episode = (await c.database("episodes").select("*").where("id", (translation.episodes_id as number)))[0];
     
     let languages = await oldKnex<LanguageEntity>("Language").select("*")
     let lang = (p.languages_code as episodes.components["schemas"]["ItemsLanguages"])    

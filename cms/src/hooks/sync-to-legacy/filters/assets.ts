@@ -48,7 +48,7 @@ export async function createAsset(p, m, c) {
     p.legacy_id = legacyAsset[0].Id
     
     return p
-    //await c.database("assets").update({legacy_id: legacyAsset[0].Id}).where("Id", e.id)
+    //await c.database("assets").update({legacy_id: legacyAsset[0].Id}).where("id", e.id)
 
 };
 
@@ -102,7 +102,7 @@ export async function deleteAsset(p, m, c) {
 
     // get legacy ids
     let assets_id = p[0]
-    let asset = (await c.database("assets").select("*").where("Id", assets_id))[0];
+    let asset = (await c.database("assets").select("*").where("id", assets_id))[0];
     
   
     let result = await oldKnex("Video").where("Id", asset.legacy_id).delete()

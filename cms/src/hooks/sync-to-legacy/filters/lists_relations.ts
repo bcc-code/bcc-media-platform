@@ -13,10 +13,10 @@ export async function createListRelation(p, m, c) {
     let {lists_id, collection, item} = p
 
     // get legacy ids
-    let list = (await c.database("lists").select("*").where("Id", lists_id))[0];
+    let list = (await c.database("lists").select("*").where("id", lists_id))[0];
 
     if (collection === "episodes") {
-            let episode = (await c.database("episodes").select("*").where("Id", item.id))[0];
+            let episode = (await c.database("episodes").select("*").where("id", item.id))[0];
 
             if (episode.type === "episode") {
                 let patch: Partial<CategoryEpisodeEntity> = {
@@ -36,7 +36,7 @@ export async function createListRelation(p, m, c) {
                 
             } else { throw new Error("invalid episode type") }
     } else if (collection === "shows") {
-        let show = (await c.database("shows").select("*").where("Id", item.id))[0];
+        let show = (await c.database("shows").select("*").where("id", item.id))[0];
         let patch: Partial<CategorySeriesEntity> = {
             CategoryId: list.legacy_category_id,
             SeriesId: show.legacy_id
@@ -60,14 +60,14 @@ export async function deleteListRelation(p, m, c) {
     
 
     // get legacy ids
-    let list_relation = (await c.database("lists_relations").select("*").where("Id", p[0]))[0];
+    let list_relation = (await c.database("lists_relations").select("*").where("id", p[0]))[0];
     let {collection, item, lists_id} = list_relation
-    let list = (await c.database("lists").select("*").where("Id", lists_id))[0];
+    let list = (await c.database("lists").select("*").where("id", lists_id))[0];
     
     
 
     if (collection === "episodes") {
-            let episode = (await c.database("episodes").select("*").where("Id", item))[0];
+            let episode = (await c.database("episodes").select("*").where("id", item))[0];
 
             if (episode.type === "episode") {
                 let result = await oldKnex("CategoryEpisode").where("CategoryId", list.legacy_category_id).andWhere("EpisodeId", episode.legacy_id).delete()
@@ -77,7 +77,7 @@ export async function deleteListRelation(p, m, c) {
                 
             }
     } else if (collection === "shows") {
-        let show = (await c.database("shows").select("*").where("Id", item))[0];
+        let show = (await c.database("shows").select("*").where("id", item))[0];
         let result = await oldKnex("CategorySeries").where("CategoryId", list.legacy_category_id).andWhere("SeriesId", show.legacy_id).delete()
         
     } else {
