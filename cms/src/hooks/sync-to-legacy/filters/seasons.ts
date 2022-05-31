@@ -11,7 +11,7 @@ export async function createSeason(p, m, c) {
     
     
 
-    let show = (await c.database("shows").select("*").where("Id", p.show_id))[0];
+    let show = (await c.database("shows").select("*").where("id", p.show_id))[0];
     
     
 
@@ -43,7 +43,7 @@ export async function createSeason(p, m, c) {
     
     let legacySeason = await oldKnex<SeasonEntity>("Season").insert(patch).returning("*")
     
-    //await c.database("seasons").update({legacy_id: legacySeason[0].Id}).where("Id", p.id)
+    //await c.database("seasons").update({legacy_id: legacySeason[0].Id}).where("id", p.id)
     p.legacy_id = legacySeason[0].Id
     
     return p
@@ -57,7 +57,7 @@ export async function updateSeason(p, m, c) {
         return
     }
     // get legacy id
-    let seasonBeforeupdate = (await c.database("seasons").select("*").where("Id", Number(m.keys[0])))[0];
+    let seasonBeforeupdate = (await c.database("seasons").select("*").where("id", Number(m.keys[0])))[0];
     
 
     // update it in original 
@@ -73,14 +73,14 @@ export async function updateSeason(p, m, c) {
         patch.Status = getStatusFromNew(p.status)
     }
     if (p.show_id) {
-        let new_show = (await c.database("shows").select("*").where("Id", p.show_id))[0];
+        let new_show = (await c.database("shows").select("*").where("id", p.show_id))[0];
         patch.SeriesId = new_show.legacy_id
     } else if (p.show_id === null) {
         patch.SeriesId = null
     }
 
     if (p.image_file_id) {
-        let image = (await c.database("directus_files").select("*").where("Id", p.image_file_id))[0];
+        let image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
         patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
     } if (p.image_file_id === null) {
         patch.Image = null
@@ -106,7 +106,7 @@ export async function deleteSeason(p, m, c) {
 
     // get legacy ids
     let seasons_id = p[0]
-    let season = (await c.database("seasons").select("*").where("Id", seasons_id))[0];
+    let season = (await c.database("seasons").select("*").where("id", seasons_id))[0];
     
   
     let result = await oldKnex("Season").where("Id", season.legacy_id).delete()

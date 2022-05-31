@@ -12,7 +12,7 @@ export async function createAssetstream(p, m, c) {
     
     
 
-    let asset = (await c.database("assets").select("*").where("Id", p.asset_id))[0];
+    let asset = (await c.database("assets").select("*").where("id", p.asset_id))[0];
 
     // update it in original        
     let patch: Partial<VideoUrlEntity> = {
@@ -34,7 +34,7 @@ export async function createAssetstream(p, m, c) {
     p.legacy_id = legacyAssetstream[0].Id
     
     return p
-    //await c.database("assetstreams").update({legacy_id: legacyAssetstream[0].Id}).where("Id", e.id)
+    //await c.database("assetstreams").update({legacy_id: legacyAssetstream[0].Id}).where("id", e.id)
 
 };
 
@@ -49,7 +49,7 @@ export async function updateAssetstream (p, m, c) {
         schema: c.schema,
     });
     let assetstreamBeforeUpdate = await itemsService.readOne(Number(m.keys[0]), { fields: ['*.*.*'] }) as any
-    let asset = (await c.database("assets").select("*").where("Id", p.asset_id))[0];
+    let asset = (await c.database("assets").select("*").where("id", p.asset_id))[0];
     
     
     let patch: Partial<VideoUrlEntity> = {
@@ -85,7 +85,7 @@ export async function deleteAssetstream(p, m, c) {
 
     // get legacy ids
     let assetstreams_id = p[0]
-    let assetstream = (await c.database("assetstreams").select("*").where("Id", assetstreams_id))[0];
+    let assetstream = (await c.database("assetstreams").select("*").where("id", assetstreams_id))[0];
     
   
     let result = await oldKnex("VideoUrl").where("Id", assetstream.legacy_id).delete()

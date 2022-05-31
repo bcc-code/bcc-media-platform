@@ -17,7 +17,7 @@ export async function createEpisodesUsergroup(p, m, c) {
     
     
     
-    let episode = (await c.database("episodes").select("*").where("Id", p.episodes_id))[0];
+    let episode = (await c.database("episodes").select("*").where("id", p.episodes_id))[0];
     let ep_ug_rows = (await c.database("episodes_usergroups").select("*").where("episodes_id", p.episodes_id));
     let ug_codes: string[] = ep_ug_rows.map(ep_ug => ep_ug.usergroups_code)
     ug_codes.push(p.usergroups_code.code)
@@ -56,9 +56,9 @@ export async function deleteEpisodesUsergroup(p, m, c) {
     
     
 
-    let ug = (await c.database("episodes_usergroups").select("*").where("Id", p[0]))[0];
+    let ug = (await c.database("episodes_usergroups").select("*").where("id", p[0]))[0];
     
-    let episode = (await c.database("episodes").select("*").where("Id", ug.episodes_id))[0];
+    let episode = (await c.database("episodes").select("*").where("id", ug.episodes_id))[0];
     let ep_ug_rows = (await c.database("episodes_usergroups").select("*").where("episodes_id", ug.episodes_id));
     
     let ug_codes: string[] = ep_ug_rows.map(ep_ug => ep_ug.usergroups_code)
@@ -99,7 +99,7 @@ export async function createEpisodesUsergroupEarlyAccess(p, m, c) {
     
     
     
-    let episode = (await c.database("episodes").select("*").where("Id", p.episodes_id))[0];
+    let episode = (await c.database("episodes").select("*").where("id", p.episodes_id))[0];
     let ep_ug_rows = (await c.database("episodes_usergroups_earlyaccess").select("*").where("episodes_id", p.episodes_id));
     let ug_codes: string[] = ep_ug_rows.map(ep_ug => ep_ug.usergroups_code)
     ug_codes.push(p.usergroups_code.code)
@@ -131,9 +131,9 @@ export async function deleteEpisodesUsergroupEarlyAccess(p, m, c) {
     
 
     // Get this ug
-    let ug = (await c.database("episodes_usergroups_earlyaccess").select("*").where("Id", p[0]))[0];
+    let ug = (await c.database("episodes_usergroups_earlyaccess").select("*").where("id", p[0]))[0];
     
-    let episode = (await c.database("episodes").select("*").where("Id", ug.episodes_id))[0];
+    let episode = (await c.database("episodes").select("*").where("id", ug.episodes_id))[0];
 
     // Get all the ugs
     let ep_ug_rows = (await c.database("episodes_usergroups_earlyaccess").select("*").where("episodes_id", ug.episodes_id));
