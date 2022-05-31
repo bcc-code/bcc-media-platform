@@ -13,11 +13,11 @@ export async function createEpisode(p, m, c) {
     // get legacy id
     let asset: any
     if (p.asset_id) {
-        asset = (await c.database("assets").select("*").where("id", p.asset_id))[0];
+        asset = (await c.database("assets").select("*").where("Id", p.asset_id))[0];
     }
     let image = null
     if (p.image_file_id != null) {
-        image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
+        image = (await c.database("directus_files").select("*").where("Id", p.image_file_id))[0];
     }
     
 
@@ -51,14 +51,14 @@ export async function createEpisode(p, m, c) {
     }
     
     if (p.type === "episode" || p.season_id) {
-        let season = (await c.database("seasons").select("*").where("id", p.season_id))[0];
+        let season = (await c.database("seasons").select("*").where("Id", p.season_id))[0];
         patch.SeasonId = season.legacy_id
         patch.EpisodeNo = p.episode_number
-        let legacyEpisode = await oldKnex<EpisodeEntity>("episode").insert(patch).returning("*")
+        let legacyEpisode = await oldKnex<EpisodeEntity>("Episode").insert(patch).returning("*")
         p.legacy_id = legacyEpisode[0].Id
         
     } else if (p.type === "standalone") {
-        let legacyProgram = await oldKnex<EpisodeEntity>("program").insert(patch).returning("*")
+        let legacyProgram = await oldKnex<EpisodeEntity>("Program").insert(patch).returning("*")
         
         p.legacy_program_id = legacyProgram[0].Id
     }
@@ -73,7 +73,7 @@ export async function updateEpisode(p, m, c) {
         return
     }
     // get legacy id
-    let epBeforeUpdate = (await c.database("episodes").select("*").where("id", m.keys[0]))[0];
+    let epBeforeUpdate = (await c.database("episodes").select("*").where("Id", m.keys[0]))[0];
 
     // update it in original 
     let patch: Partial<EpisodeEntity> = {
@@ -83,14 +83,14 @@ export async function updateEpisode(p, m, c) {
         LastUpdate: new Date()
     }
     if (p.asset_id) {
-        let asset = (await c.database("assets").select("*").where("id", p.asset_id))[0];
+        let asset = (await c.database("assets").select("*").where("Id", p.asset_id))[0];
         patch.VideoId = asset.legacy_id
     } else if (p.asset_id === null) {
         patch.VideoId = null
     }
     
     if (p.image_file_id) {
-        let image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
+        let image = (await c.database("directus_files").select("*").where("Id", p.image_file_id))[0];
         patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
     } if (p.image_file_id === null) {
         patch.Image = null
@@ -102,7 +102,7 @@ export async function updateEpisode(p, m, c) {
 
     if (epBeforeUpdate.type === "episode") {
         if (p.season_id) {
-            let season = (await c.database("seasons").select("*").where("id", p.season_id))[0];
+            let season = (await c.database("seasons").select("*").where("Id", p.season_id))[0];
             patch.SeasonId = season.legacy_id
         }
         patch.EpisodeNo = p.episode_number
@@ -111,10 +111,10 @@ export async function updateEpisode(p, m, c) {
     
     if (!isObjectUseless(patch)) {
         if (epBeforeUpdate.type === "episode") {
-            let a = await oldKnex<EpisodeEntity>("episode").where("id", epBeforeUpdate.legacy_id).update(patch).returning("*")
+            let a = await oldKnex<EpisodeEntity>("Episode").where("Id", epBeforeUpdate.legacy_id).update(patch).returning("*")
             
         } else if (epBeforeUpdate.type === "standalone") {
-            let a = await oldKnex<ProgramEntity>("program").where("id", epBeforeUpdate.legacy_program_id).update(patch).returning("*")
+            let a = await oldKnex<ProgramEntity>("Program").where("Id", epBeforeUpdate.legacy_program_id).update(patch).returning("*")
             
         }
     }
@@ -132,13 +132,13 @@ export async function deleteEpisode(p, m, c) {
 
     // get legacy ids
     let episodes_id = p[0]
-    let episode = (await c.database("episodes").select("*").where("id", episodes_id))[0];
+    let episode = (await c.database("episodes").select("*").where("Id", episodes_id))[0];
     
     if (episode.type === "episode") {
-        let result = await oldKnex("Episode").where("id", episode.legacy_id).delete()
+        let result = await oldKnex("Episode").where("Id", episode.legacy_id).delete()
         
     } else if (episode.type === "standalone") {
-        let result = await oldKnex("Program").where("id", episode.legacy_program_id).delete()
+        let result = await oldKnex("Program").where("Id", episode.legacy_program_id).delete()
         
     }
 }

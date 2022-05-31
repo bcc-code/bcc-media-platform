@@ -34,7 +34,7 @@ export async function updateSection (p, m, c) {
     }
 
     if (p.image_file_id) {
-        let image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
+        let image = (await c.database("directus_files").select("*").where("Id", p.image_file_id))[0];
         patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
     } if (p.image_file_id === null) {
         patch.Image = null
@@ -42,7 +42,7 @@ export async function updateSection (p, m, c) {
 
     
     if (!isObjectUseless(patch)) {
-        let a = await oldKnex<SeriesEntity>("slider").where("id", sectionBeforeUpdate.legacy_id).update(patch).returning("*")
+        let a = await oldKnex<SeriesEntity>("Slider").where("Id", sectionBeforeUpdate.legacy_id).update(patch).returning("*")
         
     }
 };
@@ -83,12 +83,12 @@ export async function createSection(p, m, c) {
     }
     
     
-    let legacySection = await oldKnex<SeriesEntity>("slider").insert(patch).returning("*")
+    let legacySection = await oldKnex<SeriesEntity>("Slider").insert(patch).returning("*")
     
     p.legacy_id = legacySection[0].Id
     
     return p
-    //await c.database("sections").update({legacy_id: legacySection[0].Id}).where("id", e.id)
+    //await c.database("sections").update({legacy_id: legacySection[0].Id}).where("Id", e.id)
 
 };
 
@@ -104,9 +104,9 @@ export async function deleteSection(p, m, c) {
 
     // get legacy ids
     let sections_id = p[0]
-    let section = (await c.database("sections").select("*").where("id", sections_id))[0];
+    let section = (await c.database("sections").select("*").where("Id", sections_id))[0];
     
   
-    let result = await oldKnex("slider").where("id", section.legacy_id).delete()
+    let result = await oldKnex("Slider").where("Id", section.legacy_id).delete()
     
 };

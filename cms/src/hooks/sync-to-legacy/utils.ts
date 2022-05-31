@@ -23,10 +23,10 @@ export async function upsertLS(oldKnex: knex.Knex<any, unknown[]>, parentId: num
         value = ""
     }
     
-    let c = await oldKnex<LocalizedStringEntity>("localizedstring")
-    .innerJoin("language", "localizedstring.languageid", "language.id")
+    let c = await oldKnex<LocalizedStringEntity>("LocalizedString")
+    .innerJoin("Language", "LocalizedString.LanguageId", "Language.Id")
     .where("ParentId", parentId)
-    .andWhere("language.culturecode", lang.CultureCode)
+    .andWhere("Language.CultureCode", lang.CultureCode)
     .update({
         Value: value
     }).returning("*")
@@ -36,7 +36,7 @@ export async function upsertLS(oldKnex: knex.Knex<any, unknown[]>, parentId: num
             LanguageId: lang.Id,
             Value: value
         })
-        let inserted = await oldKnex<LocalizedStringEntity>("localizedstring")
+        let inserted = await oldKnex<LocalizedStringEntity>("LocalizedString")
         .insert({
             ParentId: parentId,
             LanguageId: lang.Id,
@@ -58,8 +58,8 @@ export async function ensureLocalizablesExist(oldKnex: knex.Knex<any, unknown[]>
 } */
 
 export async function createLocalizable(oldKnex: knex.Knex<any, unknown[]>): Promise<number> {
-    let result = await oldKnex<LocalizedStringEntity>("localizablestring").insert({}).returning<[{id: number}]>("id")
-    return result[0].id
+    let result = await oldKnex<LocalizedStringEntity>("LocalizableString").insert({}).returning<[{Id: number}]>("Id")
+    return result[0].Id
 }
 
 export function objectPatch(e: any, fields: {[field: string]: any}) {
