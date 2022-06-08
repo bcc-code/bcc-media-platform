@@ -11,7 +11,9 @@ import (
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 var (
@@ -36,20 +38,22 @@ type server struct {
 // IngestVod processes the message for ingesting a VOD asset
 func (s server) ProcessMessage(c *gin.Context) {
 	ctx := c.Request.Context()
-	ctx, span := trace.StartSpan(ctx, "ProcessMessage")
+	ctx, span := otel.Tracer("jobs/core").Start(ctx, "RrocessMessage")
 	defer span.End()
 
 	msg, err := pubsub.MessageFromCtx(c)
-	span.AddMessageReceiveEvent(msg.Message.PublishTime.UnixMilli(), c.Request.ContentLength, 0)
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		log.L.Error().Err(err).Msgf("Could not extract message from context")
 		c.Status(http.StatusOK)
 		return
 	}
+	span.AddEvent("message extracted from ctx")
 
 	e := cloudevents.NewEvent()
 	err = pubsub.ExtractData(*msg, &e)
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		log.L.Error().
 			Err(err).
 			Str("msg", spew.Sdump(msg)).
@@ -57,8 +61,9 @@ func (s server) ProcessMessage(c *gin.Context) {
 		c.Status(http.StatusOK)
 		return
 	}
+	span.AddEvent("extracted event data")
 
-	span.AddAttributes(trace.StringAttribute("MsgId", e.ID()), trace.StringAttribute("MessageSource", e.Source()))
+	span.SetAttributes(attribute.String("MsgId", e.ID()), attribute.String("MessageSource", e.Source()))
 
 	log.L.Debug().
 		Str("MsgId", e.ID()).

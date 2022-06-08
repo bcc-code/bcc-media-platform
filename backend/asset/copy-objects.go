@@ -7,7 +7,7 @@ import (
 	"github.com/ansel1/merry"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/mediabank-bridge/log"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
 )
 
 func copyObjects(
@@ -15,7 +15,8 @@ func copyObjects(
 	s3client s3.Client,
 	filesToCopy map[string]*s3.CopyObjectInput,
 ) []error {
-	ctx, span := trace.StartSpan(ctx, "copyObjects")
+	tracer := otel.Tracer("asset")
+	ctx, span := tracer.Start(ctx, "copyObjects")
 	defer span.End()
 
 	copyErrors := []error{}
@@ -26,7 +27,7 @@ func copyObjects(
 		f := file
 		go func() {
 			defer wg.Done()
-			ctx, span := trace.StartSpan(ctx, "copyObject")
+			ctx, span := tracer.Start(ctx, "copyObject")
 			defer span.End()
 
 			_, err := s3client.CopyObject(ctx, f)
@@ -42,7 +43,6 @@ func copyObjects(
 				copyErrors = append(copyErrors, merry.Wrap(err))
 				return
 			}
-
 			log.L.Info().
 				Str("dst bucket", *f.Bucket).
 				Str("source path", *f.CopySource).

@@ -21,7 +21,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
 )
 
 // Sentinel errors
@@ -115,7 +115,7 @@ func SafeString(s string) string {
 
 // Ingest asset from storage based on the prefix.
 func Ingest(ctx context.Context, services externalServices, config config, event cloudevents.Event) error {
-	ctx, span := trace.StartSpan(ctx, "ingest")
+	ctx, span := otel.Tracer("asset").Start(ctx, "ingest")
 	defer span.End()
 	msg := events.AssetDelivered{}
 	err := event.DataAs(&msg)
@@ -182,7 +182,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		Status:          directus.StatusDraft,
 	}
 
-	a, err = directus.SaveItem(services.GetDirectusClient(), *a, true)
+	a, err = directus.SaveItem(ctx, services.GetDirectusClient(), *a, true)
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -339,7 +339,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 				AssetID: a.ID,
 			}
 
-			_, err := directus.SaveItem(services.GetDirectusClient(), stream, false)
+			_, err := directus.SaveItem(ctx, services.GetDirectusClient(), stream, false)
 			if err != nil {
 				return merry.Wrap(err)
 			}
@@ -349,14 +349,14 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 	log.L.Debug().Msg("Insert stuff into Directus")
 	for _, af := range assetfiles {
-		_, err = directus.SaveItem(services.GetDirectusClient(), af, false)
+		_, err = directus.SaveItem(ctx, services.GetDirectusClient(), af, false)
 		if err != nil {
 			return merry.Wrap(err)
 		}
 	}
 
 	a.Status = directus.StatusPublished
-	a, err = directus.SaveItem(services.GetDirectusClient(), *a, false)
+	a, err = directus.SaveItem(ctx, services.GetDirectusClient(), *a, false)
 	if err != nil {
 		return merry.Wrap(err)
 	}

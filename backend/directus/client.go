@@ -3,7 +3,6 @@ package directus
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	"github.com/ansel1/merry"
 	"github.com/go-resty/resty/v2"
@@ -14,8 +13,8 @@ import (
 //
 // Note: Setting debug to `true` will dump all data sent and recieved as logs
 // This may include tokens and other sensitive information. Please only use locally
-func New(url, key string, debug bool, httpClient *http.Client) *resty.Client {
-	rest := resty.NewWithClient(httpClient).
+func New(url, key string, debug bool) *resty.Client {
+	rest := resty.New().
 		SetBaseURL(url).
 		SetAuthToken(key).
 		SetRetryCount(5).
