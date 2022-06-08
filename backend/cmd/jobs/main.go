@@ -15,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
 )
 
 func main() {
@@ -24,9 +24,8 @@ func main() {
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 	log.L.Debug().Msg("Seting up tracing!")
 
-	// Here you can get a tracedHttpClient if useful anywhere
-	tracedHTTPClient := utils.MustSetupTracing()
-	ctx, initTrace := trace.StartSpan(ctx, "init")
+	utils.MustSetupTracing()
+	ctx, span := otel.Tracer("jobs/core").Start(ctx, "init")
 
 	config := getEnvConfig()
 
@@ -50,7 +49,7 @@ func main() {
 	mediaPackageVOD := mediapackagevod.NewFromConfig(awsConfig)
 
 	debugDirectus := false
-	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key, debugDirectus, tracedHTTPClient)
+	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key, debugDirectus)
 
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
@@ -66,6 +65,6 @@ func main() {
 		apiGroup.POST("message", handlers.ProcessMessage)
 	}
 
-	initTrace.End()
+	span.End()
 	router.Run(":" + config.Port)
 }
