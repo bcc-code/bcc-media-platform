@@ -9,19 +9,57 @@ import (
 	"context"
 )
 
+const getShowTranslations = `-- name: GetShowTranslations :many
+SELECT description, id, is_primary, languages_code, legacy_description_id, legacy_tags, legacy_tags_id, legacy_title_id, shows_id, title FROM public.shows_translations
+`
+
+func (q *Queries) GetShowTranslations(ctx context.Context) ([]ShowsTranslation, error) {
+	rows, err := q.db.QueryContext(ctx, getShowTranslations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ShowsTranslation
+	for rows.Next() {
+		var i ShowsTranslation
+		if err := rows.Scan(
+			&i.Description,
+			&i.ID,
+			&i.IsPrimary,
+			&i.LanguagesCode,
+			&i.LegacyDescriptionID,
+			&i.LegacyTags,
+			&i.LegacyTagsID,
+			&i.LegacyTitleID,
+			&i.ShowsID,
+			&i.Title,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getShows = `-- name: GetShows :many
 SELECT agerating_code, available_from, available_to, date_created, date_updated, id, image_file_id, legacy_description_id, legacy_id, legacy_title_id, publish_date, status, type, user_created, user_updated FROM public.shows
 `
 
-func (q *Queries) GetShows(ctx context.Context) ([]Shows, error) {
+func (q *Queries) GetShows(ctx context.Context) ([]Show, error) {
 	rows, err := q.db.QueryContext(ctx, getShows)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Shows
+	var items []Show
 	for rows.Next() {
-		var i Shows
+		var i Show
 		if err := rows.Scan(
 			&i.AgeratingCode,
 			&i.AvailableFrom,

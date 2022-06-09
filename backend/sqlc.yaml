@@ -7,7 +7,6 @@ packages:
     queries: "../queries"
     emit_json_tags: true
     emit_db_tags: true
-    emit_exact_table_names: true
     json_tags_case_style: camel
 overrides:
   # For reference, when we need string-arrays (e.g. "usergroups" for a row on the materialized view)
