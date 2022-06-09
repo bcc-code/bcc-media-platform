@@ -18,6 +18,8 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
+const debugDirectus = false
+
 func main() {
 	ctx := context.Background()
 
@@ -48,7 +50,6 @@ func main() {
 	s3Client := s3.NewFromConfig(awsConfig)
 	mediaPackageVOD := mediapackagevod.NewFromConfig(awsConfig)
 
-	debugDirectus := false
 	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key, debugDirectus)
 
 	log.L.Debug().Msg("Set up HTTP server")
@@ -66,5 +67,9 @@ func main() {
 	}
 
 	span.End()
-	router.Run(":" + config.Port)
+	err = router.Run(":" + config.Port)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Couldn't start server")
+		return
+	}
 }
