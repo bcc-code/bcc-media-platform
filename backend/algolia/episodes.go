@@ -7,14 +7,7 @@ import (
 	"strconv"
 )
 
-func getEpisodeMapsToIndex() ([]searchObject, error) {
-	ctx := context.Background()
-	db, err := getDb()
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to init DB")
-		return nil, err
-	}
-	queries := sqlc.New(db)
+func getEpisodeMapsToIndex(queries *sqlc.Queries, ctx context.Context) ([]searchObject, error) {
 	items, err := queries.GetEpisodes(ctx)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to retrieve shows")
