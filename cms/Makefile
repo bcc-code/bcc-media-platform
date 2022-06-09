@@ -1,5 +1,8 @@
 .PHONY: schema-update run schema-snapshot init reset s
 
+install:
+	brew install libpq
+
 s:
 	docker-compose up -d
 	npx directus start
@@ -24,6 +27,7 @@ schema-update:
 
 schema-snapshot:
 	npx directus schema snapshot schema.yml -y
+	export PGPASSWORD=btv123 && /opt/homebrew/opt/libpq/bin/pg_dump btv -h localhost -U btv --schema-only --encoding=utf8 > ../migrations/000001_schema.up.sql
 	docker run --rm -v "${PWD}":/workdir mikefarah/yq e '.collections.[].meta.group = null' schema.yml > base-schema.yml
 
 generate-types:

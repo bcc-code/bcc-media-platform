@@ -10,7 +10,7 @@ import (
 )
 
 const getShows = `-- name: GetShows :many
-SELECT id, status, user_created, date_created, user_updated, date_updated, title, description, image, available_from, available_to, migration_data, publish_date, type, agerating_code, image_file_id FROM public.shows
+SELECT agerating_code, available_from, available_to, date_created, date_updated, id, image_file_id, legacy_description_id, legacy_id, legacy_title_id, publish_date, status, type, user_created, user_updated FROM public.shows
 `
 
 func (q *Queries) GetShows(ctx context.Context) ([]Shows, error) {
@@ -23,22 +23,21 @@ func (q *Queries) GetShows(ctx context.Context) ([]Shows, error) {
 	for rows.Next() {
 		var i Shows
 		if err := rows.Scan(
-			&i.ID,
-			&i.Status,
-			&i.UserCreated,
-			&i.DateCreated,
-			&i.UserUpdated,
-			&i.DateUpdated,
-			&i.Title,
-			&i.Description,
-			&i.Image,
+			&i.AgeratingCode,
 			&i.AvailableFrom,
 			&i.AvailableTo,
-			&i.MigrationData,
-			&i.PublishDate,
-			&i.Type,
-			&i.AgeratingCode,
+			&i.DateCreated,
+			&i.DateUpdated,
+			&i.ID,
 			&i.ImageFileID,
+			&i.LegacyDescriptionID,
+			&i.LegacyID,
+			&i.LegacyTitleID,
+			&i.PublishDate,
+			&i.Status,
+			&i.Type,
+			&i.UserCreated,
+			&i.UserUpdated,
 		); err != nil {
 			return nil, err
 		}
