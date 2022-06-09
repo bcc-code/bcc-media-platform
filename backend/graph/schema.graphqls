@@ -1,28 +1,266 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
-type Todo {
+interface Page{
   id: ID!
-  text: String!
-  done: Boolean!
-  user: User!
+  title: String
+  description: String
+  localizations: [LocalizedPage!]!
+  sections(
+    first: Int!
+    after: Cursor
+  ): SectionConnection!
 }
 
-type User {
+type ShowPage implements Page{
+  id: ID!
+  title: String
+  description: String
+  localizations: [LocalizedPage!]!
+  sections(
+    first: Int!
+    after: Cursor
+  ): SectionConnection!
+  show: Show
+}
+
+type ProgramPage implements Page{
+  id: ID!
+  title: String
+  description: String
+  localizations: [LocalizedPage!]!
+  sections(
+    first: Int!
+    after: Cursor
+  ): SectionConnection!
+  program: Program
+}
+
+type Show {
+  id: ID!
+  title: String!
+  episodeCount: Int!
+  seasonCount: Int!
+}
+
+type PaginationInfo{
+  id: ID!
+  endCursor: Cursor!
+  hasNextPage: Boolean!
+}
+
+type SectionConnection{
+  id: ID!
+  edges: [SectionEdge!]!
+  pageInfo: PaginationInfo!
+  cursor: Cursor!
+}
+
+type SectionEdge{
+  id: ID!
+  node: Section!
+}
+
+type LocalizedPage{
+  id: ID!
+  language: Language!
+  title: String
+  description: String
+}
+
+enum Language{
+  en
+  no
+  de
+}
+
+interface Section{
+  id: ID!
+  localizations: [LocalizedSection!]!
+  title: String
+}
+
+type LocalizedSection{
+  id: ID!
+  language: Language!
+  title: String
+}
+
+type BCCOSection implements Section{
+  id: ID!
+  localizations: [LocalizedSection!]!
+  title: String
+  bannerURL: String!
+}
+
+type ItemSection implements Section {
+  id: ID!
+  localizations: [LocalizedSection!]!
+  title: String
+  implementation: ItemSectionImplementation
+  pageId: ID!
+}
+
+interface ItemSectionImplementation {
+  id: ID!
+  items: [Item!]!
+}
+
+type ContainerSection implements Section{
+  id: ID!
+  localizations: [LocalizedSection!]!
+  title: String
+  sections: [Section!]!
+}
+
+type SliderItemsSection implements ItemSectionImplementation{
+  id: ID!
+  items: [Item!]!
+}
+
+type BubblesItemsSection implements ItemSectionImplementation{
+  id: ID!
+  items: [Item!]!
+  borderColor: String
+}
+
+scalar Cursor
+scalar Date
+
+interface Item {
+  id: ID!
+  title: String
+  imageUrl: String!
+}
+
+type URLItem implements Item {
+  id: ID!
+  title: String
+  imageUrl: String!
+  url: String!
+}
+
+type ProgramItem implements Item {
+  id: ID!
+  title: String
+  imageUrl: String!
+  program: Program
+}
+
+type PageItem implements Item {
+  id: ID!
+  title: String
+  imageUrl: String!
+  pageId: ID!
+  page: Page!
+}
+
+interface Program {
+  id: ID!
+  title: String!
+  description: String!
+  localizations: LocalizedProgram!
+  assets(downloadable: Boolean): [Asset!]!
+  chapters: [Chapter!]!
+}
+
+type Chapter {
+  id: ID!
+  start: Int!
+  title: String!
+}
+
+type Asset {
+  id: ID!
+  url: String!
+  downloadable: Boolean!
+}
+
+type LocalizedProgram {
+  id: ID!
+}
+
+type Episode implements Program {
+  id: ID!
+  title: String!
+  description: String!
+  localizations: LocalizedProgram!
+  assets(downloadable: Boolean): [Asset!]!
+  chapters: [Chapter!]!
+}
+
+type Standalone implements Program {
+  id: ID!
+  title: String!
+  description: String!
+  localizations: LocalizedProgram!
+  assets(downloadable: Boolean): [Asset!]!
+  chapters: [Chapter!]!
+}
+
+schema{
+  query: QueryRoot
+}
+
+type CalendarPeriod {
+  id: ID!
+  activeDays: [Date!]!
+  events: [Event!]!
+}
+
+type CalendarDay {
+  id: ID!
+  events: [Event!]!
+  tvGuideEntries: [TvGuideEntry!]!
+}
+
+type Event {
+  id: ID!
+  start: String!
+  end: String!
+  tvGuideEntries: [TvGuideEntry!]!
+  bannerImageURL: String!
+}
+
+type TvGuideEntry {
+  id: ID!
+  start: String!
+  end: String!
+  program: Program
+}
+
+type Calendar {
+  period(from: Date!, to: Date!) : CalendarPeriod
+  day(day: Date!) : CalendarDay
+}
+
+type Settings {
+  audioLanguages: [Language!]!
+  subtitleLanguages: [Language!]!
+}
+
+type FAQ {
+  question: String!
+  answer: String!
+}
+
+type FAQCategory {
   id: ID!
   name: String!
+  questions: [FAQ!]!
 }
 
-type Query {
-  todos: [Todo!]!
-}
+type QueryRoot{
+  page(
+    id: ID!
+  ): Page
 
-input NewTodo {
-  text: String!
-  userId: String!
-}
+  program(
+    id: ID!
+  ): Program
 
-type Mutation {
-  createTodo(input: NewTodo!): Todo!
+  section(
+    id: ID!
+  ): Section
+
+  calendar: Calendar
+  event(id: ID!): Event
+  allFAQs: [FAQCategory!]!
 }
