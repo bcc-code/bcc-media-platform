@@ -4,12 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
-	"strconv"
 )
+
+type searchObject map[string]interface{}
 
 var database *sql.DB
 
@@ -28,76 +28,66 @@ func getDb() (*sql.DB, error) {
 	return database, err
 }
 
-func showToObjectMap(show sqlc.Show, translations []sqlc.ShowsTranslation) map[string]string {
-	showId := int(show.ID)
-	object := map[string]string{
-		"objectID": "show-" + strconv.Itoa(showId),
-	}
+func indexObjects(index *search.Index, objects []searchObject) error {
+	//_, err := index.ClearObjects()
+	//if err != nil {
+	//	log.L.Error().Err(err).Msg("Failed to clear index")
+	//}
 
-	for _, translation := range translations {
-		values := map[string]string{
-			"title":       translation.Title.ValueOrZero(),
-			"description": translation.Description.ValueOrZero(),
-		}
-		for key, value := range values {
-			if value != "" {
-				object[key+"_"+translation.LanguagesCode] = value
-			}
-		}
+	_, err := index.SaveObjects(objects)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to index objects")
 	}
-
-	return object
+	return err
 }
 
 func index() {
-	ctx := context.Background()
 	config := getEnvConfig()
 	client := search.NewClient(config.Algolia.AppId, config.Algolia.ApiKey)
-	db, err := getDb()
+	index := client.InitIndex("global")
+
+	log.L.Debug().Msg("Indexing shows")
+	objects, err := getShowMapsToIndex()
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to init DB")
-		return
-	}
-	queries := sqlc.New(db)
-	shows, err := queries.GetShows(ctx)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to retrieve shows")
-		return
-	}
-	translations, err := queries.GetShowTranslations(ctx)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to retrieve showTranslations")
+		log.L.Error().Err(err).Msg("Failed to retrieve objects to index")
 		return
 	}
 
-	translationsByShow := map[int][]sqlc.ShowsTranslation{}
+	err = indexObjects(index, objects)
 
-	for _, translation := range translations {
-		showId := int(translation.ShowsID)
-		translationsByShow[showId] = append(translationsByShow[showId], translation)
-	}
-
-	objects := make([]map[string]string, len(shows))
-	for index, show := range shows {
-		objects[index] = showToObjectMap(show, translationsByShow[int(show.ID)])
-	}
-
-	index := client.InitIndex("shows")
-	_, err = index.ClearObjects()
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to clear index")
+		log.L.Error().Err(err).Msg("Failed to index shows")
 	}
 
-	_, err = index.SaveObjects(objects)
+	log.L.Debug().Msg("Indexing episodes")
+	objects, err = getEpisodeMapsToIndex()
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to index objects")
+		log.L.Error().Err(err).Msg("Failed to retrieve episodes to index")
 		return
+	}
+
+	err = indexObjects(index, objects)
+
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to index episodes")
+	}
+
+	log.L.Debug().Msg("Indexing seasons")
+	objects, err = getSeasonMapsToIndex()
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to retrieve episodes to index")
+		return
+	}
+
+	err = indexObjects(index, objects)
+
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to index episodes")
 	}
 }
 
 func main() {
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
-	log.L.Debug().Msg("Setting up tracing!")
 
 	index()
 }
