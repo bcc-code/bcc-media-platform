@@ -25,6 +25,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.4.4
 	go.opencensus.io v0.23.0
 	go.opentelemetry.io/otel v1.7.0
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.7.0
 	go.opentelemetry.io/otel/sdk v1.7.0
 	gopkg.in/guregu/null.v4 v4.0.0
 )

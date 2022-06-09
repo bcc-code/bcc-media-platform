@@ -59,6 +59,10 @@ func main() {
 		return
 	}
 
+	db.SetMaxIdleConns(2)
+	// TODO: What makes sense here? We should gather some metrics over time
+	db.SetMaxOpenConns(10)
+
 	err = db.PingContext(ctx)
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Ping failed")
