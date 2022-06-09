@@ -28,7 +28,29 @@ func getDb() (*sql.DB, error) {
 	return database, err
 }
 
+func showToObjectMap(show sqlc.Show, translations []sqlc.ShowsTranslation) map[string]string {
+	showId := int(show.ID)
+	object := map[string]string{
+		"objectID": "show-" + strconv.Itoa(showId),
+	}
+
+	for _, translation := range translations {
+		values := map[string]string{
+			"title":       translation.Title.ValueOrZero(),
+			"description": translation.Description.ValueOrZero(),
+		}
+		for key, value := range values {
+			if value != "" {
+				object[key+"_"+translation.LanguagesCode] = value
+			}
+		}
+	}
+
+	return object
+}
+
 func index() {
+	ctx := context.Background()
 	config := getEnvConfig()
 	client := search.NewClient(config.Algolia.AppId, config.Algolia.ApiKey)
 	db, err := getDb()
@@ -37,21 +59,36 @@ func index() {
 		return
 	}
 	queries := sqlc.New(db)
-	shows, err := queries.GetShows(context.Background())
+	shows, err := queries.GetShows(ctx)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to retrieve shows")
 		return
 	}
-	objects := make([]SearchItem, len(shows))
-	for index, show := range shows {
-		objects[index] = SearchItem{
-			ID:    "show-" + strconv.Itoa(int(show.ID)),
-			Title: "ttol",
-		}
+	translations, err := queries.GetShowTranslations(ctx)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to retrieve showTranslations")
+		return
 	}
-	index := client.InitIndex("shows")
-	_, err = index.SaveObjects(objects)
 
+	translationsByShow := map[int][]sqlc.ShowsTranslation{}
+
+	for _, translation := range translations {
+		showId := int(translation.ShowsID)
+		translationsByShow[showId] = append(translationsByShow[showId], translation)
+	}
+
+	objects := make([]map[string]string, len(shows))
+	for index, show := range shows {
+		objects[index] = showToObjectMap(show, translationsByShow[int(show.ID)])
+	}
+
+	index := client.InitIndex("shows")
+	_, err = index.ClearObjects()
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to clear index")
+	}
+
+	_, err = index.SaveObjects(objects)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index objects")
 		return

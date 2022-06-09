@@ -13,7 +13,7 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-type Ageratings struct {
+type Agerating struct {
 	Code        string         `db:"code" json:"code"`
 	DateCreated sql.NullTime   `db:"date_created" json:"dateCreated"`
 	DateUpdated sql.NullTime   `db:"date_updated" json:"dateUpdated"`
@@ -21,14 +21,29 @@ type Ageratings struct {
 	Title       null_v4.String `db:"title" json:"title"`
 }
 
-type AgeratingsTranslations struct {
+type AgeratingsTranslation struct {
 	AgeratingsCode string         `db:"ageratings_code" json:"ageratingsCode"`
 	Description    null_v4.String `db:"description" json:"description"`
 	ID             int32          `db:"id" json:"id"`
 	LanguagesCode  string         `db:"languages_code" json:"languagesCode"`
 }
 
-type Assetfiles struct {
+type Asset struct {
+	DateCreated     sql.NullTime   `db:"date_created" json:"dateCreated"`
+	DateUpdated     sql.NullTime   `db:"date_updated" json:"dateUpdated"`
+	Duration        int32          `db:"duration" json:"duration"`
+	EncodingVersion null_v4.String `db:"encoding_version" json:"encodingVersion"`
+	ID              int32          `db:"id" json:"id"`
+	LegacyID        null_v4.Int    `db:"legacy_id" json:"legacyID"`
+	MainStoragePath null_v4.String `db:"main_storage_path" json:"mainStoragePath"`
+	MediabankenID   null_v4.String `db:"mediabanken_id" json:"mediabankenID"`
+	Name            string         `db:"name" json:"name"`
+	Status          null_v4.String `db:"status" json:"status"`
+	UserCreated     uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated     uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+}
+
+type Assetfile struct {
 	AssetID            int32                 `db:"asset_id" json:"assetID"`
 	AudioLanguageID    null_v4.String        `db:"audio_language_id" json:"audioLanguageID"`
 	DateCreated        sql.NullTime          `db:"date_created" json:"dateCreated"`
@@ -44,22 +59,7 @@ type Assetfiles struct {
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 }
 
-type Assets struct {
-	DateCreated     sql.NullTime   `db:"date_created" json:"dateCreated"`
-	DateUpdated     sql.NullTime   `db:"date_updated" json:"dateUpdated"`
-	Duration        int32          `db:"duration" json:"duration"`
-	EncodingVersion null_v4.String `db:"encoding_version" json:"encodingVersion"`
-	ID              int32          `db:"id" json:"id"`
-	LegacyID        null_v4.Int    `db:"legacy_id" json:"legacyID"`
-	MainStoragePath null_v4.String `db:"main_storage_path" json:"mainStoragePath"`
-	MediabankenID   null_v4.String `db:"mediabanken_id" json:"mediabankenID"`
-	Name            string         `db:"name" json:"name"`
-	Status          null_v4.String `db:"status" json:"status"`
-	UserCreated     uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated     uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-}
-
-type Assetstreams struct {
+type Assetstream struct {
 	AssetID          int32                 `db:"asset_id" json:"assetID"`
 	DateCreated      sql.NullTime          `db:"date_created" json:"dateCreated"`
 	DateUpdated      sql.NullTime          `db:"date_updated" json:"dateUpdated"`
@@ -76,13 +76,13 @@ type Assetstreams struct {
 	UserUpdated      uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 }
 
-type AssetstreamsAudioLanguages struct {
+type AssetstreamsAudioLanguage struct {
 	AssetstreamsID null_v4.Int    `db:"assetstreams_id" json:"assetstreamsID"`
 	ID             int32          `db:"id" json:"id"`
 	LanguagesCode  null_v4.String `db:"languages_code" json:"languagesCode"`
 }
 
-type AssetstreamsSubtitleLanguages struct {
+type AssetstreamsSubtitleLanguage struct {
 	AssetstreamsID null_v4.Int    `db:"assetstreams_id" json:"assetstreamsID"`
 	ID             int32          `db:"id" json:"id"`
 	LanguagesCode  null_v4.String `db:"languages_code" json:"languagesCode"`
@@ -100,7 +100,14 @@ type Calendarevent struct {
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 }
 
-type Categories struct {
+type CategoriesTranslation struct {
+	CategoriesID  int32  `db:"categories_id" json:"categoriesID"`
+	ID            int32  `db:"id" json:"id"`
+	LanguagesCode string `db:"languages_code" json:"languagesCode"`
+	Name          string `db:"name" json:"name"`
+}
+
+type Category struct {
 	AppearInSearch sql.NullBool  `db:"appear_in_search" json:"appearInSearch"`
 	DateCreated    sql.NullTime  `db:"date_created" json:"dateCreated"`
 	DateUpdated    sql.NullTime  `db:"date_updated" json:"dateUpdated"`
@@ -112,14 +119,7 @@ type Categories struct {
 	UserUpdated    uuid.NullUUID `db:"user_updated" json:"userUpdated"`
 }
 
-type CategoriesTranslations struct {
-	CategoriesID  int32  `db:"categories_id" json:"categoriesID"`
-	ID            int32  `db:"id" json:"id"`
-	LanguagesCode string `db:"languages_code" json:"languagesCode"`
-	Name          string `db:"name" json:"name"`
-}
-
-type Collections struct {
+type Collection struct {
 	Content               string         `db:"content" json:"content"`
 	DateCreated           sql.NullTime   `db:"date_created" json:"dateCreated"`
 	DateUpdated           sql.NullTime   `db:"date_updated" json:"dateUpdated"`
@@ -133,33 +133,33 @@ type Collections struct {
 	UserUpdated           uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 }
 
-type CollectionsEpisodes struct {
+type CollectionsEpisode struct {
 	CollectionsID null_v4.Int `db:"collections_id" json:"collectionsID"`
 	EpisodesID    null_v4.Int `db:"episodes_id" json:"episodesID"`
 	ID            int32       `db:"id" json:"id"`
 	Sort          null_v4.Int `db:"sort" json:"sort"`
 }
 
-type CollectionsRelations struct {
+type CollectionsRelation struct {
 	Collection    null_v4.String `db:"collection" json:"collection"`
 	CollectionsID null_v4.Int    `db:"collections_id" json:"collectionsID"`
 	ID            int32          `db:"id" json:"id"`
 	Item          null_v4.String `db:"item" json:"item"`
 }
 
-type CollectionsSeasons struct {
+type CollectionsSeason struct {
 	CollectionsID null_v4.Int `db:"collections_id" json:"collectionsID"`
 	ID            int32       `db:"id" json:"id"`
 	SeasonsID     null_v4.Int `db:"seasons_id" json:"seasonsID"`
 }
 
-type CollectionsShows struct {
+type CollectionsShow struct {
 	CollectionsID null_v4.Int `db:"collections_id" json:"collectionsID"`
 	ID            int32       `db:"id" json:"id"`
 	ShowsID       null_v4.Int `db:"shows_id" json:"showsID"`
 }
 
-type CollectionsTranslations struct {
+type CollectionsTranslation struct {
 	CollectionsID int32          `db:"collections_id" json:"collectionsID"`
 	ID            int32          `db:"id" json:"id"`
 	LanguagesCode string         `db:"languages_code" json:"languagesCode"`
@@ -178,7 +178,7 @@ type DirectusActivity struct {
 	Comment    null_v4.String `db:"comment" json:"comment"`
 }
 
-type DirectusCollections struct {
+type DirectusCollection struct {
 	Collection            string                `db:"collection" json:"collection"`
 	Icon                  null_v4.String        `db:"icon" json:"icon"`
 	Note                  null_v4.String        `db:"note" json:"note"`
@@ -199,7 +199,7 @@ type DirectusCollections struct {
 	Collapse              string                `db:"collapse" json:"collapse"`
 }
 
-type DirectusDashboards struct {
+type DirectusDashboard struct {
 	ID          uuid.UUID      `db:"id" json:"id"`
 	Name        string         `db:"name" json:"name"`
 	Icon        string         `db:"icon" json:"icon"`
@@ -208,7 +208,7 @@ type DirectusDashboards struct {
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
 }
 
-type DirectusFields struct {
+type DirectusField struct {
 	ID                int32                 `db:"id" json:"id"`
 	Collection        string                `db:"collection" json:"collection"`
 	Field             string                `db:"field" json:"field"`
@@ -230,7 +230,7 @@ type DirectusFields struct {
 	ValidationMessage null_v4.String        `db:"validation_message" json:"validationMessage"`
 }
 
-type DirectusFiles struct {
+type DirectusFile struct {
 	ID               uuid.UUID             `db:"id" json:"id"`
 	Storage          string                `db:"storage" json:"storage"`
 	FilenameDisk     null_v4.String        `db:"filename_disk" json:"filenameDisk"`
@@ -254,19 +254,19 @@ type DirectusFiles struct {
 	Metadata         pqtype.NullRawMessage `db:"metadata" json:"metadata"`
 }
 
-type DirectusFolders struct {
+type DirectusFolder struct {
 	ID     uuid.UUID     `db:"id" json:"id"`
 	Name   string        `db:"name" json:"name"`
 	Parent uuid.NullUUID `db:"parent" json:"parent"`
 }
 
-type DirectusMigrations struct {
+type DirectusMigration struct {
 	Version   string       `db:"version" json:"version"`
 	Name      string       `db:"name" json:"name"`
 	Timestamp sql.NullTime `db:"timestamp" json:"timestamp"`
 }
 
-type DirectusNotifications struct {
+type DirectusNotification struct {
 	ID         int32          `db:"id" json:"id"`
 	Timestamp  time.Time      `db:"timestamp" json:"timestamp"`
 	Status     null_v4.String `db:"status" json:"status"`
@@ -278,7 +278,7 @@ type DirectusNotifications struct {
 	Item       null_v4.String `db:"item" json:"item"`
 }
 
-type DirectusPanels struct {
+type DirectusPanel struct {
 	ID          uuid.UUID             `db:"id" json:"id"`
 	Dashboard   uuid.UUID             `db:"dashboard" json:"dashboard"`
 	Name        null_v4.String        `db:"name" json:"name"`
@@ -296,7 +296,7 @@ type DirectusPanels struct {
 	UserCreated uuid.NullUUID         `db:"user_created" json:"userCreated"`
 }
 
-type DirectusPermissions struct {
+type DirectusPermission struct {
 	ID          int32                 `db:"id" json:"id"`
 	Role        uuid.NullUUID         `db:"role" json:"role"`
 	Collection  string                `db:"collection" json:"collection"`
@@ -307,7 +307,7 @@ type DirectusPermissions struct {
 	Fields      null_v4.String        `db:"fields" json:"fields"`
 }
 
-type DirectusPresets struct {
+type DirectusPreset struct {
 	ID              int32                 `db:"id" json:"id"`
 	Bookmark        null_v4.String        `db:"bookmark" json:"bookmark"`
 	User            uuid.NullUUID         `db:"user" json:"user"`
@@ -323,7 +323,7 @@ type DirectusPresets struct {
 	Color           null_v4.String        `db:"color" json:"color"`
 }
 
-type DirectusRelations struct {
+type DirectusRelation struct {
 	ID                    int32          `db:"id" json:"id"`
 	ManyCollection        string         `db:"many_collection" json:"manyCollection"`
 	ManyField             string         `db:"many_field" json:"manyField"`
@@ -336,7 +336,7 @@ type DirectusRelations struct {
 	OneDeselectAction     string         `db:"one_deselect_action" json:"oneDeselectAction"`
 }
 
-type DirectusRevisions struct {
+type DirectusRevision struct {
 	ID         int32                 `db:"id" json:"id"`
 	Activity   int32                 `db:"activity" json:"activity"`
 	Collection string                `db:"collection" json:"collection"`
@@ -346,7 +346,7 @@ type DirectusRevisions struct {
 	Parent     null_v4.Int           `db:"parent" json:"parent"`
 }
 
-type DirectusRoles struct {
+type DirectusRole struct {
 	ID          uuid.UUID      `db:"id" json:"id"`
 	Name        string         `db:"name" json:"name"`
 	Icon        string         `db:"icon" json:"icon"`
@@ -357,7 +357,7 @@ type DirectusRoles struct {
 	AppAccess   bool           `db:"app_access" json:"appAccess"`
 }
 
-type DirectusSessions struct {
+type DirectusSession struct {
 	Token     string         `db:"token" json:"token"`
 	User      uuid.NullUUID  `db:"user" json:"user"`
 	Expires   time.Time      `db:"expires" json:"expires"`
@@ -366,7 +366,7 @@ type DirectusSessions struct {
 	Share     uuid.NullUUID  `db:"share" json:"share"`
 }
 
-type DirectusSettings struct {
+type DirectusSetting struct {
 	ID                    int32                 `db:"id" json:"id"`
 	ProjectName           string                `db:"project_name" json:"projectName"`
 	ProjectUrl            null_v4.String        `db:"project_url" json:"projectUrl"`
@@ -389,7 +389,7 @@ type DirectusSettings struct {
 	DefaultLanguage       string                `db:"default_language" json:"defaultLanguage"`
 }
 
-type DirectusShares struct {
+type DirectusShare struct {
 	ID          uuid.UUID      `db:"id" json:"id"`
 	Name        null_v4.String `db:"name" json:"name"`
 	Collection  null_v4.String `db:"collection" json:"collection"`
@@ -404,7 +404,7 @@ type DirectusShares struct {
 	MaxUses     null_v4.Int    `db:"max_uses" json:"maxUses"`
 }
 
-type DirectusUsers struct {
+type DirectusUser struct {
 	ID                 uuid.UUID             `db:"id" json:"id"`
 	FirstName          null_v4.String        `db:"first_name" json:"firstName"`
 	LastName           null_v4.String        `db:"last_name" json:"lastName"`
@@ -429,7 +429,7 @@ type DirectusUsers struct {
 	EmailNotifications sql.NullBool          `db:"email_notifications" json:"emailNotifications"`
 }
 
-type DirectusWebhooks struct {
+type DirectusWebhook struct {
 	ID          int32                 `db:"id" json:"id"`
 	Name        string                `db:"name" json:"name"`
 	Method      string                `db:"method" json:"method"`
@@ -441,7 +441,7 @@ type DirectusWebhooks struct {
 	Headers     pqtype.NullRawMessage `db:"headers" json:"headers"`
 }
 
-type Episodes struct {
+type Episode struct {
 	AgeratingCode            null_v4.String        `db:"agerating_code" json:"ageratingCode"`
 	AssetID                  null_v4.Int           `db:"asset_id" json:"assetID"`
 	AvailableFrom            null_v4.Time          `db:"available_from" json:"availableFrom"`
@@ -466,19 +466,19 @@ type Episodes struct {
 	UserUpdated              uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 }
 
-type EpisodesCategories struct {
+type EpisodesCategory struct {
 	CategoriesID int32 `db:"categories_id" json:"categoriesID"`
 	EpisodesID   int32 `db:"episodes_id" json:"episodesID"`
 	ID           int32 `db:"id" json:"id"`
 }
 
-type EpisodesTags struct {
+type EpisodesTag struct {
 	EpisodesID int32 `db:"episodes_id" json:"episodesID"`
 	ID         int32 `db:"id" json:"id"`
 	TagsID     int32 `db:"tags_id" json:"tagsID"`
 }
 
-type EpisodesTranslations struct {
+type EpisodesTranslation struct {
 	Description      null_v4.String `db:"description" json:"description"`
 	EpisodesID       int32          `db:"episodes_id" json:"episodesID"`
 	ExtraDescription null_v4.String `db:"extra_description" json:"extraDescription"`
@@ -488,7 +488,7 @@ type EpisodesTranslations struct {
 	Title            null_v4.String `db:"title" json:"title"`
 }
 
-type EpisodesUsergroups struct {
+type EpisodesUsergroup struct {
 	EpisodesID     int32          `db:"episodes_id" json:"episodesID"`
 	ID             int32          `db:"id" json:"id"`
 	Type           null_v4.String `db:"type" json:"type"`
@@ -507,14 +507,14 @@ type EpisodesUsergroupsEarlyaccess struct {
 	UsergroupsCode string `db:"usergroups_code" json:"usergroupsCode"`
 }
 
-type Languages struct {
+type Language struct {
 	Code              string         `db:"code" json:"code"`
 	Legacy2LetterCode null_v4.String `db:"legacy_2_letter_code" json:"legacy2LetterCode"`
 	Legacy3LetterCode null_v4.String `db:"legacy_3_letter_code" json:"legacy3LetterCode"`
 	Name              null_v4.String `db:"name" json:"name"`
 }
 
-type Lists struct {
+type List struct {
 	DateCreated      sql.NullTime  `db:"date_created" json:"dateCreated"`
 	DateUpdated      sql.NullTime  `db:"date_updated" json:"dateUpdated"`
 	ID               int32         `db:"id" json:"id"`
@@ -525,7 +525,7 @@ type Lists struct {
 	UserUpdated      uuid.NullUUID `db:"user_updated" json:"userUpdated"`
 }
 
-type ListsRelations struct {
+type ListsRelation struct {
 	Collection null_v4.String `db:"collection" json:"collection"`
 	ID         int32          `db:"id" json:"id"`
 	Item       null_v4.String `db:"item" json:"item"`
@@ -533,7 +533,7 @@ type ListsRelations struct {
 	Sort       null_v4.Int    `db:"sort" json:"sort"`
 }
 
-type Pages struct {
+type Page struct {
 	Code        null_v4.String `db:"code" json:"code"`
 	DateCreated sql.NullTime   `db:"date_created" json:"dateCreated"`
 	DateUpdated sql.NullTime   `db:"date_updated" json:"dateUpdated"`
@@ -545,7 +545,7 @@ type Pages struct {
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 }
 
-type Seasons struct {
+type Season struct {
 	AgeratingCode       null_v4.String `db:"agerating_code" json:"ageratingCode"`
 	AvailableFrom       null_v4.Time   `db:"available_from" json:"availableFrom"`
 	AvailableTo         null_v4.Time   `db:"available_to" json:"availableTo"`
@@ -564,7 +564,7 @@ type Seasons struct {
 	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 }
 
-type SeasonsTranslations struct {
+type SeasonsTranslation struct {
 	Description         null_v4.String `db:"description" json:"description"`
 	ID                  int32          `db:"id" json:"id"`
 	IsPrimary           bool           `db:"is_primary" json:"isPrimary"`
@@ -575,13 +575,13 @@ type SeasonsTranslations struct {
 	Title               null_v4.String `db:"title" json:"title"`
 }
 
-type SeasonsUsergroups struct {
+type SeasonsUsergroup struct {
 	ID             int32  `db:"id" json:"id"`
 	SeasonsID      int32  `db:"seasons_id" json:"seasonsID"`
 	UsergroupsCode string `db:"usergroups_code" json:"usergroupsCode"`
 }
 
-type Sections struct {
+type Section struct {
 	CollectionID    null_v4.Int    `db:"collection_id" json:"collectionID"`
 	DateCreated     sql.NullTime   `db:"date_created" json:"dateCreated"`
 	DateUpdated     sql.NullTime   `db:"date_updated" json:"dateUpdated"`
@@ -595,7 +595,7 @@ type Sections struct {
 	UserUpdated     uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 }
 
-type SectionsTranslations struct {
+type SectionsTranslation struct {
 	ID            int32       `db:"id" json:"id"`
 	LanguagesCode string      `db:"languages_code" json:"languagesCode"`
 	LegacyTitleID null_v4.Int `db:"legacy_title_id" json:"legacyTitleID"`
@@ -603,13 +603,13 @@ type SectionsTranslations struct {
 	Title         string      `db:"title" json:"title"`
 }
 
-type SectionsUsergroups struct {
+type SectionsUsergroup struct {
 	ID             int32  `db:"id" json:"id"`
 	SectionsID     int32  `db:"sections_id" json:"sectionsID"`
 	UsergroupsCode string `db:"usergroups_code" json:"usergroupsCode"`
 }
 
-type Shows struct {
+type Show struct {
 	AgeratingCode       null_v4.String `db:"agerating_code" json:"ageratingCode"`
 	AvailableFrom       null_v4.Time   `db:"available_from" json:"availableFrom"`
 	AvailableTo         null_v4.Time   `db:"available_to" json:"availableTo"`
@@ -627,7 +627,7 @@ type Shows struct {
 	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 }
 
-type ShowsTranslations struct {
+type ShowsTranslation struct {
 	Description         null_v4.String `db:"description" json:"description"`
 	ID                  int32          `db:"id" json:"id"`
 	IsPrimary           bool           `db:"is_primary" json:"isPrimary"`
@@ -640,13 +640,13 @@ type ShowsTranslations struct {
 	Title               null_v4.String `db:"title" json:"title"`
 }
 
-type ShowsUsergroups struct {
+type ShowsUsergroup struct {
 	ID             int32  `db:"id" json:"id"`
 	ShowsID        int32  `db:"shows_id" json:"showsID"`
 	UsergroupsCode string `db:"usergroups_code" json:"usergroupsCode"`
 }
 
-type Tags struct {
+type Tag struct {
 	Code        null_v4.String `db:"code" json:"code"`
 	DateCreated sql.NullTime   `db:"date_created" json:"dateCreated"`
 	DateUpdated sql.NullTime   `db:"date_updated" json:"dateUpdated"`
@@ -679,7 +679,7 @@ type TvguideentryLink struct {
 	TvguideentryID null_v4.Int    `db:"tvguideentry_id" json:"tvguideentryID"`
 }
 
-type Usergroups struct {
+type Usergroup struct {
 	Code        string         `db:"code" json:"code"`
 	DateCreated sql.NullTime   `db:"date_created" json:"dateCreated"`
 	DateUpdated sql.NullTime   `db:"date_updated" json:"dateUpdated"`
