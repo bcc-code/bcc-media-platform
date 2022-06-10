@@ -44,7 +44,7 @@ func playgroundHandler() gin.HandlerFunc {
 	}
 }
 
-func indexHandler(client *search.Client) func() {
+func indexHandler(client *search.Service) func() {
 	return func() {
 		client.Index()
 	}
@@ -80,8 +80,8 @@ func main() {
 
 	log.L.Debug().Msg("Setting up scheduler")
 	scheduler := gocron.NewScheduler(time.UTC)
-	searchClient := search.NewClient(config.Algolia.AppId, config.Algolia.ApiKey, db)
-	_, err = scheduler.Every(30).Seconds().Do(indexHandler(searchClient))
+	searchService := search.NewService(config.Algolia.AppId, config.Algolia.ApiKey, db)
+	_, err = scheduler.Every(30).Seconds().Do(indexHandler(searchService))
 	if err != nil {
 		return
 	}

@@ -15,11 +15,6 @@ const indexName = "global"
 type searchObject map[string]interface{}
 
 func indexObjects(index *search.Index, objects []searchObject) error {
-	//_, err := index.ClearObjects()
-	//if err != nil {
-	//	log.L.Error().Err(err).Msg("Failed to clear index")
-	//}
-
 	_, err := index.SaveObjects(objects)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index objects")
@@ -27,35 +22,39 @@ func indexObjects(index *search.Index, objects []searchObject) error {
 	return err
 }
 
-type Client struct {
+type Service struct {
 	AlgoliaClient *search.Client
 	DB            *sql.DB
 }
 
-func NewClient(algoliaAppId string, algoliaApiKey string, db *sql.DB) *Client {
-	var client *Client
+func NewService(algoliaAppId string, algoliaApiKey string, db *sql.DB) *Service {
+	var service *Service
 
-	client.AlgoliaClient = search.NewClient(algoliaAppId, algoliaApiKey)
-	client.DB = db
+	service.AlgoliaClient = search.NewClient(algoliaAppId, algoliaApiKey)
+	service.DB = db
 
-	return client
+	return service
 }
 
-func (searchClient *Client) Index() {
-	algoliaClient := searchClient.AlgoliaClient
-	index := algoliaClient.InitIndex(indexName)
+func (service *Service) Index() {
 	ctx := context.Background()
-	queries := sqlc.New(searchClient.DB)
+	queries := sqlc.New(service.DB)
+
+	algoliaClient := service.AlgoliaClient
+	index := algoliaClient.InitIndex(indexName)
 
 	_, err := index.ClearObjects()
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to clear objects from index")
+		return
 	}
+
 	_, err = index.SetSettings(search.Settings{
-		SearchableAttributes: opt.SearchableAttributes("title_en", "title_no"),
+		SearchableAttributes: opt.SearchableAttributes(service.getFields()...),
 	})
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to set searchable fields")
+		return
 	}
 
 	log.L.Debug().Msg("Indexing shows")
@@ -66,7 +65,6 @@ func (searchClient *Client) Index() {
 	}
 
 	err = indexObjects(index, objects)
-
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index shows")
 	}
@@ -79,7 +77,6 @@ func (searchClient *Client) Index() {
 	}
 
 	err = indexObjects(index, objects)
-
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index episodes")
 	}
@@ -92,7 +89,6 @@ func (searchClient *Client) Index() {
 	}
 
 	err = indexObjects(index, objects)
-
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index episodes")
 	}
