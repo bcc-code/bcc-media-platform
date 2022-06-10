@@ -1,4 +1,4 @@
-package algolia
+package search
 
 import (
 	"context"
@@ -7,14 +7,14 @@ import (
 	"strconv"
 )
 
-func getEpisodeMapsToIndex(queries *sqlc.Queries, ctx context.Context) ([]searchObject, error) {
-	items, err := queries.GetEpisodes(ctx)
+func getShowMapsToIndex(queries *sqlc.Queries, ctx context.Context) ([]searchObject, error) {
+	items, err := queries.GetShows(ctx)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to retrieve shows")
 		return nil, err
 	}
 
-	translationsByEpisode, err := getTranslationsByEpisode(queries, ctx)
+	translationsByShow, err := getTranslationsByShow(queries, ctx)
 
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to retrieve translations")
@@ -23,19 +23,19 @@ func getEpisodeMapsToIndex(queries *sqlc.Queries, ctx context.Context) ([]search
 
 	var objects []searchObject
 	for _, item := range items {
-		objects = append(objects, mapEpisodeToObject(item, translationsByEpisode[int(item.ID)]))
+		objects = append(objects, mapShowToObject(item, translationsByShow[int(item.ID)]))
 	}
 
 	return objects, nil
 }
 
-func getTranslationsByEpisode(queries *sqlc.Queries, ctx context.Context) (map[int][]sqlc.EpisodesTranslation, error) {
-	translations, err := queries.GetEpisodeTranslations(ctx)
+func getTranslationsByShow(queries *sqlc.Queries, ctx context.Context) (map[int][]sqlc.ShowsTranslation, error) {
+	translations, err := queries.GetShowTranslations(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	translationsByParent := map[int][]sqlc.EpisodesTranslation{}
+	translationsByParent := map[int][]sqlc.ShowsTranslation{}
 
 	for _, translation := range translations {
 		parentId := translation.GetParentId()
@@ -45,13 +45,11 @@ func getTranslationsByEpisode(queries *sqlc.Queries, ctx context.Context) (map[i
 	return translationsByParent, nil
 }
 
-func mapEpisodeToObject(item sqlc.Episode, translations []sqlc.EpisodesTranslation) searchObject {
+func mapShowToObject(item sqlc.Show, translations []sqlc.ShowsTranslation) searchObject {
 	itemId := item.GetId()
 	object := searchObject{
 		"objectID": item.GetModelName() + "-" + strconv.Itoa(itemId),
 	}
-
-	object["seasonID"] = item.SeasonID
 
 	for _, translation := range translations {
 		mapTranslationToObject(translation, object)
