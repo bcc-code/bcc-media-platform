@@ -1,4 +1,4 @@
-package algolia
+package search
 
 import "github.com/bcc-code/brunstadtv/backend/sqlc"
 

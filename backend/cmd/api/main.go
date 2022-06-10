@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/bcc-code/brunstadtv/backend/cmd/api/algolia"
+	"github.com/bcc-code/brunstadtv/backend/cmd/api/search"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -44,7 +44,7 @@ func playgroundHandler() gin.HandlerFunc {
 	}
 }
 
-func indexHandler(client algolia.Client) func() {
+func indexHandler(client *search.Client) func() {
 	return func() {
 		client.Index()
 	}
@@ -80,11 +80,7 @@ func main() {
 
 	log.L.Debug().Msg("Setting up scheduler")
 	scheduler := gocron.NewScheduler(time.UTC)
-	searchClient := algolia.Client{
-		AppId:  config.Algolia.AppId,
-		ApiKey: config.Algolia.ApiKey,
-		DB:     db,
-	}
+	searchClient := search.NewClient(config.Algolia.AppId, config.Algolia.ApiKey, db)
 	_, err = scheduler.Every(30).Seconds().Do(indexHandler(searchClient))
 	if err != nil {
 		return

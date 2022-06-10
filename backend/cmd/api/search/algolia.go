@@ -1,13 +1,16 @@
-package algolia
+package search
 
 import (
 	"context"
 	"database/sql"
+	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	_ "github.com/lib/pq"
 )
+
+const indexName = "global"
 
 type searchObject map[string]interface{}
 
@@ -25,16 +28,21 @@ func indexObjects(index *search.Index, objects []searchObject) error {
 }
 
 type Client struct {
-	AppId  string
-	ApiKey string
-	//TODO: Performance impact of putting this here?
-	DB *sql.DB
+	AlgoliaClient *search.Client
+	DB            *sql.DB
 }
 
-const indexName = "global"
+func NewClient(algoliaAppId string, algoliaApiKey string, db *sql.DB) *Client {
+	var client *Client
+
+	client.AlgoliaClient = search.NewClient(algoliaAppId, algoliaApiKey)
+	client.DB = db
+
+	return client
+}
 
 func (searchClient *Client) Index() {
-	algoliaClient := search.NewClient(searchClient.AppId, searchClient.ApiKey)
+	algoliaClient := searchClient.AlgoliaClient
 	index := algoliaClient.InitIndex(indexName)
 	ctx := context.Background()
 	queries := sqlc.New(searchClient.DB)
@@ -42,6 +50,12 @@ func (searchClient *Client) Index() {
 	_, err := index.ClearObjects()
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to clear objects from index")
+	}
+	_, err = index.SetSettings(search.Settings{
+		SearchableAttributes: opt.SearchableAttributes("title_en", "title_no"),
+	})
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to set searchable fields")
 	}
 
 	log.L.Debug().Msg("Indexing shows")
