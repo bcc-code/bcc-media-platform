@@ -37,6 +37,7 @@ require (
 	cloud.google.com/go/trace v1.2.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.32.1 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
+	github.com/algolia/algoliasearch-client-go/v3 v3.4.0 // indirect
 	github.com/ansel1/merry/v2 v2.0.1 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.1 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.4 // indirect
@@ -53,6 +54,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.6 // indirect
 	github.com/aws/smithy-go v1.11.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
+	github.com/go-co-op/gocron v1.13.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
@@ -74,6 +76,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	go.opentelemetry.io/otel/trace v1.7.0 // indirect

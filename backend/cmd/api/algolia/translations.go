@@ -1,4 +1,4 @@
-package main
+package algolia
 
 import "github.com/bcc-code/brunstadtv/backend/sqlc"
 

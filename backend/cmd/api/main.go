@@ -3,18 +3,20 @@ package main
 import (
 	"context"
 	"database/sql"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/bcc-code/brunstadtv/backend/cmd/api/algolia"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
+	"github.com/go-co-op/gocron"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"go.opentelemetry.io/otel"
+	"time"
 )
 
 // Defining the Graphql handler
@@ -39,6 +41,12 @@ func playgroundHandler() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func indexHandler(client algolia.Client) func() {
+	return func() {
+		client.Index()
 	}
 }
 
@@ -70,6 +78,20 @@ func main() {
 	}
 	queries := sqlc.New(db)
 
+	log.L.Debug().Msg("Setting up scheduler")
+	scheduler := gocron.NewScheduler(time.UTC)
+	searchClient := algolia.Client{
+		AppId:  config.Algolia.AppId,
+		ApiKey: config.Algolia.ApiKey,
+		DB:     db,
+	}
+	_, err = scheduler.Every(30).Seconds().Do(indexHandler(searchClient))
+	if err != nil {
+		return
+	}
+
+	scheduler.StartAsync()
+
 	log.L.Debug().Msg("Set up HTTP server")
 	r := gin.Default()
 
@@ -82,5 +104,9 @@ func main() {
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
 	span.End()
-	r.Run(":" + config.Port)
+
+	err = r.Run(":" + config.Port)
+	if err != nil {
+		return
+	}
 }
