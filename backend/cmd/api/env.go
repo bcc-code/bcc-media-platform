@@ -8,18 +8,26 @@ type postgres struct {
 	ConnectionString string
 }
 
+type algoliaConfig struct {
+	AppId  string
+	ApiKey string
+}
+
 type envConfig struct {
-	DB   postgres
-	Port string
+	DB      postgres
+	Algolia algoliaConfig
+	Port    string
 }
 
 func getEnvConfig() envConfig {
-	port := os.Getenv("PORT")
-
 	return envConfig{
 		DB: postgres{
 			ConnectionString: os.Getenv("DB_CONNECTION"),
 		},
-		Port: port,
+		Port: os.Getenv("PORT"),
+		Algolia: algoliaConfig{
+			AppId:  os.Getenv("ALGOLIA_APP_ID"),
+			ApiKey: os.Getenv("ALGOLIA_API_KEY"),
+		},
 	}
 }

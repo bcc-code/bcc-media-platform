@@ -1,4 +1,4 @@
-package main
+package algolia
 
 import (
 	"context"
@@ -7,27 +7,9 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	_ "github.com/lib/pq"
-	"github.com/rs/zerolog"
 )
 
 type searchObject map[string]interface{}
-
-var database *sql.DB
-
-func getDb() (*sql.DB, error) {
-	if database != nil {
-		return database, nil
-	}
-
-	db, err := sql.Open("postgres", getEnvConfig().DB.ConnectionString)
-	if err == nil {
-		err = db.PingContext(context.Background())
-	}
-	if err == nil {
-		database = db
-	}
-	return database, err
-}
 
 func indexObjects(index *search.Index, objects []searchObject) error {
 	//_, err := index.ClearObjects()
@@ -42,17 +24,25 @@ func indexObjects(index *search.Index, objects []searchObject) error {
 	return err
 }
 
-func index() {
-	config := getEnvConfig()
-	client := search.NewClient(config.Algolia.AppId, config.Algolia.ApiKey)
-	index := client.InitIndex("global")
+type Client struct {
+	AppId  string
+	ApiKey string
+	//TODO: Performance impact of putting this here?
+	DB *sql.DB
+}
+
+const indexName = "global"
+
+func (searchClient *Client) Index() {
+	algoliaClient := search.NewClient(searchClient.AppId, searchClient.ApiKey)
+	index := algoliaClient.InitIndex(indexName)
 	ctx := context.Background()
-	db, err := getDb()
+	queries := sqlc.New(searchClient.DB)
+
+	_, err := index.ClearObjects()
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to init DB")
-		return
+		log.L.Error().Err(err).Msg("Failed to clear objects from index")
 	}
-	queries := sqlc.New(db)
 
 	log.L.Debug().Msg("Indexing shows")
 	objects, err := getShowMapsToIndex(queries, ctx)
@@ -92,10 +82,4 @@ func index() {
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index episodes")
 	}
-}
-
-func main() {
-	log.ConfigureGlobalLogger(zerolog.DebugLevel)
-
-	index()
 }
