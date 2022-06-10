@@ -11,19 +11,31 @@ import (
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 )
 
-func (r *mutationResolver) CreateTodo(ctx context.Context, input gqlmodel.NewTodo) (*gqlmodel.Todo, error) {
+func (r *queryRootResolver) Page(ctx context.Context, id string) (gqlmodel.Page, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *queryResolver) Todos(ctx context.Context) ([]*gqlmodel.Todo, error) {
+func (r *queryRootResolver) Program(ctx context.Context, id string) (gqlmodel.Program, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-// Mutation returns generated.MutationResolver implementation.
-func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
+func (r *queryRootResolver) Section(ctx context.Context, id string) (gqlmodel.Section, error) {
+	panic(fmt.Errorf("not implemented"))
+}
 
-// Query returns generated.QueryResolver implementation.
-func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
+func (r *queryRootResolver) Calendar(ctx context.Context) (*gqlmodel.Calendar, error) {
+	panic(fmt.Errorf("not implemented"))
+}
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+func (r *queryRootResolver) Event(ctx context.Context, id string) (*gqlmodel.Event, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryRootResolver) AllFAQs(ctx context.Context) ([]*gqlmodel.FAQCategory, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+// QueryRoot returns generated.QueryRootResolver implementation.
+func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
+
+type queryRootResolver struct{ *Resolver }
