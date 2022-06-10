@@ -2,19 +2,288 @@
 
 package gqlmodel
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
+type Item interface {
+	IsItem()
 }
 
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
+type ItemSectionImplementation interface {
+	IsItemSectionImplementation()
 }
 
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+type Page interface {
+	IsPage()
+}
+
+type Program interface {
+	IsProgram()
+}
+
+type Section interface {
+	IsSection()
+}
+
+type Asset struct {
+	ID           string `json:"id"`
+	URL          string `json:"url"`
+	Downloadable bool   `json:"downloadable"`
+}
+
+type BCCOSection struct {
+	ID            string              `json:"id"`
+	Localizations []*LocalizedSection `json:"localizations"`
+	Title         *string             `json:"title"`
+	BannerURL     string              `json:"bannerURL"`
+}
+
+func (BCCOSection) IsSection() {}
+
+type BubblesItemsSection struct {
+	ID          string  `json:"id"`
+	Items       []Item  `json:"items"`
+	BorderColor *string `json:"borderColor"`
+}
+
+func (BubblesItemsSection) IsItemSectionImplementation() {}
+
+type Calendar struct {
+	Period *CalendarPeriod `json:"period"`
+	Day    *CalendarDay    `json:"day"`
+}
+
+type CalendarDay struct {
+	ID             string          `json:"id"`
+	Events         []*Event        `json:"events"`
+	TvGuideEntries []*TvGuideEntry `json:"tvGuideEntries"`
+}
+
+type CalendarPeriod struct {
+	ID         string   `json:"id"`
+	ActiveDays []string `json:"activeDays"`
+	Events     []*Event `json:"events"`
+}
+
+type Chapter struct {
+	ID    string `json:"id"`
+	Start int    `json:"start"`
+	Title string `json:"title"`
+}
+
+type ContainerSection struct {
+	ID            string              `json:"id"`
+	Localizations []*LocalizedSection `json:"localizations"`
+	Title         *string             `json:"title"`
+	Sections      []Section           `json:"sections"`
+}
+
+func (ContainerSection) IsSection() {}
+
+type Episode struct {
+	ID            string            `json:"id"`
+	Title         string            `json:"title"`
+	Description   string            `json:"description"`
+	Localizations *LocalizedProgram `json:"localizations"`
+	Assets        []*Asset          `json:"assets"`
+	Chapters      []*Chapter        `json:"chapters"`
+}
+
+func (Episode) IsProgram() {}
+
+type Event struct {
+	ID             string          `json:"id"`
+	Start          string          `json:"start"`
+	End            string          `json:"end"`
+	TvGuideEntries []*TvGuideEntry `json:"tvGuideEntries"`
+	BannerImageURL string          `json:"bannerImageURL"`
+}
+
+type Faq struct {
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
+}
+
+type FAQCategory struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Questions []*Faq `json:"questions"`
+}
+
+type ItemSection struct {
+	ID             string                    `json:"id"`
+	Localizations  []*LocalizedSection       `json:"localizations"`
+	Title          *string                   `json:"title"`
+	Implementation ItemSectionImplementation `json:"implementation"`
+	PageID         string                    `json:"pageId"`
+}
+
+func (ItemSection) IsSection() {}
+
+type LocalizedPage struct {
+	ID          string   `json:"id"`
+	Language    Language `json:"language"`
+	Title       *string  `json:"title"`
+	Description *string  `json:"description"`
+}
+
+type LocalizedProgram struct {
+	ID string `json:"id"`
+}
+
+type LocalizedSection struct {
+	ID       string   `json:"id"`
+	Language Language `json:"language"`
+	Title    *string  `json:"title"`
+}
+
+type PageItem struct {
+	ID       string  `json:"id"`
+	Title    *string `json:"title"`
+	ImageURL string  `json:"imageUrl"`
+	PageID   string  `json:"pageId"`
+	Page     Page    `json:"page"`
+}
+
+func (PageItem) IsItem() {}
+
+type PaginationInfo struct {
+	ID          string `json:"id"`
+	EndCursor   string `json:"endCursor"`
+	HasNextPage bool   `json:"hasNextPage"`
+}
+
+type ProgramItem struct {
+	ID       string  `json:"id"`
+	Title    *string `json:"title"`
+	ImageURL string  `json:"imageUrl"`
+	Program  Program `json:"program"`
+}
+
+func (ProgramItem) IsItem() {}
+
+type ProgramPage struct {
+	ID            string             `json:"id"`
+	Title         *string            `json:"title"`
+	Description   *string            `json:"description"`
+	Localizations []*LocalizedPage   `json:"localizations"`
+	Sections      *SectionConnection `json:"sections"`
+	Program       Program            `json:"program"`
+}
+
+func (ProgramPage) IsPage() {}
+
+type SectionConnection struct {
+	ID       string          `json:"id"`
+	Edges    []*SectionEdge  `json:"edges"`
+	PageInfo *PaginationInfo `json:"pageInfo"`
+	Cursor   string          `json:"cursor"`
+}
+
+type SectionEdge struct {
+	ID   string  `json:"id"`
+	Node Section `json:"node"`
+}
+
+type Settings struct {
+	AudioLanguages    []Language `json:"audioLanguages"`
+	SubtitleLanguages []Language `json:"subtitleLanguages"`
+}
+
+type Show struct {
+	ID           string `json:"id"`
+	Title        string `json:"title"`
+	EpisodeCount int    `json:"episodeCount"`
+	SeasonCount  int    `json:"seasonCount"`
+}
+
+type ShowPage struct {
+	ID            string             `json:"id"`
+	Title         *string            `json:"title"`
+	Description   *string            `json:"description"`
+	Localizations []*LocalizedPage   `json:"localizations"`
+	Sections      *SectionConnection `json:"sections"`
+	Show          *Show              `json:"show"`
+}
+
+func (ShowPage) IsPage() {}
+
+type SliderItemsSection struct {
+	ID    string `json:"id"`
+	Items []Item `json:"items"`
+}
+
+func (SliderItemsSection) IsItemSectionImplementation() {}
+
+type Standalone struct {
+	ID            string            `json:"id"`
+	Title         string            `json:"title"`
+	Description   string            `json:"description"`
+	Localizations *LocalizedProgram `json:"localizations"`
+	Assets        []*Asset          `json:"assets"`
+	Chapters      []*Chapter        `json:"chapters"`
+}
+
+func (Standalone) IsProgram() {}
+
+type TvGuideEntry struct {
+	ID      string  `json:"id"`
+	Start   string  `json:"start"`
+	End     string  `json:"end"`
+	Program Program `json:"program"`
+}
+
+type URLItem struct {
+	ID       string  `json:"id"`
+	Title    *string `json:"title"`
+	ImageURL string  `json:"imageUrl"`
+	URL      string  `json:"url"`
+}
+
+func (URLItem) IsItem() {}
+
+type Language string
+
+const (
+	LanguageEn Language = "en"
+	LanguageNo Language = "no"
+	LanguageDe Language = "de"
+)
+
+var AllLanguage = []Language{
+	LanguageEn,
+	LanguageNo,
+	LanguageDe,
+}
+
+func (e Language) IsValid() bool {
+	switch e {
+	case LanguageEn, LanguageNo, LanguageDe:
+		return true
+	}
+	return false
+}
+
+func (e Language) String() string {
+	return string(e)
+}
+
+func (e *Language) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Language(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Language", str)
+	}
+	return nil
+}
+
+func (e Language) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
