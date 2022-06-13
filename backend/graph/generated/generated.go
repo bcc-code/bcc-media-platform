@@ -250,7 +250,7 @@ type ComplexityRoot struct {
 		Anonymous func(childComplexity int) int
 		Audience  func(childComplexity int) int
 		BccMember func(childComplexity int) int
-		PersonID  func(childComplexity int) int
+		ID        func(childComplexity int) int
 		Settings  func(childComplexity int) int
 	}
 }
@@ -1142,12 +1142,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.BccMember(childComplexity), true
 
-	case "User.personId":
-		if e.complexity.User.PersonID == nil {
+	case "User.id":
+		if e.complexity.User.ID == nil {
 			break
 		}
 
-		return e.complexity.User.PersonID(childComplexity), true
+		return e.complexity.User.ID(childComplexity), true
 
 	case "User.settings":
 		if e.complexity.User.Settings == nil {
@@ -1458,7 +1458,7 @@ type FAQCategory {
 }
 
 type User {
-  personId: ID
+  id: ID
   anonymous: Boolean!
   bccMember: Boolean!
   audience: String
@@ -5373,8 +5373,8 @@ func (ec *executionContext) fieldContext_QueryRoot_me(ctx context.Context, field
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "personId":
-				return ec.fieldContext_User_personId(ctx, field)
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
 			case "anonymous":
 				return ec.fieldContext_User_anonymous(ctx, field)
 			case "bccMember":
@@ -7086,8 +7086,8 @@ func (ec *executionContext) fieldContext_URLItem_url(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _User_personId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_personId(ctx, field)
+func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7100,7 +7100,7 @@ func (ec *executionContext) _User_personId(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.PersonID, nil
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7114,7 +7114,7 @@ func (ec *executionContext) _User_personId(ctx context.Context, field graphql.Co
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_personId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -10702,9 +10702,9 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("User")
-		case "personId":
+		case "id":
 
-			out.Values[i] = ec._User_personId(ctx, field, obj)
+			out.Values[i] = ec._User_id(ctx, field, obj)
 
 		case "anonymous":
 

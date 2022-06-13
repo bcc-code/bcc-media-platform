@@ -55,7 +55,7 @@ func (r *queryRootResolver) Me(ctx context.Context) (*gqlmodel.User, error) {
 	}
 
 	if pid := gc.GetString(auth0.CtxPersonID); pid != "" {
-		u.PersonID = &pid
+		u.ID = &pid
 	}
 
 	if aud := gc.GetString(auth0.CtxJWTAudience); aud != "" {

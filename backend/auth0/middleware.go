@@ -16,7 +16,7 @@ const (
 	CtxAnonymous = "jwt_anonymous"
 
 	// CtxIsBCCMember indicates if the user has an active membership in BCC Norway
-	// This is currently basically `!CtxAnonymous`, but may change in the future.
+	// It is based on the "https://login.bcc.no/claims/hasMembership" claim
 	// The reason for it's existance is that it can always exist and be checked more easily than
 	// the presence of a PersonID for example
 	CtxIsBCCMember = "jwt_is_bcc_member"
@@ -99,7 +99,6 @@ func JWT(ctx context.Context, config JWTConfig) gin.HandlerFunc {
 
 		// User is authenticated. Set the correct values and extract claims
 		c.Set(CtxAnonymous, false)
-		c.Set(CtxIsBCCMember, true)
 
 		// If you want to see all possible claims use the following line:
 		// spew.Dump(token.PrivateClaims())
@@ -107,6 +106,16 @@ func JWT(ctx context.Context, config JWTConfig) gin.HandlerFunc {
 		// For now we manually add claims that are actually useful to avoid polluting the ctx
 		// with data that we don't actully need and may be considered private under GDPR
 		// If posible convert the claim to a string in order to make it easier to extract it later
+
+		if val, ok := token.Get("https://login.bcc.no/claims/hasMembership"); ok {
+			c.Set(CtxIsBCCMember, val)
+		} else {
+			// Make sure the key is set even if it does not exist in the token
+			log.L.Warn().
+				Str("claim", "https://login.bcc.no/claims/hasMembership").
+				Msg("Unable to get claim")
+			c.Set(CtxIsBCCMember, false)
+		}
 
 		if val, ok := token.Get("https://login.bcc.no/claims/personId"); ok {
 			c.Set(CtxPersonID, spew.Sprintf("%.0f", val))
