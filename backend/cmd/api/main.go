@@ -16,7 +16,6 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"go.opentelemetry.io/otel"
-	"strconv"
 	"time"
 )
 
@@ -98,15 +97,6 @@ func main() {
 	// TODO: Should we have this in non-local envs?
 	// What about auth?
 	r.GET("/", playgroundHandler())
-
-	r.GET("/index/show/:id", func(c *gin.Context) {
-		id, err := strconv.ParseInt(c.Param("id"), 0, 32)
-		if err != nil {
-			return
-		}
-		show, err := queries.GetShow(ctx, int32(id))
-		searchService.IndexObject(show)
-	})
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
