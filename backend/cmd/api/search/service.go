@@ -8,6 +8,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	_ "github.com/lib/pq"
+	"strconv"
 )
 
 const indexName = "global"
@@ -79,4 +80,28 @@ func (service *Service) Index() {
 
 	log.L.Debug().Msg("Indexing episodes")
 	indexEpisodes(queries, ctx, index)
+}
+
+// DeleteObject
+// Prefix id with model-name. For example: "show-10" for a Show with ID 10.
+func (service *Service) DeleteObject(item interface{}) {
+	var objectId string
+	switch item.(type) {
+	case sqlc.Episode:
+		objectId = "episode-" + strconv.Itoa(int(item.(*sqlc.Episode).ID))
+		break
+	case sqlc.Season:
+		objectId = "season-" + strconv.Itoa(int(item.(*sqlc.Season).ID))
+		break
+	case sqlc.Show:
+		objectId = "show-" + strconv.Itoa(int(item.(*sqlc.Show).ID))
+		break
+	default:
+		log.L.Error().Msg("Unknown type")
+		return
+	}
+	_, err := service.index.DeleteObject(objectId)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to delete object")
+	}
 }
