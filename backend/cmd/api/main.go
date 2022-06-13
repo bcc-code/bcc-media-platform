@@ -6,6 +6,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -14,6 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
 )
 
@@ -72,6 +74,9 @@ func main() {
 
 	log.L.Debug().Msg("Set up HTTP server")
 	r := gin.Default()
+	r.Use(graph.GinContextToContextMiddleware())
+	r.Use(otelgin.Middleware("api")) // OpenTelemetry
+	r.Use(auth0.JWT(ctx, config.JWTConfig))
 
 	r.POST("/query", graphqlHandler(queries))
 

@@ -247,6 +247,14 @@ type FAQCategory {
   questions: [FAQ!]!
 }
 
+type User {
+  id: ID
+  anonymous: Boolean!
+  bccMember: Boolean!
+  audience: String
+  settings: Settings!
+}
+
 type QueryRoot{
   page(
     id: ID!
@@ -263,4 +271,5 @@ type QueryRoot{
   calendar: Calendar
   event(id: ID!): Event
   allFAQs: [FAQCategory!]!
+  me: User!
 }
