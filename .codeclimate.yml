@@ -1,0 +1,6 @@
+exclude_patterns:
+- "backend/tmp"
+- "backend/sqlc"
+- "backend/graph/generated"
+- "backend/graph/model"
+
