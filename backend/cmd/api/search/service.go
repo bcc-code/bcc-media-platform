@@ -105,3 +105,20 @@ func (service *Service) DeleteObject(item interface{}) {
 		log.L.Error().Err(err).Msg("Failed to delete object")
 	}
 }
+
+func (service *Service) IndexObject(item interface{}) {
+	switch item.(type) {
+	case sqlc.Episode:
+		service.IndexEpisode(item.(sqlc.Episode))
+		break
+	case sqlc.Show:
+		service.IndexShow(item.(sqlc.Show))
+		break
+	case sqlc.Season:
+		service.IndexSeason(item.(sqlc.Season))
+		break
+	default:
+		log.L.Error().Msg("Couldn't index object")
+		return
+	}
+}
