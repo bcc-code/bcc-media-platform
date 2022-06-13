@@ -55,6 +55,7 @@ func main() {
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
 
 	config := getEnvConfig()
+	log.L.Debug().Str("DBConnString", config.DB.ConnectionString).Msg("Connection to DB")
 	db, err := sql.Open("postgres", config.DB.ConnectionString)
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Unable to connect to DB")

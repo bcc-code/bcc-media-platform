@@ -29,7 +29,7 @@ func getEnvConfig() envConfig {
 
 	return envConfig{
 		DB: postgres{
-			ConnectionString: os.Getenv("DB_CONNECTION"),
+			ConnectionString: os.Getenv("DB_CONNECTION_STRING"),
 		},
 		JWTConfig: auth0.JWTConfig{
 			Domain:    os.Getenv("JWT_DOMAIN"),
