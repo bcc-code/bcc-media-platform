@@ -23,7 +23,14 @@ func getShowDescription(translation sqlc.ShowsTranslation) string {
 func mapShowToSearchObject(item sqlc.Show, translations []sqlc.ShowsTranslation) searchObject {
 	values := searchObject{}
 	itemId := int(item.ID)
-	values["objectID"] = "show-" + strconv.Itoa(itemId)
+	values[idField] = "show-" + strconv.Itoa(itemId)
+	if item.DateCreated.Valid {
+		values[createdAtField] = item.DateCreated.Time.UTC()
+	}
+	if item.DateUpdated.Valid {
+		values[updatedAtField] = item.DateUpdated.Time.UTC()
+	}
+	values[publishedAtField] = item.PublishDate.UTC()
 	mapTranslationsToSearchObject(values, translations, getShowLanguage, getShowTitle, getShowDescription)
 	return values
 }

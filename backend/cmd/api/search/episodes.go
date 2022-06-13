@@ -23,7 +23,14 @@ func getEpisodeDescription(translation sqlc.EpisodesTranslation) string {
 func mapEpisodeToSearchObject(item sqlc.Episode, translations []sqlc.EpisodesTranslation) searchObject {
 	values := searchObject{}
 	itemId := int(item.ID)
-	values["objectID"] = "episode-" + strconv.Itoa(itemId)
+	values[idField] = "episode-" + strconv.Itoa(itemId)
+	if item.DateCreated.Valid {
+		values[createdAtField] = item.DateCreated.Time.UTC()
+	}
+	if item.DateUpdated.Valid {
+		values[updatedAtField] = item.DateUpdated.Time.UTC()
+	}
+	values[publishedAtField] = item.PublishDate.UTC()
 	mapTranslationsToSearchObject(values, translations, getEpisodeLanguage, getEpisodeTitle, getEpisodeDescription)
 	return values
 }

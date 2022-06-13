@@ -1,6 +1,9 @@
 -- name: GetSeasons :many
 SELECT * FROM public.seasons;
 
+-- name: GetSeason :one
+SELECT * FROM public.seasons WHERE id = $1;
+
 -- name: GetSeasonTranslations :many
 SELECT * FROM public.seasons_translations;
 

@@ -9,6 +9,33 @@ import (
 	"context"
 )
 
+const getShow = `-- name: GetShow :one
+SELECT agerating_code, available_from, available_to, date_created, date_updated, id, image_file_id, legacy_description_id, legacy_id, legacy_title_id, publish_date, status, type, user_created, user_updated FROM shows WHERE id = $1
+`
+
+func (q *Queries) GetShow(ctx context.Context, id int32) (Show, error) {
+	row := q.db.QueryRowContext(ctx, getShow, id)
+	var i Show
+	err := row.Scan(
+		&i.AgeratingCode,
+		&i.AvailableFrom,
+		&i.AvailableTo,
+		&i.DateCreated,
+		&i.DateUpdated,
+		&i.ID,
+		&i.ImageFileID,
+		&i.LegacyDescriptionID,
+		&i.LegacyID,
+		&i.LegacyTitleID,
+		&i.PublishDate,
+		&i.Status,
+		&i.Type,
+		&i.UserCreated,
+		&i.UserUpdated,
+	)
+	return i, err
+}
+
 const getShowTranslations = `-- name: GetShowTranslations :many
 SELECT description, id, is_primary, languages_code, legacy_description_id, legacy_tags, legacy_tags_id, legacy_title_id, shows_id, title FROM public.shows_translations
 `
