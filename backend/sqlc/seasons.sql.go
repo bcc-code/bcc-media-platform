@@ -88,3 +88,39 @@ func (q *Queries) GetSeasons(ctx context.Context) ([]Season, error) {
 	}
 	return items, nil
 }
+
+const getTranslationsForSeason = `-- name: GetTranslationsForSeason :many
+SELECT description, id, is_primary, languages_code, legacy_description_id, legacy_title_id, seasons_id, title FROM public.seasons_translations WHERE seasons_id = $1
+`
+
+func (q *Queries) GetTranslationsForSeason(ctx context.Context, seasonsID int32) ([]SeasonsTranslation, error) {
+	rows, err := q.db.QueryContext(ctx, getTranslationsForSeason, seasonsID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SeasonsTranslation
+	for rows.Next() {
+		var i SeasonsTranslation
+		if err := rows.Scan(
+			&i.Description,
+			&i.ID,
+			&i.IsPrimary,
+			&i.LanguagesCode,
+			&i.LegacyDescriptionID,
+			&i.LegacyTitleID,
+			&i.SeasonsID,
+			&i.Title,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

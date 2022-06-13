@@ -89,3 +89,41 @@ func (q *Queries) GetShows(ctx context.Context) ([]Show, error) {
 	}
 	return items, nil
 }
+
+const getTranslationsForShow = `-- name: GetTranslationsForShow :many
+SELECT description, id, is_primary, languages_code, legacy_description_id, legacy_tags, legacy_tags_id, legacy_title_id, shows_id, title FROM public.shows_translations WHERE shows_id = $1
+`
+
+func (q *Queries) GetTranslationsForShow(ctx context.Context, showsID int32) ([]ShowsTranslation, error) {
+	rows, err := q.db.QueryContext(ctx, getTranslationsForShow, showsID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ShowsTranslation
+	for rows.Next() {
+		var i ShowsTranslation
+		if err := rows.Scan(
+			&i.Description,
+			&i.ID,
+			&i.IsPrimary,
+			&i.LanguagesCode,
+			&i.LegacyDescriptionID,
+			&i.LegacyTags,
+			&i.LegacyTagsID,
+			&i.LegacyTitleID,
+			&i.ShowsID,
+			&i.Title,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
