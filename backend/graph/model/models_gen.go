@@ -246,7 +246,7 @@ type URLItem struct {
 func (URLItem) IsItem() {}
 
 type User struct {
-	PersonID  *string   `json:"personId"`
+	ID        *string   `json:"id"`
 	Anonymous bool      `json:"anonymous"`
 	BccMember bool      `json:"bccMember"`
 	Audience  *string   `json:"audience"`

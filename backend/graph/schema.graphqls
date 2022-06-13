@@ -248,7 +248,7 @@ type FAQCategory {
 }
 
 type User {
-  personId: ID
+  id: ID
   anonymous: Boolean!
   bccMember: Boolean!
   audience: String
