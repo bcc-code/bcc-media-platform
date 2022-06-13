@@ -8,6 +8,26 @@ import (
 	"strconv"
 )
 
+func getEpisodeLanguage(translation sqlc.EpisodesTranslation) string {
+	return translation.LanguagesCode
+}
+
+func getEpisodeTitle(translation sqlc.EpisodesTranslation) string {
+	return translation.Title.ValueOrZero()
+}
+
+func getEpisodeDescription(translation sqlc.EpisodesTranslation) string {
+	return translation.Description.ValueOrZero() + "\n" + translation.ExtraDescription.ValueOrZero()
+}
+
+func mapEpisodeToSearchObject(item sqlc.Episode, translations []sqlc.EpisodesTranslation) searchObject {
+	values := searchObject{}
+	itemId := int(item.ID)
+	values["objectID"] = "episode-" + strconv.Itoa(itemId)
+	mapTranslationsToSearchObject(values, translations, getEpisodeLanguage, getEpisodeTitle, getEpisodeDescription)
+	return values
+}
+
 func indexEpisodes(queries *sqlc.Queries, ctx context.Context, index *search.Index) {
 	items, err := queries.GetEpisodes(ctx)
 	if err != nil {
@@ -18,23 +38,8 @@ func indexEpisodes(queries *sqlc.Queries, ctx context.Context, index *search.Ind
 		return
 	}
 	translationDictionary := mapToRelatedId(itemTranslations)
-	objects := mapToSearchObjects(items, func(item sqlc.Episode) map[string]any {
-		values := map[string]any{}
-		itemId := int(item.ID)
-		values["objectID"] = "episode-" + strconv.Itoa(itemId)
-		translations := translationDictionary[itemId]
-		for _, translation := range translations {
-			translatedValues := map[string]string{
-				description: translation.Description.ValueOrZero(),
-				title:       translation.Title.ValueOrZero(),
-			}
-			for field, value := range translatedValues {
-				if value != "" {
-					values[field+"_"+translation.LanguagesCode] = value
-				}
-			}
-		}
-		return values
+	objects := mapToSearchObjects(items, func(item sqlc.Episode) searchObject {
+		return mapEpisodeToSearchObject(item, translationDictionary[int(item.ID)])
 	})
 
 	err = indexObjects(index, objects)
@@ -42,5 +47,18 @@ func indexEpisodes(queries *sqlc.Queries, ctx context.Context, index *search.Ind
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index objects")
 		return
+	}
+}
+
+func (service *Service) IndexEpisode(item sqlc.Episode) {
+	ctx := context.Background()
+	translations, err := service.queries.GetTranslationsForEpisode(ctx, item.ID)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to retrieve translations for season")
+	}
+
+	_, err = service.index.SaveObject(mapEpisodeToSearchObject(item, translations))
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to index season")
 	}
 }

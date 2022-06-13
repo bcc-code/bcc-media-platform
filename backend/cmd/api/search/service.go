@@ -36,6 +36,8 @@ func mapToRelatedId[T sqlc.IRelatedItem](items []T) map[int][]T {
 type Service struct {
 	algoliaClient *search.Client
 	db            *sql.DB
+	index         *search.Index
+	queries       *sqlc.Queries
 }
 
 func NewService(algoliaAppId string, algoliaApiKey string, db *sql.DB) Service {
@@ -43,15 +45,15 @@ func NewService(algoliaAppId string, algoliaApiKey string, db *sql.DB) Service {
 		db:            db,
 		algoliaClient: search.NewClient(algoliaAppId, algoliaApiKey),
 	}
+	service.index = service.algoliaClient.InitIndex(indexName)
+	service.queries = sqlc.New(service.db)
 	return service
 }
 
 func (service *Service) Index() {
 	ctx := context.Background()
-	queries := sqlc.New(service.db)
-
-	algoliaClient := service.algoliaClient
-	index := algoliaClient.InitIndex(indexName)
+	queries := service.queries
+	index := service.index
 
 	// TODO: Should probably just delete individual documents when they are removed from database.
 	_, err := index.ClearObjects()

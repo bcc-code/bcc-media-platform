@@ -8,6 +8,26 @@ import (
 	"strconv"
 )
 
+func getSeasonLanguage(translation sqlc.SeasonsTranslation) string {
+	return translation.LanguagesCode
+}
+
+func getSeasonTitle(translation sqlc.SeasonsTranslation) string {
+	return translation.Title.ValueOrZero()
+}
+
+func getSeasonDescription(translation sqlc.SeasonsTranslation) string {
+	return translation.Description.ValueOrZero()
+}
+
+func mapSeasonToSearchObject(item sqlc.Season, translations []sqlc.SeasonsTranslation) searchObject {
+	values := searchObject{}
+	itemId := int(item.ID)
+	values["objectID"] = "season-" + strconv.Itoa(itemId)
+	mapTranslationsToSearchObject(values, translations, getSeasonLanguage, getSeasonTitle, getSeasonDescription)
+	return values
+}
+
 func indexSeasons(queries *sqlc.Queries, ctx context.Context, index *search.Index) {
 	items, err := queries.GetSeasons(ctx)
 	if err != nil {
@@ -18,23 +38,8 @@ func indexSeasons(queries *sqlc.Queries, ctx context.Context, index *search.Inde
 		return
 	}
 	translationDictionary := mapToRelatedId(itemTranslations)
-	objects := mapToSearchObjects(items, func(item sqlc.Season) map[string]any {
-		values := map[string]any{}
-		itemId := int(item.ID)
-		values["objectID"] = "season-" + strconv.Itoa(itemId)
-		translations := translationDictionary[itemId]
-		for _, translation := range translations {
-			translatedValues := map[string]string{
-				description: translation.Description.ValueOrZero(),
-				title:       translation.Title.ValueOrZero(),
-			}
-			for field, value := range translatedValues {
-				if value != "" {
-					values[field+"_"+translation.LanguagesCode] = value
-				}
-			}
-		}
-		return values
+	objects := mapToSearchObjects(items, func(item sqlc.Season) searchObject {
+		return mapSeasonToSearchObject(item, translationDictionary[int(item.ID)])
 	})
 
 	err = indexObjects(index, objects)
@@ -42,5 +47,18 @@ func indexSeasons(queries *sqlc.Queries, ctx context.Context, index *search.Inde
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index objects")
 		return
+	}
+}
+
+func (service *Service) IndexSeason(item sqlc.Season) {
+	ctx := context.Background()
+	translations, err := service.queries.GetTranslationsForSeason(ctx, item.ID)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to retrieve translations for season")
+	}
+
+	_, err = service.index.SaveObject(mapSeasonToSearchObject(item, translations))
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to index season")
 	}
 }

@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/pubsub v1.21.1
 	github.com/99designs/gqlgen v0.17.9
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.1
+	github.com/algolia/algoliasearch-client-go/v3 v3.4.0
 	github.com/ansel1/merry v1.6.2
 	github.com/aws/aws-sdk-go-v2 v1.16.4
 	github.com/aws/aws-sdk-go-v2/config v1.15.9
@@ -15,6 +16,7 @@ require (
 	github.com/cloudevents/sdk-go/v2 v2.10.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/gin-gonic/gin v1.8.0
+	github.com/go-co-op/gocron v1.13.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.6
@@ -37,7 +39,6 @@ require (
 	cloud.google.com/go/trace v1.2.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.32.1 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
-	github.com/algolia/algoliasearch-client-go/v3 v3.4.0 // indirect
 	github.com/ansel1/merry/v2 v2.0.1 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.1 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.4 // indirect
@@ -54,7 +55,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.6 // indirect
 	github.com/aws/smithy-go v1.11.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/go-co-op/gocron v1.13.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
