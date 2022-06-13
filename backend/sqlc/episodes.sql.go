@@ -9,6 +9,40 @@ import (
 	"context"
 )
 
+const getEpisode = `-- name: GetEpisode :one
+SELECT agerating_code, asset_id, available_from, available_to, date_created, date_updated, episode_number, id, image_file_id, legacy_description_id, legacy_extra_description_id, legacy_id, legacy_program_id, legacy_tags_id, legacy_title_id, migration_data, publish_date, season_id, status, type, user_created, user_updated FROM public.episodes WHERE id = $1
+`
+
+func (q *Queries) GetEpisode(ctx context.Context, id int32) (Episode, error) {
+	row := q.db.QueryRowContext(ctx, getEpisode, id)
+	var i Episode
+	err := row.Scan(
+		&i.AgeratingCode,
+		&i.AssetID,
+		&i.AvailableFrom,
+		&i.AvailableTo,
+		&i.DateCreated,
+		&i.DateUpdated,
+		&i.EpisodeNumber,
+		&i.ID,
+		&i.ImageFileID,
+		&i.LegacyDescriptionID,
+		&i.LegacyExtraDescriptionID,
+		&i.LegacyID,
+		&i.LegacyProgramID,
+		&i.LegacyTagsID,
+		&i.LegacyTitleID,
+		&i.MigrationData,
+		&i.PublishDate,
+		&i.SeasonID,
+		&i.Status,
+		&i.Type,
+		&i.UserCreated,
+		&i.UserUpdated,
+	)
+	return i, err
+}
+
 const getEpisodeTranslations = `-- name: GetEpisodeTranslations :many
 SELECT description, episodes_id, extra_description, id, is_primary, languages_code, title FROM public.episodes_translations
 `

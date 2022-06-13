@@ -9,6 +9,34 @@ import (
 	"context"
 )
 
+const getSeason = `-- name: GetSeason :one
+SELECT agerating_code, available_from, available_to, date_created, date_updated, id, image_file_id, legacy_description_id, legacy_id, legacy_title_id, publish_date, season_number, show_id, status, user_created, user_updated FROM public.seasons WHERE id = $1
+`
+
+func (q *Queries) GetSeason(ctx context.Context, id int32) (Season, error) {
+	row := q.db.QueryRowContext(ctx, getSeason, id)
+	var i Season
+	err := row.Scan(
+		&i.AgeratingCode,
+		&i.AvailableFrom,
+		&i.AvailableTo,
+		&i.DateCreated,
+		&i.DateUpdated,
+		&i.ID,
+		&i.ImageFileID,
+		&i.LegacyDescriptionID,
+		&i.LegacyID,
+		&i.LegacyTitleID,
+		&i.PublishDate,
+		&i.SeasonNumber,
+		&i.ShowID,
+		&i.Status,
+		&i.UserCreated,
+		&i.UserUpdated,
+	)
+	return i, err
+}
+
 const getSeasonTranslations = `-- name: GetSeasonTranslations :many
 SELECT description, id, is_primary, languages_code, legacy_description_id, legacy_title_id, seasons_id, title FROM public.seasons_translations
 `

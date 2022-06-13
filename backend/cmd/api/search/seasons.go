@@ -23,7 +23,14 @@ func getSeasonDescription(translation sqlc.SeasonsTranslation) string {
 func mapSeasonToSearchObject(item sqlc.Season, translations []sqlc.SeasonsTranslation) searchObject {
 	values := searchObject{}
 	itemId := int(item.ID)
-	values["objectID"] = "season-" + strconv.Itoa(itemId)
+	values[idField] = "season-" + strconv.Itoa(itemId)
+	if item.DateCreated.Valid {
+		values[createdAtField] = item.DateCreated.Time.UTC()
+	}
+	if item.DateUpdated.Valid {
+		values[updatedAtField] = item.DateUpdated.Time.UTC()
+	}
+	values[publishedAtField] = item.PublishDate.UTC()
 	mapTranslationsToSearchObject(values, translations, getSeasonLanguage, getSeasonTitle, getSeasonDescription)
 	return values
 }

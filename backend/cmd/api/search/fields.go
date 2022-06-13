@@ -7,10 +7,12 @@ import (
 )
 
 const (
-	description = "description"
-	title       = "title"
-	publishedAt = "publishedAt"
-	createdAt   = "createdAt"
+	descriptionField = "description"
+	titleField       = "title"
+	publishedAtField = "publishedAt"
+	createdAtField   = "createdAt"
+	updatedAtField   = "updatedAt"
+	idField          = "objectID"
 )
 
 func (service *Service) getFields() []string {
@@ -18,11 +20,11 @@ func (service *Service) getFields() []string {
 }
 
 func (service *Service) getFunctionalFields() []string {
-	return []string{publishedAt, createdAt}
+	return []string{publishedAtField, createdAtField, updatedAtField}
 }
 
 func (service *Service) getTranslatableFields() []string {
-	return []string{description, title}
+	return []string{descriptionField, titleField}
 }
 
 func (service *Service) getTranslatedFields() []string {
@@ -62,8 +64,8 @@ func mapToSearchObjects[T any](items []T, getValues func(T) searchObject) []sear
 func mapTranslationsToSearchObject[T any](item searchObject, translations []T, getLanguage func(T) string, getTitle func(T) string, getDescription func(T) string) {
 	for _, translation := range translations {
 		translatedValues := map[string]string{
-			description: getDescription(translation),
-			title:       getTitle(translation),
+			descriptionField: getDescription(translation),
+			titleField:       getTitle(translation),
 		}
 		language := getLanguage(translation)
 		for field, value := range translatedValues {
