@@ -3,4 +3,4 @@ exclude_patterns:
 - "backend/sqlc"
 - "backend/graph/generated"
 - "backend/graph/model"
-
+- "cms/src/btv.d.ts"
