@@ -2,60 +2,45 @@ package search
 
 import (
 	"context"
+	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"strconv"
 )
 
-func getSeasonMapsToIndex(queries *sqlc.Queries, ctx context.Context) ([]searchObject, error) {
+func indexSeasons(queries *sqlc.Queries, ctx context.Context, index *search.Index) {
 	items, err := queries.GetSeasons(ctx)
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to retrieve shows")
-		return nil, err
+		return
 	}
+	itemTranslations, err := queries.GetSeasonTranslations(ctx)
+	if err != nil {
+		return
+	}
+	translationDictionary := mapToRelatedId(itemTranslations)
+	objects := mapToSearchObjects(items, func(item sqlc.Season) map[string]any {
+		values := map[string]any{}
+		itemId := int(item.ID)
+		values["objectID"] = "season-" + strconv.Itoa(itemId)
+		translations := translationDictionary[itemId]
+		for _, translation := range translations {
+			translatedValues := map[string]string{
+				description: translation.Description.ValueOrZero(),
+				title:       translation.Title.ValueOrZero(),
+			}
+			for field, value := range translatedValues {
+				if value != "" {
+					values[field+"_"+translation.LanguagesCode] = value
+				}
+			}
+		}
+		return values
+	})
 
-	translationsByEpisode, err := getTranslationsBySeason(queries, ctx)
+	err = indexObjects(index, objects)
 
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to retrieve translations")
-		return nil, err
+		log.L.Error().Err(err).Msg("Failed to index objects")
+		return
 	}
-
-	var objects []searchObject
-	for _, item := range items {
-		objects = append(objects, mapSeasonToObject(item, translationsByEpisode[int(item.ID)]))
-	}
-
-	return objects, nil
-}
-
-func getTranslationsBySeason(queries *sqlc.Queries, ctx context.Context) (map[int][]sqlc.SeasonsTranslation, error) {
-	translations, err := queries.GetSeasonTranslations(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	translationsByParent := map[int][]sqlc.SeasonsTranslation{}
-
-	for _, translation := range translations {
-		parentId := translation.GetParentId()
-		translationsByParent[parentId] = append(translationsByParent[parentId], translation)
-	}
-
-	return translationsByParent, nil
-}
-
-func mapSeasonToObject(item sqlc.Season, translations []sqlc.SeasonsTranslation) searchObject {
-	itemId := item.GetId()
-	object := searchObject{
-		"objectID": item.GetModelName() + "-" + strconv.Itoa(itemId),
-	}
-
-	object["showID"] = int(item.ShowID)
-
-	for _, translation := range translations {
-		mapTranslationToObject(translation, object)
-	}
-
-	return object
 }

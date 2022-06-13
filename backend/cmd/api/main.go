@@ -76,12 +76,11 @@ func main() {
 		log.L.Panic().Err(err).Msg("Ping failed")
 		return
 	}
-	queries := sqlc.New(db)
 
 	log.L.Debug().Msg("Setting up scheduler")
 	scheduler := gocron.NewScheduler(time.UTC)
 	searchService := search.NewService(config.Algolia.AppId, config.Algolia.ApiKey, db)
-	_, err = scheduler.Every(30).Seconds().Do(indexHandler(searchService))
+	_, err = scheduler.Every(30).Minutes().Do(indexHandler(&searchService))
 	if err != nil {
 		return
 	}
@@ -90,6 +89,8 @@ func main() {
 
 	log.L.Debug().Msg("Set up HTTP server")
 	r := gin.Default()
+
+	queries := sqlc.New(db)
 
 	r.POST("/query", graphqlHandler(queries))
 
