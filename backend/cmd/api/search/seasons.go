@@ -5,6 +5,7 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/samber/lo"
 	"strconv"
 )
 
@@ -44,8 +45,10 @@ func indexSeasons(queries *sqlc.Queries, ctx context.Context, index *search.Inde
 	if err != nil {
 		return
 	}
-	translationDictionary := mapToRelatedId(itemTranslations)
-	objects := mapToSearchObjects(items, func(item sqlc.Season) searchObject {
+	translationDictionary := mapToRelatedId(itemTranslations, func(item sqlc.SeasonsTranslation) int {
+		return int(item.SeasonsID)
+	})
+	objects := lo.Map(items, func(item sqlc.Season, _ int) searchObject {
 		return mapSeasonToSearchObject(item, translationDictionary[int(item.ID)])
 	})
 
@@ -57,7 +60,7 @@ func indexSeasons(queries *sqlc.Queries, ctx context.Context, index *search.Inde
 	}
 }
 
-func (service *Service) IndexSeason(item sqlc.Season) {
+func (service *Service) indexSeason(item sqlc.Season) {
 	ctx := context.Background()
 	translations, err := service.queries.GetTranslationsForSeason(ctx, item.ID)
 	if err != nil {

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/cmd/api/search"
@@ -16,6 +17,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"go.opentelemetry.io/otel"
+	"strconv"
 	"time"
 )
 
@@ -50,6 +52,66 @@ func indexHandler(client *search.Service) func() {
 	}
 }
 
+type directusEvent struct {
+	Event          string   `json:"event"`
+	Accountability any      `json:"accountability"`
+	Payload        any      `json:"payload"`
+	Collection     string   `json:"collection"`
+	Keys           []string `json:"keys"`
+	Key            int      `json:"key"`
+}
+
+const (
+	itemCreatedEventKey = "items.create"
+	itemUpdatedEventKey = "items.update"
+	itemDeletedEventKey = "items.delete"
+)
+
+func getModelFromCollectionName(collection string) string {
+	switch collection {
+	case "episode", "episodes":
+		return "episode"
+	case "season", "seasons":
+		return "season"
+	case "show", "shows":
+		return "show"
+	}
+	return ""
+}
+
+func directusEventHandler(searchService *search.Service) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		var event directusEvent
+		data, _ := c.GetRawData()
+		owh := string(data)
+		err := json.Unmarshal(data, &event)
+		if err != nil {
+			log.L.Error().Err(err)
+			return
+		}
+		log.L.Debug().Msg(owh)
+		log.L.Debug().Msg("Processing event: " + event.Event + ". Collection: " + event.Collection)
+
+		model := getModelFromCollectionName(event.Collection)
+		if model == "" {
+			return
+		}
+		var id int64
+		if len(event.Keys) > 0 {
+			id, _ = strconv.ParseInt(event.Keys[0], 0, 32)
+		} else {
+			id = int64(event.Key)
+		}
+
+		switch event.Event {
+		case itemUpdatedEventKey, itemCreatedEventKey:
+			searchService.IndexModel(model, int(id))
+		case itemDeletedEventKey:
+			searchService.DeleteModel(model, int(id))
+		}
+	}
+}
+
 func main() {
 	ctx := context.Background()
 
@@ -80,7 +142,8 @@ func main() {
 	log.L.Debug().Msg("Setting up scheduler")
 	scheduler := gocron.NewScheduler(time.UTC)
 	searchService := search.NewService(config.Algolia.AppId, config.Algolia.ApiKey, db)
-	_, err = scheduler.Every(30).Minutes().Do(indexHandler(&searchService))
+	// TODO: Move this to a google function (?)
+	_, err = scheduler.Every(1).Day().At("00:00").Minutes().Do(indexHandler(&searchService))
 	if err != nil {
 		return
 	}
@@ -97,6 +160,8 @@ func main() {
 	// TODO: Should we have this in non-local envs?
 	// What about auth?
 	r.GET("/", playgroundHandler())
+
+	r.POST("/directus/webhook", directusEventHandler(&searchService))
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 

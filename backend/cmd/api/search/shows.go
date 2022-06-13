@@ -5,6 +5,7 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/samber/lo"
 	"strconv"
 )
 
@@ -44,8 +45,10 @@ func indexShows(queries *sqlc.Queries, ctx context.Context, index *search.Index)
 	if err != nil {
 		return
 	}
-	translationDictionary := mapToRelatedId(itemTranslations)
-	objects := mapToSearchObjects(items, func(item sqlc.Show) searchObject {
+	translationDictionary := mapToRelatedId(itemTranslations, func(item sqlc.ShowsTranslation) int {
+		return int(item.ShowsID)
+	})
+	objects := lo.Map(items, func(item sqlc.Show, _ int) searchObject {
 		return mapShowToSearchObject(item, translationDictionary[int(item.ID)])
 	})
 
@@ -57,7 +60,7 @@ func indexShows(queries *sqlc.Queries, ctx context.Context, index *search.Index)
 	}
 }
 
-func (service *Service) IndexShow(item sqlc.Show) {
+func (service *Service) indexShow(item sqlc.Show) {
 	ctx := context.Background()
 	translations, err := service.queries.GetTranslationsForShow(ctx, item.ID)
 	if err != nil {
