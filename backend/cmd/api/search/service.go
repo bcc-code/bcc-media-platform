@@ -12,7 +12,7 @@ import (
 
 const indexName = "global"
 
-type searchObject map[string]interface{}
+type searchObject map[string]any
 
 func indexObjects(index *search.Index, objects []searchObject) error {
 	_, err := index.SaveObjects(objects)
@@ -22,33 +22,45 @@ func indexObjects(index *search.Index, objects []searchObject) error {
 	return err
 }
 
-type Service struct {
-	AlgoliaClient *search.Client
-	DB            *sql.DB
+func mapToRelatedId[T sqlc.IRelatedItem](items []T) map[int][]T {
+	dictionary := map[int][]T{}
+
+	for _, item := range items {
+		relatedId := item.GetRelatedItemId()
+		dictionary[relatedId] = append(dictionary[relatedId], item)
+	}
+
+	return dictionary
 }
 
-func NewService(algoliaAppId string, algoliaApiKey string, db *sql.DB) *Service {
-	var service *Service
+type Service struct {
+	algoliaClient *search.Client
+	db            *sql.DB
+}
 
-	service.AlgoliaClient = search.NewClient(algoliaAppId, algoliaApiKey)
-	service.DB = db
-
+func NewService(algoliaAppId string, algoliaApiKey string, db *sql.DB) Service {
+	service := Service{
+		db:            db,
+		algoliaClient: search.NewClient(algoliaAppId, algoliaApiKey),
+	}
 	return service
 }
 
 func (service *Service) Index() {
 	ctx := context.Background()
-	queries := sqlc.New(service.DB)
+	queries := sqlc.New(service.db)
 
-	algoliaClient := service.AlgoliaClient
+	algoliaClient := service.algoliaClient
 	index := algoliaClient.InitIndex(indexName)
 
+	// TODO: Should probably just delete individual documents when they are removed from database.
 	_, err := index.ClearObjects()
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to clear objects from index")
 		return
 	}
 
+	// Makes it possible to filter in query, which fields you are searching on
 	_, err = index.SetSettings(search.Settings{
 		SearchableAttributes: opt.SearchableAttributes(service.getFields()...),
 	})
@@ -58,38 +70,11 @@ func (service *Service) Index() {
 	}
 
 	log.L.Debug().Msg("Indexing shows")
-	objects, err := getShowMapsToIndex(queries, ctx)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to retrieve objects to index")
-		return
-	}
-
-	err = indexObjects(index, objects)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to index shows")
-	}
-
-	log.L.Debug().Msg("Indexing episodes")
-	objects, err = getEpisodeMapsToIndex(queries, ctx)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to retrieve episodes to index")
-		return
-	}
-
-	err = indexObjects(index, objects)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to index episodes")
-	}
+	indexShows(queries, ctx, index)
 
 	log.L.Debug().Msg("Indexing seasons")
-	objects, err = getSeasonMapsToIndex(queries, ctx)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to retrieve episodes to index")
-		return
-	}
+	indexSeasons(queries, ctx, index)
 
-	err = indexObjects(index, objects)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to index episodes")
-	}
+	log.L.Debug().Msg("Indexing episodes")
+	indexEpisodes(queries, ctx, index)
 }

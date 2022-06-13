@@ -21,9 +21,12 @@ func (service *Service) getFunctionalFields() []string {
 	return []string{publishedAt, createdAt}
 }
 
-func (service *Service) getTranslatedFields() []string {
-	translatableFields := []string{description, title}
+func (service *Service) getTranslatableFields() []string {
+	return []string{description, title}
+}
 
+func (service *Service) getTranslatedFields() []string {
+	translatableFields := service.getTranslatableFields()
 	var allFields []string
 
 	for _, languageKey := range service.getLanguageKeys() {
@@ -37,7 +40,7 @@ func (service *Service) getTranslatedFields() []string {
 
 func (service *Service) getLanguageKeys() []string {
 	ctx := context.Background()
-	queries := sqlc.New(service.DB)
+	queries := sqlc.New(service.db)
 	languageKeys, err := queries.GetLanguageKeys(ctx)
 
 	if err != nil {
@@ -46,4 +49,17 @@ func (service *Service) getLanguageKeys() []string {
 	}
 
 	return languageKeys
+}
+
+func mapToSearchObjects[T any](items []T, getValues func(T) map[string]any) []searchObject {
+	var objects []searchObject
+	for _, item := range items {
+		object := searchObject{}
+		values := getValues(item)
+		for key, value := range values {
+			object[key] = value
+		}
+		objects = append(objects, object)
+	}
+	return objects
 }
