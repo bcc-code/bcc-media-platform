@@ -23,11 +23,11 @@ func indexObjects(index *search.Index, objects []searchObject) error {
 	return err
 }
 
-func mapToRelatedId[T sqlc.IRelatedItem](items []T) map[int][]T {
+func mapToRelatedId[T any](items []T, getRelatedId func(item T) int) map[int][]T {
 	dictionary := map[int][]T{}
 
 	for _, item := range items {
-		relatedId := item.GetRelatedItemId()
+		relatedId := getRelatedId(item)
 		dictionary[relatedId] = append(dictionary[relatedId], item)
 	}
 
@@ -85,40 +85,60 @@ func (service *Service) Index() {
 // DeleteObject
 // Prefix id with model-name. For example: "show-10" for a Show with ID 10.
 func (service *Service) DeleteObject(item interface{}) {
-	var objectId string
+	var model string
+	var id int
 	switch item.(type) {
 	case sqlc.Episode:
-		objectId = "episode-" + strconv.Itoa(int(item.(*sqlc.Episode).ID))
-		break
+		model = "episode"
+		id = int(item.(sqlc.Episode).ID)
 	case sqlc.Season:
-		objectId = "season-" + strconv.Itoa(int(item.(*sqlc.Season).ID))
-		break
+		model = "season"
+		id = int(item.(sqlc.Season).ID)
 	case sqlc.Show:
-		objectId = "show-" + strconv.Itoa(int(item.(*sqlc.Show).ID))
-		break
+		model = "show"
+		id = int(item.(sqlc.Show).ID)
 	default:
 		log.L.Error().Msg("Unknown type")
 		return
 	}
-	_, err := service.index.DeleteObject(objectId)
+	service.DeleteModel(model, id)
+}
+
+func (service *Service) DeleteModel(model string, id int) {
+	_, err := service.index.DeleteObject(model + "-" + strconv.Itoa(id))
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to delete object")
+		log.L.Error().Err(err).Msg("Failed to delete model")
 	}
 }
 
 func (service *Service) IndexObject(item interface{}) {
 	switch item.(type) {
 	case sqlc.Episode:
-		service.IndexEpisode(item.(sqlc.Episode))
-		break
+		service.indexEpisode(item.(sqlc.Episode))
 	case sqlc.Show:
-		service.IndexShow(item.(sqlc.Show))
-		break
+		service.indexShow(item.(sqlc.Show))
 	case sqlc.Season:
-		service.IndexSeason(item.(sqlc.Season))
-		break
+		service.indexSeason(item.(sqlc.Season))
 	default:
 		log.L.Error().Msg("Couldn't index object")
+	}
+}
+
+func (service *Service) IndexModel(model string, id int) {
+	ctx := context.Background()
+	var item any
+	var err error
+	switch model {
+	case "episode":
+		item, err = service.queries.GetEpisode(ctx, int32(id))
+	case "season":
+		item, err = service.queries.GetSeason(ctx, int32(id))
+	case "show":
+		item, err = service.queries.GetShow(ctx, int32(id))
+	}
+	if err != nil {
+		log.L.Error().Err(err)
 		return
 	}
+	service.IndexObject(item)
 }

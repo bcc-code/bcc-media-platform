@@ -5,6 +5,7 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/samber/lo"
 	"strconv"
 )
 
@@ -44,8 +45,10 @@ func indexEpisodes(queries *sqlc.Queries, ctx context.Context, index *search.Ind
 	if err != nil {
 		return
 	}
-	translationDictionary := mapToRelatedId(itemTranslations)
-	objects := mapToSearchObjects(items, func(item sqlc.Episode) searchObject {
+	translationDictionary := mapToRelatedId(itemTranslations, func(item sqlc.EpisodesTranslation) int {
+		return int(item.EpisodesID)
+	})
+	objects := lo.Map(items, func(item sqlc.Episode, _ int) searchObject {
 		return mapEpisodeToSearchObject(item, translationDictionary[int(item.ID)])
 	})
 
@@ -57,7 +60,7 @@ func indexEpisodes(queries *sqlc.Queries, ctx context.Context, index *search.Ind
 	}
 }
 
-func (service *Service) IndexEpisode(item sqlc.Episode) {
+func (service *Service) indexEpisode(item sqlc.Episode) {
 	ctx := context.Background()
 	translations, err := service.queries.GetTranslationsForEpisode(ctx, item.ID)
 	if err != nil {
