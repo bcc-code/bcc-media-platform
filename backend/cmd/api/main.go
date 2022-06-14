@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/cmd/api/search"
@@ -45,7 +46,7 @@ func playgroundHandler() gin.HandlerFunc {
 	}
 }
 
-func indexHandler(client *search.Service) func() {
+func indexHandler(client ISearchService) func() {
 	return func() {
 		client.Reindex()
 	}
@@ -78,10 +79,36 @@ func getModelFromCollectionName(collection string) string {
 	return ""
 }
 
-func directusEventHandler(searchService *search.Service) func(c *gin.Context) {
+func authenticateDirectusRequest(c *gin.Context) (bool, error) {
+	auth := c.Request.Header.Get("X-API-Key")
+
+	if auth == getEnvConfig().DirectusSecret {
+		return true, nil
+	}
+
+	var err error
+	if auth == "" {
+		err = errors.New("missing x-api-key header")
+	} else {
+		err = errors.New("failed to authenticate")
+	}
+
+	c.Status(401)
+	_, _ = c.Writer.WriteString("Unauthorized")
+
+	return false, err
+}
+
+func directusEventHandler(searchService ISearchService) func(c *gin.Context) {
 	return func(c *gin.Context) {
+		success, err := authenticateDirectusRequest(c)
+		if !success {
+			log.L.Error().Err(err).Msg("Failed to authenticate directus request")
+			return
+		}
+
 		var event directusEvent
-		err := c.BindJSON(&event)
+		err = c.BindJSON(&event)
 		if err != nil {
 			log.L.Error().Err(err)
 			return
@@ -113,7 +140,7 @@ func main() {
 	ctx := context.Background()
 
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
-	log.L.Debug().Msg("Seting up tracing!")
+	log.L.Debug().Msg("Setting up tracing!")
 
 	// Here you can get a tracedHttpClient if useful anywhere
 	utils.MustSetupTracing()
