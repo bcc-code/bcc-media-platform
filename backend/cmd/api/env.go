@@ -18,11 +18,12 @@ type algolia struct {
 }
 
 type envConfig struct {
-	DB             postgres
-	Algolia        algolia
-	Port           string
-	DirectusSecret string
-	JWTConfig      auth0.JWTConfig
+	DB              postgres
+	Algolia         algolia
+	Port            string
+	JWTConfig       auth0.JWTConfig
+	DirectusSecret  string
+	SchedulerSecret string
 }
 
 func getEnvConfig() envConfig {
@@ -46,6 +47,7 @@ func getEnvConfig() envConfig {
 			AppId:  os.Getenv("ALGOLIA_APP_ID"),
 			ApiKey: os.Getenv("ALGOLIA_API_KEY"),
 		},
-		DirectusSecret: os.Getenv("DIRECTUS_SECRET"),
+		DirectusSecret:  os.Getenv("DIRECTUS_SECRET"),
+		SchedulerSecret: os.Getenv("SCHEDULER_SECRET"),
 	}
 }

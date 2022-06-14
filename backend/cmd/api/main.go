@@ -7,6 +7,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	"github.com/bcc-code/brunstadtv/backend/search"
@@ -14,13 +15,10 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
-	"github.com/go-co-op/gocron"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
-	"strconv"
-	"time"
 )
 
 // Defining the Graphql handler
@@ -48,48 +46,26 @@ func playgroundHandler() gin.HandlerFunc {
 	}
 }
 
-func indexHandler(client ISearchService) func() {
-	return func() {
+func indexHandler(apiKey string, client ISearchService) func(*gin.Context) {
+	return func(c *gin.Context) {
+		err := authenticateRequestWithXApiKey(apiKey, c)
+		if err != nil {
+			log.L.Error().Err(err).Msg("Failed to authenticate request")
+			return
+		}
 		client.Reindex()
+		_, _ = c.Writer.WriteString("Indexed all documents")
 	}
 }
 
-type directusEvent struct {
-	Event          string   `json:"event"`
-	Accountability any      `json:"accountability"`
-	Payload        any      `json:"payload"`
-	Collection     string   `json:"collection"`
-	Keys           []string `json:"keys"`
-	Key            int      `json:"key"`
-}
-
-const (
-	itemCreatedEventKey = "items.create"
-	itemUpdatedEventKey = "items.update"
-	itemDeletedEventKey = "items.delete"
-)
-
-func getModelFromCollectionName(collection string) string {
-	switch collection {
-	case "episode", "episodes":
-		return "episode"
-	case "season", "seasons":
-		return "season"
-	case "show", "shows":
-		return "show"
-	}
-	return ""
-}
-
-func authenticateDirectusRequest(c *gin.Context) (bool, error) {
-	auth := c.Request.Header.Get("X-API-Key")
-
-	if auth == getEnvConfig().DirectusSecret {
-		return true, nil
+func authenticateRequestWithXApiKey(apiKey string, c *gin.Context) error {
+	a := c.Request.Header.Get("X-API-Key")
+	if a == apiKey {
+		return nil
 	}
 
 	var err error
-	if auth == "" {
+	if a == "" {
 		err = errors.New("missing x-api-key header")
 	} else {
 		err = errors.New("failed to authenticate")
@@ -98,43 +74,25 @@ func authenticateDirectusRequest(c *gin.Context) (bool, error) {
 	c.Status(401)
 	_, _ = c.Writer.WriteString("Unauthorized")
 
-	return false, err
+	return err
 }
 
-func directusEventHandler(searchService ISearchService) func(c *gin.Context) {
+func directusEventHandler(apiKey string, searchService ISearchService) func(c *gin.Context) {
+	eventHandler := directus.NewEventHandler()
+
+	indexEvents := []string{directus.EventItemsCreate, directus.EventItemsUpdate}
+	eventHandler.On(indexEvents, searchService.IndexModel)
+
+	deleteEvents := []string{directus.EventItemsDelete}
+	eventHandler.On(deleteEvents, searchService.DeleteModel)
+
 	return func(c *gin.Context) {
-		success, err := authenticateDirectusRequest(c)
-		if !success {
-			log.L.Error().Err(err).Msg("Failed to authenticate directus request")
-			return
-		}
-
-		var event directusEvent
-		err = c.BindJSON(&event)
+		err := authenticateRequestWithXApiKey(apiKey, c)
 		if err != nil {
-			log.L.Error().Err(err)
+			log.L.Error().Err(err).Msg("Failed to authenticate")
 			return
 		}
-		log.L.Debug().Msgf("Processing event: %s\nCollection: %s\n", event.Event, event.Collection)
-
-		model := getModelFromCollectionName(event.Collection)
-		if model == "" {
-			log.L.Debug().Msg("Collection not supported yet")
-			return
-		}
-		var id int64
-		if len(event.Keys) > 0 {
-			id, _ = strconv.ParseInt(event.Keys[0], 0, 32)
-		} else {
-			id = int64(event.Key)
-		}
-
-		switch event.Event {
-		case itemUpdatedEventKey, itemCreatedEventKey:
-			searchService.IndexModel(model, int(id))
-		case itemDeletedEventKey:
-			searchService.DeleteModel(model, int(id))
-		}
+		eventHandler.Execute(c)
 	}
 }
 
@@ -166,17 +124,6 @@ func main() {
 		return
 	}
 
-	log.L.Debug().Msg("Setting up scheduler")
-	scheduler := gocron.NewScheduler(time.UTC)
-	searchService := search.NewService(config.Algolia.AppId, config.Algolia.ApiKey, db)
-	// TODO: Move this to a google function (?)
-	_, err = scheduler.Every(1).Day().At("00:00").Do(indexHandler(&searchService))
-	if err != nil {
-		return
-	}
-
-	scheduler.StartAsync()
-
 	log.L.Debug().Msg("Set up HTTP server")
 	r := gin.Default()
 	r.Use(graph.GinContextToContextMiddleware())
@@ -191,7 +138,21 @@ func main() {
 	// What about auth?
 	r.GET("/", playgroundHandler())
 
-	r.POST("/directus/webhook", directusEventHandler(&searchService))
+	// Hooks and scheduling for search indexing
+	searchService := search.New(config.Algolia.AppId, config.Algolia.ApiKey, db)
+	if config.SchedulerSecret != "" {
+		log.L.Debug().Msg("Setting up endpoint for scheduled search indexing")
+		r.GET("/search/index", indexHandler(config.SchedulerSecret, &searchService))
+	} else {
+		log.L.Debug().Msg("Missing secret for scheduler endpoint, skipping endpoint configuration")
+	}
+
+	if config.DirectusSecret != "" {
+		log.L.Debug().Msg("Setting up endpoint for webhooks from Directus")
+		r.POST("/directus/webhook", directusEventHandler(config.DirectusSecret, &searchService))
+	} else {
+		log.L.Debug().Msg("Missing secret for webhooks from Directus, skipping endpoint configuration")
+	}
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
