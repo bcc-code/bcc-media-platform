@@ -51,7 +51,7 @@ func NewService(algoliaAppId string, algoliaApiKey string, db *sql.DB) Service {
 	return service
 }
 
-func (service *Service) Index() {
+func (service *Service) Reindex() {
 	ctx := context.Background()
 	queries := service.queries
 	index := service.index

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/cmd/api/search"
@@ -48,7 +47,7 @@ func playgroundHandler() gin.HandlerFunc {
 
 func indexHandler(client *search.Service) func() {
 	return func() {
-		client.Index()
+		client.Reindex()
 	}
 }
 
@@ -82,18 +81,16 @@ func getModelFromCollectionName(collection string) string {
 func directusEventHandler(searchService *search.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var event directusEvent
-		data, _ := c.GetRawData()
-		owh := string(data)
-		err := json.Unmarshal(data, &event)
+		err := c.BindJSON(&event)
 		if err != nil {
 			log.L.Error().Err(err)
 			return
 		}
-		log.L.Debug().Msg(owh)
-		log.L.Debug().Msg("Processing event: " + event.Event + ". Collection: " + event.Collection)
+		log.L.Debug().Msgf("Processing event: %s\nCollection: %s\n", event.Event, event.Collection)
 
 		model := getModelFromCollectionName(event.Collection)
 		if model == "" {
+			log.L.Debug().Msg("Collection not supported yet")
 			return
 		}
 		var id int64
@@ -143,7 +140,7 @@ func main() {
 	scheduler := gocron.NewScheduler(time.UTC)
 	searchService := search.NewService(config.Algolia.AppId, config.Algolia.ApiKey, db)
 	// TODO: Move this to a google function (?)
-	_, err = scheduler.Every(1).Day().At("00:00").Minutes().Do(indexHandler(&searchService))
+	_, err = scheduler.Every(1).Day().At("00:00").Do(indexHandler(&searchService))
 	if err != nil {
 		return
 	}
