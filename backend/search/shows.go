@@ -22,18 +22,18 @@ func getShowDescription(translation sqlc.ShowsTranslation) string {
 }
 
 func mapShowToSearchObject(item sqlc.Show, translations []sqlc.ShowsTranslation) searchObject {
-	values := searchObject{}
+	object := searchObject{}
 	itemId := int(item.ID)
-	values[idField] = "show-" + strconv.Itoa(itemId)
+	object[idField] = "show-" + strconv.Itoa(itemId)
 	if item.DateCreated.Valid {
-		values[createdAtField] = item.DateCreated.Time.UTC()
+		object[createdAtField] = item.DateCreated.Time.UTC()
 	}
 	if item.DateUpdated.Valid {
-		values[updatedAtField] = item.DateUpdated.Time.UTC()
+		object[updatedAtField] = item.DateUpdated.Time.UTC()
 	}
-	values[publishedAtField] = item.PublishDate.UTC()
-	mapTranslationsToSearchObject(values, translations, getShowLanguage, getShowTitle, getShowDescription)
-	return values
+	object[publishedAtField] = item.PublishDate.UTC()
+	mapTsToObject(object, translations, getShowLanguage, getShowTitle, getShowDescription)
+	return object
 }
 
 func indexShows(queries *sqlc.Queries, ctx context.Context, index *search.Index) {
@@ -41,15 +41,15 @@ func indexShows(queries *sqlc.Queries, ctx context.Context, index *search.Index)
 	if err != nil {
 		return
 	}
-	itemTranslations, err := queries.GetShowTranslations(ctx)
+	ts, err := queries.GetShowTranslations(ctx)
 	if err != nil {
 		return
 	}
-	translationDictionary := mapToRelatedId(itemTranslations, func(item sqlc.ShowsTranslation) int {
+	tDict := mapToRelatedId(ts, func(item sqlc.ShowsTranslation) int {
 		return int(item.ShowsID)
 	})
 	objects := lo.Map(items, func(item sqlc.Show, _ int) searchObject {
-		return mapShowToSearchObject(item, translationDictionary[int(item.ID)])
+		return mapShowToSearchObject(item, tDict[int(item.ID)])
 	})
 
 	err = indexObjects(index, objects)

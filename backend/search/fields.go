@@ -53,7 +53,7 @@ func (service *Service) getLanguageKeys() []string {
 	return languageKeys
 }
 
-func mapTranslationsToSearchObject[T any](item searchObject, translations []T, getLanguage func(T) string, getTitle func(T) string, getDescription func(T) string) {
+func mapTsToObject[T any](item searchObject, translations []T, getLanguage func(T) string, getTitle func(T) string, getDescription func(T) string) {
 	for _, translation := range translations {
 		translatedValues := map[string]string{
 			descriptionField: getDescription(translation),

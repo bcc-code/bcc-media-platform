@@ -41,7 +41,7 @@ type Service struct {
 	queries       *sqlc.Queries
 }
 
-func NewService(algoliaAppId string, algoliaApiKey string, db *sql.DB) Service {
+func New(algoliaAppId string, algoliaApiKey string, db *sql.DB) Service {
 	service := Service{
 		db:            db,
 		algoliaClient: search.NewClient(algoliaAppId, algoliaApiKey),
@@ -53,18 +53,18 @@ func NewService(algoliaAppId string, algoliaApiKey string, db *sql.DB) Service {
 
 func (service *Service) Reindex() {
 	ctx := context.Background()
-	queries := service.queries
-	index := service.index
+	q := service.queries
+	i := service.index
 
 	// TODO: Should probably just delete individual documents when they are removed from database.
-	_, err := index.ClearObjects()
+	_, err := i.ClearObjects()
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to clear objects from index")
 		return
 	}
 
 	// Makes it possible to filter in query, which fields you are searching on
-	_, err = index.SetSettings(search.Settings{
+	_, err = i.SetSettings(search.Settings{
 		SearchableAttributes: opt.SearchableAttributes(service.getFields()...),
 	})
 	if err != nil {
@@ -73,35 +73,35 @@ func (service *Service) Reindex() {
 	}
 
 	log.L.Debug().Msg("Indexing shows")
-	indexShows(queries, ctx, index)
+	indexShows(q, ctx, i)
 
 	log.L.Debug().Msg("Indexing seasons")
-	indexSeasons(queries, ctx, index)
+	indexSeasons(q, ctx, i)
 
 	log.L.Debug().Msg("Indexing episodes")
-	indexEpisodes(queries, ctx, index)
+	indexEpisodes(q, ctx, i)
 }
 
 // DeleteObject
 // Prefix id with model-name. For example: "show-10" for a Show with ID 10.
 func (service *Service) DeleteObject(item interface{}) {
-	var model string
+	var m string
 	var id int
 	switch item.(type) {
 	case sqlc.Episode:
-		model = "episode"
+		m = "episode"
 		id = int(item.(sqlc.Episode).ID)
 	case sqlc.Season:
-		model = "season"
+		m = "season"
 		id = int(item.(sqlc.Season).ID)
 	case sqlc.Show:
-		model = "show"
+		m = "show"
 		id = int(item.(sqlc.Show).ID)
 	default:
 		log.L.Error().Msg("Unknown type")
 		return
 	}
-	service.DeleteModel(model, id)
+	service.DeleteModel(m, id)
 }
 
 func (service *Service) DeleteModel(model string, id int) {
@@ -126,19 +126,19 @@ func (service *Service) IndexObject(item interface{}) {
 
 func (service *Service) IndexModel(model string, id int) {
 	ctx := context.Background()
-	var item any
+	var i any
 	var err error
 	switch model {
 	case "episode":
-		item, err = service.queries.GetEpisode(ctx, int32(id))
+		i, err = service.queries.GetEpisode(ctx, int32(id))
 	case "season":
-		item, err = service.queries.GetSeason(ctx, int32(id))
+		i, err = service.queries.GetSeason(ctx, int32(id))
 	case "show":
-		item, err = service.queries.GetShow(ctx, int32(id))
+		i, err = service.queries.GetShow(ctx, int32(id))
 	}
 	if err != nil {
 		log.L.Error().Err(err)
 		return
 	}
-	service.IndexObject(item)
+	service.IndexObject(i)
 }
