@@ -26,8 +26,6 @@ type envConfig struct {
 }
 
 func getEnvConfig() envConfig {
-	port := os.Getenv("PORT")
-
 	aud := lo.Map(strings.Split(os.Getenv("JWT_AUDIENCES"), ","),
 		func(s string, _ int) string {
 			return strings.TrimSpace(s)
