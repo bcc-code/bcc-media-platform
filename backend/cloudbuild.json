@@ -6,7 +6,7 @@
 				"build",
 				"-t", "$_IMAGE_NAME:$COMMIT_SHA",
 				"-t", "$_IMAGE_NAME:$BRANCH_NAME",
-				"-f", "./backend/Dockerfile.background-worker",
+				"-f", "$_DOCKERFILE",
 				"."
 			],
 			"id": "Build",
@@ -54,6 +54,6 @@
 	"tags": [
 		"gcp-cloud-build-deploy-cloud-run",
 		"gcp-cloud-build-deploy-cloud-run-managed",
-		"bibleserver"
+		"$_SERVICE_NAME"
 	]
 }

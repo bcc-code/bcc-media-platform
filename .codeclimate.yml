@@ -1,0 +1,35 @@
+version: "2"         # required to adjust maintainability checks
+
+exclude_patterns:
+- "backend/tmp"
+- "backend/sqlc"
+- "backend/graph/generated"
+- "backend/graph/model"
+- "cms/src/btv.d.ts"
+- "cms/src/hooks/sync-to-legacy"
+
+checks:
+  argument-count:
+    config:
+      threshold: 4
+  complex-logic:
+    config:
+      threshold: 4
+  file-lines:
+    config:
+      threshold: 500
+  method-complexity:
+    config:
+      threshold: 5
+  method-count:
+    config:
+      threshold: 20
+  method-lines:
+    config:
+      threshold: 100
+  nested-control-flow:
+    config:
+      threshold: 4
+  return-statements:
+    config:
+      threshold: 10
