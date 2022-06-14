@@ -1,6 +1,8 @@
 package graph
 
-import "github.com/bcc-code/brunstadtv/backend/sqlc"
+import (
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
+)
 
 // This file will not be regenerated automatically.
 //

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/cmd/api/search"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
@@ -16,6 +17,7 @@ import (
 	"github.com/go-co-op/gocron"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
 	"strconv"
 	"time"
@@ -147,6 +149,7 @@ func main() {
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
 
 	config := getEnvConfig()
+	log.L.Debug().Str("DBConnString", config.DB.ConnectionString).Msg("Connection to DB")
 	db, err := sql.Open("postgres", config.DB.ConnectionString)
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Unable to connect to DB")
@@ -176,6 +179,9 @@ func main() {
 
 	log.L.Debug().Msg("Set up HTTP server")
 	r := gin.Default()
+	r.Use(graph.GinContextToContextMiddleware())
+	r.Use(otelgin.Middleware("api")) // OpenTelemetry
+	r.Use(auth0.JWT(ctx, config.JWTConfig))
 
 	queries := sqlc.New(db)
 
