@@ -5,23 +5,32 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"strconv"
 )
 
-func getSeasonLanguage(translation sqlc.SeasonsTranslation) string {
-	return translation.LanguagesCode
+func mapTranslationsForSeason(translations []sqlc.SeasonsTranslation) (title localeString, description localeString) {
+	title = localeString{}
+	description = localeString{}
+	for _, translation := range translations {
+		language := translation.LanguagesCode
+		if titleString := translation.Title.ValueOrZero(); titleString != "" {
+			title[language] = titleString
+		}
+		if descriptionString := translation.Description.ValueOrZero(); descriptionString != "" {
+			description[language] = descriptionString
+		}
+	}
+	return
 }
 
-func getSeasonTitle(translation sqlc.SeasonsTranslation) string {
-	return translation.Title.ValueOrZero()
-}
-
-func getSeasonDescription(translation sqlc.SeasonsTranslation) string {
-	return translation.Description.ValueOrZero()
-}
-
-func mapSeasonToSearchObject(item sqlc.Season, translations []sqlc.SeasonsTranslation) searchObject {
+func mapSeasonToSearchObject(
+	item sqlc.Season,
+	image *sqlc.DirectusFile,
+	translations []sqlc.SeasonsTranslation,
+	showTs []sqlc.ShowsTranslation,
+) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
 	object[idField] = "season-" + strconv.Itoa(itemId)
@@ -32,27 +41,32 @@ func mapSeasonToSearchObject(item sqlc.Season, translations []sqlc.SeasonsTransl
 		object[updatedAtField] = item.DateUpdated.Time.UTC()
 	}
 	object[publishedAtField] = item.PublishDate.UTC()
-	mapTsToObject(object, translations, getSeasonLanguage, getSeasonTitle, getSeasonDescription)
+	object[titleField], object[descriptionField] = mapTranslationsForSeason(translations)
+	object[showIDField] = item.ShowID
+	object[showTitleField], _ = mapTranslationsForShow(showTs)
+	if image != nil {
+		object[imageField] = image.GetImageUrl()
+	}
 	return object
 }
 
-func indexSeasons(queries *sqlc.Queries, ctx context.Context, index *search.Index) {
-	items, err := queries.GetSeasons(ctx)
-	if err != nil {
-		return
-	}
-	ts, err := queries.GetSeasonTranslations(ctx)
-	if err != nil {
-		return
-	}
-	tDict := mapToRelatedId(ts, func(item sqlc.SeasonsTranslation) int {
-		return int(item.SeasonsID)
-	})
+func indexSeasons(
+	items []sqlc.Season,
+	imageDict map[uuid.UUID]sqlc.DirectusFile,
+	tDict map[int][]sqlc.SeasonsTranslation,
+	showTs map[int][]sqlc.ShowsTranslation,
+	index *search.Index,
+) {
 	objects := lo.Map(items, func(item sqlc.Season, _ int) searchObject {
-		return mapSeasonToSearchObject(item, tDict[int(item.ID)])
+		var thumbnail *sqlc.DirectusFile
+		if item.ImageFileID.Valid {
+			thumbnailResult := imageDict[item.ImageFileID.UUID]
+			thumbnail = &thumbnailResult
+		}
+		return mapSeasonToSearchObject(item, thumbnail, tDict[int(item.ID)], showTs[int(item.ShowID)])
 	})
 
-	err = indexObjects(index, objects)
+	err := indexObjects(index, objects)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index objects")
 		return
@@ -61,12 +75,17 @@ func indexSeasons(queries *sqlc.Queries, ctx context.Context, index *search.Inde
 
 func (service *Service) indexSeason(item sqlc.Season) {
 	ctx := context.Background()
+	var thumbnail *sqlc.DirectusFile
+	if item.ImageFileID.Valid {
+		thumbnailResult, _ := service.queries.GetFile(ctx, item.ImageFileID.UUID)
+		thumbnail = &thumbnailResult
+	}
 	ts, err := service.queries.GetTranslationsForSeason(ctx, item.ID)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to retrieve translations for season")
 	}
-
-	_, err = service.index.SaveObject(mapSeasonToSearchObject(item, ts))
+	showTs, err := service.queries.GetTranslationsForShow(ctx, item.ShowID)
+	_, err = service.index.SaveObject(mapSeasonToSearchObject(item, thumbnail, ts, showTs))
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index season")
 	}

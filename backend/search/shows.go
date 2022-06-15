@@ -5,23 +5,31 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"strconv"
 )
 
-func getShowLanguage(translation sqlc.ShowsTranslation) string {
-	return translation.LanguagesCode
+func mapTranslationsForShow(translations []sqlc.ShowsTranslation) (title localeString, description localeString) {
+	title = localeString{}
+	description = localeString{}
+	for _, translation := range translations {
+		language := translation.LanguagesCode
+		if titleString := translation.Title.ValueOrZero(); titleString != "" {
+			title[language] = titleString
+		}
+		if descriptionString := translation.Description.ValueOrZero(); descriptionString != "" {
+			description[language] = descriptionString
+		}
+	}
+	return
 }
 
-func getShowTitle(translation sqlc.ShowsTranslation) string {
-	return translation.Title.ValueOrZero()
-}
-
-func getShowDescription(translation sqlc.ShowsTranslation) string {
-	return translation.Description.ValueOrZero()
-}
-
-func mapShowToSearchObject(item sqlc.Show, translations []sqlc.ShowsTranslation) searchObject {
+func mapShowToSearchObject(
+	item sqlc.Show,
+	image *sqlc.DirectusFile,
+	translations []sqlc.ShowsTranslation,
+) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
 	object[idField] = "show-" + strconv.Itoa(itemId)
@@ -32,27 +40,29 @@ func mapShowToSearchObject(item sqlc.Show, translations []sqlc.ShowsTranslation)
 		object[updatedAtField] = item.DateUpdated.Time.UTC()
 	}
 	object[publishedAtField] = item.PublishDate.UTC()
-	mapTsToObject(object, translations, getShowLanguage, getShowTitle, getShowDescription)
+	object[titleField], object[descriptionField] = mapTranslationsForShow(translations)
+	if image != nil {
+		object[imageField] = image.GetImageUrl()
+	}
 	return object
 }
 
-func indexShows(queries *sqlc.Queries, ctx context.Context, index *search.Index) {
-	items, err := queries.GetShows(ctx)
-	if err != nil {
-		return
-	}
-	ts, err := queries.GetShowTranslations(ctx)
-	if err != nil {
-		return
-	}
-	tDict := mapToRelatedId(ts, func(item sqlc.ShowsTranslation) int {
-		return int(item.ShowsID)
-	})
+func indexShows(
+	items []sqlc.Show,
+	imageDict map[uuid.UUID]sqlc.DirectusFile,
+	tDict map[int][]sqlc.ShowsTranslation,
+	index *search.Index,
+) {
 	objects := lo.Map(items, func(item sqlc.Show, _ int) searchObject {
-		return mapShowToSearchObject(item, tDict[int(item.ID)])
+		var thumbnail *sqlc.DirectusFile
+		if item.ImageFileID.Valid {
+			thumbnailResult := imageDict[item.ImageFileID.UUID]
+			thumbnail = &thumbnailResult
+		}
+		return mapShowToSearchObject(item, thumbnail, tDict[int(item.ID)])
 	})
 
-	err = indexObjects(index, objects)
+	err := indexObjects(index, objects)
 
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index objects")
@@ -62,12 +72,16 @@ func indexShows(queries *sqlc.Queries, ctx context.Context, index *search.Index)
 
 func (service *Service) indexShow(item sqlc.Show) {
 	ctx := context.Background()
+	var thumbnail *sqlc.DirectusFile
+	if item.ImageFileID.Valid {
+		thumbnailResult, _ := service.queries.GetFile(ctx, item.ImageFileID.UUID)
+		thumbnail = &thumbnailResult
+	}
 	translations, err := service.queries.GetTranslationsForShow(ctx, item.ID)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to retrieve translations for season")
 	}
-
-	_, err = service.index.SaveObject(mapShowToSearchObject(item, translations))
+	_, err = service.index.SaveObject(mapShowToSearchObject(item, thumbnail, translations))
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index season")
 	}
