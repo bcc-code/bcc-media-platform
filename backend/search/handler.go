@@ -1,6 +1,14 @@
 package search
 
-import "github.com/bcc-code/brunstadtv/backend/base"
+import (
+	"fmt"
+	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
+	"github.com/bcc-code/brunstadtv/backend/base"
+	"github.com/samber/lo"
+	"strconv"
+	"strings"
+	"time"
+)
 
 type Handler struct {
 	user    any
@@ -12,4 +20,102 @@ func (service *Service) GetHandler(user any) base.ISearchHandler {
 		user:    user,
 		service: service,
 	}
+}
+
+type searchHit struct {
+	ID              string                 `json:"objectID"`
+	Title           localeString           `json:"title"`
+	Header          string                 `json:"header"`
+	Description     localeString           `json:"description"`
+	ShowID          int                    `json:"showID"`
+	ShowTitle       localeString           `json:"showTitle"`
+	SeasonID        int                    `json:"seasonID"`
+	SeasonTitle     localeString           `json:"seasonTitle"`
+	Image           string                 `json:"image"`
+	HighlightResult map[string]interface{} `json:"_highlightResult"`
+}
+
+// TODO: implement permission checking
+func hasAccess(user any, model string, id int) bool {
+	return true
+}
+
+func (handler *Handler) Search(query *base.SearchQuery) (*base.SearchResult, error) {
+	now := time.Now().Unix()
+	var filters []string
+	filters = append(filters, fmt.Sprintf("%[1]s = 0 OR %[1]s < %[2]d", availableFromField, now))
+	filters = append(filters, fmt.Sprintf("%[1]s = 0 OR %[1]s > %[2]d", availableToField, now))
+
+	// TODO: use actual roles
+	userRoles := query.Roles
+	filters = append(filters, "("+strings.Join(lo.Map(userRoles, func(role string, _ int) string {
+		return fmt.Sprintf("%s:%s", rolesField, role)
+	}), " OR ")+")")
+
+	result, err := handler.service.index.Search(query.Query,
+		opt.Filters(strings.Join(filters, " AND ")),
+		opt.Page(query.Page),
+		opt.AttributesToHighlight(handler.service.getTextFields()...),
+	)
+	if err != nil {
+		return nil, err
+	}
+	var searchResult base.SearchResult
+	var hits []searchHit
+
+	err = result.UnmarshalHits(&hits)
+	if err != nil {
+		return nil, err
+	}
+
+	searchResult.HitCount = result.NbHits
+	searchResult.Page = result.Page
+	searchResult.PageCount = result.NbPages
+	searchResult.Result = []base.SearchResultItem{}
+
+	for _, hit := range hits {
+		parts := strings.Split(hit.ID, "-")
+		model := parts[0]
+		id, _ := strconv.ParseInt(parts[1], 0, 64)
+
+		if hasAccess(handler.user, model, int(id)) {
+			item := base.SearchResultItem{
+				Id:    int(id),
+				Model: model,
+			}
+
+			for _, opts := range hit.HighlightResult {
+				values := opts.(map[string]interface{})
+				if matchLevel := values["matchLevel"]; matchLevel != nil && matchLevel != "none" {
+					value := values["value"].(string)
+					if item.Highlight != nil {
+						str := *item.Highlight + "\n" + value
+						item.Highlight = &str
+					} else {
+						item.Highlight = &value
+					}
+				}
+			}
+
+			if value := hit.Title.get(defaultLanguage); value != "" {
+				item.Title = value
+			}
+			if value := hit.Description.get(defaultLanguage); value != "" {
+				item.Description = &value
+			}
+			if value := hit.Header; value != "" {
+				item.Header = &value
+			}
+
+			item.Url = getUrl(model, int(id))
+			if value := hit.Image; value != "" {
+				item.Image = &value
+			}
+
+			searchResult.ResultCount++
+			searchResult.Result = append(searchResult.Result, item)
+		}
+	}
+
+	return &searchResult, nil
 }

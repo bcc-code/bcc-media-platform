@@ -43,6 +43,38 @@ func (q *Queries) GetEpisode(ctx context.Context, id int32) (Episode, error) {
 	return i, err
 }
 
+const getEpisodeRoles = `-- name: GetEpisodeRoles :many
+SELECT episodes_id, id, type, usergroups_code FROM public.episodes_usergroups
+`
+
+func (q *Queries) GetEpisodeRoles(ctx context.Context) ([]EpisodesUsergroup, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeRoles)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []EpisodesUsergroup
+	for rows.Next() {
+		var i EpisodesUsergroup
+		if err := rows.Scan(
+			&i.EpisodesID,
+			&i.ID,
+			&i.Type,
+			&i.UsergroupsCode,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getEpisodeTranslations = `-- name: GetEpisodeTranslations :many
 SELECT description, episodes_id, extra_description, id, is_primary, languages_code, title FROM public.episodes_translations
 `
@@ -118,6 +150,33 @@ func (q *Queries) GetEpisodes(ctx context.Context) ([]Episode, error) {
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRolesForEpisode = `-- name: GetRolesForEpisode :many
+SELECT usergroups_code FROM public.episodes_usergroups WHERE episodes_id = $1
+`
+
+func (q *Queries) GetRolesForEpisode(ctx context.Context, episodesID int32) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getRolesForEpisode, episodesID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var usergroups_code string
+		if err := rows.Scan(&usergroups_code); err != nil {
+			return nil, err
+		}
+		items = append(items, usergroups_code)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

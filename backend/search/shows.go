@@ -34,10 +34,10 @@ func mapShowToSearchObject(
 	itemId := int(item.ID)
 	object[idField] = "show-" + strconv.Itoa(itemId)
 	if item.DateCreated.Valid {
-		object[createdAtField] = item.DateCreated.Time.UTC()
+		object[createdAtField] = item.DateCreated.Time.UTC().Unix()
 	}
 	if item.DateUpdated.Valid {
-		object[updatedAtField] = item.DateUpdated.Time.UTC()
+		object[updatedAtField] = item.DateUpdated.Time.UTC().Unix()
 	}
 	object[publishedAtField] = item.PublishDate.UTC()
 	object[titleField], object[descriptionField] = mapTranslationsForShow(translations)

@@ -5,18 +5,22 @@ import (
 )
 
 const (
-	idField          = "objectID"
-	imageField       = "image"
-	descriptionField = "description"
-	titleField       = "title"
-	headerField      = "header"
-	publishedAtField = "publishedAt"
-	createdAtField   = "createdAt"
-	updatedAtField   = "updatedAt"
-	showIDField      = "showID"
-	showTitleField   = "showTitle"
-	seasonIDField    = "seasonID"
-	seasonTitleField = "seasonTitle"
+	idField            = "objectID"
+	typeField          = "type"
+	rolesField         = "roles"
+	imageField         = "image"
+	descriptionField   = "description"
+	titleField         = "title"
+	headerField        = "header"
+	availableFromField = "availableFrom"
+	availableToField   = "availableTo"
+	publishedAtField   = "publishedAt"
+	createdAtField     = "createdAt"
+	updatedAtField     = "updatedAt"
+	showIDField        = "showID"
+	showTitleField     = "showTitle"
+	seasonIDField      = "seasonID"
+	seasonTitleField   = "seasonTitle"
 )
 
 // TODO: move this to a global parameter
@@ -41,6 +45,10 @@ func (service *Service) getFunctionalFields() []string {
 
 func (service *Service) getTextFields() []string {
 	return []string{descriptionField, titleField, showTitleField, seasonTitleField}
+}
+
+func (service *Service) getFilterFields() []string {
+	return []string{rolesField}
 }
 
 func getUrl(model string, id int) string {

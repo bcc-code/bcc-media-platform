@@ -3,6 +3,8 @@ package base
 type SearchQuery struct {
 	Query string `json:"query"`
 	Page  int    `json:"page"`
+	//TODO: replace this (only for testing)
+	Roles []string `json:"roles"`
 }
 
 type SearchResult struct {
