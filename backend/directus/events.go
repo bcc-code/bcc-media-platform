@@ -7,10 +7,6 @@ import (
 	"strconv"
 )
 
-type StringOrInt interface {
-	string | int
-}
-
 type Event struct {
 	Event          string        `json:"event"`
 	Accountability any           `json:"accountability"`
@@ -76,13 +72,13 @@ func (handler *EventHandler) Execute(c *gin.Context) {
 		// Directus returns either floats or strings in the same array... weird?
 		ids = lo.Map(event.Keys, func(entry interface{}, _ int) int {
 			var id int
-			switch entry.(type) {
+			switch v := entry.(type) {
 			case int:
-				id = entry.(int)
+				id = v
 			case float64:
-				id = int(entry.(float64))
+				id = int(v)
 			case string:
-				num, _ := strconv.ParseInt(entry.(string), 0, 64)
+				num, _ := strconv.ParseInt(v, 0, 64)
 				id = int(num)
 			}
 			return id

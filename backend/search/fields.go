@@ -1,69 +1,48 @@
 package search
 
 import (
-	"context"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/bcc-code/mediabank-bridge/log"
+	"fmt"
 )
 
 const (
+	idField          = "objectID"
+	imageField       = "image"
 	descriptionField = "description"
 	titleField       = "title"
+	headerField      = "header"
 	publishedAtField = "publishedAt"
 	createdAtField   = "createdAt"
 	updatedAtField   = "updatedAt"
-	idField          = "objectID"
+	showIDField      = "showID"
+	showTitleField   = "showTitle"
+	seasonIDField    = "seasonID"
+	seasonTitleField = "seasonTitle"
 )
 
+// TODO: move this to a global parameter
+const defaultLanguage = "no"
+
+type localeString map[string]string
+
+func (dict localeString) get(language string) string {
+	if value := dict[language]; value != "" {
+		return value
+	}
+	return dict[defaultLanguage]
+}
+
 func (service *Service) getFields() []string {
-	return append(service.getTranslatedFields(), service.getFunctionalFields()...)
+	return append(service.getTextFields(), service.getFunctionalFields()...)
 }
 
 func (service *Service) getFunctionalFields() []string {
-	return []string{publishedAtField, createdAtField, updatedAtField}
+	return []string{publishedAtField, createdAtField, updatedAtField, headerField}
 }
 
-func (service *Service) getTranslatableFields() []string {
-	return []string{descriptionField, titleField}
+func (service *Service) getTextFields() []string {
+	return []string{descriptionField, titleField, showTitleField, seasonTitleField}
 }
 
-func (service *Service) getTranslatedFields() []string {
-	translatableFields := service.getTranslatableFields()
-	var allFields []string
-
-	for _, languageKey := range service.getLanguageKeys() {
-		for _, field := range translatableFields {
-			allFields = append(allFields, field+"_"+languageKey)
-		}
-	}
-
-	return allFields
-}
-
-func (service *Service) getLanguageKeys() []string {
-	ctx := context.Background()
-	queries := sqlc.New(service.db)
-	languageKeys, err := queries.GetLanguageKeys(ctx)
-
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to retrieve languages")
-		return nil
-	}
-
-	return languageKeys
-}
-
-func mapTsToObject[T any](item searchObject, translations []T, getLanguage func(T) string, getTitle func(T) string, getDescription func(T) string) {
-	for _, translation := range translations {
-		translatedValues := map[string]string{
-			descriptionField: getDescription(translation),
-			titleField:       getTitle(translation),
-		}
-		language := getLanguage(translation)
-		for field, value := range translatedValues {
-			if value != "" {
-				item[field+"_"+language] = value
-			}
-		}
-	}
+func getUrl(model string, id int) string {
+	return fmt.Sprintf("/%s/%d", model, id)
 }
