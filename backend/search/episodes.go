@@ -33,22 +33,35 @@ func mapTranslationsForEpisode(translations []sqlc.EpisodesTranslation) (title m
 	return title, description
 }
 
-func mapEpisodeToSearchObject(item sqlc.Episode, image *sqlc.DirectusFile, translations []sqlc.EpisodesTranslation, season *sqlc.Season, seasonTs []sqlc.SeasonsTranslation, showTs []sqlc.ShowsTranslation) searchObject {
+func mapEpisodeToSearchObject(
+	item sqlc.Episode,
+	roles []string,
+	image *sqlc.DirectusFile,
+	translations []sqlc.EpisodesTranslation,
+	season *sqlc.Season,
+	seasonTs []sqlc.SeasonsTranslation,
+	showTs []sqlc.ShowsTranslation,
+) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
 	object[idField] = "episode-" + strconv.Itoa(itemId)
-	object["type"] = item.Type
+	object[typeField] = item.Type
+	object[rolesField] = roles
 	if value := item.AvailableTo.ValueOrZero(); !value.IsZero() {
-		object["availableTo"] = value.UTC()
+		object[availableToField] = value.UTC().Unix()
+	} else {
+		object[availableToField] = 0
 	}
 	if value := item.AvailableFrom.ValueOrZero(); !value.IsZero() {
-		object["availableFrom"] = value.UTC()
+		object[availableFromField] = value.UTC().Unix()
+	} else {
+		object[availableFromField] = 0
 	}
 	if item.DateCreated.Valid {
-		object[createdAtField] = item.DateCreated.Time.UTC()
+		object[createdAtField] = item.DateCreated.Time.UTC().Unix()
 	}
 	if item.DateUpdated.Valid {
-		object[updatedAtField] = item.DateUpdated.Time.UTC()
+		object[updatedAtField] = item.DateUpdated.Time.UTC().Unix()
 	}
 	object[publishedAtField] = item.PublishDate.UTC()
 	object[titleField], object[descriptionField] = mapTranslationsForEpisode(translations)
@@ -70,6 +83,7 @@ func mapEpisodeToSearchObject(item sqlc.Episode, image *sqlc.DirectusFile, trans
 
 func indexEpisodes(
 	items []sqlc.Episode,
+	rolesDict map[int][]string,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
 	tDict map[int][]sqlc.EpisodesTranslation,
 	seasons map[int]sqlc.Season,
@@ -92,7 +106,7 @@ func indexEpisodes(
 			thumbnailResult := imageDict[item.ImageFileID.UUID]
 			thumbnail = &thumbnailResult
 		}
-		return mapEpisodeToSearchObject(item, thumbnail, tDict[int(item.ID)], season, seasonTranslations, showTranslations)
+		return mapEpisodeToSearchObject(item, rolesDict[int(item.ID)], thumbnail, tDict[int(item.ID)], season, seasonTranslations, showTranslations)
 	})
 
 	err := indexObjects(index, objects)
@@ -125,7 +139,9 @@ func (service *Service) indexEpisode(item sqlc.Episode) {
 		thumbnail = &thumbnailResult
 	}
 
-	_, err = service.index.SaveObject(mapEpisodeToSearchObject(item, thumbnail, ts, season, seasonTs, showTs))
+	roles, _ := service.queries.GetRolesForEpisode(ctx, item.ID)
+
+	_, err = service.index.SaveObject(mapEpisodeToSearchObject(item, roles, thumbnail, ts, season, seasonTs, showTs))
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index season")
 	}
