@@ -14,6 +14,7 @@ import (
 )
 
 const indexName = "global"
+const hitsPerPage = 20
 
 type searchObject map[string]interface{}
 
@@ -74,7 +75,7 @@ func (service *Service) Reindex() {
 		QueryLanguages:        opt.QueryLanguages(languages...),
 		SearchableAttributes:  opt.SearchableAttributes(service.getFields()...),
 		AttributesForFaceting: opt.AttributesForFaceting(service.getFilterFields()...),
-		HitsPerPage:           opt.HitsPerPage(20),
+		HitsPerPage:           opt.HitsPerPage(hitsPerPage),
 	})
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to set searchable fields")

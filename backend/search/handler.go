@@ -76,7 +76,7 @@ func (handler *Handler) Search(query *base.SearchQuery) (*base.SearchResult, err
 		return nil, err
 	}
 	var searchResult base.SearchResult
-	var hits []searchHit
+	var hits []searchObject
 
 	err = result.UnmarshalHits(&hits)
 	if err != nil {
@@ -89,7 +89,8 @@ func (handler *Handler) Search(query *base.SearchQuery) (*base.SearchResult, err
 	searchResult.PageCount = result.NbPages
 	searchResult.Result = []base.SearchResultItem{}
 
-	for _, hit := range hits {
+	for _, rawHit := range hits {
+		hit := handler.service.convertToSearchHit(&rawHit)
 		parts := strings.Split(hit.ID, "-")
 		model := parts[0]
 		id, err := strconv.ParseInt(parts[1], 0, 64)

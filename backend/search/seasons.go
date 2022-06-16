@@ -52,9 +52,12 @@ func mapSeasonToSearchObject(
 		object[updatedAtField] = item.DateUpdated.Time.UTC().Unix()
 	}
 	object[publishedAtField] = item.PublishDate.UTC().Unix()
-	object[titleField], object[descriptionField] = mapTranslationsForSeason(translations)
+	title, description := mapTranslationsForSeason(translations)
+	object.mapFromLocaleString(titleField, title)
+	object.mapFromLocaleString(descriptionField, description)
 	object[showIDField] = item.ShowID
-	object[showTitleField], _ = mapTranslationsForShow(showTs)
+	showTitle, _ := mapTranslationsForShow(showTs)
+	object.mapFromLocaleString(showTitleField, showTitle)
 	if image != nil {
 		object[imageField] = image.GetImageUrl()
 	}
