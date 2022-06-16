@@ -2,7 +2,7 @@ package search
 
 import (
 	"fmt"
-	"gopkg.in/guregu/null.v4"
+	"time"
 )
 
 const (
@@ -42,7 +42,7 @@ func (service *Service) getFields() []string {
 }
 
 func (service *Service) getFunctionalFields() []string {
-	return []string{publishedAtField, createdAtField, updatedAtField, headerField}
+	return []string{createdAtField, updatedAtField, headerField}
 }
 
 func (service *Service) getTextFields() []string {
@@ -50,28 +50,28 @@ func (service *Service) getTextFields() []string {
 }
 
 func (service *Service) getFilterFields() []string {
-	return []string{rolesField, typeField, statusField}
+	return []string{rolesField, typeField, statusField, publishedAtField}
 }
 
 func getUrl(model string, id int) string {
 	return fmt.Sprintf("/%s/%d", model, id)
 }
 
-func largestTime(timeStamps ...null.Time) null.Time {
-	var largest null.Time
+func largestTime(timeStamps ...time.Time) time.Time {
+	var largest time.Time
 	for _, stamp := range timeStamps {
-		if stamp.ValueOrZero().After(largest.ValueOrZero()) {
+		if stamp.After(largest) {
 			largest = stamp
 		}
 	}
 	return largest
 }
 
-func smallestTime(timeStamps ...null.Time) null.Time {
-	var smallest null.Time
+func smallestTime(timeStamps ...time.Time) time.Time {
+	var smallest time.Time
 	for _, stamp := range timeStamps {
-		if value := stamp.ValueOrZero(); !value.IsZero() &&
-			(smallest.IsZero() || value.Before(smallest.ValueOrZero())) {
+		if !stamp.IsZero() &&
+			(smallest.IsZero() || stamp.Before(smallest)) {
 			smallest = stamp
 		}
 	}

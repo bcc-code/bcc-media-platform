@@ -38,9 +38,12 @@ func mapSeasonToSearchObject(
 	object := searchObject{}
 	itemId := int(item.ID)
 	object[statusField] = base.MostRestrictiveStatus(item.Status, show.Status)
+	if roles == nil {
+		roles = []string{}
+	}
 	object[rolesField] = roles
-	object[availableToField] = unixOrZero(smallestTime(item.AvailableTo, show.AvailableTo))
-	object[availableFromField] = unixOrZero(largestTime(item.AvailableFrom, show.AvailableFrom))
+	object[availableToField] = unixOrZero(smallestTime(item.AvailableTo.ValueOrZero(), show.AvailableTo.ValueOrZero()))
+	object[availableFromField] = unixOrZero(largestTime(item.AvailableFrom.ValueOrZero(), show.AvailableFrom.ValueOrZero()))
 	object[idField] = "season-" + strconv.Itoa(itemId)
 	if item.DateCreated.Valid {
 		object[createdAtField] = item.DateCreated.Time.UTC().Unix()
@@ -48,7 +51,7 @@ func mapSeasonToSearchObject(
 	if item.DateUpdated.Valid {
 		object[updatedAtField] = item.DateUpdated.Time.UTC().Unix()
 	}
-	object[publishedAtField] = item.PublishDate.UTC()
+	object[publishedAtField] = item.PublishDate.UTC().Unix()
 	object[titleField], object[descriptionField] = mapTranslationsForSeason(translations)
 	object[showIDField] = item.ShowID
 	object[showTitleField], _ = mapTranslationsForShow(showTs)
@@ -118,8 +121,4 @@ func (service *Service) indexSeason(item sqlc.Season) {
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index season")
 	}
-}
-
-func (service *Service) getSeasonRoles(id int32) {
-
 }
