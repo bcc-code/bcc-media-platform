@@ -45,6 +45,7 @@ func (handler *Handler) Search(query *base.SearchQuery) (*base.SearchResult, err
 	var filters []string
 	filters = append(filters, fmt.Sprintf("%[1]s = 0 OR %[1]s < %[2]d", availableFromField, now))
 	filters = append(filters, fmt.Sprintf("%[1]s = 0 OR %[1]s > %[2]d", availableToField, now))
+	filters = append(filters, fmt.Sprintf("%s:%s", statusField, base.StatusPublished))
 
 	// TODO: use actual roles
 	userRoles := query.Roles

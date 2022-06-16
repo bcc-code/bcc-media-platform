@@ -9,3 +9,7 @@ SELECT * FROM public.seasons_translations;
 
 -- name: GetTranslationsForSeason :many
 SELECT * FROM public.seasons_translations WHERE seasons_id = $1;
+
+-- name: GetRolesForSeason :many
+SELECT DISTINCT usergroups_code FROM public.episodes_usergroups WHERE episodes_id IN
+    (SELECT id FROM public.episodes WHERE season_id = $1);

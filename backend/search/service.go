@@ -25,11 +25,11 @@ func indexObjects(index *search.Index, objects []searchObject) error {
 	return err
 }
 
-func mapToKey[T any](items []T, getRelatedId func(item T) int) map[int][]T {
-	dictionary := map[int][]T{}
+func mapToKey[T any, R comparable](items []T, getKey func(item T) R) map[R][]T {
+	dictionary := map[R][]T{}
 
 	for _, item := range items {
-		relatedId := getRelatedId(item)
+		relatedId := getKey(item)
 		dictionary[relatedId] = append(dictionary[relatedId], item)
 	}
 
@@ -81,8 +81,11 @@ func (service *Service) Reindex() {
 		return
 	}
 
-	log.L.Debug().Msg("Indexing shows")
 	shows, _ := q.GetShows(ctx)
+	showById := lo.Reduce(shows, func(showById map[int32]sqlc.Show, season sqlc.Show, _ int) map[int32]sqlc.Show {
+		showById[season.ID] = season
+		return showById
+	}, map[int32]sqlc.Show{})
 	showThumbnails, _ := q.GetFilesByIds(ctx, lo.Map(lo.Filter(shows, func(i sqlc.Show, _ int) bool {
 		return i.ImageFileID.Valid
 	}), func(i sqlc.Show, _ int) uuid.UUID {
@@ -93,13 +96,15 @@ func (service *Service) Reindex() {
 		return dict
 	}, map[uuid.UUID]sqlc.DirectusFile{})
 	showTs, _ := q.GetShowTranslations(ctx)
-	showTsDict := mapToKey(showTs, func(item sqlc.ShowsTranslation) int {
-		return int(item.ShowsID)
+	showTsDict := mapToKey(showTs, func(item sqlc.ShowsTranslation) int32 {
+		return item.ShowsID
 	})
-	indexShows(shows, showThumbnailsById, showTsDict, index)
 
-	log.L.Debug().Msg("Indexing seasons")
 	seasons, _ := q.GetSeasons(ctx)
+	seasonById := lo.Reduce(seasons, func(seasonById map[int32]sqlc.Season, season sqlc.Season, _ int) map[int32]sqlc.Season {
+		seasonById[season.ID] = season
+		return seasonById
+	}, map[int32]sqlc.Season{})
 	seasonThumbnails, _ := q.GetFilesByIds(ctx, lo.Map(lo.Filter(seasons, func(i sqlc.Season, _ int) bool {
 		return i.ImageFileID.Valid
 	}), func(i sqlc.Season, _ int) uuid.UUID {
@@ -110,19 +115,15 @@ func (service *Service) Reindex() {
 		return dict
 	}, map[uuid.UUID]sqlc.DirectusFile{})
 	seasonTs, _ := q.GetSeasonTranslations(ctx)
-	seasonTsDict := mapToKey(seasonTs, func(item sqlc.SeasonsTranslation) int {
-		return int(item.SeasonsID)
+	seasonTsDict := mapToKey(seasonTs, func(item sqlc.SeasonsTranslation) int32 {
+		return item.SeasonsID
 	})
-	indexSeasons(seasons, seasonThumbnailsById, seasonTsDict, showTsDict, index)
 
-	log.L.Debug().Msg("Indexing episodes")
 	episodes, _ := q.GetEpisodes(ctx)
-	roles, _ := q.GetEpisodeRoles(ctx)
-	rolesDict := lo.Reduce(roles, func(dict map[int][]string, role sqlc.EpisodesUsergroup, _ int) map[int][]string {
-		episodeId := int(role.EpisodesID)
-		dict[episodeId] = append(dict[episodeId], role.UsergroupsCode)
-		return dict
-	}, map[int][]string{})
+	episodeById := lo.Reduce(episodes, func(episodeById map[int32]sqlc.Episode, episode sqlc.Episode, _ int) map[int32]sqlc.Episode {
+		episodeById[episode.ID] = episode
+		return episodeById
+	}, map[int32]sqlc.Episode{})
 	episodeThumbnails, _ := q.GetFilesByIds(ctx, lo.Map(lo.Filter(episodes, func(i sqlc.Episode, _ int) bool {
 		return i.ImageFileID.Valid
 	}), func(i sqlc.Episode, _ int) uuid.UUID {
@@ -133,14 +134,36 @@ func (service *Service) Reindex() {
 		return dict
 	}, map[uuid.UUID]sqlc.DirectusFile{})
 	episodeTs, _ := q.GetEpisodeTranslations(ctx)
-	episodeTsDict := mapToKey(episodeTs, func(item sqlc.EpisodesTranslation) int {
-		return int(item.EpisodesID)
+	episodeTsDict := mapToKey(episodeTs, func(item sqlc.EpisodesTranslation) int32 {
+		return item.EpisodesID
 	})
-	seasonById := lo.Reduce(seasons, func(seasonById map[int]sqlc.Season, season sqlc.Season, _ int) map[int]sqlc.Season {
-		seasonById[int(season.ID)] = season
-		return seasonById
-	}, map[int]sqlc.Season{})
-	indexEpisodes(episodes, rolesDict, episodeThumbnailsById, episodeTsDict, seasonById, seasonTsDict, showTsDict, index)
+
+	// ROLES
+	episodeRoles, _ := q.GetEpisodeRoles(ctx)
+	episodeRolesDict := lo.Reduce(episodeRoles, func(dict map[int32][]string, role sqlc.EpisodesUsergroup, _ int) map[int32][]string {
+		episodeId := role.EpisodesID
+		dict[episodeId] = append(dict[episodeId], role.UsergroupsCode)
+		return dict
+	}, map[int32][]string{})
+	var seasonRolesDict = map[int32][]string{}
+	for episodeId, roles := range episodeRolesDict {
+		episode := episodeById[episodeId]
+		if episode.SeasonID.Valid {
+			seasonId := int32(episode.SeasonID.ValueOrZero())
+			seasonRolesDict[seasonId] = lo.Uniq(append(seasonRolesDict[seasonId], roles...))
+		}
+	}
+	var showRolesDict = map[int32][]string{}
+	for seasonId, roles := range seasonRolesDict {
+		season := seasonById[seasonId]
+		showRolesDict[season.ShowID] = lo.Uniq(append(showRolesDict[season.ShowID], roles...))
+	}
+	log.L.Debug().Msg("Indexing shows")
+	indexShows(shows, showRolesDict, showThumbnailsById, showTsDict, index)
+	log.L.Debug().Msg("Indexing seasons")
+	indexSeasons(seasons, seasonRolesDict, seasonThumbnailsById, seasonTsDict, showById, showTsDict, index)
+	log.L.Debug().Msg("Indexing episodes")
+	indexEpisodes(episodes, episodeRolesDict, episodeThumbnailsById, episodeTsDict, seasonById, seasonTsDict, showById, showTsDict, index)
 }
 
 func (service *Service) DeleteObject(item interface{}) {

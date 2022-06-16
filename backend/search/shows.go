@@ -27,12 +27,15 @@ func mapTranslationsForShow(translations []sqlc.ShowsTranslation) (title localeS
 
 func mapShowToSearchObject(
 	item sqlc.Show,
+	roles []string,
 	image *sqlc.DirectusFile,
 	translations []sqlc.ShowsTranslation,
 ) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
 	object[idField] = "show-" + strconv.Itoa(itemId)
+	object[statusField] = item.Status
+	object[rolesField] = roles
 	if item.DateCreated.Valid {
 		object[createdAtField] = item.DateCreated.Time.UTC().Unix()
 	}
@@ -49,17 +52,18 @@ func mapShowToSearchObject(
 
 func indexShows(
 	items []sqlc.Show,
+	roleDict map[int32][]string,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
-	tDict map[int][]sqlc.ShowsTranslation,
+	tDict map[int32][]sqlc.ShowsTranslation,
 	index *search.Index,
 ) {
 	objects := lo.Map(items, func(item sqlc.Show, _ int) searchObject {
-		var thumbnail *sqlc.DirectusFile
+		var image *sqlc.DirectusFile
 		if item.ImageFileID.Valid {
-			thumbnailResult := imageDict[item.ImageFileID.UUID]
-			thumbnail = &thumbnailResult
+			imageResult := imageDict[item.ImageFileID.UUID]
+			image = &imageResult
 		}
-		return mapShowToSearchObject(item, thumbnail, tDict[int(item.ID)])
+		return mapShowToSearchObject(item, roleDict[item.ID], image, tDict[item.ID])
 	})
 
 	err := indexObjects(index, objects)
@@ -80,8 +84,14 @@ func (service *Service) indexShow(item sqlc.Show) {
 	translations, err := service.queries.GetTranslationsForShow(ctx, item.ID)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to retrieve translations for season")
+		return
 	}
-	_, err = service.index.SaveObject(mapShowToSearchObject(item, thumbnail, translations))
+	roles, err := service.queries.GetRolesForShow(ctx, item.ID)
+	if err != nil {
+		log.L.Error().Err(err)
+		return
+	}
+	_, err = service.index.SaveObject(mapShowToSearchObject(item, roles, thumbnail, translations))
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index season")
 	}

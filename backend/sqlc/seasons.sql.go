@@ -7,7 +7,37 @@ package sqlc
 
 import (
 	"context"
+
+	null_v4 "gopkg.in/guregu/null.v4"
 )
+
+const getRolesForSeason = `-- name: GetRolesForSeason :many
+SELECT DISTINCT usergroups_code FROM public.episodes_usergroups WHERE episodes_id IN
+    (SELECT id FROM public.episodes WHERE season_id = $1)
+`
+
+func (q *Queries) GetRolesForSeason(ctx context.Context, seasonID null_v4.Int) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getRolesForSeason, seasonID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var usergroups_code string
+		if err := rows.Scan(&usergroups_code); err != nil {
+			return nil, err
+		}
+		items = append(items, usergroups_code)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const getSeason = `-- name: GetSeason :one
 SELECT agerating_code, available_from, available_to, date_created, date_updated, id, image_file_id, legacy_description_id, legacy_id, legacy_title_id, publish_date, season_number, show_id, status, user_created, user_updated FROM public.seasons WHERE id = $1
