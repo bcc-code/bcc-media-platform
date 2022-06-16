@@ -69,7 +69,15 @@ func searchHandler(client base.ISearchService) func(*gin.Context) {
 			log.L.Error().Err(err)
 		}
 		searchHandler := client.GetHandler("not a user but its a user")
-		r, _ := searchHandler.Search(&query)
+		r, err := searchHandler.Search(&query)
+
+		if err != nil {
+			log.L.Error().Err(err).Msg("Searching failed")
+			c.JSON(500, map[string]string{
+				"error": "search failed",
+			})
+			return
+		}
 
 		c.JSON(200, r)
 	}

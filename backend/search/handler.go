@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/bcc-code/brunstadtv/backend/base"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
 	"strconv"
 	"strings"
@@ -71,6 +72,7 @@ func (handler *Handler) Search(query *base.SearchQuery) (*base.SearchResult, err
 		opt.AttributesToHighlight(handler.service.getTextFields()...),
 	)
 	if err != nil {
+		log.L.Error().Err(err).Msg("Search failed")
 		return nil, err
 	}
 	var searchResult base.SearchResult
@@ -78,6 +80,7 @@ func (handler *Handler) Search(query *base.SearchQuery) (*base.SearchResult, err
 
 	err = result.UnmarshalHits(&hits)
 	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to unmarshal hits")
 		return nil, err
 	}
 
@@ -89,7 +92,11 @@ func (handler *Handler) Search(query *base.SearchQuery) (*base.SearchResult, err
 	for _, hit := range hits {
 		parts := strings.Split(hit.ID, "-")
 		model := parts[0]
-		id, _ := strconv.ParseInt(parts[1], 0, 64)
+		id, err := strconv.ParseInt(parts[1], 0, 64)
+		if err != nil {
+			log.L.Error().Err(err).Msg("Failed to parse int")
+			return nil, err
+		}
 
 		if hasAccess(handler.user, model, int(id)) {
 			item := base.SearchResultItem{
