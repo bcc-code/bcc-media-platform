@@ -39,6 +39,8 @@ func mapShowToSearchObject(
 		roles = []string{}
 	}
 	object[rolesField] = roles
+	object[availableToField] = unixOrZero(item.AvailableTo.ValueOrZero())
+	object[availableFromField] = unixOrZero(item.AvailableFrom.ValueOrZero())
 	if item.DateCreated.Valid {
 		object[createdAtField] = item.DateCreated.Time.UTC().Unix()
 	}
@@ -46,7 +48,9 @@ func mapShowToSearchObject(
 		object[updatedAtField] = item.DateUpdated.Time.UTC().Unix()
 	}
 	object[publishedAtField] = item.PublishDate.UTC().Unix()
-	object[titleField], object[descriptionField] = mapTranslationsForShow(translations)
+	title, description := mapTranslationsForShow(translations)
+	object.mapFromLocaleString(titleField, title)
+	object.mapFromLocaleString(descriptionField, description)
 	if image != nil {
 		object[imageField] = image.GetImageUrl()
 	}

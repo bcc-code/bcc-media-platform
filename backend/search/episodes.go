@@ -88,7 +88,9 @@ func mapEpisodeToSearchObject(
 		object[updatedAtField] = item.DateUpdated.Time.UTC().Unix()
 	}
 	object[publishedAtField] = item.PublishDate.UTC().Unix()
-	object[titleField], object[descriptionField] = mapTranslationsForEpisode(translations)
+	title, description := mapTranslationsForEpisode(translations)
+	object.mapFromLocaleString(titleField, title)
+	object.mapFromLocaleString(descriptionField, description)
 
 	if image != nil {
 		object[imageField] = image.GetImageUrl()
@@ -98,9 +100,11 @@ func mapEpisodeToSearchObject(
 			object[headerField] = fmt.Sprintf("S%d:E%d", season.SeasonNumber, value)
 		}
 		object[seasonIDField] = season.ID
-		object[seasonTitleField], _ = mapTranslationsForSeason(seasonTs)
+		seasonTitle, _ := mapTranslationsForSeason(seasonTs)
+		object.mapFromLocaleString(seasonTitleField, seasonTitle)
 		object[showIDField] = season.ShowID
-		object[showTitleField], _ = mapTranslationsForShow(showTs)
+		showTitle, _ := mapTranslationsForShow(showTs)
+		object.mapFromLocaleString(showTitleField, showTitle)
 	}
 	return object
 }

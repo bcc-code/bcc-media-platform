@@ -163,6 +163,8 @@ func main() {
 	// What about auth?
 	r.GET("/", playgroundHandler())
 
+	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
+
 	// Hooks and scheduling for search indexing
 	searchService := search.New(config.Algolia.AppId, config.Algolia.ApiKey, db)
 	if config.SchedulerSecret != "" {
@@ -179,8 +181,6 @@ func main() {
 		log.L.Debug().Msg("Missing secret for webhooks from Directus, skipping endpoint configuration")
 	}
 	r.POST("/search/query", searchHandler(&searchService))
-
-	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
 	span.End()
 
