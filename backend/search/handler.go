@@ -42,19 +42,31 @@ func hasAccess(user any, model string, id int) bool {
 
 func (handler *Handler) Search(query *base.SearchQuery) (*base.SearchResult, error) {
 	now := time.Now().Unix()
-	var filters []string
-	filters = append(filters, fmt.Sprintf("%[1]s = 0 OR %[1]s < %[2]d", availableFromField, now))
-	filters = append(filters, fmt.Sprintf("%[1]s = 0 OR %[1]s > %[2]d", availableToField, now))
-	filters = append(filters, fmt.Sprintf("%s:%s", statusField, base.StatusPublished))
+	var filters = []string{
+		fmt.Sprintf("%s < %d", publishedAtField, now),
+		fmt.Sprintf("%[1]s = 0 OR %[1]s < %[2]d", availableFromField, now),
+		fmt.Sprintf("%[1]s = 0 OR %[1]s > %[2]d", availableToField, now),
+		fmt.Sprintf("%s:%s", statusField, base.StatusPublished),
+	}
 
 	// TODO: use actual roles
 	userRoles := query.Roles
-	filters = append(filters, "("+strings.Join(lo.Map(userRoles, func(role string, _ int) string {
-		return fmt.Sprintf("%s:%s", rolesField, role)
-	}), " OR ")+")")
+
+	if len(userRoles) > 0 {
+		filters = append(filters, strings.Join(lo.Map(userRoles, func(role string, _ int) string {
+			return fmt.Sprintf("%s:%s", rolesField, role)
+		}), " OR "))
+	} else {
+		// No roles == no permissions == no results
+		return &base.SearchResult{
+			Result: []base.SearchResultItem{},
+		}, nil
+	}
+
+	filterString := "(" + strings.Join(filters, ") AND (") + ")"
 
 	result, err := handler.service.index.Search(query.Query,
-		opt.Filters(strings.Join(filters, " AND ")),
+		opt.Filters(filterString),
 		opt.Page(query.Page),
 		opt.AttributesToHighlight(handler.service.getTextFields()...),
 	)

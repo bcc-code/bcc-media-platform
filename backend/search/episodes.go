@@ -9,8 +9,8 @@ import (
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"gopkg.in/guregu/null.v4"
 	"strconv"
+	"time"
 )
 
 func mapTranslationsForEpisode(translations []sqlc.EpisodesTranslation) (title map[string]string, description map[string]string) {
@@ -35,9 +35,9 @@ func mapTranslationsForEpisode(translations []sqlc.EpisodesTranslation) (title m
 	return title, description
 }
 
-func unixOrZero(timeStamp null.Time) int64 {
+func unixOrZero(timeStamp time.Time) int64 {
 	if !timeStamp.IsZero() {
-		return timeStamp.ValueOrZero().Unix()
+		return timeStamp.Unix()
 	}
 	return 0
 }
@@ -56,15 +56,30 @@ func mapEpisodeToSearchObject(
 	itemId := int(item.ID)
 	object[idField] = "episode-" + strconv.Itoa(itemId)
 	object[typeField] = item.Type
+	if roles == nil {
+		roles = []string{}
+	}
 	object[rolesField] = roles
 	if season != nil {
 		object[statusField] = base.MostRestrictiveStatus(item.Status, season.Status, show.Status)
-		object[availableToField] = unixOrZero(smallestTime(item.AvailableTo, season.AvailableTo, show.AvailableTo))
-		object[availableFromField] = unixOrZero(largestTime(item.AvailableFrom, season.AvailableFrom, show.AvailableFrom))
+		object[availableToField] = unixOrZero(
+			smallestTime(
+				item.AvailableTo.ValueOrZero(),
+				season.AvailableTo.ValueOrZero(),
+				show.AvailableTo.ValueOrZero(),
+			),
+		)
+		object[availableFromField] = unixOrZero(
+			largestTime(
+				item.AvailableFrom.ValueOrZero(),
+				season.AvailableFrom.ValueOrZero(),
+				show.AvailableFrom.ValueOrZero(),
+			),
+		)
 	} else {
 		object[statusField] = item.Status
-		object[availableToField] = unixOrZero(item.AvailableTo)
-		object[availableFromField] = unixOrZero(item.AvailableFrom)
+		object[availableToField] = unixOrZero(item.AvailableTo.ValueOrZero())
+		object[availableFromField] = unixOrZero(item.AvailableFrom.ValueOrZero())
 	}
 	if item.DateCreated.Valid {
 		object[createdAtField] = item.DateCreated.Time.UTC().Unix()
@@ -72,7 +87,7 @@ func mapEpisodeToSearchObject(
 	if item.DateUpdated.Valid {
 		object[updatedAtField] = item.DateUpdated.Time.UTC().Unix()
 	}
-	object[publishedAtField] = item.PublishDate.UTC()
+	object[publishedAtField] = item.PublishDate.UTC().Unix()
 	object[titleField], object[descriptionField] = mapTranslationsForEpisode(translations)
 
 	if image != nil {
