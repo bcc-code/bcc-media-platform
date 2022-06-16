@@ -2,10 +2,12 @@ package search
 
 import (
 	"fmt"
+	"gopkg.in/guregu/null.v4"
 )
 
 const (
 	idField            = "objectID"
+	statusField        = "status"
 	typeField          = "type"
 	rolesField         = "roles"
 	imageField         = "image"
@@ -48,9 +50,30 @@ func (service *Service) getTextFields() []string {
 }
 
 func (service *Service) getFilterFields() []string {
-	return []string{rolesField}
+	return []string{rolesField, typeField, statusField}
 }
 
 func getUrl(model string, id int) string {
 	return fmt.Sprintf("/%s/%d", model, id)
+}
+
+func largestTime(timeStamps ...null.Time) null.Time {
+	var largest null.Time
+	for _, stamp := range timeStamps {
+		if stamp.ValueOrZero().After(largest.ValueOrZero()) {
+			largest = stamp
+		}
+	}
+	return largest
+}
+
+func smallestTime(timeStamps ...null.Time) null.Time {
+	var smallest null.Time
+	for _, stamp := range timeStamps {
+		if value := stamp.ValueOrZero(); !value.IsZero() &&
+			(smallest.IsZero() || value.Before(smallest.ValueOrZero())) {
+			smallest = stamp
+		}
+	}
+	return smallest
 }

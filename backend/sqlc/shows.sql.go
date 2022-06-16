@@ -9,6 +9,35 @@ import (
 	"context"
 )
 
+const getRolesForShow = `-- name: GetRolesForShow :many
+SELECT DISTINCT usergroups_code FROM episodes_usergroups WHERE episodes_id IN
+    (SELECT id FROM episodes WHERE season_id IN
+    (SELECT id FROM seasons WHERE show_id = $1))
+`
+
+func (q *Queries) GetRolesForShow(ctx context.Context, showID int32) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getRolesForShow, showID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var usergroups_code string
+		if err := rows.Scan(&usergroups_code); err != nil {
+			return nil, err
+		}
+		items = append(items, usergroups_code)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getShow = `-- name: GetShow :one
 SELECT agerating_code, available_from, available_to, date_created, date_updated, id, image_file_id, legacy_description_id, legacy_id, legacy_title_id, publish_date, status, type, user_created, user_updated FROM shows WHERE id = $1
 `
