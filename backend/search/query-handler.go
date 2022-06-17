@@ -36,11 +36,6 @@ type searchHit struct {
 	HighlightResult map[string]interface{} `json:"_highlightResult"`
 }
 
-// TODO: implement permission checking
-func hasAccess(user any, model string, id int) bool {
-	return true
-}
-
 func (h *QueryHandler) Search(query *base.SearchQuery) (*base.SearchResult, error) {
 	now := time.Now().Unix()
 	var filters = []string{
@@ -99,55 +94,58 @@ func (h *QueryHandler) Search(query *base.SearchQuery) (*base.SearchResult, erro
 			return nil, err
 		}
 
-		if hasAccess(h.user, model, int(id)) {
-			item := base.SearchResultItem{
-				Id:    int(id),
-				Model: model,
-			}
+		// TODO: Implement permission checking here as well
+		//if !hasAccess() {
+		//	continue
+		//}
 
-			for _, opts := range hit.HighlightResult {
-				values := opts.(map[string]interface{})
-				if matchLevel := values["matchLevel"]; matchLevel != nil && matchLevel != "none" {
-					value := values["value"].(string)
-					if item.Highlight != nil {
-						str := *item.Highlight + "\n" + value
-						item.Highlight = &str
-					} else {
-						item.Highlight = &value
-					}
+		item := base.SearchResultItem{
+			Id:    int(id),
+			Model: model,
+		}
+
+		for _, opts := range hit.HighlightResult {
+			values := opts.(map[string]interface{})
+			if matchLevel := values["matchLevel"]; matchLevel != nil && matchLevel != "none" {
+				value := values["value"].(string)
+				if item.Highlight != nil {
+					str := *item.Highlight + "\n" + value
+					item.Highlight = &str
+				} else {
+					item.Highlight = &value
 				}
 			}
-
-			if value := hit.Title.get(defaultLanguage); value != "" {
-				item.Title = value
-			}
-			if value := hit.Description.get(defaultLanguage); value != "" {
-				item.Description = &value
-			}
-			if value := hit.Header; value != "" {
-				item.Header = &value
-			}
-			if value := hit.ShowID; value != 0 {
-				item.ShowID = &value
-			}
-			if value := hit.ShowTitle.get(defaultLanguage); value != "" {
-				item.Show = &value
-			}
-			if value := hit.SeasonID; value != 0 {
-				item.SeasonID = &value
-			}
-			if value := hit.SeasonTitle.get(defaultLanguage); value != "" {
-				item.Season = &value
-			}
-
-			item.Url = getUrl(model, int(id))
-			if value := hit.Image; value != "" {
-				item.Image = &value
-			}
-
-			searchResult.ResultCount++
-			searchResult.Result = append(searchResult.Result, item)
 		}
+
+		if value := hit.Title.get(defaultLanguage); value != "" {
+			item.Title = value
+		}
+		if value := hit.Description.get(defaultLanguage); value != "" {
+			item.Description = &value
+		}
+		if value := hit.Header; value != "" {
+			item.Header = &value
+		}
+		if value := hit.ShowID; value != 0 {
+			item.ShowID = &value
+		}
+		if value := hit.ShowTitle.get(defaultLanguage); value != "" {
+			item.Show = &value
+		}
+		if value := hit.SeasonID; value != 0 {
+			item.SeasonID = &value
+		}
+		if value := hit.SeasonTitle.get(defaultLanguage); value != "" {
+			item.Season = &value
+		}
+
+		item.Url = getUrl(model, int(id))
+		if value := hit.Image; value != "" {
+			item.Image = &value
+		}
+
+		searchResult.ResultCount++
+		searchResult.Result = append(searchResult.Result, item)
 	}
 
 	return &searchResult, nil
