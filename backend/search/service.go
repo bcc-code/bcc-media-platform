@@ -59,7 +59,6 @@ func (service *Service) Reindex() {
 	q := service.queries
 	index := service.index
 
-	// TODO: Should probably just delete individual documents when they are removed from database.
 	_, err := index.ClearObjects()
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to clear objects from index")
