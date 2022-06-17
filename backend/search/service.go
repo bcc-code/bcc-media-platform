@@ -170,16 +170,16 @@ func (service *Service) Reindex() {
 func (service *Service) DeleteObject(item interface{}) {
 	var m string
 	var id int
-	switch item.(type) {
+	switch v := item.(type) {
 	case sqlc.Episode:
 		m = "episode"
-		id = int(item.(sqlc.Episode).ID)
+		id = int(v.ID)
 	case sqlc.Season:
 		m = "season"
-		id = int(item.(sqlc.Season).ID)
+		id = int(v.ID)
 	case sqlc.Show:
 		m = "show"
-		id = int(item.(sqlc.Show).ID)
+		id = int(v.ID)
 	default:
 		log.L.Error().Msg("Unknown type")
 		return
@@ -195,13 +195,13 @@ func (service *Service) DeleteModel(model string, id int) {
 }
 
 func (service *Service) IndexObject(item interface{}) {
-	switch item.(type) {
+	switch v := item.(type) {
 	case sqlc.Episode:
-		service.indexEpisode(item.(sqlc.Episode))
+		service.indexEpisode(v)
 	case sqlc.Show:
-		service.indexShow(item.(sqlc.Show))
+		service.indexShow(v)
 	case sqlc.Season:
-		service.indexSeason(item.(sqlc.Season))
+		service.indexSeason(v)
 	default:
 		log.L.Error().Msg("Couldn't index object")
 	}
