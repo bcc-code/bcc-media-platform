@@ -28,7 +28,6 @@ const (
 	seasonTitleField   = "seasonTitle"
 )
 
-// TODO: move this to a global parameter
 const defaultLanguage = "no"
 
 type localeString map[string]string

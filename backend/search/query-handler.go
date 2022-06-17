@@ -36,27 +36,37 @@ type searchHit struct {
 	HighlightResult map[string]interface{} `json:"_highlightResult"`
 }
 
+// TODO: Get user roles
+func getUserRoles() []string {
+	return []string{"test-group-1"}
+}
+
+// TODO: Get user default language
+func getUserLanguage() string {
+	return defaultLanguage
+}
+
 func (h *QueryHandler) Search(query *base.SearchQuery) (*base.SearchResult, error) {
 	now := time.Now().Unix()
-	var filters = []string{
-		fmt.Sprintf("%s < %d", publishedAtField, now),
-		fmt.Sprintf("%[1]s = 0 OR %[1]s < %[2]d", availableFromField, now),
-		fmt.Sprintf("%[1]s = 0 OR %[1]s > %[2]d", availableToField, now),
-		fmt.Sprintf("%s:%s", statusField, base.StatusPublished),
-	}
 
-	// TODO: use actual roles
-	userRoles := query.Roles
+	userRoles := getUserRoles()
+	language := getUserLanguage()
 
-	if len(userRoles) > 0 {
-		filters = append(filters, strings.Join(lo.Map(userRoles, func(role string, _ int) string {
-			return fmt.Sprintf("%s:%s", rolesField, role)
-		}), " OR "))
-	} else {
+	if len(userRoles) == 0 {
 		// No roles == no permissions == no results
 		return &base.SearchResult{
 			Result: []base.SearchResultItem{},
 		}, nil
+	}
+
+	var filters = []string{
+		strings.Join(lo.Map(userRoles, func(role string, _ int) string {
+			return fmt.Sprintf("%s:%s", rolesField, role)
+		}), " OR "),
+		fmt.Sprintf("%s < %d", publishedAtField, now),
+		fmt.Sprintf("%[1]s = 0 OR %[1]s < %[2]d", availableFromField, now),
+		fmt.Sprintf("%[1]s = 0 OR %[1]s > %[2]d", availableToField, now),
+		fmt.Sprintf("%s:%s", statusField, base.StatusPublished),
 	}
 
 	filterString := "(" + strings.Join(filters, ") AND (") + ")"
@@ -117,10 +127,10 @@ func (h *QueryHandler) Search(query *base.SearchQuery) (*base.SearchResult, erro
 			}
 		}
 
-		if value := hit.Title.get(defaultLanguage); value != "" {
+		if value := hit.Title.get(language); value != "" {
 			item.Title = value
 		}
-		if value := hit.Description.get(defaultLanguage); value != "" {
+		if value := hit.Description.get(language); value != "" {
 			item.Description = &value
 		}
 		if value := hit.Header; value != "" {
@@ -129,13 +139,13 @@ func (h *QueryHandler) Search(query *base.SearchQuery) (*base.SearchResult, erro
 		if value := hit.ShowID; value != 0 {
 			item.ShowID = &value
 		}
-		if value := hit.ShowTitle.get(defaultLanguage); value != "" {
+		if value := hit.ShowTitle.get(language); value != "" {
 			item.Show = &value
 		}
 		if value := hit.SeasonID; value != 0 {
 			item.SeasonID = &value
 		}
-		if value := hit.SeasonTitle.get(defaultLanguage); value != "" {
+		if value := hit.SeasonTitle.get(language); value != "" {
 			item.Season = &value
 		}
 
