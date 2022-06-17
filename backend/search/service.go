@@ -39,18 +39,16 @@ func mapToKey[T any, R comparable](items []T, getKey func(item T) R) map[R][]T {
 
 type Service struct {
 	algoliaClient *search.Client
-	db            *sql.DB
 	index         *search.Index
 	queries       *sqlc.Queries
 }
 
 func New(algoliaAppId string, algoliaApiKey string, db *sql.DB) Service {
 	service := Service{
-		db:            db,
 		algoliaClient: search.NewClient(algoliaAppId, algoliaApiKey),
 	}
 	service.index = service.algoliaClient.InitIndex(indexName)
-	service.queries = sqlc.New(service.db)
+	service.queries = sqlc.New(db)
 	return service
 }
 
@@ -65,10 +63,9 @@ func (service *Service) Reindex() {
 		return
 	}
 
-	languages, _ := q.GetLanguageKeys(ctx)
-
 	// Makes it possible to filter in query, which fields you are searching on
 	// Also configures hits per page
+	languages := service.getLanguageKeys()
 	_, err = index.SetSettings(search.Settings{
 		IndexLanguages:        opt.IndexLanguages(languages...),
 		QueryLanguages:        opt.QueryLanguages(languages...),
