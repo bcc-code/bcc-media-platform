@@ -1,5 +1,11 @@
 package base
 
+const (
+	StatusPublished = "published"
+	StatusDraft     = "draft"
+	StatusArchived  = "archived"
+)
+
 var statusWeight = map[string]int{
 	StatusArchived:  3,
 	StatusDraft:     2,
