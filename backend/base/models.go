@@ -8,8 +8,8 @@ type SearchQuery struct {
 }
 
 type SearchResult struct {
-	Result      []SearchResultItem `json:"result"`
 	ResultCount int                `json:"resultCount"`
+	Result      []SearchResultItem `json:"result"`
 	HitCount    int                `json:"hitCount"`
 	Page        int                `json:"page"`
 	PageCount   int                `json:"pageCount"`
@@ -21,6 +21,10 @@ type SearchResultItem struct {
 	Title       string  `json:"title"`
 	Header      *string `json:"header"`
 	Description *string `json:"description"`
+	ShowID      *int    `json:"showId,omitempty"`
+	Show        *string `json:"show,omitempty"`
+	SeasonID    *int    `json:"seasonId,omitempty"`
+	Season      *string `json:"season,omitempty"`
 	Highlight   *string `json:"highlight"`
 	Image       *string `json:"thumbnail"`
 	Url         string  `json:"url"`

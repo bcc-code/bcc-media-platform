@@ -11,13 +11,13 @@ import (
 	"time"
 )
 
-type Handler struct {
+type QueryHandler struct {
 	user    any
 	service *Service
 }
 
-func (service *Service) GetHandler(user any) base.ISearchHandler {
-	return &Handler{
+func (service *Service) GetQueryHandler(user any) base.ISearchQueryHandler {
+	return &QueryHandler{
 		user:    user,
 		service: service,
 	}
@@ -41,7 +41,7 @@ func hasAccess(user any, model string, id int) bool {
 	return true
 }
 
-func (handler *Handler) Search(query *base.SearchQuery) (*base.SearchResult, error) {
+func (h *QueryHandler) Search(query *base.SearchQuery) (*base.SearchResult, error) {
 	now := time.Now().Unix()
 	var filters = []string{
 		fmt.Sprintf("%s < %d", publishedAtField, now),
@@ -66,10 +66,10 @@ func (handler *Handler) Search(query *base.SearchQuery) (*base.SearchResult, err
 
 	filterString := "(" + strings.Join(filters, ") AND (") + ")"
 
-	result, err := handler.service.index.Search(query.Query,
+	result, err := h.service.index.Search(query.Query,
 		opt.Filters(filterString),
 		opt.Page(query.Page),
-		opt.AttributesToHighlight(handler.service.getTextFields()...),
+		opt.AttributesToHighlight(h.service.getTextFields()...),
 	)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Search failed")
@@ -90,7 +90,7 @@ func (handler *Handler) Search(query *base.SearchQuery) (*base.SearchResult, err
 	searchResult.Result = []base.SearchResultItem{}
 
 	for _, rawHit := range hits {
-		hit := handler.service.convertToSearchHit(&rawHit)
+		hit := h.service.convertToSearchHit(&rawHit)
 		parts := strings.Split(hit.ID, "-")
 		model := parts[0]
 		id, err := strconv.ParseInt(parts[1], 0, 64)
@@ -99,7 +99,7 @@ func (handler *Handler) Search(query *base.SearchQuery) (*base.SearchResult, err
 			return nil, err
 		}
 
-		if hasAccess(handler.user, model, int(id)) {
+		if hasAccess(h.user, model, int(id)) {
 			item := base.SearchResultItem{
 				Id:    int(id),
 				Model: model,
@@ -126,6 +126,18 @@ func (handler *Handler) Search(query *base.SearchQuery) (*base.SearchResult, err
 			}
 			if value := hit.Header; value != "" {
 				item.Header = &value
+			}
+			if value := hit.ShowID; value != 0 {
+				item.ShowID = &value
+			}
+			if value := hit.ShowTitle.get(defaultLanguage); value != "" {
+				item.Show = &value
+			}
+			if value := hit.SeasonID; value != 0 {
+				item.SeasonID = &value
+			}
+			if value := hit.SeasonTitle.get(defaultLanguage); value != "" {
+				item.Season = &value
 			}
 
 			item.Url = getUrl(model, int(id))

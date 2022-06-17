@@ -7,8 +7,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
-	"github.com/bcc-code/brunstadtv/backend/base"
-	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	"github.com/bcc-code/brunstadtv/backend/search"
@@ -47,42 +45,6 @@ func playgroundHandler() gin.HandlerFunc {
 	}
 }
 
-func indexHandler(apiKey string, client base.ISearchService) func(*gin.Context) {
-	return func(c *gin.Context) {
-		err := authenticateRequestWithXApiKey(apiKey, c)
-		if err != nil {
-			log.L.Error().Err(err).Msg("Failed to authenticate request")
-			return
-		}
-		client.Reindex()
-		_, _ = c.Writer.WriteString("Indexed all documents")
-	}
-}
-
-func searchHandler(client base.ISearchService) func(*gin.Context) {
-	return func(c *gin.Context) {
-		var query base.SearchQuery
-		// define default options
-		query.Page = 0
-		err := c.BindJSON(&query)
-		if err != nil {
-			log.L.Error().Err(err)
-		}
-		searchHandler := client.GetHandler("not a user but its a user")
-		r, err := searchHandler.Search(&query)
-
-		if err != nil {
-			log.L.Error().Err(err).Msg("Searching failed")
-			c.JSON(500, map[string]string{
-				"error": "search failed",
-			})
-			return
-		}
-
-		c.JSON(200, r)
-	}
-}
-
 func authenticateRequestWithXApiKey(apiKey string, c *gin.Context) error {
 	a := c.Request.Header.Get("X-API-Key")
 	if a == apiKey {
@@ -100,25 +62,6 @@ func authenticateRequestWithXApiKey(apiKey string, c *gin.Context) error {
 	_, _ = c.Writer.WriteString("Unauthorized")
 
 	return err
-}
-
-func directusEventHandler(apiKey string, searchService base.ISearchService) func(c *gin.Context) {
-	eventHandler := directus.NewEventHandler()
-
-	indexEvents := []string{directus.EventItemsCreate, directus.EventItemsUpdate}
-	eventHandler.On(indexEvents, searchService.IndexModel)
-
-	deleteEvents := []string{directus.EventItemsDelete}
-	eventHandler.On(deleteEvents, searchService.DeleteModel)
-
-	return func(c *gin.Context) {
-		err := authenticateRequestWithXApiKey(apiKey, c)
-		if err != nil {
-			log.L.Error().Err(err).Msg("Failed to authenticate")
-			return
-		}
-		eventHandler.Execute(c)
-	}
 }
 
 func main() {
@@ -165,22 +108,8 @@ func main() {
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
-	// Hooks and scheduling for search indexing
 	searchService := search.New(config.Algolia.AppId, config.Algolia.ApiKey, db)
-	if config.SchedulerSecret != "" {
-		log.L.Debug().Msg("Setting up endpoint for scheduled search indexing")
-		r.GET("/search/index", indexHandler(config.SchedulerSecret, &searchService))
-	} else {
-		log.L.Debug().Msg("Missing secret for scheduler endpoint, skipping endpoint configuration")
-	}
-
-	if config.DirectusSecret != "" {
-		log.L.Debug().Msg("Setting up endpoint for webhooks from Directus")
-		r.POST("/directus/webhook", directusEventHandler(config.DirectusSecret, &searchService))
-	} else {
-		log.L.Debug().Msg("Missing secret for webhooks from Directus, skipping endpoint configuration")
-	}
-	r.POST("/search/query", searchHandler(&searchService))
+	configureSearchEndpoints(r, config, &searchService)
 
 	span.End()
 

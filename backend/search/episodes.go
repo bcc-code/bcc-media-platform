@@ -176,20 +176,7 @@ func (service *Service) indexEpisode(item sqlc.Episode) {
 
 	roles, _ := service.queries.GetRolesForEpisode(ctx, item.ID)
 
-	service.saveEpisode(item, roles, image, ts, season, seasonTs, show, showTs)
-}
-
-func (service *Service) saveEpisode(
-	item sqlc.Episode,
-	roles []string,
-	image *sqlc.DirectusFile,
-	ts []sqlc.EpisodesTranslation,
-	season *sqlc.Season,
-	seasonTs []sqlc.SeasonsTranslation,
-	show *sqlc.Show,
-	showTs []sqlc.ShowsTranslation,
-) {
-	_, err := service.index.SaveObject(mapEpisodeToSearchObject(item, roles, image, ts, season, seasonTs, show, showTs))
+	_, err = service.index.SaveObject(mapEpisodeToSearchObject(item, roles, image, ts, season, seasonTs, show, showTs))
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index season")
 	}

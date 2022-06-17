@@ -6,9 +6,9 @@ type ISearchService interface {
 	DeleteModel(model string, id int)
 	IndexObject(item interface{})
 	IndexModel(model string, id int)
-	GetHandler(user any) ISearchHandler
+	GetQueryHandler(user any) ISearchQueryHandler
 }
 
-type ISearchHandler interface {
+type ISearchQueryHandler interface {
 	Search(query *SearchQuery) (*SearchResult, error)
 }
