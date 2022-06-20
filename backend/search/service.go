@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
@@ -17,6 +18,25 @@ const indexName = "global"
 const hitsPerPage = 20
 
 type searchObject map[string]interface{}
+
+func getCacheKeyForModel(model string, id int32) string {
+	return model + "-" + strconv.Itoa(int(id))
+}
+
+func (object *searchObject) assignVisibility(v common.Visibility) {
+	(*object)[statusField] = v.Status
+	(*object)[publishedAtField] = v.PublishDate
+	if v.AvailableFrom != nil {
+		(*object)[availableFromField] = v.AvailableFrom.Unix()
+	} else {
+		(*object)[availableFromField] = 0
+	}
+	if v.AvailableTo != nil {
+		(*object)[availableToField] = v.AvailableTo.Unix()
+	} else {
+		(*object)[availableToField] = 0
+	}
+}
 
 func indexObjects(index *search.Index, objects []searchObject) error {
 	_, err := index.SaveObjects(objects)
@@ -52,8 +72,21 @@ func New(algoliaAppId string, algoliaApiKey string, db *sql.DB) Service {
 	return service
 }
 
-func (service *Service) Reindex() {
-	ctx := context.Background()
+type RequestHandler struct {
+	service *Service
+	context context.Context
+}
+
+func (service *Service) NewRequestHandler(ctx context.Context) RequestHandler {
+	return RequestHandler{
+		service: service,
+		context: context.WithValue(ctx, visibilityContextKey, map[string]common.Visibility{}),
+	}
+}
+
+func (handler *RequestHandler) Reindex() {
+	ctx := handler.context
+	service := handler.service
 	q := service.queries
 	index := service.index
 
@@ -155,15 +188,26 @@ func (service *Service) Reindex() {
 		season := seasonById[seasonId]
 		showRolesDict[season.ShowID] = lo.Uniq(append(showRolesDict[season.ShowID], roles...))
 	}
+
+	showVisibilitiesResult, err := q.GetVisibilityForShows(ctx)
+	if err != nil {
+		log.L.Error().Err(err).Msg("failed to retrieve show visibilties")
+		return
+	}
+	for _, v := range showVisibilitiesResult {
+		visibility := ctx.Value(visibilityContextKey).(map[string]common.Visibility)
+		visibility[getCacheKeyForModel("show", v.ID)] = v.ToVisibility()
+	}
+
 	log.L.Debug().Msg("Indexing shows")
-	indexShows(shows, showRolesDict, showThumbnailsById, showTsDict, index)
+	handler.indexShows(shows, showRolesDict, showThumbnailsById, showTsDict, index)
 	log.L.Debug().Msg("Indexing seasons")
-	indexSeasons(seasons, seasonRolesDict, seasonThumbnailsById, seasonTsDict, showById, showTsDict, index)
+	handler.indexSeasons(seasons, seasonRolesDict, seasonThumbnailsById, seasonTsDict, showTsDict, index)
 	log.L.Debug().Msg("Indexing episodes")
-	indexEpisodes(episodes, episodeRolesDict, episodeThumbnailsById, episodeTsDict, seasonById, seasonTsDict, showById, showTsDict, index)
+	handler.indexEpisodes(episodes, episodeRolesDict, episodeThumbnailsById, episodeTsDict, seasonById, seasonTsDict, showById, showTsDict, index)
 }
 
-func (service *Service) DeleteObject(item interface{}) {
+func (handler *RequestHandler) DeleteObject(item interface{}) {
 	var m string
 	var id int
 	switch v := item.(type) {
@@ -180,31 +224,32 @@ func (service *Service) DeleteObject(item interface{}) {
 		log.L.Error().Msg("Unknown type")
 		return
 	}
-	service.DeleteModel(m, id)
+	handler.DeleteModel(m, id)
 }
 
-func (service *Service) DeleteModel(model string, id int) {
-	_, err := service.index.DeleteObject(model + "-" + strconv.Itoa(id))
+func (handler *RequestHandler) DeleteModel(model string, id int) {
+	_, err := handler.service.index.DeleteObject(model + "-" + strconv.Itoa(id))
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to delete model")
 	}
 }
 
-func (service *Service) IndexObject(item interface{}) {
+func (handler *RequestHandler) IndexObject(item interface{}) {
 	switch v := item.(type) {
 	case sqlc.Episode:
-		service.indexEpisode(v)
+		handler.indexEpisode(v)
 	case sqlc.Show:
-		service.indexShow(v)
+		handler.indexShow(v)
 	case sqlc.Season:
-		service.indexSeason(v)
+		handler.indexSeason(v)
 	default:
 		log.L.Error().Msg("Couldn't index object")
 	}
 }
 
-func (service *Service) IndexModel(model string, id int) {
-	ctx := context.Background()
+func (handler *RequestHandler) IndexModel(model string, id int) {
+	service := handler.service
+	ctx := handler.context
 	var i any
 	var err error
 	switch model {
@@ -219,5 +264,5 @@ func (service *Service) IndexModel(model string, id int) {
 		log.L.Error().Err(err)
 		return
 	}
-	service.IndexObject(i)
+	handler.IndexObject(i)
 }

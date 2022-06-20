@@ -7,10 +7,13 @@ package sqlc
 
 import (
 	"context"
+	"time"
+
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getRolesForShow = `-- name: GetRolesForShow :many
-SELECT DISTINCT usergroups_code FROM episodes_usergroups WHERE episodes_id IN
+SELECT DISTINCT usergroups_code FROM public.episodes_usergroups WHERE episodes_id IN
     (SELECT id FROM episodes WHERE season_id IN
     (SELECT id FROM seasons WHERE show_id = $1))
 `
@@ -170,6 +173,72 @@ func (q *Queries) GetTranslationsForShow(ctx context.Context, showsID int32) ([]
 			&i.LegacyTitleID,
 			&i.ShowsID,
 			&i.Title,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getVisibilityForShow = `-- name: GetVisibilityForShow :one
+SELECT id, status, publish_date, available_from, available_to FROM public.shows WHERE id = $1
+`
+
+type GetVisibilityForShowRow struct {
+	ID            int32        `db:"id" json:"id"`
+	Status        string       `db:"status" json:"status"`
+	PublishDate   time.Time    `db:"publish_date" json:"publishDate"`
+	AvailableFrom null_v4.Time `db:"available_from" json:"availableFrom"`
+	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
+}
+
+func (q *Queries) GetVisibilityForShow(ctx context.Context, id int32) (GetVisibilityForShowRow, error) {
+	row := q.db.QueryRowContext(ctx, getVisibilityForShow, id)
+	var i GetVisibilityForShowRow
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.PublishDate,
+		&i.AvailableFrom,
+		&i.AvailableTo,
+	)
+	return i, err
+}
+
+const getVisibilityForShows = `-- name: GetVisibilityForShows :many
+SELECT id, status, publish_date, available_from, available_to FROM public.shows
+`
+
+type GetVisibilityForShowsRow struct {
+	ID            int32        `db:"id" json:"id"`
+	Status        string       `db:"status" json:"status"`
+	PublishDate   time.Time    `db:"publish_date" json:"publishDate"`
+	AvailableFrom null_v4.Time `db:"available_from" json:"availableFrom"`
+	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
+}
+
+func (q *Queries) GetVisibilityForShows(ctx context.Context) ([]GetVisibilityForShowsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getVisibilityForShows)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetVisibilityForShowsRow
+	for rows.Next() {
+		var i GetVisibilityForShowsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Status,
+			&i.PublishDate,
+			&i.AvailableFrom,
+			&i.AvailableTo,
 		); err != nil {
 			return nil, err
 		}

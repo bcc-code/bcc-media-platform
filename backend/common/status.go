@@ -1,4 +1,4 @@
-package base
+package common
 
 const (
 	StatusPublished = "published"

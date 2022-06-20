@@ -1,9 +1,7 @@
 package search
 
 import (
-	"context"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
-	"github.com/bcc-code/brunstadtv/backend/base"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
@@ -32,18 +30,14 @@ func mapSeasonToSearchObject(
 	roles []string,
 	image *sqlc.DirectusFile,
 	translations []sqlc.SeasonsTranslation,
-	show *sqlc.Show,
 	showTs []sqlc.ShowsTranslation,
 ) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
-	object[statusField] = base.MostRestrictiveStatus(item.Status, show.Status)
 	if roles == nil {
 		roles = []string{}
 	}
 	object[rolesField] = roles
-	object[availableToField] = unixOrZero(smallestTime(item.AvailableTo.ValueOrZero(), show.AvailableTo.ValueOrZero()))
-	object[availableFromField] = unixOrZero(largestTime(item.AvailableFrom.ValueOrZero(), show.AvailableFrom.ValueOrZero()))
 	object[idField] = "season-" + strconv.Itoa(itemId)
 	if item.DateCreated.Valid {
 		object[createdAtField] = item.DateCreated.Time.UTC().Unix()
@@ -64,12 +58,11 @@ func mapSeasonToSearchObject(
 	return object
 }
 
-func indexSeasons(
+func (handler *RequestHandler) indexSeasons(
 	items []sqlc.Season,
 	rolesDict map[int32][]string,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
 	tDict map[int32][]sqlc.SeasonsTranslation,
-	showDict map[int32]sqlc.Show,
 	showTs map[int32][]sqlc.ShowsTranslation,
 	index *search.Index,
 ) {
@@ -79,8 +72,9 @@ func indexSeasons(
 			thumbnailResult := imageDict[item.ImageFileID.UUID]
 			image = &thumbnailResult
 		}
-		show, _ := showDict[item.ShowID]
-		return mapSeasonToSearchObject(item, rolesDict[item.ID], image, tDict[item.ID], &show, showTs[item.ShowID])
+		object := mapSeasonToSearchObject(item, rolesDict[item.ID], image, tDict[item.ID], showTs[item.ShowID])
+		object.assignVisibility(handler.getVisibilityForSeason(item.ID))
+		return object
 	})
 
 	err := indexObjects(index, objects)
@@ -90,8 +84,9 @@ func indexSeasons(
 	}
 }
 
-func (service *Service) indexSeason(item sqlc.Season) {
-	ctx := context.Background()
+func (handler *RequestHandler) indexSeason(item sqlc.Season) {
+	service := handler.service
+	ctx := handler.context
 	var image *sqlc.DirectusFile
 	if item.ImageFileID.Valid {
 		thumbnailResult, _ := service.queries.GetFile(ctx, item.ImageFileID.UUID)
@@ -109,18 +104,15 @@ func (service *Service) indexSeason(item sqlc.Season) {
 		return
 	}
 
-	show, err := service.queries.GetShow(ctx, item.ShowID)
-	if err != nil {
-		log.L.Error().Err(err)
-		return
-	}
-
 	roles, err := service.queries.GetRolesForSeason(ctx, null.IntFrom(int64(item.ID)))
 	if err != nil {
 		log.L.Error().Err(err)
 		return
 	}
-	_, err = service.index.SaveObject(mapSeasonToSearchObject(item, roles, image, ts, &show, showTs))
+
+	object := mapSeasonToSearchObject(item, roles, image, ts, showTs)
+	object.assignVisibility(handler.getVisibilityForSeason(item.ID))
+	_, err = service.index.SaveObject(object)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index season")
 	}

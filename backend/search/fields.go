@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/mitchellh/mapstructure"
-	"time"
 )
 
 const (
@@ -117,25 +116,4 @@ func (service *Service) convertToSearchHit(object *searchObject) (item searchHit
 		log.L.Error().Err(err).Msg("failed to decode to searchHit")
 	}
 	return
-}
-
-func largestTime(timeStamps ...time.Time) time.Time {
-	var largest time.Time
-	for _, stamp := range timeStamps {
-		if stamp.After(largest) {
-			largest = stamp
-		}
-	}
-	return largest
-}
-
-func smallestTime(timeStamps ...time.Time) time.Time {
-	var smallest time.Time
-	for _, stamp := range timeStamps {
-		if !stamp.IsZero() &&
-			(smallest.IsZero() || stamp.Before(smallest)) {
-			smallest = stamp
-		}
-	}
-	return smallest
 }

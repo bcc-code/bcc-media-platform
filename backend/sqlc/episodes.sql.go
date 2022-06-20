@@ -7,6 +7,9 @@ package sqlc
 
 import (
 	"context"
+	"time"
+
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getEpisode = `-- name: GetEpisode :one
@@ -220,4 +223,58 @@ func (q *Queries) GetTranslationsForEpisode(ctx context.Context, episodesID int3
 		return nil, err
 	}
 	return items, nil
+}
+
+const getVisibilityForEpisode = `-- name: GetVisibilityForEpisode :one
+SELECT id, status, publish_date, available_from, available_to, season_id FROM public.episodes WHERE id = $1
+`
+
+type GetVisibilityForEpisodeRow struct {
+	ID            int32        `db:"id" json:"id"`
+	Status        string       `db:"status" json:"status"`
+	PublishDate   time.Time    `db:"publish_date" json:"publishDate"`
+	AvailableFrom null_v4.Time `db:"available_from" json:"availableFrom"`
+	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
+	SeasonID      null_v4.Int  `db:"season_id" json:"seasonID"`
+}
+
+func (q *Queries) GetVisibilityForEpisode(ctx context.Context, id int32) (GetVisibilityForEpisodeRow, error) {
+	row := q.db.QueryRowContext(ctx, getVisibilityForEpisode, id)
+	var i GetVisibilityForEpisodeRow
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.PublishDate,
+		&i.AvailableFrom,
+		&i.AvailableTo,
+		&i.SeasonID,
+	)
+	return i, err
+}
+
+const getVisibilityForEpisodes = `-- name: GetVisibilityForEpisodes :one
+SELECT id, status, publish_date, available_from, available_to, season_id FROM public.episodes
+`
+
+type GetVisibilityForEpisodesRow struct {
+	ID            int32        `db:"id" json:"id"`
+	Status        string       `db:"status" json:"status"`
+	PublishDate   time.Time    `db:"publish_date" json:"publishDate"`
+	AvailableFrom null_v4.Time `db:"available_from" json:"availableFrom"`
+	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
+	SeasonID      null_v4.Int  `db:"season_id" json:"seasonID"`
+}
+
+func (q *Queries) GetVisibilityForEpisodes(ctx context.Context) (GetVisibilityForEpisodesRow, error) {
+	row := q.db.QueryRowContext(ctx, getVisibilityForEpisodes)
+	var i GetVisibilityForEpisodesRow
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.PublishDate,
+		&i.AvailableFrom,
+		&i.AvailableTo,
+		&i.SeasonID,
+	)
+	return i, err
 }

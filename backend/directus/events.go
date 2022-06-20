@@ -1,6 +1,7 @@
 package directus
 
 import (
+	"context"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
@@ -37,9 +38,9 @@ func getModelFromCollectionName(collection string) string {
 	return ""
 }
 
-var itemsEvents = map[string][]func(model string, id int){}
+var itemsEvents = map[string][]func(ctx context.Context, model string, id int){}
 
-func (handler *EventHandler) On(events []string, callback func(model string, id int)) {
+func (handler *EventHandler) On(events []string, callback func(ctx context.Context, model string, id int)) {
 	for _, event := range events {
 		switch event {
 		case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
@@ -90,7 +91,7 @@ func (handler *EventHandler) Execute(c *gin.Context) {
 		case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
 			for i, callback := range itemsEvents[event.Event] {
 				log.L.Debug().Msgf("Executing callback #%d for event %s", i, event.Event)
-				callback(model, id)
+				callback(c, model, id)
 			}
 		}
 	}

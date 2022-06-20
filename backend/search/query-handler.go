@@ -3,7 +3,7 @@ package search
 import (
 	"fmt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
-	"github.com/bcc-code/brunstadtv/backend/base"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
 	"strconv"
@@ -16,7 +16,7 @@ type QueryHandler struct {
 	service *Service
 }
 
-func (service *Service) GetQueryHandler(user any) base.ISearchQueryHandler {
+func (service *Service) GetQueryHandler(user any) common.ISearchQueryHandler {
 	return &QueryHandler{
 		user:    user,
 		service: service,
@@ -46,7 +46,7 @@ func getUserLanguage() string {
 	return defaultLanguage
 }
 
-func (h *QueryHandler) Search(query *base.SearchQuery) (*base.SearchResult, error) {
+func (h *QueryHandler) Search(query *common.SearchQuery) (*common.SearchResult, error) {
 	now := time.Now().Unix()
 
 	userRoles := getUserRoles()
@@ -54,8 +54,8 @@ func (h *QueryHandler) Search(query *base.SearchQuery) (*base.SearchResult, erro
 
 	if len(userRoles) == 0 {
 		// No roles == no permissions == no results
-		return &base.SearchResult{
-			Result: []base.SearchResultItem{},
+		return &common.SearchResult{
+			Result: []common.SearchResultItem{},
 		}, nil
 	}
 
@@ -66,7 +66,7 @@ func (h *QueryHandler) Search(query *base.SearchQuery) (*base.SearchResult, erro
 		fmt.Sprintf("%s < %d", publishedAtField, now),
 		fmt.Sprintf("%[1]s = 0 OR %[1]s < %[2]d", availableFromField, now),
 		fmt.Sprintf("%[1]s = 0 OR %[1]s > %[2]d", availableToField, now),
-		fmt.Sprintf("%s:%s", statusField, base.StatusPublished),
+		fmt.Sprintf("%s:%s", statusField, common.StatusPublished),
 	}
 
 	filterString := "(" + strings.Join(filters, ") AND (") + ")"
@@ -80,7 +80,7 @@ func (h *QueryHandler) Search(query *base.SearchQuery) (*base.SearchResult, erro
 		log.L.Error().Err(err).Msg("Search failed")
 		return nil, err
 	}
-	var searchResult base.SearchResult
+	var searchResult common.SearchResult
 	var hits []searchObject
 
 	err = result.UnmarshalHits(&hits)
@@ -92,7 +92,7 @@ func (h *QueryHandler) Search(query *base.SearchQuery) (*base.SearchResult, erro
 	searchResult.HitCount = result.NbHits
 	searchResult.Page = result.Page
 	searchResult.PageCount = result.NbPages
-	searchResult.Result = []base.SearchResultItem{}
+	searchResult.Result = []common.SearchResultItem{}
 
 	for _, rawHit := range hits {
 		hit := h.service.convertToSearchHit(&rawHit)
@@ -109,7 +109,7 @@ func (h *QueryHandler) Search(query *base.SearchQuery) (*base.SearchResult, erro
 		//	continue
 		//}
 
-		item := base.SearchResultItem{
+		item := common.SearchResultItem{
 			Id:    int(id),
 			Model: model,
 		}
