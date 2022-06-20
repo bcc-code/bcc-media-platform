@@ -44,7 +44,7 @@ func (handler *EventHandler) On(events []string, callback func(ctx context.Conte
 	for _, event := range events {
 		switch event {
 		case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
-			log.L.Debug().Msgf("Registering Directus webhook-listener for event: \"%s\"", event)
+			log.L.Debug().Str("event", event).Msg("Registering Directus webhook-listener for event")
 			itemsEvents[event] = append(itemsEvents[event], callback)
 		}
 	}

@@ -38,6 +38,18 @@ func (object *searchObject) assignVisibility(v common.Visibility) {
 	}
 }
 
+func (object *searchObject) assignShowIDAndTitle(id int32, ts []sqlc.ShowsTranslation) {
+	(*object)[showIDField] = id
+	showTitle, _ := mapTranslationsForShow(ts)
+	object.mapFromLocaleString(showTitleField, showTitle)
+}
+
+func (object *searchObject) assignSeasonIDAndTitle(id int32, ts []sqlc.SeasonsTranslation) {
+	(*object)[seasonIDField] = id
+	seasonTitle, _ := mapTranslationsForSeason(ts)
+	object.mapFromLocaleString(seasonTitleField, seasonTitle)
+}
+
 func indexObjects(index *search.Index, objects []searchObject) error {
 	_, err := index.SaveObjects(objects)
 	if err != nil {
@@ -112,10 +124,6 @@ func (handler *RequestHandler) Reindex() {
 	}
 
 	shows, _ := q.GetShows(ctx)
-	showById := lo.Reduce(shows, func(showById map[int32]sqlc.Show, season sqlc.Show, _ int) map[int32]sqlc.Show {
-		showById[season.ID] = season
-		return showById
-	}, map[int32]sqlc.Show{})
 	showThumbnails, _ := q.GetFilesByIds(ctx, lo.Map(lo.Filter(shows, func(i sqlc.Show, _ int) bool {
 		return i.ImageFileID.Valid
 	}), func(i sqlc.Show, _ int) uuid.UUID {
@@ -223,7 +231,7 @@ func (handler *RequestHandler) Reindex() {
 	log.L.Debug().Msg("Indexing seasons")
 	handler.indexSeasons(seasons, seasonRolesDict, seasonThumbnailsById, seasonTsDict, showTsDict, index)
 	log.L.Debug().Msg("Indexing episodes")
-	handler.indexEpisodes(episodes, episodeRolesDict, episodeThumbnailsById, episodeTsDict, seasonById, seasonTsDict, showById, showTsDict, index)
+	handler.indexEpisodes(episodes, episodeRolesDict, episodeThumbnailsById, episodeTsDict, seasonById, seasonTsDict, showTsDict, index)
 }
 
 func (handler *RequestHandler) DeleteObject(item interface{}) {

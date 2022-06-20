@@ -30,7 +30,6 @@ func mapSeasonToSearchObject(
 	roles []string,
 	image *sqlc.DirectusFile,
 	translations []sqlc.SeasonsTranslation,
-	showTs []sqlc.ShowsTranslation,
 ) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
@@ -49,9 +48,6 @@ func mapSeasonToSearchObject(
 	title, description := mapTranslationsForSeason(translations)
 	object.mapFromLocaleString(titleField, title)
 	object.mapFromLocaleString(descriptionField, description)
-	object[showIDField] = item.ShowID
-	showTitle, _ := mapTranslationsForShow(showTs)
-	object.mapFromLocaleString(showTitleField, showTitle)
 	if image != nil {
 		object[imageField] = image.GetImageUrl()
 	}
@@ -72,8 +68,9 @@ func (handler *RequestHandler) indexSeasons(
 			thumbnailResult := imageDict[item.ImageFileID.UUID]
 			image = &thumbnailResult
 		}
-		object := mapSeasonToSearchObject(item, rolesDict[item.ID], image, tDict[item.ID], showTs[item.ShowID])
+		object := mapSeasonToSearchObject(item, rolesDict[item.ID], image, tDict[item.ID])
 		object.assignVisibility(handler.getVisibilityForSeason(item.ID))
+		object.assignShowIDAndTitle(item.ShowID, showTs[item.ShowID])
 		return object
 	})
 
@@ -110,8 +107,9 @@ func (handler *RequestHandler) indexSeason(item sqlc.Season) {
 		return
 	}
 
-	object := mapSeasonToSearchObject(item, roles, image, ts, showTs)
+	object := mapSeasonToSearchObject(item, roles, image, ts)
 	object.assignVisibility(handler.getVisibilityForSeason(item.ID))
+	object.assignShowIDAndTitle(item.ShowID, showTs)
 	_, err = service.index.SaveObject(object)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index season")
