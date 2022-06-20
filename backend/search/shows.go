@@ -1,7 +1,6 @@
 package search
 
 import (
-	"context"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
@@ -34,20 +33,16 @@ func mapShowToSearchObject(
 	object := searchObject{}
 	itemId := int(item.ID)
 	object[idField] = "show-" + strconv.Itoa(itemId)
-	object[statusField] = item.Status
 	if roles == nil {
 		roles = []string{}
 	}
 	object[rolesField] = roles
-	object[availableToField] = unixOrZero(item.AvailableTo.ValueOrZero())
-	object[availableFromField] = unixOrZero(item.AvailableFrom.ValueOrZero())
 	if item.DateCreated.Valid {
 		object[createdAtField] = item.DateCreated.Time.UTC().Unix()
 	}
 	if item.DateUpdated.Valid {
 		object[updatedAtField] = item.DateUpdated.Time.UTC().Unix()
 	}
-	object[publishedAtField] = item.PublishDate.UTC().Unix()
 	title, description := mapTranslationsForShow(translations)
 	object.mapFromLocaleString(titleField, title)
 	object.mapFromLocaleString(descriptionField, description)
@@ -57,7 +52,7 @@ func mapShowToSearchObject(
 	return object
 }
 
-func indexShows(
+func (handler *RequestHandler) indexShows(
 	items []sqlc.Show,
 	roleDict map[int32][]string,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
@@ -70,7 +65,9 @@ func indexShows(
 			imageResult := imageDict[item.ImageFileID.UUID]
 			image = &imageResult
 		}
-		return mapShowToSearchObject(item, roleDict[item.ID], image, tDict[item.ID])
+		object := mapShowToSearchObject(item, roleDict[item.ID], image, tDict[item.ID])
+		object.assignVisibility(handler.getVisibilityForShow(item.ID))
+		return object
 	})
 
 	err := indexObjects(index, objects)
@@ -81,8 +78,9 @@ func indexShows(
 	}
 }
 
-func (service *Service) indexShow(item sqlc.Show) {
-	ctx := context.Background()
+func (handler *RequestHandler) indexShow(item sqlc.Show) {
+	service := handler.service
+	ctx := handler.context
 	var thumbnail *sqlc.DirectusFile
 	if item.ImageFileID.Valid {
 		thumbnailResult, _ := service.queries.GetFile(ctx, item.ImageFileID.UUID)
@@ -98,7 +96,9 @@ func (service *Service) indexShow(item sqlc.Show) {
 		log.L.Error().Err(err)
 		return
 	}
-	_, err = service.index.SaveObject(mapShowToSearchObject(item, roles, thumbnail, translations))
+	object := mapShowToSearchObject(item, roles, thumbnail, translations)
+	object.assignVisibility(handler.getVisibilityForShow(item.ID))
+	_, err = service.index.SaveObject(object)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index season")
 	}

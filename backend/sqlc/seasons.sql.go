@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"time"
 
 	null_v4 "gopkg.in/guregu/null.v4"
 )
@@ -169,6 +170,76 @@ func (q *Queries) GetTranslationsForSeason(ctx context.Context, seasonsID int32)
 			&i.LegacyTitleID,
 			&i.SeasonsID,
 			&i.Title,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getVisibilityForSeason = `-- name: GetVisibilityForSeason :one
+SELECT id, status, publish_date, available_from, available_to, show_id FROM public.seasons WHERE id = $1
+`
+
+type GetVisibilityForSeasonRow struct {
+	ID            int32        `db:"id" json:"id"`
+	Status        string       `db:"status" json:"status"`
+	PublishDate   time.Time    `db:"publish_date" json:"publishDate"`
+	AvailableFrom null_v4.Time `db:"available_from" json:"availableFrom"`
+	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
+	ShowID        int32        `db:"show_id" json:"showID"`
+}
+
+func (q *Queries) GetVisibilityForSeason(ctx context.Context, id int32) (GetVisibilityForSeasonRow, error) {
+	row := q.db.QueryRowContext(ctx, getVisibilityForSeason, id)
+	var i GetVisibilityForSeasonRow
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.PublishDate,
+		&i.AvailableFrom,
+		&i.AvailableTo,
+		&i.ShowID,
+	)
+	return i, err
+}
+
+const getVisibilityForSeasons = `-- name: GetVisibilityForSeasons :many
+SELECT id, status, publish_date, available_from, available_to, show_id FROM public.seasons
+`
+
+type GetVisibilityForSeasonsRow struct {
+	ID            int32        `db:"id" json:"id"`
+	Status        string       `db:"status" json:"status"`
+	PublishDate   time.Time    `db:"publish_date" json:"publishDate"`
+	AvailableFrom null_v4.Time `db:"available_from" json:"availableFrom"`
+	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
+	ShowID        int32        `db:"show_id" json:"showID"`
+}
+
+func (q *Queries) GetVisibilityForSeasons(ctx context.Context) ([]GetVisibilityForSeasonsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getVisibilityForSeasons)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetVisibilityForSeasonsRow
+	for rows.Next() {
+		var i GetVisibilityForSeasonsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Status,
+			&i.PublishDate,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			&i.ShowID,
 		); err != nil {
 			return nil, err
 		}

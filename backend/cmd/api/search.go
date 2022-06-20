@@ -1,28 +1,30 @@
 package main
 
 import (
-	"github.com/bcc-code/brunstadtv/backend/base"
+	"context"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
 )
 
-func searchIndexHandler(apiKey string, client base.ISearchService) func(*gin.Context) {
+func searchIndexHandler(apiKey string, client *search.Service) func(*gin.Context) {
 	return func(c *gin.Context) {
 		err := authenticateRequestWithXApiKey(apiKey, c)
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to authenticate request")
 			return
 		}
-		client.Reindex()
+		handler := client.NewRequestHandler(c)
+		handler.Reindex()
 		_, _ = c.Writer.WriteString("Indexed all documents")
 	}
 }
 
-func searchQueryHandler(client base.ISearchService) func(*gin.Context) {
+func searchQueryHandler(client *search.Service) func(*gin.Context) {
 	return func(c *gin.Context) {
-		var query base.SearchQuery
+		var query common.SearchQuery
 		// define default options
 		query.Page = 0
 		err := c.BindJSON(&query)
@@ -45,14 +47,21 @@ func searchQueryHandler(client base.ISearchService) func(*gin.Context) {
 	}
 }
 
-func directusEventHandler(apiKey string, searchService base.ISearchService) func(c *gin.Context) {
+func directusEventHandler(apiKey string, searchService *search.Service) func(c *gin.Context) {
 	eventHandler := directus.NewEventHandler()
 
 	indexEvents := []string{directus.EventItemsCreate, directus.EventItemsUpdate}
-	eventHandler.On(indexEvents, searchService.IndexModel)
+
+	eventHandler.On(indexEvents, func(ctx context.Context, model string, id int) {
+		handler := searchService.NewRequestHandler(ctx)
+		handler.IndexModel(model, id)
+	})
 
 	deleteEvents := []string{directus.EventItemsDelete}
-	eventHandler.On(deleteEvents, searchService.DeleteModel)
+	eventHandler.On(deleteEvents, func(ctx context.Context, model string, id int) {
+		handler := searchService.NewRequestHandler(ctx)
+		handler.DeleteModel(model, id)
+	})
 
 	return func(c *gin.Context) {
 		err := authenticateRequestWithXApiKey(apiKey, c)
@@ -61,25 +70,5 @@ func directusEventHandler(apiKey string, searchService base.ISearchService) func
 			return
 		}
 		eventHandler.Execute(c)
-	}
-}
-
-func configureSearchEndpoints(r *gin.Engine, config envConfig, searchService *search.Service) {
-	searchGroup := r.Group("search")
-	searchGroup.POST("query", searchQueryHandler(searchService))
-
-	// Hooks and scheduling for search indexing
-	if config.SchedulerSecret != "" {
-		log.L.Debug().Msg("Setting up endpoint for scheduled search indexing")
-		searchGroup.GET("index", searchIndexHandler(config.SchedulerSecret, searchService))
-	} else {
-		log.L.Debug().Msg("Missing secret for scheduler endpoint, skipping endpoint configuration")
-	}
-
-	if config.DirectusSecret != "" {
-		log.L.Debug().Msg("Setting up endpoint for webhooks from Directus")
-		r.POST("/directus/webhook", directusEventHandler(config.DirectusSecret, searchService))
-	} else {
-		log.L.Debug().Msg("Missing secret for webhooks from Directus, skipping endpoint configuration")
 	}
 }

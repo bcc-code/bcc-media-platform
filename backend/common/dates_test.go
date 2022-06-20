@@ -1,4 +1,4 @@
-package search
+package common
 
 import (
 	"testing"
@@ -11,12 +11,12 @@ func TestLargestTime(t *testing.T) {
 	t2 := now.Add(time.Second * -100)
 	t3 := time.Time{}
 
-	largest := largestTime(t1, t2, t3)
+	largest := LargestTime(t1, t2, t3)
 	if largest != t1 {
 		t.Fatalf("Largest time wrong. Got %T, expected %T", largest, t1)
 	}
 
-	smallest := smallestTime(t1, t2, t3)
+	smallest := SmallestTime(t1, t2, t3)
 	if smallest != t2 {
 		t.Fatalf("Smallest time wrong. Got %T, expected %T", smallest, t2)
 	}

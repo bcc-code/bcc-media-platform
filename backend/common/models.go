@@ -1,4 +1,4 @@
-package base
+package common
 
 type SearchQuery struct {
 	Query string `json:"query"`

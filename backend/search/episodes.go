@@ -1,10 +1,9 @@
 package search
 
 import (
-	"context"
 	"fmt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
-	"github.com/bcc-code/brunstadtv/backend/base"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
@@ -61,16 +60,16 @@ func mapEpisodeToSearchObject(
 	}
 	object[rolesField] = roles
 	if season != nil {
-		object[statusField] = base.MostRestrictiveStatus(item.Status, season.Status, show.Status)
+		object[statusField] = common.MostRestrictiveStatus(item.Status, season.Status, show.Status)
 		object[availableToField] = unixOrZero(
-			smallestTime(
+			common.SmallestTime(
 				item.AvailableTo.ValueOrZero(),
 				season.AvailableTo.ValueOrZero(),
 				show.AvailableTo.ValueOrZero(),
 			),
 		)
 		object[availableFromField] = unixOrZero(
-			largestTime(
+			common.LargestTime(
 				item.AvailableFrom.ValueOrZero(),
 				season.AvailableFrom.ValueOrZero(),
 				show.AvailableFrom.ValueOrZero(),
@@ -109,7 +108,7 @@ func mapEpisodeToSearchObject(
 	return object
 }
 
-func indexEpisodes(
+func (handler *RequestHandler) indexEpisodes(
 	items []sqlc.Episode,
 	rolesDict map[int32][]string,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
@@ -148,8 +147,9 @@ func indexEpisodes(
 	}
 }
 
-func (service *Service) indexEpisode(item sqlc.Episode) {
-	ctx := context.Background()
+func (handler *RequestHandler) indexEpisode(item sqlc.Episode) {
+	service := handler.service
+	ctx := handler.context
 	ts, err := service.queries.GetTranslationsForEpisode(ctx, item.ID)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to retrieve translations for season")
