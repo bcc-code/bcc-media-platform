@@ -1,6 +1,7 @@
 package common
 
 import (
+	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
 	"time"
 )
@@ -13,7 +14,7 @@ type Visibility struct {
 }
 
 func largestTime(alts []*time.Time) time.Time {
-	return LargestTime(lo.Map(lo.Filter(alts, func(t *time.Time, _ int) bool {
+	return utils.LargestTime(lo.Map(lo.Filter(alts, func(t *time.Time, _ int) bool {
 		return t != nil
 	}), func(t *time.Time, _ int) time.Time {
 		return t.UTC()
@@ -21,7 +22,7 @@ func largestTime(alts []*time.Time) time.Time {
 }
 
 func smallestTime(alts []*time.Time) time.Time {
-	return LargestTime(lo.Map(lo.Filter(alts, func(t *time.Time, _ int) bool {
+	return utils.LargestTime(lo.Map(lo.Filter(alts, func(t *time.Time, _ int) bool {
 		return t != nil
 	}), func(t *time.Time, _ int) time.Time {
 		return t.UTC()
@@ -31,7 +32,7 @@ func smallestTime(alts []*time.Time) time.Time {
 func (v *Visibility) Merge(vm Visibility) (r Visibility) {
 	r = Visibility{}
 	r.Status = MostRestrictiveStatus(v.Status, vm.Status)
-	r.PublishDate = LargestTime(v.PublishDate, vm.PublishDate)
+	r.PublishDate = utils.LargestTime(v.PublishDate, vm.PublishDate)
 	availableFrom := largestTime([]*time.Time{v.AvailableFrom, vm.AvailableFrom})
 	if availableFrom != (time.Time{}) {
 		r.AvailableFrom = &availableFrom

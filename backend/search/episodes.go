@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
-	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
@@ -35,22 +34,12 @@ func mapTranslationsForEpisode(translations []sqlc.EpisodesTranslation) (title m
 	return title, description
 }
 
-func unixOrZero(timeStamp time.Time) int64 {
-	if !timeStamp.IsZero() {
-		return timeStamp.Unix()
-	}
-	return 0
-}
-
 func mapEpisodeToSearchObject(
 	item sqlc.Episode,
 	roles []string,
 	image *sqlc.DirectusFile,
 	translations []sqlc.EpisodesTranslation,
 	season *sqlc.Season,
-	seasonTs []sqlc.SeasonsTranslation,
-	show *sqlc.Show,
-	showTs []sqlc.ShowsTranslation,
 ) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
@@ -60,27 +49,6 @@ func mapEpisodeToSearchObject(
 		roles = []string{}
 	}
 	object[rolesField] = roles
-	if season != nil {
-		object[statusField] = common.MostRestrictiveStatus(item.Status, season.Status, show.Status)
-		object[availableToField] = unixOrZero(
-			common.SmallestTime(
-				item.AvailableTo.ValueOrZero(),
-				season.AvailableTo.ValueOrZero(),
-				show.AvailableTo.ValueOrZero(),
-			),
-		)
-		object[availableFromField] = unixOrZero(
-			common.LargestTime(
-				item.AvailableFrom.ValueOrZero(),
-				season.AvailableFrom.ValueOrZero(),
-				show.AvailableFrom.ValueOrZero(),
-			),
-		)
-	} else {
-		object[statusField] = item.Status
-		object[availableToField] = unixOrZero(item.AvailableTo.ValueOrZero())
-		object[availableFromField] = unixOrZero(item.AvailableFrom.ValueOrZero())
-	}
 
 	object[createdAtField] = item.DateCreated.UTC().Unix()
 	object[updatedAtField] = item.DateUpdated.UTC().Unix()
@@ -96,12 +64,6 @@ func mapEpisodeToSearchObject(
 		if value := item.EpisodeNumber.ValueOrZero(); value != 0 {
 			object[headerField] = fmt.Sprintf("S%d:E%d", season.SeasonNumber, value)
 		}
-		object[seasonIDField] = season.ID
-		seasonTitle, _ := mapTranslationsForSeason(seasonTs)
-		object.mapFromLocaleString(seasonTitleField, seasonTitle)
-		object[showIDField] = season.ShowID
-		showTitle, _ := mapTranslationsForShow(showTs)
-		object.mapFromLocaleString(showTitleField, showTitle)
 	}
 	return object
 }
@@ -113,21 +75,17 @@ func (handler *RequestHandler) indexEpisodes(
 	tDict map[int32][]sqlc.EpisodesTranslation,
 	seasons map[int32]sqlc.Season,
 	seasonTs map[int32][]sqlc.SeasonsTranslation,
-	shows map[int32]sqlc.Show,
 	showTs map[int32][]sqlc.ShowsTranslation,
 	index *search.Index,
 ) {
 	objects := lo.Map(items, func(item sqlc.Episode, _ int) searchObject {
 		var season *sqlc.Season
-		var show *sqlc.Show
 		var seasonTranslations []sqlc.SeasonsTranslation
 		var showTranslations []sqlc.ShowsTranslation
 		if item.SeasonID.Valid {
 			seasonResult := seasons[int32(item.SeasonID.ValueOrZero())]
 			season = &seasonResult
 			seasonTranslations = seasonTs[season.ID]
-			showResult := shows[season.ShowID]
-			show = &showResult
 			showTranslations, _ = showTs[season.ShowID]
 		}
 		var thumbnail *sqlc.DirectusFile
@@ -135,7 +93,13 @@ func (handler *RequestHandler) indexEpisodes(
 			thumbnailResult := imageDict[item.ImageFileID.UUID]
 			thumbnail = &thumbnailResult
 		}
-		return mapEpisodeToSearchObject(item, rolesDict[item.ID], thumbnail, tDict[item.ID], season, seasonTranslations, show, showTranslations)
+		object := mapEpisodeToSearchObject(item, rolesDict[item.ID], thumbnail, tDict[item.ID], season)
+		object.assignVisibility(handler.getVisibilityForEpisode(item.ID))
+		if season != nil {
+			object.assignSeasonIDAndTitle(int32(item.SeasonID.ValueOrZero()), seasonTranslations)
+			object.assignShowIDAndTitle(season.ShowID, showTranslations)
+		}
+		return object
 	})
 
 	err := indexObjects(index, objects)
@@ -156,13 +120,10 @@ func (handler *RequestHandler) indexEpisode(item sqlc.Episode) {
 	var season *sqlc.Season
 	var seasonTs []sqlc.SeasonsTranslation
 	var showTs []sqlc.ShowsTranslation
-	var show *sqlc.Show
 	if item.SeasonID.Valid {
 		seasonResult, _ := service.queries.GetSeason(ctx, int32(item.SeasonID.Int64))
 		season = &seasonResult
 		seasonTs, _ = service.queries.GetTranslationsForSeason(ctx, int32(item.SeasonID.Int64))
-		showResult, _ := service.queries.GetShow(ctx, season.ShowID)
-		show = &showResult
 		showTs, _ = service.queries.GetTranslationsForShow(ctx, season.ShowID)
 	}
 
@@ -174,7 +135,14 @@ func (handler *RequestHandler) indexEpisode(item sqlc.Episode) {
 
 	roles, _ := service.queries.GetRolesForEpisode(ctx, item.ID)
 
-	_, err = service.index.SaveObject(mapEpisodeToSearchObject(item, roles, image, ts, season, seasonTs, show, showTs))
+	object := mapEpisodeToSearchObject(item, roles, image, ts, season)
+	object.assignVisibility(handler.getVisibilityForEpisode(item.ID))
+	if season != nil {
+		object.assignSeasonIDAndTitle(season.ID, seasonTs)
+		object.assignShowIDAndTitle(season.ShowID, showTs)
+	}
+
+	_, err = service.index.SaveObject(object)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index season")
 	}
