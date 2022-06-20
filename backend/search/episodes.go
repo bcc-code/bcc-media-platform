@@ -2,14 +2,15 @@ package search
 
 import (
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"strconv"
-	"time"
 )
 
 func mapTranslationsForEpisode(translations []sqlc.EpisodesTranslation) (title map[string]string, description map[string]string) {
@@ -80,12 +81,9 @@ func mapEpisodeToSearchObject(
 		object[availableToField] = unixOrZero(item.AvailableTo.ValueOrZero())
 		object[availableFromField] = unixOrZero(item.AvailableFrom.ValueOrZero())
 	}
-	if item.DateCreated.Valid {
-		object[createdAtField] = item.DateCreated.Time.UTC().Unix()
-	}
-	if item.DateUpdated.Valid {
-		object[updatedAtField] = item.DateUpdated.Time.UTC().Unix()
-	}
+
+	object[createdAtField] = item.DateCreated.UTC().Unix()
+	object[updatedAtField] = item.DateUpdated.UTC().Unix()
 	object[publishedAtField] = item.PublishDate.UTC().Unix()
 	title, description := mapTranslationsForEpisode(translations)
 	object.mapFromLocaleString(titleField, title)
