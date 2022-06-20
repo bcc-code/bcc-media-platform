@@ -252,7 +252,7 @@ func (q *Queries) GetVisibilityForEpisode(ctx context.Context, id int32) (GetVis
 	return i, err
 }
 
-const getVisibilityForEpisodes = `-- name: GetVisibilityForEpisodes :one
+const getVisibilityForEpisodes = `-- name: GetVisibilityForEpisodes :many
 SELECT id, status, publish_date, available_from, available_to, season_id FROM public.episodes
 `
 
@@ -265,16 +265,32 @@ type GetVisibilityForEpisodesRow struct {
 	SeasonID      null_v4.Int  `db:"season_id" json:"seasonID"`
 }
 
-func (q *Queries) GetVisibilityForEpisodes(ctx context.Context) (GetVisibilityForEpisodesRow, error) {
-	row := q.db.QueryRowContext(ctx, getVisibilityForEpisodes)
-	var i GetVisibilityForEpisodesRow
-	err := row.Scan(
-		&i.ID,
-		&i.Status,
-		&i.PublishDate,
-		&i.AvailableFrom,
-		&i.AvailableTo,
-		&i.SeasonID,
-	)
-	return i, err
+func (q *Queries) GetVisibilityForEpisodes(ctx context.Context) ([]GetVisibilityForEpisodesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getVisibilityForEpisodes)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetVisibilityForEpisodesRow
+	for rows.Next() {
+		var i GetVisibilityForEpisodesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Status,
+			&i.PublishDate,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			&i.SeasonID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

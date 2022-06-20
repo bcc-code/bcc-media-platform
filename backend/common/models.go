@@ -14,7 +14,7 @@ type SearchResult struct {
 }
 
 type SearchResultItem struct {
-	Id          int     `json:"id"`
+	ID          int     `json:"id"`
 	Model       string  `json:"model"`
 	Title       string  `json:"title"`
 	Header      *string `json:"header"`
@@ -26,4 +26,12 @@ type SearchResultItem struct {
 	Highlight   *string `json:"highlight"`
 	Image       *string `json:"thumbnail"`
 	Url         string  `json:"url"`
+}
+
+type Translation struct {
+	Language    string
+	Title       string
+	Description string
+	// Details. Usually technical
+	Details string
 }

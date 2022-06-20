@@ -1,10 +1,9 @@
-
 -- Program
 ALTER TABLE CategoryProgram DROP
    CONSTRAINT FK_CategoryProgram_Program
 GO
 ALTER TABLE CategoryProgram ADD
-   CONSTRAINT FK_CategoryProgram_Program  
+   CONSTRAINT FK_CategoryProgram_Program
        FOREIGN KEY (ProgramId)
       REFERENCES Program (Id)
       ON DELETE CASCADE
