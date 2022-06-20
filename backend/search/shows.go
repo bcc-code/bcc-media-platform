@@ -1,12 +1,13 @@
 package search
 
 import (
+	"strconv"
+
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"strconv"
 )
 
 func mapTranslationsForShow(translations []sqlc.ShowsTranslation) (title localeString, description localeString) {
@@ -37,12 +38,8 @@ func mapShowToSearchObject(
 		roles = []string{}
 	}
 	object[rolesField] = roles
-	if item.DateCreated.Valid {
-		object[createdAtField] = item.DateCreated.Time.UTC().Unix()
-	}
-	if item.DateUpdated.Valid {
-		object[updatedAtField] = item.DateUpdated.Time.UTC().Unix()
-	}
+	object[createdAtField] = item.DateCreated.UTC().Unix()
+	object[updatedAtField] = item.DateUpdated.UTC().Unix()
 	title, description := mapTranslationsForShow(translations)
 	object.mapFromLocaleString(titleField, title)
 	object.mapFromLocaleString(descriptionField, description)
