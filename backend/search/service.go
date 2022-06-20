@@ -189,14 +189,33 @@ func (handler *RequestHandler) Reindex() {
 		showRolesDict[season.ShowID] = lo.Uniq(append(showRolesDict[season.ShowID], roles...))
 	}
 
-	showVisibilitiesResult, err := q.GetVisibilityForShows(ctx)
+	// TODO: Using and prefilling context okay?
+	showVisibilities, err := q.GetVisibilityForShows(ctx)
 	if err != nil {
-		log.L.Error().Err(err).Msg("failed to retrieve show visibilties")
+		log.L.Error().Err(err).Msg("failed to retrieve show visibilities")
 		return
 	}
-	for _, v := range showVisibilitiesResult {
+	for _, v := range showVisibilities {
 		visibility := ctx.Value(visibilityContextKey).(map[string]common.Visibility)
 		visibility[getCacheKeyForModel("show", v.ID)] = v.ToVisibility()
+	}
+
+	seasonVisibilities, err := q.GetVisibilityForSeasons(ctx)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to retrieve season visibilities")
+	}
+	for _, v := range seasonVisibilities {
+		visibility := ctx.Value(visibilityContextKey).(map[string]common.Visibility)
+		visibility[getCacheKeyForModel("season", v.ID)] = v.ToVisibility()
+	}
+
+	episodeVisibilities, err := q.GetVisibilityForEpisodes(ctx)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to retrieve season visibilities")
+	}
+	for _, v := range episodeVisibilities {
+		visibility := ctx.Value(visibilityContextKey).(map[string]common.Visibility)
+		visibility[getCacheKeyForModel("episode", v.ID)] = v.ToVisibility()
 	}
 
 	log.L.Debug().Msg("Indexing shows")
