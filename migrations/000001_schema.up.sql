@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.7 (Debian 13.7-1.pgdg110+1)
--- Dumped by pg_dump version 14.3
+-- Dumped from database version 13.6 (Debian 13.6-1.pgdg110+1)
+-- Dumped by pg_dump version 14.3 (Ubuntu 14.3-1.pgdg21.10+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -26,8 +26,8 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.ageratings (
     code character varying(255) DEFAULT NULL::character varying NOT NULL,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     sort integer,
     title character varying(255) DEFAULT NULL::character varying
 );
@@ -78,8 +78,8 @@ ALTER SEQUENCE public.ageratings_translations_id_seq OWNED BY public.ageratings_
 CREATE TABLE public.assetfiles (
     asset_id integer NOT NULL,
     audio_language_id character varying(255) DEFAULT NULL::character varying,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     extra_metadata json,
     id integer NOT NULL,
     mime_type character varying(255) DEFAULT NULL::character varying NOT NULL,
@@ -121,8 +121,8 @@ ALTER SEQUENCE public.assetfiles_id_seq OWNED BY public.assetfiles.id;
 --
 
 CREATE TABLE public.assets (
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     duration integer NOT NULL,
     encoding_version character varying(255) DEFAULT NULL::character varying,
     id integer NOT NULL,
@@ -166,8 +166,8 @@ ALTER SEQUENCE public.assets_id_seq OWNED BY public.assets.id;
 
 CREATE TABLE public.assetstreams (
     asset_id integer NOT NULL,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     encryption_key_id character varying(255) DEFAULT NULL::character varying,
     extra_metadata json,
     id integer NOT NULL,
@@ -281,8 +281,8 @@ ALTER SEQUENCE public.assetstreams_subtitle_languages_id_seq OWNED BY public.ass
 --
 
 CREATE TABLE public.calendarevent (
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "end" timestamp without time zone,
     id integer NOT NULL,
     start timestamp without time zone NOT NULL,
@@ -323,8 +323,8 @@ ALTER SEQUENCE public.calendarevent_id_seq OWNED BY public.calendarevent.id;
 
 CREATE TABLE public.categories (
     appear_in_search boolean DEFAULT false,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id integer NOT NULL,
     legacy_id integer,
     parent_id integer,
@@ -400,8 +400,8 @@ ALTER SEQUENCE public.categories_translations_id_seq OWNED BY public.categories_
 
 CREATE TABLE public.collections (
     content character varying(255) DEFAULT 'everything'::character varying NOT NULL,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id integer NOT NULL,
     legacy_order_by character varying(255) DEFAULT NULL::character varying,
     list_id integer,
@@ -1230,8 +1230,8 @@ CREATE TABLE public.episodes (
     asset_id integer,
     available_from timestamp without time zone,
     available_to timestamp without time zone,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     episode_number integer,
     id integer NOT NULL,
     image_file_id uuid,
@@ -1509,8 +1509,8 @@ ALTER TABLE public.languages OWNER TO btv;
 --
 
 CREATE TABLE public.lists (
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id integer NOT NULL,
     legacy_category_id integer,
     legacy_name_id integer,
@@ -1587,8 +1587,8 @@ ALTER SEQUENCE public.lists_relations_id_seq OWNED BY public.lists_relations.id;
 
 CREATE TABLE public.pages (
     code character varying(255) DEFAULT NULL::character varying,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id integer NOT NULL,
     sort integer,
     status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
@@ -1630,8 +1630,8 @@ CREATE TABLE public.seasons (
     agerating_code character varying(255) DEFAULT NULL::character varying,
     available_from timestamp without time zone,
     available_to timestamp without time zone,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id integer NOT NULL,
     image_file_id uuid,
     legacy_description_id integer,
@@ -1751,8 +1751,8 @@ ALTER SEQUENCE public.seasons_usergroups_id_seq OWNED BY public.seasons_usergrou
 
 CREATE TABLE public.sections (
     collection_id integer,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     display_contract character varying(255) DEFAULT 'slider'::character varying,
     id integer NOT NULL,
     legacy_id integer,
@@ -1868,8 +1868,8 @@ CREATE TABLE public.shows (
     agerating_code character varying(255) DEFAULT NULL::character varying,
     available_from timestamp without time zone,
     available_to timestamp without time zone,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id integer NOT NULL,
     image_file_id uuid,
     legacy_description_id integer,
@@ -1990,8 +1990,8 @@ ALTER SEQUENCE public.shows_usergroups_id_seq OWNED BY public.shows_usergroups.i
 
 CREATE TABLE public.tags (
     code character varying(255) DEFAULT NULL::character varying,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id integer NOT NULL,
     name character varying(255) DEFAULT NULL::character varying NOT NULL,
     user_created uuid,
@@ -2028,8 +2028,8 @@ ALTER SEQUENCE public.tags_id_seq OWNED BY public.tags.id;
 --
 
 CREATE TABLE public.tvguideentry (
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     description character varying(255) DEFAULT NULL::character varying,
     "end" timestamp without time zone,
     event integer,
@@ -2110,8 +2110,8 @@ ALTER SEQUENCE public.tvguideentry_link_id_seq OWNED BY public.tvguideentry_link
 
 CREATE TABLE public.usergroups (
     code character varying(255) DEFAULT NULL::character varying NOT NULL,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     emails text,
     name character varying(255) DEFAULT NULL::character varying NOT NULL,
     sort integer,

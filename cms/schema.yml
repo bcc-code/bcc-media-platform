@@ -1143,6 +1143,7 @@ fields:
       sort: null
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -1150,14 +1151,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -1185,6 +1186,7 @@ fields:
       required: false
       sort: null
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -1193,14 +1195,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -1583,6 +1585,7 @@ fields:
       sort: 7
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -1590,14 +1593,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -1625,6 +1628,7 @@ fields:
       required: false
       sort: 9
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -1633,14 +1637,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -2058,6 +2062,7 @@ fields:
       sort: 5
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -2065,14 +2070,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -2100,6 +2105,7 @@ fields:
       required: false
       sort: 7
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -2108,14 +2114,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -2690,6 +2696,7 @@ fields:
       sort: 8
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -2697,14 +2704,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -2732,6 +2739,7 @@ fields:
       required: false
       sort: 10
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -2740,14 +2748,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -3536,6 +3544,7 @@ fields:
       sort: 4
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -3543,14 +3552,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -3578,6 +3587,7 @@ fields:
       required: false
       sort: 6
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -3586,14 +3596,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -3978,6 +3988,7 @@ fields:
       sort: 4
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -3985,14 +3996,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -4020,6 +4031,7 @@ fields:
       required: false
       sort: 6
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -4028,14 +4040,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -4638,6 +4650,7 @@ fields:
       sort: 4
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -4645,14 +4658,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -4680,6 +4693,7 @@ fields:
       required: false
       sort: 6
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -4688,14 +4702,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -6124,6 +6138,7 @@ fields:
       sort: 7
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -6131,14 +6146,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -6166,6 +6181,7 @@ fields:
       required: false
       sort: 9
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -6174,14 +6190,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -8264,6 +8280,7 @@ fields:
       sort: 3
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -8271,14 +8288,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -8306,6 +8323,7 @@ fields:
       required: false
       sort: 5
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -8314,14 +8332,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -8878,6 +8896,7 @@ fields:
       sort: 8
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -8885,14 +8904,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -8920,6 +8939,7 @@ fields:
       required: false
       sort: 10
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -8928,14 +8948,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -9454,6 +9474,7 @@ fields:
       sort: 4
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -9461,14 +9482,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -9496,6 +9517,7 @@ fields:
       required: false
       sort: 6
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -9504,14 +9526,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -10735,6 +10757,7 @@ fields:
       sort: 6
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -10742,14 +10765,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -10777,6 +10800,7 @@ fields:
       required: false
       sort: 8
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -10785,14 +10809,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -11748,6 +11772,7 @@ fields:
       sort: 7
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -11755,14 +11780,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -11790,6 +11815,7 @@ fields:
       required: false
       sort: 9
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -11798,14 +11824,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -13016,6 +13042,7 @@ fields:
       sort: 3
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -13023,14 +13050,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -13058,6 +13085,7 @@ fields:
       required: false
       sort: 5
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -13066,14 +13094,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -13297,6 +13325,7 @@ fields:
       sort: 4
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -13304,14 +13333,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -13339,6 +13368,7 @@ fields:
       required: false
       sort: 6
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -13347,14 +13377,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -14097,6 +14127,7 @@ fields:
       sort: 5
       special:
         - date-created
+        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -14104,14 +14135,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -14139,6 +14170,7 @@ fields:
       required: false
       sort: 7
       special:
+        - date-created
         - date-updated
       translations: null
       validation: null
@@ -14147,14 +14179,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: null
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: null
