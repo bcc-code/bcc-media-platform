@@ -16,7 +16,7 @@ type QueryHandler struct {
 	service *Service
 }
 
-func (service *Service) GetQueryHandler(user any) common.ISearchQueryHandler {
+func (service *Service) GetQueryHandler(user any) *QueryHandler {
 	return &QueryHandler{
 		user:    user,
 		service: service,
@@ -110,7 +110,7 @@ func (h *QueryHandler) Search(query *common.SearchQuery) (*common.SearchResult, 
 		//}
 
 		item := common.SearchResultItem{
-			Id:    int(id),
+			ID:    int(id),
 			Model: model,
 		}
 
