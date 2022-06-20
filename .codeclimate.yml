@@ -5,8 +5,8 @@ exclude_patterns:
 - "backend/sqlc"
 - "backend/graph/generated"
 - "backend/graph/model"
-- "cms/src/btv.d.ts"
 - "cms/src/hooks/sync-to-legacy"
+- "**/*.d.ts"
 
 checks:
   argument-count:
