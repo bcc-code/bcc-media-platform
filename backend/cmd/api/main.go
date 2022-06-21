@@ -112,6 +112,7 @@ func main() {
 
 	searchGroup := r.Group("search")
 	searchGroup.POST("query", searchQueryHandler(&searchService))
+	searchGroup.GET("key", searchKeyHandler(&searchService))
 
 	// Hooks and scheduling for search indexing
 	if config.SchedulerSecret != "" {
