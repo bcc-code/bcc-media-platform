@@ -6,8 +6,10 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/events"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 	_ "github.com/lib/pq"
 	"strconv"
 )
@@ -63,14 +65,14 @@ type Service struct {
 	queries          *sqlc.Queries
 }
 
-func New(db *sql.DB, algoliaAppId string, algoliaApiKey string, algoliaSearchOnlyApiKey string) Service {
+func New(db *sql.DB, algoliaAppId string, algoliaApiKey string, algoliaSearchOnlyApiKey string) *Service {
 	service := Service{
 		algoliaClient: search.NewClient(algoliaAppId, algoliaApiKey),
 	}
 	service.index = service.algoliaClient.InitIndex(indexName)
 	service.queries = sqlc.New(db)
 	service.searchOnlyApiKey = algoliaSearchOnlyApiKey
-	return service
+	return &service
 }
 
 type RequestHandler struct {
@@ -102,4 +104,26 @@ func (handler *RequestHandler) GenerateSecureKey() string {
 		return ""
 	}
 	return key
+}
+
+type indexModelEvent struct {
+	ID    int
+	Model string
+}
+
+func (service *Service) HandlePubSub(context context.Context, e cloudevents.Event) error {
+	handler := service.NewRequestHandler(context)
+	switch e.Type() {
+	case events.TypeSearchReindex:
+		handler.Reindex()
+	case events.TypeSearchIndex:
+		var event indexModelEvent
+		err := e.DataAs(&event)
+		if err != nil {
+			return err
+		}
+		handler.IndexModel(event.Model, event.ID)
+	}
+
+	return nil
 }
