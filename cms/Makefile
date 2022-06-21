@@ -1,13 +1,17 @@
 .PHONY: schema-update run schema-snapshot init reset s
 
+build:
+	npm run build
 
 s:
+	make build
 	docker-compose up -d
 	npx directus start
 
 init:
 	-cp -n .template.env .env
 	npm i
+	make build
 	docker-compose up -d
 	npx directus bootstrap
 	make schema-update
@@ -20,6 +24,7 @@ run:
 	npx directus start
 
 schema-update:
+	npx directus database migrate:latest
 	npx directus schema apply base-schema.yml -y
 	npx directus schema apply schema.yml -y
 
