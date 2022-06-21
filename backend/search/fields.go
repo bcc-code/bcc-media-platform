@@ -3,6 +3,7 @@ package search
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/mitchellh/mapstructure"
 )
@@ -114,6 +115,24 @@ func (service *Service) convertToSearchHit(object *searchObject) (item searchHit
 	err := mapstructure.Decode(object, &item)
 	if err != nil {
 		log.L.Error().Err(err).Msg("failed to decode to searchHit")
+	}
+	return
+}
+
+func toLocaleStrings(translations []common.Translation) (title localeString, description localeString) {
+	title = localeString{}
+	description = localeString{}
+	for _, translation := range translations {
+		title[translation.Language] = translation.Title
+		if val := translation.Description; val != "" {
+			description[translation.Language] = val
+		}
+		if val := translation.Details; val != "" {
+			if description[translation.Language] != "" {
+				description[translation.Language] += "\n"
+			}
+			description[translation.Language] += val
+		}
 	}
 	return
 }

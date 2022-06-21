@@ -108,7 +108,7 @@ func main() {
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
-	searchService := search.New(config.Algolia.AppId, config.Algolia.ApiKey, db)
+	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
 
 	searchGroup := r.Group("search")
 	searchGroup.POST("query", searchQueryHandler(&searchService))

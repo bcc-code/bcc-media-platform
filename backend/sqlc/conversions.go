@@ -4,7 +4,9 @@ import "github.com/bcc-code/brunstadtv/backend/common"
 
 // VISIBILITY
 
-func (row *GetVisibilityForEpisodeRow) ToVisibility() (v common.Visibility) {
+func (row GetVisibilityForEpisodeRow) ToVisibility() (v common.Visibility) {
+	v.Status = row.Status
+	v.PublishDate = row.PublishDate
 	if value := row.AvailableFrom.ValueOrZero(); row.AvailableFrom.Valid {
 		v.AvailableFrom = &value
 	}
@@ -14,7 +16,9 @@ func (row *GetVisibilityForEpisodeRow) ToVisibility() (v common.Visibility) {
 	return
 }
 
-func (row *GetVisibilityForSeasonRow) ToVisibility() (v common.Visibility) {
+func (row GetVisibilityForSeasonRow) ToVisibility() (v common.Visibility) {
+	v.Status = row.Status
+	v.PublishDate = row.PublishDate
 	if value := row.AvailableFrom.ValueOrZero(); row.AvailableFrom.Valid {
 		v.AvailableFrom = &value
 	}
@@ -24,7 +28,9 @@ func (row *GetVisibilityForSeasonRow) ToVisibility() (v common.Visibility) {
 	return
 }
 
-func (row *GetVisibilityForShowRow) ToVisibility() (v common.Visibility) {
+func (row GetVisibilityForShowRow) ToVisibility() (v common.Visibility) {
+	v.Status = row.Status
+	v.PublishDate = row.PublishDate
 	if value := row.AvailableFrom.ValueOrZero(); row.AvailableFrom.Valid {
 		v.AvailableFrom = &value
 	}
@@ -34,7 +40,9 @@ func (row *GetVisibilityForShowRow) ToVisibility() (v common.Visibility) {
 	return
 }
 
-func (row *GetVisibilityForEpisodesRow) ToVisibility() (v common.Visibility) {
+func (row GetVisibilityForEpisodesRow) ToVisibility() (v common.Visibility) {
+	v.Status = row.Status
+	v.PublishDate = row.PublishDate
 	if value := row.AvailableFrom.ValueOrZero(); row.AvailableFrom.Valid {
 		v.AvailableFrom = &value
 	}
@@ -44,7 +52,9 @@ func (row *GetVisibilityForEpisodesRow) ToVisibility() (v common.Visibility) {
 	return
 }
 
-func (row *GetVisibilityForSeasonsRow) ToVisibility() (v common.Visibility) {
+func (row GetVisibilityForSeasonsRow) ToVisibility() (v common.Visibility) {
+	v.Status = row.Status
+	v.PublishDate = row.PublishDate
 	if value := row.AvailableFrom.ValueOrZero(); row.AvailableFrom.Valid {
 		v.AvailableFrom = &value
 	}
@@ -54,7 +64,9 @@ func (row *GetVisibilityForSeasonsRow) ToVisibility() (v common.Visibility) {
 	return
 }
 
-func (row *GetVisibilityForShowsRow) ToVisibility() (v common.Visibility) {
+func (row GetVisibilityForShowsRow) ToVisibility() (v common.Visibility) {
+	v.Status = row.Status
+	v.PublishDate = row.PublishDate
 	if value := row.AvailableFrom.ValueOrZero(); row.AvailableFrom.Valid {
 		v.AvailableFrom = &value
 	}
@@ -66,7 +78,7 @@ func (row *GetVisibilityForShowsRow) ToVisibility() (v common.Visibility) {
 
 // TRANSLATIONS
 
-func (row *ShowsTranslation) ToTranslation() (v common.Translation) {
+func (row ShowsTranslation) ToTranslation() (v common.Translation) {
 	v.Language = row.LanguagesCode
 	if value := row.Title.ValueOrZero(); value != "" {
 		v.Title = value
@@ -77,7 +89,7 @@ func (row *ShowsTranslation) ToTranslation() (v common.Translation) {
 	return
 }
 
-func (row *SeasonsTranslation) ToTranslation() (v common.Translation) {
+func (row SeasonsTranslation) ToTranslation() (v common.Translation) {
 	v.Language = row.LanguagesCode
 	if value := row.Title.ValueOrZero(); value != "" {
 		v.Title = value
@@ -88,7 +100,7 @@ func (row *SeasonsTranslation) ToTranslation() (v common.Translation) {
 	return
 }
 
-func (row *EpisodesTranslation) ToTranslation() (v common.Translation) {
+func (row EpisodesTranslation) ToTranslation() (v common.Translation) {
 	v.Language = row.LanguagesCode
 	if value := row.Title.ValueOrZero(); value != "" {
 		v.Title = value
