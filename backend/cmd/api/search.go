@@ -32,7 +32,7 @@ func searchQueryHandler(client *search.Service) func(*gin.Context) {
 			log.L.Error().Err(err)
 		}
 
-		searchHandler := client.GetQueryHandler("not a user but its a user")
+		searchHandler := client.NewRequestHandler(c)
 		r, err := searchHandler.Search(&query)
 
 		if err != nil {

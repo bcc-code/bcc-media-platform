@@ -1,27 +1,12 @@
 package search
 
 import (
-	"fmt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/samber/lo"
 	"strconv"
 	"strings"
-	"time"
 )
-
-type QueryHandler struct {
-	user    any
-	service *Service
-}
-
-func (service *Service) GetQueryHandler(user any) *QueryHandler {
-	return &QueryHandler{
-		user:    user,
-		service: service,
-	}
-}
 
 type searchHit struct {
 	ID              string                 `json:"objectID"`
@@ -36,45 +21,24 @@ type searchHit struct {
 	HighlightResult map[string]interface{} `json:"_highlightResult"`
 }
 
-// TODO: Get user roles
-func getUserRoles() []string {
-	return []string{"test-group-1"}
-}
-
 // TODO: Get user default language
 func getUserLanguage() string {
 	return defaultLanguage
 }
 
-func (h *QueryHandler) Search(query *common.SearchQuery) (*common.SearchResult, error) {
-	now := time.Now().Unix()
-
-	userRoles := getUserRoles()
+func (handler *RequestHandler) Search(query *common.SearchQuery) (*common.SearchResult, error) {
 	language := getUserLanguage()
 
-	if len(userRoles) == 0 {
-		// No roles == no permissions == no results
-		return &common.SearchResult{
-			Result: []common.SearchResultItem{},
-		}, nil
+	filterString, err := handler.getFiltersForCurrentUser()
+	if err != nil {
+		log.L.Error().Err(err)
+		return &common.SearchResult{}, err
 	}
 
-	var filters = []string{
-		strings.Join(lo.Map(userRoles, func(role string, _ int) string {
-			return fmt.Sprintf("%s:%s", rolesField, role)
-		}), " OR "),
-		fmt.Sprintf("%s < %d", publishedAtField, now),
-		fmt.Sprintf("%[1]s = 0 OR %[1]s < %[2]d", availableFromField, now),
-		fmt.Sprintf("%[1]s = 0 OR %[1]s > %[2]d", availableToField, now),
-		fmt.Sprintf("%s:%s", statusField, common.StatusPublished),
-	}
-
-	filterString := "(" + strings.Join(filters, ") AND (") + ")"
-
-	result, err := h.service.index.Search(query.Query,
+	result, err := handler.service.index.Search(query.Query,
 		opt.Filters(filterString),
 		opt.Page(query.Page),
-		opt.AttributesToHighlight(h.service.getTextFields()...),
+		opt.AttributesToHighlight(handler.service.getTextFields()...),
 	)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Search failed")
@@ -95,7 +59,7 @@ func (h *QueryHandler) Search(query *common.SearchQuery) (*common.SearchResult, 
 	searchResult.Result = []common.SearchResultItem{}
 
 	for _, rawHit := range hits {
-		hit := h.service.convertToSearchHit(&rawHit)
+		hit := handler.service.convertToSearchHit(&rawHit)
 		parts := strings.Split(hit.ID, "-")
 		model := parts[0]
 		id, err := strconv.ParseInt(parts[1], 0, 64)
