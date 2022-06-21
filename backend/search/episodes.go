@@ -2,12 +2,14 @@ package search
 
 import (
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"strconv"
 )
 
 func (handler *RequestHandler) mapEpisodeToSearchObject(
@@ -20,12 +22,9 @@ func (handler *RequestHandler) mapEpisodeToSearchObject(
 	object[idField] = "episode-" + strconv.Itoa(itemId)
 	object[typeField] = item.Type
 	object[rolesField] = handler.getRolesForEpisode(item.ID)
-	if item.DateCreated.Valid {
-		object[createdAtField] = item.DateCreated.Time.UTC().Unix()
-	}
-	if item.DateUpdated.Valid {
-		object[updatedAtField] = item.DateUpdated.Time.UTC().Unix()
-	}
+
+	object[createdAtField] = item.DateCreated.UTC().Unix()
+	object[updatedAtField] = item.DateUpdated.UTC().Unix()
 	object[publishedAtField] = item.PublishDate.UTC().Unix()
 
 	if image != nil {
