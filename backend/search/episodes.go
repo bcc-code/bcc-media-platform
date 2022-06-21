@@ -3,7 +3,6 @@ package search
 import (
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
