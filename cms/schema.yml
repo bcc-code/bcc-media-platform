@@ -725,6 +725,12 @@ collections:
       translations: null
       unarchive_value: null
     schema: null
+  - collection: materialized_views_meta
+    meta: null
+    schema:
+      comment: null
+      name: materialized_views_meta
+      schema: public
   - collection: page_management
     meta:
       accountability: all
@@ -8829,6 +8835,52 @@ fields:
       schema: public
       table: lists_relations
     type: integer
+  - collection: materialized_views_meta
+    field: last_refreshed
+    meta: null
+    schema:
+      comment: null
+      data_type: timestamp with time zone
+      default_value: now()
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: last_refreshed
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: materialized_views_meta
+    type: timestamp
+  - collection: materialized_views_meta
+    field: view_name
+    meta: null
+    schema:
+      comment: null
+      data_type: text
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: false
+      is_primary_key: true
+      is_unique: true
+      max_length: null
+      name: view_name
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: materialized_views_meta
+    type: text
   - collection: pages
     field: code
     meta:

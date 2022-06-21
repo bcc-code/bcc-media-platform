@@ -16,6 +16,36 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- Name: update_episodes_access(); Type: FUNCTION; Schema: public; Owner: btv
+--
+
+CREATE FUNCTION public.update_episodes_access() RETURNS boolean
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	last_refreshed timestamptz;
+BEGIN
+	SELECT date_refreshed INTO last_refreshed FROM materialized_views_meta WHERE view_name = 'episodes_access';
+
+	IF (
+ (SELECT MAX(date_updated) FROM shows) > last_refreshed  OR
+ (SELECT MAX(date_updated) FROM seasons) > last_refreshed OR
+ (SELECT MAX(date_updated) FROM episodes) > last_refreshed OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups) > last_refreshed OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups_download) >last_refreshed OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups_earlyaccess) > (last_refreshed)) THEN
+		RAISE NOTICE 'Refreshing view';
+		REFRESH MATERIALIZED VIEW CONCURRENTLY episodes_access;
+		UPDATE materialized_views_meta SET date_refreshed = NOW() WHERE view_name = 'episodes_access';
+		RETURN true;
+    END IF;
+	RETURN false;
+END $$;
+
+
+ALTER FUNCTION public.update_episodes_access() OWNER TO btv;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -1254,6 +1284,136 @@ CREATE TABLE public.episodes (
 ALTER TABLE public.episodes OWNER TO btv;
 
 --
+-- Name: episodes_usergroups; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.episodes_usergroups (
+    episodes_id integer NOT NULL,
+    id integer NOT NULL,
+    type character varying(255) DEFAULT NULL::character varying,
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+);
+
+
+ALTER TABLE public.episodes_usergroups OWNER TO btv;
+
+--
+-- Name: episodes_usergroups_download; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.episodes_usergroups_download (
+    episodes_id integer NOT NULL,
+    id integer NOT NULL,
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+);
+
+
+ALTER TABLE public.episodes_usergroups_download OWNER TO btv;
+
+--
+-- Name: episodes_usergroups_earlyaccess; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.episodes_usergroups_earlyaccess (
+    episodes_id integer NOT NULL,
+    id integer NOT NULL,
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+);
+
+
+ALTER TABLE public.episodes_usergroups_earlyaccess OWNER TO btv;
+
+--
+-- Name: seasons; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.seasons (
+    agerating_code character varying(255) DEFAULT NULL::character varying,
+    available_from timestamp without time zone,
+    available_to timestamp without time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id integer NOT NULL,
+    image_file_id uuid,
+    legacy_description_id integer,
+    legacy_id integer,
+    legacy_title_id integer,
+    publish_date timestamp without time zone NOT NULL,
+    season_number integer NOT NULL,
+    show_id integer NOT NULL,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    user_created uuid,
+    user_updated uuid
+);
+
+
+ALTER TABLE public.seasons OWNER TO btv;
+
+--
+-- Name: shows; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.shows (
+    agerating_code character varying(255) DEFAULT NULL::character varying,
+    available_from timestamp without time zone,
+    available_to timestamp without time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id integer NOT NULL,
+    image_file_id uuid,
+    legacy_description_id integer,
+    legacy_id integer,
+    legacy_title_id integer,
+    publish_date timestamp without time zone NOT NULL,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    type character varying(255) DEFAULT NULL::character varying NOT NULL,
+    user_created uuid,
+    user_updated uuid
+);
+
+
+ALTER TABLE public.shows OWNER TO btv;
+
+--
+-- Name: episodes_access; Type: MATERIALIZED VIEW; Schema: public; Owner: btv
+--
+
+CREATE MATERIALIZED VIEW public.episodes_access AS
+ WITH eu AS (
+         SELECT episodes_usergroups.episodes_id,
+            array_agg(episodes_usergroups.usergroups_code) AS usergroups_codes
+           FROM public.episodes_usergroups
+          GROUP BY episodes_usergroups.episodes_id
+        ), ed AS (
+         SELECT episodes_usergroups_download.episodes_id,
+            array_agg(episodes_usergroups_download.usergroups_code) AS usergroups_codes
+           FROM public.episodes_usergroups_download
+          GROUP BY episodes_usergroups_download.episodes_id
+        ), ee AS (
+         SELECT episodes_usergroups_earlyaccess.episodes_id,
+            array_agg(episodes_usergroups_earlyaccess.usergroups_code) AS usergroups_codes
+           FROM public.episodes_usergroups_earlyaccess
+          GROUP BY episodes_usergroups_earlyaccess.episodes_id
+        )
+ SELECT e.id,
+    (((e.status)::text = 'published'::text) AND ((se.status)::text = 'published'::text) AND ((s.status)::text = 'published'::text)) AS published,
+    COALESCE(GREATEST(e.available_from, se.available_from, s.available_from), '1800-01-01 00:00:00'::timestamp without time zone) AS available_from,
+    COALESCE(LEAST(e.available_to, se.available_to, s.available_to), '3000-01-01 00:00:00'::timestamp without time zone) AS available_to,
+    COALESCE(eu.usergroups_codes, (ARRAY[]::text[])::character varying[]) AS usergroups,
+    COALESCE(ed.usergroups_codes, (ARRAY[]::text[])::character varying[]) AS usergroups_downloads,
+    COALESCE(ee.usergroups_codes, (ARRAY[]::text[])::character varying[]) AS usergroups_earlyaccess
+   FROM (((((public.episodes e
+     LEFT JOIN public.seasons se ON ((e.season_id = se.id)))
+     LEFT JOIN public.shows s ON ((se.show_id = s.id)))
+     LEFT JOIN eu ON ((e.id = eu.episodes_id)))
+     LEFT JOIN ed ON ((e.id = ed.episodes_id)))
+     LEFT JOIN ee ON ((e.id = ee.episodes_id)))
+  WITH NO DATA;
+
+
+ALTER TABLE public.episodes_access OWNER TO btv;
+
+--
 -- Name: episodes_categories; Type: TABLE; Schema: public; Owner: btv
 --
 
@@ -1385,33 +1545,6 @@ ALTER SEQUENCE public.episodes_translations_id_seq OWNED BY public.episodes_tran
 
 
 --
--- Name: episodes_usergroups; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.episodes_usergroups (
-    episodes_id integer NOT NULL,
-    id integer NOT NULL,
-    type character varying(255) DEFAULT NULL::character varying,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
-);
-
-
-ALTER TABLE public.episodes_usergroups OWNER TO btv;
-
---
--- Name: episodes_usergroups_download; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.episodes_usergroups_download (
-    episodes_id integer NOT NULL,
-    id integer NOT NULL,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
-);
-
-
-ALTER TABLE public.episodes_usergroups_download OWNER TO btv;
-
---
 -- Name: episodes_usergroups_download_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
@@ -1432,19 +1565,6 @@ ALTER TABLE public.episodes_usergroups_download_id_seq OWNER TO btv;
 
 ALTER SEQUENCE public.episodes_usergroups_download_id_seq OWNED BY public.episodes_usergroups_download.id;
 
-
---
--- Name: episodes_usergroups_earlyaccess; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.episodes_usergroups_earlyaccess (
-    episodes_id integer NOT NULL,
-    id integer NOT NULL,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
-);
-
-
-ALTER TABLE public.episodes_usergroups_earlyaccess OWNER TO btv;
 
 --
 -- Name: episodes_usergroups_earlyaccess_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
@@ -1582,6 +1702,18 @@ ALTER SEQUENCE public.lists_relations_id_seq OWNED BY public.lists_relations.id;
 
 
 --
+-- Name: materialized_views_meta; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.materialized_views_meta (
+    view_name text NOT NULL,
+    last_refreshed timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.materialized_views_meta OWNER TO btv;
+
+--
 -- Name: pages; Type: TABLE; Schema: public; Owner: btv
 --
 
@@ -1621,32 +1753,6 @@ ALTER TABLE public.pages_id_seq OWNER TO btv;
 
 ALTER SEQUENCE public.pages_id_seq OWNED BY public.pages.id;
 
-
---
--- Name: seasons; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.seasons (
-    agerating_code character varying(255) DEFAULT NULL::character varying,
-    available_from timestamp without time zone,
-    available_to timestamp without time zone,
-    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    id integer NOT NULL,
-    image_file_id uuid,
-    legacy_description_id integer,
-    legacy_id integer,
-    legacy_title_id integer,
-    publish_date timestamp without time zone NOT NULL,
-    season_number integer NOT NULL,
-    show_id integer NOT NULL,
-    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
-    user_created uuid,
-    user_updated uuid
-);
-
-
-ALTER TABLE public.seasons OWNER TO btv;
 
 --
 -- Name: seasons_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
@@ -1859,31 +1965,6 @@ ALTER TABLE public.sections_usergroups_id_seq OWNER TO btv;
 
 ALTER SEQUENCE public.sections_usergroups_id_seq OWNED BY public.sections_usergroups.id;
 
-
---
--- Name: shows; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.shows (
-    agerating_code character varying(255) DEFAULT NULL::character varying,
-    available_from timestamp without time zone,
-    available_to timestamp without time zone,
-    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    id integer NOT NULL,
-    image_file_id uuid,
-    legacy_description_id integer,
-    legacy_id integer,
-    legacy_title_id integer,
-    publish_date timestamp without time zone NOT NULL,
-    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
-    type character varying(255) DEFAULT NULL::character varying NOT NULL,
-    user_created uuid,
-    user_updated uuid
-);
-
-
-ALTER TABLE public.shows OWNER TO btv;
 
 --
 -- Name: shows_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
@@ -2845,6 +2926,14 @@ ALTER TABLE ONLY public.lists_relations
 
 
 --
+-- Name: materialized_views_meta materialized_views_meta_pk; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.materialized_views_meta
+    ADD CONSTRAINT materialized_views_meta_pk PRIMARY KEY (view_name);
+
+
+--
 -- Name: pages pages_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
@@ -2954,6 +3043,13 @@ ALTER TABLE ONLY public.tvguideentry
 
 ALTER TABLE ONLY public.usergroups
     ADD CONSTRAINT usergroups_pkey PRIMARY KEY (code);
+
+
+--
+-- Name: episodes_access_idx; Type: INDEX; Schema: public; Owner: btv
+--
+
+CREATE UNIQUE INDEX episodes_access_idx ON public.episodes_access USING btree (id);
 
 
 --
