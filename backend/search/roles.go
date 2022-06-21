@@ -2,53 +2,45 @@ package search
 
 import (
 	"context"
-	null_v4 "gopkg.in/guregu/null.v4"
+	"github.com/bcc-code/mediabank-bridge/log"
+	"gopkg.in/guregu/null.v4"
 )
 
-var episodeRoles = map[int32][]string{}
+const rolesContextKey = "roles"
 
-func (service *Service) getRolesForEpisode(id int32) (roles []string) {
-	if val, ok := episodeRoles[id]; ok {
-		return val
-	}
-	ctx := context.Background()
-	result, _ := service.queries.GetRolesForEpisode(ctx, id)
-	roles = []string{}
-	if result != nil {
-		roles = result
-	}
-	episodeRoles[id] = roles
-	return
+func (handler *RequestHandler) getRolesDict() map[string][]string {
+	dict := handler.context.Value(rolesContextKey).(map[string][]string)
+	return dict
 }
 
-var seasonRoles = map[int32][]string{}
-
-func (service *Service) getRolesForSeason(id int32) (roles []string) {
-	if val, ok := seasonRoles[id]; ok {
+func getRolesForModel(handler *RequestHandler, model string, id int32, factory func(ctx context.Context, id int32) ([]string, error)) []string {
+	dict := handler.getRolesDict()
+	cacheKey := getCacheKeyForModel(model, id)
+	if val, ok := dict[cacheKey]; ok {
 		return val
 	}
-	ctx := context.Background()
-	result, _ := service.queries.GetRolesForSeason(ctx, null_v4.IntFrom(int64(id)))
-	roles = []string{}
-	if result != nil {
-		roles = result
+	roles, err := factory(handler.context, id)
+	if err != nil {
+		log.L.Error().Err(err)
+		return []string{}
 	}
-	episodeRoles[id] = roles
-	return
+	if roles == nil {
+		roles = []string{}
+	}
+	dict[cacheKey] = roles
+	return dict[cacheKey]
 }
 
-var showRoles = map[int32][]string{}
+func (handler *RequestHandler) getRolesForEpisode(id int32) (roles []string) {
+	return getRolesForModel(handler, "episode", id, handler.service.queries.GetRolesForEpisode)
+}
 
-func (service *Service) getRolesForShow(id int32) (roles []string) {
-	if val, ok := showRoles[id]; ok {
-		return val
-	}
-	ctx := context.Background()
-	result, _ := service.queries.GetRolesForShow(ctx, id)
-	roles = []string{}
-	if result != nil {
-		roles = result
-	}
-	episodeRoles[id] = roles
-	return
+func (handler *RequestHandler) getRolesForSeason(id int32) (roles []string) {
+	return getRolesForModel(handler, "season", id, func(ctx context.Context, id int32) ([]string, error) {
+		return handler.service.queries.GetRolesForSeason(ctx, null.IntFrom(int64(id)))
+	})
+}
+
+func (handler *RequestHandler) getRolesForShow(id int32) (roles []string) {
+	return getRolesForModel(handler, "show", id, handler.service.queries.GetRolesForShow)
 }

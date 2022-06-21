@@ -38,7 +38,7 @@ type server struct {
 // IngestVod processes the message for ingesting a VOD asset
 func (s server) ProcessMessage(c *gin.Context) {
 	ctx := c.Request.Context()
-	ctx, span := otel.Tracer("jobs/core").Start(ctx, "RrocessMessage")
+	ctx, span := otel.Tracer("jobs/core").Start(ctx, "ProcessMessage")
 	defer span.End()
 
 	msg, err := pubsub.MessageFromCtx(c)
@@ -73,6 +73,8 @@ func (s server) ProcessMessage(c *gin.Context) {
 	switch e.Type() {
 	case events.TypeAssetDelivered:
 		err = asset.Ingest(ctx, s.services, s.config, e)
+	case events.TypeSearchReindex, events.TypeSearchIndex:
+		err = s.services.GetSearchService().HandlePubSub(ctx, e)
 	default:
 		err = errUndefinedHandler.Here()
 	}
@@ -81,7 +83,7 @@ func (s server) ProcessMessage(c *gin.Context) {
 		log.L.Error().
 			Err(err).
 			Str("msg", spew.Sdump(msg)).
-			Msgf("Error procesing message. See log for more details")
+			Msgf("Error processing message. See log for more details")
 		c.Status(http.StatusOK)
 		return
 	}

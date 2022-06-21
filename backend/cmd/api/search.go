@@ -32,7 +32,7 @@ func searchQueryHandler(client *search.Service) func(*gin.Context) {
 			log.L.Error().Err(err)
 		}
 
-		searchHandler := client.GetQueryHandler("not a user but its a user")
+		searchHandler := client.NewRequestHandler(c)
 		r, err := searchHandler.Search(&query)
 
 		if err != nil {
@@ -42,6 +42,23 @@ func searchQueryHandler(client *search.Service) func(*gin.Context) {
 			})
 			return
 		}
+
+		c.JSON(200, r)
+	}
+}
+
+func searchKeyHandler(client *search.Service) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var query common.SearchQuery
+		// define default options
+		query.Page = 0
+		err := c.BindJSON(&query)
+		if err != nil {
+			log.L.Error().Err(err)
+		}
+
+		searchHandler := client.NewRequestHandler(c)
+		r := searchHandler.GenerateSecureKey()
 
 		c.JSON(200, r)
 	}
