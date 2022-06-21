@@ -25,35 +25,30 @@ func mapTranslationsForShow(translations []sqlc.ShowsTranslation) (title localeS
 	return
 }
 
-func mapShowToSearchObject(
+func (handler *RequestHandler) mapShowToSearchObject(
 	item sqlc.Show,
-	roles []string,
 	image *sqlc.DirectusFile,
-	translations []sqlc.ShowsTranslation,
 ) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
 	object[idField] = "show-" + strconv.Itoa(itemId)
-	if roles == nil {
-		roles = []string{}
-	}
-	object[rolesField] = roles
+	object[rolesField] = handler.getRolesForShow(item.ID)
 	object[createdAtField] = item.DateCreated.UTC().Unix()
 	object[updatedAtField] = item.DateUpdated.UTC().Unix()
-	title, description := mapTranslationsForShow(translations)
-	object.mapFromLocaleString(titleField, title)
-	object.mapFromLocaleString(descriptionField, description)
 	if image != nil {
 		object[imageField] = image.GetImageUrl()
 	}
+
+	object.assignVisibility(handler.getVisibilityForShow(item.ID))
+	title, description := toLocaleStrings(handler.getTranslationsForShow(item.ID))
+	object.mapFromLocaleString(titleField, title)
+	object.mapFromLocaleString(descriptionField, description)
 	return object
 }
 
 func (handler *RequestHandler) indexShows(
 	items []sqlc.Show,
-	roleDict map[int32][]string,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
-	tDict map[int32][]sqlc.ShowsTranslation,
 	index *search.Index,
 ) {
 	objects := lo.Map(items, func(item sqlc.Show, _ int) searchObject {
@@ -62,9 +57,7 @@ func (handler *RequestHandler) indexShows(
 			imageResult := imageDict[item.ImageFileID.UUID]
 			image = &imageResult
 		}
-		object := mapShowToSearchObject(item, roleDict[item.ID], image, tDict[item.ID])
-		object.assignVisibility(handler.getVisibilityForShow(item.ID))
-		return object
+		return handler.mapShowToSearchObject(item, image)
 	})
 
 	err := indexObjects(index, objects)
@@ -83,19 +76,9 @@ func (handler *RequestHandler) indexShow(item sqlc.Show) {
 		thumbnailResult, _ := service.queries.GetFile(ctx, item.ImageFileID.UUID)
 		thumbnail = &thumbnailResult
 	}
-	translations, err := service.queries.GetTranslationsForShow(ctx, item.ID)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to retrieve translations for season")
-		return
-	}
-	roles, err := service.queries.GetRolesForShow(ctx, item.ID)
-	if err != nil {
-		log.L.Error().Err(err)
-		return
-	}
-	object := mapShowToSearchObject(item, roles, thumbnail, translations)
-	object.assignVisibility(handler.getVisibilityForShow(item.ID))
-	_, err = service.index.SaveObject(object)
+	object := handler.mapShowToSearchObject(item, thumbnail)
+
+	_, err := service.index.SaveObject(object)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index season")
 	}

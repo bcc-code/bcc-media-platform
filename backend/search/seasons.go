@@ -8,7 +8,6 @@ import (
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"gopkg.in/guregu/null.v4"
 )
 
 func mapTranslationsForSeason(translations []sqlc.SeasonsTranslation) (title localeString, description localeString) {
@@ -26,37 +25,33 @@ func mapTranslationsForSeason(translations []sqlc.SeasonsTranslation) (title loc
 	return
 }
 
-func mapSeasonToSearchObject(
+func (handler *RequestHandler) mapSeasonToSearchObject(
 	item sqlc.Season,
-	roles []string,
 	image *sqlc.DirectusFile,
-	translations []sqlc.SeasonsTranslation,
 ) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
-	if roles == nil {
-		roles = []string{}
-	}
-	object[rolesField] = roles
+	object[rolesField] = handler.getRolesForSeason(item.ID)
 	object[idField] = "season-" + strconv.Itoa(itemId)
 	object[createdAtField] = item.DateCreated.UTC().Unix()
 	object[updatedAtField] = item.DateUpdated.UTC().Unix()
 	object[publishedAtField] = item.PublishDate.UTC().Unix()
-	title, description := mapTranslationsForSeason(translations)
-	object.mapFromLocaleString(titleField, title)
-	object.mapFromLocaleString(descriptionField, description)
 	if image != nil {
 		object[imageField] = image.GetImageUrl()
 	}
+
+	object.assignVisibility(handler.getVisibilityForSeason(item.ID))
+	title, description := toLocaleStrings(handler.getTranslationsForSeason(item.ID))
+	object.mapFromLocaleString(titleField, title)
+	object.mapFromLocaleString(descriptionField, description)
+	showTitle, _ := toLocaleStrings(handler.getTranslationsForShow(item.ShowID))
+	object.mapFromLocaleString(showTitleField, showTitle)
 	return object
 }
 
 func (handler *RequestHandler) indexSeasons(
 	items []sqlc.Season,
-	rolesDict map[int32][]string,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
-	tDict map[int32][]sqlc.SeasonsTranslation,
-	showTs map[int32][]sqlc.ShowsTranslation,
 	index *search.Index,
 ) {
 	objects := lo.Map(items, func(item sqlc.Season, _ int) searchObject {
@@ -65,10 +60,7 @@ func (handler *RequestHandler) indexSeasons(
 			thumbnailResult := imageDict[item.ImageFileID.UUID]
 			image = &thumbnailResult
 		}
-		object := mapSeasonToSearchObject(item, rolesDict[item.ID], image, tDict[item.ID])
-		object.assignVisibility(handler.getVisibilityForSeason(item.ID))
-		object.assignShowIDAndTitle(item.ShowID, showTs[item.ShowID])
-		return object
+		return handler.mapSeasonToSearchObject(item, image)
 	})
 
 	err := indexObjects(index, objects)
@@ -87,27 +79,8 @@ func (handler *RequestHandler) indexSeason(item sqlc.Season) {
 		image = &thumbnailResult
 	}
 
-	ts, err := service.queries.GetTranslationsForSeason(ctx, item.ID)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to retrieve translations for season")
-	}
-
-	showTs, err := service.queries.GetTranslationsForShow(ctx, item.ShowID)
-	if err != nil {
-		log.L.Error().Err(err)
-		return
-	}
-
-	roles, err := service.queries.GetRolesForSeason(ctx, null.IntFrom(int64(item.ID)))
-	if err != nil {
-		log.L.Error().Err(err)
-		return
-	}
-
-	object := mapSeasonToSearchObject(item, roles, image, ts)
-	object.assignVisibility(handler.getVisibilityForSeason(item.ID))
-	object.assignShowIDAndTitle(item.ShowID, showTs)
-	_, err = service.index.SaveObject(object)
+	object := handler.mapSeasonToSearchObject(item, image)
+	_, err := service.index.SaveObject(object)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index season")
 	}
