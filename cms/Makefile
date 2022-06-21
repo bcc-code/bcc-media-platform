@@ -13,7 +13,9 @@ init:
 	npm i
 	make build
 	docker-compose up -d
+	mv extensions/migrations extensions/.migrations
 	npx directus bootstrap
+	mv extensions/.migrations extensions/migrations
 	make schema-update
 
 reset:
@@ -24,8 +26,8 @@ run:
 	npx directus start
 
 schema-update:
-	npx directus database migrate:latest
 	npx directus schema apply base-schema.yml -y
+	npx directus database migrate:latest
 	npx directus schema apply schema.yml -y
 
 schema-snapshot:

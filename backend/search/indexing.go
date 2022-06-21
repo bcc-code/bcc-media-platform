@@ -38,7 +38,11 @@ func (handler *RequestHandler) Reindex() {
 		return
 	}
 
-	shows, _ := q.GetShows(ctx)
+	shows, err := q.GetShows(ctx)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to retrieve shows")
+		return
+	}
 	showThumbnails, _ := q.GetFilesByIds(ctx, lo.Map(lo.Filter(shows, func(i sqlc.Show, _ int) bool {
 		return i.ImageFileID.Valid
 	}), func(i sqlc.Show, _ int) uuid.UUID {

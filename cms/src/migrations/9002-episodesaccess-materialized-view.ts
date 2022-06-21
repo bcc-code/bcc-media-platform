@@ -22,7 +22,7 @@ LEFT JOIN ee ON e.id = ee.episodes_id);
 `;
 
 const materialized_views_meta = `
-CREATE TABLE public.materialized_views_meta (
+CREATE TABLE IF NOT EXISTS public.materialized_views_meta (
 	view_name text NOT NULL,
 	last_refreshed timestamptz DEFAULT NOW(),
 	CONSTRAINT materialized_views_meta_pk PRIMARY KEY (view_name)
