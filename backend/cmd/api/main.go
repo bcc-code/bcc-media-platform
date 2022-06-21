@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
@@ -43,25 +42,6 @@ func playgroundHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
 	}
-}
-
-func authenticateRequestWithXApiKey(apiKey string, c *gin.Context) error {
-	a := c.Request.Header.Get("X-API-Key")
-	if a == apiKey {
-		return nil
-	}
-
-	var err error
-	if a == "" {
-		err = errors.New("missing x-api-key header")
-	} else {
-		err = errors.New("failed to authenticate")
-	}
-
-	c.Status(401)
-	_, _ = c.Writer.WriteString("Unauthorized")
-
-	return err
 }
 
 func main() {
@@ -114,20 +94,11 @@ func main() {
 	searchGroup.POST("query", searchQueryHandler(searchService))
 	searchGroup.GET("key", searchKeyHandler(searchService))
 
-	// Hooks and scheduling for search indexing
-	if config.SchedulerSecret != "" {
-		log.L.Debug().Msg("Setting up endpoint for scheduled search indexing")
-		searchGroup.GET("index", searchIndexHandler(config.SchedulerSecret, searchService))
-	} else {
-		log.L.Debug().Msg("Missing secret for scheduler endpoint, skipping endpoint configuration")
-	}
+	log.L.Debug().Msg("Setting up endpoint for scheduled search indexing")
+	searchGroup.GET("index", searchIndexHandler(searchService))
 
-	if config.DirectusSecret != "" {
-		log.L.Debug().Msg("Setting up endpoint for webhooks from Directus")
-		r.POST("/directus/webhook", directusEventHandler(config.DirectusSecret, searchService))
-	} else {
-		log.L.Debug().Msg("Missing secret for webhooks from Directus, skipping endpoint configuration")
-	}
+	log.L.Debug().Msg("Setting up endpoint for webhooks from Directus")
+	r.POST("/directus/webhook", directusEventHandler(searchService))
 
 	span.End()
 
