@@ -47,6 +47,23 @@ func searchQueryHandler(client *search.Service) func(*gin.Context) {
 	}
 }
 
+func searchKeyHandler(client *search.Service) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var query common.SearchQuery
+		// define default options
+		query.Page = 0
+		err := c.BindJSON(&query)
+		if err != nil {
+			log.L.Error().Err(err)
+		}
+
+		searchHandler := client.NewRequestHandler(c)
+		r := searchHandler.GenerateSecureKey()
+
+		c.JSON(200, r)
+	}
+}
+
 func directusEventHandler(apiKey string, searchService *search.Service) func(c *gin.Context) {
 	eventHandler := directus.NewEventHandler()
 

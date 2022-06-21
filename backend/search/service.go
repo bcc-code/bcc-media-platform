@@ -3,6 +3,7 @@ package search
 import (
 	"context"
 	"database/sql"
+	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -87,7 +88,15 @@ func (service *Service) NewRequestHandler(ctx context.Context) RequestHandler {
 	}
 }
 
-func (handler *RequestHandler) GenerateSecureKey() {
-	//apiKey := handler.service.searchOnlyApiKey
-
+func (handler *RequestHandler) GenerateSecureKey() string {
+	apiKey := handler.service.searchOnlyApiKey
+	filterString, _ := handler.getFiltersForCurrentUser()
+	key, err := search.GenerateSecuredAPIKey(apiKey,
+		opt.Filters(filterString),
+	)
+	if err != nil {
+		log.L.Error().Err(err)
+		return ""
+	}
+	return key
 }
