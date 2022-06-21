@@ -1,12 +1,13 @@
 package search
 
 import (
+	"strconv"
+
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"strconv"
 )
 
 func mapTranslationsForSeason(translations []sqlc.SeasonsTranslation) (title localeString, description localeString) {
@@ -32,12 +33,8 @@ func (handler *RequestHandler) mapSeasonToSearchObject(
 	itemId := int(item.ID)
 	object[rolesField] = handler.getRolesForSeason(item.ID)
 	object[idField] = "season-" + strconv.Itoa(itemId)
-	if item.DateCreated.Valid {
-		object[createdAtField] = item.DateCreated.Time.UTC().Unix()
-	}
-	if item.DateUpdated.Valid {
-		object[updatedAtField] = item.DateUpdated.Time.UTC().Unix()
-	}
+	object[createdAtField] = item.DateCreated.UTC().Unix()
+	object[updatedAtField] = item.DateUpdated.UTC().Unix()
 	object[publishedAtField] = item.PublishDate.UTC().Unix()
 	if image != nil {
 		object[imageField] = image.GetImageUrl()
