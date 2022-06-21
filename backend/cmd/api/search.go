@@ -9,13 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func searchIndexHandler(apiKey string, client *search.Service) func(*gin.Context) {
+func searchIndexHandler(client *search.Service) func(*gin.Context) {
 	return func(c *gin.Context) {
-		err := authenticateRequestWithXApiKey(apiKey, c)
-		if err != nil {
-			log.L.Error().Err(err).Msg("Failed to authenticate request")
-			return
-		}
 		handler := client.NewRequestHandler(c)
 		handler.Reindex()
 		_, _ = c.Writer.WriteString("Indexed all documents")
@@ -64,7 +59,7 @@ func searchKeyHandler(client *search.Service) func(*gin.Context) {
 	}
 }
 
-func directusEventHandler(apiKey string, searchService *search.Service) func(c *gin.Context) {
+func directusEventHandler(searchService *search.Service) func(c *gin.Context) {
 	eventHandler := directus.NewEventHandler()
 
 	indexEvents := []string{directus.EventItemsCreate, directus.EventItemsUpdate}
@@ -80,12 +75,5 @@ func directusEventHandler(apiKey string, searchService *search.Service) func(c *
 		handler.DeleteModel(model, id)
 	})
 
-	return func(c *gin.Context) {
-		err := authenticateRequestWithXApiKey(apiKey, c)
-		if err != nil {
-			log.L.Error().Err(err).Msg("Failed to authenticate")
-			return
-		}
-		eventHandler.Execute(c)
-	}
+	return eventHandler.Execute
 }

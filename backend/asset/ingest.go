@@ -187,7 +187,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		return merry.Wrap(err)
 	}
 
-	// S3 files added here will be deleted if everyting else is sucessful
+	// S3 files added here will be deleted if everything else is successful
 	objectsToDelete := []types.ObjectIdentifier{
 		{Key: aws.String(msg.JSONMetaPath)},
 	}

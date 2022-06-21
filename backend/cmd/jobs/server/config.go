@@ -38,7 +38,7 @@ func (c ConfigData) GetMediapackageSource() *string {
 }
 
 // GetDeleteIngestFilesFlag controls if the ingest files get deleted after
-// a succesful import
+// a successful import
 func (c ConfigData) GetDeleteIngestFilesFlag() bool {
 	return c.DeleteIngestFilesFlag
 }
