@@ -52,15 +52,11 @@ func SaveItem[t DSItem](ctx context.Context, c *resty.Client, i t, unmashall boo
 	if i.UID() != 0 {
 		path := fmt.Sprintf("/items/%s/%d", i.TypeName(), i.UID())
 		req.SetBody(i.ForUpdate())
-		span.AddMessageSendEvent(req.Time.Unix(), req.RawRequest.ContentLength, 0)
 		res, err = req.Patch(path)
-		span.AddMessageSendEvent(req.Time.Unix(), res.Size(), 0)
 	} else {
 		path := fmt.Sprintf("/items/%s", i.TypeName())
 		req.SetBody(i)
-		span.AddMessageSendEvent(req.Time.Unix(), req.RawRequest.ContentLength, 0)
 		res, err = req.Post(path)
-		span.AddMessageSendEvent(req.Time.Unix(), res.Size(), 0)
 	}
 
 	if err != nil {
