@@ -466,6 +466,16 @@ type Episode struct {
 	UserUpdated              uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 }
 
+type EpisodesAccess struct {
+	ID                    int32       `db:"id" json:"id"`
+	Published             interface{} `db:"published" json:"published"`
+	AvailableFrom         interface{} `db:"available_from" json:"availableFrom"`
+	AvailableTo           interface{} `db:"available_to" json:"availableTo"`
+	Usergroups            interface{} `db:"usergroups" json:"usergroups"`
+	UsergroupsDownloads   interface{} `db:"usergroups_downloads" json:"usergroupsDownloads"`
+	UsergroupsEarlyaccess interface{} `db:"usergroups_earlyaccess" json:"usergroupsEarlyaccess"`
+}
+
 type EpisodesCategory struct {
 	CategoriesID int32 `db:"categories_id" json:"categoriesID"`
 	EpisodesID   int32 `db:"episodes_id" json:"episodesID"`
@@ -531,6 +541,11 @@ type ListsRelation struct {
 	Item       null_v4.String `db:"item" json:"item"`
 	ListsID    null_v4.Int    `db:"lists_id" json:"listsID"`
 	Sort       null_v4.Int    `db:"sort" json:"sort"`
+}
+
+type MaterializedViewsMetum struct {
+	ViewName      string       `db:"view_name" json:"viewName"`
+	LastRefreshed sql.NullTime `db:"last_refreshed" json:"lastRefreshed"`
 }
 
 type Page struct {
