@@ -90,6 +90,9 @@ func (service *Service) NewRequestHandler(ctx context.Context) RequestHandler {
 
 func (handler *RequestHandler) GenerateSecureKey() string {
 	apiKey := handler.service.searchOnlyApiKey
+
+	// TODO: perhaps generate a Search-only API key every 2 hours, and rotate every hour. That way we can update filters every hour ?
+
 	filterString, _ := handler.getFiltersForCurrentUser()
 	key, err := search.GenerateSecuredAPIKey(apiKey,
 		opt.Filters(filterString),
