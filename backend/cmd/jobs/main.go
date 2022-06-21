@@ -4,12 +4,13 @@ package main
 
 import (
 	"context"
-
+	"database/sql"
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
 	"github.com/bcc-code/brunstadtv/backend/directus"
+	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
@@ -24,7 +25,7 @@ func main() {
 	ctx := context.Background()
 
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
-	log.L.Debug().Msg("Seting up tracing!")
+	log.L.Debug().Msg("Setting up tracing!")
 
 	utils.MustSetupTracing()
 	ctx, span := otel.Tracer("jobs/core").Start(ctx, "init")
@@ -52,6 +53,14 @@ func main() {
 
 	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key, debugDirectus)
 
+	db, err := sql.Open("postgres", config.DB.ConnectionString)
+	if err != nil {
+		log.L.Error().Err(err)
+		return
+	}
+
+	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
+
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
 
@@ -59,6 +68,7 @@ func main() {
 		S3Client:        s3Client,
 		MediaPackageVOD: mediaPackageVOD,
 		DirectusClient:  directusClient,
+		SearchService:   searchService,
 	}, serverConfig)
 
 	apiGroup := router.Group("api")
