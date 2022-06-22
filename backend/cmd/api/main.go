@@ -93,7 +93,10 @@ func main() {
 
 		searchGroup := r.Group("search")
 		searchGroup.POST("query", searchQueryHandler(searchService))
-		searchGroup.GET("key", searchKeyHandler(searchService))
+
+		if config.Algolia.SearchOnlyApiKey != "" {
+			searchGroup.GET("key", searchKeyHandler(searchService))
+		}
 
 		log.L.Debug().Msg("Setting up endpoint for scheduled search indexing")
 		searchGroup.GET("index", searchIndexHandler(searchService))
