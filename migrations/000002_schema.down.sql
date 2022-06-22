@@ -1,2 +1,0 @@
-ALTER TABLE public.assets DROP COLUMN IF EXISTS mediabank_id CASCADE;
-ALTER TABLE public.assetfiles DROP COLUMN IF EXISTS service CASCADE;
