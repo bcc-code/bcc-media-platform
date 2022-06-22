@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/bcc-code/brunstadtv/backend/directus"
 	"net/http"
 
 	"github.com/ansel1/merry"
@@ -74,7 +75,12 @@ func (s server) ProcessMessage(c *gin.Context) {
 	case events.TypeAssetDelivered:
 		err = asset.Ingest(ctx, s.services, s.config, e)
 	case events.TypeSearchReindex, events.TypeSearchIndex:
-		err = s.services.GetSearchService().HandlePubSub(ctx, e)
+		var event directus.Event
+		err = e.DataAs(&event)
+		if err == nil {
+			eventHandler := s.services.GetDirectusEventHandler()
+			eventHandler.Process(ctx, event)
+		}
 	default:
 		err = errUndefinedHandler.Here()
 	}
