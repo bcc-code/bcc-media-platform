@@ -51,7 +51,7 @@ func (handler *EventHandler) On(events []string, callback func(ctx context.Conte
 }
 
 func (handler *EventHandler) Process(ctx context.Context, event Event) {
-	log.L.Debug().Msgf("Processing event: %s\nCollection: %s\n", event.Event, event.Collection)
+	log.L.Debug().Str("event", event.Event).Str("collection", event.Collection).Msg("Processing event")
 
 	model := getModelFromCollectionName(event.Collection)
 	if model == "" {
