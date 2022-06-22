@@ -88,17 +88,19 @@ func main() {
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
-	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
+	if config.Algolia.AppId != "" {
+		searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
 
-	searchGroup := r.Group("search")
-	searchGroup.POST("query", searchQueryHandler(searchService))
-	searchGroup.GET("key", searchKeyHandler(searchService))
+		searchGroup := r.Group("search")
+		searchGroup.POST("query", searchQueryHandler(searchService))
+		searchGroup.GET("key", searchKeyHandler(searchService))
 
-	log.L.Debug().Msg("Setting up endpoint for scheduled search indexing")
-	searchGroup.GET("index", searchIndexHandler(searchService))
+		log.L.Debug().Msg("Setting up endpoint for scheduled search indexing")
+		searchGroup.GET("index", searchIndexHandler(searchService))
 
-	log.L.Debug().Msg("Setting up endpoint for webhooks from Directus")
-	r.POST("/directus/webhook", directusEventHandler(searchService))
+		log.L.Debug().Msg("Setting up endpoint for webhooks from Directus")
+		r.POST("/directus/webhook", directusEventHandler(searchService))
+	}
 
 	span.End()
 
