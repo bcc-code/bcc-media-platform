@@ -11,10 +11,12 @@ export interface Event<T> {
     collection: Collection;
 }
 
-export default ({_, action}) => {
+export default ({action, schedule}) => {
     if (!enabled()) 
         return
     
     action('items.create', updateOrSetTranslationAsync)
     action('items.update', updateOrSetTranslationAsync)
+
+    schedule('0 0 * * *', )
 }
