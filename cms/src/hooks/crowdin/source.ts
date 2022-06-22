@@ -1,4 +1,6 @@
+import { SourceStrings } from "@crowdin/crowdin-api-client";
 import {Event, Model} from ".";
+import { getConfig, getCredentials } from "./config";
 
 
 type LanguagesCode = {
@@ -55,5 +57,39 @@ export function getTranslationsFromEvent(input: Event<any>) {
         model,
         id,
         values,
+    }
+}
+
+export async function updateOrSetTranslationAsync(input: Event<any>) {
+    if (input.collection.endsWith("_translations")) {
+        const config = getConfig();
+        const {model, id, values} = getTranslationsFromEvent(input)
+
+        if (!model)
+            return;
+
+        const stringApi = new SourceStrings(getCredentials())
+        const strings = await stringApi.listProjectStrings(config.projectId)
+
+        for (const [field, value] of Object.entries(values)) {
+            const identifier = `${model}-${id}-` + field;
+            const existingString = strings.data.find(s => s.data.identifier === identifier)
+
+            if (existingString) {
+                await stringApi.editString(config.projectId, existingString.data.id, [
+                    {
+                        op: "replace",
+                        path: "/text",
+                        value: value
+                    }
+                ])
+            } else {
+                await stringApi.addString(config.projectId, {
+                    fileId: config.contentFileId,
+                    text: value,
+                    identifier: `${model}-${id}-` + field,
+                })
+            }
+        }
     }
 }
