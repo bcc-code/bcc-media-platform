@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/pubsub v1.21.1
 	github.com/99designs/gqlgen v0.17.9
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.1
+	github.com/algolia/algoliasearch-client-go/v3 v3.4.0
 	github.com/ansel1/merry v1.6.2
 	github.com/ansel1/merry/v2 v2.0.1
 	github.com/aws/aws-sdk-go-v2 v1.16.4
@@ -76,7 +77,7 @@ require (
 	github.com/lestrrat-go/iter v1.0.1 // indirect
 	github.com/lestrrat-go/option v1.0.0 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
-	github.com/mitchellh/mapstructure v1.3.1 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect

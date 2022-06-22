@@ -2,10 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.2 (Debian 14.2-1.pgdg110+1)
--- Dumped by pg_dump version 14.2
-
--- Started on 2022-04-25 18:12:41 CEST
+-- Dumped from database version 13.6 (Debian 13.6-1.pgdg110+1)
+-- Dumped by pg_dump version 14.3 (Ubuntu 14.3-1.pgdg21.10+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -18,38 +16,71 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- Name: update_episodes_access(); Type: FUNCTION; Schema: public; Owner: btv
+--
+
+CREATE FUNCTION public.update_episodes_access() RETURNS boolean
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	last_refreshed timestamptz;
+BEGIN
+	SELECT date_refreshed INTO last_refreshed FROM materialized_views_meta WHERE view_name = 'episodes_access';
+
+	IF (
+ (SELECT MAX(date_updated) FROM shows) > last_refreshed  OR
+ (SELECT MAX(date_updated) FROM seasons) > last_refreshed OR
+ (SELECT MAX(date_updated) FROM episodes) > last_refreshed OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups) > last_refreshed OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups_download) >last_refreshed OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups_earlyaccess) > (last_refreshed)) THEN
+		RAISE NOTICE 'Refreshing view';
+		REFRESH MATERIALIZED VIEW CONCURRENTLY episodes_access;
+		UPDATE materialized_views_meta SET date_refreshed = NOW() WHERE view_name = 'episodes_access';
+		RETURN true;
+    END IF;
+	RETURN false;
+END $$;
+
+
+ALTER FUNCTION public.update_episodes_access() OWNER TO btv;
+
+SET default_tablespace = '';
+
 SET default_table_access_method = heap;
 
 --
--- TOC entry 237 (class 1259 OID 16876)
--- Name: ageratings; Type: TABLE; Schema: public; Owner: -
+-- Name: ageratings; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.ageratings (
     code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     sort integer,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
     title character varying(255) DEFAULT NULL::character varying
 );
 
 
+ALTER TABLE public.ageratings OWNER TO btv;
+
 --
--- TOC entry 239 (class 1259 OID 16886)
--- Name: ageratings_translations; Type: TABLE; Schema: public; Owner: -
+-- Name: ageratings_translations; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.ageratings_translations (
+    ageratings_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    description character varying(255) DEFAULT NULL::character varying,
     id integer NOT NULL,
-    ageratings_code character varying(255) DEFAULT NULL::character varying,
-    languages_code character varying(255) DEFAULT NULL::character varying,
-    title character varying(255) DEFAULT NULL::character varying
+    languages_code character varying(255) DEFAULT NULL::character varying NOT NULL
 );
 
 
+ALTER TABLE public.ageratings_translations OWNER TO btv;
+
 --
--- TOC entry 238 (class 1259 OID 16885)
--- Name: ageratings_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: ageratings_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.ageratings_translations_id_seq
@@ -61,36 +92,40 @@ CREATE SEQUENCE public.ageratings_translations_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.ageratings_translations_id_seq OWNER TO btv;
+
 --
--- TOC entry 3812 (class 0 OID 0)
--- Dependencies: 238
--- Name: ageratings_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: ageratings_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.ageratings_translations_id_seq OWNED BY public.ageratings_translations.id;
 
 
 --
--- TOC entry 241 (class 1259 OID 16898)
--- Name: assetfiles; Type: TABLE; Schema: public; Owner: -
+-- Name: assetfiles; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.assetfiles (
+    asset_id integer NOT NULL,
+    audio_language_id character varying(255) DEFAULT NULL::character varying,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    extra_metadata json,
     id integer NOT NULL,
+    mime_type character varying(255) DEFAULT NULL::character varying NOT NULL,
+    path character varying(255) DEFAULT NULL::character varying NOT NULL,
+    storage character varying(255) DEFAULT NULL::character varying NOT NULL,
+    subtitle_language_id character varying(255) DEFAULT NULL::character varying,
+    type character varying(255) DEFAULT NULL::character varying NOT NULL,
     user_created uuid,
-    date_created timestamp with time zone,
-    user_updated uuid,
-    date_updated timestamp with time zone,
-    filename character varying(255) DEFAULT NULL::character varying,
-    type character varying(255) DEFAULT NULL::character varying,
-    storage character varying(255) DEFAULT NULL::character varying,
-    asset_id integer
+    user_updated uuid
 );
 
 
+ALTER TABLE public.assetfiles OWNER TO btv;
+
 --
--- TOC entry 240 (class 1259 OID 16897)
--- Name: assetfiles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: assetfiles_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.assetfiles_id_seq
@@ -102,33 +137,39 @@ CREATE SEQUENCE public.assetfiles_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.assetfiles_id_seq OWNER TO btv;
+
 --
--- TOC entry 3813 (class 0 OID 0)
--- Dependencies: 240
--- Name: assetfiles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: assetfiles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.assetfiles_id_seq OWNED BY public.assetfiles.id;
 
 
 --
--- TOC entry 243 (class 1259 OID 16910)
--- Name: assets; Type: TABLE; Schema: public; Owner: -
+-- Name: assets; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.assets (
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    duration integer NOT NULL,
+    encoding_version character varying(255) DEFAULT NULL::character varying,
     id integer NOT NULL,
+    legacy_id integer,
+    main_storage_path text,
+    mediabanken_id character varying(255) DEFAULT NULL::character varying,
+    name character varying(255) DEFAULT NULL::character varying NOT NULL,
+    status character varying(255) DEFAULT 'draft'::character varying,
     user_created uuid,
-    date_created timestamp with time zone,
-    user_updated uuid,
-    date_updated timestamp with time zone,
-    name character varying(255) DEFAULT NULL::character varying
+    user_updated uuid
 );
 
 
+ALTER TABLE public.assets OWNER TO btv;
+
 --
--- TOC entry 242 (class 1259 OID 16909)
--- Name: assets_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: assets_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.assets_id_seq
@@ -140,36 +181,152 @@ CREATE SEQUENCE public.assets_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.assets_id_seq OWNER TO btv;
+
 --
--- TOC entry 3814 (class 0 OID 0)
--- Dependencies: 242
--- Name: assets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: assets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.assets_id_seq OWNED BY public.assets.id;
 
 
 --
--- TOC entry 245 (class 1259 OID 16918)
--- Name: calendarevent; Type: TABLE; Schema: public; Owner: -
+-- Name: assetstreams; Type: TABLE; Schema: public; Owner: btv
 --
 
-CREATE TABLE public.calendarevent (
+CREATE TABLE public.assetstreams (
+    asset_id integer NOT NULL,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    encryption_key_id character varying(255) DEFAULT NULL::character varying,
+    extra_metadata json,
     id integer NOT NULL,
+    legacy_videourl_id integer,
+    path character varying(255) DEFAULT NULL::character varying NOT NULL,
+    service character varying(255) DEFAULT NULL::character varying NOT NULL,
     status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    type character varying(255) DEFAULT NULL::character varying NOT NULL,
+    url character varying(255) DEFAULT NULL::character varying NOT NULL,
     user_created uuid,
-    date_created timestamp with time zone,
-    user_updated uuid,
-    date_updated timestamp with time zone,
-    start timestamp without time zone NOT NULL,
-    "end" timestamp without time zone,
-    title character varying(255) DEFAULT NULL::character varying
+    user_updated uuid
 );
 
 
+ALTER TABLE public.assetstreams OWNER TO btv;
+
 --
--- TOC entry 244 (class 1259 OID 16917)
--- Name: calendarevent_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: assetstreams_audio_languages; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.assetstreams_audio_languages (
+    assetstreams_id integer,
+    id integer NOT NULL,
+    languages_code character varying(255) DEFAULT NULL::character varying
+);
+
+
+ALTER TABLE public.assetstreams_audio_languages OWNER TO btv;
+
+--
+-- Name: assetstreams_audio_languages_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.assetstreams_audio_languages_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.assetstreams_audio_languages_id_seq OWNER TO btv;
+
+--
+-- Name: assetstreams_audio_languages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.assetstreams_audio_languages_id_seq OWNED BY public.assetstreams_audio_languages.id;
+
+
+--
+-- Name: assetstreams_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.assetstreams_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.assetstreams_id_seq OWNER TO btv;
+
+--
+-- Name: assetstreams_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.assetstreams_id_seq OWNED BY public.assetstreams.id;
+
+
+--
+-- Name: assetstreams_subtitle_languages; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.assetstreams_subtitle_languages (
+    assetstreams_id integer,
+    id integer NOT NULL,
+    languages_code character varying(255) DEFAULT NULL::character varying
+);
+
+
+ALTER TABLE public.assetstreams_subtitle_languages OWNER TO btv;
+
+--
+-- Name: assetstreams_subtitle_languages_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.assetstreams_subtitle_languages_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.assetstreams_subtitle_languages_id_seq OWNER TO btv;
+
+--
+-- Name: assetstreams_subtitle_languages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.assetstreams_subtitle_languages_id_seq OWNED BY public.assetstreams_subtitle_languages.id;
+
+
+--
+-- Name: calendarevent; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.calendarevent (
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "end" timestamp without time zone,
+    id integer NOT NULL,
+    start timestamp without time zone NOT NULL,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    title character varying(255) DEFAULT NULL::character varying,
+    user_created uuid,
+    user_updated uuid
+);
+
+
+ALTER TABLE public.calendarevent OWNER TO btv;
+
+--
+-- Name: calendarevent_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.calendarevent_id_seq
@@ -181,71 +338,36 @@ CREATE SEQUENCE public.calendarevent_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.calendarevent_id_seq OWNER TO btv;
+
 --
--- TOC entry 3815 (class 0 OID 0)
--- Dependencies: 244
--- Name: calendarevent_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: calendarevent_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.calendarevent_id_seq OWNED BY public.calendarevent.id;
 
 
 --
--- TOC entry 247 (class 1259 OID 16929)
--- Name: categories; Type: TABLE; Schema: public; Owner: -
+-- Name: categories; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.categories (
+    appear_in_search boolean DEFAULT false,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id integer NOT NULL,
+    legacy_id integer,
+    parent_id integer,
     sort integer,
     user_created uuid,
-    date_created timestamp with time zone,
-    user_updated uuid,
-    date_updated timestamp with time zone,
-    appear_in_search boolean DEFAULT false,
-    title character varying(255) DEFAULT NULL::character varying,
-    parent_id integer
+    user_updated uuid
 );
 
 
---
--- TOC entry 249 (class 1259 OID 16938)
--- Name: categories_episodes; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.categories_episodes (
-    id integer NOT NULL,
-    categories_id integer,
-    episodes_id integer
-);
-
+ALTER TABLE public.categories OWNER TO btv;
 
 --
--- TOC entry 248 (class 1259 OID 16937)
--- Name: categories_episodes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.categories_episodes_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- TOC entry 3816 (class 0 OID 0)
--- Dependencies: 248
--- Name: categories_episodes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.categories_episodes_id_seq OWNED BY public.categories_episodes.id;
-
-
---
--- TOC entry 246 (class 1259 OID 16928)
--- Name: categories_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: categories_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.categories_id_seq
@@ -257,39 +379,110 @@ CREATE SEQUENCE public.categories_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.categories_id_seq OWNER TO btv;
+
 --
--- TOC entry 3817 (class 0 OID 0)
--- Dependencies: 246
--- Name: categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.categories_id_seq OWNED BY public.categories.id;
 
 
 --
--- TOC entry 251 (class 1259 OID 16945)
--- Name: collections; Type: TABLE; Schema: public; Owner: -
+-- Name: categories_translations; Type: TABLE; Schema: public; Owner: btv
 --
 
-CREATE TABLE public.collections (
+CREATE TABLE public.categories_translations (
+    categories_id integer NOT NULL,
     id integer NOT NULL,
-    sort integer,
-    user_created uuid,
-    date_created timestamp with time zone,
-    user_updated uuid,
-    date_updated timestamp with time zone,
-    title character varying(255) DEFAULT NULL::character varying,
-    content character varying(255) DEFAULT 'everything'::character varying,
-    legacy_order_by character varying(255) DEFAULT NULL::character varying,
-    show_episodes_in_slider boolean DEFAULT true,
-    show_id integer,
-    category_id integer
+    languages_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    name character varying(255) DEFAULT NULL::character varying NOT NULL
 );
 
 
+ALTER TABLE public.categories_translations OWNER TO btv;
+
 --
--- TOC entry 250 (class 1259 OID 16944)
--- Name: collections_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: categories_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.categories_translations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.categories_translations_id_seq OWNER TO btv;
+
+--
+-- Name: categories_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.categories_translations_id_seq OWNED BY public.categories_translations.id;
+
+
+--
+-- Name: collections; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.collections (
+    content character varying(255) DEFAULT 'everything'::character varying NOT NULL,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id integer NOT NULL,
+    legacy_order_by character varying(255) DEFAULT NULL::character varying,
+    list_id integer,
+    show_episodes_in_section boolean,
+    show_id integer,
+    sort integer,
+    user_created uuid,
+    user_updated uuid
+);
+
+
+ALTER TABLE public.collections OWNER TO btv;
+
+--
+-- Name: collections_episodes; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.collections_episodes (
+    collections_id integer,
+    episodes_id integer,
+    id integer NOT NULL,
+    sort integer
+);
+
+
+ALTER TABLE public.collections_episodes OWNER TO btv;
+
+--
+-- Name: collections_episodes_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.collections_episodes_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.collections_episodes_id_seq OWNER TO btv;
+
+--
+-- Name: collections_episodes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.collections_episodes_id_seq OWNED BY public.collections_episodes.id;
+
+
+--
+-- Name: collections_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.collections_id_seq
@@ -301,18 +494,159 @@ CREATE SEQUENCE public.collections_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.collections_id_seq OWNER TO btv;
+
 --
--- TOC entry 3818 (class 0 OID 0)
--- Dependencies: 250
--- Name: collections_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: collections_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.collections_id_seq OWNED BY public.collections.id;
 
 
 --
--- TOC entry 215 (class 1259 OID 16447)
--- Name: directus_activity; Type: TABLE; Schema: public; Owner: -
+-- Name: collections_relations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.collections_relations (
+    collection character varying(255) DEFAULT NULL::character varying,
+    collections_id integer,
+    id integer NOT NULL,
+    item character varying(255) DEFAULT NULL::character varying
+);
+
+
+ALTER TABLE public.collections_relations OWNER TO btv;
+
+--
+-- Name: collections_relations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.collections_relations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.collections_relations_id_seq OWNER TO btv;
+
+--
+-- Name: collections_relations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.collections_relations_id_seq OWNED BY public.collections_relations.id;
+
+
+--
+-- Name: collections_seasons; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.collections_seasons (
+    collections_id integer,
+    id integer NOT NULL,
+    seasons_id integer
+);
+
+
+ALTER TABLE public.collections_seasons OWNER TO btv;
+
+--
+-- Name: collections_seasons_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.collections_seasons_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.collections_seasons_id_seq OWNER TO btv;
+
+--
+-- Name: collections_seasons_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.collections_seasons_id_seq OWNED BY public.collections_seasons.id;
+
+
+--
+-- Name: collections_shows; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.collections_shows (
+    collections_id integer,
+    id integer NOT NULL,
+    shows_id integer
+);
+
+
+ALTER TABLE public.collections_shows OWNER TO btv;
+
+--
+-- Name: collections_shows_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.collections_shows_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.collections_shows_id_seq OWNER TO btv;
+
+--
+-- Name: collections_shows_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.collections_shows_id_seq OWNED BY public.collections_shows.id;
+
+
+--
+-- Name: collections_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.collections_translations (
+    collections_id integer NOT NULL,
+    id integer NOT NULL,
+    languages_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    title character varying(255) DEFAULT NULL::character varying
+);
+
+
+ALTER TABLE public.collections_translations OWNER TO btv;
+
+--
+-- Name: collections_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.collections_translations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.collections_translations_id_seq OWNER TO btv;
+
+--
+-- Name: collections_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.collections_translations_id_seq OWNED BY public.collections_translations.id;
+
+
+--
+-- Name: directus_activity; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_activity (
@@ -328,9 +662,10 @@ CREATE TABLE public.directus_activity (
 );
 
 
+ALTER TABLE public.directus_activity OWNER TO btv;
+
 --
--- TOC entry 214 (class 1259 OID 16446)
--- Name: directus_activity_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: directus_activity_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.directus_activity_id_seq
@@ -342,18 +677,17 @@ CREATE SEQUENCE public.directus_activity_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.directus_activity_id_seq OWNER TO btv;
+
 --
--- TOC entry 3819 (class 0 OID 0)
--- Dependencies: 214
--- Name: directus_activity_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: directus_activity_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.directus_activity_id_seq OWNED BY public.directus_activity.id;
 
 
 --
--- TOC entry 209 (class 1259 OID 16385)
--- Name: directus_collections; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_collections; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_collections (
@@ -378,9 +712,10 @@ CREATE TABLE public.directus_collections (
 );
 
 
+ALTER TABLE public.directus_collections OWNER TO btv;
+
 --
--- TOC entry 232 (class 1259 OID 16762)
--- Name: directus_dashboards; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_dashboards; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_dashboards (
@@ -393,9 +728,10 @@ CREATE TABLE public.directus_dashboards (
 );
 
 
+ALTER TABLE public.directus_dashboards OWNER TO btv;
+
 --
--- TOC entry 213 (class 1259 OID 16424)
--- Name: directus_fields; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_fields; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_fields (
@@ -421,9 +757,10 @@ CREATE TABLE public.directus_fields (
 );
 
 
+ALTER TABLE public.directus_fields OWNER TO btv;
+
 --
--- TOC entry 212 (class 1259 OID 16423)
--- Name: directus_fields_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: directus_fields_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.directus_fields_id_seq
@@ -435,18 +772,17 @@ CREATE SEQUENCE public.directus_fields_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.directus_fields_id_seq OWNER TO btv;
+
 --
--- TOC entry 3820 (class 0 OID 0)
--- Dependencies: 212
--- Name: directus_fields_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: directus_fields_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.directus_fields_id_seq OWNED BY public.directus_fields.id;
 
 
 --
--- TOC entry 217 (class 1259 OID 16471)
--- Name: directus_files; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_files; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_files (
@@ -474,9 +810,10 @@ CREATE TABLE public.directus_files (
 );
 
 
+ALTER TABLE public.directus_files OWNER TO btv;
+
 --
--- TOC entry 216 (class 1259 OID 16461)
--- Name: directus_folders; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_folders; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_folders (
@@ -486,9 +823,10 @@ CREATE TABLE public.directus_folders (
 );
 
 
+ALTER TABLE public.directus_folders OWNER TO btv;
+
 --
--- TOC entry 231 (class 1259 OID 16635)
--- Name: directus_migrations; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_migrations; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_migrations (
@@ -498,9 +836,10 @@ CREATE TABLE public.directus_migrations (
 );
 
 
+ALTER TABLE public.directus_migrations OWNER TO btv;
+
 --
--- TOC entry 235 (class 1259 OID 16822)
--- Name: directus_notifications; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_notifications; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_notifications (
@@ -516,9 +855,10 @@ CREATE TABLE public.directus_notifications (
 );
 
 
+ALTER TABLE public.directus_notifications OWNER TO btv;
+
 --
--- TOC entry 234 (class 1259 OID 16821)
--- Name: directus_notifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: directus_notifications_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.directus_notifications_id_seq
@@ -530,25 +870,24 @@ CREATE SEQUENCE public.directus_notifications_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.directus_notifications_id_seq OWNER TO btv;
+
 --
--- TOC entry 3821 (class 0 OID 0)
--- Dependencies: 234
--- Name: directus_notifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: directus_notifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.directus_notifications_id_seq OWNED BY public.directus_notifications.id;
 
 
 --
--- TOC entry 233 (class 1259 OID 16776)
--- Name: directus_panels; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_panels; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_panels (
     id uuid NOT NULL,
     dashboard uuid NOT NULL,
     name character varying(255),
-    icon character varying(30) DEFAULT 'insert_chart'::character varying,
+    icon character varying(30) DEFAULT NULL::character varying,
     color character varying(10),
     show_header boolean DEFAULT false NOT NULL,
     note text,
@@ -563,9 +902,10 @@ CREATE TABLE public.directus_panels (
 );
 
 
+ALTER TABLE public.directus_panels OWNER TO btv;
+
 --
--- TOC entry 219 (class 1259 OID 16497)
--- Name: directus_permissions; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_permissions; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_permissions (
@@ -580,9 +920,10 @@ CREATE TABLE public.directus_permissions (
 );
 
 
+ALTER TABLE public.directus_permissions OWNER TO btv;
+
 --
--- TOC entry 218 (class 1259 OID 16496)
--- Name: directus_permissions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: directus_permissions_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.directus_permissions_id_seq
@@ -594,18 +935,17 @@ CREATE SEQUENCE public.directus_permissions_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.directus_permissions_id_seq OWNER TO btv;
+
 --
--- TOC entry 3822 (class 0 OID 0)
--- Dependencies: 218
--- Name: directus_permissions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: directus_permissions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.directus_permissions_id_seq OWNED BY public.directus_permissions.id;
 
 
 --
--- TOC entry 221 (class 1259 OID 16516)
--- Name: directus_presets; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_presets; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_presets (
@@ -625,9 +965,10 @@ CREATE TABLE public.directus_presets (
 );
 
 
+ALTER TABLE public.directus_presets OWNER TO btv;
+
 --
--- TOC entry 220 (class 1259 OID 16515)
--- Name: directus_presets_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: directus_presets_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.directus_presets_id_seq
@@ -639,18 +980,17 @@ CREATE SEQUENCE public.directus_presets_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.directus_presets_id_seq OWNER TO btv;
+
 --
--- TOC entry 3823 (class 0 OID 0)
--- Dependencies: 220
--- Name: directus_presets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: directus_presets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.directus_presets_id_seq OWNED BY public.directus_presets.id;
 
 
 --
--- TOC entry 223 (class 1259 OID 16541)
--- Name: directus_relations; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_relations; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_relations (
@@ -667,9 +1007,10 @@ CREATE TABLE public.directus_relations (
 );
 
 
+ALTER TABLE public.directus_relations OWNER TO btv;
+
 --
--- TOC entry 222 (class 1259 OID 16540)
--- Name: directus_relations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: directus_relations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.directus_relations_id_seq
@@ -681,18 +1022,17 @@ CREATE SEQUENCE public.directus_relations_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.directus_relations_id_seq OWNER TO btv;
+
 --
--- TOC entry 3824 (class 0 OID 0)
--- Dependencies: 222
--- Name: directus_relations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: directus_relations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.directus_relations_id_seq OWNED BY public.directus_relations.id;
 
 
 --
--- TOC entry 225 (class 1259 OID 16560)
--- Name: directus_revisions; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_revisions; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_revisions (
@@ -706,9 +1046,10 @@ CREATE TABLE public.directus_revisions (
 );
 
 
+ALTER TABLE public.directus_revisions OWNER TO btv;
+
 --
--- TOC entry 224 (class 1259 OID 16559)
--- Name: directus_revisions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: directus_revisions_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.directus_revisions_id_seq
@@ -720,18 +1061,17 @@ CREATE SEQUENCE public.directus_revisions_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.directus_revisions_id_seq OWNER TO btv;
+
 --
--- TOC entry 3825 (class 0 OID 0)
--- Dependencies: 224
--- Name: directus_revisions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: directus_revisions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.directus_revisions_id_seq OWNED BY public.directus_revisions.id;
 
 
 --
--- TOC entry 210 (class 1259 OID 16395)
--- Name: directus_roles; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_roles; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_roles (
@@ -746,9 +1086,10 @@ CREATE TABLE public.directus_roles (
 );
 
 
+ALTER TABLE public.directus_roles OWNER TO btv;
+
 --
--- TOC entry 226 (class 1259 OID 16583)
--- Name: directus_sessions; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_sessions; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_sessions (
@@ -761,9 +1102,10 @@ CREATE TABLE public.directus_sessions (
 );
 
 
+ALTER TABLE public.directus_sessions OWNER TO btv;
+
 --
--- TOC entry 228 (class 1259 OID 16596)
--- Name: directus_settings; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_settings; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_settings (
@@ -790,9 +1132,10 @@ CREATE TABLE public.directus_settings (
 );
 
 
+ALTER TABLE public.directus_settings OWNER TO btv;
+
 --
--- TOC entry 227 (class 1259 OID 16595)
--- Name: directus_settings_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: directus_settings_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.directus_settings_id_seq
@@ -804,18 +1147,17 @@ CREATE SEQUENCE public.directus_settings_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.directus_settings_id_seq OWNER TO btv;
+
 --
--- TOC entry 3826 (class 0 OID 0)
--- Dependencies: 227
--- Name: directus_settings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: directus_settings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.directus_settings_id_seq OWNED BY public.directus_settings.id;
 
 
 --
--- TOC entry 236 (class 1259 OID 16842)
--- Name: directus_shares; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_shares; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_shares (
@@ -834,9 +1176,10 @@ CREATE TABLE public.directus_shares (
 );
 
 
+ALTER TABLE public.directus_shares OWNER TO btv;
+
 --
--- TOC entry 211 (class 1259 OID 16406)
--- Name: directus_users; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_users; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_users (
@@ -865,9 +1208,10 @@ CREATE TABLE public.directus_users (
 );
 
 
+ALTER TABLE public.directus_users OWNER TO btv;
+
 --
--- TOC entry 230 (class 1259 OID 16624)
--- Name: directus_webhooks; Type: TABLE; Schema: public; Owner: -
+-- Name: directus_webhooks; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.directus_webhooks (
@@ -883,9 +1227,10 @@ CREATE TABLE public.directus_webhooks (
 );
 
 
+ALTER TABLE public.directus_webhooks OWNER TO btv;
+
 --
--- TOC entry 229 (class 1259 OID 16623)
--- Name: directus_webhooks_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: directus_webhooks_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.directus_webhooks_id_seq
@@ -897,41 +1242,214 @@ CREATE SEQUENCE public.directus_webhooks_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.directus_webhooks_id_seq OWNER TO btv;
+
 --
--- TOC entry 3827 (class 0 OID 0)
--- Dependencies: 229
--- Name: directus_webhooks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: directus_webhooks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.directus_webhooks_id_seq OWNED BY public.directus_webhooks.id;
 
 
 --
--- TOC entry 253 (class 1259 OID 16958)
--- Name: episodes; Type: TABLE; Schema: public; Owner: -
+-- Name: episodes; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.episodes (
-    id integer NOT NULL,
-    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
-    user_created uuid,
-    date_created timestamp with time zone,
-    user_updated uuid,
-    date_updated timestamp with time zone,
+    agerating_code character varying(255) DEFAULT NULL::character varying,
+    asset_id integer,
     available_from timestamp without time zone,
     available_to timestamp without time zone,
-    agerating_code character varying(255) DEFAULT NULL::character varying,
-    season_id integer,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    episode_number integer,
+    id integer NOT NULL,
+    image_file_id uuid,
+    legacy_description_id integer,
+    legacy_extra_description_id integer,
+    legacy_id integer,
+    legacy_program_id integer,
+    legacy_tags_id integer,
+    legacy_title_id integer,
     migration_data json,
     publish_date timestamp without time zone NOT NULL,
-    type character varying(255) DEFAULT NULL::character varying NOT NULL,
-    image_file_id uuid
+    season_id integer,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    type character varying(255) DEFAULT 'episode'::character varying NOT NULL,
+    user_created uuid,
+    user_updated uuid
 );
 
 
+ALTER TABLE public.episodes OWNER TO btv;
+
 --
--- TOC entry 252 (class 1259 OID 16957)
--- Name: episodes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: episodes_usergroups; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.episodes_usergroups (
+    episodes_id integer NOT NULL,
+    id integer NOT NULL,
+    type character varying(255) DEFAULT NULL::character varying,
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+);
+
+
+ALTER TABLE public.episodes_usergroups OWNER TO btv;
+
+--
+-- Name: episodes_usergroups_download; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.episodes_usergroups_download (
+    episodes_id integer NOT NULL,
+    id integer NOT NULL,
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+);
+
+
+ALTER TABLE public.episodes_usergroups_download OWNER TO btv;
+
+--
+-- Name: episodes_usergroups_earlyaccess; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.episodes_usergroups_earlyaccess (
+    episodes_id integer NOT NULL,
+    id integer NOT NULL,
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+);
+
+
+ALTER TABLE public.episodes_usergroups_earlyaccess OWNER TO btv;
+
+--
+-- Name: seasons; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.seasons (
+    agerating_code character varying(255) DEFAULT NULL::character varying,
+    available_from timestamp without time zone,
+    available_to timestamp without time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id integer NOT NULL,
+    image_file_id uuid,
+    legacy_description_id integer,
+    legacy_id integer,
+    legacy_title_id integer,
+    publish_date timestamp without time zone NOT NULL,
+    season_number integer NOT NULL,
+    show_id integer NOT NULL,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    user_created uuid,
+    user_updated uuid
+);
+
+
+ALTER TABLE public.seasons OWNER TO btv;
+
+--
+-- Name: shows; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.shows (
+    agerating_code character varying(255) DEFAULT NULL::character varying,
+    available_from timestamp without time zone,
+    available_to timestamp without time zone,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id integer NOT NULL,
+    image_file_id uuid,
+    legacy_description_id integer,
+    legacy_id integer,
+    legacy_title_id integer,
+    publish_date timestamp without time zone NOT NULL,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    type character varying(255) DEFAULT NULL::character varying NOT NULL,
+    user_created uuid,
+    user_updated uuid
+);
+
+
+ALTER TABLE public.shows OWNER TO btv;
+
+--
+-- Name: episodes_access; Type: MATERIALIZED VIEW; Schema: public; Owner: btv
+--
+
+CREATE MATERIALIZED VIEW public.episodes_access AS
+ WITH eu AS (
+         SELECT episodes_usergroups.episodes_id,
+            array_agg(episodes_usergroups.usergroups_code) AS usergroups_codes
+           FROM public.episodes_usergroups
+          GROUP BY episodes_usergroups.episodes_id
+        ), ed AS (
+         SELECT episodes_usergroups_download.episodes_id,
+            array_agg(episodes_usergroups_download.usergroups_code) AS usergroups_codes
+           FROM public.episodes_usergroups_download
+          GROUP BY episodes_usergroups_download.episodes_id
+        ), ee AS (
+         SELECT episodes_usergroups_earlyaccess.episodes_id,
+            array_agg(episodes_usergroups_earlyaccess.usergroups_code) AS usergroups_codes
+           FROM public.episodes_usergroups_earlyaccess
+          GROUP BY episodes_usergroups_earlyaccess.episodes_id
+        )
+ SELECT e.id,
+    (((e.status)::text = 'published'::text) AND ((se.status)::text = 'published'::text) AND ((s.status)::text = 'published'::text)) AS published,
+    COALESCE(GREATEST(e.available_from, se.available_from, s.available_from), '1800-01-01 00:00:00'::timestamp without time zone) AS available_from,
+    COALESCE(LEAST(e.available_to, se.available_to, s.available_to), '3000-01-01 00:00:00'::timestamp without time zone) AS available_to,
+    COALESCE(eu.usergroups_codes, (ARRAY[]::text[])::character varying[]) AS usergroups,
+    COALESCE(ed.usergroups_codes, (ARRAY[]::text[])::character varying[]) AS usergroups_downloads,
+    COALESCE(ee.usergroups_codes, (ARRAY[]::text[])::character varying[]) AS usergroups_earlyaccess
+   FROM (((((public.episodes e
+     LEFT JOIN public.seasons se ON ((e.season_id = se.id)))
+     LEFT JOIN public.shows s ON ((se.show_id = s.id)))
+     LEFT JOIN eu ON ((e.id = eu.episodes_id)))
+     LEFT JOIN ed ON ((e.id = ed.episodes_id)))
+     LEFT JOIN ee ON ((e.id = ee.episodes_id)))
+  WITH NO DATA;
+
+
+ALTER TABLE public.episodes_access OWNER TO btv;
+
+--
+-- Name: episodes_categories; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.episodes_categories (
+    categories_id integer NOT NULL,
+    episodes_id integer NOT NULL,
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public.episodes_categories OWNER TO btv;
+
+--
+-- Name: episodes_categories_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.episodes_categories_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.episodes_categories_id_seq OWNER TO btv;
+
+--
+-- Name: episodes_categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.episodes_categories_id_seq OWNED BY public.episodes_categories.id;
+
+
+--
+-- Name: episodes_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.episodes_id_seq
@@ -943,33 +1461,69 @@ CREATE SEQUENCE public.episodes_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.episodes_id_seq OWNER TO btv;
+
 --
--- TOC entry 3828 (class 0 OID 0)
--- Dependencies: 252
--- Name: episodes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: episodes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.episodes_id_seq OWNED BY public.episodes.id;
 
 
 --
--- TOC entry 255 (class 1259 OID 16970)
--- Name: episodes_translations; Type: TABLE; Schema: public; Owner: -
+-- Name: episodes_tags; Type: TABLE; Schema: public; Owner: btv
 --
 
-CREATE TABLE public.episodes_translations (
+CREATE TABLE public.episodes_tags (
+    episodes_id integer NOT NULL,
     id integer NOT NULL,
-    episodes_id integer,
-    languages_id character varying(255) DEFAULT NULL::character varying,
-    title character varying(255) DEFAULT NULL::character varying,
-    description character varying(255) DEFAULT NULL::character varying,
-    is_primary boolean DEFAULT true
+    tags_id integer NOT NULL
 );
 
 
+ALTER TABLE public.episodes_tags OWNER TO btv;
+
 --
--- TOC entry 254 (class 1259 OID 16969)
--- Name: episodes_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: episodes_tags_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.episodes_tags_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.episodes_tags_id_seq OWNER TO btv;
+
+--
+-- Name: episodes_tags_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.episodes_tags_id_seq OWNED BY public.episodes_tags.id;
+
+
+--
+-- Name: episodes_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.episodes_translations (
+    description text,
+    episodes_id integer NOT NULL,
+    extra_description text,
+    id integer NOT NULL,
+    is_primary boolean DEFAULT true NOT NULL,
+    languages_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    title character varying(255) DEFAULT NULL::character varying
+);
+
+
+ALTER TABLE public.episodes_translations OWNER TO btv;
+
+--
+-- Name: episodes_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.episodes_translations_id_seq
@@ -981,30 +1535,61 @@ CREATE SEQUENCE public.episodes_translations_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.episodes_translations_id_seq OWNER TO btv;
+
 --
--- TOC entry 3829 (class 0 OID 0)
--- Dependencies: 254
--- Name: episodes_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: episodes_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.episodes_translations_id_seq OWNED BY public.episodes_translations.id;
 
 
 --
--- TOC entry 257 (class 1259 OID 16983)
--- Name: episodes_usergroups; Type: TABLE; Schema: public; Owner: -
+-- Name: episodes_usergroups_download_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
-CREATE TABLE public.episodes_usergroups (
-    id integer NOT NULL,
-    episodes_id integer,
-    usergroups_code character varying(255) DEFAULT NULL::character varying
-);
+CREATE SEQUENCE public.episodes_usergroups_download_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.episodes_usergroups_download_id_seq OWNER TO btv;
+
+--
+-- Name: episodes_usergroups_download_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.episodes_usergroups_download_id_seq OWNED BY public.episodes_usergroups_download.id;
 
 
 --
--- TOC entry 256 (class 1259 OID 16982)
--- Name: episodes_usergroups_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: episodes_usergroups_earlyaccess_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.episodes_usergroups_earlyaccess_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.episodes_usergroups_earlyaccess_id_seq OWNER TO btv;
+
+--
+-- Name: episodes_usergroups_earlyaccess_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.episodes_usergroups_earlyaccess_id_seq OWNED BY public.episodes_usergroups_earlyaccess.id;
+
+
+--
+-- Name: episodes_usergroups_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.episodes_usergroups_id_seq
@@ -1016,37 +1601,52 @@ CREATE SEQUENCE public.episodes_usergroups_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.episodes_usergroups_id_seq OWNER TO btv;
+
 --
--- TOC entry 3830 (class 0 OID 0)
--- Dependencies: 256
--- Name: episodes_usergroups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: episodes_usergroups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.episodes_usergroups_id_seq OWNED BY public.episodes_usergroups.id;
 
 
 --
--- TOC entry 259 (class 1259 OID 16991)
--- Name: featureds; Type: TABLE; Schema: public; Owner: -
+-- Name: languages; Type: TABLE; Schema: public; Owner: btv
 --
 
-CREATE TABLE public.featureds (
-    id integer NOT NULL,
-    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
-    sort integer,
-    user_created uuid,
-    date_created timestamp with time zone,
-    user_updated uuid,
-    date_updated timestamp with time zone
+CREATE TABLE public.languages (
+    code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    legacy_2_letter_code character varying(255) DEFAULT NULL::character varying,
+    legacy_3_letter_code character varying(255) DEFAULT NULL::character varying,
+    name character varying(255) DEFAULT NULL::character varying
 );
 
 
+ALTER TABLE public.languages OWNER TO btv;
+
 --
--- TOC entry 258 (class 1259 OID 16990)
--- Name: featureds_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: lists; Type: TABLE; Schema: public; Owner: btv
 --
 
-CREATE SEQUENCE public.featureds_id_seq
+CREATE TABLE public.lists (
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id integer NOT NULL,
+    legacy_category_id integer,
+    legacy_name_id integer,
+    name character varying(255) DEFAULT NULL::character varying NOT NULL,
+    user_created uuid,
+    user_updated uuid
+);
+
+
+ALTER TABLE public.lists OWNER TO btv;
+
+--
+-- Name: lists_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.lists_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -1055,48 +1655,85 @@ CREATE SEQUENCE public.featureds_id_seq
     CACHE 1;
 
 
---
--- TOC entry 3831 (class 0 OID 0)
--- Dependencies: 258
--- Name: featureds_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.featureds_id_seq OWNED BY public.featureds.id;
-
+ALTER TABLE public.lists_id_seq OWNER TO btv;
 
 --
--- TOC entry 260 (class 1259 OID 16998)
--- Name: languages; Type: TABLE; Schema: public; Owner: -
+-- Name: lists_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
-CREATE TABLE public.languages (
-    code character varying(255) DEFAULT NULL::character varying NOT NULL,
-    name character varying(255) DEFAULT NULL::character varying,
-    legacy_3_letter_code character varying(255) DEFAULT NULL::character varying,
-    legacy_2_letter_code character varying(255) DEFAULT NULL::character varying
+ALTER SEQUENCE public.lists_id_seq OWNED BY public.lists.id;
+
+
+--
+-- Name: lists_relations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.lists_relations (
+    collection character varying(255) DEFAULT NULL::character varying,
+    id integer NOT NULL,
+    item character varying(255) DEFAULT NULL::character varying,
+    lists_id integer,
+    sort integer
 );
 
 
+ALTER TABLE public.lists_relations OWNER TO btv;
+
 --
--- TOC entry 262 (class 1259 OID 17010)
--- Name: pages; Type: TABLE; Schema: public; Owner: -
+-- Name: lists_relations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.lists_relations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.lists_relations_id_seq OWNER TO btv;
+
+--
+-- Name: lists_relations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.lists_relations_id_seq OWNED BY public.lists_relations.id;
+
+
+--
+-- Name: materialized_views_meta; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.materialized_views_meta (
+    view_name text NOT NULL,
+    last_refreshed timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.materialized_views_meta OWNER TO btv;
+
+--
+-- Name: pages; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.pages (
+    code character varying(255) DEFAULT NULL::character varying,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id integer NOT NULL,
-    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
     sort integer,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    system_page boolean DEFAULT false,
     user_created uuid,
-    date_created timestamp with time zone,
-    user_updated uuid,
-    date_updated timestamp with time zone,
-    code character varying(255) DEFAULT NULL::character varying
+    user_updated uuid
 );
 
 
+ALTER TABLE public.pages OWNER TO btv;
+
 --
--- TOC entry 261 (class 1259 OID 17009)
--- Name: pages_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: pages_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.pages_id_seq
@@ -1108,39 +1745,17 @@ CREATE SEQUENCE public.pages_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.pages_id_seq OWNER TO btv;
+
 --
--- TOC entry 3832 (class 0 OID 0)
--- Dependencies: 261
--- Name: pages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: pages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.pages_id_seq OWNED BY public.pages.id;
 
 
 --
--- TOC entry 264 (class 1259 OID 17021)
--- Name: seasons; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.seasons (
-    id integer NOT NULL,
-    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
-    user_created uuid,
-    date_created timestamp with time zone,
-    user_updated uuid,
-    date_updated timestamp with time zone,
-    available_from timestamp without time zone,
-    available_to timestamp without time zone,
-    show_id integer NOT NULL,
-    agerating_code character varying(255) DEFAULT NULL::character varying,
-    publish_date timestamp without time zone NOT NULL,
-    image_file_id uuid
-);
-
-
---
--- TOC entry 263 (class 1259 OID 17020)
--- Name: seasons_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: seasons_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.seasons_id_seq
@@ -1152,33 +1767,35 @@ CREATE SEQUENCE public.seasons_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.seasons_id_seq OWNER TO btv;
+
 --
--- TOC entry 3833 (class 0 OID 0)
--- Dependencies: 263
--- Name: seasons_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: seasons_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.seasons_id_seq OWNED BY public.seasons.id;
 
 
 --
--- TOC entry 266 (class 1259 OID 17032)
--- Name: seasons_translations; Type: TABLE; Schema: public; Owner: -
+-- Name: seasons_translations; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.seasons_translations (
+    description text,
     id integer NOT NULL,
-    seasons_id integer,
-    languages_code character varying(255) DEFAULT NULL::character varying,
-    title character varying(255) DEFAULT NULL::character varying,
-    description character varying(255) DEFAULT NULL::character varying,
-    legacy_tags character varying(255) DEFAULT NULL::character varying
+    is_primary boolean DEFAULT false NOT NULL,
+    languages_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    legacy_description_id integer,
+    legacy_title_id integer,
+    seasons_id integer NOT NULL,
+    title character varying(255) DEFAULT NULL::character varying
 );
 
 
+ALTER TABLE public.seasons_translations OWNER TO btv;
+
 --
--- TOC entry 265 (class 1259 OID 17031)
--- Name: seasons_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: seasons_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.seasons_translations_id_seq
@@ -1190,30 +1807,30 @@ CREATE SEQUENCE public.seasons_translations_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.seasons_translations_id_seq OWNER TO btv;
+
 --
--- TOC entry 3834 (class 0 OID 0)
--- Dependencies: 265
--- Name: seasons_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: seasons_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.seasons_translations_id_seq OWNED BY public.seasons_translations.id;
 
 
 --
--- TOC entry 268 (class 1259 OID 17045)
--- Name: seasons_usergroups; Type: TABLE; Schema: public; Owner: -
+-- Name: seasons_usergroups; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.seasons_usergroups (
     id integer NOT NULL,
-    seasons_id integer,
-    usergroups_code character varying(255) DEFAULT NULL::character varying
+    seasons_id integer NOT NULL,
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
 );
 
 
+ALTER TABLE public.seasons_usergroups OWNER TO btv;
+
 --
--- TOC entry 267 (class 1259 OID 17044)
--- Name: seasons_usergroups_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: seasons_usergroups_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.seasons_usergroups_id_seq
@@ -1225,35 +1842,38 @@ CREATE SEQUENCE public.seasons_usergroups_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.seasons_usergroups_id_seq OWNER TO btv;
+
 --
--- TOC entry 3835 (class 0 OID 0)
--- Dependencies: 267
--- Name: seasons_usergroups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: seasons_usergroups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.seasons_usergroups_id_seq OWNED BY public.seasons_usergroups.id;
 
 
 --
--- TOC entry 270 (class 1259 OID 17053)
--- Name: sections; Type: TABLE; Schema: public; Owner: -
+-- Name: sections; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.sections (
+    collection_id integer,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    display_contract character varying(255) DEFAULT 'slider'::character varying,
     id integer NOT NULL,
+    legacy_id integer,
+    page integer NOT NULL,
     status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    type character varying(255) DEFAULT 'collection'::character varying NOT NULL,
     user_created uuid,
-    date_created timestamp with time zone,
-    user_updated uuid,
-    date_updated timestamp with time zone,
-    page integer,
-    title character varying(255) DEFAULT NULL::character varying NOT NULL
+    user_updated uuid
 );
 
 
+ALTER TABLE public.sections OWNER TO btv;
+
 --
--- TOC entry 269 (class 1259 OID 17052)
--- Name: sections_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: sections_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.sections_id_seq
@@ -1265,30 +1885,67 @@ CREATE SEQUENCE public.sections_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.sections_id_seq OWNER TO btv;
+
 --
--- TOC entry 3836 (class 0 OID 0)
--- Dependencies: 269
--- Name: sections_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: sections_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.sections_id_seq OWNED BY public.sections.id;
 
 
 --
--- TOC entry 272 (class 1259 OID 17064)
--- Name: sections_usergroups; Type: TABLE; Schema: public; Owner: -
+-- Name: sections_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.sections_translations (
+    id integer NOT NULL,
+    languages_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    legacy_title_id integer,
+    sections_id integer NOT NULL,
+    title character varying(255) DEFAULT NULL::character varying NOT NULL
+);
+
+
+ALTER TABLE public.sections_translations OWNER TO btv;
+
+--
+-- Name: sections_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.sections_translations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.sections_translations_id_seq OWNER TO btv;
+
+--
+-- Name: sections_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.sections_translations_id_seq OWNED BY public.sections_translations.id;
+
+
+--
+-- Name: sections_usergroups; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.sections_usergroups (
     id integer NOT NULL,
-    sections_id integer,
-    usergroups_code character varying(255) DEFAULT NULL::character varying
+    sections_id integer NOT NULL,
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
 );
 
 
+ALTER TABLE public.sections_usergroups OWNER TO btv;
+
 --
--- TOC entry 271 (class 1259 OID 17063)
--- Name: sections_usergroups_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: sections_usergroups_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.sections_usergroups_id_seq
@@ -1300,43 +1957,17 @@ CREATE SEQUENCE public.sections_usergroups_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.sections_usergroups_id_seq OWNER TO btv;
+
 --
--- TOC entry 3837 (class 0 OID 0)
--- Dependencies: 271
--- Name: sections_usergroups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: sections_usergroups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.sections_usergroups_id_seq OWNED BY public.sections_usergroups.id;
 
 
 --
--- TOC entry 274 (class 1259 OID 17072)
--- Name: shows; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.shows (
-    id integer NOT NULL,
-    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
-    user_created uuid,
-    date_created timestamp with time zone,
-    user_updated uuid,
-    date_updated timestamp with time zone,
-    title character varying(255) DEFAULT NULL::character varying NOT NULL,
-    description text,
-    image uuid,
-    available_from timestamp without time zone,
-    available_to timestamp without time zone,
-    migration_data json,
-    publish_date timestamp without time zone NOT NULL,
-    type character varying(255) DEFAULT NULL::character varying NOT NULL,
-    agerating_code character varying(255) DEFAULT NULL::character varying,
-    image_file_id uuid
-);
-
-
---
--- TOC entry 273 (class 1259 OID 17071)
--- Name: shows_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: shows_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.shows_id_seq
@@ -1348,30 +1979,72 @@ CREATE SEQUENCE public.shows_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.shows_id_seq OWNER TO btv;
+
 --
--- TOC entry 3838 (class 0 OID 0)
--- Dependencies: 273
--- Name: shows_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: shows_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.shows_id_seq OWNED BY public.shows.id;
 
 
 --
--- TOC entry 276 (class 1259 OID 17087)
--- Name: shows_usergroups; Type: TABLE; Schema: public; Owner: -
+-- Name: shows_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.shows_translations (
+    description text,
+    id integer NOT NULL,
+    is_primary boolean DEFAULT false NOT NULL,
+    languages_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    legacy_description_id integer,
+    legacy_tags character varying(255) DEFAULT NULL::character varying,
+    legacy_tags_id integer,
+    legacy_title_id bigint,
+    shows_id integer NOT NULL,
+    title character varying(255) DEFAULT NULL::character varying
+);
+
+
+ALTER TABLE public.shows_translations OWNER TO btv;
+
+--
+-- Name: shows_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.shows_translations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.shows_translations_id_seq OWNER TO btv;
+
+--
+-- Name: shows_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.shows_translations_id_seq OWNED BY public.shows_translations.id;
+
+
+--
+-- Name: shows_usergroups; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.shows_usergroups (
     id integer NOT NULL,
-    shows_id integer,
-    usergroups_code character varying(255) DEFAULT NULL::character varying
+    shows_id integer NOT NULL,
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
 );
 
 
+ALTER TABLE public.shows_usergroups OWNER TO btv;
+
 --
--- TOC entry 275 (class 1259 OID 17086)
--- Name: shows_usergroups_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: shows_usergroups_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.shows_usergroups_id_seq
@@ -1383,40 +2056,79 @@ CREATE SEQUENCE public.shows_usergroups_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.shows_usergroups_id_seq OWNER TO btv;
+
 --
--- TOC entry 3839 (class 0 OID 0)
--- Dependencies: 275
--- Name: shows_usergroups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: shows_usergroups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.shows_usergroups_id_seq OWNED BY public.shows_usergroups.id;
 
 
 --
--- TOC entry 278 (class 1259 OID 17095)
--- Name: tvguideentry; Type: TABLE; Schema: public; Owner: -
+-- Name: tags; Type: TABLE; Schema: public; Owner: btv
 --
 
-CREATE TABLE public.tvguideentry (
+CREATE TABLE public.tags (
+    code character varying(255) DEFAULT NULL::character varying,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id integer NOT NULL,
-    status character varying(255) DEFAULT 'published'::character varying,
+    name character varying(255) DEFAULT NULL::character varying NOT NULL,
     user_created uuid,
-    date_created timestamp with time zone,
-    user_updated uuid,
-    date_updated timestamp with time zone,
-    title character varying(255) DEFAULT NULL::character varying,
-    description character varying(255) DEFAULT NULL::character varying,
-    image uuid,
-    event integer,
-    start timestamp without time zone,
-    "end" timestamp without time zone,
-    use_image_from_link boolean DEFAULT true NOT NULL
+    user_updated uuid
 );
 
 
+ALTER TABLE public.tags OWNER TO btv;
+
 --
--- TOC entry 277 (class 1259 OID 17094)
--- Name: tvguideentry_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: tags_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.tags_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.tags_id_seq OWNER TO btv;
+
+--
+-- Name: tags_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.tags_id_seq OWNED BY public.tags.id;
+
+
+--
+-- Name: tvguideentry; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.tvguideentry (
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    description character varying(255) DEFAULT NULL::character varying,
+    "end" timestamp without time zone,
+    event integer,
+    id integer NOT NULL,
+    image uuid,
+    start timestamp without time zone,
+    status character varying(255) DEFAULT 'published'::character varying,
+    title character varying(255) DEFAULT NULL::character varying,
+    use_image_from_link boolean DEFAULT true NOT NULL,
+    user_created uuid,
+    user_updated uuid
+);
+
+
+ALTER TABLE public.tvguideentry OWNER TO btv;
+
+--
+-- Name: tvguideentry_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.tvguideentry_id_seq
@@ -1428,31 +2140,31 @@ CREATE SEQUENCE public.tvguideentry_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.tvguideentry_id_seq OWNER TO btv;
+
 --
--- TOC entry 3840 (class 0 OID 0)
--- Dependencies: 277
--- Name: tvguideentry_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: tvguideentry_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.tvguideentry_id_seq OWNED BY public.tvguideentry.id;
 
 
 --
--- TOC entry 280 (class 1259 OID 17108)
--- Name: tvguideentry_link; Type: TABLE; Schema: public; Owner: -
+-- Name: tvguideentry_link; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.tvguideentry_link (
+    collection character varying(255) DEFAULT NULL::character varying,
     id integer NOT NULL,
-    tvguideentry_id integer,
     item character varying(255) DEFAULT NULL::character varying,
-    collection character varying(255) DEFAULT NULL::character varying
+    tvguideentry_id integer
 );
 
 
+ALTER TABLE public.tvguideentry_link OWNER TO btv;
+
 --
--- TOC entry 279 (class 1259 OID 17107)
--- Name: tvguideentry_link_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: tvguideentry_link_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
 CREATE SEQUENCE public.tvguideentry_link_id_seq
@@ -1464,274 +2176,357 @@ CREATE SEQUENCE public.tvguideentry_link_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.tvguideentry_link_id_seq OWNER TO btv;
+
 --
--- TOC entry 3841 (class 0 OID 0)
--- Dependencies: 279
--- Name: tvguideentry_link_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: tvguideentry_link_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
 ALTER SEQUENCE public.tvguideentry_link_id_seq OWNED BY public.tvguideentry_link.id;
 
 
 --
--- TOC entry 281 (class 1259 OID 17118)
--- Name: usergroups; Type: TABLE; Schema: public; Owner: -
+-- Name: usergroups; Type: TABLE; Schema: public; Owner: btv
 --
 
 CREATE TABLE public.usergroups (
     code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    emails text,
+    name character varying(255) DEFAULT NULL::character varying NOT NULL,
     sort integer,
     user_created uuid,
-    date_created timestamp with time zone,
-    user_updated uuid,
-    date_updated timestamp with time zone,
-    name character varying(255) DEFAULT NULL::character varying
+    user_updated uuid
 );
 
 
+ALTER TABLE public.usergroups OWNER TO btv;
+
 --
--- TOC entry 3416 (class 2604 OID 16889)
--- Name: ageratings_translations id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: ageratings_translations id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.ageratings_translations ALTER COLUMN id SET DEFAULT nextval('public.ageratings_translations_id_seq'::regclass);
 
 
 --
--- TOC entry 3420 (class 2604 OID 16901)
--- Name: assetfiles id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: assetfiles id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.assetfiles ALTER COLUMN id SET DEFAULT nextval('public.assetfiles_id_seq'::regclass);
 
 
 --
--- TOC entry 3424 (class 2604 OID 16913)
--- Name: assets id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: assets id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.assets ALTER COLUMN id SET DEFAULT nextval('public.assets_id_seq'::regclass);
 
 
 --
--- TOC entry 3426 (class 2604 OID 16921)
--- Name: calendarevent id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: assetstreams id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetstreams ALTER COLUMN id SET DEFAULT nextval('public.assetstreams_id_seq'::regclass);
+
+
+--
+-- Name: assetstreams_audio_languages id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetstreams_audio_languages ALTER COLUMN id SET DEFAULT nextval('public.assetstreams_audio_languages_id_seq'::regclass);
+
+
+--
+-- Name: assetstreams_subtitle_languages id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetstreams_subtitle_languages ALTER COLUMN id SET DEFAULT nextval('public.assetstreams_subtitle_languages_id_seq'::regclass);
+
+
+--
+-- Name: calendarevent id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.calendarevent ALTER COLUMN id SET DEFAULT nextval('public.calendarevent_id_seq'::regclass);
 
 
 --
--- TOC entry 3429 (class 2604 OID 16932)
--- Name: categories id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: categories id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.categories ALTER COLUMN id SET DEFAULT nextval('public.categories_id_seq'::regclass);
 
 
 --
--- TOC entry 3432 (class 2604 OID 16941)
--- Name: categories_episodes id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: categories_translations id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
-ALTER TABLE ONLY public.categories_episodes ALTER COLUMN id SET DEFAULT nextval('public.categories_episodes_id_seq'::regclass);
+ALTER TABLE ONLY public.categories_translations ALTER COLUMN id SET DEFAULT nextval('public.categories_translations_id_seq'::regclass);
 
 
 --
--- TOC entry 3433 (class 2604 OID 16948)
--- Name: collections id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: collections id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.collections ALTER COLUMN id SET DEFAULT nextval('public.collections_id_seq'::regclass);
 
 
 --
--- TOC entry 3383 (class 2604 OID 16450)
--- Name: directus_activity id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: collections_episodes id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_episodes ALTER COLUMN id SET DEFAULT nextval('public.collections_episodes_id_seq'::regclass);
+
+
+--
+-- Name: collections_relations id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_relations ALTER COLUMN id SET DEFAULT nextval('public.collections_relations_id_seq'::regclass);
+
+
+--
+-- Name: collections_seasons id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_seasons ALTER COLUMN id SET DEFAULT nextval('public.collections_seasons_id_seq'::regclass);
+
+
+--
+-- Name: collections_shows id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_shows ALTER COLUMN id SET DEFAULT nextval('public.collections_shows_id_seq'::regclass);
+
+
+--
+-- Name: collections_translations id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_translations ALTER COLUMN id SET DEFAULT nextval('public.collections_translations_id_seq'::regclass);
+
+
+--
+-- Name: directus_activity id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_activity ALTER COLUMN id SET DEFAULT nextval('public.directus_activity_id_seq'::regclass);
 
 
 --
--- TOC entry 3378 (class 2604 OID 16427)
--- Name: directus_fields id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: directus_fields id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_fields ALTER COLUMN id SET DEFAULT nextval('public.directus_fields_id_seq'::regclass);
 
 
 --
--- TOC entry 3410 (class 2604 OID 16825)
--- Name: directus_notifications id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: directus_notifications id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_notifications ALTER COLUMN id SET DEFAULT nextval('public.directus_notifications_id_seq'::regclass);
 
 
 --
--- TOC entry 3387 (class 2604 OID 16500)
--- Name: directus_permissions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: directus_permissions id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_permissions ALTER COLUMN id SET DEFAULT nextval('public.directus_permissions_id_seq'::regclass);
 
 
 --
--- TOC entry 3388 (class 2604 OID 16519)
--- Name: directus_presets id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: directus_presets id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_presets ALTER COLUMN id SET DEFAULT nextval('public.directus_presets_id_seq'::regclass);
 
 
 --
--- TOC entry 3391 (class 2604 OID 16544)
--- Name: directus_relations id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: directus_relations id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_relations ALTER COLUMN id SET DEFAULT nextval('public.directus_relations_id_seq'::regclass);
 
 
 --
--- TOC entry 3393 (class 2604 OID 16563)
--- Name: directus_revisions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: directus_revisions id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_revisions ALTER COLUMN id SET DEFAULT nextval('public.directus_revisions_id_seq'::regclass);
 
 
 --
--- TOC entry 3394 (class 2604 OID 16599)
--- Name: directus_settings id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: directus_settings id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_settings ALTER COLUMN id SET DEFAULT nextval('public.directus_settings_id_seq'::regclass);
 
 
 --
--- TOC entry 3400 (class 2604 OID 16627)
--- Name: directus_webhooks id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: directus_webhooks id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_webhooks ALTER COLUMN id SET DEFAULT nextval('public.directus_webhooks_id_seq'::regclass);
 
 
 --
--- TOC entry 3438 (class 2604 OID 16961)
--- Name: episodes id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: episodes id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes ALTER COLUMN id SET DEFAULT nextval('public.episodes_id_seq'::regclass);
 
 
 --
--- TOC entry 3442 (class 2604 OID 16973)
--- Name: episodes_translations id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: episodes_categories id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_categories ALTER COLUMN id SET DEFAULT nextval('public.episodes_categories_id_seq'::regclass);
+
+
+--
+-- Name: episodes_tags id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_tags ALTER COLUMN id SET DEFAULT nextval('public.episodes_tags_id_seq'::regclass);
+
+
+--
+-- Name: episodes_translations id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes_translations ALTER COLUMN id SET DEFAULT nextval('public.episodes_translations_id_seq'::regclass);
 
 
 --
--- TOC entry 3447 (class 2604 OID 16986)
--- Name: episodes_usergroups id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: episodes_usergroups id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes_usergroups ALTER COLUMN id SET DEFAULT nextval('public.episodes_usergroups_id_seq'::regclass);
 
 
 --
--- TOC entry 3449 (class 2604 OID 16994)
--- Name: featureds id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: episodes_usergroups_download id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
-ALTER TABLE ONLY public.featureds ALTER COLUMN id SET DEFAULT nextval('public.featureds_id_seq'::regclass);
+ALTER TABLE ONLY public.episodes_usergroups_download ALTER COLUMN id SET DEFAULT nextval('public.episodes_usergroups_download_id_seq'::regclass);
 
 
 --
--- TOC entry 3455 (class 2604 OID 17013)
--- Name: pages id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: episodes_usergroups_earlyaccess id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_usergroups_earlyaccess ALTER COLUMN id SET DEFAULT nextval('public.episodes_usergroups_earlyaccess_id_seq'::regclass);
+
+
+--
+-- Name: lists id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.lists ALTER COLUMN id SET DEFAULT nextval('public.lists_id_seq'::regclass);
+
+
+--
+-- Name: lists_relations id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.lists_relations ALTER COLUMN id SET DEFAULT nextval('public.lists_relations_id_seq'::regclass);
+
+
+--
+-- Name: pages id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.pages ALTER COLUMN id SET DEFAULT nextval('public.pages_id_seq'::regclass);
 
 
 --
--- TOC entry 3458 (class 2604 OID 17024)
--- Name: seasons id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: seasons id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons ALTER COLUMN id SET DEFAULT nextval('public.seasons_id_seq'::regclass);
 
 
 --
--- TOC entry 3461 (class 2604 OID 17035)
--- Name: seasons_translations id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: seasons_translations id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons_translations ALTER COLUMN id SET DEFAULT nextval('public.seasons_translations_id_seq'::regclass);
 
 
 --
--- TOC entry 3466 (class 2604 OID 17048)
--- Name: seasons_usergroups id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: seasons_usergroups id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons_usergroups ALTER COLUMN id SET DEFAULT nextval('public.seasons_usergroups_id_seq'::regclass);
 
 
 --
--- TOC entry 3468 (class 2604 OID 17056)
--- Name: sections id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: sections id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.sections ALTER COLUMN id SET DEFAULT nextval('public.sections_id_seq'::regclass);
 
 
 --
--- TOC entry 3471 (class 2604 OID 17067)
--- Name: sections_usergroups id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: sections_translations id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.sections_translations ALTER COLUMN id SET DEFAULT nextval('public.sections_translations_id_seq'::regclass);
+
+
+--
+-- Name: sections_usergroups id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.sections_usergroups ALTER COLUMN id SET DEFAULT nextval('public.sections_usergroups_id_seq'::regclass);
 
 
 --
--- TOC entry 3473 (class 2604 OID 17075)
--- Name: shows id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: shows id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.shows ALTER COLUMN id SET DEFAULT nextval('public.shows_id_seq'::regclass);
 
 
 --
--- TOC entry 3478 (class 2604 OID 17090)
--- Name: shows_usergroups id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: shows_translations id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.shows_translations ALTER COLUMN id SET DEFAULT nextval('public.shows_translations_id_seq'::regclass);
+
+
+--
+-- Name: shows_usergroups id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.shows_usergroups ALTER COLUMN id SET DEFAULT nextval('public.shows_usergroups_id_seq'::regclass);
 
 
 --
--- TOC entry 3480 (class 2604 OID 17098)
--- Name: tvguideentry id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: tags id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tags ALTER COLUMN id SET DEFAULT nextval('public.tags_id_seq'::regclass);
+
+
+--
+-- Name: tvguideentry id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.tvguideentry ALTER COLUMN id SET DEFAULT nextval('public.tvguideentry_id_seq'::regclass);
 
 
 --
--- TOC entry 3485 (class 2604 OID 17111)
--- Name: tvguideentry_link id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: tvguideentry_link id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.tvguideentry_link ALTER COLUMN id SET DEFAULT nextval('public.tvguideentry_link_id_seq'::regclass);
 
 
 --
--- TOC entry 3535 (class 2606 OID 16884)
--- Name: ageratings ageratings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: ageratings ageratings_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.ageratings
@@ -1739,8 +2534,7 @@ ALTER TABLE ONLY public.ageratings
 
 
 --
--- TOC entry 3537 (class 2606 OID 16896)
--- Name: ageratings_translations ageratings_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: ageratings_translations ageratings_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.ageratings_translations
@@ -1748,8 +2542,7 @@ ALTER TABLE ONLY public.ageratings_translations
 
 
 --
--- TOC entry 3539 (class 2606 OID 16908)
--- Name: assetfiles assetfiles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: assetfiles assetfiles_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.assetfiles
@@ -1757,8 +2550,7 @@ ALTER TABLE ONLY public.assetfiles
 
 
 --
--- TOC entry 3541 (class 2606 OID 16916)
--- Name: assets assets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: assets assets_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.assets
@@ -1766,8 +2558,31 @@ ALTER TABLE ONLY public.assets
 
 
 --
--- TOC entry 3543 (class 2606 OID 16927)
--- Name: calendarevent calendarevent_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: assetstreams_audio_languages assetstreams_audio_languages_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetstreams_audio_languages
+    ADD CONSTRAINT assetstreams_audio_languages_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: assetstreams assetstreams_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetstreams
+    ADD CONSTRAINT assetstreams_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: assetstreams_subtitle_languages assetstreams_subtitle_languages_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetstreams_subtitle_languages
+    ADD CONSTRAINT assetstreams_subtitle_languages_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: calendarevent calendarevent_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.calendarevent
@@ -1775,17 +2590,7 @@ ALTER TABLE ONLY public.calendarevent
 
 
 --
--- TOC entry 3547 (class 2606 OID 16943)
--- Name: categories_episodes categories_episodes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.categories_episodes
-    ADD CONSTRAINT categories_episodes_pkey PRIMARY KEY (id);
-
-
---
--- TOC entry 3545 (class 2606 OID 16936)
--- Name: categories categories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: categories categories_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.categories
@@ -1793,8 +2598,23 @@ ALTER TABLE ONLY public.categories
 
 
 --
--- TOC entry 3549 (class 2606 OID 16956)
--- Name: collections collections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: categories_translations categories_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.categories_translations
+    ADD CONSTRAINT categories_translations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: collections_episodes collections_episodes_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_episodes
+    ADD CONSTRAINT collections_episodes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: collections collections_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.collections
@@ -1802,8 +2622,39 @@ ALTER TABLE ONLY public.collections
 
 
 --
--- TOC entry 3505 (class 2606 OID 16455)
--- Name: directus_activity directus_activity_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: collections_relations collections_relations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_relations
+    ADD CONSTRAINT collections_relations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: collections_seasons collections_seasons_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_seasons
+    ADD CONSTRAINT collections_seasons_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: collections_shows collections_shows_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_shows
+    ADD CONSTRAINT collections_shows_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: collections_translations collections_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_translations
+    ADD CONSTRAINT collections_translations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: directus_activity directus_activity_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_activity
@@ -1811,8 +2662,7 @@ ALTER TABLE ONLY public.directus_activity
 
 
 --
--- TOC entry 3491 (class 2606 OID 16394)
--- Name: directus_collections directus_collections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_collections directus_collections_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_collections
@@ -1820,8 +2670,7 @@ ALTER TABLE ONLY public.directus_collections
 
 
 --
--- TOC entry 3527 (class 2606 OID 16770)
--- Name: directus_dashboards directus_dashboards_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_dashboards directus_dashboards_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_dashboards
@@ -1829,8 +2678,7 @@ ALTER TABLE ONLY public.directus_dashboards
 
 
 --
--- TOC entry 3503 (class 2606 OID 16435)
--- Name: directus_fields directus_fields_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_fields directus_fields_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_fields
@@ -1838,8 +2686,7 @@ ALTER TABLE ONLY public.directus_fields
 
 
 --
--- TOC entry 3509 (class 2606 OID 16480)
--- Name: directus_files directus_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_files directus_files_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_files
@@ -1847,8 +2694,7 @@ ALTER TABLE ONLY public.directus_files
 
 
 --
--- TOC entry 3507 (class 2606 OID 16465)
--- Name: directus_folders directus_folders_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_folders directus_folders_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_folders
@@ -1856,8 +2702,7 @@ ALTER TABLE ONLY public.directus_folders
 
 
 --
--- TOC entry 3525 (class 2606 OID 16642)
--- Name: directus_migrations directus_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_migrations directus_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_migrations
@@ -1865,8 +2710,7 @@ ALTER TABLE ONLY public.directus_migrations
 
 
 --
--- TOC entry 3531 (class 2606 OID 16830)
--- Name: directus_notifications directus_notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_notifications directus_notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_notifications
@@ -1874,8 +2718,7 @@ ALTER TABLE ONLY public.directus_notifications
 
 
 --
--- TOC entry 3529 (class 2606 OID 16785)
--- Name: directus_panels directus_panels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_panels directus_panels_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_panels
@@ -1883,8 +2726,7 @@ ALTER TABLE ONLY public.directus_panels
 
 
 --
--- TOC entry 3511 (class 2606 OID 16504)
--- Name: directus_permissions directus_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_permissions directus_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_permissions
@@ -1892,8 +2734,7 @@ ALTER TABLE ONLY public.directus_permissions
 
 
 --
--- TOC entry 3513 (class 2606 OID 16524)
--- Name: directus_presets directus_presets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_presets directus_presets_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_presets
@@ -1901,8 +2742,7 @@ ALTER TABLE ONLY public.directus_presets
 
 
 --
--- TOC entry 3515 (class 2606 OID 16548)
--- Name: directus_relations directus_relations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_relations directus_relations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_relations
@@ -1910,8 +2750,7 @@ ALTER TABLE ONLY public.directus_relations
 
 
 --
--- TOC entry 3517 (class 2606 OID 16567)
--- Name: directus_revisions directus_revisions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_revisions directus_revisions_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_revisions
@@ -1919,8 +2758,7 @@ ALTER TABLE ONLY public.directus_revisions
 
 
 --
--- TOC entry 3493 (class 2606 OID 16405)
--- Name: directus_roles directus_roles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_roles directus_roles_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_roles
@@ -1928,8 +2766,7 @@ ALTER TABLE ONLY public.directus_roles
 
 
 --
--- TOC entry 3519 (class 2606 OID 16589)
--- Name: directus_sessions directus_sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_sessions directus_sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_sessions
@@ -1937,8 +2774,7 @@ ALTER TABLE ONLY public.directus_sessions
 
 
 --
--- TOC entry 3521 (class 2606 OID 16607)
--- Name: directus_settings directus_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_settings directus_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_settings
@@ -1946,8 +2782,7 @@ ALTER TABLE ONLY public.directus_settings
 
 
 --
--- TOC entry 3533 (class 2606 OID 16850)
--- Name: directus_shares directus_shares_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_shares directus_shares_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_shares
@@ -1955,8 +2790,7 @@ ALTER TABLE ONLY public.directus_shares
 
 
 --
--- TOC entry 3495 (class 2606 OID 16812)
--- Name: directus_users directus_users_email_unique; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_users directus_users_email_unique; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_users
@@ -1964,8 +2798,7 @@ ALTER TABLE ONLY public.directus_users
 
 
 --
--- TOC entry 3497 (class 2606 OID 16810)
--- Name: directus_users directus_users_external_identifier_unique; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_users directus_users_external_identifier_unique; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_users
@@ -1973,8 +2806,7 @@ ALTER TABLE ONLY public.directus_users
 
 
 --
--- TOC entry 3499 (class 2606 OID 16415)
--- Name: directus_users directus_users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_users directus_users_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_users
@@ -1982,8 +2814,7 @@ ALTER TABLE ONLY public.directus_users
 
 
 --
--- TOC entry 3501 (class 2606 OID 16820)
--- Name: directus_users directus_users_token_unique; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_users directus_users_token_unique; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_users
@@ -1991,8 +2822,7 @@ ALTER TABLE ONLY public.directus_users
 
 
 --
--- TOC entry 3523 (class 2606 OID 16634)
--- Name: directus_webhooks directus_webhooks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_webhooks directus_webhooks_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_webhooks
@@ -2000,8 +2830,31 @@ ALTER TABLE ONLY public.directus_webhooks
 
 
 --
--- TOC entry 3551 (class 2606 OID 16968)
--- Name: episodes episodes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: episodes_categories episodes_categories_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_categories
+    ADD CONSTRAINT episodes_categories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: episodes episodes_legacy_id_unique; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes
+    ADD CONSTRAINT episodes_legacy_id_unique UNIQUE (legacy_id);
+
+
+--
+-- Name: episodes episodes_legacy_program_id_unique; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes
+    ADD CONSTRAINT episodes_legacy_program_id_unique UNIQUE (legacy_program_id);
+
+
+--
+-- Name: episodes episodes_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes
@@ -2009,8 +2862,15 @@ ALTER TABLE ONLY public.episodes
 
 
 --
--- TOC entry 3553 (class 2606 OID 16981)
--- Name: episodes_translations episodes_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: episodes_tags episodes_tags_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_tags
+    ADD CONSTRAINT episodes_tags_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: episodes_translations episodes_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes_translations
@@ -2018,8 +2878,23 @@ ALTER TABLE ONLY public.episodes_translations
 
 
 --
--- TOC entry 3555 (class 2606 OID 16989)
--- Name: episodes_usergroups episodes_usergroups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: episodes_usergroups_download episodes_usergroups_download_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_usergroups_download
+    ADD CONSTRAINT episodes_usergroups_download_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: episodes_usergroups_earlyaccess episodes_usergroups_earlyaccess_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_usergroups_earlyaccess
+    ADD CONSTRAINT episodes_usergroups_earlyaccess_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: episodes_usergroups episodes_usergroups_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes_usergroups
@@ -2027,17 +2902,7 @@ ALTER TABLE ONLY public.episodes_usergroups
 
 
 --
--- TOC entry 3557 (class 2606 OID 16997)
--- Name: featureds featureds_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.featureds
-    ADD CONSTRAINT featureds_pkey PRIMARY KEY (id);
-
-
---
--- TOC entry 3559 (class 2606 OID 17008)
--- Name: languages languages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: languages languages_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.languages
@@ -2045,8 +2910,31 @@ ALTER TABLE ONLY public.languages
 
 
 --
--- TOC entry 3561 (class 2606 OID 17019)
--- Name: pages pages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: lists lists_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.lists
+    ADD CONSTRAINT lists_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: lists_relations lists_relations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.lists_relations
+    ADD CONSTRAINT lists_relations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: materialized_views_meta materialized_views_meta_pk; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.materialized_views_meta
+    ADD CONSTRAINT materialized_views_meta_pk PRIMARY KEY (view_name);
+
+
+--
+-- Name: pages pages_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.pages
@@ -2054,8 +2942,7 @@ ALTER TABLE ONLY public.pages
 
 
 --
--- TOC entry 3563 (class 2606 OID 17030)
--- Name: seasons seasons_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: seasons seasons_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons
@@ -2063,8 +2950,7 @@ ALTER TABLE ONLY public.seasons
 
 
 --
--- TOC entry 3565 (class 2606 OID 17043)
--- Name: seasons_translations seasons_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: seasons_translations seasons_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons_translations
@@ -2072,8 +2958,7 @@ ALTER TABLE ONLY public.seasons_translations
 
 
 --
--- TOC entry 3567 (class 2606 OID 17051)
--- Name: seasons_usergroups seasons_usergroups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: seasons_usergroups seasons_usergroups_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons_usergroups
@@ -2081,8 +2966,7 @@ ALTER TABLE ONLY public.seasons_usergroups
 
 
 --
--- TOC entry 3569 (class 2606 OID 17062)
--- Name: sections sections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sections sections_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.sections
@@ -2090,8 +2974,15 @@ ALTER TABLE ONLY public.sections
 
 
 --
--- TOC entry 3571 (class 2606 OID 17070)
--- Name: sections_usergroups sections_usergroups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sections_translations sections_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.sections_translations
+    ADD CONSTRAINT sections_translations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sections_usergroups sections_usergroups_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.sections_usergroups
@@ -2099,8 +2990,7 @@ ALTER TABLE ONLY public.sections_usergroups
 
 
 --
--- TOC entry 3573 (class 2606 OID 17083)
--- Name: shows shows_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: shows shows_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.shows
@@ -2108,17 +2998,15 @@ ALTER TABLE ONLY public.shows
 
 
 --
--- TOC entry 3575 (class 2606 OID 17085)
--- Name: shows shows_publish_date_unique; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: shows_translations shows_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
-ALTER TABLE ONLY public.shows
-    ADD CONSTRAINT shows_publish_date_unique UNIQUE (publish_date);
+ALTER TABLE ONLY public.shows_translations
+    ADD CONSTRAINT shows_translations_pkey PRIMARY KEY (id);
 
 
 --
--- TOC entry 3577 (class 2606 OID 17093)
--- Name: shows_usergroups shows_usergroups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: shows_usergroups shows_usergroups_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.shows_usergroups
@@ -2126,8 +3014,15 @@ ALTER TABLE ONLY public.shows_usergroups
 
 
 --
--- TOC entry 3581 (class 2606 OID 17117)
--- Name: tvguideentry_link tvguideentry_link_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: tags tags_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tags
+    ADD CONSTRAINT tags_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: tvguideentry_link tvguideentry_link_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.tvguideentry_link
@@ -2135,8 +3030,7 @@ ALTER TABLE ONLY public.tvguideentry_link
 
 
 --
--- TOC entry 3579 (class 2606 OID 17106)
--- Name: tvguideentry tvguideentry_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: tvguideentry tvguideentry_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.tvguideentry
@@ -2144,8 +3038,7 @@ ALTER TABLE ONLY public.tvguideentry
 
 
 --
--- TOC entry 3583 (class 2606 OID 17126)
--- Name: usergroups usergroups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: usergroups usergroups_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.usergroups
@@ -2153,35 +3046,54 @@ ALTER TABLE ONLY public.usergroups
 
 
 --
--- TOC entry 3610 (class 2606 OID 17132)
--- Name: ageratings_translations ageratings_translations_ageratings_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: episodes_access_idx; Type: INDEX; Schema: public; Owner: btv
+--
+
+CREATE UNIQUE INDEX episodes_access_idx ON public.episodes_access USING btree (id);
+
+
+--
+-- Name: ageratings_translations ageratings_translations_ageratings_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.ageratings_translations
-    ADD CONSTRAINT ageratings_translations_ageratings_code_foreign FOREIGN KEY (ageratings_code) REFERENCES public.ageratings(code) ON DELETE SET NULL;
+    ADD CONSTRAINT ageratings_translations_ageratings_code_foreign FOREIGN KEY (ageratings_code) REFERENCES public.ageratings(code);
 
 
 --
--- TOC entry 3609 (class 2606 OID 17127)
--- Name: ageratings_translations ageratings_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: ageratings_translations ageratings_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.ageratings_translations
-    ADD CONSTRAINT ageratings_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE SET NULL;
+    ADD CONSTRAINT ageratings_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code);
 
 
 --
--- TOC entry 3611 (class 2606 OID 17137)
--- Name: assetfiles assetfiles_asset_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: assetfiles assetfiles_asset_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.assetfiles
-    ADD CONSTRAINT assetfiles_asset_id_foreign FOREIGN KEY (asset_id) REFERENCES public.assets(id);
+    ADD CONSTRAINT assetfiles_asset_id_foreign FOREIGN KEY (asset_id) REFERENCES public.assets(id) ON DELETE CASCADE;
 
 
 --
--- TOC entry 3613 (class 2606 OID 17147)
--- Name: assetfiles assetfiles_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: assetfiles assetfiles_audio_language_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetfiles
+    ADD CONSTRAINT assetfiles_audio_language_id_foreign FOREIGN KEY (audio_language_id) REFERENCES public.languages(code) ON DELETE SET NULL;
+
+
+--
+-- Name: assetfiles assetfiles_subtitle_language_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetfiles
+    ADD CONSTRAINT assetfiles_subtitle_language_id_foreign FOREIGN KEY (subtitle_language_id) REFERENCES public.languages(code) ON DELETE SET NULL;
+
+
+--
+-- Name: assetfiles assetfiles_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.assetfiles
@@ -2189,8 +3101,7 @@ ALTER TABLE ONLY public.assetfiles
 
 
 --
--- TOC entry 3612 (class 2606 OID 17142)
--- Name: assetfiles assetfiles_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: assetfiles assetfiles_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.assetfiles
@@ -2198,8 +3109,7 @@ ALTER TABLE ONLY public.assetfiles
 
 
 --
--- TOC entry 3615 (class 2606 OID 17157)
--- Name: assets assets_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: assets assets_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.assets
@@ -2207,8 +3117,7 @@ ALTER TABLE ONLY public.assets
 
 
 --
--- TOC entry 3614 (class 2606 OID 17152)
--- Name: assets assets_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: assets assets_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.assets
@@ -2216,8 +3125,63 @@ ALTER TABLE ONLY public.assets
 
 
 --
--- TOC entry 3617 (class 2606 OID 17167)
--- Name: calendarevent calendarevent_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: assetstreams assetstreams_asset_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetstreams
+    ADD CONSTRAINT assetstreams_asset_id_foreign FOREIGN KEY (asset_id) REFERENCES public.assets(id) ON DELETE CASCADE;
+
+
+--
+-- Name: assetstreams_audio_languages assetstreams_audio_languages_assetstreams_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetstreams_audio_languages
+    ADD CONSTRAINT assetstreams_audio_languages_assetstreams_id_foreign FOREIGN KEY (assetstreams_id) REFERENCES public.assetstreams(id) ON DELETE CASCADE;
+
+
+--
+-- Name: assetstreams_audio_languages assetstreams_audio_languages_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetstreams_audio_languages
+    ADD CONSTRAINT assetstreams_audio_languages_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code);
+
+
+--
+-- Name: assetstreams_subtitle_languages assetstreams_subtitle_languages_assetstreams_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetstreams_subtitle_languages
+    ADD CONSTRAINT assetstreams_subtitle_languages_assetstreams_id_foreign FOREIGN KEY (assetstreams_id) REFERENCES public.assetstreams(id) ON DELETE CASCADE;
+
+
+--
+-- Name: assetstreams_subtitle_languages assetstreams_subtitle_languages_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetstreams_subtitle_languages
+    ADD CONSTRAINT assetstreams_subtitle_languages_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code);
+
+
+--
+-- Name: assetstreams assetstreams_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetstreams
+    ADD CONSTRAINT assetstreams_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: assetstreams assetstreams_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.assetstreams
+    ADD CONSTRAINT assetstreams_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: calendarevent calendarevent_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.calendarevent
@@ -2225,8 +3189,7 @@ ALTER TABLE ONLY public.calendarevent
 
 
 --
--- TOC entry 3616 (class 2606 OID 17162)
--- Name: calendarevent calendarevent_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: calendarevent calendarevent_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.calendarevent
@@ -2234,26 +3197,7 @@ ALTER TABLE ONLY public.calendarevent
 
 
 --
--- TOC entry 3621 (class 2606 OID 17187)
--- Name: categories_episodes categories_episodes_categories_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.categories_episodes
-    ADD CONSTRAINT categories_episodes_categories_id_foreign FOREIGN KEY (categories_id) REFERENCES public.categories(id) ON DELETE SET NULL;
-
-
---
--- TOC entry 3622 (class 2606 OID 17192)
--- Name: categories_episodes categories_episodes_episodes_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.categories_episodes
-    ADD CONSTRAINT categories_episodes_episodes_id_foreign FOREIGN KEY (episodes_id) REFERENCES public.episodes(id) ON DELETE SET NULL;
-
-
---
--- TOC entry 3618 (class 2606 OID 17172)
--- Name: categories categories_parent_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: categories categories_parent_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.categories
@@ -2261,8 +3205,23 @@ ALTER TABLE ONLY public.categories
 
 
 --
--- TOC entry 3620 (class 2606 OID 17182)
--- Name: categories categories_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: categories_translations categories_translations_categories_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.categories_translations
+    ADD CONSTRAINT categories_translations_categories_id_foreign FOREIGN KEY (categories_id) REFERENCES public.categories(id);
+
+
+--
+-- Name: categories_translations categories_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.categories_translations
+    ADD CONSTRAINT categories_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code);
+
+
+--
+-- Name: categories categories_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.categories
@@ -2270,8 +3229,7 @@ ALTER TABLE ONLY public.categories
 
 
 --
--- TOC entry 3619 (class 2606 OID 17177)
--- Name: categories categories_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: categories categories_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.categories
@@ -2279,17 +3237,55 @@ ALTER TABLE ONLY public.categories
 
 
 --
--- TOC entry 3623 (class 2606 OID 17197)
--- Name: collections collections_category_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: collections_episodes collections_episodes_collections_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_episodes
+    ADD CONSTRAINT collections_episodes_collections_id_foreign FOREIGN KEY (collections_id) REFERENCES public.collections(id) ON DELETE CASCADE;
+
+
+--
+-- Name: collections_episodes collections_episodes_episodes_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_episodes
+    ADD CONSTRAINT collections_episodes_episodes_id_foreign FOREIGN KEY (episodes_id) REFERENCES public.episodes(id) ON DELETE CASCADE;
+
+
+--
+-- Name: collections collections_list_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.collections
-    ADD CONSTRAINT collections_category_id_foreign FOREIGN KEY (category_id) REFERENCES public.categories(id) ON DELETE SET NULL;
+    ADD CONSTRAINT collections_list_id_foreign FOREIGN KEY (list_id) REFERENCES public.lists(id) ON DELETE SET NULL;
 
 
 --
--- TOC entry 3624 (class 2606 OID 17202)
--- Name: collections collections_show_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: collections_relations collections_relations_collections_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_relations
+    ADD CONSTRAINT collections_relations_collections_id_foreign FOREIGN KEY (collections_id) REFERENCES public.collections(id) ON DELETE CASCADE;
+
+
+--
+-- Name: collections_seasons collections_seasons_collections_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_seasons
+    ADD CONSTRAINT collections_seasons_collections_id_foreign FOREIGN KEY (collections_id) REFERENCES public.collections(id) ON DELETE CASCADE;
+
+
+--
+-- Name: collections_seasons collections_seasons_seasons_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_seasons
+    ADD CONSTRAINT collections_seasons_seasons_id_foreign FOREIGN KEY (seasons_id) REFERENCES public.seasons(id) ON DELETE CASCADE;
+
+
+--
+-- Name: collections collections_show_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.collections
@@ -2297,8 +3293,39 @@ ALTER TABLE ONLY public.collections
 
 
 --
--- TOC entry 3626 (class 2606 OID 17212)
--- Name: collections collections_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: collections_shows collections_shows_collections_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_shows
+    ADD CONSTRAINT collections_shows_collections_id_foreign FOREIGN KEY (collections_id) REFERENCES public.collections(id) ON DELETE CASCADE;
+
+
+--
+-- Name: collections_shows collections_shows_shows_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_shows
+    ADD CONSTRAINT collections_shows_shows_id_foreign FOREIGN KEY (shows_id) REFERENCES public.shows(id) ON DELETE CASCADE;
+
+
+--
+-- Name: collections_translations collections_translations_collections_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_translations
+    ADD CONSTRAINT collections_translations_collections_id_foreign FOREIGN KEY (collections_id) REFERENCES public.collections(id) ON DELETE SET NULL;
+
+
+--
+-- Name: collections_translations collections_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.collections_translations
+    ADD CONSTRAINT collections_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE SET NULL;
+
+
+--
+-- Name: collections collections_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.collections
@@ -2306,8 +3333,7 @@ ALTER TABLE ONLY public.collections
 
 
 --
--- TOC entry 3625 (class 2606 OID 17207)
--- Name: collections collections_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: collections collections_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.collections
@@ -2315,8 +3341,7 @@ ALTER TABLE ONLY public.collections
 
 
 --
--- TOC entry 3584 (class 2606 OID 16814)
--- Name: directus_collections directus_collections_group_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_collections directus_collections_group_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_collections
@@ -2324,8 +3349,7 @@ ALTER TABLE ONLY public.directus_collections
 
 
 --
--- TOC entry 3601 (class 2606 OID 16771)
--- Name: directus_dashboards directus_dashboards_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_dashboards directus_dashboards_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_dashboards
@@ -2333,8 +3357,7 @@ ALTER TABLE ONLY public.directus_dashboards
 
 
 --
--- TOC entry 3589 (class 2606 OID 16727)
--- Name: directus_files directus_files_folder_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_files directus_files_folder_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_files
@@ -2342,8 +3365,7 @@ ALTER TABLE ONLY public.directus_files
 
 
 --
--- TOC entry 3588 (class 2606 OID 16658)
--- Name: directus_files directus_files_modified_by_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_files directus_files_modified_by_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_files
@@ -2351,8 +3373,7 @@ ALTER TABLE ONLY public.directus_files
 
 
 --
--- TOC entry 3587 (class 2606 OID 16653)
--- Name: directus_files directus_files_uploaded_by_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_files directus_files_uploaded_by_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_files
@@ -2360,8 +3381,7 @@ ALTER TABLE ONLY public.directus_files
 
 
 --
--- TOC entry 3586 (class 2606 OID 16663)
--- Name: directus_folders directus_folders_parent_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_folders directus_folders_parent_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_folders
@@ -2369,8 +3389,7 @@ ALTER TABLE ONLY public.directus_folders
 
 
 --
--- TOC entry 3604 (class 2606 OID 16831)
--- Name: directus_notifications directus_notifications_recipient_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_notifications directus_notifications_recipient_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_notifications
@@ -2378,8 +3397,7 @@ ALTER TABLE ONLY public.directus_notifications
 
 
 --
--- TOC entry 3605 (class 2606 OID 16836)
--- Name: directus_notifications directus_notifications_sender_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_notifications directus_notifications_sender_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_notifications
@@ -2387,8 +3405,7 @@ ALTER TABLE ONLY public.directus_notifications
 
 
 --
--- TOC entry 3602 (class 2606 OID 16786)
--- Name: directus_panels directus_panels_dashboard_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_panels directus_panels_dashboard_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_panels
@@ -2396,8 +3413,7 @@ ALTER TABLE ONLY public.directus_panels
 
 
 --
--- TOC entry 3603 (class 2606 OID 16791)
--- Name: directus_panels directus_panels_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_panels directus_panels_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_panels
@@ -2405,8 +3421,7 @@ ALTER TABLE ONLY public.directus_panels
 
 
 --
--- TOC entry 3590 (class 2606 OID 16732)
--- Name: directus_permissions directus_permissions_role_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_permissions directus_permissions_role_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_permissions
@@ -2414,8 +3429,7 @@ ALTER TABLE ONLY public.directus_permissions
 
 
 --
--- TOC entry 3592 (class 2606 OID 16742)
--- Name: directus_presets directus_presets_role_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_presets directus_presets_role_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_presets
@@ -2423,8 +3437,7 @@ ALTER TABLE ONLY public.directus_presets
 
 
 --
--- TOC entry 3591 (class 2606 OID 16737)
--- Name: directus_presets directus_presets_user_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_presets directus_presets_user_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_presets
@@ -2432,8 +3445,7 @@ ALTER TABLE ONLY public.directus_presets
 
 
 --
--- TOC entry 3594 (class 2606 OID 16747)
--- Name: directus_revisions directus_revisions_activity_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_revisions directus_revisions_activity_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_revisions
@@ -2441,8 +3453,7 @@ ALTER TABLE ONLY public.directus_revisions
 
 
 --
--- TOC entry 3593 (class 2606 OID 16688)
--- Name: directus_revisions directus_revisions_parent_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_revisions directus_revisions_parent_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_revisions
@@ -2450,8 +3461,7 @@ ALTER TABLE ONLY public.directus_revisions
 
 
 --
--- TOC entry 3596 (class 2606 OID 16866)
--- Name: directus_sessions directus_sessions_share_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_sessions directus_sessions_share_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_sessions
@@ -2459,8 +3469,7 @@ ALTER TABLE ONLY public.directus_sessions
 
 
 --
--- TOC entry 3595 (class 2606 OID 16752)
--- Name: directus_sessions directus_sessions_user_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_sessions directus_sessions_user_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_sessions
@@ -2468,8 +3477,7 @@ ALTER TABLE ONLY public.directus_sessions
 
 
 --
--- TOC entry 3597 (class 2606 OID 16698)
--- Name: directus_settings directus_settings_project_logo_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_settings directus_settings_project_logo_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_settings
@@ -2477,8 +3485,7 @@ ALTER TABLE ONLY public.directus_settings
 
 
 --
--- TOC entry 3599 (class 2606 OID 16708)
--- Name: directus_settings directus_settings_public_background_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_settings directus_settings_public_background_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_settings
@@ -2486,8 +3493,7 @@ ALTER TABLE ONLY public.directus_settings
 
 
 --
--- TOC entry 3598 (class 2606 OID 16703)
--- Name: directus_settings directus_settings_public_foreground_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_settings directus_settings_public_foreground_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_settings
@@ -2495,8 +3501,7 @@ ALTER TABLE ONLY public.directus_settings
 
 
 --
--- TOC entry 3600 (class 2606 OID 16802)
--- Name: directus_settings directus_settings_storage_default_folder_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_settings directus_settings_storage_default_folder_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_settings
@@ -2504,8 +3509,7 @@ ALTER TABLE ONLY public.directus_settings
 
 
 --
--- TOC entry 3606 (class 2606 OID 16851)
--- Name: directus_shares directus_shares_collection_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_shares directus_shares_collection_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_shares
@@ -2513,8 +3517,7 @@ ALTER TABLE ONLY public.directus_shares
 
 
 --
--- TOC entry 3607 (class 2606 OID 16856)
--- Name: directus_shares directus_shares_role_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_shares directus_shares_role_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_shares
@@ -2522,8 +3525,7 @@ ALTER TABLE ONLY public.directus_shares
 
 
 --
--- TOC entry 3608 (class 2606 OID 16861)
--- Name: directus_shares directus_shares_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_shares directus_shares_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_shares
@@ -2531,8 +3533,7 @@ ALTER TABLE ONLY public.directus_shares
 
 
 --
--- TOC entry 3585 (class 2606 OID 16757)
--- Name: directus_users directus_users_role_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: directus_users directus_users_role_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.directus_users
@@ -2540,8 +3541,7 @@ ALTER TABLE ONLY public.directus_users
 
 
 --
--- TOC entry 3629 (class 2606 OID 17227)
--- Name: episodes episodes_agerating_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: episodes episodes_agerating_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes
@@ -2549,8 +3549,31 @@ ALTER TABLE ONLY public.episodes
 
 
 --
--- TOC entry 3627 (class 2606 OID 17217)
--- Name: episodes episodes_image_file_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: episodes episodes_asset_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes
+    ADD CONSTRAINT episodes_asset_id_foreign FOREIGN KEY (asset_id) REFERENCES public.assets(id) ON DELETE SET NULL;
+
+
+--
+-- Name: episodes_categories episodes_categories_categories_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_categories
+    ADD CONSTRAINT episodes_categories_categories_id_foreign FOREIGN KEY (categories_id) REFERENCES public.categories(id) ON DELETE CASCADE;
+
+
+--
+-- Name: episodes_categories episodes_categories_episodes_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_categories
+    ADD CONSTRAINT episodes_categories_episodes_id_foreign FOREIGN KEY (episodes_id) REFERENCES public.episodes(id) ON DELETE CASCADE;
+
+
+--
+-- Name: episodes episodes_image_file_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes
@@ -2558,17 +3581,31 @@ ALTER TABLE ONLY public.episodes
 
 
 --
--- TOC entry 3628 (class 2606 OID 17222)
--- Name: episodes episodes_season_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: episodes episodes_season_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes
-    ADD CONSTRAINT episodes_season_id_foreign FOREIGN KEY (season_id) REFERENCES public.seasons(id) ON DELETE SET NULL;
+    ADD CONSTRAINT episodes_season_id_foreign FOREIGN KEY (season_id) REFERENCES public.seasons(id) ON DELETE CASCADE;
 
 
 --
--- TOC entry 3632 (class 2606 OID 17242)
--- Name: episodes_translations episodes_translations_episodes_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: episodes_tags episodes_tags_episodes_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_tags
+    ADD CONSTRAINT episodes_tags_episodes_id_foreign FOREIGN KEY (episodes_id) REFERENCES public.episodes(id) ON DELETE CASCADE;
+
+
+--
+-- Name: episodes_tags episodes_tags_tags_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_tags
+    ADD CONSTRAINT episodes_tags_tags_id_foreign FOREIGN KEY (tags_id) REFERENCES public.tags(id) ON DELETE CASCADE;
+
+
+--
+-- Name: episodes_translations episodes_translations_episodes_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes_translations
@@ -2576,17 +3613,15 @@ ALTER TABLE ONLY public.episodes_translations
 
 
 --
--- TOC entry 3633 (class 2606 OID 17247)
--- Name: episodes_translations episodes_translations_languages_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: episodes_translations episodes_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes_translations
-    ADD CONSTRAINT episodes_translations_languages_id_foreign FOREIGN KEY (languages_id) REFERENCES public.languages(code) ON DELETE SET NULL;
+    ADD CONSTRAINT episodes_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE CASCADE;
 
 
 --
--- TOC entry 3631 (class 2606 OID 17237)
--- Name: episodes episodes_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: episodes episodes_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes
@@ -2594,8 +3629,7 @@ ALTER TABLE ONLY public.episodes
 
 
 --
--- TOC entry 3630 (class 2606 OID 17232)
--- Name: episodes episodes_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: episodes episodes_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes
@@ -2603,44 +3637,79 @@ ALTER TABLE ONLY public.episodes
 
 
 --
--- TOC entry 3634 (class 2606 OID 17252)
--- Name: episodes_usergroups episodes_usergroups_episodes_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: episodes_usergroups_download episodes_usergroups_download_episodes_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_usergroups_download
+    ADD CONSTRAINT episodes_usergroups_download_episodes_id_foreign FOREIGN KEY (episodes_id) REFERENCES public.episodes(id) ON DELETE CASCADE;
+
+
+--
+-- Name: episodes_usergroups_download episodes_usergroups_download_usergroups_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_usergroups_download
+    ADD CONSTRAINT episodes_usergroups_download_usergroups_code_foreign FOREIGN KEY (usergroups_code) REFERENCES public.usergroups(code) ON DELETE CASCADE;
+
+
+--
+-- Name: episodes_usergroups_earlyaccess episodes_usergroups_earlyaccess_episodes_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_usergroups_earlyaccess
+    ADD CONSTRAINT episodes_usergroups_earlyaccess_episodes_id_foreign FOREIGN KEY (episodes_id) REFERENCES public.episodes(id) ON DELETE CASCADE;
+
+
+--
+-- Name: episodes_usergroups_earlyaccess episodes_usergroups_earlyaccess_usergroups_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.episodes_usergroups_earlyaccess
+    ADD CONSTRAINT episodes_usergroups_earlyaccess_usergroups_code_foreign FOREIGN KEY (usergroups_code) REFERENCES public.usergroups(code) ON DELETE CASCADE;
+
+
+--
+-- Name: episodes_usergroups episodes_usergroups_episodes_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes_usergroups
-    ADD CONSTRAINT episodes_usergroups_episodes_id_foreign FOREIGN KEY (episodes_id) REFERENCES public.episodes(id) ON DELETE SET NULL;
+    ADD CONSTRAINT episodes_usergroups_episodes_id_foreign FOREIGN KEY (episodes_id) REFERENCES public.episodes(id);
 
 
 --
--- TOC entry 3635 (class 2606 OID 17257)
--- Name: episodes_usergroups episodes_usergroups_usergroups_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: episodes_usergroups episodes_usergroups_usergroups_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.episodes_usergroups
-    ADD CONSTRAINT episodes_usergroups_usergroups_code_foreign FOREIGN KEY (usergroups_code) REFERENCES public.usergroups(code) ON DELETE SET NULL;
+    ADD CONSTRAINT episodes_usergroups_usergroups_code_foreign FOREIGN KEY (usergroups_code) REFERENCES public.usergroups(code);
 
 
 --
--- TOC entry 3637 (class 2606 OID 17267)
--- Name: featureds featureds_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: lists_relations lists_relations_lists_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
-ALTER TABLE ONLY public.featureds
-    ADD CONSTRAINT featureds_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id);
-
-
---
--- TOC entry 3636 (class 2606 OID 17262)
--- Name: featureds featureds_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.featureds
-    ADD CONSTRAINT featureds_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+ALTER TABLE ONLY public.lists_relations
+    ADD CONSTRAINT lists_relations_lists_id_foreign FOREIGN KEY (lists_id) REFERENCES public.lists(id) ON DELETE CASCADE;
 
 
 --
--- TOC entry 3639 (class 2606 OID 17277)
--- Name: pages pages_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: lists lists_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.lists
+    ADD CONSTRAINT lists_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: lists lists_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.lists
+    ADD CONSTRAINT lists_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: pages pages_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.pages
@@ -2648,8 +3717,7 @@ ALTER TABLE ONLY public.pages
 
 
 --
--- TOC entry 3638 (class 2606 OID 17272)
--- Name: pages pages_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: pages pages_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.pages
@@ -2657,8 +3725,7 @@ ALTER TABLE ONLY public.pages
 
 
 --
--- TOC entry 3642 (class 2606 OID 17292)
--- Name: seasons seasons_agerating_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: seasons seasons_agerating_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons
@@ -2666,44 +3733,39 @@ ALTER TABLE ONLY public.seasons
 
 
 --
--- TOC entry 3640 (class 2606 OID 17282)
--- Name: seasons seasons_image_file_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: seasons seasons_image_file_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons
-    ADD CONSTRAINT seasons_image_file_id_foreign FOREIGN KEY (image_file_id) REFERENCES public.directus_files(id);
+    ADD CONSTRAINT seasons_image_file_id_foreign FOREIGN KEY (image_file_id) REFERENCES public.directus_files(id) ON DELETE SET NULL;
 
 
 --
--- TOC entry 3641 (class 2606 OID 17287)
--- Name: seasons seasons_show_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: seasons seasons_show_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons
-    ADD CONSTRAINT seasons_show_id_foreign FOREIGN KEY (show_id) REFERENCES public.shows(id);
+    ADD CONSTRAINT seasons_show_id_foreign FOREIGN KEY (show_id) REFERENCES public.shows(id) ON DELETE CASCADE;
 
 
 --
--- TOC entry 3645 (class 2606 OID 17307)
--- Name: seasons_translations seasons_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.seasons_translations
-    ADD CONSTRAINT seasons_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE SET NULL;
-
-
---
--- TOC entry 3646 (class 2606 OID 17312)
--- Name: seasons_translations seasons_translations_seasons_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: seasons_translations seasons_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons_translations
-    ADD CONSTRAINT seasons_translations_seasons_id_foreign FOREIGN KEY (seasons_id) REFERENCES public.seasons(id) ON DELETE SET NULL;
+    ADD CONSTRAINT seasons_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE CASCADE;
 
 
 --
--- TOC entry 3644 (class 2606 OID 17302)
--- Name: seasons seasons_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: seasons_translations seasons_translations_seasons_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.seasons_translations
+    ADD CONSTRAINT seasons_translations_seasons_id_foreign FOREIGN KEY (seasons_id) REFERENCES public.seasons(id) ON DELETE CASCADE;
+
+
+--
+-- Name: seasons seasons_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons
@@ -2711,8 +3773,7 @@ ALTER TABLE ONLY public.seasons
 
 
 --
--- TOC entry 3643 (class 2606 OID 17297)
--- Name: seasons seasons_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: seasons seasons_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons
@@ -2720,35 +3781,55 @@ ALTER TABLE ONLY public.seasons
 
 
 --
--- TOC entry 3647 (class 2606 OID 17317)
--- Name: seasons_usergroups seasons_usergroups_seasons_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: seasons_usergroups seasons_usergroups_seasons_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons_usergroups
-    ADD CONSTRAINT seasons_usergroups_seasons_id_foreign FOREIGN KEY (seasons_id) REFERENCES public.seasons(id) ON DELETE SET NULL;
+    ADD CONSTRAINT seasons_usergroups_seasons_id_foreign FOREIGN KEY (seasons_id) REFERENCES public.seasons(id);
 
 
 --
--- TOC entry 3648 (class 2606 OID 17322)
--- Name: seasons_usergroups seasons_usergroups_usergroups_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: seasons_usergroups seasons_usergroups_usergroups_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.seasons_usergroups
-    ADD CONSTRAINT seasons_usergroups_usergroups_code_foreign FOREIGN KEY (usergroups_code) REFERENCES public.usergroups(code) ON DELETE SET NULL;
+    ADD CONSTRAINT seasons_usergroups_usergroups_code_foreign FOREIGN KEY (usergroups_code) REFERENCES public.usergroups(code);
 
 
 --
--- TOC entry 3649 (class 2606 OID 17327)
--- Name: sections sections_page_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sections sections_collection_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.sections
-    ADD CONSTRAINT sections_page_foreign FOREIGN KEY (page) REFERENCES public.pages(id) ON DELETE SET NULL;
+    ADD CONSTRAINT sections_collection_id_foreign FOREIGN KEY (collection_id) REFERENCES public.collections(id) ON DELETE SET NULL;
 
 
 --
--- TOC entry 3651 (class 2606 OID 17337)
--- Name: sections sections_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sections sections_page_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.sections
+    ADD CONSTRAINT sections_page_foreign FOREIGN KEY (page) REFERENCES public.pages(id);
+
+
+--
+-- Name: sections_translations sections_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.sections_translations
+    ADD CONSTRAINT sections_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code);
+
+
+--
+-- Name: sections_translations sections_translations_sections_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.sections_translations
+    ADD CONSTRAINT sections_translations_sections_id_foreign FOREIGN KEY (sections_id) REFERENCES public.sections(id) ON DELETE CASCADE;
+
+
+--
+-- Name: sections sections_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.sections
@@ -2756,8 +3837,7 @@ ALTER TABLE ONLY public.sections
 
 
 --
--- TOC entry 3650 (class 2606 OID 17332)
--- Name: sections sections_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sections sections_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.sections
@@ -2765,26 +3845,23 @@ ALTER TABLE ONLY public.sections
 
 
 --
--- TOC entry 3652 (class 2606 OID 17342)
--- Name: sections_usergroups sections_usergroups_sections_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sections_usergroups sections_usergroups_sections_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.sections_usergroups
-    ADD CONSTRAINT sections_usergroups_sections_id_foreign FOREIGN KEY (sections_id) REFERENCES public.sections(id) ON DELETE SET NULL;
+    ADD CONSTRAINT sections_usergroups_sections_id_foreign FOREIGN KEY (sections_id) REFERENCES public.sections(id) ON DELETE CASCADE;
 
 
 --
--- TOC entry 3653 (class 2606 OID 17347)
--- Name: sections_usergroups sections_usergroups_usergroups_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sections_usergroups sections_usergroups_usergroups_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.sections_usergroups
-    ADD CONSTRAINT sections_usergroups_usergroups_code_foreign FOREIGN KEY (usergroups_code) REFERENCES public.usergroups(code) ON DELETE SET NULL;
+    ADD CONSTRAINT sections_usergroups_usergroups_code_foreign FOREIGN KEY (usergroups_code) REFERENCES public.usergroups(code) ON DELETE CASCADE;
 
 
 --
--- TOC entry 3655 (class 2606 OID 17357)
--- Name: shows shows_agerating_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: shows shows_agerating_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.shows
@@ -2792,8 +3869,7 @@ ALTER TABLE ONLY public.shows
 
 
 --
--- TOC entry 3654 (class 2606 OID 17352)
--- Name: shows shows_image_file_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: shows shows_image_file_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.shows
@@ -2801,17 +3877,23 @@ ALTER TABLE ONLY public.shows
 
 
 --
--- TOC entry 3658 (class 2606 OID 17372)
--- Name: shows shows_image_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: shows_translations shows_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
-ALTER TABLE ONLY public.shows
-    ADD CONSTRAINT shows_image_foreign FOREIGN KEY (image) REFERENCES public.directus_files(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.shows_translations
+    ADD CONSTRAINT shows_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE CASCADE;
 
 
 --
--- TOC entry 3657 (class 2606 OID 17367)
--- Name: shows shows_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: shows_translations shows_translations_shows_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.shows_translations
+    ADD CONSTRAINT shows_translations_shows_id_foreign FOREIGN KEY (shows_id) REFERENCES public.shows(id) ON DELETE CASCADE;
+
+
+--
+-- Name: shows shows_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.shows
@@ -2819,8 +3901,7 @@ ALTER TABLE ONLY public.shows
 
 
 --
--- TOC entry 3656 (class 2606 OID 17362)
--- Name: shows shows_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: shows shows_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.shows
@@ -2828,26 +3909,39 @@ ALTER TABLE ONLY public.shows
 
 
 --
--- TOC entry 3659 (class 2606 OID 17377)
--- Name: shows_usergroups shows_usergroups_shows_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: shows_usergroups shows_usergroups_shows_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.shows_usergroups
-    ADD CONSTRAINT shows_usergroups_shows_id_foreign FOREIGN KEY (shows_id) REFERENCES public.shows(id) ON DELETE SET NULL;
+    ADD CONSTRAINT shows_usergroups_shows_id_foreign FOREIGN KEY (shows_id) REFERENCES public.shows(id);
 
 
 --
--- TOC entry 3660 (class 2606 OID 17382)
--- Name: shows_usergroups shows_usergroups_usergroups_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: shows_usergroups shows_usergroups_usergroups_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.shows_usergroups
-    ADD CONSTRAINT shows_usergroups_usergroups_code_foreign FOREIGN KEY (usergroups_code) REFERENCES public.usergroups(code) ON DELETE SET NULL;
+    ADD CONSTRAINT shows_usergroups_usergroups_code_foreign FOREIGN KEY (usergroups_code) REFERENCES public.usergroups(code);
 
 
 --
--- TOC entry 3661 (class 2606 OID 17387)
--- Name: tvguideentry tvguideentry_event_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: tags tags_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tags
+    ADD CONSTRAINT tags_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: tags tags_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tags
+    ADD CONSTRAINT tags_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: tvguideentry tvguideentry_event_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.tvguideentry
@@ -2855,8 +3949,7 @@ ALTER TABLE ONLY public.tvguideentry
 
 
 --
--- TOC entry 3662 (class 2606 OID 17392)
--- Name: tvguideentry tvguideentry_image_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: tvguideentry tvguideentry_image_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.tvguideentry
@@ -2864,8 +3957,7 @@ ALTER TABLE ONLY public.tvguideentry
 
 
 --
--- TOC entry 3665 (class 2606 OID 17407)
--- Name: tvguideentry_link tvguideentry_link_tvguideentry_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: tvguideentry_link tvguideentry_link_tvguideentry_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.tvguideentry_link
@@ -2873,8 +3965,7 @@ ALTER TABLE ONLY public.tvguideentry_link
 
 
 --
--- TOC entry 3664 (class 2606 OID 17402)
--- Name: tvguideentry tvguideentry_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: tvguideentry tvguideentry_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.tvguideentry
@@ -2882,8 +3973,7 @@ ALTER TABLE ONLY public.tvguideentry
 
 
 --
--- TOC entry 3663 (class 2606 OID 17397)
--- Name: tvguideentry tvguideentry_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: tvguideentry tvguideentry_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.tvguideentry
@@ -2891,8 +3981,7 @@ ALTER TABLE ONLY public.tvguideentry
 
 
 --
--- TOC entry 3667 (class 2606 OID 17417)
--- Name: usergroups usergroups_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: usergroups usergroups_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.usergroups
@@ -2900,15 +3989,12 @@ ALTER TABLE ONLY public.usergroups
 
 
 --
--- TOC entry 3666 (class 2606 OID 17412)
--- Name: usergroups usergroups_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: usergroups usergroups_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.usergroups
     ADD CONSTRAINT usergroups_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
 
-
--- Completed on 2022-04-25 18:12:42 CEST
 
 --
 -- PostgreSQL database dump complete
