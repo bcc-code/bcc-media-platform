@@ -21,6 +21,8 @@ export default ({_, action}) => {
             console.log(JSON.stringify(input))
             const config = getConfig();
             const {model, id, values} = getTranslationsFromEvent(input)
+            if (!model)
+                return;
 
             const stringApi = new SourceStrings(getCredentials())
             for (const [field, value] of Object.entries(values)) {
@@ -39,6 +41,9 @@ export default ({_, action}) => {
             console.log(JSON.stringify(input))
             const config = getConfig();
             const {model, id, values} = getTranslationsFromEvent(input)
+
+            if (!model)
+                return;
 
             const stringApi = new SourceStrings(getCredentials())
             const strings = await stringApi.listProjectStrings(config.projectId)
