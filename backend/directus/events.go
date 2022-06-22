@@ -50,14 +50,7 @@ func (handler *EventHandler) On(events []string, callback func(ctx context.Conte
 	}
 }
 
-func (handler *EventHandler) Execute(c *gin.Context) {
-	var event Event
-	err := c.BindJSON(&event)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to bind JSON to event")
-		return
-	}
-
+func (handler *EventHandler) Process(ctx context.Context, event Event) {
 	log.L.Debug().Msgf("Processing event: %s\nCollection: %s\n", event.Event, event.Collection)
 
 	model := getModelFromCollectionName(event.Collection)
@@ -91,10 +84,20 @@ func (handler *EventHandler) Execute(c *gin.Context) {
 		case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
 			for i, callback := range itemsEvents[event.Event] {
 				log.L.Debug().Msgf("Executing callback #%d for event %s", i, event.Event)
-				callback(c, model, id)
+				callback(ctx, model, id)
 			}
 		}
 	}
+}
+
+func (handler *EventHandler) Execute(c *gin.Context) {
+	var event Event
+	err := c.BindJSON(&event)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to bind JSON to event")
+		return
+	}
+	handler.Process(c, event)
 }
 
 func NewEventHandler() *EventHandler {
