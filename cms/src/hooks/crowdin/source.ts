@@ -1,7 +1,6 @@
-import { SourceStrings } from "@crowdin/crowdin-api-client";
+import {SourceFiles, SourceStrings, Translations, UploadStorage} from "@crowdin/crowdin-api-client";
 import {Event, Model} from ".";
 import { getConfig, getCredentials } from "./config";
-
 
 type LanguagesCode = {
     code: string;
@@ -26,6 +25,7 @@ export function getTranslationsFromEvent(input: Event<any>) {
     let model: Model;
     let id: number;
 
+    const language = payload.languages_code.code
     const values: {
         [key: string]: string;
     } = {}
@@ -57,39 +57,98 @@ export function getTranslationsFromEvent(input: Event<any>) {
         model,
         id,
         values,
+        language,
     }
+}
+
+export async function getFileIdForModel(collection: string): Promise<number | null> {
+    const config = getConfig()
+    const fileApi = new SourceFiles(getCredentials())
+    const files = await fileApi.listProjectFiles(config.projectId, {
+        directoryId: config.directoryId
+    })
+
+    for (const file of files.data) {
+        if (file.data.title === collection) {
+            return file.data.id
+        }
+    }
+
+    return null
 }
 
 export async function updateOrSetTranslationAsync(input: Event<any>) {
     if (input.collection.endsWith("_translations")) {
         const config = getConfig();
-        const {model, id, values} = getTranslationsFromEvent(input)
+        const collectionMap = {
+            "show": "shows",
+            "season": "seasons",
+            "episode": "episodes",
+        }
+        const {model, id, values, language} = getTranslationsFromEvent(input)
 
         if (!model)
             return;
 
-        const stringApi = new SourceStrings(getCredentials())
-        const strings = await stringApi.listProjectStrings(config.projectId)
+        let fileId = await getFileIdForModel(collectionMap[model])
 
-        for (const [field, value] of Object.entries(values)) {
-            const identifier = `${model}-${id}-` + field;
-            const existingString = strings.data.find(s => s.data.identifier === identifier)
-
-            if (existingString) {
-                await stringApi.editString(config.projectId, existingString.data.id, [
-                    {
-                        op: "replace",
-                        path: "/text",
-                        value: value
+        if (fileId) {
+            const stringApi = new SourceStrings(getCredentials())
+            const strings = await stringApi.listProjectStrings(config.projectId, {
+                fileId: fileId ?? undefined,
+            })
+            for (const [field, value] of Object.entries(values)) {
+                const identifier = `${model}-${id}-` + field;
+                const existingString = strings.data.find(s => s.data.identifier === identifier)
+    
+                if (existingString) {
+                    await stringApi.editString(config.projectId, existingString.data.id, [
+                        {
+                            op: "replace",
+                            path: "/text",
+                            value,
+                        }
+                    ])
+                } else {
+                    if (fileId) {
+                        await stringApi.addString(config.projectId, {
+                            fileId: fileId,
+                            text: value,
+                            identifier: `${model}-${id}-` + field,
+                        })
                     }
-                ])
-            } else {
-                await stringApi.addString(config.projectId, {
-                    fileId: config.contentFileId,
-                    text: value,
-                    identifier: `${model}-${id}-` + field,
-                })
+                }
             }
+        } else {
+            const entries: string[] = []
+            for (const [field, value] of Object.entries(values)) {
+                const identifier = `${model}-${id}-` + field;
+                entries.push([identifier, value, ""].map(i => JSON.stringify(i)).join(","))
+            }
+            const storageApi = new UploadStorage(getCredentials())
+            const storage = await storageApi.addStorage(collectionMap[model] + ".csv", entries.join("\n"))
+            
+            const fileApi = new SourceFiles(getCredentials())
+            await fileApi.createFile(config.projectId, {
+                name: collectionMap[model] + ".csv",
+                storageId: storage.data.id,
+                directoryId: config.directoryId,
+                title: collectionMap[model],
+                type: "csv",
+            })
         }
     }
+}
+
+export async function getTranslations() {
+    const config = getConfig();
+
+    const translationApi = new Translations(getCredentials())
+    const build = await translationApi.buildProject(config.projectId)
+
+    // Give crowdin time to complete task
+    await new Promise(r => setTimeout(r, 10000))
+    const ts = await translationApi.downloadTranslations(config.projectId, build.data.id)
+
+    ts.data.url
 }

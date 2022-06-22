@@ -2,11 +2,11 @@ import { Credentials } from "@crowdin/crowdin-api-client";
 
 export function getConfig(): {
     projectId: number;
-    contentFileId: number;
+    directoryId: number;
 } {
     return {
         projectId: parseInt(process.env.CROWDIN_PROJECT_ID),
-        contentFileId: parseInt(process.env.CROWDIN_CONTENT_FILE_ID),
+        directoryId: parseInt(process.env.CROWDIN_DIRECTORY_ID),
     }
 }
 
