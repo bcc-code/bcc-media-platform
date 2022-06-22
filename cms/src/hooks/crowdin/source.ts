@@ -49,8 +49,6 @@ export function getTranslationsFromEvent(input: Event<any>) {
             if (extraDescription)
                 values.extra_description = extraDescription
             break;
-        default:
-            return;
     }
 
     return {
