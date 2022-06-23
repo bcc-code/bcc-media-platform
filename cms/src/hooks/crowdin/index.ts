@@ -21,3 +21,7 @@ export default ({action, schedule, init}) => {
 
     init('app.after', sync)
 }
+
+export function getPrimaryLanguageKey() {
+    return process.env.CROWDIN_PRIMARY_LANGUAGE
+}
