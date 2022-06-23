@@ -1,6 +1,7 @@
-import {SourceFiles, SourceStrings, Translations, UploadStorage} from "@crowdin/crowdin-api-client";
+import {SourceFiles, SourceFilesModel, SourceStrings, Translations, UploadStorage} from "@crowdin/crowdin-api-client";
 import {Event, Model} from ".";
 import { getConfig, getCredentials } from "./config";
+import { createFile } from "./file";
 
 type LanguagesCode = {
     code: string;
@@ -61,7 +62,16 @@ export function getTranslationsFromEvent(input: Event<any>) {
     }
 }
 
+const fileIdByCollection: {
+    [collection: string]: number
+} = {}
+
 export async function getFileIdForModel(collection: string): Promise<number | null> {
+    if (fileIdByCollection[collection]) {
+        return fileIdByCollection[collection]
+    }
+
+    console.log("Retrieving fileId from crowdin.")
     const config = getConfig()
     const fileApi = new SourceFiles(getCredentials())
     const files = await fileApi.listProjectFiles(config.projectId, {
@@ -70,7 +80,7 @@ export async function getFileIdForModel(collection: string): Promise<number | nu
 
     for (const file of files.data) {
         if (file.data.title === collection) {
-            return file.data.id
+            return fileIdByCollection[collection] = file.data.id
         }
     }
 
@@ -125,38 +135,11 @@ export async function updateOrSetTranslationAsync(input: Event<any>) {
                 const identifier = `${model}-${id}-` + field;
                 entries.push([identifier, value, ""].map(i => JSON.stringify(i)).join(","))
             }
-            const storageApi = new UploadStorage(getCredentials())
-            const storage = await storageApi.addStorage(collectionMap[model] + ".csv", entries.join("\n"))
-            
-            const fileApi = new SourceFiles(getCredentials())
-            await fileApi.createFile(config.projectId, {
-                name: collectionMap[model] + ".csv",
-                storageId: storage.data.id,
-                directoryId: config.directoryId,
-                title: collectionMap[model],
-                type: "csv",
-                importOptions: {
-                    importTranslations: true,
-                    scheme: {
-                        identifier: 0,
-                        sourceOrTranslation: 1,
-                        context: 2,
-                    } as any
-                } as any
-            })
+            fileId = (await createFile(collectionMap[model], Object.entries(values).map(([field, value]) => ({
+                identifier: `${model}-${id}-` + field,
+                context: "",
+                sourceString: value
+            })))).id
         }
     }
-}
-
-export async function getTranslations() {
-    const config = getConfig();
-
-    const translationApi = new Translations(getCredentials())
-    const build = await translationApi.buildProject(config.projectId)
-
-    // Give crowdin time to complete task
-    await new Promise(r => setTimeout(r, 10000))
-    const ts = await translationApi.downloadTranslations(config.projectId, build.data.id)
-
-    ts.data.url
 }

@@ -1,5 +1,6 @@
 import {enabled} from "./config";
 import {updateOrSetTranslationAsync} from "./source";
+import { sync } from "./sync";
 
 export type Model = "show" | "season" | "episode";
 export type Collection = "shows_translations" | "seasons_translations" | "episodes_translations";
@@ -11,12 +12,12 @@ export interface Event<T> {
     collection: Collection;
 }
 
-export default ({action, schedule}) => {
+export default ({action, schedule, init}) => {
     if (!enabled()) 
         return
     
     action('items.create', updateOrSetTranslationAsync)
     action('items.update', updateOrSetTranslationAsync)
 
-    schedule('0 0 * * *', )
+    init('app.after', sync)
 }
