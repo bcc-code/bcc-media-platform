@@ -1,6 +1,7 @@
 import { ProjectsGroups, SourceFiles, SourceStrings, SourceStringsModel, StringTranslations, StringTranslationsModel } from "@crowdin/crowdin-api-client";
 import axios from "axios";
 import knex from "knex";
+import { getPrimaryLanguageKey } from ".";
 import { enabled, getConfig, getCredentials } from "./config";
 import { createFile } from "./file";
 
@@ -64,6 +65,7 @@ export async function sync() {
     const project = await (new ProjectsGroups(getCredentials())).getProject(config.projectId)
 
     for (const collection of ["shows", "seasons", "episodes"]) {
+        console.log("Syncing translations for collection: " + collection)
         const existingTranslations = await getTranslations(collection)
 
         console.log("Existing translations: " + existingTranslations.length)
@@ -71,7 +73,7 @@ export async function sync() {
         const file = (files.data.find(f => f.data.title === collection))?.data
         if (!file) {
             console.log("Creating file for collection: " + collection)
-            await createFile(collection, existingTranslations.filter(e => e.language === "no").reduce((a, b) => {
+            await createFile(collection, existingTranslations.filter(e => e.language === getPrimaryLanguageKey()).reduce((a, b) => {
                 a.push({
                     identifier: collection + "-" + b.parentId + "-title",
                     context: "",
@@ -94,7 +96,7 @@ export async function sync() {
             continue;
         }
 
-        let missingTranslationIdentifiers = existingTranslations.filter(l => l.language === "no").reduce((a, b) => {
+        let missingTranslationIdentifiers = existingTranslations.filter(l => l.language === getPrimaryLanguageKey()).reduce((a, b) => {
             a.push(collection + "-" + b.parentId + "-title")
             if (b.description) {
                 a.push(collection + "-" + b.parentId + "-description")
@@ -106,7 +108,7 @@ export async function sync() {
         let offset = 0;
         const limit = 100;
         const stringsById: {
-            [key: number]: SourceStringsModel.String
+            [key: string]: SourceStringsModel.String
         } = {}
 
         do {
@@ -148,7 +150,7 @@ export async function sync() {
         const pushMissingTranslations = async (force = false) => {
             if (missingTranslations.length > limit || (force && missingTranslations.length)) {
                 console.log("Inserting translations for collection " + collection)
-                db.raw("INSERT INTO " + collection + "_translations (title, description, languages_code) VALUES (\"" + missingTranslations.map(i => [i.title, i.description, i.language].map(i => JSON.stringify(i)).join("\",\"")) + "\")")
+                await db.raw("INSERT INTO " + collection + "_translations (title, description, languages_code) VALUES (" + missingTranslations.map(i => [i.title, i.description, i.language].map(i => JSON.stringify(i)).join(",")).join("), (") + ")")
                 missingTranslations = []
             }
         }
@@ -157,7 +159,7 @@ export async function sync() {
             if (updateTranslations.length > limit || (force && missingTranslations.length)) {
                 console.log("Updating translations for collection " + collection)
                 for (const translation of updateTranslations) {
-                    db.raw("UPDATE " + collection + " SET title = \"" + JSON.stringify(translation.title) + "\", description = \"" + JSON.stringify(translation.description) + "\" WHERE id = " + translation.id)
+                    await db.raw("UPDATE " + collection + " SET title = " + JSON.stringify(translation.title) + ", description = " + JSON.stringify(translation.description) + " WHERE id = " + translation.id)
                 }
                 updateTranslations = []
             }
@@ -180,13 +182,21 @@ export async function sync() {
                 offset += limit
 
                 
+                const stringIds = approvals.data.map(i => i.data.stringId).join(",");
+                if (!stringIds) {
+                    continue;
+                }
                 const translations = await translationApi.listLanguageTranslations(config.projectId, language.id, {
-                    stringIds: approvals.data.map(i => i.data.stringId).join(",")
+                    stringIds,
                 })
 
                 const items: (Translation & {changed: boolean})[] = [];
                 for (const translation of translations.data) {
-                    const string = stringsById[translation.data.stringId]
+                    const string = stringsById[translation.data.stringId.toString()]
+                    if (!string) {
+                        console.log("Missing string for translation");
+                        console.log(translation.data)
+                    }
                     const [_, itemId, field] = string.identifier.split("-")
                     const parentId = parseInt(itemId)
                     let item = items.find(i => i.parentId === parentId)
