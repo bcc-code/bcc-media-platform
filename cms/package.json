@@ -16,6 +16,7 @@
   "dependencies": {
     "@crowdin/crowdin-api-client": "^1.18.2",
     "@rmp135/sql-ts": "^1.13.0",
+    "axios": "^0.27.2",
     "directus": "^9.11.1",
     "knex": "^2.0.0",
     "pg": "^8.7.3",
