@@ -2,7 +2,9 @@ package directus
 
 import (
 	"context"
+	"github.com/ansel1/merry"
 	"github.com/bcc-code/mediabank-bridge/log"
+	cevent "github.com/cloudevents/sdk-go/v2/event"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 	"strconv"
@@ -50,13 +52,22 @@ func (handler *EventHandler) On(events []string, callback func(ctx context.Conte
 	}
 }
 
-func (handler *EventHandler) Process(ctx context.Context, event Event) {
+func (handler *EventHandler) ProcessCloudEvent(ctx context.Context, e cevent.Event) error {
+	var event Event
+	err := e.DataAs(&event)
+	if err != nil {
+		log.L.Error().Err(err)
+		return err
+	}
+	return handler.Process(ctx, event)
+}
+
+func (handler *EventHandler) Process(ctx context.Context, event Event) error {
 	log.L.Debug().Str("event", event.Event).Str("collection", event.Collection).Msg("Processing event")
 
 	model := getModelFromCollectionName(event.Collection)
 	if model == "" {
-		log.L.Debug().Msg("Collection not supported yet")
-		return
+		return merry.New("Collection not supported yet")
 	}
 
 	var ids []int
@@ -88,16 +99,17 @@ func (handler *EventHandler) Process(ctx context.Context, event Event) {
 			}
 		}
 	}
+
+	return nil
 }
 
-func (handler *EventHandler) Execute(c *gin.Context) {
+func (handler *EventHandler) Execute(c *gin.Context) error {
 	var event Event
 	err := c.BindJSON(&event)
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to bind JSON to event")
-		return
+		return err
 	}
-	handler.Process(c, event)
+	return handler.Process(c, event)
 }
 
 func NewEventHandler() *EventHandler {
