@@ -135,6 +135,14 @@ export async function updateOrSetTranslationAsync(input: Event<any>) {
                 directoryId: config.directoryId,
                 title: collectionMap[model],
                 type: "csv",
+                importOptions: {
+                    importTranslations: true,
+                    scheme: {
+                        identifier: 0,
+                        sourceOrTranslation: 1,
+                        context: 2,
+                    } as any
+                } as any
             })
         }
     }
