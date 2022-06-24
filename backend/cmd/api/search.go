@@ -75,5 +75,10 @@ func directusEventHandler(searchService *search.Service) func(c *gin.Context) {
 		handler.DeleteModel(model, id)
 	})
 
-	return eventHandler.Execute
+	return func(c *gin.Context) {
+		err := eventHandler.Execute(c)
+		if err != nil {
+			log.L.Error().Err(err).Msg("Failed to handle event")
+		}
+	}
 }

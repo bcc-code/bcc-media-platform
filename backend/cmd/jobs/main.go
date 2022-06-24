@@ -21,6 +21,25 @@ import (
 
 const debugDirectus = false
 
+func initializeDirectusEventHandler(searchService *search.Service) *directus.EventHandler {
+	eventHandler := directus.NewEventHandler()
+
+	indexEvents := []string{directus.EventItemsCreate, directus.EventItemsUpdate}
+
+	eventHandler.On(indexEvents, func(ctx context.Context, model string, id int) {
+		handler := searchService.NewRequestHandler(ctx)
+		handler.IndexModel(model, id)
+	})
+
+	deleteEvents := []string{directus.EventItemsDelete}
+	eventHandler.On(deleteEvents, func(ctx context.Context, model string, id int) {
+		handler := searchService.NewRequestHandler(ctx)
+		handler.DeleteModel(model, id)
+	})
+
+	return eventHandler
+}
+
 func main() {
 	ctx := context.Background()
 
@@ -60,15 +79,17 @@ func main() {
 	}
 
 	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
+	directusEventHandler := initializeDirectusEventHandler(searchService)
 
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
 
 	handlers := server.NewServer(server.ExternalServices{
-		S3Client:        s3Client,
-		MediaPackageVOD: mediaPackageVOD,
-		DirectusClient:  directusClient,
-		SearchService:   searchService,
+		S3Client:             s3Client,
+		MediaPackageVOD:      mediaPackageVOD,
+		DirectusClient:       directusClient,
+		SearchService:        searchService,
+		DirectusEventHandler: directusEventHandler,
 	}, serverConfig)
 
 	apiGroup := router.Group("api")
