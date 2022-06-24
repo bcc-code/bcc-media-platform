@@ -150,7 +150,7 @@ export async function sync() {
         const pushMissingTranslations = async (force = false) => {
             if (missingTranslations.length > limit || (force && missingTranslations.length)) {
                 console.log("Inserting translations for collection " + collection)
-                await db.raw("INSERT INTO " + collection + "_translations (title, description, languages_code) VALUES (" + missingTranslations.map(i => [i.title, i.description, i.language].map(i => JSON.stringify(i)).join(",")).join("), (") + ")")
+                await db.raw("INSERT INTO " + collection + "_translations (title, description, languages_code, " + collection + "_id) VALUES ('" + missingTranslations.map(i => [i.title, i.description, i.language].map(i => i?.replace("'", "\'") ?? null).join("','") + "', '" + i.parentId).join("'), ('") + "')")
                 missingTranslations = []
             }
         }
@@ -172,7 +172,7 @@ export async function sync() {
             const existingLanguageTranslations = existingTranslations.filter(i => i.language === language.id)
 
             do {
-                console.log("Retrieving approvals")
+                console.log("Retrieving approvals.")
                 const approvals = await translationApi.listTranslationApprovals(config.projectId, {
                     fileId: file.id,
                     languageId: language.id,
@@ -186,6 +186,7 @@ export async function sync() {
                 if (!stringIds) {
                     continue;
                 }
+                console.log("Retrieving translations for the approvals")
                 const translations = await translationApi.listLanguageTranslations(config.projectId, language.id, {
                     stringIds,
                 })
