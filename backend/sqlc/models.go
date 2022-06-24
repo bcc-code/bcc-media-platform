@@ -503,18 +503,24 @@ type EpisodesUsergroup struct {
 	ID             int32          `db:"id" json:"id"`
 	Type           null_v4.String `db:"type" json:"type"`
 	UsergroupsCode string         `db:"usergroups_code" json:"usergroupsCode"`
+	DateCreated    time.Time      `db:"date_created" json:"dateCreated"`
+	DateUpdated    sql.NullTime   `db:"date_updated" json:"dateUpdated"`
 }
 
 type EpisodesUsergroupsDownload struct {
-	EpisodesID     int32  `db:"episodes_id" json:"episodesID"`
-	ID             int32  `db:"id" json:"id"`
-	UsergroupsCode string `db:"usergroups_code" json:"usergroupsCode"`
+	EpisodesID     int32     `db:"episodes_id" json:"episodesID"`
+	ID             int32     `db:"id" json:"id"`
+	UsergroupsCode string    `db:"usergroups_code" json:"usergroupsCode"`
+	DateCreated    time.Time `db:"date_created" json:"dateCreated"`
+	DateUpdated    time.Time `db:"date_updated" json:"dateUpdated"`
 }
 
 type EpisodesUsergroupsEarlyaccess struct {
-	EpisodesID     int32  `db:"episodes_id" json:"episodesID"`
-	ID             int32  `db:"id" json:"id"`
-	UsergroupsCode string `db:"usergroups_code" json:"usergroupsCode"`
+	EpisodesID     int32     `db:"episodes_id" json:"episodesID"`
+	ID             int32     `db:"id" json:"id"`
+	UsergroupsCode string    `db:"usergroups_code" json:"usergroupsCode"`
+	DateCreated    time.Time `db:"date_created" json:"dateCreated"`
+	DateUpdated    time.Time `db:"date_updated" json:"dateUpdated"`
 }
 
 type Language struct {

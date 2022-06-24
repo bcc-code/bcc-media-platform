@@ -47,7 +47,7 @@ func (q *Queries) GetEpisode(ctx context.Context, id int32) (Episode, error) {
 }
 
 const getEpisodeRoles = `-- name: GetEpisodeRoles :many
-SELECT episodes_id, id, type, usergroups_code FROM public.episodes_usergroups
+SELECT episodes_id, id, type, usergroups_code, date_created, date_updated FROM public.episodes_usergroups
 `
 
 func (q *Queries) GetEpisodeRoles(ctx context.Context) ([]EpisodesUsergroup, error) {
@@ -64,6 +64,8 @@ func (q *Queries) GetEpisodeRoles(ctx context.Context) ([]EpisodesUsergroup, err
 			&i.ID,
 			&i.Type,
 			&i.UsergroupsCode,
+			&i.DateCreated,
+			&i.DateUpdated,
 		); err != nil {
 			return nil, err
 		}
@@ -293,4 +295,15 @@ func (q *Queries) GetVisibilityForEpisodes(ctx context.Context) ([]GetVisibility
 		return nil, err
 	}
 	return items, nil
+}
+
+const refreshAccessView = `-- name: RefreshAccessView :one
+SELECT update_episodes_access()
+`
+
+func (q *Queries) RefreshAccessView(ctx context.Context) (bool, error) {
+	row := q.db.QueryRowContext(ctx, refreshAccessView)
+	var update_episodes_access bool
+	err := row.Scan(&update_episodes_access)
+	return update_episodes_access, err
 }
