@@ -23,7 +23,7 @@ type TranslationPayload<S extends Model> = TranslationPayloads[S]
 
 export function getTranslationsFromEvent(input: Event<any>) {
     const payload = input.payload as Translation;
-    let model: Model;
+    let collection: string;
     let id: number;
 
     const language = payload.languages_code.code
@@ -38,15 +38,15 @@ export function getTranslationsFromEvent(input: Event<any>) {
 
     switch (input.collection) {
         case "shows_translations":
-            model = "show"
+            collection = "shows"
             id = (payload as TranslationPayload<"show">).shows_id
             break;
         case "seasons_translations":
-            model = "season"
+            collection = "seasons"
             id = (payload as TranslationPayload<"season">).seasons_id
             break;
         case "episodes_translations":
-            model = "episode"
+            collection = "episodes"
             id = (payload as TranslationPayload<"episode">).episodes_id
             let extraDescription = (payload as TranslationPayload<"episode">).extra_description
             if (extraDescription)
@@ -55,7 +55,7 @@ export function getTranslationsFromEvent(input: Event<any>) {
     }
 
     return {
-        model,
+        collection,
         id,
         values,
         language,
@@ -90,17 +90,12 @@ export async function getFileIdForModel(collection: string): Promise<number | nu
 export async function updateOrSetTranslationAsync(input: Event<any>) {
     if (input.collection.endsWith("_translations")) {
         const config = getConfig();
-        const collectionMap = {
-            "show": "shows",
-            "season": "seasons",
-            "episode": "episodes",
-        }
-        const {model, id, values, language} = getTranslationsFromEvent(input)
+        const {collection, id, values, language} = getTranslationsFromEvent(input)
 
-        if (!model)
+        if (!collection)
             return;
 
-        let fileId = await getFileIdForModel(collectionMap[model])
+        let fileId = await getFileIdForModel(collection)
 
         if (fileId) {
             const stringApi = new SourceStrings(getCredentials())
@@ -108,7 +103,7 @@ export async function updateOrSetTranslationAsync(input: Event<any>) {
                 fileId: fileId ?? undefined,
             })
             for (const [field, value] of Object.entries(values)) {
-                const identifier = `${model}-${id}-` + field;
+                const identifier = `${collection}-${id}-` + field;
                 const existingString = strings.data.find(s => s.data.identifier === identifier)
     
                 if (existingString) {
@@ -124,7 +119,7 @@ export async function updateOrSetTranslationAsync(input: Event<any>) {
                         await stringApi.addString(config.projectId, {
                             fileId: fileId,
                             text: value,
-                            identifier: `${model}-${id}-` + field,
+                            identifier: `${collection}-${id}-` + field,
                         })
                     }
                 }
@@ -132,11 +127,11 @@ export async function updateOrSetTranslationAsync(input: Event<any>) {
         } else {
             const entries: string[] = []
             for (const [field, value] of Object.entries(values)) {
-                const identifier = `${model}-${id}-` + field;
+                const identifier = `${collection}-${id}-` + field;
                 entries.push([identifier, value, ""].map(i => JSON.stringify(i)).join(","))
             }
-            fileId = (await createFile(collectionMap[model], Object.entries(values).map(([field, value]) => ({
-                identifier: `${model}-${id}-` + field,
+            fileId = (await createFile(collection, Object.entries(values).map(([field, value]) => ({
+                identifier: `${collection}-${id}-` + field,
                 context: "",
                 sourceString: value
             })))).id

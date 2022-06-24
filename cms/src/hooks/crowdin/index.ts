@@ -20,7 +20,7 @@ export default ({action, schedule, init}) => {
     action('items.update', updateOrSetTranslationAsync)
 
     schedule('0 * * * *', sync)
-    init('app.after', sync)
+    // init('app.after', sync)
 }
 
 export function getPrimaryLanguageKey() {
