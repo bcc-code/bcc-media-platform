@@ -11,7 +11,7 @@
       <video src="INTR_S02_E01_MAS_NOR_960x540_1900.mp4" />
       <video src="INTR_S02_E01_MAS_NOR_1280x720_3000.mp4" />
       <video src="INTR_S02_E01_MAS_NOR_1920x1080_5000.mp4" />
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio1.mp4" systemLanguage="nor">
+       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio1.mp4" systemLanguage="nor" audioName="Norwegian">
            <param name="trackName" value="Norwegian" valuetype="data" />
            <param name="systemLanguage" value="nor" valuetype="data" />
        </audio>
