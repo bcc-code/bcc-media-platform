@@ -12,7 +12,7 @@ export interface Event<T> {
     collection: Collection;
 }
 
-export default ({action, schedule, init}) => {
+export default ({action, schedule}) => {
     if (!enabled()) 
         return
     

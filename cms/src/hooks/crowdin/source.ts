@@ -1,4 +1,4 @@
-import {SourceFiles, SourceFilesModel, SourceStrings, Translations, UploadStorage} from "@crowdin/crowdin-api-client";
+import {SourceFiles, SourceStrings } from "@crowdin/crowdin-api-client";
 import {Event, Model} from ".";
 import { getConfig, getCredentials } from "./config";
 import { createFile } from "./file";
@@ -90,7 +90,7 @@ export async function getFileIdForModel(collection: string): Promise<number | nu
 export async function updateOrSetTranslationAsync(input: Event<any>) {
     if (input.collection.endsWith("_translations")) {
         const config = getConfig();
-        const {collection, id, values, language} = getTranslationsFromEvent(input)
+        const {collection, id, values} = getTranslationsFromEvent(input)
 
         if (!collection)
             return;
@@ -102,7 +102,7 @@ export async function updateOrSetTranslationAsync(input: Event<any>) {
             const strings = await stringApi.listProjectStrings(config.projectId, {
                 fileId: fileId ?? undefined,
             })
-            for (const [field, value] of Object.entries(values)) {
+            for (const [field, value] of Object.entries(values)) {
                 const identifier = `${collection}-${id}-` + field;
                 const existingString = strings.data.find(s => s.data.identifier === identifier)
     
@@ -125,16 +125,11 @@ export async function updateOrSetTranslationAsync(input: Event<any>) {
                 }
             }
         } else {
-            const entries: string[] = []
-            for (const [field, value] of Object.entries(values)) {
-                const identifier = `${collection}-${id}-` + field;
-                entries.push([identifier, value, ""].map(i => JSON.stringify(i)).join(","))
-            }
-            fileId = (await createFile(collection, Object.entries(values).map(([field, value]) => ({
+            await createFile(collection, Object.entries(values).map(([field, value]) => ({
                 identifier: `${collection}-${id}-` + field,
                 context: "",
                 sourceString: value
-            })))).id
+            })))
         }
     }
 }

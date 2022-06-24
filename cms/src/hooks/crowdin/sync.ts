@@ -1,5 +1,4 @@
 import { ProjectsGroups, SourceFiles, SourceStrings, SourceStringsModel, StringTranslations, StringTranslationsModel } from "@crowdin/crowdin-api-client";
-import axios from "axios";
 import knex from "knex";
 import { getPrimaryLanguageKey } from ".";
 import { enabled, getConfig, getCredentials } from "./config";
