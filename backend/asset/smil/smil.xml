@@ -5,68 +5,26 @@
   </head>
   <body>
     <switch>
-      <video src="INTR_S02_E01_MAS_NOR_320x180_320.mp4" />
-      <video src="INTR_S02_E01_MAS_NOR_480x270_610.mp4" />
-      <video src="INTR_S02_E01_MAS_NOR_640x360_980.mp4" />
-      <video src="INTR_S02_E01_MAS_NOR_960x540_1900.mp4" />
-      <video src="INTR_S02_E01_MAS_NOR_1280x720_3000.mp4" />
-      <video src="INTR_S02_E01_MAS_NOR_1920x1080_5000.mp4" />
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio1.mp4" systemLanguage="nor" audioName="Norwegian">
-           <param name="trackName" value="Norwegian" valuetype="data" />
-           <param name="systemLanguage" value="nor" valuetype="data" />
-       </audio>
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio2.mp4" systemLanguage="deu">
-           <param name="trackName" value="German" valuetype="data" />
-           <param name="systemLanguage" value="deu" valuetype="data" />
-       </audio>
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio3.mp4" systemLanguage="nld">
-           <param name="trackName" value="Netherlands" valuetype="data" />
-           <param name="systemLanguage" value="nld" valuetype="data" />
-       </audio>
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio4.mp4" systemLanguage="eng">
-           <param name="trackName" value="English" valuetype="data" />
-           <param name="systemLanguage" value="eng" valuetype="data" />
-       </audio>
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio5.mp4" systemLanguage="fra">
-           <param name="trackName" value="French" valuetype="data" />
-           <param name="systemLanguage" value="fra" valuetype="data" />
-       </audio>
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio6.mp4" systemLanguage="spa">
-           <param name="trackName" value="Spannish" valuetype="data" />
-           <param name="systemLanguage" value="spa" valuetype="data" />
-       </audio>
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio7.mp4" systemLanguage="fin">
-           <param name="trackName" value="Finnish" valuetype="data" />
-           <param name="systemLanguage" value="fin" valuetype="data" />
-       </audio>
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio8.mp4" systemLanguage="rus">
-           <param name="trackName" value="Russian" valuetype="data" />
-           <param name="systemLanguage" value="rus" valuetype="data" />
-       </audio>
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio9.mp4" systemLanguage="por">
-           <param name="trackName" value="Portuguese" valuetype="data" />
-           <param name="systemLanguage" value="por" valuetype="data" />
-       </audio>
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio10.mp4" systemLanguage="ron">
-           <param name="trackName" value="Romanian" valuetype="data" />
-           <param name="systemLanguage" value="ron" valuetype="data" />
-       </audio>
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio11.mp4" systemLanguage="tur">
-           <param name="trackName" value="Turkish" valuetype="data" />
-           <param name="systemLanguage" value="tur" valuetype="data" />
-       </audio>
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio12.mp4" systemLanguage="pol">
-           <param name="trackName" value="Polish" valuetype="data" />
-           <param name="systemLanguage" value="pol" valuetype="data" />
-       </audio>
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio14.mp4" systemLanguage="hun">
-           <param name="trackName" value="Hungarian" valuetype="data" />
-           <param name="systemLanguage" value="hun" valuetype="data" />
-       </audio>
-       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio15.mp4" systemLanguage="ita">
-           <param name="trackName" value="Italian" valuetype="data" />
-           <param name="systemLanguage" value="ita" valuetype="data" />
-       </audio>
+      <video src="INTR_S02_E01_MAS_NOR_320x180_320.mp4" includeAudio="false" />
+      <video src="INTR_S02_E01_MAS_NOR_480x270_610.mp4"  includeAudio="false"/>
+      <video src="INTR_S02_E01_MAS_NOR_640x360_980.mp4"  includeAudio="false"/>
+      <video src="INTR_S02_E01_MAS_NOR_960x540_1900.mp4"  includeAudio="false"/>
+      <video src="INTR_S02_E01_MAS_NOR_1280x720_3000.mp4"  includeAudio="false"/>
+      <video src="INTR_S02_E01_MAS_NOR_1920x1080_5000.mp4"  includeAudio="false"/>
+	  <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio1.mp4" systemLanguage="nor" audioName="Norwegian" includeAudio="true" />
+	  <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio2.mp4" systemLanguage="deu" audioName="German" includeAudio="true" />
+	  <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio3.mp4" systemLanguage="nld" audioName="Dutch" includeAudio="true" />
+       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio4.mp4" systemLanguage="eng" audioName="English" includeAudio="true" />
+       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio5.mp4" systemLanguage="fra" audioName="French" includeAudio="true" />
+       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio6.mp4" systemLanguage="spa" audioName="Spanish" includeAudio="true" />
+	   <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio7.mp4" systemLanguage="fin" audioName="Finnish" includeAudio="true" />
+       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio8.mp4" systemLanguage="rus" audioName="Russian" includeAudio="true" />
+       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio9.mp4" systemLanguage="por" audioName="Portugeze" includeAudio="true" />
+	   <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio10.mp4" systemLanguage="ron" audioName="Romanian" includeAudio="true" />
+       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio11.mp4" systemLanguage="tur" audioName="Turkish" includeAudio="true" />
+       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio12.mp4" systemLanguage="pol" audioName="Polish" includeAudio="true" />
+       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio14.mp4" systemLanguage="hun" audioName="Hungarian" includeAudio="true" />
+       <audio src="INTR_S02_E01_MAS_NOR_AACAudio_128_Audio15.mp4" systemLanguage="ita" audioName="Italian" includeAudio="true" />
     </switch>
   </body>
 </smil>
