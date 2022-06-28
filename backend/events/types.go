@@ -6,3 +6,11 @@ package events
 type AssetDelivered struct {
 	JSONMetaPath string `json:"jsonMetaPath"`
 }
+
+// RefreshView is an event requestig refresh of a view in the DB
+// This is a generic event and the ViewName should be checked against a list of
+// known views to prevent potential abuse
+type RefreshView struct {
+	ViewName string `json:"viewName"`
+	Force    bool   `json:"force"`
+}

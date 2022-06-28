@@ -6,6 +6,7 @@ import (
 	"github.com/ansel1/merry"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/events"
+	"github.com/bcc-code/brunstadtv/backend/maintenance"
 	"github.com/bcc-code/brunstadtv/backend/pubsub"
 	"github.com/bcc-code/mediabank-bridge/log"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -73,6 +74,8 @@ func (s server) ProcessMessage(c *gin.Context) {
 	switch e.Type() {
 	case events.TypeAssetDelivered:
 		err = asset.Ingest(ctx, s.services, s.config, e)
+	case events.TypeRefreshView:
+		err = maintenance.RefreshView(ctx, s.services, e)
 	case events.TypeSearchReindex, events.TypeSearchIndex:
 		eventHandler := s.services.GetDirectusEventHandler()
 		err = eventHandler.ProcessCloudEvent(ctx, e)

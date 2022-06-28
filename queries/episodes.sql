@@ -21,3 +21,6 @@ SELECT id, status, publish_date, available_from, available_to, season_id FROM pu
 
 -- name: GetVisibilityForEpisode :one
 SELECT id, status, publish_date, available_from, available_to, season_id FROM public.episodes WHERE id = $1;
+
+-- name: RefreshAccessView :one
+SELECT update_episodes_access();

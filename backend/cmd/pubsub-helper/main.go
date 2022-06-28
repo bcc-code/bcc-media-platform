@@ -31,7 +31,7 @@ func create(projectID, topicID string) {
 	t, err := client.CreateSubscription(ctx, "bgjobs", pubsub.SubscriptionConfig{
 		Topic: topic,
 		PushConfig: pubsub.PushConfig{
-			Endpoint: "http://10.12.128.112:8078/api/message",
+			Endpoint: "http://192.168.0.76:8078/api/message",
 		},
 	})
 	if err != nil {
@@ -54,6 +54,33 @@ func send(projectID, topicID string) {
 	e.SetData(cloudevents.ApplicationJSON, &events.AssetDelivered{
 		//JSONMetaPath: "randomstring/sample.json",
 		JSONMetaPath: "7233_TEMA2_Simen.json",
+	})
+
+	data, err := json.Marshal(e)
+	spew.Dump(string(data))
+	topic := client.Topic(topicID)
+	msg := topic.Publish(ctx, &pubsub.Message{
+		Data: data,
+	})
+
+	_, err = msg.Get(ctx)
+	fmt.Printf("Sent: %v\n", err)
+}
+
+func refreshView(projectID, topicID string) {
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, projectID)
+	if err != nil {
+		fmt.Printf("pubsub.NewClient: %v", err)
+	}
+	defer client.Close()
+
+	e := cloudevents.NewEvent()
+	e.SetSource(events.SourceCloudScheduler)
+	e.SetType(events.TypeRefreshView)
+	e.SetData(cloudevents.ApplicationJSON, &events.RefreshView{
+		ViewName: "episodes_access",
+		Force:    false,
 	})
 
 	data, err := json.Marshal(e)
@@ -91,7 +118,11 @@ func del(projectID, topicID string) {
 func main() {
 	create("btv-local", "background-jobs")
 
-	send("btv-local", "background-jobs")
+	/*
+		send("btv-local", "background-jobs")
+	*/
+
+	refreshView("btv-local", "background-jobs")
 
 	time.Sleep(1 * time.Second)
 	del("btv-local", "background-jobs")

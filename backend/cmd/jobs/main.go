@@ -5,12 +5,14 @@ package main
 import (
 	"context"
 	"database/sql"
+
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/search"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
@@ -77,6 +79,17 @@ func main() {
 		log.L.Error().Err(err)
 		return
 	}
+	db.SetMaxIdleConns(2)
+	// TODO: What makes sense here? We should gather some metrics over time
+	db.SetMaxOpenConns(10)
+
+	err = db.PingContext(ctx)
+	if err != nil {
+		log.L.Panic().Err(err).Msg("Ping failed")
+		return
+	}
+
+	queries := sqlc.New(db)
 
 	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
 	directusEventHandler := initializeDirectusEventHandler(searchService)
@@ -90,6 +103,7 @@ func main() {
 		DirectusClient:       directusClient,
 		SearchService:        searchService,
 		DirectusEventHandler: directusEventHandler,
+		Queries:              queries,
 	}, serverConfig)
 
 	apiGroup := router.Group("api")
