@@ -25,8 +25,6 @@ func RefreshView(ctx context.Context, s services, event cloudevents.Event) error
 	ctx, span := otel.Tracer("maintenance").Start(ctx, "RefreshView")
 	defer span.End()
 	q := s.GetQueries()
-
-	defer span.End()
 	msg := events.RefreshView{}
 	err := event.DataAs(&msg)
 	if err != nil {
