@@ -272,7 +272,7 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 
 		log.L.Debug().Msgf("Retrieved %d translations", len(ts))
 
-		var items []simpleTranslation
+		var items []*simpleTranslation
 		for _, t := range ts {
 			s, ok := stringsById[t.StringID]
 			if !ok {
@@ -284,18 +284,20 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 			}
 			objectId, _ := strconv.ParseInt(parts[1], 10, 64)
 			field := parts[2]
-			item, found := lo.Find(items, func(i simpleTranslation) bool {
+			item, found := lo.Find(items, func(i *simpleTranslation) bool {
 				return i.ParentID == int(objectId)
 			})
 			if !found {
-				item, found = lo.Find(existingTranslations, func(i simpleTranslation) bool {
+				existingItem, found := lo.Find(existingTranslations, func(i simpleTranslation) bool {
 					return i.ParentID == int(objectId)
 				})
 				if !found {
-					item = simpleTranslation{
+					item = &simpleTranslation{
 						Language: language.ID,
 						ParentID: int(objectId),
 					}
+				} else {
+					item = &existingItem
 				}
 				items = append(items, item)
 			}
@@ -316,8 +318,10 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 				}
 			}
 		}
-		queuedTranslations = append(queuedTranslations, lo.Filter(items, func(i simpleTranslation, _ int) bool {
+		queuedTranslations = append(queuedTranslations, lo.Map(lo.Filter(items, func(i *simpleTranslation, _ int) bool {
 			return i.Changed
+		}), func(i *simpleTranslation, _ int) simpleTranslation {
+			return *i
 		})...)
 		pushTranslations(false)
 	}

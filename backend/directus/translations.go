@@ -3,16 +3,16 @@ package directus
 import "github.com/bcc-code/mediabank-bridge/log"
 
 type Translation struct {
-	ID            int    `json:"id"`
+	ID            int    `json:"id,omitempty"`
 	Title         string `json:"title"`
-	Description   string `json:"description"`
+	Description   string `json:"description,omitempty"`
 	LanguagesCode string `json:"languages_code"`
 }
 
 type EpisodesTranslation struct {
 	Translation
 	EpisodesID       int    `json:"episodes_id"`
-	ExtraDescription string `json:"extra_description"`
+	ExtraDescription string `json:"extra_description,omitempty"`
 }
 
 type SeasonsTranslation struct {
@@ -22,7 +22,7 @@ type SeasonsTranslation struct {
 
 type ShowsTranslation struct {
 	Translation
-	ShowsID int `json:""`
+	ShowsID int `json:"shows_id"`
 }
 
 type update struct {
@@ -85,9 +85,9 @@ func (ShowsTranslation) TypeName() string {
 
 func (h *Handler) ListEpisodeTranslations(language string, primary bool) (translations []EpisodesTranslation) {
 	var queryParams = map[string]string{}
-	//if primary {
-	//	queryParams["filter[is_primary][_eq]"] = "true"
-	//}
+	if primary {
+		//queryParams["filter[is_primary][_eq]"] = "true"
+	}
 	if language != "" {
 		queryParams["filter[languages_code][_eq]"] = language
 	}
