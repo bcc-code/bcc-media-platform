@@ -3,10 +3,10 @@ package directus
 import (
 	"context"
 	"fmt"
-
 	"github.com/ansel1/merry"
 	"github.com/go-resty/resty/v2"
 	"go.opencensus.io/trace"
+	"strconv"
 )
 
 // New client for Directus
@@ -21,6 +21,19 @@ func New(url, key string, debug bool) *resty.Client {
 		EnableTrace().
 		SetDebug(false)
 	return rest
+}
+
+func NewHandler(ctx context.Context, c *resty.Client) *Handler {
+	handler := Handler{
+		ctx,
+		c,
+	}
+	return &handler
+}
+
+type Handler struct {
+	ctx context.Context
+	c   *resty.Client
 }
 
 // DSItem objects provide an id
@@ -71,6 +84,39 @@ func SaveItem[t DSItem](ctx context.Context, c *resty.Client, i t, unmashall boo
 	}
 
 	return nil, nil
+}
+
+func ListItems[t DSItem](ctx context.Context, c *resty.Client, collection string) (items []t, err error) {
+	ctx, span := trace.StartSpan(ctx, "directus.ListItems")
+	defer span.End()
+
+	path := fmt.Sprintf("/items/%s", collection)
+
+	limit := 100
+	offset := 0
+
+	for {
+		req := c.R()
+		req.SetResult(struct{ Data []t }{})
+		req.SetQueryParams(map[string]string{
+			"limit":  strconv.Itoa(limit),
+			"offset": strconv.Itoa(offset),
+		})
+		res, err := req.Get(path)
+		if err != nil {
+			return nil, err
+		}
+
+		resultItems := res.Result().(*struct{ Data []t }).Data
+		items = append(items, resultItems...)
+
+		if len(resultItems) == limit {
+			offset += limit
+			continue
+		}
+		break
+	}
+	return
 }
 
 // CRUDArrays are a special wrapper in directus for creating and updating many-many relations

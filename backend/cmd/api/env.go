@@ -18,11 +18,17 @@ type algolia struct {
 	SearchOnlyApiKey string
 }
 
+type directusConfig struct {
+	Token string
+	Host  string
+}
+
 type envConfig struct {
 	DB        postgres
 	Algolia   algolia
 	Port      string
 	JWTConfig auth0.JWTConfig
+	Directus  directusConfig
 }
 
 func getEnvConfig() envConfig {
@@ -46,6 +52,10 @@ func getEnvConfig() envConfig {
 			AppId:            os.Getenv("ALGOLIA_APP_ID"),
 			ApiKey:           os.Getenv("ALGOLIA_API_KEY"),
 			SearchOnlyApiKey: os.Getenv("ALGOLIA_SEARCH_ONLY_API_KEY"),
+		},
+		Directus: directusConfig{
+			Token: os.Getenv("DU_TOKEN"),
+			Host:  os.Getenv("DU_HOST"),
 		},
 	}
 }
