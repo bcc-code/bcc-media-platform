@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ansel1/merry"
+	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"

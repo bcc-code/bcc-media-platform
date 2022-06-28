@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/ansel1/merry"
+	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"go.opentelemetry.io/otel"

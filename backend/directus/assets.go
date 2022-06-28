@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/ansel1/merry"
+	"github.com/ansel1/merry/v2"
 	"github.com/go-resty/resty/v2"
 )
 

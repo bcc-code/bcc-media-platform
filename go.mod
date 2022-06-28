@@ -7,7 +7,6 @@ require (
 	github.com/99designs/gqlgen v0.17.9
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.1
 	github.com/algolia/algoliasearch-client-go/v3 v3.4.0
-	github.com/ansel1/merry v1.6.2
 	github.com/ansel1/merry/v2 v2.0.1
 	github.com/aws/aws-sdk-go-v2 v1.16.4
 	github.com/aws/aws-sdk-go-v2/config v1.15.9
