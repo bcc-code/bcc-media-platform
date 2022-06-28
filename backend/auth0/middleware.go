@@ -2,18 +2,18 @@ package auth0
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"github.com/lestrrat-go/jwx/jwt"
 	"go.opentelemetry.io/otel"
 )
 
 const (
-	// CtxAnonymous indicates if the requests is anonymous or not
-	CtxAnonymous = "jwt_anonymous"
+	// CtxAuthenticated indicates if the requests is anonymous or not
+	CtxAuthenticated = "jwt_authenticated"
 
 	// CtxIsBCCMember indicates if the user has an active membership in BCC Norway
 	// It is based on the "https://login.bcc.no/claims/hasMembership" claim
@@ -27,6 +27,9 @@ const (
 	// CtxJWTAudience is set if the person is not anonymous. It indicates what audience the
 	// token was found valid for
 	CtxJWTAudience = "jwt_audience"
+
+	// CtxEmail is set to the email extracted from the token if it was present
+	CtxEmail = "jwt_email"
 )
 
 // JWTConfig configures the JWT middleware
@@ -49,7 +52,7 @@ func JWT(ctx context.Context, config JWTConfig) gin.HandlerFunc {
 		defer span.End()
 
 		if c.Request.Header.Get("Authorization") == "" {
-			c.Set(CtxAnonymous, true)
+			c.Set(CtxAuthenticated, false)
 			c.Set(CtxIsBCCMember, false)
 			return
 		}
@@ -98,7 +101,7 @@ func JWT(ctx context.Context, config JWTConfig) gin.HandlerFunc {
 		}
 
 		// User is authenticated. Set the correct values and extract claims
-		c.Set(CtxAnonymous, false)
+		c.Set(CtxAuthenticated, true)
 
 		// If you want to see all possible claims use the following line:
 		// spew.Dump(token.PrivateClaims())
@@ -107,18 +110,24 @@ func JWT(ctx context.Context, config JWTConfig) gin.HandlerFunc {
 		// with data that we don't actully need and may be considered private under GDPR
 		// If posible convert the claim to a string in order to make it easier to extract it later
 
-		if val, ok := token.Get("https://login.bcc.no/claims/hasMembership"); ok {
-			c.Set(CtxIsBCCMember, val)
+		if privateClaims, ok := token.PrivateClaims()["https://members.bcc.no/app_metadata"]; ok {
+			if val, ok := privateClaims.(map[string]interface{})["hasMembership"]; ok {
+				c.Set(CtxIsBCCMember, val)
+			}
 		} else {
 			// Make sure the key is set even if it does not exist in the token
 			log.L.Warn().
-				Str("claim", "https://login.bcc.no/claims/hasMembership").
+				Str("claim", "https://members.bcc.no/app_metadata/").
 				Msg("Unable to get claim")
 			c.Set(CtxIsBCCMember, false)
 		}
 
 		if val, ok := token.Get("https://login.bcc.no/claims/personId"); ok {
-			c.Set(CtxPersonID, spew.Sprintf("%.0f", val))
+			c.Set(CtxPersonID, fmt.Sprintf("%.0f", val))
+		}
+
+		if val, ok := token.Get("email"); ok {
+			c.Set(CtxEmail, val)
 		}
 	}
 }

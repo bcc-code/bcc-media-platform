@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
