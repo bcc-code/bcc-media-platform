@@ -10,7 +10,7 @@ import (
 
 // Sentinel errors
 var (
-	ErrNotFound = merry.New("No objct was found")
+	ErrNotFound = merry.Sentinel("No objct was found")
 )
 
 // Status is a global enum for directus status
@@ -83,7 +83,7 @@ func FindNewestAssetByMediabankenID(c *resty.Client, mediabankenID string) (*Ass
 	assetList := res.Result().(*struct{ Data []Asset })
 
 	if len(assetList.Data) == 0 {
-		return nil, ErrNotFound.Here().WithValue("mediabankenID", mediabankenID)
+		return nil, merry.Wrap(ErrNotFound, merry.WithValue("mediabankenID", mediabankenID))
 	}
 
 	return &assetList.Data[0], nil
