@@ -253,6 +253,7 @@ type User {
   bccMember: Boolean!
   audience: String
   settings: Settings!
+  roles: [String!]!
 }
 
 type QueryRoot{

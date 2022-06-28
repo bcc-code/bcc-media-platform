@@ -251,6 +251,7 @@ type User struct {
 	BccMember bool      `json:"bccMember"`
 	Audience  *string   `json:"audience"`
 	Settings  *Settings `json:"settings"`
+	Roles     []string  `json:"roles"`
 }
 
 type Language string
