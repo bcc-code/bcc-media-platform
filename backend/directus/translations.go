@@ -83,24 +83,45 @@ func (ShowsTranslation) TypeName() string {
 	return "shows_translations"
 }
 
-func (h *Handler) ListEpisodeTranslations() (translations []EpisodesTranslation) {
-	translations, err := ListItems[EpisodesTranslation](h.ctx, h.c, "episodes_translations")
+func (h *Handler) ListEpisodeTranslations(language string, primary bool) (translations []EpisodesTranslation) {
+	var queryParams = map[string]string{}
+	//if primary {
+	//	queryParams["filter[is_primary][_eq]"] = "true"
+	//}
+	if language != "" {
+		queryParams["filter[languages_code][_eq]"] = language
+	}
+	translations, err := ListItems[EpisodesTranslation](h.ctx, h.c, "episodes_translations", queryParams)
 	if err != nil {
 		log.L.Error().Err(err)
 	}
 	return
 }
 
-func (h *Handler) ListSeasonTranslations() (translations []SeasonsTranslation) {
-	translations, err := ListItems[SeasonsTranslation](h.ctx, h.c, "seasons_translations")
+func (h *Handler) ListSeasonTranslations(language string, primary bool) (translations []SeasonsTranslation) {
+	var queryParams = map[string]string{}
+	if primary {
+		queryParams["filter[is_primary][_eq]"] = "true"
+	}
+	if language != "" {
+		queryParams["filter[languages_code][_eq]"] = language
+	}
+	translations, err := ListItems[SeasonsTranslation](h.ctx, h.c, "seasons_translations", queryParams)
 	if err != nil {
 		log.L.Error().Err(err)
 	}
 	return
 }
 
-func (h *Handler) ListShowTranslations() (translations []ShowsTranslation) {
-	translations, err := ListItems[ShowsTranslation](h.ctx, h.c, "shows_translations")
+func (h *Handler) ListShowTranslations(language string, primary bool) (translations []ShowsTranslation) {
+	var queryParams = map[string]string{}
+	if primary {
+		queryParams["filter[is_primary][_eq]"] = "true"
+	}
+	if language != "" {
+		queryParams["filter[languages_code][_eq]"] = language
+	}
+	translations, err := ListItems[ShowsTranslation](h.ctx, h.c, "shows_translations", queryParams)
 	if err != nil {
 		log.L.Error().Err(err)
 	}

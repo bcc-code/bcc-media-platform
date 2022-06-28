@@ -86,7 +86,7 @@ func SaveItem[t DSItem](ctx context.Context, c *resty.Client, i t, unmashall boo
 	return nil, nil
 }
 
-func ListItems[t DSItem](ctx context.Context, c *resty.Client, collection string) (items []t, err error) {
+func ListItems[t DSItem](ctx context.Context, c *resty.Client, collection string, queryParams map[string]string) (items []t, err error) {
 	ctx, span := trace.StartSpan(ctx, "directus.ListItems")
 	defer span.End()
 
@@ -102,6 +102,11 @@ func ListItems[t DSItem](ctx context.Context, c *resty.Client, collection string
 			"limit":  strconv.Itoa(limit),
 			"offset": strconv.Itoa(offset),
 		})
+		if queryParams != nil {
+			for key, value := range queryParams {
+				req.SetQueryParam(key, value)
+			}
+		}
 		res, err := req.Get(path)
 		if err != nil {
 			return nil, err
