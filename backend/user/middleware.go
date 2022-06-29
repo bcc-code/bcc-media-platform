@@ -7,6 +7,7 @@ import (
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
@@ -26,32 +27,8 @@ const (
 	CacheRoles = "roles"
 )
 
-var userCache = cache.New[string, *User]()
+var userCache = cache.New[string, *common.User]()
 var rolesCache = cache.New[string, map[string][]string]()
-
-// User represents an acutal user in the system
-type User struct {
-	Roles     []string
-	Email     string
-	PersonID  string
-	anonymous bool
-	activeBCC bool
-}
-
-// IsAnonymous user?
-func (u User) IsAnonymous() bool {
-	return u.anonymous
-}
-
-// IsRegistered user?
-func (u User) IsRegistered() bool {
-	return !u.anonymous
-}
-
-// IsActiveBCC user?
-func (u User) IsActiveBCC() bool {
-	return u.activeBCC
-}
 
 func getRoles(ctx context.Context, queries *sqlc.Queries) (map[string][]string, error) {
 	if roles, ok := rolesCache.Get(CacheRoles); ok {
@@ -100,10 +77,10 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 		if !authed {
 			roles = append(roles, RoleAnonymous)
 			ctx.Set(CtxUser,
-				&User{
+				&common.User{
 					Roles:     roles,
-					anonymous: true,
-					activeBCC: false,
+					Anonymous: true,
+					ActiveBCC: false,
 				})
 			return
 		}
@@ -138,12 +115,12 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 
 		pid := ctx.GetString(auth0.CtxPersonID)
 
-		u := &User{
+		u := &common.User{
 			PersonID:  pid,
 			Roles:     roles,
 			Email:     email,
-			anonymous: false,
-			activeBCC: ctx.GetBool(auth0.CtxIsBCCMember),
+			Anonymous: false,
+			ActiveBCC: ctx.GetBool(auth0.CtxIsBCCMember),
 		}
 
 		// Add the user to the cache
@@ -153,11 +130,11 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 }
 
 // GetFromCtx gets the user stored in the context by the middleware
-func GetFromCtx(ctx *gin.Context) *User {
+func GetFromCtx(ctx *gin.Context) *common.User {
 	u, ok := ctx.Get(CtxUser)
 	if !ok {
 		return nil
 	}
 
-	return u.(*User)
+	return u.(*common.User)
 }

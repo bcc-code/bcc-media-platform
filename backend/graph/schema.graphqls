@@ -252,6 +252,7 @@ type User {
   anonymous: Boolean!
   bccMember: Boolean!
   audience: String
+  email: String
   settings: Settings!
   roles: [String!]!
 }

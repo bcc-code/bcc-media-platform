@@ -66,6 +66,10 @@ func (r *queryRootResolver) Me(ctx context.Context) (*gqlmodel.User, error) {
 		u.Audience = &aud
 	}
 
+	if usr.Email != "" {
+		u.Email = &usr.Email
+	}
+
 	return u, nil
 }
 

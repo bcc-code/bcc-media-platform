@@ -17,7 +17,7 @@ const (
 
 	// CtxIsBCCMember indicates if the user has an active membership in BCC Norway
 	// It is based on the "https://login.bcc.no/claims/hasMembership" claim
-	// The reason for it's existance is that it can always exist and be checked more easily than
+	// The reason for it's existence is that it can always exist and be checked more easily than
 	// the presence of a PersonID for example
 	CtxIsBCCMember = "jwt_is_bcc_member"
 
@@ -39,7 +39,7 @@ type JWTConfig struct {
 	Audiences []string
 }
 
-// JWT checks if there is s JWT in the Authorization header.
+// JWT checks if there is a JWT in the Authorization header.
 // If it is it will validate it, and set data in the context, or return a 403 forbidden
 // If no JWT is found, TODO data in the context will be set to indicate an
 // anonymous user
@@ -66,7 +66,7 @@ func JWT(ctx context.Context, config JWTConfig) gin.HandlerFunc {
 
 		if err != nil {
 			c.AbortWithStatus(http.StatusForbidden)
-			log.L.Debug().Err(err)
+			log.L.Debug().Err(err).Msg("Error")
 			return
 		}
 
@@ -107,8 +107,8 @@ func JWT(ctx context.Context, config JWTConfig) gin.HandlerFunc {
 		// spew.Dump(token.PrivateClaims())
 
 		// For now we manually add claims that are actually useful to avoid polluting the ctx
-		// with data that we don't actully need and may be considered private under GDPR
-		// If posible convert the claim to a string in order to make it easier to extract it later
+		// with data that we don't actually need and may be considered private under GDPR
+		// If possible convert the claim to a string in order to make it easier to extract it later
 
 		if privateClaims, ok := token.PrivateClaims()["https://members.bcc.no/app_metadata"]; ok {
 			if val, ok := privateClaims.(map[string]interface{})["hasMembership"]; ok {
