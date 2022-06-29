@@ -1,8 +1,10 @@
 package main
 
 import (
+	"github.com/samber/lo"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type awsConfig struct {
@@ -29,6 +31,11 @@ type directusConfig struct {
 	Key     string
 }
 
+type crowdinConfig struct {
+	Token      string
+	ProjectIDs []int
+}
+
 type envConfig struct {
 	AWS               awsConfig
 	Directus          directusConfig
@@ -36,6 +43,7 @@ type envConfig struct {
 	DeleteIngestFiles bool
 	DB                postgres
 	Algolia           algolia
+	Crowdin           crowdinConfig
 }
 
 func getEnvConfig() envConfig {
@@ -66,6 +74,14 @@ func getEnvConfig() envConfig {
 			AppId:            os.Getenv("ALGOLIA_APP_ID"),
 			ApiKey:           os.Getenv("ALGOLIA_API_KEY"),
 			SearchOnlyApiKey: os.Getenv("ALGOLIA_SEARCH_ONLY_API_KEY"),
+		},
+		Crowdin: crowdinConfig{
+			Token: os.Getenv("CROWDIN_TOKEN"),
+			ProjectIDs: lo.Map(strings.Split(os.Getenv("CROWDIN_PROJECT_IDS"), ","),
+				func(s string, _ int) int {
+					r, _ := strconv.ParseInt(s, 10, 64)
+					return int(r)
+				}),
 		},
 	}
 }

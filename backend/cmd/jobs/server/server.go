@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"net/http"
 
 	"github.com/ansel1/merry"
@@ -77,6 +78,8 @@ func (s server) ProcessMessage(c *gin.Context) {
 		err = s.services.GetDirectusEventHandler().ProcessCloudEvent(ctx, e)
 	case events.TypeSearchReindex:
 		s.services.GetSearchService().NewRequestHandler(ctx).Reindex()
+	case events.TypeTranslationsSync:
+		err = crowdin.HandleEvent(ctx, s.services, e)
 	default:
 		err = errUndefinedHandler.Here()
 	}

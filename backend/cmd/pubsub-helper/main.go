@@ -87,6 +87,34 @@ func del(projectID, topicID string) {
 
 	fmt.Printf("Deleted")
 }
+
+func translationSync(projectID string, topicID string) {
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, projectID)
+	if err != nil {
+		fmt.Printf("pubsub.NewClient: %v", err)
+	}
+	defer client.Close()
+
+	e := cloudevents.NewEvent()
+	e.SetSource(events.SourceMediaBanken)
+	e.SetType(events.TypeAssetDelivered)
+	e.SetData(cloudevents.ApplicationJSON, &events.AssetDelivered{
+		//JSONMetaPath: "randomstring/sample.json",
+		JSONMetaPath: "7233_TEMA2_Simen.json",
+	})
+
+	data, err := json.Marshal(e)
+	spew.Dump(string(data))
+	topic := client.Topic(topicID)
+	msg := topic.Publish(ctx, &pubsub.Message{
+		Data: data,
+	})
+
+	_, err = msg.Get(ctx)
+	fmt.Printf("Sent: %v\n", err)
+}
+
 func main() {
 	create("btv-local", "background-jobs")
 

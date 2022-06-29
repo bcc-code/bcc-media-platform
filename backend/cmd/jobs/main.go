@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
+	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -81,6 +82,10 @@ func main() {
 	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
 	directusEventHandler := initializeDirectusEventHandler(searchService)
 
+	crowdinClient := crowdin.New("https://api.crowdin.com/api/v2/", config.Crowdin.Token, crowdin.ClientConfig{
+		ProjectIDs: config.Crowdin.ProjectIDs,
+	})
+
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
 
@@ -90,6 +95,7 @@ func main() {
 		DirectusClient:       directusClient,
 		SearchService:        searchService,
 		DirectusEventHandler: directusEventHandler,
+		CrowdinClient:        crowdinClient,
 	}, serverConfig)
 
 	apiGroup := router.Group("api")
