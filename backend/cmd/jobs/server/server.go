@@ -80,7 +80,7 @@ func (s server) ProcessMessage(c *gin.Context) {
 		eventHandler := s.services.GetDirectusEventHandler()
 		err = eventHandler.ProcessCloudEvent(ctx, e)
 	default:
-		err = errUndefinedHandler.Here()
+		err = merry.Wrap(errUndefinedHandler)
 	}
 
 	if err != nil {
