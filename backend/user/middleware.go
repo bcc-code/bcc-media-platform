@@ -12,6 +12,7 @@ import (
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
+	"go.opentelemetry.io/otel"
 )
 
 // All well-known roles
@@ -31,9 +32,14 @@ var userCache = cache.New[string, *common.User]()
 var rolesCache = cache.New[string, map[string][]string]()
 
 func getRoles(ctx context.Context, queries *sqlc.Queries) (map[string][]string, error) {
+	ctx, span := otel.Tracer("user").Start(ctx, "getRoles")
+	defer span.End()
+
 	if roles, ok := rolesCache.Get(CacheRoles); ok {
+		span.AddEvent("from cache")
 		return roles, nil
 	}
+
 	allRoles := map[string][]string{}
 	roles, err := queries.GetRoles(ctx)
 	if err != nil {
@@ -42,6 +48,7 @@ func getRoles(ctx context.Context, queries *sqlc.Queries) (map[string][]string, 
 
 	lo.ForEach(roles, func(x sqlc.GetRolesRow, _ int) { allRoles[x.Code] = x.Emails })
 
+	span.AddEvent("loaded into cache")
 	rolesCache.Set(CacheRoles, allRoles, cache.WithExpiration(60*time.Minute))
 	return allRoles, nil
 }
@@ -49,7 +56,8 @@ func getRoles(ctx context.Context, queries *sqlc.Queries) (map[string][]string, 
 // GetRolesForEmail returns all roles applicable for a specific email address.
 // The roles are fetched from a local cache or if that is not available from the DB
 func GetRolesForEmail(ctx context.Context, queries *sqlc.Queries, email string) ([]string, error) {
-
+	ctx, span := otel.Tracer("user").Start(ctx, "GetRolesForEmail")
+	defer span.End()
 	rtnRoles := []string{}
 
 	allRoles, err := getRoles(ctx, queries)
@@ -69,12 +77,16 @@ func GetRolesForEmail(ctx context.Context, queries *sqlc.Queries, email string) 
 // into the gin context
 func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 	return func(ctx *gin.Context) {
+		reqCtx, span := otel.Tracer("user/middleware").Start(ctx.Request.Context(), "run")
+		defer span.End()
+
 		roles := []string{}
 
 		authed := ctx.GetBool(auth0.CtxAuthenticated)
 
 		// If the user is anonymous we just create a simple object and bail
 		if !authed {
+			span.AddEvent("Anonymous")
 			roles = append(roles, RoleAnonymous)
 			ctx.Set(CtxUser,
 				&common.User{
@@ -95,6 +107,7 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 		// We have the user in the cache
 		// Return cached object
 		if u, ok := userCache.Get(email); ok {
+			span.AddEvent("User From Cache")
 			ctx.Set(CtxUser, u)
 			return
 		}
@@ -105,7 +118,7 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 			roles = append(roles, RoleBCCMember)
 		}
 
-		userRoles, err := GetRolesForEmail(ctx.Request.Context(), queries, email)
+		userRoles, err := GetRolesForEmail(reqCtx, queries, email)
 		if err != nil {
 			err = merry.Wrap(err)
 			log.L.Warn().Err(err).Str("email", email).Msg("Unable to get roles")
@@ -124,6 +137,7 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 		}
 
 		// Add the user to the cache
+		span.AddEvent("User loaded into cache")
 		userCache.Set(email, u, cache.WithExpiration(60*time.Minute))
 		ctx.Set(CtxUser, u)
 	}
