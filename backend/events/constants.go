@@ -8,6 +8,6 @@ const (
 // Collection of possible event types
 const (
 	TypeAssetDelivered = "asset.delivered"
+	TypeDirectusEvent  = "directus.event"
 	TypeSearchReindex  = "search.reindex"
-	TypeSearchIndex    = "search.index"
 )

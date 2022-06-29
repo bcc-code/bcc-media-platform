@@ -99,6 +99,6 @@ func (handler *RequestHandler) indexEpisode(item sqlc.Episode) {
 
 	_, err := service.index.SaveObject(object)
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to index season")
+		log.L.Error().Err(err).Msg("Failed to index episode")
 	}
 }

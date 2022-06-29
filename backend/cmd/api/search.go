@@ -1,9 +1,7 @@
 package main
 
 import (
-	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
@@ -56,29 +54,5 @@ func searchKeyHandler(client *search.Service) func(*gin.Context) {
 		r := searchHandler.GenerateSecureKey()
 
 		c.JSON(200, r)
-	}
-}
-
-func directusEventHandler(searchService *search.Service) func(c *gin.Context) {
-	eventHandler := directus.NewEventHandler()
-
-	indexEvents := []string{directus.EventItemsCreate, directus.EventItemsUpdate}
-
-	eventHandler.On(indexEvents, func(ctx context.Context, model string, id int) {
-		handler := searchService.NewRequestHandler(ctx)
-		handler.IndexModel(model, id)
-	})
-
-	deleteEvents := []string{directus.EventItemsDelete}
-	eventHandler.On(deleteEvents, func(ctx context.Context, model string, id int) {
-		handler := searchService.NewRequestHandler(ctx)
-		handler.DeleteModel(model, id)
-	})
-
-	return func(c *gin.Context) {
-		err := eventHandler.Execute(c)
-		if err != nil {
-			log.L.Error().Err(err).Msg("Failed to handle event")
-		}
 	}
 }

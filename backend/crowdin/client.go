@@ -44,9 +44,16 @@ func getItem[t any](client *Client, endpoint string, id int) (item t) {
 	return res.Result().(*Object[t]).Data
 }
 
-func getItems[t any](client *Client, endpoint string) (items []t) {
+func getItems[t any](client *Client, endpoint string, limit int, offset int, queryParams map[string]string) (items []t) {
 	req := client.c.R()
 	req.SetResult(Result[[]Object[t]]{})
+	if queryParams != nil {
+		req.SetQueryParams(queryParams)
+	}
+	req.SetQueryParams(map[string]string{
+		"limit":  strconv.Itoa(limit),
+		"offset": strconv.Itoa(offset),
+	})
 	query := fmt.Sprintf("/%s", endpoint)
 	res, err := req.Get(query)
 	if err != nil {
@@ -74,49 +81,6 @@ func createItem[t any](client *Client, endpoint string, item t) (i t) {
 	return *res.Result().(*t)
 }
 
-func getStringsFromFile(client *Client, projectId int, fileId int) (stringsById map[int]String) {
-	resultLength := 0
-	offset := 0
-	limit := 100
-	stringsById = map[int]String{}
-
-	for {
-		strs := getItems[String](client, fmt.Sprintf("projects/%d/strings?fileId=%d&limit=%d&offset=%d", projectId, fileId, limit, offset))
-
-		for _, s := range strs {
-			stringsById[s.ID] = s
-		}
-
-		resultLength = len(strs)
-
-		if resultLength == limit {
-			offset += limit
-			continue
-		}
-		break
-	}
-	return
-}
-
-func getApprovalsForFileAndLanguage(client *Client, projectId int, fileId int, languageId string, offset int, limit int) []Approval {
-	req := client.c.R()
-	req.SetResult(Result[[]Object[Approval]]{})
-	req.SetQueryParams(map[string]string{
-		"limit":      strconv.Itoa(limit),
-		"offset":     strconv.Itoa(offset),
-		"fileId":     strconv.Itoa(fileId),
-		"languageId": languageId,
-	})
-	res, err := req.Get(fmt.Sprintf("projects/%d/approvals", projectId))
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to retrieve approvals")
-		return nil
-	}
-	return lo.Map(res.Result().(*Result[[]Object[Approval]]).Data, func(i Object[Approval], _ int) Approval {
-		return i.Data
-	})
-}
-
 type simpleTranslation struct {
 	ID          int
 	ParentID    int
@@ -126,69 +90,62 @@ type simpleTranslation struct {
 	Changed     bool
 }
 
+func convertTsToStrings(ts []simpleTranslation, prefix string) []String {
+	return lo.Reduce(ts, func(strings []String, t simpleTranslation, _ int) []String {
+		var values = map[string]string{
+			"title":       t.Title,
+			"description": t.Description,
+		}
+		for key, value := range values {
+			if value != "" {
+				strings = append(strings, String{
+					Identifier: fmt.Sprintf("%s-%d-%s", prefix, t.ParentID, key),
+					Text:       value,
+				})
+			}
+		}
+		return strings
+	}, []String{})
+}
+
 func (client *Client) syncCollection(d *directus.Handler, project Project, directoryId int, collection string, translations []simpleTranslation) {
 	log.L.Debug().Int("project", project.ID).Str("collection", collection).Msg("Syncing collection")
 	projectId := project.ID
 	language := project.SourceLanguageId
-	files := getItems[File](client, fmt.Sprintf("projects/%d/files?filter=%s", projectId, collection))
-	var file File
-	if len(files) == 0 {
-		file = createItem(client, fmt.Sprintf("projects/%d/files", projectId), File{
-			Name:        fmt.Sprintf("%s.csv", collection),
-			Title:       collection,
-			DirectoryID: directoryId,
-		})
-	} else {
-		file = files[0]
-	}
 	sourceTranslations := lo.Filter(translations, func(t simpleTranslation, _ int) bool {
 		return t.Language == language // && t.IsPrimary == true
 	})
-	missingTranslationIdentifiers := lo.Reduce(sourceTranslations, func(ids []string, t simpleTranslation, _ int) []string {
-		ids = append(ids, fmt.Sprintf("%s-%d-%s", collection, t.ParentID, "title"))
-		if t.Description != "" {
-			ids = append(ids, fmt.Sprintf("%s-%d-%s", collection, t.ParentID, "description"))
+	files := client.getFiles(project.ID, directoryId)
+	var file File
+	if len(files) == 0 {
+		_, err := client.createFile(project.ID, directoryId, collection, convertTsToStrings(sourceTranslations, collection))
+		if err != nil {
+			log.L.Error().Err(err).Str("collection", collection).Msg("failed to create file for collection")
 		}
-		return ids
-	}, []string{})
-
-	stringsById := getStringsFromFile(client, projectId, file.ID)
-
-	for _, str := range stringsById {
-		missingTranslationIdentifiers = lo.Filter(missingTranslationIdentifiers, func(s string, _ int) bool {
-			return s != str.Identifier
-		})
+		return
+	} else {
+		file = files[0]
 	}
 
-	if len(missingTranslationIdentifiers) > 0 {
-		for _, identifier := range missingTranslationIdentifiers {
-			parts := strings.Split(identifier, "-")
-			if len(parts) != 3 {
-				continue
-			}
-			objectId, _ := strconv.ParseInt(parts[1], 10, 64)
-			field := parts[2]
-			translation, found := lo.Find(sourceTranslations, func(t simpleTranslation) bool {
-				return t.ParentID == int(objectId)
-			})
-			if !found {
-				continue
-			}
-			var text string
-			switch field {
-			case "title":
-				text = translation.Title
-			case "description":
-				text = translation.Description
-			}
-			if text != "" {
-				createItem(client, fmt.Sprintf("projects/%d/strings", projectId), String{
-					FileID:     file.ID,
-					Text:       text,
-					Identifier: identifier,
-				})
-			}
+	dbStrings := convertTsToStrings(translations, collection)
+
+	fileStrings := client.getStrings(projectId, file.ID)
+	stringsById := lo.Reduce(fileStrings, func(dict map[int]String, s String, _ int) map[int]String {
+		dict[s.ID] = s
+		return dict
+	}, map[int]String{})
+
+	var missingStrings []String
+	for _, str := range dbStrings {
+		if _, found := lo.Find(fileStrings, func(s String) bool {
+			return s.Identifier == str.Identifier
+		}); !found {
+			missingStrings = append(missingStrings, str)
 		}
+	}
+
+	if len(missingStrings) > 0 {
+		client.addStrings(project.ID, file.ID, missingStrings)
 	}
 
 	var queuedTranslations []simpleTranslation
@@ -240,8 +197,6 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 
 	for _, language := range project.TargetLanguages {
 		log.L.Debug().Str("language", language.ID).Msg("Syncing translations.")
-		offset := 0
-		limit := 100
 
 		existingTranslations := lo.Filter(translations, func(t simpleTranslation, _ int) bool {
 			return t.Language == language.ID
@@ -249,26 +204,7 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 
 		log.L.Debug().Msgf("Found %d existing translations", len(existingTranslations))
 
-		var approvals []Approval
-
-		for {
-			as := getApprovalsForFileAndLanguage(client, project.ID, file.ID, language.ID, offset, limit)
-
-			approvals = append(approvals, as...)
-
-			if len(as) == limit {
-				offset += limit
-				continue
-			}
-			break
-		}
-
-		log.L.Debug().Msgf("Retrieved %d approvals", len(approvals))
-		if len(approvals) == 0 {
-			continue
-		}
-
-		ts := getItems[Translation](client, fmt.Sprintf("projects/%d/languages/%s/translations?fileId=%d", project.ID, language.ID, file.ID))
+		ts := client.getTranslations(projectId, file.ID, language.ID)
 
 		log.L.Debug().Msgf("Retrieved %d translations", len(ts))
 
@@ -367,11 +303,15 @@ func (client *Client) syncShows(d *directus.Handler, project Project, directoryI
 	client.syncCollection(d, project, directoryId, "shows", translations)
 }
 
+func (client *Client) getProject(projectId int) Project {
+	return getItem[Project](client, "projects", projectId)
+}
+
 func (client *Client) Sync(d *directus.Handler) {
 	projectIds := client.config.ProjectIDs
 	for _, id := range projectIds {
-		project := getItem[Project](client, "projects", id)
-		directories := getItems[Directory](client, fmt.Sprintf("projects/%d/directories", project.ID))
+		project := client.getProject(id)
+		directories := client.getDirectories(project.ID)
 
 		var directory *Directory
 		for _, d := range directories {

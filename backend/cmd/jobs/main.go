@@ -24,15 +24,14 @@ const debugDirectus = false
 func initializeDirectusEventHandler(searchService *search.Service) *directus.EventHandler {
 	eventHandler := directus.NewEventHandler()
 
-	indexEvents := []string{directus.EventItemsCreate, directus.EventItemsUpdate}
+	for _, event := range []string{directus.EventItemsCreate, directus.EventItemsUpdate} {
+		eventHandler.On(event, func(ctx context.Context, model string, id int) {
+			handler := searchService.NewRequestHandler(ctx)
+			handler.IndexModel(model, id)
+		})
+	}
 
-	eventHandler.On(indexEvents, func(ctx context.Context, model string, id int) {
-		handler := searchService.NewRequestHandler(ctx)
-		handler.IndexModel(model, id)
-	})
-
-	deleteEvents := []string{directus.EventItemsDelete}
-	eventHandler.On(deleteEvents, func(ctx context.Context, model string, id int) {
+	eventHandler.On(directus.EventItemsDelete, func(ctx context.Context, model string, id int) {
 		handler := searchService.NewRequestHandler(ctx)
 		handler.DeleteModel(model, id)
 	})
@@ -48,6 +47,7 @@ func main() {
 
 	utils.MustSetupTracing()
 	ctx, span := otel.Tracer("jobs/core").Start(ctx, "init")
+	defer span.End()
 
 	config := getEnvConfig()
 
@@ -97,7 +97,6 @@ func main() {
 		apiGroup.POST("message", handlers.ProcessMessage)
 	}
 
-	span.End()
 	err = router.Run(":" + config.Port)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Couldn't start server")

@@ -4,15 +4,14 @@ package main
 // on the pubsub emulator, and then send some message.
 // Cleanup is done at the end so the program can be re-run w/o errors
 import (
+	"cloud.google.com/go/pubsub"
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
-
-	"cloud.google.com/go/pubsub"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/davecgh/go-spew/spew"
+	"time"
 )
 
 func create(projectID, topicID string) {
@@ -31,7 +30,7 @@ func create(projectID, topicID string) {
 	t, err := client.CreateSubscription(ctx, "bgjobs", pubsub.SubscriptionConfig{
 		Topic: topic,
 		PushConfig: pubsub.PushConfig{
-			Endpoint: "http://10.12.128.112:8078/api/message",
+			Endpoint: "http://host.docker.internal:8078/api/message",
 		},
 	})
 	if err != nil {
@@ -91,7 +90,7 @@ func del(projectID, topicID string) {
 func main() {
 	create("btv-local", "background-jobs")
 
-	send("btv-local", "background-jobs")
+	//send("btv-local", "background-jobs")
 
 	time.Sleep(1 * time.Second)
 	del("btv-local", "background-jobs")

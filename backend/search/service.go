@@ -78,11 +78,11 @@ type RequestHandler struct {
 	context context.Context
 }
 
-func (service *Service) NewRequestHandler(ctx context.Context) RequestHandler {
+func (service *Service) NewRequestHandler(ctx context.Context) *RequestHandler {
 	ctx = context.WithValue(ctx, visibilityContextKey, map[string]common.Visibility{})
 	ctx = context.WithValue(ctx, translationContextKey, map[string][]common.Translation{})
 	ctx = context.WithValue(ctx, rolesContextKey, map[string][]string{})
-	return RequestHandler{
+	return &RequestHandler{
 		service: service,
 		context: ctx,
 	}

@@ -73,9 +73,10 @@ func (s server) ProcessMessage(c *gin.Context) {
 	switch e.Type() {
 	case events.TypeAssetDelivered:
 		err = asset.Ingest(ctx, s.services, s.config, e)
-	case events.TypeSearchReindex, events.TypeSearchIndex:
-		eventHandler := s.services.GetDirectusEventHandler()
-		err = eventHandler.ProcessCloudEvent(ctx, e)
+	case events.TypeDirectusEvent:
+		err = s.services.GetDirectusEventHandler().ProcessCloudEvent(ctx, e)
+	case events.TypeSearchReindex:
+		s.services.GetSearchService().NewRequestHandler(ctx).Reindex()
 	default:
 		err = errUndefinedHandler.Here()
 	}

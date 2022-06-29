@@ -199,7 +199,7 @@ func (handler *RequestHandler) IndexModel(model string, id int) {
 		i, err = service.queries.GetShow(ctx, int32(id))
 	}
 	if err != nil {
-		log.L.Error().Err(err)
+		log.L.Error().Err(err).Str("model", model).Int("id", id).Msg("Failed to retrieve model")
 		return
 	}
 	handler.IndexObject(i)
