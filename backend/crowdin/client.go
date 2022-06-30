@@ -383,14 +383,14 @@ func (client *Client) Sync(d *directus.Handler) {
 	}
 }
 
-type translatableObject interface {
+type translationSource interface {
 	GetCollection() string
 	GetItemID() int
 	GetSourceLanguage() string
 	GetValues() map[string]string
 }
 
-func (client *Client) InsertTranslations(objects []translatableObject) error {
+func (client *Client) InsertTranslations(objects []translationSource) error {
 	for _, projectId := range client.config.ProjectIDs {
 		project := client.getProject(projectId)
 		directory := client.getDirectoryForProject(project)
