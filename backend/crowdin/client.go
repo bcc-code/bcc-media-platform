@@ -232,7 +232,7 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 
 	pushTranslations := func(force bool) {
 		if length := len(queuedTranslations); length > 100 || (force && length > 0) {
-			log.L.Debug().Str("collection", collection).Msgf("Pushing %d translations to database", length)
+			log.L.Debug().Str("collection", collection).Int("count", length).Msg("Pushing translations to database")
 			d.SaveTranslations(toDSItems(collection, queuedTranslations))
 			queuedTranslations = nil
 		}
@@ -245,11 +245,11 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 			return t.Language == language.ID
 		})
 
-		log.L.Debug().Msgf("Found %d existing translations", len(existingTranslations))
+		log.L.Debug().Int("count", len(existingTranslations)).Msg("Found existing translations")
 
 		ts := client.getTranslations(projectId, file.ID, language.ID)
 
-		log.L.Debug().Msgf("Retrieved %d translations", len(ts))
+		log.L.Debug().Int("count", len(ts)).Msg("Retrieved translations")
 
 		var items []*simpleTranslation
 		for _, t := range ts {

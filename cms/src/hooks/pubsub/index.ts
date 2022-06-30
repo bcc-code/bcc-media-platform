@@ -1,4 +1,5 @@
 import { handleEvent } from "./publish";
+import { HookConfig } from "@directus/shared/src/types"
 
 type Translation = "shows_translations" | "seasons_translations" | "episodes_translations"
 type Object = "shows" | "seasons" | "episodes"
@@ -11,15 +12,11 @@ export interface Event {
     collection: Collection;
 }
 
-export interface HookObject {
-    action: (event: string, action: (event: Event) => void) => void
-}
-
 export function enabled() {
     return process.env.PUBSUB_ENABLED === "true"
 }
 
-export default function ({ action }: HookObject) {
+const hooks: HookConfig = ({action}) => {
     if (!enabled())
         return
 
@@ -27,3 +24,5 @@ export default function ({ action }: HookObject) {
     action("items.update", handleEvent("items.update"))
     action("items.delete", handleEvent("items.delete"))
 }
+
+export default hooks

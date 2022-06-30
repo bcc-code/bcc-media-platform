@@ -1,11 +1,12 @@
 import { PubSub } from "@google-cloud/pubsub"
 import { Collection, Event } from "."
 import { CloudEvent } from "cloudevents"
+import { ActionHandler } from "@directus/shared/src/types"
 
 const projectId = process.env.PUBSUB_PROJECT_ID
 
 export function handleEvent(eventName: string) {
-    return async (event: Event) => {
+    const handler: ActionHandler = async (event: Event) => {
         const collections = ["shows", "seasons", "episodes", "shows_translations", "seasons_translations", "episodes_translations"] as Collection[]
 
         if (collections.includes(event.collection)) {
@@ -35,4 +36,5 @@ export function handleEvent(eventName: string) {
             })
         }
     }
+    return handler
 }
