@@ -3,7 +3,6 @@ package server
 import (
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/go-resty/resty/v2"
@@ -16,7 +15,6 @@ type ExternalServices struct {
 	DirectusClient       *resty.Client
 	SearchService        *search.Service
 	DirectusEventHandler *directus.EventHandler
-	CrowdinClient        *crowdin.Client
 }
 
 // GetS3Client as stored in the struct
@@ -42,9 +40,4 @@ func (e ExternalServices) GetSearchService() *search.Service {
 // GetDirectusEventHandler as stored in the struct
 func (e ExternalServices) GetDirectusEventHandler() *directus.EventHandler {
 	return e.DirectusEventHandler
-}
-
-// GetCrowdinClient as stored in the struct
-func (e ExternalServices) GetCrowdinClient() *crowdin.Client {
-	return e.CrowdinClient
 }

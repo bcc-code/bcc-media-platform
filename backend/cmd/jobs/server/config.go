@@ -10,6 +10,8 @@ type ConfigData struct {
 	MediapackageRole      string
 	MediapackageSource    string
 	DeleteIngestFilesFlag bool
+	CrowdinToken          string
+	CrowdinProjectIDs     []int
 }
 
 // GetIngestBucket that contains the new assets
@@ -41,4 +43,14 @@ func (c ConfigData) GetMediapackageSource() *string {
 // a successful import
 func (c ConfigData) GetDeleteIngestFilesFlag() bool {
 	return c.DeleteIngestFilesFlag
+}
+
+// GetCrowdinToken retrieves the configured Crowdin Token
+func (c ConfigData) GetCrowdinToken() string {
+	return c.CrowdinToken
+}
+
+// GetCrowdinProjectIDs retrieves the projects the crowdin client should sync to
+func (c ConfigData) GetCrowdinProjectIDs() []int {
+	return c.CrowdinProjectIDs
 }

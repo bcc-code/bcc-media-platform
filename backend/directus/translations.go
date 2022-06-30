@@ -35,8 +35,15 @@ type episodesUpdate struct {
 	ExtraDescription string `json:"extra_description"`
 }
 
-func (i EpisodesTranslation) UID() int {
+func (i Translation) UID() int {
 	return i.ID
+}
+
+func (i Translation) ForUpdate() interface{} {
+	return update{
+		i.Title,
+		i.Description,
+	}
 }
 
 func (i EpisodesTranslation) ForUpdate() interface{} {
@@ -53,30 +60,8 @@ func (EpisodesTranslation) TypeName() string {
 	return "episodes_translations"
 }
 
-func (i SeasonsTranslation) UID() int {
-	return i.ID
-}
-
-func (i SeasonsTranslation) ForUpdate() interface{} {
-	return update{
-		i.Title,
-		i.Description,
-	}
-}
-
 func (SeasonsTranslation) TypeName() string {
 	return "seasons_translations"
-}
-
-func (i ShowsTranslation) UID() int {
-	return i.ID
-}
-
-func (i ShowsTranslation) ForUpdate() interface{} {
-	return update{
-		i.Title,
-		i.Description,
-	}
 }
 
 func (ShowsTranslation) TypeName() string {

@@ -79,7 +79,7 @@ func (s server) ProcessMessage(c *gin.Context) {
 	case events.TypeSearchReindex:
 		s.services.GetSearchService().NewRequestHandler(ctx).Reindex()
 	case events.TypeTranslationsSync:
-		err = crowdin.HandleEvent(ctx, s.services, e)
+		err = crowdin.HandleEvent(ctx, s.services, s.config, e)
 	default:
 		err = errUndefinedHandler.Here()
 	}

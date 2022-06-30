@@ -2,6 +2,7 @@ package crowdin
 
 import (
 	"fmt"
+	"github.com/ansel1/merry"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/go-resty/resty/v2"
@@ -108,6 +109,85 @@ func convertTsToStrings(ts []simpleTranslation, prefix string) []String {
 	}, []String{})
 }
 
+func toDSItems(collection string, translations []simpleTranslation) []directus.DSItem {
+	switch collection {
+	case "episodes":
+		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			return directus.EpisodesTranslation{
+				Translation: directus.Translation{
+					ID:            t.ID,
+					LanguagesCode: t.Language,
+					Title:         t.Title,
+					Description:   t.Description,
+				},
+				EpisodesID: t.ParentID,
+			}
+		})
+	case "seasons":
+		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			return directus.SeasonsTranslation{
+				Translation: directus.Translation{
+					ID:            t.ID,
+					LanguagesCode: t.Language,
+					Title:         t.Title,
+					Description:   t.Description,
+				},
+				SeasonsID: t.ParentID,
+			}
+		})
+	case "shows":
+		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			return directus.ShowsTranslation{
+				Translation: directus.Translation{
+					ID:            t.ID,
+					LanguagesCode: t.Language,
+					Title:         t.Title,
+					Description:   t.Description,
+				},
+				ShowsID: t.ParentID,
+			}
+		})
+	default:
+		return nil
+	}
+}
+
+func (client *Client) getDirectoryForProject(project Project) Directory {
+	directories := client.getDirectories(project.ID)
+
+	var directory *Directory
+	for _, d := range directories {
+		if d.Name == "Content" {
+			directory = &d
+		}
+	}
+	if directory == nil {
+		directory = &Directory{
+			Name: "Content",
+		}
+		createItem(client, fmt.Sprintf("projects/%d/directories", project.ID), *directory)
+	}
+
+	return *directory
+}
+
+func (client *Client) getFileForCollection(project Project, directoryId int, collection string) (file File, err error) {
+	files := client.getFiles(project.ID, directoryId)
+	found := false
+	if len(files) > 0 {
+		for _, f := range files {
+			if f.Title == collection {
+				found = true
+				file = f
+			}
+		}
+	}
+	if !found {
+		err = merry.New("Couldn't find file for collection. Do an initial sync to create the file.")
+	}
+	return
+}
+
 func (client *Client) syncCollection(d *directus.Handler, project Project, directoryId int, collection string, translations []simpleTranslation) {
 	log.L.Debug().Int("project", project.ID).Str("collection", collection).Msg("Syncing collection")
 	projectId := project.ID
@@ -153,44 +233,7 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 	pushTranslations := func(force bool) {
 		if length := len(queuedTranslations); length > 100 || (force && length > 0) {
 			log.L.Debug().Str("collection", collection).Msgf("Pushing %d translations to database", length)
-			switch collection {
-			case "episodes":
-				d.SaveTranslations(lo.Map(queuedTranslations, func(t simpleTranslation, _ int) directus.DSItem {
-					return directus.EpisodesTranslation{
-						Translation: directus.Translation{
-							ID:            t.ID,
-							LanguagesCode: t.Language,
-							Title:         t.Title,
-							Description:   t.Description,
-						},
-						EpisodesID: t.ParentID,
-					}
-				}))
-			case "seasons":
-				d.SaveTranslations(lo.Map(queuedTranslations, func(t simpleTranslation, _ int) directus.DSItem {
-					return directus.SeasonsTranslation{
-						Translation: directus.Translation{
-							ID:            t.ID,
-							LanguagesCode: t.Language,
-							Title:         t.Title,
-							Description:   t.Description,
-						},
-						SeasonsID: t.ParentID,
-					}
-				}))
-			case "shows":
-				d.SaveTranslations(lo.Map(queuedTranslations, func(t simpleTranslation, _ int) directus.DSItem {
-					return directus.ShowsTranslation{
-						Translation: directus.Translation{
-							ID:            t.ID,
-							LanguagesCode: t.Language,
-							Title:         t.Title,
-							Description:   t.Description,
-						},
-						ShowsID: t.ParentID,
-					}
-				}))
-			}
+			d.SaveTranslations(toDSItems(collection, queuedTranslations))
 			queuedTranslations = nil
 		}
 	}
@@ -254,11 +297,17 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 				}
 			}
 		}
-		queuedTranslations = append(queuedTranslations, lo.Map(lo.Filter(items, func(i *simpleTranslation, _ int) bool {
-			return i.Changed
-		}), func(i *simpleTranslation, _ int) simpleTranslation {
-			return *i
-		})...)
+		queuedTranslations = append(queuedTranslations, lo.Map(
+			lo.Filter(
+				items,
+				func(i *simpleTranslation, _ int) bool {
+					return i.Changed
+				},
+			),
+			func(i *simpleTranslation, _ int) simpleTranslation {
+				return *i
+			},
+		)...)
 		pushTranslations(false)
 	}
 	pushTranslations(true)
@@ -304,6 +353,7 @@ func (client *Client) syncShows(d *directus.Handler, project Project, directoryI
 }
 
 func (client *Client) getProject(projectId int) Project {
+	// TODO: Implement some kind of caching here
 	return getItem[Project](client, "projects", projectId)
 }
 
@@ -331,4 +381,43 @@ func (client *Client) Sync(d *directus.Handler) {
 		client.syncSeasons(d, project, directory.ID)
 		client.syncShows(d, project, directory.ID)
 	}
+}
+
+type translatableObject interface {
+	GetCollection() string
+	GetItemID() int
+	GetSourceLanguage() string
+	GetValues() map[string]string
+}
+
+func (client *Client) InsertTranslations(objects []translatableObject) error {
+	for _, projectId := range client.config.ProjectIDs {
+		project := client.getProject(projectId)
+		directory := client.getDirectoryForProject(project)
+		fileIdByCollection := map[string]int{}
+		for _, o := range objects {
+			if project.SourceLanguageId != o.GetSourceLanguage() {
+				continue
+			}
+			collection := o.GetCollection()
+			fileId, ok := fileIdByCollection[collection]
+			if !ok {
+				file, err := client.getFileForCollection(project, directory.ID, collection)
+				if err != nil {
+					return err
+				}
+				fileId = file.ID
+				fileIdByCollection[collection] = file.ID
+			}
+			for field, value := range o.GetValues() {
+				identifier := fmt.Sprintf("%s-%d-%s", collection, o.GetItemID(), field)
+				client.addString(project.ID, fileId, String{
+					FileID:     fileId,
+					Identifier: identifier,
+					Text:       value,
+				})
+			}
+		}
+	}
+	return nil
 }
