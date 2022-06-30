@@ -7,8 +7,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
-	"github.com/bcc-code/brunstadtv/backend/crowdin"
-	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	"github.com/bcc-code/brunstadtv/backend/search"
@@ -102,20 +100,20 @@ func main() {
 		if config.Algolia.SearchOnlyApiKey != "" {
 			searchGroup.GET("key", searchKeyHandler(searchService))
 		}
-
-		log.L.Debug().Msg("Setting up endpoint for scheduled search indexing")
-		searchGroup.GET("index", searchIndexHandler(searchService))
+		//
+		//log.L.Debug().Msg("Setting up endpoint for scheduled search indexing")
+		//searchGroup.GET("index", searchIndexHandler(searchService))
 	}
 
-	dClient := directus.New(config.Directus.Host, config.Directus.Token, false)
-
-	r.GET("/translations/sync", func(c *gin.Context) {
-		dHandler := directus.NewHandler(ctx, dClient)
-		crowdinClient := crowdin.New(config.Crowdin.Token, crowdin.ClientConfig{
-			ProjectIDs: config.Crowdin.ProjectIDs,
-		})
-		crowdinClient.Sync(dHandler)
-	})
+	//dClient := directus.New(config.Directus.Host, config.Directus.Token, false)
+	//
+	//r.GET("/translations/sync", func(c *gin.Context) {
+	//	dHandler := directus.NewHandler(ctx, dClient)
+	//	crowdinClient := crowdin.New(config.Crowdin.Token, crowdin.ClientConfig{
+	//		ProjectIDs: config.Crowdin.ProjectIDs,
+	//	})
+	//	crowdinClient.Sync(dHandler)
+	//})
 
 	span.End()
 

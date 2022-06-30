@@ -117,7 +117,7 @@ func del(projectID, topicID string) {
 	fmt.Printf("Deleted")
 }
 
-func translationSync(projectID string, topicID string) {
+func simpleEvent(projectID string, topicID string, event string) {
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, projectID)
 	if err != nil {
@@ -127,7 +127,7 @@ func translationSync(projectID string, topicID string) {
 
 	e := cloudevents.NewEvent()
 	e.SetSource("pubsub-helper")
-	e.SetType(events.TypeTranslationsSync)
+	e.SetType(event)
 
 	data, err := json.Marshal(e)
 	spew.Dump(string(data))
@@ -154,7 +154,9 @@ func main() {
 	case "refreshView":
 		refreshView(projectId, topicId)
 	case "syncTranslations":
-		translationSync(projectId, topicId)
+		simpleEvent(projectId, topicId, events.TypeTranslationsSync)
+	case "searchReindex":
+		simpleEvent(projectId, topicId, events.TypeSearchReindex)
 	default:
 		create(projectId, topicId)
 		/*
