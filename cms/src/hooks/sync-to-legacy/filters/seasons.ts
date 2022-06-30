@@ -1,21 +1,19 @@
 import { oldKnex } from "../oldKnex";
-import { createLocalizable, getStatusFromNew, isObjectUseless, upsertLS } from "../utils";
-import episodes from '../../../btv';
-import { LanguageEntity, SeasonEntity, SeriesEntity } from "@/Database";
-import { ItemsService } from "directus";
+import { createLocalizable, getStatusFromNew, isObjectUseless } from "../utils";
+import { SeasonEntity } from "@/Database";
 
 export async function createSeason(p, m, c) {
     if (m.collection != "seasons") {
         return
     }
-    
-    
+
+
 
     let show = (await c.database("shows").select("*").where("id", p.show_id))[0];
-    
-    
 
-    // update it in original        
+
+
+    // update it in original
     let patch: Partial<any> = {
         SeriesId: show.legacy_id,
         SeasonNo: p.season_number,
@@ -30,7 +28,7 @@ export async function createSeason(p, m, c) {
     patch.DescriptionId = await createLocalizable(oldKnex)
     p.legacy_title_id = patch.TitleId
     p.legacy_description_id = patch.DescriptionId
-/* 
+/*
     if (image != null) {
         patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
     } */
@@ -40,27 +38,27 @@ export async function createSeason(p, m, c) {
     } else {
         patch.Status = 0
     }
-    
+
     let legacySeason = await oldKnex<SeasonEntity>("Season").insert(patch).returning("*")
-    
+
     //await c.database("seasons").update({legacy_id: legacySeason[0].Id}).where("id", p.id)
     p.legacy_id = legacySeason[0].Id
-    
+
     return p
 }
 
 
 export async function updateSeason(p, m, c) {
-    
-    
+
+
     if (m.collection != "seasons") {
         return
     }
     // get legacy id
     let seasonBeforeupdate = (await c.database("seasons").select("*").where("id", Number(m.keys[0])))[0];
-    
 
-    // update it in original 
+
+    // update it in original
     let patch: Partial<SeasonEntity> = {
         SeasonNo: p.season_number,
         LastUpdate: new Date(),
@@ -86,29 +84,29 @@ export async function updateSeason(p, m, c) {
         patch.Image = null
     }
 
-    
+
     if (!isObjectUseless(patch)) {
         let a = await oldKnex<SeasonEntity>("Season").where("Id", seasonBeforeupdate.legacy_id).update(patch).returning("*")
-        
+
     }
 };
 
 
 export async function deleteSeason(p, m, c) {
-    
+
     if (p.length > 1) {
         throw new Error("Syncing bulk-deletes hasn't been implemented. Contact Andreas if that's slowing you down much.")
     }
     if (m.collection !== "seasons") {
         return
     }
-    
+
 
     // get legacy ids
     let seasons_id = p[0]
     let season = (await c.database("seasons").select("*").where("id", seasons_id))[0];
-    
-  
+
+
     let result = await oldKnex("Season").where("Id", season.legacy_id).delete()
-    
+
 };

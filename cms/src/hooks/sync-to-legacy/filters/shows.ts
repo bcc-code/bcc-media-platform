@@ -1,7 +1,7 @@
 import { oldKnex } from "../oldKnex";
-import { createLocalizable, getStatusFromNew, isObjectUseless, upsertLS } from "../utils";
+import { createLocalizable, getStatusFromNew, isObjectUseless } from "../utils";
 import episodes from '../../../btv';
-import { LanguageEntity, SeriesEntity } from "@/Database";
+import {  SeriesEntity } from "@/Database";
 import { ItemsService } from "directus";
 
 
@@ -9,17 +9,17 @@ export async function updateShow (p, m, c) {
     if (m.collection != "shows") {
         return
     }
-    
+
     // get legacy id
     const itemsService = new ItemsService<episodes.components["schemas"]["ItemsShows"]>("shows", {
         knex: c.database as any,
         schema: c.schema,
     });
     let showBeforeUpdate = await itemsService.readOne(Number(m.keys[0]), { fields: ['*.*.*'] })
-    
 
-    // update it in original 
-    
+
+    // update it in original
+
     let patch: Partial<SeriesEntity> = {
         Published: p.publish_date as unknown as Date,
         AvailableTo: p.available_to as unknown as Date,
@@ -40,10 +40,10 @@ export async function updateShow (p, m, c) {
         patch.Image = null
     }
 
-    
+
     if (!isObjectUseless(patch)) {
         let a = await oldKnex<SeriesEntity>("Series").where("Id", showBeforeUpdate.legacy_id).update(patch).returning("*")
-        
+
     }
 };
 
@@ -51,14 +51,14 @@ export async function createShow(p, m, c) {
     if (m.collection != "shows") {
         return
     }
-    
-    
+
+
     // get legacy id
     p = p as episodes.components["schemas"]["ItemsShows"]
     //let image = e.image_file_id as episodes.components["schemas"]["Files"]
-    
 
-    // update it in original        
+
+    // update it in original
     let patch: Partial<SeriesEntity> = {
         IsCategory: p.type === "event" ? 1 : 0,
         Published: p.publish_date as unknown as Date,
@@ -81,32 +81,32 @@ export async function createShow(p, m, c) {
     } else {
         patch.Status = 0
     }
-    
-    
+
+
     let legacyShow = await oldKnex<SeriesEntity>("Series").insert(patch).returning("*")
-    
+
     p.legacy_id = legacyShow[0].Id
-    
+
     return p
     //await c.database("shows").update({legacy_id: legacyShow[0].Id}).where("id", e.id)
 
 };
 
 export async function deleteShow(p, m, c) {
-    
+
     if (p.length > 1) {
         throw new Error("Syncing bulk-deletes hasn't been implemented. Contact Andreas if that's slowing you down much.")
     }
     if (m.collection !== "shows") {
         return
     }
-    
+
 
     // get legacy ids
     let shows_id = p[0]
     let show = (await c.database("shows").select("*").where("id", shows_id))[0];
-    
-  
+
+
     let result = await oldKnex("Series").where("Id", show.legacy_id).delete()
-    
+
 };

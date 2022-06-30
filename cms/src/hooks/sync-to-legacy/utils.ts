@@ -1,8 +1,6 @@
 
 import { LanguageEntity, LocalizedStringEntity } from '@/Database'
-import episodes from '../../btv'
 import * as knex from 'knex'
-import { ItemsService } from 'directus'
 export function getStatusFromOld(status: number): string {
     switch (status) {
         case 0: return "draft"
@@ -22,7 +20,7 @@ export async function upsertLS(oldKnex: knex.Knex<any, unknown[]>, parentId: num
     if (value == undefined) {
         value = ""
     }
-    
+
     let c = await oldKnex<LocalizedStringEntity>("LocalizedString")
     .innerJoin("Language", "LocalizedString.LanguageId", "Language.Id")
     .where("ParentId", parentId)
@@ -42,10 +40,10 @@ export async function upsertLS(oldKnex: knex.Knex<any, unknown[]>, parentId: num
             LanguageId: lang.Id,
             Value: value
         }).returning("*")
-        
+
     }
 }
-/* 
+/*
 
 export async function ensureLocalizablesExist(oldKnex: knex.Knex<any, unknown[]>, table: string, e: any, fields: {[oldColumn: string]: string}): Promise<{[idColumn: string]: number}> {
     let ids = {}
@@ -80,4 +78,4 @@ export function isObjectUseless(patch: object) {
         }
     }
     return true
-} 
+}
