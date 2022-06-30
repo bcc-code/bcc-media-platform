@@ -195,16 +195,14 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 	sourceTranslations := lo.Filter(translations, func(t simpleTranslation, _ int) bool {
 		return t.Language == language // && t.IsPrimary == true
 	})
-	files := client.getFiles(project.ID, directoryId)
-	var file File
-	if len(files) == 0 {
+	file, err := client.getFileForCollection(project, directoryId, collection)
+	if err != nil {
+		log.L.Debug().Msg("Creating file")
 		_, err := client.createFile(project.ID, directoryId, collection, convertTsToStrings(sourceTranslations, collection))
 		if err != nil {
 			log.L.Error().Err(err).Str("collection", collection).Msg("failed to create file for collection")
 		}
 		return
-	} else {
-		file = files[0]
 	}
 
 	dbStrings := convertTsToStrings(translations, collection)
@@ -225,7 +223,10 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 	}
 
 	if len(missingStrings) > 0 {
-		client.addStrings(project.ID, file.ID, missingStrings)
+		for _, str := range missingStrings {
+			log.L.Debug().Str("identifier", str.Identifier).Msg("Adding missing string")
+			client.addString(project.ID, file.ID, str)
+		}
 	}
 
 	var queuedTranslations []simpleTranslation
@@ -391,7 +392,7 @@ type TranslationSource interface {
 }
 
 func (client *Client) SaveTranslations(objects []TranslationSource) error {
-	log.L.Debug().Int("count", len(objects)).Msg("Storing translations in Crowdin")
+	log.L.Debug().Int("count", len(objects)).Msg("Syncing translations with Crowdin")
 	for _, projectId := range client.config.ProjectIDs {
 		project := client.getProject(projectId)
 		directory := client.getDirectoryForProject(project)

@@ -111,7 +111,7 @@ func main() {
 
 	r.GET("/translations/sync", func(c *gin.Context) {
 		dHandler := directus.NewHandler(ctx, dClient)
-		crowdinClient := crowdin.New("https://api.crowdin.com/api/v2", config.Crowdin.Token, crowdin.ClientConfig{
+		crowdinClient := crowdin.New(config.Crowdin.Token, crowdin.ClientConfig{
 			ProjectIDs: config.Crowdin.ProjectIDs,
 		})
 		crowdinClient.Sync(dHandler)

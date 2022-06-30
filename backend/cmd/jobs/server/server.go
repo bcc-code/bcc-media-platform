@@ -59,7 +59,7 @@ func (s server) ProcessMessage(c *gin.Context) {
 		log.L.Error().
 			Err(err).
 			Str("msg", spew.Sdump(msg)).
-			Msgf("Could not create could event. Likely bad format")
+			Msgf("Could not create cloud event. Likely bad format")
 		c.Status(http.StatusOK)
 		return
 	}

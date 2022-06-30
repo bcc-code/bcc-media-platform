@@ -16,7 +16,6 @@ export function handleEvent(eventName: string) {
                 event.key = event.keys.map(i => Number(i))[0]
             }
             const topic = pubsub.topic("background-jobs")
-            console.log(event);
             const e = new CloudEvent({
                 type: "directus.event",
                 source: "directus",

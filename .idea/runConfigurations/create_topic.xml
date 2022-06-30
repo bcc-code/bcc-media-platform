@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="create topic" type="GoApplicationRunConfiguration" factoryName="Go Application" folderName="PubSub Actions">
+    <module name="brunstadtv" />
+    <working_directory value="$PROJECT_DIR$/backend/cmd/pubsub-helper" />
+    <parameters value="-task create" />
+    <envs>
+      <env name="PUBSUB_EMULATOR_HOST" value="localhost:8681" />
+      <env name="PUBSUB_PROJECT_ID" value="btv-local" />
+    </envs>
+    <kind value="PACKAGE" />
+    <package value="github.com/bcc-code/brunstadtv/backend/cmd/pubsub-helper" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$" />
+    <method v="2" />
+  </configuration>
+</component>

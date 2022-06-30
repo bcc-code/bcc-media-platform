@@ -126,12 +126,8 @@ func translationSync(projectID string, topicID string) {
 	defer client.Close()
 
 	e := cloudevents.NewEvent()
-	e.SetSource(events.SourceMediaBanken)
-	e.SetType(events.TypeAssetDelivered)
-	e.SetData(cloudevents.ApplicationJSON, &events.AssetDelivered{
-		//JSONMetaPath: "randomstring/sample.json",
-		JSONMetaPath: "7233_TEMA2_Simen.json",
-	})
+	e.SetSource("pubsub-helper")
+	e.SetType(events.TypeTranslationsSync)
 
 	data, err := json.Marshal(e)
 	spew.Dump(string(data))
@@ -147,23 +143,28 @@ func translationSync(projectID string, topicID string) {
 func main() {
 	task := flag.String("task", "", "")
 	flag.Parse()
+	projectId := "btv-local"
+	topicId := "background-jobs"
+
 	switch *task {
 	case "create":
-		create("btv-local", "background-jobs")
+		create(projectId, topicId)
 	case "delete":
-		del("btv-local", "background-jobs")
+		del(projectId, topicId)
 	case "refreshView":
-		refreshView("btv-local", "background-jobs")
+		refreshView(projectId, topicId)
+	case "syncTranslations":
+		translationSync(projectId, topicId)
 	default:
-		create("btv-local", "background-jobs")
+		create(projectId, topicId)
 		/*
 			send("btv-local", "background-jobs")
 		*/
 
-		refreshView("btv-local", "background-jobs")
+		refreshView(projectId, topicId)
 
 		time.Sleep(1 * time.Second)
-		del("btv-local", "background-jobs")
+		del(projectId, topicId)
 	}
 
 }

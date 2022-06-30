@@ -5,7 +5,6 @@ package main
 import (
 	"context"
 	"database/sql"
-
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -37,29 +36,35 @@ func initializeDirectusEventHandler(directusClient *resty.Client, searchService 
 			var translations []crowdin.TranslationSource
 			switch collection {
 			case "shows":
+				i := directusHandler.GetShow(id)
+				if i.Status != "published" {
+					return
+				}
 				translations = lo.Map(
 					directusHandler.ListShowTranslations("", false, id),
 					func(t directus.ShowsTranslation, _ int) crowdin.TranslationSource {
 						return t
 					})
 			case "seasons":
+				i := directusHandler.GetSeason(id)
+				if i.Status != "published" {
+					return
+				}
 				translations = lo.Map(
 					directusHandler.ListSeasonTranslations("", false, id),
 					func(t directus.SeasonsTranslation, _ int) crowdin.TranslationSource {
 						return t
 					})
 			case "episodes":
+				i := directusHandler.GetEpisode(id)
+				if i.Status != "published" {
+					return
+				}
 				translations = lo.Map(
 					directusHandler.ListEpisodeTranslations("", false, id),
 					func(t directus.EpisodesTranslation, _ int) crowdin.TranslationSource {
 						return t
 					})
-			case "shows_translations":
-				translations = append(translations, directusHandler.GetShowTranslation(id))
-			case "seasons_translations":
-				translations = append(translations, directusHandler.GetSeasonTranslation(id))
-			case "episodes_translations":
-				translations = append(translations, directusHandler.GetEpisodeTranslation(id))
 			}
 			if translations != nil {
 				err := crowdinClient.SaveTranslations(translations)
@@ -96,6 +101,8 @@ func main() {
 		PackagingGroupID:   config.AWS.PackagingGroupARN,
 		MediapackageRole:   config.AWS.MediapackageRoleARN,
 		MediapackageSource: config.AWS.MediapackageSourceARN,
+		CrowdinProjectIDs:  config.Crowdin.ProjectIDs,
+		CrowdinToken:       config.Crowdin.Token,
 	}
 
 	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
