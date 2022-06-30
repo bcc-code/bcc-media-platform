@@ -2,6 +2,7 @@ package directus
 
 import (
 	"context"
+
 	"github.com/bcc-code/mediabank-bridge/log"
 	cevent "github.com/cloudevents/sdk-go/v2/event"
 	"github.com/gin-gonic/gin"

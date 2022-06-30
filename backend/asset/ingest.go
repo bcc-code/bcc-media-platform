@@ -2,6 +2,7 @@ package asset
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"path"
@@ -9,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ansel1/merry"
+	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -26,8 +27,8 @@ import (
 
 // Sentinel errors
 var (
-	ErrDurationEmpty = merry.New("duration string can not be empty")
-	ErrDuringCopy    = merry.New("error copying files on S3. See log for more details")
+	ErrDurationEmpty = merry.Sentinel("duration string can not be empty")
+	ErrDuringCopy    = merry.Sentinel("error copying files on S3. See log for more details")
 )
 
 // Regexes
@@ -134,7 +135,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 	oldAsset, err := directus.FindNewestAssetByMediabankenID(services.GetDirectusClient(), assetMeta.ID)
 
-	if err != nil && !merry.Is(err, directus.ErrNotFound) {
+	if err != nil && !errors.Is(err, directus.ErrNotFound) {
 		return err
 	}
 
@@ -285,7 +286,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	copyErrors := copyObjects(ctx, *s3client, filesToCopy)
 	if len(copyErrors) > 0 {
 		log.L.Error().Errs("copyErrors", copyErrors).Msg("Errors while copying files")
-		return ErrDuringCopy.Here()
+		return merry.Wrap(ErrDuringCopy)
 	}
 	log.L.Info().Msg("Done copying files")
 

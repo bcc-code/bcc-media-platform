@@ -4,9 +4,10 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"net/http"
 
-	"github.com/ansel1/merry"
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/events"
+	"github.com/bcc-code/brunstadtv/backend/maintenance"
 	"github.com/bcc-code/brunstadtv/backend/pubsub"
 	"github.com/bcc-code/mediabank-bridge/log"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -74,6 +75,8 @@ func (s server) ProcessMessage(c *gin.Context) {
 	switch e.Type() {
 	case events.TypeAssetDelivered:
 		err = asset.Ingest(ctx, s.services, s.config, e)
+	case events.TypeRefreshView:
+		err = maintenance.RefreshView(ctx, s.services, e)
 	case events.TypeDirectusEvent:
 		err = s.services.GetDirectusEventHandler().ProcessCloudEvent(ctx, e)
 	case events.TypeSearchReindex:
@@ -81,7 +84,7 @@ func (s server) ProcessMessage(c *gin.Context) {
 	case events.TypeTranslationsSync:
 		err = crowdin.HandleEvent(ctx, s.services, s.config, e)
 	default:
-		err = errUndefinedHandler.Here()
+		err = merry.Wrap(errUndefinedHandler)
 	}
 
 	if err != nil {

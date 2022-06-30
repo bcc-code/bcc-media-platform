@@ -5,6 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/search"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/go-resty/resty/v2"
 )
 
@@ -15,6 +16,7 @@ type ExternalServices struct {
 	DirectusClient       *resty.Client
 	SearchService        *search.Service
 	DirectusEventHandler *directus.EventHandler
+	Queries              *sqlc.Queries
 }
 
 // GetS3Client as stored in the struct
@@ -40,4 +42,9 @@ func (e ExternalServices) GetSearchService() *search.Service {
 // GetDirectusEventHandler as stored in the struct
 func (e ExternalServices) GetDirectusEventHandler() *directus.EventHandler {
 	return e.DirectusEventHandler
+}
+
+// GetQueries as stored in the struct
+func (e ExternalServices) GetQueries() *sqlc.Queries {
+	return e.Queries
 }

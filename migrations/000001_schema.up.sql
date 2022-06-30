@@ -24,20 +24,20 @@ CREATE FUNCTION public.update_episodes_access() RETURNS boolean
     LANGUAGE plpgsql
     AS $$
 DECLARE
-	last_refreshed timestamptz;
+	lr timestamptz;
 BEGIN
-	SELECT date_refreshed INTO last_refreshed FROM materialized_views_meta WHERE view_name = 'episodes_access';
+	SELECT last_refreshed INTO lr FROM materialized_views_meta WHERE view_name = 'episodes_access';
 
 	IF (
- (SELECT MAX(date_updated) FROM shows) > last_refreshed  OR
- (SELECT MAX(date_updated) FROM seasons) > last_refreshed OR
- (SELECT MAX(date_updated) FROM episodes) > last_refreshed OR
- (SELECT MAX(date_updated) FROM episodes_usergroups) > last_refreshed OR
- (SELECT MAX(date_updated) FROM episodes_usergroups_download) >last_refreshed OR
- (SELECT MAX(date_updated) FROM episodes_usergroups_earlyaccess) > (last_refreshed)) THEN
+ (SELECT MAX(date_updated) FROM shows) > lr  OR
+ (SELECT MAX(date_updated) FROM seasons) > lr OR
+ (SELECT MAX(date_updated) FROM episodes) > lr OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups) > lr OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups_download) >lr OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups_earlyaccess) > (lr)) THEN
 		RAISE NOTICE 'Refreshing view';
 		REFRESH MATERIALIZED VIEW CONCURRENTLY episodes_access;
-		UPDATE materialized_views_meta SET date_refreshed = NOW() WHERE view_name = 'episodes_access';
+		UPDATE materialized_views_meta SET last_refreshed = NOW() WHERE view_name = 'episodes_access';
 		RETURN true;
     END IF;
 	RETURN false;
@@ -1291,7 +1291,9 @@ CREATE TABLE public.episodes_usergroups (
     episodes_id integer NOT NULL,
     id integer NOT NULL,
     type character varying(255) DEFAULT NULL::character varying,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -1304,7 +1306,9 @@ ALTER TABLE public.episodes_usergroups OWNER TO btv;
 CREATE TABLE public.episodes_usergroups_download (
     episodes_id integer NOT NULL,
     id integer NOT NULL,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -1317,7 +1321,9 @@ ALTER TABLE public.episodes_usergroups_download OWNER TO btv;
 CREATE TABLE public.episodes_usergroups_earlyaccess (
     episodes_id integer NOT NULL,
     id integer NOT NULL,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 

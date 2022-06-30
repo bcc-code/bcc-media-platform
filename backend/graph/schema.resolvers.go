@@ -10,6 +10,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
+	"github.com/bcc-code/brunstadtv/backend/user"
 )
 
 func (r *queryRootResolver) Page(ctx context.Context, id string) (gqlmodel.Page, error) {
@@ -49,9 +50,12 @@ func (r *queryRootResolver) Me(ctx context.Context) (*gqlmodel.User, error) {
 		return nil, err
 	}
 
+	usr := user.GetFromCtx(gc)
+
 	u := &gqlmodel.User{
-		Anonymous: gc.GetBool(auth0.CtxAnonymous),
-		BccMember: gc.GetBool(auth0.CtxIsBCCMember),
+		Anonymous: usr.IsAnonymous(),
+		BccMember: usr.IsActiveBCC(),
+		Roles:     usr.Roles,
 	}
 
 	if pid := gc.GetString(auth0.CtxPersonID); pid != "" {
@@ -60,6 +64,10 @@ func (r *queryRootResolver) Me(ctx context.Context) (*gqlmodel.User, error) {
 
 	if aud := gc.GetString(auth0.CtxJWTAudience); aud != "" {
 		u.Audience = &aud
+	}
+
+	if usr.Email != "" {
+		u.Email = &usr.Email
 	}
 
 	return u, nil

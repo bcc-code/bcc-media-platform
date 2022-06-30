@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
@@ -12,6 +13,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
@@ -74,13 +76,14 @@ func main() {
 		return
 	}
 
+	queries := sqlc.New(db)
+
 	log.L.Debug().Msg("Set up HTTP server")
 	r := gin.Default()
 	r.Use(graph.GinContextToContextMiddleware())
 	r.Use(otelgin.Middleware("api")) // OpenTelemetry
 	r.Use(auth0.JWT(ctx, config.JWTConfig))
-
-	queries := sqlc.New(db)
+	r.Use(user.NewUserMiddleware(queries))
 
 	r.POST("/query", graphqlHandler(queries))
 

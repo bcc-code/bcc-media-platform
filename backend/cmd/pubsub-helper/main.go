@@ -4,14 +4,15 @@ package main
 // on the pubsub emulator, and then send some message.
 // Cleanup is done at the end so the program can be re-run w/o errors
 import (
-	"cloud.google.com/go/pubsub"
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
+
+	"cloud.google.com/go/pubsub"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/davecgh/go-spew/spew"
-	"time"
 )
 
 func create(projectID, topicID string) {
@@ -53,6 +54,33 @@ func send(projectID, topicID string) {
 	e.SetData(cloudevents.ApplicationJSON, &events.AssetDelivered{
 		//JSONMetaPath: "randomstring/sample.json",
 		JSONMetaPath: "7233_TEMA2_Simen.json",
+	})
+
+	data, err := json.Marshal(e)
+	spew.Dump(string(data))
+	topic := client.Topic(topicID)
+	msg := topic.Publish(ctx, &pubsub.Message{
+		Data: data,
+	})
+
+	_, err = msg.Get(ctx)
+	fmt.Printf("Sent: %v\n", err)
+}
+
+func refreshView(projectID, topicID string) {
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, projectID)
+	if err != nil {
+		fmt.Printf("pubsub.NewClient: %v", err)
+	}
+	defer client.Close()
+
+	e := cloudevents.NewEvent()
+	e.SetSource(events.SourceCloudScheduler)
+	e.SetType(events.TypeRefreshView)
+	e.SetData(cloudevents.ApplicationJSON, &events.RefreshView{
+		ViewName: "episodes_access",
+		Force:    false,
 	})
 
 	data, err := json.Marshal(e)
@@ -118,7 +146,11 @@ func translationSync(projectID string, topicID string) {
 func main() {
 	create("btv-local", "background-jobs")
 
-	//send("btv-local", "background-jobs")
+	/*
+		send("btv-local", "background-jobs")
+	*/
+
+	refreshView("btv-local", "background-jobs")
 
 	time.Sleep(1 * time.Second)
 	del("btv-local", "background-jobs")

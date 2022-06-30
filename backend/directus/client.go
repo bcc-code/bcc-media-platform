@@ -3,7 +3,8 @@ package directus
 import (
 	"context"
 	"fmt"
-	"github.com/ansel1/merry"
+
+	"github.com/ansel1/merry/v2"
 	"github.com/go-resty/resty/v2"
 	"go.opencensus.io/trace"
 	"strconv"
