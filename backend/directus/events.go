@@ -2,12 +2,13 @@ package directus
 
 import (
 	"context"
-	"github.com/ansel1/merry"
+	"strconv"
+
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/mediabank-bridge/log"
 	cevent "github.com/cloudevents/sdk-go/v2/event"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
-	"strconv"
 )
 
 type Event struct {

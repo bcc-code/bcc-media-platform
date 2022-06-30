@@ -2,11 +2,12 @@ package search
 
 import (
 	"fmt"
-	"github.com/ansel1/merry"
-	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/samber/lo"
 	"strings"
 	"time"
+
+	"github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/samber/lo"
 )
 
 func (handler *RequestHandler) getFiltersForCurrentUser() (string, error) {

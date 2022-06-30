@@ -3,7 +3,7 @@ package server
 import (
 	"net/http"
 
-	"github.com/ansel1/merry"
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	"github.com/bcc-code/brunstadtv/backend/maintenance"
@@ -80,7 +80,7 @@ func (s server) ProcessMessage(c *gin.Context) {
 		eventHandler := s.services.GetDirectusEventHandler()
 		err = eventHandler.ProcessCloudEvent(ctx, e)
 	default:
-		err = errUndefinedHandler.Here()
+		err = merry.Wrap(errUndefinedHandler)
 	}
 
 	if err != nil {

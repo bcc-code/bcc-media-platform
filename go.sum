@@ -83,8 +83,6 @@ github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883 h1:bvNMNQO63//z+xNg
 github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883/go.mod h1:rCTlJbsFo29Kk6CurOXKm700vrz8f0KW0JNfpkRJY/8=
 github.com/ansel1/merry v1.5.0/go.mod h1:wUy/yW0JX0ix9GYvUbciq+bi3jW/vlKPlbpI7qdZpOw=
 github.com/ansel1/merry v1.5.1/go.mod h1:wUy/yW0JX0ix9GYvUbciq+bi3jW/vlKPlbpI7qdZpOw=
-github.com/ansel1/merry v1.6.2 h1:0xr40haRrfVzmOH/JVOu7KOKGEI1c/7q5EmgTEbn+Ng=
-github.com/ansel1/merry v1.6.2/go.mod h1:pAcMW+2uxIgpzEON021vMtFsrymREY6faJWiiz1QGVQ=
 github.com/ansel1/merry/v2 v2.0.1 h1:WeiKZdslHPAPFYxTtgX7clC2Vh75NCoWs5OjCZbIA0A=
 github.com/ansel1/merry/v2 v2.0.1/go.mod h1:dD5OhpiPrVkvgseRYd+xgYlx7s6ytU3v9BTTJlDA7FM=
 github.com/ansel1/vespucci/v4 v4.1.1/go.mod h1:zzdrO4IgBfgcGMbGTk/qNGL8JPslmW3nPpcBHKReFYY=
