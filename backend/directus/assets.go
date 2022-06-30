@@ -10,7 +10,7 @@ import (
 
 // Sentinel errors
 var (
-	ErrNotFound = merry.Sentinel("No objct was found")
+	ErrNotFound = merry.Sentinel("No object was found")
 )
 
 // Status is a global enum for directus status
