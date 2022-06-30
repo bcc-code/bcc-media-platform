@@ -2,7 +2,7 @@ package crowdin
 
 import (
 	"context"
-	"github.com/ansel1/merry"
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -23,7 +23,7 @@ type config interface {
 }
 
 func HandleEvent(ctx context.Context, services services, config config, event cloudevents.Event) (err error) {
-	client := New("https://api.crowdin.com/api/v2/", config.GetCrowdinToken(), ClientConfig{
+	client := New(config.GetCrowdinToken(), ClientConfig{
 		ProjectIDs: config.GetCrowdinProjectIDs(),
 	})
 	switch event.Type() {

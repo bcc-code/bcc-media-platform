@@ -8,9 +8,9 @@ const (
 
 // Collection of possible event types
 const (
-	TypeAssetDelivered = "asset.delivered"
-	TypeRefreshView    = "view.refresh"
+	TypeAssetDelivered   = "asset.delivered"
+	TypeRefreshView      = "view.refresh"
 	TypeDirectusEvent    = "directus.event"
-	TypeSearchReindex  = "search.reindex"
-	TypeSearchIndex    = "search.index"
+	TypeSearchReindex    = "search.reindex"
+	TypeTranslationsSync = "translations.sync"
 )

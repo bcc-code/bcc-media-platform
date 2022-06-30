@@ -2,7 +2,7 @@ package crowdin
 
 import (
 	"fmt"
-	"github.com/ansel1/merry"
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/go-resty/resty/v2"
@@ -20,9 +20,9 @@ type Client struct {
 	config ClientConfig
 }
 
-func New(url string, token string, config ClientConfig) *Client {
+func New(token string, config ClientConfig) *Client {
 	c := resty.New().
-		SetBaseURL(url).
+		SetBaseURL("https://api.crowdin.com/api/v2/").
 		SetAuthToken(token)
 	return &Client{
 		c,
@@ -314,7 +314,7 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 }
 
 func (client *Client) syncEpisodes(d *directus.Handler, project Project, directoryId int) {
-	translations := lo.Map(d.ListEpisodeTranslations("", false), func(t directus.EpisodesTranslation, _ int) simpleTranslation {
+	translations := lo.Map(d.ListEpisodeTranslations("", false, 0), func(t directus.EpisodesTranslation, _ int) simpleTranslation {
 		return simpleTranslation{
 			ID:          t.ID,
 			Description: t.Description,
@@ -327,7 +327,7 @@ func (client *Client) syncEpisodes(d *directus.Handler, project Project, directo
 }
 
 func (client *Client) syncSeasons(d *directus.Handler, project Project, directoryId int) {
-	translations := lo.Map(d.ListSeasonTranslations("", false), func(t directus.SeasonsTranslation, _ int) simpleTranslation {
+	translations := lo.Map(d.ListSeasonTranslations("", false, 0), func(t directus.SeasonsTranslation, _ int) simpleTranslation {
 		return simpleTranslation{
 			ID:          t.ID,
 			Description: t.Description,
@@ -340,7 +340,7 @@ func (client *Client) syncSeasons(d *directus.Handler, project Project, director
 }
 
 func (client *Client) syncShows(d *directus.Handler, project Project, directoryId int) {
-	translations := lo.Map(d.ListShowTranslations("", false), func(t directus.ShowsTranslation, _ int) simpleTranslation {
+	translations := lo.Map(d.ListShowTranslations("", false, 0), func(t directus.ShowsTranslation, _ int) simpleTranslation {
 		return simpleTranslation{
 			ID:          t.ID,
 			Description: t.Description,
@@ -383,14 +383,14 @@ func (client *Client) Sync(d *directus.Handler) {
 	}
 }
 
-type translationSource interface {
+type TranslationSource interface {
 	GetCollection() string
 	GetItemID() int
 	GetSourceLanguage() string
 	GetValues() map[string]string
 }
 
-func (client *Client) InsertTranslations(objects []translationSource) error {
+func (client *Client) SaveTranslations(objects []TranslationSource) error {
 	for _, projectId := range client.config.ProjectIDs {
 		project := client.getProject(projectId)
 		directory := client.getDirectoryForProject(project)
@@ -409,13 +409,24 @@ func (client *Client) InsertTranslations(objects []translationSource) error {
 				fileId = file.ID
 				fileIdByCollection[collection] = file.ID
 			}
+			sourceStrings := client.getStrings(project.ID, fileId)
 			for field, value := range o.GetValues() {
 				identifier := fmt.Sprintf("%s-%d-%s", collection, o.GetItemID(), field)
-				client.addString(project.ID, fileId, String{
-					FileID:     fileId,
-					Identifier: identifier,
-					Text:       value,
+				s, found := lo.Find(sourceStrings, func(s String) bool {
+					return s.Identifier == identifier
 				})
+				if found {
+					if s.Text != value {
+						s.Text = value
+						client.setString(project.ID, s)
+					}
+				} else {
+					client.addString(project.ID, fileId, String{
+						FileID:     fileId,
+						Identifier: identifier,
+						Text:       value,
+					})
+				}
 			}
 		}
 	}

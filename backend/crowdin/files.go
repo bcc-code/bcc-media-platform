@@ -32,6 +32,12 @@ type addFileRequest struct {
 	ImportOptions importOptions `json:"importOptions"`
 }
 
+type patchRequest struct {
+	Value any    `json:"value"`
+	Op    string `json:"op"`
+	Path  string `json:"path"`
+}
+
 type storageCreateResponse struct {
 	ID       int    `json:"id"`
 	FileName string `json:"fileName"`
@@ -84,6 +90,24 @@ func (client *Client) getDirectories(projectId int) []Directory {
 	return incrementallyRetrieve(func(limit int, offset int) []Directory {
 		return getItems[Directory](client, fmt.Sprintf("projects/%d/directories", projectId), limit, offset, nil)
 	})
+}
+
+func (client *Client) setString(projectId int, s String) String {
+	req := client.c.R()
+	req.SetBody([]patchRequest{
+		{
+			Value: s.Text,
+			Op:    "replace",
+			Path:  "/text",
+		},
+	})
+	req.SetResult(Object[String]{})
+	res, err := req.Patch(fmt.Sprintf("projects/%d/strings/%d", projectId, s.ID))
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to update string")
+		return String{}
+	}
+	return res.Result().(*Object[String]).Data
 }
 
 func (client *Client) addString(projectId int, fileId int, s String) String {
