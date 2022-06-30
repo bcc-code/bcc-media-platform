@@ -114,6 +114,30 @@ func (i ShowsTranslation) GetItemID() int {
 	return i.ShowsID
 }
 
+func (h *Handler) GetEpisodeTranslation(id int) (translation EpisodesTranslation) {
+	translation, err := GetItem[EpisodesTranslation](h.ctx, h.c, "episodes_translations", id)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to retrieve translation")
+	}
+	return
+}
+
+func (h *Handler) GetSeasonTranslation(id int) (translation SeasonsTranslation) {
+	translation, err := GetItem[SeasonsTranslation](h.ctx, h.c, "seasons_translations", id)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to retrieve translation")
+	}
+	return
+}
+
+func (h *Handler) GetShowTranslation(id int) (translation ShowsTranslation) {
+	translation, err := GetItem[ShowsTranslation](h.ctx, h.c, "shows_translations", id)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to retrieve translation")
+	}
+	return
+}
+
 func (h *Handler) ListEpisodeTranslations(language string, primary bool, episodeId int) (translations []EpisodesTranslation) {
 	var queryParams = map[string]string{}
 	if primary {

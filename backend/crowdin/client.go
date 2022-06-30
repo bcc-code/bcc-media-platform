@@ -391,6 +391,7 @@ type TranslationSource interface {
 }
 
 func (client *Client) SaveTranslations(objects []TranslationSource) error {
+	log.L.Debug().Int("count", len(objects)).Msg("Storing translations in Crowdin")
 	for _, projectId := range client.config.ProjectIDs {
 		project := client.getProject(projectId)
 		directory := client.getDirectoryForProject(project)
@@ -418,9 +419,11 @@ func (client *Client) SaveTranslations(objects []TranslationSource) error {
 				if found {
 					if s.Text != value {
 						s.Text = value
+						log.L.Debug().Str("identifier", s.Identifier).Msg("Updating string")
 						client.setString(project.ID, s)
 					}
 				} else {
+					log.L.Debug().Str("identifier", identifier).Msg("Creating string")
 					client.addString(project.ID, fileId, String{
 						FileID:     fileId,
 						Identifier: identifier,

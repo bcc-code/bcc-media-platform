@@ -30,30 +30,36 @@ func initializeDirectusEventHandler(directusClient *resty.Client, searchService 
 	eventHandler := directus.NewEventHandler()
 
 	for _, event := range []string{directus.EventItemsCreate, directus.EventItemsUpdate} {
-		eventHandler.On(event, func(ctx context.Context, model string, id int) {
+		eventHandler.On(event, func(ctx context.Context, collection string, id int) {
 			searchHandler := searchService.NewRequestHandler(ctx)
-			searchHandler.IndexModel(model, id)
+			searchHandler.IndexModel(collection, id)
 			directusHandler := directus.NewHandler(ctx, directusClient)
 			var translations []crowdin.TranslationSource
-			switch model {
-			case "show":
+			switch collection {
+			case "shows":
 				translations = lo.Map(
 					directusHandler.ListShowTranslations("", false, id),
 					func(t directus.ShowsTranslation, _ int) crowdin.TranslationSource {
 						return t
 					})
-			case "season":
+			case "seasons":
 				translations = lo.Map(
 					directusHandler.ListSeasonTranslations("", false, id),
 					func(t directus.SeasonsTranslation, _ int) crowdin.TranslationSource {
 						return t
 					})
-			case "episode":
+			case "episodes":
 				translations = lo.Map(
 					directusHandler.ListEpisodeTranslations("", false, id),
 					func(t directus.EpisodesTranslation, _ int) crowdin.TranslationSource {
 						return t
 					})
+			case "shows_translations":
+				translations = append(translations, directusHandler.GetShowTranslation(id))
+			case "seasons_translations":
+				translations = append(translations, directusHandler.GetSeasonTranslation(id))
+			case "episodes_translations":
+				translations = append(translations, directusHandler.GetEpisodeTranslation(id))
 			}
 			if translations != nil {
 				err := crowdinClient.SaveTranslations(translations)

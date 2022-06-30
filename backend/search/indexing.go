@@ -185,21 +185,23 @@ func (handler *RequestHandler) IndexObject(item interface{}) {
 	}
 }
 
-func (handler *RequestHandler) IndexModel(model string, id int) {
+func (handler *RequestHandler) IndexModel(collection string, id int) {
 	service := handler.service
 	ctx := handler.context
 	var i any
 	var err error
-	switch model {
-	case "episode":
+	switch collection {
+	case "episodes":
 		i, err = service.queries.GetEpisode(ctx, int32(id))
-	case "season":
+	case "seasons":
 		i, err = service.queries.GetSeason(ctx, int32(id))
-	case "show":
+	case "shows":
 		i, err = service.queries.GetShow(ctx, int32(id))
+	default:
+		return
 	}
 	if err != nil {
-		log.L.Error().Err(err).Str("model", model).Int("id", id).Msg("Failed to retrieve model")
+		log.L.Error().Err(err).Str("collection", collection).Int("id", id).Msg("Failed to retrieve collection")
 		return
 	}
 	handler.IndexObject(i)

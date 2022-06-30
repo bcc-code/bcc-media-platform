@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"time"
 
@@ -144,14 +145,25 @@ func translationSync(projectID string, topicID string) {
 }
 
 func main() {
-	create("btv-local", "background-jobs")
+	task := flag.String("task", "", "")
+	flag.Parse()
+	switch *task {
+	case "create":
+		create("btv-local", "background-jobs")
+	case "delete":
+		del("btv-local", "background-jobs")
+	case "refreshView":
+		refreshView("btv-local", "background-jobs")
+	default:
+		create("btv-local", "background-jobs")
+		/*
+			send("btv-local", "background-jobs")
+		*/
 
-	/*
-		send("btv-local", "background-jobs")
-	*/
+		refreshView("btv-local", "background-jobs")
 
-	refreshView("btv-local", "background-jobs")
+		time.Sleep(1 * time.Second)
+		del("btv-local", "background-jobs")
+	}
 
-	time.Sleep(1 * time.Second)
-	del("btv-local", "background-jobs")
 }

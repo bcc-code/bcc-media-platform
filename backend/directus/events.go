@@ -11,7 +11,7 @@ import (
 type Event struct {
 	Event      string `json:"event"`
 	Collection string `json:"collection"`
-	Ids        []int  `json:"ids"`
+	Id         int    `json:"id"`
 }
 
 const (
@@ -23,21 +23,9 @@ const (
 type EventHandler struct {
 }
 
-func getModelFromCollectionName(collection string) string {
-	switch collection {
-	case "episode", "episodes":
-		return "episode"
-	case "season", "seasons":
-		return "season"
-	case "show", "shows":
-		return "show"
-	}
-	return ""
-}
+var itemsEvents = map[string][]func(ctx context.Context, collection string, id int){}
 
-var itemsEvents = map[string][]func(ctx context.Context, model string, id int){}
-
-func (handler *EventHandler) On(event string, callback func(ctx context.Context, model string, id int)) {
+func (handler *EventHandler) On(event string, callback func(ctx context.Context, collection string, id int)) {
 	switch event {
 	case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
 		log.L.Debug().Str("event", event).Msg("Registering Directus webhook-listener for event")
@@ -58,19 +46,15 @@ func (handler *EventHandler) ProcessCloudEvent(ctx context.Context, e cevent.Eve
 func (handler *EventHandler) Process(ctx context.Context, event Event) error {
 	log.L.Debug().Str("event", event.Event).Str("collection", event.Collection).Msg("Processing event")
 
-	model := getModelFromCollectionName(event.Collection)
-	if model == "" {
+	var id = event.Id
+	if id == 0 {
 		return nil
 	}
-
-	var ids = event.Ids
-	for _, id := range ids {
-		switch event.Event {
-		case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
-			for i, callback := range itemsEvents[event.Event] {
-				log.L.Debug().Msgf("Executing callback #%d for event %s", i, event.Event)
-				callback(ctx, model, id)
-			}
+	switch event.Event {
+	case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
+		for i, callback := range itemsEvents[event.Event] {
+			log.L.Debug().Msgf("Executing callback #%d for event %s", i, event.Event)
+			callback(ctx, event.Collection, id)
 		}
 	}
 

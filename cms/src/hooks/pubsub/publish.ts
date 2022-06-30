@@ -4,30 +4,26 @@ import { CloudEvent } from "cloudevents"
 import { ActionHandler } from "@directus/shared/src/types"
 
 const projectId = process.env.PUBSUB_PROJECT_ID
+const pubsub = new PubSub({projectId})
 
 export function handleEvent(eventName: string) {
     const handler: ActionHandler = async (event: Event) => {
         const collections = ["shows", "seasons", "episodes", "shows_translations", "seasons_translations", "episodes_translations"] as Collection[]
 
         if (collections.includes(event.collection)) {
-            const ids: number[] = []
-            if (event.key) {
-                ids.push(Number(event.key))
+            // Use show, season or episode ID as ids.
+            if (!event.key) {
+                event.key = event.keys.map(i => Number(i))[0]
             }
-            if (event.keys) {
-                ids.push(...event.keys.map(k => Number(k)))
-            }
-            const pubsub = new PubSub({projectId})
-
             const topic = pubsub.topic("background-jobs")
-
+            console.log(event);
             const e = new CloudEvent({
                 type: "directus.event",
                 source: "directus",
                 data: {
                     event: eventName,
                     collection: event.collection,
-                    ids,
+                    id: event.key,
                 }
             })
 

@@ -87,6 +87,21 @@ func SaveItem[t DSItem](ctx context.Context, c *resty.Client, i t, unmashall boo
 	return nil, nil
 }
 
+func GetItem[t DSItem](ctx context.Context, c *resty.Client, collection string, id int) (item t, err error) {
+	ctx, span := trace.StartSpan(ctx, "directus.ListItems")
+	defer span.End()
+
+	path := fmt.Sprintf("/items/%s/%d", collection, id)
+
+	req := c.R()
+	req.SetResult(struct{ Data t }{})
+	res, err := req.Get(path)
+	if err != nil {
+		return
+	}
+	return res.Result().(*struct{ Data t }).Data, nil
+}
+
 func ListItems[t DSItem](ctx context.Context, c *resty.Client, collection string, queryParams map[string]string) (items []t, err error) {
 	ctx, span := trace.StartSpan(ctx, "directus.ListItems")
 	defer span.End()
