@@ -32,8 +32,8 @@ func initializeDirectusEventHandler(directusClient *resty.Client, searchService 
 			searchHandler := searchService.NewRequestHandler(ctx)
 			searchHandler.IndexModel(collection, id)
 
-			directusHandler := directus.NewHandler(ctx, directusClient)
-			crowdinClient.HandleModelUpdate(directusHandler, collection, id)
+			directusHandler := directus.NewHandler(directusClient)
+			crowdinClient.HandleModelUpdate(ctx, directusHandler, collection, id)
 		})
 	}
 

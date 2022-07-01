@@ -23,6 +23,10 @@ const (
 type EventHandler struct {
 }
 
+func NewEventHandler() *EventHandler {
+	return &EventHandler{}
+}
+
 var itemsEvents = map[string][]func(ctx context.Context, collection string, id int){}
 
 func (handler *EventHandler) On(event string, callback func(ctx context.Context, collection string, id int)) {
@@ -68,8 +72,4 @@ func (handler *EventHandler) Execute(c *gin.Context) error {
 		return err
 	}
 	return handler.Process(c, event)
-}
-
-func NewEventHandler() *EventHandler {
-	return &EventHandler{}
 }

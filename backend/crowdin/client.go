@@ -1,6 +1,7 @@
 package crowdin
 
 import (
+	"context"
 	"fmt"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -189,7 +190,7 @@ func (client *Client) getFileForCollection(project Project, directoryId int, col
 	return
 }
 
-func (client *Client) syncCollection(d *directus.Handler, project Project, directoryId int, collection string, translations []simpleTranslation) {
+func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, project Project, directoryId int, collection string, translations []simpleTranslation) {
 	log.L.Debug().Int("project", project.ID).Str("collection", collection).Msg("Syncing collection")
 	projectId := project.ID
 	language := project.SourceLanguageId
@@ -235,7 +236,7 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 	pushTranslations := func(force bool) {
 		if length := len(queuedTranslations); length > 100 || (force && length > 0) {
 			log.L.Debug().Str("collection", collection).Int("count", length).Msg("Pushing translations to database")
-			d.SaveTranslations(toDSItems(collection, queuedTranslations))
+			d.SaveTranslations(ctx, toDSItems(collection, queuedTranslations))
 			queuedTranslations = nil
 		}
 	}
@@ -327,10 +328,10 @@ func getPublishedDictionary[t hasStatus](items []t) map[int]bool {
 	}, map[int]bool{})
 }
 
-func (client *Client) syncEpisodes(d *directus.Handler, project Project, directoryId int) {
-	published := getPublishedDictionary(d.ListEpisodes())
+func (client *Client) syncEpisodes(ctx context.Context, d *directus.Handler, project Project, directoryId int) {
+	published := getPublishedDictionary(d.ListEpisodes(ctx))
 	translations := lo.Map(
-		lo.Filter(d.ListEpisodeTranslations("", false, 0), func(i directus.EpisodesTranslation, _ int) bool {
+		lo.Filter(d.ListEpisodeTranslations(ctx, "", false, 0), func(i directus.EpisodesTranslation, _ int) bool {
 			return published[i.EpisodesID]
 		}),
 		func(t directus.EpisodesTranslation, _ int) simpleTranslation {
@@ -342,13 +343,13 @@ func (client *Client) syncEpisodes(d *directus.Handler, project Project, directo
 				ParentID:    t.EpisodesID,
 			}
 		})
-	client.syncCollection(d, project, directoryId, "episodes", translations)
+	client.syncCollection(ctx, d, project, directoryId, "episodes", translations)
 }
 
-func (client *Client) syncSeasons(d *directus.Handler, project Project, directoryId int) {
-	published := getPublishedDictionary(d.ListSeasons())
+func (client *Client) syncSeasons(ctx context.Context, d *directus.Handler, project Project, directoryId int) {
+	published := getPublishedDictionary(d.ListSeasons(ctx))
 	translations := lo.Map(
-		lo.Filter(d.ListSeasonTranslations("", false, 0), func(i directus.SeasonsTranslation, _ int) bool {
+		lo.Filter(d.ListSeasonTranslations(ctx, "", false, 0), func(i directus.SeasonsTranslation, _ int) bool {
 			return published[i.SeasonsID]
 		}),
 		func(t directus.SeasonsTranslation, _ int) simpleTranslation {
@@ -360,13 +361,13 @@ func (client *Client) syncSeasons(d *directus.Handler, project Project, director
 				ParentID:    t.SeasonsID,
 			}
 		})
-	client.syncCollection(d, project, directoryId, "seasons", translations)
+	client.syncCollection(ctx, d, project, directoryId, "seasons", translations)
 }
 
-func (client *Client) syncShows(d *directus.Handler, project Project, directoryId int) {
-	published := getPublishedDictionary(d.ListShows())
+func (client *Client) syncShows(ctx context.Context, d *directus.Handler, project Project, directoryId int) {
+	published := getPublishedDictionary(d.ListShows(ctx))
 	translations := lo.Map(
-		lo.Filter(d.ListShowTranslations("", false, 0), func(i directus.ShowsTranslation, _ int) bool {
+		lo.Filter(d.ListShowTranslations(ctx, "", false, 0), func(i directus.ShowsTranslation, _ int) bool {
 			return published[i.ShowsID]
 		}),
 		func(t directus.ShowsTranslation, _ int) simpleTranslation {
@@ -378,7 +379,7 @@ func (client *Client) syncShows(d *directus.Handler, project Project, directoryI
 				ParentID:    t.ShowsID,
 			}
 		})
-	client.syncCollection(d, project, directoryId, "shows", translations)
+	client.syncCollection(ctx, d, project, directoryId, "shows", translations)
 }
 
 func (client *Client) getProject(projectId int) Project {
@@ -386,15 +387,15 @@ func (client *Client) getProject(projectId int) Project {
 	return getItem[Project](client, "projects", projectId)
 }
 
-func (client *Client) Sync(d *directus.Handler) {
+func (client *Client) Sync(ctx context.Context, d *directus.Handler) {
 	projectIds := client.config.ProjectIDs
 	for _, id := range projectIds {
 		project := client.getProject(id)
 		directory := client.getDirectoryForProject(project)
 
-		client.syncEpisodes(d, project, directory.ID)
-		client.syncSeasons(d, project, directory.ID)
-		client.syncShows(d, project, directory.ID)
+		client.syncEpisodes(ctx, d, project, directory.ID)
+		client.syncSeasons(ctx, d, project, directory.ID)
+		client.syncShows(ctx, d, project, directory.ID)
 	}
 }
 

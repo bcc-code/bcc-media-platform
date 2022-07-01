@@ -31,8 +31,8 @@ func HandleEvent(ctx context.Context, services services, config config, event cl
 	})
 	switch event.Type() {
 	case events.TypeTranslationsSync:
-		handler := directus.NewHandler(ctx, services.GetDirectusClient())
-		client.Sync(handler)
+		handler := directus.NewHandler(services.GetDirectusClient())
+		client.Sync(ctx, handler)
 	default:
 		err = merry.New("Unsupported event")
 	}
@@ -45,35 +45,35 @@ func toTranslationSources[t TranslationSource](items []t) []TranslationSource {
 	})
 }
 
-func getStatusForItem(d *directus.Handler, collection string, id int) string {
+func getStatusForItem(ctx context.Context, d *directus.Handler, collection string, id int) string {
 	switch collection {
 	case "shows":
-		return d.GetShow(id).GetStatus()
+		return d.GetShow(ctx, id).GetStatus()
 	case "seasons":
-		return d.GetSeason(id).GetStatus()
+		return d.GetSeason(ctx, id).GetStatus()
 	case "episodes":
-		return d.GetEpisode(id).GetStatus()
+		return d.GetEpisode(ctx, id).GetStatus()
 	}
 	return ""
 }
 
-func getTranslationsForItem(d *directus.Handler, collection string, id int, language string) []TranslationSource {
+func getTranslationsForItem(ctx context.Context, d *directus.Handler, collection string, id int, language string) []TranslationSource {
 	switch collection {
 	case "shows":
-		return toTranslationSources(d.ListShowTranslations(language, false, id))
+		return toTranslationSources(d.ListShowTranslations(ctx, language, false, id))
 	case "seasons":
-		return toTranslationSources(d.ListSeasonTranslations(language, false, id))
+		return toTranslationSources(d.ListSeasonTranslations(ctx, language, false, id))
 	case "episodes":
-		return toTranslationSources(d.ListEpisodeTranslations(language, false, id))
+		return toTranslationSources(d.ListEpisodeTranslations(ctx, language, false, id))
 	}
 	return nil
 }
 
-func (client *Client) HandleModelUpdate(directusHandler *directus.Handler, collection string, id int) {
-	if getStatusForItem(directusHandler, collection, id) != common.StatusPublished {
+func (client *Client) HandleModelUpdate(ctx context.Context, directusHandler *directus.Handler, collection string, id int) {
+	if getStatusForItem(ctx, directusHandler, collection, id) != common.StatusPublished {
 		return
 	}
-	translations := getTranslationsForItem(directusHandler, collection, id, "")
+	translations := getTranslationsForItem(ctx, directusHandler, collection, id, "")
 	if len(translations) == 0 {
 		return
 	}
