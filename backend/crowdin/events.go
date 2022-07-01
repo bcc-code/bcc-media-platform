@@ -3,6 +3,7 @@ package crowdin
 import (
 	"context"
 	"github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	"github.com/bcc-code/mediabank-bridge/log"
@@ -38,46 +39,47 @@ func HandleEvent(ctx context.Context, services services, config config, event cl
 	return
 }
 
-func (client *Client) HandleModelUpdate(directusHandler *directus.Handler, collection string, id int) {
-	language := ""
-	var translations []TranslationSource
+func toTranslationSources[t TranslationSource](items []t) []TranslationSource {
+	return lo.Map(items, func(i t, _ int) TranslationSource {
+		return i
+	})
+}
+
+func getStatusForItem(d *directus.Handler, collection string, id int) string {
 	switch collection {
 	case "shows":
-		i := directusHandler.GetShow(id)
-		if i.Status != "published" {
-			return
-		}
-		translations = lo.Map(
-			directusHandler.ListShowTranslations(language, false, id),
-			func(t directus.ShowsTranslation, _ int) TranslationSource {
-				return t
-			})
+		return d.GetShow(id).GetStatus()
 	case "seasons":
-		i := directusHandler.GetSeason(id)
-		if i.Status != "published" {
-			return
-		}
-		translations = lo.Map(
-			directusHandler.ListSeasonTranslations(language, false, id),
-			func(t directus.SeasonsTranslation, _ int) TranslationSource {
-				return t
-			})
+		return d.GetSeason(id).GetStatus()
 	case "episodes":
-		i := directusHandler.GetEpisode(id)
-		if i.Status != "published" {
-			return
-		}
-		translations = lo.Map(
-			directusHandler.ListEpisodeTranslations(language, false, id),
-			func(t directus.EpisodesTranslation, _ int) TranslationSource {
-				return t
-			})
+		return d.GetEpisode(id).GetStatus()
 	}
-	if translations != nil {
-		err := client.SaveTranslations(translations)
-		if err != nil {
-			log.L.Error().Err(err).Msg("Failed to insert translations")
-		}
+	return ""
+}
+
+func getTranslationsForItem(d *directus.Handler, collection string, id int, language string) []TranslationSource {
+	switch collection {
+	case "shows":
+		return toTranslationSources(d.ListShowTranslations(language, false, id))
+	case "seasons":
+		return toTranslationSources(d.ListSeasonTranslations(language, false, id))
+	case "episodes":
+		return toTranslationSources(d.ListEpisodeTranslations(language, false, id))
+	}
+	return nil
+}
+
+func (client *Client) HandleModelUpdate(directusHandler *directus.Handler, collection string, id int) {
+	if getStatusForItem(directusHandler, collection, id) != common.StatusPublished {
+		return
+	}
+	translations := getTranslationsForItem(directusHandler, collection, id, "")
+	if len(translations) == 0 {
+		return
+	}
+	err := client.SaveTranslations(translations)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to insert translations")
 	}
 }
 
