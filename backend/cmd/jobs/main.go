@@ -29,8 +29,8 @@ func initializeDirectusEventHandler(directusClient *resty.Client, searchService 
 
 	for _, event := range []string{directus.EventItemsCreate, directus.EventItemsUpdate} {
 		eventHandler.On(event, func(ctx context.Context, collection string, id int) {
-			searchHandler := searchService.NewRequestHandler(ctx)
-			searchHandler.IndexModel(collection, id)
+			searchHandler := searchService.NewRequestHandler()
+			searchHandler.IndexModel(ctx, collection, id)
 
 			directusHandler := directus.NewHandler(directusClient)
 			crowdinClient.HandleModelUpdate(ctx, directusHandler, collection, id)
@@ -38,7 +38,7 @@ func initializeDirectusEventHandler(directusClient *resty.Client, searchService 
 	}
 
 	eventHandler.On(directus.EventItemsDelete, func(ctx context.Context, collection string, id int) {
-		handler := searchService.NewRequestHandler(ctx)
+		handler := searchService.NewRequestHandler()
 		handler.DeleteModel(collection, id)
 		crowdinClient.HandleModelDelete(collection, id)
 	})
