@@ -17,8 +17,9 @@ export function enabled() {
 }
 
 const hooks: HookConfig = ({action}) => {
-    if (!enabled())
+    if (!enabled()) {
         return
+    }
 
     action("items.create", handleEvent("items.create"))
     action("items.update", handleEvent("items.update"))
