@@ -32,7 +32,14 @@ func New(token string, config ClientConfig) *Client {
 	}
 }
 
-func getItem[t any](client *Client, endpoint string, id int) (item t) {
+func ensureSuccess(res *resty.Response) (err error) {
+	if !res.IsSuccess() {
+		err = merry.Sentinelf("Request failed with StatusCode %d", res.StatusCode(), merry.Wrap(merry.New(res.String())))
+	}
+	return
+}
+
+func getItem[t any](client *Client, endpoint string, id int) (item t, err error) {
 	req := client.c.R()
 	req.SetResult(Object[t]{})
 	query := fmt.Sprintf("/%s/%d", endpoint, id)
@@ -44,10 +51,14 @@ func getItem[t any](client *Client, endpoint string, id int) (item t) {
 			Msg("Failed to retrieve item")
 		return
 	}
-	return res.Result().(*Object[t]).Data
+	err = ensureSuccess(res)
+	if err == nil {
+		item = res.Result().(*Object[t]).Data
+	}
+	return
 }
 
-func getItems[t any](client *Client, endpoint string, limit int, offset int, queryParams map[string]string) (items []t) {
+func getItems[t any](client *Client, endpoint string, limit int, offset int, queryParams map[string]string) (items []t, err error) {
 	req := client.c.R()
 	req.SetResult(Result[[]Object[t]]{})
 	if queryParams != nil {
@@ -65,12 +76,16 @@ func getItems[t any](client *Client, endpoint string, limit int, offset int, que
 			Msg("Failed to retrieve items")
 		return
 	}
-	return lo.Map(res.Result().(*Result[[]Object[t]]).Data, func(i Object[t], _ int) t {
-		return i.Data
-	})
+	err = ensureSuccess(res)
+	if err == nil {
+		items = lo.Map(res.Result().(*Result[[]Object[t]]).Data, func(i Object[t], _ int) t {
+			return i.Data
+		})
+	}
+	return
 }
 
-func createItem[t any](client *Client, endpoint string, item t) (i t) {
+func createItem[t any](client *Client, endpoint string, item t) (i t, err error) {
 	req := client.c.R()
 	req.SetBody(item)
 	req.SetResult(Object[t]{})
@@ -81,7 +96,13 @@ func createItem[t any](client *Client, endpoint string, item t) (i t) {
 			Msg("Failed to create item")
 		return
 	}
-	return res.Result().(*Object[t]).Data
+	err = ensureSuccess(res)
+	if err != nil {
+		return
+	} else {
+		i = res.Result().(*Object[t]).Data
+	}
+	return
 }
 
 type simpleTranslation struct {
@@ -154,27 +175,36 @@ func toDSItems(collection string, translations []simpleTranslation) []directus.D
 	}
 }
 
-func (client *Client) getDirectoryForProject(project Project) Directory {
-	directories := client.getDirectories(project.ID)
+func (client *Client) getDirectoryForProject(project Project) (d Directory, err error) {
+	directories, err := client.getDirectories(project.ID)
+	if err != nil {
+		return
+	}
 
 	var directory *Directory
-	for _, d := range directories {
-		if d.Name == "content" {
+	for _, dir := range directories {
+		if dir.Name == "content" {
 			directory = &d
 		}
 	}
 	if directory == nil {
-		dir := createItem(client, fmt.Sprintf("projects/%d/directories", project.ID), Directory{
+		dir, err := createItem(client, fmt.Sprintf("projects/%d/directories", project.ID), Directory{
 			Name: "content",
 		})
+		if err != nil {
+			return
+		}
 		directory = &dir
 	}
 
-	return *directory
+	return *directory, nil
 }
 
 func (client *Client) getFileForCollection(project Project, directoryId int, collection string) (file File, err error) {
-	files := client.getFiles(project.ID, directoryId)
+	files, err := client.getFiles(project.ID, directoryId)
+	if err != nil {
+		return
+	}
 	found := false
 	if len(files) > 0 {
 		for _, f := range files {
@@ -190,7 +220,7 @@ func (client *Client) getFileForCollection(project Project, directoryId int, col
 	return
 }
 
-func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, project Project, directoryId int, collection string, translations []simpleTranslation) {
+func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, project Project, directoryId int, collection string, translations []simpleTranslation) error {
 	log.L.Debug().Int("project", project.ID).Str("collection", collection).Msg("Syncing collection")
 	projectId := project.ID
 	language := project.SourceLanguageId
@@ -204,12 +234,15 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 		if err != nil {
 			log.L.Error().Err(err).Str("collection", collection).Msg("failed to create file for collection")
 		}
-		return
+		return err
 	}
 
 	dbStrings := convertTsToStrings(translations, collection)
 
-	fileStrings := client.getStrings(projectId, file.ID)
+	fileStrings, err := client.getStrings(projectId, file.ID)
+	if err != nil {
+		return err
+	}
 	stringsById := lo.Reduce(fileStrings, func(dict map[int]String, s String, _ int) map[int]String {
 		dict[s.ID] = s
 		return dict
@@ -227,7 +260,10 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 	if len(missingStrings) > 0 {
 		for _, str := range missingStrings {
 			log.L.Debug().Str("identifier", str.Identifier).Msg("Adding missing string")
-			client.addString(project.ID, file.ID, str)
+			_, err = client.addString(project.ID, file.ID, str)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -250,7 +286,10 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 
 		log.L.Debug().Int("count", len(existingTranslations)).Msg("Found existing translations")
 
-		ts := client.getTranslations(projectId, file.ID, language.ID)
+		ts, err := client.getTranslations(projectId, file.ID, language.ID)
+		if err != nil {
+			return err
+		}
 
 		log.L.Debug().Int("count", len(ts)).Msg("Retrieved translations")
 
@@ -314,6 +353,7 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 		pushTranslations(false)
 	}
 	pushTranslations(true)
+	return nil
 }
 
 type hasStatus interface {
@@ -328,7 +368,7 @@ func getPublishedDictionary[t hasStatus](items []t) map[int]bool {
 	}, map[int]bool{})
 }
 
-func (client *Client) syncEpisodes(ctx context.Context, d *directus.Handler, project Project, directoryId int) {
+func (client *Client) syncEpisodes(ctx context.Context, d *directus.Handler, project Project, directoryId int) error {
 	published := getPublishedDictionary(d.ListEpisodes(ctx))
 	translations := lo.Map(
 		lo.Filter(d.ListEpisodeTranslations(ctx, "", false, 0), func(i directus.EpisodesTranslation, _ int) bool {
@@ -343,10 +383,10 @@ func (client *Client) syncEpisodes(ctx context.Context, d *directus.Handler, pro
 				ParentID:    t.EpisodesID,
 			}
 		})
-	client.syncCollection(ctx, d, project, directoryId, "episodes", translations)
+	return client.syncCollection(ctx, d, project, directoryId, "episodes", translations)
 }
 
-func (client *Client) syncSeasons(ctx context.Context, d *directus.Handler, project Project, directoryId int) {
+func (client *Client) syncSeasons(ctx context.Context, d *directus.Handler, project Project, directoryId int) error {
 	published := getPublishedDictionary(d.ListSeasons(ctx))
 	translations := lo.Map(
 		lo.Filter(d.ListSeasonTranslations(ctx, "", false, 0), func(i directus.SeasonsTranslation, _ int) bool {
@@ -361,10 +401,10 @@ func (client *Client) syncSeasons(ctx context.Context, d *directus.Handler, proj
 				ParentID:    t.SeasonsID,
 			}
 		})
-	client.syncCollection(ctx, d, project, directoryId, "seasons", translations)
+	return client.syncCollection(ctx, d, project, directoryId, "seasons", translations)
 }
 
-func (client *Client) syncShows(ctx context.Context, d *directus.Handler, project Project, directoryId int) {
+func (client *Client) syncShows(ctx context.Context, d *directus.Handler, project Project, directoryId int) error {
 	published := getPublishedDictionary(d.ListShows(ctx))
 	translations := lo.Map(
 		lo.Filter(d.ListShowTranslations(ctx, "", false, 0), func(i directus.ShowsTranslation, _ int) bool {
@@ -379,26 +419,42 @@ func (client *Client) syncShows(ctx context.Context, d *directus.Handler, projec
 				ParentID:    t.ShowsID,
 			}
 		})
-	client.syncCollection(ctx, d, project, directoryId, "shows", translations)
+	return client.syncCollection(ctx, d, project, directoryId, "shows", translations)
 }
 
-func (client *Client) getProject(projectId int) Project {
+func (client *Client) getProject(projectId int) (Project, error) {
 	// TODO: Implement some kind of caching here
 	return getItem[Project](client, "projects", projectId)
 }
 
-func (client *Client) Sync(ctx context.Context, d *directus.Handler) {
+func (client *Client) Sync(ctx context.Context, d *directus.Handler) error {
 	log.L.Debug().Msg("Translation sync: Started")
 	projectIds := client.config.ProjectIDs
 	for _, id := range projectIds {
-		project := client.getProject(id)
-		directory := client.getDirectoryForProject(project)
+		project, err := client.getProject(id)
+		if err != nil {
+			return err
+		}
+		directory, err := client.getDirectoryForProject(project)
+		if err != nil {
+			return err
+		}
 
-		client.syncEpisodes(ctx, d, project, directory.ID)
-		client.syncSeasons(ctx, d, project, directory.ID)
-		client.syncShows(ctx, d, project, directory.ID)
+		err = client.syncEpisodes(ctx, d, project, directory.ID)
+		if err != nil {
+			return err
+		}
+		err = client.syncSeasons(ctx, d, project, directory.ID)
+		if err != nil {
+			return err
+		}
+		err = client.syncShows(ctx, d, project, directory.ID)
+		if err != nil {
+			return err
+		}
 	}
 	log.L.Debug().Msg("Translation sync: Done")
+	return nil
 }
 
 type TranslationSource interface {
@@ -411,8 +467,14 @@ type TranslationSource interface {
 func (client *Client) SaveTranslations(objects []TranslationSource) error {
 	log.L.Debug().Int("count", len(objects)).Msg("Syncing translations with Crowdin")
 	for _, projectId := range client.config.ProjectIDs {
-		project := client.getProject(projectId)
-		directory := client.getDirectoryForProject(project)
+		project, err := client.getProject(projectId)
+		if err != nil {
+			return err
+		}
+		directory, err := client.getDirectoryForProject(project)
+		if err != nil {
+			return err
+		}
 		fileIdByCollection := map[string]int{}
 		for _, o := range objects {
 			if project.SourceLanguageId != o.GetSourceLanguage() {
@@ -428,7 +490,10 @@ func (client *Client) SaveTranslations(objects []TranslationSource) error {
 				fileId = file.ID
 				fileIdByCollection[collection] = file.ID
 			}
-			sourceStrings := client.getStrings(project.ID, fileId)
+			sourceStrings, err := client.getStrings(project.ID, fileId)
+			if err != nil {
+				return err
+			}
 			for field, value := range o.GetValues() {
 				identifier := fmt.Sprintf("%s-%d-%s", collection, o.GetItemID(), field)
 				s, found := lo.Find(sourceStrings, func(s String) bool {
@@ -438,15 +503,21 @@ func (client *Client) SaveTranslations(objects []TranslationSource) error {
 					if s.Text != value {
 						s.Text = value
 						log.L.Debug().Str("identifier", s.Identifier).Msg("Updating string")
-						client.setString(project.ID, s)
+						_, err := client.setString(project.ID, s)
+						if err != nil {
+							return err
+						}
 					}
 				} else {
 					log.L.Debug().Str("identifier", identifier).Msg("Creating string")
-					client.addString(project.ID, fileId, String{
+					_, err = client.addString(project.ID, fileId, String{
 						FileID:     fileId,
 						Identifier: identifier,
 						Text:       value,
 					})
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}

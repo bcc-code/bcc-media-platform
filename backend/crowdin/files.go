@@ -43,12 +43,15 @@ type storageCreateResponse struct {
 	FileName string `json:"fileName"`
 }
 
-func incrementallyRetrieve[T any](factory func(limit int, offset int) []T) (result []T) {
+func incrementallyRetrieve[T any](factory func(limit int, offset int) ([]T, error)) (result []T, err error) {
 	resultLength := 0
 	offset := 0
 	limit := 100
 	for {
-		items := factory(limit, offset)
+		items, err := factory(limit, offset)
+		if err != nil {
+			return
+		}
 
 		resultLength = len(items)
 		result = append(result, items...)
@@ -62,37 +65,37 @@ func incrementallyRetrieve[T any](factory func(limit int, offset int) []T) (resu
 	return
 }
 
-func (client *Client) getTranslations(projectId int, fileId int, language string) []Translation {
-	return incrementallyRetrieve(func(limit int, offset int) []Translation {
+func (client *Client) getTranslations(projectId int, fileId int, language string) ([]Translation, error) {
+	return incrementallyRetrieve(func(limit int, offset int) ([]Translation, error) {
 		return getItems[Translation](client, fmt.Sprintf("projects/%d/languages/%s/translations", projectId, language), limit, offset, map[string]string{
 			"fileId": strconv.Itoa(fileId),
 		})
 	})
 }
 
-func (client *Client) getStrings(projectId int, fileId int) []String {
-	return incrementallyRetrieve(func(limit int, offset int) []String {
+func (client *Client) getStrings(projectId int, fileId int) ([]String, error) {
+	return incrementallyRetrieve(func(limit int, offset int) ([]String, error) {
 		return getItems[String](client, fmt.Sprintf("projects/%d/strings", projectId), limit, offset, map[string]string{
 			"fileId": strconv.Itoa(fileId),
 		})
 	})
 }
 
-func (client *Client) getFiles(projectId int, directoryId int) []File {
-	return incrementallyRetrieve(func(limit int, offset int) []File {
+func (client *Client) getFiles(projectId int, directoryId int) ([]File, error) {
+	return incrementallyRetrieve(func(limit int, offset int) ([]File, error) {
 		return getItems[File](client, fmt.Sprintf("projects/%d/files", projectId), limit, offset, map[string]string{
 			"directoryId": strconv.Itoa(directoryId),
 		})
 	})
 }
 
-func (client *Client) getDirectories(projectId int) []Directory {
-	return incrementallyRetrieve(func(limit int, offset int) []Directory {
+func (client *Client) getDirectories(projectId int) ([]Directory, error) {
+	return incrementallyRetrieve(func(limit int, offset int) ([]Directory, error) {
 		return getItems[Directory](client, fmt.Sprintf("projects/%d/directories", projectId), limit, offset, nil)
 	})
 }
 
-func (client *Client) setString(projectId int, s String) String {
+func (client *Client) setString(projectId int, s String) (r String, err error) {
 	req := client.c.R()
 	req.SetBody([]patchRequest{
 		{
@@ -105,12 +108,16 @@ func (client *Client) setString(projectId int, s String) String {
 	res, err := req.Patch(fmt.Sprintf("projects/%d/strings/%d", projectId, s.ID))
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to update string")
-		return String{}
+		return
 	}
-	return res.Result().(*Object[String]).Data
+	err = ensureSuccess(res)
+	if err == nil {
+		r = res.Result().(*Object[String]).Data
+	}
+	return
 }
 
-func (client *Client) addString(projectId int, fileId int, s String) String {
+func (client *Client) addString(projectId int, fileId int, s String) (r String, err error) {
 	req := client.c.R()
 	req.SetBody(addStringRequest{
 		Identifier: s.Identifier,
@@ -122,13 +129,21 @@ func (client *Client) addString(projectId int, fileId int, s String) String {
 	if err != nil {
 		log.L.Error().Err(err).Int("fileId", fileId).Msg("Failed to add string")
 	}
-	return res.Result().(*Object[String]).Data
+	err = ensureSuccess(res)
+	if err == nil {
+		r = res.Result().(*Object[String]).Data
+	}
+	return
 }
 
-func (client *Client) addStrings(projectId int, fileId int, strings []String) {
+func (client *Client) addStrings(projectId int, fileId int, strings []String) error {
 	for _, s := range strings {
-		client.addString(projectId, fileId, s)
+		_, err := client.addString(projectId, fileId, s)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func (client *Client) createFile(projectId int, directoryId int, title string, initialStrings []String) (file File, err error) {

@@ -32,7 +32,12 @@ func HandleEvent(ctx context.Context, services services, config config, event cl
 	switch event.Type() {
 	case events.TypeTranslationsSync:
 		handler := directus.NewHandler(services.GetDirectusClient())
-		go client.Sync(ctx, handler)
+		go func() {
+			err := client.Sync(ctx, handler)
+			if err != nil {
+				log.L.Error().Err(err).Msg("Failed to sync translations")
+			}
+		}()
 	default:
 		err = merry.New("Unsupported event")
 	}
