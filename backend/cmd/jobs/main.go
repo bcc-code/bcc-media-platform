@@ -33,6 +33,8 @@ func initializeDirectusEventHandler(directusClient *resty.Client, searchService 
 			searchHandler := searchService.NewRequestHandler(ctx)
 			searchHandler.IndexModel(collection, id)
 			directusHandler := directus.NewHandler(ctx, directusClient)
+
+			language := ""
 			var translations []crowdin.TranslationSource
 			switch collection {
 			case "shows":
@@ -41,7 +43,7 @@ func initializeDirectusEventHandler(directusClient *resty.Client, searchService 
 					return
 				}
 				translations = lo.Map(
-					directusHandler.ListShowTranslations("", false, id),
+					directusHandler.ListShowTranslations(language, false, id),
 					func(t directus.ShowsTranslation, _ int) crowdin.TranslationSource {
 						return t
 					})
@@ -51,7 +53,7 @@ func initializeDirectusEventHandler(directusClient *resty.Client, searchService 
 					return
 				}
 				translations = lo.Map(
-					directusHandler.ListSeasonTranslations("", false, id),
+					directusHandler.ListSeasonTranslations(language, false, id),
 					func(t directus.SeasonsTranslation, _ int) crowdin.TranslationSource {
 						return t
 					})
@@ -61,7 +63,7 @@ func initializeDirectusEventHandler(directusClient *resty.Client, searchService 
 					return
 				}
 				translations = lo.Map(
-					directusHandler.ListEpisodeTranslations("", false, id),
+					directusHandler.ListEpisodeTranslations(language, false, id),
 					func(t directus.EpisodesTranslation, _ int) crowdin.TranslationSource {
 						return t
 					})

@@ -3,7 +3,9 @@ package server
 import (
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"net/http"
+	"time"
 
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/events"
@@ -20,6 +22,18 @@ import (
 
 var (
 	errUndefinedHandler = merry.New("Handler for this message type is not defined")
+)
+
+var (
+	messageCache = cache.New[string, bool]()
+)
+
+var (
+	runOnceEvents = map[string]struct{}{
+		events.TypeSearchReindex:    {},
+		events.TypeTranslationsSync: {},
+		events.TypeDirectusEvent:    {},
+	}
 )
 
 // NewServer returns a new server for handling the HTTP requests
@@ -71,6 +85,16 @@ func (s server) ProcessMessage(c *gin.Context) {
 		Str("MsgId", e.ID()).
 		Str("Source", e.Source()).
 		Msg("processing message")
+
+	if _, ok := runOnceEvents[e.Type()]; ok {
+		if messageCache.Contains(e.ID()) {
+			log.L.Debug().Str("MsgId", e.ID()).Msg("ignoring processed message")
+			c.Status(http.StatusOK)
+			return
+		} else {
+			messageCache.Set(e.ID(), true, cache.WithExpiration(time.Minute*5))
+		}
+	}
 
 	switch e.Type() {
 	case events.TypeAssetDelivered:

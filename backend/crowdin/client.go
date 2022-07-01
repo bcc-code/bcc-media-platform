@@ -3,6 +3,7 @@ package crowdin
 import (
 	"fmt"
 	"github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/go-resty/resty/v2"
@@ -71,7 +72,7 @@ func getItems[t any](client *Client, endpoint string, limit int, offset int, que
 func createItem[t any](client *Client, endpoint string, item t) (i t) {
 	req := client.c.R()
 	req.SetBody(item)
-	req.SetResult(item)
+	req.SetResult(Object[t]{})
 	res, err := req.Post(endpoint)
 	if err != nil {
 		log.L.Error().Err(err).
@@ -79,7 +80,7 @@ func createItem[t any](client *Client, endpoint string, item t) (i t) {
 			Msg("Failed to create item")
 		return
 	}
-	return *res.Result().(*t)
+	return res.Result().(*Object[t]).Data
 }
 
 type simpleTranslation struct {
@@ -157,15 +158,15 @@ func (client *Client) getDirectoryForProject(project Project) Directory {
 
 	var directory *Directory
 	for _, d := range directories {
-		if d.Name == "Content" {
+		if d.Name == "content" {
 			directory = &d
 		}
 	}
 	if directory == nil {
-		directory = &Directory{
-			Name: "Content",
-		}
-		createItem(client, fmt.Sprintf("projects/%d/directories", project.ID), *directory)
+		dir := createItem(client, fmt.Sprintf("projects/%d/directories", project.ID), Directory{
+			Name: "content",
+		})
+		directory = &dir
 	}
 
 	return *directory
@@ -314,42 +315,69 @@ func (client *Client) syncCollection(d *directus.Handler, project Project, direc
 	pushTranslations(true)
 }
 
+type hasStatus interface {
+	UID() int
+	GetStatus() string
+}
+
+func getPublishedDictionary[t hasStatus](items []t) map[int]bool {
+	return lo.Reduce(items, func(dict map[int]bool, i t, _ int) map[int]bool {
+		dict[i.UID()] = i.GetStatus() == common.StatusPublished
+		return dict
+	}, map[int]bool{})
+}
+
 func (client *Client) syncEpisodes(d *directus.Handler, project Project, directoryId int) {
-	translations := lo.Map(d.ListEpisodeTranslations("", false, 0), func(t directus.EpisodesTranslation, _ int) simpleTranslation {
-		return simpleTranslation{
-			ID:          t.ID,
-			Description: t.Description,
-			Title:       t.Title,
-			Language:    t.LanguagesCode,
-			ParentID:    t.EpisodesID,
-		}
-	})
+	published := getPublishedDictionary(d.ListEpisodes())
+	translations := lo.Map(
+		lo.Filter(d.ListEpisodeTranslations("", false, 0), func(i directus.EpisodesTranslation, _ int) bool {
+			return published[i.EpisodesID]
+		}),
+		func(t directus.EpisodesTranslation, _ int) simpleTranslation {
+			return simpleTranslation{
+				ID:          t.ID,
+				Description: t.Description,
+				Title:       t.Title,
+				Language:    t.LanguagesCode,
+				ParentID:    t.EpisodesID,
+			}
+		})
 	client.syncCollection(d, project, directoryId, "episodes", translations)
 }
 
 func (client *Client) syncSeasons(d *directus.Handler, project Project, directoryId int) {
-	translations := lo.Map(d.ListSeasonTranslations("", false, 0), func(t directus.SeasonsTranslation, _ int) simpleTranslation {
-		return simpleTranslation{
-			ID:          t.ID,
-			Description: t.Description,
-			Title:       t.Title,
-			Language:    t.LanguagesCode,
-			ParentID:    t.SeasonsID,
-		}
-	})
+	published := getPublishedDictionary(d.ListSeasons())
+	translations := lo.Map(
+		lo.Filter(d.ListSeasonTranslations("", false, 0), func(i directus.SeasonsTranslation, _ int) bool {
+			return published[i.SeasonsID]
+		}),
+		func(t directus.SeasonsTranslation, _ int) simpleTranslation {
+			return simpleTranslation{
+				ID:          t.ID,
+				Description: t.Description,
+				Title:       t.Title,
+				Language:    t.LanguagesCode,
+				ParentID:    t.SeasonsID,
+			}
+		})
 	client.syncCollection(d, project, directoryId, "seasons", translations)
 }
 
 func (client *Client) syncShows(d *directus.Handler, project Project, directoryId int) {
-	translations := lo.Map(d.ListShowTranslations("", false, 0), func(t directus.ShowsTranslation, _ int) simpleTranslation {
-		return simpleTranslation{
-			ID:          t.ID,
-			Description: t.Description,
-			Title:       t.Title,
-			Language:    t.LanguagesCode,
-			ParentID:    t.ShowsID,
-		}
-	})
+	published := getPublishedDictionary(d.ListShows())
+	translations := lo.Map(
+		lo.Filter(d.ListShowTranslations("", false, 0), func(i directus.ShowsTranslation, _ int) bool {
+			return published[i.ShowsID]
+		}),
+		func(t directus.ShowsTranslation, _ int) simpleTranslation {
+			return simpleTranslation{
+				ID:          t.ID,
+				Description: t.Description,
+				Title:       t.Title,
+				Language:    t.LanguagesCode,
+				ParentID:    t.ShowsID,
+			}
+		})
 	client.syncCollection(d, project, directoryId, "shows", translations)
 }
 
@@ -362,22 +390,8 @@ func (client *Client) Sync(d *directus.Handler) {
 	projectIds := client.config.ProjectIDs
 	for _, id := range projectIds {
 		project := client.getProject(id)
-		directories := client.getDirectories(project.ID)
+		directory := client.getDirectoryForProject(project)
 
-		var directory *Directory
-		for _, d := range directories {
-			if d.Name == "Content" {
-				directory = &d
-			}
-		}
-		if directory == nil {
-			directory = &Directory{
-				Name: "Content",
-			}
-			createItem(client, fmt.Sprintf("projects/%d/directories", project.ID), *directory)
-		}
-
-		log.L.Debug().Msgf("Retrieved %d directories", len(directories))
 		client.syncEpisodes(d, project, directory.ID)
 		client.syncSeasons(d, project, directory.ID)
 		client.syncShows(d, project, directory.ID)

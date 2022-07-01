@@ -2,6 +2,7 @@ import { PubSub } from "@google-cloud/pubsub"
 import { Collection, Event } from "."
 import { CloudEvent } from "cloudevents"
 import { ActionHandler } from "@directus/shared/src/types"
+import { v4 as uuid } from "uuid"
 
 const projectId = process.env.PUBSUB_PROJECT_ID
 const pubsub = new PubSub({projectId})
@@ -17,6 +18,7 @@ export function handleEvent(eventName: string) {
             }
             const topic = pubsub.topic("background-jobs")
             const e = new CloudEvent({
+                id: uuid(),
                 type: "directus.event",
                 source: "directus",
                 data: {

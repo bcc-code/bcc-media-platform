@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/google/uuid"
 	"time"
 
 	"cloud.google.com/go/pubsub"
@@ -126,6 +127,7 @@ func simpleEvent(projectID string, topicID string, event string) {
 	defer client.Close()
 
 	e := cloudevents.NewEvent()
+	e.SetID(uuid.New().String())
 	e.SetSource("pubsub-helper")
 	e.SetType(event)
 

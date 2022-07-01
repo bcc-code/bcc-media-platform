@@ -25,9 +25,9 @@ type Project struct {
 }
 
 type Directory struct {
-	ID    int    `json:"id"`
+	ID    int    `json:"id,omitempty"`
 	Name  string `json:"name"`
-	Title string `json:"title"`
+	Title string `json:"title,omitempty"`
 }
 
 type File struct {
