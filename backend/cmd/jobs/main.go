@@ -54,7 +54,6 @@ func main() {
 
 	utils.MustSetupTracing()
 	ctx, span := otel.Tracer("jobs/core").Start(ctx, "init")
-	defer span.End()
 
 	config := getEnvConfig()
 
@@ -118,6 +117,8 @@ func main() {
 	{
 		apiGroup.POST("message", handlers.ProcessMessage)
 	}
+
+	span.End()
 
 	err = router.Run(":" + config.Port)
 	if err != nil {

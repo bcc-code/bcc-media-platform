@@ -29,7 +29,7 @@ var (
 )
 
 var (
-	runOnceEvents = map[string]struct{}{
+	runOnceOnNode = map[string]struct{}{
 		events.TypeSearchReindex:    {},
 		events.TypeTranslationsSync: {},
 		events.TypeDirectusEvent:    {},
@@ -86,7 +86,7 @@ func (s server) ProcessMessage(c *gin.Context) {
 		Str("Source", e.Source()).
 		Msg("processing message")
 
-	if _, ok := runOnceEvents[e.Type()]; ok {
+	if _, ok := runOnceOnNode[e.Type()]; ok {
 		if messageCache.Contains(e.ID()) {
 			log.L.Debug().Str("MsgId", e.ID()).Msg("ignoring processed message")
 			c.Status(http.StatusOK)
@@ -104,7 +104,7 @@ func (s server) ProcessMessage(c *gin.Context) {
 	case events.TypeDirectusEvent:
 		err = s.services.GetDirectusEventHandler().ProcessCloudEvent(ctx, e)
 	case events.TypeSearchReindex:
-		s.services.GetSearchService().NewRequestHandler().Reindex(ctx)
+		go s.services.GetSearchService().NewRequestHandler().Reindex(ctx)
 	case events.TypeTranslationsSync:
 		err = crowdin.HandleEvent(ctx, s.services, s.config, e)
 	default:

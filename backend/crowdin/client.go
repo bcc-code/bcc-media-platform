@@ -388,6 +388,7 @@ func (client *Client) getProject(projectId int) Project {
 }
 
 func (client *Client) Sync(ctx context.Context, d *directus.Handler) {
+	log.L.Debug().Msg("Translation sync: Started")
 	projectIds := client.config.ProjectIDs
 	for _, id := range projectIds {
 		project := client.getProject(id)
@@ -397,6 +398,7 @@ func (client *Client) Sync(ctx context.Context, d *directus.Handler) {
 		client.syncSeasons(ctx, d, project, directory.ID)
 		client.syncShows(ctx, d, project, directory.ID)
 	}
+	log.L.Debug().Msg("Translation sync: Done")
 }
 
 type TranslationSource interface {
@@ -449,5 +451,6 @@ func (client *Client) SaveTranslations(objects []TranslationSource) error {
 			}
 		}
 	}
+	log.L.Debug().Msg("Saved translations")
 	return nil
 }

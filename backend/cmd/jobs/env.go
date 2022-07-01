@@ -52,6 +52,12 @@ func getEnvConfig() envConfig {
 	// Error is intentionally ignored, if not set default to FALSE
 	deleteIngestFilesStringBool, _ := strconv.ParseBool(deleteIngestFilesString)
 
+	crowdinProjectIDs := lo.Map(strings.Split(os.Getenv("CROWDIN_PROJECT_IDS"), ","),
+		func(s string, _ int) int {
+			r, _ := strconv.ParseInt(s, 10, 64)
+			return int(r)
+		})
+
 	return envConfig{
 		Port:              os.Getenv("PORT"),
 		DeleteIngestFiles: deleteIngestFilesStringBool,
@@ -76,12 +82,8 @@ func getEnvConfig() envConfig {
 			SearchOnlyApiKey: os.Getenv("ALGOLIA_SEARCH_ONLY_API_KEY"),
 		},
 		Crowdin: crowdinConfig{
-			Token: os.Getenv("CROWDIN_TOKEN"),
-			ProjectIDs: lo.Map(strings.Split(os.Getenv("CROWDIN_PROJECT_IDS"), ","),
-				func(s string, _ int) int {
-					r, _ := strconv.ParseInt(s, 10, 64)
-					return int(r)
-				}),
+			Token:      os.Getenv("CROWDIN_TOKEN"),
+			ProjectIDs: crowdinProjectIDs,
 		},
 	}
 }

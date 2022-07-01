@@ -32,7 +32,7 @@ func HandleEvent(ctx context.Context, services services, config config, event cl
 	switch event.Type() {
 	case events.TypeTranslationsSync:
 		handler := directus.NewHandler(services.GetDirectusClient())
-		client.Sync(ctx, handler)
+		go client.Sync(ctx, handler)
 	default:
 		err = merry.New("Unsupported event")
 	}
