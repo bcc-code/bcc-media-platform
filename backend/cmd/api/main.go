@@ -100,20 +100,7 @@ func main() {
 		if config.Algolia.SearchOnlyApiKey != "" {
 			searchGroup.GET("key", searchKeyHandler(searchService))
 		}
-		//
-		//log.L.Debug().Msg("Setting up endpoint for scheduled search indexing")
-		//searchGroup.GET("index", searchIndexHandler(searchService))
 	}
-
-	//dClient := directus.New(config.Directus.Host, config.Directus.Token, false)
-	//
-	//r.GET("/translations/sync", func(c *gin.Context) {
-	//	dHandler := directus.NewHandler(ctx, dClient)
-	//	crowdinClient := crowdin.New(config.Crowdin.Token, crowdin.ClientConfig{
-	//		ProjectIDs: config.Crowdin.ProjectIDs,
-	//	})
-	//	crowdinClient.Sync(dHandler)
-	//})
 
 	span.End()
 

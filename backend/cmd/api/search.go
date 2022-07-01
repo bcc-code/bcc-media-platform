@@ -7,14 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func searchIndexHandler(client *search.Service) func(*gin.Context) {
-	return func(c *gin.Context) {
-		handler := client.NewRequestHandler(c)
-		handler.Reindex()
-		_, _ = c.Writer.WriteString("Indexed all documents")
-	}
-}
-
 func searchQueryHandler(client *search.Service) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var query common.SearchQuery
