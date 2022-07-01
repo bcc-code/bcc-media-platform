@@ -10,6 +10,15 @@ import (
 	"strconv"
 )
 
+var RequestFailed = merry.Sentinel("Request failed")
+
+func ensureSuccess(res *resty.Response) (err error) {
+	if res.IsError() {
+		err = merry.Wrap(RequestFailed, merry.WithHTTPCode(res.StatusCode()), merry.WithMessage(res.String()))
+	}
+	return
+}
+
 // New client for Directus
 //
 // Note: Setting debug to `true` will dump all data sent and received as logs
@@ -97,7 +106,11 @@ func GetItem[t DSItem](ctx context.Context, c *resty.Client, collection string, 
 	if err != nil {
 		return
 	}
-	return res.Result().(*struct{ Data t }).Data, nil
+	err = ensureSuccess(res)
+	if err == nil {
+		item = res.Result().(*struct{ Data t }).Data
+	}
+	return
 }
 
 func ListItems[t DSItem](ctx context.Context, c *resty.Client, collection string, queryParams map[string]string) (items []t, err error) {
@@ -122,6 +135,10 @@ func ListItems[t DSItem](ctx context.Context, c *resty.Client, collection string
 			}
 		}
 		res, err := req.Get(path)
+		if err != nil {
+			return nil, err
+		}
+		err = ensureSuccess(res)
 		if err != nil {
 			return nil, err
 		}

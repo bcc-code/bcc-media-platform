@@ -2,7 +2,6 @@ package directus
 
 import (
 	"context"
-	"github.com/bcc-code/mediabank-bridge/log"
 )
 
 type Item struct {
@@ -46,42 +45,26 @@ func (i Show) TypeName() string {
 	return "shows"
 }
 
-func getAndHandleError[t DSItem](ctx context.Context, h *Handler, collection string, id int) (item t) {
-	item, err := GetItem[t](ctx, h.c, collection, id)
-	if err != nil {
-		log.L.Error().Err(err).Str("collection", collection).Msg("failed to get item")
-	}
-	return
+func (h *Handler) GetEpisode(ctx context.Context, id int) (Episode, error) {
+	return GetItem[Episode](ctx, h.c, "episodes", id)
 }
 
-func (h *Handler) GetEpisode(ctx context.Context, id int) Episode {
-	return getAndHandleError[Episode](ctx, h, "episodes", id)
+func (h *Handler) GetSeason(ctx context.Context, id int) (Season, error) {
+	return GetItem[Season](ctx, h.c, "seasons", id)
 }
 
-func (h *Handler) GetSeason(ctx context.Context, id int) Season {
-	return getAndHandleError[Season](ctx, h, "seasons", id)
+func (h *Handler) GetShow(ctx context.Context, id int) (Show, error) {
+	return GetItem[Show](ctx, h.c, "shows", id)
 }
 
-func (h *Handler) GetShow(ctx context.Context, id int) Show {
-	return getAndHandleError[Show](ctx, h, "shows", id)
+func (h *Handler) ListEpisodes(ctx context.Context) ([]Episode, error) {
+	return ListItems[Episode](ctx, h.c, "episodes", nil)
 }
 
-func listAndHandleError[t DSItem](ctx context.Context, h *Handler, collection string) (items []t) {
-	items, err := ListItems[t](ctx, h.c, collection, nil)
-	if err != nil {
-		log.L.Error().Err(err).Str("collection", collection).Msg("failed to list")
-	}
-	return
+func (h *Handler) ListSeasons(ctx context.Context) ([]Season, error) {
+	return ListItems[Season](ctx, h.c, "seasons", nil)
 }
 
-func (h *Handler) ListEpisodes(ctx context.Context) (items []Episode) {
-	return listAndHandleError[Episode](ctx, h, "episodes")
-}
-
-func (h *Handler) ListSeasons(ctx context.Context) []Season {
-	return listAndHandleError[Season](ctx, h, "seasons")
-}
-
-func (h *Handler) ListShows(ctx context.Context) []Show {
-	return listAndHandleError[Show](ctx, h, "shows")
+func (h *Handler) ListShows(ctx context.Context) ([]Show, error) {
+	return ListItems[Show](ctx, h.c, "shows", nil)
 }

@@ -3,8 +3,10 @@ package crowdin
 import (
 	"encoding/json"
 	"fmt"
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"strconv"
+	"time"
 )
 
 type addStringRequest struct {
@@ -43,6 +45,17 @@ type storageCreateResponse struct {
 	FileName string `json:"fileName"`
 }
 
+func getFromCacheOrIncrementallyRetrieve[K comparable, T any](cacheSource *cache.Cache[K, []T], key K, factory func(limit int, offset int) ([]T, error)) (result []T, err error) {
+	if r, ok := cacheSource.Get(key); ok {
+		return r, nil
+	}
+	result, err = incrementallyRetrieve(factory)
+	if err == nil {
+		cacheSource.Set(key, result, cache.WithExpiration(time.Minute*5))
+	}
+	return
+}
+
 func incrementallyRetrieve[T any](factory func(limit int, offset int) ([]T, error)) (result []T, err error) {
 	resultLength := 0
 	offset := 0
@@ -62,6 +75,7 @@ func incrementallyRetrieve[T any](factory func(limit int, offset int) ([]T, erro
 		}
 		break
 	}
+
 	return
 }
 
@@ -89,8 +103,10 @@ func (client *Client) getFiles(projectId int, directoryId int) ([]File, error) {
 	})
 }
 
+var directoriesCache = cache.New[int, []Directory]()
+
 func (client *Client) getDirectories(projectId int) ([]Directory, error) {
-	return incrementallyRetrieve(func(limit int, offset int) ([]Directory, error) {
+	return getFromCacheOrIncrementallyRetrieve(directoriesCache, projectId, func(limit int, offset int) ([]Directory, error) {
 		return getItems[Directory](client, fmt.Sprintf("projects/%d/directories", projectId), limit, offset, nil)
 	})
 }
@@ -159,9 +175,13 @@ func (client *Client) createFile(projectId int, directoryId int, title string, i
 	req.SetResult(Object[storageCreateResponse]{})
 	res, err := req.Post("storages")
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to create storage file")
 		return
 	}
+	err = ensureSuccess(res)
+	if err != nil {
+		return
+	}
+
 	storage := res.Result().(*Object[storageCreateResponse]).Data
 
 	req = client.c.R()
@@ -181,5 +201,12 @@ func (client *Client) createFile(projectId int, directoryId int, title string, i
 	})
 	req.SetResult(Object[File]{})
 	res, err = req.Post(fmt.Sprintf("projects/%d/files", projectId))
-	return res.Result().(*Object[File]).Data, nil
+	if err != nil {
+		return
+	}
+	err = ensureSuccess(res)
+	if err == nil {
+		file = res.Result().(*Object[File]).Data
+	}
+	return
 }

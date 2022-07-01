@@ -3,6 +3,7 @@ package crowdin
 import (
 	"context"
 	"fmt"
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/directus"
@@ -11,6 +12,7 @@ import (
 	"github.com/samber/lo"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type ClientConfig struct {
@@ -24,6 +26,13 @@ type Client struct {
 
 var RequestFailed = merry.Sentinel("Request failed")
 
+func ensureSuccess(res *resty.Response) (err error) {
+	if res.IsError() {
+		err = merry.Wrap(RequestFailed, merry.WithHTTPCode(res.StatusCode()), merry.WithMessage(res.String()))
+	}
+	return
+}
+
 func New(token string, config ClientConfig) *Client {
 	c := resty.New().
 		SetBaseURL("https://api.crowdin.com/api/v2/").
@@ -32,13 +41,6 @@ func New(token string, config ClientConfig) *Client {
 		c,
 		config,
 	}
-}
-
-func ensureSuccess(res *resty.Response) (err error) {
-	if !res.IsSuccess() {
-		err = merry.Wrap(RequestFailed, merry.WithHTTPCode(res.StatusCode()), merry.WithMessage(res.String()))
-	}
-	return
 }
 
 func getItem[t any](client *Client, endpoint string, id int) (item t, err error) {
@@ -177,7 +179,13 @@ func toDSItems(collection string, translations []simpleTranslation) []directus.D
 	}
 }
 
+var directoryCache = cache.New[int, Directory]()
+
 func (client *Client) getDirectoryForProject(project Project) (d Directory, err error) {
+	if dir, ok := directoryCache.Get(project.ID); ok {
+		return dir, nil
+	}
+
 	directories, err := client.getDirectories(project.ID)
 	if err != nil {
 		return
@@ -198,6 +206,8 @@ func (client *Client) getDirectoryForProject(project Project) (d Directory, err 
 		}
 		directory = &dir
 	}
+
+	directoryCache.Set(project.ID, *directory, cache.WithExpiration(time.Minute*5))
 
 	return *directory, nil
 }
@@ -271,12 +281,16 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 
 	var queuedTranslations []simpleTranslation
 
-	pushTranslations := func(force bool) {
+	pushTranslations := func(force bool) error {
 		if length := len(queuedTranslations); length > 100 || (force && length > 0) {
 			log.L.Debug().Str("collection", collection).Int("count", length).Msg("Pushing translations to database")
-			d.SaveTranslations(ctx, toDSItems(collection, queuedTranslations))
+			err = d.SaveTranslations(ctx, toDSItems(collection, queuedTranslations))
+			if err != nil {
+				return err
+			}
 			queuedTranslations = nil
 		}
+		return nil
 	}
 
 	for _, language := range project.TargetLanguages {
@@ -352,9 +366,15 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 				return *i
 			},
 		)...)
-		pushTranslations(false)
+		err = pushTranslations(false)
+		if err != nil {
+			return err
+		}
 	}
-	pushTranslations(true)
+	err = pushTranslations(true)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -371,9 +391,17 @@ func getPublishedDictionary[t hasStatus](items []t) map[int]bool {
 }
 
 func (client *Client) syncEpisodes(ctx context.Context, d *directus.Handler, project Project, directoryId int) error {
-	published := getPublishedDictionary(d.ListEpisodes(ctx))
+	episodes, err := d.ListEpisodes(ctx)
+	if err != nil {
+		return err
+	}
+	published := getPublishedDictionary(episodes)
+	sourceTranslations, err := d.ListEpisodeTranslations(ctx, "", false, 0)
+	if err != nil {
+		return err
+	}
 	translations := lo.Map(
-		lo.Filter(d.ListEpisodeTranslations(ctx, "", false, 0), func(i directus.EpisodesTranslation, _ int) bool {
+		lo.Filter(sourceTranslations, func(i directus.EpisodesTranslation, _ int) bool {
 			return published[i.EpisodesID]
 		}),
 		func(t directus.EpisodesTranslation, _ int) simpleTranslation {
@@ -389,9 +417,17 @@ func (client *Client) syncEpisodes(ctx context.Context, d *directus.Handler, pro
 }
 
 func (client *Client) syncSeasons(ctx context.Context, d *directus.Handler, project Project, directoryId int) error {
-	published := getPublishedDictionary(d.ListSeasons(ctx))
+	seasons, err := d.ListSeasons(ctx)
+	if err != nil {
+		return err
+	}
+	published := getPublishedDictionary(seasons)
+	sourceTranslations, err := d.ListSeasonTranslations(ctx, "", false, 0)
+	if err != nil {
+		return err
+	}
 	translations := lo.Map(
-		lo.Filter(d.ListSeasonTranslations(ctx, "", false, 0), func(i directus.SeasonsTranslation, _ int) bool {
+		lo.Filter(sourceTranslations, func(i directus.SeasonsTranslation, _ int) bool {
 			return published[i.SeasonsID]
 		}),
 		func(t directus.SeasonsTranslation, _ int) simpleTranslation {
@@ -407,9 +443,17 @@ func (client *Client) syncSeasons(ctx context.Context, d *directus.Handler, proj
 }
 
 func (client *Client) syncShows(ctx context.Context, d *directus.Handler, project Project, directoryId int) error {
-	published := getPublishedDictionary(d.ListShows(ctx))
+	shows, err := d.ListShows(ctx)
+	if err != nil {
+		return err
+	}
+	published := getPublishedDictionary(shows)
+	sourceTranslations, err := d.ListShowTranslations(ctx, "", false, 0)
+	if err != nil {
+		return err
+	}
 	translations := lo.Map(
-		lo.Filter(d.ListShowTranslations(ctx, "", false, 0), func(i directus.ShowsTranslation, _ int) bool {
+		lo.Filter(sourceTranslations, func(i directus.ShowsTranslation, _ int) bool {
 			return published[i.ShowsID]
 		}),
 		func(t directus.ShowsTranslation, _ int) simpleTranslation {
@@ -424,9 +468,18 @@ func (client *Client) syncShows(ctx context.Context, d *directus.Handler, projec
 	return client.syncCollection(ctx, d, project, directoryId, "shows", translations)
 }
 
-func (client *Client) getProject(projectId int) (Project, error) {
-	// TODO: Implement some kind of caching here
-	return getItem[Project](client, "projects", projectId)
+var projectCache = cache.New[int, Project]()
+
+func (client *Client) getProject(projectId int) (i Project, err error) {
+	if p, ok := projectCache.Get(projectId); ok {
+		return p, nil
+	}
+	i, err = getItem[Project](client, "projects", projectId)
+	if err != nil {
+		return
+	}
+	projectCache.Set(projectId, i, cache.WithExpiration(time.Minute*5))
+	return
 }
 
 func (client *Client) Sync(ctx context.Context, d *directus.Handler) error {

@@ -86,6 +86,7 @@ func (s server) ProcessMessage(c *gin.Context) {
 		Str("Source", e.Source()).
 		Msg("processing message")
 
+	// Mostly for local development. Run exactly once is enabled in cloud
 	if _, ok := runOnceOnNode[e.Type()]; ok {
 		if messageCache.Contains(e.ID()) {
 			log.L.Debug().Str("MsgId", e.ID()).Msg("ignoring processed message")

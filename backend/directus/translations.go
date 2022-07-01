@@ -154,38 +154,34 @@ func initListQueryParams(language string, primary bool, parentId int, parentProp
 	return params
 }
 
-func listTranslations[t DSItem](ctx context.Context, h *Handler, collection string, queryParams map[string]string) (translations []t) {
-	translations, err := ListItems[t](ctx, h.c, collection, queryParams)
-	if err != nil {
-		log.L.Error().Err(err)
-	}
-	return
+func listTranslations[t DSItem](ctx context.Context, h *Handler, collection string, queryParams map[string]string) (translations []t, err error) {
+	return ListItems[t](ctx, h.c, collection, queryParams)
 }
 
-func (h *Handler) ListEpisodeTranslations(ctx context.Context, language string, primary bool, episodeId int) []EpisodesTranslation {
+func (h *Handler) ListEpisodeTranslations(ctx context.Context, language string, primary bool, episodeId int) ([]EpisodesTranslation, error) {
 	return listTranslations[EpisodesTranslation](ctx, h, "episodes_translations",
 		initListQueryParams(language, primary, episodeId, "episodes_id"),
 	)
 }
 
-func (h *Handler) ListSeasonTranslations(ctx context.Context, language string, primary bool, seasonId int) []SeasonsTranslation {
+func (h *Handler) ListSeasonTranslations(ctx context.Context, language string, primary bool, seasonId int) ([]SeasonsTranslation, error) {
 	return listTranslations[SeasonsTranslation](ctx, h, "seasons_translations",
 		initListQueryParams(language, primary, seasonId, "seasons_id"),
 	)
 }
 
-func (h *Handler) ListShowTranslations(ctx context.Context, language string, primary bool, showId int) (translations []ShowsTranslation) {
+func (h *Handler) ListShowTranslations(ctx context.Context, language string, primary bool, showId int) ([]ShowsTranslation, error) {
 	return listTranslations[ShowsTranslation](ctx, h, "shows_translations",
 		initListQueryParams(language, primary, showId, "shows_id"),
 	)
 }
 
-func (h *Handler) SaveTranslations(ctx context.Context, translations []DSItem) {
+func (h *Handler) SaveTranslations(ctx context.Context, translations []DSItem) error {
 	for _, item := range translations {
 		_, err := SaveItem(ctx, h.c, item, false)
 		if err != nil {
-			log.L.Error().Err(err).Msg("Failed to save translations")
-			return
+			return err
 		}
 	}
+	return nil
 }

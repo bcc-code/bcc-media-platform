@@ -12,6 +12,8 @@ import (
 	"github.com/samber/lo"
 )
 
+var CollectionNotSupported = merry.Sentinel("collection not supported")
+
 type PubSubEvent struct {
 	Type string `json:"type"`
 }
@@ -32,16 +34,9 @@ func HandleEvent(ctx context.Context, services services, config config, event cl
 	switch event.Type() {
 	case events.TypeTranslationsSync:
 		handler := directus.NewHandler(services.GetDirectusClient())
-		go func() {
-			err := client.Sync(ctx, handler)
-			if err != nil {
-				log.L.Error().Err(err).Msg("Failed to sync translations")
-			}
-		}()
-	default:
-		err = merry.New("Unsupported event")
+		return client.Sync(ctx, handler)
 	}
-	return
+	return merry.New("Unsupported event")
 }
 
 func toTranslationSources[t TranslationSource](items []t) []TranslationSource {
@@ -50,42 +45,59 @@ func toTranslationSources[t TranslationSource](items []t) []TranslationSource {
 	})
 }
 
-func getStatusForItem(ctx context.Context, d *directus.Handler, collection string, id int) string {
+func getStatusForItem(ctx context.Context, d *directus.Handler, collection string, id int) (status string, err error) {
+	var i hasStatus
 	switch collection {
 	case "shows":
-		return d.GetShow(ctx, id).GetStatus()
+		i, err = d.GetShow(ctx, id)
 	case "seasons":
-		return d.GetSeason(ctx, id).GetStatus()
+		i, err = d.GetSeason(ctx, id)
 	case "episodes":
-		return d.GetEpisode(ctx, id).GetStatus()
+		i, err = d.GetEpisode(ctx, id)
 	}
-	return ""
+	if err == nil {
+		status = i.GetStatus()
+	}
+	return
 }
 
-func getTranslationsForItem(ctx context.Context, d *directus.Handler, collection string, id int, language string) []TranslationSource {
+func getTranslationsForItem(ctx context.Context, d *directus.Handler, collection string, id int, language string) ([]TranslationSource, error) {
 	switch collection {
 	case "shows":
-		return toTranslationSources(d.ListShowTranslations(ctx, language, false, id))
+		ts, err := d.ListShowTranslations(ctx, language, false, id)
+		if err != nil {
+			return nil, err
+		}
+		return toTranslationSources(ts), nil
 	case "seasons":
-		return toTranslationSources(d.ListSeasonTranslations(ctx, language, false, id))
+		ts, err := d.ListSeasonTranslations(ctx, language, false, id)
+		if err != nil {
+			return nil, err
+		}
+		return toTranslationSources(ts), nil
 	case "episodes":
-		return toTranslationSources(d.ListEpisodeTranslations(ctx, language, false, id))
+		ts, err := d.ListEpisodeTranslations(ctx, language, false, id)
+		if err != nil {
+			return nil, err
+		}
+		return toTranslationSources(ts), nil
 	}
-	return nil
+	return nil, CollectionNotSupported
 }
 
-func (client *Client) HandleModelUpdate(ctx context.Context, directusHandler *directus.Handler, collection string, id int) {
-	if getStatusForItem(ctx, directusHandler, collection, id) != common.StatusPublished {
-		return
+func (client *Client) HandleModelUpdate(ctx context.Context, directusHandler *directus.Handler, collection string, id int) error {
+	if status, err := getStatusForItem(ctx, directusHandler, collection, id); err != nil || status != common.StatusPublished {
+		// Return error, else just ignore if not published
+		return err
 	}
-	translations := getTranslationsForItem(ctx, directusHandler, collection, id, "")
-	if len(translations) == 0 {
-		return
-	}
-	err := client.SaveTranslations(translations)
+	translations, err := getTranslationsForItem(ctx, directusHandler, collection, id, "")
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to insert translations")
+		return err
 	}
+	if len(translations) == 0 {
+		return nil
+	}
+	return client.SaveTranslations(translations)
 }
 
 func (client *Client) HandleModelDelete(collection string, id int) {
