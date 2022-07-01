@@ -1,6 +1,7 @@
 package directus
 
 import (
+	"context"
 	"fmt"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"strconv"
@@ -115,24 +116,24 @@ func (i ShowsTranslation) GetItemID() int {
 	return i.ShowsID
 }
 
-func (h *Handler) GetEpisodeTranslation(id int) (translation EpisodesTranslation) {
-	translation, err := GetItem[EpisodesTranslation](h.ctx, h.c, "episodes_translations", id)
+func (h *Handler) GetEpisodeTranslation(ctx context.Context, id int) (translation EpisodesTranslation) {
+	translation, err := GetItem[EpisodesTranslation](ctx, h.c, "episodes_translations", id)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to retrieve translation")
 	}
 	return
 }
 
-func (h *Handler) GetSeasonTranslation(id int) (translation SeasonsTranslation) {
-	translation, err := GetItem[SeasonsTranslation](h.ctx, h.c, "seasons_translations", id)
+func (h *Handler) GetSeasonTranslation(ctx context.Context, id int) (translation SeasonsTranslation) {
+	translation, err := GetItem[SeasonsTranslation](ctx, h.c, "seasons_translations", id)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to retrieve translation")
 	}
 	return
 }
 
-func (h *Handler) GetShowTranslation(id int) (translation ShowsTranslation) {
-	translation, err := GetItem[ShowsTranslation](h.ctx, h.c, "shows_translations", id)
+func (h *Handler) GetShowTranslation(ctx context.Context, id int) (translation ShowsTranslation) {
+	translation, err := GetItem[ShowsTranslation](ctx, h.c, "shows_translations", id)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to retrieve translation")
 	}
@@ -153,35 +154,35 @@ func initListQueryParams(language string, primary bool, parentId int, parentProp
 	return params
 }
 
-func listTranslations[t DSItem](h *Handler, collection string, queryParams map[string]string) (translations []t) {
-	translations, err := ListItems[t](h.ctx, h.c, collection, queryParams)
+func listTranslations[t DSItem](ctx context.Context, h *Handler, collection string, queryParams map[string]string) (translations []t) {
+	translations, err := ListItems[t](ctx, h.c, collection, queryParams)
 	if err != nil {
 		log.L.Error().Err(err)
 	}
 	return
 }
 
-func (h *Handler) ListEpisodeTranslations(language string, primary bool, episodeId int) []EpisodesTranslation {
-	return listTranslations[EpisodesTranslation](h, "episodes_translations",
+func (h *Handler) ListEpisodeTranslations(ctx context.Context, language string, primary bool, episodeId int) []EpisodesTranslation {
+	return listTranslations[EpisodesTranslation](ctx, h, "episodes_translations",
 		initListQueryParams(language, primary, episodeId, "episodes_id"),
 	)
 }
 
-func (h *Handler) ListSeasonTranslations(language string, primary bool, seasonId int) []SeasonsTranslation {
-	return listTranslations[SeasonsTranslation](h, "seasons_translations",
+func (h *Handler) ListSeasonTranslations(ctx context.Context, language string, primary bool, seasonId int) []SeasonsTranslation {
+	return listTranslations[SeasonsTranslation](ctx, h, "seasons_translations",
 		initListQueryParams(language, primary, seasonId, "seasons_id"),
 	)
 }
 
-func (h *Handler) ListShowTranslations(language string, primary bool, showId int) (translations []ShowsTranslation) {
-	return listTranslations[ShowsTranslation](h, "shows_translations",
+func (h *Handler) ListShowTranslations(ctx context.Context, language string, primary bool, showId int) (translations []ShowsTranslation) {
+	return listTranslations[ShowsTranslation](ctx, h, "shows_translations",
 		initListQueryParams(language, primary, showId, "shows_id"),
 	)
 }
 
-func (h *Handler) SaveTranslations(translations []DSItem) {
+func (h *Handler) SaveTranslations(ctx context.Context, translations []DSItem) {
 	for _, item := range translations {
-		_, err := SaveItem(h.ctx, h.c, item, false)
+		_, err := SaveItem(ctx, h.c, item, false)
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to save translations")
 			return

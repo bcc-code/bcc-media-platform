@@ -1,6 +1,7 @@
 package search
 
 import (
+	"context"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -11,8 +12,15 @@ import (
 	"strconv"
 )
 
-func (handler *RequestHandler) Reindex() {
-	ctx := handler.context
+func InitCtx(ctx context.Context) context.Context {
+	ctx = context.WithValue(ctx, visibilityContextKey, map[string]common.Visibility{})
+	ctx = context.WithValue(ctx, translationContextKey, map[string][]common.Translation{})
+	ctx = context.WithValue(ctx, rolesContextKey, map[string][]string{})
+	return ctx
+}
+
+func (handler *RequestHandler) Reindex(ctx context.Context) {
+	ctx = InitCtx(ctx)
 	service := handler.service
 	q := service.queries
 	index := service.index
@@ -138,11 +146,11 @@ func (handler *RequestHandler) Reindex() {
 	}
 
 	log.L.Debug().Msg("Indexing shows")
-	handler.indexShows(shows, showThumbnailsById, index)
+	handler.indexShows(ctx, shows, showThumbnailsById, index)
 	log.L.Debug().Msg("Indexing seasons")
-	handler.indexSeasons(seasons, seasonThumbnailsById, index)
+	handler.indexSeasons(ctx, seasons, seasonThumbnailsById, index)
 	log.L.Debug().Msg("Indexing episodes")
-	handler.indexEpisodes(episodes, episodeThumbnailsById, seasonById, index)
+	handler.indexEpisodes(ctx, episodes, episodeThumbnailsById, seasonById, index)
 }
 
 func (handler *RequestHandler) DeleteObject(item interface{}) {
@@ -172,22 +180,21 @@ func (handler *RequestHandler) DeleteModel(collection string, id int) {
 	}
 }
 
-func (handler *RequestHandler) IndexObject(item interface{}) {
+func (handler *RequestHandler) IndexObject(ctx context.Context, item interface{}) {
 	switch v := item.(type) {
 	case sqlc.Episode:
-		handler.indexEpisode(v)
+		handler.indexEpisode(ctx, v)
 	case sqlc.Show:
-		handler.indexShow(v)
+		handler.indexShow(ctx, v)
 	case sqlc.Season:
-		handler.indexSeason(v)
+		handler.indexSeason(ctx, v)
 	default:
 		log.L.Error().Msg("Couldn't index object")
 	}
 }
 
-func (handler *RequestHandler) IndexModel(collection string, id int) {
+func (handler *RequestHandler) IndexModel(ctx context.Context, collection string, id int) {
 	service := handler.service
-	ctx := handler.context
 	var i any
 	var err error
 	switch collection {
@@ -204,5 +211,5 @@ func (handler *RequestHandler) IndexModel(collection string, id int) {
 		log.L.Error().Err(err).Str("collection", collection).Int("id", id).Msg("Failed to retrieve collection")
 		return
 	}
-	handler.IndexObject(i)
+	handler.IndexObject(ctx, i)
 }

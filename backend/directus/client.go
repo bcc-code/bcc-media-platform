@@ -12,7 +12,7 @@ import (
 
 // New client for Directus
 //
-// Note: Setting debug to `true` will dump all data sent and recieved as logs
+// Note: Setting debug to `true` will dump all data sent and received as logs
 // This may include tokens and other sensitive information. Please only use locally
 func New(url, key string, debug bool) *resty.Client {
 	rest := resty.New().
@@ -24,17 +24,15 @@ func New(url, key string, debug bool) *resty.Client {
 	return rest
 }
 
-func NewHandler(ctx context.Context, c *resty.Client) *Handler {
+func NewHandler(c *resty.Client) *Handler {
 	handler := Handler{
-		ctx,
 		c,
 	}
 	return &handler
 }
 
 type Handler struct {
-	ctx context.Context
-	c   *resty.Client
+	c *resty.Client
 }
 
 // DSItem objects provide an id

@@ -17,7 +17,7 @@ func searchQueryHandler(client *search.Service) func(*gin.Context) {
 			log.L.Error().Err(err)
 		}
 
-		searchHandler := client.NewRequestHandler(c)
+		searchHandler := client.NewRequestHandler()
 		r, err := searchHandler.Search(&query)
 
 		if err != nil {
@@ -42,7 +42,7 @@ func searchKeyHandler(client *search.Service) func(*gin.Context) {
 			log.L.Error().Err(err)
 		}
 
-		searchHandler := client.NewRequestHandler(c)
+		searchHandler := client.NewRequestHandler()
 		r := searchHandler.GenerateSecureKey()
 
 		c.JSON(200, r)

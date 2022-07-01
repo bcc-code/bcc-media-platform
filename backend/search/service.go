@@ -1,7 +1,6 @@
 package search
 
 import (
-	"context"
 	"database/sql"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
@@ -75,16 +74,11 @@ func New(db *sql.DB, algoliaAppId string, algoliaApiKey string, algoliaSearchOnl
 
 type RequestHandler struct {
 	service *Service
-	context context.Context
 }
 
-func (service *Service) NewRequestHandler(ctx context.Context) *RequestHandler {
-	ctx = context.WithValue(ctx, visibilityContextKey, map[string]common.Visibility{})
-	ctx = context.WithValue(ctx, translationContextKey, map[string][]common.Translation{})
-	ctx = context.WithValue(ctx, rolesContextKey, map[string][]string{})
+func (service *Service) NewRequestHandler() *RequestHandler {
 	return &RequestHandler{
 		service: service,
-		context: ctx,
 	}
 }
 
