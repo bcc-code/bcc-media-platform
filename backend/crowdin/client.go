@@ -22,6 +22,8 @@ type Client struct {
 	config ClientConfig
 }
 
+var RequestFailed = merry.Sentinel("Request failed")
+
 func New(token string, config ClientConfig) *Client {
 	c := resty.New().
 		SetBaseURL("https://api.crowdin.com/api/v2/").
@@ -34,7 +36,7 @@ func New(token string, config ClientConfig) *Client {
 
 func ensureSuccess(res *resty.Response) (err error) {
 	if !res.IsSuccess() {
-		err = merry.Sentinelf("Request failed with StatusCode %d", res.StatusCode(), merry.Wrap(merry.New(res.String())))
+		err = merry.Wrap(RequestFailed, merry.WithHTTPCode(res.StatusCode()), merry.WithMessage(res.String()))
 	}
 	return
 }
@@ -184,7 +186,7 @@ func (client *Client) getDirectoryForProject(project Project) (d Directory, err 
 	var directory *Directory
 	for _, dir := range directories {
 		if dir.Name == "content" {
-			directory = &d
+			directory = &dir
 		}
 	}
 	if directory == nil {
@@ -192,7 +194,7 @@ func (client *Client) getDirectoryForProject(project Project) (d Directory, err 
 			Name: "content",
 		})
 		if err != nil {
-			return
+			return d, err
 		}
 		directory = &dir
 	}

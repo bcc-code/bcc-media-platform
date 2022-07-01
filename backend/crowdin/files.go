@@ -50,7 +50,7 @@ func incrementallyRetrieve[T any](factory func(limit int, offset int) ([]T, erro
 	for {
 		items, err := factory(limit, offset)
 		if err != nil {
-			return
+			return nil, err
 		}
 
 		resultLength = len(items)
