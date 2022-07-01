@@ -31,7 +31,7 @@ func (handler *RequestHandler) mapShowToSearchObject(
 ) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
-	object[idField] = "show-" + strconv.Itoa(itemId)
+	object[idField] = "shows-" + strconv.Itoa(itemId)
 	object[rolesField] = handler.getRolesForShow(item.ID)
 	object[createdAtField] = item.DateCreated.UTC().Unix()
 	object[updatedAtField] = item.DateUpdated.UTC().Unix()

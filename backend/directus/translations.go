@@ -1,6 +1,7 @@
 package directus
 
 import (
+	"fmt"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"strconv"
 )
@@ -138,58 +139,44 @@ func (h *Handler) GetShowTranslation(id int) (translation ShowsTranslation) {
 	return
 }
 
-func (h *Handler) ListEpisodeTranslations(language string, primary bool, episodeId int) (translations []EpisodesTranslation) {
-	var queryParams = map[string]string{}
-	if primary {
-		queryParams["filter[is_primary][_eq]"] = "true"
-	}
+func initListQueryParams(language string, primary bool, parentId int, parentProperty string) map[string]string {
+	params := map[string]string{}
 	if language != "" {
-		queryParams["filter[languages_code][_eq]"] = language
+		params["filter[languages_code][_eq]"] = language
 	}
-	if episodeId != 0 {
-		queryParams["filter[episodes_id][_eq]"] = strconv.Itoa(episodeId)
+	if primary {
+		params["filter[is_primary][_eq]"] = "true"
 	}
-	translations, err := ListItems[EpisodesTranslation](h.ctx, h.c, "episodes_translations", queryParams)
+	if parentId != 0 {
+		params[fmt.Sprintf("filter[%s][_eq]", parentProperty)] = strconv.Itoa(parentId)
+	}
+	return params
+}
+
+func listTranslations[t DSItem](h *Handler, collection string, queryParams map[string]string) (translations []t) {
+	translations, err := ListItems[t](h.ctx, h.c, collection, queryParams)
 	if err != nil {
 		log.L.Error().Err(err)
 	}
 	return
 }
 
-func (h *Handler) ListSeasonTranslations(language string, primary bool, seasonId int) (translations []SeasonsTranslation) {
-	var queryParams = map[string]string{}
-	if primary {
-		queryParams["filter[is_primary][_eq]"] = "true"
-	}
-	if language != "" {
-		queryParams["filter[languages_code][_eq]"] = language
-	}
-	if seasonId != 0 {
-		queryParams["filter[seasons_id][_eq]"] = strconv.Itoa(seasonId)
-	}
-	translations, err := ListItems[SeasonsTranslation](h.ctx, h.c, "seasons_translations", queryParams)
-	if err != nil {
-		log.L.Error().Err(err)
-	}
-	return
+func (h *Handler) ListEpisodeTranslations(language string, primary bool, episodeId int) []EpisodesTranslation {
+	return listTranslations[EpisodesTranslation](h, "episodes_translations",
+		initListQueryParams(language, primary, episodeId, "episodes_id"),
+	)
+}
+
+func (h *Handler) ListSeasonTranslations(language string, primary bool, seasonId int) []SeasonsTranslation {
+	return listTranslations[SeasonsTranslation](h, "seasons_translations",
+		initListQueryParams(language, primary, seasonId, "seasons_id"),
+	)
 }
 
 func (h *Handler) ListShowTranslations(language string, primary bool, showId int) (translations []ShowsTranslation) {
-	var queryParams = map[string]string{}
-	if primary {
-		queryParams["filter[is_primary][_eq]"] = "true"
-	}
-	if language != "" {
-		queryParams["filter[languages_code][_eq]"] = language
-	}
-	if showId != 0 {
-		queryParams["filter[shows_id][_eq]"] = strconv.Itoa(showId)
-	}
-	translations, err := ListItems[ShowsTranslation](h.ctx, h.c, "shows_translations", queryParams)
-	if err != nil {
-		log.L.Error().Err(err)
-	}
-	return
+	return listTranslations[ShowsTranslation](h, "shows_translations",
+		initListQueryParams(language, primary, showId, "shows_id"),
+	)
 }
 
 func (h *Handler) SaveTranslations(translations []DSItem) {

@@ -19,7 +19,6 @@ import (
 	"github.com/go-resty/resty/v2"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 	"go.opentelemetry.io/otel"
 )
 
@@ -32,54 +31,16 @@ func initializeDirectusEventHandler(directusClient *resty.Client, searchService 
 		eventHandler.On(event, func(ctx context.Context, collection string, id int) {
 			searchHandler := searchService.NewRequestHandler(ctx)
 			searchHandler.IndexModel(collection, id)
-			directusHandler := directus.NewHandler(ctx, directusClient)
 
-			language := ""
-			var translations []crowdin.TranslationSource
-			switch collection {
-			case "shows":
-				i := directusHandler.GetShow(id)
-				if i.Status != "published" {
-					return
-				}
-				translations = lo.Map(
-					directusHandler.ListShowTranslations(language, false, id),
-					func(t directus.ShowsTranslation, _ int) crowdin.TranslationSource {
-						return t
-					})
-			case "seasons":
-				i := directusHandler.GetSeason(id)
-				if i.Status != "published" {
-					return
-				}
-				translations = lo.Map(
-					directusHandler.ListSeasonTranslations(language, false, id),
-					func(t directus.SeasonsTranslation, _ int) crowdin.TranslationSource {
-						return t
-					})
-			case "episodes":
-				i := directusHandler.GetEpisode(id)
-				if i.Status != "published" {
-					return
-				}
-				translations = lo.Map(
-					directusHandler.ListEpisodeTranslations(language, false, id),
-					func(t directus.EpisodesTranslation, _ int) crowdin.TranslationSource {
-						return t
-					})
-			}
-			if translations != nil {
-				err := crowdinClient.SaveTranslations(translations)
-				if err != nil {
-					log.L.Error().Err(err).Msg("Failed to insert translations")
-				}
-			}
+			directusHandler := directus.NewHandler(ctx, directusClient)
+			crowdinClient.HandleModelUpdate(directusHandler, collection, id)
 		})
 	}
 
-	eventHandler.On(directus.EventItemsDelete, func(ctx context.Context, model string, id int) {
+	eventHandler.On(directus.EventItemsDelete, func(ctx context.Context, collection string, id int) {
 		handler := searchService.NewRequestHandler(ctx)
-		handler.DeleteModel(model, id)
+		handler.DeleteModel(collection, id)
+		crowdinClient.HandleModelDelete(collection, id)
 	})
 
 	return eventHandler

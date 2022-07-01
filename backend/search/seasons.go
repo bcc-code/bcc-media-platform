@@ -32,7 +32,7 @@ func (handler *RequestHandler) mapSeasonToSearchObject(
 	object := searchObject{}
 	itemId := int(item.ID)
 	object[rolesField] = handler.getRolesForSeason(item.ID)
-	object[idField] = "season-" + strconv.Itoa(itemId)
+	object[idField] = "seasons-" + strconv.Itoa(itemId)
 	object[createdAtField] = item.DateCreated.UTC().Unix()
 	object[updatedAtField] = item.DateUpdated.UTC().Unix()
 	object[publishedAtField] = item.PublishDate.UTC().Unix()

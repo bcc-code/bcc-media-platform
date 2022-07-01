@@ -18,7 +18,7 @@ func (handler *RequestHandler) mapEpisodeToSearchObject(
 ) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
-	object[idField] = "episode-" + strconv.Itoa(itemId)
+	object[idField] = "episodes-" + strconv.Itoa(itemId)
 	object[typeField] = item.Type
 	object[rolesField] = handler.getRolesForEpisode(item.ID)
 

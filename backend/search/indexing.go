@@ -165,10 +165,10 @@ func (handler *RequestHandler) DeleteObject(item interface{}) {
 	handler.DeleteModel(m, id)
 }
 
-func (handler *RequestHandler) DeleteModel(model string, id int) {
-	_, err := handler.service.index.DeleteObject(model + "-" + strconv.Itoa(id))
+func (handler *RequestHandler) DeleteModel(collection string, id int) {
+	_, err := handler.service.index.DeleteObject(collection + "-" + strconv.Itoa(id))
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to delete model")
+		log.L.Error().Err(err).Msg("Failed to delete collection")
 	}
 }
 
