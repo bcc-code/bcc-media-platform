@@ -17,7 +17,7 @@ import { createAssetstream, deleteAssetstream, updateAssetstream } from './filte
 import { createEpisodeTag, deleteEpisodeTag, updateTag } from './filters/tags';
 
 
-export default defineHook(({ filter, action }, {services,database}) => {    
+export default defineHook(({ filter, action }, {services,database}) => {
 
 	if (process.env.LEGACY_SYNC === "off") {
 		return

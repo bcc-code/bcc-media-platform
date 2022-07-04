@@ -11,27 +11,28 @@ export function handleEvent(eventName: string) {
     const handler: ActionHandler = async (event: Event) => {
         const collections = ["shows", "seasons", "episodes", "shows_translations", "seasons_translations", "episodes_translations"] as Collection[]
 
-        if (collections.includes(event.collection)) {
-            // Use show, season or episode ID as ids.
-            if (!event.key) {
-                event.key = event.keys.map(i => Number(i))[0]
-            }
-            const topic = pubsub.topic("background-jobs")
-            const e = new CloudEvent({
-                id: uuid(),
-                type: "directus.event",
-                source: "directus",
-                data: {
-                    event: eventName,
-                    collection: event.collection,
-                    id: event.key,
-                }
-            })
-
-            await topic.publishMessage({
-                data: Buffer.from(JSON.stringify(e))
-            })
+        if (!collections.includes(event.collection)) { return }
+        
+        // Use show, season or episode ID as ids.
+        if (!event.key) {
+            event.key = event.keys.map(i => Number(i))[0]
         }
+        const topic = pubsub.topic("background-jobs")
+        const e = new CloudEvent({
+            id: uuid(),
+            type: "directus.event",
+            source: "directus",
+            data: {
+                event: eventName,
+                collection: event.collection,
+                id: event.key,
+           }
+        })
+
+        await topic.publishMessage({
+            data: Buffer.from(JSON.stringify(e))
+        })
+        
     }
     return handler
 }

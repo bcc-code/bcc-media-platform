@@ -117,6 +117,7 @@ func main() {
 		SearchService:        searchService,
 		DirectusEventHandler: directusEventHandler,
 		Queries:              queries,
+		CrowdinClient:        crowdinClient,
 	}, serverConfig)
 
 	apiGroup := router.Group("api")
