@@ -187,23 +187,21 @@ func (service *Service) DeleteModel(collection string, id int) {
 	}
 }
 
-func (service *Service) IndexObject(ctx context.Context, item interface{}) (err error) {
+func (service *Service) IndexObject(ctx context.Context, item interface{}) error {
 	switch v := item.(type) {
 	case sqlc.Episode:
-		err = service.indexEpisode(ctx, v)
+		return service.indexEpisode(ctx, v)
 	case sqlc.Show:
-		err = service.indexShow(ctx, v)
+		return service.indexShow(ctx, v)
 	case sqlc.Season:
-		err = service.indexSeason(ctx, v)
+		return service.indexSeason(ctx, v)
 	default:
-		err = merry.New("collection not supported for indexing")
+		return merry.New("collection not supported for indexing")
 	}
-	return
 }
 
-func (service *Service) IndexModel(ctx context.Context, collection string, id int) error {
+func (service *Service) IndexModel(ctx context.Context, collection string, id int) (err error) {
 	var i any
-	var err error
 	switch collection {
 	case "episodes":
 		i, err = service.queries.GetEpisode(ctx, int32(id))
@@ -215,7 +213,7 @@ func (service *Service) IndexModel(ctx context.Context, collection string, id in
 		return merry.New("collection not supported for indexing")
 	}
 	if err != nil {
-		return err
+		return
 	}
 	return service.IndexObject(ctx, i)
 }
