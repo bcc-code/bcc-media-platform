@@ -98,7 +98,7 @@ func main() {
 	queries := sqlc.New(db)
 
 	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
-	crowdinClient := crowdin.New(config.Crowdin.Token, crowdin.ClientConfig{ProjectIDs: config.Crowdin.ProjectIDs})
+	crowdinClient := crowdin.New(config.Crowdin.Token, crowdin.Config{ProjectIDs: config.Crowdin.ProjectIDs})
 	directusEventHandler := initializeDirectusEventHandler(directusClient, searchService, crowdinClient)
 
 	log.L.Debug().Msg("Set up HTTP server")

@@ -7,6 +7,7 @@ import (
 	"strconv"
 )
 
+// Translation model
 type Translation struct {
 	ID            int    `json:"id,omitempty"`
 	Title         string `json:"title"`
@@ -14,17 +15,20 @@ type Translation struct {
 	LanguagesCode string `json:"languages_code"`
 }
 
+// EpisodesTranslation extends Translation
 type EpisodesTranslation struct {
 	Translation
 	EpisodesID       int    `json:"episodes_id"`
 	ExtraDescription string `json:"extra_description,omitempty"`
 }
 
+// SeasonsTranslation extends Translation
 type SeasonsTranslation struct {
 	Translation
 	SeasonsID int `json:"seasons_id"`
 }
 
+// ShowsTranslation extends Translation
 type ShowsTranslation struct {
 	Translation
 	ShowsID int `json:"shows_id"`
@@ -40,10 +44,12 @@ type episodesUpdate struct {
 	ExtraDescription string `json:"extra_description"`
 }
 
+// UID retrieves the not so unique ID (except internally in Collection)
 func (i Translation) UID() int {
 	return i.ID
 }
 
+// ForUpdate retrieves a struct with mutable properties
 func (i Translation) ForUpdate() interface{} {
 	return update{
 		i.Title,
@@ -51,6 +57,7 @@ func (i Translation) ForUpdate() interface{} {
 	}
 }
 
+// ForUpdate retrieves a struct with mutable properties
 func (i EpisodesTranslation) ForUpdate() interface{} {
 	return episodesUpdate{
 		update{
@@ -61,31 +68,32 @@ func (i EpisodesTranslation) ForUpdate() interface{} {
 	}
 }
 
+// TypeName episodes_translations
 func (EpisodesTranslation) TypeName() string {
 	return "episodes_translations"
 }
 
+// TypeName seasons_translations
 func (SeasonsTranslation) TypeName() string {
 	return "seasons_translations"
 }
 
+// TypeName shows_translations
 func (ShowsTranslation) TypeName() string {
 	return "shows_translations"
 }
 
+// GetSourceLanguage retrieves the configured language for this translation
 func (i Translation) GetSourceLanguage() string {
 	return i.LanguagesCode
 }
 
+// GetValues retrieves a map with the values used in translations
 func (i Translation) GetValues() map[string]string {
 	return map[string]string{
 		"title":       i.Title,
 		"description": i.Description,
 	}
-}
-
-func (i EpisodesTranslation) GetCollection() string {
-	return "episodes"
 }
 
 func (i EpisodesTranslation) GetValues() map[string]string {
@@ -96,26 +104,37 @@ func (i EpisodesTranslation) GetValues() map[string]string {
 	}
 }
 
+// GetCollection episodes
+func (i EpisodesTranslation) GetCollection() string {
+	return "episodes"
+}
+
+// GetItemID retrieves parentId
 func (i EpisodesTranslation) GetItemID() int {
 	return i.EpisodesID
 }
 
+// GetCollection seasons
 func (i SeasonsTranslation) GetCollection() string {
 	return "seasons"
 }
 
+// GetItemID retrieves parentId
 func (i SeasonsTranslation) GetItemID() int {
 	return i.SeasonsID
 }
 
+// GetCollection shows
 func (i ShowsTranslation) GetCollection() string {
 	return "shows"
 }
 
+// GetItemID retrieves parentId
 func (i ShowsTranslation) GetItemID() int {
 	return i.ShowsID
 }
 
+// GetEpisodeTranslation retrieves a translation by id
 func (h *Handler) GetEpisodeTranslation(ctx context.Context, id int) (translation EpisodesTranslation) {
 	translation, err := GetItem[EpisodesTranslation](ctx, h.c, "episodes_translations", id)
 	if err != nil {
@@ -124,6 +143,7 @@ func (h *Handler) GetEpisodeTranslation(ctx context.Context, id int) (translatio
 	return
 }
 
+// GetSeasonTranslation retrieves a translation by id
 func (h *Handler) GetSeasonTranslation(ctx context.Context, id int) (translation SeasonsTranslation) {
 	translation, err := GetItem[SeasonsTranslation](ctx, h.c, "seasons_translations", id)
 	if err != nil {
@@ -132,6 +152,7 @@ func (h *Handler) GetSeasonTranslation(ctx context.Context, id int) (translation
 	return
 }
 
+// GetShowTranslation retrieves a translation by id
 func (h *Handler) GetShowTranslation(ctx context.Context, id int) (translation ShowsTranslation) {
 	translation, err := GetItem[ShowsTranslation](ctx, h.c, "shows_translations", id)
 	if err != nil {
@@ -158,30 +179,28 @@ func listTranslations[t DSItem](ctx context.Context, h *Handler, collection stri
 	return ListItems[t](ctx, h.c, collection, queryParams)
 }
 
+// ListEpisodeTranslations lists translations (for language, as primary or with episodeId)
 func (h *Handler) ListEpisodeTranslations(ctx context.Context, language string, primary bool, episodeId int) ([]EpisodesTranslation, error) {
 	return listTranslations[EpisodesTranslation](ctx, h, "episodes_translations",
 		initListQueryParams(language, primary, episodeId, "episodes_id"),
 	)
 }
 
+// ListSeasonTranslations lists translations (for language, as primary or with episodeId)
 func (h *Handler) ListSeasonTranslations(ctx context.Context, language string, primary bool, seasonId int) ([]SeasonsTranslation, error) {
 	return listTranslations[SeasonsTranslation](ctx, h, "seasons_translations",
 		initListQueryParams(language, primary, seasonId, "seasons_id"),
 	)
 }
 
+// ListShowTranslations lists translations (for language, as primary or with episodeId)
 func (h *Handler) ListShowTranslations(ctx context.Context, language string, primary bool, showId int) ([]ShowsTranslation, error) {
 	return listTranslations[ShowsTranslation](ctx, h, "shows_translations",
 		initListQueryParams(language, primary, showId, "shows_id"),
 	)
 }
 
+// SaveTranslations saves translations (or other DS items)
 func (h *Handler) SaveTranslations(ctx context.Context, translations []DSItem) error {
-	for _, item := range translations {
-		_, err := SaveItem(ctx, h.c, item, false)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return SaveItems(ctx, h.c, translations)
 }

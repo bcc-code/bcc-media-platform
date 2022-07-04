@@ -12,17 +12,19 @@ import (
 	"github.com/samber/lo"
 )
 
-var CollectionNotSupported = merry.Sentinel("collection not supported")
-
-type PubSubEvent struct {
-	Type string `json:"type"`
-}
+var (
+	// CollectionNotSupported error for collection not yet supported
+	CollectionNotSupported = merry.Sentinel("collection not supported")
+	// EventNotSupported error for event key not yet supported
+	EventNotSupported = merry.Sentinel("event not supported")
+)
 
 type services interface {
 	GetCrowdinClient() *Client
 	GetDirectusClient() *resty.Client
 }
 
+// HandleEvent for events from PubSub (or other CloudEvent source)
 func HandleEvent(ctx context.Context, services services, event cloudevents.Event) (err error) {
 	client := services.GetCrowdinClient()
 	switch event.Type() {
@@ -30,7 +32,7 @@ func HandleEvent(ctx context.Context, services services, event cloudevents.Event
 		handler := directus.NewHandler(services.GetDirectusClient())
 		return client.Sync(ctx, handler)
 	}
-	return merry.New("Unsupported event")
+	return EventNotSupported
 }
 
 func toTranslationSources[t TranslationSource](items []t) []TranslationSource {
@@ -79,6 +81,7 @@ func getTranslationsForItem(ctx context.Context, d *directus.Handler, collection
 	return nil, CollectionNotSupported
 }
 
+// HandleModelUpdate for triggering actions on object change
 func (client *Client) HandleModelUpdate(ctx context.Context, directusHandler *directus.Handler, collection string, id int) error {
 	if status, err := getStatusForItem(ctx, directusHandler, collection, id); err != nil || status != common.StatusPublished {
 		// Return error, else just ignore if not published
@@ -94,6 +97,7 @@ func (client *Client) HandleModelUpdate(ctx context.Context, directusHandler *di
 	return client.SaveTranslations(translations)
 }
 
+// HandleModelDelete for triggering actions to handle deletion events
 func (client *Client) HandleModelDelete(collection string, id int) {
 	log.L.Debug().Str("collection", collection).Int("id", id).Msg("deleting translations")
 	// TODO: implement deletion of translations

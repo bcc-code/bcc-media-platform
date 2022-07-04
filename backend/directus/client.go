@@ -10,6 +10,7 @@ import (
 	"strconv"
 )
 
+// RequestFailed error for failed requests
 var RequestFailed = merry.Sentinel("Request failed")
 
 func ensureSuccess(res *resty.Response) (err error) {
@@ -33,6 +34,7 @@ func New(url, key string, debug bool) *resty.Client {
 	return rest
 }
 
+// NewHandler returns a new Handler with resty.Client in struct
 func NewHandler(c *resty.Client) *Handler {
 	handler := Handler{
 		c,
@@ -40,6 +42,7 @@ func NewHandler(c *resty.Client) *Handler {
 	return &handler
 }
 
+// Handler for handling directus requests
 type Handler struct {
 	c *resty.Client
 }
@@ -94,6 +97,18 @@ func SaveItem[t DSItem](ctx context.Context, c *resty.Client, i t, unmashall boo
 	return nil, nil
 }
 
+// SaveItems iterates and individually updates items
+func SaveItems[t DSItem](ctx context.Context, c *resty.Client, items []t) error {
+	for _, item := range items {
+		_, err := SaveItem(ctx, c, item, false)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// GetItem by collection and id
 func GetItem[t DSItem](ctx context.Context, c *resty.Client, collection string, id int) (item t, err error) {
 	ctx, span := trace.StartSpan(ctx, "directus.ListItems")
 	defer span.End()
@@ -113,6 +128,7 @@ func GetItem[t DSItem](ctx context.Context, c *resty.Client, collection string, 
 	return
 }
 
+// ListItems in collection with optional query params
 func ListItems[t DSItem](ctx context.Context, c *resty.Client, collection string, queryParams map[string]string) (items []t, err error) {
 	ctx, span := trace.StartSpan(ctx, "directus.ListItems")
 	defer span.End()

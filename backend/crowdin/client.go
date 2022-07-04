@@ -15,15 +15,18 @@ import (
 	"time"
 )
 
-type ClientConfig struct {
+// Config for the client
+type Config struct {
 	ProjectIDs []int
 }
 
+// Client for crowdin interactions
 type Client struct {
 	c      *resty.Client
-	config ClientConfig
+	config Config
 }
 
+// RequestFailed error for failed requests
 var RequestFailed = merry.Sentinel("Request failed")
 
 func ensureSuccess(res *resty.Response) (err error) {
@@ -33,7 +36,8 @@ func ensureSuccess(res *resty.Response) (err error) {
 	return
 }
 
-func New(token string, config ClientConfig) *Client {
+// New client for requests
+func New(token string, config Config) *Client {
 	c := resty.New().
 		SetBaseURL("https://api.crowdin.com/api/v2/").
 		SetAuthToken(token)
@@ -482,6 +486,7 @@ func (client *Client) getProject(projectId int) (i Project, err error) {
 	return
 }
 
+// Sync synchronizes translations from Directus to Crowdin
 func (client *Client) Sync(ctx context.Context, d *directus.Handler) error {
 	log.L.Debug().Msg("Translation sync: Started")
 	projectIds := client.config.ProjectIDs
@@ -512,13 +517,16 @@ func (client *Client) Sync(ctx context.Context, d *directus.Handler) error {
 	return nil
 }
 
+// TranslationSource is an object which contains fields that can be translated
 type TranslationSource interface {
 	GetCollection() string
 	GetItemID() int
 	GetSourceLanguage() string
+	// GetValues returns a field mapped dictionary with the translation source as value, identifier as key
 	GetValues() map[string]string
 }
 
+// SaveTranslations stores updated translations from the objects, if they are changed
 func (client *Client) SaveTranslations(objects []TranslationSource) error {
 	log.L.Debug().Int("count", len(objects)).Msg("Syncing translations with Crowdin")
 	for _, projectId := range client.config.ProjectIDs {
