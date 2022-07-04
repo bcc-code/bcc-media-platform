@@ -19,18 +19,12 @@ type PubSubEvent struct {
 }
 
 type services interface {
+	GetCrowdinClient() *Client
 	GetDirectusClient() *resty.Client
 }
 
-type config interface {
-	GetCrowdinToken() string
-	GetCrowdinProjectIDs() []int
-}
-
-func HandleEvent(ctx context.Context, services services, config config, event cloudevents.Event) (err error) {
-	client := New(config.GetCrowdinToken(), ClientConfig{
-		ProjectIDs: config.GetCrowdinProjectIDs(),
-	})
+func HandleEvent(ctx context.Context, services services, event cloudevents.Event) (err error) {
+	client := services.GetCrowdinClient()
 	switch event.Type() {
 	case events.TypeTranslationsSync:
 		handler := directus.NewHandler(services.GetDirectusClient())
