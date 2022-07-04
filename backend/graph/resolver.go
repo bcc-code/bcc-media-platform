@@ -1,7 +1,9 @@
 package graph
 
 import (
+	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/graph-gophers/dataloader/v7"
 )
 
 // This file will not be regenerated automatically.
@@ -12,4 +14,10 @@ import (
 // It contains references to all external services and config
 type Resolver struct {
 	Queries *sqlc.Queries
+	Loaders *BatchLoaders
+}
+
+// BatchLoaders is a collection of GQL dataloaders
+type BatchLoaders struct {
+	ProgramLoader *dataloader.Loader[int, gqlmodel.Program]
 }

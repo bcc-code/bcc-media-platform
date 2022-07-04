@@ -6,10 +6,12 @@ package graph
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
+	"github.com/bcc-code/brunstadtv/backend/program"
 	"github.com/bcc-code/brunstadtv/backend/user"
 )
 
@@ -18,14 +20,12 @@ func (r *queryRootResolver) Page(ctx context.Context, id string) (gqlmodel.Page,
 }
 
 func (r *queryRootResolver) Program(ctx context.Context, id string) (gqlmodel.Program, error) {
-	return gqlmodel.Standalone{
-		Assets:        []*gqlmodel.Asset{},
-		Chapters:      []*gqlmodel.Chapter{},
-		Description:   "Dummy",
-		ID:            id,
-		Localizations: &gqlmodel.LocalizedProgram{},
-		Title:         "Dummy Title",
-	}, nil
+	intID, err := strconv.ParseInt(id, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+
+	return program.GetByID(ctx, r.Resolver.Loaders.ProgramLoader, int(intID))
 }
 
 func (r *queryRootResolver) Section(ctx context.Context, id string) (gqlmodel.Section, error) {

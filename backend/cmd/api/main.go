@@ -9,6 +9,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
+	"github.com/bcc-code/brunstadtv/backend/program"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
@@ -22,10 +23,11 @@ import (
 )
 
 // Defining the Graphql handler
-func graphqlHandler(queries *sqlc.Queries) gin.HandlerFunc {
+func graphqlHandler(queries *sqlc.Queries, loaders *graph.BatchLoaders) gin.HandlerFunc {
 
 	resolver := graph.Resolver{
 		Queries: queries,
+		Loaders: loaders,
 	}
 
 	// NewExecutableSchema and Config are in the generated.go file
@@ -76,6 +78,11 @@ func main() {
 
 	queries := sqlc.New(db)
 
+	pgmLoader := program.NewBatchLoader(*queries)
+	loaders := &graph.BatchLoaders{
+		ProgramLoader: pgmLoader,
+	}
+
 	log.L.Debug().Msg("Set up HTTP server")
 	r := gin.Default()
 	r.Use(graph.GinContextToContextMiddleware())
@@ -83,7 +90,7 @@ func main() {
 	r.Use(auth0.JWT(ctx, config.JWTConfig))
 	r.Use(user.NewUserMiddleware(queries))
 
-	r.POST("/query", graphqlHandler(queries))
+	r.POST("/query", graphqlHandler(queries, loaders))
 
 	// TODO: Should we have this in non-local envs?
 	// What about auth?
