@@ -2,6 +2,8 @@ package search
 
 import (
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/user"
+	"github.com/gin-gonic/gin"
 	"strings"
 	"time"
 
@@ -10,17 +12,17 @@ import (
 	"github.com/samber/lo"
 )
 
-func (handler *RequestHandler) getFiltersForCurrentUser() (string, error) {
-	userRoles := handler.getUserRoles()
+func (service *Service) getFiltersForUser(ctx *gin.Context) (string, error) {
+	u := user.GetFromCtx(ctx)
 
-	if len(userRoles) == 0 {
+	if len(u.Roles) == 0 {
 		// No roles == no permissions == no results
 		return "", merry.New("Missing roles")
 	}
 	now := time.Now().Unix()
 
 	filters := []string{
-		strings.Join(lo.Map(userRoles, func(role string, _ int) string {
+		strings.Join(lo.Map(u.Roles, func(role string, _ int) string {
 			return fmt.Sprintf("%s:%s", rolesField, role)
 		}), " OR "),
 		fmt.Sprintf("%s < %d", publishedAtField, now),
@@ -30,10 +32,4 @@ func (handler *RequestHandler) getFiltersForCurrentUser() (string, error) {
 	}
 
 	return "(" + strings.Join(filters, ") AND (") + ")", nil
-}
-
-func (handler *RequestHandler) getUserRoles() []string {
-	return []string{
-		"test-group-1",
-	}
 }

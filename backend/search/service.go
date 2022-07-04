@@ -7,6 +7,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"strconv"
 )
@@ -72,22 +73,12 @@ func New(db *sql.DB, algoliaAppId string, algoliaApiKey string, algoliaSearchOnl
 	return &service
 }
 
-type RequestHandler struct {
-	service *Service
-}
-
-func (service *Service) NewRequestHandler() *RequestHandler {
-	return &RequestHandler{
-		service: service,
-	}
-}
-
-func (handler *RequestHandler) GenerateSecureKey() string {
-	apiKey := handler.service.searchOnlyApiKey
+func (service *Service) GenerateSecureKey(ctx *gin.Context) string {
+	apiKey := service.searchOnlyApiKey
 
 	// TODO: perhaps generate a Search-only API key every 2 hours, and rotate every hour. That way we can update filters every hour ?
 
-	filterString, _ := handler.getFiltersForCurrentUser()
+	filterString, _ := service.getFiltersForUser(ctx)
 	key, err := search.GenerateSecuredAPIKey(apiKey,
 		opt.Filters(filterString),
 	)

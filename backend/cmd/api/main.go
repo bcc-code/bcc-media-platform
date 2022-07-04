@@ -97,9 +97,9 @@ func main() {
 		searchGroup := r.Group("search")
 		searchGroup.POST("query", searchQueryHandler(searchService))
 
-		if config.Algolia.SearchOnlyApiKey != "" {
-			searchGroup.GET("key", searchKeyHandler(searchService))
-		}
+		//if config.Algolia.SearchOnlyApiKey != "" {
+		//	searchGroup.GET("key", searchKeyHandler(searchService))
+		//}
 	}
 
 	span.End()

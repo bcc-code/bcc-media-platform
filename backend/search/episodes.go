@@ -12,7 +12,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (handler *RequestHandler) mapEpisodeToSearchObject(
+func (service *Service) mapEpisodeToSearchObject(
 	ctx context.Context,
 	item sqlc.Episode,
 	image *sqlc.DirectusFile,
@@ -22,7 +22,7 @@ func (handler *RequestHandler) mapEpisodeToSearchObject(
 	itemId := int(item.ID)
 	object[idField] = "episodes-" + strconv.Itoa(itemId)
 	object[typeField] = item.Type
-	object[rolesField] = handler.getRolesForEpisode(ctx, item.ID)
+	object[rolesField] = service.getRolesForEpisode(ctx, item.ID)
 
 	object[createdAtField] = item.DateCreated.UTC().Unix()
 	object[updatedAtField] = item.DateUpdated.UTC().Unix()
@@ -37,24 +37,24 @@ func (handler *RequestHandler) mapEpisodeToSearchObject(
 		}
 	}
 
-	object.assignVisibility(handler.getVisibilityForEpisode(ctx, item.ID))
-	title, description := toLocaleStrings(handler.getTranslationsForEpisode(ctx, item.ID))
+	object.assignVisibility(service.getVisibilityForEpisode(ctx, item.ID))
+	title, description := toLocaleStrings(service.getTranslationsForEpisode(ctx, item.ID))
 	object.mapFromLocaleString(titleField, title)
 	object.mapFromLocaleString(descriptionField, description)
 	if season != nil {
 		object[seasonIDField] = season.ID
-		seasonTitle, _ := toLocaleStrings(handler.getTranslationsForSeason(ctx, season.ID))
+		seasonTitle, _ := toLocaleStrings(service.getTranslationsForSeason(ctx, season.ID))
 		object.mapFromLocaleString(seasonTitleField, seasonTitle)
 
 		object[showIDField] = season.ShowID
-		showTitle, _ := toLocaleStrings(handler.getTranslationsForShow(ctx, season.ShowID))
+		showTitle, _ := toLocaleStrings(service.getTranslationsForShow(ctx, season.ShowID))
 		object.mapFromLocaleString(showTitleField, showTitle)
 	}
 
 	return object
 }
 
-func (handler *RequestHandler) indexEpisodes(
+func (service *Service) indexEpisodes(
 	ctx context.Context,
 	items []sqlc.Episode,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
@@ -72,7 +72,7 @@ func (handler *RequestHandler) indexEpisodes(
 			thumbnailResult := imageDict[item.ImageFileID.UUID]
 			thumbnail = &thumbnailResult
 		}
-		return handler.mapEpisodeToSearchObject(ctx, item, thumbnail, season)
+		return service.mapEpisodeToSearchObject(ctx, item, thumbnail, season)
 	})
 
 	err := indexObjects(index, objects)
@@ -82,9 +82,7 @@ func (handler *RequestHandler) indexEpisodes(
 	}
 }
 
-func (handler *RequestHandler) indexEpisode(ctx context.Context, item sqlc.Episode) {
-	service := handler.service
-
+func (service *Service) indexEpisode(ctx context.Context, item sqlc.Episode) {
 	var image *sqlc.DirectusFile
 	if item.ImageFileID.Valid {
 		thumbnailResult, _ := service.queries.GetFile(ctx, item.ImageFileID.UUID)
@@ -97,7 +95,7 @@ func (handler *RequestHandler) indexEpisode(ctx context.Context, item sqlc.Episo
 		season = &seasonResult
 	}
 
-	object := handler.mapEpisodeToSearchObject(ctx, item, image, season)
+	object := service.mapEpisodeToSearchObject(ctx, item, image, season)
 
 	_, err := service.index.SaveObject(object)
 	if err != nil {

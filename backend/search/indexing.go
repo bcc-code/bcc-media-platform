@@ -19,9 +19,8 @@ func InitCtx(ctx context.Context) context.Context {
 	return ctx
 }
 
-func (handler *RequestHandler) Reindex(ctx context.Context) {
+func (service *Service) Reindex(ctx context.Context) {
 	ctx = InitCtx(ctx)
-	service := handler.service
 	q := service.queries
 	index := service.index
 
@@ -146,14 +145,14 @@ func (handler *RequestHandler) Reindex(ctx context.Context) {
 	}
 
 	log.L.Debug().Msg("Indexing shows")
-	handler.indexShows(ctx, shows, showThumbnailsById, index)
+	service.indexShows(ctx, shows, showThumbnailsById, index)
 	log.L.Debug().Msg("Indexing seasons")
-	handler.indexSeasons(ctx, seasons, seasonThumbnailsById, index)
+	service.indexSeasons(ctx, seasons, seasonThumbnailsById, index)
 	log.L.Debug().Msg("Indexing episodes")
-	handler.indexEpisodes(ctx, episodes, episodeThumbnailsById, seasonById, index)
+	service.indexEpisodes(ctx, episodes, episodeThumbnailsById, seasonById, index)
 }
 
-func (handler *RequestHandler) DeleteObject(item interface{}) {
+func (service *Service) DeleteObject(item interface{}) {
 	var m string
 	var id int
 	switch v := item.(type) {
@@ -170,31 +169,30 @@ func (handler *RequestHandler) DeleteObject(item interface{}) {
 		log.L.Error().Msg("Unknown type")
 		return
 	}
-	handler.DeleteModel(m, id)
+	service.DeleteModel(m, id)
 }
 
-func (handler *RequestHandler) DeleteModel(collection string, id int) {
-	_, err := handler.service.index.DeleteObject(collection + "-" + strconv.Itoa(id))
+func (service *Service) DeleteModel(collection string, id int) {
+	_, err := service.index.DeleteObject(collection + "-" + strconv.Itoa(id))
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to delete collection")
 	}
 }
 
-func (handler *RequestHandler) IndexObject(ctx context.Context, item interface{}) {
+func (service *Service) IndexObject(ctx context.Context, item interface{}) {
 	switch v := item.(type) {
 	case sqlc.Episode:
-		handler.indexEpisode(ctx, v)
+		service.indexEpisode(ctx, v)
 	case sqlc.Show:
-		handler.indexShow(ctx, v)
+		service.indexShow(ctx, v)
 	case sqlc.Season:
-		handler.indexSeason(ctx, v)
+		service.indexSeason(ctx, v)
 	default:
 		log.L.Error().Msg("Couldn't index object")
 	}
 }
 
-func (handler *RequestHandler) IndexModel(ctx context.Context, collection string, id int) {
-	service := handler.service
+func (service *Service) IndexModel(ctx context.Context, collection string, id int) {
 	var i any
 	var err error
 	switch collection {
@@ -211,5 +209,5 @@ func (handler *RequestHandler) IndexModel(ctx context.Context, collection string
 		log.L.Error().Err(err).Str("collection", collection).Int("id", id).Msg("Failed to retrieve collection")
 		return
 	}
-	handler.IndexObject(ctx, i)
+	service.IndexObject(ctx, i)
 }

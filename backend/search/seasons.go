@@ -26,14 +26,14 @@ func mapTranslationsForSeason(translations []sqlc.SeasonsTranslation) (title loc
 	return
 }
 
-func (handler *RequestHandler) mapSeasonToSearchObject(
+func (service *Service) mapSeasonToSearchObject(
 	ctx context.Context,
 	item sqlc.Season,
 	image *sqlc.DirectusFile,
 ) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
-	object[rolesField] = handler.getRolesForSeason(ctx, item.ID)
+	object[rolesField] = service.getRolesForSeason(ctx, item.ID)
 	object[idField] = "seasons-" + strconv.Itoa(itemId)
 	object[createdAtField] = item.DateCreated.UTC().Unix()
 	object[updatedAtField] = item.DateUpdated.UTC().Unix()
@@ -42,16 +42,16 @@ func (handler *RequestHandler) mapSeasonToSearchObject(
 		object[imageField] = image.GetImageUrl()
 	}
 
-	object.assignVisibility(handler.getVisibilityForSeason(ctx, item.ID))
-	title, description := toLocaleStrings(handler.getTranslationsForSeason(ctx, item.ID))
+	object.assignVisibility(service.getVisibilityForSeason(ctx, item.ID))
+	title, description := toLocaleStrings(service.getTranslationsForSeason(ctx, item.ID))
 	object.mapFromLocaleString(titleField, title)
 	object.mapFromLocaleString(descriptionField, description)
-	showTitle, _ := toLocaleStrings(handler.getTranslationsForShow(ctx, item.ShowID))
+	showTitle, _ := toLocaleStrings(service.getTranslationsForShow(ctx, item.ShowID))
 	object.mapFromLocaleString(showTitleField, showTitle)
 	return object
 }
 
-func (handler *RequestHandler) indexSeasons(
+func (service *Service) indexSeasons(
 	ctx context.Context,
 	items []sqlc.Season,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
@@ -63,7 +63,7 @@ func (handler *RequestHandler) indexSeasons(
 			thumbnailResult := imageDict[item.ImageFileID.UUID]
 			image = &thumbnailResult
 		}
-		return handler.mapSeasonToSearchObject(ctx, item, image)
+		return service.mapSeasonToSearchObject(ctx, item, image)
 	})
 
 	err := indexObjects(index, objects)
@@ -73,15 +73,14 @@ func (handler *RequestHandler) indexSeasons(
 	}
 }
 
-func (handler *RequestHandler) indexSeason(ctx context.Context, item sqlc.Season) {
-	service := handler.service
+func (service *Service) indexSeason(ctx context.Context, item sqlc.Season) {
 	var image *sqlc.DirectusFile
 	if item.ImageFileID.Valid {
 		thumbnailResult, _ := service.queries.GetFile(ctx, item.ImageFileID.UUID)
 		image = &thumbnailResult
 	}
 
-	object := handler.mapSeasonToSearchObject(ctx, item, image)
+	object := service.mapSeasonToSearchObject(ctx, item, image)
 	_, err := service.index.SaveObject(object)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to index season")
