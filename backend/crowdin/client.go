@@ -550,6 +550,9 @@ func (client *Client) SaveTranslations(objects []TranslationSource) error {
 				return err
 			}
 			for field, value := range o.GetValues() {
+				if value == "" {
+					continue
+				}
 				identifier := fmt.Sprintf("%s-%d-%s", collection, o.GetItemID(), field)
 				s, found := lo.Find(sourceStrings, func(s String) bool {
 					return s.Identifier == identifier

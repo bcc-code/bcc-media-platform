@@ -105,7 +105,7 @@ func (s server) ProcessMessage(c *gin.Context) {
 	case events.TypeDirectusEvent:
 		err = s.services.GetDirectusEventHandler().ProcessCloudEvent(ctx, e)
 	case events.TypeSearchReindex:
-		go s.services.GetSearchService().NewRequestHandler().Reindex(ctx)
+		go s.services.GetSearchService().Reindex(ctx)
 	case events.TypeTranslationsSync:
 		err = crowdin.HandleEvent(ctx, s.services, s.config, e)
 	default:

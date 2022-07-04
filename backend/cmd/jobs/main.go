@@ -29,17 +29,23 @@ func initializeDirectusEventHandler(directusClient *resty.Client, searchService 
 
 	for _, event := range []string{directus.EventItemsCreate, directus.EventItemsUpdate} {
 		eventHandler.On(event, func(ctx context.Context, collection string, id int) {
-			searchHandler := searchService.NewRequestHandler()
-			searchHandler.IndexModel(ctx, collection, id)
+			err := searchService.IndexModel(ctx, collection, id)
+			if err != nil {
+				log.L.Error().Err(err).Msg("failed to index model for search")
+				return
+			}
 
 			directusHandler := directus.NewHandler(directusClient)
-			crowdinClient.HandleModelUpdate(ctx, directusHandler, collection, id)
+			err = crowdinClient.HandleModelUpdate(ctx, directusHandler, collection, id)
+			if err != nil {
+				log.L.Error().Err(err).Msg("failed to handle model for crowdin")
+				return
+			}
 		})
 	}
 
 	eventHandler.On(directus.EventItemsDelete, func(ctx context.Context, collection string, id int) {
-		handler := searchService.NewRequestHandler()
-		handler.DeleteModel(collection, id)
+		searchService.DeleteModel(collection, id)
 		crowdinClient.HandleModelDelete(collection, id)
 	})
 

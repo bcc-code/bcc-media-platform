@@ -82,7 +82,7 @@ func (service *Service) indexEpisodes(
 	}
 }
 
-func (service *Service) indexEpisode(ctx context.Context, item sqlc.Episode) {
+func (service *Service) indexEpisode(ctx context.Context, item sqlc.Episode) error {
 	var image *sqlc.DirectusFile
 	if item.ImageFileID.Valid {
 		thumbnailResult, _ := service.queries.GetFile(ctx, item.ImageFileID.UUID)
@@ -98,7 +98,5 @@ func (service *Service) indexEpisode(ctx context.Context, item sqlc.Episode) {
 	object := service.mapEpisodeToSearchObject(ctx, item, image, season)
 
 	_, err := service.index.SaveObject(object)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to index episode")
-	}
+	return err
 }

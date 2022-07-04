@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
@@ -179,20 +180,21 @@ func (service *Service) DeleteModel(collection string, id int) {
 	}
 }
 
-func (service *Service) IndexObject(ctx context.Context, item interface{}) {
+func (service *Service) IndexObject(ctx context.Context, item interface{}) (err error) {
 	switch v := item.(type) {
 	case sqlc.Episode:
-		service.indexEpisode(ctx, v)
+		err = service.indexEpisode(ctx, v)
 	case sqlc.Show:
-		service.indexShow(ctx, v)
+		err = service.indexShow(ctx, v)
 	case sqlc.Season:
-		service.indexSeason(ctx, v)
+		err = service.indexSeason(ctx, v)
 	default:
-		log.L.Error().Msg("Couldn't index object")
+		err = merry.New("collection not supported for indexing")
 	}
+	return
 }
 
-func (service *Service) IndexModel(ctx context.Context, collection string, id int) {
+func (service *Service) IndexModel(ctx context.Context, collection string, id int) error {
 	var i any
 	var err error
 	switch collection {
@@ -203,11 +205,10 @@ func (service *Service) IndexModel(ctx context.Context, collection string, id in
 	case "shows":
 		i, err = service.queries.GetShow(ctx, int32(id))
 	default:
-		return
+		return merry.New("collection not supported for indexing")
 	}
 	if err != nil {
-		log.L.Error().Err(err).Str("collection", collection).Int("id", id).Msg("Failed to retrieve collection")
-		return
+		return err
 	}
-	service.IndexObject(ctx, i)
+	return service.IndexObject(ctx, i)
 }

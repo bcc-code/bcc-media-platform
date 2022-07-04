@@ -73,7 +73,7 @@ func (service *Service) indexSeasons(
 	}
 }
 
-func (service *Service) indexSeason(ctx context.Context, item sqlc.Season) {
+func (service *Service) indexSeason(ctx context.Context, item sqlc.Season) error {
 	var image *sqlc.DirectusFile
 	if item.ImageFileID.Valid {
 		thumbnailResult, _ := service.queries.GetFile(ctx, item.ImageFileID.UUID)
@@ -82,7 +82,5 @@ func (service *Service) indexSeason(ctx context.Context, item sqlc.Season) {
 
 	object := service.mapSeasonToSearchObject(ctx, item, image)
 	_, err := service.index.SaveObject(object)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to index season")
-	}
+	return err
 }
