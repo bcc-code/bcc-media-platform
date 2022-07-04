@@ -6,7 +6,6 @@ import (
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
@@ -56,7 +55,7 @@ func (service *Service) indexSeasons(
 	items []sqlc.Season,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
 	index *search.Index,
-) {
+) error {
 	objects := lo.Map(items, func(item sqlc.Season, _ int) searchObject {
 		var image *sqlc.DirectusFile
 		if item.ImageFileID.Valid {
@@ -66,11 +65,7 @@ func (service *Service) indexSeasons(
 		return service.mapSeasonToSearchObject(ctx, item, image)
 	})
 
-	err := indexObjects(index, objects)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to index objects")
-		return
-	}
+	return indexObjects(index, objects)
 }
 
 func (service *Service) indexSeason(ctx context.Context, item sqlc.Season) error {

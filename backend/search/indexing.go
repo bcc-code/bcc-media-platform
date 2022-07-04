@@ -20,14 +20,13 @@ func InitCtx(ctx context.Context) context.Context {
 	return ctx
 }
 
-func (service *Service) Reindex(ctx context.Context) {
+func (service *Service) Reindex(ctx context.Context) (err error) {
 	ctx = InitCtx(ctx)
 	q := service.queries
 	index := service.index
 
-	_, err := index.ClearObjects()
+	_, err = index.ClearObjects()
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to clear objects from index")
 		return
 	}
 
@@ -42,13 +41,11 @@ func (service *Service) Reindex(ctx context.Context) {
 		HitsPerPage:           opt.HitsPerPage(hitsPerPage),
 	})
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to set searchable fields")
 		return
 	}
 
 	shows, err := q.GetShows(ctx)
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to retrieve shows")
 		return
 	}
 	showThumbnails, _ := q.GetFilesByIds(ctx, lo.Map(lo.Filter(shows, func(i sqlc.Show, _ int) bool {
@@ -146,11 +143,21 @@ func (service *Service) Reindex(ctx context.Context) {
 	}
 
 	log.L.Debug().Msg("Indexing shows")
-	service.indexShows(ctx, shows, showThumbnailsById, index)
+	err = service.indexShows(ctx, shows, showThumbnailsById, index)
+	if err != nil {
+		return
+	}
 	log.L.Debug().Msg("Indexing seasons")
-	service.indexSeasons(ctx, seasons, seasonThumbnailsById, index)
+	err = service.indexSeasons(ctx, seasons, seasonThumbnailsById, index)
+	if err != nil {
+		return
+	}
 	log.L.Debug().Msg("Indexing episodes")
-	service.indexEpisodes(ctx, episodes, episodeThumbnailsById, seasonById, index)
+	err = service.indexEpisodes(ctx, episodes, episodeThumbnailsById, seasonById, index)
+	if err != nil {
+		return
+	}
+	return
 }
 
 func (service *Service) DeleteObject(item interface{}) {

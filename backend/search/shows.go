@@ -6,7 +6,6 @@ import (
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
@@ -53,7 +52,7 @@ func (service *Service) indexShows(
 	items []sqlc.Show,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
 	index *search.Index,
-) {
+) error {
 	objects := lo.Map(items, func(item sqlc.Show, _ int) searchObject {
 		var image *sqlc.DirectusFile
 		if item.ImageFileID.Valid {
@@ -63,12 +62,7 @@ func (service *Service) indexShows(
 		return service.mapShowToSearchObject(ctx, item, image)
 	})
 
-	err := indexObjects(index, objects)
-
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to index objects")
-		return
-	}
+	return indexObjects(index, objects)
 }
 
 func (service *Service) indexShow(ctx context.Context, item sqlc.Show) error {
