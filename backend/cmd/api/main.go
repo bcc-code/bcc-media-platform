@@ -100,12 +100,6 @@ func main() {
 		if config.Algolia.SearchOnlyApiKey != "" {
 			searchGroup.GET("key", searchKeyHandler(searchService))
 		}
-
-		log.L.Debug().Msg("Setting up endpoint for scheduled search indexing")
-		searchGroup.GET("index", searchIndexHandler(searchService))
-
-		log.L.Debug().Msg("Setting up endpoint for webhooks from Directus")
-		r.POST("/directus/webhook", directusEventHandler(searchService))
 	}
 
 	span.End()

@@ -2,22 +2,16 @@ package directus
 
 import (
 	"context"
-	"strconv"
 
-	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/mediabank-bridge/log"
 	cevent "github.com/cloudevents/sdk-go/v2/event"
 	"github.com/gin-gonic/gin"
-	"github.com/samber/lo"
 )
 
 type Event struct {
-	Event          string        `json:"event"`
-	Accountability any           `json:"accountability"`
-	Payload        any           `json:"payload"`
-	Collection     string        `json:"collection"`
-	Keys           []interface{} `json:"keys"`
-	Key            int           `json:"key"`
+	Event      string `json:"event"`
+	Collection string `json:"collection"`
+	Id         int    `json:"id"`
 }
 
 const (
@@ -29,27 +23,17 @@ const (
 type EventHandler struct {
 }
 
-func getModelFromCollectionName(collection string) string {
-	switch collection {
-	case "episode", "episodes":
-		return "episode"
-	case "season", "seasons":
-		return "season"
-	case "show", "shows":
-		return "show"
-	}
-	return ""
+func NewEventHandler() *EventHandler {
+	return &EventHandler{}
 }
 
-var itemsEvents = map[string][]func(ctx context.Context, model string, id int){}
+var itemsEvents = map[string][]func(ctx context.Context, collection string, id int){}
 
-func (handler *EventHandler) On(events []string, callback func(ctx context.Context, model string, id int)) {
-	for _, event := range events {
-		switch event {
-		case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
-			log.L.Debug().Str("event", event).Msg("Registering Directus webhook-listener for event")
-			itemsEvents[event] = append(itemsEvents[event], callback)
-		}
+func (handler *EventHandler) On(event string, callback func(ctx context.Context, collection string, id int)) {
+	switch event {
+	case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
+		log.L.Debug().Str("event", event).Msg("Registering Directus webhook-listener for event")
+		itemsEvents[event] = append(itemsEvents[event], callback)
 	}
 }
 
@@ -57,7 +41,7 @@ func (handler *EventHandler) ProcessCloudEvent(ctx context.Context, e cevent.Eve
 	var event Event
 	err := e.DataAs(&event)
 	if err != nil {
-		log.L.Error().Err(err)
+		log.L.Error().Err(err).Msg("Failed to bind to event struct")
 		return err
 	}
 	return handler.Process(ctx, event)
@@ -66,38 +50,15 @@ func (handler *EventHandler) ProcessCloudEvent(ctx context.Context, e cevent.Eve
 func (handler *EventHandler) Process(ctx context.Context, event Event) error {
 	log.L.Debug().Str("event", event.Event).Str("collection", event.Collection).Msg("Processing event")
 
-	model := getModelFromCollectionName(event.Collection)
-	if model == "" {
-		return merry.New("Collection not supported yet")
+	var id = event.Id
+	if id == 0 {
+		return nil
 	}
-
-	var ids []int
-	if !(len(event.Keys) > 0) && event.Key != 0 {
-		ids = []int{event.Key}
-	} else {
-		// Directus returns either floats or strings in the same array... weird?
-		ids = lo.Map(event.Keys, func(entry interface{}, _ int) int {
-			var id int
-			switch v := entry.(type) {
-			case int:
-				id = v
-			case float64:
-				id = int(v)
-			case string:
-				num, _ := strconv.ParseInt(v, 0, 64)
-				id = int(num)
-			}
-			return id
-		})
-	}
-
-	for _, id := range ids {
-		switch event.Event {
-		case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
-			for i, callback := range itemsEvents[event.Event] {
-				log.L.Debug().Msgf("Executing callback #%d for event %s", i, event.Event)
-				callback(ctx, model, id)
-			}
+	switch event.Event {
+	case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
+		for i, callback := range itemsEvents[event.Event] {
+			log.L.Debug().Msgf("Executing callback #%d for event %s", i, event.Event)
+			callback(ctx, event.Collection, id)
 		}
 	}
 
@@ -111,8 +72,4 @@ func (handler *EventHandler) Execute(c *gin.Context) error {
 		return err
 	}
 	return handler.Process(c, event)
-}
-
-func NewEventHandler() *EventHandler {
-	return &EventHandler{}
 }

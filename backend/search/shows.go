@@ -1,6 +1,7 @@
 package search
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
@@ -26,27 +27,29 @@ func mapTranslationsForShow(translations []sqlc.ShowsTranslation) (title localeS
 }
 
 func (handler *RequestHandler) mapShowToSearchObject(
+	ctx context.Context,
 	item sqlc.Show,
 	image *sqlc.DirectusFile,
 ) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
-	object[idField] = "show-" + strconv.Itoa(itemId)
-	object[rolesField] = handler.getRolesForShow(item.ID)
+	object[idField] = "shows-" + strconv.Itoa(itemId)
+	object[rolesField] = handler.getRolesForShow(ctx, item.ID)
 	object[createdAtField] = item.DateCreated.UTC().Unix()
 	object[updatedAtField] = item.DateUpdated.UTC().Unix()
 	if image != nil {
 		object[imageField] = image.GetImageUrl()
 	}
 
-	object.assignVisibility(handler.getVisibilityForShow(item.ID))
-	title, description := toLocaleStrings(handler.getTranslationsForShow(item.ID))
+	object.assignVisibility(handler.getVisibilityForShow(ctx, item.ID))
+	title, description := toLocaleStrings(handler.getTranslationsForShow(ctx, item.ID))
 	object.mapFromLocaleString(titleField, title)
 	object.mapFromLocaleString(descriptionField, description)
 	return object
 }
 
 func (handler *RequestHandler) indexShows(
+	ctx context.Context,
 	items []sqlc.Show,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
 	index *search.Index,
@@ -57,7 +60,7 @@ func (handler *RequestHandler) indexShows(
 			imageResult := imageDict[item.ImageFileID.UUID]
 			image = &imageResult
 		}
-		return handler.mapShowToSearchObject(item, image)
+		return handler.mapShowToSearchObject(ctx, item, image)
 	})
 
 	err := indexObjects(index, objects)
@@ -68,15 +71,14 @@ func (handler *RequestHandler) indexShows(
 	}
 }
 
-func (handler *RequestHandler) indexShow(item sqlc.Show) {
+func (handler *RequestHandler) indexShow(ctx context.Context, item sqlc.Show) {
 	service := handler.service
-	ctx := handler.context
 	var thumbnail *sqlc.DirectusFile
 	if item.ImageFileID.Valid {
 		thumbnailResult, _ := service.queries.GetFile(ctx, item.ImageFileID.UUID)
 		thumbnail = &thumbnailResult
 	}
-	object := handler.mapShowToSearchObject(item, thumbnail)
+	object := handler.mapShowToSearchObject(ctx, item, thumbnail)
 
 	_, err := service.index.SaveObject(object)
 	if err != nil {

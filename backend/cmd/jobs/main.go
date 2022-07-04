@@ -5,17 +5,18 @@ package main
 import (
 	"context"
 	"database/sql"
-
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
+	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
+	"github.com/go-resty/resty/v2"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"go.opentelemetry.io/otel"
@@ -23,20 +24,23 @@ import (
 
 const debugDirectus = false
 
-func initializeDirectusEventHandler(searchService *search.Service) *directus.EventHandler {
+func initializeDirectusEventHandler(directusClient *resty.Client, searchService *search.Service, crowdinClient *crowdin.Client) *directus.EventHandler {
 	eventHandler := directus.NewEventHandler()
 
-	indexEvents := []string{directus.EventItemsCreate, directus.EventItemsUpdate}
+	for _, event := range []string{directus.EventItemsCreate, directus.EventItemsUpdate} {
+		eventHandler.On(event, func(ctx context.Context, collection string, id int) {
+			searchHandler := searchService.NewRequestHandler()
+			searchHandler.IndexModel(ctx, collection, id)
 
-	eventHandler.On(indexEvents, func(ctx context.Context, model string, id int) {
-		handler := searchService.NewRequestHandler(ctx)
-		handler.IndexModel(model, id)
-	})
+			directusHandler := directus.NewHandler(directusClient)
+			crowdinClient.HandleModelUpdate(ctx, directusHandler, collection, id)
+		})
+	}
 
-	deleteEvents := []string{directus.EventItemsDelete}
-	eventHandler.On(deleteEvents, func(ctx context.Context, model string, id int) {
-		handler := searchService.NewRequestHandler(ctx)
-		handler.DeleteModel(model, id)
+	eventHandler.On(directus.EventItemsDelete, func(ctx context.Context, collection string, id int) {
+		handler := searchService.NewRequestHandler()
+		handler.DeleteModel(collection, id)
+		crowdinClient.HandleModelDelete(collection, id)
 	})
 
 	return eventHandler
@@ -59,6 +63,8 @@ func main() {
 		PackagingGroupID:   config.AWS.PackagingGroupARN,
 		MediapackageRole:   config.AWS.MediapackageRoleARN,
 		MediapackageSource: config.AWS.MediapackageSourceARN,
+		CrowdinProjectIDs:  config.Crowdin.ProjectIDs,
+		CrowdinToken:       config.Crowdin.Token,
 	}
 
 	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
@@ -92,7 +98,8 @@ func main() {
 	queries := sqlc.New(db)
 
 	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
-	directusEventHandler := initializeDirectusEventHandler(searchService)
+	crowdinClient := crowdin.New(config.Crowdin.Token, crowdin.ClientConfig{ProjectIDs: config.Crowdin.ProjectIDs})
+	directusEventHandler := initializeDirectusEventHandler(directusClient, searchService, crowdinClient)
 
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
@@ -104,6 +111,7 @@ func main() {
 		SearchService:        searchService,
 		DirectusEventHandler: directusEventHandler,
 		Queries:              queries,
+		CrowdinClient:        crowdinClient,
 	}, serverConfig)
 
 	apiGroup := router.Group("api")
@@ -112,6 +120,7 @@ func main() {
 	}
 
 	span.End()
+
 	err = router.Run(":" + config.Port)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Couldn't start server")

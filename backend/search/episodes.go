@@ -1,6 +1,7 @@
 package search
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -12,15 +13,16 @@ import (
 )
 
 func (handler *RequestHandler) mapEpisodeToSearchObject(
+	ctx context.Context,
 	item sqlc.Episode,
 	image *sqlc.DirectusFile,
 	season *sqlc.Season,
 ) searchObject {
 	object := searchObject{}
 	itemId := int(item.ID)
-	object[idField] = "episode-" + strconv.Itoa(itemId)
+	object[idField] = "episodes-" + strconv.Itoa(itemId)
 	object[typeField] = item.Type
-	object[rolesField] = handler.getRolesForEpisode(item.ID)
+	object[rolesField] = handler.getRolesForEpisode(ctx, item.ID)
 
 	object[createdAtField] = item.DateCreated.UTC().Unix()
 	object[updatedAtField] = item.DateUpdated.UTC().Unix()
@@ -35,17 +37,17 @@ func (handler *RequestHandler) mapEpisodeToSearchObject(
 		}
 	}
 
-	object.assignVisibility(handler.getVisibilityForEpisode(item.ID))
-	title, description := toLocaleStrings(handler.getTranslationsForEpisode(item.ID))
+	object.assignVisibility(handler.getVisibilityForEpisode(ctx, item.ID))
+	title, description := toLocaleStrings(handler.getTranslationsForEpisode(ctx, item.ID))
 	object.mapFromLocaleString(titleField, title)
 	object.mapFromLocaleString(descriptionField, description)
 	if season != nil {
 		object[seasonIDField] = season.ID
-		seasonTitle, _ := toLocaleStrings(handler.getTranslationsForSeason(season.ID))
+		seasonTitle, _ := toLocaleStrings(handler.getTranslationsForSeason(ctx, season.ID))
 		object.mapFromLocaleString(seasonTitleField, seasonTitle)
 
 		object[showIDField] = season.ShowID
-		showTitle, _ := toLocaleStrings(handler.getTranslationsForShow(season.ShowID))
+		showTitle, _ := toLocaleStrings(handler.getTranslationsForShow(ctx, season.ShowID))
 		object.mapFromLocaleString(showTitleField, showTitle)
 	}
 
@@ -53,6 +55,7 @@ func (handler *RequestHandler) mapEpisodeToSearchObject(
 }
 
 func (handler *RequestHandler) indexEpisodes(
+	ctx context.Context,
 	items []sqlc.Episode,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
 	seasonById map[int32]sqlc.Season,
@@ -69,7 +72,7 @@ func (handler *RequestHandler) indexEpisodes(
 			thumbnailResult := imageDict[item.ImageFileID.UUID]
 			thumbnail = &thumbnailResult
 		}
-		return handler.mapEpisodeToSearchObject(item, thumbnail, season)
+		return handler.mapEpisodeToSearchObject(ctx, item, thumbnail, season)
 	})
 
 	err := indexObjects(index, objects)
@@ -79,9 +82,8 @@ func (handler *RequestHandler) indexEpisodes(
 	}
 }
 
-func (handler *RequestHandler) indexEpisode(item sqlc.Episode) {
+func (handler *RequestHandler) indexEpisode(ctx context.Context, item sqlc.Episode) {
 	service := handler.service
-	ctx := handler.context
 
 	var image *sqlc.DirectusFile
 	if item.ImageFileID.Valid {
@@ -95,10 +97,10 @@ func (handler *RequestHandler) indexEpisode(item sqlc.Episode) {
 		season = &seasonResult
 	}
 
-	object := handler.mapEpisodeToSearchObject(item, image, season)
+	object := handler.mapEpisodeToSearchObject(ctx, item, image, season)
 
 	_, err := service.index.SaveObject(object)
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to index season")
+		log.L.Error().Err(err).Msg("Failed to index episode")
 	}
 }

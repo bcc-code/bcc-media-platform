@@ -1,8 +1,11 @@
 package server
 
 import (
+	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"net/http"
+	"time"
 
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/events"
@@ -19,6 +22,18 @@ import (
 
 var (
 	errUndefinedHandler = merry.New("Handler for this message type is not defined")
+)
+
+var (
+	messageCache = cache.New[string, bool]()
+)
+
+var (
+	runOnceOnNode = map[string]struct{}{
+		events.TypeSearchReindex:    {},
+		events.TypeTranslationsSync: {},
+		events.TypeDirectusEvent:    {},
+	}
 )
 
 // NewServer returns a new server for handling the HTTP requests
@@ -58,7 +73,7 @@ func (s server) ProcessMessage(c *gin.Context) {
 		log.L.Error().
 			Err(err).
 			Str("msg", spew.Sdump(msg)).
-			Msgf("Could not create could event. Likely bad format")
+			Msgf("Could not create cloud event. Likely bad format")
 		c.Status(http.StatusOK)
 		return
 	}
@@ -71,14 +86,28 @@ func (s server) ProcessMessage(c *gin.Context) {
 		Str("Source", e.Source()).
 		Msg("processing message")
 
+	// Mostly for local development. Run exactly once is enabled in cloud
+	if _, ok := runOnceOnNode[e.Type()]; ok {
+		if messageCache.Contains(e.ID()) {
+			log.L.Debug().Str("MsgId", e.ID()).Msg("ignoring processed message")
+			c.Status(http.StatusOK)
+			return
+		} else {
+			messageCache.Set(e.ID(), true, cache.WithExpiration(time.Minute*5))
+		}
+	}
+
 	switch e.Type() {
 	case events.TypeAssetDelivered:
 		err = asset.Ingest(ctx, s.services, s.config, e)
 	case events.TypeRefreshView:
 		err = maintenance.RefreshView(ctx, s.services, e)
-	case events.TypeSearchReindex, events.TypeSearchIndex:
-		eventHandler := s.services.GetDirectusEventHandler()
-		err = eventHandler.ProcessCloudEvent(ctx, e)
+	case events.TypeDirectusEvent:
+		err = s.services.GetDirectusEventHandler().ProcessCloudEvent(ctx, e)
+	case events.TypeSearchReindex:
+		go s.services.GetSearchService().NewRequestHandler().Reindex(ctx)
+	case events.TypeTranslationsSync:
+		err = crowdin.HandleEvent(ctx, s.services, e)
 	default:
 		err = merry.Wrap(errUndefinedHandler)
 	}
