@@ -12,12 +12,8 @@ export interface Event {
     collection: Collection;
 }
 
-export function enabled() {
-    return process.env.PUBSUB_ENABLED === "true"
-}
-
 const hooks: HookConfig = ({action}) => {
-    if (!enabled()) {
+    if (!process.env.PUBSUB_PROJECT_ID) {
         return
     }
 
