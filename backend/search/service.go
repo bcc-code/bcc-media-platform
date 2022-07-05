@@ -6,6 +6,7 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -78,7 +79,8 @@ func (service *Service) GenerateSecureKey(ctx *gin.Context) string {
 
 	// TODO: perhaps generate a Search-only API key every 2 hours, and rotate every hour. That way we can update filters every hour ?
 
-	filterString, _ := service.getFiltersForUser(ctx)
+	u := user.GetFromCtx(ctx)
+	filterString, _ := service.getFiltersForUser(u)
 	key, err := search.GenerateSecuredAPIKey(apiKey,
 		opt.Filters(filterString),
 	)
