@@ -7,8 +7,12 @@ package sqlc
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/lib/pq"
+	"github.com/tabbed/pqtype"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
@@ -151,6 +155,91 @@ func (q *Queries) GetEpisodes(ctx context.Context) ([]Episode, error) {
 			&i.Type,
 			&i.UserCreated,
 			&i.UserUpdated,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getEpisodesWithTranslationsByID = `-- name: GetEpisodesWithTranslationsByID :many
+WITH t AS (
+SELECT episodes_id, json_object_agg( languages_code, to_jsonb(t.*)) translations FROM episodes_translations t
+WHERE t.episodes_id = ANY($1::int[])
+GROUP BY t.episodes_id)
+SELECT agerating_code, asset_id, available_from, available_to, date_created, date_updated, episode_number, id, image_file_id, legacy_description_id, legacy_extra_description_id, legacy_id, legacy_program_id, legacy_tags_id, legacy_title_id, migration_data, publish_date, season_id, status, type, user_created, user_updated, episodes_id, translations FROM episodes e
+JOIN t ON e.id = t.episodes_id
+WHERE t.episodes_id = ANY($1::int[])
+`
+
+type GetEpisodesWithTranslationsByIDRow struct {
+	AgeratingCode            null_v4.String        `db:"agerating_code" json:"ageratingCode"`
+	AssetID                  null_v4.Int           `db:"asset_id" json:"assetID"`
+	AvailableFrom            null_v4.Time          `db:"available_from" json:"availableFrom"`
+	AvailableTo              null_v4.Time          `db:"available_to" json:"availableTo"`
+	DateCreated              time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated              time.Time             `db:"date_updated" json:"dateUpdated"`
+	EpisodeNumber            null_v4.Int           `db:"episode_number" json:"episodeNumber"`
+	ID                       int32                 `db:"id" json:"id"`
+	ImageFileID              uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
+	LegacyDescriptionID      null_v4.Int           `db:"legacy_description_id" json:"legacyDescriptionID"`
+	LegacyExtraDescriptionID null_v4.Int           `db:"legacy_extra_description_id" json:"legacyExtraDescriptionID"`
+	LegacyID                 null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	LegacyProgramID          null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
+	LegacyTagsID             null_v4.Int           `db:"legacy_tags_id" json:"legacyTagsID"`
+	LegacyTitleID            null_v4.Int           `db:"legacy_title_id" json:"legacyTitleID"`
+	MigrationData            pqtype.NullRawMessage `db:"migration_data" json:"migrationData"`
+	PublishDate              time.Time             `db:"publish_date" json:"publishDate"`
+	SeasonID                 null_v4.Int           `db:"season_id" json:"seasonID"`
+	Status                   string                `db:"status" json:"status"`
+	Type                     string                `db:"type" json:"type"`
+	UserCreated              uuid.NullUUID         `db:"user_created" json:"userCreated"`
+	UserUpdated              uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	EpisodesID               int32                 `db:"episodes_id" json:"episodesID"`
+	Translations             json.RawMessage       `db:"translations" json:"translations"`
+}
+
+func (q *Queries) GetEpisodesWithTranslationsByID(ctx context.Context, dollar_1 []int32) ([]GetEpisodesWithTranslationsByIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodesWithTranslationsByID, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEpisodesWithTranslationsByIDRow
+	for rows.Next() {
+		var i GetEpisodesWithTranslationsByIDRow
+		if err := rows.Scan(
+			&i.AgeratingCode,
+			&i.AssetID,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			&i.DateCreated,
+			&i.DateUpdated,
+			&i.EpisodeNumber,
+			&i.ID,
+			&i.ImageFileID,
+			&i.LegacyDescriptionID,
+			&i.LegacyExtraDescriptionID,
+			&i.LegacyID,
+			&i.LegacyProgramID,
+			&i.LegacyTagsID,
+			&i.LegacyTitleID,
+			&i.MigrationData,
+			&i.PublishDate,
+			&i.SeasonID,
+			&i.Status,
+			&i.Type,
+			&i.UserCreated,
+			&i.UserUpdated,
+			&i.EpisodesID,
+			&i.Translations,
 		); err != nil {
 			return nil, err
 		}

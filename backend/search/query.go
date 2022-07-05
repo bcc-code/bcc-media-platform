@@ -3,7 +3,8 @@ package search
 import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bcc-code/brunstadtv/backend/user"
+	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
 )
@@ -26,31 +27,33 @@ func getUserLanguage() string {
 	return defaultLanguage
 }
 
-func (handler *RequestHandler) Search(query *common.SearchQuery) (*common.SearchResult, error) {
+func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (searchResult common.SearchResult, err error) {
 	language := getUserLanguage()
 
-	filterString, err := handler.getFiltersForCurrentUser()
-	if err != nil {
-		log.L.Error().Err(err)
-		return &common.SearchResult{}, err
+	u := user.GetFromCtx(ctx)
+
+	if len(u.Roles) == 0 {
+		return
 	}
 
-	result, err := handler.service.index.Search(query.Query,
+	filterString, err := service.getFiltersForUser(u)
+	if err != nil {
+		return
+	}
+
+	result, err := service.index.Search(query.Query,
 		opt.Filters(filterString),
 		opt.Page(query.Page),
-		opt.AttributesToHighlight(handler.service.getTextFields()...),
+		opt.AttributesToHighlight(service.getTextFields()...),
 	)
 	if err != nil {
-		log.L.Error().Err(err).Msg("Search failed")
-		return nil, err
+		return
 	}
-	var searchResult common.SearchResult
 	var hits []searchObject
 
 	err = result.UnmarshalHits(&hits)
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to unmarshal hits")
-		return nil, err
+		return
 	}
 
 	searchResult.HitCount = result.NbHits
@@ -59,13 +62,13 @@ func (handler *RequestHandler) Search(query *common.SearchQuery) (*common.Search
 	searchResult.Result = []common.SearchResultItem{}
 
 	for _, rawHit := range hits {
-		hit := handler.service.convertToSearchHit(&rawHit)
+		hit := service.convertToSearchHit(&rawHit)
 		parts := strings.Split(hit.ID, "-")
 		model := parts[0]
-		id, err := strconv.ParseInt(parts[1], 0, 64)
-		if err != nil {
-			log.L.Error().Err(err).Msg("Failed to parse int")
-			return nil, err
+		id, e := strconv.ParseInt(parts[1], 0, 64)
+		if e != nil {
+			err = e
+			return
 		}
 
 		// TODO: Implement permission checking here as well
@@ -121,6 +124,5 @@ func (handler *RequestHandler) Search(query *common.SearchQuery) (*common.Search
 		searchResult.ResultCount++
 		searchResult.Result = append(searchResult.Result, item)
 	}
-
-	return &searchResult, nil
+	return
 }

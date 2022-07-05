@@ -39,14 +39,14 @@ func getTranslationsForModel[TSource translationSource](ctx context.Context, mod
 	return
 }
 
-func (handler *RequestHandler) getTranslationsForShow(ctx context.Context, id int32) (translations []common.Translation) {
-	return getTranslationsForModel(ctx, "show", id, handler.service.queries.GetTranslationsForShow)
+func (service *Service) getTranslationsForShow(ctx context.Context, id int32) (translations []common.Translation) {
+	return getTranslationsForModel(ctx, "show", id, service.queries.GetTranslationsForShow)
 }
 
-func (handler *RequestHandler) getTranslationsForSeason(ctx context.Context, id int32) (translations []common.Translation) {
-	return getTranslationsForModel(ctx, "season", id, handler.service.queries.GetTranslationsForSeason)
+func (service *Service) getTranslationsForSeason(ctx context.Context, id int32) (translations []common.Translation) {
+	return getTranslationsForModel(ctx, "season", id, service.queries.GetTranslationsForSeason)
 }
 
-func (handler *RequestHandler) getTranslationsForEpisode(ctx context.Context, id int32) (translations []common.Translation) {
-	return getTranslationsForModel(ctx, "episode", id, handler.service.queries.GetTranslationsForEpisode)
+func (service *Service) getTranslationsForEpisode(ctx context.Context, id int32) (translations []common.Translation) {
+	return getTranslationsForModel(ctx, "episode", id, service.queries.GetTranslationsForEpisode)
 }

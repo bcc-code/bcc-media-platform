@@ -34,16 +34,16 @@ func getRolesForModel(ctx context.Context, model string, id int32, factory func(
 	return dict[cacheKey]
 }
 
-func (handler *RequestHandler) getRolesForEpisode(ctx context.Context, id int32) (roles []string) {
-	return getRolesForModel(ctx, "episode", id, handler.service.queries.GetRolesForEpisode)
+func (service *Service) getRolesForEpisode(ctx context.Context, id int32) (roles []string) {
+	return getRolesForModel(ctx, "episode", id, service.queries.GetRolesForEpisode)
 }
 
-func (handler *RequestHandler) getRolesForSeason(ctx context.Context, id int32) (roles []string) {
+func (service *Service) getRolesForSeason(ctx context.Context, id int32) (roles []string) {
 	return getRolesForModel(ctx, "season", id, func(ctx context.Context, id int32) ([]string, error) {
-		return handler.service.queries.GetRolesForSeason(ctx, null.IntFrom(int64(id)))
+		return service.queries.GetRolesForSeason(ctx, null.IntFrom(int64(id)))
 	})
 }
 
-func (handler *RequestHandler) getRolesForShow(ctx context.Context, id int32) (roles []string) {
-	return getRolesForModel(ctx, "show", id, handler.service.queries.GetRolesForShow)
+func (service *Service) getRolesForShow(ctx context.Context, id int32) (roles []string) {
+	return getRolesForModel(ctx, "show", id, service.queries.GetRolesForShow)
 }

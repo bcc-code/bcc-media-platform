@@ -6,7 +6,6 @@ import (
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
@@ -26,7 +25,7 @@ func mapTranslationsForShow(translations []sqlc.ShowsTranslation) (title localeS
 	return
 }
 
-func (handler *RequestHandler) mapShowToSearchObject(
+func (service *Service) mapShowToSearchObject(
 	ctx context.Context,
 	item sqlc.Show,
 	image *sqlc.DirectusFile,
@@ -34,54 +33,46 @@ func (handler *RequestHandler) mapShowToSearchObject(
 	object := searchObject{}
 	itemId := int(item.ID)
 	object[idField] = "shows-" + strconv.Itoa(itemId)
-	object[rolesField] = handler.getRolesForShow(ctx, item.ID)
+	object[rolesField] = service.getRolesForShow(ctx, item.ID)
 	object[createdAtField] = item.DateCreated.UTC().Unix()
 	object[updatedAtField] = item.DateUpdated.UTC().Unix()
 	if image != nil {
 		object[imageField] = image.GetImageUrl()
 	}
 
-	object.assignVisibility(handler.getVisibilityForShow(ctx, item.ID))
-	title, description := toLocaleStrings(handler.getTranslationsForShow(ctx, item.ID))
+	object.assignVisibility(service.getVisibilityForShow(ctx, item.ID))
+	title, description := toLocaleStrings(service.getTranslationsForShow(ctx, item.ID))
 	object.mapFromLocaleString(titleField, title)
 	object.mapFromLocaleString(descriptionField, description)
 	return object
 }
 
-func (handler *RequestHandler) indexShows(
+func (service *Service) indexShows(
 	ctx context.Context,
 	items []sqlc.Show,
 	imageDict map[uuid.UUID]sqlc.DirectusFile,
 	index *search.Index,
-) {
+) error {
 	objects := lo.Map(items, func(item sqlc.Show, _ int) searchObject {
 		var image *sqlc.DirectusFile
 		if item.ImageFileID.Valid {
 			imageResult := imageDict[item.ImageFileID.UUID]
 			image = &imageResult
 		}
-		return handler.mapShowToSearchObject(ctx, item, image)
+		return service.mapShowToSearchObject(ctx, item, image)
 	})
 
-	err := indexObjects(index, objects)
-
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to index objects")
-		return
-	}
+	return indexObjects(index, objects)
 }
 
-func (handler *RequestHandler) indexShow(ctx context.Context, item sqlc.Show) {
-	service := handler.service
+func (service *Service) indexShow(ctx context.Context, item sqlc.Show) error {
 	var thumbnail *sqlc.DirectusFile
 	if item.ImageFileID.Valid {
 		thumbnailResult, _ := service.queries.GetFile(ctx, item.ImageFileID.UUID)
 		thumbnail = &thumbnailResult
 	}
-	object := handler.mapShowToSearchObject(ctx, item, thumbnail)
+	object := service.mapShowToSearchObject(ctx, item, thumbnail)
 
 	_, err := service.index.SaveObject(object)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to index season")
-	}
+	return err
 }

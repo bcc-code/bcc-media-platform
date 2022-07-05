@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
@@ -19,15 +20,13 @@ func InitCtx(ctx context.Context) context.Context {
 	return ctx
 }
 
-func (handler *RequestHandler) Reindex(ctx context.Context) {
+func (service *Service) Reindex(ctx context.Context) (err error) {
 	ctx = InitCtx(ctx)
-	service := handler.service
 	q := service.queries
 	index := service.index
 
-	_, err := index.ClearObjects()
+	_, err = index.ClearObjects()
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to clear objects from index")
 		return
 	}
 
@@ -42,13 +41,11 @@ func (handler *RequestHandler) Reindex(ctx context.Context) {
 		HitsPerPage:           opt.HitsPerPage(hitsPerPage),
 	})
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to set searchable fields")
 		return
 	}
 
 	shows, err := q.GetShows(ctx)
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to retrieve shows")
 		return
 	}
 	showThumbnails, _ := q.GetFilesByIds(ctx, lo.Map(lo.Filter(shows, func(i sqlc.Show, _ int) bool {
@@ -146,14 +143,24 @@ func (handler *RequestHandler) Reindex(ctx context.Context) {
 	}
 
 	log.L.Debug().Msg("Indexing shows")
-	handler.indexShows(ctx, shows, showThumbnailsById, index)
+	err = service.indexShows(ctx, shows, showThumbnailsById, index)
+	if err != nil {
+		return
+	}
 	log.L.Debug().Msg("Indexing seasons")
-	handler.indexSeasons(ctx, seasons, seasonThumbnailsById, index)
+	err = service.indexSeasons(ctx, seasons, seasonThumbnailsById, index)
+	if err != nil {
+		return
+	}
 	log.L.Debug().Msg("Indexing episodes")
-	handler.indexEpisodes(ctx, episodes, episodeThumbnailsById, seasonById, index)
+	err = service.indexEpisodes(ctx, episodes, episodeThumbnailsById, seasonById, index)
+	if err != nil {
+		return
+	}
+	return
 }
 
-func (handler *RequestHandler) DeleteObject(item interface{}) {
+func (service *Service) DeleteObject(item interface{}) {
 	var m string
 	var id int
 	switch v := item.(type) {
@@ -170,33 +177,31 @@ func (handler *RequestHandler) DeleteObject(item interface{}) {
 		log.L.Error().Msg("Unknown type")
 		return
 	}
-	handler.DeleteModel(m, id)
+	service.DeleteModel(m, id)
 }
 
-func (handler *RequestHandler) DeleteModel(collection string, id int) {
-	_, err := handler.service.index.DeleteObject(collection + "-" + strconv.Itoa(id))
+func (service *Service) DeleteModel(collection string, id int) {
+	_, err := service.index.DeleteObject(collection + "-" + strconv.Itoa(id))
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to delete collection")
 	}
 }
 
-func (handler *RequestHandler) IndexObject(ctx context.Context, item interface{}) {
+func (service *Service) IndexObject(ctx context.Context, item interface{}) error {
 	switch v := item.(type) {
 	case sqlc.Episode:
-		handler.indexEpisode(ctx, v)
+		return service.indexEpisode(ctx, v)
 	case sqlc.Show:
-		handler.indexShow(ctx, v)
+		return service.indexShow(ctx, v)
 	case sqlc.Season:
-		handler.indexSeason(ctx, v)
+		return service.indexSeason(ctx, v)
 	default:
-		log.L.Error().Msg("Couldn't index object")
+		return merry.New("collection not supported for indexing")
 	}
 }
 
-func (handler *RequestHandler) IndexModel(ctx context.Context, collection string, id int) {
-	service := handler.service
+func (service *Service) IndexModel(ctx context.Context, collection string, id int) (err error) {
 	var i any
-	var err error
 	switch collection {
 	case "episodes":
 		i, err = service.queries.GetEpisode(ctx, int32(id))
@@ -205,11 +210,10 @@ func (handler *RequestHandler) IndexModel(ctx context.Context, collection string
 	case "shows":
 		i, err = service.queries.GetShow(ctx, int32(id))
 	default:
-		return
+		return merry.New("collection not supported for indexing")
 	}
 	if err != nil {
-		log.L.Error().Err(err).Str("collection", collection).Int("id", id).Msg("Failed to retrieve collection")
 		return
 	}
-	handler.IndexObject(ctx, i)
+	return service.IndexObject(ctx, i)
 }
