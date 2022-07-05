@@ -14,6 +14,7 @@ export interface Event {
 
 const hooks: HookConfig = ({action}) => {
     if (!process.env.PUBSUB_PROJECT_ID) {
+        console.log("Missing configuration for publishing hooks to pubsub")
         return
     }
 

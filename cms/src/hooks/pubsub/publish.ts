@@ -9,6 +9,7 @@ const topicId = process.env.PUBSUB_TOPIC_ID
 const pubsub = new PubSub({projectId})
 
 export function handleEvent(eventName: string) {
+    console.log("Registering PUBSUB hook for event: " + eventName)
     const handler: ActionHandler = async (event: Event) => {
         const collections = ["shows", "seasons", "episodes", "shows_translations", "seasons_translations", "episodes_translations"] as Collection[]
 
@@ -33,7 +34,6 @@ export function handleEvent(eventName: string) {
         await topic.publishMessage({
             data: Buffer.from(JSON.stringify(e))
         })
-        
     }
     return handler
 }
