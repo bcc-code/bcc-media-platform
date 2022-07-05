@@ -31,6 +31,7 @@ export function handleEvent(eventName: string) {
            }
         })
 
+        console.log("Pushing event: " + JSON.stringify(e))
         await topic.publishMessage({
             data: Buffer.from(JSON.stringify(e))
         })
