@@ -19,5 +19,5 @@ type Resolver struct {
 
 // BatchLoaders is a collection of GQL dataloaders
 type BatchLoaders struct {
-	ProgramLoader *dataloader.Loader[int, gqlmodel.Program]
+	EpisodeLoader *dataloader.Loader[int, *gqlmodel.Episode]
 }
