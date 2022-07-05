@@ -5,6 +5,7 @@ import { ActionHandler } from "@directus/shared/src/types"
 import { v4 as uuid } from "uuid"
 
 const projectId = process.env.PUBSUB_PROJECT_ID
+const topicId = process.env.PUBSUB_TOPIC_ID
 const pubsub = new PubSub({projectId})
 
 export function handleEvent(eventName: string) {
@@ -17,7 +18,7 @@ export function handleEvent(eventName: string) {
         if (!event.key) {
             event.key = event.keys.map(i => Number(i))[0]
         }
-        const topic = pubsub.topic("background-jobs")
+        const topic = pubsub.topic(topicId)
         const e = new CloudEvent({
             id: uuid(),
             type: "directus.event",
