@@ -4,6 +4,15 @@ SELECT * FROM public.episodes;
 -- name: GetEpisode :one
 SELECT * FROM public.episodes WHERE id = $1;
 
+-- name: GetEpisodesWithTranslationsByID :many
+WITH t AS (
+SELECT episodes_id, json_object_agg( languages_code, to_jsonb(t.*)) translations FROM episodes_translations t
+WHERE t.episodes_id = ANY($1::int[])
+GROUP BY t.episodes_id)
+SELECT * FROM episodes e
+JOIN t ON e.id = t.episodes_id
+WHERE t.episodes_id = ANY($1::int[]);
+
 -- name: GetEpisodeTranslations :many
 SELECT * FROM public.episodes_translations;
 
