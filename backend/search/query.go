@@ -3,6 +3,7 @@ package search
 import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
@@ -29,7 +30,13 @@ func getUserLanguage() string {
 func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (searchResult common.SearchResult, err error) {
 	language := getUserLanguage()
 
-	filterString, err := service.getFiltersForUser(ctx)
+	u := user.GetFromCtx(ctx)
+
+	if len(u.Roles) == 0 {
+		return
+	}
+
+	filterString, err := service.getFiltersForUser(u)
 	if err != nil {
 		return
 	}
