@@ -1,4 +1,4 @@
-package program
+package episode
 
 import (
 	"context"
@@ -9,10 +9,10 @@ import (
 	"github.com/samber/lo"
 )
 
-// NewBatchLoader returns a configured batch loader for GQL Program
-func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, gqlmodel.Program] {
-	batchLoadPrograms := func(ctx context.Context, keys []int) []*dataloader.Result[gqlmodel.Program] {
-		results := []*dataloader.Result[gqlmodel.Program]{}
+// NewBatchLoader returns a configured batch loader for GQL Episode
+func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *gqlmodel.Episode] {
+	batchLoadEpisodes := func(ctx context.Context, keys []int) []*dataloader.Result[*gqlmodel.Episode] {
+		results := []*dataloader.Result[*gqlmodel.Episode]{}
 
 		ids := lo.Map(keys, func(key int, _ int) int32 {
 			return int32(key)
@@ -20,7 +20,7 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, gqlmodel.Progr
 
 		res, err := queries.GetEpisodesWithTranslationsByID(ctx, ids)
 
-		resMap := map[int]gqlmodel.Program{}
+		resMap := map[int]*gqlmodel.Episode{}
 
 		if err == nil {
 			for _, r := range res {
@@ -29,7 +29,7 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, gqlmodel.Progr
 		}
 
 		for _, k := range keys {
-			r := &dataloader.Result[gqlmodel.Program]{
+			r := &dataloader.Result[*gqlmodel.Episode]{
 				Error: err,
 			}
 
@@ -43,13 +43,13 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, gqlmodel.Progr
 		return results
 	}
 
-	return dataloader.NewBatchedLoader(batchLoadPrograms)
+	return dataloader.NewBatchedLoader(batchLoadEpisodes)
 }
 
 // GetByID should be used for retrieving program data
 //
 // It uses the dataloader to efficiently load data from DB or cache (as avalilable)
-func GetByID(ctx context.Context, loader *dataloader.Loader[int, gqlmodel.Program], id int) (gqlmodel.Program, error) {
+func GetByID(ctx context.Context, loader *dataloader.Loader[int, *gqlmodel.Episode], id int) (*gqlmodel.Episode, error) {
 	thunk := loader.Load(ctx, id)
 	result, err := thunk()
 	if err != nil {
