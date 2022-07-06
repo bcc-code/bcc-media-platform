@@ -2,8 +2,8 @@ package gqlmodel
 
 import (
 	"context"
-	"fmt"
 	"path"
+	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/samber/lo"
@@ -18,7 +18,7 @@ func FileFromSQL(ctx context.Context, sqlFile sqlc.GetFilesForEpisodesRow) *File
 	}
 
 	return &File{
-		ID:               fmt.Sprintf("%d", sqlFile.ID),
+		ID:               strconv.Itoa(int(sqlFile.ID)),
 		URL:              sqlFile.Path, // TODO: Make a full url out of the path
 		FileName:         path.Base(sqlFile.Path),
 		AudioLanguage:    Language(sqlFile.AudioLanguageID.String),
@@ -31,7 +31,7 @@ func FileFromSQL(ctx context.Context, sqlFile sqlc.GetFilesForEpisodesRow) *File
 func StreamFromSQL(ctx context.Context, sqlStream sqlc.GetStreamsForEpisodesRow) *Stream {
 
 	return &Stream{
-		ID:                fmt.Sprintf("%d", sqlStream.ID),
+		ID:                strconv.Itoa(int(sqlStream.ID)),
 		URL:               sqlStream.Path, // TODO: Make a full url out of the path
 		AudioLanguages:    lo.Map(sqlStream.AudioLanguages, func(s string, _ int) Language { return Language(s) }),
 		SubtitleLanguages: lo.Map(sqlStream.SubtitleLanguages, func(s string, _ int) Language { return Language(s) }),
