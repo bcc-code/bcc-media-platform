@@ -6,6 +6,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/episode"
 	"github.com/bcc-code/brunstadtv/backend/graph"
@@ -79,8 +80,12 @@ func main() {
 	queries := sqlc.New(db)
 
 	episodeLoader := episode.NewBatchLoader(*queries)
+	filesLoader := asset.NewBatchFileLoader(*queries)
+	streamsLoader := asset.NewBatchStreamLoader(*queries)
 	loaders := &graph.BatchLoaders{
 		EpisodeLoader: episodeLoader,
+		FilesLoader:   filesLoader,
+		StreamsLoader: streamsLoader,
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")

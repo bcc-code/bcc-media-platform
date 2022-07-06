@@ -142,9 +142,13 @@ type Episode {
   title: String!
   description: String!
   extraDescription: String!
-  assets(downloadable: Boolean): [Asset!]! @goField(forceResolver: true)
+  streams: [Stream!]! @goField(forceResolver: true)
+  files: [File!]! @goField(forceResolver: true)
   chapters: [Chapter!]!
   season: Season @goField(forceResolver: true)
+  duration: Int!
+  audioLanguages: [Language!]!
+  subtitleLanguages: [Language!]!
 }
 
 type Chapter {
@@ -153,10 +157,28 @@ type Chapter {
   title: String!
 }
 
-type Asset {
+type File {
   id: ID!
   url: String!
-  downloadable: Boolean!
+  audioLanguage: Language!
+  subtitleLanguage: Language
+  size: Int
+  fileName: String!
+  mimeType: String!
+}
+
+type Stream {
+  id: ID!
+  url: String!
+  audioLanguages: [Language!]!
+  subtitleLanguages: [Language!]!
+  type: StreamType!
+}
+
+enum StreamType {
+  hls
+  cmaf
+  dash
 }
 
 schema{

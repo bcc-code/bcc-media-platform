@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/episode"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
@@ -16,8 +17,12 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
-func (r *episodeResolver) Assets(ctx context.Context, obj *gqlmodel.Episode, downloadable *bool) ([]*gqlmodel.Asset, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error) {
+	return asset.GetStreamsForEpisode(ctx, r.Resolver.Loaders.StreamsLoader, obj.ID)
+}
+
+func (r *episodeResolver) Files(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.File, error) {
+	return asset.GetFilesForEpisode(ctx, r.Resolver.Loaders.FilesLoader, obj.ID)
 }
 
 func (r *episodeResolver) Season(ctx context.Context, obj *gqlmodel.Episode) (*gqlmodel.Season, error) {
