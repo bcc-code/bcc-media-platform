@@ -261,6 +261,49 @@ func (q *Queries) GetEpisodesWithTranslationsByID(ctx context.Context, dollar_1 
 	return items, nil
 }
 
+const getFilesForEpisodes = `-- name: GetFilesForEpisodes :many
+SELECT f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated FROM assets a
+JOIN assetfiles f ON a.id = f.asset_id
+WHERE a.id = ANY($1::int[])
+`
+
+func (q *Queries) GetFilesForEpisodes(ctx context.Context, dollar_1 []int32) ([]Assetfile, error) {
+	rows, err := q.db.QueryContext(ctx, getFilesForEpisodes, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Assetfile
+	for rows.Next() {
+		var i Assetfile
+		if err := rows.Scan(
+			&i.AssetID,
+			&i.AudioLanguageID,
+			&i.DateCreated,
+			&i.DateUpdated,
+			&i.ExtraMetadata,
+			&i.ID,
+			&i.MimeType,
+			&i.Path,
+			&i.Storage,
+			&i.SubtitleLanguageID,
+			&i.Type,
+			&i.UserCreated,
+			&i.UserUpdated,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getRolesForEpisode = `-- name: GetRolesForEpisode :many
 SELECT usergroups_code FROM public.episodes_usergroups WHERE episodes_id = $1
 `

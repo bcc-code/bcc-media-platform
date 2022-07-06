@@ -2,6 +2,7 @@ package asset
 
 import (
 	"context"
+	"strconv"
 
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -9,28 +10,33 @@ import (
 	"github.com/samber/lo"
 )
 
-// NewBatchLoader returns a configured batch loader for GQL Asset
-func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *gqlmodel.Asset] {
-	batchLoadAssets := func(ctx context.Context, keys []int) []*dataloader.Result[*gqlmodel.Asset] {
-		results := []*dataloader.Result[*gqlmodel.Asset]{}
+// NewBatchLoader returns a configured batch loader for GQL File
+func NewBatchFileLoader(queries sqlc.Queries) *dataloader.Loader[int, []*gqlmodel.File] {
+	batchLoadFiles := func(ctx context.Context, keys []int) []*dataloader.Result[[]*gqlmodel.File] {
+		results := []*dataloader.Result[[]*gqlmodel.File]{}
 
 		ids := lo.Map(keys, func(key int, _ int) int32 {
 			return int32(key)
 		})
 
-		res, err := queries.GetAssetsForEpisodes(ctx, ids)
+		res, err := queries.GetFilesForEpisodes(ctx, ids)
 
-		resMap := map[int]*gqlmodel.Asset{}
+		resMap := map[int][]*gqlmodel.File{}
 
 		if err == nil {
 			for _, r := range res {
-				gql := gqlmodel.AssetFromSQL(ctx, r)
-				resMap[int(r.ID)] = &gql
+
+				if _, ok := resMap[int(r.ID)]; !ok {
+					resMap[int(r.ID)] = []*gqlmodel.File{}
+				}
+
+				gql := gqlmodel.FileFromSQL(ctx, r)
+				resMap[int(r.ID)] = append(resMap[int(r.ID)], gql)
 			}
 		}
 
 		for _, k := range keys {
-			r := &dataloader.Result[*gqlmodel.Asset]{
+			r := &dataloader.Result[[]*gqlmodel.File]{
 				Error: err,
 			}
 
@@ -45,15 +51,16 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *gqlmodel.Asse
 	}
 
 	// Currently we do not want to cache at the GQL level
-	cache := &dataloader.NoCache[int, *gqlmodel.Asset]{}
-	return dataloader.NewBatchedLoader(batchLoadAssets, dataloader.WithCache[int, *gqlmodel.Asset](cache))
+	cache := &dataloader.NoCache[int, []*gqlmodel.File]{}
+	return dataloader.NewBatchedLoader(batchLoadFiles, dataloader.WithCache[int, []*gqlmodel.File](cache))
 }
 
-// GetByID should be used for retrieving program data
+// GetFilesForEpisode retrieves file assets currently associated with the specified asset
 //
 // It uses the dataloader to efficiently load data from DB or cache (as avalilable)
-func GetByID(ctx context.Context, loader *dataloader.Loader[int, *gqlmodel.Asset], id int) (*gqlmodel.Asset, error) {
-	thunk := loader.Load(ctx, id)
+func GetFilesForEpisode(ctx context.Context, loader *dataloader.Loader[int, []*gqlmodel.File], id string) ([]*gqlmodel.File, error) {
+	intID, _ := strconv.ParseInt(id, 10, 32)
+	thunk := loader.Load(ctx, int(intID))
 	result, err := thunk()
 	if err != nil {
 		return nil, err

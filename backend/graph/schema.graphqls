@@ -161,7 +161,7 @@ type File {
   id: ID!
   url: String!
   audioLanguage: Language!
-  subtitlaLanguage: Language
+  subtitleLanguage: Language
   size: Int
   fileName: String!
   mimeType: String!

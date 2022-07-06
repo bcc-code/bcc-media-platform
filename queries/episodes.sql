@@ -16,6 +16,11 @@ GROUP BY episodes_id)
 SELECT * FROM episodes e
 JOIN t ON e.id = t.episodes_id;
 
+-- name: GetFilesForEpisodes :many
+SELECT f.* FROM assets a
+JOIN assetfiles f ON a.id = f.asset_id
+WHERE a.id = ANY($1::int[]);
+
 -- name: GetEpisodeTranslations :many
 SELECT * FROM public.episodes_translations;
 
