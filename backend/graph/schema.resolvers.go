@@ -16,7 +16,11 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
-func (r *episodeResolver) Assets(ctx context.Context, obj *gqlmodel.Episode, downloadable *bool) ([]*gqlmodel.Asset, error) {
+func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *episodeResolver) Files(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.File, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 

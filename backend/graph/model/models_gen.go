@@ -24,12 +24,6 @@ type SectionBody interface {
 	IsSectionBody()
 }
 
-type Asset struct {
-	ID           string `json:"id"`
-	URL          string `json:"url"`
-	Downloadable bool   `json:"downloadable"`
-}
-
 type BubblesItemsSection struct {
 	ID          string  `json:"id"`
 	Items       []Item  `json:"items"`
@@ -74,7 +68,8 @@ type Episode struct {
 	Title            string     `json:"title"`
 	Description      string     `json:"description"`
 	ExtraDescription string     `json:"extraDescription"`
-	Assets           []*Asset   `json:"assets"`
+	Streams          []*Stream  `json:"streams"`
+	Files            []*File    `json:"files"`
 	Chapters         []*Chapter `json:"chapters"`
 	Season           *Season    `json:"season"`
 }
@@ -115,6 +110,16 @@ type FAQCategory struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
 	Questions []*Faq `json:"questions"`
+}
+
+type File struct {
+	ID               string    `json:"id"`
+	URL              string    `json:"url"`
+	AudioLanguage    Language  `json:"audioLanguage"`
+	SubtitlaLanguage *Language `json:"subtitlaLanguage"`
+	Size             *int      `json:"size"`
+	FileName         string    `json:"fileName"`
+	MimeType         string    `json:"mimeType"`
 }
 
 type ItemSection struct {
@@ -190,6 +195,14 @@ type SliderItemsSection struct {
 
 func (SliderItemsSection) IsSectionBody() {}
 
+type Stream struct {
+	ID               string     `json:"id"`
+	URL              string     `json:"url"`
+	AudioLanguages   []Language `json:"audioLanguages"`
+	SubtitlaLanguage []Language `json:"subtitlaLanguage"`
+	Type             StreamType `json:"type"`
+}
+
 type TvGuideEntry struct {
 	ID      string   `json:"id"`
 	Start   string   `json:"start"`
@@ -256,5 +269,48 @@ func (e *Language) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Language) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type StreamType string
+
+const (
+	StreamTypeHls  StreamType = "hls"
+	StreamTypeCmaf StreamType = "cmaf"
+	StreamTypeDash StreamType = "dash"
+)
+
+var AllStreamType = []StreamType{
+	StreamTypeHls,
+	StreamTypeCmaf,
+	StreamTypeDash,
+}
+
+func (e StreamType) IsValid() bool {
+	switch e {
+	case StreamTypeHls, StreamTypeCmaf, StreamTypeDash:
+		return true
+	}
+	return false
+}
+
+func (e StreamType) String() string {
+	return string(e)
+}
+
+func (e *StreamType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StreamType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StreamType", str)
+	}
+	return nil
+}
+
+func (e StreamType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
