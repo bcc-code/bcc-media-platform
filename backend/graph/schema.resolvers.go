@@ -13,7 +13,16 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 )
+
+func (r *episodeResolver) Assets(ctx context.Context, obj *gqlmodel.Episode, downloadable *bool) ([]*gqlmodel.Asset, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *episodeResolver) Season(ctx context.Context, obj *gqlmodel.Episode) (*gqlmodel.Season, error) {
+	panic(fmt.Errorf("not implemented"))
+}
 
 func (r *queryRootResolver) Page(ctx context.Context, id string) (gqlmodel.Page, error) {
 	panic(fmt.Errorf("not implemented"))
@@ -45,7 +54,7 @@ func (r *queryRootResolver) AllFAQs(ctx context.Context) ([]*gqlmodel.FAQCategor
 }
 
 func (r *queryRootResolver) Me(ctx context.Context) (*gqlmodel.User, error) {
-	gc, err := GinCtx(ctx)
+	gc, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +82,11 @@ func (r *queryRootResolver) Me(ctx context.Context) (*gqlmodel.User, error) {
 	return u, nil
 }
 
+// Episode returns generated.EpisodeResolver implementation.
+func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
+
 // QueryRoot returns generated.QueryRootResolver implementation.
 func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
 
+type episodeResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }

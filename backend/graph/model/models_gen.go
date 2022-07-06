@@ -70,12 +70,13 @@ type ContainerSection struct {
 func (ContainerSection) IsSection() {}
 
 type Episode struct {
-	ID          string     `json:"id"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Assets      []*Asset   `json:"assets"`
-	Chapters    []*Chapter `json:"chapters"`
-	Season      *Season    `json:"season"`
+	ID               string     `json:"id"`
+	Title            string     `json:"title"`
+	Description      string     `json:"description"`
+	ExtraDescription string     `json:"extraDescription"`
+	Assets           []*Asset   `json:"assets"`
+	Chapters         []*Chapter `json:"chapters"`
+	Season           *Season    `json:"season"`
 }
 
 type EpisodeItem struct {

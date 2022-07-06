@@ -85,15 +85,13 @@ func main() {
 
 	log.L.Debug().Msg("Set up HTTP server")
 	r := gin.Default()
-	r.Use(graph.GinContextToContextMiddleware())
+	r.Use(utils.GinContextToContextMiddleware())
 	r.Use(otelgin.Middleware("api")) // OpenTelemetry
 	r.Use(auth0.JWT(ctx, config.JWTConfig))
 	r.Use(user.NewUserMiddleware(queries))
 
 	r.POST("/query", graphqlHandler(queries, loaders))
 
-	// TODO: Should we have this in non-local envs?
-	// What about auth?
 	r.GET("/", playgroundHandler())
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)

@@ -24,7 +24,8 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *gqlmodel.Epis
 
 		if err == nil {
 			for _, r := range res {
-				resMap[int(r.ID)] = r.AsGQL()
+				gql := gqlmodel.EpisodeFromSQL(ctx, r)
+				resMap[int(r.ID)] = &gql
 			}
 		}
 
@@ -43,7 +44,9 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *gqlmodel.Epis
 		return results
 	}
 
-	return dataloader.NewBatchedLoader(batchLoadEpisodes)
+	// Currently we do not want to cache at the GQL level
+	cache := &dataloader.NoCache[int, *gqlmodel.Episode]{}
+	return dataloader.NewBatchedLoader(batchLoadEpisodes, dataloader.WithCache[int, *gqlmodel.Episode](cache))
 }
 
 // GetByID should be used for retrieving program data
