@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"strconv"
+	"strings"
 )
 
 func InitCtx(ctx context.Context) context.Context {
@@ -32,11 +33,16 @@ func (service *Service) Reindex(ctx context.Context) (err error) {
 
 	// Makes it possible to filter in query, which fields you are searching on
 	// Also configures hits per page
+	searchableAttributes := opt.SearchableAttributes(
+		strings.Join(service.getPrimaryTranslatedFields(), ","),
+		strings.Join(service.getRelationalTranslatedFields(), ","),
+		strings.Join(getFunctionalFields(), ","),
+	)
 	languages := service.getLanguageKeys()
 	_, err = index.SetSettings(search.Settings{
 		IndexLanguages:        opt.IndexLanguages(languages...),
 		QueryLanguages:        opt.QueryLanguages(languages...),
-		SearchableAttributes:  opt.SearchableAttributes(service.getFields()...),
+		SearchableAttributes:  searchableAttributes,
 		AttributesForFaceting: opt.AttributesForFaceting(service.getFilterFields()...),
 		HitsPerPage:           opt.HitsPerPage(hitsPerPage),
 	})

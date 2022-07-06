@@ -41,16 +41,20 @@ func (dict localeString) get(language string) string {
 }
 
 func (service *Service) getFields() []string {
-	return append(service.getTranslatedFields(), service.getFunctionalFields()...)
+	return append(service.getTranslatedFields(), getFunctionalFields()...)
 }
 
 // Fields which can be used for something
-func (service *Service) getFunctionalFields() []string {
+func getFunctionalFields() []string {
 	return []string{createdAtField, updatedAtField, headerField}
 }
 
-func (service *Service) getTranslatableFields() []string {
-	return []string{descriptionField, titleField, showTitleField, seasonTitleField}
+func getRelationalTranslatableFields() []string {
+	return []string{showTitleField, seasonTitleField}
+}
+
+func getPrimaryTranslatableFields() []string {
+	return []string{titleField, descriptionField}
 }
 
 // Searchable fields
@@ -63,27 +67,43 @@ func (service *Service) getFilterFields() []string {
 	return []string{rolesField, typeField, statusField, publishedAtField}
 }
 
-func (service *Service) getTranslatedFields() (fields []string) {
-	languages := service.getLanguageKeys()
-	for _, field := range service.getTranslatableFields() {
-		for _, language := range languages {
+func (service *Service) getPrimaryTranslatedFields() []string {
+	var fields []string
+	ls := service.getLanguageKeys()
+	for _, field := range getPrimaryTranslatableFields() {
+		for _, language := range ls {
 			fields = append(fields, field+"_"+language)
 		}
 	}
-	return
+	return fields
 }
 
-var languages []string
+func (service *Service) getRelationalTranslatedFields() []string {
+	var fields []string
+	ls := service.getLanguageKeys()
+	for _, field := range getRelationalTranslatableFields() {
+		for _, language := range ls {
+			fields = append(fields, field+"_"+language)
+		}
+	}
+	return fields
+}
+
+func (service *Service) getTranslatedFields() (fields []string) {
+	return append(service.getPrimaryTranslatedFields(), service.getRelationalTranslatedFields()...)
+}
+
+var allLanguages []string
 
 func (service *Service) getLanguageKeys() []string {
-	if languages == nil {
+	if allLanguages == nil {
 		// TODO: Remove this filter after cleaning up database
-		ls, _ := service.queries.GetLanguageKeys(context.Background())
-		languages = lo.Filter(ls, func(lang string, _ int) bool {
+		languages, _ := service.queries.GetLanguageKeys(context.Background())
+		allLanguages = lo.Filter(languages, func(lang string, _ int) bool {
 			return len(lang) == 2
 		})
 	}
-	return languages
+	return allLanguages
 }
 
 func getUrl(model string, id int) string {
