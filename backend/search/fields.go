@@ -126,17 +126,17 @@ func (object *searchObject) getLocaleString(field string, languages []string) (d
 	return
 }
 
-func (service *Service) convertToSearchHit(object *searchObject) (item searchHit) {
+func (service *Service) convertToSearchHit(object searchObject) (item searchHit) {
 	languages := service.getLanguageKeys()
-	item.ID = (*object)[idField].(string)
+	item.ID = object[idField].(string)
 	item.Title = object.getLocaleString(titleField, languages)
-	delete(*object, titleField)
+	delete(object, titleField)
 	item.Description = object.getLocaleString(descriptionField, languages)
-	delete(*object, descriptionField)
+	delete(object, descriptionField)
 	item.ShowTitle = object.getLocaleString(showTitleField, languages)
-	delete(*object, showTitleField)
+	delete(object, showTitleField)
 	item.SeasonTitle = object.getLocaleString(seasonTitleField, languages)
-	delete(*object, seasonTitleField)
+	delete(object, seasonTitleField)
 	err := mapstructure.Decode(object, &item)
 	if err != nil {
 		log.L.Error().Err(err).Msg("failed to decode to searchHit")

@@ -67,7 +67,7 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 		// TODO: remove logging of search result
 		stringHit, _ := json.Marshal(rawHit)
 		log.L.Debug().Str("hit", string(stringHit)).Msg("Retrieved object")
-		hit := service.convertToSearchHit(&rawHit)
+		hit := service.convertToSearchHit(rawHit)
 		stringHit, _ = json.Marshal(hit)
 		log.L.Debug().Str("hit", string(stringHit)).Msg("Converted to hit")
 		parts := strings.Split(hit.ID, "-")
