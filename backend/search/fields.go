@@ -6,6 +6,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/mitchellh/mapstructure"
+	"github.com/samber/lo"
 )
 
 const (
@@ -76,7 +77,11 @@ var languages []string
 
 func (service *Service) getLanguageKeys() []string {
 	if languages == nil {
-		languages, _ = service.queries.GetLanguageKeys(context.Background())
+		// TODO: Remove this filter after cleaning up database
+		ls, _ := service.queries.GetLanguageKeys(context.Background())
+		languages = lo.Filter(ls, func(lang string, _ int) bool {
+			return len(lang) == 2
+		})
 	}
 	return languages
 }
