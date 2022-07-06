@@ -16,10 +16,8 @@ type Translations map[string]null_v4.String
 func GetTranslation(langs []string, trans Translations) string {
 	langs = append(langs, DefaultLangs...) // We force the DefaultLangs as the last languages regardless if they have been specified before already
 	for _, l := range langs {
-		if val, ok := trans[l]; ok {
-			if val.Valid {
-				return val.String
-			}
+		if val, ok := trans[l]; ok && val.Valid {
+			return val.String
 		}
 	}
 
