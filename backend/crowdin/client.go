@@ -265,11 +265,17 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 	}, map[int]String{})
 
 	var missingStrings []String
+	var editStrings []String
 	for _, str := range dbStrings {
-		if _, found := lo.Find(fileStrings, func(s String) bool {
+		if s, found := lo.Find(fileStrings, func(s String) bool {
 			return s.Identifier == str.Identifier
 		}); !found {
 			missingStrings = append(missingStrings, str)
+		} else {
+			if s.Text != str.Text {
+				s.Text = str.Text
+				editStrings = append(editStrings, s)
+			}
 		}
 	}
 
@@ -277,6 +283,15 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 		for _, str := range missingStrings {
 			log.L.Debug().Str("identifier", str.Identifier).Msg("Adding missing string")
 			_, err = client.addString(project.ID, file.ID, str)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	if len(editStrings) > 0 {
+		for _, str := range editStrings {
+			log.L.Debug().Str("identifier", str.Identifier).Msg("Editing string")
+			_, err = client.setString(project.ID, str)
 			if err != nil {
 				return err
 			}
@@ -306,6 +321,11 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 
 		log.L.Debug().Int("count", len(existingTranslations)).Msg("Found existing translations")
 
+		approvals, err := client.getApprovals(projectId, file.ID, language.ID)
+		if err != nil {
+			return err
+		}
+
 		ts, err := client.getTranslations(projectId, file.ID, language.ID)
 		if err != nil {
 			return err
@@ -319,6 +339,13 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 			if !ok {
 				continue
 			}
+			_, approved := lo.Find(approvals, func(a Approval) bool {
+				return a.TranslationID == t.TranslationID
+			})
+			if !approved {
+				continue
+			}
+
 			parts := strings.Split(s.Identifier, "-")
 			if len(parts) != 3 {
 				continue

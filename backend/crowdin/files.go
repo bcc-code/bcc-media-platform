@@ -87,6 +87,15 @@ func (client *Client) getTranslations(projectId int, fileId int, language string
 	})
 }
 
+func (client *Client) getApprovals(projectId int, fileId int, language string) ([]Approval, error) {
+	return incrementallyRetrieve(func(limit int, offset int) ([]Approval, error) {
+		return getItems[Approval](client, fmt.Sprintf("projects/%d/approvals", projectId), limit, offset, map[string]string{
+			"fileId":     strconv.Itoa(fileId),
+			"languageId": language,
+		})
+	})
+}
+
 func (client *Client) getStrings(projectId int, fileId int) ([]String, error) {
 	return incrementallyRetrieve(func(limit int, offset int) ([]String, error) {
 		return getItems[String](client, fmt.Sprintf("projects/%d/strings", projectId), limit, offset, map[string]string{
@@ -129,6 +138,29 @@ func (client *Client) setString(projectId int, s String) (r String, err error) {
 	err = ensureSuccess(res)
 	if err == nil {
 		r = res.Result().(*Object[String]).Data
+	}
+	project, err := client.getProject(projectId)
+	if err != nil {
+		return
+	}
+	for _, language := range project.TargetLanguages {
+		req = client.c.R()
+		req.SetResult(Result[[]Object[Approval]]{})
+		req.SetQueryParams(map[string]string{
+			"stringId":   strconv.Itoa(r.ID),
+			"languageId": language.ID,
+		})
+		res, err = req.Get(fmt.Sprintf("projects/%d/approvals", project.ID))
+		if err != nil {
+			return
+		}
+		for _, approval := range res.Result().(*Result[[]Object[Approval]]).Data {
+			req = client.c.R()
+			_, err = req.Delete(fmt.Sprintf("projects/%d/approvals/%d", project.ID, approval.Data.ID))
+			if err != nil {
+				return
+			}
+		}
 	}
 	return
 }
