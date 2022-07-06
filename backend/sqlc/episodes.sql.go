@@ -170,13 +170,16 @@ func (q *Queries) GetEpisodes(ctx context.Context) ([]Episode, error) {
 }
 
 const getEpisodesWithTranslationsByID = `-- name: GetEpisodesWithTranslationsByID :many
-WITH t AS (
-SELECT episodes_id, json_object_agg( languages_code, to_jsonb(t.*)) translations FROM episodes_translations t
+WITH t AS (SELECT
+	t.episodes_id,
+	json_object_agg(t.languages_code, t.title) as title,
+	json_object_agg(t.languages_code, t.description) as description,
+	json_object_agg(t.languages_code, t.extra_description) as extra_description
+FROM episodes_translations t
 WHERE t.episodes_id = ANY($1::int[])
-GROUP BY t.episodes_id)
-SELECT agerating_code, asset_id, available_from, available_to, date_created, date_updated, episode_number, id, image_file_id, legacy_description_id, legacy_extra_description_id, legacy_id, legacy_program_id, legacy_tags_id, legacy_title_id, migration_data, publish_date, season_id, status, type, user_created, user_updated, episodes_id, translations FROM episodes e
+GROUP BY episodes_id)
+SELECT agerating_code, asset_id, available_from, available_to, date_created, date_updated, episode_number, id, image_file_id, legacy_description_id, legacy_extra_description_id, legacy_id, legacy_program_id, legacy_tags_id, legacy_title_id, migration_data, publish_date, season_id, status, type, user_created, user_updated, episodes_id, title, description, extra_description FROM episodes e
 JOIN t ON e.id = t.episodes_id
-WHERE t.episodes_id = ANY($1::int[])
 `
 
 type GetEpisodesWithTranslationsByIDRow struct {
@@ -203,7 +206,9 @@ type GetEpisodesWithTranslationsByIDRow struct {
 	UserCreated              uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated              uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	EpisodesID               int32                 `db:"episodes_id" json:"episodesID"`
-	Translations             json.RawMessage       `db:"translations" json:"translations"`
+	Title                    json.RawMessage       `db:"title" json:"title"`
+	Description              json.RawMessage       `db:"description" json:"description"`
+	ExtraDescription         json.RawMessage       `db:"extra_description" json:"extraDescription"`
 }
 
 func (q *Queries) GetEpisodesWithTranslationsByID(ctx context.Context, dollar_1 []int32) ([]GetEpisodesWithTranslationsByIDRow, error) {
@@ -239,7 +244,9 @@ func (q *Queries) GetEpisodesWithTranslationsByID(ctx context.Context, dollar_1 
 			&i.UserCreated,
 			&i.UserUpdated,
 			&i.EpisodesID,
-			&i.Translations,
+			&i.Title,
+			&i.Description,
+			&i.ExtraDescription,
 		); err != nil {
 			return nil, err
 		}

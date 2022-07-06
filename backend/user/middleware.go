@@ -9,6 +9,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
@@ -24,8 +25,9 @@ const (
 
 // Various hardcoded keys
 const (
-	CtxUser    = "ctx-user"
-	CacheRoles = "roles"
+	CtxUser      = "ctx-user"
+	CacheRoles   = "roles"
+	CtxLanguages = "ctx-languages"
 )
 
 var userCache = cache.New[string, *common.User]()
@@ -73,6 +75,12 @@ func GetRolesForEmail(ctx context.Context, queries *sqlc.Queries, email string) 
 	return rtnRoles, nil
 }
 
+// GetAcceptedLanguagesFromCtx as sent by the user
+func GetAcceptedLanguagesFromCtx(ctx *gin.Context) []string {
+	accLang := ctx.GetHeader("Accept-Language")
+	return utils.ParseAcceptLanguage(accLang)
+}
+
 // NewUserMiddleware returns a gin middleware that injests a populated User struct
 // into the gin context
 func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
@@ -83,6 +91,9 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 		roles := []string{}
 
 		authed := ctx.GetBool(auth0.CtxAuthenticated)
+
+		// This can't be on the user object because that is cached for too long
+		ctx.Set(CtxLanguages, GetAcceptedLanguagesFromCtx(ctx))
 
 		// If the user is anonymous we just create a simple object and bail
 		if !authed {
@@ -151,4 +162,14 @@ func GetFromCtx(ctx *gin.Context) *common.User {
 	}
 
 	return u.(*common.User)
+}
+
+// GetLangsFromCtx as provided in the request
+func GetLangsFromCtx(ctx *gin.Context) []string {
+	l, ok := ctx.Get(CtxLanguages)
+	if !ok {
+		return []string{}
+	}
+
+	return l.([]string)
 }

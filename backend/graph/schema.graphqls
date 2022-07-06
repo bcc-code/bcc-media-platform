@@ -1,3 +1,6 @@
+directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
+    | FIELD_DEFINITION
+
 interface Page{
   id: ID!
   title: String
@@ -138,9 +141,10 @@ type Episode {
   id: ID!
   title: String!
   description: String!
-  assets(downloadable: Boolean): [Asset!]!
+  extraDescription: String!
+  assets(downloadable: Boolean): [Asset!]! @goField(forceResolver: true)
   chapters: [Chapter!]!
-  season: Season
+  season: Season @goField(forceResolver: true)
 }
 
 type Chapter {
