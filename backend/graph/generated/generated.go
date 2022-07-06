@@ -80,14 +80,17 @@ type ComplexityRoot struct {
 	}
 
 	Episode struct {
-		Chapters         func(childComplexity int) int
-		Description      func(childComplexity int) int
-		ExtraDescription func(childComplexity int) int
-		Files            func(childComplexity int) int
-		ID               func(childComplexity int) int
-		Season           func(childComplexity int) int
-		Streams          func(childComplexity int) int
-		Title            func(childComplexity int) int
+		AudioLanguages    func(childComplexity int) int
+		Chapters          func(childComplexity int) int
+		Description       func(childComplexity int) int
+		Duration          func(childComplexity int) int
+		ExtraDescription  func(childComplexity int) int
+		Files             func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Season            func(childComplexity int) int
+		Streams           func(childComplexity int) int
+		SubtitleLanguages func(childComplexity int) int
+		Title             func(childComplexity int) int
 	}
 
 	EpisodeItem struct {
@@ -130,7 +133,7 @@ type ComplexityRoot struct {
 		ID               func(childComplexity int) int
 		MimeType         func(childComplexity int) int
 		Size             func(childComplexity int) int
-		SubtitlaLanguage func(childComplexity int) int
+		SubtitleLanguage func(childComplexity int) int
 		URL              func(childComplexity int) int
 	}
 
@@ -210,11 +213,11 @@ type ComplexityRoot struct {
 	}
 
 	Stream struct {
-		AudioLanguages   func(childComplexity int) int
-		ID               func(childComplexity int) int
-		SubtitlaLanguage func(childComplexity int) int
-		Type             func(childComplexity int) int
-		URL              func(childComplexity int) int
+		AudioLanguages    func(childComplexity int) int
+		ID                func(childComplexity int) int
+		SubtitleLanguages func(childComplexity int) int
+		Type              func(childComplexity int) int
+		URL               func(childComplexity int) int
 	}
 
 	TvGuideEntry struct {
@@ -402,6 +405,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ContainerSection.Title(childComplexity), true
 
+	case "Episode.audioLanguages":
+		if e.complexity.Episode.AudioLanguages == nil {
+			break
+		}
+
+		return e.complexity.Episode.AudioLanguages(childComplexity), true
+
 	case "Episode.chapters":
 		if e.complexity.Episode.Chapters == nil {
 			break
@@ -415,6 +425,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.Description(childComplexity), true
+
+	case "Episode.duration":
+		if e.complexity.Episode.Duration == nil {
+			break
+		}
+
+		return e.complexity.Episode.Duration(childComplexity), true
 
 	case "Episode.extraDescription":
 		if e.complexity.Episode.ExtraDescription == nil {
@@ -450,6 +467,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.Streams(childComplexity), true
+
+	case "Episode.subtitleLanguages":
+		if e.complexity.Episode.SubtitleLanguages == nil {
+			break
+		}
+
+		return e.complexity.Episode.SubtitleLanguages(childComplexity), true
 
 	case "Episode.title":
 		if e.complexity.Episode.Title == nil {
@@ -631,12 +655,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.File.Size(childComplexity), true
 
-	case "File.subtitlaLanguage":
-		if e.complexity.File.SubtitlaLanguage == nil {
+	case "File.subtitleLanguage":
+		if e.complexity.File.SubtitleLanguage == nil {
 			break
 		}
 
-		return e.complexity.File.SubtitlaLanguage(childComplexity), true
+		return e.complexity.File.SubtitleLanguage(childComplexity), true
 
 	case "File.url":
 		if e.complexity.File.URL == nil {
@@ -978,12 +1002,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Stream.ID(childComplexity), true
 
-	case "Stream.subtitlaLanguage":
-		if e.complexity.Stream.SubtitlaLanguage == nil {
+	case "Stream.subtitleLanguages":
+		if e.complexity.Stream.SubtitleLanguages == nil {
 			break
 		}
 
-		return e.complexity.Stream.SubtitlaLanguage(childComplexity), true
+		return e.complexity.Stream.SubtitleLanguages(childComplexity), true
 
 	case "Stream.type":
 		if e.complexity.Stream.Type == nil {
@@ -1304,6 +1328,9 @@ type Episode {
   files: [File!]! @goField(forceResolver: true)
   chapters: [Chapter!]!
   season: Season @goField(forceResolver: true)
+  duration: Int!
+  audioLanguages: [Language!]!
+  subtitleLanguages: [Language!]!
 }
 
 type Chapter {
@@ -1316,7 +1343,7 @@ type File {
   id: ID!
   url: String!
   audioLanguage: Language!
-  subtitlaLanguage: Language
+  subtitleLanguage: Language
   size: Int
   fileName: String!
   mimeType: String!
@@ -1326,7 +1353,7 @@ type Stream {
   id: ID!
   url: String!
   audioLanguages: [Language!]!
-  subtitlaLanguage: [Language!]!
+  subtitleLanguages: [Language!]!
   type: StreamType!
 }
 
@@ -2653,8 +2680,8 @@ func (ec *executionContext) fieldContext_Episode_streams(ctx context.Context, fi
 				return ec.fieldContext_Stream_url(ctx, field)
 			case "audioLanguages":
 				return ec.fieldContext_Stream_audioLanguages(ctx, field)
-			case "subtitlaLanguage":
-				return ec.fieldContext_Stream_subtitlaLanguage(ctx, field)
+			case "subtitleLanguages":
+				return ec.fieldContext_Stream_subtitleLanguages(ctx, field)
 			case "type":
 				return ec.fieldContext_Stream_type(ctx, field)
 			}
@@ -2709,8 +2736,8 @@ func (ec *executionContext) fieldContext_Episode_files(ctx context.Context, fiel
 				return ec.fieldContext_File_url(ctx, field)
 			case "audioLanguage":
 				return ec.fieldContext_File_audioLanguage(ctx, field)
-			case "subtitlaLanguage":
-				return ec.fieldContext_File_subtitlaLanguage(ctx, field)
+			case "subtitleLanguage":
+				return ec.fieldContext_File_subtitleLanguage(ctx, field)
 			case "size":
 				return ec.fieldContext_File_size(ctx, field)
 			case "fileName":
@@ -2820,6 +2847,138 @@ func (ec *executionContext) fieldContext_Episode_season(ctx context.Context, fie
 				return ec.fieldContext_Season_episodes(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Season", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Episode_duration(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_duration(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Duration, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_duration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Episode_audioLanguages(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_audioLanguages(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AudioLanguages, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.Language)
+	fc.Result = res
+	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_audioLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Language does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Episode_subtitleLanguages(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SubtitleLanguages, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.Language)
+	fc.Result = res
+	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_subtitleLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Language does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3006,6 +3165,12 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 				return ec.fieldContext_Episode_chapters(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
+			case "duration":
+				return ec.fieldContext_Episode_duration(ctx, field)
+			case "audioLanguages":
+				return ec.fieldContext_Episode_audioLanguages(ctx, field)
+			case "subtitleLanguages":
+				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -3256,6 +3421,12 @@ func (ec *executionContext) fieldContext_EpisodePage_episode(ctx context.Context
 				return ec.fieldContext_Episode_chapters(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
+			case "duration":
+				return ec.fieldContext_Episode_duration(ctx, field)
+			case "audioLanguages":
+				return ec.fieldContext_Episode_audioLanguages(ctx, field)
+			case "subtitleLanguages":
+				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -3851,8 +4022,8 @@ func (ec *executionContext) fieldContext_File_audioLanguage(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _File_subtitlaLanguage(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.File) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_File_subtitlaLanguage(ctx, field)
+func (ec *executionContext) _File_subtitleLanguage(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.File) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_File_subtitleLanguage(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3865,7 +4036,7 @@ func (ec *executionContext) _File_subtitlaLanguage(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.SubtitlaLanguage, nil
+		return obj.SubtitleLanguage, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3879,7 +4050,7 @@ func (ec *executionContext) _File_subtitlaLanguage(ctx context.Context, field gr
 	return ec.marshalOLanguage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguage(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_File_subtitlaLanguage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_File_subtitleLanguage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "File",
 		Field:      field,
@@ -4644,6 +4815,12 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_chapters(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
+			case "duration":
+				return ec.fieldContext_Episode_duration(ctx, field)
+			case "audioLanguages":
+				return ec.fieldContext_Episode_audioLanguages(ctx, field)
+			case "subtitleLanguages":
+				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -5221,6 +5398,12 @@ func (ec *executionContext) fieldContext_Season_episodes(ctx context.Context, fi
 				return ec.fieldContext_Episode_chapters(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
+			case "duration":
+				return ec.fieldContext_Episode_duration(ctx, field)
+			case "audioLanguages":
+				return ec.fieldContext_Episode_audioLanguages(ctx, field)
+			case "subtitleLanguages":
+				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -6286,8 +6469,8 @@ func (ec *executionContext) fieldContext_Stream_audioLanguages(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Stream_subtitlaLanguage(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Stream) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Stream_subtitlaLanguage(ctx, field)
+func (ec *executionContext) _Stream_subtitleLanguages(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Stream) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Stream_subtitleLanguages(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -6300,7 +6483,7 @@ func (ec *executionContext) _Stream_subtitlaLanguage(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.SubtitlaLanguage, nil
+		return obj.SubtitleLanguages, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6317,7 +6500,7 @@ func (ec *executionContext) _Stream_subtitlaLanguage(ctx context.Context, field 
 	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Stream_subtitlaLanguage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Stream_subtitleLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Stream",
 		Field:      field,
@@ -6558,6 +6741,12 @@ func (ec *executionContext) fieldContext_TvGuideEntry_episode(ctx context.Contex
 				return ec.fieldContext_Episode_chapters(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
+			case "duration":
+				return ec.fieldContext_Episode_duration(ctx, field)
+			case "audioLanguages":
+				return ec.fieldContext_Episode_audioLanguages(ctx, field)
+			case "subtitleLanguages":
+				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -9258,6 +9447,27 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 				return innerFunc(ctx)
 
 			})
+		case "duration":
+
+			out.Values[i] = ec._Episode_duration(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "audioLanguages":
+
+			out.Values[i] = ec._Episode_audioLanguages(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "subtitleLanguages":
+
+			out.Values[i] = ec._Episode_subtitleLanguages(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9523,9 +9733,9 @@ func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "subtitlaLanguage":
+		case "subtitleLanguage":
 
-			out.Values[i] = ec._File_subtitlaLanguage(ctx, field, obj)
+			out.Values[i] = ec._File_subtitleLanguage(ctx, field, obj)
 
 		case "size":
 
@@ -10212,9 +10422,9 @@ func (ec *executionContext) _Stream(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "subtitlaLanguage":
+		case "subtitleLanguages":
 
-			out.Values[i] = ec._Stream_subtitlaLanguage(ctx, field, obj)
+			out.Values[i] = ec._Stream_subtitleLanguages(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

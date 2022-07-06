@@ -81,9 +81,11 @@ func main() {
 
 	episodeLoader := episode.NewBatchLoader(*queries)
 	filesLoader := asset.NewBatchFileLoader(*queries)
+	streamsLoader := asset.NewBatchStreamLoader(*queries)
 	loaders := &graph.BatchLoaders{
 		EpisodeLoader: episodeLoader,
 		FilesLoader:   filesLoader,
+		StreamsLoader: streamsLoader,
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")

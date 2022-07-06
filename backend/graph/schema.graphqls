@@ -171,7 +171,7 @@ type Stream {
   id: ID!
   url: String!
   audioLanguages: [Language!]!
-  subtitlaLanguage: [Language!]!
+  subtitleLanguages: [Language!]!
   type: StreamType!
 }
 

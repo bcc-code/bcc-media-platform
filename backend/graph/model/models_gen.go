@@ -64,14 +64,17 @@ type ContainerSection struct {
 func (ContainerSection) IsSection() {}
 
 type Episode struct {
-	ID               string     `json:"id"`
-	Title            string     `json:"title"`
-	Description      string     `json:"description"`
-	ExtraDescription string     `json:"extraDescription"`
-	Streams          []*Stream  `json:"streams"`
-	Files            []*File    `json:"files"`
-	Chapters         []*Chapter `json:"chapters"`
-	Season           *Season    `json:"season"`
+	ID                string     `json:"id"`
+	Title             string     `json:"title"`
+	Description       string     `json:"description"`
+	ExtraDescription  string     `json:"extraDescription"`
+	Streams           []*Stream  `json:"streams"`
+	Files             []*File    `json:"files"`
+	Chapters          []*Chapter `json:"chapters"`
+	Season            *Season    `json:"season"`
+	Duration          int        `json:"duration"`
+	AudioLanguages    []Language `json:"audioLanguages"`
+	SubtitleLanguages []Language `json:"subtitleLanguages"`
 }
 
 type EpisodeItem struct {
@@ -116,7 +119,7 @@ type File struct {
 	ID               string    `json:"id"`
 	URL              string    `json:"url"`
 	AudioLanguage    Language  `json:"audioLanguage"`
-	SubtitlaLanguage *Language `json:"subtitlaLanguage"`
+	SubtitleLanguage *Language `json:"subtitleLanguage"`
 	Size             *int      `json:"size"`
 	FileName         string    `json:"fileName"`
 	MimeType         string    `json:"mimeType"`
@@ -196,11 +199,11 @@ type SliderItemsSection struct {
 func (SliderItemsSection) IsSectionBody() {}
 
 type Stream struct {
-	ID               string     `json:"id"`
-	URL              string     `json:"url"`
-	AudioLanguages   []Language `json:"audioLanguages"`
-	SubtitlaLanguage []Language `json:"subtitlaLanguage"`
-	Type             StreamType `json:"type"`
+	ID                string     `json:"id"`
+	URL               string     `json:"url"`
+	AudioLanguages    []Language `json:"audioLanguages"`
+	SubtitleLanguages []Language `json:"subtitleLanguages"`
+	Type              StreamType `json:"type"`
 }
 
 type TvGuideEntry struct {

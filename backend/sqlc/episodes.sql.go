@@ -262,21 +262,40 @@ func (q *Queries) GetEpisodesWithTranslationsByID(ctx context.Context, dollar_1 
 }
 
 const getFilesForEpisodes = `-- name: GetFilesForEpisodes :many
-SELECT f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated FROM assets a
+SELECT e.id AS episodes_id, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated FROM episodes e
+JOIN assets a ON e.asset_id = a.id
 JOIN assetfiles f ON a.id = f.asset_id
-WHERE a.id = ANY($1::int[])
+WHERE e.id = ANY($1::int[])
 `
 
-func (q *Queries) GetFilesForEpisodes(ctx context.Context, dollar_1 []int32) ([]Assetfile, error) {
+type GetFilesForEpisodesRow struct {
+	EpisodesID         int32                 `db:"episodes_id" json:"episodesID"`
+	AssetID            int32                 `db:"asset_id" json:"assetID"`
+	AudioLanguageID    null_v4.String        `db:"audio_language_id" json:"audioLanguageID"`
+	DateCreated        time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated        time.Time             `db:"date_updated" json:"dateUpdated"`
+	ExtraMetadata      pqtype.NullRawMessage `db:"extra_metadata" json:"extraMetadata"`
+	ID                 int32                 `db:"id" json:"id"`
+	MimeType           string                `db:"mime_type" json:"mimeType"`
+	Path               string                `db:"path" json:"path"`
+	Storage            string                `db:"storage" json:"storage"`
+	SubtitleLanguageID null_v4.String        `db:"subtitle_language_id" json:"subtitleLanguageID"`
+	Type               string                `db:"type" json:"type"`
+	UserCreated        uuid.NullUUID         `db:"user_created" json:"userCreated"`
+	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+}
+
+func (q *Queries) GetFilesForEpisodes(ctx context.Context, dollar_1 []int32) ([]GetFilesForEpisodesRow, error) {
 	rows, err := q.db.QueryContext(ctx, getFilesForEpisodes, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Assetfile
+	var items []GetFilesForEpisodesRow
 	for rows.Next() {
-		var i Assetfile
+		var i GetFilesForEpisodesRow
 		if err := rows.Scan(
+			&i.EpisodesID,
 			&i.AssetID,
 			&i.AudioLanguageID,
 			&i.DateCreated,
@@ -321,6 +340,88 @@ func (q *Queries) GetRolesForEpisode(ctx context.Context, episodesID int32) ([]s
 			return nil, err
 		}
 		items = append(items, usergroups_code)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getStreamsForEpisodes = `-- name: GetStreamsForEpisodes :many
+WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs FROM episodes e
+	JOIN assets a ON e.asset_id = a.id
+	LEFT JOIN assetstreams s ON a.id = s.asset_id
+	LEFT JOIN assetstreams_audio_languages al ON al.assetstreams_id = s.id
+	WHERE e.id = 1
+	GROUP BY s.id),
+sublang AS (SELECT s.id, array_agg(al.languages_code) langs FROM episodes e
+	JOIN assets a ON e.asset_id = a.id
+	LEFT JOIN assetstreams s ON a.id = s.asset_id
+	LEFT JOIN assetstreams_subtitle_languages al ON al.assetstreams_id = s.id
+	WHERE e.id = 1
+	GROUP BY s.id)
+SELECT e.id AS episodes_id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id, s.extra_metadata, s.id, s.legacy_videourl_id, s.path, s.service, s.status, s.type, s.url, s.user_created, s.user_updated, al.langs::text[] audio_languages, sl.langs::text[] subtitle_languages FROM episodes e
+JOIN assets a ON e.asset_id = a.id
+JOIN assetstreams s ON a.id = s.asset_id
+LEFT JOIN audiolang al ON al.id = s.id
+LEFT JOIN sublang sl ON sl.id = s.id
+WHERE e.id = ANY($1::int[])
+`
+
+type GetStreamsForEpisodesRow struct {
+	EpisodesID        int32                 `db:"episodes_id" json:"episodesID"`
+	AssetID           int32                 `db:"asset_id" json:"assetID"`
+	DateCreated       time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated       time.Time             `db:"date_updated" json:"dateUpdated"`
+	EncryptionKeyID   null_v4.String        `db:"encryption_key_id" json:"encryptionKeyID"`
+	ExtraMetadata     pqtype.NullRawMessage `db:"extra_metadata" json:"extraMetadata"`
+	ID                int32                 `db:"id" json:"id"`
+	LegacyVideourlID  null_v4.Int           `db:"legacy_videourl_id" json:"legacyVideourlID"`
+	Path              string                `db:"path" json:"path"`
+	Service           string                `db:"service" json:"service"`
+	Status            string                `db:"status" json:"status"`
+	Type              string                `db:"type" json:"type"`
+	Url               string                `db:"url" json:"url"`
+	UserCreated       uuid.NullUUID         `db:"user_created" json:"userCreated"`
+	UserUpdated       uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	AudioLanguages    []string              `db:"audio_languages" json:"audioLanguages"`
+	SubtitleLanguages []string              `db:"subtitle_languages" json:"subtitleLanguages"`
+}
+
+func (q *Queries) GetStreamsForEpisodes(ctx context.Context, dollar_1 []int32) ([]GetStreamsForEpisodesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getStreamsForEpisodes, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetStreamsForEpisodesRow
+	for rows.Next() {
+		var i GetStreamsForEpisodesRow
+		if err := rows.Scan(
+			&i.EpisodesID,
+			&i.AssetID,
+			&i.DateCreated,
+			&i.DateUpdated,
+			&i.EncryptionKeyID,
+			&i.ExtraMetadata,
+			&i.ID,
+			&i.LegacyVideourlID,
+			&i.Path,
+			&i.Service,
+			&i.Status,
+			&i.Type,
+			&i.Url,
+			&i.UserCreated,
+			&i.UserUpdated,
+			pq.Array(&i.AudioLanguages),
+			pq.Array(&i.SubtitleLanguages),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
