@@ -21,24 +21,35 @@ func InitCtx(ctx context.Context) context.Context {
 	return ctx
 }
 
-func (service *Service) Reindex(ctx context.Context) (err error) {
+func (service *Service) Reindex(ctx context.Context) error {
 	ctx = InitCtx(ctx)
 	q := service.queries
 	index := service.index
 
-	_, err = index.ClearObjects()
+	_, err := index.ClearObjects()
 	if err != nil {
-		return
+		return err
 	}
 
 	// Makes it possible to filter in query, which fields you are searching on
 	// Also configures hits per page
+	primaryFields, err := service.getPrimaryTranslatedFields()
+	if err != nil {
+		return err
+	}
+	relationalFields, err := service.getRelationalTranslatedFields()
+	if err != nil {
+		return err
+	}
 	searchableAttributes := opt.SearchableAttributes(
-		strings.Join(service.getPrimaryTranslatedFields(), ","),
-		strings.Join(service.getRelationalTranslatedFields(), ","),
+		strings.Join(primaryFields, ","),
+		strings.Join(relationalFields, ","),
 		strings.Join(getFunctionalFields(), ","),
 	)
-	languages := service.getLanguageKeys()
+	languages, err := service.getLanguageKeys()
+	if err != nil {
+		return err
+	}
 	_, err = index.SetSettings(search.Settings{
 		IndexLanguages:        opt.IndexLanguages(languages...),
 		QueryLanguages:        opt.QueryLanguages(languages...),
@@ -47,12 +58,12 @@ func (service *Service) Reindex(ctx context.Context) (err error) {
 		HitsPerPage:           opt.HitsPerPage(hitsPerPage),
 	})
 	if err != nil {
-		return
+		return err
 	}
 
 	shows, err := q.GetShows(ctx)
 	if err != nil {
-		return
+		return err
 	}
 	showThumbnails, _ := q.GetFilesByIds(ctx, lo.Map(lo.Filter(shows, func(i sqlc.Show, _ int) bool {
 		return i.ImageFileID.Valid
@@ -151,19 +162,19 @@ func (service *Service) Reindex(ctx context.Context) (err error) {
 	log.L.Debug().Msg("Indexing shows")
 	err = service.indexShows(ctx, shows, showThumbnailsById, index)
 	if err != nil {
-		return
+		return err
 	}
 	log.L.Debug().Msg("Indexing seasons")
 	err = service.indexSeasons(ctx, seasons, seasonThumbnailsById, index)
 	if err != nil {
-		return
+		return err
 	}
 	log.L.Debug().Msg("Indexing episodes")
 	err = service.indexEpisodes(ctx, episodes, episodeThumbnailsById, seasonById, index)
 	if err != nil {
-		return
+		return err
 	}
-	return
+	return nil
 }
 
 func (service *Service) DeleteObject(item interface{}) {

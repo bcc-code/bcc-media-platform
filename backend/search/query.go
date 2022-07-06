@@ -1,11 +1,9 @@
 package search
 
 import (
-	"encoding/json"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/user"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
@@ -64,12 +62,11 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 	searchResult.Result = []common.SearchResultItem{}
 
 	for _, rawHit := range hits {
-		// TODO: remove logging of search result
-		stringHit, _ := json.Marshal(rawHit)
-		log.L.Debug().Str("hit", string(stringHit)).Msg("Retrieved object")
-		hit := service.convertToSearchHit(rawHit)
-		stringHit, _ = json.Marshal(hit)
-		log.L.Debug().Str("hit", string(stringHit)).Msg("Converted to hit")
+		hit, e := service.convertToSearchHit(rawHit)
+		if e != nil {
+			err = e
+			return
+		}
 		parts := strings.Split(hit.ID, "-")
 		model := parts[0]
 		id, e := strconv.ParseInt(parts[1], 0, 64)

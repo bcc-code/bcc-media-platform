@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/mitchellh/mapstructure"
 	"github.com/samber/lo"
 )
@@ -40,8 +39,9 @@ func (dict localeString) get(language string) string {
 	return dict[defaultLanguage]
 }
 
-func (service *Service) getFields() []string {
-	return append(service.getTranslatedFields(), getFunctionalFields()...)
+func (service *Service) getFields() ([]string, error) {
+	translated, err := service.getTranslatedFields()
+	return append(translated, getFunctionalFields()...), err
 }
 
 // Fields which can be used for something
@@ -67,43 +67,60 @@ func (service *Service) getFilterFields() []string {
 	return []string{rolesField, typeField, statusField, publishedAtField}
 }
 
-func (service *Service) getPrimaryTranslatedFields() []string {
+func (service *Service) getPrimaryTranslatedFields() ([]string, error) {
 	var fields []string
-	ls := service.getLanguageKeys()
+	ls, err := service.getLanguageKeys()
+	if err != nil {
+		return nil, err
+	}
 	for _, field := range getPrimaryTranslatableFields() {
 		for _, language := range ls {
 			fields = append(fields, field+"_"+language)
 		}
 	}
-	return fields
+	return fields, nil
 }
 
-func (service *Service) getRelationalTranslatedFields() []string {
+func (service *Service) getRelationalTranslatedFields() ([]string, error) {
 	var fields []string
-	ls := service.getLanguageKeys()
+	ls, err := service.getLanguageKeys()
+	if err != nil {
+		return nil, err
+	}
 	for _, field := range getRelationalTranslatableFields() {
 		for _, language := range ls {
 			fields = append(fields, field+"_"+language)
 		}
 	}
-	return fields
+	return fields, nil
 }
 
-func (service *Service) getTranslatedFields() (fields []string) {
-	return append(service.getPrimaryTranslatedFields(), service.getRelationalTranslatedFields()...)
+func (service *Service) getTranslatedFields() ([]string, error) {
+	primary, err := service.getPrimaryTranslatedFields()
+	if err != nil {
+		return nil, err
+	}
+	relational, err := service.getRelationalTranslatedFields()
+	if err != nil {
+		return nil, err
+	}
+	return append(primary, relational...), nil
 }
 
 var allLanguages []string
 
-func (service *Service) getLanguageKeys() []string {
+func (service *Service) getLanguageKeys() ([]string, error) {
 	if allLanguages == nil {
 		// TODO: Remove this filter after cleaning up database
-		languages, _ := service.queries.GetLanguageKeys(context.Background())
+		languages, err := service.queries.GetLanguageKeys(context.Background())
+		if err != nil {
+			return []string{}, err
+		}
 		allLanguages = lo.Filter(languages, func(lang string, _ int) bool {
 			return len(lang) == 2
 		})
 	}
-	return allLanguages
+	return allLanguages, nil
 }
 
 func getUrl(model string, id int) string {
@@ -126,8 +143,12 @@ func (object *searchObject) getLocaleString(field string, languages []string) (d
 	return
 }
 
-func (service *Service) convertToSearchHit(object searchObject) (item searchHit) {
-	languages := service.getLanguageKeys()
+func (service *Service) convertToSearchHit(object searchObject) (searchHit, error) {
+	languages, err := service.getLanguageKeys()
+	if err != nil {
+		return searchHit{}, err
+	}
+	var item searchHit
 	item.ID = object[idField].(string)
 	item.Title = object.getLocaleString(titleField, languages)
 	delete(object, titleField)
@@ -137,11 +158,8 @@ func (service *Service) convertToSearchHit(object searchObject) (item searchHit)
 	delete(object, showTitleField)
 	item.SeasonTitle = object.getLocaleString(seasonTitleField, languages)
 	delete(object, seasonTitleField)
-	err := mapstructure.Decode(object, &item)
-	if err != nil {
-		log.L.Error().Err(err).Msg("failed to decode to searchHit")
-	}
-	return
+	err = mapstructure.Decode(object, &item)
+	return item, err
 }
 
 func toLocaleStrings(translations []common.Translation) (title localeString, description localeString) {
