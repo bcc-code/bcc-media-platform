@@ -18,11 +18,20 @@ import (
 )
 
 func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error) {
-	return asset.GetStreamsForEpisode(ctx, r.Resolver.Loaders.StreamsLoader, obj.ID)
+	streams, err := asset.GetStreamsForEpisode(ctx, r.Resolver.Loaders.StreamsLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return utils.MapWithCtx(ctx, streams, gqlmodel.StreamFromSQL), nil
 }
 
 func (r *episodeResolver) Files(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.File, error) {
-	return asset.GetFilesForEpisode(ctx, r.Resolver.Loaders.FilesLoader, obj.ID)
+	files, err := asset.GetFilesForEpisode(ctx, r.Resolver.Loaders.FilesLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.MapWithCtx(ctx, files, gqlmodel.FileFromSQL), nil
 }
 
 func (r *episodeResolver) Season(ctx context.Context, obj *gqlmodel.Episode) (*gqlmodel.Season, error) {
@@ -39,7 +48,12 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*gqlmodel.E
 		return nil, err
 	}
 
-	return episode.GetByID(ctx, r.Resolver.Loaders.EpisodeLoader, int(intID))
+	episode, err := episode.GetByID(ctx, r.Resolver.Loaders.EpisodeLoader, int(intID))
+	if err != nil {
+		return nil, err
+	}
+
+	return gqlmodel.EpisodeFromSQL(ctx, episode), nil
 }
 
 func (r *queryRootResolver) Section(ctx context.Context, id string) (gqlmodel.Section, error) {

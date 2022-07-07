@@ -10,7 +10,7 @@ import (
 )
 
 // FileFromSQL converts Assetfile rows to the GQL equvivalents
-func FileFromSQL(ctx context.Context, sqlFile sqlc.GetFilesForEpisodesRow) *File {
+func FileFromSQL(ctx context.Context, sqlFile *sqlc.GetFilesForEpisodesRow) *File {
 	var subLang *Language
 	if sqlFile.SubtitleLanguageID.Valid {
 		l := Language(sqlFile.SubtitleLanguageID.String)
@@ -28,8 +28,7 @@ func FileFromSQL(ctx context.Context, sqlFile sqlc.GetFilesForEpisodesRow) *File
 }
 
 // StreamFromSQL converts Assetfile rows to the GQL equvivalents
-func StreamFromSQL(ctx context.Context, sqlStream sqlc.GetStreamsForEpisodesRow) *Stream {
-
+func StreamFromSQL(ctx context.Context, sqlStream *sqlc.GetStreamsForEpisodesRow) *Stream {
 	return &Stream{
 		ID:                strconv.Itoa(int(sqlStream.ID)),
 		URL:               sqlStream.Path, // TODO: Make a full url out of the path

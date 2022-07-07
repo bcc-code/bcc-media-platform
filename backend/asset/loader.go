@@ -4,17 +4,15 @@ import (
 	"context"
 	"strconv"
 
-	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
 )
 
 // NewBatchFileLoader returns a configured batch loader for GQL File
-func NewBatchFileLoader(queries sqlc.Queries) *dataloader.Loader[int, []*gqlmodel.File] {
-	batchLoadFiles := func(ctx context.Context, keys []int) []*dataloader.Result[[]*gqlmodel.File] {
-		results := []*dataloader.Result[[]*gqlmodel.File]{}
+func NewBatchFileLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.GetFilesForEpisodesRow] {
+	batchLoadFiles := func(ctx context.Context, keys []int) []*dataloader.Result[[]*sqlc.GetFilesForEpisodesRow] {
+		results := []*dataloader.Result[[]*sqlc.GetFilesForEpisodesRow]{}
 
 		ids := lo.Map(keys, func(key int, _ int) int32 {
 			return int32(key)
@@ -22,23 +20,22 @@ func NewBatchFileLoader(queries sqlc.Queries) *dataloader.Loader[int, []*gqlmode
 
 		res, err := queries.GetFilesForEpisodes(ctx, ids)
 
-		resMap := map[int][]*gqlmodel.File{}
+		resMap := map[int][]*sqlc.GetFilesForEpisodesRow{}
 
 		if err == nil {
 			for _, r := range res {
 				key := int(r.EpisodesID)
 
 				if _, ok := resMap[key]; !ok {
-					resMap[key] = []*gqlmodel.File{}
+					resMap[key] = []*sqlc.GetFilesForEpisodesRow{}
 				}
 
-				gql := gqlmodel.FileFromSQL(ctx, r)
-				resMap[key] = append(resMap[key], gql)
+				resMap[key] = append(resMap[key], &r)
 			}
 		}
 
 		for _, k := range keys {
-			r := &dataloader.Result[[]*gqlmodel.File]{
+			r := &dataloader.Result[[]*sqlc.GetFilesForEpisodesRow]{
 				Error: err,
 			}
 
@@ -52,15 +49,13 @@ func NewBatchFileLoader(queries sqlc.Queries) *dataloader.Loader[int, []*gqlmode
 		return results
 	}
 
-	// Currently we do not want to cache at the GQL level
-	cache := &dataloader.NoCache[int, []*gqlmodel.File]{}
-	return dataloader.NewBatchedLoader(batchLoadFiles, dataloader.WithCache[int, []*gqlmodel.File](cache))
+	return dataloader.NewBatchedLoader(batchLoadFiles)
 }
 
 // GetFilesForEpisode retrieves file assets currently associated with the specified asset
 //
 // It uses the dataloader to efficiently load data from DB or cache (as avalilable)
-func GetFilesForEpisode(ctx context.Context, loader *dataloader.Loader[int, []*gqlmodel.File], id string) ([]*gqlmodel.File, error) {
+func GetFilesForEpisode(ctx context.Context, loader *dataloader.Loader[int, []*sqlc.GetFilesForEpisodesRow], id string) ([]*sqlc.GetFilesForEpisodesRow, error) {
 	intID, _ := strconv.ParseInt(id, 10, 32)
 	thunk := loader.Load(ctx, int(intID))
 	result, err := thunk()
@@ -72,32 +67,31 @@ func GetFilesForEpisode(ctx context.Context, loader *dataloader.Loader[int, []*g
 }
 
 // NewBatchStreamLoader returns a configured batch loader for GQL Stream
-func NewBatchStreamLoader(queries sqlc.Queries) *dataloader.Loader[int, []*gqlmodel.Stream] {
-	batchLoadStreams := func(ctx context.Context, keys []int) []*dataloader.Result[[]*gqlmodel.Stream] {
-		results := []*dataloader.Result[[]*gqlmodel.Stream]{}
+func NewBatchStreamLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.GetStreamsForEpisodesRow] {
+	batchLoadStreams := func(ctx context.Context, keys []int) []*dataloader.Result[[]*sqlc.GetStreamsForEpisodesRow] {
+		results := []*dataloader.Result[[]*sqlc.GetStreamsForEpisodesRow]{}
 
 		ids := lo.Map(keys, func(key int, _ int) int32 {
 			return int32(key)
 		})
 
 		res, err := queries.GetStreamsForEpisodes(ctx, ids)
-		resMap := map[int][]*gqlmodel.Stream{}
+		resMap := map[int][]*sqlc.GetStreamsForEpisodesRow{}
 
 		if err == nil {
 			for _, r := range res {
 				key := int(r.EpisodesID)
 
 				if _, ok := resMap[key]; !ok {
-					resMap[key] = []*gqlmodel.Stream{}
+					resMap[key] = []*sqlc.GetStreamsForEpisodesRow{}
 				}
 
-				gql := gqlmodel.StreamFromSQL(ctx, r)
-				resMap[key] = append(resMap[key], gql)
+				resMap[key] = append(resMap[key], &r)
 			}
 		}
 
 		for _, k := range keys {
-			r := &dataloader.Result[[]*gqlmodel.Stream]{
+			r := &dataloader.Result[[]*sqlc.GetStreamsForEpisodesRow]{
 				Error: err,
 			}
 
@@ -107,20 +101,17 @@ func NewBatchStreamLoader(queries sqlc.Queries) *dataloader.Loader[int, []*gqlmo
 
 			results = append(results, r)
 		}
-		spew.Dump(results)
 
 		return results
 	}
 
-	// Currently we do not want to cache at the GQL level
-	cache := &dataloader.NoCache[int, []*gqlmodel.Stream]{}
-	return dataloader.NewBatchedLoader(batchLoadStreams, dataloader.WithCache[int, []*gqlmodel.Stream](cache))
+	return dataloader.NewBatchedLoader(batchLoadStreams)
 }
 
 // GetStreamsForEpisode retrieves file assets currently associated with the specified asset
 //
 // It uses the dataloader to efficiently load data from DB or cache (as avalilable)
-func GetStreamsForEpisode(ctx context.Context, loader *dataloader.Loader[int, []*gqlmodel.Stream], id string) ([]*gqlmodel.Stream, error) {
+func GetStreamsForEpisode(ctx context.Context, loader *dataloader.Loader[int, []*sqlc.GetStreamsForEpisodesRow], id string) ([]*sqlc.GetStreamsForEpisodesRow, error) {
 	intID, _ := strconv.ParseInt(id, 10, 32)
 	thunk := loader.Load(ctx, int(intID))
 	result, err := thunk()
