@@ -9,9 +9,9 @@ import (
 )
 
 // NewBatchLoader returns a configured batch loader for GQL Episode
-func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.GetEpisodesWithTranslationsByIDRow] {
-	batchLoadEpisodes := func(ctx context.Context, keys []int) []*dataloader.Result[*sqlc.GetEpisodesWithTranslationsByIDRow] {
-		results := []*dataloader.Result[*sqlc.GetEpisodesWithTranslationsByIDRow]{}
+func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.EpisodeExpanded] {
+	batchLoadEpisodes := func(ctx context.Context, keys []int) []*dataloader.Result[*sqlc.EpisodeExpanded] {
+		results := []*dataloader.Result[*sqlc.EpisodeExpanded]{}
 
 		ids := lo.Map(keys, func(key int, _ int) int32 {
 			return int32(key)
@@ -19,7 +19,7 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.GetEpiso
 
 		res, err := queries.GetEpisodesWithTranslationsByID(ctx, ids)
 
-		resMap := map[int]*sqlc.GetEpisodesWithTranslationsByIDRow{}
+		resMap := map[int]*sqlc.EpisodeExpanded{}
 
 		if err == nil {
 			for _, r := range res {
@@ -28,7 +28,7 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.GetEpiso
 		}
 
 		for _, k := range keys {
-			r := &dataloader.Result[*sqlc.GetEpisodesWithTranslationsByIDRow]{
+			r := &dataloader.Result[*sqlc.EpisodeExpanded]{
 				Error: err,
 			}
 
@@ -49,7 +49,7 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.GetEpiso
 // GetByID should be used for retrieving program data
 //
 // It uses the dataloader to efficiently load data from DB or cache (as avalilable)
-func GetByID(ctx context.Context, loader *dataloader.Loader[int, *sqlc.GetEpisodesWithTranslationsByIDRow], id int) (*sqlc.GetEpisodesWithTranslationsByIDRow, error) {
+func GetByID(ctx context.Context, loader *dataloader.Loader[int, *sqlc.EpisodeExpanded], id int) (*sqlc.EpisodeExpanded, error) {
 	thunk := loader.Load(ctx, id)
 	result, err := thunk()
 	if err != nil {
