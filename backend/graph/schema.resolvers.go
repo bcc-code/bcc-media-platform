@@ -48,12 +48,17 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*gqlmodel.E
 		return nil, err
 	}
 
-	episode, err := episode.GetByID(ctx, r.Resolver.Loaders.EpisodeLoader, int(intID))
+	episodeObj, err := episode.GetByID(ctx, r.Resolver.Loaders.EpisodeLoader, int(intID))
 	if err != nil {
 		return nil, err
 	}
 
-	return gqlmodel.EpisodeFromSQL(ctx, episode), nil
+	err = episode.ValidateAccess(ctx, *episodeObj)
+	if err != nil {
+		return nil, err
+	}
+
+	return gqlmodel.EpisodeFromSQL(ctx, episodeObj), nil
 }
 
 func (r *queryRootResolver) Section(ctx context.Context, id string) (gqlmodel.Section, error) {

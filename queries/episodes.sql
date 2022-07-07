@@ -13,8 +13,16 @@ WITH t AS (SELECT
 FROM episodes_translations t
 WHERE t.episodes_id = ANY($1::int[])
 GROUP BY episodes_id)
-SELECT * FROM episodes e
-JOIN t ON e.id = t.episodes_id;
+SELECT
+	e.id, e.asset_id, e.episode_number, e.image_file_id, e.season_id, e.type,
+	t.title, t.description, t.extra_description,
+	ea.published::bool published,
+	ea.available_from::timestamptz available_from, ea.available_to::timestamptz available_to,
+	ea.usergroups::text[] usergroups, ea.usergroups_downloads::text[] download_groups, ea.usergroups_earlyaccess::text[] early_access_groups
+ FROM episodes e
+JOIN t ON e.id = t.episodes_id
+JOIN episodes_access ea on ea.id = e.id;
+
 
 -- name: GetFilesForEpisodes :many
 SELECT e.id AS episodes_id, f.* FROM episodes e

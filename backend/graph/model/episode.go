@@ -12,7 +12,7 @@ import (
 )
 
 // EpisodeFromSQL coverts a SQL row into an GQL episode type
-func EpisodeFromSQL(ctx context.Context, row *sqlc.GetEpisodesWithTranslationsByIDRow) *Episode {
+func EpisodeFromSQL(ctx context.Context, row *sqlc.EpisodeExpanded) *Episode {
 	titleMap := common.LocaleString{}
 	descriptionMap := common.LocaleString{}
 	extraDescriptionMap := common.LocaleString{}
