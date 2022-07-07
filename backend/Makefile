@@ -8,3 +8,6 @@ sqlc:
 
 install-dep-macos:
 	brew install sqlc
+
+gql:
+	gqlgen
