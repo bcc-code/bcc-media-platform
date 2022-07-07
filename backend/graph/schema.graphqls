@@ -1,8 +1,10 @@
+directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
+    | FIELD_DEFINITION
+
 interface Page{
   id: ID!
   title: String
   description: String
-  localizations: [LocalizedPage!]!
   sections(
     first: Int!
     after: Cursor
@@ -13,7 +15,6 @@ type ShowPage implements Page{
   id: ID!
   title: String
   description: String
-  localizations: [LocalizedPage!]!
   sections(
     first: Int!
     after: Cursor
@@ -21,16 +22,15 @@ type ShowPage implements Page{
   show: Show
 }
 
-type ProgramPage implements Page{
+type EpisodePage implements Page{
   id: ID!
   title: String
   description: String
-  localizations: [LocalizedPage!]!
   sections(
     first: Int!
     after: Cursor
   ): SectionConnection!
-  program: Program
+  episode: Episode
 }
 
 type Show {
@@ -38,6 +38,13 @@ type Show {
   title: String!
   episodeCount: Int!
   seasonCount: Int!
+  seasons: [Season!]!
+}
+
+type Season {
+  id: ID!
+  show: Show!
+  episodes: [Episode!]!
 }
 
 type PaginationInfo{
@@ -58,13 +65,6 @@ type SectionEdge{
   node: Section!
 }
 
-type LocalizedPage{
-  id: ID!
-  language: Language!
-  title: String
-  description: String
-}
-
 enum Language{
   en
   no
@@ -73,49 +73,34 @@ enum Language{
 
 interface Section{
   id: ID!
-  localizations: [LocalizedSection!]!
   title: String
 }
 
-type LocalizedSection{
-  id: ID!
-  language: Language!
-  title: String
-}
-
-type BCCOSection implements Section{
-  id: ID!
-  localizations: [LocalizedSection!]!
-  title: String
-  bannerURL: String!
-}
 
 type ItemSection implements Section {
   id: ID!
-  localizations: [LocalizedSection!]!
   title: String
-  implementation: ItemSectionImplementation
+  body: SectionBody
   pageId: ID!
 }
 
-interface ItemSectionImplementation {
+interface SectionBody {
   id: ID!
   items: [Item!]!
 }
 
 type ContainerSection implements Section{
   id: ID!
-  localizations: [LocalizedSection!]!
   title: String
   sections: [Section!]!
 }
 
-type SliderItemsSection implements ItemSectionImplementation{
+type SliderItemsSection implements SectionBody {
   id: ID!
   items: [Item!]!
 }
 
-type BubblesItemsSection implements ItemSectionImplementation{
+type BubblesItemsSection implements SectionBody {
   id: ID!
   items: [Item!]!
   borderColor: String
@@ -137,11 +122,11 @@ type URLItem implements Item {
   url: String!
 }
 
-type ProgramItem implements Item {
+type EpisodeItem implements Item {
   id: ID!
   title: String
   imageUrl: String!
-  program: Program
+  episode: Episode
 }
 
 type PageItem implements Item {
@@ -152,13 +137,18 @@ type PageItem implements Item {
   page: Page!
 }
 
-interface Program {
+type Episode {
   id: ID!
   title: String!
   description: String!
-  localizations: LocalizedProgram!
-  assets(downloadable: Boolean): [Asset!]!
+  extraDescription: String!
+  streams: [Stream!]! @goField(forceResolver: true)
+  files: [File!]! @goField(forceResolver: true)
   chapters: [Chapter!]!
+  season: Season @goField(forceResolver: true)
+  duration: Int!
+  audioLanguages: [Language!]!
+  subtitleLanguages: [Language!]!
 }
 
 type Chapter {
@@ -167,32 +157,28 @@ type Chapter {
   title: String!
 }
 
-type Asset {
+type File {
   id: ID!
   url: String!
-  downloadable: Boolean!
+  audioLanguage: Language!
+  subtitleLanguage: Language
+  size: Int
+  fileName: String!
+  mimeType: String!
 }
 
-type LocalizedProgram {
+type Stream {
   id: ID!
+  url: String!
+  audioLanguages: [Language!]!
+  subtitleLanguages: [Language!]!
+  type: StreamType!
 }
 
-type Episode implements Program {
-  id: ID!
-  title: String!
-  description: String!
-  localizations: LocalizedProgram!
-  assets(downloadable: Boolean): [Asset!]!
-  chapters: [Chapter!]!
-}
-
-type Standalone implements Program {
-  id: ID!
-  title: String!
-  description: String!
-  localizations: LocalizedProgram!
-  assets(downloadable: Boolean): [Asset!]!
-  chapters: [Chapter!]!
+enum StreamType {
+  hls
+  cmaf
+  dash
 }
 
 schema{
@@ -223,7 +209,7 @@ type TvGuideEntry {
   id: ID!
   start: String!
   end: String!
-  program: Program
+  episode: Episode
 }
 
 type Calendar {
@@ -252,7 +238,9 @@ type User {
   anonymous: Boolean!
   bccMember: Boolean!
   audience: String
+  email: String
   settings: Settings!
+  roles: [String!]!
 }
 
 type QueryRoot{
@@ -260,9 +248,9 @@ type QueryRoot{
     id: ID!
   ): Page
 
-  program(
+  episode(
     id: ID!
-  ): Program
+  ): Episode
 
   section(
     id: ID!

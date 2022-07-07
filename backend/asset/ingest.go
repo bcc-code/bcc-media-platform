@@ -2,14 +2,16 @@ package asset
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"net/url"
 	"path"
 	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/ansel1/merry"
+	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -26,8 +28,8 @@ import (
 
 // Sentinel errors
 var (
-	ErrDurationEmpty = merry.New("duration string can not be empty")
-	ErrDuringCopy    = merry.New("error copying files on S3. See log for more details")
+	ErrDurationEmpty = merry.Sentinel("duration string can not be empty")
+	ErrDuringCopy    = merry.Sentinel("error copying files on S3. See log for more details")
 )
 
 // Regexes
@@ -134,7 +136,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 	oldAsset, err := directus.FindNewestAssetByMediabankenID(services.GetDirectusClient(), assetMeta.ID)
 
-	if err != nil && !merry.Is(err, directus.ErrNotFound) {
+	if err != nil && !errors.Is(err, directus.ErrNotFound) {
 		return err
 	}
 
@@ -179,7 +181,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		Duration:        assetMeta.DurationInS,
 		EncodingVersion: "btv",
 		MainStoragePath: storagePrefix,
-		Status:          directus.StatusDraft,
+		Status:          common.StatusDraft,
 	}
 
 	a, err = directus.SaveItem(ctx, services.GetDirectusClient(), *a, true)
@@ -187,13 +189,13 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		return merry.Wrap(err)
 	}
 
-	// S3 files added here will be deleted if everyting else is sucessful
+	// S3 files added here will be deleted if everything else is successful
 	objectsToDelete := []types.ObjectIdentifier{
 		{Key: aws.String(msg.JSONMetaPath)},
 	}
 
-	audioLanguages := []directus.AssetStreamLanguge{}
-	assetfiles := []directus.Assetfile{}
+	audioLanguages := []directus.AssetStreamLanguage{}
+	assetfiles := []directus.AssetFile{}
 
 	// If we have a "smilFile" then we have defined streams
 	hasStreams := assetMeta.SmilFile != ""
@@ -237,7 +239,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			filesToCopy[*coi.Key] = coi
 			for _, p := range file.Params {
 				if p.Name == "systemLanguage" {
-					audioLanguages = append(audioLanguages, directus.AssetStreamLanguge{
+					audioLanguages = append(audioLanguages, directus.AssetStreamLanguage{
 						AssetStreamID: "+", // This is a placeholder for "new asset" in Directus
 						LanguagesCode: directus.LanguagesCode{
 							Code: p.Value,
@@ -267,13 +269,13 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			Key: aws.String(path.Join(assetMeta.BasePath, m.Path)),
 		})
 
-		af := directus.Assetfile{
+		af := directus.AssetFile{
 			Path:             target,
 			Storage:          "s3_assets",
 			Type:             "video",
 			MimeType:         m.Mime,
 			AssetID:          a.ID,
-			AudioLanguge:     m.AudioLanguge,
+			AudioLanguage:    m.AudioLanguge,
 			SubtitleLanguage: m.SubtitleLanguage,
 		}
 
@@ -285,7 +287,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	copyErrors := copyObjects(ctx, *s3client, filesToCopy)
 	if len(copyErrors) > 0 {
 		log.L.Error().Errs("copyErrors", copyErrors).Msg("Errors while copying files")
-		return ErrDuringCopy.Here()
+		return merry.Wrap(ErrDuringCopy)
 	}
 	log.L.Info().Msg("Done copying files")
 
@@ -326,14 +328,14 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 				URL:     *e.Url,
 				Path:    streamURL.Path,
 				Service: "mediapackage",
-				AudioLanguges: directus.CRUDArrays[directus.AssetStreamLanguge]{
+				AudioLanguages: directus.CRUDArrays[directus.AssetStreamLanguage]{
 					Create: audioLanguages,
-					Update: []directus.AssetStreamLanguge{},
+					Update: []directus.AssetStreamLanguage{},
 					Delete: []int{},
 				},
-				SubtitleLanguages: directus.CRUDArrays[directus.AssetStreamLanguge]{
-					Create: []directus.AssetStreamLanguge{},
-					Update: []directus.AssetStreamLanguge{},
+				SubtitleLanguages: directus.CRUDArrays[directus.AssetStreamLanguage]{
+					Create: []directus.AssetStreamLanguage{},
+					Update: []directus.AssetStreamLanguage{},
 					Delete: []int{},
 				},
 				AssetID: a.ID,
@@ -355,7 +357,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		}
 	}
 
-	a.Status = directus.StatusPublished
+	a.Status = common.StatusPublished
 	a, err = directus.SaveItem(ctx, services.GetDirectusClient(), *a, false)
 	if err != nil {
 		return merry.Wrap(err)

@@ -5,3 +5,6 @@ pubsub:
 
 sqlc:
 	sqlc generate
+
+install-dep-macos:
+	brew install sqlc

@@ -7,7 +7,6 @@ packages:
     queries: "../queries"
     emit_json_tags: true
     emit_db_tags: true
-    emit_exact_table_names: true
     json_tags_case_style: camel
 overrides:
   # For reference, when we need string-arrays (e.g. "usergroups" for a row on the materialized view)
@@ -62,5 +61,18 @@ overrides:
     nullable: true
     db_type: "pg_catalog.timestamp"
 rename:
-  admin_medium: AdminMedia
-  medium: Media
+  # TODO: Find a solution to map these tables to the correct struct name
+  collections_episodes: CollectionEpisode
+  collections_relations: CollectionRelation
+  collections_seasons: CollectionSeason
+  collections_shows: CollectionShow
+  collections_translations: CollectionTranslation
+  episodes_categories: EpisodeCategory
+  episodes_tags: EpisodeTag
+  episodes_translations: EpisodeTranslation
+  episodes_usergroups: EpisodeUserGroup
+  lists_relations: ListRelation
+  seasons_translations: SeasonTranslation
+  seasons_usergroups: SeasonUserGroup
+  shows_translations: ShowTranslation
+  shows_usergroups: ShowUserGroup

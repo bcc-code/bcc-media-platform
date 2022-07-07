@@ -2,37 +2,28 @@ package directus
 
 import (
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"net/url"
 
-	"github.com/ansel1/merry"
+	"github.com/ansel1/merry/v2"
 	"github.com/go-resty/resty/v2"
 )
 
 // Sentinel errors
 var (
-	ErrNotFound = merry.New("No objct was found")
-)
-
-// Status is a global enum for directus status
-type Status string
-
-// Status constants
-const (
-	StatusDraft     = Status("draft")
-	StatusPublished = Status("published")
-	StatusArchived  = Status("archived")
+	ErrNotFound = merry.Sentinel("No object was found")
 )
 
 // Asset item in the DB
 type Asset struct {
-	ID              int         `json:"id,omitempty"`
-	Name            string      `json:"name"`
-	Files           []Assetfile `json:"files,omitempty"`
-	Duration        int64       `json:"duration"`
-	MediabankenID   string      `json:"mediabanken_id"`
-	EncodingVersion string      `json:"encoding_version"`
-	MainStoragePath string      `json:"main_storage_path"`
-	Status          Status      `json:"status"`
+	ID              int           `json:"id,omitempty"`
+	Name            string        `json:"name"`
+	Files           []AssetFile   `json:"files,omitempty"`
+	Duration        int64         `json:"duration"`
+	MediabankenID   string        `json:"mediabanken_id"`
+	EncodingVersion string        `json:"encoding_version"`
+	MainStoragePath string        `json:"main_storage_path"`
+	Status          common.Status `json:"status"`
 }
 
 // ForUpdate prepares a copy of the struct for Directus update op
@@ -66,7 +57,7 @@ func FindNewestAssetByMediabankenID(c *resty.Client, mediabankenID string) (*Ass
 	qq.Add("fields[]", "main_storage_path")
 	qq.Add("fields[]", "files.path")
 
-	qq.Add("filter", fmt.Sprintf(`{"_and":[{"mediabanken_id":{"_eq":"%s"}}, {"status": {"_eq": "%s"}}]}`, mediabankenID, StatusPublished))
+	qq.Add("filter", fmt.Sprintf(`{"_and":[{"mediabanken_id":{"_eq":"%s"}}, {"status": {"_eq": "%s"}}]}`, mediabankenID, common.StatusPublished))
 
 	x := struct {
 		Data []Asset
@@ -83,7 +74,7 @@ func FindNewestAssetByMediabankenID(c *resty.Client, mediabankenID string) (*Ass
 	assetList := res.Result().(*struct{ Data []Asset })
 
 	if len(assetList.Data) == 0 {
-		return nil, ErrNotFound.Here().WithValue("mediabankenID", mediabankenID)
+		return nil, merry.Wrap(ErrNotFound, merry.WithValue("mediabankenID", mediabankenID))
 	}
 
 	return &assetList.Data[0], nil

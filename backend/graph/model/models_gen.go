@@ -12,36 +12,17 @@ type Item interface {
 	IsItem()
 }
 
-type ItemSectionImplementation interface {
-	IsItemSectionImplementation()
-}
-
 type Page interface {
 	IsPage()
-}
-
-type Program interface {
-	IsProgram()
 }
 
 type Section interface {
 	IsSection()
 }
 
-type Asset struct {
-	ID           string `json:"id"`
-	URL          string `json:"url"`
-	Downloadable bool   `json:"downloadable"`
+type SectionBody interface {
+	IsSectionBody()
 }
-
-type BCCOSection struct {
-	ID            string              `json:"id"`
-	Localizations []*LocalizedSection `json:"localizations"`
-	Title         *string             `json:"title"`
-	BannerURL     string              `json:"bannerURL"`
-}
-
-func (BCCOSection) IsSection() {}
 
 type BubblesItemsSection struct {
 	ID          string  `json:"id"`
@@ -49,7 +30,7 @@ type BubblesItemsSection struct {
 	BorderColor *string `json:"borderColor"`
 }
 
-func (BubblesItemsSection) IsItemSectionImplementation() {}
+func (BubblesItemsSection) IsSectionBody() {}
 
 type Calendar struct {
 	Period *CalendarPeriod `json:"period"`
@@ -75,24 +56,45 @@ type Chapter struct {
 }
 
 type ContainerSection struct {
-	ID            string              `json:"id"`
-	Localizations []*LocalizedSection `json:"localizations"`
-	Title         *string             `json:"title"`
-	Sections      []Section           `json:"sections"`
+	ID       string    `json:"id"`
+	Title    *string   `json:"title"`
+	Sections []Section `json:"sections"`
 }
 
 func (ContainerSection) IsSection() {}
 
 type Episode struct {
-	ID            string            `json:"id"`
-	Title         string            `json:"title"`
-	Description   string            `json:"description"`
-	Localizations *LocalizedProgram `json:"localizations"`
-	Assets        []*Asset          `json:"assets"`
-	Chapters      []*Chapter        `json:"chapters"`
+	ID                string     `json:"id"`
+	Title             string     `json:"title"`
+	Description       string     `json:"description"`
+	ExtraDescription  string     `json:"extraDescription"`
+	Streams           []*Stream  `json:"streams"`
+	Files             []*File    `json:"files"`
+	Chapters          []*Chapter `json:"chapters"`
+	Season            *Season    `json:"season"`
+	Duration          int        `json:"duration"`
+	AudioLanguages    []Language `json:"audioLanguages"`
+	SubtitleLanguages []Language `json:"subtitleLanguages"`
 }
 
-func (Episode) IsProgram() {}
+type EpisodeItem struct {
+	ID       string   `json:"id"`
+	Title    *string  `json:"title"`
+	ImageURL string   `json:"imageUrl"`
+	Episode  *Episode `json:"episode"`
+}
+
+func (EpisodeItem) IsItem() {}
+
+type EpisodePage struct {
+	ID          string             `json:"id"`
+	Title       *string            `json:"title"`
+	Description *string            `json:"description"`
+	Sections    *SectionConnection `json:"sections"`
+	Episode     *Episode           `json:"episode"`
+}
+
+func (EpisodePage) IsPage() {}
 
 type Event struct {
 	ID             string          `json:"id"`
@@ -113,32 +115,24 @@ type FAQCategory struct {
 	Questions []*Faq `json:"questions"`
 }
 
+type File struct {
+	ID               string    `json:"id"`
+	URL              string    `json:"url"`
+	AudioLanguage    Language  `json:"audioLanguage"`
+	SubtitleLanguage *Language `json:"subtitleLanguage"`
+	Size             *int      `json:"size"`
+	FileName         string    `json:"fileName"`
+	MimeType         string    `json:"mimeType"`
+}
+
 type ItemSection struct {
-	ID             string                    `json:"id"`
-	Localizations  []*LocalizedSection       `json:"localizations"`
-	Title          *string                   `json:"title"`
-	Implementation ItemSectionImplementation `json:"implementation"`
-	PageID         string                    `json:"pageId"`
+	ID     string      `json:"id"`
+	Title  *string     `json:"title"`
+	Body   SectionBody `json:"body"`
+	PageID string      `json:"pageId"`
 }
 
 func (ItemSection) IsSection() {}
-
-type LocalizedPage struct {
-	ID          string   `json:"id"`
-	Language    Language `json:"language"`
-	Title       *string  `json:"title"`
-	Description *string  `json:"description"`
-}
-
-type LocalizedProgram struct {
-	ID string `json:"id"`
-}
-
-type LocalizedSection struct {
-	ID       string   `json:"id"`
-	Language Language `json:"language"`
-	Title    *string  `json:"title"`
-}
 
 type PageItem struct {
 	ID       string  `json:"id"`
@@ -156,25 +150,11 @@ type PaginationInfo struct {
 	HasNextPage bool   `json:"hasNextPage"`
 }
 
-type ProgramItem struct {
-	ID       string  `json:"id"`
-	Title    *string `json:"title"`
-	ImageURL string  `json:"imageUrl"`
-	Program  Program `json:"program"`
+type Season struct {
+	ID       string     `json:"id"`
+	Show     *Show      `json:"show"`
+	Episodes []*Episode `json:"episodes"`
 }
-
-func (ProgramItem) IsItem() {}
-
-type ProgramPage struct {
-	ID            string             `json:"id"`
-	Title         *string            `json:"title"`
-	Description   *string            `json:"description"`
-	Localizations []*LocalizedPage   `json:"localizations"`
-	Sections      *SectionConnection `json:"sections"`
-	Program       Program            `json:"program"`
-}
-
-func (ProgramPage) IsPage() {}
 
 type SectionConnection struct {
 	ID       string          `json:"id"`
@@ -194,19 +174,19 @@ type Settings struct {
 }
 
 type Show struct {
-	ID           string `json:"id"`
-	Title        string `json:"title"`
-	EpisodeCount int    `json:"episodeCount"`
-	SeasonCount  int    `json:"seasonCount"`
+	ID           string    `json:"id"`
+	Title        string    `json:"title"`
+	EpisodeCount int       `json:"episodeCount"`
+	SeasonCount  int       `json:"seasonCount"`
+	Seasons      []*Season `json:"seasons"`
 }
 
 type ShowPage struct {
-	ID            string             `json:"id"`
-	Title         *string            `json:"title"`
-	Description   *string            `json:"description"`
-	Localizations []*LocalizedPage   `json:"localizations"`
-	Sections      *SectionConnection `json:"sections"`
-	Show          *Show              `json:"show"`
+	ID          string             `json:"id"`
+	Title       *string            `json:"title"`
+	Description *string            `json:"description"`
+	Sections    *SectionConnection `json:"sections"`
+	Show        *Show              `json:"show"`
 }
 
 func (ShowPage) IsPage() {}
@@ -216,24 +196,21 @@ type SliderItemsSection struct {
 	Items []Item `json:"items"`
 }
 
-func (SliderItemsSection) IsItemSectionImplementation() {}
+func (SliderItemsSection) IsSectionBody() {}
 
-type Standalone struct {
-	ID            string            `json:"id"`
-	Title         string            `json:"title"`
-	Description   string            `json:"description"`
-	Localizations *LocalizedProgram `json:"localizations"`
-	Assets        []*Asset          `json:"assets"`
-	Chapters      []*Chapter        `json:"chapters"`
+type Stream struct {
+	ID                string     `json:"id"`
+	URL               string     `json:"url"`
+	AudioLanguages    []Language `json:"audioLanguages"`
+	SubtitleLanguages []Language `json:"subtitleLanguages"`
+	Type              StreamType `json:"type"`
 }
 
-func (Standalone) IsProgram() {}
-
 type TvGuideEntry struct {
-	ID      string  `json:"id"`
-	Start   string  `json:"start"`
-	End     string  `json:"end"`
-	Program Program `json:"program"`
+	ID      string   `json:"id"`
+	Start   string   `json:"start"`
+	End     string   `json:"end"`
+	Episode *Episode `json:"episode"`
 }
 
 type URLItem struct {
@@ -250,7 +227,9 @@ type User struct {
 	Anonymous bool      `json:"anonymous"`
 	BccMember bool      `json:"bccMember"`
 	Audience  *string   `json:"audience"`
+	Email     *string   `json:"email"`
 	Settings  *Settings `json:"settings"`
+	Roles     []string  `json:"roles"`
 }
 
 type Language string
@@ -293,5 +272,48 @@ func (e *Language) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Language) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type StreamType string
+
+const (
+	StreamTypeHls  StreamType = "hls"
+	StreamTypeCmaf StreamType = "cmaf"
+	StreamTypeDash StreamType = "dash"
+)
+
+var AllStreamType = []StreamType{
+	StreamTypeHls,
+	StreamTypeCmaf,
+	StreamTypeDash,
+}
+
+func (e StreamType) IsValid() bool {
+	switch e {
+	case StreamTypeHls, StreamTypeCmaf, StreamTypeDash:
+		return true
+	}
+	return false
+}
+
+func (e StreamType) String() string {
+	return string(e)
+}
+
+func (e *StreamType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StreamType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StreamType", str)
+	}
+	return nil
+}
+
+func (e StreamType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

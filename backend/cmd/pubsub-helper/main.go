@@ -6,7 +6,9 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
+	"github.com/google/uuid"
 	"time"
 
 	"cloud.google.com/go/pubsub"
@@ -31,7 +33,7 @@ func create(projectID, topicID string) {
 	t, err := client.CreateSubscription(ctx, "bgjobs", pubsub.SubscriptionConfig{
 		Topic: topic,
 		PushConfig: pubsub.PushConfig{
-			Endpoint: "http://10.12.128.112:8078/api/message",
+			Endpoint: "http://host.docker.internal:8078/api/message",
 		},
 	})
 	if err != nil {
@@ -67,6 +69,33 @@ func send(projectID, topicID string) {
 	fmt.Printf("Sent: %v\n", err)
 }
 
+func refreshView(projectID, topicID string) {
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, projectID)
+	if err != nil {
+		fmt.Printf("pubsub.NewClient: %v", err)
+	}
+	defer client.Close()
+
+	e := cloudevents.NewEvent()
+	e.SetSource(events.SourceCloudScheduler)
+	e.SetType(events.TypeRefreshView)
+	e.SetData(cloudevents.ApplicationJSON, &events.RefreshView{
+		ViewName: "episodes_access",
+		Force:    false,
+	})
+
+	data, err := json.Marshal(e)
+	spew.Dump(string(data))
+	topic := client.Topic(topicID)
+	msg := topic.Publish(ctx, &pubsub.Message{
+		Data: data,
+	})
+
+	_, err = msg.Get(ctx)
+	fmt.Printf("Sent: %v\n", err)
+}
+
 func del(projectID, topicID string) {
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, projectID)
@@ -88,11 +117,58 @@ func del(projectID, topicID string) {
 
 	fmt.Printf("Deleted")
 }
+
+func simpleEvent(projectID string, topicID string, event string) {
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, projectID)
+	if err != nil {
+		fmt.Printf("pubsub.NewClient: %v", err)
+	}
+	defer client.Close()
+
+	e := cloudevents.NewEvent()
+	e.SetID(uuid.New().String())
+	e.SetSource("pubsub-helper")
+	e.SetType(event)
+
+	data, err := json.Marshal(e)
+	spew.Dump(string(data))
+	topic := client.Topic(topicID)
+	msg := topic.Publish(ctx, &pubsub.Message{
+		Data: data,
+	})
+
+	_, err = msg.Get(ctx)
+	fmt.Printf("Sent: %v\n", err)
+}
+
 func main() {
-	create("btv-local", "background-jobs")
+	task := flag.String("task", "", "")
+	flag.Parse()
+	projectId := "btv-local"
+	topicId := "background-jobs"
 
-	send("btv-local", "background-jobs")
+	switch *task {
+	case "create":
+		create(projectId, topicId)
+	case "delete":
+		del(projectId, topicId)
+	case "refreshView":
+		refreshView(projectId, topicId)
+	case "syncTranslations":
+		simpleEvent(projectId, topicId, events.TypeTranslationsSync)
+	case "searchReindex":
+		simpleEvent(projectId, topicId, events.TypeSearchReindex)
+	default:
+		create(projectId, topicId)
+		/*
+			send("btv-local", "background-jobs")
+		*/
 
-	time.Sleep(1 * time.Second)
-	del("btv-local", "background-jobs")
+		refreshView(projectId, topicId)
+
+		time.Sleep(1 * time.Second)
+		del(projectId, topicId)
+	}
+
 }

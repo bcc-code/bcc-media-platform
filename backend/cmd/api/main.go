@@ -6,10 +6,14 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/brunstadtv/backend/episode"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
+	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
@@ -20,10 +24,11 @@ import (
 )
 
 // Defining the Graphql handler
-func graphqlHandler(queries *sqlc.Queries) gin.HandlerFunc {
+func graphqlHandler(queries *sqlc.Queries, loaders *graph.BatchLoaders) gin.HandlerFunc {
 
 	resolver := graph.Resolver{
 		Queries: queries,
+		Loaders: loaders,
 	}
 
 	// NewExecutableSchema and Config are in the generated.go file
@@ -48,7 +53,7 @@ func main() {
 	ctx := context.Background()
 
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
-	log.L.Debug().Msg("Seting up tracing!")
+	log.L.Debug().Msg("Setting up tracing!")
 
 	// Here you can get a tracedHttpClient if useful anywhere
 	utils.MustSetupTracing()
@@ -71,22 +76,46 @@ func main() {
 		log.L.Panic().Err(err).Msg("Ping failed")
 		return
 	}
+
 	queries := sqlc.New(db)
+
+	episodeLoader := episode.NewBatchLoader(*queries)
+	filesLoader := asset.NewBatchFileLoader(*queries)
+	streamsLoader := asset.NewBatchStreamLoader(*queries)
+	loaders := &graph.BatchLoaders{
+		EpisodeLoader: episodeLoader,
+		FilesLoader:   filesLoader,
+		StreamsLoader: streamsLoader,
+	}
 
 	log.L.Debug().Msg("Set up HTTP server")
 	r := gin.Default()
-	r.Use(graph.GinContextToContextMiddleware())
+	r.Use(utils.GinContextToContextMiddleware())
 	r.Use(otelgin.Middleware("api")) // OpenTelemetry
 	r.Use(auth0.JWT(ctx, config.JWTConfig))
+	r.Use(user.NewUserMiddleware(queries))
 
-	r.POST("/query", graphqlHandler(queries))
+	r.POST("/query", graphqlHandler(queries, loaders))
 
-	// TODO: Should we have this in non-local envs?
-	// What about auth?
 	r.GET("/", playgroundHandler())
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
+	if config.Algolia.AppId != "" {
+		searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
+
+		searchGroup := r.Group("search")
+		searchGroup.POST("query", searchQueryHandler(searchService))
+
+		//if config.Algolia.SearchOnlyApiKey != "" {
+		//	searchGroup.GET("key", searchKeyHandler(searchService))
+		//}
+	}
+
 	span.End()
-	r.Run(":" + config.Port)
+
+	err = r.Run(":" + config.Port)
+	if err != nil {
+		return
+	}
 }
