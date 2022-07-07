@@ -14,6 +14,7 @@ import (
 	"strings"
 )
 
+// InitCtx to fill context with empty maps for caching purposes
 func InitCtx(ctx context.Context) context.Context {
 	ctx = context.WithValue(ctx, visibilityContextKey, map[string]common.Visibility{})
 	ctx = context.WithValue(ctx, translationContextKey, map[string][]common.Translation{})
@@ -21,6 +22,7 @@ func InitCtx(ctx context.Context) context.Context {
 	return ctx
 }
 
+// Reindex every supported collection
 func (service *Service) Reindex(ctx context.Context) error {
 	ctx = InitCtx(ctx)
 	q := service.queries
@@ -177,7 +179,8 @@ func (service *Service) Reindex(ctx context.Context) error {
 	return nil
 }
 
-func (service *Service) DeleteObject(item interface{}) {
+// DeleteObject from the index
+func (service *Service) DeleteObject(item interface{}) error {
 	var m string
 	var id int
 	switch v := item.(type) {
@@ -191,19 +194,18 @@ func (service *Service) DeleteObject(item interface{}) {
 		m = "show"
 		id = int(v.ID)
 	default:
-		log.L.Error().Msg("Unknown type")
-		return
+		return merry.New("unsupported collection")
 	}
-	service.DeleteModel(m, id)
+	return service.DeleteModel(m, id)
 }
 
-func (service *Service) DeleteModel(collection string, id int) {
+// DeleteModel from index by collection and id
+func (service *Service) DeleteModel(collection string, id int) error {
 	_, err := service.index.DeleteObject(collection + "-" + strconv.Itoa(id))
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to delete collection")
-	}
+	return err
 }
 
+// IndexObject to the index
 func (service *Service) IndexObject(ctx context.Context, item interface{}) error {
 	switch v := item.(type) {
 	case sqlc.Episode:
@@ -217,6 +219,7 @@ func (service *Service) IndexObject(ctx context.Context, item interface{}) error
 	}
 }
 
+// IndexModel by collection and id
 func (service *Service) IndexModel(ctx context.Context, collection string, id int) (err error) {
 	var i any
 	switch collection {
@@ -227,7 +230,7 @@ func (service *Service) IndexModel(ctx context.Context, collection string, id in
 	case "shows":
 		i, err = service.queries.GetShow(ctx, int32(id))
 	default:
-		return merry.New("collection not supported for indexing")
+		err = merry.New("collection not supported for indexing")
 	}
 	if err != nil {
 		return

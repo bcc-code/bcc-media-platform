@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"net/url"
 	"path"
 	"regexp"
@@ -180,7 +181,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		Duration:        assetMeta.DurationInS,
 		EncodingVersion: "btv",
 		MainStoragePath: storagePrefix,
-		Status:          directus.StatusDraft,
+		Status:          common.StatusDraft,
 	}
 
 	a, err = directus.SaveItem(ctx, services.GetDirectusClient(), *a, true)
@@ -194,7 +195,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	}
 
 	audioLanguages := []directus.AssetStreamLanguge{}
-	assetfiles := []directus.Assetfile{}
+	assetfiles := []directus.AssetFile{}
 
 	// If we have a "smilFile" then we have defined streams
 	hasStreams := assetMeta.SmilFile != ""
@@ -268,13 +269,13 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			Key: aws.String(path.Join(assetMeta.BasePath, m.Path)),
 		})
 
-		af := directus.Assetfile{
+		af := directus.AssetFile{
 			Path:             target,
 			Storage:          "s3_assets",
 			Type:             "video",
 			MimeType:         m.Mime,
 			AssetID:          a.ID,
-			AudioLanguge:     m.AudioLanguge,
+			AudioLanguage:    m.AudioLanguge,
 			SubtitleLanguage: m.SubtitleLanguage,
 		}
 
@@ -356,7 +357,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		}
 	}
 
-	a.Status = directus.StatusPublished
+	a.Status = common.StatusPublished
 	a, err = directus.SaveItem(ctx, services.GetDirectusClient(), *a, false)
 	if err != nil {
 		return merry.Wrap(err)

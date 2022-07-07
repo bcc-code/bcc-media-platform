@@ -1,7 +1,7 @@
 package directus
 
-// Assetfile item in the DB
-type Assetfile struct {
+// AssetFile item in the DB
+type AssetFile struct {
 	ID               int    `json:"id,omitempty"`
 	Path             string `json:"path"`
 	Storage          string `json:"storage"`
@@ -9,21 +9,21 @@ type Assetfile struct {
 	MimeType         string `json:"mime_type"`
 	AssetID          int    `json:"asset_id"`
 	ExtraMetadata    string `json:"extra_metadata,omitempty"`
-	AudioLanguge     string `json:"audio_language"`
+	AudioLanguage    string `json:"audio_language"`
 	SubtitleLanguage string `json:"subtitle_language"`
 }
 
 // UID returns the id of the Asset
-func (a Assetfile) UID() int {
+func (a AssetFile) UID() int {
 	return a.ID
 }
 
 // TypeName of the item. Statically set to "asset"
-func (Assetfile) TypeName() string {
+func (AssetFile) TypeName() string {
 	return "assetfiles"
 }
 
 // ForUpdate prepares a copy of the struct for Directus update op
-func (a Assetfile) ForUpdate() interface{} {
+func (a AssetFile) ForUpdate() interface{} {
 	return a
 }

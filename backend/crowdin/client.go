@@ -411,7 +411,7 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 
 type hasStatus interface {
 	UID() int
-	GetStatus() string
+	GetStatus() common.Status
 }
 
 func getPublishedDictionary[t hasStatus](items []t) map[int]bool {

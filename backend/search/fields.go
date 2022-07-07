@@ -155,16 +155,14 @@ func (service *Service) convertToSearchHit(object searchObject) (searchHit, erro
 func toLocaleStrings(translations []common.Translation) (title common.LocaleString, description common.LocaleString) {
 	title = common.LocaleString{}
 	description = common.LocaleString{}
-	for _, translation := range translations {
-		title[translation.Language] = null.StringFrom(translation.Title)
-		if val := translation.Description; val != "" {
-			description[translation.Language] = null.StringFrom(val)
-		}
-		if val := translation.Details; val != "" {
-			if existing := description[translation.Language].ValueOrZero(); existing != "" {
-				description[translation.Language] = null.StringFrom(existing + "\n")
+	for _, t := range translations {
+		title[t.Language] = t.Title
+		description[t.Language] = t.Description
+		if val := t.Details.ValueOrZero(); val != "" {
+			if existing := description[t.Language].ValueOrZero(); existing != "" {
+				description[t.Language] = null.StringFrom(existing + "\n")
 			}
-			description[translation.Language] = null.StringFrom(description[translation.Language].ValueOrZero() + val)
+			description[t.Language] = null.StringFrom(description[t.Language].ValueOrZero() + val)
 		}
 	}
 	return
