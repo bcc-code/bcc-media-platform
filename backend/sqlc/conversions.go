@@ -6,7 +6,7 @@ import "github.com/bcc-code/brunstadtv/backend/common"
 
 // ToVisibility convert to common.Visibility
 func (row GetVisibilityForEpisodeRow) ToVisibility() (v common.Visibility) {
-	v.Status = common.Status(row.Status)
+	v.Status = common.StatusFrom(row.Status)
 	v.PublishDate = row.PublishDate
 	if value := row.AvailableFrom.ValueOrZero(); row.AvailableFrom.Valid {
 		v.AvailableFrom = &value
@@ -19,7 +19,7 @@ func (row GetVisibilityForEpisodeRow) ToVisibility() (v common.Visibility) {
 
 // ToVisibility convert to common.Visibility
 func (row GetVisibilityForSeasonRow) ToVisibility() (v common.Visibility) {
-	v.Status = common.Status(row.Status)
+	v.Status = common.StatusFrom(row.Status)
 	v.PublishDate = row.PublishDate
 	if value := row.AvailableFrom.ValueOrZero(); row.AvailableFrom.Valid {
 		v.AvailableFrom = &value
@@ -32,7 +32,7 @@ func (row GetVisibilityForSeasonRow) ToVisibility() (v common.Visibility) {
 
 // ToVisibility convert to common.Visibility
 func (row GetVisibilityForShowRow) ToVisibility() (v common.Visibility) {
-	v.Status = common.Status(row.Status)
+	v.Status = common.StatusFrom(row.Status)
 	v.PublishDate = row.PublishDate
 	if value := row.AvailableFrom.ValueOrZero(); row.AvailableFrom.Valid {
 		v.AvailableFrom = &value
@@ -45,7 +45,7 @@ func (row GetVisibilityForShowRow) ToVisibility() (v common.Visibility) {
 
 // ToVisibility convert to common.Visibility
 func (row GetVisibilityForEpisodesRow) ToVisibility() (v common.Visibility) {
-	v.Status = common.Status(row.Status)
+	v.Status = common.StatusFrom(row.Status)
 	v.PublishDate = row.PublishDate
 	if value := row.AvailableFrom.ValueOrZero(); row.AvailableFrom.Valid {
 		v.AvailableFrom = &value
@@ -58,7 +58,7 @@ func (row GetVisibilityForEpisodesRow) ToVisibility() (v common.Visibility) {
 
 // ToVisibility convert to common.Visibility
 func (row GetVisibilityForSeasonsRow) ToVisibility() (v common.Visibility) {
-	v.Status = common.Status(row.Status)
+	v.Status = common.StatusFrom(row.Status)
 	v.PublishDate = row.PublishDate
 	if value := row.AvailableFrom.ValueOrZero(); row.AvailableFrom.Valid {
 		v.AvailableFrom = &value
@@ -71,7 +71,7 @@ func (row GetVisibilityForSeasonsRow) ToVisibility() (v common.Visibility) {
 
 // ToVisibility convert to common.Visibility
 func (row GetVisibilityForShowsRow) ToVisibility() (v common.Visibility) {
-	v.Status = common.Status(row.Status)
+	v.Status = common.StatusFrom(row.Status)
 	v.PublishDate = row.PublishDate
 	if value := row.AvailableFrom.ValueOrZero(); row.AvailableFrom.Valid {
 		v.AvailableFrom = &value

@@ -25,3 +25,15 @@ func MostRestrictiveStatus(statuses ...Status) (status Status) {
 	}
 	return
 }
+
+// StatusFrom string
+func StatusFrom(s string) Status {
+	switch Status(s) {
+	case StatusPublished:
+		return StatusPublished
+	case StatusDraft:
+		return StatusDraft
+	default:
+		return StatusArchived
+	}
+}
