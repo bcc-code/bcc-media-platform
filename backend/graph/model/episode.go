@@ -13,9 +13,9 @@ import (
 
 // EpisodeFromSQL coverts a SQL row into an GQL episode type
 func EpisodeFromSQL(ctx context.Context, row sqlc.GetEpisodesWithTranslationsByIDRow) Episode {
-	titleMap := common.Translations{}
-	descriptionMap := common.Translations{}
-	extraDescriptionMap := common.Translations{}
+	titleMap := common.LocaleString{}
+	descriptionMap := common.LocaleString{}
+	extraDescriptionMap := common.LocaleString{}
 
 	_ = json.Unmarshal(row.Title, &titleMap)
 	_ = json.Unmarshal(row.Description, &descriptionMap)
@@ -27,8 +27,8 @@ func EpisodeFromSQL(ctx context.Context, row sqlc.GetEpisodesWithTranslationsByI
 	return Episode{
 		Chapters:         []*Chapter{}, // Currently not supported
 		ID:               fmt.Sprintf("%d", row.ID),
-		Title:            titleMap.GetTranslation(languages),
-		Description:      descriptionMap.GetTranslation(languages),
-		ExtraDescription: extraDescriptionMap.GetTranslation(languages),
+		Title:            titleMap.Get(languages),
+		Description:      descriptionMap.Get(languages),
+		ExtraDescription: extraDescriptionMap.Get(languages),
 	}
 }

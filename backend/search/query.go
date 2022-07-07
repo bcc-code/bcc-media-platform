@@ -11,13 +11,13 @@ import (
 
 type searchHit struct {
 	ID              string                 `json:"objectID"`
-	Title           common.Translations    `json:"title"`
+	Title           common.LocaleString    `json:"title"`
 	Header          string                 `json:"header"`
-	Description     common.Translations    `json:"description"`
+	Description     common.LocaleString    `json:"description"`
 	ShowID          int                    `json:"showID"`
-	ShowTitle       common.Translations    `json:"showTitle"`
+	ShowTitle       common.LocaleString    `json:"showTitle"`
 	SeasonID        int                    `json:"seasonID"`
-	SeasonTitle     common.Translations    `json:"seasonTitle"`
+	SeasonTitle     common.LocaleString    `json:"seasonTitle"`
 	Image           string                 `json:"image"`
 	HighlightResult map[string]interface{} `json:"_highlightResult"`
 }
@@ -94,10 +94,10 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 			}
 		}
 
-		if value := hit.Title.GetTranslation(languages); value != "" {
+		if value := hit.Title.Get(languages); value != "" {
 			item.Title = value
 		}
-		if value := hit.Description.GetTranslation(languages); value != "" {
+		if value := hit.Description.Get(languages); value != "" {
 			item.Description = &value
 		}
 		if value := hit.Header; value != "" {
@@ -106,13 +106,13 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 		if value := hit.ShowID; value != 0 {
 			item.ShowID = &value
 		}
-		if value := hit.ShowTitle.GetTranslation(languages); value != "" {
+		if value := hit.ShowTitle.Get(languages); value != "" {
 			item.Show = &value
 		}
 		if value := hit.SeasonID; value != 0 {
 			item.SeasonID = &value
 		}
-		if value := hit.SeasonTitle.GetTranslation(languages); value != "" {
+		if value := hit.SeasonTitle.Get(languages); value != "" {
 			item.Season = &value
 		}
 

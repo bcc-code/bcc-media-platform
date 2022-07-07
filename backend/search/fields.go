@@ -117,14 +117,14 @@ func getUrl(model string, id int) string {
 	return fmt.Sprintf("/%s/%d", model, id)
 }
 
-func (object *searchObject) mapFromLocaleString(field string, dict common.Translations) {
+func (object *searchObject) mapFromLocaleString(field string, dict common.LocaleString) {
 	for key, value := range dict {
 		(*object)[field+"_"+key] = value
 	}
 }
 
-func (object *searchObject) getLocaleString(field string, languages []string) (dict common.Translations) {
-	dict = common.Translations{}
+func (object *searchObject) getLocaleString(field string, languages []string) (dict common.LocaleString) {
+	dict = common.LocaleString{}
 	for _, language := range languages {
 		if value := (*object)[field+"_"+language]; value != nil && value != "" {
 			dict[language] = null.StringFrom(value.(string))
@@ -152,9 +152,9 @@ func (service *Service) convertToSearchHit(object searchObject) (searchHit, erro
 	return item, err
 }
 
-func toLocaleStrings(translations []common.Translation) (title common.Translations, description common.Translations) {
-	title = common.Translations{}
-	description = common.Translations{}
+func toLocaleStrings(translations []common.Translation) (title common.LocaleString, description common.LocaleString) {
+	title = common.LocaleString{}
+	description = common.LocaleString{}
 	for _, translation := range translations {
 		title[translation.Language] = null.StringFrom(translation.Title)
 		if val := translation.Description; val != "" {
