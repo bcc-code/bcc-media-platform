@@ -22,13 +22,13 @@ func EpisodeFromSQL(ctx context.Context, row sqlc.GetEpisodesWithTranslationsByI
 	_ = json.Unmarshal(row.ExtraDescription, &extraDescriptionMap)
 
 	ginCtx, _ := utils.GinCtx(ctx)
-	langs := user.GetLangsFromCtx(ginCtx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
 
 	return Episode{
 		Chapters:         []*Chapter{}, // Currently not supported
 		ID:               fmt.Sprintf("%d", row.ID),
-		Title:            common.GetTranslation(langs, titleMap),
-		Description:      common.GetTranslation(langs, descriptionMap),
-		ExtraDescription: common.GetTranslation(langs, extraDescriptionMap),
+		Title:            titleMap.GetTranslation(languages),
+		Description:      descriptionMap.GetTranslation(languages),
+		ExtraDescription: extraDescriptionMap.GetTranslation(languages),
 	}
 }

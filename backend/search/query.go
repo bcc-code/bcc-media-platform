@@ -11,24 +11,18 @@ import (
 
 type searchHit struct {
 	ID              string                 `json:"objectID"`
-	Title           localeString           `json:"title"`
+	Title           common.Translations    `json:"title"`
 	Header          string                 `json:"header"`
-	Description     localeString           `json:"description"`
+	Description     common.Translations    `json:"description"`
 	ShowID          int                    `json:"showID"`
-	ShowTitle       localeString           `json:"showTitle"`
+	ShowTitle       common.Translations    `json:"showTitle"`
 	SeasonID        int                    `json:"seasonID"`
-	SeasonTitle     localeString           `json:"seasonTitle"`
+	SeasonTitle     common.Translations    `json:"seasonTitle"`
 	Image           string                 `json:"image"`
 	HighlightResult map[string]interface{} `json:"_highlightResult"`
 }
 
-// TODO: Get user default language
-func getUserLanguage() string {
-	return defaultLanguage
-}
-
 func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (searchResult common.SearchResult, err error) {
-	language := getUserLanguage()
 
 	u := user.GetFromCtx(ctx)
 
@@ -60,6 +54,8 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 	searchResult.Page = result.Page
 	searchResult.PageCount = result.NbPages
 	searchResult.Result = []common.SearchResultItem{}
+
+	languages := user.GetLanguagesFromCtx(ctx)
 
 	for _, rawHit := range hits {
 		hit, e := service.convertToSearchHit(rawHit)
@@ -98,10 +94,10 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 			}
 		}
 
-		if value := hit.Title.get(language); value != "" {
+		if value := hit.Title.GetTranslation(languages); value != "" {
 			item.Title = value
 		}
-		if value := hit.Description.get(language); value != "" {
+		if value := hit.Description.GetTranslation(languages); value != "" {
 			item.Description = &value
 		}
 		if value := hit.Header; value != "" {
@@ -110,13 +106,13 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 		if value := hit.ShowID; value != 0 {
 			item.ShowID = &value
 		}
-		if value := hit.ShowTitle.get(language); value != "" {
+		if value := hit.ShowTitle.GetTranslation(languages); value != "" {
 			item.Show = &value
 		}
 		if value := hit.SeasonID; value != 0 {
 			item.SeasonID = &value
 		}
-		if value := hit.SeasonTitle.get(language); value != "" {
+		if value := hit.SeasonTitle.GetTranslation(languages); value != "" {
 			item.Season = &value
 		}
 

@@ -37,18 +37,6 @@ func (object *searchObject) assignVisibility(v common.Visibility) {
 	}
 }
 
-func (object *searchObject) assignShowIDAndTitle(id int32, ts []sqlc.ShowsTranslation) {
-	(*object)[showIDField] = id
-	showTitle, _ := mapTranslationsForShow(ts)
-	object.mapFromLocaleString(showTitleField, showTitle)
-}
-
-func (object *searchObject) assignSeasonIDAndTitle(id int32, ts []sqlc.SeasonsTranslation) {
-	(*object)[seasonIDField] = id
-	seasonTitle, _ := mapTranslationsForSeason(ts)
-	object.mapFromLocaleString(seasonTitleField, seasonTitle)
-}
-
 func indexObjects(index *search.Index, objects []searchObject) error {
 	_, err := index.SaveObjects(objects)
 	if err != nil {
