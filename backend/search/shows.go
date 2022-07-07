@@ -10,21 +10,6 @@ import (
 	"github.com/samber/lo"
 )
 
-func mapTranslationsForShow(translations []sqlc.ShowsTranslation) (title localeString, description localeString) {
-	title = localeString{}
-	description = localeString{}
-	for _, translation := range translations {
-		language := translation.LanguagesCode
-		if titleString := translation.Title.ValueOrZero(); titleString != "" {
-			title[language] = titleString
-		}
-		if descriptionString := translation.Description.ValueOrZero(); descriptionString != "" {
-			description[language] = descriptionString
-		}
-	}
-	return
-}
-
 func (service *Service) mapShowToSearchObject(
 	ctx context.Context,
 	item sqlc.Show,

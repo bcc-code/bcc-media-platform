@@ -7,7 +7,7 @@ import (
 )
 
 type Visibility struct {
-	Status        string
+	Status        Status
 	PublishDate   time.Time
 	AvailableFrom *time.Time
 	AvailableTo   *time.Time

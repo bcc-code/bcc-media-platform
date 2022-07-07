@@ -2,12 +2,13 @@ package directus
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/common"
 )
 
 // Item model
 type Item struct {
-	ID     int    `json:"id,omitempty"`
-	Status string `json:"status"`
+	ID     int           `json:"id,omitempty"`
+	Status common.Status `json:"status"`
 }
 
 // Episode model
@@ -36,7 +37,7 @@ func (i Item) ForUpdate() interface{} {
 }
 
 // GetStatus for this item
-func (i Item) GetStatus() string {
+func (i Item) GetStatus() common.Status {
 	return i.Status
 }
 

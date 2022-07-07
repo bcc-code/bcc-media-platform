@@ -13,22 +13,22 @@ import (
 
 // EpisodeFromSQL coverts a SQL row into an GQL episode type
 func EpisodeFromSQL(ctx context.Context, row sqlc.GetEpisodesWithTranslationsByIDRow) Episode {
-	titleMap := common.Translations{}
-	descriptionMap := common.Translations{}
-	extraDescriptionMap := common.Translations{}
+	titleMap := common.LocaleString{}
+	descriptionMap := common.LocaleString{}
+	extraDescriptionMap := common.LocaleString{}
 
 	_ = json.Unmarshal(row.Title, &titleMap)
 	_ = json.Unmarshal(row.Description, &descriptionMap)
 	_ = json.Unmarshal(row.ExtraDescription, &extraDescriptionMap)
 
 	ginCtx, _ := utils.GinCtx(ctx)
-	langs := user.GetLangsFromCtx(ginCtx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
 
 	return Episode{
 		Chapters:         []*Chapter{}, // Currently not supported
 		ID:               fmt.Sprintf("%d", row.ID),
-		Title:            common.GetTranslation(langs, titleMap),
-		Description:      common.GetTranslation(langs, descriptionMap),
-		ExtraDescription: common.GetTranslation(langs, extraDescriptionMap),
+		Title:            titleMap.Get(languages),
+		Description:      descriptionMap.Get(languages),
+		ExtraDescription: extraDescriptionMap.Get(languages),
 	}
 }

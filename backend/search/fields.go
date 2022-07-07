@@ -6,6 +6,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/mitchellh/mapstructure"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
 )
 
 const (
@@ -27,17 +28,6 @@ const (
 	seasonIDField      = "seasonID"
 	seasonTitleField   = "seasonTitle"
 )
-
-const defaultLanguage = "no"
-
-type localeString map[string]string
-
-func (dict localeString) get(language string) string {
-	if value := dict[language]; value != "" {
-		return value
-	}
-	return dict[defaultLanguage]
-}
 
 func (service *Service) getFields() ([]string, error) {
 	translated, err := service.getTranslatedFields()
@@ -127,17 +117,17 @@ func getUrl(model string, id int) string {
 	return fmt.Sprintf("/%s/%d", model, id)
 }
 
-func (object *searchObject) mapFromLocaleString(field string, dict localeString) {
+func (object *searchObject) mapFromLocaleString(field string, dict common.LocaleString) {
 	for key, value := range dict {
 		(*object)[field+"_"+key] = value
 	}
 }
 
-func (object *searchObject) getLocaleString(field string, languages []string) (dict localeString) {
-	dict = localeString{}
+func (object *searchObject) getLocaleString(field string, languages []string) (dict common.LocaleString) {
+	dict = common.LocaleString{}
 	for _, language := range languages {
 		if value := (*object)[field+"_"+language]; value != nil && value != "" {
-			dict[language] = value.(string)
+			dict[language] = null.StringFrom(value.(string))
 		}
 	}
 	return
@@ -162,19 +152,17 @@ func (service *Service) convertToSearchHit(object searchObject) (searchHit, erro
 	return item, err
 }
 
-func toLocaleStrings(translations []common.Translation) (title localeString, description localeString) {
-	title = localeString{}
-	description = localeString{}
-	for _, translation := range translations {
-		title[translation.Language] = translation.Title
-		if val := translation.Description; val != "" {
-			description[translation.Language] = val
-		}
-		if val := translation.Details; val != "" {
-			if description[translation.Language] != "" {
-				description[translation.Language] += "\n"
+func toLocaleStrings(translations []common.Translation) (title common.LocaleString, description common.LocaleString) {
+	title = common.LocaleString{}
+	description = common.LocaleString{}
+	for _, t := range translations {
+		title[t.Language] = t.Title
+		description[t.Language] = t.Description
+		if val := t.Details.ValueOrZero(); val != "" {
+			if existing := description[t.Language].ValueOrZero(); existing != "" {
+				description[t.Language] = null.StringFrom(existing + "\n")
 			}
-			description[translation.Language] += val
+			description[t.Language] = null.StringFrom(description[t.Language].ValueOrZero() + val)
 		}
 	}
 	return

@@ -41,7 +41,7 @@ func toTranslationSources[t TranslationSource](items []t) []TranslationSource {
 	})
 }
 
-func getStatusForItem(ctx context.Context, d *directus.Handler, collection string, id int) (status string, err error) {
+func getStatusForItem(ctx context.Context, d *directus.Handler, collection string, id int) (status common.Status, err error) {
 	var i hasStatus
 	switch collection {
 	case "shows":

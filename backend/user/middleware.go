@@ -164,8 +164,8 @@ func GetFromCtx(ctx *gin.Context) *common.User {
 	return u.(*common.User)
 }
 
-// GetLangsFromCtx as provided in the request
-func GetLangsFromCtx(ctx *gin.Context) []string {
+// GetLanguagesFromCtx as provided in the request
+func GetLanguagesFromCtx(ctx *gin.Context) []string {
 	l, ok := ctx.Get(CtxLanguages)
 	if !ok {
 		return []string{}
