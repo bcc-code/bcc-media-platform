@@ -1,7 +1,6 @@
 package graph
 
 import (
-	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/graph-gophers/dataloader/v7"
 )
@@ -19,7 +18,7 @@ type Resolver struct {
 
 // BatchLoaders is a collection of GQL dataloaders
 type BatchLoaders struct {
-	EpisodeLoader *dataloader.Loader[int, *gqlmodel.Episode]
-	FilesLoader   *dataloader.Loader[int, []*gqlmodel.File]
-	StreamsLoader *dataloader.Loader[int, []*gqlmodel.Stream]
+	EpisodeLoader *dataloader.Loader[int, *sqlc.GetEpisodesWithTranslationsByIDRow]
+	FilesLoader   *dataloader.Loader[int, []*sqlc.GetFilesForEpisodesRow]
+	StreamsLoader *dataloader.Loader[int, []*sqlc.GetStreamsForEpisodesRow]
 }

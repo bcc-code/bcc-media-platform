@@ -12,7 +12,7 @@ import (
 )
 
 // EpisodeFromSQL coverts a SQL row into an GQL episode type
-func EpisodeFromSQL(ctx context.Context, row sqlc.GetEpisodesWithTranslationsByIDRow) Episode {
+func EpisodeFromSQL(ctx context.Context, row *sqlc.GetEpisodesWithTranslationsByIDRow) *Episode {
 	titleMap := common.LocaleString{}
 	descriptionMap := common.LocaleString{}
 	extraDescriptionMap := common.LocaleString{}
@@ -24,7 +24,7 @@ func EpisodeFromSQL(ctx context.Context, row sqlc.GetEpisodesWithTranslationsByI
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
-	return Episode{
+	return &Episode{
 		Chapters:         []*Chapter{}, // Currently not supported
 		ID:               fmt.Sprintf("%d", row.ID),
 		Title:            titleMap.Get(languages),
