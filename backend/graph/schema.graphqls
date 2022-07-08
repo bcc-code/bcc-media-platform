@@ -149,6 +149,7 @@ type Episode {
   duration: Int!
   audioLanguages: [Language!]!
   subtitleLanguages: [Language!]!
+  episodeNumber: Int
 }
 
 type Chapter {

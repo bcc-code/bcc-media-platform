@@ -3,10 +3,12 @@ package search
 import (
 	"context"
 	"fmt"
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/mitchellh/mapstructure"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
+	"time"
 )
 
 const (
@@ -97,20 +99,23 @@ func (service *Service) getTranslatedFields() ([]string, error) {
 	return append(primary, relational...), nil
 }
 
-var allLanguages []string
+var languageCache = cache.New[string, []string]()
 
 func (service *Service) getLanguageKeys() ([]string, error) {
-	if allLanguages == nil {
-		// TODO: Remove this filter after cleaning up database
-		languages, err := service.queries.GetLanguageKeys(context.Background())
-		if err != nil {
-			return []string{}, err
-		}
-		allLanguages = lo.Filter(languages, func(lang string, _ int) bool {
-			return len(lang) == 2
-		})
+	languages, ok := languageCache.Get("languages")
+	if ok {
+		return languages, nil
 	}
-	return allLanguages, nil
+	languages, err := service.queries.GetLanguageKeys(context.Background())
+	if err != nil {
+		return []string{}, err
+	}
+	// TODO: Remove this filter after cleaning up database
+	languages = lo.Filter(languages, func(lang string, _ int) bool {
+		return len(lang) == 2
+	})
+	languageCache.Set("languages", languages, cache.WithExpiration(time.Minute*10))
+	return languages, nil
 }
 
 func getUrl(model string, id int) string {

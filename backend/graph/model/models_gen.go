@@ -75,6 +75,7 @@ type Episode struct {
 	Duration          int        `json:"duration"`
 	AudioLanguages    []Language `json:"audioLanguages"`
 	SubtitleLanguages []Language `json:"subtitleLanguages"`
+	EpisodeNumber     *int       `json:"episodeNumber"`
 }
 
 type EpisodeItem struct {
