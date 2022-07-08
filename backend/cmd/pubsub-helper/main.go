@@ -8,8 +8,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/bcc-code/brunstadtv/backend/events"
@@ -55,7 +56,7 @@ func send(projectID, topicID string) {
 	e.SetType(events.TypeAssetDelivered)
 	e.SetData(cloudevents.ApplicationJSON, &events.AssetDelivered{
 		//JSONMetaPath: "randomstring/sample.json",
-		JSONMetaPath: "7233_TEMA2_Simen.json",
+		JSONMetaPath: "muxed-test/BIEX_S01_E02_Trailer.smil",
 	})
 
 	data, err := json.Marshal(e)
@@ -159,11 +160,10 @@ func main() {
 		simpleEvent(projectId, topicId, events.TypeTranslationsSync)
 	case "searchReindex":
 		simpleEvent(projectId, topicId, events.TypeSearchReindex)
+	case "ingest":
+		send(projectId, topicId)
 	default:
 		create(projectId, topicId)
-		/*
-			send("btv-local", "background-jobs")
-		*/
 
 		refreshView(projectId, topicId)
 
