@@ -16,11 +16,11 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
-// All well-known roles
+// All well-known roles as used in the DB
 const (
-	RoleAnonymous  = "anonymous"
+	RolePublic     = "public"
 	RoleRegistered = "registered"
-	RoleBCCMember  = "bcc-member"
+	RoleBCCMember  = "bcc-members"
 )
 
 // Various hardcoded keys
@@ -98,7 +98,7 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 		// If the user is anonymous we just create a simple object and bail
 		if !authed {
 			span.AddEvent("Anonymous")
-			roles = append(roles, RoleAnonymous)
+			roles = append(roles, RolePublic)
 			ctx.Set(CtxUser,
 				&common.User{
 					Roles:     roles,
