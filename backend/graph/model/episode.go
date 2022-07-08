@@ -24,11 +24,18 @@ func EpisodeFromSQL(ctx context.Context, row *sqlc.EpisodeExpanded) *Episode {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
-	return &Episode{
+	episode := &Episode{
 		Chapters:         []*Chapter{}, // Currently not supported
 		ID:               fmt.Sprintf("%d", row.ID),
 		Title:            titleMap.Get(languages),
 		Description:      descriptionMap.Get(languages),
 		ExtraDescription: extraDescriptionMap.Get(languages),
 	}
+
+	if row.EpisodeNumber.Valid {
+		num := int(row.EpisodeNumber.Int64)
+		episode.EpisodeNumber = &num
+	}
+
+	return episode
 }
