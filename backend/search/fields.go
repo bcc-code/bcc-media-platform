@@ -124,7 +124,9 @@ func getUrl(model string, id int) string {
 
 func (object *searchObject) mapFromLocaleString(field string, dict common.LocaleString) {
 	for key, value := range dict {
-		(*object)[field+"_"+key] = value
+		if value.Valid {
+			(*object)[field+"_"+key] = value.String
+		}
 	}
 }
 
