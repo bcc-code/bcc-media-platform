@@ -4,8 +4,9 @@ import "gopkg.in/guregu/null.v4"
 
 // SearchQuery used as body in the POST request to the API
 type SearchQuery struct {
-	Query string `json:"query"`
-	Page  int    `json:"page"`
+	Query  string `json:"query"`
+	Limit  *int   `json:"limit"`
+	Offset *int   `json:"offset"`
 }
 
 // SearchResult for exposing a list of search results

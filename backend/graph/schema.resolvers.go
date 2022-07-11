@@ -73,14 +73,15 @@ func (r *queryRootResolver) Section(ctx context.Context, id string) (gqlmodel.Se
 }
 
 // Search is the resolver for the search field.
-func (r *queryRootResolver) Search(ctx context.Context, queryString string, page int) (*gqlmodel.SearchResult, error) {
+func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int) (*gqlmodel.SearchResult, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
 	}
 	searchResult, err := r.SearchService.Search(ginCtx, common.SearchQuery{
-		Query: queryString,
-		Page:  page,
+		Query:  queryString,
+		Limit:  first,
+		Offset: offset,
 	})
 	if err != nil {
 		return nil, err

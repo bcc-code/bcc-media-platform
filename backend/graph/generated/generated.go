@@ -166,7 +166,7 @@ type ComplexityRoot struct {
 		Event    func(childComplexity int, id string) int
 		Me       func(childComplexity int) int
 		Page     func(childComplexity int, id string) int
-		Search   func(childComplexity int, queryString string, page int) int
+		Search   func(childComplexity int, queryString string, first *int, offset *int) int
 		Section  func(childComplexity int, id string) int
 	}
 
@@ -263,7 +263,7 @@ type QueryRootResolver interface {
 	Page(ctx context.Context, id string) (gqlmodel.Page, error)
 	Episode(ctx context.Context, id string) (*gqlmodel.Episode, error)
 	Section(ctx context.Context, id string) (gqlmodel.Section, error)
-	Search(ctx context.Context, queryString string, page int) (*gqlmodel.SearchResult, error)
+	Search(ctx context.Context, queryString string, first *int, offset *int) (*gqlmodel.SearchResult, error)
 	Calendar(ctx context.Context) (*gqlmodel.Calendar, error)
 	Event(ctx context.Context, id string) (*gqlmodel.Event, error)
 	AllFAQs(ctx context.Context) ([]*gqlmodel.FAQCategory, error)
@@ -836,7 +836,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.QueryRoot.Search(childComplexity, args["queryString"].(string), args["page"].(int)), true
+		return e.complexity.QueryRoot.Search(childComplexity, args["queryString"].(string), args["first"].(*int), args["offset"].(*int)), true
 
 	case "QueryRoot.section":
 		if e.complexity.QueryRoot.Section == nil {
@@ -1475,7 +1475,7 @@ type User {
   roles: [String!]!
 }
 
-union SearchResultItem = Episode | Season
+union SearchResultItem = Episode | Season | Show
 
 type SearchResult {
   hits: Int!
@@ -1498,7 +1498,8 @@ type QueryRoot{
 
   search(
     queryString: String!
-    page: Int!
+    first: Int
+    offset: Int
   ): SearchResult!
 
   calendar: Calendar
@@ -1649,15 +1650,24 @@ func (ec *executionContext) field_QueryRoot_search_args(ctx context.Context, raw
 		}
 	}
 	args["queryString"] = arg0
-	var arg1 int
-	if tmp, ok := rawArgs["page"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
-		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
+	var arg1 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["page"] = arg1
+	args["first"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg2
 	return args, nil
 }
 
@@ -5039,7 +5049,7 @@ func (ec *executionContext) _QueryRoot_search(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Search(rctx, fc.Args["queryString"].(string), fc.Args["page"].(int))
+		return ec.resolvers.QueryRoot().Search(rctx, fc.Args["queryString"].(string), fc.Args["first"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9413,6 +9423,13 @@ func (ec *executionContext) _SearchResultItem(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._Season(ctx, sel, obj)
+	case gqlmodel.Show:
+		return ec._Show(ctx, sel, &obj)
+	case *gqlmodel.Show:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Show(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -10678,7 +10695,7 @@ func (ec *executionContext) _Settings(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var showImplementors = []string{"Show"}
+var showImplementors = []string{"Show", "SearchResultItem"}
 
 func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Show) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, showImplementors)

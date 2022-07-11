@@ -196,6 +196,8 @@ type Show struct {
 	Seasons      []*Season `json:"seasons"`
 }
 
+func (Show) IsSearchResultItem() {}
+
 type ShowPage struct {
 	ID          string             `json:"id"`
 	Title       *string            `json:"title"`

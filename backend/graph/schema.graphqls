@@ -267,7 +267,8 @@ type QueryRoot{
 
   search(
     queryString: String!
-    page: Int!
+    first: Int
+    offset: Int
   ): SearchResult!
 
   calendar: Calendar

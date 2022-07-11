@@ -35,10 +35,21 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 		return
 	}
 
-	result, err := service.index.Search(query.Query,
+	opts := []interface{}{
 		opt.Filters(filterString),
-		opt.Page(query.Page),
 		opt.AttributesToHighlight(service.getTextFields()...),
+	}
+	if query.Limit != nil {
+		opts = append(opts, opt.Length(*query.Limit))
+	}
+	if query.Offset != nil {
+		opts = append(opts, opt.Offset(*query.Offset))
+	} else {
+		opts = append(opts, opt.Offset(0))
+	}
+
+	result, err := service.index.Search(query.Query,
+		opts...,
 	)
 	if err != nil {
 		return
