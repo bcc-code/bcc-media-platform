@@ -273,7 +273,7 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 			log.L.Debug().Str("identifier", str.Identifier).Msg("String not found, updating")
 			missingStrings = append(missingStrings, str)
 		} else {
-			if s.Text != str.Text {
+			if strings.TrimSpace(s.Text) != strings.TrimSpace(str.Text) {
 				log.L.Debug().Str("source", str.Text).Str("value", s.Text).Msg("Texts are not identical, updating")
 				s.Text = str.Text
 				editStrings = append(editStrings, s)
