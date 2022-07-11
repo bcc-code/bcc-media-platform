@@ -123,20 +123,20 @@ type simpleTranslation struct {
 }
 
 func convertTsToStrings(ts []simpleTranslation, prefix string) []String {
-	return lo.Reduce(ts, func(strings []String, t simpleTranslation, _ int) []String {
+	return lo.Reduce(ts, func(stringObjects []String, t simpleTranslation, _ int) []String {
 		var values = map[string]string{
 			"title":       t.Title,
 			"description": t.Description,
 		}
 		for key, value := range values {
 			if value != "" {
-				strings = append(strings, String{
+				stringObjects = append(stringObjects, String{
 					Identifier: fmt.Sprintf("%s-%d-%s", prefix, t.ParentID, key),
-					Text:       value,
+					Text:       strings.Replace(value, "\"", "\\\"", -1),
 				})
 			}
 		}
-		return strings
+		return stringObjects
 	}, []String{})
 }
 
