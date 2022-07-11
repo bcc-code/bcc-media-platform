@@ -21,7 +21,7 @@ SET row_security = off;
 --
 
 CREATE FUNCTION public.update_episodes_access() RETURNS boolean
-    LANGUAGE plpgsql
+    LANGUAGE plpgsql SECURITY DEFINER
     AS $$
 DECLARE
 	lr timestamptz;
@@ -654,7 +654,7 @@ CREATE TABLE public.directus_activity (
     action character varying(45) NOT NULL,
     "user" uuid,
     "timestamp" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    ip character varying(50) NOT NULL,
+    ip character varying(50),
     user_agent character varying(255),
     collection character varying(64) NOT NULL,
     item character varying(255) NOT NULL,
@@ -724,7 +724,8 @@ CREATE TABLE public.directus_dashboards (
     icon character varying(30) DEFAULT 'dashboard'::character varying NOT NULL,
     note text,
     date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-    user_created uuid
+    user_created uuid,
+    color character varying(255)
 );
 
 
@@ -813,6 +814,28 @@ CREATE TABLE public.directus_files (
 ALTER TABLE public.directus_files OWNER TO btv;
 
 --
+-- Name: directus_flows; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.directus_flows (
+    id uuid NOT NULL,
+    name character varying(255) NOT NULL,
+    icon character varying(30),
+    color character varying(255),
+    description text,
+    status character varying(255) DEFAULT 'active'::character varying NOT NULL,
+    trigger character varying(255),
+    accountability character varying(255) DEFAULT 'all'::character varying,
+    options json,
+    operation uuid,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    user_created uuid
+);
+
+
+ALTER TABLE public.directus_flows OWNER TO btv;
+
+--
 -- Name: directus_folders; Type: TABLE; Schema: public; Owner: btv
 --
 
@@ -847,7 +870,7 @@ CREATE TABLE public.directus_notifications (
     "timestamp" timestamp with time zone NOT NULL,
     status character varying(255) DEFAULT 'inbox'::character varying,
     recipient uuid NOT NULL,
-    sender uuid NOT NULL,
+    sender uuid,
     subject character varying(255) NOT NULL,
     message text,
     collection character varying(64),
@@ -878,6 +901,28 @@ ALTER TABLE public.directus_notifications_id_seq OWNER TO btv;
 
 ALTER SEQUENCE public.directus_notifications_id_seq OWNED BY public.directus_notifications.id;
 
+
+--
+-- Name: directus_operations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.directus_operations (
+    id uuid NOT NULL,
+    name character varying(255),
+    key character varying(255) NOT NULL,
+    type character varying(255) NOT NULL,
+    position_x integer NOT NULL,
+    position_y integer NOT NULL,
+    options json,
+    resolve uuid,
+    reject uuid,
+    flow uuid NOT NULL,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    user_created uuid
+);
+
+
+ALTER TABLE public.directus_operations OWNER TO btv;
 
 --
 -- Name: directus_panels; Type: TABLE; Schema: public; Owner: btv
@@ -1288,12 +1333,12 @@ ALTER TABLE public.episodes OWNER TO btv;
 --
 
 CREATE TABLE public.episodes_usergroups (
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     episodes_id integer NOT NULL,
     id integer NOT NULL,
     type character varying(255) DEFAULT NULL::character varying,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL,
-    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
 );
 
 
@@ -1304,11 +1349,11 @@ ALTER TABLE public.episodes_usergroups OWNER TO btv;
 --
 
 CREATE TABLE public.episodes_usergroups_download (
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     episodes_id integer NOT NULL,
     id integer NOT NULL,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL,
-    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
 );
 
 
@@ -1319,11 +1364,11 @@ ALTER TABLE public.episodes_usergroups_download OWNER TO btv;
 --
 
 CREATE TABLE public.episodes_usergroups_earlyaccess (
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     episodes_id integer NOT NULL,
     id integer NOT NULL,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL,
-    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
 );
 
 
@@ -1712,8 +1757,8 @@ ALTER SEQUENCE public.lists_relations_id_seq OWNED BY public.lists_relations.id;
 --
 
 CREATE TABLE public.materialized_views_meta (
-    view_name text NOT NULL,
-    last_refreshed timestamp with time zone DEFAULT now()
+    last_refreshed timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    view_name text NOT NULL
 );
 
 
@@ -2700,6 +2745,22 @@ ALTER TABLE ONLY public.directus_files
 
 
 --
+-- Name: directus_flows directus_flows_operation_unique; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.directus_flows
+    ADD CONSTRAINT directus_flows_operation_unique UNIQUE (operation);
+
+
+--
+-- Name: directus_flows directus_flows_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.directus_flows
+    ADD CONSTRAINT directus_flows_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: directus_folders directus_folders_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
@@ -2721,6 +2782,30 @@ ALTER TABLE ONLY public.directus_migrations
 
 ALTER TABLE ONLY public.directus_notifications
     ADD CONSTRAINT directus_notifications_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: directus_operations directus_operations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.directus_operations
+    ADD CONSTRAINT directus_operations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: directus_operations directus_operations_reject_unique; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.directus_operations
+    ADD CONSTRAINT directus_operations_reject_unique UNIQUE (reject);
+
+
+--
+-- Name: directus_operations directus_operations_resolve_unique; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.directus_operations
+    ADD CONSTRAINT directus_operations_resolve_unique UNIQUE (resolve);
 
 
 --
@@ -2932,11 +3017,11 @@ ALTER TABLE ONLY public.lists_relations
 
 
 --
--- Name: materialized_views_meta materialized_views_meta_pk; Type: CONSTRAINT; Schema: public; Owner: btv
+-- Name: materialized_views_meta materialized_views_meta_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.materialized_views_meta
-    ADD CONSTRAINT materialized_views_meta_pk PRIMARY KEY (view_name);
+    ADD CONSTRAINT materialized_views_meta_pkey PRIMARY KEY (view_name);
 
 
 --
@@ -3387,6 +3472,14 @@ ALTER TABLE ONLY public.directus_files
 
 
 --
+-- Name: directus_flows directus_flows_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.directus_flows
+    ADD CONSTRAINT directus_flows_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id) ON DELETE SET NULL;
+
+
+--
 -- Name: directus_folders directus_folders_parent_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
@@ -3408,6 +3501,38 @@ ALTER TABLE ONLY public.directus_notifications
 
 ALTER TABLE ONLY public.directus_notifications
     ADD CONSTRAINT directus_notifications_sender_foreign FOREIGN KEY (sender) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: directus_operations directus_operations_flow_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.directus_operations
+    ADD CONSTRAINT directus_operations_flow_foreign FOREIGN KEY (flow) REFERENCES public.directus_flows(id) ON DELETE CASCADE;
+
+
+--
+-- Name: directus_operations directus_operations_reject_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.directus_operations
+    ADD CONSTRAINT directus_operations_reject_foreign FOREIGN KEY (reject) REFERENCES public.directus_operations(id);
+
+
+--
+-- Name: directus_operations directus_operations_resolve_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.directus_operations
+    ADD CONSTRAINT directus_operations_resolve_foreign FOREIGN KEY (resolve) REFERENCES public.directus_operations(id);
+
+
+--
+-- Name: directus_operations directus_operations_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.directus_operations
+    ADD CONSTRAINT directus_operations_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id) ON DELETE SET NULL;
 
 
 --
