@@ -103,16 +103,6 @@ func main() {
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
-	if config.Algolia.AppId != "" {
-
-		searchGroup := r.Group("search")
-		searchGroup.POST("query", searchQueryHandler(searchService))
-
-		//if config.Algolia.SearchOnlyApiKey != "" {
-		//	searchGroup.GET("key", searchKeyHandler(searchService))
-		//}
-	}
-
 	span.End()
 
 	err = r.Run(":" + config.Port)
