@@ -270,9 +270,11 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 		if s, found := lo.Find(fileStrings, func(s String) bool {
 			return s.Identifier == str.Identifier
 		}); !found {
+			log.L.Debug().Str("identifier", str.Identifier).Msg("String not found, updating")
 			missingStrings = append(missingStrings, str)
 		} else {
 			if s.Text != str.Text {
+				log.L.Debug().Str("source", str.Text).Str("value", s.Text).Msg("Texts are not identical, updating")
 				s.Text = str.Text
 				editStrings = append(editStrings, s)
 			}
