@@ -244,7 +244,7 @@ type User {
   roles: [String!]!
 }
 
-union SearchResultItem = Episode | Season
+union SearchResultItem = Episode | Season | Show
 
 type SearchResult {
   hits: Int!

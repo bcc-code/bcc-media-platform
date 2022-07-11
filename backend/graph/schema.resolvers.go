@@ -89,16 +89,12 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, page
 	for _, i := range searchResult.Result {
 		switch i.Collection {
 		case "episodes":
-			e, err := episode.GetByID(ctx, r.Resolver.Loaders.EpisodeLoader, i.ID)
+			e, err := r.Episode(ctx, strconv.Itoa(i.ID))
 			if err != nil {
-				return nil, err
-			}
-			err = episode.ValidateAccess(ctx, *e)
-			if err != nil {
-				// just ignore episodes user has no access to
+				// Ignore if errors occur - lack of access, etc.
 				continue
 			}
-			results = append(results, gqlmodel.EpisodeFromSQL(ctx, e))
+			results = append(results, e)
 		}
 	}
 	return &gqlmodel.SearchResult{
