@@ -7,12 +7,15 @@ export async function createEpisode(p, m, c) {
         return
     }
 
+	console.log("Syncing Episode")
+	console.log(p)
 
     // get legacy id
     let asset: any
     if (p.asset_id) {
         asset = (await c.database("assets").select("*").where("id", p.asset_id))[0];
     }
+
     let image = null
     if (p.image_file_id != null) {
         image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
