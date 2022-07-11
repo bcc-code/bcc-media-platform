@@ -77,8 +77,8 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 		//}
 
 		item := common.SearchResultItem{
-			ID:    int(id),
-			Model: model,
+			ID:         int(id),
+			Collection: model,
 		}
 
 		for _, opts := range hit.HighlightResult {

@@ -20,7 +20,7 @@ type SearchResult struct {
 // SearchResultItem for exposing search results through the API
 type SearchResultItem struct {
 	ID          int     `json:"id"`
-	Model       string  `json:"model"`
+	Collection  string  `json:"collection"`
 	Title       string  `json:"title"`
 	Header      *string `json:"header"`
 	Description *string `json:"description"`

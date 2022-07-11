@@ -244,6 +244,14 @@ type User {
   roles: [String!]!
 }
 
+union SearchResultItem = Episode | Season
+
+type SearchResult {
+  hits: Int!
+  page: Int!
+  result: [SearchResultItem!]!
+}
+
 type QueryRoot{
   page(
     id: ID!
@@ -256,6 +264,11 @@ type QueryRoot{
   section(
     id: ID!
   ): Section
+
+  search(
+    queryString: String!
+    page: Int!
+  ): SearchResult!
 
   calendar: Calendar
   event(id: ID!): Event

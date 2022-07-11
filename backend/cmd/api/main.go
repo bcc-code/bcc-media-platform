@@ -24,11 +24,12 @@ import (
 )
 
 // Defining the Graphql handler
-func graphqlHandler(queries *sqlc.Queries, loaders *graph.BatchLoaders) gin.HandlerFunc {
+func graphqlHandler(queries *sqlc.Queries, loaders *graph.BatchLoaders, searchService *search.Service) gin.HandlerFunc {
 
 	resolver := graph.Resolver{
-		Queries: queries,
-		Loaders: loaders,
+		Queries:       queries,
+		Loaders:       loaders,
+		SearchService: searchService,
 	}
 
 	// NewExecutableSchema and Config are in the generated.go file
@@ -95,14 +96,14 @@ func main() {
 	r.Use(auth0.JWT(ctx, config.JWTConfig))
 	r.Use(user.NewUserMiddleware(queries))
 
-	r.POST("/query", graphqlHandler(queries, loaders))
+	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
+	r.POST("/query", graphqlHandler(queries, loaders, searchService))
 
 	r.GET("/", playgroundHandler())
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
 	if config.Algolia.AppId != "" {
-		searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
 
 		searchGroup := r.Group("search")
 		searchGroup.POST("query", searchQueryHandler(searchService))

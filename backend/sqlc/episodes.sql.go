@@ -532,3 +532,24 @@ func (q *Queries) RefreshAccessView(ctx context.Context) (bool, error) {
 	err := row.Scan(&update_episodes_access)
 	return update_episodes_access, err
 }
+
+const updateEpisode = `-- name: UpdateEpisode :exec
+UPDATE public.episodes SET publish_date = $2, available_from = $3, available_to = $4 WHERE id = $1
+`
+
+type UpdateEpisodeParams struct {
+	ID            int32        `db:"id" json:"id"`
+	PublishDate   time.Time    `db:"publish_date" json:"publishDate"`
+	AvailableFrom null_v4.Time `db:"available_from" json:"availableFrom"`
+	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
+}
+
+func (q *Queries) UpdateEpisode(ctx context.Context, arg UpdateEpisodeParams) error {
+	_, err := q.db.ExecContext(ctx, updateEpisode,
+		arg.ID,
+		arg.PublishDate,
+		arg.AvailableFrom,
+		arg.AvailableTo,
+	)
+	return err
+}
