@@ -21,7 +21,7 @@ func (service *Service) mapShowToSearchObject(
 	object[rolesField] = service.getRolesForShow(ctx, item.ID)
 	object[createdAtField] = item.DateCreated.UTC().Unix()
 	object[updatedAtField] = item.DateUpdated.UTC().Unix()
-	if image != nil {
+	if image != nil && image.FilenameDisk.Valid {
 		object[imageField] = image.GetImageUrl()
 	}
 

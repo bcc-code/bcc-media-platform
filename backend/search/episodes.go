@@ -27,7 +27,7 @@ func (service *Service) mapEpisodeToSearchObject(
 	object[updatedAtField] = item.DateUpdated.UTC().Unix()
 	object[publishedAtField] = item.PublishDate.UTC().Unix()
 
-	if image != nil {
+	if image != nil && image.FilenameDisk.Valid {
 		object[imageField] = image.GetImageUrl()
 	}
 	if season != nil {
