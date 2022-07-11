@@ -1,5 +1,7 @@
 package graph
 
+import "github.com/bcc-code/brunstadtv/backend/search"
+
 import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/graph-gophers/dataloader/v7"
@@ -12,8 +14,9 @@ import (
 // Resolver is the main struct for the GQL implementation
 // It contains references to all external services and config
 type Resolver struct {
-	Queries *sqlc.Queries
-	Loaders *BatchLoaders
+	Queries       *sqlc.Queries
+	Loaders       *BatchLoaders
+	SearchService *search.Service
 }
 
 // BatchLoaders is a collection of GQL dataloaders

@@ -16,6 +16,10 @@ type Page interface {
 	IsPage()
 }
 
+type SearchResultItem interface {
+	IsSearchResultItem()
+}
+
 type Section interface {
 	IsSection()
 }
@@ -77,6 +81,8 @@ type Episode struct {
 	SubtitleLanguages []Language `json:"subtitleLanguages"`
 	EpisodeNumber     *int       `json:"episodeNumber"`
 }
+
+func (Episode) IsSearchResultItem() {}
 
 type EpisodeItem struct {
 	ID       string   `json:"id"`
@@ -151,11 +157,19 @@ type PaginationInfo struct {
 	HasNextPage bool   `json:"hasNextPage"`
 }
 
+type SearchResult struct {
+	Hits   int                `json:"hits"`
+	Page   int                `json:"page"`
+	Result []SearchResultItem `json:"result"`
+}
+
 type Season struct {
 	ID       string     `json:"id"`
 	Show     *Show      `json:"show"`
 	Episodes []*Episode `json:"episodes"`
 }
+
+func (Season) IsSearchResultItem() {}
 
 type SectionConnection struct {
 	ID       string          `json:"id"`
@@ -181,6 +195,8 @@ type Show struct {
 	SeasonCount  int       `json:"seasonCount"`
 	Seasons      []*Season `json:"seasons"`
 }
+
+func (Show) IsSearchResultItem() {}
 
 type ShowPage struct {
 	ID          string             `json:"id"`
