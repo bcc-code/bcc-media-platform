@@ -253,7 +253,7 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 		return err
 	}
 
-	dbStrings := convertTsToStrings(translations, collection)
+	dbStrings := convertTsToStrings(sourceTranslations, collection)
 
 	fileStrings, err := client.getStrings(projectId, file.ID)
 	if err != nil {
