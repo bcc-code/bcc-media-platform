@@ -20,18 +20,18 @@ func ValidateAccess(ctx context.Context, episode sqlc.EpisodeExpanded) error {
 	if err != nil {
 		return err
 	}
-	user := user.GetFromCtx(ginCtx)
+	u := user.GetFromCtx(ginCtx)
 
 	// This is a bit dense so here is a text version:
 	// * If the user has early access -> Continue
 	// * Else Check if the episode is published (status) and in the correct timeframe
-	if len(lo.Intersect(user.Roles, episode.EarlyAccessGroups)) == 0 && (!episode.Published ||
+	if len(lo.Intersect(u.Roles, episode.EarlyAccessGroups)) == 0 && (!episode.Published ||
 		episode.AvailableFrom.After(time.Now()) ||
 		episode.AvailableTo.Before(time.Now())) {
 		return merry.Wrap(errEpisodeNotPublished)
 	}
 
-	if len(lo.Intersect(user.Roles, episode.Usergroups)) == 0 {
+	if len(lo.Intersect(u.Roles, episode.Usergroups)) == 0 {
 		return merry.Wrap(errEpisodeNoAccess)
 	}
 

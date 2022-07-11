@@ -23,7 +23,6 @@ SELECT
 JOIN t ON e.id = t.episodes_id
 JOIN episodes_access ea on ea.id = e.id;
 
-
 -- name: GetFilesForEpisodes :many
 SELECT e.id AS episodes_id, f.* FROM episodes e
 JOIN assets a ON e.asset_id = a.id
