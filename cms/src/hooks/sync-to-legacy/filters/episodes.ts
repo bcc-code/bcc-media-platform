@@ -7,9 +7,6 @@ export async function createEpisode(p, m, c) {
         return
     }
 
-	console.log("Syncing Episode")
-	console.log(p)
-
     // get legacy id
     let asset: any
     if (p.asset_id) {
@@ -68,8 +65,6 @@ export async function createEpisode(p, m, c) {
 }
 
 export async function updateEpisode(p, m, c) {
-
-
     if (m.collection != "episodes") {
         return
     }
@@ -90,6 +85,7 @@ export async function updateEpisode(p, m, c) {
         patch.VideoId = null
     }
 
+	console.log(p)
     if (p.image_file_id) {
         let image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
         patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
