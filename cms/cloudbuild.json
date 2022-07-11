@@ -5,7 +5,7 @@
 			"args": [
 				"build",
 				"-t", "$_IMAGE_NAME:$COMMIT_SHA",
-				"-t", "$_IMAGE_NAME:$BRANCH_NAME",
+				"-t", "$_IMAGE_NAME:$BRANCH_NAME$TAG_NAME",
 				"-f", "./cms/Dockerfile",
 				"./cms"
 			],
@@ -23,7 +23,7 @@
 			"name": "gcr.io/cloud-builders/docker",
 			"args": [
 				"push",
-				"$_IMAGE_NAME:$BRANCH_NAME"
+				"$_IMAGE_NAME:$BRANCH_NAME$TAG_NAME"
 			],
 			"id": "Push"
 		},
@@ -46,7 +46,7 @@
 	],
 	"images": [
 		"$_IMAGE_NAME:$COMMIT_SHA",
-		"$_IMAGE_NAME:$BRANCH_NAME"
+		"$_IMAGE_NAME:$BRANCH_NAME$TAG_NAME"
 	],
 	"options": {
 		"substitutionOption": "ALLOW_LOOSE"

@@ -1,10 +1,4 @@
 import { defineHook } from '@directus/extensions-sdk';
-import { ItemsService } from 'directus';
-import episodes from '../../btv'
-import knex, { Knex } from 'knex'
-import { CategoryEntity, CategoryEpisodeEntity, CategoryProgramEntity, CategorySeriesEntity, EpisodeEntity, LanguageEntity, LocalizedStringEntity, ProgramEntity, SeasonEntity, SeriesEntity } from '@/Database';
-import { createLocalizable, getStatusFromNew, isObjectUseless, objectPatch, sleep, upsertLS } from './utils';
-import { oldKnex } from './oldKnex';
 import { createEpisodeTranslation, createSeasonTranslation, createShowTranslation, updateEpisodeTranslation, updateSeasonTranslation, updateShowTranslation } from './filters/translations';
 import { createShow, deleteShow, updateShow } from './filters/shows';
 import { createEpisode, deleteEpisode, updateEpisode } from './filters/episodes';
@@ -17,8 +11,7 @@ import { createAssetstream, deleteAssetstream, updateAssetstream } from './filte
 import { createEpisodeTag, deleteEpisodeTag, updateTag } from './filters/tags';
 
 
-export default defineHook(({ filter, action }, {services,database}) => {
-
+export default defineHook(({ filter }, {}) => {
 	if (process.env.LEGACY_SYNC === "off") {
 		return
 	}
