@@ -85,7 +85,7 @@ export async function updateEpisode(p, m, c) {
         patch.VideoId = null
     }
 
-	console.log(p)
+	console.log(epBeforeUpdate, p)
     if (p.image_file_id) {
         let image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
         patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
