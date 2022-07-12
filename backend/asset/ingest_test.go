@@ -47,7 +47,7 @@ func TestCalculateDuration(t *testing.T) {
 }
 
 func TestGetLanguagesFromVideoElement(t *testing.T) {
-	bytes, err := ioutil.ReadFile("./smil/smil2.xml")
+	bytes, err := ioutil.ReadFile("./smil/testdata/smil2.xml")
 	assert.NoError(t, err)
 
 	smilObj, err := smil.Unmarshall(bytes)
