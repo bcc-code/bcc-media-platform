@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/bcc-code/brunstadtv/backend/common"
 	"net/url"
 	"path"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/bcc-code/brunstadtv/backend/asset/smil"
+	"github.com/bcc-code/brunstadtv/backend/common"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -113,6 +115,35 @@ func SafeString(s string) string {
 	s = regexSafeStringReplace.ReplaceAllLiteralString(s, "_")
 	s = regexSafeStringChars.ReplaceAllLiteralString(s, "")
 	return s
+}
+
+// GetLanguagesFromVideoElement formatted as per AWS:
+// https://aws.amazon.com/blogs/media/smil-using-aws-elemental-mediapackage-vod/
+// For example:
+// ```
+//      <video name="example_1080.mp4" systemLanguage="eng,spa,fra" audioName="English,Spanish,French"/>
+// ```
+// If systemLanguage param is not present the return will be an empty array
+func GetLanguagesFromVideoElement(videoElement smil.Video) []directus.AssetStreamLanguage {
+
+	systemLanuages := []string{}
+	languages := []directus.AssetStreamLanguage{}
+
+	if videoElement.IncludeAudio != "true" && videoElement.IncludeAudio != "" { // "" == "true" as per https://docs.aws.amazon.com/mediapackage/latest/ug/supported-inputs-vod-smil.html
+		return languages
+	}
+
+	systemLanuages = lo.Map(strings.Split(videoElement.SystemLanguage, ","), func(s string, _ int) string { return strings.TrimSpace(s) })
+	systemLanuages = lo.Filter(systemLanuages, func(s string, _ int) bool { return s != "" })
+
+	for i := range systemLanuages {
+		languages = append(languages, directus.AssetStreamLanguage{
+			AssetStreamID: "+", // Directus requirement
+			LanguagesCode: directus.LanguagesCode{Code: systemLanuages[i]},
+		})
+	}
+
+	return languages
 }
 
 // Ingest asset from storage based on the prefix.
@@ -224,11 +255,15 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 				Key:        aws.String(target),
 				CopySource: aws.String(src),
 			}
+
+			audioLanguages = append(audioLanguages, GetLanguagesFromVideoElement(file)...)
+
 			filesToCopy[*coi.Key] = coi
 			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
 		}
 
 		for _, file := range smil.Body.Switch.Audios {
+			// TODO: Remove after confirming that MUXed files are working
 			target := path.Join(storagePrefix, "stream", path.Base(file.Src))
 			src := path.Join(*config.GetIngestBucket(), assetMeta.BasePath, file.Src)
 			coi := &s3.CopyObjectInput{
