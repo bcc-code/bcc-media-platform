@@ -40,3 +40,6 @@ FROM seasons se
 JOIN t ON se.id = t.seasons_id
 JOIN seasons_access access on access.id = se.id
 WHERE se.id = ANY($1::int[]);
+
+-- name: RefreshSeasonAccessView :one
+SELECT update_access('seasons_access');

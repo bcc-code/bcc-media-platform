@@ -41,3 +41,6 @@ FROM shows sh
          JOIN t ON sh.id = t.shows_id
          JOIN shows_access access on access.id = sh.id
 WHERE sh.id = ANY($1::int[]);
+
+-- name: RefreshShowAccessView :one
+SELECT update_access('shows_access');

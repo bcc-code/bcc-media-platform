@@ -356,3 +356,14 @@ func (q *Queries) GetVisibilityForShows(ctx context.Context) ([]GetVisibilityFor
 	}
 	return items, nil
 }
+
+const refreshShowAccessView = `-- name: RefreshShowAccessView :one
+SELECT update_access('shows_access')
+`
+
+func (q *Queries) RefreshShowAccessView(ctx context.Context) (interface{}, error) {
+	row := q.db.QueryRowContext(ctx, refreshShowAccessView)
+	var update_access interface{}
+	err := row.Scan(&update_access)
+	return update_access, err
+}

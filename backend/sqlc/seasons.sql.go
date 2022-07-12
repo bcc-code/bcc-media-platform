@@ -361,3 +361,14 @@ func (q *Queries) GetVisibilityForSeasons(ctx context.Context) ([]GetVisibilityF
 	}
 	return items, nil
 }
+
+const refreshSeasonAccessView = `-- name: RefreshSeasonAccessView :one
+SELECT update_access('seasons_access')
+`
+
+func (q *Queries) RefreshSeasonAccessView(ctx context.Context) (interface{}, error) {
+	row := q.db.QueryRowContext(ctx, refreshSeasonAccessView)
+	var update_access interface{}
+	err := row.Scan(&update_access)
+	return update_access, err
+}

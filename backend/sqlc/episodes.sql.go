@@ -522,34 +522,13 @@ func (q *Queries) GetVisibilityForEpisodes(ctx context.Context) ([]GetVisibility
 	return items, nil
 }
 
-const refreshAccessView = `-- name: RefreshAccessView :one
-SELECT update_episodes_access()
+const refreshEpisodeAccessView = `-- name: RefreshEpisodeAccessView :one
+SELECT update_access('episodes_access')
 `
 
-func (q *Queries) RefreshAccessView(ctx context.Context) (bool, error) {
-	row := q.db.QueryRowContext(ctx, refreshAccessView)
-	var update_episodes_access bool
-	err := row.Scan(&update_episodes_access)
-	return update_episodes_access, err
-}
-
-const updateEpisode = `-- name: UpdateEpisode :exec
-UPDATE public.episodes SET publish_date = $2, available_from = $3, available_to = $4 WHERE id = $1
-`
-
-type UpdateEpisodeParams struct {
-	ID            int32        `db:"id" json:"id"`
-	PublishDate   time.Time    `db:"publish_date" json:"publishDate"`
-	AvailableFrom null_v4.Time `db:"available_from" json:"availableFrom"`
-	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
-}
-
-func (q *Queries) UpdateEpisode(ctx context.Context, arg UpdateEpisodeParams) error {
-	_, err := q.db.ExecContext(ctx, updateEpisode,
-		arg.ID,
-		arg.PublishDate,
-		arg.AvailableFrom,
-		arg.AvailableTo,
-	)
-	return err
+func (q *Queries) RefreshEpisodeAccessView(ctx context.Context) (interface{}, error) {
+	row := q.db.QueryRowContext(ctx, refreshEpisodeAccessView)
+	var update_access interface{}
+	err := row.Scan(&update_access)
+	return update_access, err
 }
