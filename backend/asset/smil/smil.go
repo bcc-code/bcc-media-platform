@@ -36,9 +36,11 @@ type Switch struct {
 
 // Video source
 type Video struct {
-	XMLName xml.Name `xml:"video"`
-	Src     string   `xml:"src,attr"`
-	Params  []Param  `xml:"param"`
+	XMLName        xml.Name `xml:"video"`
+	Src            string   `xml:"src,attr"`
+	IncludeAudio   string   `xml:"includeAudio,attr"`
+	SystemLanguage string   `xml:"systemLanguage,attr"`
+	AudioName      string   `xml:"audioName,attr"`
 }
 
 // Audio source

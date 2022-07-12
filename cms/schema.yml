@@ -1,5 +1,5 @@
 version: 1
-directus: 9.11.1
+directus: 9.14.1
 collections:
   - collection: ageratings
     meta:
@@ -6981,6 +6981,7 @@ fields:
       interface: translations
       note: null
       options:
+        defaultLanguage: 'no'
         languageField: code
       readonly: false
       required: false
@@ -9114,7 +9115,7 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: now()
+      default_value: CURRENT_TIMESTAMP
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
@@ -10389,6 +10390,7 @@ fields:
       interface: translations
       note: null
       options:
+        defaultLanguage: 'no'
         languageField: code
       readonly: false
       required: false
@@ -12600,6 +12602,7 @@ fields:
       interface: translations
       note: null
       options:
+        defaultLanguage: 'no'
         languageField: code
       readonly: false
       required: false

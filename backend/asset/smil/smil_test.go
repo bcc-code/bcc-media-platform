@@ -4,18 +4,24 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
+	"strings"
 	"testing"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestUnmarshall(t *testing.T) {
+	files, _ := os.ReadDir("./testdata")
+	spew.Dump(files)
 
-	fileList := []string{
-		"smil.xml",
-	}
+	for _, file := range files {
+		fileName := path.Join("./testdata", file.Name())
+		if !strings.HasSuffix(fileName, ".xml") {
+			continue
+		}
 
-	for _, fileName := range fileList {
 		// Open our xmlFile
 		xmlFile, err := os.Open(fileName)
 		// if we os.Open returns an error then handle it

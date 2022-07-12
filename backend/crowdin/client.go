@@ -123,20 +123,20 @@ type simpleTranslation struct {
 }
 
 func convertTsToStrings(ts []simpleTranslation, prefix string) []String {
-	return lo.Reduce(ts, func(strings []String, t simpleTranslation, _ int) []String {
+	return lo.Reduce(ts, func(stringObjects []String, t simpleTranslation, _ int) []String {
 		var values = map[string]string{
 			"title":       t.Title,
 			"description": t.Description,
 		}
 		for key, value := range values {
 			if value != "" {
-				strings = append(strings, String{
+				stringObjects = append(stringObjects, String{
 					Identifier: fmt.Sprintf("%s-%d-%s", prefix, t.ParentID, key),
-					Text:       value,
+					Text:       strings.Replace(value, "\"", "\\\"", -1),
 				})
 			}
 		}
-		return strings
+		return stringObjects
 	}, []String{})
 }
 
@@ -253,7 +253,7 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 		return err
 	}
 
-	dbStrings := convertTsToStrings(translations, collection)
+	dbStrings := convertTsToStrings(sourceTranslations, collection)
 
 	fileStrings, err := client.getStrings(projectId, file.ID)
 	if err != nil {
@@ -270,9 +270,11 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 		if s, found := lo.Find(fileStrings, func(s String) bool {
 			return s.Identifier == str.Identifier
 		}); !found {
+			log.L.Debug().Str("identifier", str.Identifier).Msg("String not found, updating")
 			missingStrings = append(missingStrings, str)
 		} else {
-			if s.Text != str.Text {
+			if strings.TrimSpace(s.Text) != strings.TrimSpace(str.Text) {
+				log.L.Debug().Str("source", str.Text).Str("value", s.Text).Msg("Texts are not identical, updating")
 				s.Text = str.Text
 				editStrings = append(editStrings, s)
 			}
