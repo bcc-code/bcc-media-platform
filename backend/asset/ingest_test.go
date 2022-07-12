@@ -1,8 +1,11 @@
 package asset
 
 import (
+	"io/ioutil"
 	"testing"
 
+	"github.com/bcc-code/brunstadtv/backend/asset/smil"
+	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -41,4 +44,62 @@ func TestCalculateDuration(t *testing.T) {
 		a.CalculateDuration()
 		assert.Equal(t, out, a.DurationInS, in)
 	}
+}
+
+func TestGetLanguagesFromVideoElement(t *testing.T) {
+	bytes, err := ioutil.ReadFile("./smil/smil2.xml")
+	assert.NoError(t, err)
+
+	smilObj, err := smil.Unmarshall(bytes)
+	assert.NoError(t, err)
+
+	langs := GetLanguagesFromVideoElement(smilObj.Body.Switch.Videos[0])
+	assert.Equal(t, []directus.AssetStreamLanguage{
+		{
+			AssetStreamID: "+",
+			LanguagesCode: directus.LanguagesCode{
+				Code: "ita",
+			},
+		},
+		{
+			AssetStreamID: "+",
+			LanguagesCode: directus.LanguagesCode{
+				Code: "deu",
+			},
+		},
+		{
+			AssetStreamID: "+",
+			LanguagesCode: directus.LanguagesCode{
+				Code: "fra",
+			},
+		},
+	}, langs)
+
+	langs = GetLanguagesFromVideoElement(smilObj.Body.Switch.Videos[1])
+	assert.Equal(t, []directus.AssetStreamLanguage{
+		{
+			AssetStreamID: "+",
+			LanguagesCode: directus.LanguagesCode{
+				Code: "nor",
+			},
+		},
+		{
+			AssetStreamID: "+",
+			LanguagesCode: directus.LanguagesCode{
+				Code: "fin",
+			},
+		},
+		{
+			AssetStreamID: "+",
+			LanguagesCode: directus.LanguagesCode{
+				Code: "swe",
+			},
+		},
+	}, langs)
+
+	langs = GetLanguagesFromVideoElement(smilObj.Body.Switch.Videos[2])
+	assert.Equal(t, []directus.AssetStreamLanguage{}, langs)
+
+	langs = GetLanguagesFromVideoElement(smilObj.Body.Switch.Videos[3])
+	assert.Equal(t, []directus.AssetStreamLanguage{}, langs)
 }
