@@ -126,20 +126,20 @@ func SafeString(s string) string {
 // If systemLanguage param is not present the return will be an empty array
 func GetLanguagesFromVideoElement(videoElement smil.Video) []directus.AssetStreamLanguage {
 
-	systemLanuages := []string{}
+	systemLanguages := []string{}
 	languages := []directus.AssetStreamLanguage{}
 
 	if videoElement.IncludeAudio != "true" && videoElement.IncludeAudio != "" { // "" == "true" as per https://docs.aws.amazon.com/mediapackage/latest/ug/supported-inputs-vod-smil.html
 		return languages
 	}
 
-	systemLanuages = lo.Map(strings.Split(videoElement.SystemLanguage, ","), func(s string, _ int) string { return strings.TrimSpace(s) })
-	systemLanuages = lo.Filter(systemLanuages, func(s string, _ int) bool { return s != "" })
+	systemLanguages = lo.Map(strings.Split(videoElement.SystemLanguage, ","), func(s string, _ int) string { return strings.TrimSpace(s) })
+	systemLanguages = lo.Filter(systemLanguages, func(s string, _ int) bool { return s != "" })
 
-	for i := range systemLanuages {
+	for i := range systemLanguages {
 		languages = append(languages, directus.AssetStreamLanguage{
 			AssetStreamID: "+", // Directus requirement
-			LanguagesCode: directus.LanguagesCode{Code: systemLanuages[i]},
+			LanguagesCode: directus.LanguagesCode{Code: systemLanguages[i]},
 		})
 	}
 

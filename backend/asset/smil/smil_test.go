@@ -13,6 +13,7 @@ func TestUnmarshall(t *testing.T) {
 
 	fileList := []string{
 		"smil.xml",
+		"smil2.xml",
 	}
 
 	for _, fileName := range fileList {
