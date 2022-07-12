@@ -41,7 +41,7 @@ FROM episodes e
 `
 
 const episodes_materialized_view_sql = `
-create materialized view episodes_access as
+create materialized view if not exists episodes_access as
 SELECT episodes_access_view.id,
        episodes_access_view.published,
        episodes_access_view.available_from,
@@ -51,7 +51,7 @@ SELECT episodes_access_view.id,
        episodes_access_view.usergroups_earlyaccess
 FROM episodes_access_view;
 
-create unique index episodes_access_idx
+create unique index if not exists episodes_access_idx
     on episodes_access (id);
 `
 
@@ -102,7 +102,7 @@ FROM seasons se
 `;
 
 const seasons_materialized_view_sql = `
-create materialized view seasons_access as
+create materialized view if not exists seasons_access as
 SELECT seasons_access_view.id,
        seasons_access_view.published,
        seasons_access_view.available_from,
@@ -112,12 +112,12 @@ SELECT seasons_access_view.id,
        seasons_access_view.usergroups_earlyaccess
 FROM seasons_access_view;
 
-create unique index seasons_access_idx
+create unique index if not exists seasons_access_idx
     on seasons_access (id);
 `
 
 const shows_access_view_sql = `
-create view shows_roles(id, roles, roles_download, roles_earlyaccess) as
+create or replace view shows_roles(id, roles, roles_download, roles_earlyaccess) as
 SELECT sh.id,
        COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
                  FROM episodes_usergroups eu
@@ -145,14 +145,14 @@ SELECT sh.id,
                 ARRAY []::character varying[]) AS roles_earlyaccess
 FROM shows sh;
 
-create view shows_availability(id, published, available_from, available_to) as
+create or replace view shows_availability(id, published, available_from, available_to) as
 SELECT sh.id,
        sh.status::text = 'published'::text                                             AS published,
        COALESCE(sh.available_from, '1800-01-01 00:00:00'::timestamp without time zone) AS available_from,
        COALESCE(sh.available_to, '3000-01-01 00:00:00'::timestamp without time zone)   AS available_to
 FROM shows sh;
 
-create view shows_access_view
+create or replace view shows_access_view
             (id, published, available_from, available_to, usergroups, usergroups_downloads, usergroups_earlyaccess) as
 SELECT sh.id,
        a.published,
@@ -167,7 +167,7 @@ FROM shows sh
 `;
 
 const shows_materialized_view_sql = `
-create materialized view shows_access as
+create materialized view if not exists shows_access as
 SELECT shows_access_view.id,
        shows_access_view.published,
        shows_access_view.available_from,
@@ -177,24 +177,54 @@ SELECT shows_access_view.id,
        shows_access_view.usergroups_earlyaccess
 FROM shows_access_view;
 
-create unique index shows_access_idx
+create unique index if not exists shows_access_idx
     on shows_access (id);
 `
+
+const createRefreshFunction = (collection: string) => {
+	return `
+	CREATE OR REPLACE FUNCTION update_${collection}_access() RETURNS boolean
+AS $$
+DECLARE
+	lr timestamptz;
+BEGIN
+	SELECT last_refreshed INTO lr FROM materialized_views_meta WHERE view_name = '${collection}_access';
+
+	IF (
+	    lr IS NULL OR 
+ (SELECT MAX(date_updated) FROM shows) > lr OR
+ (SELECT MAX(date_updated) FROM seasons) > lr OR
+ (SELECT MAX(date_updated) FROM episodes) > lr OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups) > lr OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups_download) > lr OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups_earlyaccess) > (lr)) THEN
+		RAISE NOTICE 'Refreshing ${collection} view';
+		REFRESH MATERIALIZED VIEW CONCURRENTLY ${collection}_access;
+		INSERT INTO materialized_views_meta (last_refreshed, view_name) VALUES (NOW(), '${collection}_access') ON CONFLICT(view_name) DO UPDATE set last_refreshed = now();
+		RETURN true;
+    END IF;
+	RETURN false;
+END $$ LANGUAGE plpgsql;
+`
+}
 
 module.exports = {
 	async up(k : Knex) {
 		await k.raw(episodes_access_view_sql);
 		//TODO: replace existing materialized view?
 		//await k.raw(episodes_materialized_view_sql);
+		await k.raw(createRefreshFunction("episodes"))
 
 		await k.raw(seasons_access_view_sql);
 		await k.raw(seasons_materialized_view_sql);
+		await k.raw(createRefreshFunction("seasons"))
 		await k.raw(shows_access_view_sql);
 		await k.raw(shows_materialized_view_sql);
+		await k.raw(createRefreshFunction("shows"))
 	},
 
 	async down(k : Knex) {
-		//await k.raw(`DROP MATERIALIZED VIEW IF EXISTS seasons_access`);
+		//await k.raw(`DROP MATERIALIZED VIEW IF EXISTS episodes_access`);
 		await k.raw(`DROP VIEW IF EXISTS episodes_access_view`);
 		await k.raw(`DROP VIEW IF EXISTS episodes_roles`);
 		await k.raw(`DROP VIEW IF EXISTS episodes_availability`);

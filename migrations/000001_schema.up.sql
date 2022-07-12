@@ -21,7 +21,7 @@ SET row_security = off;
 --
 
 CREATE FUNCTION public.update_episodes_access() RETURNS boolean
-    LANGUAGE plpgsql SECURITY DEFINER
+    LANGUAGE plpgsql
     AS $$
 DECLARE
 	lr timestamptz;
@@ -29,15 +29,16 @@ BEGIN
 	SELECT last_refreshed INTO lr FROM materialized_views_meta WHERE view_name = 'episodes_access';
 
 	IF (
- (SELECT MAX(date_updated) FROM shows) > lr  OR
+	    lr IS NULL OR 
+ (SELECT MAX(date_updated) FROM shows) > lr OR
  (SELECT MAX(date_updated) FROM seasons) > lr OR
  (SELECT MAX(date_updated) FROM episodes) > lr OR
  (SELECT MAX(date_updated) FROM episodes_usergroups) > lr OR
- (SELECT MAX(date_updated) FROM episodes_usergroups_download) >lr OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups_download) > lr OR
  (SELECT MAX(date_updated) FROM episodes_usergroups_earlyaccess) > (lr)) THEN
-		RAISE NOTICE 'Refreshing view';
+		RAISE NOTICE 'Refreshing episodes view';
 		REFRESH MATERIALIZED VIEW CONCURRENTLY episodes_access;
-		UPDATE materialized_views_meta SET last_refreshed = NOW() WHERE view_name = 'episodes_access';
+		INSERT INTO materialized_views_meta (last_refreshed, view_name) VALUES (NOW(), 'episodes_access') ON CONFLICT(view_name) DO UPDATE set last_refreshed = now();
 		RETURN true;
     END IF;
 	RETURN false;
@@ -45,6 +46,68 @@ END $$;
 
 
 ALTER FUNCTION public.update_episodes_access() OWNER TO btv;
+
+--
+-- Name: update_seasons_access(); Type: FUNCTION; Schema: public; Owner: btv
+--
+
+CREATE FUNCTION public.update_seasons_access() RETURNS boolean
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	lr timestamptz;
+BEGIN
+	SELECT last_refreshed INTO lr FROM materialized_views_meta WHERE view_name = 'seasons_access';
+
+	IF (
+	    lr IS NULL OR 
+ (SELECT MAX(date_updated) FROM shows) > lr OR
+ (SELECT MAX(date_updated) FROM seasons) > lr OR
+ (SELECT MAX(date_updated) FROM episodes) > lr OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups) > lr OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups_download) > lr OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups_earlyaccess) > (lr)) THEN
+		RAISE NOTICE 'Refreshing seasons view';
+		REFRESH MATERIALIZED VIEW CONCURRENTLY seasons_access;
+		INSERT INTO materialized_views_meta (last_refreshed, view_name) VALUES (NOW(), 'seasons_access') ON CONFLICT(view_name) DO UPDATE set last_refreshed = now();
+		RETURN true;
+    END IF;
+	RETURN false;
+END $$;
+
+
+ALTER FUNCTION public.update_seasons_access() OWNER TO btv;
+
+--
+-- Name: update_shows_access(); Type: FUNCTION; Schema: public; Owner: btv
+--
+
+CREATE FUNCTION public.update_shows_access() RETURNS boolean
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	lr timestamptz;
+BEGIN
+	SELECT last_refreshed INTO lr FROM materialized_views_meta WHERE view_name = 'shows_access';
+
+	IF (
+	    lr IS NULL OR 
+ (SELECT MAX(date_updated) FROM shows) > lr OR
+ (SELECT MAX(date_updated) FROM seasons) > lr OR
+ (SELECT MAX(date_updated) FROM episodes) > lr OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups) > lr OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups_download) > lr OR
+ (SELECT MAX(date_updated) FROM episodes_usergroups_earlyaccess) > (lr)) THEN
+		RAISE NOTICE 'Refreshing shows view';
+		REFRESH MATERIALIZED VIEW CONCURRENTLY shows_access;
+		INSERT INTO materialized_views_meta (last_refreshed, view_name) VALUES (NOW(), 'shows_access') ON CONFLICT(view_name) DO UPDATE set last_refreshed = now();
+		RETURN true;
+    END IF;
+	RETURN false;
+END $$;
+
+
+ALTER FUNCTION public.update_shows_access() OWNER TO btv;
 
 SET default_tablespace = '';
 
@@ -724,8 +787,7 @@ CREATE TABLE public.directus_dashboards (
     icon character varying(30) DEFAULT 'dashboard'::character varying NOT NULL,
     note text,
     date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-    user_created uuid,
-    color character varying(255)
+    user_created uuid
 );
 
 
@@ -1327,52 +1389,6 @@ CREATE TABLE public.episodes (
 
 
 ALTER TABLE public.episodes OWNER TO btv;
-
---
--- Name: episodes_usergroups; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.episodes_usergroups (
-    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-    episodes_id integer NOT NULL,
-    id integer NOT NULL,
-    type character varying(255) DEFAULT NULL::character varying,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
-);
-
-
-ALTER TABLE public.episodes_usergroups OWNER TO btv;
-
---
--- Name: episodes_usergroups_download; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.episodes_usergroups_download (
-    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    episodes_id integer NOT NULL,
-    id integer NOT NULL,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
-);
-
-
-ALTER TABLE public.episodes_usergroups_download OWNER TO btv;
-
---
--- Name: episodes_usergroups_earlyaccess; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.episodes_usergroups_earlyaccess (
-    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    episodes_id integer NOT NULL,
-    id integer NOT NULL,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
-);
-
-
-ALTER TABLE public.episodes_usergroups_earlyaccess OWNER TO btv;
 
 --
 -- Name: seasons; Type: TABLE; Schema: public; Owner: btv
