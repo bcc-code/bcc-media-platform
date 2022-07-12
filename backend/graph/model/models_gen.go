@@ -166,7 +166,7 @@ type SearchResult struct {
 type Season struct {
 	ID          string     `json:"id"`
 	Title       string     `json:"title"`
-	Description *string    `json:"description"`
+	Description string     `json:"description"`
 	Number      int        `json:"number"`
 	Show        *Show      `json:"show"`
 	Episodes    []*Episode `json:"episodes"`
@@ -194,7 +194,7 @@ type Settings struct {
 type Show struct {
 	ID           string    `json:"id"`
 	Title        string    `json:"title"`
-	Description  *string   `json:"description"`
+	Description  string    `json:"description"`
 	EpisodeCount int       `json:"episodeCount"`
 	SeasonCount  int       `json:"seasonCount"`
 	Seasons      []*Season `json:"seasons"`

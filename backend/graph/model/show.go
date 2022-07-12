@@ -25,6 +25,6 @@ func ShowFromSQL(ctx context.Context, row *sqlc.ShowExpanded) *Show {
 	return &Show{
 		ID:          strconv.Itoa(int(row.ID)),
 		Title:       titleMap.Get(languages),
-		Description: descriptionMap.GetValueOrNil(languages),
+		Description: descriptionMap.Get(languages),
 	}
 }

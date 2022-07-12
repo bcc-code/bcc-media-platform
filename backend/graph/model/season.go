@@ -25,7 +25,7 @@ func SeasonFromSQL(ctx context.Context, row *sqlc.SeasonExpanded) *Season {
 	return &Season{
 		ID:          strconv.Itoa(int(row.ID)),
 		Title:       titleMap.Get(languages),
-		Description: descriptionMap.GetValueOrNil(languages),
+		Description: descriptionMap.Get(languages),
 		Number:      int(row.SeasonNumber),
 	}
 }

@@ -1327,7 +1327,7 @@ type EpisodePage implements Page{
 type Show {
   id: ID!
   title: String!
-  description: String
+  description: String!
   episodeCount: Int!
   seasonCount: Int!
   seasons: [Season!]!
@@ -1336,7 +1336,7 @@ type Show {
 type Season {
   id: ID!
   title: String!
-  description: String
+  description: String!
   number: Int!
   show: Show!
   episodes: [Episode!]!
@@ -5931,11 +5931,14 @@ func (ec *executionContext) _Season_description(ctx context.Context, field graph
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Season_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6598,11 +6601,14 @@ func (ec *executionContext) _Show_description(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Show_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -11022,6 +11028,9 @@ func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Values[i] = ec._Season_description(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "number":
 
 			out.Values[i] = ec._Season_number(ctx, field, obj)
@@ -11201,6 +11210,9 @@ func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = ec._Show_description(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "episodeCount":
 
 			out.Values[i] = ec._Show_episodeCount(ctx, field, obj)

@@ -131,6 +131,18 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 	var results []gqlmodel.SearchResultItem
 	for _, i := range searchResult.Result {
 		switch i.Collection {
+		case "shows":
+			s, err := r.Show(ctx, strconv.Itoa(i.ID))
+			if err != nil {
+				continue
+			}
+			results = append(results, s)
+		case "seasons":
+			se, err := r.Season(ctx, strconv.Itoa(i.ID))
+			if err != nil {
+				continue
+			}
+			results = append(results, se)
 		case "episodes":
 			e, err := r.Episode(ctx, strconv.Itoa(i.ID))
 			if err != nil {
