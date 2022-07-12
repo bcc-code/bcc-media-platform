@@ -164,9 +164,12 @@ type SearchResult struct {
 }
 
 type Season struct {
-	ID       string     `json:"id"`
-	Show     *Show      `json:"show"`
-	Episodes []*Episode `json:"episodes"`
+	ID          string     `json:"id"`
+	Title       string     `json:"title"`
+	Description *string    `json:"description"`
+	Number      int        `json:"number"`
+	Show        *Show      `json:"show"`
+	Episodes    []*Episode `json:"episodes"`
 }
 
 func (Season) IsSearchResultItem() {}
@@ -191,6 +194,7 @@ type Settings struct {
 type Show struct {
 	ID           string    `json:"id"`
 	Title        string    `json:"title"`
+	Description  *string   `json:"description"`
 	EpisodeCount int       `json:"episodeCount"`
 	SeasonCount  int       `json:"seasonCount"`
 	Seasons      []*Season `json:"seasons"`

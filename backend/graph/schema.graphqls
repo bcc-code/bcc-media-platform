@@ -36,6 +36,7 @@ type EpisodePage implements Page{
 type Show {
   id: ID!
   title: String!
+  description: String
   episodeCount: Int!
   seasonCount: Int!
   seasons: [Season!]!
@@ -43,6 +44,9 @@ type Show {
 
 type Season {
   id: ID!
+  title: String!
+  description: String
+  number: Int!
   show: Show!
   episodes: [Episode!]!
 }
@@ -260,6 +264,14 @@ type QueryRoot{
   episode(
     id: ID!
   ): Episode
+
+  season(
+    id: ID!
+  ): Season
+
+  show(
+    id: ID!
+  ): Show
 
   section(
     id: ID!

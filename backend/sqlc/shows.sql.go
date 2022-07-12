@@ -7,10 +7,48 @@ package sqlc
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/lib/pq"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
+
+const getAccessForShows = `-- name: GetAccessForShows :many
+SELECT id, published, available_from, available_to, usergroups, usergroups_downloads, usergroups_earlyaccess FROM shows_access WHERE id = ANY($1::int[])
+`
+
+func (q *Queries) GetAccessForShows(ctx context.Context, dollar_1 []int32) ([]ShowsAccess, error) {
+	rows, err := q.db.QueryContext(ctx, getAccessForShows, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ShowsAccess
+	for rows.Next() {
+		var i ShowsAccess
+		if err := rows.Scan(
+			&i.ID,
+			&i.Published,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			&i.Usergroups,
+			&i.UsergroupsDownloads,
+			&i.UsergroupsEarlyaccess,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const getRolesForShow = `-- name: GetRolesForShow :many
 SELECT DISTINCT usergroups_code FROM public.episodes_usergroups WHERE episodes_id IN
@@ -135,6 +173,72 @@ func (q *Queries) GetShows(ctx context.Context) ([]Show, error) {
 			&i.Type,
 			&i.UserCreated,
 			&i.UserUpdated,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getShowsWithTranslationsByID = `-- name: GetShowsWithTranslationsByID :many
+WITH t AS (SELECT
+               t.shows_id,
+               json_object_agg(t.languages_code, t.title) as title,
+               json_object_agg(t.languages_code, t.description) as description
+           FROM shows_translations t
+           GROUP BY shows_id)
+SELECT
+    sh.id, sh.image_file_id,
+    t.title, t.description,
+    access.published::bool published,
+    access.available_from::timestamptz available_from, access.available_to::timestamptz available_to,
+    access.usergroups::text[] usergroups, access.usergroups_downloads::text[] download_groups, access.usergroups_earlyaccess::text[] early_access_groups
+FROM shows sh
+         JOIN t ON sh.id = t.shows_id
+         JOIN shows_access access on access.id = sh.id
+WHERE sh.id = ANY($1::int[])
+`
+
+type GetShowsWithTranslationsByIDRow struct {
+	ID                int32           `db:"id" json:"id"`
+	ImageFileID       uuid.NullUUID   `db:"image_file_id" json:"imageFileID"`
+	Title             json.RawMessage `db:"title" json:"title"`
+	Description       json.RawMessage `db:"description" json:"description"`
+	Published         bool            `db:"published" json:"published"`
+	AvailableFrom     time.Time       `db:"available_from" json:"availableFrom"`
+	AvailableTo       time.Time       `db:"available_to" json:"availableTo"`
+	Usergroups        []string        `db:"usergroups" json:"usergroups"`
+	DownloadGroups    []string        `db:"download_groups" json:"downloadGroups"`
+	EarlyAccessGroups []string        `db:"early_access_groups" json:"earlyAccessGroups"`
+}
+
+func (q *Queries) GetShowsWithTranslationsByID(ctx context.Context, dollar_1 []int32) ([]GetShowsWithTranslationsByIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getShowsWithTranslationsByID, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetShowsWithTranslationsByIDRow
+	for rows.Next() {
+		var i GetShowsWithTranslationsByIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ImageFileID,
+			&i.Title,
+			&i.Description,
+			&i.Published,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			pq.Array(&i.Usergroups),
+			pq.Array(&i.DownloadGroups),
+			pq.Array(&i.EarlyAccessGroups),
 		); err != nil {
 			return nil, err
 		}

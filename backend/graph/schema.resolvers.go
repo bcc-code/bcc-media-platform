@@ -14,6 +14,8 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/episode"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
+	"github.com/bcc-code/brunstadtv/backend/season"
+	"github.com/bcc-code/brunstadtv/backend/show"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
@@ -65,6 +67,46 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*gqlmodel.E
 	}
 
 	return gqlmodel.EpisodeFromSQL(ctx, episodeObj), nil
+}
+
+// Season is the resolver for the season field.
+func (r *queryRootResolver) Season(ctx context.Context, id string) (*gqlmodel.Season, error) {
+	intID, err := strconv.ParseInt(id, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+
+	obj, err := season.GetByID(ctx, r.Resolver.Loaders.SeasonLoader, int(intID))
+	if err != nil {
+		return nil, err
+	}
+
+	err = user.ValidateAccess(ctx, *obj)
+	if err != nil {
+		return nil, err
+	}
+
+	return gqlmodel.SeasonFromSQL(ctx, obj), nil
+}
+
+// Show is the resolver for the show field.
+func (r *queryRootResolver) Show(ctx context.Context, id string) (*gqlmodel.Show, error) {
+	intID, err := strconv.ParseInt(id, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+
+	obj, err := show.GetByID(ctx, r.Resolver.Loaders.ShowLoader, int(intID))
+	if err != nil {
+		return nil, err
+	}
+
+	err = user.ValidateAccess(ctx, *obj)
+	if err != nil {
+		return nil, err
+	}
+
+	return gqlmodel.ShowFromSQL(ctx, obj), nil
 }
 
 // Section is the resolver for the section field.

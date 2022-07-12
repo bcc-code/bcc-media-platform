@@ -2,7 +2,7 @@ package asset
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/graph"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -11,7 +11,7 @@ import (
 
 // NewBatchFileLoader returns a configured batch loader for GQL File
 func NewBatchFileLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.GetFilesForEpisodesRow] {
-	return graph.NewKeyedListBatchLoader(queries.GetFilesForEpisodes, func(row sqlc.GetFilesForEpisodesRow) int {
+	return common.NewKeyedListBatchLoader(queries.GetFilesForEpisodes, func(row sqlc.GetFilesForEpisodesRow) int {
 		return int(row.EpisodesID)
 	})
 }
@@ -32,7 +32,7 @@ func GetFilesForEpisode(ctx context.Context, loader *dataloader.Loader[int, []*s
 
 // NewBatchStreamLoader returns a configured batch loader for GQL Stream
 func NewBatchStreamLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.GetStreamsForEpisodesRow] {
-	return graph.NewKeyedListBatchLoader(queries.GetStreamsForEpisodes, func(row sqlc.GetStreamsForEpisodesRow) int {
+	return common.NewKeyedListBatchLoader(queries.GetStreamsForEpisodes, func(row sqlc.GetStreamsForEpisodesRow) int {
 		return int(row.EpisodesID)
 	})
 }

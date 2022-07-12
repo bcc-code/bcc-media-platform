@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/brunstadtv/backend/season"
+	"github.com/bcc-code/brunstadtv/backend/show"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -80,10 +82,14 @@ func main() {
 
 	queries := sqlc.New(db)
 
+	showLoader := show.NewBatchLoader(*queries)
+	seasonLoader := season.NewBatchLoader(*queries)
 	episodeLoader := episode.NewBatchLoader(*queries)
 	filesLoader := asset.NewBatchFileLoader(*queries)
 	streamsLoader := asset.NewBatchStreamLoader(*queries)
 	loaders := &graph.BatchLoaders{
+		ShowLoader:    showLoader,
+		SeasonLoader:  seasonLoader,
 		EpisodeLoader: episodeLoader,
 		FilesLoader:   filesLoader,
 		StreamsLoader: streamsLoader,

@@ -171,7 +171,7 @@ type DirectusActivity struct {
 	Action     string         `db:"action" json:"action"`
 	User       uuid.NullUUID  `db:"user" json:"user"`
 	Timestamp  time.Time      `db:"timestamp" json:"timestamp"`
-	Ip         string         `db:"ip" json:"ip"`
+	Ip         null_v4.String `db:"ip" json:"ip"`
 	UserAgent  null_v4.String `db:"user_agent" json:"userAgent"`
 	Collection string         `db:"collection" json:"collection"`
 	Item       string         `db:"item" json:"item"`
@@ -254,6 +254,21 @@ type DirectusFile struct {
 	Metadata         pqtype.NullRawMessage `db:"metadata" json:"metadata"`
 }
 
+type DirectusFlow struct {
+	ID             uuid.UUID             `db:"id" json:"id"`
+	Name           string                `db:"name" json:"name"`
+	Icon           null_v4.String        `db:"icon" json:"icon"`
+	Color          null_v4.String        `db:"color" json:"color"`
+	Description    null_v4.String        `db:"description" json:"description"`
+	Status         string                `db:"status" json:"status"`
+	Trigger        null_v4.String        `db:"trigger" json:"trigger"`
+	Accountability null_v4.String        `db:"accountability" json:"accountability"`
+	Options        pqtype.NullRawMessage `db:"options" json:"options"`
+	Operation      uuid.NullUUID         `db:"operation" json:"operation"`
+	DateCreated    sql.NullTime          `db:"date_created" json:"dateCreated"`
+	UserCreated    uuid.NullUUID         `db:"user_created" json:"userCreated"`
+}
+
 type DirectusFolder struct {
 	ID     uuid.UUID     `db:"id" json:"id"`
 	Name   string        `db:"name" json:"name"`
@@ -271,11 +286,26 @@ type DirectusNotification struct {
 	Timestamp  time.Time      `db:"timestamp" json:"timestamp"`
 	Status     null_v4.String `db:"status" json:"status"`
 	Recipient  uuid.UUID      `db:"recipient" json:"recipient"`
-	Sender     uuid.UUID      `db:"sender" json:"sender"`
+	Sender     uuid.NullUUID  `db:"sender" json:"sender"`
 	Subject    string         `db:"subject" json:"subject"`
 	Message    null_v4.String `db:"message" json:"message"`
 	Collection null_v4.String `db:"collection" json:"collection"`
 	Item       null_v4.String `db:"item" json:"item"`
+}
+
+type DirectusOperation struct {
+	ID          uuid.UUID             `db:"id" json:"id"`
+	Name        null_v4.String        `db:"name" json:"name"`
+	Key         string                `db:"key" json:"key"`
+	Type        string                `db:"type" json:"type"`
+	PositionX   int32                 `db:"position_x" json:"positionX"`
+	PositionY   int32                 `db:"position_y" json:"positionY"`
+	Options     pqtype.NullRawMessage `db:"options" json:"options"`
+	Resolve     uuid.NullUUID         `db:"resolve" json:"resolve"`
+	Reject      uuid.NullUUID         `db:"reject" json:"reject"`
+	Flow        uuid.UUID             `db:"flow" json:"flow"`
+	DateCreated sql.NullTime          `db:"date_created" json:"dateCreated"`
+	UserCreated uuid.NullUUID         `db:"user_created" json:"userCreated"`
 }
 
 type DirectusPanel struct {
@@ -476,10 +506,34 @@ type EpisodesAccess struct {
 	UsergroupsEarlyaccess interface{} `db:"usergroups_earlyaccess" json:"usergroupsEarlyaccess"`
 }
 
+type EpisodesAccessView struct {
+	ID                    int32       `db:"id" json:"id"`
+	Published             interface{} `db:"published" json:"published"`
+	AvailableFrom         interface{} `db:"available_from" json:"availableFrom"`
+	AvailableTo           interface{} `db:"available_to" json:"availableTo"`
+	Usergroups            interface{} `db:"usergroups" json:"usergroups"`
+	UsergroupsDownloads   interface{} `db:"usergroups_downloads" json:"usergroupsDownloads"`
+	UsergroupsEarlyaccess interface{} `db:"usergroups_earlyaccess" json:"usergroupsEarlyaccess"`
+}
+
+type EpisodesAvailability struct {
+	ID            int32       `db:"id" json:"id"`
+	Published     interface{} `db:"published" json:"published"`
+	AvailableFrom interface{} `db:"available_from" json:"availableFrom"`
+	AvailableTo   interface{} `db:"available_to" json:"availableTo"`
+}
+
 type EpisodesCategory struct {
 	CategoriesID int32 `db:"categories_id" json:"categoriesID"`
 	EpisodesID   int32 `db:"episodes_id" json:"episodesID"`
 	ID           int32 `db:"id" json:"id"`
+}
+
+type EpisodesRole struct {
+	ID               int32       `db:"id" json:"id"`
+	Roles            interface{} `db:"roles" json:"roles"`
+	RolesDownload    interface{} `db:"roles_download" json:"rolesDownload"`
+	RolesEarlyaccess interface{} `db:"roles_earlyaccess" json:"rolesEarlyaccess"`
 }
 
 type EpisodesTag struct {
@@ -550,8 +604,8 @@ type ListsRelation struct {
 }
 
 type MaterializedViewsMetum struct {
-	ViewName      string       `db:"view_name" json:"viewName"`
 	LastRefreshed sql.NullTime `db:"last_refreshed" json:"lastRefreshed"`
+	ViewName      string       `db:"view_name" json:"viewName"`
 }
 
 type Page struct {
@@ -583,6 +637,40 @@ type Season struct {
 	Status              string         `db:"status" json:"status"`
 	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+}
+
+type SeasonsAccess struct {
+	ID                    int32       `db:"id" json:"id"`
+	Published             interface{} `db:"published" json:"published"`
+	AvailableFrom         interface{} `db:"available_from" json:"availableFrom"`
+	AvailableTo           interface{} `db:"available_to" json:"availableTo"`
+	Usergroups            interface{} `db:"usergroups" json:"usergroups"`
+	UsergroupsDownloads   interface{} `db:"usergroups_downloads" json:"usergroupsDownloads"`
+	UsergroupsEarlyaccess interface{} `db:"usergroups_earlyaccess" json:"usergroupsEarlyaccess"`
+}
+
+type SeasonsAccessView struct {
+	ID                    int32       `db:"id" json:"id"`
+	Published             interface{} `db:"published" json:"published"`
+	AvailableFrom         interface{} `db:"available_from" json:"availableFrom"`
+	AvailableTo           interface{} `db:"available_to" json:"availableTo"`
+	Usergroups            interface{} `db:"usergroups" json:"usergroups"`
+	UsergroupsDownloads   interface{} `db:"usergroups_downloads" json:"usergroupsDownloads"`
+	UsergroupsEarlyaccess interface{} `db:"usergroups_earlyaccess" json:"usergroupsEarlyaccess"`
+}
+
+type SeasonsAvailability struct {
+	ID            int32       `db:"id" json:"id"`
+	Published     interface{} `db:"published" json:"published"`
+	AvailableFrom interface{} `db:"available_from" json:"availableFrom"`
+	AvailableTo   interface{} `db:"available_to" json:"availableTo"`
+}
+
+type SeasonsRole struct {
+	ID               int32       `db:"id" json:"id"`
+	Roles            interface{} `db:"roles" json:"roles"`
+	RolesDownload    interface{} `db:"roles_download" json:"rolesDownload"`
+	RolesEarlyaccess interface{} `db:"roles_earlyaccess" json:"rolesEarlyaccess"`
 }
 
 type SeasonsTranslation struct {
@@ -646,6 +734,40 @@ type Show struct {
 	Type                string         `db:"type" json:"type"`
 	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+}
+
+type ShowsAccess struct {
+	ID                    int32        `db:"id" json:"id"`
+	Published             sql.NullBool `db:"published" json:"published"`
+	AvailableFrom         null_v4.Time `db:"available_from" json:"availableFrom"`
+	AvailableTo           null_v4.Time `db:"available_to" json:"availableTo"`
+	Usergroups            interface{}  `db:"usergroups" json:"usergroups"`
+	UsergroupsDownloads   interface{}  `db:"usergroups_downloads" json:"usergroupsDownloads"`
+	UsergroupsEarlyaccess interface{}  `db:"usergroups_earlyaccess" json:"usergroupsEarlyaccess"`
+}
+
+type ShowsAccessView struct {
+	ID                    int32        `db:"id" json:"id"`
+	Published             sql.NullBool `db:"published" json:"published"`
+	AvailableFrom         null_v4.Time `db:"available_from" json:"availableFrom"`
+	AvailableTo           null_v4.Time `db:"available_to" json:"availableTo"`
+	Usergroups            interface{}  `db:"usergroups" json:"usergroups"`
+	UsergroupsDownloads   interface{}  `db:"usergroups_downloads" json:"usergroupsDownloads"`
+	UsergroupsEarlyaccess interface{}  `db:"usergroups_earlyaccess" json:"usergroupsEarlyaccess"`
+}
+
+type ShowsAvailability struct {
+	ID            int32     `db:"id" json:"id"`
+	Published     bool      `db:"published" json:"published"`
+	AvailableFrom time.Time `db:"available_from" json:"availableFrom"`
+	AvailableTo   time.Time `db:"available_to" json:"availableTo"`
+}
+
+type ShowsRole struct {
+	ID               int32       `db:"id" json:"id"`
+	Roles            interface{} `db:"roles" json:"roles"`
+	RolesDownload    interface{} `db:"roles_download" json:"rolesDownload"`
+	RolesEarlyaccess interface{} `db:"roles_earlyaccess" json:"rolesEarlyaccess"`
 }
 
 type ShowsTranslation struct {
