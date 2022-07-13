@@ -60,19 +60,9 @@ overrides:
       type: "Time"
     nullable: true
     db_type: "pg_catalog.timestamp"
-rename:
-  # TODO: Find a solution to map these tables to the correct struct name
-  collections_episodes: CollectionEpisode
-  collections_relations: CollectionRelation
-  collections_seasons: CollectionSeason
-  collections_shows: CollectionShow
-  collections_translations: CollectionTranslation
-  episodes_categories: EpisodeCategory
-  episodes_tags: EpisodeTag
-  episodes_translations: EpisodeTranslation
-  episodes_usergroups: EpisodeUserGroup
-  lists_relations: ListRelation
-  seasons_translations: SeasonTranslation
-  seasons_usergroups: SeasonUserGroup
-  shows_translations: ShowTranslation
-  shows_usergroups: ShowUserGroup
+  - column: "episodes_expanded.published"
+    go_type: "bool"
+  - column: "seasons_expanded.published"
+    go_type: "bool"
+  - column: "shows_expanded.published"
+    go_type: "bool"

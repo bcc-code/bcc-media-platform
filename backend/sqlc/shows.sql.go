@@ -7,10 +7,8 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
@@ -188,46 +186,18 @@ func (q *Queries) GetShows(ctx context.Context) ([]Show, error) {
 }
 
 const getShowsWithTranslationsByID = `-- name: GetShowsWithTranslationsByID :many
-WITH t AS (SELECT
-               t.shows_id,
-               json_object_agg(t.languages_code, t.title) as title,
-               json_object_agg(t.languages_code, t.description) as description
-           FROM shows_translations t
-           GROUP BY shows_id)
-SELECT
-    sh.id, sh.image_file_id,
-    t.title, t.description,
-    access.published::bool published,
-    access.available_from::timestamptz available_from, access.available_to::timestamptz available_to,
-    access.usergroups::text[] usergroups, access.usergroups_downloads::text[] download_groups, access.usergroups_earlyaccess::text[] early_access_groups
-FROM shows sh
-         JOIN t ON sh.id = t.shows_id
-         JOIN shows_access access on access.id = sh.id
-WHERE sh.id = ANY($1::int[])
+SELECT id, image_file_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM shows_expanded WHERE id = ANY($1::int[])
 `
 
-type GetShowsWithTranslationsByIDRow struct {
-	ID                int32           `db:"id" json:"id"`
-	ImageFileID       uuid.NullUUID   `db:"image_file_id" json:"imageFileID"`
-	Title             json.RawMessage `db:"title" json:"title"`
-	Description       json.RawMessage `db:"description" json:"description"`
-	Published         bool            `db:"published" json:"published"`
-	AvailableFrom     time.Time       `db:"available_from" json:"availableFrom"`
-	AvailableTo       time.Time       `db:"available_to" json:"availableTo"`
-	Usergroups        []string        `db:"usergroups" json:"usergroups"`
-	DownloadGroups    []string        `db:"download_groups" json:"downloadGroups"`
-	EarlyAccessGroups []string        `db:"early_access_groups" json:"earlyAccessGroups"`
-}
-
-func (q *Queries) GetShowsWithTranslationsByID(ctx context.Context, dollar_1 []int32) ([]GetShowsWithTranslationsByIDRow, error) {
+func (q *Queries) GetShowsWithTranslationsByID(ctx context.Context, dollar_1 []int32) ([]ShowsExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, getShowsWithTranslationsByID, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetShowsWithTranslationsByIDRow
+	var items []ShowsExpanded
 	for rows.Next() {
-		var i GetShowsWithTranslationsByIDRow
+		var i ShowsExpanded
 		if err := rows.Scan(
 			&i.ID,
 			&i.ImageFileID,
@@ -361,9 +331,9 @@ const refreshShowAccessView = `-- name: RefreshShowAccessView :one
 SELECT update_access('shows_access')
 `
 
-func (q *Queries) RefreshShowAccessView(ctx context.Context) (interface{}, error) {
+func (q *Queries) RefreshShowAccessView(ctx context.Context) (bool, error) {
 	row := q.db.QueryRowContext(ctx, refreshShowAccessView)
-	var update_access interface{}
+	var update_access bool
 	err := row.Scan(&update_access)
 	return update_access, err
 }

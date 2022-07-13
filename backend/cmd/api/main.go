@@ -82,17 +82,14 @@ func main() {
 
 	queries := sqlc.New(db)
 
-	showLoader := show.NewBatchLoader(*queries)
-	seasonLoader := season.NewBatchLoader(*queries)
-	episodeLoader := episode.NewBatchLoader(*queries)
-	filesLoader := asset.NewBatchFileLoader(*queries)
-	streamsLoader := asset.NewBatchStreamLoader(*queries)
 	loaders := &graph.BatchLoaders{
-		ShowLoader:    showLoader,
-		SeasonLoader:  seasonLoader,
-		EpisodeLoader: episodeLoader,
-		FilesLoader:   filesLoader,
-		StreamsLoader: streamsLoader,
+		ShowLoader:     show.NewBatchLoader(*queries),
+		SeasonLoader:   season.NewBatchLoader(*queries),
+		EpisodeLoader:  episode.NewBatchLoader(*queries),
+		SeasonsLoader:  season.NewListBatchLoader(*queries),
+		EpisodesLoader: episode.NewListBatchLoader(*queries),
+		FilesLoader:    asset.NewBatchFileLoader(*queries),
+		StreamsLoader:  asset.NewBatchStreamLoader(*queries),
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")
