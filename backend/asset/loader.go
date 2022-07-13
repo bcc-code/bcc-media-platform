@@ -13,6 +13,8 @@ import (
 func NewBatchFileLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.GetFilesForEpisodesRow] {
 	return common.NewKeyedListBatchLoader(queries.GetFilesForEpisodes, func(row sqlc.GetFilesForEpisodesRow) int {
 		return int(row.EpisodesID)
+	}, func(id int) int32 {
+		return int32(id)
 	})
 }
 
@@ -34,6 +36,8 @@ func GetFilesForEpisode(ctx context.Context, loader *dataloader.Loader[int, []*s
 func NewBatchStreamLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.GetStreamsForEpisodesRow] {
 	return common.NewKeyedListBatchLoader(queries.GetStreamsForEpisodes, func(row sqlc.GetStreamsForEpisodesRow) int {
 		return int(row.EpisodesID)
+	}, func(id int) int32 {
+		return int32(id)
 	})
 }
 
