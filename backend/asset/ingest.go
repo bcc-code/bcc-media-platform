@@ -198,7 +198,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			coi := &s3.CopyObjectInput{
 				Bucket:     config.GetStorageBucket(),
 				Key:        aws.String(key),
-				CopySource: aws.String(path.Join(*config.GetIngestBucket(), *x.Key)),
+				CopySource: aws.String(path.Join(*config.GetStorageBucket(), *x.Key)),
 			}
 
 			filesToCopy[*coi.Key] = coi
@@ -259,30 +259,6 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			audioLanguages = append(audioLanguages, GetLanguagesFromVideoElement(file)...)
 
 			filesToCopy[*coi.Key] = coi
-			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
-		}
-
-		for _, file := range smil.Body.Switch.Audios {
-			// TODO: Remove after confirming that MUXed files are working
-			target := path.Join(storagePrefix, "stream", path.Base(file.Src))
-			src := path.Join(*config.GetIngestBucket(), assetMeta.BasePath, file.Src)
-			coi := &s3.CopyObjectInput{
-				Bucket:     config.GetStorageBucket(),
-				Key:        aws.String(target),
-				CopySource: aws.String(src),
-			}
-			filesToCopy[*coi.Key] = coi
-			for _, p := range file.Params {
-				if p.Name == "systemLanguage" {
-					audioLanguages = append(audioLanguages, directus.AssetStreamLanguage{
-						AssetStreamID: "+", // This is a placeholder for "new asset" in Directus
-						LanguagesCode: directus.LanguagesCode{
-							Code: p.Value,
-						},
-					})
-				}
-			}
-
 			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
 		}
 	}
