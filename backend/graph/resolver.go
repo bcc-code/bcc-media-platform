@@ -1,6 +1,12 @@
 package graph
 
-import "github.com/bcc-code/brunstadtv/backend/search"
+import (
+	"context"
+	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/search"
+	"github.com/bcc-code/brunstadtv/backend/user"
+	"strconv"
+)
 
 import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -28,4 +34,34 @@ type BatchLoaders struct {
 	EpisodesLoader *dataloader.Loader[int, []*sqlc.EpisodeExpanded]
 	FilesLoader    *dataloader.Loader[int, []*sqlc.GetFilesForEpisodesRow]
 	StreamsLoader  *dataloader.Loader[int, []*sqlc.GetStreamsForEpisodesRow]
+}
+
+type restrictedItem interface {
+	GetRoles() common.Roles
+	GetAvailability() common.Availability
+}
+
+// resolverFor returns a resolver for the specified item
+func resolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id k, loader *dataloader.Loader[k, *t], converter func(context.Context, *t) *r) (*r, error) {
+	obj, err := common.GetFromLoaderByID(ctx, loader, id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = user.ValidateAccess(ctx, *obj)
+	if err != nil {
+		return nil, err
+	}
+
+	return converter(ctx, obj), nil
+}
+
+// resolverForIntID returns a resolver for items with ints as keys
+func resolverForIntID[t restrictedItem, r any](ctx context.Context, id string, loader *dataloader.Loader[int, *t], converter func(context.Context, *t) *r) (*r, error) {
+	intID, err := strconv.ParseInt(id, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+
+	return resolverFor(ctx, int(intID), loader, converter)
 }

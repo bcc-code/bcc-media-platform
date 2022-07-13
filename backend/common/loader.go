@@ -91,3 +91,14 @@ func NewBatchLoader[t any](
 	// Currently we do not want to cache at the GQL level
 	return dataloader.NewBatchedLoader(batchLoadEpisodes)
 }
+
+// GetFromLoaderByID returns the object from the loader
+func GetFromLoaderByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], id k) (*t, error) {
+	thunk := loader.Load(ctx, id)
+	result, err := thunk()
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
