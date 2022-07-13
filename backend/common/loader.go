@@ -29,8 +29,8 @@ func NewKeyedListBatchLoader[t any](
 				if _, ok := resMap[key]; !ok {
 					resMap[key] = []*t{}
 				}
-
-				resMap[key] = append(resMap[key], &r)
+				item := r
+				resMap[key] = append(resMap[key], &item)
 			}
 		}
 
