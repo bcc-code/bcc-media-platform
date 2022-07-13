@@ -6,6 +6,8 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/episode"
+	"github.com/bcc-code/brunstadtv/backend/season"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/samber/lo"
 	"strconv"
