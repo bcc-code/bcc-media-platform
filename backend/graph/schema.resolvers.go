@@ -204,11 +204,34 @@ func (r *queryRootResolver) Me(ctx context.Context) (*gqlmodel.User, error) {
 	return u, nil
 }
 
+// Show is the resolver for the show field.
+func (r *seasonResolver) Show(ctx context.Context, obj *gqlmodel.Season) (*gqlmodel.Show, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+// Episodes is the resolver for the episodes field.
+func (r *seasonResolver) Episodes(ctx context.Context, obj *gqlmodel.Season) ([]*gqlmodel.Episode, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+// Seasons is the resolver for the seasons field.
+func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show) ([]*gqlmodel.Season, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
 
 // QueryRoot returns generated.QueryRootResolver implementation.
 func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
 
+// Season returns generated.SeasonResolver implementation.
+func (r *Resolver) Season() generated.SeasonResolver { return &seasonResolver{r} }
+
+// Show returns generated.ShowResolver implementation.
+func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
+
 type episodeResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
+type seasonResolver struct{ *Resolver }
+type showResolver struct{ *Resolver }

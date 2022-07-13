@@ -238,8 +238,8 @@ module.exports = {
 	},
 
 	async down(k : Knex) {
-		//await k.raw(`DROP MATERIALIZED VIEW IF EXISTS episodes_access`);
 		await k.raw(`DROP FUNCTION update_access`);
+		await k.raw(`DROP MATERIALIZED VIEW IF EXISTS episodes_access`);
 		await k.raw(`DROP VIEW IF EXISTS episodes_access_view`);
 		await k.raw(`DROP VIEW IF EXISTS episodes_roles`);
 		await k.raw(`DROP VIEW IF EXISTS episodes_availability`);
