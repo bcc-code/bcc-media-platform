@@ -41,7 +41,10 @@ func (r *episodeResolver) Files(ctx context.Context, obj *gqlmodel.Episode) ([]*
 
 // Season is the resolver for the season field.
 func (r *episodeResolver) Season(ctx context.Context, obj *gqlmodel.Episode) (*gqlmodel.Season, error) {
-	panic(fmt.Errorf("not implemented"))
+	if obj.Season != nil {
+		return r.QueryRoot().Season(ctx, obj.Season.ID)
+	}
+	return nil, nil
 }
 
 // Page is the resolver for the page field.
@@ -206,7 +209,7 @@ func (r *queryRootResolver) Me(ctx context.Context) (*gqlmodel.User, error) {
 
 // Show is the resolver for the show field.
 func (r *seasonResolver) Show(ctx context.Context, obj *gqlmodel.Season) (*gqlmodel.Show, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.QueryRoot().Show(ctx, obj.Show.ID)
 }
 
 // Episodes is the resolver for the episodes field.

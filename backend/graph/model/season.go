@@ -21,11 +21,15 @@ func SeasonFromSQL(ctx context.Context, row *sqlc.SeasonExpanded) *Season {
 
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
+	show := Show{
+		ID: strconv.Itoa(int(row.ShowID)),
+	}
 
 	return &Season{
 		ID:          strconv.Itoa(int(row.ID)),
 		Title:       titleMap.Get(languages),
 		Description: descriptionMap.Get(languages),
 		Number:      int(row.SeasonNumber),
+		Show:        &show,
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -23,6 +24,12 @@ func EpisodeFromSQL(ctx context.Context, row *sqlc.EpisodeExpanded) *Episode {
 
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
+	var season *Season
+	if row.SeasonID.Valid {
+		season = &Season{
+			ID: strconv.Itoa(int(row.SeasonID.Int64)),
+		}
+	}
 
 	episode := &Episode{
 		Chapters:         []*Chapter{}, // Currently not supported
@@ -30,6 +37,7 @@ func EpisodeFromSQL(ctx context.Context, row *sqlc.EpisodeExpanded) *Episode {
 		Title:            titleMap.Get(languages),
 		Description:      descriptionMap.Get(languages),
 		ExtraDescription: extraDescriptionMap.Get(languages),
+		Season:           season,
 	}
 
 	if row.EpisodeNumber.Valid {
