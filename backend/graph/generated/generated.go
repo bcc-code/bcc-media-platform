@@ -182,7 +182,7 @@ type ComplexityRoot struct {
 
 	Season struct {
 		Description func(childComplexity int) int
-		Episodes    func(childComplexity int) int
+		Episodes    func(childComplexity int, first *int, offset *int) int
 		ID          func(childComplexity int) int
 		Number      func(childComplexity int) int
 		Show        func(childComplexity int) int
@@ -211,7 +211,7 @@ type ComplexityRoot struct {
 		EpisodeCount func(childComplexity int) int
 		ID           func(childComplexity int) int
 		SeasonCount  func(childComplexity int) int
-		Seasons      func(childComplexity int) int
+		Seasons      func(childComplexity int, first *int, offset *int) int
 		Title        func(childComplexity int) int
 	}
 
@@ -281,10 +281,10 @@ type QueryRootResolver interface {
 }
 type SeasonResolver interface {
 	Show(ctx context.Context, obj *gqlmodel.Season) (*gqlmodel.Show, error)
-	Episodes(ctx context.Context, obj *gqlmodel.Season) ([]*gqlmodel.Episode, error)
+	Episodes(ctx context.Context, obj *gqlmodel.Season, first *int, offset *int) ([]*gqlmodel.Episode, error)
 }
 type ShowResolver interface {
-	Seasons(ctx context.Context, obj *gqlmodel.Show) ([]*gqlmodel.Season, error)
+	Seasons(ctx context.Context, obj *gqlmodel.Show, first *int, offset *int) ([]*gqlmodel.Season, error)
 }
 
 type executableSchema struct {
@@ -924,7 +924,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Season.Episodes(childComplexity), true
+		args, err := ec.field_Season_episodes_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Season.Episodes(childComplexity, args["first"].(*int), args["offset"].(*int)), true
 
 	case "Season.id":
 		if e.complexity.Season.ID == nil {
@@ -1043,7 +1048,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Show.Seasons(childComplexity), true
+		args, err := ec.field_Show_seasons_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Show.Seasons(childComplexity, args["first"].(*int), args["offset"].(*int)), true
 
 	case "Show.title":
 		if e.complexity.Show.Title == nil {
@@ -1429,7 +1439,7 @@ type Show {
   description: String!
   episodeCount: Int!
   seasonCount: Int!
-  seasons: [Season!]! @goField(forceResolver: true)
+  seasons(first: Int, offset: Int): [Season!]! @goField(forceResolver: true)
 }
 
 type Season {
@@ -1438,7 +1448,7 @@ type Season {
   description: String!
   number: Int!
   show: Show! @goField(forceResolver: true)
-  episodes: [Episode!]! @goField(forceResolver: true)
+  episodes(first: Int, offset: Int): [Episode!]! @goField(forceResolver: true)
 }
 
 type Episode {
@@ -1797,6 +1807,30 @@ func (ec *executionContext) field_QueryRoot_show_args(ctx context.Context, rawAr
 	return args, nil
 }
 
+func (ec *executionContext) field_Season_episodes_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_ShowPage_sections_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1818,6 +1852,30 @@ func (ec *executionContext) field_ShowPage_sections_args(ctx context.Context, ra
 		}
 	}
 	args["after"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Show_seasons_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
 	return args, nil
 }
 
@@ -6079,7 +6137,7 @@ func (ec *executionContext) _Season_episodes(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Season().Episodes(rctx, obj)
+		return ec.resolvers.Season().Episodes(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6131,6 +6189,17 @@ func (ec *executionContext) fieldContext_Season_episodes(ctx context.Context, fi
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Season_episodes_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -6735,7 +6804,7 @@ func (ec *executionContext) _Show_seasons(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Show().Seasons(rctx, obj)
+		return ec.resolvers.Show().Seasons(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6775,6 +6844,17 @@ func (ec *executionContext) fieldContext_Show_seasons(ctx context.Context, field
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Season", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Show_seasons_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }

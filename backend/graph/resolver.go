@@ -68,22 +68,58 @@ func resolverForIntID[t restrictedItem, r any](ctx context.Context, id string, l
 	return resolverFor(ctx, int(intID), loader, converter)
 }
 
-func itemsResolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id k, loader *dataloader.Loader[k, []*t], converter func(context.Context, *t) *r) ([]*r, error) {
-	items, err := common.GetFromLoaderForKey(ctx, loader, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return utils.MapWithCtx(ctx, lo.Filter(items, func(i *t, _ int) bool {
-		// Validate that user has access
-		return user.ValidateAccess(ctx, *i) == nil
-	}), converter), nil
+type listOptions[k comparable] struct {
+	ID     k
+	First  *int
+	Offset *int
 }
 
-func itemsResolverForIntID[t restrictedItem, r any](ctx context.Context, id string, loader *dataloader.Loader[int, []*t], converter func(context.Context, *t) *r) ([]*r, error) {
-	intID, err := strconv.ParseInt(id, 10, 32)
+func itemsResolverFor[k comparable, t restrictedItem, r any](
+	ctx context.Context,
+	options listOptions[k],
+	loader *dataloader.Loader[k, []*t],
+	converter func(context.Context, *t) *r,
+) ([]*r, error) {
+	items, err := common.GetFromLoaderForKey(ctx, loader, options.ID)
 	if err != nil {
 		return nil, err
 	}
-	return itemsResolverFor(ctx, int(intID), loader, converter)
+
+	available := lo.Filter(items, func(i *t, _ int) bool {
+		// Validate that user has access
+		return user.ValidateAccess(ctx, *i) == nil
+	})
+
+	// TODO: Not sure if we can deal with pagination before loading data and validating permissions
+	var limit = -1
+	if options.First != nil {
+		limit = *options.First
+	}
+	var offset = 0
+	if options.Offset != nil {
+		offset = *options.Offset
+	}
+
+	slice := lo.Filter(available, func(_ *t, key int) bool {
+		return key >= offset && (limit < 0 || key < (limit+offset))
+	})
+
+	return utils.MapWithCtx(ctx, slice, converter), nil
+}
+
+func itemsResolverForIntID[t restrictedItem, r any](
+	ctx context.Context,
+	options listOptions[string],
+	loader *dataloader.Loader[int, []*t],
+	converter func(context.Context, *t) *r,
+) ([]*r, error) {
+	intID, err := strconv.ParseInt(options.ID, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+	return itemsResolverFor(ctx, listOptions[int]{
+		ID:     int(intID),
+		First:  options.First,
+		Offset: options.Offset,
+	}, loader, converter)
 }

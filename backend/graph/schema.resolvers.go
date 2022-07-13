@@ -165,13 +165,21 @@ func (r *seasonResolver) Show(ctx context.Context, obj *gqlmodel.Season) (*gqlmo
 }
 
 // Episodes is the resolver for the episodes field.
-func (r *seasonResolver) Episodes(ctx context.Context, obj *gqlmodel.Season) ([]*gqlmodel.Episode, error) {
-	return itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.EpisodesLoader, gqlmodel.EpisodeFromSQL)
+func (r *seasonResolver) Episodes(ctx context.Context, obj *gqlmodel.Season, first *int, offset *int) ([]*gqlmodel.Episode, error) {
+	return itemsResolverForIntID(ctx, listOptions[string]{
+		ID:     obj.ID,
+		First:  first,
+		Offset: offset,
+	}, r.Resolver.Loaders.EpisodesLoader, gqlmodel.EpisodeFromSQL)
 }
 
 // Seasons is the resolver for the seasons field.
-func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show) ([]*gqlmodel.Season, error) {
-	return itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.SeasonsLoader, gqlmodel.SeasonFromSQL)
+func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show, first *int, offset *int) ([]*gqlmodel.Season, error) {
+	return itemsResolverForIntID(ctx, listOptions[string]{
+		ID:     obj.ID,
+		First:  first,
+		Offset: offset,
+	}, r.Resolver.Loaders.SeasonsLoader, gqlmodel.SeasonFromSQL)
 }
 
 // Episode returns generated.EpisodeResolver implementation.
