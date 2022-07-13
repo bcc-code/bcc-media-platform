@@ -199,15 +199,16 @@ BEGIN
             (SELECT MAX(date_updated) FROM episodes_usergroups_download) > lr OR
             (SELECT MAX(date_updated) FROM episodes_usergroups_earlyaccess) > (lr)) THEN
         RAISE NOTICE 'Refreshing view';
-        IF (view = 'episodes_access') THEN
-            REFRESH MATERIALIZED VIEW CONCURRENTLY episodes_access;
-        END IF;
-        IF (view = 'seasons_access') THEN
-            REFRESH MATERIALIZED VIEW CONCURRENTLY seasons_access;
-        END IF;
-        IF (view = 'shows_access') THEN
-            REFRESH MATERIALIZED VIEW CONCURRENTLY shows_access;
-        END IF;
+        CASE
+            WHEN view = 'episodes_access' THEN
+                REFRESH MATERIALIZED VIEW CONCURRENTLY episodes_access;
+            WHEN view = 'seasons_access' THEN
+                REFRESH MATERIALIZED VIEW CONCURRENTLY seasons_access;
+            WHEN view = 'shows_access' THEN
+                REFRESH MATERIALIZED VIEW CONCURRENTLY shows_access;
+            ELSE
+                RAISE EXCEPTION 'Invalid view';
+        END CASE;
         INSERT INTO materialized_views_meta (last_refreshed, view_name)
         VALUES (NOW(), view)
         ON CONFLICT(view_name) DO UPDATE set last_refreshed = now();
@@ -220,10 +221,14 @@ $$;
 
 module.exports = {
 	async up(k : Knex) {
+		// Delete old refresh function
+		await k.raw(`DROP FUNCTION IF EXISTS update_episodes_access()`)
 		await k.raw(update_access_function);
+
 		await k.raw(episodes_access_view_sql);
-		//TODO: replace existing materialized view?
-		//await k.raw(episodes_materialized_view_sql);
+		// Replace the old episodes_access view with a new simpler one
+		await k.raw(`DROP MATERIALIZED VIEW IF EXISTS episodes_access`)
+		await k.raw(episodes_materialized_view_sql);
 
 		await k.raw(seasons_access_view_sql);
 		await k.raw(seasons_materialized_view_sql);
