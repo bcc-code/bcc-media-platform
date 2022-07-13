@@ -52,7 +52,7 @@ func NewListBatchLoader[k comparable, kd comparable, t any](
 	return dataloader.NewBatchedLoader(batchLoadLists)
 }
 
-// NewBatchLoader returns a configured batch loader for GQL Episode
+// NewBatchLoader returns a configured batch loader for items
 func NewBatchLoader[k comparable, kd comparable, t any](
 	factory func(ctx context.Context, ids []kd) ([]t, error),
 	getID func(item t) k,
