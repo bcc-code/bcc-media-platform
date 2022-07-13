@@ -31,12 +31,17 @@ func EpisodeFromSQL(ctx context.Context, row *sqlc.EpisodeExpanded) *Episode {
 		}
 	}
 
+	var extraDescription string
+	if v := extraDescriptionMap.GetValueOrNil(languages); v != nil {
+		extraDescription = *v
+	}
+
 	episode := &Episode{
 		Chapters:         []*Chapter{}, // Currently not supported
 		ID:               fmt.Sprintf("%d", row.ID),
 		Title:            titleMap.Get(languages),
 		Description:      descriptionMap.Get(languages),
-		ExtraDescription: extraDescriptionMap.Get(languages),
+		ExtraDescription: extraDescription,
 		Season:           season,
 	}
 

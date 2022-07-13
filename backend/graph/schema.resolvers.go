@@ -6,6 +6,8 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/samber/lo"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/asset"
@@ -219,7 +221,10 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *gqlmodel.Season) ([]
 		return nil, err
 	}
 
-	return utils.MapWithCtx(ctx, items, gqlmodel.EpisodeFromSQL), nil
+	return utils.MapWithCtx(ctx, lo.Filter(items, func(i *sqlc.EpisodeExpanded, _ int) bool {
+		// Validate that user has access
+		return user.ValidateAccess(ctx, i) == nil
+	}), gqlmodel.EpisodeFromSQL), nil
 }
 
 // Seasons is the resolver for the seasons field.
@@ -229,7 +234,10 @@ func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show) ([]*gqlm
 		return nil, err
 	}
 
-	return utils.MapWithCtx(ctx, items, gqlmodel.SeasonFromSQL), nil
+	return utils.MapWithCtx(ctx, lo.Filter(items, func(i *sqlc.SeasonExpanded, _ int) bool {
+		// Validate that user has access
+		return user.ValidateAccess(ctx, i) == nil
+	}), gqlmodel.SeasonFromSQL), nil
 }
 
 // Episode returns generated.EpisodeResolver implementation.
