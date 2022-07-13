@@ -5,24 +5,10 @@ SELECT * FROM public.episodes;
 SELECT * FROM public.episodes WHERE id = $1;
 
 -- name: GetEpisodesWithTranslationsByID :many
-WITH t AS (SELECT
-	t.episodes_id,
-	json_object_agg(t.languages_code, t.title) as title,
-	json_object_agg(t.languages_code, t.description) as description,
-	json_object_agg(t.languages_code, t.extra_description) as extra_description
-FROM episodes_translations t
-WHERE t.episodes_id = ANY($1::int[])
-GROUP BY episodes_id)
-SELECT
-	e.id, e.asset_id, e.episode_number, e.image_file_id, e.season_id, e.type,
-	t.title, t.description, t.extra_description,
-	ea.published::bool published,
-	ea.available_from::timestamptz available_from, ea.available_to::timestamptz available_to,
-	ea.usergroups::text[] usergroups, ea.usergroups_downloads::text[] download_groups, ea.usergroups_earlyaccess::text[] early_access_groups
- FROM episodes e
-JOIN t ON e.id = t.episodes_id
-JOIN episodes_access ea on ea.id = e.id;
+SELECT * FROM episodes_expanded WHERE id = ANY($1::int[]);
 
+-- name: GetEpisodesWithTranslationsForSeasons :many
+SELECT * FROM episodes_expanded WHERE season_id = ANY($1::int[]);
 
 -- name: GetFilesForEpisodes :many
 SELECT e.id AS episodes_id, f.* FROM episodes e
@@ -68,5 +54,5 @@ SELECT id, status, publish_date, available_from, available_to, season_id FROM pu
 -- name: GetVisibilityForEpisode :one
 SELECT id, status, publish_date, available_from, available_to, season_id FROM public.episodes WHERE id = $1;
 
--- name: RefreshAccessView :one
-SELECT update_episodes_access();
+-- name: RefreshEpisodeAccessView :one
+SELECT update_access('episodes_access');

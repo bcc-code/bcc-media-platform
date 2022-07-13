@@ -9,8 +9,44 @@ import (
 	"context"
 	"time"
 
+	"github.com/lib/pq"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
+
+const getAccessForShows = `-- name: GetAccessForShows :many
+SELECT id, published, available_from, available_to, usergroups, usergroups_downloads, usergroups_earlyaccess FROM shows_access WHERE id = ANY($1::int[])
+`
+
+func (q *Queries) GetAccessForShows(ctx context.Context, dollar_1 []int32) ([]ShowsAccess, error) {
+	rows, err := q.db.QueryContext(ctx, getAccessForShows, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ShowsAccess
+	for rows.Next() {
+		var i ShowsAccess
+		if err := rows.Scan(
+			&i.ID,
+			&i.Published,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			&i.Usergroups,
+			&i.UsergroupsDownloads,
+			&i.UsergroupsEarlyaccess,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const getRolesForShow = `-- name: GetRolesForShow :many
 SELECT DISTINCT usergroups_code FROM public.episodes_usergroups WHERE episodes_id IN
@@ -149,6 +185,44 @@ func (q *Queries) GetShows(ctx context.Context) ([]Show, error) {
 	return items, nil
 }
 
+const getShowsWithTranslationsByID = `-- name: GetShowsWithTranslationsByID :many
+SELECT id, image_file_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM shows_expanded WHERE id = ANY($1::int[])
+`
+
+func (q *Queries) GetShowsWithTranslationsByID(ctx context.Context, dollar_1 []int32) ([]ShowsExpanded, error) {
+	rows, err := q.db.QueryContext(ctx, getShowsWithTranslationsByID, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ShowsExpanded
+	for rows.Next() {
+		var i ShowsExpanded
+		if err := rows.Scan(
+			&i.ID,
+			&i.ImageFileID,
+			&i.Title,
+			&i.Description,
+			&i.Published,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			pq.Array(&i.Usergroups),
+			pq.Array(&i.DownloadGroups),
+			pq.Array(&i.EarlyAccessGroups),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTranslationsForShow = `-- name: GetTranslationsForShow :many
 SELECT description, id, is_primary, languages_code, legacy_description_id, legacy_tags, legacy_tags_id, legacy_title_id, shows_id, title FROM public.shows_translations WHERE shows_id = $1
 `
@@ -251,4 +325,15 @@ func (q *Queries) GetVisibilityForShows(ctx context.Context) ([]GetVisibilityFor
 		return nil, err
 	}
 	return items, nil
+}
+
+const refreshShowAccessView = `-- name: RefreshShowAccessView :one
+SELECT update_access('shows_access')
+`
+
+func (q *Queries) RefreshShowAccessView(ctx context.Context) (bool, error) {
+	row := q.db.QueryRowContext(ctx, refreshShowAccessView)
+	var update_access bool
+	err := row.Scan(&update_access)
+	return update_access, err
 }

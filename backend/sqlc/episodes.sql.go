@@ -7,7 +7,6 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -170,52 +169,61 @@ func (q *Queries) GetEpisodes(ctx context.Context) ([]Episode, error) {
 }
 
 const getEpisodesWithTranslationsByID = `-- name: GetEpisodesWithTranslationsByID :many
-WITH t AS (SELECT
-	t.episodes_id,
-	json_object_agg(t.languages_code, t.title) as title,
-	json_object_agg(t.languages_code, t.description) as description,
-	json_object_agg(t.languages_code, t.extra_description) as extra_description
-FROM episodes_translations t
-WHERE t.episodes_id = ANY($1::int[])
-GROUP BY episodes_id)
-SELECT
-	e.id, e.asset_id, e.episode_number, e.image_file_id, e.season_id, e.type,
-	t.title, t.description, t.extra_description,
-	ea.published::bool published,
-	ea.available_from::timestamptz available_from, ea.available_to::timestamptz available_to,
-	ea.usergroups::text[] usergroups, ea.usergroups_downloads::text[] download_groups, ea.usergroups_earlyaccess::text[] early_access_groups
- FROM episodes e
-JOIN t ON e.id = t.episodes_id
-JOIN episodes_access ea on ea.id = e.id
+SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM episodes_expanded WHERE id = ANY($1::int[])
 `
 
-type GetEpisodesWithTranslationsByIDRow struct {
-	ID                int32           `db:"id" json:"id"`
-	AssetID           null_v4.Int     `db:"asset_id" json:"assetID"`
-	EpisodeNumber     null_v4.Int     `db:"episode_number" json:"episodeNumber"`
-	ImageFileID       uuid.NullUUID   `db:"image_file_id" json:"imageFileID"`
-	SeasonID          null_v4.Int     `db:"season_id" json:"seasonID"`
-	Type              string          `db:"type" json:"type"`
-	Title             json.RawMessage `db:"title" json:"title"`
-	Description       json.RawMessage `db:"description" json:"description"`
-	ExtraDescription  json.RawMessage `db:"extra_description" json:"extraDescription"`
-	Published         bool            `db:"published" json:"published"`
-	AvailableFrom     time.Time       `db:"available_from" json:"availableFrom"`
-	AvailableTo       time.Time       `db:"available_to" json:"availableTo"`
-	Usergroups        []string        `db:"usergroups" json:"usergroups"`
-	DownloadGroups    []string        `db:"download_groups" json:"downloadGroups"`
-	EarlyAccessGroups []string        `db:"early_access_groups" json:"earlyAccessGroups"`
-}
-
-func (q *Queries) GetEpisodesWithTranslationsByID(ctx context.Context, dollar_1 []int32) ([]GetEpisodesWithTranslationsByIDRow, error) {
+func (q *Queries) GetEpisodesWithTranslationsByID(ctx context.Context, dollar_1 []int32) ([]EpisodesExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, getEpisodesWithTranslationsByID, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetEpisodesWithTranslationsByIDRow
+	var items []EpisodesExpanded
 	for rows.Next() {
-		var i GetEpisodesWithTranslationsByIDRow
+		var i EpisodesExpanded
+		if err := rows.Scan(
+			&i.ID,
+			&i.AssetID,
+			&i.EpisodeNumber,
+			&i.ImageFileID,
+			&i.SeasonID,
+			&i.Type,
+			&i.Title,
+			&i.Description,
+			&i.ExtraDescription,
+			&i.Published,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			pq.Array(&i.Usergroups),
+			pq.Array(&i.DownloadGroups),
+			pq.Array(&i.EarlyAccessGroups),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getEpisodesWithTranslationsForSeasons = `-- name: GetEpisodesWithTranslationsForSeasons :many
+SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM episodes_expanded WHERE season_id = ANY($1::int[])
+`
+
+func (q *Queries) GetEpisodesWithTranslationsForSeasons(ctx context.Context, dollar_1 []int32) ([]EpisodesExpanded, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodesWithTranslationsForSeasons, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []EpisodesExpanded
+	for rows.Next() {
+		var i EpisodesExpanded
 		if err := rows.Scan(
 			&i.ID,
 			&i.AssetID,
@@ -522,34 +530,13 @@ func (q *Queries) GetVisibilityForEpisodes(ctx context.Context) ([]GetVisibility
 	return items, nil
 }
 
-const refreshAccessView = `-- name: RefreshAccessView :one
-SELECT update_episodes_access()
+const refreshEpisodeAccessView = `-- name: RefreshEpisodeAccessView :one
+SELECT update_access('episodes_access')
 `
 
-func (q *Queries) RefreshAccessView(ctx context.Context) (bool, error) {
-	row := q.db.QueryRowContext(ctx, refreshAccessView)
-	var update_episodes_access bool
-	err := row.Scan(&update_episodes_access)
-	return update_episodes_access, err
-}
-
-const updateEpisode = `-- name: UpdateEpisode :exec
-UPDATE public.episodes SET publish_date = $2, available_from = $3, available_to = $4 WHERE id = $1
-`
-
-type UpdateEpisodeParams struct {
-	ID            int32        `db:"id" json:"id"`
-	PublishDate   time.Time    `db:"publish_date" json:"publishDate"`
-	AvailableFrom null_v4.Time `db:"available_from" json:"availableFrom"`
-	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
-}
-
-func (q *Queries) UpdateEpisode(ctx context.Context, arg UpdateEpisodeParams) error {
-	_, err := q.db.ExecContext(ctx, updateEpisode,
-		arg.ID,
-		arg.PublishDate,
-		arg.AvailableFrom,
-		arg.AvailableTo,
-	)
-	return err
+func (q *Queries) RefreshEpisodeAccessView(ctx context.Context) (bool, error) {
+	row := q.db.QueryRowContext(ctx, refreshEpisodeAccessView)
+	var update_access bool
+	err := row.Scan(&update_access)
+	return update_access, err
 }

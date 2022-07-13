@@ -1,6 +1,9 @@
 package common
 
-import "gopkg.in/guregu/null.v4"
+import (
+	"gopkg.in/guregu/null.v4"
+	"time"
+)
 
 // SearchQuery used as body in the POST request to the API
 type SearchQuery struct {
@@ -32,6 +35,20 @@ type SearchResultItem struct {
 	Highlight   *string `json:"highlight"`
 	Image       *string `json:"thumbnail"`
 	Url         string  `json:"url"`
+}
+
+// Roles struct for roles on item
+type Roles struct {
+	Access      []string
+	Download    []string
+	EarlyAccess []string
+}
+
+// Availability struct for availability on items
+type Availability struct {
+	Published bool
+	From      time.Time
+	To        time.Time
 }
 
 // Translation struct for storing a generalized translation object

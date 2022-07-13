@@ -32,10 +32,15 @@ func RefreshView(ctx context.Context, s services, event cloudevents.Event) error
 	}
 
 	log.L.Debug().Str("ViewName", msg.ViewName).Msg("RefreshView")
-	if msg.ViewName == "episodes_access" {
-		_, err := q.RefreshAccessView(ctx)
-		return merry.Wrap(err)
+	switch msg.ViewName {
+	case "episodes_access", "seasons_access", "shows_access":
+		// no reason to split these
+		_, err = q.RefreshEpisodeAccessView(ctx)
+		_, err = q.RefreshSeasonAccessView(ctx)
+		_, err = q.RefreshShowAccessView(ctx)
+	default:
+		err = merry.Wrap(ErrUnknownView)
 	}
 
-	return merry.Wrap(ErrUnknownView)
+	return merry.Wrap(err)
 }

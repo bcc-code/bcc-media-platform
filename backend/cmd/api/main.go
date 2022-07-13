@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/brunstadtv/backend/season"
+	"github.com/bcc-code/brunstadtv/backend/show"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -80,13 +82,14 @@ func main() {
 
 	queries := sqlc.New(db)
 
-	episodeLoader := episode.NewBatchLoader(*queries)
-	filesLoader := asset.NewBatchFileLoader(*queries)
-	streamsLoader := asset.NewBatchStreamLoader(*queries)
 	loaders := &graph.BatchLoaders{
-		EpisodeLoader: episodeLoader,
-		FilesLoader:   filesLoader,
-		StreamsLoader: streamsLoader,
+		ShowLoader:     show.NewBatchLoader(*queries),
+		SeasonLoader:   season.NewBatchLoader(*queries),
+		EpisodeLoader:  episode.NewBatchLoader(*queries),
+		SeasonsLoader:  season.NewListBatchLoader(*queries),
+		EpisodesLoader: episode.NewListBatchLoader(*queries),
+		FilesLoader:    asset.NewBatchFileLoader(*queries),
+		StreamsLoader:  asset.NewBatchStreamLoader(*queries),
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")
