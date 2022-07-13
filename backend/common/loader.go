@@ -6,8 +6,8 @@ import (
 	"github.com/samber/lo"
 )
 
-// NewKeyedListBatchLoader returns a configured batch loader for Lists
-func NewKeyedListBatchLoader[t any](
+// NewListBatchLoader returns a configured batch loader for Lists
+func NewListBatchLoader[t any](
 	factory func(ctx context.Context, ids []int32) ([]t, error),
 	getKey func(item t) int,
 ) *dataloader.Loader[int, []*t] {
