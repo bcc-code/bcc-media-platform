@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/user"
@@ -48,6 +49,9 @@ func resolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id 
 	obj, err := common.GetFromLoaderByID(ctx, loader, id)
 	if err != nil {
 		return nil, err
+	}
+	if obj == nil {
+		return nil, merry.Sentinel("item not found")
 	}
 
 	err = user.ValidateAccess(ctx, *obj)
