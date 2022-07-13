@@ -6,6 +6,7 @@ package sqlc
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -529,6 +530,24 @@ type EpisodesCategory struct {
 	ID           int32 `db:"id" json:"id"`
 }
 
+type EpisodesExpanded struct {
+	ID                int32           `db:"id" json:"id"`
+	AssetID           null_v4.Int     `db:"asset_id" json:"assetID"`
+	EpisodeNumber     null_v4.Int     `db:"episode_number" json:"episodeNumber"`
+	ImageFileID       uuid.NullUUID   `db:"image_file_id" json:"imageFileID"`
+	SeasonID          null_v4.Int     `db:"season_id" json:"seasonID"`
+	Type              string          `db:"type" json:"type"`
+	Title             json.RawMessage `db:"title" json:"title"`
+	Description       json.RawMessage `db:"description" json:"description"`
+	ExtraDescription  json.RawMessage `db:"extra_description" json:"extraDescription"`
+	Published         bool            `db:"published" json:"published"`
+	AvailableFrom     time.Time       `db:"available_from" json:"availableFrom"`
+	AvailableTo       time.Time       `db:"available_to" json:"availableTo"`
+	Usergroups        []string        `db:"usergroups" json:"usergroups"`
+	DownloadGroups    []string        `db:"download_groups" json:"downloadGroups"`
+	EarlyAccessGroups []string        `db:"early_access_groups" json:"earlyAccessGroups"`
+}
+
 type EpisodesRole struct {
 	ID               int32       `db:"id" json:"id"`
 	Roles            interface{} `db:"roles" json:"roles"`
@@ -666,6 +685,21 @@ type SeasonsAvailability struct {
 	AvailableTo   interface{} `db:"available_to" json:"availableTo"`
 }
 
+type SeasonsExpanded struct {
+	ID                int32           `db:"id" json:"id"`
+	SeasonNumber      int32           `db:"season_number" json:"seasonNumber"`
+	ImageFileID       uuid.NullUUID   `db:"image_file_id" json:"imageFileID"`
+	ShowID            int32           `db:"show_id" json:"showID"`
+	Title             json.RawMessage `db:"title" json:"title"`
+	Description       json.RawMessage `db:"description" json:"description"`
+	Published         bool            `db:"published" json:"published"`
+	AvailableFrom     time.Time       `db:"available_from" json:"availableFrom"`
+	AvailableTo       time.Time       `db:"available_to" json:"availableTo"`
+	Usergroups        []string        `db:"usergroups" json:"usergroups"`
+	DownloadGroups    []string        `db:"download_groups" json:"downloadGroups"`
+	EarlyAccessGroups []string        `db:"early_access_groups" json:"earlyAccessGroups"`
+}
+
 type SeasonsRole struct {
 	ID               int32       `db:"id" json:"id"`
 	Roles            interface{} `db:"roles" json:"roles"`
@@ -761,6 +795,19 @@ type ShowsAvailability struct {
 	Published     bool      `db:"published" json:"published"`
 	AvailableFrom time.Time `db:"available_from" json:"availableFrom"`
 	AvailableTo   time.Time `db:"available_to" json:"availableTo"`
+}
+
+type ShowsExpanded struct {
+	ID                int32           `db:"id" json:"id"`
+	ImageFileID       uuid.NullUUID   `db:"image_file_id" json:"imageFileID"`
+	Title             json.RawMessage `db:"title" json:"title"`
+	Description       json.RawMessage `db:"description" json:"description"`
+	Published         bool            `db:"published" json:"published"`
+	AvailableFrom     time.Time       `db:"available_from" json:"availableFrom"`
+	AvailableTo       time.Time       `db:"available_to" json:"availableTo"`
+	Usergroups        []string        `db:"usergroups" json:"usergroups"`
+	DownloadGroups    []string        `db:"download_groups" json:"downloadGroups"`
+	EarlyAccessGroups []string        `db:"early_access_groups" json:"earlyAccessGroups"`
 }
 
 type ShowsRole struct {

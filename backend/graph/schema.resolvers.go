@@ -214,12 +214,22 @@ func (r *seasonResolver) Show(ctx context.Context, obj *gqlmodel.Season) (*gqlmo
 
 // Episodes is the resolver for the episodes field.
 func (r *seasonResolver) Episodes(ctx context.Context, obj *gqlmodel.Season) ([]*gqlmodel.Episode, error) {
-	panic(fmt.Errorf("not implemented"))
+	items, err := episode.GetEpisodesForSeason(ctx, r.Resolver.Loaders.EpisodesLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.MapWithCtx(ctx, items, gqlmodel.EpisodeFromSQL), nil
 }
 
 // Seasons is the resolver for the seasons field.
 func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show) ([]*gqlmodel.Season, error) {
-	panic(fmt.Errorf("not implemented"))
+	items, err := season.GetSeasonsForShow(ctx, r.Resolver.Loaders.SeasonsLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.MapWithCtx(ctx, items, gqlmodel.SeasonFromSQL), nil
 }
 
 // Episode returns generated.EpisodeResolver implementation.

@@ -24,22 +24,10 @@ SELECT id, status, publish_date, available_from, available_to, show_id FROM publ
 SELECT * FROM seasons_access WHERE id = ANY($1::int[]);
 
 -- name: GetSeasonsWithTranslationsByID :many
-WITH t AS (SELECT
-       t.seasons_id,
-       json_object_agg(t.languages_code, t.title) as title,
-       json_object_agg(t.languages_code, t.description) as description
-    FROM seasons_translations t
-    GROUP BY seasons_id)
-SELECT
-    se.id, se.season_number, se.image_file_id, se.show_id,
-    t.title, t.description,
-    access.published::bool published,
-    access.available_from::timestamptz available_from, access.available_to::timestamptz available_to,
-    access.usergroups::text[] usergroups, access.usergroups_downloads::text[] download_groups, access.usergroups_earlyaccess::text[] early_access_groups
-FROM seasons se
-JOIN t ON se.id = t.seasons_id
-JOIN seasons_access access on access.id = se.id
-WHERE se.id = ANY($1::int[]);
+SELECT * FROM seasons_expanded WHERE id = ANY($1::int[]);
+
+-- name: GetSeasonsWithTranslationsForShows :many
+SELECT * FROM seasons_expanded WHERE show_id = ANY($1::int[]);
 
 -- name: RefreshSeasonAccessView :one
 SELECT update_access('seasons_access');
