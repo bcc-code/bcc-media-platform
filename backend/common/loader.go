@@ -6,8 +6,8 @@ import (
 	"github.com/samber/lo"
 )
 
-// NewKeyedListBatchLoader returns a configured batch loader for Lists
-func NewKeyedListBatchLoader[k comparable, kd comparable, t any](
+// NewListBatchLoader returns a configured batch loader for Lists
+func NewListBatchLoader[k comparable, kd comparable, t any](
 	factory func(ctx context.Context, ids []kd) ([]t, error),
 	getKey func(item t) k,
 	toDBKey func(key k) kd,
