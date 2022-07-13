@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 
-const episodes_access_view_sql = `
+const episodes_roles_view_sql = `
 create or replace view episodes_roles(id, roles, roles_download, roles_earlyaccess) as
 SELECT e.id,
        COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
@@ -13,7 +13,9 @@ SELECT e.id,
                  FROM episodes_usergroups_earlyaccess eu
                  WHERE eu.episodes_id = e.id), ARRAY []::character varying[]) AS roles_earlyaccess
 FROM episodes e;
+`
 
+const episodes_availability_view_sql = `
 create or replace view episodes_availability(id, published, available_from, available_to) as
 SELECT e.id,
        e.status::text = 'published'::text AND se.status::text = 'published'::text AND
@@ -25,7 +27,9 @@ SELECT e.id,
 FROM episodes e
          LEFT JOIN seasons se ON e.season_id = se.id
          LEFT JOIN shows s ON se.show_id = s.id;
-         
+`
+
+const episodes_access_view_sql = `
 create or replace view episodes_access_view
             (id, published, available_from, available_to, usergroups, usergroups_downloads, usergroups_earlyaccess) as
 SELECT e.id,
@@ -55,7 +59,7 @@ create unique index if not exists episodes_access_idx
     on episodes_access (id);
 `
 
-const seasons_access_view_sql = `
+const seasons_roles_view_sql = `
 create or replace view seasons_roles(id, roles, roles_download, roles_earlyaccess) as
 SELECT se.id,
        COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
@@ -76,7 +80,9 @@ SELECT se.id,
                                            WHERE e.season_id = se.id))),
                 ARRAY []::character varying[])                                                          AS roles_earlyaccess
 FROM seasons se;
+`
 
+const seasons_availability_view_sql = `
 create or replace view seasons_availability(id, published, available_from, available_to) as
 SELECT se.id,
        se.status::text = 'published'::text AND s.status::text = 'published'::text                                  AS published,
@@ -86,7 +92,9 @@ SELECT se.id,
                 '3000-01-01 00:00:00'::timestamp without time zone)                                                AS available_to
 FROM seasons se
          LEFT JOIN shows s ON se.show_id = s.id;
-         
+`
+
+const seasons_access_view_sql = `
 create or replace view seasons_access_view
 	(id, published, available_from, available_to, usergroups, usergroups_downloads, usergroups_earlyaccess) as
 SELECT se.id,
@@ -116,7 +124,7 @@ create unique index if not exists seasons_access_idx
     on seasons_access (id);
 `
 
-const shows_access_view_sql = `
+const shows_roles_view_sql = `
 create or replace view shows_roles(id, roles, roles_download, roles_earlyaccess) as
 SELECT sh.id,
        COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
@@ -144,14 +152,18 @@ SELECT sh.id,
                                                                   WHERE se.show_id = sh.id))))),
                 ARRAY []::character varying[]) AS roles_earlyaccess
 FROM shows sh;
+`
 
+const shows_availability_view_sql = `
 create or replace view shows_availability(id, published, available_from, available_to) as
 SELECT sh.id,
        sh.status::text = 'published'::text                                             AS published,
        COALESCE(sh.available_from, '1800-01-01 00:00:00'::timestamp without time zone) AS available_from,
        COALESCE(sh.available_to, '3000-01-01 00:00:00'::timestamp without time zone)   AS available_to
 FROM shows sh;
+`
 
+const shows_access_view_sql = `
 create or replace view shows_access_view
             (id, published, available_from, available_to, usergroups, usergroups_downloads, usergroups_earlyaccess) as
 SELECT sh.id,
@@ -183,8 +195,9 @@ create unique index if not exists shows_access_idx
 
 const update_access_function = `
 create or replace function update_access(view character varying) returns boolean
-    language plpgsql
-as
+SECURITY DEFINER -- This function runs as the user defining it. This is needed because a non-owner can't refresh a view
+    LANGUAGE plpgsql
+    AS
 $$
 DECLARE
     lr timestamptz;
@@ -225,14 +238,20 @@ module.exports = {
 		await k.raw(`DROP FUNCTION IF EXISTS update_episodes_access()`)
 		await k.raw(update_access_function);
 
+		await k.raw(episodes_roles_view_sql);
+		await k.raw(episodes_availability_view_sql);
 		await k.raw(episodes_access_view_sql);
 		// Replace the old episodes_access view with a new simpler one
 		await k.raw(`DROP MATERIALIZED VIEW IF EXISTS episodes_access`)
 		await k.raw(episodes_materialized_view_sql);
 
+		await k.raw(seasons_roles_view_sql);
+		await k.raw(seasons_availability_view_sql);
 		await k.raw(seasons_access_view_sql);
 		await k.raw(seasons_materialized_view_sql);
 
+		await k.raw(shows_roles_view_sql);
+		await k.raw(shows_availability_view_sql);
 		await k.raw(shows_access_view_sql);
 		await k.raw(shows_materialized_view_sql);
 	},

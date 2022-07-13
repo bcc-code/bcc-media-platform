@@ -11,7 +11,7 @@ import (
 
 // NewBatchFileLoader returns a configured batch loader for GQL File
 func NewBatchFileLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.GetFilesForEpisodesRow] {
-	return common.NewKeyedListBatchLoader(queries.GetFilesForEpisodes, func(row sqlc.GetFilesForEpisodesRow) int {
+	return common.NewListBatchLoader(queries.GetFilesForEpisodes, func(row sqlc.GetFilesForEpisodesRow) int {
 		return int(row.EpisodesID)
 	}, func(id int) int32 {
 		return int32(id)
@@ -34,7 +34,7 @@ func GetFilesForEpisode(ctx context.Context, loader *dataloader.Loader[int, []*s
 
 // NewBatchStreamLoader returns a configured batch loader for GQL Stream
 func NewBatchStreamLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.GetStreamsForEpisodesRow] {
-	return common.NewKeyedListBatchLoader(queries.GetStreamsForEpisodes, func(row sqlc.GetStreamsForEpisodesRow) int {
+	return common.NewListBatchLoader(queries.GetStreamsForEpisodes, func(row sqlc.GetStreamsForEpisodesRow) int {
 		return int(row.EpisodesID)
 	}, func(id int) int32 {
 		return int32(id)

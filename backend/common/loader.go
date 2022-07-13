@@ -12,7 +12,7 @@ func NewKeyedListBatchLoader[k comparable, kd comparable, t any](
 	getKey func(item t) k,
 	toDBKey func(key k) kd,
 ) *dataloader.Loader[k, []*t] {
-	batchLoadFiles := func(ctx context.Context, keys []k) []*dataloader.Result[[]*t] {
+	batchLoadLists := func(ctx context.Context, keys []k) []*dataloader.Result[[]*t] {
 		var results []*dataloader.Result[[]*t]
 
 		ids := lo.Map(keys, func(key k, _ int) kd {
@@ -49,7 +49,7 @@ func NewKeyedListBatchLoader[k comparable, kd comparable, t any](
 
 		return results
 	}
-	return dataloader.NewBatchedLoader(batchLoadFiles)
+	return dataloader.NewBatchedLoader(batchLoadLists)
 }
 
 // NewBatchLoader returns a configured batch loader for GQL Episode
@@ -58,7 +58,7 @@ func NewBatchLoader[k comparable, kd comparable, t any](
 	getID func(item t) k,
 	toDBKey func(key k) kd,
 ) *dataloader.Loader[k, *t] {
-	batchLoadEpisodes := func(ctx context.Context, keys []k) []*dataloader.Result[*t] {
+	batchLoadItems := func(ctx context.Context, keys []k) []*dataloader.Result[*t] {
 		var results []*dataloader.Result[*t]
 
 		ids := lo.Map(keys, func(key k, _ int) kd {
@@ -91,7 +91,7 @@ func NewBatchLoader[k comparable, kd comparable, t any](
 	}
 
 	// Currently we do not want to cache at the GQL level
-	return dataloader.NewBatchedLoader(batchLoadEpisodes)
+	return dataloader.NewBatchedLoader(batchLoadItems)
 }
 
 // GetFromLoaderByID returns the object from the loader
