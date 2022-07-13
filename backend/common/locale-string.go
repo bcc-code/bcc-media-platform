@@ -28,3 +28,15 @@ func (localeString LocaleString) Get(languages []string) string {
 
 	return ""
 }
+
+// GetValueOrNil returns either the value for selected languages or nil
+func (localeString LocaleString) GetValueOrNil(languages []string) *string {
+	languages = append(languages, DefaultLanguages...) // We force the DefaultLanguages as the last languages regardless if they have been specified before already
+	for _, l := range languages {
+		if val, ok := localeString[l]; ok && val.Valid {
+			return &val.String
+		}
+	}
+
+	return nil
+}

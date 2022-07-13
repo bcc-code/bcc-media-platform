@@ -19,3 +19,15 @@ SELECT id, status, publish_date, available_from, available_to, show_id FROM publ
 
 -- name: GetVisibilityForSeason :one
 SELECT id, status, publish_date, available_from, available_to, show_id FROM public.seasons WHERE id = $1;
+
+-- name: GetAccessForSeasons :many
+SELECT * FROM seasons_access WHERE id = ANY($1::int[]);
+
+-- name: GetSeasonsWithTranslationsByID :many
+SELECT * FROM seasons_expanded WHERE id = ANY($1::int[]);
+
+-- name: GetSeasonsWithTranslationsForShows :many
+SELECT * FROM seasons_expanded WHERE show_id = ANY($1::int[]);
+
+-- name: RefreshSeasonAccessView :one
+SELECT update_access('seasons_access');

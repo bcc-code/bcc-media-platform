@@ -9,8 +9,44 @@ import (
 	"context"
 	"time"
 
+	"github.com/lib/pq"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
+
+const getAccessForSeasons = `-- name: GetAccessForSeasons :many
+SELECT id, published, available_from, available_to, usergroups, usergroups_downloads, usergroups_earlyaccess FROM seasons_access WHERE id = ANY($1::int[])
+`
+
+func (q *Queries) GetAccessForSeasons(ctx context.Context, dollar_1 []int32) ([]SeasonsAccess, error) {
+	rows, err := q.db.QueryContext(ctx, getAccessForSeasons, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SeasonsAccess
+	for rows.Next() {
+		var i SeasonsAccess
+		if err := rows.Scan(
+			&i.ID,
+			&i.Published,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			&i.Usergroups,
+			&i.UsergroupsDownloads,
+			&i.UsergroupsEarlyaccess,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const getRolesForSeason = `-- name: GetRolesForSeason :many
 SELECT DISTINCT usergroups_code FROM public.episodes_usergroups WHERE episodes_id IN
@@ -148,6 +184,86 @@ func (q *Queries) GetSeasons(ctx context.Context) ([]Season, error) {
 	return items, nil
 }
 
+const getSeasonsWithTranslationsByID = `-- name: GetSeasonsWithTranslationsByID :many
+SELECT id, season_number, image_file_id, show_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM seasons_expanded WHERE id = ANY($1::int[])
+`
+
+func (q *Queries) GetSeasonsWithTranslationsByID(ctx context.Context, dollar_1 []int32) ([]SeasonsExpanded, error) {
+	rows, err := q.db.QueryContext(ctx, getSeasonsWithTranslationsByID, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SeasonsExpanded
+	for rows.Next() {
+		var i SeasonsExpanded
+		if err := rows.Scan(
+			&i.ID,
+			&i.SeasonNumber,
+			&i.ImageFileID,
+			&i.ShowID,
+			&i.Title,
+			&i.Description,
+			&i.Published,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			pq.Array(&i.Usergroups),
+			pq.Array(&i.DownloadGroups),
+			pq.Array(&i.EarlyAccessGroups),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSeasonsWithTranslationsForShows = `-- name: GetSeasonsWithTranslationsForShows :many
+SELECT id, season_number, image_file_id, show_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM seasons_expanded WHERE show_id = ANY($1::int[])
+`
+
+func (q *Queries) GetSeasonsWithTranslationsForShows(ctx context.Context, dollar_1 []int32) ([]SeasonsExpanded, error) {
+	rows, err := q.db.QueryContext(ctx, getSeasonsWithTranslationsForShows, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SeasonsExpanded
+	for rows.Next() {
+		var i SeasonsExpanded
+		if err := rows.Scan(
+			&i.ID,
+			&i.SeasonNumber,
+			&i.ImageFileID,
+			&i.ShowID,
+			&i.Title,
+			&i.Description,
+			&i.Published,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			pq.Array(&i.Usergroups),
+			pq.Array(&i.DownloadGroups),
+			pq.Array(&i.EarlyAccessGroups),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTranslationsForSeason = `-- name: GetTranslationsForSeason :many
 SELECT description, id, is_primary, languages_code, legacy_description_id, legacy_title_id, seasons_id, title FROM public.seasons_translations WHERE seasons_id = $1
 `
@@ -252,4 +368,15 @@ func (q *Queries) GetVisibilityForSeasons(ctx context.Context) ([]GetVisibilityF
 		return nil, err
 	}
 	return items, nil
+}
+
+const refreshSeasonAccessView = `-- name: RefreshSeasonAccessView :one
+SELECT update_access('seasons_access')
+`
+
+func (q *Queries) RefreshSeasonAccessView(ctx context.Context) (bool, error) {
+	row := q.db.QueryRowContext(ctx, refreshSeasonAccessView)
+	var update_access bool
+	err := row.Scan(&update_access)
+	return update_access, err
 }

@@ -20,3 +20,12 @@ SELECT id, status, publish_date, available_from, available_to FROM public.shows;
 
 -- name: GetVisibilityForShow :one
 SELECT id, status, publish_date, available_from, available_to FROM public.shows WHERE id = $1;
+
+-- name: GetAccessForShows :many
+SELECT * FROM shows_access WHERE id = ANY($1::int[]);
+
+-- name: GetShowsWithTranslationsByID :many
+SELECT * FROM shows_expanded WHERE id = ANY($1::int[]);
+
+-- name: RefreshShowAccessView :one
+SELECT update_access('shows_access');
