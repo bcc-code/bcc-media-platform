@@ -102,3 +102,16 @@ func GetFromLoaderByID[k comparable, t any](ctx context.Context, loader *dataloa
 
 	return result, nil
 }
+
+// GetFromLoaderForKey retrieves file assets currently associated with the specified asset
+//
+// It uses the dataloader to efficiently load data from DB or cache (as available)
+func GetFromLoaderForKey[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, []*t], key k) ([]*t, error) {
+	thunk := loader.Load(ctx, key)
+	result, err := thunk()
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
