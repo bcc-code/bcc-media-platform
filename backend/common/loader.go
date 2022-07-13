@@ -7,20 +7,21 @@ import (
 )
 
 // NewKeyedListBatchLoader returns a configured batch loader for Lists
-func NewKeyedListBatchLoader[t any](
-	factory func(ctx context.Context, ids []int32) ([]t, error),
-	getKey func(item t) int,
-) *dataloader.Loader[int, []*t] {
-	batchLoadFiles := func(ctx context.Context, keys []int) []*dataloader.Result[[]*t] {
+func NewKeyedListBatchLoader[k comparable, kd comparable, t any](
+	factory func(ctx context.Context, ids []kd) ([]t, error),
+	getKey func(item t) k,
+	toDBKey func(key k) kd,
+) *dataloader.Loader[k, []*t] {
+	batchLoadFiles := func(ctx context.Context, keys []k) []*dataloader.Result[[]*t] {
 		var results []*dataloader.Result[[]*t]
 
-		ids := lo.Map(keys, func(key int, _ int) int32 {
-			return int32(key)
+		ids := lo.Map(keys, func(key k, _ int) kd {
+			return toDBKey(key)
 		})
 
 		res, err := factory(ctx, ids)
 
-		resMap := map[int][]*t{}
+		resMap := map[k][]*t{}
 
 		if err == nil {
 			for _, r := range res {
@@ -34,12 +35,12 @@ func NewKeyedListBatchLoader[t any](
 			}
 		}
 
-		for _, k := range keys {
+		for _, key := range keys {
 			r := &dataloader.Result[[]*t]{
 				Error: err,
 			}
 
-			if val, ok := resMap[k]; ok {
+			if val, ok := resMap[key]; ok {
 				r.Data = val
 			}
 
@@ -52,20 +53,21 @@ func NewKeyedListBatchLoader[t any](
 }
 
 // NewBatchLoader returns a configured batch loader for GQL Episode
-func NewBatchLoader[t any](
-	factory func(ctx context.Context, ids []int32) ([]t, error),
-	getID func(item t) int,
-) *dataloader.Loader[int, *t] {
-	batchLoadEpisodes := func(ctx context.Context, keys []int) []*dataloader.Result[*t] {
+func NewBatchLoader[k comparable, kd comparable, t any](
+	factory func(ctx context.Context, ids []kd) ([]t, error),
+	getID func(item t) k,
+	toDBKey func(key k) kd,
+) *dataloader.Loader[k, *t] {
+	batchLoadEpisodes := func(ctx context.Context, keys []k) []*dataloader.Result[*t] {
 		var results []*dataloader.Result[*t]
 
-		ids := lo.Map(keys, func(key int, _ int) int32 {
-			return int32(key)
+		ids := lo.Map(keys, func(key k, _ int) kd {
+			return toDBKey(key)
 		})
 
 		res, err := factory(ctx, ids)
 
-		resMap := map[int]*t{}
+		resMap := map[k]*t{}
 
 		if err == nil {
 			for _, r := range res {
@@ -73,12 +75,12 @@ func NewBatchLoader[t any](
 			}
 		}
 
-		for _, k := range keys {
+		for _, key := range keys {
 			r := &dataloader.Result[*t]{
 				Error: err,
 			}
 
-			if val, ok := resMap[k]; ok {
+			if val, ok := resMap[key]; ok {
 				r.Data = val
 			}
 

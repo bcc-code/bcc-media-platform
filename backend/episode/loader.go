@@ -10,6 +10,8 @@ import (
 func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.EpisodeExpanded] {
 	return common.NewBatchLoader(queries.GetEpisodesWithTranslationsByID, func(row sqlc.EpisodeExpanded) int {
 		return int(row.ID)
+	}, func(id int) int32 {
+		return int32(id)
 	})
 }
 
@@ -17,5 +19,7 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.EpisodeE
 func NewListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.EpisodeExpanded] {
 	return common.NewKeyedListBatchLoader(queries.GetEpisodesWithTranslationsForSeasons, func(i sqlc.EpisodeExpanded) int {
 		return int(i.SeasonID.Int64)
+	}, func(id int) int32 {
+		return int32(id)
 	})
 }

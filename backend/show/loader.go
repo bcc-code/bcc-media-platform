@@ -10,5 +10,7 @@ import (
 func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.ShowExpanded] {
 	return common.NewBatchLoader(queries.GetShowsWithTranslationsByID, func(row sqlc.ShowExpanded) int {
 		return int(row.ID)
+	}, func(id int) int32 {
+		return int32(id)
 	})
 }
