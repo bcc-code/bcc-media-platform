@@ -71,7 +71,8 @@ func NewBatchLoader[k comparable, kd comparable, t any](
 
 		if err == nil {
 			for _, r := range res {
-				resMap[getID(r)] = &r
+				item := r
+				resMap[getID(r)] = &item
 			}
 		}
 
