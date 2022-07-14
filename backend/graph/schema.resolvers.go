@@ -6,11 +6,8 @@ package graph
 import (
 	"context"
 	"fmt"
-	"strconv"
-
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
-	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
@@ -71,47 +68,7 @@ func (r *queryRootResolver) Section(ctx context.Context, id string) (gqlmodel.Se
 
 // Search is the resolver for the search field.
 func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int) (*gqlmodel.SearchResult, error) {
-	ginCtx, err := utils.GinCtx(ctx)
-	if err != nil {
-		return nil, err
-	}
-	searchResult, err := r.SearchService.Search(ginCtx, common.SearchQuery{
-		Query:  queryString,
-		Limit:  first,
-		Offset: offset,
-	})
-	if err != nil {
-		return nil, err
-	}
-	var results []gqlmodel.SearchResultItem
-	for _, i := range searchResult.Result {
-		switch i.Collection {
-		case "shows":
-			s, err := r.Show(ctx, strconv.Itoa(i.ID))
-			if err != nil {
-				continue
-			}
-			results = append(results, s)
-		case "seasons":
-			se, err := r.Season(ctx, strconv.Itoa(i.ID))
-			if err != nil {
-				continue
-			}
-			results = append(results, se)
-		case "episodes":
-			e, err := r.Episode(ctx, strconv.Itoa(i.ID))
-			if err != nil {
-				// Ignore if errors occur - lack of access, etc.
-				continue
-			}
-			results = append(results, e)
-		}
-	}
-	return &gqlmodel.SearchResult{
-		Result: results,
-		Page:   searchResult.Page,
-		Hits:   searchResult.HitCount,
-	}, nil
+	return searchResolver(r, ctx, queryString, first, offset)
 }
 
 // Calendar is the resolver for the calendar field.
