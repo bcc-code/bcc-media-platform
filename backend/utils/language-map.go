@@ -2,63 +2,47 @@ package utils
 
 import "github.com/bcc-code/mediabank-bridge/log"
 
+var langMap = map[string]string{
+	"nor":       "no",
+	"no-x":      "nb",
+	"no-x-tolk": "nb",
+	"dan":       "da",
+	"dnk":       "da",
+	"deu":       "de",
+	"ger":       "de",
+	"nld":       "nl",
+	"dut":       "nl",
+	"eng":       "en",
+	"fra":       "fr",
+	"fre":       "fr",
+	"spa":       "es",
+	"esp":       "es",
+	"fin":       "fi",
+	"rus":       "ru",
+	"por":       "pt",
+	"ron":       "ro",
+	"rum":       "ro",
+	"rou":       "ro",
+	"tk":        "tr",
+	"tur":       "tr",
+	"pol":       "pl",
+	"bul":       "bg",
+	"hun":       "hu",
+	"ita":       "it",
+	"slv":       "sl",
+	"zho":       "zh",
+	"chi":       "zh",
+	"zht":       "zh",
+	"hrv":       "hr",
+	"hbs-hrv":   "hr",
+}
+
 // LegacyLanguageCodeTo639_1 converts language codes used in the legacy system and
 // the smil file to proper ISO 639-1 codes as used in our DB
 func LegacyLanguageCodeTo639_1(code string) string {
 
-	switch code {
-	case "nor":
-		return "no"
-	case "no-x":
-	case "no-x-tolk":
-		return "nb"
-	case "dan":
-	case "dnk":
-		return "da"
-	case "deu":
-	case "ger":
-		return "de"
-	case "nld":
-	case "dut":
-		return "nl"
-	case "eng":
-		return "en"
-	case "fra":
-	case "fre":
-		return "fr"
-	case "spa":
-	case "esp":
-		return "es"
-	case "fin":
-		return "fi"
-	case "rus":
-		return "ru"
-	case "por":
-		return "pt"
-	case "ron":
-	case "rum":
-	case "rou":
-		return "ro"
-	case "tk":
-	case "tur":
-		return "tr"
-	case "pol":
-		return "pl"
-	case "bul":
-		return "bg"
-	case "hun":
-		return "hu"
-	case "ita":
-		return "it"
-	case "slv":
-		return "sl"
-	case "zho":
-	case "chi":
-	case "zht":
-		return "zh"
-	case "hrv":
-	case "hbs-hrv":
-		return "hr"
+	if twoLetterCode, ok := langMap[code]; ok {
+		return twoLetterCode
 	}
 
 	log.L.Warn().Str("code", code).Msg("Unknown language code, please fix")
