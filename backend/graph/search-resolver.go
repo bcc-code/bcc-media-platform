@@ -8,23 +8,10 @@ import (
 	"strconv"
 )
 
-func searchResolver(r *queryRootResolver, ctx context.Context, queryString string, first *int, offset *int) (*gqlmodel.SearchResult, error) {
-	ginCtx, err := utils.GinCtx(ctx)
-	if err != nil {
-		return nil, err
-	}
-	searchResult, err := r.SearchService.Search(ginCtx, common.SearchQuery{
-		Query:  queryString,
-		Limit:  first,
-		Offset: offset,
-	})
-	if err != nil {
-		return nil, err
-	}
-
+func preloadItems(ctx context.Context, r *queryRootResolver, items []common.SearchResultItem) {
 	var keysByCollection = map[string][]int{}
 
-	for _, i := range searchResult.Result {
+	for _, i := range items {
 		keysByCollection[i.Collection] = append(keysByCollection[i.Collection], i.ID)
 	}
 
@@ -37,10 +24,14 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 	if keys, ok := keysByCollection["episodes"]; ok {
 		r.Loaders.EpisodeLoader.LoadMany(ctx, keys)
 	}
+}
+
+func filterAndConvertToGQL(ctx context.Context, r *queryRootResolver, items []common.SearchResultItem) []gqlmodel.SearchResultItem {
+	// Preload/fill query with all item IDs
+	preloadItems(ctx, r, items)
 
 	var results []gqlmodel.SearchResultItem
-
-	for _, i := range searchResult.Result {
+	for _, i := range items {
 		switch i.Collection {
 		case "shows":
 			show, err := r.Show(ctx, strconv.Itoa(i.ID))
@@ -62,9 +53,25 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 			results = append(results, episode)
 		}
 	}
+	return results
+}
+
+func searchResolver(r *queryRootResolver, ctx context.Context, queryString string, first *int, offset *int) (*gqlmodel.SearchResult, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	searchResult, err := r.SearchService.Search(ginCtx, common.SearchQuery{
+		Query:  queryString,
+		Limit:  first,
+		Offset: offset,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &gqlmodel.SearchResult{
-		Result: results,
+		Result: filterAndConvertToGQL(ctx, r, searchResult.Result),
 		Page:   searchResult.Page,
 		Hits:   searchResult.HitCount,
 	}, nil
