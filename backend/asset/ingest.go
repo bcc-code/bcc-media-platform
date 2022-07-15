@@ -12,6 +12,7 @@ import (
 
 	"github.com/bcc-code/brunstadtv/backend/asset/smil"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -137,9 +138,10 @@ func GetLanguagesFromVideoElement(videoElement smil.Video) []directus.AssetStrea
 	systemLanguages = lo.Filter(systemLanguages, func(s string, _ int) bool { return s != "" })
 
 	for i := range systemLanguages {
+		langCode := utils.LegacyLanguageCodeTo639_1(systemLanguages[i])
 		languages = append(languages, directus.AssetStreamLanguage{
 			AssetStreamID: "+", // Directus requirement
-			LanguagesCode: directus.LanguagesCode{Code: systemLanguages[i]},
+			LanguagesCode: directus.LanguagesCode{Code: langCode},
 		})
 	}
 
