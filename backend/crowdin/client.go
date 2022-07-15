@@ -236,6 +236,23 @@ func (client *Client) getFileForCollection(project Project, directoryId int, col
 	return
 }
 
+func prepareStr(source string) string {
+	return strings.Trim(strings.ToLower(source), " \\\".!?;:'")
+}
+
+func strEqual(source string, compare string) bool {
+	trimSource := prepareStr(source)
+	trimCompare := prepareStr(compare)
+	return trimSource == trimCompare
+}
+
+func dbLanguage(language string) string {
+	if strings.Contains(language, "-") {
+		return strings.Split(language, "-")[0]
+	}
+	return language
+}
+
 func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, project Project, directoryId int, collection string, translations []simpleTranslation) error {
 	log.L.Debug().Int("project", project.ID).Str("collection", collection).Msg("Syncing collection")
 	projectId := project.ID
@@ -318,7 +335,7 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 		log.L.Debug().Str("language", language.ID).Msg("Syncing translations.")
 
 		existingTranslations := lo.Filter(translations, func(t simpleTranslation, _ int) bool {
-			return t.Language == language.ID
+			return t.Language == dbLanguage(language.ID)
 		})
 
 		log.L.Debug().Int("count", len(existingTranslations)).Msg("Found existing translations")
@@ -363,7 +380,7 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 				})
 				if !found {
 					item = &simpleTranslation{
-						Language: language.ID,
+						Language: dbLanguage(language.ID),
 						ParentID: int(objectId),
 					}
 				} else {
@@ -377,12 +394,12 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 			}
 			switch field {
 			case "title":
-				if item.Title != value {
+				if !strEqual(item.Title, value) {
 					item.Title = value
 					item.Changed = true
 				}
 			case "description":
-				if item.Description != value {
+				if !strEqual(item.Description, value) {
 					item.Description = value
 					item.Changed = true
 				}
