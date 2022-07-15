@@ -1,7 +1,6 @@
 package crowdin
 
 import (
-	"encoding/json"
 	"fmt"
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/mediabank-bridge/log"
@@ -197,9 +196,7 @@ func (client *Client) addStrings(projectId int, fileId int, strings []String) er
 func (client *Client) createFile(projectId int, directoryId int, title string, initialStrings []String) (file File, err error) {
 	content := ""
 	for _, s := range initialStrings {
-		identifier, _ := json.Marshal(s.Identifier)
-		text, _ := json.Marshal(s.Text)
-		content += fmt.Sprintf("%s,%s\n", identifier, text)
+		content += fmt.Sprintf("%s,%s\n", s.Identifier, "\""+crowdinString(s.Text)+"\"")
 	}
 	req := client.c.R()
 	req.SetHeader("Crowdin-API-FileName", fmt.Sprintf("%s.csv", title))

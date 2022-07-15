@@ -83,7 +83,7 @@ func getTranslationsForItem(ctx context.Context, d *directus.Handler, collection
 
 // HandleModelUpdate for triggering actions on object change
 func (client *Client) HandleModelUpdate(ctx context.Context, directusHandler *directus.Handler, collection string, id int) error {
-	if status, err := getStatusForItem(ctx, directusHandler, collection, id); err != nil || status != common.StatusPublished {
+	if status, err := getStatusForItem(ctx, directusHandler, collection, id); err != nil || status != "published" {
 		// Return error, else just ignore if not published
 		return err
 	}

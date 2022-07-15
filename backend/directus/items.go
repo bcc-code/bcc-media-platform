@@ -3,6 +3,7 @@ package directus
 import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"gopkg.in/guregu/null.v4"
 )
 
 // Item model
@@ -14,11 +15,13 @@ type Item struct {
 // Episode model
 type Episode struct {
 	Item
+	SeasonID null.Int `json:"season_id"`
 }
 
 // Season model
 type Season struct {
 	Item
+	ShowID int `json:"show_id"`
 }
 
 // Show model

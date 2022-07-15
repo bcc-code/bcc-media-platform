@@ -10,6 +10,7 @@ import (
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/go-resty/resty/v2"
 	"github.com/samber/lo"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -132,7 +133,7 @@ func convertTsToStrings(ts []simpleTranslation, prefix string) []String {
 			if value != "" {
 				stringObjects = append(stringObjects, String{
 					Identifier: fmt.Sprintf("%s-%d-%s", prefix, t.ParentID, key),
-					Text:       strings.Replace(value, "\"", "\\\"", -1),
+					Text:       value,
 				})
 			}
 		}
@@ -237,13 +238,22 @@ func (client *Client) getFileForCollection(project Project, directoryId int, col
 }
 
 func prepareStr(source string) string {
-	return strings.Trim(strings.ToLower(source), " \\\".!?;:'")
+	reg := regexp.MustCompile("[^a-zA-Z\\d]+")
+	return reg.ReplaceAllString(source, "")
 }
 
 func strEqual(source string, compare string) bool {
 	trimSource := prepareStr(source)
 	trimCompare := prepareStr(compare)
 	return trimSource == trimCompare
+}
+
+func dbString(source string) string {
+	return strings.Replace(source, "\"\"", "\"", -1)
+}
+
+func crowdinString(source string) string {
+	return strings.Replace(source, "\"", "\"\"", -1)
 }
 
 func dbLanguage(language string) string {
@@ -388,7 +398,7 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 				}
 				items = append(items, item)
 			}
-			value := t.Text
+			value := dbString(t.Text)
 			if value == "" {
 				continue
 			}
@@ -433,20 +443,16 @@ type hasStatus interface {
 	GetStatus() common.Status
 }
 
-func getPublishedDictionary[t hasStatus](items []t) map[int]bool {
+func getPublishedDictionary[t hasStatus](items []t, getParentValue func(t) bool) map[int]bool {
 	return lo.Reduce(items, func(dict map[int]bool, i t, _ int) map[int]bool {
-		dict[i.UID()] = i.GetStatus() == common.StatusPublished
+		dict[i.UID()] = getParentValue(i) && i.GetStatus() == common.StatusPublished
 		return dict
 	}, map[int]bool{})
 }
 
-func (client *Client) syncEpisodes(ctx context.Context, d *directus.Handler, project Project, directoryId int) error {
-	episodes, err := d.ListEpisodes(ctx)
-	if err != nil {
-		return err
-	}
-	published := getPublishedDictionary(episodes)
+func (client *Client) syncEpisodes(ctx context.Context, d *directus.Handler, published map[int]bool, project Project, directoryId int) error {
 	sourceTranslations, err := d.ListEpisodeTranslations(ctx, "", false, 0)
+
 	if err != nil {
 		return err
 	}
@@ -466,12 +472,7 @@ func (client *Client) syncEpisodes(ctx context.Context, d *directus.Handler, pro
 	return client.syncCollection(ctx, d, project, directoryId, "episodes", translations)
 }
 
-func (client *Client) syncSeasons(ctx context.Context, d *directus.Handler, project Project, directoryId int) error {
-	seasons, err := d.ListSeasons(ctx)
-	if err != nil {
-		return err
-	}
-	published := getPublishedDictionary(seasons)
+func (client *Client) syncSeasons(ctx context.Context, d *directus.Handler, published map[int]bool, project Project, directoryId int) error {
 	sourceTranslations, err := d.ListSeasonTranslations(ctx, "", false, 0)
 	if err != nil {
 		return err
@@ -492,12 +493,7 @@ func (client *Client) syncSeasons(ctx context.Context, d *directus.Handler, proj
 	return client.syncCollection(ctx, d, project, directoryId, "seasons", translations)
 }
 
-func (client *Client) syncShows(ctx context.Context, d *directus.Handler, project Project, directoryId int) error {
-	shows, err := d.ListShows(ctx)
-	if err != nil {
-		return err
-	}
-	published := getPublishedDictionary(shows)
+func (client *Client) syncShows(ctx context.Context, d *directus.Handler, published map[int]bool, project Project, directoryId int) error {
 	sourceTranslations, err := d.ListShowTranslations(ctx, "", false, 0)
 	if err != nil {
 		return err
@@ -546,15 +542,33 @@ func (client *Client) Sync(ctx context.Context, d *directus.Handler) error {
 			return err
 		}
 
-		err = client.syncEpisodes(ctx, d, project, directory.ID)
+		shows, err := d.ListShows(ctx)
 		if err != nil {
 			return err
 		}
-		err = client.syncSeasons(ctx, d, project, directory.ID)
+		publishedShows := getPublishedDictionary(shows, func(i directus.Show) bool { return true })
+		seasons, err := d.ListSeasons(ctx)
 		if err != nil {
 			return err
 		}
-		err = client.syncShows(ctx, d, project, directory.ID)
+		publishedSeasons := getPublishedDictionary(seasons, func(i directus.Season) bool { return publishedShows[i.ShowID] })
+		episodes, err := d.ListEpisodes(ctx)
+		if err != nil {
+			return err
+		}
+		publishedEpisodes := getPublishedDictionary(episodes, func(i directus.Episode) bool {
+			return !i.SeasonID.Valid || publishedSeasons[int(i.SeasonID.ValueOrZero())]
+		})
+
+		err = client.syncEpisodes(ctx, d, publishedEpisodes, project, directory.ID)
+		if err != nil {
+			return err
+		}
+		err = client.syncSeasons(ctx, d, publishedSeasons, project, directory.ID)
+		if err != nil {
+			return err
+		}
+		err = client.syncShows(ctx, d, publishedShows, project, directory.ID)
 		if err != nil {
 			return err
 		}
