@@ -26,6 +26,14 @@ func preloadItems(ctx context.Context, r *queryRootResolver, items []common.Sear
 	}
 }
 
+func filterOrAppend[t gqlmodel.SearchResultItem](ctx context.Context, results []gqlmodel.SearchResultItem, id int, factory func(context.Context, string) (*t, error)) []gqlmodel.SearchResultItem {
+	item, err := factory(ctx, strconv.Itoa(id))
+	if err != nil {
+		return results
+	}
+	return append(results, *item)
+}
+
 func filterAndConvertToGQL(ctx context.Context, r *queryRootResolver, items []common.SearchResultItem) []gqlmodel.SearchResultItem {
 	// Preload/fill query with all item IDs
 	preloadItems(ctx, r, items)
@@ -34,23 +42,11 @@ func filterAndConvertToGQL(ctx context.Context, r *queryRootResolver, items []co
 	for _, i := range items {
 		switch i.Collection {
 		case "shows":
-			show, err := r.Show(ctx, strconv.Itoa(i.ID))
-			if err != nil {
-				continue
-			}
-			results = append(results, show)
+			results = filterOrAppend(ctx, results, i.ID, r.Show)
 		case "seasons":
-			season, err := r.Season(ctx, strconv.Itoa(i.ID))
-			if err != nil {
-				continue
-			}
-			results = append(results, season)
+			results = filterOrAppend(ctx, results, i.ID, r.Season)
 		case "episodes":
-			episode, err := r.Episode(ctx, strconv.Itoa(i.ID))
-			if err != nil {
-				continue
-			}
-			results = append(results, episode)
+			results = filterOrAppend(ctx, results, i.ID, r.Episode)
 		}
 	}
 	return results
