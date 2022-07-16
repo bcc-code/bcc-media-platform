@@ -20,8 +20,13 @@ export async function createAssetstream(p, m, c) {
         VideoId: asset.legacy_id,
         IsVideoClip: false,
     }
-    if (p.type === "hls-cmaf") {
-        patch.EncodingType = "application/vnd.apple.mpegurl"
+    if (p.type === "hls-cmaf" && p.service.indexOf('mediapackage') !== -1) {
+        // Hacky solution for mediapackge to work.
+        // The app accepts application/vnd.apple.mpegurl
+        // or application/vnd.applev3.mpegurl.
+        // It proxies the vnd.apple.mpegurl ones through proxy.brunstad.tv
+        // But not the vnd.applev3.mpegurl ones.
+        patch.EncodingType = "application/vnd.applev3.mpegurl"
     } else if (p.type === "hls-ts") {
         patch.EncodingType = "application/vnd.apple.mpegurl"
     } else if (p.type === "dash") {
@@ -57,9 +62,18 @@ export async function updateAssetstream (p, m, c) {
         VideoId: asset.legacy_id,
         IsVideoClip: false,
     }
-
-    if (p.type === "hls-cmaf") {
-        patch.EncodingType = "application/vnd.apple.mpegurl"
+    let service = p.service;
+    if (!service) {
+        service = assetstreamBeforeUpdate.service;
+    }
+ 
+    if (p.type === "hls-cmaf" && p.service.indexOf('mediapackage') !== -1) {
+        // Hacky solution for mediapackge to work.
+        // The app accepts application/vnd.apple.mpegurl
+        // or application/vnd.applev3.mpegurl.
+        // It proxies the vnd.apple.mpegurl ones through proxy.brunstad.tv
+        // But not the vnd.applev3.mpegurl ones.
+        patch.EncodingType = "application/vnd.applev3.mpegurl"
     } else if (p.type === "hls-ts") {
         patch.EncodingType = "application/vnd.apple.mpegurl"
     } else if (p.type === "dash") {
