@@ -53,13 +53,15 @@ func (service *Service) Reindex(ctx context.Context) error {
 		return err
 	}
 
-	unsupportedLanguages := []string{"sl"}
-	supportedLanguages := lo.Filter(languages, func(l string, _ int) bool {
-		return !lo.Contains(unsupportedLanguages, l)
+	supportedLanguages := []string{"da", "de", "en", "es", "fi", "fr", "hu", "it", "nl", "no", "pl", "pt", "ro", "ru", "tr"}
+
+	languages = lo.Filter(languages, func(l string, _ int) bool {
+		return lo.Contains(supportedLanguages, l)
 	})
+
 	_, err = index.SetSettings(search.Settings{
-		IndexLanguages:        opt.IndexLanguages(supportedLanguages...),
-		QueryLanguages:        opt.QueryLanguages(supportedLanguages...),
+		IndexLanguages:        opt.IndexLanguages(languages...),
+		QueryLanguages:        opt.QueryLanguages(languages...),
 		SearchableAttributes:  searchableAttributes,
 		AttributesForFaceting: opt.AttributesForFaceting(service.getFilterFields()...),
 		HitsPerPage:           opt.HitsPerPage(hitsPerPage),
