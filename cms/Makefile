@@ -18,6 +18,7 @@ init:
 	npx directus bootstrap
 	mv extensions/.migrations extensions/migrations
 	make schema-update
+	cd ./custom && make init
 
 reset:
 	docker compose down -v

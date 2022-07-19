@@ -294,7 +294,7 @@ collections:
       color: null
       display_template: null
       group: page_management
-      hidden: true
+      hidden: false
       icon: collections_bookmark
       item_duplication_fields:
         - content
@@ -781,7 +781,7 @@ collections:
       color: null
       display_template: '{{code}}'
       group: page_management
-      hidden: true
+      hidden: false
       icon: pages
       item_duplication_fields: null
       note: null
@@ -875,9 +875,9 @@ collections:
       collapse: open
       collection: sections
       color: null
-      display_template: null
+      display_template: "{{id}}\_-\_{{translations}}"
       group: page_management
-      hidden: true
+      hidden: false
       icon: view_list
       item_duplication_fields: null
       note: null
@@ -8798,7 +8798,7 @@ fields:
     meta:
       collection: lists
       conditions: null
-      display: related-values
+      display: item-list
       display_options:
         template: '{{item:shows}}{{item:episodes}}{{item:shows.translations}}'
       field: relations
@@ -11320,6 +11320,89 @@ fields:
       is_unique: false
       max_length: null
       name: page
+      numeric_precision: 32
+      numeric_scale: 0
+      schema: public
+      table: sections
+    type: integer
+  - collection: sections
+    field: query_filter
+    meta:
+      collection: sections
+      conditions: null
+      display: null
+      display_options: null
+      field: query_filter
+      group: configuration
+      hidden: false
+      interface: query-builder
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 6
+      special:
+        - cast-json
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: json
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: query_filter
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: sections
+    type: json
+  - collection: sections
+    field: sort
+    meta:
+      collection: sections
+      conditions: null
+      display: null
+      display_options: null
+      field: sort
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 10
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: integer
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: sort
       numeric_precision: 32
       numeric_scale: 0
       schema: public
@@ -16326,7 +16409,7 @@ relations:
       one_collection_field: null
       one_deselect_action: nullify
       one_field: sections
-      sort_field: null
+      sort_field: sort
     related_collection: pages
     schema:
       column: page

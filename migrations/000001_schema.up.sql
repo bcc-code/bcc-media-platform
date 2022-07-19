@@ -2106,7 +2106,9 @@ CREATE TABLE public.sections (
     status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
     type character varying(255) DEFAULT 'collection'::character varying NOT NULL,
     user_created uuid,
-    user_updated uuid
+    user_updated uuid,
+    sort integer,
+    query_filter json
 );
 
 
