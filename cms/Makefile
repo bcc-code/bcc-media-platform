@@ -2,6 +2,7 @@
 
 build:
 	npm run build
+	cd ./custom && make build
 
 s:
 	make build
