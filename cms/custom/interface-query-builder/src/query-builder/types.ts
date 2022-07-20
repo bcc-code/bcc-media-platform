@@ -1,19 +1,12 @@
-export type Type = "group" | "filter"
+export type Operator = "==" | "!=" | "<" | ">" | "!"
 
-export type Operator = "eq" | "neq"
-
-export type Child = Group | Filter
-
-export type Group = {
-    type: "group";
-    name: string;
-    operator: "and" | "or";
-    children: Child[];
+export type FilterValue = string | {
+    [operator: string]: FilterValue | FilterValue[];
 }
 
-export type Filter = {
-    type: "filter";
-    property: string;
-    operator: Operator;
-    value: string;
+export type FieldType = "text" | "number" | "date" | "datetime";
+
+export type Field = {
+    type: FieldType;
+    name: string;
 }
