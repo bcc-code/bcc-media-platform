@@ -451,7 +451,8 @@ CREATE TABLE public.collections (
     show_id integer,
     sort integer,
     user_created uuid,
-    user_updated uuid
+    user_updated uuid,
+    query_filter json
 );
 
 
@@ -2107,8 +2108,7 @@ CREATE TABLE public.sections (
     type character varying(255) DEFAULT 'collection'::character varying NOT NULL,
     user_created uuid,
     user_updated uuid,
-    sort integer,
-    query_filter json
+    sort integer
 );
 
 
@@ -4121,7 +4121,7 @@ ALTER TABLE ONLY public.episodes_usergroups_earlyaccess
 --
 
 ALTER TABLE ONLY public.episodes_usergroups
-    ADD CONSTRAINT episodes_usergroups_episodes_id_foreign FOREIGN KEY (episodes_id) REFERENCES public.episodes(id);
+    ADD CONSTRAINT episodes_usergroups_episodes_id_foreign FOREIGN KEY (episodes_id) REFERENCES public.episodes(id) ON DELETE CASCADE;
 
 
 --
@@ -4129,7 +4129,7 @@ ALTER TABLE ONLY public.episodes_usergroups
 --
 
 ALTER TABLE ONLY public.episodes_usergroups
-    ADD CONSTRAINT episodes_usergroups_usergroups_code_foreign FOREIGN KEY (usergroups_code) REFERENCES public.usergroups(code);
+    ADD CONSTRAINT episodes_usergroups_usergroups_code_foreign FOREIGN KEY (usergroups_code) REFERENCES public.usergroups(code) ON DELETE CASCADE;
 
 
 --

@@ -4806,7 +4806,7 @@ fields:
             value: az
       readonly: false
       required: false
-      sort: 5
+      sort: 4
       special: null
       translations: null
       validation: null
@@ -4882,6 +4882,48 @@ fields:
       table: collections
     type: integer
   - collection: collections
+    field: query_filter
+    meta:
+      collection: collections
+      conditions: null
+      display: null
+      display_options: null
+      field: query_filter
+      group: config
+      hidden: false
+      interface: query-builder
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 6
+      special:
+        - cast-json
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: json
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: query_filter
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: collections
+    type: json
+  - collection: collections
     field: show_episodes_in_section
     meta:
       collection: collections
@@ -4903,7 +4945,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 6
+      sort: 5
       special:
         - cast-boolean
       translations: null
@@ -5091,7 +5133,7 @@ fields:
         template: '{{translations}}'
       readonly: false
       required: false
-      sort: null
+      sort: 9
       special:
         - o2m
       translations: null
@@ -11326,48 +11368,6 @@ fields:
       table: sections
     type: integer
   - collection: sections
-    field: query_filter
-    meta:
-      collection: sections
-      conditions: null
-      display: null
-      display_options: null
-      field: query_filter
-      group: configuration
-      hidden: false
-      interface: query-builder
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 6
-      special:
-        - cast-json
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: json
-      default_value: null
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: query_filter
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: sections
-    type: json
-  - collection: sections
     field: sort
     meta:
       collection: sections
@@ -15731,7 +15731,7 @@ relations:
       one_allowed_collections: null
       one_collection: seasons
       one_collection_field: null
-      one_deselect_action: nullify
+      one_deselect_action: delete
       one_field: episodes
       sort_field: null
     related_collection: seasons
@@ -15939,7 +15939,7 @@ relations:
       foreign_key_column: id
       foreign_key_schema: public
       foreign_key_table: episodes
-      on_delete: NO ACTION
+      on_delete: CASCADE
       on_update: NO ACTION
       table: episodes_usergroups
   - collection: episodes_usergroups
@@ -15961,7 +15961,7 @@ relations:
       foreign_key_column: code
       foreign_key_schema: public
       foreign_key_table: usergroups
-      on_delete: NO ACTION
+      on_delete: CASCADE
       on_update: NO ACTION
       table: episodes_usergroups
   - collection: episodes_usergroups_download
