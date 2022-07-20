@@ -1,5 +1,6 @@
 <template>
-	<Filter v-if="!loading && value" :value="value" :fields="episodeFields" @update:value="handleChange" @delete="handleChange(null)" />
+	<Filter v-if="!loading && value?.filter" :value="value?.filter" :fields="episodeFields" @update:value="handleChange"
+		@delete="handleChange(null)" />
 	<div v-else>
 		<button @click="clearGroup()">Create filter</button>
 	</div>
@@ -10,26 +11,28 @@
 import { v4 as uuid } from "uuid";
 import { FilterValue, Field as TField } from "./query-builder/types";
 import Filter from "./query-builder/Filter.vue";
-import {useApi} from "@directus/extensions-sdk";
+import { useApi } from "@directus/extensions-sdk";
 import { Field } from "@directus/shared/types";
 import { defineComponent } from "vue";
 
-type Root = FilterValue & {
+type Root = {
 	id: string;
+	filter: FilterValue;
 }
 
 defineProps<{
-	value: FilterValue;
+	value: Root;
 }>();
 
-const emit = defineEmits<{(e: "input", value: FilterValue | null)}>()
+const emit = defineEmits<{ (e: "input", value: Root | null) }>()
 
-function handleChange(value: FilterValue | null): void {
-	if (value) {
+function handleChange(filter: FilterValue | null): void {
+	if (filter) {
 		// Adding an ID on every change to ensure directus picks up on edits
-		const root: Root = Object.assign({}, value, {
+		const root: Root = {
 			id: uuid(),
-		})
+			filter: filter,
+		}
 		emit('input', root);
 	} else {
 		emit('input', null);
@@ -65,10 +68,9 @@ export default defineComponent({
 			dateTime: "datetime-local",
 		}
 
-		for (const field of fields) { 
+		for (const field of fields) {
 			if (field.collection === "episodes" && !field.meta?.hidden) {
 				if (!Object.keys(types).includes(field.type)) {
-					console.log(field.type);
 					continue;
 				}
 
@@ -78,7 +80,7 @@ export default defineComponent({
 				} as TField)
 			}
 		}
-	
+
 		this.loading = false;
 	}
 })
