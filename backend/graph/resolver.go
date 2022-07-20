@@ -30,13 +30,16 @@ type Resolver struct {
 
 // BatchLoaders is a collection of GQL dataloaders
 type BatchLoaders struct {
-	ShowLoader     *dataloader.Loader[int, *sqlc.ShowExpanded]
-	SeasonLoader   *dataloader.Loader[int, *sqlc.SeasonExpanded]
-	EpisodeLoader  *dataloader.Loader[int, *sqlc.EpisodeExpanded]
-	SeasonsLoader  *dataloader.Loader[int, []*sqlc.SeasonExpanded]
-	EpisodesLoader *dataloader.Loader[int, []*sqlc.EpisodeExpanded]
-	FilesLoader    *dataloader.Loader[int, []*sqlc.GetFilesForEpisodesRow]
-	StreamsLoader  *dataloader.Loader[int, []*sqlc.GetStreamsForEpisodesRow]
+	PageLoader       *dataloader.Loader[int, *sqlc.Page]
+	SectionLoader    *dataloader.Loader[int, *sqlc.SectionExpanded]
+	CollectionLoader *dataloader.Loader[int, *sqlc.CollectionExpanded]
+	ShowLoader       *dataloader.Loader[int, *sqlc.ShowExpanded]
+	SeasonLoader     *dataloader.Loader[int, *sqlc.SeasonExpanded]
+	EpisodeLoader    *dataloader.Loader[int, *sqlc.EpisodeExpanded]
+	SeasonsLoader    *dataloader.Loader[int, []*sqlc.SeasonExpanded]
+	EpisodesLoader   *dataloader.Loader[int, []*sqlc.EpisodeExpanded]
+	FilesLoader      *dataloader.Loader[int, []*sqlc.GetFilesForEpisodesRow]
+	StreamsLoader    *dataloader.Loader[int, []*sqlc.GetStreamsForEpisodesRow]
 }
 
 type restrictedItem interface {

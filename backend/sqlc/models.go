@@ -121,17 +121,18 @@ type Category struct {
 }
 
 type Collection struct {
-	Content               string         `db:"content" json:"content"`
-	DateCreated           time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated           time.Time      `db:"date_updated" json:"dateUpdated"`
-	ID                    int32          `db:"id" json:"id"`
-	LegacyOrderBy         null_v4.String `db:"legacy_order_by" json:"legacyOrderBy"`
-	ListID                null_v4.Int    `db:"list_id" json:"listID"`
-	ShowEpisodesInSection sql.NullBool   `db:"show_episodes_in_section" json:"showEpisodesInSection"`
-	ShowID                null_v4.Int    `db:"show_id" json:"showID"`
-	Sort                  null_v4.Int    `db:"sort" json:"sort"`
-	UserCreated           uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated           uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	Content               string                `db:"content" json:"content"`
+	DateCreated           time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated           time.Time             `db:"date_updated" json:"dateUpdated"`
+	ID                    int32                 `db:"id" json:"id"`
+	LegacyOrderBy         null_v4.String        `db:"legacy_order_by" json:"legacyOrderBy"`
+	ListID                null_v4.Int           `db:"list_id" json:"listID"`
+	ShowEpisodesInSection sql.NullBool          `db:"show_episodes_in_section" json:"showEpisodesInSection"`
+	ShowID                null_v4.Int           `db:"show_id" json:"showID"`
+	Sort                  null_v4.Int           `db:"sort" json:"sort"`
+	UserCreated           uuid.NullUUID         `db:"user_created" json:"userCreated"`
+	UserUpdated           uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	QueryFilter           pqtype.NullRawMessage `db:"query_filter" json:"queryFilter"`
 }
 
 type CollectionsEpisode struct {
@@ -139,6 +140,13 @@ type CollectionsEpisode struct {
 	EpisodesID    null_v4.Int `db:"episodes_id" json:"episodesID"`
 	ID            int32       `db:"id" json:"id"`
 	Sort          null_v4.Int `db:"sort" json:"sort"`
+}
+
+type CollectionsExpanded struct {
+	ID          int32           `db:"id" json:"id"`
+	DateCreated time.Time       `db:"date_created" json:"dateCreated"`
+	DateUpdated time.Time       `db:"date_updated" json:"dateUpdated"`
+	Title       json.RawMessage `db:"title" json:"title"`
 }
 
 type CollectionsRelation struct {
@@ -736,6 +744,18 @@ type Section struct {
 	Type            string         `db:"type" json:"type"`
 	UserCreated     uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated     uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	Sort            null_v4.Int    `db:"sort" json:"sort"`
+}
+
+type SectionsExpanded struct {
+	ID           int32           `db:"id" json:"id"`
+	Page         int32           `db:"page" json:"page"`
+	Type         string          `db:"type" json:"type"`
+	Published    bool            `db:"published" json:"published"`
+	DateCreated  time.Time       `db:"date_created" json:"dateCreated"`
+	DateUpdated  time.Time       `db:"date_updated" json:"dateUpdated"`
+	CollectionID null_v4.Int     `db:"collection_id" json:"collectionID"`
+	Title        json.RawMessage `db:"title" json:"title"`
 }
 
 type SectionsTranslation struct {

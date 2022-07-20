@@ -495,6 +495,41 @@ ALTER SEQUENCE public.collections_episodes_id_seq OWNED BY public.collections_ep
 
 
 --
+-- Name: collections_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.collections_translations (
+    collections_id integer NOT NULL,
+    id integer NOT NULL,
+    languages_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    title character varying(255) DEFAULT NULL::character varying
+);
+
+
+ALTER TABLE public.collections_translations OWNER TO btv;
+
+--
+-- Name: collections_expanded; Type: VIEW; Schema: public; Owner: btv
+--
+
+CREATE VIEW public.collections_expanded AS
+ WITH t AS (
+         SELECT t_1.collections_id,
+            json_object_agg(t_1.languages_code, t_1.title) AS title
+           FROM public.collections_translations t_1
+          GROUP BY t_1.collections_id
+        )
+ SELECT c.id,
+    c.date_created,
+    c.date_updated,
+    t.title
+   FROM (public.collections c
+     JOIN t ON ((c.id = t.collections_id)));
+
+
+ALTER TABLE public.collections_expanded OWNER TO btv;
+
+--
 -- Name: collections_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
@@ -621,20 +656,6 @@ ALTER TABLE public.collections_shows_id_seq OWNER TO btv;
 
 ALTER SEQUENCE public.collections_shows_id_seq OWNED BY public.collections_shows.id;
 
-
---
--- Name: collections_translations; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.collections_translations (
-    collections_id integer NOT NULL,
-    id integer NOT NULL,
-    languages_code character varying(255) DEFAULT NULL::character varying NOT NULL,
-    title character varying(255) DEFAULT NULL::character varying
-);
-
-
-ALTER TABLE public.collections_translations OWNER TO btv;
 
 --
 -- Name: collections_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
@@ -2115,6 +2136,46 @@ CREATE TABLE public.sections (
 ALTER TABLE public.sections OWNER TO btv;
 
 --
+-- Name: sections_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.sections_translations (
+    id integer NOT NULL,
+    languages_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    legacy_title_id integer,
+    sections_id integer NOT NULL,
+    title character varying(255) DEFAULT NULL::character varying NOT NULL
+);
+
+
+ALTER TABLE public.sections_translations OWNER TO btv;
+
+--
+-- Name: sections_expanded; Type: VIEW; Schema: public; Owner: btv
+--
+
+CREATE VIEW public.sections_expanded AS
+ WITH t AS (
+         SELECT t_1.sections_id,
+            json_object_agg(t_1.languages_code, t_1.title) AS title
+           FROM public.sections_translations t_1
+          GROUP BY t_1.sections_id
+        )
+ SELECT s.id,
+    s.page,
+    s.type,
+    ((s.status)::text = 'published'::text) AS published,
+    s.date_created,
+    s.date_updated,
+    s.collection_id,
+    t.title
+   FROM (public.sections s
+     JOIN t ON ((s.id = t.sections_id)));
+
+
+ALTER TABLE public.sections_expanded OWNER TO btv;
+
+--
 -- Name: sections_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
@@ -2135,21 +2196,6 @@ ALTER TABLE public.sections_id_seq OWNER TO btv;
 
 ALTER SEQUENCE public.sections_id_seq OWNED BY public.sections.id;
 
-
---
--- Name: sections_translations; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.sections_translations (
-    id integer NOT NULL,
-    languages_code character varying(255) DEFAULT NULL::character varying NOT NULL,
-    legacy_title_id integer,
-    sections_id integer NOT NULL,
-    title character varying(255) DEFAULT NULL::character varying NOT NULL
-);
-
-
-ALTER TABLE public.sections_translations OWNER TO btv;
 
 --
 -- Name: sections_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
