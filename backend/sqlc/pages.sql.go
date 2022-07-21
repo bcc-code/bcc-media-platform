@@ -12,10 +12,10 @@ import (
 )
 
 const getPages = `-- name: GetPages :many
-SELECT code, date_created, date_updated, id, sort, status, system_page, user_created, user_updated FROM pages WHERE id = ANY ($1::int[])
+SELECT code, date_created, date_updated, id, sort, status, system_page, user_created, user_updated, type, episode_id, show_id FROM pages WHERE code = ANY ($1::varchar[])
 `
 
-func (q *Queries) GetPages(ctx context.Context, dollar_1 []int32) ([]Page, error) {
+func (q *Queries) GetPages(ctx context.Context, dollar_1 []string) ([]Page, error) {
 	rows, err := q.db.QueryContext(ctx, getPages, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
@@ -34,6 +34,49 @@ func (q *Queries) GetPages(ctx context.Context, dollar_1 []int32) ([]Page, error
 			&i.SystemPage,
 			&i.UserCreated,
 			&i.UserUpdated,
+			&i.Type,
+			&i.EpisodeID,
+			&i.ShowID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPages = `-- name: ListPages :many
+SELECT code, date_created, date_updated, id, sort, status, system_page, user_created, user_updated, type, episode_id, show_id FROM pages
+`
+
+func (q *Queries) ListPages(ctx context.Context) ([]Page, error) {
+	rows, err := q.db.QueryContext(ctx, listPages)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Page
+	for rows.Next() {
+		var i Page
+		if err := rows.Scan(
+			&i.Code,
+			&i.DateCreated,
+			&i.DateUpdated,
+			&i.ID,
+			&i.Sort,
+			&i.Status,
+			&i.SystemPage,
+			&i.UserCreated,
+			&i.UserUpdated,
+			&i.Type,
+			&i.EpisodeID,
+			&i.ShowID,
 		); err != nil {
 			return nil, err
 		}

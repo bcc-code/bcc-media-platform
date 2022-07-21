@@ -645,6 +645,9 @@ type Page struct {
 	SystemPage  sql.NullBool   `db:"system_page" json:"systemPage"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	Type        null_v4.String `db:"type" json:"type"`
+	EpisodeID   null_v4.Int    `db:"episode_id" json:"episodeID"`
+	ShowID      null_v4.Int    `db:"show_id" json:"showID"`
 }
 
 type Season struct {

@@ -1,2 +1,5 @@
 -- name: GetPages :many
-SELECT * FROM pages WHERE id = ANY ($1::int[]);
+SELECT * FROM pages WHERE code = ANY ($1::varchar[]);
+
+-- name: ListPages :many
+SELECT * FROM pages;

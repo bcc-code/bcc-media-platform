@@ -19,7 +19,7 @@ type ShowPage implements Page{
     first: Int!
     after: Cursor
   ): SectionConnection!
-  show: Show
+  show: Show @goField(forceResolver: true)
 }
 
 type EpisodePage implements Page{
@@ -30,17 +30,15 @@ type EpisodePage implements Page{
     first: Int!
     after: Cursor
   ): SectionConnection!
-  episode: Episode
+  episode: Episode @goField(forceResolver: true)
 }
 
 type PaginationInfo{
-  id: ID!
   endCursor: Cursor!
   hasNextPage: Boolean!
 }
 
 type SectionConnection{
-  id: ID!
   edges: [SectionEdge!]!
   pageInfo: PaginationInfo!
   cursor: Cursor!
@@ -260,6 +258,11 @@ type QueryRoot{
   page(
     id: ID!
   ): Page
+
+  pages(
+    first: Int
+    offset: Int
+  ): [Page!]!
 
   episode(
     id: ID!

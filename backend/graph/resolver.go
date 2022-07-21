@@ -30,7 +30,7 @@ type Resolver struct {
 
 // BatchLoaders is a collection of GQL dataloaders
 type BatchLoaders struct {
-	PageLoader       *dataloader.Loader[int, *sqlc.Page]
+	PageLoader       *dataloader.Loader[string, *sqlc.Page]
 	SectionLoader    *dataloader.Loader[int, *sqlc.SectionExpanded]
 	CollectionLoader *dataloader.Loader[int, *sqlc.CollectionExpanded]
 	ShowLoader       *dataloader.Loader[int, *sqlc.ShowExpanded]
@@ -48,34 +48,46 @@ type restrictedItem interface {
 }
 
 // resolverFor returns a resolver for the specified item
-func resolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id k, loader *dataloader.Loader[k, *t], converter func(context.Context, *t) *r) (*r, error) {
+func resolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id k, loader *dataloader.Loader[k, *t], converter func(context.Context, *t) r) (res r, err error) {
 	obj, err := common.GetFromLoaderByID(ctx, loader, id)
 	if err != nil {
-		return nil, err
+		return res, err
 	}
 	if obj == nil {
-		return nil, merry.Sentinel("item not found")
+		return res, merry.Sentinel("item not found")
 	}
 
 	err = user.ValidateAccess(ctx, *obj)
 	if err != nil {
-		return nil, err
+		return res, err
+	}
+
+	return converter(ctx, obj), nil
+}
+
+func resolverWithoutAccessValidationFor[k comparable, t any, r any](ctx context.Context, id k, loader *dataloader.Loader[k, *t], converter func(context.Context, *t) r) (res r, err error) {
+	obj, err := common.GetFromLoaderByID(ctx, loader, id)
+	if err != nil {
+		return res, err
+	}
+	if obj == nil {
+		return res, merry.Sentinel("item not found")
 	}
 
 	return converter(ctx, obj), nil
 }
 
 // resolverForIntID returns a resolver for items with ints as keys
-func resolverForIntID[t restrictedItem, r any](ctx context.Context, id string, loader *dataloader.Loader[int, *t], converter func(context.Context, *t) *r) (*r, error) {
+func resolverForIntID[t restrictedItem, r any](ctx context.Context, id string, loader *dataloader.Loader[int, *t], converter func(context.Context, *t) r) (res r, err error) {
 	intID, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
-		return nil, err
+		return res, err
 	}
 
 	return resolverFor(ctx, int(intID), loader, converter)
 }
 
-func itemsResolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id k, loader *dataloader.Loader[k, []*t], converter func(context.Context, *t) *r) ([]*r, error) {
+func itemsResolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id k, loader *dataloader.Loader[k, []*t], converter func(context.Context, *t) r) ([]r, error) {
 	items, err := common.GetFromLoaderForKey(ctx, loader, id)
 	if err != nil {
 		return nil, err
@@ -87,7 +99,7 @@ func itemsResolverFor[k comparable, t restrictedItem, r any](ctx context.Context
 	}), converter), nil
 }
 
-func itemsResolverForIntID[t restrictedItem, r any](ctx context.Context, id string, loader *dataloader.Loader[int, []*t], converter func(context.Context, *t) *r) ([]*r, error) {
+func itemsResolverForIntID[t restrictedItem, r any](ctx context.Context, id string, loader *dataloader.Loader[int, []*t], converter func(context.Context, *t) r) ([]r, error) {
 	intID, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return nil, err

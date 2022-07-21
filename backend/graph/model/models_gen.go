@@ -152,7 +152,6 @@ type PageItem struct {
 func (PageItem) IsItem() {}
 
 type PaginationInfo struct {
-	ID          string `json:"id"`
 	EndCursor   string `json:"endCursor"`
 	HasNextPage bool   `json:"hasNextPage"`
 }
@@ -175,7 +174,6 @@ type Season struct {
 func (Season) IsSearchResultItem() {}
 
 type SectionConnection struct {
-	ID       string          `json:"id"`
 	Edges    []*SectionEdge  `json:"edges"`
 	PageInfo *PaginationInfo `json:"pageInfo"`
 	Cursor   string          `json:"cursor"`

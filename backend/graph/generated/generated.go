@@ -37,9 +37,11 @@ type Config struct {
 
 type ResolverRoot interface {
 	Episode() EpisodeResolver
+	EpisodePage() EpisodePageResolver
 	QueryRoot() QueryRootResolver
 	Season() SeasonResolver
 	Show() ShowResolver
+	ShowPage() ShowPageResolver
 }
 
 type DirectiveRoot struct {
@@ -158,7 +160,6 @@ type ComplexityRoot struct {
 	PaginationInfo struct {
 		EndCursor   func(childComplexity int) int
 		HasNextPage func(childComplexity int) int
-		ID          func(childComplexity int) int
 	}
 
 	QueryRoot struct {
@@ -168,6 +169,7 @@ type ComplexityRoot struct {
 		Event    func(childComplexity int, id string) int
 		Me       func(childComplexity int) int
 		Page     func(childComplexity int, id string) int
+		Pages    func(childComplexity int, first *int, offset *int) int
 		Search   func(childComplexity int, queryString string, first *int, offset *int) int
 		Season   func(childComplexity int, id string) int
 		Section  func(childComplexity int, id string) int
@@ -192,7 +194,6 @@ type ComplexityRoot struct {
 	SectionConnection struct {
 		Cursor   func(childComplexity int) int
 		Edges    func(childComplexity int) int
-		ID       func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -267,8 +268,12 @@ type EpisodeResolver interface {
 
 	Season(ctx context.Context, obj *gqlmodel.Episode) (*gqlmodel.Season, error)
 }
+type EpisodePageResolver interface {
+	Episode(ctx context.Context, obj *gqlmodel.EpisodePage) (*gqlmodel.Episode, error)
+}
 type QueryRootResolver interface {
 	Page(ctx context.Context, id string) (gqlmodel.Page, error)
+	Pages(ctx context.Context, first *int, offset *int) ([]gqlmodel.Page, error)
 	Episode(ctx context.Context, id string) (*gqlmodel.Episode, error)
 	Season(ctx context.Context, id string) (*gqlmodel.Season, error)
 	Show(ctx context.Context, id string) (*gqlmodel.Show, error)
@@ -285,6 +290,9 @@ type SeasonResolver interface {
 }
 type ShowResolver interface {
 	Seasons(ctx context.Context, obj *gqlmodel.Show) ([]*gqlmodel.Season, error)
+}
+type ShowPageResolver interface {
+	Show(ctx context.Context, obj *gqlmodel.ShowPage) (*gqlmodel.Show, error)
 }
 
 type executableSchema struct {
@@ -779,13 +787,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PaginationInfo.HasNextPage(childComplexity), true
 
-	case "PaginationInfo.id":
-		if e.complexity.PaginationInfo.ID == nil {
-			break
-		}
-
-		return e.complexity.PaginationInfo.ID(childComplexity), true
-
 	case "QueryRoot.allFAQs":
 		if e.complexity.QueryRoot.AllFAQs == nil {
 			break
@@ -842,6 +843,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.QueryRoot.Page(childComplexity, args["id"].(string)), true
+
+	case "QueryRoot.pages":
+		if e.complexity.QueryRoot.Pages == nil {
+			break
+		}
+
+		args, err := ec.field_QueryRoot_pages_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.Pages(childComplexity, args["first"].(*int), args["offset"].(*int)), true
 
 	case "QueryRoot.search":
 		if e.complexity.QueryRoot.Search == nil {
@@ -967,13 +980,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SectionConnection.Edges(childComplexity), true
-
-	case "SectionConnection.id":
-		if e.complexity.SectionConnection.ID == nil {
-			break
-		}
-
-		return e.complexity.SectionConnection.ID(childComplexity), true
 
 	case "SectionConnection.pageInfo":
 		if e.complexity.SectionConnection.PageInfo == nil {
@@ -1319,7 +1325,7 @@ type ShowPage implements Page{
     first: Int!
     after: Cursor
   ): SectionConnection!
-  show: Show
+  show: Show @goField(forceResolver: true)
 }
 
 type EpisodePage implements Page{
@@ -1330,17 +1336,15 @@ type EpisodePage implements Page{
     first: Int!
     after: Cursor
   ): SectionConnection!
-  episode: Episode
+  episode: Episode @goField(forceResolver: true)
 }
 
 type PaginationInfo{
-  id: ID!
   endCursor: Cursor!
   hasNextPage: Boolean!
 }
 
 type SectionConnection{
-  id: ID!
   edges: [SectionEdge!]!
   pageInfo: PaginationInfo!
   cursor: Cursor!
@@ -1561,6 +1565,11 @@ type QueryRoot{
     id: ID!
   ): Page
 
+  pages(
+    first: Int
+    offset: Int
+  ): [Page!]!
+
   episode(
     id: ID!
   ): Episode
@@ -1716,6 +1725,30 @@ func (ec *executionContext) field_QueryRoot_page_args(ctx context.Context, rawAr
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_QueryRoot_pages_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
 	return args, nil
 }
 
@@ -3600,8 +3633,6 @@ func (ec *executionContext) fieldContext_EpisodePage_sections(ctx context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_SectionConnection_id(ctx, field)
 			case "edges":
 				return ec.fieldContext_SectionConnection_edges(ctx, field)
 			case "pageInfo":
@@ -3640,7 +3671,7 @@ func (ec *executionContext) _EpisodePage_episode(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Episode, nil
+		return ec.resolvers.EpisodePage().Episode(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3658,8 +3689,8 @@ func (ec *executionContext) fieldContext_EpisodePage_episode(ctx context.Context
 	fc = &graphql.FieldContext{
 		Object:     "EpisodePage",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -4838,50 +4869,6 @@ func (ec *executionContext) fieldContext_PageItem_page(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _PaginationInfo_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PaginationInfo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PaginationInfo_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PaginationInfo_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PaginationInfo",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _PaginationInfo_endCursor(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PaginationInfo) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PaginationInfo_endCursor(ctx, field)
 	if err != nil {
@@ -5016,6 +5003,61 @@ func (ec *executionContext) fieldContext_QueryRoot_page(ctx context.Context, fie
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_QueryRoot_page_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_pages(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_pages(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().Pages(rctx, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.Page)
+	fc.Result = res
+	return ec.marshalNPage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPageᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_pages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_pages_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -6135,50 +6177,6 @@ func (ec *executionContext) fieldContext_Season_episodes(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _SectionConnection_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SectionConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SectionConnection_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SectionConnection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SectionConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _SectionConnection_edges(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SectionConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SectionConnection_edges(ctx, field)
 	if err != nil {
@@ -6268,8 +6266,6 @@ func (ec *executionContext) fieldContext_SectionConnection_pageInfo(ctx context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_PaginationInfo_id(ctx, field)
 			case "endCursor":
 				return ec.fieldContext_PaginationInfo_endCursor(ctx, field)
 			case "hasNextPage":
@@ -6944,8 +6940,6 @@ func (ec *executionContext) fieldContext_ShowPage_sections(ctx context.Context, 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_SectionConnection_id(ctx, field)
 			case "edges":
 				return ec.fieldContext_SectionConnection_edges(ctx, field)
 			case "pageInfo":
@@ -6984,7 +6978,7 @@ func (ec *executionContext) _ShowPage_show(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Show, nil
+		return ec.resolvers.ShowPage().Show(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7002,8 +6996,8 @@ func (ec *executionContext) fieldContext_ShowPage_show(ctx context.Context, fiel
 	fc = &graphql.FieldContext{
 		Object:     "ShowPage",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -10349,7 +10343,7 @@ func (ec *executionContext) _EpisodePage(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._EpisodePage_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 
@@ -10364,12 +10358,25 @@ func (ec *executionContext) _EpisodePage(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._EpisodePage_sections(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "episode":
+			field := field
 
-			out.Values[i] = ec._EpisodePage_episode(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._EpisodePage_episode(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -10684,13 +10691,6 @@ func (ec *executionContext) _PaginationInfo(ctx context.Context, sel ast.Selecti
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("PaginationInfo")
-		case "id":
-
-			out.Values[i] = ec._PaginationInfo_id(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "endCursor":
 
 			out.Values[i] = ec._PaginationInfo_endCursor(ctx, field, obj)
@@ -10745,6 +10745,29 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._QueryRoot_page(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "pages":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_pages(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -11108,13 +11131,6 @@ func (ec *executionContext) _SectionConnection(ctx context.Context, sel ast.Sele
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SectionConnection")
-		case "id":
-
-			out.Values[i] = ec._SectionConnection_id(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "edges":
 
 			out.Values[i] = ec._SectionConnection_edges(ctx, field, obj)
@@ -11308,7 +11324,7 @@ func (ec *executionContext) _ShowPage(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = ec._ShowPage_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 
@@ -11323,12 +11339,25 @@ func (ec *executionContext) _ShowPage(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = ec._ShowPage_sections(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "show":
+			field := field
 
-			out.Values[i] = ec._ShowPage_show(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ShowPage_show(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12466,6 +12495,50 @@ func (ec *executionContext) marshalNPage2githubᚗcomᚋbccᚑcodeᚋbrunstadtv�
 		return graphql.Null
 	}
 	return ec._Page(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPageᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Page) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPage(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNPaginationInfo2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPaginationInfo(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PaginationInfo) graphql.Marshaler {

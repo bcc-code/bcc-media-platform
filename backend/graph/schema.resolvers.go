@@ -6,6 +6,7 @@ package graph
 import (
 	"context"
 	"fmt"
+
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
@@ -41,8 +42,18 @@ func (r *episodeResolver) Season(ctx context.Context, obj *gqlmodel.Episode) (*g
 	return nil, nil
 }
 
+// Episode is the resolver for the episode field.
+func (r *episodePageResolver) Episode(ctx context.Context, obj *gqlmodel.EpisodePage) (*gqlmodel.Episode, error) {
+	return r.QueryRoot().Episode(ctx, obj.Episode.ID)
+}
+
 // Page is the resolver for the page field.
 func (r *queryRootResolver) Page(ctx context.Context, id string) (gqlmodel.Page, error) {
+	return resolverWithoutAccessValidationFor(ctx, id, r.Loaders.PageLoader, gqlmodel.PageFromSQL)
+}
+
+// Pages is the resolver for the pages field.
+func (r *queryRootResolver) Pages(ctx context.Context, first *int, offset *int) ([]gqlmodel.Page, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
@@ -131,8 +142,16 @@ func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show) ([]*gqlm
 	return itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.SeasonsLoader, gqlmodel.SeasonFromSQL)
 }
 
+// Show is the resolver for the show field.
+func (r *showPageResolver) Show(ctx context.Context, obj *gqlmodel.ShowPage) (*gqlmodel.Show, error) {
+	return r.QueryRoot().Show(ctx, obj.Show.ID)
+}
+
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
+
+// EpisodePage returns generated.EpisodePageResolver implementation.
+func (r *Resolver) EpisodePage() generated.EpisodePageResolver { return &episodePageResolver{r} }
 
 // QueryRoot returns generated.QueryRootResolver implementation.
 func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
@@ -143,7 +162,12 @@ func (r *Resolver) Season() generated.SeasonResolver { return &seasonResolver{r}
 // Show returns generated.ShowResolver implementation.
 func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
 
+// ShowPage returns generated.ShowPageResolver implementation.
+func (r *Resolver) ShowPage() generated.ShowPageResolver { return &showPageResolver{r} }
+
 type episodeResolver struct{ *Resolver }
+type episodePageResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
 type seasonResolver struct{ *Resolver }
 type showResolver struct{ *Resolver }
+type showPageResolver struct{ *Resolver }
