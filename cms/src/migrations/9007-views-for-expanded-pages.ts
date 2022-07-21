@@ -36,10 +36,14 @@ module.exports = {
 	async up(k : Knex) {
 		await k.raw(sections_expanded_sql)
 		await k.raw(collections_expanded_sql)
+        // create index on code
+        await k.raw(`create unique index pages_code_uindex
+        on pages (code);`)
 	},
 
 	async down(k : Knex) {
 		await k.raw(`DROP VIEW sections_expanded`)
 		await k.raw(`DROP VIEW collections_expanded`)
+        await k.raw(`drop index pages_code_uindex`)
 	}
 }

@@ -1879,7 +1879,10 @@ CREATE TABLE public.pages (
     status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
     system_page boolean DEFAULT false,
     user_created uuid,
-    user_updated uuid
+    user_updated uuid,
+    type character varying(255),
+    episode_id integer,
+    show_id integer
 );
 
 
@@ -3493,6 +3496,13 @@ CREATE UNIQUE INDEX episodes_access_idx ON public.episodes_access USING btree (i
 
 
 --
+-- Name: pages_code_uindex; Type: INDEX; Schema: public; Owner: btv
+--
+
+CREATE UNIQUE INDEX pages_code_uindex ON public.pages USING btree (code);
+
+
+--
 -- Name: seasons_access_idx; Type: INDEX; Schema: public; Owner: btv
 --
 
@@ -4200,6 +4210,22 @@ ALTER TABLE ONLY public.lists
 
 ALTER TABLE ONLY public.lists
     ADD CONSTRAINT lists_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: pages pages_episode_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.pages
+    ADD CONSTRAINT pages_episode_id_foreign FOREIGN KEY (episode_id) REFERENCES public.episodes(id) ON DELETE SET NULL;
+
+
+--
+-- Name: pages pages_show_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.pages
+    ADD CONSTRAINT pages_show_id_foreign FOREIGN KEY (show_id) REFERENCES public.shows(id) ON DELETE SET NULL;
 
 
 --
