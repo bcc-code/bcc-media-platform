@@ -2,7 +2,7 @@
 	<Filter v-if="!loading && value?.filter" :value="value?.filter" :fields="episodeFields" @update:value="handleChange"
 		@delete="handleChange(null)" />
 	<div v-else>
-		<button @click="clearGroup()">Create filter</button>
+		<VButton @click="clearGroup()">Create filter</VButton>
 	</div>
 	<div v-if="loading">LOADING</div>
 </template>
@@ -14,6 +14,7 @@ import Filter from "./query-builder/Filter.vue";
 import { useApi } from "@directus/extensions-sdk";
 import { Field } from "@directus/shared/types";
 import { defineComponent } from "vue";
+import VButton from "./query-builder/VButton.vue";
 
 type Root = {
 	id: string;

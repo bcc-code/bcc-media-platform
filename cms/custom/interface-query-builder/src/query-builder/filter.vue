@@ -1,16 +1,16 @@
 <template>
     <div class="filter">
-        <div v-if="isGroup">
+        <div v-if="isGroup" class="flex">
             <div>
-                <h3>OPERATOR</h3>
+                <h3>Match Operator</h3>
                 <select v-model="selectedOperator" @change="update" style="text-transform: uppercase;">
                     <option v-for="op in groupOperators">{{ op }}</option>
                 </select>
             </div>
             <div>
-                <h3>ADD CHILD</h3>
-                <button @click="addGroup()">+group</button>
-                <button @click="addFilter()">+filter</button>
+                <h3>Add child</h3>
+                <VButton @click="addGroup()">+group</VButton>
+                <VButton style="margin-left: 5px" @click="addFilter()">+filter</VButton>
             </div>
             <div class="children">
                 <div v-for="(v, i) in children">
@@ -22,38 +22,39 @@
             <h1>FILTER</h1>
             <div class="flex">
                 <div>
-                    <h3>PROPERTY</h3>
+                    <h3>Property</h3>
                     <select v-model="selectedProperty" @change="update"
                         placeholder="Property...">
                         <option v-for="prop in fields.sort((a,b) => (a.name > b.name ? 1 : -1))" :key="prop.name" :value="prop.name">{{ snakeToPascal(prop.name) }}</option>
                     </select>
                 </div>
                 <div>
-                    <h3>OPERATOR</h3>
+                    <h3>Operator</h3>
                     <select v-model="selectedOperator" @change="update" style="text-transform: uppercase;">
                         <option v-for="op in filterOperators">{{ op }}</option>
                     </select>
                 </div>
                 <div>
-                    <h3>VALUE</h3>
+                    <h3>Value</h3>
                     <input :type="fieldType" v-model="selectedValue" @change="update"/>
                 </div>
             </div>
         </div>
         <div>
-            <button @click="$emit('delete')">Delete</button>
+            <VButton @click="$emit('delete')">Delete</VButton>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import { Field, FilterValue } from './types';
+import VButton from "./VButton.vue";
 
 const props = defineProps<{ value: FilterValue, fields: Field[] }>();
 const emit = defineEmits<{ (e: "update:value", value: FilterValue), (e: "delete")}>();
 
 const groupOperators = ["and", "or"];
-const filterOperators = ["==", "!=", "===", "!==", "<", "<=", ">", ">="];
+const filterOperators = ["==", "!=", "<", "<=", ">", ">="];
 
 const operator = computed(() => (Object.keys(props.value).filter(i => i !== "id")[0]));
 const isGroup = computed(() => groupOperators.includes(operator.value));
