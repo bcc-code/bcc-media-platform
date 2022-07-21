@@ -30,8 +30,9 @@ type Resolver struct {
 
 // BatchLoaders is a collection of GQL dataloaders
 type BatchLoaders struct {
-	PageLoader       *dataloader.Loader[string, *sqlc.Page]
+	PageLoader       *dataloader.Loader[int, *sqlc.Page]
 	SectionLoader    *dataloader.Loader[int, *sqlc.SectionExpanded]
+	SectionsLoader   *dataloader.Loader[int, []*sqlc.SectionExpanded]
 	CollectionLoader *dataloader.Loader[int, *sqlc.CollectionExpanded]
 	ShowLoader       *dataloader.Loader[int, *sqlc.ShowExpanded]
 	SeasonLoader     *dataloader.Loader[int, *sqlc.SeasonExpanded]

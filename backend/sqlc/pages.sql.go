@@ -12,10 +12,10 @@ import (
 )
 
 const getPages = `-- name: GetPages :many
-SELECT code, date_created, date_updated, id, sort, status, system_page, user_created, user_updated, type, episode_id, show_id FROM pages WHERE code = ANY ($1::varchar[])
+SELECT code, date_created, date_updated, id, sort, status, system_page, user_created, user_updated, type, episode_id, show_id FROM pages WHERE id = ANY ($1::int[])
 `
 
-func (q *Queries) GetPages(ctx context.Context, dollar_1 []string) ([]Page, error) {
+func (q *Queries) GetPages(ctx context.Context, dollar_1 []int32) ([]Page, error) {
 	rows, err := q.db.QueryContext(ctx, getPages, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err

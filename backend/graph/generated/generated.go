@@ -106,6 +106,7 @@ type ComplexityRoot struct {
 	}
 
 	EpisodePage struct {
+		Code        func(childComplexity int) int
 		Description func(childComplexity int) int
 		Episode     func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -217,6 +218,7 @@ type ComplexityRoot struct {
 	}
 
 	ShowPage struct {
+		Code        func(childComplexity int) int
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Sections    func(childComplexity int, first int, after *string) int
@@ -550,6 +552,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.EpisodeItem.Title(childComplexity), true
+
+	case "EpisodePage.code":
+		if e.complexity.EpisodePage.Code == nil {
+			break
+		}
+
+		return e.complexity.EpisodePage.Code(childComplexity), true
 
 	case "EpisodePage.description":
 		if e.complexity.EpisodePage.Description == nil {
@@ -1058,6 +1067,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Show.Title(childComplexity), true
 
+	case "ShowPage.code":
+		if e.complexity.ShowPage.Code == nil {
+			break
+		}
+
+		return e.complexity.ShowPage.Code(childComplexity), true
+
 	case "ShowPage.description":
 		if e.complexity.ShowPage.Description == nil {
 			break
@@ -1309,6 +1325,7 @@ var sources = []*ast.Source{
 
 interface Page{
   id: ID!
+  code: String!
   title: String
   description: String
   sections(
@@ -1319,6 +1336,7 @@ interface Page{
 
 type ShowPage implements Page{
   id: ID!
+  code: String!
   title: String
   description: String
   sections(
@@ -1330,6 +1348,7 @@ type ShowPage implements Page{
 
 type EpisodePage implements Page{
   id: ID!
+  code: String!
   title: String
   description: String
   sections(
@@ -3507,6 +3526,50 @@ func (ec *executionContext) fieldContext_EpisodePage_id(ctx context.Context, fie
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EpisodePage_code(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.EpisodePage) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EpisodePage_code(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Code, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EpisodePage_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EpisodePage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6814,6 +6877,50 @@ func (ec *executionContext) fieldContext_ShowPage_id(ctx context.Context, field 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShowPage_code(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ShowPage) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShowPage_code(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Code, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShowPage_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShowPage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10345,6 +10452,13 @@ func (ec *executionContext) _EpisodePage(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "code":
+
+			out.Values[i] = ec._EpisodePage_code(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "title":
 
 			out.Values[i] = ec._EpisodePage_title(ctx, field, obj)
@@ -11322,6 +11436,13 @@ func (ec *executionContext) _ShowPage(ctx context.Context, sel ast.SelectionSet,
 		case "id":
 
 			out.Values[i] = ec._ShowPage_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "code":
+
+			out.Values[i] = ec._ShowPage_code(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)

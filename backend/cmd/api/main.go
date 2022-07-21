@@ -87,6 +87,7 @@ func main() {
 	loaders := &graph.BatchLoaders{
 		PageLoader:       page.NewBatchLoader(*queries),
 		SectionLoader:    section.NewBatchLoader(*queries),
+		SectionsLoader:   section.NewListBatchLoader(*queries),
 		CollectionLoader: collection.NewBatchLoader(*queries),
 		ShowLoader:       show.NewBatchLoader(*queries),
 		SeasonLoader:     season.NewBatchLoader(*queries),

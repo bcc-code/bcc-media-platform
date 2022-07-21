@@ -14,3 +14,12 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.SectionE
 		return int32(id)
 	})
 }
+
+// NewListBatchLoader returns related data for a page
+func NewListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.SectionExpanded] {
+	return common.NewListBatchLoader(queries.GetSectionsForPageIDs, func(i sqlc.SectionExpanded) int {
+		return int(i.Page)
+	}, func(id int) int32 {
+		return int32(id)
+	})
+}

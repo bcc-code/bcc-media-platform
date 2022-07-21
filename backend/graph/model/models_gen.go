@@ -95,6 +95,7 @@ func (EpisodeItem) IsItem() {}
 
 type EpisodePage struct {
 	ID          string             `json:"id"`
+	Code        string             `json:"code"`
 	Title       *string            `json:"title"`
 	Description *string            `json:"description"`
 	Sections    *SectionConnection `json:"sections"`
@@ -202,6 +203,7 @@ func (Show) IsSearchResultItem() {}
 
 type ShowPage struct {
 	ID          string             `json:"id"`
+	Code        string             `json:"code"`
 	Title       *string            `json:"title"`
 	Description *string            `json:"description"`
 	Sections    *SectionConnection `json:"sections"`

@@ -6,13 +6,16 @@ package graph
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/samber/lo"
 )
 
 // Streams is the resolver for the streams field.
@@ -49,12 +52,24 @@ func (r *episodePageResolver) Episode(ctx context.Context, obj *gqlmodel.Episode
 
 // Page is the resolver for the page field.
 func (r *queryRootResolver) Page(ctx context.Context, id string) (gqlmodel.Page, error) {
-	return resolverWithoutAccessValidationFor(ctx, id, r.Loaders.PageLoader, gqlmodel.PageFromSQL)
+	intID, err := strconv.ParseInt(id, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+	return resolverWithoutAccessValidationFor(ctx, int(intID), r.Loaders.PageLoader, gqlmodel.PageFromSQL)
 }
 
 // Pages is the resolver for the pages field.
 func (r *queryRootResolver) Pages(ctx context.Context, first *int, offset *int) ([]gqlmodel.Page, error) {
-	panic(fmt.Errorf("not implemented"))
+	//TODO: implement paging
+	pages, err := r.Queries.ListPages(ctx)
+	if err != nil {
+		return nil, err
+	}
+	pagePointers := lo.Map(pages, func(p sqlc.Page, _ int) *sqlc.Page {
+		return &p
+	})
+	return utils.MapWithCtx(ctx, pagePointers, gqlmodel.PageFromSQL), nil
 }
 
 // Episode is the resolver for the episode field.
