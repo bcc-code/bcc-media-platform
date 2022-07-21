@@ -1,5 +1,5 @@
 <template>
-	<Filter v-if="!loading && value?.filter" :value="value?.filter" :fields="episodeFields" @update:value="handleChange"
+	<Filter v-if="!loading && value?.filter" :value="value?.filter" :fields="fields" @update:value="handleChange"
 		@delete="handleChange(null)" />
 	<div v-else>
 		<VButton @click="clearGroup()">Create filter</VButton>
@@ -13,17 +13,13 @@ import { FilterValue, Field as TField } from "./query-builder/types";
 import Filter from "./query-builder/Filter.vue";
 import { useApi } from "@directus/extensions-sdk";
 import { Field } from "@directus/shared/types";
-import { defineComponent } from "vue";
+import { defineComponent, PropType } from "vue";
 import VButton from "./query-builder/VButton.vue";
 
 type Root = {
 	id: string;
 	filter: FilterValue;
 }
-
-defineProps<{
-	value: Root;
-}>();
 
 const emit = defineEmits<{ (e: "input", value: Root | null) }>()
 
@@ -50,9 +46,19 @@ function clearGroup() {
 
 export default defineComponent({
 	name: "interface",
+	props: {
+		fieldCollection: {
+			type: String,
+			required: true,
+		},
+		value: {
+			type: Object as PropType<Root>,
+			required: true,
+		}
+	},
 	data() {
 		return {
-			episodeFields: [] as TField[],
+			fields: [] as TField[],
 			loading: true,
 		}
 	},
@@ -70,12 +76,12 @@ export default defineComponent({
 		}
 
 		for (const field of fields) {
-			if (field.collection === "episodes" && !field.meta?.hidden) {
+			if (field.collection === this.fieldCollection && !field.meta?.hidden) {
 				if (!Object.keys(types).includes(field.type)) {
 					continue;
 				}
 
-				this.episodeFields.push({
+				this.fields.push({
 					name: field.field,
 					type: types[field.type] ?? "text"
 				} as TField)
