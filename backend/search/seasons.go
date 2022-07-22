@@ -30,6 +30,7 @@ func (service *Service) mapSeasonToSearchObject(
 	title, description := toLocaleStrings(service.getTranslationsForSeason(ctx, item.ID))
 	object.mapFromLocaleString(titleField, title)
 	object.mapFromLocaleString(descriptionField, description)
+	object[showIDField] = item.ShowID
 	showTitle, _ := toLocaleStrings(service.getTranslationsForShow(ctx, item.ShowID))
 	object.mapFromLocaleString(showTitleField, showTitle)
 	return object

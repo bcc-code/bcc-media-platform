@@ -8,45 +8,119 @@ import (
 	"strconv"
 )
 
-func preloadItems(ctx context.Context, r *queryRootResolver, items []common.SearchResultItem) {
-	var keysByCollection = map[string][]int{}
+//func preloadItems(ctx context.Context, r *queryRootResolver, items []common.SearchResultItem) {
+//	var keysByCollection = map[string][]int{}
+//
+//	for _, i := range items {
+//		keysByCollection[i.Collection] = append(keysByCollection[i.Collection], i.ID)
+//	}
+//
+//	if keys, ok := keysByCollection["shows"]; ok {
+//		r.Loaders.ShowLoader.LoadMany(ctx, keys)
+//	}
+//	if keys, ok := keysByCollection["seasons"]; ok {
+//		r.Loaders.SeasonLoader.LoadMany(ctx, keys)
+//	}
+//	if keys, ok := keysByCollection["episodes"]; ok {
+//		r.Loaders.EpisodeLoader.LoadMany(ctx, keys)
+//	}
+//}
+//
+//func filterOrAppend[t gqlmodel.SearchResultItem](ctx context.Context, results []gqlmodel.SearchResultItem, id int, factory func(context.Context, string) (*t, error)) []gqlmodel.SearchResultItem {
+//	item, err := factory(ctx, strconv.Itoa(id))
+//	if err != nil {
+//		return results
+//	}
+//	return append(results, *item)
+//}
 
-	for _, i := range items {
-		keysByCollection[i.Collection] = append(keysByCollection[i.Collection], i.ID)
-	}
-
-	if keys, ok := keysByCollection["shows"]; ok {
-		r.Loaders.ShowLoader.LoadMany(ctx, keys)
-	}
-	if keys, ok := keysByCollection["seasons"]; ok {
-		r.Loaders.SeasonLoader.LoadMany(ctx, keys)
-	}
-	if keys, ok := keysByCollection["episodes"]; ok {
-		r.Loaders.EpisodeLoader.LoadMany(ctx, keys)
+func gqlShowFromSearchResultItem(i common.SearchResultItem) gqlmodel.ShowSearchItem {
+	return gqlmodel.ShowSearchItem{
+		ID:          strconv.Itoa(i.ID),
+		Collection:  i.Collection,
+		Title:       i.Title,
+		Description: i.Description,
+		Header:      i.Header,
+		Image:       i.Image,
+		Highlight:   i.Highlight,
+		URL:         i.Url,
 	}
 }
 
-func filterOrAppend[t gqlmodel.SearchResultItem](ctx context.Context, results []gqlmodel.SearchResultItem, id int, factory func(context.Context, string) (*t, error)) []gqlmodel.SearchResultItem {
-	item, err := factory(ctx, strconv.Itoa(id))
-	if err != nil {
-		return results
+func gqlSeasonFromSearchResultItem(i common.SearchResultItem) gqlmodel.SeasonSearchItem {
+	showID := strconv.Itoa(*i.ShowID)
+	show := &gqlmodel.Show{
+		ID: showID,
 	}
-	return append(results, *item)
+
+	return gqlmodel.SeasonSearchItem{
+		ID:          strconv.Itoa(i.ID),
+		Collection:  i.Collection,
+		Title:       i.Title,
+		Description: i.Description,
+		Header:      i.Header,
+		Image:       i.Image,
+		Highlight:   i.Highlight,
+		URL:         i.Url,
+		Show:        show,
+		ShowID:      showID,
+		ShowTitle:   *i.Show,
+	}
 }
 
-func filterAndConvertToGQL(ctx context.Context, r *queryRootResolver, items []common.SearchResultItem) []gqlmodel.SearchResultItem {
-	// Preload/fill query with all item IDs
-	preloadItems(ctx, r, items)
+func gqlEpisodeFromSearchResultItem(i common.SearchResultItem) gqlmodel.EpisodeSearchItem {
+	var showID *string
+	var show *gqlmodel.Show
+	if i.ShowID != nil {
+		strID := strconv.Itoa(*i.ShowID)
+		showID = &strID
+		show = &gqlmodel.Show{
+			ID: strID,
+		}
+	}
+	var seasonID *string
+	var season *gqlmodel.Season
+	if i.ShowID != nil {
+		strID := strconv.Itoa(*i.SeasonID)
+		seasonID = &strID
+		season = &gqlmodel.Season{
+			ID: strID,
+		}
+	}
 
+	return gqlmodel.EpisodeSearchItem{
+		ID:          strconv.Itoa(i.ID),
+		Collection:  i.Collection,
+		Title:       i.Title,
+		Description: i.Description,
+		Header:      i.Header,
+		Image:       i.Image,
+		Highlight:   i.Highlight,
+		URL:         i.Url,
+		Show:        show,
+		ShowID:      showID,
+		ShowTitle:   i.Show,
+		Season:      season,
+		SeasonID:    seasonID,
+		SeasonTitle: i.Season,
+	}
+}
+
+func convertToGQL(items []common.SearchResultItem) []gqlmodel.SearchResultItem {
 	var results []gqlmodel.SearchResultItem
 	for _, i := range items {
+		//TODO: Do we need to filter on permissions again?
+		//Search is usually quicker to index, and respect roles and permissions on search.
 		switch i.Collection {
 		case "shows":
-			results = filterOrAppend(ctx, results, i.ID, r.Show)
+			item := gqlShowFromSearchResultItem(i)
+			results = append(results, item)
 		case "seasons":
-			results = filterOrAppend(ctx, results, i.ID, r.Season)
+			item := gqlSeasonFromSearchResultItem(i)
+			results = append(results, item)
 		case "episodes":
-			results = filterOrAppend(ctx, results, i.ID, r.Episode)
+			item := gqlEpisodeFromSearchResultItem(i)
+			results = append(results, item)
 		}
 	}
 	return results
@@ -67,7 +141,7 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 	}
 
 	return &gqlmodel.SearchResult{
-		Result: filterAndConvertToGQL(ctx, r, searchResult.Result),
+		Result: convertToGQL(searchResult.Result),
 		Page:   searchResult.Page,
 		Hits:   searchResult.HitCount,
 	}, nil
