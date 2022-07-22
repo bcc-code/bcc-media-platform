@@ -1,14 +1,17 @@
 <template>
 	<div v-if="filter">
+        <h1>Filter</h1>
 		<Filter 
+            style="margin-left: 10px"
 			:value="filter"
 			:fields="fields" 
 			@delete="filter = null"
             @update:value="(f) => filter = f"
             @change="handleChange"
 		/>
+        <hr class="separator"/>
+        <h1>Sort by</h1>
 		<div class="sort-by">
-            <h3>Sort by</h3>
             <select v-model="sortBy" @change="handleChange">
                 <option
                     v-for="field in fields"
@@ -88,9 +91,17 @@ function clearGroup() {
 
 </script>
 <style>
+h1 {
+    font-size: 18px;
+    font-weight: 700;
+}
 
 .sort-by {
-    margin: 5px;
     padding: 10px;
+}
+
+.separator {
+    margin: 10px;
+    border-color: #31363d;
 }
 </style>

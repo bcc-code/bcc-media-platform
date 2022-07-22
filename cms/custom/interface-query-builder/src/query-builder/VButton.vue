@@ -5,7 +5,6 @@
 </template>
 <style scoped>
 .v-button {
-    border-color: #31363d;
     border-width: 2px;
     border-style: solid;
     border-radius: 10px;
@@ -13,5 +12,10 @@
     margin: 5px;
     background-color: #8866ff;
     color: #0d1117;
+}
+
+.v-button:hover {
+    border-color: #31363d;
+    background-color: #a48bff;
 }
 </style>
