@@ -10,11 +10,16 @@
             <div>
                 <h3>Add child</h3>
                 <VButton @click="addGroup()">+group</VButton>
-                <VButton style="margin-left: 5px" @click="addFilter()">+filter</VButton>
+                <VButton @click="addFilter()">+filter</VButton>
             </div>
             <div class="children">
                 <div v-for="(v, i) in children">
-                    <Filter :value="v" :fields="fields" @update:value="c => handleChildUpdate(i, c)" @delete="handleChildDelete(i)"></Filter>
+                    <Filter 
+                        :value="v" 
+                        :fields="fields" 
+                        @update:value="c => handleChildUpdate(i, c)" 
+                        @delete="handleChildDelete(i)"
+                    />
                 </div>
             </div>
         </div>
@@ -25,18 +30,30 @@
                     <h3>Property</h3>
                     <select v-model="selectedProperty" @change="update"
                         placeholder="Property...">
-                        <option v-for="prop in fields.sort((a,b) => (a.name > b.name ? 1 : -1))" :key="prop.name" :value="prop.name">{{ snakeToPascal(prop.name) }}</option>
+                        <option 
+                            v-for="prop in fields.sort((a,b) => (a.name > b.name ? 1 : -1))" 
+                            :key="prop.name" 
+                            :value="prop.name"
+                        >{{ snakeToPascal(prop.name) }}</option>
                     </select>
                 </div>
                 <div>
                     <h3>Operator</h3>
-                    <select v-model="selectedOperator" @change="update" style="text-transform: uppercase;">
+                    <select 
+                        v-model="selectedOperator"
+                        @change="update" 
+                        style="text-transform: uppercase;"
+                    >
                         <option v-for="op in filterOperators">{{ op }}</option>
                     </select>
                 </div>
                 <div>
                     <h3>Value</h3>
-                    <input :type="fieldType" v-model="selectedValue" @change="update"/>
+                    <input 
+                        :type="fieldType" 
+                        v-model="selectedValue" 
+                        @change="update"
+                    />
                 </div>
             </div>
         </div>
@@ -96,6 +113,7 @@ function addGroup() {
     })
     emit("update:value", filterValue);
 }
+
 function addFilter() {
     const filterValue = {} as FilterValue;
     filterValue[selectedOperator.value] = Object.assign([], children.value);
@@ -104,6 +122,7 @@ function addFilter() {
     })
     emit("update:value", filterValue);
 }
+
 function update() {
     const filter = Object.assign({}, props.value);
     if (selectedOperator.value !== operator.value) {

@@ -1,6 +1,11 @@
 <template>
-	<Filter v-if="!loading && value?.filter" :value="value?.filter" :fields="fields" @update:value="handleChange"
-		@delete="handleChange(null)" />
+	<Filter 
+		v-if="!loading && value?.filter" 
+		:value="value?.filter" 
+		:fields="fields" 
+		@update:value="handleChange"
+		@delete="handleChange(null)" 
+	/>
 	<div v-else-if="!loading">
 		<VButton @click="clearGroup()">Create filter</VButton>
 	</div>
