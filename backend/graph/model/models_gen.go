@@ -82,8 +82,6 @@ type Episode struct {
 	EpisodeNumber     *int       `json:"episodeNumber"`
 }
 
-func (Episode) IsSearchResultItem() {}
-
 type EpisodeItem struct {
 	ID       string   `json:"id"`
 	Title    *string  `json:"title"`
@@ -103,6 +101,25 @@ type EpisodePage struct {
 }
 
 func (EpisodePage) IsPage() {}
+
+type EpisodeSearchItem struct {
+	ID          string  `json:"id"`
+	Collection  string  `json:"collection"`
+	Title       string  `json:"title"`
+	Header      *string `json:"header"`
+	Description *string `json:"description"`
+	Highlight   *string `json:"highlight"`
+	Image       *string `json:"image"`
+	URL         string  `json:"url"`
+	ShowID      *string `json:"showId"`
+	ShowTitle   *string `json:"showTitle"`
+	Show        *Show   `json:"show"`
+	SeasonID    *string `json:"seasonId"`
+	SeasonTitle *string `json:"seasonTitle"`
+	Season      *Season `json:"season"`
+}
+
+func (EpisodeSearchItem) IsSearchResultItem() {}
 
 type Event struct {
 	ID             string          `json:"id"`
@@ -172,7 +189,21 @@ type Season struct {
 	Episodes    []*Episode `json:"episodes"`
 }
 
-func (Season) IsSearchResultItem() {}
+type SeasonSearchItem struct {
+	ID          string  `json:"id"`
+	Collection  string  `json:"collection"`
+	Title       string  `json:"title"`
+	Header      *string `json:"header"`
+	Description *string `json:"description"`
+	Highlight   *string `json:"highlight"`
+	Image       *string `json:"image"`
+	URL         string  `json:"url"`
+	ShowID      string  `json:"showId"`
+	ShowTitle   string  `json:"showTitle"`
+	Show        *Show   `json:"show"`
+}
+
+func (SeasonSearchItem) IsSearchResultItem() {}
 
 type SectionConnection struct {
 	Edges    []*SectionEdge  `json:"edges"`
@@ -199,8 +230,6 @@ type Show struct {
 	Seasons      []*Season `json:"seasons"`
 }
 
-func (Show) IsSearchResultItem() {}
-
 type ShowPage struct {
 	ID          string             `json:"id"`
 	Code        string             `json:"code"`
@@ -211,6 +240,19 @@ type ShowPage struct {
 }
 
 func (ShowPage) IsPage() {}
+
+type ShowSearchItem struct {
+	ID          string  `json:"id"`
+	Collection  string  `json:"collection"`
+	Title       string  `json:"title"`
+	Header      *string `json:"header"`
+	Description *string `json:"description"`
+	Highlight   *string `json:"highlight"`
+	Image       *string `json:"image"`
+	URL         string  `json:"url"`
+}
+
+func (ShowSearchItem) IsSearchResultItem() {}
 
 type SliderItemsSection struct {
 	ID    string `json:"id"`

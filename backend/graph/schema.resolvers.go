@@ -50,6 +50,16 @@ func (r *episodePageResolver) Episode(ctx context.Context, obj *gqlmodel.Episode
 	return r.QueryRoot().Episode(ctx, obj.Episode.ID)
 }
 
+// Show is the resolver for the show field.
+func (r *episodeSearchItemResolver) Show(ctx context.Context, obj *gqlmodel.EpisodeSearchItem) (*gqlmodel.Show, error) {
+	return r.QueryRoot().Show(ctx, obj.Show.ID)
+}
+
+// Season is the resolver for the season field.
+func (r *episodeSearchItemResolver) Season(ctx context.Context, obj *gqlmodel.EpisodeSearchItem) (*gqlmodel.Season, error) {
+	return r.QueryRoot().Season(ctx, obj.Season.ID)
+}
+
 // Page is the resolver for the page field.
 func (r *queryRootResolver) Page(ctx context.Context, id string) (gqlmodel.Page, error) {
 	intID, err := strconv.ParseInt(id, 10, 32)
@@ -152,6 +162,11 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *gqlmodel.Season) ([]
 	return itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.EpisodesLoader, gqlmodel.EpisodeFromSQL)
 }
 
+// Show is the resolver for the show field.
+func (r *seasonSearchItemResolver) Show(ctx context.Context, obj *gqlmodel.SeasonSearchItem) (*gqlmodel.Show, error) {
+	return r.QueryRoot().Show(ctx, obj.Show.ID)
+}
+
 // Seasons is the resolver for the seasons field.
 func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show) ([]*gqlmodel.Season, error) {
 	return itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.SeasonsLoader, gqlmodel.SeasonFromSQL)
@@ -168,11 +183,21 @@ func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver
 // EpisodePage returns generated.EpisodePageResolver implementation.
 func (r *Resolver) EpisodePage() generated.EpisodePageResolver { return &episodePageResolver{r} }
 
+// EpisodeSearchItem returns generated.EpisodeSearchItemResolver implementation.
+func (r *Resolver) EpisodeSearchItem() generated.EpisodeSearchItemResolver {
+	return &episodeSearchItemResolver{r}
+}
+
 // QueryRoot returns generated.QueryRootResolver implementation.
 func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
 
 // Season returns generated.SeasonResolver implementation.
 func (r *Resolver) Season() generated.SeasonResolver { return &seasonResolver{r} }
+
+// SeasonSearchItem returns generated.SeasonSearchItemResolver implementation.
+func (r *Resolver) SeasonSearchItem() generated.SeasonSearchItemResolver {
+	return &seasonSearchItemResolver{r}
+}
 
 // Show returns generated.ShowResolver implementation.
 func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
@@ -182,7 +207,9 @@ func (r *Resolver) ShowPage() generated.ShowPageResolver { return &showPageResol
 
 type episodeResolver struct{ *Resolver }
 type episodePageResolver struct{ *Resolver }
+type episodeSearchItemResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
 type seasonResolver struct{ *Resolver }
+type seasonSearchItemResolver struct{ *Resolver }
 type showResolver struct{ *Resolver }
 type showPageResolver struct{ *Resolver }
