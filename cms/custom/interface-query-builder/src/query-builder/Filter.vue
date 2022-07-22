@@ -64,11 +64,15 @@
 </template>
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import { Field, FilterValue } from './types';
+import { snakeToPascal, Field, FilterValue } from '.';
 import VButton from "./VButton.vue";
 
 const props = defineProps<{ value: FilterValue, fields: Field[] }>();
-const emit = defineEmits<{ (e: "update:value", value: FilterValue), (e: "delete")}>();
+const emit = defineEmits<{ 
+    (e: "update:value", value: FilterValue), 
+    (e: "delete"),
+    (e: "change")
+}>();
 
 const groupOperators = ["and", "or"];
 const filterOperators = ["==", "!=", "<", "<=", ">", ">="];
@@ -95,16 +99,6 @@ const fieldType = computed(() => {
     return field?.type ?? "text";
 })
 
-const snakeToPascal = (string: string) => {
-    return string.split("/")
-        .map(snake => snake.split("_")
-            .map(substr => substr.charAt(0)
-                .toUpperCase() +
-                substr.slice(1))
-            .join(""))
-        .join("/");
-};
-
 function addGroup() {
     const filterValue = {} as FilterValue;
     filterValue[selectedOperator.value] = Object.assign([], children.value);
@@ -112,6 +106,7 @@ function addGroup() {
         "and": [],
     })
     emit("update:value", filterValue);
+    emit("change");
 }
 
 function addFilter() {
@@ -121,6 +116,7 @@ function addFilter() {
         "==": [],
     })
     emit("update:value", filterValue);
+    emit("change");
 }
 
 function update() {
@@ -134,18 +130,21 @@ function update() {
         filter[selectedOperator.value][1] = selectedValue.value;
     }
     emit("update:value", filter);
+    emit("change");
 }
 
 function handleChildUpdate(index: number, child: FilterValue) {
     const filter = Object.assign({}, props.value) as FilterValue;
     filter[operator.value][index] = child;
     emit("update:value", filter)
+    emit("change");
 }
 
 function handleChildDelete(index: number) {
     const filter = Object.assign({}, props.value) as FilterValue;
     filter[operator.value] = filter[operator.value].filter((_, i) => i !== index);
     emit("update:value", filter)
+    emit("change");
 }
 
 </script>

@@ -10,3 +10,10 @@ export type Field = {
     type: FieldType;
     name: string;
 }
+
+export type Root = {
+	id: string;
+	filter: FilterValue | null;
+	sortBy: string | null;
+	sortByDirection: "asc" | "desc" | null;
+}
