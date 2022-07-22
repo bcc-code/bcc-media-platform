@@ -108,8 +108,8 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 		if value := hit.Title.Get(languages); value != "" {
 			item.Title = value
 		}
-		if value := hit.Description.Get(languages); value != "" {
-			item.Description = &value
+		if value := hit.Description.GetValueOrNil(languages); value != nil {
+			item.Description = value
 		}
 		if value := hit.Header; value != "" {
 			item.Header = &value
@@ -117,14 +117,14 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 		if value := hit.ShowID; value != 0 {
 			item.ShowID = &value
 		}
-		if value := hit.ShowTitle.Get(languages); value != "" {
-			item.Show = &value
+		if value := hit.ShowTitle.GetValueOrNil(languages); value != nil {
+			item.Show = value
 		}
 		if value := hit.SeasonID; value != 0 {
 			item.SeasonID = &value
 		}
-		if value := hit.SeasonTitle.Get(languages); value != "" {
-			item.Season = &value
+		if value := hit.SeasonTitle.GetValueOrNil(languages); value != nil {
+			item.Season = value
 		}
 
 		item.Url = getUrl(model, int(id))
