@@ -622,42 +622,6 @@ ALTER SEQUENCE public.collections_shows_id_seq OWNED BY public.collections_shows
 
 
 --
--- Name: collections_translations; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.collections_translations (
-    collections_id integer NOT NULL,
-    id integer NOT NULL,
-    languages_code character varying(255) DEFAULT NULL::character varying NOT NULL,
-    title character varying(255) DEFAULT NULL::character varying
-);
-
-
-ALTER TABLE public.collections_translations OWNER TO btv;
-
---
--- Name: collections_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
---
-
-CREATE SEQUENCE public.collections_translations_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.collections_translations_id_seq OWNER TO btv;
-
---
--- Name: collections_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
---
-
-ALTER SEQUENCE public.collections_translations_id_seq OWNED BY public.collections_translations.id;
-
-
---
 -- Name: directus_activity; Type: TABLE; Schema: public; Owner: btv
 --
 
@@ -1868,6 +1832,72 @@ CREATE TABLE public.pages (
 ALTER TABLE public.pages OWNER TO btv;
 
 --
+-- Name: pages_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.pages_translations (
+    id integer NOT NULL,
+    pages_id integer,
+    languages_code character varying(255),
+    title character varying(255),
+    description character varying(255)
+);
+
+
+ALTER TABLE public.pages_translations OWNER TO btv;
+
+--
+-- Name: sections_usergroups; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.sections_usergroups (
+    id integer NOT NULL,
+    sections_id integer NOT NULL,
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+);
+
+
+ALTER TABLE public.sections_usergroups OWNER TO btv;
+
+--
+-- Name: pages_expanded; Type: VIEW; Schema: public; Owner: btv
+--
+
+CREATE VIEW public.pages_expanded AS
+ WITH t AS (
+         SELECT ts.pages_id,
+            json_object_agg(ts.languages_code, ts.title) AS title,
+            json_object_agg(ts.languages_code, ts.description) AS description
+           FROM public.pages_translations ts
+          GROUP BY ts.pages_id
+        ), r AS (
+         SELECT p_1.id AS page_id,
+            ( SELECT array_agg(DISTINCT eu.usergroups_code) AS array_agg
+                   FROM public.sections_usergroups eu
+                  WHERE (eu.sections_id IN ( SELECT e.id
+                           FROM public.episodes e
+                          WHERE (e.season_id = p_1.id)))) AS roles
+           FROM public.pages p_1
+        )
+ SELECT p.id,
+    p.code,
+    p.type,
+    ((p.status)::text = 'published'::text) AS published,
+    p.show_id,
+    p.season_id,
+    p.episode_id,
+    p.collection,
+    t.title,
+    t.description,
+    r.roles
+   FROM ((public.pages p
+     LEFT JOIN t ON ((t.pages_id = p.id)))
+     LEFT JOIN r ON ((r.page_id = p.id)));
+
+
+ALTER TABLE public.pages_expanded OWNER TO btv;
+
+--
 -- Name: pages_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
@@ -1887,6 +1917,28 @@ ALTER TABLE public.pages_id_seq OWNER TO btv;
 --
 
 ALTER SEQUENCE public.pages_id_seq OWNED BY public.pages.id;
+
+
+--
+-- Name: pages_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.pages_translations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.pages_translations_id_seq OWNER TO btv;
+
+--
+-- Name: pages_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.pages_translations_id_seq OWNED BY public.pages_translations.id;
 
 
 --
@@ -2104,15 +2156,66 @@ CREATE TABLE public.sections (
     date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id integer NOT NULL,
-    page integer NOT NULL,
     status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
     user_created uuid,
     user_updated uuid,
-    sort integer
+    sort integer,
+    style character varying(255),
+    page_id integer
 );
 
 
 ALTER TABLE public.sections OWNER TO btv;
+
+--
+-- Name: sections_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.sections_translations (
+    id integer NOT NULL,
+    sections_id integer,
+    languages_code character varying(255),
+    title character varying(255),
+    description character varying(255)
+);
+
+
+ALTER TABLE public.sections_translations OWNER TO btv;
+
+--
+-- Name: sections_expanded; Type: VIEW; Schema: public; Owner: btv
+--
+
+CREATE VIEW public.sections_expanded AS
+ WITH t AS (
+         SELECT ts.sections_id,
+            json_object_agg(ts.languages_code, ts.title) AS title,
+            json_object_agg(ts.languages_code, ts.description) AS description
+           FROM public.sections_translations ts
+          GROUP BY ts.sections_id
+        ), u AS (
+         SELECT ug.sections_id,
+            array_agg(ug.usergroups_code) AS roles
+           FROM public.sections_usergroups ug
+          GROUP BY ug.sections_id
+        )
+ SELECT s.id,
+    s.page_id,
+    s.style,
+    s.sort,
+    ((s.status)::text = 'published'::text) AS published,
+    s.date_created,
+    s.date_updated,
+    s.collection_id,
+    t.title,
+    t.description,
+    u.roles
+   FROM ((public.sections s
+     LEFT JOIN t ON ((s.id = t.sections_id)))
+     LEFT JOIN u ON ((s.id = u.sections_id)));
+
+
+ALTER TABLE public.sections_expanded OWNER TO btv;
 
 --
 -- Name: sections_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
@@ -2137,21 +2240,6 @@ ALTER SEQUENCE public.sections_id_seq OWNED BY public.sections.id;
 
 
 --
--- Name: sections_translations; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.sections_translations (
-    id integer NOT NULL,
-    languages_code character varying(255) DEFAULT NULL::character varying NOT NULL,
-    legacy_title_id integer,
-    sections_id integer NOT NULL,
-    title character varying(255) DEFAULT NULL::character varying NOT NULL
-);
-
-
-ALTER TABLE public.sections_translations OWNER TO btv;
-
---
 -- Name: sections_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
@@ -2172,19 +2260,6 @@ ALTER TABLE public.sections_translations_id_seq OWNER TO btv;
 
 ALTER SEQUENCE public.sections_translations_id_seq OWNED BY public.sections_translations.id;
 
-
---
--- Name: sections_usergroups; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.sections_usergroups (
-    id integer NOT NULL,
-    sections_id integer NOT NULL,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
-);
-
-
-ALTER TABLE public.sections_usergroups OWNER TO btv;
 
 --
 -- Name: sections_usergroups_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
@@ -2656,13 +2731,6 @@ ALTER TABLE ONLY public.collections_shows ALTER COLUMN id SET DEFAULT nextval('p
 
 
 --
--- Name: collections_translations id; Type: DEFAULT; Schema: public; Owner: btv
---
-
-ALTER TABLE ONLY public.collections_translations ALTER COLUMN id SET DEFAULT nextval('public.collections_translations_id_seq'::regclass);
-
-
---
 -- Name: directus_activity id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
@@ -2793,6 +2861,13 @@ ALTER TABLE ONLY public.lists_relations ALTER COLUMN id SET DEFAULT nextval('pub
 --
 
 ALTER TABLE ONLY public.pages ALTER COLUMN id SET DEFAULT nextval('public.pages_id_seq'::regclass);
+
+
+--
+-- Name: pages_translations id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.pages_translations ALTER COLUMN id SET DEFAULT nextval('public.pages_translations_id_seq'::regclass);
 
 
 --
@@ -2997,14 +3072,6 @@ ALTER TABLE ONLY public.collections_seasons
 
 ALTER TABLE ONLY public.collections_shows
     ADD CONSTRAINT collections_shows_pkey PRIMARY KEY (id);
-
-
---
--- Name: collections_translations collections_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
---
-
-ALTER TABLE ONLY public.collections_translations
-    ADD CONSTRAINT collections_translations_pkey PRIMARY KEY (id);
 
 
 --
@@ -3349,6 +3416,14 @@ ALTER TABLE ONLY public.pages
 
 ALTER TABLE ONLY public.pages
     ADD CONSTRAINT pages_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pages_translations pages_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.pages_translations
+    ADD CONSTRAINT pages_translations_pkey PRIMARY KEY (id);
 
 
 --
@@ -3721,22 +3796,6 @@ ALTER TABLE ONLY public.collections_shows
 
 ALTER TABLE ONLY public.collections_shows
     ADD CONSTRAINT collections_shows_shows_id_foreign FOREIGN KEY (shows_id) REFERENCES public.shows(id) ON DELETE CASCADE;
-
-
---
--- Name: collections_translations collections_translations_collections_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
---
-
-ALTER TABLE ONLY public.collections_translations
-    ADD CONSTRAINT collections_translations_collections_id_foreign FOREIGN KEY (collections_id) REFERENCES public.collections(id) ON DELETE SET NULL;
-
-
---
--- Name: collections_translations collections_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
---
-
-ALTER TABLE ONLY public.collections_translations
-    ADD CONSTRAINT collections_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE SET NULL;
 
 
 --
@@ -4188,6 +4247,22 @@ ALTER TABLE ONLY public.pages
 
 
 --
+-- Name: pages_translations pages_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.pages_translations
+    ADD CONSTRAINT pages_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE SET NULL;
+
+
+--
+-- Name: pages_translations pages_translations_pages_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.pages_translations
+    ADD CONSTRAINT pages_translations_pages_id_foreign FOREIGN KEY (pages_id) REFERENCES public.pages(id) ON DELETE SET NULL;
+
+
+--
 -- Name: pages pages_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
@@ -4284,11 +4359,11 @@ ALTER TABLE ONLY public.sections
 
 
 --
--- Name: sections sections_page_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+-- Name: sections sections_page_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.sections
-    ADD CONSTRAINT sections_page_foreign FOREIGN KEY (page) REFERENCES public.pages(id);
+    ADD CONSTRAINT sections_page_id_foreign FOREIGN KEY (page_id) REFERENCES public.pages(id) ON DELETE CASCADE;
 
 
 --
@@ -4296,7 +4371,7 @@ ALTER TABLE ONLY public.sections
 --
 
 ALTER TABLE ONLY public.sections_translations
-    ADD CONSTRAINT sections_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code);
+    ADD CONSTRAINT sections_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE SET NULL;
 
 
 --
@@ -4304,7 +4379,7 @@ ALTER TABLE ONLY public.sections_translations
 --
 
 ALTER TABLE ONLY public.sections_translations
-    ADD CONSTRAINT sections_translations_sections_id_foreign FOREIGN KEY (sections_id) REFERENCES public.sections(id) ON DELETE CASCADE;
+    ADD CONSTRAINT sections_translations_sections_id_foreign FOREIGN KEY (sections_id) REFERENCES public.sections(id) ON DELETE SET NULL;
 
 
 --

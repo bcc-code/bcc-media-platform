@@ -76,7 +76,7 @@ func (r *queryRootResolver) Pages(ctx context.Context, first *int, offset *int) 
 	if err != nil {
 		return nil, err
 	}
-	pagePointers := lo.Map(pages, func(p sqlc.Page, _ int) *sqlc.Page {
+	pagePointers := lo.Map(pages, func(p sqlc.PageExpanded, _ int) *sqlc.PageExpanded {
 		return &p
 	})
 	return utils.MapWithCtx(ctx, pagePointers, gqlmodel.PageFromSQL), nil
@@ -162,6 +162,11 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *gqlmodel.Season) ([]
 	return itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.EpisodesLoader, gqlmodel.EpisodeFromSQL)
 }
 
+// Season is the resolver for the season field.
+func (r *seasonPageResolver) Season(ctx context.Context, obj *gqlmodel.SeasonPage) (*gqlmodel.Season, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 // Show is the resolver for the show field.
 func (r *seasonSearchItemResolver) Show(ctx context.Context, obj *gqlmodel.SeasonSearchItem) (*gqlmodel.Show, error) {
 	return r.QueryRoot().Show(ctx, obj.Show.ID)
@@ -194,6 +199,9 @@ func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootRe
 // Season returns generated.SeasonResolver implementation.
 func (r *Resolver) Season() generated.SeasonResolver { return &seasonResolver{r} }
 
+// SeasonPage returns generated.SeasonPageResolver implementation.
+func (r *Resolver) SeasonPage() generated.SeasonPageResolver { return &seasonPageResolver{r} }
+
 // SeasonSearchItem returns generated.SeasonSearchItemResolver implementation.
 func (r *Resolver) SeasonSearchItem() generated.SeasonSearchItemResolver {
 	return &seasonSearchItemResolver{r}
@@ -210,6 +218,7 @@ type episodePageResolver struct{ *Resolver }
 type episodeSearchItemResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
 type seasonResolver struct{ *Resolver }
+type seasonPageResolver struct{ *Resolver }
 type seasonSearchItemResolver struct{ *Resolver }
 type showResolver struct{ *Resolver }
 type showPageResolver struct{ *Resolver }

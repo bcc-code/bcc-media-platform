@@ -12,7 +12,7 @@ import (
 )
 
 const getSections = `-- name: GetSections :many
-SELECT id, page, type, published, date_created, date_updated, collection_id, title FROM sections_expanded s WHERE s.id = ANY($1::int[])
+SELECT id, page_id, style, sort, published, date_created, date_updated, collection_id, title, description, roles FROM sections_expanded s WHERE s.id = ANY($1::int[])
 `
 
 func (q *Queries) GetSections(ctx context.Context, dollar_1 []int32) ([]SectionsExpanded, error) {
@@ -26,13 +26,16 @@ func (q *Queries) GetSections(ctx context.Context, dollar_1 []int32) ([]Sections
 		var i SectionsExpanded
 		if err := rows.Scan(
 			&i.ID,
-			&i.Page,
-			&i.Type,
+			&i.PageID,
+			&i.Style,
+			&i.Sort,
 			&i.Published,
 			&i.DateCreated,
 			&i.DateUpdated,
 			&i.CollectionID,
 			&i.Title,
+			&i.Description,
+			&i.Roles,
 		); err != nil {
 			return nil, err
 		}
@@ -48,7 +51,7 @@ func (q *Queries) GetSections(ctx context.Context, dollar_1 []int32) ([]Sections
 }
 
 const getSectionsForPageIDs = `-- name: GetSectionsForPageIDs :many
-SELECT id, page, type, published, date_created, date_updated, collection_id, title FROM sections_expanded s WHERE s.page = ANY($1::int[])
+SELECT id, page_id, style, sort, published, date_created, date_updated, collection_id, title, description, roles FROM sections_expanded s WHERE s.page_id = ANY($1::int[])
 `
 
 func (q *Queries) GetSectionsForPageIDs(ctx context.Context, dollar_1 []int32) ([]SectionsExpanded, error) {
@@ -62,13 +65,16 @@ func (q *Queries) GetSectionsForPageIDs(ctx context.Context, dollar_1 []int32) (
 		var i SectionsExpanded
 		if err := rows.Scan(
 			&i.ID,
-			&i.Page,
-			&i.Type,
+			&i.PageID,
+			&i.Style,
+			&i.Sort,
 			&i.Published,
 			&i.DateCreated,
 			&i.DateUpdated,
 			&i.CollectionID,
 			&i.Title,
+			&i.Description,
+			&i.Roles,
 		); err != nil {
 			return nil, err
 		}
@@ -84,7 +90,7 @@ func (q *Queries) GetSectionsForPageIDs(ctx context.Context, dollar_1 []int32) (
 }
 
 const listSections = `-- name: ListSections :many
-SELECT id, page, type, published, date_created, date_updated, collection_id, title FROM sections_expanded
+SELECT id, page_id, style, sort, published, date_created, date_updated, collection_id, title, description, roles FROM sections_expanded
 `
 
 func (q *Queries) ListSections(ctx context.Context) ([]SectionsExpanded, error) {
@@ -98,13 +104,16 @@ func (q *Queries) ListSections(ctx context.Context) ([]SectionsExpanded, error) 
 		var i SectionsExpanded
 		if err := rows.Scan(
 			&i.ID,
-			&i.Page,
-			&i.Type,
+			&i.PageID,
+			&i.Style,
+			&i.Sort,
 			&i.Published,
 			&i.DateCreated,
 			&i.DateUpdated,
 			&i.CollectionID,
 			&i.Title,
+			&i.Description,
+			&i.Roles,
 		); err != nil {
 			return nil, err
 		}

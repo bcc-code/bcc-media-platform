@@ -12,23 +12,30 @@ import (
 )
 
 const getCollections = `-- name: GetCollections :many
-SELECT id, date_created, date_updated, title FROM collections_expanded c WHERE c.id = ANY($1::int[])
+SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, shows_query_filter, seasons_query_filter, episodes_query_filter, name FROM collections c WHERE c.id = ANY($1::int[])
 `
 
-func (q *Queries) GetCollections(ctx context.Context, dollar_1 []int32) ([]CollectionsExpanded, error) {
+func (q *Queries) GetCollections(ctx context.Context, dollar_1 []int32) ([]Collection, error) {
 	rows, err := q.db.QueryContext(ctx, getCollections, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []CollectionsExpanded
+	var items []Collection
 	for rows.Next() {
-		var i CollectionsExpanded
+		var i Collection
 		if err := rows.Scan(
-			&i.ID,
 			&i.DateCreated,
 			&i.DateUpdated,
-			&i.Title,
+			&i.ID,
+			&i.Sort,
+			&i.UserCreated,
+			&i.UserUpdated,
+			&i.Collection,
+			&i.ShowsQueryFilter,
+			&i.SeasonsQueryFilter,
+			&i.EpisodesQueryFilter,
+			&i.Name,
 		); err != nil {
 			return nil, err
 		}
@@ -44,23 +51,30 @@ func (q *Queries) GetCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 }
 
 const listCollections = `-- name: ListCollections :many
-SELECT id, date_created, date_updated, title FROM collections_expanded
+SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, shows_query_filter, seasons_query_filter, episodes_query_filter, name FROM collections
 `
 
-func (q *Queries) ListCollections(ctx context.Context) ([]CollectionsExpanded, error) {
+func (q *Queries) ListCollections(ctx context.Context) ([]Collection, error) {
 	rows, err := q.db.QueryContext(ctx, listCollections)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []CollectionsExpanded
+	var items []Collection
 	for rows.Next() {
-		var i CollectionsExpanded
+		var i Collection
 		if err := rows.Scan(
-			&i.ID,
 			&i.DateCreated,
 			&i.DateUpdated,
-			&i.Title,
+			&i.ID,
+			&i.Sort,
+			&i.UserCreated,
+			&i.UserUpdated,
+			&i.Collection,
+			&i.ShowsQueryFilter,
+			&i.SeasonsQueryFilter,
+			&i.EpisodesQueryFilter,
+			&i.Name,
 		); err != nil {
 			return nil, err
 		}

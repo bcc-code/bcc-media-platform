@@ -67,6 +67,27 @@ type ContainerSection struct {
 
 func (ContainerSection) IsSection() {}
 
+type CustomPage struct {
+	ID          string             `json:"id"`
+	Code        string             `json:"code"`
+	Title       *string            `json:"title"`
+	Description *string            `json:"description"`
+	Sections    *SectionConnection `json:"sections"`
+}
+
+func (CustomPage) IsPage() {}
+
+type DefaultPage struct {
+	ID          string             `json:"id"`
+	Code        string             `json:"code"`
+	Collection  string             `json:"collection"`
+	Title       *string            `json:"title"`
+	Description *string            `json:"description"`
+	Sections    *SectionConnection `json:"sections"`
+}
+
+func (DefaultPage) IsPage() {}
+
 type Episode struct {
 	ID                string     `json:"id"`
 	Title             string     `json:"title"`
@@ -188,6 +209,17 @@ type Season struct {
 	Show        *Show      `json:"show"`
 	Episodes    []*Episode `json:"episodes"`
 }
+
+type SeasonPage struct {
+	ID          string             `json:"id"`
+	Code        string             `json:"code"`
+	Title       *string            `json:"title"`
+	Description *string            `json:"description"`
+	Sections    *SectionConnection `json:"sections"`
+	Season      *Season            `json:"season"`
+}
+
+func (SeasonPage) IsPage() {}
 
 type SeasonSearchItem struct {
 	ID          string  `json:"id"`

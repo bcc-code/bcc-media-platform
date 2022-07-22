@@ -5,4 +5,4 @@ SELECT * FROM sections_expanded;
 SELECT * FROM sections_expanded s WHERE s.id = ANY($1::int[]);
 
 -- name: GetSectionsForPageIDs :many
-SELECT * FROM sections_expanded s WHERE s.page = ANY($1::int[]);
+SELECT * FROM sections_expanded s WHERE s.page_id = ANY($1::int[]);

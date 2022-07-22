@@ -1,5 +1,5 @@
 -- name: ListCollections :many
-SELECT * FROM collections_expanded;
+SELECT * FROM collections;
 
 -- name: GetCollections :many
-SELECT * FROM collections_expanded c WHERE c.id = ANY($1::int[]);
+SELECT * FROM collections c WHERE c.id = ANY($1::int[]);

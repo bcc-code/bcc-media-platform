@@ -1,9 +1,41 @@
 directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
     | FIELD_DEFINITION
 
+#enum Status {
+#  published
+#  archived
+#  draft
+#}
+
 interface Page{
   id: ID!
   code: String!
+  #status: Status
+  title: String
+  description: String
+  sections(
+    first: Int!
+    after: Cursor
+  ): SectionConnection!
+}
+
+type CustomPage implements Page{
+  id: ID!
+  code: String!
+  #status: Status
+  title: String
+  description: String
+  sections(
+    first: Int!
+    after: Cursor
+  ): SectionConnection!
+}
+
+type DefaultPage implements Page{
+  id: ID!
+  code: String!
+  collection: String!
+  #status: Status
   title: String
   description: String
   sections(
@@ -15,25 +47,40 @@ interface Page{
 type ShowPage implements Page{
   id: ID!
   code: String!
+  #status: Status
   title: String
   description: String
   sections(
     first: Int!
     after: Cursor
   ): SectionConnection!
-  show: Show @goField(forceResolver: true)
+  show: Show! @goField(forceResolver: true)
+}
+
+type SeasonPage implements Page{
+  id: ID!
+  code: String!
+  #status: Status
+  title: String
+  description: String
+  sections(
+    first: Int!
+    after: Cursor
+  ): SectionConnection!
+  season: Season! @goField(forceResolver: true)
 }
 
 type EpisodePage implements Page{
   id: ID!
   code: String!
+  #status: Status
   title: String
   description: String
   sections(
     first: Int!
     after: Cursor
   ): SectionConnection!
-  episode: Episode @goField(forceResolver: true)
+  episode: Episode! @goField(forceResolver: true)
 }
 
 type PaginationInfo{

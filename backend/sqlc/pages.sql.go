@@ -12,31 +12,30 @@ import (
 )
 
 const getPages = `-- name: GetPages :many
-SELECT code, date_created, date_updated, id, sort, status, system_page, user_created, user_updated, type, episode_id, show_id FROM pages WHERE id = ANY ($1::int[])
+SELECT id, code, type, published, show_id, season_id, episode_id, collection, title, description, roles FROM pages_expanded WHERE id = ANY ($1::int[])
 `
 
-func (q *Queries) GetPages(ctx context.Context, dollar_1 []int32) ([]Page, error) {
+func (q *Queries) GetPages(ctx context.Context, dollar_1 []int32) ([]PagesExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, getPages, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Page
+	var items []PagesExpanded
 	for rows.Next() {
-		var i Page
+		var i PagesExpanded
 		if err := rows.Scan(
-			&i.Code,
-			&i.DateCreated,
-			&i.DateUpdated,
 			&i.ID,
-			&i.Sort,
-			&i.Status,
-			&i.SystemPage,
-			&i.UserCreated,
-			&i.UserUpdated,
+			&i.Code,
 			&i.Type,
-			&i.EpisodeID,
+			&i.Published,
 			&i.ShowID,
+			&i.SeasonID,
+			&i.EpisodeID,
+			&i.Collection,
+			&i.Title,
+			&i.Description,
+			&i.Roles,
 		); err != nil {
 			return nil, err
 		}
@@ -52,31 +51,30 @@ func (q *Queries) GetPages(ctx context.Context, dollar_1 []int32) ([]Page, error
 }
 
 const listPages = `-- name: ListPages :many
-SELECT code, date_created, date_updated, id, sort, status, system_page, user_created, user_updated, type, episode_id, show_id FROM pages
+SELECT id, code, type, published, show_id, season_id, episode_id, collection, title, description, roles FROM pages_expanded
 `
 
-func (q *Queries) ListPages(ctx context.Context) ([]Page, error) {
+func (q *Queries) ListPages(ctx context.Context) ([]PagesExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, listPages)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Page
+	var items []PagesExpanded
 	for rows.Next() {
-		var i Page
+		var i PagesExpanded
 		if err := rows.Scan(
-			&i.Code,
-			&i.DateCreated,
-			&i.DateUpdated,
 			&i.ID,
-			&i.Sort,
-			&i.Status,
-			&i.SystemPage,
-			&i.UserCreated,
-			&i.UserUpdated,
+			&i.Code,
 			&i.Type,
-			&i.EpisodeID,
+			&i.Published,
 			&i.ShowID,
+			&i.SeasonID,
+			&i.EpisodeID,
+			&i.Collection,
+			&i.Title,
+			&i.Description,
+			&i.Roles,
 		); err != nil {
 			return nil, err
 		}

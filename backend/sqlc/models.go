@@ -121,18 +121,17 @@ type Category struct {
 }
 
 type Collection struct {
-	Content               string                `db:"content" json:"content"`
-	DateCreated           time.Time             `db:"date_created" json:"dateCreated"`
-	DateUpdated           time.Time             `db:"date_updated" json:"dateUpdated"`
-	ID                    int32                 `db:"id" json:"id"`
-	LegacyOrderBy         null_v4.String        `db:"legacy_order_by" json:"legacyOrderBy"`
-	ListID                null_v4.Int           `db:"list_id" json:"listID"`
-	ShowEpisodesInSection sql.NullBool          `db:"show_episodes_in_section" json:"showEpisodesInSection"`
-	ShowID                null_v4.Int           `db:"show_id" json:"showID"`
-	Sort                  null_v4.Int           `db:"sort" json:"sort"`
-	UserCreated           uuid.NullUUID         `db:"user_created" json:"userCreated"`
-	UserUpdated           uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
-	QueryFilter           pqtype.NullRawMessage `db:"query_filter" json:"queryFilter"`
+	DateCreated         time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated         time.Time             `db:"date_updated" json:"dateUpdated"`
+	ID                  int32                 `db:"id" json:"id"`
+	Sort                null_v4.Int           `db:"sort" json:"sort"`
+	UserCreated         uuid.NullUUID         `db:"user_created" json:"userCreated"`
+	UserUpdated         uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	Collection          null_v4.String        `db:"collection" json:"collection"`
+	ShowsQueryFilter    pqtype.NullRawMessage `db:"shows_query_filter" json:"showsQueryFilter"`
+	SeasonsQueryFilter  pqtype.NullRawMessage `db:"seasons_query_filter" json:"seasonsQueryFilter"`
+	EpisodesQueryFilter pqtype.NullRawMessage `db:"episodes_query_filter" json:"episodesQueryFilter"`
+	Name                null_v4.String        `db:"name" json:"name"`
 }
 
 type CollectionsEpisode struct {
@@ -140,13 +139,6 @@ type CollectionsEpisode struct {
 	EpisodesID    null_v4.Int `db:"episodes_id" json:"episodesID"`
 	ID            int32       `db:"id" json:"id"`
 	Sort          null_v4.Int `db:"sort" json:"sort"`
-}
-
-type CollectionsExpanded struct {
-	ID          int32           `db:"id" json:"id"`
-	DateCreated time.Time       `db:"date_created" json:"dateCreated"`
-	DateUpdated time.Time       `db:"date_updated" json:"dateUpdated"`
-	Title       json.RawMessage `db:"title" json:"title"`
 }
 
 type CollectionsRelation struct {
@@ -166,13 +158,6 @@ type CollectionsShow struct {
 	CollectionsID null_v4.Int `db:"collections_id" json:"collectionsID"`
 	ID            int32       `db:"id" json:"id"`
 	ShowsID       null_v4.Int `db:"shows_id" json:"showsID"`
-}
-
-type CollectionsTranslation struct {
-	CollectionsID int32          `db:"collections_id" json:"collectionsID"`
-	ID            int32          `db:"id" json:"id"`
-	LanguagesCode string         `db:"languages_code" json:"languagesCode"`
-	Title         null_v4.String `db:"title" json:"title"`
 }
 
 type DirectusActivity struct {
@@ -642,12 +627,35 @@ type Page struct {
 	ID          int32          `db:"id" json:"id"`
 	Sort        null_v4.Int    `db:"sort" json:"sort"`
 	Status      string         `db:"status" json:"status"`
-	SystemPage  sql.NullBool   `db:"system_page" json:"systemPage"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 	Type        null_v4.String `db:"type" json:"type"`
 	EpisodeID   null_v4.Int    `db:"episode_id" json:"episodeID"`
 	ShowID      null_v4.Int    `db:"show_id" json:"showID"`
+	Collection  null_v4.String `db:"collection" json:"collection"`
+	SeasonID    null_v4.Int    `db:"season_id" json:"seasonID"`
+}
+
+type PagesExpanded struct {
+	ID          int32                 `db:"id" json:"id"`
+	Code        null_v4.String        `db:"code" json:"code"`
+	Type        null_v4.String        `db:"type" json:"type"`
+	Published   bool                  `db:"published" json:"published"`
+	ShowID      null_v4.Int           `db:"show_id" json:"showID"`
+	SeasonID    null_v4.Int           `db:"season_id" json:"seasonID"`
+	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeID"`
+	Collection  null_v4.String        `db:"collection" json:"collection"`
+	Title       pqtype.NullRawMessage `db:"title" json:"title"`
+	Description pqtype.NullRawMessage `db:"description" json:"description"`
+	Roles       interface{}           `db:"roles" json:"roles"`
+}
+
+type PagesTranslation struct {
+	ID            int32          `db:"id" json:"id"`
+	PagesID       null_v4.Int    `db:"pages_id" json:"pagesID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
 }
 
 type Season struct {
@@ -736,37 +744,38 @@ type SeasonsUsergroup struct {
 }
 
 type Section struct {
-	CollectionID    null_v4.Int    `db:"collection_id" json:"collectionID"`
-	DateCreated     time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated     time.Time      `db:"date_updated" json:"dateUpdated"`
-	DisplayContract null_v4.String `db:"display_contract" json:"displayContract"`
-	ID              int32          `db:"id" json:"id"`
-	LegacyID        null_v4.Int    `db:"legacy_id" json:"legacyID"`
-	Page            int32          `db:"page" json:"page"`
-	Status          string         `db:"status" json:"status"`
-	Type            string         `db:"type" json:"type"`
-	UserCreated     uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated     uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	Sort            null_v4.Int    `db:"sort" json:"sort"`
+	CollectionID null_v4.Int    `db:"collection_id" json:"collectionID"`
+	DateCreated  time.Time      `db:"date_created" json:"dateCreated"`
+	DateUpdated  time.Time      `db:"date_updated" json:"dateUpdated"`
+	ID           int32          `db:"id" json:"id"`
+	Status       string         `db:"status" json:"status"`
+	UserCreated  uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated  uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	Sort         null_v4.Int    `db:"sort" json:"sort"`
+	Style        null_v4.String `db:"style" json:"style"`
+	PageID       null_v4.Int    `db:"page_id" json:"pageID"`
 }
 
 type SectionsExpanded struct {
-	ID           int32           `db:"id" json:"id"`
-	Page         int32           `db:"page" json:"page"`
-	Type         string          `db:"type" json:"type"`
-	Published    bool            `db:"published" json:"published"`
-	DateCreated  time.Time       `db:"date_created" json:"dateCreated"`
-	DateUpdated  time.Time       `db:"date_updated" json:"dateUpdated"`
-	CollectionID null_v4.Int     `db:"collection_id" json:"collectionID"`
-	Title        json.RawMessage `db:"title" json:"title"`
+	ID           int32                 `db:"id" json:"id"`
+	PageID       null_v4.Int           `db:"page_id" json:"pageID"`
+	Style        null_v4.String        `db:"style" json:"style"`
+	Sort         null_v4.Int           `db:"sort" json:"sort"`
+	Published    bool                  `db:"published" json:"published"`
+	DateCreated  time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated  time.Time             `db:"date_updated" json:"dateUpdated"`
+	CollectionID null_v4.Int           `db:"collection_id" json:"collectionID"`
+	Title        pqtype.NullRawMessage `db:"title" json:"title"`
+	Description  pqtype.NullRawMessage `db:"description" json:"description"`
+	Roles        interface{}           `db:"roles" json:"roles"`
 }
 
 type SectionsTranslation struct {
-	ID            int32       `db:"id" json:"id"`
-	LanguagesCode string      `db:"languages_code" json:"languagesCode"`
-	LegacyTitleID null_v4.Int `db:"legacy_title_id" json:"legacyTitleID"`
-	SectionsID    int32       `db:"sections_id" json:"sectionsID"`
-	Title         string      `db:"title" json:"title"`
+	ID            int32          `db:"id" json:"id"`
+	SectionsID    null_v4.Int    `db:"sections_id" json:"sectionsID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
 }
 
 type SectionsUsergroup struct {

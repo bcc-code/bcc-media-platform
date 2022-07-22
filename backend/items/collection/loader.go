@@ -7,8 +7,8 @@ import (
 )
 
 // NewBatchLoader returns a configured batch loader for GQL Collection
-func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.CollectionExpanded] {
-	return common.NewBatchLoader(queries.GetCollections, func(row sqlc.CollectionExpanded) int {
+func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.Collection] {
+	return common.NewBatchLoader(queries.GetCollections, func(row sqlc.Collection) int {
 		return int(row.ID)
 	}, func(id int) int32 {
 		return int32(id)
