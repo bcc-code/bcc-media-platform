@@ -57,7 +57,7 @@ collections:
       archive_value: null
       collapse: open
       collection: asset_management
-      color: null
+      color: '#E35169'
       display_template: null
       group: null
       hidden: false
@@ -158,7 +158,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 24
+      sort: 12
       sort_field: null
       translations: null
       unarchive_value: null
@@ -182,7 +182,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 25
+      sort: 13
       sort_field: null
       translations: null
       unarchive_value: null
@@ -275,7 +275,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 16
+      sort: 1
       sort_field: null
       translations: null
       unarchive_value: null
@@ -330,7 +330,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 17
+      sort: 4
       sort_field: null
       translations: null
       unarchive_value: null
@@ -338,14 +338,14 @@ collections:
       comment: null
       name: collections_episodes
       schema: public
-  - collection: collections_relations
+  - collection: collections_pages
     meta:
       accountability: all
       archive_app_filter: true
       archive_field: null
       archive_value: null
       collapse: open
-      collection: collections_relations
+      collection: collections_pages
       color: null
       display_template: null
       group: null
@@ -354,13 +354,13 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 18
+      sort: 1
       sort_field: null
       translations: null
       unarchive_value: null
     schema:
       comment: null
-      name: collections_relations
+      name: collections_pages
       schema: public
   - collection: collections_seasons
     meta:
@@ -378,7 +378,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 19
+      sort: 3
       sort_field: null
       translations: null
       unarchive_value: null
@@ -402,7 +402,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 20
+      sort: 2
       sort_field: null
       translations: null
       unarchive_value: null
@@ -418,7 +418,7 @@ collections:
       archive_value: null
       collapse: open
       collection: config
-      color: null
+      color: '#2ECDA7'
       display_template: null
       group: null
       hidden: false
@@ -480,7 +480,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 21
+      sort: 10
       sort_field: null
       translations: null
       unarchive_value: null
@@ -504,7 +504,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 22
+      sort: 2
       sort_field: null
       translations: null
       unarchive_value: null
@@ -528,7 +528,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 12
+      sort: 1
       sort_field: null
       translations: null
       unarchive_value: null
@@ -552,7 +552,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 7
+      sort: 3
       sort_field: null
       translations: null
       unarchive_value: null
@@ -576,7 +576,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 14
+      sort: 4
       sort_field: null
       translations: null
       unarchive_value: null
@@ -600,7 +600,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 15
+      sort: 5
       sort_field: null
       translations: null
       unarchive_value: null
@@ -672,7 +672,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 23
+      sort: 11
       sort_field: null
       translations: null
       unarchive_value: null
@@ -717,7 +717,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 26
+      sort: 14
       sort_field: null
       translations: null
       unarchive_value: null
@@ -834,7 +834,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 8
+      sort: 1
       sort_field: null
       translations: null
       unarchive_value: null
@@ -858,7 +858,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 9
+      sort: 7
       sort_field: null
       translations: null
       unarchive_value: null
@@ -978,7 +978,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 13
+      sort: 1
       sort_field: null
       translations: null
       unarchive_value: null
@@ -1002,7 +1002,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 10
+      sort: 8
       sort_field: null
       translations: null
       unarchive_value: null
@@ -1074,7 +1074,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 11
+      sort: 9
       sort_field: null
       translations: null
       unarchive_value: null
@@ -4590,6 +4590,8 @@ fields:
       note: null
       options:
         choices:
+          - text: Pages
+            value: pages
           - text: Shows
             value: shows
           - text: Seasons
@@ -4607,11 +4609,11 @@ fields:
           translation: Collection
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       comment: null
       data_type: character varying
-      default_value: shows
+      default_value: pages
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
@@ -4744,6 +4746,43 @@ fields:
       table: collections
     type: timestamp
   - collection: collections
+    field: episodes
+    meta:
+      collection: collections
+      conditions:
+        - name: Hidden if not Episodes
+          rule:
+            _and:
+              - _or:
+                  - collection:
+                      _neq: episodes
+                  - filter_type:
+                      _neq: select
+          hidden: true
+          options:
+            enableCreate: true
+            enableSelect: true
+            limit: 15
+      display: related-values
+      display_options: null
+      field: episodes
+      group: config
+      hidden: false
+      interface: list-m2m
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 9
+      special:
+        - m2m
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: collections
     field: episodes_query_filter
     meta:
       collection: collections
@@ -4751,8 +4790,11 @@ fields:
         - name: Hidden if not Episodes
           rule:
             _and:
-              - collection:
-                  _neq: episodes
+              - _or:
+                  - collection:
+                      _neq: episodes
+                  - filter_type:
+                      _neq: query
           hidden: true
           options:
             fieldCollection: ''
@@ -4767,7 +4809,7 @@ fields:
         fieldCollection: episodes
       readonly: false
       required: false
-      sort: 4
+      sort: 10
       special:
         - cast-json
       translations: null
@@ -4794,6 +4836,52 @@ fields:
       schema: public
       table: collections
     type: json
+  - collection: collections
+    field: filter_type
+    meta:
+      collection: collections
+      conditions: null
+      display: null
+      display_options: null
+      field: filter_type
+      group: config
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        choices:
+          - text: Select
+            value: select
+          - text: Query
+            value: query
+      readonly: false
+      required: false
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      comment: null
+      data_type: character varying
+      default_value: select
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: 255
+      name: filter_type
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: collections
+    type: string
   - collection: collections
     field: id
     meta:
@@ -4903,6 +4991,134 @@ fields:
       table: collections
     type: string
   - collection: collections
+    field: pages
+    meta:
+      collection: collections
+      conditions:
+        - name: Hidden if not Pages
+          rule:
+            _and:
+              - _or:
+                  - filter_type:
+                      _neq: select
+                  - collection:
+                      _neq: pages
+          hidden: true
+          options:
+            enableCreate: true
+            enableSelect: true
+            limit: 15
+      display: related-values
+      display_options: null
+      field: pages
+      group: config
+      hidden: false
+      interface: list-m2m
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 3
+      special:
+        - m2m
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: collections
+    field: pages_query_filter
+    meta:
+      collection: collections
+      conditions:
+        - name: Hidden if not Pages
+          rule:
+            _and:
+              - _or:
+                  - collection:
+                      _neq: pages
+                  - filter_type:
+                      _neq: query
+          hidden: true
+          options:
+            fieldCollection: ''
+      display: null
+      display_options: null
+      field: pages_query_filter
+      group: config
+      hidden: false
+      interface: query-builder
+      note: null
+      options:
+        fieldCollection: pages
+      readonly: false
+      required: false
+      sort: 4
+      special:
+        - cast-json
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: json
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: pages_query_filter
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: collections
+    type: json
+  - collection: collections
+    field: seasons
+    meta:
+      collection: collections
+      conditions:
+        - name: Hidden if not Seasons
+          rule:
+            _and:
+              - _or:
+                  - collection:
+                      _neq: seasons
+                  - filter_type:
+                      _neq: select
+          options:
+            enableCreate: true
+            enableSelect: true
+            limit: 15
+          hidden: true
+      display: null
+      display_options: null
+      field: seasons
+      group: config
+      hidden: false
+      interface: list-m2m
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 7
+      special:
+        - m2m
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: collections
     field: seasons_query_filter
     meta:
       collection: collections
@@ -4910,8 +5126,11 @@ fields:
         - name: Hidden if not Seasons
           rule:
             _and:
-              - collection:
-                  _neq: seasons
+              - _or:
+                  - collection:
+                      _neq: seasons
+                  - filter_type:
+                      _neq: query
           hidden: true
           options:
             fieldCollection: ''
@@ -4926,7 +5145,7 @@ fields:
         fieldCollection: seasons
       readonly: false
       required: false
-      sort: 3
+      sort: 8
       special:
         - cast-json
       translations: null
@@ -4954,6 +5173,40 @@ fields:
       table: collections
     type: json
   - collection: collections
+    field: shows
+    meta:
+      collection: collections
+      conditions:
+        - name: Hidden if not Shows
+          rule:
+            _and:
+              - _or:
+                  - filter_type:
+                      _neq: select
+                  - collection:
+                      _neq: shows
+          options: {}
+          hidden: true
+      display: null
+      display_options: null
+      field: shows
+      group: config
+      hidden: false
+      interface: list-m2m
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 5
+      special:
+        - m2m
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: collections
     field: shows_query_filter
     meta:
       collection: collections
@@ -4961,8 +5214,11 @@ fields:
         - name: Hidden if not Shows
           rule:
             _and:
-              - collection:
-                  _neq: shows
+              - _or:
+                  - collection:
+                      _neq: shows
+                  - filter_type:
+                      _neq: query
           options:
             fieldCollection: ''
           hidden: true
@@ -4977,7 +5233,7 @@ fields:
         fieldCollection: shows
       readonly: false
       required: false
-      sort: 2
+      sort: 6
       special:
         - cast-json
       translations: null
@@ -5320,51 +5576,10 @@ fields:
       schema: public
       table: collections_episodes
     type: integer
-  - collection: collections_relations
-    field: collection
-    meta:
-      collection: collections_relations
-      conditions: null
-      display: null
-      display_options: null
-      field: collection
-      group: null
-      hidden: true
-      interface: null
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: null
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: character varying
-      default_value: null
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: 255
-      name: collection
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: collections_relations
-    type: string
-  - collection: collections_relations
+  - collection: collections_pages
     field: collections_id
     meta:
-      collection: collections_relations
+      collection: collections_pages
       conditions: null
       display: null
       display_options: null
@@ -5400,12 +5615,12 @@ fields:
       numeric_precision: 32
       numeric_scale: 0
       schema: public
-      table: collections_relations
+      table: collections_pages
     type: integer
-  - collection: collections_relations
+  - collection: collections_pages
     field: id
     meta:
-      collection: collections_relations
+      collection: collections_pages
       conditions: null
       display: null
       display_options: null
@@ -5426,7 +5641,7 @@ fields:
     schema:
       comment: null
       data_type: integer
-      default_value: nextval('collections_relations_id_seq'::regclass)
+      default_value: nextval('collections_pages_id_seq'::regclass)
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
@@ -5441,16 +5656,16 @@ fields:
       numeric_precision: 32
       numeric_scale: 0
       schema: public
-      table: collections_relations
+      table: collections_pages
     type: integer
-  - collection: collections_relations
-    field: item
+  - collection: collections_pages
+    field: pages_id
     meta:
-      collection: collections_relations
+      collection: collections_pages
       conditions: null
       display: null
       display_options: null
-      field: item
+      field: pages_id
       group: null
       hidden: true
       interface: null
@@ -5466,7 +5681,48 @@ fields:
       width: full
     schema:
       comment: null
-      data_type: character varying
+      data_type: integer
+      default_value: null
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: pages
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: pages_id
+      numeric_precision: 32
+      numeric_scale: 0
+      schema: public
+      table: collections_pages
+    type: integer
+  - collection: collections_pages
+    field: sort
+    meta:
+      collection: collections_pages
+      conditions: null
+      display: null
+      display_options: null
+      field: sort
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: integer
       default_value: null
       foreign_key_column: null
       foreign_key_schema: null
@@ -5477,13 +5733,13 @@ fields:
       is_nullable: true
       is_primary_key: false
       is_unique: false
-      max_length: 255
-      name: item
-      numeric_precision: null
-      numeric_scale: null
+      max_length: null
+      name: sort
+      numeric_precision: 32
+      numeric_scale: 0
       schema: public
-      table: collections_relations
-    type: string
+      table: collections_pages
+    type: integer
   - collection: collections_seasons
     field: collections_id
     meta:
@@ -5607,6 +5863,47 @@ fields:
       schema: public
       table: collections_seasons
     type: integer
+  - collection: collections_seasons
+    field: sort
+    meta:
+      collection: collections_seasons
+      conditions: null
+      display: null
+      display_options: null
+      field: sort
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: integer
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: sort
+      numeric_precision: 32
+      numeric_scale: 0
+      schema: public
+      table: collections_seasons
+    type: integer
   - collection: collections_shows
     field: collections_id
     meta:
@@ -5725,6 +6022,47 @@ fields:
       is_unique: false
       max_length: null
       name: shows_id
+      numeric_precision: 32
+      numeric_scale: 0
+      schema: public
+      table: collections_shows
+    type: integer
+  - collection: collections_shows
+    field: sort
+    meta:
+      collection: collections_shows
+      conditions: null
+      display: null
+      display_options: null
+      field: sort
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: integer
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: sort
       numeric_precision: 32
       numeric_scale: 0
       schema: public
@@ -11726,7 +12064,7 @@ fields:
       note: null
       options:
         choices:
-          - text: Carousel
+          - text: Slider
             value: carousel
           - text: Cards
             value: cards
@@ -15675,8 +16013,8 @@ relations:
       one_allowed_collections: null
       one_collection: collections
       one_collection_field: null
-      one_deselect_action: delete
-      one_field: null
+      one_deselect_action: nullify
+      one_field: episodes
       sort_field: sort
     related_collection: collections
     schema:
@@ -15685,7 +16023,7 @@ relations:
       foreign_key_column: id
       foreign_key_schema: public
       foreign_key_table: collections
-      on_delete: CASCADE
+      on_delete: SET NULL
       on_update: NO ACTION
       table: collections_episodes
   - collection: collections_episodes
@@ -15707,47 +16045,53 @@ relations:
       foreign_key_column: id
       foreign_key_schema: public
       foreign_key_table: episodes
-      on_delete: CASCADE
+      on_delete: SET NULL
       on_update: NO ACTION
       table: collections_episodes
-  - collection: collections_relations
+  - collection: collections_pages
     field: collections_id
     meta:
-      junction_field: item
-      many_collection: collections_relations
+      junction_field: pages_id
+      many_collection: collections_pages
       many_field: collections_id
       one_allowed_collections: null
       one_collection: collections
       one_collection_field: null
       one_deselect_action: nullify
-      one_field: null
-      sort_field: null
+      one_field: pages
+      sort_field: sort
     related_collection: collections
     schema:
       column: collections_id
-      constraint_name: collections_relations_collections_id_foreign
+      constraint_name: collections_pages_collections_id_foreign
       foreign_key_column: id
       foreign_key_schema: public
       foreign_key_table: collections
-      on_delete: CASCADE
+      on_delete: SET NULL
       on_update: NO ACTION
-      table: collections_relations
-  - collection: collections_relations
-    field: item
+      table: collections_pages
+  - collection: collections_pages
+    field: pages_id
     meta:
       junction_field: collections_id
-      many_collection: collections_relations
-      many_field: item
-      one_allowed_collections:
-        - episodes
-        - shows
-      one_collection: null
-      one_collection_field: collection
+      many_collection: collections_pages
+      many_field: pages_id
+      one_allowed_collections: null
+      one_collection: pages
+      one_collection_field: null
       one_deselect_action: nullify
       one_field: null
       sort_field: null
-    related_collection: null
-    schema: null
+    related_collection: pages
+    schema:
+      column: pages_id
+      constraint_name: collections_pages_pages_id_foreign
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: pages
+      on_delete: SET NULL
+      on_update: NO ACTION
+      table: collections_pages
   - collection: collections_seasons
     field: collections_id
     meta:
@@ -15757,9 +16101,9 @@ relations:
       one_allowed_collections: null
       one_collection: collections
       one_collection_field: null
-      one_deselect_action: delete
-      one_field: null
-      sort_field: null
+      one_deselect_action: nullify
+      one_field: seasons
+      sort_field: sort
     related_collection: collections
     schema:
       column: collections_id
@@ -15767,7 +16111,7 @@ relations:
       foreign_key_column: id
       foreign_key_schema: public
       foreign_key_table: collections
-      on_delete: CASCADE
+      on_delete: SET NULL
       on_update: NO ACTION
       table: collections_seasons
   - collection: collections_seasons
@@ -15789,7 +16133,7 @@ relations:
       foreign_key_column: id
       foreign_key_schema: public
       foreign_key_table: seasons
-      on_delete: CASCADE
+      on_delete: SET NULL
       on_update: NO ACTION
       table: collections_seasons
   - collection: collections_shows
@@ -15801,9 +16145,9 @@ relations:
       one_allowed_collections: null
       one_collection: collections
       one_collection_field: null
-      one_deselect_action: delete
-      one_field: null
-      sort_field: null
+      one_deselect_action: nullify
+      one_field: shows
+      sort_field: sort
     related_collection: collections
     schema:
       column: collections_id
@@ -15811,7 +16155,7 @@ relations:
       foreign_key_column: id
       foreign_key_schema: public
       foreign_key_table: collections
-      on_delete: CASCADE
+      on_delete: SET NULL
       on_update: NO ACTION
       table: collections_shows
   - collection: collections_shows
@@ -15833,7 +16177,7 @@ relations:
       foreign_key_column: id
       foreign_key_schema: public
       foreign_key_table: shows
-      on_delete: CASCADE
+      on_delete: SET NULL
       on_update: NO ACTION
       table: collections_shows
   - collection: episodes

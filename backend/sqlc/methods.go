@@ -3,6 +3,7 @@ package sqlc
 import (
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"time"
 )
 
 func (file *DirectusFile) GetImageUrl() string {
@@ -63,5 +64,20 @@ func (i EpisodeExpanded) GetAvailability() common.Availability {
 		Published: i.Published,
 		From:      i.AvailableFrom,
 		To:        i.AvailableTo,
+	}
+}
+
+// GetRoles returns common.Roles for this item
+func (i PageExpanded) GetRoles() common.Roles {
+	return common.Roles{
+		Access: []string{"public"},
+	}
+}
+
+func (i PageExpanded) GetAvailability() common.Availability {
+	return common.Availability{
+		Published: true,
+		From:      time.Now(),
+		To:        time.Now().Add(time.Second * 10),
 	}
 }

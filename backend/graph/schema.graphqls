@@ -14,21 +14,21 @@ interface Page{
   title: String
   description: String
   sections(
-    first: Int!
+    first: Int
     after: Cursor
-  ): SectionConnection!
+  ): SectionConnection! @goField(forceResolver: true)
 }
 
 type CustomPage implements Page{
   id: ID!
   code: String!
   #status: Status
-  title: String
+  title: String!
   description: String
   sections(
-    first: Int!
+    first: Int
     after: Cursor
-  ): SectionConnection!
+  ): SectionConnection! @goField(forceResolver: true)
 }
 
 type DefaultPage implements Page{
@@ -36,22 +36,22 @@ type DefaultPage implements Page{
   code: String!
   collection: String!
   #status: Status
-  title: String
+  title: String!
   description: String
   sections(
-    first: Int!
+    first: Int
     after: Cursor
-  ): SectionConnection!
+  ): SectionConnection! @goField(forceResolver: true)
 }
 
 type ShowPage implements Page{
   id: ID!
   code: String!
   #status: Status
-  title: String
+  title: String!
   description: String
   sections(
-    first: Int!
+    first: Int
     after: Cursor
   ): SectionConnection!
   show: Show! @goField(forceResolver: true)
@@ -61,10 +61,10 @@ type SeasonPage implements Page{
   id: ID!
   code: String!
   #status: Status
-  title: String
+  title: String!
   description: String
   sections(
-    first: Int!
+    first: Int
     after: Cursor
   ): SectionConnection!
   season: Season! @goField(forceResolver: true)
@@ -74,10 +74,10 @@ type EpisodePage implements Page{
   id: ID!
   code: String!
   #status: Status
-  title: String
+  title: String!
   description: String
   sections(
-    first: Int!
+    first: Int
     after: Cursor
   ): SectionConnection!
   episode: Episode! @goField(forceResolver: true)
@@ -107,67 +107,118 @@ enum Language{
 
 interface Section{
   id: ID!
-  title: String
+  title: String!
 }
 
+enum ItemSectionType {
+  cards
+  slider
+}
 
 type ItemSection implements Section {
   id: ID!
-  title: String
-  body: SectionBody
   pageId: ID!
+  page: Page! @goField(forceResolver: true)
+  sort: Int!
+  title: String!
+  type: ItemSectionType!
+  collectionId: ID
+  collection: Collection @goField(forceResolver: true)
 }
 
-interface SectionBody {
+interface Collection {
   id: ID!
-  items: [Item!]!
+  items: [CollectionItem!]!
 }
 
-type ContainerSection implements Section{
+type PageCollection implements Collection {
   id: ID!
-  title: String
-  sections: [Section!]!
+  items: [PageItem!]! @goField(forceResolver: true)
 }
 
-type SliderItemsSection implements SectionBody {
+type ShowCollection implements Collection {
   id: ID!
-  items: [Item!]!
+  items: [ShowItem!]! @goField(forceResolver: true)
 }
 
-type BubblesItemsSection implements SectionBody {
+type SeasonCollection implements Collection {
   id: ID!
-  items: [Item!]!
-  borderColor: String
+  items: [SeasonItem!]! @goField(forceResolver: true)
 }
+
+type EpisodeCollection implements Collection {
+  id: ID!
+  items: [EpisodeItem!]! @goField(forceResolver: true)
+}
+
+#interface SectionBody {
+#  id: ID!
+#}
+#
+#type ContainerSection implements Section{
+#  id: ID!
+#  title: String!
+#  sections: [Section!]!
+#}
+
+#type SliderItemsSection implements SectionBody {
+#  id: ID!
+#  items: [Item!]!
+#}
+#
+#type BubblesItemsSection implements SectionBody {
+#  id: ID!
+#  items: [Item!]!
+#  borderColor: String
+#}
 
 scalar Cursor
 scalar Date
 
-interface Item {
+interface CollectionItem {
   id: ID!
-  title: String
-  imageUrl: String!
+  sort: Int!
+  title: String!
+  imageUrl: String
 }
 
-type URLItem implements Item {
+type URLItem implements CollectionItem {
   id: ID!
-  title: String
-  imageUrl: String!
+  sort: Int!
+  title: String!
+  imageUrl: String
   url: String!
 }
 
-type EpisodeItem implements Item {
+type ShowItem implements CollectionItem {
   id: ID!
-  title: String
-  imageUrl: String!
-  episode: Episode
+  sort: Int!
+  title: String!
+  imageUrl: String
+  show: Show!
 }
 
-type PageItem implements Item {
+type SeasonItem implements CollectionItem {
   id: ID!
-  title: String
+  sort: Int!
+  title: String!
   imageUrl: String!
-  pageId: ID!
+  season: Season!
+}
+
+type EpisodeItem implements CollectionItem {
+  id: ID!
+  sort: Int!
+  title: String!
+  imageUrl: String
+  episode: Episode!
+}
+
+type PageItem implements CollectionItem {
+  id: ID!
+  sort: Int!
+  title: String!
+  imageUrl: String
   page: Page!
 }
 

@@ -28,3 +28,14 @@ func ShowFromSQL(ctx context.Context, row *sqlc.ShowExpanded) *Show {
 		Description: descriptionMap.Get(languages),
 	}
 }
+
+// ShowItemFromSQL returns a ShowItem from a sql row
+func ShowItemFromSQL(ctx context.Context, row *sqlc.ShowExpanded) *ShowItem {
+	show := ShowFromSQL(ctx, row)
+
+	return &ShowItem{
+		ID:    show.ID,
+		Show:  show,
+		Title: show.Title,
+	}
+}

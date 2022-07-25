@@ -52,3 +52,14 @@ func EpisodeFromSQL(ctx context.Context, row *sqlc.EpisodeExpanded) *Episode {
 
 	return episode
 }
+
+// EpisodeItemFromSQL converts a SQL row into a GQL Episode Item
+func EpisodeItemFromSQL(ctx context.Context, row *sqlc.EpisodeExpanded) *EpisodeItem {
+	episode := EpisodeFromSQL(ctx, row)
+
+	return &EpisodeItem{
+		ID:      episode.ID,
+		Title:   episode.Title,
+		Episode: episode,
+	}
+}

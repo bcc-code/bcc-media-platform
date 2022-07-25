@@ -132,32 +132,50 @@ type Collection struct {
 	SeasonsQueryFilter  pqtype.NullRawMessage `db:"seasons_query_filter" json:"seasonsQueryFilter"`
 	EpisodesQueryFilter pqtype.NullRawMessage `db:"episodes_query_filter" json:"episodesQueryFilter"`
 	Name                null_v4.String        `db:"name" json:"name"`
+	FilterType          null_v4.String        `db:"filter_type" json:"filterType"`
+	PagesQueryFilter    pqtype.NullRawMessage `db:"pages_query_filter" json:"pagesQueryFilter"`
 }
 
 type CollectionsEpisode struct {
+	ID            int32       `db:"id" json:"id"`
 	CollectionsID null_v4.Int `db:"collections_id" json:"collectionsID"`
 	EpisodesID    null_v4.Int `db:"episodes_id" json:"episodesID"`
-	ID            int32       `db:"id" json:"id"`
 	Sort          null_v4.Int `db:"sort" json:"sort"`
 }
 
-type CollectionsRelation struct {
-	Collection    null_v4.String `db:"collection" json:"collection"`
-	CollectionsID null_v4.Int    `db:"collections_id" json:"collectionsID"`
-	ID            int32          `db:"id" json:"id"`
-	Item          null_v4.String `db:"item" json:"item"`
+type CollectionsExpanded struct {
+	ID                  int32                 `db:"id" json:"id"`
+	Collection          null_v4.String        `db:"collection" json:"collection"`
+	FilterType          null_v4.String        `db:"filter_type" json:"filterType"`
+	PageIds             pqtype.NullRawMessage `db:"page_ids" json:"pageIds"`
+	PagesQueryFilter    pqtype.NullRawMessage `db:"pages_query_filter" json:"pagesQueryFilter"`
+	ShowIds             pqtype.NullRawMessage `db:"show_ids" json:"showIds"`
+	ShowsQueryFilter    pqtype.NullRawMessage `db:"shows_query_filter" json:"showsQueryFilter"`
+	SeasonIds           pqtype.NullRawMessage `db:"season_ids" json:"seasonIds"`
+	SeasonsQueryFilter  pqtype.NullRawMessage `db:"seasons_query_filter" json:"seasonsQueryFilter"`
+	EpisodeIds          pqtype.NullRawMessage `db:"episode_ids" json:"episodeIds"`
+	EpisodesQueryFilter pqtype.NullRawMessage `db:"episodes_query_filter" json:"episodesQueryFilter"`
+}
+
+type CollectionsPage struct {
+	ID            int32       `db:"id" json:"id"`
+	CollectionsID null_v4.Int `db:"collections_id" json:"collectionsID"`
+	PagesID       null_v4.Int `db:"pages_id" json:"pagesID"`
+	Sort          null_v4.Int `db:"sort" json:"sort"`
 }
 
 type CollectionsSeason struct {
-	CollectionsID null_v4.Int `db:"collections_id" json:"collectionsID"`
 	ID            int32       `db:"id" json:"id"`
+	CollectionsID null_v4.Int `db:"collections_id" json:"collectionsID"`
 	SeasonsID     null_v4.Int `db:"seasons_id" json:"seasonsID"`
+	Sort          null_v4.Int `db:"sort" json:"sort"`
 }
 
 type CollectionsShow struct {
-	CollectionsID null_v4.Int `db:"collections_id" json:"collectionsID"`
 	ID            int32       `db:"id" json:"id"`
+	CollectionsID null_v4.Int `db:"collections_id" json:"collectionsID"`
 	ShowsID       null_v4.Int `db:"shows_id" json:"showsID"`
+	Sort          null_v4.Int `db:"sort" json:"sort"`
 }
 
 type DirectusActivity struct {

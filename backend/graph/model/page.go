@@ -34,7 +34,7 @@ func PageFromSQL(ctx context.Context, item *sqlc.PageExpanded) Page {
 			return &DefaultPage{
 				ID:          id,
 				Code:        code,
-				Title:       title.GetValueOrNil(languages),
+				Title:       title.Get(languages),
 				Description: title.GetValueOrNil(languages),
 				Collection:  item.Collection.ValueOrZero(),
 			}
@@ -42,14 +42,14 @@ func PageFromSQL(ctx context.Context, item *sqlc.PageExpanded) Page {
 			return &CustomPage{
 				ID:          id,
 				Code:        code,
-				Title:       title.GetValueOrNil(languages),
+				Title:       title.Get(languages),
 				Description: title.GetValueOrNil(languages),
 			}
 		case "show":
 			return &ShowPage{
 				ID:          id,
 				Code:        code,
-				Title:       title.GetValueOrNil(languages),
+				Title:       title.Get(languages),
 				Description: title.GetValueOrNil(languages),
 				Show: &Show{
 					ID: strconv.Itoa(int(item.ShowID.ValueOrZero())),
@@ -59,7 +59,7 @@ func PageFromSQL(ctx context.Context, item *sqlc.PageExpanded) Page {
 			return &SeasonPage{
 				ID:          id,
 				Code:        code,
-				Title:       title.GetValueOrNil(languages),
+				Title:       title.Get(languages),
 				Description: title.GetValueOrNil(languages),
 				Season: &Season{
 					ID: strconv.Itoa(int(item.SeasonID.ValueOrZero())),
@@ -69,12 +69,32 @@ func PageFromSQL(ctx context.Context, item *sqlc.PageExpanded) Page {
 			return &EpisodePage{
 				ID:          strconv.Itoa(int(item.ID)),
 				Code:        code,
-				Title:       title.GetValueOrNil(languages),
+				Title:       title.Get(languages),
 				Description: title.GetValueOrNil(languages),
 				Episode: &Episode{
 					ID: strconv.Itoa(int(item.EpisodeID.ValueOrZero())),
 				},
 			}
+		}
+	}
+	return nil
+}
+
+func PageItemFromSQL(ctx context.Context, item *sqlc.PageExpanded) *PageItem {
+	page := PageFromSQL(ctx, item)
+
+	switch t := page.(type) {
+	case DefaultPage:
+		return &PageItem{
+			ID:    t.ID,
+			Page:  t,
+			Title: t.Title,
+		}
+	case CustomPage:
+		return &PageItem{
+			ID:    t.ID,
+			Page:  t,
+			Title: t.Title,
 		}
 	}
 	return nil

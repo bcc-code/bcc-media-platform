@@ -12,30 +12,30 @@ import (
 )
 
 const getCollections = `-- name: GetCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, shows_query_filter, seasons_query_filter, episodes_query_filter, name FROM collections c WHERE c.id = ANY($1::int[])
+SELECT id, collection, filter_type, page_ids, pages_query_filter, show_ids, shows_query_filter, season_ids, seasons_query_filter, episode_ids, episodes_query_filter FROM collections_expanded c WHERE c.id = ANY($1::int[])
 `
 
-func (q *Queries) GetCollections(ctx context.Context, dollar_1 []int32) ([]Collection, error) {
+func (q *Queries) GetCollections(ctx context.Context, dollar_1 []int32) ([]CollectionsExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, getCollections, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Collection
+	var items []CollectionsExpanded
 	for rows.Next() {
-		var i Collection
+		var i CollectionsExpanded
 		if err := rows.Scan(
-			&i.DateCreated,
-			&i.DateUpdated,
 			&i.ID,
-			&i.Sort,
-			&i.UserCreated,
-			&i.UserUpdated,
 			&i.Collection,
+			&i.FilterType,
+			&i.PageIds,
+			&i.PagesQueryFilter,
+			&i.ShowIds,
 			&i.ShowsQueryFilter,
+			&i.SeasonIds,
 			&i.SeasonsQueryFilter,
+			&i.EpisodeIds,
 			&i.EpisodesQueryFilter,
-			&i.Name,
 		); err != nil {
 			return nil, err
 		}
@@ -51,30 +51,30 @@ func (q *Queries) GetCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 }
 
 const listCollections = `-- name: ListCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, shows_query_filter, seasons_query_filter, episodes_query_filter, name FROM collections
+SELECT id, collection, filter_type, page_ids, pages_query_filter, show_ids, shows_query_filter, season_ids, seasons_query_filter, episode_ids, episodes_query_filter FROM collections_expanded
 `
 
-func (q *Queries) ListCollections(ctx context.Context) ([]Collection, error) {
+func (q *Queries) ListCollections(ctx context.Context) ([]CollectionsExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, listCollections)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Collection
+	var items []CollectionsExpanded
 	for rows.Next() {
-		var i Collection
+		var i CollectionsExpanded
 		if err := rows.Scan(
-			&i.DateCreated,
-			&i.DateUpdated,
 			&i.ID,
-			&i.Sort,
-			&i.UserCreated,
-			&i.UserUpdated,
 			&i.Collection,
+			&i.FilterType,
+			&i.PageIds,
+			&i.PagesQueryFilter,
+			&i.ShowIds,
 			&i.ShowsQueryFilter,
+			&i.SeasonIds,
 			&i.SeasonsQueryFilter,
+			&i.EpisodeIds,
 			&i.EpisodesQueryFilter,
-			&i.Name,
 		); err != nil {
 			return nil, err
 		}

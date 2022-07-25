@@ -118,3 +118,18 @@ func GetFromLoaderForKey[k comparable, t any](ctx context.Context, loader *datal
 
 	return result, nil
 }
+
+// GetManyFromLoader retrieves multiple items from specified loader
+func GetManyFromLoader[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], ids []k) ([]*t, error) {
+	thunk := loader.LoadMany(ctx, ids)
+	result, errs := thunk()
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+
+	var items []*t
+	for _, i := range result {
+		items = append(items, i)
+	}
+	return items, nil
+}
