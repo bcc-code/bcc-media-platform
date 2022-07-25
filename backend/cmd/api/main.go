@@ -85,14 +85,13 @@ func main() {
 	queries := sqlc.New(db)
 
 	collectionLoader := collection.NewBatchLoader(*queries)
-	jsonLoader := collection.NewJsonLoader(*queries)
 
 	loaders := &graph.BatchLoaders{
 		PageLoader:              page.NewBatchLoader(*queries),
 		SectionLoader:           section.NewBatchLoader(*queries),
 		SectionsLoader:          section.NewListBatchLoader(*queries),
 		CollectionLoader:        collectionLoader,
-		CollectionItemIdsLoader: collection.NewCollectionItemIdsLoader(*queries, collectionLoader, jsonLoader),
+		CollectionItemIdsLoader: collection.NewCollectionItemIdsLoader(*queries, collectionLoader),
 		ShowLoader:              show.NewBatchLoader(*queries),
 		SeasonLoader:            season.NewBatchLoader(*queries),
 		EpisodeLoader:           episode.NewBatchLoader(*queries),

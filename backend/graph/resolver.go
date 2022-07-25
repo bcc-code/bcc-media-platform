@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -163,22 +162,4 @@ func collectionResolverFor[t restrictedItem, r any](ctx context.Context, loaders
 		result = append(result, converter(ctx, i))
 	}
 	return result, nil
-}
-
-func sectionResolver(ctx context.Context, id string, loaders *BatchLoaders, first *int, after *string) (*gqlmodel.SectionConnection, error) {
-	sections, err := itemsResolverWithoutAccessValidationForIntID(ctx, id, loaders.SectionsLoader, gqlmodel.SectionFromSQL)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &gqlmodel.SectionConnection{
-		Edges: lo.Map(sections, func(s gqlmodel.Section, _ int) *gqlmodel.SectionEdge {
-			return &gqlmodel.SectionEdge{
-				ID:   s.(*gqlmodel.ItemSection).ID,
-				Node: s,
-			}
-		}),
-		Cursor: "",
-	}, nil
 }

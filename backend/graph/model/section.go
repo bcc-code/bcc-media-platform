@@ -25,20 +25,23 @@ func SectionFromSQL(ctx context.Context, item *sqlc.SectionExpanded) Section {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
-	var collectionId *string
+	var collection *Collection
 	if item.CollectionID.Valid {
 		stringId := strconv.Itoa(int(item.CollectionID.ValueOrZero()))
-		collectionId = &stringId
+		collection = &Collection{
+			ID: stringId,
+		}
 	}
 
 	id := strconv.Itoa(int(item.ID))
 
 	return &ItemSection{
-		ID:           id,
-		Sort:         int(item.Sort.ValueOrZero()),
-		Title:        title.Get(languages),
-		CollectionID: collectionId,
-		Type:         ItemSectionType(item.Style.ValueOrZero()),
-		PageID:       strconv.Itoa(int(item.PageID.ValueOrZero())),
+		ID:         id,
+		Title:      title.Get(languages),
+		Collection: collection,
+		Type:       ItemSectionType(item.Style.ValueOrZero()),
+		Page: &Page{
+			ID: strconv.Itoa(int(item.PageID.ValueOrZero())),
+		},
 	}
 }

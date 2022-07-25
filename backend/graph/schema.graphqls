@@ -1,102 +1,20 @@
 directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
     | FIELD_DEFINITION
 
-#enum Status {
-#  published
-#  archived
-#  draft
-#}
-
-interface Page{
+type Page{
   id: ID!
   code: String!
-  #status: Status
-  title: String
+  title: String!
   description: String
   sections(
     first: Int
-    after: Cursor
+    after: Int
   ): SectionConnection! @goField(forceResolver: true)
-}
-
-type CustomPage implements Page{
-  id: ID!
-  code: String!
-  #status: Status
-  title: String!
-  description: String
-  sections(
-    first: Int
-    after: Cursor
-  ): SectionConnection! @goField(forceResolver: true)
-}
-
-type DefaultPage implements Page{
-  id: ID!
-  code: String!
-  collection: String!
-  #status: Status
-  title: String!
-  description: String
-  sections(
-    first: Int
-    after: Cursor
-  ): SectionConnection! @goField(forceResolver: true)
-}
-
-type ShowPage implements Page{
-  id: ID!
-  code: String!
-  #status: Status
-  title: String!
-  description: String
-  sections(
-    first: Int
-    after: Cursor
-  ): SectionConnection!
-  show: Show! @goField(forceResolver: true)
-}
-
-type SeasonPage implements Page{
-  id: ID!
-  code: String!
-  #status: Status
-  title: String!
-  description: String
-  sections(
-    first: Int
-    after: Cursor
-  ): SectionConnection!
-  season: Season! @goField(forceResolver: true)
-}
-
-type EpisodePage implements Page{
-  id: ID!
-  code: String!
-  #status: Status
-  title: String!
-  description: String
-  sections(
-    first: Int
-    after: Cursor
-  ): SectionConnection!
-  episode: Episode! @goField(forceResolver: true)
-}
-
-type PaginationInfo{
-  endCursor: Cursor!
-  hasNextPage: Boolean!
 }
 
 type SectionConnection{
-  edges: [SectionEdge!]!
-  pageInfo: PaginationInfo!
-  cursor: Cursor!
-}
-
-type SectionEdge{
-  id: ID!
-  node: Section!
+  total: Int!
+  sections: [Section!]!
 }
 
 enum Language{
@@ -117,60 +35,16 @@ enum ItemSectionType {
 
 type ItemSection implements Section {
   id: ID!
-  pageId: ID!
   page: Page! @goField(forceResolver: true)
-  sort: Int!
   title: String!
   type: ItemSectionType!
-  collectionId: ID
   collection: Collection @goField(forceResolver: true)
 }
 
-interface Collection {
+type Collection {
   id: ID!
-  items: [CollectionItem!]!
+  items: [CollectionItem!]! @goField(forceResolver: true)
 }
-
-type PageCollection implements Collection {
-  id: ID!
-  items: [PageItem!]! @goField(forceResolver: true)
-}
-
-type ShowCollection implements Collection {
-  id: ID!
-  items: [ShowItem!]! @goField(forceResolver: true)
-}
-
-type SeasonCollection implements Collection {
-  id: ID!
-  items: [SeasonItem!]! @goField(forceResolver: true)
-}
-
-type EpisodeCollection implements Collection {
-  id: ID!
-  items: [EpisodeItem!]! @goField(forceResolver: true)
-}
-
-#interface SectionBody {
-#  id: ID!
-#}
-#
-#type ContainerSection implements Section{
-#  id: ID!
-#  title: String!
-#  sections: [Section!]!
-#}
-
-#type SliderItemsSection implements SectionBody {
-#  id: ID!
-#  items: [Item!]!
-#}
-#
-#type BubblesItemsSection implements SectionBody {
-#  id: ID!
-#  items: [Item!]!
-#  borderColor: String
-#}
 
 scalar Cursor
 scalar Date

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/jsonlogic"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
@@ -58,43 +59,8 @@ func getFilterForQueryCollection(collection *sqlc.CollectionExpanded) filter {
 	return f
 }
 
-func NewJsonLoader(queries sqlc.Queries) *dataloader.Loader[string, *json.RawMessage] {
-	batchLoader := func(ctx context.Context, keys []string) []*dataloader.Result[*json.RawMessage] {
-		var resMap = map[string]*json.RawMessage{}
-
-		for _, collection := range keys {
-			var bytes []byte
-			switch collection {
-			case "pages":
-				pages, _ := queries.ListPages(ctx)
-				bytes, _ = json.Marshal(pages)
-			case "shows":
-				shows, _ := queries.GetShows(ctx)
-				bytes, _ = json.Marshal(shows)
-			case "seasons":
-				seasons, _ := queries.GetSeasons(ctx)
-				bytes, _ = json.Marshal(seasons)
-			case "episodes":
-				episodes, _ := queries.GetEpisodes(ctx)
-				bytes, _ = json.Marshal(episodes)
-			}
-			message := json.RawMessage(bytes)
-			resMap[collection] = &message
-		}
-
-		var results []*dataloader.Result[*json.RawMessage]
-		for _, key := range keys {
-			results = append(results, &dataloader.Result[*json.RawMessage]{
-				Data: resMap[key],
-			})
-		}
-		return results
-	}
-	return dataloader.NewBatchedLoader(batchLoader)
-}
-
 // NewCollectionItemIdsLoader returns a new loader for getting ItemIds for Collection
-func NewCollectionItemIdsLoader(queries sqlc.Queries, collectionLoader *dataloader.Loader[int, *sqlc.CollectionExpanded], jsonLoader *dataloader.Loader[string, *json.RawMessage]) *dataloader.Loader[int, []int] {
+func NewCollectionItemIdsLoader(queries sqlc.Queries, collectionLoader *dataloader.Loader[int, *sqlc.CollectionExpanded]) *dataloader.Loader[int, []int] {
 	batchLoader := func(ctx context.Context, keys []int) []*dataloader.Result[[]int] {
 		var results []*dataloader.Result[[]int]
 		var err error
@@ -116,6 +82,9 @@ func NewCollectionItemIdsLoader(queries sqlc.Queries, collectionLoader *dataload
 					if f.Filter == nil {
 						resMap[int(r.ID)] = nil
 					}
+					var filterObject map[string]any
+					_ = json.Unmarshal(f.Filter, &filterObject)
+					filterString := jsonlogic.GetSQLStringFromFilter(filterObject)
 
 				}
 			}

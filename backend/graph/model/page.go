@@ -11,7 +11,7 @@ import (
 )
 
 // PageFromSQL converts sqlc.PageExpanded to Page
-func PageFromSQL(ctx context.Context, item *sqlc.PageExpanded) Page {
+func PageFromSQL(ctx context.Context, item *sqlc.PageExpanded) *Page {
 	title := common.LocaleString{}
 	description := common.LocaleString{}
 
@@ -28,74 +28,21 @@ func PageFromSQL(ctx context.Context, item *sqlc.PageExpanded) Page {
 	id := strconv.Itoa(int(item.ID))
 	code := item.Code.String
 
-	if item.Type.Valid {
-		switch item.Type.String {
-		case "default":
-			return &DefaultPage{
-				ID:          id,
-				Code:        code,
-				Title:       title.Get(languages),
-				Description: title.GetValueOrNil(languages),
-				Collection:  item.Collection.ValueOrZero(),
-			}
-		case "custom":
-			return &CustomPage{
-				ID:          id,
-				Code:        code,
-				Title:       title.Get(languages),
-				Description: title.GetValueOrNil(languages),
-			}
-		case "show":
-			return &ShowPage{
-				ID:          id,
-				Code:        code,
-				Title:       title.Get(languages),
-				Description: title.GetValueOrNil(languages),
-				Show: &Show{
-					ID: strconv.Itoa(int(item.ShowID.ValueOrZero())),
-				},
-			}
-		case "season":
-			return &SeasonPage{
-				ID:          id,
-				Code:        code,
-				Title:       title.Get(languages),
-				Description: title.GetValueOrNil(languages),
-				Season: &Season{
-					ID: strconv.Itoa(int(item.SeasonID.ValueOrZero())),
-				},
-			}
-		case "episode":
-			return &EpisodePage{
-				ID:          strconv.Itoa(int(item.ID)),
-				Code:        code,
-				Title:       title.Get(languages),
-				Description: title.GetValueOrNil(languages),
-				Episode: &Episode{
-					ID: strconv.Itoa(int(item.EpisodeID.ValueOrZero())),
-				},
-			}
-		}
+	return &Page{
+		ID:          id,
+		Code:        code,
+		Title:       title.Get(languages),
+		Description: description.GetValueOrNil(languages),
 	}
-	return nil
 }
 
+// PageItemFromSQL returns a PageItem from sql row
 func PageItemFromSQL(ctx context.Context, item *sqlc.PageExpanded) *PageItem {
 	page := PageFromSQL(ctx, item)
 
-	switch t := page.(type) {
-	case DefaultPage:
-		return &PageItem{
-			ID:    t.ID,
-			Page:  t,
-			Title: t.Title,
-		}
-	case CustomPage:
-		return &PageItem{
-			ID:    t.ID,
-			Page:  t,
-			Title: t.Title,
-		}
+	return &PageItem{
+		ID:    page.ID,
+		Title: page.Title,
+		Page:  page,
 	}
-	return nil
 }

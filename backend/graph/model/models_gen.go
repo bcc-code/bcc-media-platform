@@ -8,16 +8,8 @@ import (
 	"strconv"
 )
 
-type Collection interface {
-	IsCollection()
-}
-
 type CollectionItem interface {
 	IsCollectionItem()
-}
-
-type Page interface {
-	IsPage()
 }
 
 type SearchResultItem interface {
@@ -51,26 +43,10 @@ type Chapter struct {
 	Title string `json:"title"`
 }
 
-type CustomPage struct {
-	ID          string             `json:"id"`
-	Code        string             `json:"code"`
-	Title       string             `json:"title"`
-	Description *string            `json:"description"`
-	Sections    *SectionConnection `json:"sections"`
+type Collection struct {
+	ID    string           `json:"id"`
+	Items []CollectionItem `json:"items"`
 }
-
-func (CustomPage) IsPage() {}
-
-type DefaultPage struct {
-	ID          string             `json:"id"`
-	Code        string             `json:"code"`
-	Collection  string             `json:"collection"`
-	Title       string             `json:"title"`
-	Description *string            `json:"description"`
-	Sections    *SectionConnection `json:"sections"`
-}
-
-func (DefaultPage) IsPage() {}
 
 type Episode struct {
 	ID                string     `json:"id"`
@@ -87,13 +63,6 @@ type Episode struct {
 	EpisodeNumber     *int       `json:"episodeNumber"`
 }
 
-type EpisodeCollection struct {
-	ID    string         `json:"id"`
-	Items []*EpisodeItem `json:"items"`
-}
-
-func (EpisodeCollection) IsCollection() {}
-
 type EpisodeItem struct {
 	ID       string   `json:"id"`
 	Sort     int      `json:"sort"`
@@ -103,17 +72,6 @@ type EpisodeItem struct {
 }
 
 func (EpisodeItem) IsCollectionItem() {}
-
-type EpisodePage struct {
-	ID          string             `json:"id"`
-	Code        string             `json:"code"`
-	Title       string             `json:"title"`
-	Description *string            `json:"description"`
-	Sections    *SectionConnection `json:"sections"`
-	Episode     *Episode           `json:"episode"`
-}
-
-func (EpisodePage) IsPage() {}
 
 type EpisodeSearchItem struct {
 	ID          string  `json:"id"`
@@ -164,39 +122,32 @@ type File struct {
 }
 
 type ItemSection struct {
-	ID           string          `json:"id"`
-	PageID       string          `json:"pageId"`
-	Page         Page            `json:"page"`
-	Sort         int             `json:"sort"`
-	Title        string          `json:"title"`
-	Type         ItemSectionType `json:"type"`
-	CollectionID *string         `json:"collectionId"`
-	Collection   Collection      `json:"collection"`
+	ID         string          `json:"id"`
+	Page       *Page           `json:"page"`
+	Title      string          `json:"title"`
+	Type       ItemSectionType `json:"type"`
+	Collection *Collection     `json:"collection"`
 }
 
 func (ItemSection) IsSection() {}
 
-type PageCollection struct {
-	ID    string      `json:"id"`
-	Items []*PageItem `json:"items"`
+type Page struct {
+	ID          string             `json:"id"`
+	Code        string             `json:"code"`
+	Title       string             `json:"title"`
+	Description *string            `json:"description"`
+	Sections    *SectionConnection `json:"sections"`
 }
-
-func (PageCollection) IsCollection() {}
 
 type PageItem struct {
 	ID       string  `json:"id"`
 	Sort     int     `json:"sort"`
 	Title    string  `json:"title"`
 	ImageURL *string `json:"imageUrl"`
-	Page     Page    `json:"page"`
+	Page     *Page   `json:"page"`
 }
 
 func (PageItem) IsCollectionItem() {}
-
-type PaginationInfo struct {
-	EndCursor   string `json:"endCursor"`
-	HasNextPage bool   `json:"hasNextPage"`
-}
 
 type SearchResult struct {
 	Hits   int                `json:"hits"`
@@ -213,13 +164,6 @@ type Season struct {
 	Episodes    []*Episode `json:"episodes"`
 }
 
-type SeasonCollection struct {
-	ID    string        `json:"id"`
-	Items []*SeasonItem `json:"items"`
-}
-
-func (SeasonCollection) IsCollection() {}
-
 type SeasonItem struct {
 	ID       string  `json:"id"`
 	Sort     int     `json:"sort"`
@@ -229,17 +173,6 @@ type SeasonItem struct {
 }
 
 func (SeasonItem) IsCollectionItem() {}
-
-type SeasonPage struct {
-	ID          string             `json:"id"`
-	Code        string             `json:"code"`
-	Title       string             `json:"title"`
-	Description *string            `json:"description"`
-	Sections    *SectionConnection `json:"sections"`
-	Season      *Season            `json:"season"`
-}
-
-func (SeasonPage) IsPage() {}
 
 type SeasonSearchItem struct {
 	ID          string  `json:"id"`
@@ -258,14 +191,8 @@ type SeasonSearchItem struct {
 func (SeasonSearchItem) IsSearchResultItem() {}
 
 type SectionConnection struct {
-	Edges    []*SectionEdge  `json:"edges"`
-	PageInfo *PaginationInfo `json:"pageInfo"`
-	Cursor   string          `json:"cursor"`
-}
-
-type SectionEdge struct {
-	ID   string  `json:"id"`
-	Node Section `json:"node"`
+	Total    int       `json:"total"`
+	Sections []Section `json:"sections"`
 }
 
 type Settings struct {
@@ -282,13 +209,6 @@ type Show struct {
 	Seasons      []*Season `json:"seasons"`
 }
 
-type ShowCollection struct {
-	ID    string      `json:"id"`
-	Items []*ShowItem `json:"items"`
-}
-
-func (ShowCollection) IsCollection() {}
-
 type ShowItem struct {
 	ID       string  `json:"id"`
 	Sort     int     `json:"sort"`
@@ -298,17 +218,6 @@ type ShowItem struct {
 }
 
 func (ShowItem) IsCollectionItem() {}
-
-type ShowPage struct {
-	ID          string             `json:"id"`
-	Code        string             `json:"code"`
-	Title       string             `json:"title"`
-	Description *string            `json:"description"`
-	Sections    *SectionConnection `json:"sections"`
-	Show        *Show              `json:"show"`
-}
-
-func (ShowPage) IsPage() {}
 
 type ShowSearchItem struct {
 	ID          string  `json:"id"`

@@ -7,26 +7,9 @@ import (
 )
 
 // CollectionFromSQL converts sqlc.CollectionExpanded to Collection
-func CollectionFromSQL(_ context.Context, item *sqlc.CollectionExpanded) Collection {
+func CollectionFromSQL(_ context.Context, item *sqlc.CollectionExpanded) *Collection {
 	id := strconv.Itoa(int(item.ID))
-	collection := item.Collection.ValueOrZero()
-	switch collection {
-	case "pages":
-		return &PageCollection{
-			ID: id,
-		}
-	case "shows":
-		return &ShowCollection{
-			ID: id,
-		}
-	case "seasons":
-		return &SeasonCollection{
-			ID: id,
-		}
-	case "episodes":
-		return &EpisodeCollection{
-			ID: id,
-		}
+	return &Collection{
+		ID: id,
 	}
-	return nil
 }
