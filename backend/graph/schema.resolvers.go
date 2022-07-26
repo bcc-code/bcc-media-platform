@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	merry "github.com/ansel1/merry/v2"
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
