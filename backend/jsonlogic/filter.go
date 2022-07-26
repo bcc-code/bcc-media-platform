@@ -55,10 +55,12 @@ func GetSQLStringFromFilter(filter map[string]any) string {
 				case string:
 					marshalled, _ := json.Marshal(v)
 					value = string(marshalled)
+					value = strings.Replace(value, "'", "\\'", -1)
+					value = strings.Trim(value, "\"")
 				}
 			}
 			// TODO: is it possible for sql injection to happen here?
-			return property + " " + opToDbOp(key) + " " + value
+			return property + " " + opToDbOp(key) + " '" + value + "'"
 		}
 	}
 	return "1 = 0"

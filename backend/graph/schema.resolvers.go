@@ -6,8 +6,6 @@ package graph
 import (
 	"context"
 	"fmt"
-	"github.com/bcc-code/mediabank-bridge/log"
-	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
@@ -20,13 +18,7 @@ import (
 
 // Items is the resolver for the items field.
 func (r *collectionResolver) Items(ctx context.Context, obj *gqlmodel.Collection) ([]gqlmodel.CollectionItem, error) {
-	intID, _ := strconv.ParseInt(obj.ID, 10, 32)
-	itemIds, err := r.Loaders.CollectionItemIdsLoader.Load(ctx, int(intID))()
-	if err != nil {
-		return nil, err
-	}
-	log.L.Debug().Int("items", itemIds[0]).Msg("Oi")
-	return nil, nil
+	return collectionResolverFor(ctx, r.Loaders, obj.ID)
 }
 
 // Streams is the resolver for the streams field.

@@ -91,7 +91,7 @@ func main() {
 		SectionLoader:           section.NewBatchLoader(*queries),
 		SectionsLoader:          section.NewListBatchLoader(*queries),
 		CollectionLoader:        collectionLoader,
-		CollectionItemIdsLoader: collection.NewCollectionItemIdsLoader(*queries, collectionLoader),
+		CollectionItemIdsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader),
 		ShowLoader:              show.NewBatchLoader(*queries),
 		SeasonLoader:            season.NewBatchLoader(*queries),
 		EpisodeLoader:           episode.NewBatchLoader(*queries),

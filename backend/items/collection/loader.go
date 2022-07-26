@@ -2,10 +2,12 @@ package collection
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/jsonlogic"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
 )
@@ -59,8 +61,21 @@ func getFilterForQueryCollection(collection *sqlc.CollectionExpanded) filter {
 	return f
 }
 
+func itemIdsFromRows(rows *sql.Rows) []int {
+	var ids []int
+
+	for rows.Next() {
+		var id int
+		_ = rows.Scan(&id)
+		ids = append(ids, id)
+	}
+
+	_ = rows.Close()
+	return ids
+}
+
 // NewCollectionItemIdsLoader returns a new loader for getting ItemIds for Collection
-func NewCollectionItemIdsLoader(queries sqlc.Queries, collectionLoader *dataloader.Loader[int, *sqlc.CollectionExpanded]) *dataloader.Loader[int, []int] {
+func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[int, *sqlc.CollectionExpanded]) *dataloader.Loader[int, []int] {
 	batchLoader := func(ctx context.Context, keys []int) []*dataloader.Result[[]int] {
 		var results []*dataloader.Result[[]int]
 		var err error
@@ -85,7 +100,14 @@ func NewCollectionItemIdsLoader(queries sqlc.Queries, collectionLoader *dataload
 					var filterObject map[string]any
 					_ = json.Unmarshal(f.Filter, &filterObject)
 					filterString := jsonlogic.GetSQLStringFromFilter(filterObject)
-
+					rows, err := db.Query("SELECT id FROM " + r.Collection.ValueOrZero() + " WHERE " + filterString)
+					if err != nil {
+						log.L.Error().Err(err).
+							Str("collection", r.Collection.ValueOrZero()).
+							Msg("Failed to select itemIds from collection")
+						continue
+					}
+					resMap[int(r.ID)] = itemIdsFromRows(rows)
 				}
 			}
 		}

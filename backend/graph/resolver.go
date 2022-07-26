@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -134,7 +135,31 @@ func itemsResolverWithoutAccessValidationForIntID[t any, r any](ctx context.Cont
 	return itemsResolverWithoutAccessValidationFor(ctx, int(intID), loader, converter)
 }
 
-func collectionResolverFor[t restrictedItem, r any](ctx context.Context, loaders *BatchLoaders, loader *dataloader.Loader[int, *t], id string, converter func(context.Context, *t) r) ([]r, error) {
+func getFromLoaderAndFilterAccess[k comparable, t restrictedItem](ctx context.Context, loader *dataloader.Loader[k, *t], ids []k) ([]*t, error) {
+	items, err := common.GetManyFromLoader(ctx, loader, ids)
+	if err != nil {
+		return nil, err
+	}
+	var result []*t
+	for _, i := range items {
+		err := user.ValidateAccess(ctx, *i)
+		if err != nil {
+			continue
+		}
+		result = append(result, i)
+	}
+	return result, nil
+}
+
+func toCollectionItemArray[t gqlmodel.CollectionItem](items []t) []gqlmodel.CollectionItem {
+	var result []gqlmodel.CollectionItem
+	for _, i := range items {
+		result = append(result, i)
+	}
+	return result
+}
+
+func collectionResolverFor(ctx context.Context, loaders *BatchLoaders, id string) ([]gqlmodel.CollectionItem, error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 	intID := int(int64ID)
 
@@ -148,18 +173,31 @@ func collectionResolverFor[t restrictedItem, r any](ctx context.Context, loaders
 		return nil, err
 	}
 
-	items, err := common.GetManyFromLoader(ctx, loader, itemIds)
-	if err != nil {
-		return nil, err
-	}
-
-	var result []r
-	for _, i := range items {
-		accessError := user.ValidateAccess(ctx, *i)
-		if accessError != nil {
-			continue
+	switch col.Collection.ValueOrZero() {
+	case "pages":
+		items, err := getFromLoaderAndFilterAccess(ctx, loaders.PageLoader, itemIds)
+		if err != nil {
+			return nil, err
 		}
-		result = append(result, converter(ctx, i))
+		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.PageItemFromSQL)), nil
+	case "shows":
+		items, err := getFromLoaderAndFilterAccess(ctx, loaders.ShowLoader, itemIds)
+		if err != nil {
+			return nil, err
+		}
+		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.ShowItemFromSQL)), nil
+	case "seasons":
+		items, err := getFromLoaderAndFilterAccess(ctx, loaders.SeasonLoader, itemIds)
+		if err != nil {
+			return nil, err
+		}
+		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.SeasonItemFromSQL)), nil
+	case "episodes":
+		items, err := getFromLoaderAndFilterAccess(ctx, loaders.EpisodeLoader, itemIds)
+		if err != nil {
+			return nil, err
+		}
+		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.EpisodeItemFromSQL)), nil
 	}
-	return result, nil
+	return nil, nil
 }
