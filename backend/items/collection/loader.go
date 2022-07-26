@@ -29,17 +29,19 @@ type filter struct {
 }
 
 func getItemIdsForSelectCollection(collection *sqlc.CollectionExpanded) []int {
-	var itemIds []int
+	var rawMessage json.RawMessage
 	switch collection.Collection.ValueOrZero() {
 	case "pages":
-		_ = json.Unmarshal(collection.PageIds.RawMessage, &itemIds)
+		rawMessage = collection.PageIds.RawMessage
 	case "shows":
-		_ = json.Unmarshal(collection.ShowIds.RawMessage, &itemIds)
+		rawMessage = collection.ShowIds.RawMessage
 	case "seasons":
-		_ = json.Unmarshal(collection.SeasonIds.RawMessage, &itemIds)
+		rawMessage = collection.SeasonIds.RawMessage
 	case "episodes":
-		_ = json.Unmarshal(collection.EpisodeIds.RawMessage, &itemIds)
+		rawMessage = collection.EpisodeIds.RawMessage
 	}
+	var itemIds []int
+	_ = json.Unmarshal(rawMessage, &itemIds)
 	if itemIds == nil {
 		itemIds = []int{}
 	}
@@ -47,17 +49,19 @@ func getItemIdsForSelectCollection(collection *sqlc.CollectionExpanded) []int {
 }
 
 func getFilterForQueryCollection(collection *sqlc.CollectionExpanded) filter {
-	var f filter
+	var rawMessage json.RawMessage
 	switch collection.Collection.ValueOrZero() {
 	case "pages":
-		_ = json.Unmarshal(collection.PagesQueryFilter.RawMessage, &f)
+		rawMessage = collection.PagesQueryFilter.RawMessage
 	case "shows":
-		_ = json.Unmarshal(collection.ShowsQueryFilter.RawMessage, &f)
+		rawMessage = collection.ShowsQueryFilter.RawMessage
 	case "seasons":
-		_ = json.Unmarshal(collection.SeasonsQueryFilter.RawMessage, &f)
+		rawMessage = collection.SeasonsQueryFilter.RawMessage
 	case "episodes":
-		_ = json.Unmarshal(collection.EpisodesQueryFilter.RawMessage, &f)
+		rawMessage = collection.EpisodesQueryFilter.RawMessage
 	}
+	var f filter
+	_ = json.Unmarshal(rawMessage, &f)
 	return f
 }
 

@@ -60,6 +60,7 @@ func GetSQLStringFromFilter(filter map[string]any) string {
 				}
 			}
 			// TODO: is it possible for sql injection to happen here?
+			// API is readonly anyway right?
 			return property + " " + opToDbOp(key) + " '" + value + "'"
 		}
 	}
