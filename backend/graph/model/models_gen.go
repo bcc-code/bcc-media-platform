@@ -73,6 +73,13 @@ type EpisodeItem struct {
 
 func (EpisodeItem) IsCollectionItem() {}
 
+type EpisodePagination struct {
+	Total  int        `json:"total"`
+	First  int        `json:"first"`
+	Offset int        `json:"offset"`
+	Items  []*Episode `json:"items"`
+}
+
 type EpisodeSearchItem struct {
 	ID          string  `json:"id"`
 	Collection  string  `json:"collection"`
@@ -136,7 +143,7 @@ type Page struct {
 	Code        string             `json:"code"`
 	Title       string             `json:"title"`
 	Description *string            `json:"description"`
-	Sections    *SectionConnection `json:"sections"`
+	Sections    *SectionPagination `json:"sections"`
 }
 
 type PageItem struct {
@@ -149,6 +156,13 @@ type PageItem struct {
 
 func (PageItem) IsCollectionItem() {}
 
+type PagePagination struct {
+	Total  int     `json:"total"`
+	First  int     `json:"first"`
+	Offset int     `json:"offset"`
+	Items  []*Page `json:"items"`
+}
+
 type SearchResult struct {
 	Hits   int                `json:"hits"`
 	Page   int                `json:"page"`
@@ -156,12 +170,12 @@ type SearchResult struct {
 }
 
 type Season struct {
-	ID          string     `json:"id"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Number      int        `json:"number"`
-	Show        *Show      `json:"show"`
-	Episodes    []*Episode `json:"episodes"`
+	ID          string             `json:"id"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Number      int                `json:"number"`
+	Show        *Show              `json:"show"`
+	Episodes    *EpisodePagination `json:"episodes"`
 }
 
 type SeasonItem struct {
@@ -173,6 +187,13 @@ type SeasonItem struct {
 }
 
 func (SeasonItem) IsCollectionItem() {}
+
+type SeasonPagination struct {
+	Total  int       `json:"total"`
+	First  int       `json:"first"`
+	Offset int       `json:"offset"`
+	Items  []*Season `json:"items"`
+}
 
 type SeasonSearchItem struct {
 	ID          string  `json:"id"`
@@ -190,9 +211,11 @@ type SeasonSearchItem struct {
 
 func (SeasonSearchItem) IsSearchResultItem() {}
 
-type SectionConnection struct {
-	Total    int       `json:"total"`
-	Sections []Section `json:"sections"`
+type SectionPagination struct {
+	Total  int       `json:"total"`
+	First  int       `json:"first"`
+	Offset int       `json:"offset"`
+	Items  []Section `json:"items"`
 }
 
 type Settings struct {
@@ -201,12 +224,12 @@ type Settings struct {
 }
 
 type Show struct {
-	ID           string    `json:"id"`
-	Title        string    `json:"title"`
-	Description  string    `json:"description"`
-	EpisodeCount int       `json:"episodeCount"`
-	SeasonCount  int       `json:"seasonCount"`
-	Seasons      []*Season `json:"seasons"`
+	ID           string            `json:"id"`
+	Title        string            `json:"title"`
+	Description  string            `json:"description"`
+	EpisodeCount int               `json:"episodeCount"`
+	SeasonCount  int               `json:"seasonCount"`
+	Seasons      *SeasonPagination `json:"seasons"`
 }
 
 type ShowItem struct {
@@ -218,6 +241,13 @@ type ShowItem struct {
 }
 
 func (ShowItem) IsCollectionItem() {}
+
+type ShowPagination struct {
+	Total  int     `json:"total"`
+	First  int     `json:"first"`
+	Offset int     `json:"offset"`
+	Items  []*Show `json:"items"`
+}
 
 type ShowSearchItem struct {
 	ID          string  `json:"id"`

@@ -51,6 +51,32 @@ type restrictedItem interface {
 	GetAvailability() common.Availability
 }
 
+type hasKey[k comparable] interface {
+	GetKey() k
+}
+
+func resolveList[k comparable, t hasKey[k], r any](
+	ctx context.Context,
+	loader *dataloader.Loader[k, *t],
+	key string,
+	factory func(context.Context) ([]t, error),
+	converter func(context.Context, *t) r,
+) ([]r, error) {
+	items, err := common.List(ctx, loader, key, factory)
+	if err != nil {
+		return nil, err
+	}
+	return utils.MapWithCtx(ctx, lo.Filter(items, func(i *t, _ int) bool {
+		// Validate that user has access
+		switch v := any(i).(type) {
+		case restrictedItem:
+			return user.ValidateAccess(ctx, v) == nil
+		default:
+			return true
+		}
+	}), converter), nil
+}
+
 // resolverFor returns a resolver for the specified item
 func resolverFor[k comparable, t any, r any](ctx context.Context, id k, loader *dataloader.Loader[k, *t], converter func(context.Context, *t) r) (res r, err error) {
 	obj, err := common.GetFromLoaderByID(ctx, loader, id)
@@ -60,7 +86,6 @@ func resolverFor[k comparable, t any, r any](ctx context.Context, id k, loader *
 	if obj == nil {
 		return res, merry.Sentinel("item not found")
 	}
-
 	switch t := any(obj).(type) {
 	case restrictedItem:
 		err = user.ValidateAccess(ctx, t)

@@ -6,15 +6,13 @@ package graph
 import (
 	"context"
 	"fmt"
-	"github.com/ansel1/merry/v2"
-	"github.com/bcc-code/brunstadtv/backend/common"
 
+	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"github.com/samber/lo"
 )
 
 // Items is the resolver for the items field.
@@ -64,29 +62,17 @@ func (r *itemSectionResolver) Collection(ctx context.Context, obj *gqlmodel.Item
 }
 
 // Sections is the resolver for the sections field.
-func (r *pageResolver) Sections(ctx context.Context, obj *gqlmodel.Page, first *int, after *int) (*gqlmodel.SectionConnection, error) {
+func (r *pageResolver) Sections(ctx context.Context, obj *gqlmodel.Page, first *int, offset *int) (*gqlmodel.SectionPagination, error) {
 	sections, err := itemsResolverForIntID(ctx, obj.ID, r.Loaders.SectionsLoader, gqlmodel.SectionFromSQL)
-
 	if err != nil {
 		return nil, err
 	}
-
-	total := len(sections)
-
-	if after != nil {
-		sections = lo.Filter(sections, func(s gqlmodel.Section, index int) bool {
-			return index > *after
-		})
-	}
-	if first != nil {
-		sections = lo.Filter(sections, func(s gqlmodel.Section, index int) bool {
-			return index < *first
-		})
-	}
-
-	return &gqlmodel.SectionConnection{
-		Total:    total,
-		Sections: sections,
+	pagination := utils.Paginate(sections, first, offset)
+	return &gqlmodel.SectionPagination{
+		Total:  pagination.Total,
+		First:  pagination.First,
+		Offset: pagination.Offset,
+		Items:  pagination.Items,
 	}, nil
 }
 
@@ -102,13 +88,18 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 }
 
 // Pages is the resolver for the pages field.
-func (r *queryRootResolver) Pages(ctx context.Context, first *int, offset *int) ([]*gqlmodel.Page, error) {
-	pages, err := common.List(ctx, r.Loaders.PageLoader, "pages", r.Queries.ListPages)
+func (r *queryRootResolver) Pages(ctx context.Context, first *int, offset *int) (*gqlmodel.PagePagination, error) {
+	pages, err := resolveList(ctx, r.Loaders.PageLoader, "pages", r.Queries.ListPages, gqlmodel.PageFromSQL)
 	if err != nil {
 		return nil, err
 	}
-	pages = utils.Paginate(pages, first, offset)
-	return utils.MapWithCtx(ctx, pages, gqlmodel.PageFromSQL), nil
+	pagination := utils.Paginate(pages, first, offset)
+	return &gqlmodel.PagePagination{
+		Total:  pagination.Total,
+		First:  pagination.First,
+		Offset: pagination.Offset,
+		Items:  pagination.Items,
+	}, nil
 }
 
 // Episode is the resolver for the episode field.
@@ -187,8 +178,18 @@ func (r *seasonResolver) Show(ctx context.Context, obj *gqlmodel.Season) (*gqlmo
 }
 
 // Episodes is the resolver for the episodes field.
-func (r *seasonResolver) Episodes(ctx context.Context, obj *gqlmodel.Season) ([]*gqlmodel.Episode, error) {
-	return itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.EpisodesLoader, gqlmodel.EpisodeFromSQL)
+func (r *seasonResolver) Episodes(ctx context.Context, obj *gqlmodel.Season, first *int, offset *int) (*gqlmodel.EpisodePagination, error) {
+	episodes, err := itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.EpisodesLoader, gqlmodel.EpisodeFromSQL)
+	if err != nil {
+		return nil, err
+	}
+	pagination := utils.Paginate(episodes, first, offset)
+	return &gqlmodel.EpisodePagination{
+		Total:  pagination.Total,
+		First:  pagination.First,
+		Offset: pagination.Offset,
+		Items:  pagination.Items,
+	}, nil
 }
 
 // Show is the resolver for the show field.
@@ -197,8 +198,18 @@ func (r *seasonSearchItemResolver) Show(ctx context.Context, obj *gqlmodel.Seaso
 }
 
 // Seasons is the resolver for the seasons field.
-func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show) ([]*gqlmodel.Season, error) {
-	return itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.SeasonsLoader, gqlmodel.SeasonFromSQL)
+func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show, first *int, offset *int) (*gqlmodel.SeasonPagination, error) {
+	seasons, err := itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.SeasonsLoader, gqlmodel.SeasonFromSQL)
+	if err != nil {
+		return nil, err
+	}
+	pagination := utils.Paginate(seasons, first, offset)
+	return &gqlmodel.SeasonPagination{
+		Total:  pagination.Total,
+		First:  pagination.First,
+		Offset: pagination.Offset,
+		Items:  pagination.Items,
+	}, nil
 }
 
 // Collection returns generated.CollectionResolver implementation.
