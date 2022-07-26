@@ -13,6 +13,11 @@ func (file *DirectusFile) GetImageUrl() string {
 	return fmt.Sprintf("https://brunstadtv.imgix.net/%s", file.FilenameDisk.ValueOrZero())
 }
 
+// GetKey returns the key for this entity
+func (i ShowExpanded) GetKey() int {
+	return int(i.ID)
+}
+
 // GetRoles returns common.Roles for this item
 func (i ShowExpanded) GetRoles() common.Roles {
 	return common.Roles{
@@ -29,6 +34,11 @@ func (i ShowExpanded) GetAvailability() common.Availability {
 		From:      i.AvailableFrom,
 		To:        i.AvailableTo,
 	}
+}
+
+// GetKey returns the key for this entity
+func (i SeasonExpanded) GetKey() int {
+	return int(i.ID)
 }
 
 // GetRoles returns common.Roles for this item
@@ -49,6 +59,11 @@ func (i SeasonExpanded) GetAvailability() common.Availability {
 	}
 }
 
+// GetKey returns the key for this entity
+func (i EpisodeExpanded) GetKey() int {
+	return int(i.ID)
+}
+
 // GetRoles returns common.Roles for this item
 func (i EpisodeExpanded) GetRoles() common.Roles {
 	return common.Roles{
@@ -67,6 +82,11 @@ func (i EpisodeExpanded) GetAvailability() common.Availability {
 	}
 }
 
+// GetKey returns the key for this entity
+func (i PageExpanded) GetKey() int {
+	return int(i.ID)
+}
+
 // GetRoles returns common.Roles for this item
 func (i PageExpanded) GetRoles() common.Roles {
 	return common.Roles{
@@ -81,6 +101,11 @@ func (i PageExpanded) GetAvailability() common.Availability {
 		From:      time.Now(),
 		To:        time.Now().Add(time.Second * 10),
 	}
+}
+
+// GetKey returns the key for this entity
+func (i SectionExpanded) GetKey() int {
+	return int(i.ID)
 }
 
 // GetRoles returns common.Roles for this item

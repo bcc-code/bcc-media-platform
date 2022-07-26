@@ -7,11 +7,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/common"
 
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
@@ -103,15 +103,12 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 
 // Pages is the resolver for the pages field.
 func (r *queryRootResolver) Pages(ctx context.Context, first *int, offset *int) ([]*gqlmodel.Page, error) {
-	//TODO: implement paging
-	pages, err := r.Queries.ListPages(ctx)
+	pages, err := common.List(ctx, r.Loaders.PageLoader, "pages", r.Queries.ListPages)
 	if err != nil {
 		return nil, err
 	}
-	pagePointers := lo.Map(pages, func(p sqlc.PageExpanded, _ int) *sqlc.PageExpanded {
-		return &p
-	})
-	return utils.MapWithCtx(ctx, pagePointers, gqlmodel.PageFromSQL), nil
+	pages = utils.Paginate(pages, first, offset)
+	return utils.MapWithCtx(ctx, pages, gqlmodel.PageFromSQL), nil
 }
 
 // Episode is the resolver for the episode field.
