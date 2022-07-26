@@ -327,21 +327,21 @@ type QueryRoot{
     offset: Int
   ): PagePagination!
 
-  episode(
+  section(
     id: ID!
-  ): Episode
-
-  season(
-    id: ID!
-  ): Season
+  ): Section
 
   show(
     id: ID!
   ): Show
 
-  section(
+  season(
     id: ID!
-  ): Section
+  ): Season
+
+  episode(
+    id: ID!
+  ): Episode
 
   search(
     queryString: String!
