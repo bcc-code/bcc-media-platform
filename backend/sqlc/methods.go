@@ -74,10 +74,18 @@ func (i PageExpanded) GetRoles() common.Roles {
 	}
 }
 
+// GetAvailability returns common.Availability for this item
 func (i PageExpanded) GetAvailability() common.Availability {
 	return common.Availability{
 		Published: true,
 		From:      time.Now(),
 		To:        time.Now().Add(time.Second * 10),
+	}
+}
+
+// GetRoles returns common.Roles for this item
+func (i SectionExpanded) GetRoles() common.Roles {
+	return common.Roles{
+		Access: i.Roles,
 	}
 }

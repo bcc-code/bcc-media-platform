@@ -35,7 +35,7 @@ func (q *Queries) GetSections(ctx context.Context, dollar_1 []int32) ([]Sections
 			&i.CollectionID,
 			&i.Title,
 			&i.Description,
-			&i.Roles,
+			pq.Array(&i.Roles),
 		); err != nil {
 			return nil, err
 		}
@@ -74,7 +74,7 @@ func (q *Queries) GetSectionsForPageIDs(ctx context.Context, dollar_1 []int32) (
 			&i.CollectionID,
 			&i.Title,
 			&i.Description,
-			&i.Roles,
+			pq.Array(&i.Roles),
 		); err != nil {
 			return nil, err
 		}
@@ -113,7 +113,7 @@ func (q *Queries) ListSections(ctx context.Context) ([]SectionsExpanded, error) 
 			&i.CollectionID,
 			&i.Title,
 			&i.Description,
-			&i.Roles,
+			pq.Array(&i.Roles),
 		); err != nil {
 			return nil, err
 		}

@@ -75,7 +75,7 @@ func (r *pageResolver) Sections(ctx context.Context, obj *gqlmodel.Page, first *
 
 	if after != nil {
 		sections = lo.Filter(sections, func(s gqlmodel.Section, index int) bool {
-			return index > *first
+			return index > *after
 		})
 	}
 	if first != nil {

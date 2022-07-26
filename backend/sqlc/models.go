@@ -785,7 +785,7 @@ type SectionsExpanded struct {
 	CollectionID null_v4.Int           `db:"collection_id" json:"collectionID"`
 	Title        pqtype.NullRawMessage `db:"title" json:"title"`
 	Description  pqtype.NullRawMessage `db:"description" json:"description"`
-	Roles        interface{}           `db:"roles" json:"roles"`
+	Roles        []string              `db:"roles" json:"roles"`
 }
 
 type SectionsTranslation struct {
