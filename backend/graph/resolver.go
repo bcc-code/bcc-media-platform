@@ -52,7 +52,7 @@ type restrictedItem interface {
 }
 
 // resolverFor returns a resolver for the specified item
-func resolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id k, loader *dataloader.Loader[k, *t], converter func(context.Context, *t) r) (res r, err error) {
+func resolverFor[k comparable, t any, r any](ctx context.Context, id k, loader *dataloader.Loader[k, *t], converter func(context.Context, *t) r) (res r, err error) {
 	obj, err := common.GetFromLoaderByID(ctx, loader, id)
 	if err != nil {
 		return res, err
@@ -61,16 +61,19 @@ func resolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id 
 		return res, merry.Sentinel("item not found")
 	}
 
-	err = user.ValidateAccess(ctx, *obj)
-	if err != nil {
-		return res, err
+	switch t := any(obj).(type) {
+	case restrictedItem:
+		err = user.ValidateAccess(ctx, t)
+		if err != nil {
+			return res, err
+		}
 	}
 
 	return converter(ctx, obj), nil
 }
 
 // resolverForIntID returns a resolver for items with ints as keys
-func resolverForIntID[t restrictedItem, r any](ctx context.Context, id string, loader *dataloader.Loader[int, *t], converter func(context.Context, *t) r) (res r, err error) {
+func resolverForIntID[t any, r any](ctx context.Context, id string, loader *dataloader.Loader[int, *t], converter func(context.Context, *t) r) (res r, err error) {
 	intID, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return res, err
@@ -79,27 +82,7 @@ func resolverForIntID[t restrictedItem, r any](ctx context.Context, id string, l
 	return resolverFor(ctx, int(intID), loader, converter)
 }
 
-func resolverWithoutAccessValidationFor[k comparable, t any, r any](ctx context.Context, id k, loader *dataloader.Loader[k, *t], converter func(context.Context, *t) r) (res r, err error) {
-	obj, err := common.GetFromLoaderByID(ctx, loader, id)
-	if err != nil {
-		return res, err
-	}
-	if obj == nil {
-		return res, merry.Sentinel("item not found")
-	}
-
-	return converter(ctx, obj), nil
-}
-
-func resolverWithoutAccessValidationForIntID[t any, r any](ctx context.Context, id string, loader *dataloader.Loader[int, *t], converter func(context.Context, *t) r) (res r, err error) {
-	intID, err := strconv.ParseInt(id, 10, 32)
-	if err != nil {
-		return res, err
-	}
-	return resolverWithoutAccessValidationFor(ctx, int(intID), loader, converter)
-}
-
-func itemsResolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id k, loader *dataloader.Loader[k, []*t], converter func(context.Context, *t) r) ([]r, error) {
+func itemsResolverFor[k comparable, t any, r any](ctx context.Context, id k, loader *dataloader.Loader[k, []*t], converter func(context.Context, *t) r) ([]r, error) {
 	items, err := common.GetFromLoaderForKey(ctx, loader, id)
 	if err != nil {
 		return nil, err
@@ -107,33 +90,21 @@ func itemsResolverFor[k comparable, t restrictedItem, r any](ctx context.Context
 
 	return utils.MapWithCtx(ctx, lo.Filter(items, func(i *t, _ int) bool {
 		// Validate that user has access
-		return user.ValidateAccess(ctx, *i) == nil
+		switch v := any(i).(type) {
+		case restrictedItem:
+			return user.ValidateAccess(ctx, v) == nil
+		default:
+			return true
+		}
 	}), converter), nil
 }
 
-func itemsResolverForIntID[t restrictedItem, r any](ctx context.Context, id string, loader *dataloader.Loader[int, []*t], converter func(context.Context, *t) r) ([]r, error) {
+func itemsResolverForIntID[t any, r any](ctx context.Context, id string, loader *dataloader.Loader[int, []*t], converter func(context.Context, *t) r) ([]r, error) {
 	intID, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return nil, err
 	}
 	return itemsResolverFor(ctx, int(intID), loader, converter)
-}
-
-func itemsResolverWithoutAccessValidationFor[k comparable, t any, r any](ctx context.Context, id k, loader *dataloader.Loader[k, []*t], converter func(context.Context, *t) r) ([]r, error) {
-	items, err := common.GetFromLoaderForKey(ctx, loader, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return utils.MapWithCtx(ctx, items, converter), nil
-}
-
-func itemsResolverWithoutAccessValidationForIntID[t any, r any](ctx context.Context, id string, loader *dataloader.Loader[int, []*t], converter func(context.Context, *t) r) ([]r, error) {
-	intID, err := strconv.ParseInt(id, 10, 32)
-	if err != nil {
-		return nil, err
-	}
-	return itemsResolverWithoutAccessValidationFor(ctx, int(intID), loader, converter)
 }
 
 func getFromLoaderAndFilterAccess[k comparable, t restrictedItem](ctx context.Context, loader *dataloader.Loader[k, *t], ids []k) ([]*t, error) {

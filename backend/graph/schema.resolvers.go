@@ -24,12 +24,12 @@ func (r *collectionResolver) Items(ctx context.Context, obj *gqlmodel.Collection
 
 // Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error) {
-	return itemsResolverWithoutAccessValidationForIntID(ctx, obj.ID, r.Resolver.Loaders.StreamsLoader, gqlmodel.StreamFromSQL)
+	return itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.StreamsLoader, gqlmodel.StreamFromSQL)
 }
 
 // Files is the resolver for the files field.
 func (r *episodeResolver) Files(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.File, error) {
-	return itemsResolverWithoutAccessValidationForIntID(ctx, obj.ID, r.Resolver.Loaders.FilesLoader, gqlmodel.FileFromSQL)
+	return itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.FilesLoader, gqlmodel.FileFromSQL)
 }
 
 // Season is the resolver for the season field.
@@ -58,14 +58,14 @@ func (r *itemSectionResolver) Page(ctx context.Context, obj *gqlmodel.ItemSectio
 // Collection is the resolver for the collection field.
 func (r *itemSectionResolver) Collection(ctx context.Context, obj *gqlmodel.ItemSection) (*gqlmodel.Collection, error) {
 	if obj.Collection != nil {
-		return resolverWithoutAccessValidationForIntID(ctx, obj.Collection.ID, r.Loaders.CollectionLoader, gqlmodel.CollectionFromSQL)
+		return resolverForIntID(ctx, obj.Collection.ID, r.Loaders.CollectionLoader, gqlmodel.CollectionFromSQL)
 	}
 	return nil, nil
 }
 
 // Sections is the resolver for the sections field.
 func (r *pageResolver) Sections(ctx context.Context, obj *gqlmodel.Page, first *int, after *int) (*gqlmodel.SectionConnection, error) {
-	sections, err := itemsResolverWithoutAccessValidationForIntID(ctx, obj.ID, r.Loaders.SectionsLoader, gqlmodel.SectionFromSQL)
+	sections, err := itemsResolverForIntID(ctx, obj.ID, r.Loaders.SectionsLoader, gqlmodel.SectionFromSQL)
 
 	if err != nil {
 		return nil, err
@@ -93,10 +93,10 @@ func (r *pageResolver) Sections(ctx context.Context, obj *gqlmodel.Page, first *
 // Page is the resolver for the page field.
 func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) (*gqlmodel.Page, error) {
 	if id != nil {
-		return resolverWithoutAccessValidationForIntID(ctx, *id, r.Loaders.PageLoader, gqlmodel.PageFromSQL)
+		return resolverForIntID(ctx, *id, r.Loaders.PageLoader, gqlmodel.PageFromSQL)
 	}
 	if code != nil {
-		return resolverWithoutAccessValidationFor(ctx, *code, r.Loaders.PageLoaderByCode, gqlmodel.PageFromSQL)
+		return resolverFor(ctx, *code, r.Loaders.PageLoaderByCode, gqlmodel.PageFromSQL)
 	}
 	return nil, merry.Sentinel("Must specify either ID or code", merry.WithHTTPCode(400))
 }
@@ -131,7 +131,7 @@ func (r *queryRootResolver) Show(ctx context.Context, id string) (*gqlmodel.Show
 
 // Section is the resolver for the section field.
 func (r *queryRootResolver) Section(ctx context.Context, id string) (gqlmodel.Section, error) {
-	return resolverWithoutAccessValidationForIntID(ctx, id, r.Loaders.SectionLoader, gqlmodel.SectionFromSQL)
+	return resolverForIntID(ctx, id, r.Loaders.SectionLoader, gqlmodel.SectionFromSQL)
 }
 
 // Search is the resolver for the search field.
