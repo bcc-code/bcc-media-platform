@@ -6,6 +6,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/ansel1/merry/v2"
 
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
@@ -51,7 +52,7 @@ func (r *episodeSearchItemResolver) Season(ctx context.Context, obj *gqlmodel.Ep
 
 // Page is the resolver for the page field.
 func (r *itemSectionResolver) Page(ctx context.Context, obj *gqlmodel.ItemSection) (*gqlmodel.Page, error) {
-	return r.QueryRoot().Page(ctx, obj.Page.ID)
+	return r.QueryRoot().Page(ctx, &obj.Page.ID, nil)
 }
 
 // Collection is the resolver for the collection field.
@@ -90,8 +91,14 @@ func (r *pageResolver) Sections(ctx context.Context, obj *gqlmodel.Page, first *
 }
 
 // Page is the resolver for the page field.
-func (r *queryRootResolver) Page(ctx context.Context, id string) (*gqlmodel.Page, error) {
-	return resolverWithoutAccessValidationForIntID(ctx, id, r.Loaders.PageLoader, gqlmodel.PageFromSQL)
+func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) (*gqlmodel.Page, error) {
+	if id != nil {
+		return resolverWithoutAccessValidationForIntID(ctx, *id, r.Loaders.PageLoader, gqlmodel.PageFromSQL)
+	}
+	if code != nil {
+		return resolverWithoutAccessValidationFor(ctx, *code, r.Loaders.PageLoaderByCode, gqlmodel.PageFromSQL)
+	}
+	return nil, merry.Sentinel("Must specify either ID or code", merry.WithHTTPCode(400))
 }
 
 // Pages is the resolver for the pages field.

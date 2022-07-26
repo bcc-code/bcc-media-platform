@@ -14,3 +14,12 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.PageExpa
 		return int32(id)
 	})
 }
+
+// NewCodeBatchLoader returns a loader for batch loading
+func NewCodeBatchLoader(queries sqlc.Queries) *dataloader.Loader[string, *sqlc.PageExpanded] {
+	return common.NewBatchLoader(queries.GetPagesByCode, func(row sqlc.PageExpanded) string {
+		return row.Code.ValueOrZero()
+	}, func(id string) string {
+		return id
+	})
+}

@@ -178,7 +178,7 @@ type ComplexityRoot struct {
 		Episode  func(childComplexity int, id string) int
 		Event    func(childComplexity int, id string) int
 		Me       func(childComplexity int) int
-		Page     func(childComplexity int, id string) int
+		Page     func(childComplexity int, id *string, code *string) int
 		Pages    func(childComplexity int, first *int, offset *int) int
 		Search   func(childComplexity int, queryString string, first *int, offset *int) int
 		Season   func(childComplexity int, id string) int
@@ -318,7 +318,7 @@ type PageResolver interface {
 	Sections(ctx context.Context, obj *gqlmodel.Page, first *int, after *int) (*gqlmodel.SectionConnection, error)
 }
 type QueryRootResolver interface {
-	Page(ctx context.Context, id string) (*gqlmodel.Page, error)
+	Page(ctx context.Context, id *string, code *string) (*gqlmodel.Page, error)
 	Pages(ctx context.Context, first *int, offset *int) ([]*gqlmodel.Page, error)
 	Episode(ctx context.Context, id string) (*gqlmodel.Episode, error)
 	Season(ctx context.Context, id string) (*gqlmodel.Season, error)
@@ -958,7 +958,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.QueryRoot.Page(childComplexity, args["id"].(string)), true
+		return e.complexity.QueryRoot.Page(childComplexity, args["id"].(*string), args["code"].(*string)), true
 
 	case "QueryRoot.pages":
 		if e.complexity.QueryRoot.Pages == nil {
@@ -1839,7 +1839,8 @@ type SearchResult {
 
 type QueryRoot{
   page(
-    id: ID!
+    id: ID
+    code: String
   ): Page
 
   pages(
@@ -1993,15 +1994,24 @@ func (ec *executionContext) field_QueryRoot_event_args(ctx context.Context, rawA
 func (ec *executionContext) field_QueryRoot_page_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 *string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["id"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["code"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["code"] = arg1
 	return args, nil
 }
 
@@ -5682,7 +5692,7 @@ func (ec *executionContext) _QueryRoot_page(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Page(rctx, fc.Args["id"].(string))
+		return ec.resolvers.QueryRoot().Page(rctx, fc.Args["id"].(*string), fc.Args["code"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
