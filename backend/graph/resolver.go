@@ -54,7 +54,7 @@ func resolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id 
 		return nil, err
 	}
 	if obj == nil {
-		return nil, ErrItemNotFound
+		return nil, merry.Wrap(ErrItemNotFound)
 	}
 
 	err = user.ValidateAccess(ctx, *obj)

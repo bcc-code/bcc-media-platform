@@ -33,7 +33,7 @@ func HandleEvent(ctx context.Context, services services, event cloudevents.Event
 		handler := directus.NewHandler(services.GetDirectusClient())
 		return client.Sync(ctx, handler)
 	}
-	return ErrEventNotSupported
+	return merry.Wrap(ErrEventNotSupported)
 }
 
 func toTranslationSources[t TranslationSource](items []t) []TranslationSource {
@@ -79,7 +79,7 @@ func getTranslationsForItem(ctx context.Context, d *directus.Handler, collection
 		}
 		return toTranslationSources(ts), nil
 	}
-	return nil, ErrCollectionNotSupported
+	return nil, merry.Wrap(ErrCollectionNotSupported)
 }
 
 // HandleModelUpdate for triggering actions on object change
