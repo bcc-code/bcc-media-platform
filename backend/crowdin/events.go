@@ -2,6 +2,7 @@ package crowdin
 
 import (
 	"context"
+
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/directus"
@@ -13,10 +14,10 @@ import (
 )
 
 var (
-	// CollectionNotSupported error for collection not yet supported
-	CollectionNotSupported = merry.Sentinel("collection not supported")
-	// EventNotSupported error for event key not yet supported
-	EventNotSupported = merry.Sentinel("event not supported")
+	// ErrCollectionNotSupported error for collection not yet supported
+	ErrCollectionNotSupported = merry.Sentinel("collection not supported")
+	// ErrEventNotSupported error for event key not yet supported
+	ErrEventNotSupported = merry.Sentinel("event not supported")
 )
 
 type services interface {
@@ -32,7 +33,7 @@ func HandleEvent(ctx context.Context, services services, event cloudevents.Event
 		handler := directus.NewHandler(services.GetDirectusClient())
 		return client.Sync(ctx, handler)
 	}
-	return EventNotSupported
+	return ErrEventNotSupported
 }
 
 func toTranslationSources[t TranslationSource](items []t) []TranslationSource {
@@ -78,7 +79,7 @@ func getTranslationsForItem(ctx context.Context, d *directus.Handler, collection
 		}
 		return toTranslationSources(ts), nil
 	}
-	return nil, CollectionNotSupported
+	return nil, ErrCollectionNotSupported
 }
 
 // HandleModelUpdate for triggering actions on object change
