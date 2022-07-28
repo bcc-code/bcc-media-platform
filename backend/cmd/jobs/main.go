@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"database/sql"
+
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -64,13 +65,14 @@ func main() {
 	config := getEnvConfig()
 
 	serverConfig := server.ConfigData{
-		IngestBucket:       config.AWS.IngestBucket,
-		StorageBucket:      config.AWS.StorageBucket,
-		PackagingGroupID:   config.AWS.PackagingGroupARN,
-		MediapackageRole:   config.AWS.MediapackageRoleARN,
-		MediapackageSource: config.AWS.MediapackageSourceARN,
-		CrowdinProjectIDs:  config.Crowdin.ProjectIDs,
-		CrowdinToken:       config.Crowdin.Token,
+		IngestBucket:          config.AWS.IngestBucket,
+		StorageBucket:         config.AWS.StorageBucket,
+		PackagingGroupID:      config.AWS.PackagingGroupARN,
+		MediapackageRole:      config.AWS.MediapackageRoleARN,
+		MediapackageSource:    config.AWS.MediapackageSourceARN,
+		CrowdinProjectIDs:     config.Crowdin.ProjectIDs,
+		CrowdinToken:          config.Crowdin.Token,
+		DeleteIngestFilesFlag: config.DeleteIngestFiles,
 	}
 
 	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
