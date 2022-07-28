@@ -1,10 +1,44 @@
 export type Operator = "==" | "!=" | "<" | ">" | "!"
 
-export type FilterValue = string | {
-    [operator: string]: FilterValue | FilterValue[];
+export type Variable = {
+	var: string
 }
 
-export type FieldType = "text" | "number" | "date" | "datetime";
+export type Filter = {
+    [operator: string]: (string | number | Variable)[];
+}
+
+export type Group = {
+	[operator: string]: (Filter | Group)[];
+}
+
+export type FieldType = "text" | "number" | "date" | "datetime-local"  | "var";
+
+export const fieldTypes: {
+	title: string,
+	value: FieldType
+}[] = [
+	{
+		title: "Variable",
+		value: "var"
+	},
+	{
+		title: "Text",
+		value: "text",
+	},
+	{
+		title: "Number",
+		value: "number",
+	},
+	{
+		title: "Date",
+		value: "date",
+	},
+	{
+		title: "DateTime",
+		value: "datetime-local"
+	}
+]
 
 export type Field = {
     type: FieldType;
@@ -13,7 +47,7 @@ export type Field = {
 
 export type Root = {
 	id: string;
-	filter: FilterValue | null;
+	filter: Group | null;
 	sortBy: string | null;
 	sortByDirection: "asc" | "desc" | null;
 }
