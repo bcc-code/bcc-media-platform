@@ -30,6 +30,7 @@ var langMap = map[string]string{
 	"hun":       "hu",
 	"ita":       "it",
 	"slv":       "sl",
+	"swe":       "sv",
 	"zho":       "zh",
 	"chi":       "zh",
 	"zht":       "zh",

@@ -2,20 +2,22 @@ package graph
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/search"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
-	"strconv"
 )
 
-import (
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/graph-gophers/dataloader/v7"
-)
+type apiConfig interface {
+	GetVOD2Domain() string
+}
 
 // This file will not be regenerated automatically.
 //
@@ -27,6 +29,7 @@ type Resolver struct {
 	Queries       *sqlc.Queries
 	Loaders       *BatchLoaders
 	SearchService *search.Service
+	APIConfig     apiConfig
 }
 
 // BatchLoaders is a collection of GQL dataloaders
@@ -50,6 +53,11 @@ type restrictedItem interface {
 	GetRoles() common.Roles
 	GetAvailability() common.Availability
 }
+
+// Sentinel errors
+var (
+	ErrItemNotFound = merry.Sentinel("item not found")
+)
 
 type hasKey[k comparable] interface {
 	GetKey() k
@@ -84,7 +92,7 @@ func resolverFor[k comparable, t any, r any](ctx context.Context, id k, loader *
 		return res, err
 	}
 	if obj == nil {
-		return res, merry.Sentinel("item not found")
+		return res, merry.Wrap(ErrItemNotFound)
 	}
 	switch t := any(obj).(type) {
 	case restrictedItem:

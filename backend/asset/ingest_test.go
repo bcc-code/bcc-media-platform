@@ -58,19 +58,19 @@ func TestGetLanguagesFromVideoElement(t *testing.T) {
 		{
 			AssetStreamID: "+",
 			LanguagesCode: directus.LanguagesCode{
-				Code: "ita",
+				Code: "it",
 			},
 		},
 		{
 			AssetStreamID: "+",
 			LanguagesCode: directus.LanguagesCode{
-				Code: "deu",
+				Code: "de",
 			},
 		},
 		{
 			AssetStreamID: "+",
 			LanguagesCode: directus.LanguagesCode{
-				Code: "fra",
+				Code: "fr",
 			},
 		},
 	}, langs)
@@ -80,19 +80,19 @@ func TestGetLanguagesFromVideoElement(t *testing.T) {
 		{
 			AssetStreamID: "+",
 			LanguagesCode: directus.LanguagesCode{
-				Code: "nor",
+				Code: "no",
 			},
 		},
 		{
 			AssetStreamID: "+",
 			LanguagesCode: directus.LanguagesCode{
-				Code: "fin",
+				Code: "fi",
 			},
 		},
 		{
 			AssetStreamID: "+",
 			LanguagesCode: directus.LanguagesCode{
-				Code: "swe",
+				Code: "sv",
 			},
 		},
 	}, langs)

@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
@@ -22,7 +23,17 @@ func (r *collectionResolver) Items(ctx context.Context, obj *gqlmodel.Collection
 
 // Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error) {
-	return itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.StreamsLoader, gqlmodel.StreamFromSQL)
+	streams, err := asset.GetStreamsForEpisode(ctx, r.Resolver.Loaders.StreamsLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	out := []*gqlmodel.Stream{}
+	for _, s := range streams {
+		out = append(out, gqlmodel.StreamFromSQL(ctx, r.Resolver.APIConfig.GetVOD2Domain(), s))
+	}
+
+	return out, nil
 }
 
 // Files is the resolver for the files field.

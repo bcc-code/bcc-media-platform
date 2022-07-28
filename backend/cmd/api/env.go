@@ -23,6 +23,15 @@ type envConfig struct {
 	Algolia   algolia
 	Port      string
 	JWTConfig auth0.JWTConfig
+	CDNConfig cdnConfig
+}
+
+type cdnConfig struct {
+	Vod2Domain string
+}
+
+func (c cdnConfig) GetVOD2Domain() string {
+	return c.Vod2Domain
 }
 
 func getEnvConfig() envConfig {
@@ -46,6 +55,9 @@ func getEnvConfig() envConfig {
 			AppId:            os.Getenv("ALGOLIA_APP_ID"),
 			ApiKey:           os.Getenv("ALGOLIA_API_KEY"),
 			SearchOnlyApiKey: os.Getenv("ALGOLIA_SEARCH_ONLY_API_KEY"),
+		},
+		CDNConfig: cdnConfig{
+			Vod2Domain: os.Getenv("VOD2_CDN_DOMAIN"),
 		},
 	}
 }

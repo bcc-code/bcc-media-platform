@@ -385,13 +385,18 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		},
 	}
 
-	if config.GetDeleteIngestFilesFlag() {
-		s3client.DeleteObjects(ctx, deleteInputs)
-	} else {
-		fileList := lo.Map(objectsToDelete, func(x types.ObjectIdentifier, _ int) string {
-			return *x.Key
-		})
+	fileList := lo.Map(objectsToDelete, func(x types.ObjectIdentifier, _ int) string {
+		return *x.Key
+	})
 
+	if config.GetDeleteIngestFilesFlag() {
+		log.L.Debug().Str("objectsToDelete", fmt.Sprintf("%v", fileList)).Msg("Deleting files")
+		_, err := s3client.DeleteObjects(ctx, deleteInputs)
+		if err != nil {
+			log.L.Warn().Err(err).Msg("Error deleting files")
+			return merry.Wrap(err)
+		}
+	} else {
 		log.L.Debug().Str("objectsToDelete", fmt.Sprintf("%v", fileList)).Msg("Deleting disabled. Would have deleted this files")
 	}
 

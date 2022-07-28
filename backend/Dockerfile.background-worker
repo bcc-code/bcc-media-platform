@@ -7,6 +7,7 @@ ADD go.sum /go/src/go.sum
 RUN go mod download
 
 ADD ./backend /go/src/backend
+RUN CGO_ENABLED=0 go test ./...
 RUN CGO_ENABLED=0 go build -o /app ./backend/cmd/jobs
 
 FROM gcr.io/distroless/static AS prod

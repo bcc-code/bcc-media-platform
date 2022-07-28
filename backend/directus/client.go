@@ -4,18 +4,19 @@ import (
 	"context"
 	"fmt"
 
+	"strconv"
+
 	"github.com/ansel1/merry/v2"
 	"github.com/go-resty/resty/v2"
 	"go.opencensus.io/trace"
-	"strconv"
 )
 
-// RequestFailed error for failed requests
-var RequestFailed = merry.Sentinel("Request failed")
+// ErrRequestFailed error for failed requests
+var ErrRequestFailed = merry.Sentinel("Request failed")
 
 func ensureSuccess(res *resty.Response) (err error) {
 	if res.IsError() {
-		err = merry.Wrap(RequestFailed, merry.WithHTTPCode(res.StatusCode()), merry.WithMessage(res.String()))
+		err = merry.Wrap(ErrRequestFailed, merry.WithHTTPCode(res.StatusCode()), merry.WithMessage(res.String()))
 	}
 	return
 }
