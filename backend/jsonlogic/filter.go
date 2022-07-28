@@ -2,6 +2,9 @@ package jsonlogic
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/ansel1/merry/v2"
+	"strconv"
 	"strings"
 )
 
@@ -14,6 +17,39 @@ func opToDbOp(operator string) string {
 	default:
 		return operator
 	}
+}
+
+// marshall escapes all occurrences of ' in string.
+func marshall(source string) string {
+	marshalled, _ := json.Marshal(source)
+	result := string(marshalled)
+	result = strings.Replace(result, "'", "\\'", -1)
+	result = strings.Trim(result, "\"")
+	return result
+}
+
+func getValueFromSource(source any) (string, error) {
+	switch v := source.(type) {
+	case map[string]any:
+		if prop, ok := v["var"]; ok {
+			switch vt := prop.(type) {
+			case string:
+				// enough to avoid sql injection? Columns shouldn't have any spaces anyway heh
+				if strings.Contains(vt, " ") {
+					return "", merry.New("malformed property string")
+				}
+				return vt, nil
+			}
+		}
+	case string:
+		return fmt.Sprintf("'%s'", marshall(v)), nil
+	case float64:
+		return strconv.Itoa(int(v)), nil
+	case int:
+		// no way anyone can inject sql when type is int
+		return strconv.Itoa(v), nil
+	}
+	return "", merry.New("unsupported source type")
 }
 
 // GetSQLStringFromFilter returns an SQL string from filter
@@ -31,37 +67,31 @@ func GetSQLStringFromFilter(filter map[string]any) string {
 					}
 				}
 			}
-			return strings.Join(filters, " "+strings.ToUpper(key)+" ")
+			return "(" + strings.Join(filters, ") "+strings.ToUpper(key)+" (") + ")"
 		case "==", "!=", ">", "<", ">=", "<=":
-			var property string
-			var value string
+			var left string
+			var right string
 			switch t := values.(type) {
 			case []any:
-				left := t[0]
-				right := t[1]
-
-				switch v := left.(type) {
-				case map[string]any:
-					if prop, ok := v["var"]; ok {
-						switch vt := prop.(type) {
-						case string:
-							// enough to avoid sql injection?
-							property = strings.Replace(vt, " ", "", -1)
-						}
-					}
+				if len(t) != 2 {
+					return "1 = 0"
 				}
+				leftSource := t[0]
+				rightSource := t[1]
 
-				switch v := right.(type) {
-				case string:
-					marshalled, _ := json.Marshal(v)
-					value = string(marshalled)
-					value = strings.Replace(value, "'", "\\'", -1)
-					value = strings.Trim(value, "\"")
+				var err error
+				left, err = getValueFromSource(leftSource)
+				if err != nil {
+					return "1 = 0"
+				}
+				right, err = getValueFromSource(rightSource)
+				if err != nil {
+					return "1 = 0"
 				}
 			}
 			// TODO: is it possible for sql injection to happen here?
-			// API is readonly anyway right?
-			return property + " " + opToDbOp(key) + " '" + value + "'"
+			// API is readonly anyway rightSource?
+			return left + " " + opToDbOp(key) + " " + right
 		}
 	}
 	return "1 = 0"
