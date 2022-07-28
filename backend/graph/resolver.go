@@ -14,6 +14,10 @@ import (
 	"github.com/samber/lo"
 )
 
+type apiConfig interface {
+	GetVOD2Domain() string
+}
+
 // This file will not be regenerated automatically.
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
@@ -24,6 +28,7 @@ type Resolver struct {
 	Queries       *sqlc.Queries
 	Loaders       *BatchLoaders
 	SearchService *search.Service
+	APIConfig     apiConfig
 }
 
 // BatchLoaders is a collection of GQL dataloaders
