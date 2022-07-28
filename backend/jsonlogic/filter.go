@@ -1,9 +1,8 @@
 package jsonlogic
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/ansel1/merry/v2"
+	"github.com/lib/pq"
 	"strconv"
 	"strings"
 )
@@ -19,15 +18,6 @@ func opToDbOp(operator string) string {
 	}
 }
 
-// marshall escapes all occurrences of ' in string.
-func marshall(source string) string {
-	marshalled, _ := json.Marshal(source)
-	result := string(marshalled)
-	result = strings.Replace(result, "'", "\\'", -1)
-	result = strings.Trim(result, "\"")
-	return result
-}
-
 func getValueFromSource(source any) (string, error) {
 	switch v := source.(type) {
 	case map[string]any:
@@ -38,11 +28,11 @@ func getValueFromSource(source any) (string, error) {
 				if strings.Contains(vt, " ") {
 					return "", merry.New("malformed property string")
 				}
-				return vt, nil
+				return pq.QuoteIdentifier(vt), nil
 			}
 		}
 	case string:
-		return fmt.Sprintf("'%s'", marshall(v)), nil
+		return pq.QuoteLiteral(v), nil
 	case float64:
 		return strconv.Itoa(int(v)), nil
 	case int:
