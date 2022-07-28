@@ -14,6 +14,7 @@ const db = knex.knex({
 });
 
 async function run() {
+	console.log("Starting migration process")
     let lock_result = (await db.raw("SELECT pg_try_advisory_lock(1237123)"))
 
     if (lock_result?.rows?.[0]?.pg_try_advisory_lock !== true) {
