@@ -17,16 +17,13 @@ type filter struct {
 func TestConvertToSQL(t *testing.T) {
 	files, _ := os.ReadDir("./testdata")
 	for _, fileName := range files {
-		// Open our jsonFile
 		jsonFile, err := os.Open("./testdata/" + fileName.Name())
-		// if we os.Open returns an error then handle it
 		if err != nil {
 			fmt.Println(err)
+			return
 		}
 
 		fmt.Println("Successfully opened " + fileName.Name())
-		// defer the closing of our jsonFile so that we can parse it later on
-		defer jsonFile.Close()
 
 		byteValue, _ := ioutil.ReadAll(jsonFile)
 
@@ -36,6 +33,7 @@ func TestConvertToSQL(t *testing.T) {
 
 		filterString := GetSQLStringFromFilter(f.In)
 		assert.Equal(t, f.Out, filterString)
-	}
 
+		_ = jsonFile.Close()
+	}
 }
