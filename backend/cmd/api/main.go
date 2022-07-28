@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+
 	"github.com/bcc-code/brunstadtv/backend/season"
 	"github.com/bcc-code/brunstadtv/backend/show"
 
@@ -26,12 +27,13 @@ import (
 )
 
 // Defining the Graphql handler
-func graphqlHandler(queries *sqlc.Queries, loaders *graph.BatchLoaders, searchService *search.Service) gin.HandlerFunc {
+func graphqlHandler(queries *sqlc.Queries, loaders *graph.BatchLoaders, searchService *search.Service, config envConfig) gin.HandlerFunc {
 
 	resolver := graph.Resolver{
 		Queries:       queries,
 		Loaders:       loaders,
 		SearchService: searchService,
+		APIConfig:     config.CDNConfig,
 	}
 
 	// NewExecutableSchema and Config are in the generated.go file
@@ -100,7 +102,7 @@ func main() {
 	r.Use(user.NewUserMiddleware(queries))
 
 	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
-	r.POST("/query", graphqlHandler(queries, loaders, searchService))
+	r.POST("/query", graphqlHandler(queries, loaders, searchService, config))
 
 	r.GET("/", playgroundHandler())
 

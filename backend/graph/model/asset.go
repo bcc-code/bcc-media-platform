@@ -2,6 +2,7 @@ package gqlmodel
 
 import (
 	"context"
+	"net/url"
 	"path"
 	"strconv"
 
@@ -28,10 +29,17 @@ func FileFromSQL(ctx context.Context, sqlFile *sqlc.GetFilesForEpisodesRow) *Fil
 }
 
 // StreamFromSQL converts Assetfile rows to the GQL equvivalents
-func StreamFromSQL(ctx context.Context, sqlStream *sqlc.GetStreamsForEpisodesRow) *Stream {
+func StreamFromSQL(ctx context.Context, vod2domain string, sqlStream *sqlc.GetStreamsForEpisodesRow) *Stream {
+
+	url := url.URL{
+		Path:   sqlStream.Path,
+		Host:   vod2domain,
+		Scheme: "https",
+	}
+
 	return &Stream{
 		ID:                strconv.Itoa(int(sqlStream.ID)),
-		URL:               sqlStream.Path, // TODO: Make a full url out of the path
+		URL:               url.String(),
 		AudioLanguages:    lo.Map(sqlStream.AudioLanguages, func(s string, _ int) Language { return Language(s) }),
 		SubtitleLanguages: lo.Map(sqlStream.SubtitleLanguages, func(s string, _ int) Language { return Language(s) }),
 		Type:              StreamType(sqlStream.Type),
