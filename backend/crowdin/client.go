@@ -3,6 +3,11 @@ package crowdin
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
+
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -10,10 +15,6 @@ import (
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/go-resty/resty/v2"
 	"github.com/samber/lo"
-	"regexp"
-	"strconv"
-	"strings"
-	"time"
 )
 
 // Config for the client
@@ -27,14 +28,14 @@ type Client struct {
 	config Config
 }
 
-// RequestFailed error for failed requests
-var RequestFailed = merry.Sentinel("Request failed")
+// ErrRequestFailed error for failed requests
+var ErrRequestFailed = merry.Sentinel("Request failed")
 
-func ensureSuccess(res *resty.Response) (err error) {
+func ensureSuccess(res *resty.Response) error {
 	if res.IsError() {
-		err = merry.Wrap(RequestFailed, merry.WithHTTPCode(res.StatusCode()), merry.WithMessage(res.String()))
+		return merry.Wrap(ErrRequestFailed, merry.WithHTTPCode(res.StatusCode()), merry.WithMessage(res.String()))
 	}
-	return
+	return nil
 }
 
 // New client for requests

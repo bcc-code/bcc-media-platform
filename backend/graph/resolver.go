@@ -47,6 +47,11 @@ type restrictedItem interface {
 	GetAvailability() common.Availability
 }
 
+// Sentinel errors
+var (
+	ErrItemNotFound = merry.Sentinel("item not found")
+)
+
 // resolverFor returns a resolver for the specified item
 func resolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id k, loader *dataloader.Loader[k, *t], converter func(context.Context, *t) *r) (*r, error) {
 	obj, err := common.GetFromLoaderByID(ctx, loader, id)
@@ -54,7 +59,7 @@ func resolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id 
 		return nil, err
 	}
 	if obj == nil {
-		return nil, merry.Sentinel("item not found")
+		return nil, merry.Wrap(ErrItemNotFound)
 	}
 
 	err = user.ValidateAccess(ctx, *obj)
