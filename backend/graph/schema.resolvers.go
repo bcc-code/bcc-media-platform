@@ -21,7 +21,13 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([
 	if err != nil {
 		return nil, err
 	}
-	return utils.MapWithCtx(ctx, streams, gqlmodel.StreamFromSQL), nil
+
+	out := []*gqlmodel.Stream{}
+	for _, s := range streams {
+		out = append(out, gqlmodel.StreamFromSQL(ctx, r.Resolver.APIConfig.GetVOD2Domain(), s))
+	}
+
+	return out, nil
 }
 
 // Files is the resolver for the files field.

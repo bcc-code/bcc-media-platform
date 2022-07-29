@@ -2,19 +2,21 @@ package graph
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/search"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
-	"strconv"
 )
 
-import (
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/graph-gophers/dataloader/v7"
-)
+type apiConfig interface {
+	GetVOD2Domain() string
+}
 
 // This file will not be regenerated automatically.
 //
@@ -26,6 +28,7 @@ type Resolver struct {
 	Queries       *sqlc.Queries
 	Loaders       *BatchLoaders
 	SearchService *search.Service
+	APIConfig     apiConfig
 }
 
 // BatchLoaders is a collection of GQL dataloaders
@@ -44,6 +47,11 @@ type restrictedItem interface {
 	GetAvailability() common.Availability
 }
 
+// Sentinel errors
+var (
+	ErrItemNotFound = merry.Sentinel("item not found")
+)
+
 // resolverFor returns a resolver for the specified item
 func resolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id k, loader *dataloader.Loader[k, *t], converter func(context.Context, *t) *r) (*r, error) {
 	obj, err := common.GetFromLoaderByID(ctx, loader, id)
@@ -51,7 +59,7 @@ func resolverFor[k comparable, t restrictedItem, r any](ctx context.Context, id 
 		return nil, err
 	}
 	if obj == nil {
-		return nil, merry.Sentinel("item not found")
+		return nil, merry.Wrap(ErrItemNotFound)
 	}
 
 	err = user.ValidateAccess(ctx, *obj)
