@@ -60,55 +60,14 @@ FROM pages p
          LEFT JOIN r ON r.page_id = p.id;
 `
 
-const collections_expanded_sql = `
-create or replace view collections_expanded
-            (id, collection, filter_type, page_ids, pages_query_filter, show_ids, shows_query_filter, season_ids,
-             seasons_query_filter, episode_ids, episodes_query_filter)
-as
-WITH pages AS (SELECT collections_pages.collections_id,
-                      json_agg(collections_pages.pages_id) AS page_ids
-               FROM collections_pages
-               GROUP BY collections_pages.collections_id),
-     shows AS (SELECT collections_shows.collections_id,
-                      json_agg(collections_shows.shows_id) AS show_ids
-               FROM collections_shows
-               GROUP BY collections_shows.collections_id),
-     seasons AS (SELECT collections_seasons.collections_id,
-                        json_agg(collections_seasons.seasons_id) AS season_ids
-                 FROM collections_seasons
-                 GROUP BY collections_seasons.collections_id),
-     episodes AS (SELECT collections_episodes.collections_id,
-                         json_agg(collections_episodes.episodes_id) AS episode_ids
-                  FROM collections_episodes
-                  GROUP BY collections_episodes.collections_id)
-SELECT c.id,
-       c.collection,
-       c.filter_type,
-       p.page_ids,
-       c.pages_query_filter,
-       sh.show_ids,
-       c.shows_query_filter,
-       se.season_ids,
-       c.seasons_query_filter,
-       e.episode_ids,
-       c.episodes_query_filter
-FROM collections c
-         LEFT JOIN pages p ON p.collections_id = c.id
-         LEFT JOIN shows sh ON sh.collections_id = c.id
-         LEFT JOIN seasons se ON se.collections_id = c.id
-         LEFT JOIN episodes e ON e.collections_id = c.id;
-`
-
 module.exports = {
-	async up(k : Knex) {
-		await k.raw(sections_expanded_sql)
-		await k.raw(pages_expanded_sql)
-        await k.raw(collections_expanded_sql)
-	},
+    async up(k: Knex) {
+        await k.raw(sections_expanded_sql)
+        await k.raw(pages_expanded_sql)
+    },
 
-	async down(k : Knex) {
-		await k.raw(`DROP VIEW sections_expanded`)
-		await k.raw(`DROP VIEW pages_expanded`)
-        await k.raw(`DROP VIEW collections_expanded`)
-	}
+    async down(k: Knex) {
+        await k.raw(`DROP VIEW sections_expanded`)
+        await k.raw(`DROP VIEW pages_expanded`)
+    }
 }
