@@ -36,7 +36,6 @@ func getValueFromSource(source any) (string, error) {
 	case float64:
 		return strconv.Itoa(int(v)), nil
 	case int:
-		// no way anyone can inject sql when type is int
 		return strconv.Itoa(v), nil
 	}
 	return "", merry.New("unsupported source type")
@@ -79,8 +78,6 @@ func GetSQLStringFromFilter(filter map[string]any) string {
 					return "1 = 0"
 				}
 			}
-			// TODO: is it possible for sql injection to happen here?
-			// API is readonly anyway rightSource?
 			return left + " " + opToDbOp(key) + " " + right
 		}
 	}

@@ -205,6 +205,7 @@ func iterateAndPreloadCollectionItems(ctx context.Context, loaders *BatchLoaders
 
 func (r *itemSectionResolver) itemToGQL(ctx context.Context, item *sqlc.CollectionItem) (gqlmodel.Item, error) {
 	var res gqlmodel.Item
+	sort := int(item.Sort.ValueOrZero())
 	switch item.Type.ValueOrZero() {
 	case "page":
 		stringId := strconv.Itoa(int(item.PageID.ValueOrZero()))
@@ -216,7 +217,7 @@ func (r *itemSectionResolver) itemToGQL(ctx context.Context, item *sqlc.Collecti
 			ID:    page.ID,
 			Title: page.Title,
 			Page:  page,
-			Sort:  int(item.Sort.ValueOrZero()),
+			Sort:  sort,
 		}, nil
 	case "show":
 		show, err := r.QueryRoot().Show(ctx, strconv.Itoa(int(item.ShowID.ValueOrZero())))
@@ -227,7 +228,7 @@ func (r *itemSectionResolver) itemToGQL(ctx context.Context, item *sqlc.Collecti
 			ID:    show.ID,
 			Title: show.Title,
 			Show:  show,
-			Sort:  int(item.Sort.ValueOrZero()),
+			Sort:  sort,
 		}, nil
 	case "season":
 		season, err := r.QueryRoot().Season(ctx, strconv.Itoa(int(item.SeasonID.ValueOrZero())))
@@ -238,7 +239,7 @@ func (r *itemSectionResolver) itemToGQL(ctx context.Context, item *sqlc.Collecti
 			ID:     season.ID,
 			Title:  season.Title,
 			Season: season,
-			Sort:   int(item.Sort.ValueOrZero()),
+			Sort:   sort,
 		}, nil
 	case "episode":
 		episode, err := r.QueryRoot().Episode(ctx, strconv.Itoa(int(item.EpisodeID.ValueOrZero())))
@@ -249,7 +250,7 @@ func (r *itemSectionResolver) itemToGQL(ctx context.Context, item *sqlc.Collecti
 			ID:      episode.ID,
 			Title:   episode.Title,
 			Episode: episode,
-			Sort:    int(item.Sort.ValueOrZero()),
+			Sort:    sort,
 		}, nil
 	}
 	return res, merry.Sentinel("unsupported item type")
