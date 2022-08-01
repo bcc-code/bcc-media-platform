@@ -7,23 +7,63 @@ package sqlc
 
 import (
 	"context"
+	"time"
 
 	"github.com/lib/pq"
+	"github.com/tabbed/pqtype"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getSections = `-- name: GetSections :many
-SELECT id, page_id, style, sort, published, date_created, date_updated, collection_id, title, description, roles FROM sections_expanded s WHERE s.id = ANY($1::int[])
+WITH t AS (SELECT ts.sections_id,
+                  json_object_agg(ts.languages_code, ts.title)       AS title,
+                  json_object_agg(ts.languages_code, ts.description) AS description
+           FROM sections_translations ts
+           GROUP BY ts.sections_id),
+     u AS (SELECT ug.sections_id,
+                  array_agg(ug.usergroups_code) AS roles
+           FROM sections_usergroups ug
+           GROUP BY ug.sections_id)
+SELECT s.id,
+       s.page_id,
+       s.style,
+       s.sort,
+       s.status::text = 'published'::text AS published,
+       s.date_created,
+       s.date_updated,
+       s.collection_id,
+       t.title,
+       t.description,
+       u.roles::character varying[] AS roles
+FROM sections s
+         LEFT JOIN t ON s.id = t.sections_id
+         LEFT JOIN u ON s.id = u.sections_id
+WHERE s.id = ANY($1::int[])
 `
 
-func (q *Queries) GetSections(ctx context.Context, dollar_1 []int32) ([]SectionsExpanded, error) {
+type GetSectionsRow struct {
+	ID           int32                 `db:"id" json:"id"`
+	PageID       null_v4.Int           `db:"page_id" json:"pageID"`
+	Style        null_v4.String        `db:"style" json:"style"`
+	Sort         null_v4.Int           `db:"sort" json:"sort"`
+	Published    bool                  `db:"published" json:"published"`
+	DateCreated  time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated  time.Time             `db:"date_updated" json:"dateUpdated"`
+	CollectionID null_v4.Int           `db:"collection_id" json:"collectionID"`
+	Title        pqtype.NullRawMessage `db:"title" json:"title"`
+	Description  pqtype.NullRawMessage `db:"description" json:"description"`
+	Roles        []string              `db:"roles" json:"roles"`
+}
+
+func (q *Queries) GetSections(ctx context.Context, dollar_1 []int32) ([]GetSectionsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getSections, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []SectionsExpanded
+	var items []GetSectionsRow
 	for rows.Next() {
-		var i SectionsExpanded
+		var i GetSectionsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.PageID,
@@ -51,18 +91,55 @@ func (q *Queries) GetSections(ctx context.Context, dollar_1 []int32) ([]Sections
 }
 
 const getSectionsForPageIDs = `-- name: GetSectionsForPageIDs :many
-SELECT id, page_id, style, sort, published, date_created, date_updated, collection_id, title, description, roles FROM sections_expanded s WHERE s.page_id = ANY($1::int[])
+WITH t AS (SELECT ts.sections_id,
+                  json_object_agg(ts.languages_code, ts.title)       AS title,
+                  json_object_agg(ts.languages_code, ts.description) AS description
+           FROM sections_translations ts
+           GROUP BY ts.sections_id),
+     u AS (SELECT ug.sections_id,
+                  array_agg(ug.usergroups_code) AS roles
+           FROM sections_usergroups ug
+           GROUP BY ug.sections_id)
+SELECT s.id,
+       s.page_id,
+       s.style,
+       s.sort,
+       s.status::text = 'published'::text AS published,
+       s.date_created,
+       s.date_updated,
+       s.collection_id,
+       t.title,
+       t.description,
+       u.roles::character varying[] AS roles
+FROM sections s
+         LEFT JOIN t ON s.id = t.sections_id
+         LEFT JOIN u ON s.id = u.sections_id
+WHERE s.page_id = ANY($1::int[])
 `
 
-func (q *Queries) GetSectionsForPageIDs(ctx context.Context, dollar_1 []int32) ([]SectionsExpanded, error) {
+type GetSectionsForPageIDsRow struct {
+	ID           int32                 `db:"id" json:"id"`
+	PageID       null_v4.Int           `db:"page_id" json:"pageID"`
+	Style        null_v4.String        `db:"style" json:"style"`
+	Sort         null_v4.Int           `db:"sort" json:"sort"`
+	Published    bool                  `db:"published" json:"published"`
+	DateCreated  time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated  time.Time             `db:"date_updated" json:"dateUpdated"`
+	CollectionID null_v4.Int           `db:"collection_id" json:"collectionID"`
+	Title        pqtype.NullRawMessage `db:"title" json:"title"`
+	Description  pqtype.NullRawMessage `db:"description" json:"description"`
+	Roles        []string              `db:"roles" json:"roles"`
+}
+
+func (q *Queries) GetSectionsForPageIDs(ctx context.Context, dollar_1 []int32) ([]GetSectionsForPageIDsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getSectionsForPageIDs, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []SectionsExpanded
+	var items []GetSectionsForPageIDsRow
 	for rows.Next() {
-		var i SectionsExpanded
+		var i GetSectionsForPageIDsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.PageID,
@@ -90,18 +167,54 @@ func (q *Queries) GetSectionsForPageIDs(ctx context.Context, dollar_1 []int32) (
 }
 
 const listSections = `-- name: ListSections :many
-SELECT id, page_id, style, sort, published, date_created, date_updated, collection_id, title, description, roles FROM sections_expanded
+WITH t AS (SELECT ts.sections_id,
+                  json_object_agg(ts.languages_code, ts.title)       AS title,
+                  json_object_agg(ts.languages_code, ts.description) AS description
+           FROM sections_translations ts
+           GROUP BY ts.sections_id),
+     u AS (SELECT ug.sections_id,
+                  array_agg(ug.usergroups_code) AS roles
+           FROM sections_usergroups ug
+           GROUP BY ug.sections_id)
+SELECT s.id,
+       s.page_id,
+       s.style,
+       s.sort,
+       s.status::text = 'published'::text AS published,
+       s.date_created,
+       s.date_updated,
+       s.collection_id,
+       t.title,
+       t.description,
+       u.roles::character varying[] AS roles
+FROM sections s
+         LEFT JOIN t ON s.id = t.sections_id
+         LEFT JOIN u ON s.id = u.sections_id
 `
 
-func (q *Queries) ListSections(ctx context.Context) ([]SectionsExpanded, error) {
+type ListSectionsRow struct {
+	ID           int32                 `db:"id" json:"id"`
+	PageID       null_v4.Int           `db:"page_id" json:"pageID"`
+	Style        null_v4.String        `db:"style" json:"style"`
+	Sort         null_v4.Int           `db:"sort" json:"sort"`
+	Published    bool                  `db:"published" json:"published"`
+	DateCreated  time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated  time.Time             `db:"date_updated" json:"dateUpdated"`
+	CollectionID null_v4.Int           `db:"collection_id" json:"collectionID"`
+	Title        pqtype.NullRawMessage `db:"title" json:"title"`
+	Description  pqtype.NullRawMessage `db:"description" json:"description"`
+	Roles        []string              `db:"roles" json:"roles"`
+}
+
+func (q *Queries) ListSections(ctx context.Context) ([]ListSectionsRow, error) {
 	rows, err := q.db.QueryContext(ctx, listSections)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []SectionsExpanded
+	var items []ListSectionsRow
 	for rows.Next() {
-		var i SectionsExpanded
+		var i ListSectionsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.PageID,

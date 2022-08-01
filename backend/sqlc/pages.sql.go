@@ -9,21 +9,63 @@ import (
 	"context"
 
 	"github.com/lib/pq"
+	"github.com/tabbed/pqtype"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getPages = `-- name: GetPages :many
-SELECT id, code, type, published, show_id, season_id, episode_id, collection, title, description, roles FROM pages_expanded WHERE id = ANY($1::int[])
+WITH t AS (SELECT ts.pages_id,
+                  json_object_agg(ts.languages_code, ts.title)       AS title,
+                  json_object_agg(ts.languages_code, ts.description) AS description
+           FROM pages_translations ts
+           GROUP BY ts.pages_id),
+     r AS (SELECT p_1.id                                                   AS page_id,
+                  (SELECT array_agg(DISTINCT eu.usergroups_code) AS array_agg
+                   FROM sections_usergroups eu
+                   WHERE (eu.sections_id IN (SELECT e.id
+                                             FROM episodes e
+                                             WHERE e.season_id = p_1.id))) AS roles
+           FROM pages p_1)
+SELECT p.id,
+       p.code,
+       p.type,
+       p.status::text = 'published'::text AS published,
+       p.show_id,
+       p.season_id,
+       p.episode_id,
+       p.collection,
+       t.title,
+       t.description,
+       r.roles
+FROM pages p
+         LEFT JOIN t ON t.pages_id = p.id
+         LEFT JOIN r ON r.page_id = p.id
+WHERE id = ANY($1::int[])
 `
 
-func (q *Queries) GetPages(ctx context.Context, dollar_1 []int32) ([]PagesExpanded, error) {
+type GetPagesRow struct {
+	ID          int32                 `db:"id" json:"id"`
+	Code        null_v4.String        `db:"code" json:"code"`
+	Type        null_v4.String        `db:"type" json:"type"`
+	Published   bool                  `db:"published" json:"published"`
+	ShowID      null_v4.Int           `db:"show_id" json:"showID"`
+	SeasonID    null_v4.Int           `db:"season_id" json:"seasonID"`
+	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeID"`
+	Collection  null_v4.String        `db:"collection" json:"collection"`
+	Title       pqtype.NullRawMessage `db:"title" json:"title"`
+	Description pqtype.NullRawMessage `db:"description" json:"description"`
+	Roles       interface{}           `db:"roles" json:"roles"`
+}
+
+func (q *Queries) GetPages(ctx context.Context, dollar_1 []int32) ([]GetPagesRow, error) {
 	rows, err := q.db.QueryContext(ctx, getPages, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []PagesExpanded
+	var items []GetPagesRow
 	for rows.Next() {
-		var i PagesExpanded
+		var i GetPagesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Code,
@@ -51,18 +93,58 @@ func (q *Queries) GetPages(ctx context.Context, dollar_1 []int32) ([]PagesExpand
 }
 
 const getPagesByCode = `-- name: GetPagesByCode :many
-SELECT id, code, type, published, show_id, season_id, episode_id, collection, title, description, roles FROM pages_expanded WHERE code = ANY($1::varchar[])
+WITH t AS (SELECT ts.pages_id,
+                  json_object_agg(ts.languages_code, ts.title)       AS title,
+                  json_object_agg(ts.languages_code, ts.description) AS description
+           FROM pages_translations ts
+           GROUP BY ts.pages_id),
+     r AS (SELECT p_1.id                                                   AS page_id,
+                  (SELECT array_agg(DISTINCT eu.usergroups_code) AS array_agg
+                   FROM sections_usergroups eu
+                   WHERE (eu.sections_id IN (SELECT e.id
+                                             FROM episodes e
+                                             WHERE e.season_id = p_1.id))) AS roles
+           FROM pages p_1)
+SELECT p.id,
+       p.code,
+       p.type,
+       p.status::text = 'published'::text AS published,
+       p.show_id,
+       p.season_id,
+       p.episode_id,
+       p.collection,
+       t.title,
+       t.description,
+       r.roles
+FROM pages p
+         LEFT JOIN t ON t.pages_id = p.id
+         LEFT JOIN r ON r.page_id = p.id
+WHERE code = ANY($1::varchar[])
 `
 
-func (q *Queries) GetPagesByCode(ctx context.Context, dollar_1 []string) ([]PagesExpanded, error) {
+type GetPagesByCodeRow struct {
+	ID          int32                 `db:"id" json:"id"`
+	Code        null_v4.String        `db:"code" json:"code"`
+	Type        null_v4.String        `db:"type" json:"type"`
+	Published   bool                  `db:"published" json:"published"`
+	ShowID      null_v4.Int           `db:"show_id" json:"showID"`
+	SeasonID    null_v4.Int           `db:"season_id" json:"seasonID"`
+	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeID"`
+	Collection  null_v4.String        `db:"collection" json:"collection"`
+	Title       pqtype.NullRawMessage `db:"title" json:"title"`
+	Description pqtype.NullRawMessage `db:"description" json:"description"`
+	Roles       interface{}           `db:"roles" json:"roles"`
+}
+
+func (q *Queries) GetPagesByCode(ctx context.Context, dollar_1 []string) ([]GetPagesByCodeRow, error) {
 	rows, err := q.db.QueryContext(ctx, getPagesByCode, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []PagesExpanded
+	var items []GetPagesByCodeRow
 	for rows.Next() {
-		var i PagesExpanded
+		var i GetPagesByCodeRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Code,
@@ -90,18 +172,57 @@ func (q *Queries) GetPagesByCode(ctx context.Context, dollar_1 []string) ([]Page
 }
 
 const listPages = `-- name: ListPages :many
-SELECT id, code, type, published, show_id, season_id, episode_id, collection, title, description, roles FROM pages_expanded
+WITH t AS (SELECT ts.pages_id,
+                  json_object_agg(ts.languages_code, ts.title)       AS title,
+                  json_object_agg(ts.languages_code, ts.description) AS description
+           FROM pages_translations ts
+           GROUP BY ts.pages_id),
+     r AS (SELECT p_1.id                                                   AS page_id,
+                  (SELECT array_agg(DISTINCT eu.usergroups_code) AS array_agg
+                   FROM sections_usergroups eu
+                   WHERE (eu.sections_id IN (SELECT e.id
+                                             FROM episodes e
+                                             WHERE e.season_id = p_1.id))) AS roles
+           FROM pages p_1)
+SELECT p.id,
+       p.code,
+       p.type,
+       p.status::text = 'published'::text AS published,
+       p.show_id,
+       p.season_id,
+       p.episode_id,
+       p.collection,
+       t.title,
+       t.description,
+       r.roles
+FROM pages p
+         LEFT JOIN t ON t.pages_id = p.id
+         LEFT JOIN r ON r.page_id = p.id
 `
 
-func (q *Queries) ListPages(ctx context.Context) ([]PagesExpanded, error) {
+type ListPagesRow struct {
+	ID          int32                 `db:"id" json:"id"`
+	Code        null_v4.String        `db:"code" json:"code"`
+	Type        null_v4.String        `db:"type" json:"type"`
+	Published   bool                  `db:"published" json:"published"`
+	ShowID      null_v4.Int           `db:"show_id" json:"showID"`
+	SeasonID    null_v4.Int           `db:"season_id" json:"seasonID"`
+	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeID"`
+	Collection  null_v4.String        `db:"collection" json:"collection"`
+	Title       pqtype.NullRawMessage `db:"title" json:"title"`
+	Description pqtype.NullRawMessage `db:"description" json:"description"`
+	Roles       interface{}           `db:"roles" json:"roles"`
+}
+
+func (q *Queries) ListPages(ctx context.Context) ([]ListPagesRow, error) {
 	rows, err := q.db.QueryContext(ctx, listPages)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []PagesExpanded
+	var items []ListPagesRow
 	for rows.Next() {
-		var i PagesExpanded
+		var i ListPagesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Code,
