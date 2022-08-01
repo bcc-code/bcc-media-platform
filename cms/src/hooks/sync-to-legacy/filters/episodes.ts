@@ -83,7 +83,7 @@ export async function updateEpisode(p, m, c) {
         LastUpdate: new Date()
     }
 
-    if (!p.legacy_tags_id) {
+    if (!epBeforeUpdate.legacy_tags_id) {
         patch.SearchId = await createLocalizable(oldKnex)
         p.legacy_tags_id = patch.SearchId
     }
