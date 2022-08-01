@@ -1,5 +1,9 @@
 .PHONY: schema-update run schema-snapshot init reset s
 
+install:
+	npm ci
+	cd ./custom && make install
+
 build:
 	npm run build
 	cd ./custom && make build
