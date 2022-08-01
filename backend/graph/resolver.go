@@ -203,7 +203,7 @@ func iterateAndPreloadCollectionItems(ctx context.Context, loaders *BatchLoaders
 	preloadIds(ctx, loaders, idMap)
 }
 
-func (r *collectionResolver) itemToGQL(ctx context.Context, loaders *BatchLoaders, item *sqlc.CollectionItem) (gqlmodel.CollectionItem, error) {
+func (r *collectionResolver) itemToGQL(ctx context.Context, item *sqlc.CollectionItem) (gqlmodel.CollectionItem, error) {
 	var res gqlmodel.CollectionItem
 	switch item.Type.ValueOrZero() {
 	case "page":
@@ -255,15 +255,15 @@ func (r *collectionResolver) itemToGQL(ctx context.Context, loaders *BatchLoader
 	return res, merry.Sentinel("unsupported item type")
 }
 
-func (r *collectionResolver) getItemsForSelectCollection(ctx context.Context, loaders *BatchLoaders, id int) ([]gqlmodel.CollectionItem, error) {
-	items, err := common.GetFromLoaderForKey(ctx, loaders.CollectionItemLoader, id)
+func (r *collectionResolver) getItemsForSelectCollection(ctx context.Context, id int) ([]gqlmodel.CollectionItem, error) {
+	items, err := common.GetFromLoaderForKey(ctx, r.Loaders.CollectionItemLoader, id)
 	if err != nil {
 		return nil, err
 	}
-	iterateAndPreloadCollectionItems(ctx, loaders, items)
+	iterateAndPreloadCollectionItems(ctx, r.Loaders, items)
 	var result []gqlmodel.CollectionItem
 	for _, item := range items {
-		res, err := r.itemToGQL(ctx, loaders, item)
+		res, err := r.itemToGQL(ctx, item)
 		if err != nil {
 			continue
 		}
@@ -272,7 +272,8 @@ func (r *collectionResolver) getItemsForSelectCollection(ctx context.Context, lo
 	return result, nil
 }
 
-func (r *collectionResolver) getItemsForQueryCollection(ctx context.Context, loaders *BatchLoaders, id int, collection string) ([]gqlmodel.CollectionItem, error) {
+func (r *collectionResolver) getItemsForQueryCollection(ctx context.Context, id int, collection string) ([]gqlmodel.CollectionItem, error) {
+	loaders := r.Loaders
 	itemIds, err := loaders.CollectionItemIdsLoader.Load(ctx, id)()
 	if err != nil {
 		return nil, err
@@ -307,20 +308,20 @@ func (r *collectionResolver) getItemsForQueryCollection(ctx context.Context, loa
 	return nil, merry.Sentinel("unsupported collection specified")
 }
 
-func (r *collectionResolver) resolverFor(ctx context.Context, loaders *BatchLoaders, id string) ([]gqlmodel.CollectionItem, error) {
+func (r *collectionResolver) resolverFor(ctx context.Context, id string) ([]gqlmodel.CollectionItem, error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 	intID := int(int64ID)
 
-	col, err := loaders.CollectionLoader.Load(ctx, intID)()
+	col, err := r.Loaders.CollectionLoader.Load(ctx, intID)()
 	if err != nil {
 		return nil, err
 	}
 
 	switch col.FilterType.ValueOrZero() {
 	case "select":
-		return r.getItemsForSelectCollection(ctx, loaders, intID)
+		return r.getItemsForSelectCollection(ctx, intID)
 	case "query":
-		return r.getItemsForQueryCollection(ctx, loaders, intID, col.Collection.ValueOrZero())
+		return r.getItemsForQueryCollection(ctx, intID, col.Collection.ValueOrZero())
 	}
 	return nil, nil
 }
