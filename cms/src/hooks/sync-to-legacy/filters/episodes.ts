@@ -74,6 +74,7 @@ export async function updateEpisode(p, m, c) {
     // get legacy id
     let epBeforeUpdate = (await c.database("episodes").select("*").where("id", m.keys[0]))[0];
 
+
     // update it in original
     let patch: Partial<EpisodeEntity> = {
         Published: p.publish_date as unknown as Date,
@@ -81,6 +82,12 @@ export async function updateEpisode(p, m, c) {
         AvailableFrom: p.available_from as unknown as Date,
         LastUpdate: new Date()
     }
+
+    if (!p.legacy_tags_id) {
+        patch.SearchId = await createLocalizable(oldKnex)
+        p.legacy_tags_id = patch.SearchId
+    }
+
     if (p.asset_id) {
         let asset = (await c.database("assets").select("*").where("id", p.asset_id))[0];
         patch.VideoId = asset.legacy_id
