@@ -3,17 +3,18 @@ package main
 import (
 	"context"
 	"database/sql"
-
-	"github.com/bcc-code/brunstadtv/backend/season"
-	"github.com/bcc-code/brunstadtv/backend/show"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
-	"github.com/bcc-code/brunstadtv/backend/episode"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
+	"github.com/bcc-code/brunstadtv/backend/items/collection"
+	"github.com/bcc-code/brunstadtv/backend/items/episode"
+	"github.com/bcc-code/brunstadtv/backend/items/page"
+	"github.com/bcc-code/brunstadtv/backend/items/season"
+	"github.com/bcc-code/brunstadtv/backend/items/section"
+	"github.com/bcc-code/brunstadtv/backend/items/show"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
@@ -84,14 +85,23 @@ func main() {
 
 	queries := sqlc.New(db)
 
+	collectionLoader := collection.NewBatchLoader(*queries)
+
 	loaders := &graph.BatchLoaders{
-		ShowLoader:     show.NewBatchLoader(*queries),
-		SeasonLoader:   season.NewBatchLoader(*queries),
-		EpisodeLoader:  episode.NewBatchLoader(*queries),
-		SeasonsLoader:  season.NewListBatchLoader(*queries),
-		EpisodesLoader: episode.NewListBatchLoader(*queries),
-		FilesLoader:    asset.NewBatchFileLoader(*queries),
-		StreamsLoader:  asset.NewBatchStreamLoader(*queries),
+		PageLoader:              page.NewBatchLoader(*queries),
+		PageLoaderByCode:        page.NewCodeBatchLoader(*queries),
+		SectionLoader:           section.NewBatchLoader(*queries),
+		SectionsLoader:          section.NewListBatchLoader(*queries),
+		CollectionLoader:        collectionLoader,
+		CollectionItemIdsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader),
+		CollectionItemLoader:    collection.NewItemListBatchLoader(*queries),
+		ShowLoader:              show.NewBatchLoader(*queries),
+		SeasonLoader:            season.NewBatchLoader(*queries),
+		EpisodeLoader:           episode.NewBatchLoader(*queries),
+		SeasonsLoader:           season.NewListBatchLoader(*queries),
+		EpisodesLoader:          episode.NewListBatchLoader(*queries),
+		FilesLoader:             asset.NewBatchFileLoader(*queries),
+		StreamsLoader:           asset.NewBatchStreamLoader(*queries),
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")

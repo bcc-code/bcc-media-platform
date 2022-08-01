@@ -22,7 +22,7 @@ type restrictedItem interface {
 }
 
 // ValidateAccess returns error if user in context does not have access to the specified item
-func ValidateAccess(ctx context.Context, item restrictedItem) error {
+func ValidateAccess[t restrictedItem](ctx context.Context, item t) error {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return err

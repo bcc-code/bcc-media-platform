@@ -33,3 +33,14 @@ func SeasonFromSQL(ctx context.Context, row *sqlc.SeasonExpanded) *Season {
 		Show:        &show,
 	}
 }
+
+// SeasonItemFromSQL returns a SeasonItem from a row
+func SeasonItemFromSQL(ctx context.Context, row *sqlc.SeasonExpanded) *SeasonItem {
+	season := SeasonFromSQL(ctx, row)
+
+	return &SeasonItem{
+		ID:     season.ID,
+		Season: season,
+		Title:  season.Title,
+	}
+}

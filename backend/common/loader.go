@@ -2,8 +2,10 @@ package common
 
 import (
 	"context"
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
+	"time"
 )
 
 // NewListBatchLoader returns a configured batch loader for Lists
@@ -116,5 +118,49 @@ func GetFromLoaderForKey[k comparable, t any](ctx context.Context, loader *datal
 		return nil, err
 	}
 
+	return result, nil
+}
+
+// GetManyFromLoader retrieves multiple items from specified loader
+func GetManyFromLoader[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], ids []k) ([]*t, error) {
+	thunk := loader.LoadMany(ctx, ids)
+	result, errs := thunk()
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+
+	var items []*t
+	for _, i := range result {
+		items = append(items, i)
+	}
+	return items, nil
+}
+
+type hasKey[k comparable] interface {
+	GetKey() k
+}
+
+var listCache = cache.New[string, any]()
+
+// List preloads results from the factory to the loader if it is not retrieved from the cache
+func List[k comparable, t hasKey[k]](ctx context.Context, loader *dataloader.Loader[k, *t], key string, factory func(context.Context) ([]t, error)) ([]*t, error) {
+	var result []*t
+	if cached, ok := listCache.Get(key); ok {
+		for _, i := range cached.([]t) {
+			v := i
+			result = append(result, &v)
+		}
+	} else {
+		items, err := factory(ctx)
+		if err != nil {
+			return nil, err
+		}
+		listCache.Set(key, items, cache.WithExpiration(time.Minute*10))
+		for _, i := range items {
+			v := i
+			loader.Prime(ctx, i.GetKey(), &v)
+			result = append(result, &v)
+		}
+	}
 	return result, nil
 }

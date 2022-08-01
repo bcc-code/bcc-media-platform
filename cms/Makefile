@@ -2,6 +2,7 @@
 
 build:
 	npm run build
+	cd ./custom && make build
 
 s:
 	make build
@@ -17,6 +18,7 @@ init:
 	npx directus bootstrap
 	mv extensions/.migrations extensions/migrations
 	make schema-update
+	cd ./custom && make init
 
 reset:
 	docker compose down -v
