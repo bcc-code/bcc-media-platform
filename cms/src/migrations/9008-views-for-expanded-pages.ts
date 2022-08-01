@@ -1,5 +1,10 @@
 import { Knex } from 'knex';
 
+const add_section_description = `
+alter table sections_translations
+    add description varchar(255);
+`
+
 const sections_expanded_sql = `
 create or replace view sections_expanded
             (id, page_id, style, sort, published, date_created, date_updated, collection_id, title, description,
@@ -62,6 +67,7 @@ FROM pages p
 
 module.exports = {
     async up(k: Knex) {
+        await k.raw(add_section_description)
         await k.raw(sections_expanded_sql)
         await k.raw(pages_expanded_sql)
     },
