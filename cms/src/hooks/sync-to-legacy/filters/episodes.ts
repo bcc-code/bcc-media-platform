@@ -34,9 +34,12 @@ export async function createEpisode(p, m, c) {
     patch.TitleId = await createLocalizable(oldKnex)
     patch.DescriptionId = await createLocalizable(oldKnex)
     patch.LongDescriptionId = await createLocalizable(oldKnex)
+    patch.SearchId = await createLocalizable(oldKnex)
+
     p.legacy_title_id = patch.TitleId
     p.legacy_description_id = patch.DescriptionId
     p.legacy_extra_description_id = patch.LongDescriptionId
+    p.legacy_tags_id = patch.SearchId
 
     if (image != null) {
         patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
