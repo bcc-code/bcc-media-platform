@@ -15,5 +15,5 @@ type PageExpanded = PagesExpanded
 // SectionExpanded contains section data + translations + permissions
 type SectionExpanded = SectionsExpanded
 
-// CollectionExpanded contains collection data + itemIds
-type CollectionExpanded = CollectionsExpanded
+// CollectionItem contains collection item data
+type CollectionItem = CollectionsItem

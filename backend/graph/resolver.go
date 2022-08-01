@@ -38,8 +38,9 @@ type BatchLoaders struct {
 	PageLoaderByCode        *dataloader.Loader[string, *sqlc.PageExpanded]
 	SectionLoader           *dataloader.Loader[int, *sqlc.SectionExpanded]
 	SectionsLoader          *dataloader.Loader[int, []*sqlc.SectionExpanded]
-	CollectionLoader        *dataloader.Loader[int, *sqlc.CollectionExpanded]
+	CollectionLoader        *dataloader.Loader[int, *sqlc.Collection]
 	CollectionItemIdsLoader *dataloader.Loader[int, []int]
+	CollectionItemLoader    *dataloader.Loader[int, []*sqlc.CollectionItem]
 	ShowLoader              *dataloader.Loader[int, *sqlc.ShowExpanded]
 	SeasonLoader            *dataloader.Loader[int, *sqlc.SeasonExpanded]
 	EpisodeLoader           *dataloader.Loader[int, *sqlc.EpisodeExpanded]
@@ -164,7 +165,45 @@ func toCollectionItemArray[t gqlmodel.CollectionItem](items []t) []gqlmodel.Coll
 	return result
 }
 
-func collectionResolverFor(ctx context.Context, loaders *BatchLoaders, id string) ([]gqlmodel.CollectionItem, error) {
+func preloadIds(ctx context.Context, loaders *BatchLoaders, idMap map[string][]int) {
+	for t, ids := range idMap {
+		switch t {
+		case "page":
+			loaders.PageLoader.LoadMany(ctx, ids)
+		case "show":
+			loaders.ShowLoader.LoadMany(ctx, ids)
+		case "season":
+			loaders.SeasonLoader.LoadMany(ctx, ids)
+		case "episode":
+			loaders.EpisodeLoader.LoadMany(ctx, ids)
+		}
+	}
+}
+
+func iterateAndPreloadCollectionItems(ctx context.Context, loaders *BatchLoaders, items []*sqlc.CollectionItem) {
+	var idMap = map[string][]int{}
+	for _, item := range items {
+		t := item.Type.ValueOrZero()
+		var id int
+		switch t {
+		case "page":
+			id = int(item.PageID.ValueOrZero())
+		case "show":
+			id = int(item.ShowID.ValueOrZero())
+		case "season":
+			id = int(item.SeasonID.ValueOrZero())
+		case "episode":
+			id = int(item.EpisodeID.ValueOrZero())
+		}
+		if _, ok := idMap[t]; !ok {
+			idMap[t] = []int{}
+		}
+		idMap[t] = append(idMap[t], id)
+	}
+	preloadIds(ctx, loaders, idMap)
+}
+
+func (r *collectionResolver) resolverFor(ctx context.Context, loaders *BatchLoaders, id string) ([]gqlmodel.CollectionItem, error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 	intID := int(int64ID)
 
@@ -173,36 +212,96 @@ func collectionResolverFor(ctx context.Context, loaders *BatchLoaders, id string
 		return nil, err
 	}
 
-	itemIds, err := loaders.CollectionItemIdsLoader.Load(ctx, int(col.ID))()
-	if err != nil {
-		return nil, err
-	}
+	switch col.FilterType.ValueOrZero() {
+	case "select":
+		items, err := common.GetFromLoaderForKey(ctx, loaders.CollectionItemLoader, intID)
+		if err != nil {
+			return nil, err
+		}
+		iterateAndPreloadCollectionItems(ctx, loaders, items)
+		var result []gqlmodel.CollectionItem
+		for _, item := range items {
+			switch item.Type.ValueOrZero() {
+			case "page":
+				stringId := strconv.Itoa(int(item.PageID.ValueOrZero()))
+				page, err := r.QueryRoot().Page(ctx, &stringId, nil)
+				if err != nil {
+					continue
+				}
+				result = append(result, gqlmodel.PageItem{
+					ID:    page.ID,
+					Title: page.Title,
+					Page:  page,
+					Sort:  int(item.Sort.ValueOrZero()),
+				})
+			case "show":
+				show, err := r.QueryRoot().Show(ctx, strconv.Itoa(int(item.ShowID.ValueOrZero())))
+				if err != nil {
+					continue
+				}
+				result = append(result, gqlmodel.ShowItem{
+					ID:    show.ID,
+					Title: show.Title,
+					Show:  show,
+					Sort:  int(item.Sort.ValueOrZero()),
+				})
+			case "season":
+				season, err := r.QueryRoot().Season(ctx, strconv.Itoa(int(item.SeasonID.ValueOrZero())))
+				if err != nil {
+					continue
+				}
+				result = append(result, gqlmodel.SeasonItem{
+					ID:     season.ID,
+					Title:  season.Title,
+					Season: season,
+					Sort:   int(item.Sort.ValueOrZero()),
+				})
+			case "episode":
+				episode, err := r.QueryRoot().Episode(ctx, strconv.Itoa(int(item.EpisodeID.ValueOrZero())))
+				if err != nil {
+					continue
+				}
+				result = append(result, gqlmodel.EpisodeItem{
+					ID:      episode.ID,
+					Title:   episode.Title,
+					Episode: episode,
+					Sort:    int(item.Sort.ValueOrZero()),
+				})
+			}
+		}
+		return result, nil
+	case "query":
+		itemIds, err := loaders.CollectionItemIdsLoader.Load(ctx, intID)()
+		if err != nil {
+			return nil, err
+		}
 
-	switch col.Collection.ValueOrZero() {
-	case "pages":
-		items, err := getFromLoaderAndFilterAccess(ctx, loaders.PageLoader, itemIds)
-		if err != nil {
-			return nil, err
+		switch col.Collection.ValueOrZero() {
+		case "pages":
+			items, err := getFromLoaderAndFilterAccess(ctx, loaders.PageLoader, itemIds)
+			if err != nil {
+				return nil, err
+			}
+			return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.PageItemFromSQL)), nil
+		case "shows":
+			items, err := getFromLoaderAndFilterAccess(ctx, loaders.ShowLoader, itemIds)
+			if err != nil {
+				return nil, err
+			}
+			return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.ShowItemFromSQL)), nil
+		case "seasons":
+			items, err := getFromLoaderAndFilterAccess(ctx, loaders.SeasonLoader, itemIds)
+			if err != nil {
+				return nil, err
+			}
+			return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.SeasonItemFromSQL)), nil
+		case "episodes":
+			items, err := getFromLoaderAndFilterAccess(ctx, loaders.EpisodeLoader, itemIds)
+			if err != nil {
+				return nil, err
+			}
+			return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.EpisodeItemFromSQL)), nil
 		}
-		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.PageItemFromSQL)), nil
-	case "shows":
-		items, err := getFromLoaderAndFilterAccess(ctx, loaders.ShowLoader, itemIds)
-		if err != nil {
-			return nil, err
-		}
-		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.ShowItemFromSQL)), nil
-	case "seasons":
-		items, err := getFromLoaderAndFilterAccess(ctx, loaders.SeasonLoader, itemIds)
-		if err != nil {
-			return nil, err
-		}
-		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.SeasonItemFromSQL)), nil
-	case "episodes":
-		items, err := getFromLoaderAndFilterAccess(ctx, loaders.EpisodeLoader, itemIds)
-		if err != nil {
-			return nil, err
-		}
-		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.EpisodeItemFromSQL)), nil
 	}
 	return nil, nil
 }

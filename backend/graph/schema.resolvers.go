@@ -18,7 +18,7 @@ import (
 
 // Items is the resolver for the items field.
 func (r *collectionResolver) Items(ctx context.Context, obj *gqlmodel.Collection) ([]gqlmodel.CollectionItem, error) {
-	return collectionResolverFor(ctx, r.Loaders, obj.ID)
+	return r.resolverFor(ctx, r.Loaders, obj.ID)
 }
 
 // Streams is the resolver for the streams field.

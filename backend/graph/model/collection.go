@@ -7,7 +7,7 @@ import (
 )
 
 // CollectionFromSQL converts sqlc.CollectionExpanded to Collection
-func CollectionFromSQL(_ context.Context, item *sqlc.CollectionExpanded) *Collection {
+func CollectionFromSQL(_ context.Context, item *sqlc.Collection) *Collection {
 	id := strconv.Itoa(int(item.ID))
 	return &Collection{
 		ID: id,
