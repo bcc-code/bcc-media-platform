@@ -61,7 +61,7 @@ func (r *itemSectionResolver) Page(ctx context.Context, obj *gqlmodel.ItemSectio
 
 // Items is the resolver for the items field.
 func (r *itemSectionResolver) Items(ctx context.Context, obj *gqlmodel.ItemSection, first *int, offset *int) (*gqlmodel.CollectionItemPagination, error) {
-	items, err := r.resolverFor(ctx, obj.ID)
+	items, err := collectionItemResolver(ctx, r.Resolver, obj.ID)
 	if err != nil {
 		return nil, err
 	}

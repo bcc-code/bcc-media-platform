@@ -81,7 +81,7 @@ func iterateAndPreloadCollectionItems(ctx context.Context, loaders *BatchLoaders
 	preloadIds(ctx, loaders, idMap)
 }
 
-func (r *itemSectionResolver) itemToGQL(ctx context.Context, item *sqlc.CollectionItem) (gqlmodel.Item, error) {
+func itemToGQL(ctx context.Context, r *Resolver, item *sqlc.CollectionItem) (gqlmodel.Item, error) {
 	var res gqlmodel.Item
 	sort := int(item.Sort.ValueOrZero())
 	switch item.Type.ValueOrZero() {
@@ -134,15 +134,16 @@ func (r *itemSectionResolver) itemToGQL(ctx context.Context, item *sqlc.Collecti
 	return res, ErrUnsupportedType
 }
 
-func (r *itemSectionResolver) getItemsForSelectCollection(ctx context.Context, id int) ([]gqlmodel.Item, error) {
-	items, err := common.GetFromLoaderForKey(ctx, r.Loaders.CollectionItemLoader, id)
+func getItemsForSelectCollection(ctx context.Context, r *Resolver, id int) ([]gqlmodel.Item, error) {
+	loaders := r.Loaders
+	items, err := common.GetFromLoaderForKey(ctx, loaders.CollectionItemLoader, id)
 	if err != nil {
 		return nil, err
 	}
-	iterateAndPreloadCollectionItems(ctx, r.Loaders, items)
+	iterateAndPreloadCollectionItems(ctx, loaders, items)
 	var result []gqlmodel.Item
 	for _, item := range items {
-		res, err := r.itemToGQL(ctx, item)
+		res, err := itemToGQL(ctx, r, item)
 		if err != nil {
 			continue
 		}
@@ -151,8 +152,7 @@ func (r *itemSectionResolver) getItemsForSelectCollection(ctx context.Context, i
 	return result, nil
 }
 
-func (r *itemSectionResolver) getItemsForQueryCollection(ctx context.Context, id int, collection string) ([]gqlmodel.Item, error) {
-	loaders := r.Loaders
+func getItemsForQueryCollection(ctx context.Context, loaders *BatchLoaders, id int, collection string) ([]gqlmodel.Item, error) {
 	itemIds, err := loaders.CollectionItemIdsLoader.Load(ctx, id)()
 	if err != nil {
 		return nil, err
@@ -187,7 +187,7 @@ func (r *itemSectionResolver) getItemsForQueryCollection(ctx context.Context, id
 	return nil, ErrUnsupportedCollection
 }
 
-func (r *itemSectionResolver) resolverFor(ctx context.Context, id string) ([]gqlmodel.Item, error) {
+func collectionItemResolver(ctx context.Context, r *Resolver, id string) ([]gqlmodel.Item, error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 	intID := int(int64ID)
 
@@ -207,9 +207,9 @@ func (r *itemSectionResolver) resolverFor(ctx context.Context, id string) ([]gql
 
 	switch col.FilterType.ValueOrZero() {
 	case "select":
-		return r.getItemsForSelectCollection(ctx, int(col.ID))
+		return getItemsForSelectCollection(ctx, r, int(col.ID))
 	case "query":
-		return r.getItemsForQueryCollection(ctx, int(col.ID), col.Collection.ValueOrZero())
+		return getItemsForQueryCollection(ctx, r.Loaders, int(col.ID), col.Collection.ValueOrZero())
 	}
 	return nil, nil
 }
