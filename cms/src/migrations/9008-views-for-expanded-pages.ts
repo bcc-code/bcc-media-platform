@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
 
 const add_pages_translations_table = `
-create table pages_translations
+create table if not exists pages_translations
 (
     id             serial
         primary key,
@@ -20,23 +20,23 @@ create table pages_translations
 
 const add_section_description = `
 alter table sections_translations
-    add description varchar(255);
+    add column if not exists description varchar(255);
 `
 
 const add_section_fields = `
 alter table sections
-    add style varchar(255),
-    add sort int,
-    add page_id int;
+    add column if not exists style varchar(255),
+    add column if not exists sort int,
+    add column if not exists page_id int;
 `
 
 const add_page_fields = `
 alter table pages
-    add type varchar(255),
-    add collection varchar(255),
-    add season_id int,
-    add episode_id int,
-    add show_id int
+    add column if not exists type varchar(255),
+    add column if not exists collection varchar(255) default NULL::character varying unique,
+    add column if not exists season_id int,
+    add column if not exists episode_id int,
+    add column if not exists show_id int
 ;
 `
 
