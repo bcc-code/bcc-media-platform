@@ -102,10 +102,18 @@ FROM pages p
 
 module.exports = {
     async up(k: Knex) {
-        await k.raw(add_page_fields)
-        await k.raw(add_section_fields)
-        await k.raw(add_pages_translations_table)
-        await k.raw(add_section_description)
+        for (const promise of [
+            () => k.raw(add_page_fields),
+            () => k.raw(add_section_fields),
+            () => k.raw(add_pages_translations_table),
+            () => k.raw(add_section_description)
+        ]) {
+            try {
+                await promise()
+            } catch {
+                console.log("Failed to alter/create tables")
+            }
+        }
         await k.raw(sections_expanded_sql)
         await k.raw(pages_expanded_sql)
     },
