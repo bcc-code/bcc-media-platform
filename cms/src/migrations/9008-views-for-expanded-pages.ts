@@ -23,6 +23,24 @@ alter table sections_translations
     add description varchar(255);
 `
 
+const add_section_fields = `
+alter table sections
+    add collection_id int,
+    add style varchar(255),
+    add sort int,
+    add page_id int;
+`
+
+const add_page_fields = `
+alter table pages
+    add type varchar(255),
+    add collection varchar(255),
+    add season_id int,
+    add episode_id int,
+    add show_id int
+;
+`
+
 const sections_expanded_sql = `
 create or replace view sections_expanded
             (id, page_id, style, sort, published, date_created, date_updated, collection_id, title, description,
@@ -85,6 +103,8 @@ FROM pages p
 
 module.exports = {
     async up(k: Knex) {
+        await k.raw(add_page_fields)
+        await k.raw(add_section_fields)
         await k.raw(add_pages_translations_table)
         await k.raw(add_section_description)
         await k.raw(sections_expanded_sql)
