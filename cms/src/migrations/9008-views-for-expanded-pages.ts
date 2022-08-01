@@ -25,7 +25,6 @@ alter table sections_translations
 
 const add_section_fields = `
 alter table sections
-    add collection_id int,
     add style varchar(255),
     add sort int,
     add page_id int;
