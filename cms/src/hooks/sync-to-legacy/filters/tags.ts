@@ -29,8 +29,6 @@ export async function deleteEpisodeTag(p, m, c) {
         return
     }
 
-
-
     let db = c.database as Knex<any>
     let tagToDelete = (await db("episodes_tags").select("*").where("id", p[0]))[0];
     let episode = (await db("episodes").select("*").where("id", tagToDelete.episodes_id))[0];
@@ -46,8 +44,6 @@ export async function deleteEpisodeTag(p, m, c) {
     let tags = (await db("tags").select("name").whereIn("id", tag_ids)).map(t => t.name)
 
     let result = await upsertLS(oldKnex, episode.legacy_tags_id, {CultureCode: "no", Id: 1, Name: "Norsk"}, tags.join(","))
-
-
 
 }
 
