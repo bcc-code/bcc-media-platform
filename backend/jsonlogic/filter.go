@@ -1,7 +1,9 @@
 package jsonlogic
 
 import (
+	"encoding/json"
 	"github.com/ansel1/merry/v2"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lib/pq"
 	"strconv"
 	"strings"
@@ -81,5 +83,7 @@ func GetSQLStringFromFilter(filter map[string]any) string {
 			return left + " " + opToDbOp(key) + " " + right
 		}
 	}
+	marshalled, _ := json.Marshal(filter)
+	log.L.Debug().Str("filter", string(marshalled)).Msg("Invalid filter passed")
 	return "1 = 0"
 }
