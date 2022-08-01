@@ -8,8 +8,8 @@ import (
 	"strconv"
 )
 
-type CollectionItem interface {
-	IsCollectionItem()
+type Item interface {
+	IsItem()
 }
 
 type SearchResultItem interface {
@@ -43,9 +43,11 @@ type Chapter struct {
 	Title string `json:"title"`
 }
 
-type Collection struct {
-	ID    string           `json:"id"`
-	Items []CollectionItem `json:"items"`
+type CollectionItemPagination struct {
+	Total  int    `json:"total"`
+	First  int    `json:"first"`
+	Offset int    `json:"offset"`
+	Items  []Item `json:"items"`
 }
 
 type Episode struct {
@@ -71,7 +73,7 @@ type EpisodeItem struct {
 	Episode  *Episode `json:"episode"`
 }
 
-func (EpisodeItem) IsCollectionItem() {}
+func (EpisodeItem) IsItem() {}
 
 type EpisodePagination struct {
 	Total  int        `json:"total"`
@@ -129,11 +131,11 @@ type File struct {
 }
 
 type ItemSection struct {
-	ID         string          `json:"id"`
-	Page       *Page           `json:"page"`
-	Title      string          `json:"title"`
-	Type       ItemSectionType `json:"type"`
-	Collection *Collection     `json:"collection"`
+	ID    string                    `json:"id"`
+	Page  *Page                     `json:"page"`
+	Title string                    `json:"title"`
+	Type  ItemSectionType           `json:"type"`
+	Items *CollectionItemPagination `json:"items"`
 }
 
 func (ItemSection) IsSection() {}
@@ -154,7 +156,7 @@ type PageItem struct {
 	Page     *Page   `json:"page"`
 }
 
-func (PageItem) IsCollectionItem() {}
+func (PageItem) IsItem() {}
 
 type PagePagination struct {
 	Total  int     `json:"total"`
@@ -186,7 +188,7 @@ type SeasonItem struct {
 	Season   *Season `json:"season"`
 }
 
-func (SeasonItem) IsCollectionItem() {}
+func (SeasonItem) IsItem() {}
 
 type SeasonPagination struct {
 	Total  int       `json:"total"`
@@ -240,7 +242,7 @@ type ShowItem struct {
 	Show     *Show   `json:"show"`
 }
 
-func (ShowItem) IsCollectionItem() {}
+func (ShowItem) IsItem() {}
 
 type ShowPagination struct {
 	Total  int     `json:"total"`
@@ -285,7 +287,7 @@ type URLItem struct {
 	URL      string  `json:"url"`
 }
 
-func (URLItem) IsCollectionItem() {}
+func (URLItem) IsItem() {}
 
 type User struct {
 	ID        *string   `json:"id"`

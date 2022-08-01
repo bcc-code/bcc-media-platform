@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ansel1/merry/v2"
+	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
@@ -15,11 +15,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
-
-// Items is the resolver for the items field.
-func (r *collectionResolver) Items(ctx context.Context, obj *gqlmodel.Collection) ([]gqlmodel.CollectionItem, error) {
-	return r.resolverFor(ctx, r.Loaders, obj.ID)
-}
 
 // Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error) {
@@ -64,12 +59,19 @@ func (r *itemSectionResolver) Page(ctx context.Context, obj *gqlmodel.ItemSectio
 	return r.QueryRoot().Page(ctx, &obj.Page.ID, nil)
 }
 
-// Collection is the resolver for the collection field.
-func (r *itemSectionResolver) Collection(ctx context.Context, obj *gqlmodel.ItemSection) (*gqlmodel.Collection, error) {
-	if obj.Collection != nil {
-		return resolverForIntID(ctx, obj.Collection.ID, r.Loaders.CollectionLoader, gqlmodel.CollectionFromSQL)
+// Items is the resolver for the items field.
+func (r *itemSectionResolver) Items(ctx context.Context, obj *gqlmodel.ItemSection, first *int, offset *int) (*gqlmodel.CollectionItemPagination, error) {
+	items, err := r.resolverFor(ctx, obj.ID)
+	if err != nil {
+		return nil, err
 	}
-	return nil, nil
+	pagination := utils.Paginate(items, first, offset)
+	return &gqlmodel.CollectionItemPagination{
+		Total:  pagination.Total,
+		First:  pagination.First,
+		Offset: pagination.Offset,
+		Items:  pagination.Items,
+	}, nil
 }
 
 // Sections is the resolver for the sections field.
@@ -113,14 +115,9 @@ func (r *queryRootResolver) Pages(ctx context.Context, first *int, offset *int) 
 	}, nil
 }
 
-// Episode is the resolver for the episode field.
-func (r *queryRootResolver) Episode(ctx context.Context, id string) (*gqlmodel.Episode, error) {
-	return resolverForIntID(ctx, id, r.Loaders.EpisodeLoader, gqlmodel.EpisodeFromSQL)
-}
-
-// Season is the resolver for the season field.
-func (r *queryRootResolver) Season(ctx context.Context, id string) (*gqlmodel.Season, error) {
-	return resolverForIntID(ctx, id, r.Loaders.SeasonLoader, gqlmodel.SeasonFromSQL)
+// Section is the resolver for the section field.
+func (r *queryRootResolver) Section(ctx context.Context, id string) (gqlmodel.Section, error) {
+	return resolverForIntID(ctx, id, r.Loaders.SectionLoader, gqlmodel.SectionFromSQL)
 }
 
 // Show is the resolver for the show field.
@@ -128,9 +125,14 @@ func (r *queryRootResolver) Show(ctx context.Context, id string) (*gqlmodel.Show
 	return resolverForIntID(ctx, id, r.Loaders.ShowLoader, gqlmodel.ShowFromSQL)
 }
 
-// Section is the resolver for the section field.
-func (r *queryRootResolver) Section(ctx context.Context, id string) (gqlmodel.Section, error) {
-	return resolverForIntID(ctx, id, r.Loaders.SectionLoader, gqlmodel.SectionFromSQL)
+// Season is the resolver for the season field.
+func (r *queryRootResolver) Season(ctx context.Context, id string) (*gqlmodel.Season, error) {
+	return resolverForIntID(ctx, id, r.Loaders.SeasonLoader, gqlmodel.SeasonFromSQL)
+}
+
+// Episode is the resolver for the episode field.
+func (r *queryRootResolver) Episode(ctx context.Context, id string) (*gqlmodel.Episode, error) {
+	return resolverForIntID(ctx, id, r.Loaders.EpisodeLoader, gqlmodel.EpisodeFromSQL)
 }
 
 // Search is the resolver for the search field.
@@ -223,9 +225,6 @@ func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show, first *i
 	}, nil
 }
 
-// Collection returns generated.CollectionResolver implementation.
-func (r *Resolver) Collection() generated.CollectionResolver { return &collectionResolver{r} }
-
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
 
@@ -254,7 +253,6 @@ func (r *Resolver) SeasonSearchItem() generated.SeasonSearchItemResolver {
 // Show returns generated.ShowResolver implementation.
 func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
 
-type collectionResolver struct{ *Resolver }
 type episodeResolver struct{ *Resolver }
 type episodeSearchItemResolver struct{ *Resolver }
 type itemSectionResolver struct{ *Resolver }

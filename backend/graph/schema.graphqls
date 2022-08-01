@@ -47,25 +47,30 @@ type ItemSection implements Section {
   page: Page! @goField(forceResolver: true)
   title: String!
   type: ItemSectionType!
-  collection: Collection @goField(forceResolver: true)
-}
-
-type Collection {
-  id: ID!
-  items: [CollectionItem!]! @goField(forceResolver: true)
+  items(
+    first: Int,
+    offset: Int,
+  ): CollectionItemPagination @goField(forceResolver: true)
 }
 
 scalar Cursor
 scalar Date
 
-interface CollectionItem {
+interface Item {
   id: ID!
   sort: Int!
   title: String!
   imageUrl: String
 }
 
-type URLItem implements CollectionItem {
+type CollectionItemPagination{
+  total: Int!
+  first: Int!
+  offset: Int!
+  items: [Item!]!
+}
+
+type URLItem implements Item {
   id: ID!
   sort: Int!
   title: String!
@@ -73,7 +78,7 @@ type URLItem implements CollectionItem {
   url: String!
 }
 
-type ShowItem implements CollectionItem {
+type ShowItem implements Item {
   id: ID!
   sort: Int!
   title: String!
@@ -81,7 +86,7 @@ type ShowItem implements CollectionItem {
   show: Show!
 }
 
-type SeasonItem implements CollectionItem {
+type SeasonItem implements Item {
   id: ID!
   sort: Int!
   title: String!
@@ -89,7 +94,7 @@ type SeasonItem implements CollectionItem {
   season: Season!
 }
 
-type EpisodeItem implements CollectionItem {
+type EpisodeItem implements Item {
   id: ID!
   sort: Int!
   title: String!
@@ -97,7 +102,7 @@ type EpisodeItem implements CollectionItem {
   episode: Episode!
 }
 
-type PageItem implements CollectionItem {
+type PageItem implements Item {
   id: ID!
   sort: Int!
   title: String!
