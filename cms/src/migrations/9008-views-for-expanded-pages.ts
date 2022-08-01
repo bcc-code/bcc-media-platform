@@ -33,7 +33,9 @@ alter table sections
 const add_page_fields = `
 alter table pages
     add column if not exists type varchar(255),
-    add column if not exists collection varchar(255) default NULL::character varying unique,
+    add column if not exists collection varchar(255) default NULL::character varying 
+        constraint pages_collection_unique
+            unique,
     add column if not exists season_id int,
     add column if not exists episode_id int,
     add column if not exists show_id int
