@@ -1,5 +1,23 @@
 import { Knex } from 'knex';
 
+const add_pages_translations_table = `
+create table pages_translations
+(
+    id             serial
+        primary key,
+    pages_id       integer
+        constraint pages_translations_pages_id_foreign
+            references pages
+            on delete set null,
+    languages_code varchar(255)
+        constraint pages_translations_languages_code_foreign
+            references languages
+            on delete set null,
+    title          varchar(255),
+    description    varchar(255)
+);
+`
+
 const add_section_description = `
 alter table sections_translations
     add description varchar(255);
@@ -67,6 +85,7 @@ FROM pages p
 
 module.exports = {
     async up(k: Knex) {
+        await k.raw(add_pages_translations_table)
         await k.raw(add_section_description)
         await k.raw(sections_expanded_sql)
         await k.raw(pages_expanded_sql)
