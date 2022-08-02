@@ -17,23 +17,9 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.PageExpa
 
 // NewCodeBatchLoader returns a loader for batch loading
 func NewCodeBatchLoader(queries sqlc.Queries) *dataloader.Loader[string, *sqlc.PageExpanded] {
-	return common.NewBatchLoaderConvertable(queries.GetPagesByCode, func(row sqlc.GetPagesByCodeRow) string {
+	return common.NewBatchLoader(queries.GetPagesByCode, func(row sqlc.PageExpanded) string {
 		return row.Code.ValueOrZero()
 	}, func(id string) string {
 		return id
-	}, func(item sqlc.GetPagesByCodeRow) sqlc.PageExpanded {
-		return sqlc.PageExpanded{
-			ID:          item.ID,
-			Code:        item.Code,
-			Type:        item.Type,
-			Published:   item.Published,
-			ShowID:      item.ShowID,
-			SeasonID:    item.SeasonID,
-			EpisodeID:   item.EpisodeID,
-			Collection:  item.Collection,
-			Title:       item.Title,
-			Description: item.Description,
-			Roles:       item.Roles,
-		}
 	})
 }

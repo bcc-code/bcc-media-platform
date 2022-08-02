@@ -17,19 +17,7 @@ func (q *Queries) ListPages(ctx context.Context) ([]PageExpanded, error) {
 		return nil, err
 	}
 	return lo.Map(pages, func(p listPagesRow, _ int) PageExpanded {
-		return PageExpanded{
-			ID:          p.ID,
-			Code:        p.Code,
-			Type:        p.Type,
-			SeasonID:    p.SeasonID,
-			ShowID:      p.ShowID,
-			EpisodeID:   p.EpisodeID,
-			Collection:  p.Collection,
-			Title:       p.Title,
-			Description: p.Description,
-			Roles:       p.Roles,
-			Published:   p.Published,
-		}
+		return PageExpanded(p)
 	}), nil
 }
 
@@ -40,18 +28,6 @@ func (q *Queries) GetPagesByCode(ctx context.Context, codes []string) ([]PageExp
 		return nil, err
 	}
 	return lo.Map(pages, func(p getPagesByCodeRow, _ int) PageExpanded {
-		return PageExpanded{
-			ID:          p.ID,
-			Code:        p.Code,
-			Type:        p.Type,
-			SeasonID:    p.SeasonID,
-			ShowID:      p.ShowID,
-			EpisodeID:   p.EpisodeID,
-			Title:       p.Title,
-			Collection:  p.Collection,
-			Description: p.Description,
-			Roles:       p.Roles,
-			Published:   p.Published,
-		}
+		return PageExpanded(p)
 	}), nil
 }

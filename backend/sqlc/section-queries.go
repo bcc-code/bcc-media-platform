@@ -17,19 +17,7 @@ func (q *Queries) ListSections(ctx context.Context) ([]SectionExpanded, error) {
 		return nil, err
 	}
 	return lo.Map(sections, func(s listSectionsRow, _ int) SectionExpanded {
-		return SectionExpanded{
-			ID:           s.ID,
-			Title:        s.Title,
-			Description:  s.Description,
-			Roles:        s.Roles,
-			Published:    s.Published,
-			DateUpdated:  s.DateUpdated,
-			DateCreated:  s.DateCreated,
-			PageID:       s.PageID,
-			Style:        s.Style,
-			CollectionID: s.CollectionID,
-			Sort:         s.Sort,
-		}
+		return SectionExpanded(s)
 	}), nil
 }
 
@@ -40,18 +28,6 @@ func (q *Queries) GetSectionsForPageIDs(ctx context.Context, pageIds []int32) ([
 		return nil, err
 	}
 	return lo.Map(sections, func(s getSectionsForPageIDsRow, _ int) SectionExpanded {
-		return SectionExpanded{
-			ID:           s.ID,
-			Title:        s.Title,
-			Description:  s.Description,
-			Roles:        s.Roles,
-			Published:    s.Published,
-			DateUpdated:  s.DateUpdated,
-			DateCreated:  s.DateCreated,
-			PageID:       s.PageID,
-			Style:        s.Style,
-			CollectionID: s.CollectionID,
-			Sort:         s.Sort,
-		}
+		return SectionExpanded(s)
 	}), nil
 }
