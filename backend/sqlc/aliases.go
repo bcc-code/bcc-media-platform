@@ -10,10 +10,10 @@ type SeasonExpanded = SeasonsExpanded
 type ShowExpanded = ShowsExpanded
 
 // PageExpanded contains page data + translations + permissions
-type PageExpanded = GetPagesRow
+type PageExpanded = getPagesRow
 
 // SectionExpanded contains section data + translations + permissions
-type SectionExpanded = GetSectionsRow
+type SectionExpanded = getSectionsRow
 
 // CollectionItem contains collection item data
 type CollectionItem = CollectionsItem
