@@ -1,4 +1,4 @@
--- name: ListSections :many
+-- name: listSections :many
 WITH t AS (SELECT ts.sections_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
                   json_object_agg(ts.languages_code, ts.description) AS description
@@ -23,7 +23,7 @@ FROM sections s
          LEFT JOIN t ON s.id = t.sections_id
          LEFT JOIN u ON s.id = u.sections_id;
 
--- name: GetSections :many
+-- name: getSections :many
 WITH t AS (SELECT ts.sections_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
                   json_object_agg(ts.languages_code, ts.description) AS description
@@ -49,7 +49,7 @@ FROM sections s
          LEFT JOIN u ON s.id = u.sections_id
 WHERE s.id = ANY($1::int[]);
 
--- name: GetSectionsForPageIDs :many
+-- name: getSectionsForPageIDs :many
 WITH t AS (SELECT ts.sections_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
                   json_object_agg(ts.languages_code, ts.description) AS description

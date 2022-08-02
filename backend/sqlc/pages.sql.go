@@ -13,7 +13,7 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const getPages = `-- name: GetPages :many
+const getPages = `-- name: getPages :many
 WITH t AS (SELECT ts.pages_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
                   json_object_agg(ts.languages_code, ts.description) AS description
@@ -43,7 +43,7 @@ FROM pages p
 WHERE id = ANY($1::int[])
 `
 
-type GetPagesRow struct {
+type getPagesRow struct {
 	ID          int32                 `db:"id" json:"id"`
 	Code        null_v4.String        `db:"code" json:"code"`
 	Type        null_v4.String        `db:"type" json:"type"`
@@ -57,15 +57,15 @@ type GetPagesRow struct {
 	Roles       interface{}           `db:"roles" json:"roles"`
 }
 
-func (q *Queries) GetPages(ctx context.Context, dollar_1 []int32) ([]GetPagesRow, error) {
+func (q *Queries) getPages(ctx context.Context, dollar_1 []int32) ([]getPagesRow, error) {
 	rows, err := q.db.QueryContext(ctx, getPages, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetPagesRow
+	var items []getPagesRow
 	for rows.Next() {
-		var i GetPagesRow
+		var i getPagesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Code,
@@ -92,7 +92,7 @@ func (q *Queries) GetPages(ctx context.Context, dollar_1 []int32) ([]GetPagesRow
 	return items, nil
 }
 
-const getPagesByCode = `-- name: GetPagesByCode :many
+const getPagesByCode = `-- name: getPagesByCode :many
 WITH t AS (SELECT ts.pages_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
                   json_object_agg(ts.languages_code, ts.description) AS description
@@ -122,7 +122,7 @@ FROM pages p
 WHERE code = ANY($1::varchar[])
 `
 
-type GetPagesByCodeRow struct {
+type getPagesByCodeRow struct {
 	ID          int32                 `db:"id" json:"id"`
 	Code        null_v4.String        `db:"code" json:"code"`
 	Type        null_v4.String        `db:"type" json:"type"`
@@ -136,15 +136,15 @@ type GetPagesByCodeRow struct {
 	Roles       interface{}           `db:"roles" json:"roles"`
 }
 
-func (q *Queries) GetPagesByCode(ctx context.Context, dollar_1 []string) ([]GetPagesByCodeRow, error) {
+func (q *Queries) getPagesByCode(ctx context.Context, dollar_1 []string) ([]getPagesByCodeRow, error) {
 	rows, err := q.db.QueryContext(ctx, getPagesByCode, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetPagesByCodeRow
+	var items []getPagesByCodeRow
 	for rows.Next() {
-		var i GetPagesByCodeRow
+		var i getPagesByCodeRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Code,
@@ -171,7 +171,7 @@ func (q *Queries) GetPagesByCode(ctx context.Context, dollar_1 []string) ([]GetP
 	return items, nil
 }
 
-const listPages = `-- name: ListPages :many
+const listPages = `-- name: listPages :many
 WITH t AS (SELECT ts.pages_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
                   json_object_agg(ts.languages_code, ts.description) AS description
@@ -200,7 +200,7 @@ FROM pages p
          LEFT JOIN r ON r.page_id = p.id
 `
 
-type ListPagesRow struct {
+type listPagesRow struct {
 	ID          int32                 `db:"id" json:"id"`
 	Code        null_v4.String        `db:"code" json:"code"`
 	Type        null_v4.String        `db:"type" json:"type"`
@@ -214,15 +214,15 @@ type ListPagesRow struct {
 	Roles       interface{}           `db:"roles" json:"roles"`
 }
 
-func (q *Queries) ListPages(ctx context.Context) ([]ListPagesRow, error) {
+func (q *Queries) listPages(ctx context.Context) ([]listPagesRow, error) {
 	rows, err := q.db.QueryContext(ctx, listPages)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListPagesRow
+	var items []listPagesRow
 	for rows.Next() {
-		var i ListPagesRow
+		var i listPagesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Code,

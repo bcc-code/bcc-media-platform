@@ -1,4 +1,4 @@
--- name: GetPages :many
+-- name: getPages :many
 WITH t AS (SELECT ts.pages_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
                   json_object_agg(ts.languages_code, ts.description) AS description
@@ -27,7 +27,7 @@ FROM pages p
          LEFT JOIN r ON r.page_id = p.id
 WHERE id = ANY($1::int[]);
 
--- name: ListPages :many
+-- name: listPages :many
 WITH t AS (SELECT ts.pages_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
                   json_object_agg(ts.languages_code, ts.description) AS description
@@ -55,7 +55,7 @@ FROM pages p
          LEFT JOIN t ON t.pages_id = p.id
          LEFT JOIN r ON r.page_id = p.id;
 
--- name: GetPagesByCode :many
+-- name: getPagesByCode :many
 WITH t AS (SELECT ts.pages_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
                   json_object_agg(ts.languages_code, ts.description) AS description

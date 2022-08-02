@@ -54,53 +54,6 @@ func NewListBatchLoader[k comparable, kd comparable, t any](
 	return dataloader.NewBatchedLoader(batchLoadLists)
 }
 
-// NewListBatchLoaderConvertable returns a configured batch loader for Lists
-func NewListBatchLoaderConvertable[k comparable, kd comparable, t any, tr any](
-	factory func(ctx context.Context, ids []kd) ([]t, error),
-	getKey func(item t) k,
-	toDBKey func(key k) kd,
-	convert func(item t) tr,
-) *dataloader.Loader[k, []*tr] {
-	batchLoadLists := func(ctx context.Context, keys []k) []*dataloader.Result[[]*tr] {
-		var results []*dataloader.Result[[]*tr]
-
-		ids := lo.Map(keys, func(key k, _ int) kd {
-			return toDBKey(key)
-		})
-
-		res, err := factory(ctx, ids)
-
-		resMap := map[k][]*tr{}
-
-		if err == nil {
-			for _, r := range res {
-				key := getKey(r)
-
-				if _, ok := resMap[key]; !ok {
-					resMap[key] = []*tr{}
-				}
-				item := convert(r)
-				resMap[key] = append(resMap[key], &item)
-			}
-		}
-
-		for _, key := range keys {
-			r := &dataloader.Result[[]*tr]{
-				Error: err,
-			}
-
-			if val, ok := resMap[key]; ok {
-				r.Data = val
-			}
-
-			results = append(results, r)
-		}
-
-		return results
-	}
-	return dataloader.NewBatchedLoader(batchLoadLists)
-}
-
 // NewBatchLoader returns a configured batch loader for items
 func NewBatchLoader[k comparable, kd comparable, t any](
 	factory func(ctx context.Context, ids []kd) ([]t, error),

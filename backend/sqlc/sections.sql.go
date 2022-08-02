@@ -14,7 +14,7 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const getSections = `-- name: GetSections :many
+const getSections = `-- name: getSections :many
 WITH t AS (SELECT ts.sections_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
                   json_object_agg(ts.languages_code, ts.description) AS description
@@ -41,7 +41,7 @@ FROM sections s
 WHERE s.id = ANY($1::int[])
 `
 
-type GetSectionsRow struct {
+type getSectionsRow struct {
 	ID           int32                 `db:"id" json:"id"`
 	PageID       null_v4.Int           `db:"page_id" json:"pageID"`
 	Style        null_v4.String        `db:"style" json:"style"`
@@ -55,15 +55,15 @@ type GetSectionsRow struct {
 	Roles        []string              `db:"roles" json:"roles"`
 }
 
-func (q *Queries) GetSections(ctx context.Context, dollar_1 []int32) ([]GetSectionsRow, error) {
+func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSectionsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getSections, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetSectionsRow
+	var items []getSectionsRow
 	for rows.Next() {
-		var i GetSectionsRow
+		var i getSectionsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.PageID,
@@ -90,7 +90,7 @@ func (q *Queries) GetSections(ctx context.Context, dollar_1 []int32) ([]GetSecti
 	return items, nil
 }
 
-const getSectionsForPageIDs = `-- name: GetSectionsForPageIDs :many
+const getSectionsForPageIDs = `-- name: getSectionsForPageIDs :many
 WITH t AS (SELECT ts.sections_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
                   json_object_agg(ts.languages_code, ts.description) AS description
@@ -117,7 +117,7 @@ FROM sections s
 WHERE s.page_id = ANY($1::int[])
 `
 
-type GetSectionsForPageIDsRow struct {
+type getSectionsForPageIDsRow struct {
 	ID           int32                 `db:"id" json:"id"`
 	PageID       null_v4.Int           `db:"page_id" json:"pageID"`
 	Style        null_v4.String        `db:"style" json:"style"`
@@ -131,15 +131,15 @@ type GetSectionsForPageIDsRow struct {
 	Roles        []string              `db:"roles" json:"roles"`
 }
 
-func (q *Queries) GetSectionsForPageIDs(ctx context.Context, dollar_1 []int32) ([]GetSectionsForPageIDsRow, error) {
+func (q *Queries) getSectionsForPageIDs(ctx context.Context, dollar_1 []int32) ([]getSectionsForPageIDsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getSectionsForPageIDs, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetSectionsForPageIDsRow
+	var items []getSectionsForPageIDsRow
 	for rows.Next() {
-		var i GetSectionsForPageIDsRow
+		var i getSectionsForPageIDsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.PageID,
@@ -166,7 +166,7 @@ func (q *Queries) GetSectionsForPageIDs(ctx context.Context, dollar_1 []int32) (
 	return items, nil
 }
 
-const listSections = `-- name: ListSections :many
+const listSections = `-- name: listSections :many
 WITH t AS (SELECT ts.sections_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
                   json_object_agg(ts.languages_code, ts.description) AS description
@@ -192,7 +192,7 @@ FROM sections s
          LEFT JOIN u ON s.id = u.sections_id
 `
 
-type ListSectionsRow struct {
+type listSectionsRow struct {
 	ID           int32                 `db:"id" json:"id"`
 	PageID       null_v4.Int           `db:"page_id" json:"pageID"`
 	Style        null_v4.String        `db:"style" json:"style"`
@@ -206,15 +206,15 @@ type ListSectionsRow struct {
 	Roles        []string              `db:"roles" json:"roles"`
 }
 
-func (q *Queries) ListSections(ctx context.Context) ([]ListSectionsRow, error) {
+func (q *Queries) listSections(ctx context.Context) ([]listSectionsRow, error) {
 	rows, err := q.db.QueryContext(ctx, listSections)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListSectionsRow
+	var items []listSectionsRow
 	for rows.Next() {
-		var i ListSectionsRow
+		var i listSectionsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.PageID,

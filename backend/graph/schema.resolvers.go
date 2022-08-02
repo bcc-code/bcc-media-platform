@@ -6,9 +6,6 @@ package graph
 import (
 	"context"
 	"fmt"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/samber/lo"
-
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
@@ -105,28 +102,7 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 // Pages is the resolver for the pages field.
 func (r *queryRootResolver) Pages(ctx context.Context, first *int, offset *int) (*gqlmodel.PagePagination, error) {
 	//TODO: figure out a better way to solve the queries
-	pages, err := resolveList(ctx, r.Loaders.PageLoader, "pages",
-		func(ctx context.Context) ([]sqlc.PageExpanded, error) {
-			pages, err := r.Queries.ListPages(ctx)
-			if err != nil {
-				return nil, err
-			}
-			return lo.Map(pages, func(p sqlc.ListPagesRow, _ int) sqlc.PageExpanded {
-				return sqlc.PageExpanded{
-					ID:          p.ID,
-					Published:   p.Published,
-					Description: p.Description,
-					Roles:       p.Roles,
-					Title:       p.Title,
-					Collection:  p.Collection,
-					EpisodeID:   p.EpisodeID,
-					ShowID:      p.ShowID,
-					SeasonID:    p.SeasonID,
-					Type:        p.Type,
-					Code:        p.Code,
-				}
-			}), nil
-		}, gqlmodel.PageFromSQL)
+	pages, err := resolveList(ctx, r.Loaders.PageLoader, "pages", r.Queries.ListPages, gqlmodel.PageFromSQL)
 	if err != nil {
 		return nil, err
 	}
