@@ -52,6 +52,7 @@ type Service struct {
 	loaders          loaders
 }
 
+// New creates a new instance of the search service
 func New(db *sql.DB, algoliaAppId string, algoliaApiKey string, algoliaSearchOnlyApiKey string) *Service {
 	service := Service{
 		algoliaClient: search.NewClient(algoliaAppId, algoliaApiKey),

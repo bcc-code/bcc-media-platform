@@ -46,7 +46,10 @@ func initializeDirectusEventHandler(directusClient *resty.Client, searchService 
 	}
 
 	eventHandler.On(directus.EventItemsDelete, func(ctx context.Context, collection string, id int) {
-		searchService.DeleteModel(collection, id)
+		err := searchService.DeleteModel(collection, id)
+		if err != nil {
+			log.L.Error().Err(err).Msg("Error occurred when trying to delete model from search index")
+		}
 		crowdinClient.HandleModelDelete(collection, id)
 	})
 

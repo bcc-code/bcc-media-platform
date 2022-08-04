@@ -88,6 +88,15 @@ func (service *Service) indexShows(ctx context.Context) error {
 	)
 }
 
+func (service *Service) indexShow(ctx context.Context, id int) error {
+	log.L.Debug().Str("collection", "shows").Int("id", id).Msg("Indexing item")
+	i, err := service.loaders.ShowLoader.Load(ctx, id)()
+	if err != nil {
+		return err
+	}
+	return indexObject[int, sqlc.ShowExpanded](ctx, service, *i, service.showToSearchItem)
+}
+
 func (service *Service) indexSeasons(ctx context.Context) error {
 	log.L.Debug().Str("collection", "seasons").Msg("Indexing")
 	return indexCollection[int, sqlc.SeasonExpanded](
@@ -99,6 +108,15 @@ func (service *Service) indexSeasons(ctx context.Context) error {
 	)
 }
 
+func (service *Service) indexSeason(ctx context.Context, id int) error {
+	log.L.Debug().Str("collection", "seasons").Int("id", id).Msg("Indexing item")
+	i, err := service.loaders.SeasonLoader.Load(ctx, id)()
+	if err != nil {
+		return err
+	}
+	return indexObject[int, sqlc.SeasonExpanded](ctx, service, *i, service.seasonToSearchItem)
+}
+
 func (service *Service) indexEpisodes(ctx context.Context) error {
 	log.L.Debug().Str("collection", "episodes").Msg("Indexing")
 	return indexCollection[int, sqlc.EpisodeExpanded](
@@ -108,6 +126,15 @@ func (service *Service) indexEpisodes(ctx context.Context) error {
 		service.queries.ListEpisodes,
 		service.episodeToSearchItem,
 	)
+}
+
+func (service *Service) indexEpisode(ctx context.Context, id int) error {
+	log.L.Debug().Str("collection", "episodes").Int("id", id).Msg("Indexing item")
+	i, err := service.loaders.EpisodeLoader.Load(ctx, id)()
+	if err != nil {
+		return err
+	}
+	return indexObject[int, sqlc.EpisodeExpanded](ctx, service, *i, service.episodeToSearchItem)
 }
 
 type indexable[k comparable] interface {
@@ -151,24 +178,25 @@ func indexCollection[k comparable, t indexable[k]](
 	return err
 }
 
-// DeleteObject from the index
-func (service *Service) DeleteObject(item interface{}) error {
-	var m string
-	var id int
-	switch v := item.(type) {
-	case sqlc.Episode:
-		m = "episode"
-		id = int(v.ID)
-	case sqlc.Season:
-		m = "season"
-		id = int(v.ID)
-	case sqlc.Show:
-		m = "show"
-		id = int(v.ID)
-	default:
-		return merry.New("unsupported collection")
+func indexObject[k comparable, t indexable[k]](
+	ctx context.Context,
+	service *Service,
+	obj t,
+	converter func(context.Context, t) (searchItem, error),
+) error {
+	item, err := converter(ctx, obj)
+	if err != nil {
+		return err
 	}
-	return service.DeleteModel(m, id)
+
+	item.assignVisibility(obj)
+	item.assignRoles(obj)
+	err = item.assignImage(ctx, service.loaders, obj)
+	if err != nil {
+		return err
+	}
+	_, err = service.index.SaveObject(item)
+	return err
 }
 
 // DeleteModel from index by collection and id
@@ -177,35 +205,21 @@ func (service *Service) DeleteModel(collection string, id int) error {
 	return err
 }
 
-// IndexObject to the index
-func (service *Service) IndexObject(ctx context.Context, item interface{}) error {
-	switch item.(type) {
-	//case sqlc.EpisodeExpanded:
-	//	return service.indexEpisode(ctx, v)
-	//case sqlc.ShowExpanded:
-	//	return service.indexShow(ctx, v)
-	//case sqlc.SeasonExpanded:
-	//	return service.indexSeason(ctx, v)
+// IndexModel by collection and id
+func (service *Service) IndexModel(ctx context.Context, collection string, id int) (err error) {
+	// Clearing the loaders of cached instances
+	// and indexing to the search engine
+	switch collection {
+	case "shows":
+		service.loaders.ShowLoader.Clear(ctx, id)
+		return service.indexShow(ctx, id)
+	case "seasons":
+		service.loaders.SeasonLoader.Clear(ctx, id)
+		return service.indexSeason(ctx, id)
+	case "episodes":
+		service.loaders.EpisodeLoader.Clear(ctx, id)
+		return service.indexEpisode(ctx, id)
 	default:
 		return merry.New("collection not supported for indexing")
 	}
-}
-
-// IndexModel by collection and id
-func (service *Service) IndexModel(ctx context.Context, collection string, id int) (err error) {
-	var i any
-	switch collection {
-	//case "episodes":
-	//	i, err = service.queries.GetEpisode(ctx, int32(id))
-	//case "seasons":
-	//	i, err = service.queries.GetSeason(ctx, int32(id))
-	//case "shows":
-	//	i, err = service.queries.GetShow(ctx, int32(id))
-	default:
-		err = merry.New("collection not supported for indexing")
-	}
-	if err != nil {
-		return
-	}
-	return service.IndexObject(ctx, i)
 }
