@@ -16,10 +16,9 @@ func (service *Service) getFiltersForUser(u *common.User) (string, error) {
 		strings.Join(lo.Map(u.Roles, func(role string, _ int) string {
 			return fmt.Sprintf("%s:%s", rolesField, role)
 		}), " OR "),
-		fmt.Sprintf("%s = %t", publishedField, true),
+		fmt.Sprintf("%s:true", publishedField),
 		fmt.Sprintf("%[1]s = 0 OR %[1]s < %[2]d", availableFromField, now),
 		fmt.Sprintf("%[1]s = 0 OR %[1]s > %[2]d", availableToField, now),
-		fmt.Sprintf("%s:%s", publishedField, common.StatusPublished),
 	}
 
 	return "(" + strings.Join(filters, ") AND (") + ")", nil

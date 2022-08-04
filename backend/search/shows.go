@@ -16,7 +16,7 @@ func (service *Service) showToSearchItem(_ context.Context, show sqlc.ShowExpand
 	_ = json.Unmarshal(show.Description, &description)
 
 	var item = searchItem{
-		ID:          "show-" + strconv.Itoa(int(show.ID)),
+		ID:          "shows-" + strconv.Itoa(int(show.ID)),
 		Title:       title,
 		Description: description,
 		Header:      nil,

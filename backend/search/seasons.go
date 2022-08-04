@@ -25,7 +25,7 @@ func (service *Service) seasonToSearchItem(ctx context.Context, season sqlc.Seas
 	_ = json.Unmarshal(show.Title, &showTitle)
 
 	var item = searchItem{
-		ID:          "season-" + strconv.Itoa(int(season.ID)),
+		ID:          "seasons-" + strconv.Itoa(int(season.ID)),
 		Title:       title,
 		Description: description,
 		Header:      nil,

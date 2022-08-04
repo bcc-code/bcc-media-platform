@@ -35,9 +35,9 @@ func (service *Service) Reindex(ctx context.Context) error {
 		return err
 	}
 	searchableAttributes := opt.SearchableAttributes(
-		strings.Join(primaryFields, ","),
-		strings.Join(relationalFields, ","),
-		strings.Join(getFunctionalFields(), ","),
+		strings.Join(primaryFields, ", "),
+		strings.Join(relationalFields, ", "),
+		strings.Join(getFunctionalFields(), ", "),
 	)
 	languages, err := service.getLanguageKeys()
 	if err != nil {

@@ -45,7 +45,7 @@ func (service *Service) episodeToSearchItem(ctx context.Context, episode sqlc.Ep
 	}
 
 	var item = searchItem{
-		ID:          "episode-" + strconv.Itoa(int(episode.ID)),
+		ID:          "episodes-" + strconv.Itoa(int(episode.ID)),
 		Title:       title,
 		Description: description,
 		Header:      header,

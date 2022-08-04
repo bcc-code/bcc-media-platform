@@ -64,6 +64,7 @@ func (object searchObject) toSearchHit() (searchHit, error) {
 		item.SeasonTitle = seasonTitle
 	}
 	delete(object, seasonTitleField)
+	item.HighlightResult = object["_highlightResult"].(map[string]interface{})
 	err := mapstructure.Decode(object, &item)
 	return item, err
 }
@@ -115,8 +116,16 @@ type hasVisibility interface {
 func (i *searchItem) assignVisibility(source hasVisibility) {
 	a := source.GetAvailability()
 	i.Published = a.Published
-	i.AvailableFrom = int(a.From.Unix())
-	i.AvailableTo = int(a.To.Unix())
+	if a.From.IsZero() {
+		i.AvailableFrom = 0
+	} else {
+		i.AvailableFrom = int(a.From.Unix())
+	}
+	if a.To.IsZero() {
+		i.AvailableTo = 0
+	} else {
+		i.AvailableTo = int(a.To.Unix())
+	}
 }
 
 type hasImage interface {
