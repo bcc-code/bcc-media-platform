@@ -1,6 +1,15 @@
 package sqlc
 
-import "github.com/bcc-code/brunstadtv/backend/common"
+import (
+	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/samber/lo"
+)
+
+func intToInt32(ids []int) []int32 {
+	return lo.Map(ids, func(id int, _ int) int32 {
+		return int32(id)
+	})
+}
 
 // VISIBILITY
 

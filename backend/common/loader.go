@@ -4,24 +4,18 @@ import (
 	"context"
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/graph-gophers/dataloader/v7"
-	"github.com/samber/lo"
 	"time"
 )
 
 // NewListBatchLoader returns a configured batch loader for Lists
-func NewListBatchLoader[k comparable, kd comparable, t any](
-	factory func(ctx context.Context, ids []kd) ([]t, error),
+func NewListBatchLoader[k comparable, t any](
+	factory func(ctx context.Context, ids []k) ([]t, error),
 	getKey func(item t) k,
-	toDBKey func(key k) kd,
 ) *dataloader.Loader[k, []*t] {
 	batchLoadLists := func(ctx context.Context, keys []k) []*dataloader.Result[[]*t] {
 		var results []*dataloader.Result[[]*t]
 
-		ids := lo.Map(keys, func(key k, _ int) kd {
-			return toDBKey(key)
-		})
-
-		res, err := factory(ctx, ids)
+		res, err := factory(ctx, keys)
 
 		resMap := map[k][]*t{}
 
@@ -55,19 +49,14 @@ func NewListBatchLoader[k comparable, kd comparable, t any](
 }
 
 // NewBatchLoader returns a configured batch loader for items
-func NewBatchLoader[k comparable, kd comparable, t any](
-	factory func(ctx context.Context, ids []kd) ([]t, error),
+func NewBatchLoader[k comparable, t any](
+	factory func(ctx context.Context, ids []k) ([]t, error),
 	getID func(item t) k,
-	toDBKey func(key k) kd,
 ) *dataloader.Loader[k, *t] {
 	batchLoadItems := func(ctx context.Context, keys []k) []*dataloader.Result[*t] {
 		var results []*dataloader.Result[*t]
 
-		ids := lo.Map(keys, func(key k, _ int) kd {
-			return toDBKey(key)
-		})
-
-		res, err := factory(ctx, ids)
+		res, err := factory(ctx, keys)
 
 		resMap := map[k]*t{}
 
@@ -80,49 +69,6 @@ func NewBatchLoader[k comparable, kd comparable, t any](
 
 		for _, key := range keys {
 			r := &dataloader.Result[*t]{
-				Error: err,
-			}
-
-			if val, ok := resMap[key]; ok {
-				r.Data = val
-			}
-
-			results = append(results, r)
-		}
-
-		return results
-	}
-
-	// Currently we do not want to cache at the GQL level
-	return dataloader.NewBatchedLoader(batchLoadItems)
-}
-
-func NewBatchLoaderConvertable[k comparable, kd comparable, t any, rt any](
-	factory func(ctx context.Context, ids []kd) ([]t, error),
-	getID func(item t) k,
-	toDBKey func(key k) kd,
-	convert func(item t) rt,
-) *dataloader.Loader[k, *rt] {
-	batchLoadItems := func(ctx context.Context, keys []k) []*dataloader.Result[*rt] {
-		var results []*dataloader.Result[*rt]
-
-		ids := lo.Map(keys, func(key k, _ int) kd {
-			return toDBKey(key)
-		})
-
-		res, err := factory(ctx, ids)
-
-		resMap := map[k]*rt{}
-
-		if err == nil {
-			for _, r := range res {
-				item := convert(r)
-				resMap[getID(r)] = &item
-			}
-		}
-
-		for _, key := range keys {
-			r := &dataloader.Result[*rt]{
 				Error: err,
 			}
 

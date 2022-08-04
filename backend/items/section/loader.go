@@ -7,19 +7,15 @@ import (
 )
 
 // NewBatchLoader returns a configured batch loader for GQL Section
-func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.SectionExpanded] {
-	return common.NewBatchLoader(queries.GetSections, func(row sqlc.SectionExpanded) int {
+func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Section] {
+	return common.NewBatchLoader(queries.GetSections, func(row common.Section) int {
 		return int(row.ID)
-	}, func(id int) int32 {
-		return int32(id)
 	})
 }
 
 // NewListBatchLoader returns related data for a page
-func NewListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.SectionExpanded] {
-	return common.NewListBatchLoader(queries.GetSectionsForPageIDs, func(i sqlc.SectionExpanded) int {
-		return int(i.PageID.ValueOrZero())
-	}, func(id int) int32 {
-		return int32(id)
+func NewListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*common.Section] {
+	return common.NewListBatchLoader(queries.GetSectionsForPageIDs, func(i common.Section) int {
+		return i.PageID
 	})
 }
