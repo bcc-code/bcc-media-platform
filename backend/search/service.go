@@ -5,12 +5,16 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/items/episode"
+	"github.com/bcc-code/brunstadtv/backend/items/season"
+	"github.com/bcc-code/brunstadtv/backend/items/show"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/graph-gophers/dataloader/v7"
 	_ "github.com/lib/pq"
-	"strconv"
 )
 
 const indexName = "global"
@@ -18,13 +22,8 @@ const hitsPerPage = 20
 
 type searchObject map[string]interface{}
 
-func getCacheKeyForModel(model string, id int32) string {
-	return model + "-" + strconv.Itoa(int(id))
-}
-
 func (object *searchObject) assignVisibility(v common.Visibility) {
-	(*object)[statusField] = v.Status
-	(*object)[publishedAtField] = v.PublishDate.Unix()
+	(*object)[publishedField] = v.Published
 	if v.AvailableFrom != nil {
 		(*object)[availableFromField] = v.AvailableFrom.Unix()
 	} else {
@@ -37,19 +36,20 @@ func (object *searchObject) assignVisibility(v common.Visibility) {
 	}
 }
 
-func indexObjects(index *search.Index, objects []searchObject) error {
-	_, err := index.SaveObjects(objects)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to index objects")
-	}
-	return err
+type loaders struct {
+	ShowLoader    *dataloader.Loader[int, *sqlc.ShowExpanded]
+	SeasonLoader  *dataloader.Loader[int, *sqlc.SeasonExpanded]
+	EpisodeLoader *dataloader.Loader[int, *sqlc.EpisodeExpanded]
+	ImageLoader   *dataloader.Loader[uuid.UUID, *sqlc.DirectusFile]
 }
 
+// Service is the type for the service itself
 type Service struct {
 	algoliaClient    *search.Client
 	searchOnlyApiKey string
 	index            *search.Index
 	queries          *sqlc.Queries
+	loaders          loaders
 }
 
 func New(db *sql.DB, algoliaAppId string, algoliaApiKey string, algoliaSearchOnlyApiKey string) *Service {
@@ -59,6 +59,18 @@ func New(db *sql.DB, algoliaAppId string, algoliaApiKey string, algoliaSearchOnl
 	service.index = service.algoliaClient.InitIndex(indexName)
 	service.queries = sqlc.New(db)
 	service.searchOnlyApiKey = algoliaSearchOnlyApiKey
+
+	service.loaders = loaders{
+		ShowLoader:    show.NewBatchLoader(*service.queries),
+		SeasonLoader:  season.NewBatchLoader(*service.queries),
+		EpisodeLoader: episode.NewBatchLoader(*service.queries),
+		ImageLoader: common.NewBatchLoader(service.queries.GetFilesByIds, func(f sqlc.DirectusFile) uuid.UUID {
+			return f.ID
+		}, func(i uuid.UUID) uuid.UUID {
+			return i
+		}),
+	}
+
 	return &service
 }
 

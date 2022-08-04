@@ -3,6 +3,7 @@ package sqlc
 import (
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/google/uuid"
 	"time"
 )
 
@@ -36,6 +37,11 @@ func (i ShowExpanded) GetAvailability() common.Availability {
 	}
 }
 
+// GetImage returns uuid.NullUUID for an image
+func (i ShowExpanded) GetImage() uuid.NullUUID {
+	return i.ImageFileID
+}
+
 // GetKey returns the key for this entity
 func (i SeasonExpanded) GetKey() int {
 	return int(i.ID)
@@ -59,6 +65,11 @@ func (i SeasonExpanded) GetAvailability() common.Availability {
 	}
 }
 
+// GetImage returns uuid.NullUUID for an image
+func (i SeasonExpanded) GetImage() uuid.NullUUID {
+	return i.ImageFileID
+}
+
 // GetKey returns the key for this entity
 func (i EpisodeExpanded) GetKey() int {
 	return int(i.ID)
@@ -80,6 +91,11 @@ func (i EpisodeExpanded) GetAvailability() common.Availability {
 		From:      i.AvailableFrom,
 		To:        i.AvailableTo,
 	}
+}
+
+// GetImage returns uuid.NullUUID for an image
+func (i EpisodeExpanded) GetImage() uuid.NullUUID {
+	return i.ImageFileID
 }
 
 // GetKey returns the key for this entity

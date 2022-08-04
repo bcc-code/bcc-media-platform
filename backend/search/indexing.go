@@ -9,23 +9,14 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
+	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
 	"strconv"
 	"strings"
 )
 
-// InitCtx to fill context with empty maps for caching purposes
-func InitCtx(ctx context.Context) context.Context {
-	ctx = context.WithValue(ctx, visibilityContextKey, map[string]common.Visibility{})
-	ctx = context.WithValue(ctx, translationContextKey, map[string][]common.Translation{})
-	ctx = context.WithValue(ctx, rolesContextKey, map[string][]string{})
-	return ctx
-}
-
 // Reindex every supported collection
 func (service *Service) Reindex(ctx context.Context) error {
-	ctx = InitCtx(ctx)
-	q := service.queries
 	index := service.index
 
 	_, err := index.ClearObjects()
@@ -70,120 +61,94 @@ func (service *Service) Reindex(ctx context.Context) error {
 		return err
 	}
 
-	shows, err := q.GetShows(ctx)
+	err = service.indexShows(ctx)
 	if err != nil {
 		return err
 	}
-	showThumbnails, _ := q.GetFilesByIds(ctx, lo.Map(lo.Filter(shows, func(i sqlc.Show, _ int) bool {
-		return i.ImageFileID.Valid
-	}), func(i sqlc.Show, _ int) uuid.UUID {
-		return i.ImageFileID.UUID
-	}))
-	showThumbnailsById := lo.Reduce(showThumbnails, func(dict map[uuid.UUID]sqlc.DirectusFile, f sqlc.DirectusFile, _ int) map[uuid.UUID]sqlc.DirectusFile {
-		dict[f.ID] = f
-		return dict
-	}, map[uuid.UUID]sqlc.DirectusFile{})
-
-	seasons, _ := q.GetSeasons(ctx)
-	seasonById := lo.Reduce(seasons, func(seasonById map[int32]sqlc.Season, season sqlc.Season, _ int) map[int32]sqlc.Season {
-		seasonById[season.ID] = season
-		return seasonById
-	}, map[int32]sqlc.Season{})
-	seasonThumbnails, _ := q.GetFilesByIds(ctx, lo.Map(lo.Filter(seasons, func(i sqlc.Season, _ int) bool {
-		return i.ImageFileID.Valid
-	}), func(i sqlc.Season, _ int) uuid.UUID {
-		return i.ImageFileID.UUID
-	}))
-	seasonThumbnailsById := lo.Reduce(seasonThumbnails, func(dict map[uuid.UUID]sqlc.DirectusFile, f sqlc.DirectusFile, _ int) map[uuid.UUID]sqlc.DirectusFile {
-		dict[f.ID] = f
-		return dict
-	}, map[uuid.UUID]sqlc.DirectusFile{})
-
-	episodes, _ := q.GetEpisodes(ctx)
-	episodeThumbnails, _ := q.GetFilesByIds(ctx, lo.Map(lo.Filter(episodes, func(i sqlc.Episode, _ int) bool {
-		return i.ImageFileID.Valid
-	}), func(i sqlc.Episode, _ int) uuid.UUID {
-		return i.ImageFileID.UUID
-	}))
-	episodeThumbnailsById := lo.Reduce(episodeThumbnails, func(dict map[uuid.UUID]sqlc.DirectusFile, f sqlc.DirectusFile, _ int) map[uuid.UUID]sqlc.DirectusFile {
-		dict[f.ID] = f
-		return dict
-	}, map[uuid.UUID]sqlc.DirectusFile{})
-
-	visibilityDict := ctx.Value(visibilityContextKey).(map[string]common.Visibility)
-
-	showVisibilities, _ := q.GetVisibilityForShows(ctx)
-	for _, v := range showVisibilities {
-		visibilityDict[getCacheKeyForModel("show", v.ID)] = v.ToVisibility()
-	}
-
-	seasonVisibilities, _ := q.GetVisibilityForSeasons(ctx)
-	for _, v := range seasonVisibilities {
-		visibilityDict[getCacheKeyForModel("season", v.ID)] = v.ToVisibility()
-	}
-
-	episodeVisibilities, _ := q.GetVisibilityForEpisodes(ctx)
-	for _, v := range episodeVisibilities {
-		visibilityDict[getCacheKeyForModel("episode", v.ID)] = v.ToVisibility()
-	}
-
-	translationsDict := ctx.Value(translationContextKey).(map[string][]common.Translation)
-
-	showTs, _ := q.GetShowTranslations(ctx)
-	for _, v := range showTs {
-		var cacheKey = getCacheKeyForModel("show", v.ShowsID)
-		translationsDict[cacheKey] = append(translationsDict[cacheKey], v.ToTranslation())
-	}
-
-	seasonTs, _ := q.GetSeasonTranslations(ctx)
-	for _, v := range seasonTs {
-		var cacheKey = getCacheKeyForModel("season", v.SeasonsID)
-		translationsDict[cacheKey] = append(translationsDict[cacheKey], v.ToTranslation())
-	}
-
-	episodeTs, _ := q.GetEpisodeTranslations(ctx)
-	for _, v := range episodeTs {
-		var cacheKey = getCacheKeyForModel("episode", v.EpisodesID)
-		translationsDict[cacheKey] = append(translationsDict[cacheKey], v.ToTranslation())
-	}
-
-	rolesDict := ctx.Value(rolesContextKey).(map[string][]string)
-
-	episodeById := lo.Reduce(episodes, func(dict map[int32]sqlc.Episode, i sqlc.Episode, _ int) map[int32]sqlc.Episode {
-		dict[i.ID] = i
-		return dict
-	}, map[int32]sqlc.Episode{})
-
-	episodeRoles, _ := q.GetEpisodeRoles(ctx)
-	for _, v := range episodeRoles {
-		cacheKey := getCacheKeyForModel("episode", v.EpisodesID)
-		rolesDict[cacheKey] = append(rolesDict[cacheKey], v.UsergroupsCode)
-		episode := episodeById[v.EpisodesID]
-		if episode.SeasonID.Valid {
-			season := seasonById[int32(episode.SeasonID.ValueOrZero())]
-			cacheKey = getCacheKeyForModel("season", season.ID)
-			rolesDict[cacheKey] = lo.Uniq(append(rolesDict[cacheKey], v.UsergroupsCode))
-			cacheKey = getCacheKeyForModel("show", season.ShowID)
-			rolesDict[cacheKey] = lo.Uniq(append(rolesDict[cacheKey], v.UsergroupsCode))
-		}
-	}
-
-	log.L.Debug().Msg("Indexing shows")
-	err = service.indexShows(ctx, shows, showThumbnailsById, index)
+	err = service.indexSeasons(ctx)
 	if err != nil {
 		return err
 	}
-	log.L.Debug().Msg("Indexing seasons")
-	err = service.indexSeasons(ctx, seasons, seasonThumbnailsById, index)
+	err = service.indexEpisodes(ctx)
 	if err != nil {
 		return err
 	}
-	log.L.Debug().Msg("Indexing episodes")
-	err = service.indexEpisodes(ctx, episodes, episodeThumbnailsById, seasonById, index)
-	if err != nil {
-		return err
-	}
+
 	return nil
+}
+
+func (service *Service) indexShows(ctx context.Context) error {
+	log.L.Debug().Str("collection", "shows").Msg("Indexing")
+	return indexCollection[int, sqlc.ShowExpanded](
+		ctx,
+		service,
+		service.loaders.ShowLoader,
+		service.queries.ListShows,
+		service.showToSearchItem,
+	)
+}
+
+func (service *Service) indexSeasons(ctx context.Context) error {
+	log.L.Debug().Str("collection", "seasons").Msg("Indexing")
+	return indexCollection[int, sqlc.SeasonExpanded](
+		ctx,
+		service,
+		service.loaders.SeasonLoader,
+		service.queries.ListSeasons,
+		service.seasonToSearchItem,
+	)
+}
+
+func (service *Service) indexEpisodes(ctx context.Context) error {
+	log.L.Debug().Str("collection", "episodes").Msg("Indexing")
+	return indexCollection[int, sqlc.EpisodeExpanded](
+		ctx,
+		service,
+		service.loaders.EpisodeLoader,
+		service.queries.ListEpisodes,
+		service.episodeToSearchItem,
+	)
+}
+
+type indexable[k comparable] interface {
+	GetKey() k
+	GetRoles() common.Roles
+	GetAvailability() common.Availability
+	GetImage() uuid.NullUUID
+}
+
+func indexCollection[k comparable, t indexable[k]](
+	ctx context.Context,
+	service *Service,
+	loader *dataloader.Loader[k, *t],
+	factory func(context.Context) ([]t, error),
+	converter func(context.Context, t) (searchItem, error),
+) error {
+	items, err := factory(ctx)
+	if err != nil {
+		return err
+	}
+	var searchItems []searchObject
+	for _, i := range items {
+		p := i
+		loader.Prime(ctx, p.GetKey(), &p)
+
+		item, err := converter(ctx, p)
+		if err != nil {
+			return err
+		}
+
+		item.assignVisibility(p)
+		item.assignRoles(p)
+		err = item.assignImage(ctx, service.loaders, p)
+		if err != nil {
+			return err
+		}
+
+		searchItems = append(searchItems, item.toSearchObject())
+	}
+	_, err = service.index.SaveObjects(searchItems)
+	return err
 }
 
 // DeleteObject from the index
@@ -214,13 +179,13 @@ func (service *Service) DeleteModel(collection string, id int) error {
 
 // IndexObject to the index
 func (service *Service) IndexObject(ctx context.Context, item interface{}) error {
-	switch v := item.(type) {
-	case sqlc.Episode:
-		return service.indexEpisode(ctx, v)
-	case sqlc.Show:
-		return service.indexShow(ctx, v)
-	case sqlc.Season:
-		return service.indexSeason(ctx, v)
+	switch item.(type) {
+	//case sqlc.EpisodeExpanded:
+	//	return service.indexEpisode(ctx, v)
+	//case sqlc.ShowExpanded:
+	//	return service.indexShow(ctx, v)
+	//case sqlc.SeasonExpanded:
+	//	return service.indexSeason(ctx, v)
 	default:
 		return merry.New("collection not supported for indexing")
 	}
@@ -230,12 +195,12 @@ func (service *Service) IndexObject(ctx context.Context, item interface{}) error
 func (service *Service) IndexModel(ctx context.Context, collection string, id int) (err error) {
 	var i any
 	switch collection {
-	case "episodes":
-		i, err = service.queries.GetEpisode(ctx, int32(id))
-	case "seasons":
-		i, err = service.queries.GetSeason(ctx, int32(id))
-	case "shows":
-		i, err = service.queries.GetShow(ctx, int32(id))
+	//case "episodes":
+	//	i, err = service.queries.GetEpisode(ctx, int32(id))
+	//case "seasons":
+	//	i, err = service.queries.GetSeason(ctx, int32(id))
+	//case "shows":
+	//	i, err = service.queries.GetShow(ctx, int32(id))
 	default:
 		err = merry.New("collection not supported for indexing")
 	}

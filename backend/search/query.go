@@ -23,7 +23,6 @@ type searchHit struct {
 }
 
 func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (searchResult common.SearchResult, err error) {
-
 	u := user.GetFromCtx(ctx)
 
 	if len(u.Roles) == 0 {
@@ -69,7 +68,7 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 	languages := user.GetLanguagesFromCtx(ctx)
 
 	for _, rawHit := range hits {
-		hit, e := service.convertToSearchHit(rawHit)
+		hit, e := rawHit.toSearchHit()
 		if e != nil {
 			err = e
 			return
