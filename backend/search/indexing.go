@@ -61,14 +61,17 @@ func (service *Service) Reindex(ctx context.Context) error {
 		return err
 	}
 
+	log.L.Debug().Str("collection", "shows").Msg("Indexing")
 	err = service.indexShows(ctx)
 	if err != nil {
 		return err
 	}
+	log.L.Debug().Str("collection", "seasons").Msg("Indexing")
 	err = service.indexSeasons(ctx)
 	if err != nil {
 		return err
 	}
+	log.L.Debug().Str("collection", "episodes").Msg("Indexing")
 	err = service.indexEpisodes(ctx)
 	if err != nil {
 		return err
@@ -78,7 +81,6 @@ func (service *Service) Reindex(ctx context.Context) error {
 }
 
 func (service *Service) indexShows(ctx context.Context) error {
-	log.L.Debug().Str("collection", "shows").Msg("Indexing")
 	return indexCollection[int, sqlc.ShowExpanded](
 		ctx,
 		service,
@@ -89,7 +91,6 @@ func (service *Service) indexShows(ctx context.Context) error {
 }
 
 func (service *Service) indexShow(ctx context.Context, id int) error {
-	log.L.Debug().Str("collection", "shows").Int("id", id).Msg("Indexing item")
 	i, err := service.loaders.ShowLoader.Load(ctx, id)()
 	if err != nil {
 		return err
@@ -98,7 +99,6 @@ func (service *Service) indexShow(ctx context.Context, id int) error {
 }
 
 func (service *Service) indexSeasons(ctx context.Context) error {
-	log.L.Debug().Str("collection", "seasons").Msg("Indexing")
 	return indexCollection[int, sqlc.SeasonExpanded](
 		ctx,
 		service,
@@ -109,7 +109,6 @@ func (service *Service) indexSeasons(ctx context.Context) error {
 }
 
 func (service *Service) indexSeason(ctx context.Context, id int) error {
-	log.L.Debug().Str("collection", "seasons").Int("id", id).Msg("Indexing item")
 	i, err := service.loaders.SeasonLoader.Load(ctx, id)()
 	if err != nil {
 		return err
@@ -118,7 +117,6 @@ func (service *Service) indexSeason(ctx context.Context, id int) error {
 }
 
 func (service *Service) indexEpisodes(ctx context.Context) error {
-	log.L.Debug().Str("collection", "episodes").Msg("Indexing")
 	return indexCollection[int, sqlc.EpisodeExpanded](
 		ctx,
 		service,
@@ -129,7 +127,6 @@ func (service *Service) indexEpisodes(ctx context.Context) error {
 }
 
 func (service *Service) indexEpisode(ctx context.Context, id int) error {
-	log.L.Debug().Str("collection", "episodes").Int("id", id).Msg("Indexing item")
 	i, err := service.loaders.EpisodeLoader.Load(ctx, id)()
 	if err != nil {
 		return err
@@ -209,6 +206,7 @@ func (service *Service) DeleteModel(collection string, id int) error {
 func (service *Service) IndexModel(ctx context.Context, collection string, id int) (err error) {
 	// Clearing the loaders of cached instances
 	// and indexing to the search engine
+	log.L.Debug().Str("collection", collection).Int("id", id).Msg("Indexing item")
 	switch collection {
 	case "shows":
 		service.loaders.ShowLoader.Clear(ctx, id)
