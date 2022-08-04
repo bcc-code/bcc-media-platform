@@ -55,5 +55,7 @@ func (service *Service) episodeToSearchItem(ctx context.Context, episode sqlc.Ep
 		SeasonTitle: seasonTitle,
 		Type:        episode.Type,
 	}
-	return item, nil
+
+	err := item.assignTags(ctx, service.loaders, episode)
+	return item, err
 }

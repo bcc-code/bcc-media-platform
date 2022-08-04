@@ -9,30 +9,40 @@ import (
 	"context"
 
 	"github.com/lib/pq"
+	"github.com/tabbed/pqtype"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const getTags = `-- name: GetTags :many
-SELECT code, date_created, date_updated, id, name, user_created, user_updated FROM tags WHERE id = ANY($1::int[])
+const getTags = `-- name: getTags :many
+WITH ts AS (SELECT ts.tags_id,
+                   json_object_agg(ts.languages_code, ts.name)       AS name
+            FROM tags_translations ts
+            GROUP BY ts.tags_id)
+SELECT
+    t.id,
+    t.code,
+    ts.name
+FROM tags t
+         LEFT JOIN ts ON ts.tags_id = t.id
+WHERE id = ANY($1::int[])
 `
 
-func (q *Queries) GetTags(ctx context.Context, dollar_1 []int32) ([]Tag, error) {
+type getTagsRow struct {
+	ID   int32                 `db:"id" json:"id"`
+	Code null_v4.String        `db:"code" json:"code"`
+	Name pqtype.NullRawMessage `db:"name" json:"name"`
+}
+
+func (q *Queries) getTags(ctx context.Context, dollar_1 []int32) ([]getTagsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getTags, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Tag
+	var items []getTagsRow
 	for rows.Next() {
-		var i Tag
-		if err := rows.Scan(
-			&i.Code,
-			&i.DateCreated,
-			&i.DateUpdated,
-			&i.ID,
-			&i.Name,
-			&i.UserCreated,
-			&i.UserUpdated,
-		); err != nil {
+		var i getTagsRow
+		if err := rows.Scan(&i.ID, &i.Code, &i.Name); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -46,28 +56,35 @@ func (q *Queries) GetTags(ctx context.Context, dollar_1 []int32) ([]Tag, error) 
 	return items, nil
 }
 
-const listTags = `-- name: ListTags :many
-SELECT code, date_created, date_updated, id, name, user_created, user_updated FROM tags
+const listTags = `-- name: listTags :many
+WITH ts AS (SELECT ts.tags_id,
+                  json_object_agg(ts.languages_code, ts.name)       AS name
+           FROM tags_translations ts
+           GROUP BY ts.tags_id)
+SELECT
+    t.id,
+    t.code,
+    ts.name
+FROM tags t
+         LEFT JOIN ts ON ts.tags_id = t.id
 `
 
-func (q *Queries) ListTags(ctx context.Context) ([]Tag, error) {
+type listTagsRow struct {
+	ID   int32                 `db:"id" json:"id"`
+	Code null_v4.String        `db:"code" json:"code"`
+	Name pqtype.NullRawMessage `db:"name" json:"name"`
+}
+
+func (q *Queries) listTags(ctx context.Context) ([]listTagsRow, error) {
 	rows, err := q.db.QueryContext(ctx, listTags)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Tag
+	var items []listTagsRow
 	for rows.Next() {
-		var i Tag
-		if err := rows.Scan(
-			&i.Code,
-			&i.DateCreated,
-			&i.DateUpdated,
-			&i.ID,
-			&i.Name,
-			&i.UserCreated,
-			&i.UserUpdated,
-		); err != nil {
+		var i listTagsRow
+		if err := rows.Scan(&i.ID, &i.Code, &i.Name); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

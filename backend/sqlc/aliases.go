@@ -17,3 +17,6 @@ type SectionExpanded = getSectionsRow
 
 // CollectionItem contains collection item data
 type CollectionItem = CollectionsItem
+
+// TagExpanded contains tag and translations
+type TagExpanded = getTagsRow

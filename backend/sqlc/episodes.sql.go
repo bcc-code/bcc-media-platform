@@ -16,7 +16,7 @@ import (
 )
 
 const getEpisodes = `-- name: GetEpisodes :many
-SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM public.episodes_expanded WHERE id = ANY($1::int[])
+SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups, tag_ids FROM public.episodes_expanded WHERE id = ANY($1::int[])
 `
 
 func (q *Queries) GetEpisodes(ctx context.Context, dollar_1 []int32) ([]EpisodesExpanded, error) {
@@ -44,6 +44,7 @@ func (q *Queries) GetEpisodes(ctx context.Context, dollar_1 []int32) ([]Episodes
 			pq.Array(&i.Usergroups),
 			pq.Array(&i.DownloadGroups),
 			pq.Array(&i.EarlyAccessGroups),
+			pq.Array(&i.TagIds),
 		); err != nil {
 			return nil, err
 		}
@@ -59,7 +60,7 @@ func (q *Queries) GetEpisodes(ctx context.Context, dollar_1 []int32) ([]Episodes
 }
 
 const getEpisodesForSeasons = `-- name: GetEpisodesForSeasons :many
-SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM public.episodes_expanded WHERE season_id = ANY($1::int[])
+SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups, tag_ids FROM public.episodes_expanded WHERE season_id = ANY($1::int[])
 `
 
 func (q *Queries) GetEpisodesForSeasons(ctx context.Context, dollar_1 []int32) ([]EpisodesExpanded, error) {
@@ -87,6 +88,7 @@ func (q *Queries) GetEpisodesForSeasons(ctx context.Context, dollar_1 []int32) (
 			pq.Array(&i.Usergroups),
 			pq.Array(&i.DownloadGroups),
 			pq.Array(&i.EarlyAccessGroups),
+			pq.Array(&i.TagIds),
 		); err != nil {
 			return nil, err
 		}
@@ -246,7 +248,7 @@ func (q *Queries) GetStreamsForEpisodes(ctx context.Context, dollar_1 []int32) (
 }
 
 const listEpisodes = `-- name: ListEpisodes :many
-SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM public.episodes_expanded
+SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups, tag_ids FROM public.episodes_expanded
 `
 
 func (q *Queries) ListEpisodes(ctx context.Context) ([]EpisodesExpanded, error) {
@@ -274,6 +276,7 @@ func (q *Queries) ListEpisodes(ctx context.Context) ([]EpisodesExpanded, error) 
 			pq.Array(&i.Usergroups),
 			pq.Array(&i.DownloadGroups),
 			pq.Array(&i.EarlyAccessGroups),
+			pq.Array(&i.TagIds),
 		); err != nil {
 			return nil, err
 		}

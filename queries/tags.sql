@@ -1,5 +1,24 @@
--- name: ListTags :many
-SELECT * FROM tags;
+-- name: listTags :many
+WITH ts AS (SELECT ts.tags_id,
+                  json_object_agg(ts.languages_code, ts.name)       AS name
+           FROM tags_translations ts
+           GROUP BY ts.tags_id)
+SELECT
+    t.id,
+    t.code,
+    ts.name
+FROM tags t
+         LEFT JOIN ts ON ts.tags_id = t.id;
 
--- name: GetTags :many
-SELECT * FROM tags WHERE id = ANY($1::int[]);
+-- name: getTags :many
+WITH ts AS (SELECT ts.tags_id,
+                   json_object_agg(ts.languages_code, ts.name)       AS name
+            FROM tags_translations ts
+            GROUP BY ts.tags_id)
+SELECT
+    t.id,
+    t.code,
+    ts.name
+FROM tags t
+         LEFT JOIN ts ON ts.tags_id = t.id
+WHERE id = ANY($1::int[]);

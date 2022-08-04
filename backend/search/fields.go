@@ -5,6 +5,7 @@ import (
 	"fmt"
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/samber/lo"
@@ -18,6 +19,7 @@ const (
 	publishedField     = "published"
 	typeField          = "type"
 	rolesField         = "roles"
+	tagsField          = "tags"
 	imageField         = "image"
 	descriptionField   = "description"
 	titleField         = "title"
@@ -35,6 +37,7 @@ type searchItem struct {
 	Published     bool
 	Type          string
 	Roles         []string
+	Tags          []string
 	Image         *string
 	Title         common.LocaleString
 	Description   common.LocaleString
@@ -75,6 +78,7 @@ func (i *searchItem) toSearchObject() searchObject {
 	object[publishedField] = i.Published
 	object[typeField] = i.Type
 	object[rolesField] = i.Roles
+	object[tagsField] = i.Tags
 	if i.Image != nil {
 		object[imageField] = i.Image
 	}
@@ -145,6 +149,24 @@ func (i *searchItem) assignImage(ctx context.Context, loaders loaders, source ha
 	return nil
 }
 
+type hasTags interface {
+	GetTagIds() []int
+}
+
+func (i *searchItem) assignTags(ctx context.Context, loaders loaders, source hasTags) error {
+	tagIds := source.GetTagIds()
+	if len(tagIds) > 0 {
+		tags, errs := loaders.TagLoader.LoadMany(ctx, tagIds)()
+		if len(errs) > 0 {
+			return errs[0]
+		}
+		i.Tags = lo.Map(tags, func(t *sqlc.TagExpanded, _ int) string {
+			return t.Code.ValueOrZero()
+		})
+	}
+	return nil
+}
+
 func (service *Service) getFields() ([]string, error) {
 	translated, err := service.getTranslatedFields()
 	return append(translated, getFunctionalFields()...), err
@@ -170,7 +192,7 @@ func (service *Service) getTextFields() []string {
 
 // These are the fields which we use to filter for permissions
 func (service *Service) getFilterFields() []string {
-	return []string{rolesField, typeField, publishedField}
+	return []string{rolesField, tagsField, typeField, publishedField}
 }
 
 func (service *Service) getPrimaryTranslatedFields() ([]string, error) {

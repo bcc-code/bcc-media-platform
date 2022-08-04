@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"time"
 )
 
@@ -96,6 +97,13 @@ func (i EpisodeExpanded) GetAvailability() common.Availability {
 // GetImage returns uuid.NullUUID for an image
 func (i EpisodeExpanded) GetImage() uuid.NullUUID {
 	return i.ImageFileID
+}
+
+// GetTagIds returns tagIds for the episode
+func (i EpisodeExpanded) GetTagIds() []int {
+	return lo.Map(i.TagIds, func(id int32, _ int) int {
+		return int(id)
+	})
 }
 
 // GetKey returns the key for this entity
