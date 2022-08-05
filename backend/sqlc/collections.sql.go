@@ -11,12 +11,12 @@ import (
 	"github.com/lib/pq"
 )
 
-const getCollectionItems = `-- name: GetCollectionItems :many
+const getCollectionItemsForCollections = `-- name: getCollectionItemsForCollections :many
 SELECT id, sort, user_created, date_created, user_updated, date_updated, collection_id, page_id, show_id, season_id, episode_id, type FROM collections_items ci WHERE ci.collection_id = ANY($1::int[])
 `
 
-func (q *Queries) GetCollectionItems(ctx context.Context, dollar_1 []int32) ([]CollectionsItem, error) {
-	rows, err := q.db.QueryContext(ctx, getCollectionItems, pq.Array(dollar_1))
+func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1 []int32) ([]CollectionsItem, error) {
+	rows, err := q.db.QueryContext(ctx, getCollectionItemsForCollections, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
@@ -51,11 +51,11 @@ func (q *Queries) GetCollectionItems(ctx context.Context, dollar_1 []int32) ([]C
 	return items, nil
 }
 
-const getCollections = `-- name: GetCollections :many
+const getCollections = `-- name: getCollections :many
 SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, shows_query_filter, seasons_query_filter, episodes_query_filter, name, filter_type, pages_query_filter FROM collections c WHERE c.id = ANY($1::int[])
 `
 
-func (q *Queries) GetCollections(ctx context.Context, dollar_1 []int32) ([]Collection, error) {
+func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Collection, error) {
 	rows, err := q.db.QueryContext(ctx, getCollections, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
@@ -92,11 +92,11 @@ func (q *Queries) GetCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 	return items, nil
 }
 
-const listCollections = `-- name: ListCollections :many
+const listCollections = `-- name: listCollections :many
 SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, shows_query_filter, seasons_query_filter, episodes_query_filter, name, filter_type, pages_query_filter FROM collections
 `
 
-func (q *Queries) ListCollections(ctx context.Context) ([]Collection, error) {
+func (q *Queries) listCollections(ctx context.Context) ([]Collection, error) {
 	rows, err := q.db.QueryContext(ctx, listCollections)
 	if err != nil {
 		return nil, err

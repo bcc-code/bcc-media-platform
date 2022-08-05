@@ -13,20 +13,14 @@ import (
 )
 
 // NewBatchLoader returns a configured batch loader for GQL Collection
-func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.Collection] {
-	return common.NewBatchLoader(queries.GetCollections, func(row sqlc.Collection) int {
-		return int(row.ID)
-	}, func(id int) int32 {
-		return int32(id)
-	})
+func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Collection] {
+	return common.NewBatchLoader(queries.GetCollections)
 }
 
 // NewItemListBatchLoader returns a configured batch loader for GQL CollectionItem
-func NewItemListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.CollectionItem] {
-	return common.NewListBatchLoader(queries.GetCollectionItems, func(row sqlc.CollectionItem) int {
-		return int(row.CollectionID.ValueOrZero())
-	}, func(id int) int32 {
-		return int32(id)
+func NewItemListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*common.CollectionItem] {
+	return common.NewListBatchLoader(queries.GetItemsForCollections, func(row common.CollectionItem) int {
+		return row.CollectionID
 	})
 }
 
@@ -37,20 +31,11 @@ type filter struct {
 	SortByDirection string
 }
 
-func getFilterForQueryCollection(collection *sqlc.Collection) filter {
-	var rawMessage json.RawMessage
-	switch collection.Collection.ValueOrZero() {
-	case "pages":
-		rawMessage = collection.PagesQueryFilter.RawMessage
-	case "shows":
-		rawMessage = collection.ShowsQueryFilter.RawMessage
-	case "seasons":
-		rawMessage = collection.SeasonsQueryFilter.RawMessage
-	case "episodes":
-		rawMessage = collection.EpisodesQueryFilter.RawMessage
-	}
+func getFilterForQueryCollection(collection *common.Collection) filter {
 	var f filter
-	_ = json.Unmarshal(rawMessage, &f)
+	if collection.Filter != nil {
+		_ = json.Unmarshal(*collection.Filter, &f)
+	}
 	return f
 }
 
@@ -68,7 +53,7 @@ func itemIdsFromRows(rows *sql.Rows) []int {
 }
 
 // NewCollectionItemIdsLoader returns a new loader for getting ItemIds for Collection
-func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[int, *sqlc.Collection]) *dataloader.Loader[int, []int] {
+func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[int, *common.Collection]) *dataloader.Loader[int, []int] {
 	batchLoader := func(ctx context.Context, keys []int) []*dataloader.Result[[]int] {
 		var results []*dataloader.Result[[]int]
 		var err error
@@ -82,7 +67,7 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 
 		if err == nil {
 			for _, r := range res {
-				switch r.FilterType.ValueOrZero() {
+				switch r.Type {
 				case "query":
 					f := getFilterForQueryCollection(r)
 					if f.Filter == nil {
