@@ -16,8 +16,12 @@ func mapToSeasons(seasons []SeasonExpanded) []common.Season {
 		_ = json.Unmarshal(e.Description, &description)
 
 		return common.Season{
-			ID:          int(e.ID),
-			Published:   e.Published,
+			ID: int(e.ID),
+			Availability: common.Availability{
+				Published: e.Published,
+				From:      e.AvailableFrom,
+				To:        e.AvailableTo,
+			},
 			Title:       title,
 			Description: description,
 			Roles: common.Roles{
@@ -25,11 +29,9 @@ func mapToSeasons(seasons []SeasonExpanded) []common.Season {
 				Download:    e.DownloadGroups,
 				EarlyAccess: e.EarlyAccessGroups,
 			},
-			Number:        int(e.SeasonNumber),
-			AvailableTo:   e.AvailableTo,
-			AvailableFrom: e.AvailableFrom,
-			ImageID:       e.ImageFileID,
-			ShowID:        int(e.ShowID),
+			Number:  int(e.SeasonNumber),
+			ImageID: e.ImageFileID,
+			ShowID:  int(e.ShowID),
 		}
 	})
 }

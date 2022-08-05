@@ -7,8 +7,8 @@ import (
 	"github.com/samber/lo"
 )
 
-func mapToSections(items []SectionExpanded) []common.Section {
-	return lo.Map(items, func(s SectionExpanded, _ int) common.Section {
+func mapToSections(items []getSectionsRow) []common.Section {
+	return lo.Map(items, func(s getSectionsRow, _ int) common.Section {
 		var title common.LocaleString
 		var description common.LocaleString
 
@@ -22,7 +22,7 @@ func mapToSections(items []SectionExpanded) []common.Section {
 			Title:        title,
 			Description:  description,
 			Type:         "item",
-			CollectionID: int(s.CollectionID.Int64),
+			CollectionID: s.CollectionID,
 			Style:        s.Style.ValueOrZero(),
 			Roles:        s.Roles,
 		}
@@ -44,8 +44,8 @@ func (q *Queries) ListSections(ctx context.Context) ([]common.Section, error) {
 	if err != nil {
 		return nil, err
 	}
-	return mapToSections(lo.Map(sections, func(s listSectionsRow, _ int) SectionExpanded {
-		return SectionExpanded(s)
+	return mapToSections(lo.Map(sections, func(s listSectionsRow, _ int) getSectionsRow {
+		return getSectionsRow(s)
 	})), nil
 }
 
@@ -55,7 +55,7 @@ func (q *Queries) GetSectionsForPageIDs(ctx context.Context, pageIds []int) ([]c
 	if err != nil {
 		return nil, err
 	}
-	return mapToSections(lo.Map(sections, func(s getSectionsForPageIDsRow, _ int) SectionExpanded {
-		return SectionExpanded(s)
+	return mapToSections(lo.Map(sections, func(s getSectionsForPageIDsRow, _ int) getSectionsRow {
+		return getSectionsRow(s)
 	})), nil
 }

@@ -8,12 +8,3 @@ type SeasonExpanded = SeasonsExpanded
 
 // ShowExpanded contains show data + translations + permissions
 type ShowExpanded = ShowsExpanded
-
-// PageExpanded contains page data + translations + permissions
-type PageExpanded = getPagesRow
-
-// SectionExpanded contains section data + translations + permissions
-type SectionExpanded = getSectionsRow
-
-// CollectionItem contains collection item data
-type CollectionItem = CollectionsItem

@@ -18,8 +18,12 @@ func mapToEpisodes(episodes []EpisodeExpanded) []common.Episode {
 		_ = json.Unmarshal(e.ExtraDescription.RawMessage, &extraDescription)
 
 		return common.Episode{
-			ID:               int(e.ID),
-			Published:        e.Published,
+			ID: int(e.ID),
+			Availability: common.Availability{
+				Published: e.Published,
+				From:      e.AvailableFrom,
+				To:        e.AvailableTo,
+			},
 			Title:            title,
 			Description:      description,
 			ExtraDescription: extraDescription,
@@ -28,13 +32,11 @@ func mapToEpisodes(episodes []EpisodeExpanded) []common.Episode {
 				Download:    e.DownloadGroups,
 				EarlyAccess: e.EarlyAccessGroups,
 			},
-			Number:        e.EpisodeNumber,
-			AvailableTo:   e.AvailableTo,
-			AvailableFrom: e.AvailableFrom,
-			SeasonID:      e.SeasonID,
-			AssetID:       e.AssetID,
-			ImageID:       e.ImageFileID,
-			TagIDs:        e.TagIds,
+			Number:   e.EpisodeNumber,
+			SeasonID: e.SeasonID,
+			AssetID:  e.AssetID,
+			ImageID:  e.ImageFileID,
+			TagIDs:   e.TagIds,
 		}
 	})
 }

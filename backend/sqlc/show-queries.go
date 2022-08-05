@@ -16,8 +16,12 @@ func mapToShows(shows []ShowExpanded) []common.Show {
 		_ = json.Unmarshal(e.Description, &description)
 
 		return common.Show{
-			ID:          int(e.ID),
-			Published:   e.Published,
+			ID: int(e.ID),
+			Availability: common.Availability{
+				Published: e.Published,
+				From:      e.AvailableFrom,
+				To:        e.AvailableTo,
+			},
 			Title:       title,
 			Description: description,
 			Roles: common.Roles{
@@ -25,9 +29,7 @@ func mapToShows(shows []ShowExpanded) []common.Show {
 				Download:    e.DownloadGroups,
 				EarlyAccess: e.EarlyAccessGroups,
 			},
-			AvailableTo:   e.AvailableTo,
-			AvailableFrom: e.AvailableFrom,
-			ImageID:       e.ImageFileID,
+			ImageID: e.ImageFileID,
 		}
 	})
 }

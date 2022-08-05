@@ -36,7 +36,7 @@ SELECT p.id,
        p.collection,
        t.title,
        t.description,
-       r.roles
+       r.roles::character varying[] as roles
 FROM pages p
          LEFT JOIN t ON t.pages_id = p.id
          LEFT JOIN r ON r.page_id = p.id
@@ -54,7 +54,7 @@ type getPagesRow struct {
 	Collection  null_v4.String        `db:"collection" json:"collection"`
 	Title       pqtype.NullRawMessage `db:"title" json:"title"`
 	Description pqtype.NullRawMessage `db:"description" json:"description"`
-	Roles       interface{}           `db:"roles" json:"roles"`
+	Roles       []string              `db:"roles" json:"roles"`
 }
 
 func (q *Queries) getPages(ctx context.Context, dollar_1 []int32) ([]getPagesRow, error) {
@@ -77,7 +77,7 @@ func (q *Queries) getPages(ctx context.Context, dollar_1 []int32) ([]getPagesRow
 			&i.Collection,
 			&i.Title,
 			&i.Description,
-			&i.Roles,
+			pq.Array(&i.Roles),
 		); err != nil {
 			return nil, err
 		}
@@ -115,7 +115,7 @@ SELECT p.id,
        p.collection,
        t.title,
        t.description,
-       r.roles
+       r.roles::character varying[] as roles
 FROM pages p
          LEFT JOIN t ON t.pages_id = p.id
          LEFT JOIN r ON r.page_id = p.id
@@ -133,7 +133,7 @@ type getPagesByCodeRow struct {
 	Collection  null_v4.String        `db:"collection" json:"collection"`
 	Title       pqtype.NullRawMessage `db:"title" json:"title"`
 	Description pqtype.NullRawMessage `db:"description" json:"description"`
-	Roles       interface{}           `db:"roles" json:"roles"`
+	Roles       []string              `db:"roles" json:"roles"`
 }
 
 func (q *Queries) getPagesByCode(ctx context.Context, dollar_1 []string) ([]getPagesByCodeRow, error) {
@@ -156,7 +156,7 @@ func (q *Queries) getPagesByCode(ctx context.Context, dollar_1 []string) ([]getP
 			&i.Collection,
 			&i.Title,
 			&i.Description,
-			&i.Roles,
+			pq.Array(&i.Roles),
 		); err != nil {
 			return nil, err
 		}
@@ -194,7 +194,7 @@ SELECT p.id,
        p.collection,
        t.title,
        t.description,
-       r.roles
+       r.roles::character varying[] as roles
 FROM pages p
          LEFT JOIN t ON t.pages_id = p.id
          LEFT JOIN r ON r.page_id = p.id
@@ -211,7 +211,7 @@ type listPagesRow struct {
 	Collection  null_v4.String        `db:"collection" json:"collection"`
 	Title       pqtype.NullRawMessage `db:"title" json:"title"`
 	Description pqtype.NullRawMessage `db:"description" json:"description"`
-	Roles       interface{}           `db:"roles" json:"roles"`
+	Roles       []string              `db:"roles" json:"roles"`
 }
 
 func (q *Queries) listPages(ctx context.Context) ([]listPagesRow, error) {
@@ -234,7 +234,7 @@ func (q *Queries) listPages(ctx context.Context) ([]listPagesRow, error) {
 			&i.Collection,
 			&i.Title,
 			&i.Description,
-			&i.Roles,
+			pq.Array(&i.Roles),
 		); err != nil {
 			return nil, err
 		}

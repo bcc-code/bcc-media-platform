@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/graph-gophers/dataloader/v7"
@@ -58,35 +57,24 @@ func preloadIds(ctx context.Context, loaders *BatchLoaders, idMap map[string][]i
 	}
 }
 
-func iterateAndPreloadCollectionItems(ctx context.Context, loaders *BatchLoaders, items []*sqlc.CollectionItem) {
+func iterateAndPreloadCollectionItems(ctx context.Context, loaders *BatchLoaders, items []*common.CollectionItem) {
 	var idMap = map[string][]int{}
 	for _, item := range items {
-		t := item.Type.ValueOrZero()
-		var id int
-		switch t {
-		case "page":
-			id = int(item.PageID.ValueOrZero())
-		case "show":
-			id = int(item.ShowID.ValueOrZero())
-		case "season":
-			id = int(item.SeasonID.ValueOrZero())
-		case "episode":
-			id = int(item.EpisodeID.ValueOrZero())
-		}
+		t := item.Type
 		if _, ok := idMap[t]; !ok {
 			idMap[t] = []int{}
 		}
-		idMap[t] = append(idMap[t], id)
+		idMap[t] = append(idMap[t], item.ItemID)
 	}
 	preloadIds(ctx, loaders, idMap)
 }
 
-func itemToGQL(ctx context.Context, r *Resolver, item *sqlc.CollectionItem) (gqlmodel.Item, error) {
+func itemToGQL(ctx context.Context, r *Resolver, item *common.CollectionItem) (gqlmodel.Item, error) {
 	var res gqlmodel.Item
-	sort := int(item.Sort.ValueOrZero())
-	switch item.Type.ValueOrZero() {
+	sort := item.Sort
+	switch item.Type {
 	case "page":
-		stringId := strconv.Itoa(int(item.PageID.ValueOrZero()))
+		stringId := strconv.Itoa(item.ItemID)
 		page, err := r.QueryRoot().Page(ctx, &stringId, nil)
 		if err != nil {
 			return res, err
@@ -98,7 +86,7 @@ func itemToGQL(ctx context.Context, r *Resolver, item *sqlc.CollectionItem) (gql
 			Sort:  sort,
 		}, nil
 	case "show":
-		show, err := r.QueryRoot().Show(ctx, strconv.Itoa(int(item.ShowID.ValueOrZero())))
+		show, err := r.QueryRoot().Show(ctx, strconv.Itoa(item.ItemID))
 		if err != nil {
 			return res, err
 		}
@@ -109,7 +97,7 @@ func itemToGQL(ctx context.Context, r *Resolver, item *sqlc.CollectionItem) (gql
 			Sort:  sort,
 		}, nil
 	case "season":
-		season, err := r.QueryRoot().Season(ctx, strconv.Itoa(int(item.SeasonID.ValueOrZero())))
+		season, err := r.QueryRoot().Season(ctx, strconv.Itoa(item.ItemID))
 		if err != nil {
 			return res, err
 		}
@@ -120,7 +108,7 @@ func itemToGQL(ctx context.Context, r *Resolver, item *sqlc.CollectionItem) (gql
 			Sort:   sort,
 		}, nil
 	case "episode":
-		episode, err := r.QueryRoot().Episode(ctx, strconv.Itoa(int(item.EpisodeID.ValueOrZero())))
+		episode, err := r.QueryRoot().Episode(ctx, strconv.Itoa(item.ItemID))
 		if err != nil {
 			return res, err
 		}
@@ -205,11 +193,11 @@ func collectionItemResolver(ctx context.Context, r *Resolver, id string) ([]gqlm
 		return nil, err
 	}
 
-	switch col.FilterType.ValueOrZero() {
+	switch col.Type {
 	case "select":
-		return getItemsForSelectCollection(ctx, r, int(col.ID))
+		return getItemsForSelectCollection(ctx, r, col.ID)
 	case "query":
-		return getItemsForQueryCollection(ctx, r.Loaders, int(col.ID), col.Collection.ValueOrZero())
+		return getItemsForQueryCollection(ctx, r.Loaders, col.ID, col.Collection.ValueOrZero())
 	}
 	return nil, nil
 }

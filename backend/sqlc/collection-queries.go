@@ -64,7 +64,7 @@ func (q *Queries) GetItemsForCollections(ctx context.Context, ids []int) ([]comm
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(items, func(i CollectionItem, _ int) common.CollectionItem {
+	return lo.Map(items, func(i CollectionsItem, _ int) common.CollectionItem {
 		var itemID null.Int
 		switch i.Type.ValueOrZero() {
 		case "page":

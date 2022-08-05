@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
+	"time"
 )
 
-func mapToPages(pages []PageExpanded) []common.Page {
-	return lo.Map(pages, func(p PageExpanded, _ int) common.Page {
+func mapToPages(pages []getPagesRow) []common.Page {
+	return lo.Map(pages, func(p getPagesRow, _ int) common.Page {
 		var title common.LocaleString
 		var description common.LocaleString
 
@@ -16,8 +17,15 @@ func mapToPages(pages []PageExpanded) []common.Page {
 		_ = json.Unmarshal(p.Title.RawMessage, &description)
 
 		return common.Page{
-			ID:          int(p.ID),
-			Published:   p.Published,
+			ID: int(p.ID),
+			Availability: common.Availability{
+				Published: p.Published,
+				From:      time.Date(2000, time.January, 1, 0, 0, 0, 0, nil),
+				To:        time.Date(2100, time.January, 1, 0, 0, 0, 0, nil),
+			},
+			Roles: common.Roles{
+				Access: p.Roles,
+			},
 			Title:       title,
 			Description: description,
 		}
@@ -39,8 +47,8 @@ func (q *Queries) ListPages(ctx context.Context) ([]common.Page, error) {
 	if err != nil {
 		return nil, err
 	}
-	return mapToPages(lo.Map(pages, func(p listPagesRow, _ int) PageExpanded {
-		return PageExpanded(p)
+	return mapToPages(lo.Map(pages, func(p listPagesRow, _ int) getPagesRow {
+		return getPagesRow(p)
 	})), nil
 }
 
@@ -50,7 +58,7 @@ func (q *Queries) GetPagesByCode(ctx context.Context, codes []string) ([]common.
 	if err != nil {
 		return nil, err
 	}
-	return mapToPages(lo.Map(pages, func(p getPagesByCodeRow, _ int) PageExpanded {
-		return PageExpanded(p)
+	return mapToPages(lo.Map(pages, func(p getPagesByCodeRow, _ int) getPagesRow {
+		return getPagesRow(p)
 	})), nil
 }
