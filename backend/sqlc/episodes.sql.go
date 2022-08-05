@@ -15,245 +15,6 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const getEpisode = `-- name: GetEpisode :one
-SELECT agerating_code, asset_id, available_from, available_to, date_created, date_updated, episode_number, id, image_file_id, legacy_description_id, legacy_extra_description_id, legacy_id, legacy_program_id, legacy_tags_id, legacy_title_id, migration_data, publish_date, season_id, status, type, user_created, user_updated FROM public.episodes WHERE id = $1
-`
-
-func (q *Queries) GetEpisode(ctx context.Context, id int32) (Episode, error) {
-	row := q.db.QueryRowContext(ctx, getEpisode, id)
-	var i Episode
-	err := row.Scan(
-		&i.AgeratingCode,
-		&i.AssetID,
-		&i.AvailableFrom,
-		&i.AvailableTo,
-		&i.DateCreated,
-		&i.DateUpdated,
-		&i.EpisodeNumber,
-		&i.ID,
-		&i.ImageFileID,
-		&i.LegacyDescriptionID,
-		&i.LegacyExtraDescriptionID,
-		&i.LegacyID,
-		&i.LegacyProgramID,
-		&i.LegacyTagsID,
-		&i.LegacyTitleID,
-		&i.MigrationData,
-		&i.PublishDate,
-		&i.SeasonID,
-		&i.Status,
-		&i.Type,
-		&i.UserCreated,
-		&i.UserUpdated,
-	)
-	return i, err
-}
-
-const getEpisodeRoles = `-- name: GetEpisodeRoles :many
-SELECT episodes_id, id, type, usergroups_code, date_created, date_updated FROM public.episodes_usergroups
-`
-
-func (q *Queries) GetEpisodeRoles(ctx context.Context) ([]EpisodesUsergroup, error) {
-	rows, err := q.db.QueryContext(ctx, getEpisodeRoles)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []EpisodesUsergroup
-	for rows.Next() {
-		var i EpisodesUsergroup
-		if err := rows.Scan(
-			&i.EpisodesID,
-			&i.ID,
-			&i.Type,
-			&i.UsergroupsCode,
-			&i.DateCreated,
-			&i.DateUpdated,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getEpisodeTranslations = `-- name: GetEpisodeTranslations :many
-SELECT description, episodes_id, extra_description, id, is_primary, languages_code, title FROM public.episodes_translations
-`
-
-func (q *Queries) GetEpisodeTranslations(ctx context.Context) ([]EpisodesTranslation, error) {
-	rows, err := q.db.QueryContext(ctx, getEpisodeTranslations)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []EpisodesTranslation
-	for rows.Next() {
-		var i EpisodesTranslation
-		if err := rows.Scan(
-			&i.Description,
-			&i.EpisodesID,
-			&i.ExtraDescription,
-			&i.ID,
-			&i.IsPrimary,
-			&i.LanguagesCode,
-			&i.Title,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getEpisodes = `-- name: GetEpisodes :many
-SELECT agerating_code, asset_id, available_from, available_to, date_created, date_updated, episode_number, id, image_file_id, legacy_description_id, legacy_extra_description_id, legacy_id, legacy_program_id, legacy_tags_id, legacy_title_id, migration_data, publish_date, season_id, status, type, user_created, user_updated FROM public.episodes
-`
-
-func (q *Queries) GetEpisodes(ctx context.Context) ([]Episode, error) {
-	rows, err := q.db.QueryContext(ctx, getEpisodes)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Episode
-	for rows.Next() {
-		var i Episode
-		if err := rows.Scan(
-			&i.AgeratingCode,
-			&i.AssetID,
-			&i.AvailableFrom,
-			&i.AvailableTo,
-			&i.DateCreated,
-			&i.DateUpdated,
-			&i.EpisodeNumber,
-			&i.ID,
-			&i.ImageFileID,
-			&i.LegacyDescriptionID,
-			&i.LegacyExtraDescriptionID,
-			&i.LegacyID,
-			&i.LegacyProgramID,
-			&i.LegacyTagsID,
-			&i.LegacyTitleID,
-			&i.MigrationData,
-			&i.PublishDate,
-			&i.SeasonID,
-			&i.Status,
-			&i.Type,
-			&i.UserCreated,
-			&i.UserUpdated,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getEpisodesWithTranslationsByID = `-- name: GetEpisodesWithTranslationsByID :many
-SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM episodes_expanded WHERE id = ANY($1::int[])
-`
-
-func (q *Queries) GetEpisodesWithTranslationsByID(ctx context.Context, dollar_1 []int32) ([]EpisodesExpanded, error) {
-	rows, err := q.db.QueryContext(ctx, getEpisodesWithTranslationsByID, pq.Array(dollar_1))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []EpisodesExpanded
-	for rows.Next() {
-		var i EpisodesExpanded
-		if err := rows.Scan(
-			&i.ID,
-			&i.AssetID,
-			&i.EpisodeNumber,
-			&i.ImageFileID,
-			&i.SeasonID,
-			&i.Type,
-			&i.Title,
-			&i.Description,
-			&i.ExtraDescription,
-			&i.Published,
-			&i.AvailableFrom,
-			&i.AvailableTo,
-			pq.Array(&i.Usergroups),
-			pq.Array(&i.DownloadGroups),
-			pq.Array(&i.EarlyAccessGroups),
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getEpisodesWithTranslationsForSeasons = `-- name: GetEpisodesWithTranslationsForSeasons :many
-SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM episodes_expanded WHERE season_id = ANY($1::int[])
-`
-
-func (q *Queries) GetEpisodesWithTranslationsForSeasons(ctx context.Context, dollar_1 []int32) ([]EpisodesExpanded, error) {
-	rows, err := q.db.QueryContext(ctx, getEpisodesWithTranslationsForSeasons, pq.Array(dollar_1))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []EpisodesExpanded
-	for rows.Next() {
-		var i EpisodesExpanded
-		if err := rows.Scan(
-			&i.ID,
-			&i.AssetID,
-			&i.EpisodeNumber,
-			&i.ImageFileID,
-			&i.SeasonID,
-			&i.Type,
-			&i.Title,
-			&i.Description,
-			&i.ExtraDescription,
-			&i.Published,
-			&i.AvailableFrom,
-			&i.AvailableTo,
-			pq.Array(&i.Usergroups),
-			pq.Array(&i.DownloadGroups),
-			pq.Array(&i.EarlyAccessGroups),
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getFilesForEpisodes = `-- name: GetFilesForEpisodes :many
 SELECT e.id AS episodes_id, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated FROM episodes e
 JOIN assets a ON e.asset_id = a.id
@@ -306,33 +67,6 @@ func (q *Queries) GetFilesForEpisodes(ctx context.Context, dollar_1 []int32) ([]
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getRolesForEpisode = `-- name: GetRolesForEpisode :many
-SELECT usergroups_code FROM public.episodes_usergroups WHERE episodes_id = $1
-`
-
-func (q *Queries) GetRolesForEpisode(ctx context.Context, episodesID int32) ([]string, error) {
-	rows, err := q.db.QueryContext(ctx, getRolesForEpisode, episodesID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []string
-	for rows.Next() {
-		var usergroups_code string
-		if err := rows.Scan(&usergroups_code); err != nil {
-			return nil, err
-		}
-		items = append(items, usergroups_code)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -425,111 +159,6 @@ func (q *Queries) GetStreamsForEpisodes(ctx context.Context, dollar_1 []int32) (
 	return items, nil
 }
 
-const getTranslationsForEpisode = `-- name: GetTranslationsForEpisode :many
-SELECT description, episodes_id, extra_description, id, is_primary, languages_code, title FROM public.episodes_translations WHERE episodes_id = $1
-`
-
-func (q *Queries) GetTranslationsForEpisode(ctx context.Context, episodesID int32) ([]EpisodesTranslation, error) {
-	rows, err := q.db.QueryContext(ctx, getTranslationsForEpisode, episodesID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []EpisodesTranslation
-	for rows.Next() {
-		var i EpisodesTranslation
-		if err := rows.Scan(
-			&i.Description,
-			&i.EpisodesID,
-			&i.ExtraDescription,
-			&i.ID,
-			&i.IsPrimary,
-			&i.LanguagesCode,
-			&i.Title,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getVisibilityForEpisode = `-- name: GetVisibilityForEpisode :one
-SELECT id, status, publish_date, available_from, available_to, season_id FROM public.episodes WHERE id = $1
-`
-
-type GetVisibilityForEpisodeRow struct {
-	ID            int32        `db:"id" json:"id"`
-	Status        string       `db:"status" json:"status"`
-	PublishDate   time.Time    `db:"publish_date" json:"publishDate"`
-	AvailableFrom null_v4.Time `db:"available_from" json:"availableFrom"`
-	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
-	SeasonID      null_v4.Int  `db:"season_id" json:"seasonID"`
-}
-
-func (q *Queries) GetVisibilityForEpisode(ctx context.Context, id int32) (GetVisibilityForEpisodeRow, error) {
-	row := q.db.QueryRowContext(ctx, getVisibilityForEpisode, id)
-	var i GetVisibilityForEpisodeRow
-	err := row.Scan(
-		&i.ID,
-		&i.Status,
-		&i.PublishDate,
-		&i.AvailableFrom,
-		&i.AvailableTo,
-		&i.SeasonID,
-	)
-	return i, err
-}
-
-const getVisibilityForEpisodes = `-- name: GetVisibilityForEpisodes :many
-SELECT id, status, publish_date, available_from, available_to, season_id FROM public.episodes
-`
-
-type GetVisibilityForEpisodesRow struct {
-	ID            int32        `db:"id" json:"id"`
-	Status        string       `db:"status" json:"status"`
-	PublishDate   time.Time    `db:"publish_date" json:"publishDate"`
-	AvailableFrom null_v4.Time `db:"available_from" json:"availableFrom"`
-	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
-	SeasonID      null_v4.Int  `db:"season_id" json:"seasonID"`
-}
-
-func (q *Queries) GetVisibilityForEpisodes(ctx context.Context) ([]GetVisibilityForEpisodesRow, error) {
-	rows, err := q.db.QueryContext(ctx, getVisibilityForEpisodes)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetVisibilityForEpisodesRow
-	for rows.Next() {
-		var i GetVisibilityForEpisodesRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Status,
-			&i.PublishDate,
-			&i.AvailableFrom,
-			&i.AvailableTo,
-			&i.SeasonID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const refreshEpisodeAccessView = `-- name: RefreshEpisodeAccessView :one
 SELECT update_access('episodes_access')
 `
@@ -539,4 +168,136 @@ func (q *Queries) RefreshEpisodeAccessView(ctx context.Context) (bool, error) {
 	var update_access bool
 	err := row.Scan(&update_access)
 	return update_access, err
+}
+
+const getEpisodes = `-- name: getEpisodes :many
+SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups, tag_ids FROM public.episodes_expanded WHERE id = ANY($1::int[])
+`
+
+func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]EpisodesExpanded, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodes, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []EpisodesExpanded
+	for rows.Next() {
+		var i EpisodesExpanded
+		if err := rows.Scan(
+			&i.ID,
+			&i.AssetID,
+			&i.EpisodeNumber,
+			&i.ImageFileID,
+			&i.SeasonID,
+			&i.Type,
+			&i.Title,
+			&i.Description,
+			&i.ExtraDescription,
+			&i.Published,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			pq.Array(&i.Usergroups),
+			pq.Array(&i.DownloadGroups),
+			pq.Array(&i.EarlyAccessGroups),
+			pq.Array(&i.TagIds),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getEpisodesForSeasons = `-- name: getEpisodesForSeasons :many
+SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups, tag_ids FROM public.episodes_expanded WHERE season_id = ANY($1::int[])
+`
+
+func (q *Queries) getEpisodesForSeasons(ctx context.Context, dollar_1 []int32) ([]EpisodesExpanded, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodesForSeasons, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []EpisodesExpanded
+	for rows.Next() {
+		var i EpisodesExpanded
+		if err := rows.Scan(
+			&i.ID,
+			&i.AssetID,
+			&i.EpisodeNumber,
+			&i.ImageFileID,
+			&i.SeasonID,
+			&i.Type,
+			&i.Title,
+			&i.Description,
+			&i.ExtraDescription,
+			&i.Published,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			pq.Array(&i.Usergroups),
+			pq.Array(&i.DownloadGroups),
+			pq.Array(&i.EarlyAccessGroups),
+			pq.Array(&i.TagIds),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listEpisodes = `-- name: listEpisodes :many
+SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups, tag_ids FROM public.episodes_expanded
+`
+
+func (q *Queries) listEpisodes(ctx context.Context) ([]EpisodesExpanded, error) {
+	rows, err := q.db.QueryContext(ctx, listEpisodes)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []EpisodesExpanded
+	for rows.Next() {
+		var i EpisodesExpanded
+		if err := rows.Scan(
+			&i.ID,
+			&i.AssetID,
+			&i.EpisodeNumber,
+			&i.ImageFileID,
+			&i.SeasonID,
+			&i.Type,
+			&i.Title,
+			&i.Description,
+			&i.ExtraDescription,
+			&i.Published,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			pq.Array(&i.Usergroups),
+			pq.Array(&i.DownloadGroups),
+			pq.Array(&i.EarlyAccessGroups),
+			pq.Array(&i.TagIds),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

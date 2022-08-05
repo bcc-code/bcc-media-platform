@@ -15,18 +15,21 @@ type Show struct {
 	Roles         Roles
 	Title         LocaleString
 	Description   LocaleString
+	ImageID       uuid.NullUUID
 }
 
 // Season is the definition of the Season object
 type Season struct {
 	ID            int
 	Published     bool
+	Number        int
 	AvailableFrom time.Time
 	AvailableTo   time.Time
 	Roles         Roles
 	Title         LocaleString
 	Description   LocaleString
 	ShowID        int
+	ImageID       uuid.NullUUID
 }
 
 // Episode is the definition of the Episode object

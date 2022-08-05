@@ -69,3 +69,6 @@ overrides:
   - column: "sections_expanded.roles"
     go_type:
       type: "[]string"
+  - column: "episodes_expanded.tag_ids"
+    go_type:
+      type: "[]int"

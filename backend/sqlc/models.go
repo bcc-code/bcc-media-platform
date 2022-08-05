@@ -515,21 +515,22 @@ type EpisodesCategory struct {
 }
 
 type EpisodesExpanded struct {
-	ID                int32           `db:"id" json:"id"`
-	AssetID           null_v4.Int     `db:"asset_id" json:"assetID"`
-	EpisodeNumber     null_v4.Int     `db:"episode_number" json:"episodeNumber"`
-	ImageFileID       uuid.NullUUID   `db:"image_file_id" json:"imageFileID"`
-	SeasonID          null_v4.Int     `db:"season_id" json:"seasonID"`
-	Type              string          `db:"type" json:"type"`
-	Title             json.RawMessage `db:"title" json:"title"`
-	Description       json.RawMessage `db:"description" json:"description"`
-	ExtraDescription  json.RawMessage `db:"extra_description" json:"extraDescription"`
-	Published         bool            `db:"published" json:"published"`
-	AvailableFrom     time.Time       `db:"available_from" json:"availableFrom"`
-	AvailableTo       time.Time       `db:"available_to" json:"availableTo"`
-	Usergroups        []string        `db:"usergroups" json:"usergroups"`
-	DownloadGroups    []string        `db:"download_groups" json:"downloadGroups"`
-	EarlyAccessGroups []string        `db:"early_access_groups" json:"earlyAccessGroups"`
+	ID                int32                 `db:"id" json:"id"`
+	AssetID           null_v4.Int           `db:"asset_id" json:"assetID"`
+	EpisodeNumber     null_v4.Int           `db:"episode_number" json:"episodeNumber"`
+	ImageFileID       uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
+	SeasonID          null_v4.Int           `db:"season_id" json:"seasonID"`
+	Type              string                `db:"type" json:"type"`
+	Title             pqtype.NullRawMessage `db:"title" json:"title"`
+	Description       pqtype.NullRawMessage `db:"description" json:"description"`
+	ExtraDescription  pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
+	Published         bool                  `db:"published" json:"published"`
+	AvailableFrom     time.Time             `db:"available_from" json:"availableFrom"`
+	AvailableTo       time.Time             `db:"available_to" json:"availableTo"`
+	Usergroups        []string              `db:"usergroups" json:"usergroups"`
+	DownloadGroups    []string              `db:"download_groups" json:"downloadGroups"`
+	EarlyAccessGroups []string              `db:"early_access_groups" json:"earlyAccessGroups"`
+	TagIds            []int                 `db:"tag_ids" json:"tagIds"`
 }
 
 type EpisodesRole struct {
@@ -625,20 +626,6 @@ type Page struct {
 	ShowID      null_v4.Int    `db:"show_id" json:"showID"`
 	Collection  null_v4.String `db:"collection" json:"collection"`
 	SeasonID    null_v4.Int    `db:"season_id" json:"seasonID"`
-}
-
-type PagesExpanded struct {
-	ID          int32                 `db:"id" json:"id"`
-	Code        null_v4.String        `db:"code" json:"code"`
-	Type        null_v4.String        `db:"type" json:"type"`
-	Published   bool                  `db:"published" json:"published"`
-	ShowID      null_v4.Int           `db:"show_id" json:"showID"`
-	SeasonID    null_v4.Int           `db:"season_id" json:"seasonID"`
-	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeID"`
-	Collection  null_v4.String        `db:"collection" json:"collection"`
-	Title       pqtype.NullRawMessage `db:"title" json:"title"`
-	Description pqtype.NullRawMessage `db:"description" json:"description"`
-	Roles       interface{}           `db:"roles" json:"roles"`
 }
 
 type PagesTranslation struct {
@@ -747,20 +734,6 @@ type Section struct {
 	PageID       null_v4.Int    `db:"page_id" json:"pageID"`
 }
 
-type SectionsExpanded struct {
-	ID           int32                 `db:"id" json:"id"`
-	PageID       null_v4.Int           `db:"page_id" json:"pageID"`
-	Style        null_v4.String        `db:"style" json:"style"`
-	Sort         null_v4.Int           `db:"sort" json:"sort"`
-	Published    bool                  `db:"published" json:"published"`
-	DateCreated  time.Time             `db:"date_created" json:"dateCreated"`
-	DateUpdated  time.Time             `db:"date_updated" json:"dateUpdated"`
-	CollectionID null_v4.Int           `db:"collection_id" json:"collectionID"`
-	Title        pqtype.NullRawMessage `db:"title" json:"title"`
-	Description  pqtype.NullRawMessage `db:"description" json:"description"`
-	Roles        []string              `db:"roles" json:"roles"`
-}
-
 type SectionsTranslation struct {
 	ID            int32          `db:"id" json:"id"`
 	SectionsID    null_v4.Int    `db:"sections_id" json:"sectionsID"`
@@ -864,9 +837,16 @@ type Tag struct {
 	DateCreated time.Time      `db:"date_created" json:"dateCreated"`
 	DateUpdated time.Time      `db:"date_updated" json:"dateUpdated"`
 	ID          int32          `db:"id" json:"id"`
-	Name        string         `db:"name" json:"name"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	Name        string         `db:"name" json:"name"`
+}
+
+type TagsTranslation struct {
+	ID            int32          `db:"id" json:"id"`
+	TagsID        null_v4.Int    `db:"tags_id" json:"tagsID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Name          null_v4.String `db:"name" json:"name"`
 }
 
 type Tvguideentry struct {
