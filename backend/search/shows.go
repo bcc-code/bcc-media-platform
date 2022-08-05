@@ -2,23 +2,16 @@ package search
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"strconv"
-
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 )
 
-func (service *Service) showToSearchItem(_ context.Context, show sqlc.ShowExpanded) (searchItem, error) {
-	var title common.LocaleString
-	var description common.LocaleString
-	_ = json.Unmarshal(show.Title, &title)
-	_ = json.Unmarshal(show.Description, &description)
+func (service *Service) showToSearchItem(_ context.Context, show common.Show) (searchItem, error) {
 
 	var item = searchItem{
-		ID:          "shows-" + strconv.Itoa(int(show.ID)),
-		Title:       title,
-		Description: description,
+		ID:          "shows-" + strconv.Itoa(show.ID),
+		Title:       show.Title,
+		Description: show.Description,
 		Header:      nil,
 		Type:        "show",
 	}

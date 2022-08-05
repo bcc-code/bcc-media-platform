@@ -7,24 +7,26 @@ import (
 	"context"
 	"fmt"
 	merry "github.com/ansel1/merry/v2"
-	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"strconv"
 )
 
 // Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error) {
-	streams, err := asset.GetStreamsForEpisode(ctx, r.Resolver.Loaders.StreamsLoader, obj.ID)
+	intID, _ := strconv.ParseInt(obj.ID, 10, 32)
+	streams, err := common.GetFromLoaderForKey(ctx, r.Resolver.Loaders.StreamsLoader, int(intID))
 	if err != nil {
 		return nil, err
 	}
 
 	out := []*gqlmodel.Stream{}
 	for _, s := range streams {
-		out = append(out, gqlmodel.StreamFromSQL(ctx, r.Resolver.APIConfig.GetVOD2Domain(), s))
+		out = append(out, gqlmodel.StreamFrom(ctx, r.Resolver.APIConfig.GetVOD2Domain(), s))
 	}
 
 	return out, nil
@@ -32,7 +34,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([
 
 // Files is the resolver for the files field.
 func (r *episodeResolver) Files(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.File, error) {
-	return itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.FilesLoader, gqlmodel.FileFromSQL)
+	return itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.FilesLoader, gqlmodel.FileFrom)
 }
 
 // Season is the resolver for the season field.

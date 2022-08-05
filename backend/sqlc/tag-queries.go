@@ -6,8 +6,8 @@ import (
 )
 
 // GetTags returns a list of tags retrieved by ids
-func (q *Queries) GetTags(ctx context.Context, ids []int32) ([]TagExpanded, error) {
-	return q.getTags(ctx, ids)
+func (q *Queries) GetTags(ctx context.Context, ids []int) ([]TagExpanded, error) {
+	return q.getTags(ctx, intToInt32(ids))
 }
 
 // ListTags returns a list of tags

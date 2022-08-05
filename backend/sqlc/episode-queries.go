@@ -13,8 +13,8 @@ func mapToEpisodes(episodes []EpisodeExpanded) []common.Episode {
 		var description common.LocaleString
 		var extraDescription common.LocaleString
 
-		_ = json.Unmarshal(e.Title.RawMessage, &title)
-		_ = json.Unmarshal(e.Description.RawMessage, &description)
+		_ = json.Unmarshal(e.Title, &title)
+		_ = json.Unmarshal(e.Description, &description)
 		_ = json.Unmarshal(e.ExtraDescription.RawMessage, &extraDescription)
 
 		return common.Episode{
@@ -36,7 +36,9 @@ func mapToEpisodes(episodes []EpisodeExpanded) []common.Episode {
 			SeasonID: e.SeasonID,
 			AssetID:  e.AssetID,
 			ImageID:  e.ImageFileID,
-			TagIDs:   e.TagIds,
+			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
+				return int(id)
+			}),
 		}
 	})
 }
@@ -66,4 +68,47 @@ func (q *Queries) GetEpisodesForSeasons(ctx context.Context, ids []int) ([]commo
 		return nil, err
 	}
 	return mapToEpisodes(episodes), nil
+}
+
+// GetFilesForEpisodes returns files for the specified episodes
+func (q *Queries) GetFilesForEpisodes(ctx context.Context, ids []int) ([]common.File, error) {
+	files, err := q.getFilesForEpisodes(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(files, func(f getFilesForEpisodesRow, _ int) common.File {
+		return common.File{
+			ID:               int(f.ID),
+			Type:             f.Type,
+			EpisodeID:        int(f.EpisodesID),
+			AssetID:          int(f.AssetID),
+			AudioLanguage:    f.AudioLanguageID,
+			SubtitleLanguage: f.SubtitleLanguageID,
+			Path:             f.Path,
+			Storage:          f.Storage,
+			MimeType:         f.MimeType,
+		}
+	}), nil
+}
+
+// GetStreamsForEpisodes returns files for the specified episodes
+func (q *Queries) GetStreamsForEpisodes(ctx context.Context, ids []int) ([]common.Stream, error) {
+	streams, err := q.getStreamsForEpisodes(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(streams, func(f getStreamsForEpisodesRow, _ int) common.Stream {
+		return common.Stream{
+			ID:                int(f.ID),
+			Type:              f.Type,
+			EpisodeID:         int(f.EpisodesID),
+			AssetID:           int(f.AssetID),
+			AudioLanguages:    f.AudioLanguages,
+			SubtitleLanguages: f.SubtitleLanguages,
+			Path:              f.Path,
+			Service:           f.Service,
+			Url:               f.Url,
+			EncryptionKeyID:   f.EncryptionKeyID,
+		}
+	}), nil
 }

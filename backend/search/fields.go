@@ -150,11 +150,11 @@ func (i *searchItem) assignImage(ctx context.Context, loaders loaders, source ha
 }
 
 type hasTags interface {
-	GetTagIds() []int
+	GetTagIDs() []int
 }
 
 func (i *searchItem) assignTags(ctx context.Context, loaders loaders, source hasTags) error {
-	tagIds := source.GetTagIds()
+	tagIds := source.GetTagIDs()
 	if len(tagIds) > 0 {
 		tags, errs := loaders.TagLoader.LoadMany(ctx, tagIds)()
 		if len(errs) > 0 {

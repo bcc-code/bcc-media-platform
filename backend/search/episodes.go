@@ -2,20 +2,12 @@ package search
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"strconv"
-
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 )
 
-func (service *Service) episodeToSearchItem(ctx context.Context, episode sqlc.EpisodeExpanded) (searchItem, error) {
-	var title common.LocaleString
-	var description common.LocaleString
-	_ = json.Unmarshal(episode.Title, &title)
-	_ = json.Unmarshal(episode.Description, &description)
-
+func (service *Service) episodeToSearchItem(ctx context.Context, episode common.Episode) (searchItem, error) {
 	var header *string
 	var showID *int
 	var showTitle *common.LocaleString
@@ -29,31 +21,34 @@ func (service *Service) episodeToSearchItem(ctx context.Context, episode sqlc.Ep
 		if err != nil {
 			return searchItem{}, err
 		}
-		_ = json.Unmarshal(season.Title, &seasonTitle)
-		shID := int(season.ShowID)
+		shID := season.ShowID
 		showID = &shID
 		show, err := service.loaders.ShowLoader.Load(ctx, shID)()
 		if err != nil {
 			return searchItem{}, err
 		}
-		_ = json.Unmarshal(show.Title, &showTitle)
 
-		if episode.EpisodeNumber.Valid {
-			headerString := fmt.Sprintf("S%d:E%d", season.SeasonNumber, episode.EpisodeNumber.Int64)
+		showID = &show.ID
+		showTitle = &show.Title
+		seasonID = &season.ID
+		seasonTitle = &season.Title
+
+		if episode.Number.Valid {
+			headerString := fmt.Sprintf("S%d:E%d", season.Number, episode.Number.Int64)
 			header = &headerString
 		}
 	}
 
 	var item = searchItem{
-		ID:          "episodes-" + strconv.Itoa(int(episode.ID)),
-		Title:       title,
-		Description: description,
+		ID:          "episodes-" + strconv.Itoa(episode.ID),
+		Title:       episode.Title,
+		Description: episode.Description,
 		Header:      header,
 		ShowID:      showID,
 		ShowTitle:   showTitle,
 		SeasonID:    seasonID,
 		SeasonTitle: seasonTitle,
-		Type:        episode.Type,
+		Type:        "episode",
 	}
 
 	err := item.assignTags(ctx, service.loaders, episode)

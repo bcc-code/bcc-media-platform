@@ -521,8 +521,8 @@ type EpisodesExpanded struct {
 	ImageFileID       uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
 	SeasonID          null_v4.Int           `db:"season_id" json:"seasonID"`
 	Type              string                `db:"type" json:"type"`
-	Title             pqtype.NullRawMessage `db:"title" json:"title"`
-	Description       pqtype.NullRawMessage `db:"description" json:"description"`
+	Title             json.RawMessage       `db:"title" json:"title"`
+	Description       json.RawMessage       `db:"description" json:"description"`
 	ExtraDescription  pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
 	Published         bool                  `db:"published" json:"published"`
 	AvailableFrom     time.Time             `db:"available_from" json:"availableFrom"`
@@ -530,7 +530,7 @@ type EpisodesExpanded struct {
 	Usergroups        []string              `db:"usergroups" json:"usergroups"`
 	DownloadGroups    []string              `db:"download_groups" json:"downloadGroups"`
 	EarlyAccessGroups []string              `db:"early_access_groups" json:"earlyAccessGroups"`
-	TagIds            []int                 `db:"tag_ids" json:"tagIds"`
+	TagIds            []int32               `db:"tag_ids" json:"tagIds"`
 }
 
 type EpisodesRole struct {

@@ -71,7 +71,7 @@ overrides:
       type: "[]string"
   - column: "episodes_expanded.tag_ids"
     go_type:
-      type: "[]int"
+      type: "[]int32"
   - column: "episodes_expanded.tag_ids"
     go_type:
       type: "[]int32"

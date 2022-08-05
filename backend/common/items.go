@@ -35,6 +35,11 @@ func (i Show) GetAvailability() Availability {
 	return i.Availability
 }
 
+// GetImage returns id of attached image
+func (i Show) GetImage() uuid.NullUUID {
+	return i.ImageID
+}
+
 // Season is the definition of the Season object
 type Season struct {
 	ID           int
@@ -60,6 +65,11 @@ func (i Season) GetRoles() Roles {
 // GetAvailability returns Availability for this item
 func (i Season) GetAvailability() Availability {
 	return i.Availability
+}
+
+// GetImage returns id of attached image
+func (i Season) GetImage() uuid.NullUUID {
+	return i.ImageID
 }
 
 // Episode is the definition of the Episode object
@@ -90,6 +100,43 @@ func (i Episode) GetRoles() Roles {
 // GetAvailability returns Availability for this item
 func (i Episode) GetAvailability() Availability {
 	return i.Availability
+}
+
+// GetImage returns id of attached image
+func (i Episode) GetImage() uuid.NullUUID {
+	return i.ImageID
+}
+
+// GetTagIDs returns ids of related tags
+func (i Episode) GetTagIDs() []int {
+	return i.TagIDs
+}
+
+// File item type
+type File struct {
+	ID               int
+	Type             string
+	EpisodeID        int
+	AssetID          int
+	AudioLanguage    null.String
+	SubtitleLanguage null.String
+	Path             string
+	Storage          string
+	MimeType         string
+}
+
+// Stream item type
+type Stream struct {
+	ID                int
+	Type              string
+	EpisodeID         int
+	AssetID           int
+	AudioLanguages    []string
+	SubtitleLanguages []string
+	Path              string
+	Service           string
+	Url               string
+	EncryptionKeyID   null.String
 }
 
 // Page is the definition of the Page object

@@ -45,8 +45,8 @@ type BatchLoaders struct {
 	EpisodeLoader           *dataloader.Loader[int, *common.Episode]
 	SeasonsLoader           *dataloader.Loader[int, []*common.Season]
 	EpisodesLoader          *dataloader.Loader[int, []*common.Episode]
-	FilesLoader             *dataloader.Loader[int, []*sqlc.GetFilesForEpisodesRow]
-	StreamsLoader           *dataloader.Loader[int, []*sqlc.GetStreamsForEpisodesRow]
+	FilesLoader             *dataloader.Loader[int, []*common.File]
+	StreamsLoader           *dataloader.Loader[int, []*common.Stream]
 }
 
 type restrictedItem interface {
