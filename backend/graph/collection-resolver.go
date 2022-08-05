@@ -164,25 +164,25 @@ func getItemsForQueryCollection(ctx context.Context, loaders *BatchLoaders, id i
 		if err != nil {
 			return nil, err
 		}
-		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.PageItemFromSQL)), nil
+		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.PageItemFrom)), nil
 	case "shows":
 		items, err := getFromLoaderAndFilterAccess(ctx, loaders.ShowLoader, itemIds)
 		if err != nil {
 			return nil, err
 		}
-		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.ShowItemFromSQL)), nil
+		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.ShowItemFrom)), nil
 	case "seasons":
 		items, err := getFromLoaderAndFilterAccess(ctx, loaders.SeasonLoader, itemIds)
 		if err != nil {
 			return nil, err
 		}
-		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.SeasonItemFromSQL)), nil
+		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.SeasonItemFrom)), nil
 	case "episodes":
 		items, err := getFromLoaderAndFilterAccess(ctx, loaders.EpisodeLoader, itemIds)
 		if err != nil {
 			return nil, err
 		}
-		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.EpisodeItemFromSQL)), nil
+		return toCollectionItemArray(utils.MapWithCtx(ctx, items, gqlmodel.EpisodeItemFrom)), nil
 	}
 	return nil, ErrUnsupportedCollection
 }

@@ -6,11 +6,9 @@ import (
 	"github.com/graph-gophers/dataloader/v7"
 )
 
-// NewBatchLoader returns a configured batch loader for GQL Section
+// NewBatchLoader returns a configured batch loader for sections
 func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Section] {
-	return common.NewBatchLoader(queries.GetSections, func(row common.Section) int {
-		return int(row.ID)
-	})
+	return common.NewBatchLoader(queries.GetSections)
 }
 
 // NewListBatchLoader returns related data for a page

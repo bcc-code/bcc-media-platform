@@ -52,6 +52,16 @@ func NewListBatchLoader[k comparable, t any](
 func NewBatchLoader[k comparable, t hasKey[k]](
 	factory func(ctx context.Context, ids []k) ([]t, error),
 ) *dataloader.Loader[k, *t] {
+	return NewCustomBatchLoader(factory, func(i t) k {
+		return i.GetKey()
+	})
+}
+
+// NewCustomBatchLoader returns a configured batch loader for items
+func NewCustomBatchLoader[k comparable, t any](
+	factory func(ctx context.Context, ids []k) ([]t, error),
+	getKey func(t) k,
+) *dataloader.Loader[k, *t] {
 	batchLoadItems := func(ctx context.Context, keys []k) []*dataloader.Result[*t] {
 		var results []*dataloader.Result[*t]
 
@@ -62,7 +72,7 @@ func NewBatchLoader[k comparable, t hasKey[k]](
 		if err == nil {
 			for _, r := range res {
 				item := r
-				resMap[r.GetKey()] = &item
+				resMap[getKey(r)] = &item
 			}
 		}
 

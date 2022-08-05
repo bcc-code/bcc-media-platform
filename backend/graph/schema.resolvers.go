@@ -75,7 +75,7 @@ func (r *itemSectionResolver) Items(ctx context.Context, obj *gqlmodel.ItemSecti
 
 // Sections is the resolver for the sections field.
 func (r *pageResolver) Sections(ctx context.Context, obj *gqlmodel.Page, first *int, offset *int) (*gqlmodel.SectionPagination, error) {
-	sections, err := itemsResolverForIntID(ctx, obj.ID, r.Loaders.SectionsLoader, gqlmodel.SectionFromSQL)
+	sections, err := itemsResolverForIntID(ctx, obj.ID, r.Loaders.SectionsLoader, gqlmodel.SectionFrom)
 	if err != nil {
 		return nil, err
 	}
@@ -91,10 +91,10 @@ func (r *pageResolver) Sections(ctx context.Context, obj *gqlmodel.Page, first *
 // Page is the resolver for the page field.
 func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) (*gqlmodel.Page, error) {
 	if id != nil {
-		return resolverForIntID(ctx, *id, r.Loaders.PageLoader, gqlmodel.PageFromSQL)
+		return resolverForIntID(ctx, *id, r.Loaders.PageLoader, gqlmodel.PageFrom)
 	}
 	if code != nil {
-		return resolverFor(ctx, *code, r.Loaders.PageLoaderByCode, gqlmodel.PageFromSQL)
+		return resolverFor(ctx, *code, r.Loaders.PageLoaderByCode, gqlmodel.PageFrom)
 	}
 	return nil, merry.Sentinel("Must specify either ID or code", merry.WithHTTPCode(400))
 }
@@ -102,7 +102,7 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 // Pages is the resolver for the pages field.
 func (r *queryRootResolver) Pages(ctx context.Context, first *int, offset *int) (*gqlmodel.PagePagination, error) {
 	//TODO: figure out a better way to solve the queries
-	pages, err := resolveList(ctx, r.Loaders.PageLoader, "pages", r.Queries.ListPages, gqlmodel.PageFromSQL)
+	pages, err := resolveList(ctx, r.Loaders.PageLoader, "pages", r.Queries.ListPages, gqlmodel.PageFrom)
 	if err != nil {
 		return nil, err
 	}
@@ -117,22 +117,22 @@ func (r *queryRootResolver) Pages(ctx context.Context, first *int, offset *int) 
 
 // Section is the resolver for the section field.
 func (r *queryRootResolver) Section(ctx context.Context, id string) (gqlmodel.Section, error) {
-	return resolverForIntID(ctx, id, r.Loaders.SectionLoader, gqlmodel.SectionFromSQL)
+	return resolverForIntID(ctx, id, r.Loaders.SectionLoader, gqlmodel.SectionFrom)
 }
 
 // Show is the resolver for the show field.
 func (r *queryRootResolver) Show(ctx context.Context, id string) (*gqlmodel.Show, error) {
-	return resolverForIntID(ctx, id, r.Loaders.ShowLoader, gqlmodel.ShowFromSQL)
+	return resolverForIntID(ctx, id, r.Loaders.ShowLoader, gqlmodel.ShowFrom)
 }
 
 // Season is the resolver for the season field.
 func (r *queryRootResolver) Season(ctx context.Context, id string) (*gqlmodel.Season, error) {
-	return resolverForIntID(ctx, id, r.Loaders.SeasonLoader, gqlmodel.SeasonFromSQL)
+	return resolverForIntID(ctx, id, r.Loaders.SeasonLoader, gqlmodel.SeasonFrom)
 }
 
 // Episode is the resolver for the episode field.
 func (r *queryRootResolver) Episode(ctx context.Context, id string) (*gqlmodel.Episode, error) {
-	return resolverForIntID(ctx, id, r.Loaders.EpisodeLoader, gqlmodel.EpisodeFromSQL)
+	return resolverForIntID(ctx, id, r.Loaders.EpisodeLoader, gqlmodel.EpisodeFrom)
 }
 
 // Search is the resolver for the search field.
@@ -192,7 +192,7 @@ func (r *seasonResolver) Show(ctx context.Context, obj *gqlmodel.Season) (*gqlmo
 
 // Episodes is the resolver for the episodes field.
 func (r *seasonResolver) Episodes(ctx context.Context, obj *gqlmodel.Season, first *int, offset *int) (*gqlmodel.EpisodePagination, error) {
-	episodes, err := itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.EpisodesLoader, gqlmodel.EpisodeFromSQL)
+	episodes, err := itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.EpisodesLoader, gqlmodel.EpisodeFrom)
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +212,7 @@ func (r *seasonSearchItemResolver) Show(ctx context.Context, obj *gqlmodel.Seaso
 
 // Seasons is the resolver for the seasons field.
 func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show, first *int, offset *int) (*gqlmodel.SeasonPagination, error) {
-	seasons, err := itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.SeasonsLoader, gqlmodel.SeasonFromSQL)
+	seasons, err := itemsResolverForIntID(ctx, obj.ID, r.Resolver.Loaders.SeasonsLoader, gqlmodel.SeasonFrom)
 	if err != nil {
 		return nil, err
 	}

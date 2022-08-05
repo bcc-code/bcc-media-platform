@@ -12,12 +12,12 @@ import (
 	"github.com/graph-gophers/dataloader/v7"
 )
 
-// NewBatchLoader returns a configured batch loader for GQL Collection
+// NewBatchLoader returns a configured batch loader for collections
 func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Collection] {
 	return common.NewBatchLoader(queries.GetCollections)
 }
 
-// NewItemListBatchLoader returns a configured batch loader for GQL CollectionItem
+// NewItemListBatchLoader returns a configured batch loader for collection-items
 func NewItemListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*common.CollectionItem] {
 	return common.NewListBatchLoader(queries.GetItemsForCollections, func(row common.CollectionItem) int {
 		return row.CollectionID
@@ -71,7 +71,7 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 				case "query":
 					f := getFilterForQueryCollection(r)
 					if f.Filter == nil {
-						resMap[int(r.ID)] = nil
+						resMap[r.ID] = nil
 					}
 					var filterObject map[string]any
 					_ = json.Unmarshal(f.Filter, &filterObject)
@@ -83,7 +83,7 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 							Msg("Failed to select itemIds from collection")
 						continue
 					}
-					resMap[int(r.ID)] = itemIdsFromRows(rows)
+					resMap[r.ID] = itemIdsFromRows(rows)
 				}
 			}
 		}
