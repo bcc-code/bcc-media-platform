@@ -6,14 +6,15 @@ package graph
 import (
 	"context"
 	"fmt"
-	merry "github.com/ansel1/merry/v2"
+	"strconv"
+
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"strconv"
 )
 
 // Streams is the resolver for the streams field.
