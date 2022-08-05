@@ -21,9 +21,8 @@ type postgres struct {
 }
 
 type algolia struct {
-	AppId            string
-	ApiKey           string
-	SearchOnlyApiKey string
+	AppId  string
+	ApiKey string
 }
 
 type directusConfig struct {
@@ -77,9 +76,8 @@ func getEnvConfig() envConfig {
 			ConnectionString: os.Getenv("DB_CONNECTION_STRING"),
 		},
 		Algolia: algolia{
-			AppId:            os.Getenv("ALGOLIA_APP_ID"),
-			ApiKey:           os.Getenv("ALGOLIA_API_KEY"),
-			SearchOnlyApiKey: os.Getenv("ALGOLIA_SEARCH_ONLY_API_KEY"),
+			AppId:  os.Getenv("ALGOLIA_APP_ID"),
+			ApiKey: os.Getenv("ALGOLIA_API_KEY"),
 		},
 		Crowdin: crowdinConfig{
 			Token:      os.Getenv("CROWDIN_TOKEN"),

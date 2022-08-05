@@ -5,31 +5,167 @@ import (
 	"fmt"
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
+	"strings"
 	"time"
 )
 
 const (
 	idField            = "objectID"
-	statusField        = "status"
+	publishedField     = "published"
 	typeField          = "type"
 	rolesField         = "roles"
+	tagsField          = "tags"
 	imageField         = "image"
 	descriptionField   = "description"
 	titleField         = "title"
 	headerField        = "header"
 	availableFromField = "availableFrom"
 	availableToField   = "availableTo"
-	publishedAtField   = "publishedAt"
-	createdAtField     = "createdAt"
-	updatedAtField     = "updatedAt"
 	showIDField        = "showID"
 	showTitleField     = "showTitle"
 	seasonIDField      = "seasonID"
 	seasonTitleField   = "seasonTitle"
 )
+
+type searchItem struct {
+	ID            string
+	Published     bool
+	Type          string
+	Roles         []string
+	Tags          []string
+	Image         *string
+	Title         common.LocaleString
+	Description   common.LocaleString
+	Header        *string
+	AvailableFrom int
+	AvailableTo   int
+	ShowID        *int
+	ShowTitle     *common.LocaleString
+	SeasonID      *int
+	SeasonTitle   *common.LocaleString
+}
+
+func (object searchObject) toSearchHit() (searchHit, error) {
+	var item searchHit
+	item.ID = object[idField].(string)
+	item.Title = object.getLocaleString(titleField)
+	delete(object, titleField)
+	item.Description = object.getLocaleString(descriptionField)
+	delete(object, descriptionField)
+	showTitle := object.getLocaleString(showTitleField)
+	if len(showTitle) > 0 {
+		item.ShowTitle = showTitle
+	}
+	delete(object, showTitleField)
+	seasonTitle := object.getLocaleString(seasonTitleField)
+	if len(seasonTitle) > 0 {
+		item.SeasonTitle = seasonTitle
+	}
+	delete(object, seasonTitleField)
+	item.HighlightResult = object["_highlightResult"].(map[string]interface{})
+	err := mapstructure.Decode(object, &item)
+	return item, err
+}
+
+func (i *searchItem) toSearchObject() searchObject {
+	object := searchObject{}
+	object[idField] = i.ID
+	object[publishedField] = i.Published
+	object[typeField] = i.Type
+	object[rolesField] = i.Roles
+	object[tagsField] = i.Tags
+	if i.Image != nil {
+		object[imageField] = i.Image
+	}
+	object.mapFromLocaleString(titleField, i.Title)
+	object.mapFromLocaleString(descriptionField, i.Description)
+	if i.Header != nil {
+		object[headerField] = i.Header
+	}
+	object[availableFromField] = i.AvailableFrom
+	object[availableToField] = i.AvailableTo
+	if i.ShowID != nil {
+		object[showIDField] = i.ShowID
+	}
+	if i.ShowTitle != nil {
+		object.mapFromLocaleString(showTitleField, *i.ShowTitle)
+	}
+	if i.SeasonID != nil {
+		object[seasonIDField] = i.SeasonID
+	}
+	if i.SeasonTitle != nil {
+		object.mapFromLocaleString(seasonTitleField, *i.SeasonTitle)
+	}
+	return object
+}
+
+type hasRoles interface {
+	GetRoles() common.Roles
+}
+
+func (i *searchItem) assignRoles(source hasRoles) {
+	r := source.GetRoles()
+	i.Roles = r.Access
+}
+
+type hasVisibility interface {
+	GetAvailability() common.Availability
+}
+
+func (i *searchItem) assignVisibility(source hasVisibility) {
+	a := source.GetAvailability()
+	i.Published = a.Published
+	if a.From.IsZero() {
+		i.AvailableFrom = 0
+	} else {
+		i.AvailableFrom = int(a.From.Unix())
+	}
+	if a.To.IsZero() {
+		i.AvailableTo = 0
+	} else {
+		i.AvailableTo = int(a.To.Unix())
+	}
+}
+
+type hasImage interface {
+	GetImage() uuid.NullUUID
+}
+
+func (i *searchItem) assignImage(ctx context.Context, loaders loaders, source hasImage) error {
+	id := source.GetImage()
+	if id.Valid {
+		image, err := loaders.ImageLoader.Load(ctx, id.UUID)()
+		if err != nil {
+			return err
+		}
+		imageUrl := image.GetImageUrl()
+		i.Image = &imageUrl
+	}
+	return nil
+}
+
+type hasTags interface {
+	GetTagIds() []int
+}
+
+func (i *searchItem) assignTags(ctx context.Context, loaders loaders, source hasTags) error {
+	tagIds := source.GetTagIds()
+	if len(tagIds) > 0 {
+		tags, errs := loaders.TagLoader.LoadMany(ctx, tagIds)()
+		if len(errs) > 0 {
+			return errs[0]
+		}
+		i.Tags = lo.Map(tags, func(t *sqlc.TagExpanded, _ int) string {
+			return t.Code.ValueOrZero()
+		})
+	}
+	return nil
+}
 
 func (service *Service) getFields() ([]string, error) {
 	translated, err := service.getTranslatedFields()
@@ -38,7 +174,7 @@ func (service *Service) getFields() ([]string, error) {
 
 // Fields which can be used for something
 func getFunctionalFields() []string {
-	return []string{createdAtField, updatedAtField, headerField}
+	return []string{headerField}
 }
 
 func getRelationalTranslatableFields() []string {
@@ -56,7 +192,7 @@ func (service *Service) getTextFields() []string {
 
 // These are the fields which we use to filter for permissions
 func (service *Service) getFilterFields() []string {
-	return []string{rolesField, typeField, statusField, publishedAtField}
+	return []string{rolesField, tagsField, typeField, publishedField}
 }
 
 func (service *Service) getPrimaryTranslatedFields() ([]string, error) {
@@ -130,47 +266,16 @@ func (object *searchObject) mapFromLocaleString(field string, dict common.Locale
 	}
 }
 
-func (object *searchObject) getLocaleString(field string, languages []string) (dict common.LocaleString) {
-	dict = common.LocaleString{}
-	for _, language := range languages {
-		if value := (*object)[field+"_"+language]; value != nil && value != "" {
-			dict[language] = null.StringFrom(value.(string))
-		}
-	}
-	return
-}
-
-func (service *Service) convertToSearchHit(object searchObject) (searchHit, error) {
-	languages, err := service.getLanguageKeys()
-	if err != nil {
-		return searchHit{}, err
-	}
-	var item searchHit
-	item.ID = object[idField].(string)
-	item.Title = object.getLocaleString(titleField, languages)
-	delete(object, titleField)
-	item.Description = object.getLocaleString(descriptionField, languages)
-	delete(object, descriptionField)
-	item.ShowTitle = object.getLocaleString(showTitleField, languages)
-	delete(object, showTitleField)
-	item.SeasonTitle = object.getLocaleString(seasonTitleField, languages)
-	delete(object, seasonTitleField)
-	err = mapstructure.Decode(object, &item)
-	return item, err
-}
-
-func toLocaleStrings(translations []common.Translation) (title common.LocaleString, description common.LocaleString) {
-	title = common.LocaleString{}
-	description = common.LocaleString{}
-	for _, t := range translations {
-		title[t.Language] = t.Title
-		description[t.Language] = t.Description
-		if val := t.Details.ValueOrZero(); val != "" {
-			if existing := description[t.Language].ValueOrZero(); existing != "" {
-				description[t.Language] = null.StringFrom(existing + "\n")
+func (object *searchObject) getLocaleString(field string) common.LocaleString {
+	dict := common.LocaleString{}
+	for key, value := range *object {
+		if strings.HasPrefix(key, field+"_") {
+			parts := strings.Split(key, "_")
+			if len(parts) == 2 {
+				lang := parts[1]
+				dict[lang] = null.StringFrom(value.(string))
 			}
-			description[t.Language] = null.StringFrom(description[t.Language].ValueOrZero() + val)
 		}
 	}
-	return
+	return dict
 }

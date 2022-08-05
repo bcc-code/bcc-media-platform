@@ -72,3 +72,14 @@ overrides:
   - column: "episodes_expanded.tag_ids"
     go_type:
       type: "[]int"
+  - column: "episodes_expanded.tag_ids"
+    go_type:
+      type: "[]int32"
+  - column: "episodes_expanded.title"
+    go_type:
+      import: "encoding/json"
+      type: "RawMessage"
+  - column: "episodes_expanded.description"
+    go_type:
+      import: "encoding/json"
+      type: "RawMessage"
