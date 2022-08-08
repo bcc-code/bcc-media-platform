@@ -763,7 +763,7 @@ ALTER TABLE public.directus_migrations OWNER TO btv;
 
 CREATE TABLE public.directus_notifications (
     id integer NOT NULL,
-    "timestamp" timestamp with time zone NOT NULL,
+    "timestamp" timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     status character varying(255) DEFAULT 'inbox'::character varying,
     recipient uuid NOT NULL,
     sender uuid,

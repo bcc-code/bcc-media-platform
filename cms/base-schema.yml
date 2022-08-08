@@ -546,7 +546,7 @@ collections:
       collapse: open
       collection: faq_categories
       color: null
-      display_template: null
+      display_template: '{{translations.title}}'
       group: null
       hidden: false
       icon: folder
@@ -596,7 +596,7 @@ collections:
       color: null
       display_template: '{{translations.question}}'
       group: null
-      hidden: false
+      hidden: true
       icon: question_mark
       item_duplication_fields: null
       note: null
@@ -8762,7 +8762,7 @@ fields:
       interface: select-dropdown-m2o
       note: null
       options:
-        template: '{{translations.title}}{{status}}'
+        template: '{{translations}}'
       readonly: false
       required: true
       sort: null
