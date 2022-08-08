@@ -209,3 +209,15 @@ type CollectionItem struct {
 func (s CollectionItem) GetKey() int {
 	return s.ID
 }
+
+// Tag struct
+type Tag struct {
+	ID   int
+	Code string
+	Name LocaleString
+}
+
+// GetKey returns the key for this item
+func (i Tag) GetKey() int {
+	return i.ID
+}

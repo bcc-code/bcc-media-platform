@@ -5,7 +5,6 @@ import (
 	"fmt"
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/samber/lo"
@@ -160,8 +159,8 @@ func (i *searchItem) assignTags(ctx context.Context, loaders loaders, source has
 		if len(errs) > 0 {
 			return errs[0]
 		}
-		i.Tags = lo.Map(tags, func(t *sqlc.TagExpanded, _ int) string {
-			return t.Code.ValueOrZero()
+		i.Tags = lo.Map(tags, func(t *common.Tag, _ int) string {
+			return t.Code
 		})
 	}
 	return nil
