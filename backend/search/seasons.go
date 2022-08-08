@@ -2,66 +2,36 @@ package search
 
 import (
 	"context"
+	"encoding/json"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"strconv"
 
-	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/google/uuid"
-	"github.com/samber/lo"
 )
 
-func (service *Service) mapSeasonToSearchObject(
-	ctx context.Context,
-	item sqlc.Season,
-	image *sqlc.DirectusFile,
-) searchObject {
-	object := searchObject{}
-	itemId := int(item.ID)
-	object[rolesField] = service.getRolesForSeason(ctx, item.ID)
-	object[idField] = "seasons-" + strconv.Itoa(itemId)
-	object[createdAtField] = item.DateCreated.UTC().Unix()
-	object[updatedAtField] = item.DateUpdated.UTC().Unix()
-	object[publishedAtField] = item.PublishDate.UTC().Unix()
-	if image != nil && image.FilenameDisk.Valid {
-		object[imageField] = image.GetImageUrl()
+func (service *Service) seasonToSearchItem(ctx context.Context, season sqlc.SeasonExpanded) (searchItem, error) {
+	var title common.LocaleString
+	var description common.LocaleString
+	_ = json.Unmarshal(season.Title, &title)
+	_ = json.Unmarshal(season.Description, &description)
+
+	showID := int(season.ShowID)
+	show, err := service.loaders.ShowLoader.Load(ctx, showID)()
+	if err != nil {
+		return searchItem{}, err
 	}
 
-	object.assignVisibility(service.getVisibilityForSeason(ctx, item.ID))
-	title, description := toLocaleStrings(service.getTranslationsForSeason(ctx, item.ID))
-	object.mapFromLocaleString(titleField, title)
-	object.mapFromLocaleString(descriptionField, description)
-	object[showIDField] = item.ShowID
-	showTitle, _ := toLocaleStrings(service.getTranslationsForShow(ctx, item.ShowID))
-	object.mapFromLocaleString(showTitleField, showTitle)
-	return object
-}
+	var showTitle common.LocaleString
+	_ = json.Unmarshal(show.Title, &showTitle)
 
-func (service *Service) indexSeasons(
-	ctx context.Context,
-	items []sqlc.Season,
-	imageDict map[uuid.UUID]sqlc.DirectusFile,
-	index *search.Index,
-) error {
-	objects := lo.Map(items, func(item sqlc.Season, _ int) searchObject {
-		var image *sqlc.DirectusFile
-		if item.ImageFileID.Valid {
-			thumbnailResult := imageDict[item.ImageFileID.UUID]
-			image = &thumbnailResult
-		}
-		return service.mapSeasonToSearchObject(ctx, item, image)
-	})
-
-	return indexObjects(index, objects)
-}
-
-func (service *Service) indexSeason(ctx context.Context, item sqlc.Season) error {
-	var image *sqlc.DirectusFile
-	if item.ImageFileID.Valid {
-		thumbnailResult, _ := service.queries.GetFile(ctx, item.ImageFileID.UUID)
-		image = &thumbnailResult
+	var item = searchItem{
+		ID:          "seasons-" + strconv.Itoa(int(season.ID)),
+		Title:       title,
+		Description: description,
+		Header:      nil,
+		ShowID:      &showID,
+		ShowTitle:   &showTitle,
+		Type:        "season",
 	}
-
-	object := service.mapSeasonToSearchObject(ctx, item, image)
-	_, err := service.index.SaveObject(object)
-	return err
+	return item, nil
 }

@@ -8,7 +8,7 @@ import (
 
 // NewBatchLoader returns a configured batch loader for GQL Episode
 func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.EpisodeExpanded] {
-	return common.NewBatchLoader(queries.GetEpisodesWithTranslationsByID, func(row sqlc.EpisodeExpanded) int {
+	return common.NewBatchLoader(queries.GetEpisodes, func(row sqlc.EpisodeExpanded) int {
 		return int(row.ID)
 	}, func(id int) int32 {
 		return int32(id)
@@ -17,7 +17,7 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.EpisodeE
 
 // NewListBatchLoader returns related data for a season
 func NewListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.EpisodeExpanded] {
-	return common.NewListBatchLoader(queries.GetEpisodesWithTranslationsForSeasons, func(i sqlc.EpisodeExpanded) int {
+	return common.NewListBatchLoader(queries.GetEpisodesForSeasons, func(i sqlc.EpisodeExpanded) int {
 		return int(i.SeasonID.Int64)
 	}, func(id int) int32 {
 		return int32(id)

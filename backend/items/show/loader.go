@@ -8,7 +8,7 @@ import (
 
 // NewBatchLoader returns a configured batch loader for GQL Episode
 func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.ShowExpanded] {
-	return common.NewBatchLoader(queries.GetShowsWithTranslationsByID, func(row sqlc.ShowExpanded) int {
+	return common.NewBatchLoader(queries.GetShows, func(row sqlc.ShowExpanded) int {
 		return int(row.ID)
 	}, func(id int) int32 {
 		return int32(id)
