@@ -25,6 +25,7 @@ type Config struct {
 // Client for crowdin interactions
 type Client struct {
 	c      *resty.Client
+	du     *directus.Handler
 	config Config
 }
 
@@ -39,13 +40,14 @@ func ensureSuccess(res *resty.Response) error {
 }
 
 // New client for requests
-func New(token string, config Config) *Client {
+func New(token string, config Config, directusHandler *directus.Handler) *Client {
 	c := resty.New().
 		SetBaseURL("https://api.crowdin.com/api/v2/").
 		SetAuthToken(token)
 	return &Client{
-		c,
-		config,
+		du:     directusHandler,
+		c:      c,
+		config: config,
 	}
 }
 

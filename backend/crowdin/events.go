@@ -83,12 +83,12 @@ func getTranslationsForItem(ctx context.Context, d *directus.Handler, collection
 }
 
 // HandleModelUpdate for triggering actions on object change
-func (client *Client) HandleModelUpdate(ctx context.Context, directusHandler *directus.Handler, collection string, id int) error {
-	if status, err := getStatusForItem(ctx, directusHandler, collection, id); err != nil || status != "published" {
+func (client *Client) HandleModelUpdate(ctx context.Context, collection string, id int) error {
+	if status, err := getStatusForItem(ctx, client.du, collection, id); err != nil || status != "published" {
 		// Return error, else just ignore if not published
 		return err
 	}
-	translations, err := getTranslationsForItem(ctx, directusHandler, collection, id, "")
+	translations, err := getTranslationsForItem(ctx, client.du, collection, id, "")
 	if err != nil {
 		return err
 	}
@@ -99,7 +99,8 @@ func (client *Client) HandleModelUpdate(ctx context.Context, directusHandler *di
 }
 
 // HandleModelDelete for triggering actions to handle deletion events
-func (client *Client) HandleModelDelete(collection string, id int) {
-	log.L.Debug().Str("collection", collection).Int("id", id).Msg("deleting translations")
+func (client *Client) HandleModelDelete(_ context.Context, collection string, id int) error {
+	log.L.Debug().Str("collection", collection).Int("id", id).Msg("deleting translations - not implemented")
 	// TODO: implement deletion of translations
+	return nil
 }
