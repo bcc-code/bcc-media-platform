@@ -20,7 +20,7 @@ func EpisodeFromSQL(ctx context.Context, row *sqlc.EpisodeExpanded) *Episode {
 
 	_ = json.Unmarshal(row.Title, &titleMap)
 	_ = json.Unmarshal(row.Description, &descriptionMap)
-	_ = json.Unmarshal(row.ExtraDescription, &extraDescriptionMap)
+	_ = json.Unmarshal(row.ExtraDescription.RawMessage, &extraDescriptionMap)
 
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
