@@ -111,7 +111,7 @@ func main() {
 	r.Use(auth0.JWT(ctx, config.JWTConfig))
 	r.Use(user.NewUserMiddleware(queries))
 
-	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
+	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey)
 	r.POST("/query", graphqlHandler(queries, loaders, searchService, config))
 
 	r.GET("/", playgroundHandler())

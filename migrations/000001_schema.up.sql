@@ -2638,6 +2638,42 @@ ALTER SEQUENCE public.tags_id_seq OWNED BY public.tags.id;
 
 
 --
+-- Name: tags_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.tags_translations (
+    id integer NOT NULL,
+    languages_code character varying(255) DEFAULT NULL::character varying,
+    name character varying(255) DEFAULT NULL::character varying,
+    tags_id integer
+);
+
+
+ALTER TABLE public.tags_translations OWNER TO btv;
+
+--
+-- Name: tags_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.tags_translations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.tags_translations_id_seq OWNER TO btv;
+
+--
+-- Name: tags_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.tags_translations_id_seq OWNED BY public.tags_translations.id;
+
+
+--
 -- Name: tvguideentry; Type: TABLE; Schema: public; Owner: btv
 --
 
@@ -3056,6 +3092,13 @@ ALTER TABLE ONLY public.shows_usergroups ALTER COLUMN id SET DEFAULT nextval('pu
 --
 
 ALTER TABLE ONLY public.tags ALTER COLUMN id SET DEFAULT nextval('public.tags_id_seq'::regclass);
+
+
+--
+-- Name: tags_translations id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tags_translations ALTER COLUMN id SET DEFAULT nextval('public.tags_translations_id_seq'::regclass);
 
 
 --
@@ -3638,6 +3681,14 @@ ALTER TABLE ONLY public.shows_usergroups
 
 ALTER TABLE ONLY public.tags
     ADD CONSTRAINT tags_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: tags_translations tags_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tags_translations
+    ADD CONSTRAINT tags_translations_pkey PRIMARY KEY (id);
 
 
 --
@@ -4682,6 +4733,22 @@ ALTER TABLE ONLY public.shows_usergroups
 
 ALTER TABLE ONLY public.shows_usergroups
     ADD CONSTRAINT shows_usergroups_usergroups_code_foreign FOREIGN KEY (usergroups_code) REFERENCES public.usergroups(code);
+
+
+--
+-- Name: tags_translations tags_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tags_translations
+    ADD CONSTRAINT tags_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE SET NULL;
+
+
+--
+-- Name: tags_translations tags_translations_tags_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tags_translations
+    ADD CONSTRAINT tags_translations_tags_id_foreign FOREIGN KEY (tags_id) REFERENCES public.tags(id) ON DELETE SET NULL;
 
 
 --

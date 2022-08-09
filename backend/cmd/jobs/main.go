@@ -46,7 +46,10 @@ func initializeDirectusEventHandler(directusClient *resty.Client, searchService 
 	}
 
 	eventHandler.On(directus.EventItemsDelete, func(ctx context.Context, collection string, id int) {
-		searchService.DeleteModel(collection, id)
+		err := searchService.DeleteModel(collection, id)
+		if err != nil {
+			log.L.Error().Err(err).Msg("Error occurred when trying to delete model from search index")
+		}
 		crowdinClient.HandleModelDelete(collection, id)
 	})
 
@@ -105,7 +108,7 @@ func main() {
 
 	queries := sqlc.New(db)
 
-	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey, config.Algolia.SearchOnlyApiKey)
+	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey)
 	crowdinClient := crowdin.New(config.Crowdin.Token, crowdin.Config{ProjectIDs: config.Crowdin.ProjectIDs})
 	directusEventHandler := initializeDirectusEventHandler(directusClient, searchService, crowdinClient)
 

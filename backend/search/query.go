@@ -23,7 +23,6 @@ type searchHit struct {
 }
 
 func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (searchResult common.SearchResult, err error) {
-
 	u := user.GetFromCtx(ctx)
 
 	if len(u.Roles) == 0 {
@@ -35,9 +34,18 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 		return
 	}
 
+	languages := user.GetLanguagesFromCtx(ctx)
+
+	var highlightFields []string
+	for _, field := range getPrimaryTranslatableFields() {
+		for _, l := range languages {
+			highlightFields = append(highlightFields, field+"_"+l)
+		}
+	}
+
 	opts := []interface{}{
 		opt.Filters(filterString),
-		opt.AttributesToHighlight(service.getTextFields()...),
+		opt.AttributesToHighlight(highlightFields...),
 	}
 	if query.Limit != nil {
 		opts = append(opts, opt.Length(*query.Limit))
@@ -66,10 +74,8 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 	searchResult.PageCount = result.NbPages
 	searchResult.Result = []common.SearchResultItem{}
 
-	languages := user.GetLanguagesFromCtx(ctx)
-
 	for _, rawHit := range hits {
-		hit, e := service.convertToSearchHit(rawHit)
+		hit, e := rawHit.toSearchHit()
 		if e != nil {
 			err = e
 			return
