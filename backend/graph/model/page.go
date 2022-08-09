@@ -2,43 +2,28 @@ package gqlmodel
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"strconv"
 )
 
-// PageFromSQL converts sqlc.PageExpanded to Page
-func PageFromSQL(ctx context.Context, item *sqlc.PageExpanded) *Page {
-	title := common.LocaleString{}
-	description := common.LocaleString{}
-
-	if item.Title.Valid {
-		_ = json.Unmarshal(item.Title.RawMessage, &title)
-	}
-	if item.Description.Valid {
-		_ = json.Unmarshal(item.Description.RawMessage, &description)
-	}
-
+// PageFrom converts common.Page to Page
+func PageFrom(ctx context.Context, p *common.Page) *Page {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
-	id := strconv.Itoa(int(item.ID))
-	code := item.Code.String
-
 	return &Page{
-		ID:          id,
-		Code:        code,
-		Title:       title.Get(languages),
-		Description: description.GetValueOrNil(languages),
+		ID:          strconv.Itoa(p.ID),
+		Code:        p.Code,
+		Title:       p.Title.Get(languages),
+		Description: p.Description.GetValueOrNil(languages),
 	}
 }
 
-// PageItemFromSQL returns a PageItem from sql row
-func PageItemFromSQL(ctx context.Context, item *sqlc.PageExpanded) *PageItem {
-	page := PageFromSQL(ctx, item)
+// PageItemFrom returns a PageItem from common.Page
+func PageItemFrom(ctx context.Context, p *common.Page) *PageItem {
+	page := PageFrom(ctx, p)
 
 	return &PageItem{
 		ID:    page.ID,

@@ -6,20 +6,14 @@ import (
 	"github.com/graph-gophers/dataloader/v7"
 )
 
-// NewBatchLoader returns a configured batch loader for GQL Episode
-func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *sqlc.SeasonExpanded] {
-	return common.NewBatchLoader(queries.GetSeasons, func(row sqlc.SeasonExpanded) int {
-		return int(row.ID)
-	}, func(id int) int32 {
-		return int32(id)
-	})
+// NewBatchLoader returns a configured batch loader for seasons
+func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Season] {
+	return common.NewBatchLoader(queries.GetSeasons)
 }
 
 // NewListBatchLoader returns related data for a show
-func NewListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*sqlc.SeasonExpanded] {
-	return common.NewListBatchLoader(queries.GetSeasonsForShows, func(i sqlc.SeasonExpanded) int {
-		return int(i.ShowID)
-	}, func(id int) int32 {
-		return int32(id)
+func NewListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*common.Season] {
+	return common.NewListBatchLoader(queries.GetSeasonsForShows, func(i common.Season) int {
+		return i.ShowID
 	})
 }

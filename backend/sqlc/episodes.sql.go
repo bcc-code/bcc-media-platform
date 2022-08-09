@@ -15,11 +15,22 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const getEpisodes = `-- name: GetEpisodes :many
+const refreshEpisodeAccessView = `-- name: RefreshEpisodeAccessView :one
+SELECT update_access('episodes_access')
+`
+
+func (q *Queries) RefreshEpisodeAccessView(ctx context.Context) (bool, error) {
+	row := q.db.QueryRowContext(ctx, refreshEpisodeAccessView)
+	var update_access bool
+	err := row.Scan(&update_access)
+	return update_access, err
+}
+
+const getEpisodes = `-- name: getEpisodes :many
 SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups, tag_ids FROM public.episodes_expanded WHERE id = ANY($1::int[])
 `
 
-func (q *Queries) GetEpisodes(ctx context.Context, dollar_1 []int32) ([]EpisodesExpanded, error) {
+func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]EpisodesExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, getEpisodes, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
@@ -59,11 +70,11 @@ func (q *Queries) GetEpisodes(ctx context.Context, dollar_1 []int32) ([]Episodes
 	return items, nil
 }
 
-const getEpisodesForSeasons = `-- name: GetEpisodesForSeasons :many
+const getEpisodesForSeasons = `-- name: getEpisodesForSeasons :many
 SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups, tag_ids FROM public.episodes_expanded WHERE season_id = ANY($1::int[])
 `
 
-func (q *Queries) GetEpisodesForSeasons(ctx context.Context, dollar_1 []int32) ([]EpisodesExpanded, error) {
+func (q *Queries) getEpisodesForSeasons(ctx context.Context, dollar_1 []int32) ([]EpisodesExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, getEpisodesForSeasons, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
@@ -103,14 +114,14 @@ func (q *Queries) GetEpisodesForSeasons(ctx context.Context, dollar_1 []int32) (
 	return items, nil
 }
 
-const getFilesForEpisodes = `-- name: GetFilesForEpisodes :many
+const getFilesForEpisodes = `-- name: getFilesForEpisodes :many
 SELECT e.id AS episodes_id, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated FROM episodes e
 JOIN assets a ON e.asset_id = a.id
 JOIN assetfiles f ON a.id = f.asset_id
 WHERE e.id = ANY($1::int[])
 `
 
-type GetFilesForEpisodesRow struct {
+type getFilesForEpisodesRow struct {
 	EpisodesID         int32                 `db:"episodes_id" json:"episodesID"`
 	AssetID            int32                 `db:"asset_id" json:"assetID"`
 	AudioLanguageID    null_v4.String        `db:"audio_language_id" json:"audioLanguageID"`
@@ -127,15 +138,15 @@ type GetFilesForEpisodesRow struct {
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 }
 
-func (q *Queries) GetFilesForEpisodes(ctx context.Context, dollar_1 []int32) ([]GetFilesForEpisodesRow, error) {
+func (q *Queries) getFilesForEpisodes(ctx context.Context, dollar_1 []int32) ([]getFilesForEpisodesRow, error) {
 	rows, err := q.db.QueryContext(ctx, getFilesForEpisodes, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetFilesForEpisodesRow
+	var items []getFilesForEpisodesRow
 	for rows.Next() {
-		var i GetFilesForEpisodesRow
+		var i getFilesForEpisodesRow
 		if err := rows.Scan(
 			&i.EpisodesID,
 			&i.AssetID,
@@ -165,7 +176,7 @@ func (q *Queries) GetFilesForEpisodes(ctx context.Context, dollar_1 []int32) ([]
 	return items, nil
 }
 
-const getStreamsForEpisodes = `-- name: GetStreamsForEpisodes :many
+const getStreamsForEpisodes = `-- name: getStreamsForEpisodes :many
 WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs FROM episodes e
 	JOIN assets a ON e.asset_id = a.id
 	LEFT JOIN assetstreams s ON a.id = s.asset_id
@@ -186,7 +197,7 @@ LEFT JOIN sublang sl ON sl.id = s.id
 WHERE e.id = ANY($1::int[])
 `
 
-type GetStreamsForEpisodesRow struct {
+type getStreamsForEpisodesRow struct {
 	EpisodesID        int32                 `db:"episodes_id" json:"episodesID"`
 	AssetID           int32                 `db:"asset_id" json:"assetID"`
 	DateCreated       time.Time             `db:"date_created" json:"dateCreated"`
@@ -206,15 +217,15 @@ type GetStreamsForEpisodesRow struct {
 	SubtitleLanguages []string              `db:"subtitle_languages" json:"subtitleLanguages"`
 }
 
-func (q *Queries) GetStreamsForEpisodes(ctx context.Context, dollar_1 []int32) ([]GetStreamsForEpisodesRow, error) {
+func (q *Queries) getStreamsForEpisodes(ctx context.Context, dollar_1 []int32) ([]getStreamsForEpisodesRow, error) {
 	rows, err := q.db.QueryContext(ctx, getStreamsForEpisodes, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetStreamsForEpisodesRow
+	var items []getStreamsForEpisodesRow
 	for rows.Next() {
-		var i GetStreamsForEpisodesRow
+		var i getStreamsForEpisodesRow
 		if err := rows.Scan(
 			&i.EpisodesID,
 			&i.AssetID,
@@ -247,11 +258,11 @@ func (q *Queries) GetStreamsForEpisodes(ctx context.Context, dollar_1 []int32) (
 	return items, nil
 }
 
-const listEpisodes = `-- name: ListEpisodes :many
+const listEpisodes = `-- name: listEpisodes :many
 SELECT id, asset_id, episode_number, image_file_id, season_id, type, title, description, extra_description, published, available_from, available_to, usergroups, download_groups, early_access_groups, tag_ids FROM public.episodes_expanded
 `
 
-func (q *Queries) ListEpisodes(ctx context.Context) ([]EpisodesExpanded, error) {
+func (q *Queries) listEpisodes(ctx context.Context) ([]EpisodesExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, listEpisodes)
 	if err != nil {
 		return nil, err
@@ -289,15 +300,4 @@ func (q *Queries) ListEpisodes(ctx context.Context) ([]EpisodesExpanded, error) 
 		return nil, err
 	}
 	return items, nil
-}
-
-const refreshEpisodeAccessView = `-- name: RefreshEpisodeAccessView :one
-SELECT update_access('episodes_access')
-`
-
-func (q *Queries) RefreshEpisodeAccessView(ctx context.Context) (bool, error) {
-	row := q.db.QueryRowContext(ctx, refreshEpisodeAccessView)
-	var update_access bool
-	err := row.Scan(&update_access)
-	return update_access, err
 }

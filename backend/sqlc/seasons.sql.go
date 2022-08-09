@@ -11,11 +11,22 @@ import (
 	"github.com/lib/pq"
 )
 
-const getSeasons = `-- name: GetSeasons :many
-SELECT id, season_number, image_file_id, show_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM public.seasons_expanded WHERE id = ANY($1::int[])
+const refreshSeasonAccessView = `-- name: RefreshSeasonAccessView :one
+SELECT update_access('seasons_access')
 `
 
-func (q *Queries) GetSeasons(ctx context.Context, dollar_1 []int32) ([]SeasonsExpanded, error) {
+func (q *Queries) RefreshSeasonAccessView(ctx context.Context) (bool, error) {
+	row := q.db.QueryRowContext(ctx, refreshSeasonAccessView)
+	var update_access bool
+	err := row.Scan(&update_access)
+	return update_access, err
+}
+
+const getSeasons = `-- name: getSeasons :many
+SELECT id, season_number, image_file_id, show_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM seasons_expanded WHERE id = ANY($1::int[])
+`
+
+func (q *Queries) getSeasons(ctx context.Context, dollar_1 []int32) ([]SeasonsExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, getSeasons, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
@@ -51,11 +62,11 @@ func (q *Queries) GetSeasons(ctx context.Context, dollar_1 []int32) ([]SeasonsEx
 	return items, nil
 }
 
-const getSeasonsForShows = `-- name: GetSeasonsForShows :many
-SELECT id, season_number, image_file_id, show_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM public.seasons_expanded WHERE show_id = ANY($1::int[])
+const getSeasonsForShows = `-- name: getSeasonsForShows :many
+SELECT id, season_number, image_file_id, show_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM seasons_expanded WHERE show_id = ANY($1::int[])
 `
 
-func (q *Queries) GetSeasonsForShows(ctx context.Context, dollar_1 []int32) ([]SeasonsExpanded, error) {
+func (q *Queries) getSeasonsForShows(ctx context.Context, dollar_1 []int32) ([]SeasonsExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, getSeasonsForShows, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
@@ -91,11 +102,11 @@ func (q *Queries) GetSeasonsForShows(ctx context.Context, dollar_1 []int32) ([]S
 	return items, nil
 }
 
-const listSeasons = `-- name: ListSeasons :many
-SELECT id, season_number, image_file_id, show_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM public.seasons_expanded
+const listSeasons = `-- name: listSeasons :many
+SELECT id, season_number, image_file_id, show_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM seasons_expanded
 `
 
-func (q *Queries) ListSeasons(ctx context.Context) ([]SeasonsExpanded, error) {
+func (q *Queries) listSeasons(ctx context.Context) ([]SeasonsExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, listSeasons)
 	if err != nil {
 		return nil, err
@@ -129,15 +140,4 @@ func (q *Queries) ListSeasons(ctx context.Context) ([]SeasonsExpanded, error) {
 		return nil, err
 	}
 	return items, nil
-}
-
-const refreshSeasonAccessView = `-- name: RefreshSeasonAccessView :one
-SELECT update_access('seasons_access')
-`
-
-func (q *Queries) RefreshSeasonAccessView(ctx context.Context) (bool, error) {
-	row := q.db.QueryRowContext(ctx, refreshSeasonAccessView)
-	var update_access bool
-	err := row.Scan(&update_access)
-	return update_access, err
 }

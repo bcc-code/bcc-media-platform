@@ -100,8 +100,8 @@ func main() {
 		EpisodeLoader:           episode.NewBatchLoader(*queries),
 		SeasonsLoader:           season.NewListBatchLoader(*queries),
 		EpisodesLoader:          episode.NewListBatchLoader(*queries),
-		FilesLoader:             asset.NewBatchFileLoader(*queries),
-		StreamsLoader:           asset.NewBatchStreamLoader(*queries),
+		FilesLoader:             asset.NewBatchFilesLoader(*queries),
+		StreamsLoader:           asset.NewBatchStreamsLoader(*queries),
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")

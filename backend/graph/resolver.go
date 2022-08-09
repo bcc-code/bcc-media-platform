@@ -33,20 +33,20 @@ type Resolver struct {
 
 // BatchLoaders is a collection of GQL dataloaders
 type BatchLoaders struct {
-	PageLoader              *dataloader.Loader[int, *sqlc.PageExpanded]
-	PageLoaderByCode        *dataloader.Loader[string, *sqlc.PageExpanded]
-	SectionLoader           *dataloader.Loader[int, *sqlc.SectionExpanded]
-	SectionsLoader          *dataloader.Loader[int, []*sqlc.SectionExpanded]
-	CollectionLoader        *dataloader.Loader[int, *sqlc.Collection]
+	PageLoader              *dataloader.Loader[int, *common.Page]
+	PageLoaderByCode        *dataloader.Loader[string, *common.Page]
+	SectionLoader           *dataloader.Loader[int, *common.Section]
+	SectionsLoader          *dataloader.Loader[int, []*common.Section]
+	CollectionLoader        *dataloader.Loader[int, *common.Collection]
 	CollectionItemIdsLoader *dataloader.Loader[int, []int]
-	CollectionItemLoader    *dataloader.Loader[int, []*sqlc.CollectionItem]
-	ShowLoader              *dataloader.Loader[int, *sqlc.ShowExpanded]
-	SeasonLoader            *dataloader.Loader[int, *sqlc.SeasonExpanded]
-	EpisodeLoader           *dataloader.Loader[int, *sqlc.EpisodeExpanded]
-	SeasonsLoader           *dataloader.Loader[int, []*sqlc.SeasonExpanded]
-	EpisodesLoader          *dataloader.Loader[int, []*sqlc.EpisodeExpanded]
-	FilesLoader             *dataloader.Loader[int, []*sqlc.GetFilesForEpisodesRow]
-	StreamsLoader           *dataloader.Loader[int, []*sqlc.GetStreamsForEpisodesRow]
+	CollectionItemLoader    *dataloader.Loader[int, []*common.CollectionItem]
+	ShowLoader              *dataloader.Loader[int, *common.Show]
+	SeasonLoader            *dataloader.Loader[int, *common.Season]
+	EpisodeLoader           *dataloader.Loader[int, *common.Episode]
+	SeasonsLoader           *dataloader.Loader[int, []*common.Season]
+	EpisodesLoader          *dataloader.Loader[int, []*common.Episode]
+	FilesLoader             *dataloader.Loader[int, []*common.File]
+	StreamsLoader           *dataloader.Loader[int, []*common.Stream]
 }
 
 type restrictedItem interface {
