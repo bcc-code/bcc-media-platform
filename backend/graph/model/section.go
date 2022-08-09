@@ -2,37 +2,23 @@ package gqlmodel
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"strconv"
 )
 
-// SectionFromSQL converts sqlc.SectionExpanded to Section
-func SectionFromSQL(ctx context.Context, item *sqlc.SectionExpanded) Section {
-	title := common.LocaleString{}
-	description := common.LocaleString{}
-
-	if item.Title.Valid {
-		_ = json.Unmarshal(item.Title.RawMessage, &title)
-	}
-	if item.Description.Valid {
-		_ = json.Unmarshal(item.Description.RawMessage, &description)
-	}
-
+// SectionFrom converts common.Page to Section
+func SectionFrom(ctx context.Context, s *common.Section) Section {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
-	id := strconv.Itoa(int(item.ID))
-
 	return &ItemSection{
-		ID:    id,
-		Title: title.Get(languages),
-		Type:  ItemSectionType(item.Style.ValueOrZero()),
+		ID:    strconv.Itoa(s.ID),
+		Title: s.Title.Get(languages),
+		Type:  ItemSectionType(s.Style),
 		Page: &Page{
-			ID: strconv.Itoa(int(item.PageID.ValueOrZero())),
+			ID: strconv.Itoa(s.PageID),
 		},
 	}
 }

@@ -11,11 +11,22 @@ import (
 	"github.com/lib/pq"
 )
 
-const getShows = `-- name: GetShows :many
-SELECT id, image_file_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM public.shows_expanded WHERE id = ANY($1::int[])
+const refreshShowAccessView = `-- name: RefreshShowAccessView :one
+SELECT update_access('shows_access')
 `
 
-func (q *Queries) GetShows(ctx context.Context, dollar_1 []int32) ([]ShowsExpanded, error) {
+func (q *Queries) RefreshShowAccessView(ctx context.Context) (bool, error) {
+	row := q.db.QueryRowContext(ctx, refreshShowAccessView)
+	var update_access bool
+	err := row.Scan(&update_access)
+	return update_access, err
+}
+
+const getShows = `-- name: getShows :many
+SELECT id, image_file_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM shows_expanded WHERE id = ANY($1::int[])
+`
+
+func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]ShowsExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, getShows, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
@@ -49,11 +60,11 @@ func (q *Queries) GetShows(ctx context.Context, dollar_1 []int32) ([]ShowsExpand
 	return items, nil
 }
 
-const listShows = `-- name: ListShows :many
-SELECT id, image_file_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM public.shows_expanded
+const listShows = `-- name: listShows :many
+SELECT id, image_file_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM shows_expanded
 `
 
-func (q *Queries) ListShows(ctx context.Context) ([]ShowsExpanded, error) {
+func (q *Queries) listShows(ctx context.Context) ([]ShowsExpanded, error) {
 	rows, err := q.db.QueryContext(ctx, listShows)
 	if err != nil {
 		return nil, err
@@ -85,15 +96,4 @@ func (q *Queries) ListShows(ctx context.Context) ([]ShowsExpanded, error) {
 		return nil, err
 	}
 	return items, nil
-}
-
-const refreshShowAccessView = `-- name: RefreshShowAccessView :one
-SELECT update_access('shows_access')
-`
-
-func (q *Queries) RefreshShowAccessView(ctx context.Context) (bool, error) {
-	row := q.db.QueryRowContext(ctx, refreshShowAccessView)
-	var update_access bool
-	err := row.Scan(&update_access)
-	return update_access, err
 }

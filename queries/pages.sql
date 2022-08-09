@@ -21,7 +21,7 @@ SELECT p.id,
        p.collection,
        t.title,
        t.description,
-       r.roles
+       r.roles::character varying[] as roles
 FROM pages p
          LEFT JOIN t ON t.pages_id = p.id
          LEFT JOIN r ON r.page_id = p.id
@@ -50,7 +50,7 @@ SELECT p.id,
        p.collection,
        t.title,
        t.description,
-       r.roles
+       r.roles::character varying[] as roles
 FROM pages p
          LEFT JOIN t ON t.pages_id = p.id
          LEFT JOIN r ON r.page_id = p.id;
@@ -78,7 +78,7 @@ SELECT p.id,
        p.collection,
        t.title,
        t.description,
-       r.roles
+       r.roles::character varying[] as roles
 FROM pages p
          LEFT JOIN t ON t.pages_id = p.id
          LEFT JOIN r ON r.page_id = p.id

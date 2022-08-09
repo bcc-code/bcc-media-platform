@@ -6,7 +6,6 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
@@ -81,7 +80,7 @@ func (service *Service) Reindex(ctx context.Context) error {
 }
 
 func (service *Service) indexShows(ctx context.Context) error {
-	return indexCollection[int, sqlc.ShowExpanded](
+	return indexCollection[int, common.Show](
 		ctx,
 		service,
 		service.loaders.ShowLoader,
@@ -95,11 +94,11 @@ func (service *Service) indexShow(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	return indexObject[int, sqlc.ShowExpanded](ctx, service, *i, service.showToSearchItem)
+	return indexObject[int, common.Show](ctx, service, *i, service.showToSearchItem)
 }
 
 func (service *Service) indexSeasons(ctx context.Context) error {
-	return indexCollection[int, sqlc.SeasonExpanded](
+	return indexCollection[int, common.Season](
 		ctx,
 		service,
 		service.loaders.SeasonLoader,
@@ -113,11 +112,11 @@ func (service *Service) indexSeason(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	return indexObject[int, sqlc.SeasonExpanded](ctx, service, *i, service.seasonToSearchItem)
+	return indexObject[int, common.Season](ctx, service, *i, service.seasonToSearchItem)
 }
 
 func (service *Service) indexEpisodes(ctx context.Context) error {
-	return indexCollection[int, sqlc.EpisodeExpanded](
+	return indexCollection[int, common.Episode](
 		ctx,
 		service,
 		service.loaders.EpisodeLoader,
@@ -131,7 +130,7 @@ func (service *Service) indexEpisode(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	return indexObject[int, sqlc.EpisodeExpanded](ctx, service, *i, service.episodeToSearchItem)
+	return indexObject[int, common.Episode](ctx, service, *i, service.episodeToSearchItem)
 }
 
 type indexable[k comparable] interface {

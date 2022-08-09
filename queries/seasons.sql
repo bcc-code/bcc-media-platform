@@ -1,11 +1,11 @@
--- name: ListSeasons :many
-SELECT * FROM public.seasons_expanded;
+-- name: getSeasons :many
+SELECT * FROM seasons_expanded WHERE id = ANY($1::int[]);
 
--- name: GetSeasons :many
-SELECT * FROM public.seasons_expanded WHERE id = ANY($1::int[]);
+-- name: getSeasonsForShows :many
+SELECT * FROM seasons_expanded WHERE show_id = ANY($1::int[]);
 
--- name: GetSeasonsForShows :many
-SELECT * FROM public.seasons_expanded WHERE show_id = ANY($1::int[]);
+-- name: listSeasons :many
+SELECT * FROM seasons_expanded;
 
 -- name: RefreshSeasonAccessView :one
 SELECT update_access('seasons_access');

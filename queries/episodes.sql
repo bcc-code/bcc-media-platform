@@ -1,19 +1,19 @@
--- name: ListEpisodes :many
+-- name: listEpisodes :many
 SELECT * FROM public.episodes_expanded;
 
--- name: GetEpisodes :many
+-- name: getEpisodes :many
 SELECT * FROM public.episodes_expanded WHERE id = ANY($1::int[]);
 
--- name: GetEpisodesForSeasons :many
+-- name: getEpisodesForSeasons :many
 SELECT * FROM public.episodes_expanded WHERE season_id = ANY($1::int[]);
 
--- name: GetFilesForEpisodes :many
+-- name: getFilesForEpisodes :many
 SELECT e.id AS episodes_id, f.* FROM episodes e
 JOIN assets a ON e.asset_id = a.id
 JOIN assetfiles f ON a.id = f.asset_id
 WHERE e.id = ANY($1::int[]);
 
--- name: GetStreamsForEpisodes :many
+-- name: getStreamsForEpisodes :many
 WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs FROM episodes e
 	JOIN assets a ON e.asset_id = a.id
 	LEFT JOIN assetstreams s ON a.id = s.asset_id
