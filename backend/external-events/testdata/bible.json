@@ -1,0 +1,11 @@
+{
+	"timestamp": "2009-11-11T08:00:00+09:00",
+	"source": "some-system",
+	"type": "bibleverse",
+	"data": {
+		"edition": "NKJV",
+		"verse": "Psa 1/2-3",
+		"text": "I begynnelsen skapte Gud himmelen og jorden. Og jorden var øde og tom, og det var mørke over det store dyp, og Guds Ånd svevde over vannene. Da sa Gud: Det bli lys! Og det blev lys.",
+		"readBy": "Max Mustermann"
+	}
+}
