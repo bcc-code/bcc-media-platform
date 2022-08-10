@@ -20,7 +20,7 @@ const endpointConfig: EndpointConfig = {
         router.get("/:id", (req, res) => {
             const userId = getUserId(req)
             if (userId == null) {
-                res.send("Unauthorized")
+                res.status(401).send("Unauthenticated")
                 return
             }
             

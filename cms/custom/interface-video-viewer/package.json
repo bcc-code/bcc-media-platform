@@ -20,5 +20,8 @@
 		"@directus/extensions-sdk": "9.15.1",
 		"typescript": "^4.7.4",
 		"vue": "^3.2.37"
+	},
+	"dependencies": {
+		"media-chrome": "^0.9.0"
 	}
 }
