@@ -7,6 +7,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
@@ -25,6 +26,8 @@ import (
 	"github.com/rs/zerolog"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
+	"net/http"
+	"strconv"
 )
 
 // Defining the Graphql handler
@@ -52,6 +55,26 @@ func playgroundHandler() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func previewCollectionHandler(loaders *graph.BatchLoaders) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		//TODO: authentication & authorization
+		collectionId := c.Param("id")
+		intID, err := strconv.ParseInt(collectionId, 10, 32)
+		if err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		loaders.CollectionItemLoader.Clear(c, int(intID))
+		loaders.CollectionItemIdsLoader.Clear(c, int(intID))
+		items, err := common.GetFromLoaderForKey(c, loaders.CollectionItemLoader, int(intID))
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		c.JSON(200, items)
 	}
 }
 
@@ -115,6 +138,9 @@ func main() {
 	r.POST("/query", graphqlHandler(queries, loaders, searchService, config))
 
 	r.GET("/", playgroundHandler())
+
+	preview := r.Group("/preview")
+	preview.GET("collection/:id", previewCollectionHandler(loaders))
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
