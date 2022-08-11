@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/asset"
@@ -70,11 +71,42 @@ func previewCollectionHandler(loaders *graph.BatchLoaders) gin.HandlerFunc {
 		loaders.CollectionItemLoader.Clear(c, int(intID))
 		loaders.CollectionItemIdsLoader.Clear(c, int(intID))
 		items, err := common.GetFromLoaderForKey(c, loaders.CollectionItemLoader, int(intID))
+
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		c.JSON(200, items)
+		var result []map[string]any
+
+		for index, i := range items {
+			if index >= 20 {
+				break
+			}
+			var item any
+			switch i.Type {
+			case "page":
+				item, err = common.GetFromLoaderByID(c, loaders.PageLoader, i.ItemID)
+			case "show":
+				item, err = common.GetFromLoaderByID(c, loaders.ShowLoader, i.ItemID)
+			case "season":
+				item, err = common.GetFromLoaderByID(c, loaders.SeasonLoader, i.ItemID)
+			case "episode":
+				item, err = common.GetFromLoaderByID(c, loaders.EpisodeLoader, i.ItemID)
+			}
+			if err != nil {
+				c.AbortWithStatus(http.StatusInternalServerError)
+				return
+			}
+
+			stringed, _ := json.Marshal(item)
+			var mapped map[string]any
+			_ = json.Unmarshal(stringed, &mapped)
+			mapped["type"] = i.Type
+
+			result = append(result, mapped)
+		}
+
+		c.JSON(200, result)
 	}
 }
 
