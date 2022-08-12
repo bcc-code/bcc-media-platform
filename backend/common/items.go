@@ -40,6 +40,11 @@ func (i Show) GetImage() uuid.NullUUID {
 	return i.ImageID
 }
 
+// IsCollectionItem declares that this implements CollectionItem interfaces
+func (i Show) IsCollectionItem() {
+
+}
+
 // Season is the definition of the Season object
 type Season struct {
 	ID           int           `json:"id"`
@@ -70,6 +75,11 @@ func (i Season) GetAvailability() Availability {
 // GetImage returns id of attached image
 func (i Season) GetImage() uuid.NullUUID {
 	return i.ImageID
+}
+
+// IsCollectionItem declares that this implements CollectionItem interfaces
+func (i Season) IsCollectionItem() {
+
 }
 
 // Episode is the definition of the Episode object
@@ -110,6 +120,11 @@ func (i Episode) GetImage() uuid.NullUUID {
 // GetTagIDs returns ids of related tags
 func (i Episode) GetTagIDs() []int {
 	return i.TagIDs
+}
+
+// IsCollectionItem declares that this implements CollectionItem interfaces
+func (i Episode) IsCollectionItem() {
+
 }
 
 // File item type
@@ -162,6 +177,11 @@ func (i Page) GetAvailability() Availability {
 // GetRoles returns roles for this item
 func (i Page) GetRoles() Roles {
 	return i.Roles
+}
+
+// IsCollectionItem declares that this implements CollectionItem interfaces
+func (i Page) IsCollectionItem() {
+
 }
 
 // Section is the definition of the Section object

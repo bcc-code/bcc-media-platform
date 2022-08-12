@@ -27,7 +27,7 @@
 		</div>
 	</div>
 	<div v-else>
-		<VButton @click="clearGroup()">Create filter</VButton>
+		<v-button @click="clearGroup()">Create filter</v-button>
 	</div>
 </template>
 
@@ -36,7 +36,6 @@ import { v4 as uuid } from "uuid";
 import { snakeToPascal, Field as TField, Root } from ".";
 import Group from "./Group.vue";
 import { ref } from "vue";
-import VButton from "./VButton.vue";
 
 const props = defineProps<{
     value: Root | null;

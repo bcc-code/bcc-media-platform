@@ -31,14 +31,13 @@
             </div>
         </div>
         <div style="display: inline-block; float: right">
-            <VButton @click="$emit('delete')">Delete</VButton>
+            <v-button @click="$emit('delete')">Delete</v-button>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import { Field, Filter as TFilter, filterOperators, Variable } from '.';
-import VButton from "./VButton.vue";
 import FieldSelector from './FieldSelector.vue';
 
 const props = defineProps<{ value: TFilter, fields: Field[] }>();

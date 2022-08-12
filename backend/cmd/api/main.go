@@ -8,7 +8,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
-	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
@@ -28,7 +27,9 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
 	"net/http"
+	"reflect"
 	"strconv"
+	"strings"
 )
 
 // Defining the Graphql handler
@@ -70,38 +71,28 @@ func previewCollectionHandler(loaders *graph.BatchLoaders) gin.HandlerFunc {
 		}
 		loaders.CollectionItemLoader.Clear(c, int(intID))
 		loaders.CollectionItemIdsLoader.Clear(c, int(intID))
-		items, err := common.GetFromLoaderForKey(c, loaders.CollectionItemLoader, int(intID))
-
+		items, err := collection.GetCollectionItems(c, loaders, int(intID))
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		var result []map[string]any
 
-		for index, i := range items {
+		for index, item := range items {
 			if index >= 20 {
 				break
-			}
-			var item any
-			switch i.Type {
-			case "page":
-				item, err = common.GetFromLoaderByID(c, loaders.PageLoader, i.ItemID)
-			case "show":
-				item, err = common.GetFromLoaderByID(c, loaders.ShowLoader, i.ItemID)
-			case "season":
-				item, err = common.GetFromLoaderByID(c, loaders.SeasonLoader, i.ItemID)
-			case "episode":
-				item, err = common.GetFromLoaderByID(c, loaders.EpisodeLoader, i.ItemID)
 			}
 			if err != nil {
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
 
+			t := reflect.TypeOf(item).Elem().Name()
+
 			stringed, _ := json.Marshal(item)
 			var mapped map[string]any
 			_ = json.Unmarshal(stringed, &mapped)
-			mapped["type"] = i.Type
+			mapped["type"] = strings.ToLower(t)
 
 			result = append(result, mapped)
 		}
