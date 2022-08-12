@@ -12,6 +12,7 @@ import (
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
+	"github.com/lib/pq"
 	"github.com/samber/lo"
 )
 
@@ -81,10 +82,27 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 					if f.Filter == nil {
 						resMap[r.ID] = nil
 					}
+
 					var filterObject map[string]any
 					_ = json.Unmarshal(f.Filter, &filterObject)
 					filterString := jsonlogic.GetSQLStringFromFilter(filterObject)
-					rows, err := db.Query("SELECT id FROM " + r.Collection.ValueOrZero() + " WHERE " + filterString)
+
+					var orderByString string
+					if f.SortBy != "" {
+						orderByString = " ORDER BY " + pq.QuoteIdentifier(f.SortBy)
+					}
+					if orderByString != "" && f.SortByDirection != "" {
+						switch f.SortByDirection {
+						case "desc":
+							orderByString += " DESC"
+						case "asc":
+							orderByString += " ASC"
+						}
+					}
+
+					queryString := "SELECT id FROM " + r.Collection.ValueOrZero() + " WHERE " + filterString + orderByString
+
+					rows, err := db.Query(queryString)
 					if err != nil {
 						log.L.Error().Err(err).
 							Str("collection", r.Collection.ValueOrZero()).
@@ -113,18 +131,17 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 	return dataloader.NewBatchedLoader(batchLoader)
 }
 
-// CollectionItem interface
-type CollectionItem interface {
+type item interface {
 	IsCollectionItem()
 }
 
-func toCollectionItemArray[t CollectionItem](items []t) []CollectionItem {
-	return lo.Map(items, func(i t, _ int) CollectionItem {
+func toCollectionItemArray[t item](items []t) []item {
+	return lo.Map(items, func(i t, _ int) item {
 		return i
 	})
 }
 
-func getItemsForQueryCollection(ctx context.Context, loaders *graph.BatchLoaders, id int, collection string) ([]CollectionItem, error) {
+func getItemsForQueryCollection(ctx context.Context, loaders *graph.BatchLoaders, id int, collection string) ([]item, error) {
 	itemIds, err := loaders.CollectionItemIdsLoader.Load(ctx, id)()
 	if err != nil {
 		return nil, err
@@ -186,13 +203,13 @@ func iterateAndPreloadCollectionItems(ctx context.Context, loaders *graph.BatchL
 	preloadIds(ctx, loaders, idMap)
 }
 
-func getItemsForSelectCollection(ctx context.Context, loaders *graph.BatchLoaders, id int) ([]CollectionItem, error) {
+func getItemsForSelectCollection(ctx context.Context, loaders *graph.BatchLoaders, id int) ([]item, error) {
 	items, err := common.GetFromLoaderForKey(ctx, loaders.CollectionItemLoader, id)
 	if err != nil {
 		return nil, err
 	}
 	iterateAndPreloadCollectionItems(ctx, loaders, items)
-	var result []CollectionItem
+	var result []item
 	for _, item := range items {
 		switch item.Type {
 		case "page":
@@ -225,7 +242,7 @@ func getItemsForSelectCollection(ctx context.Context, loaders *graph.BatchLoader
 }
 
 // GetCollectionItems returns collection items
-func GetCollectionItems(ctx context.Context, loaders *graph.BatchLoaders, collectionId int) ([]CollectionItem, error) {
+func GetCollectionItems(ctx context.Context, loaders *graph.BatchLoaders, collectionId int) ([]item, error) {
 	col, err := common.GetFromLoaderByID(ctx, loaders.CollectionLoader, collectionId)
 	if err != nil {
 		return nil, err
