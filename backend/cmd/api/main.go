@@ -8,6 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
@@ -33,7 +34,7 @@ import (
 )
 
 // Defining the Graphql handler
-func graphqlHandler(queries *sqlc.Queries, loaders *graph.BatchLoaders, searchService *search.Service, config envConfig) gin.HandlerFunc {
+func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, config envConfig) gin.HandlerFunc {
 
 	resolver := graph.Resolver{
 		Queries:       queries,
@@ -60,7 +61,7 @@ func playgroundHandler() gin.HandlerFunc {
 	}
 }
 
-func previewCollectionHandler(loaders *graph.BatchLoaders) gin.HandlerFunc {
+func previewCollectionHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//TODO: authentication & authorization
 		collectionId := c.Param("id")
@@ -134,7 +135,7 @@ func main() {
 
 	collectionLoader := collection.NewBatchLoader(*queries)
 
-	loaders := &graph.BatchLoaders{
+	loaders := &common.BatchLoaders{
 		PageLoader:              page.NewBatchLoader(*queries),
 		PageLoaderByCode:        page.NewCodeBatchLoader(*queries),
 		SectionLoader:           section.NewBatchLoader(*queries),

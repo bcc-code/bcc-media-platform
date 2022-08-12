@@ -7,6 +7,24 @@ import (
 	"time"
 )
 
+// BatchLoaders contains loaders for the different items
+type BatchLoaders struct {
+	PageLoader              *dataloader.Loader[int, *Page]
+	PageLoaderByCode        *dataloader.Loader[string, *Page]
+	SectionLoader           *dataloader.Loader[int, *Section]
+	SectionsLoader          *dataloader.Loader[int, []*Section]
+	CollectionLoader        *dataloader.Loader[int, *Collection]
+	CollectionItemIdsLoader *dataloader.Loader[int, []int]
+	CollectionItemLoader    *dataloader.Loader[int, []*CollectionItem]
+	ShowLoader              *dataloader.Loader[int, *Show]
+	SeasonLoader            *dataloader.Loader[int, *Season]
+	EpisodeLoader           *dataloader.Loader[int, *Episode]
+	SeasonsLoader           *dataloader.Loader[int, []*Season]
+	EpisodesLoader          *dataloader.Loader[int, []*Episode]
+	FilesLoader             *dataloader.Loader[int, []*File]
+	StreamsLoader           *dataloader.Loader[int, []*Stream]
+}
+
 // NewListBatchLoader returns a configured batch loader for Lists
 func NewListBatchLoader[k comparable, t any](
 	factory func(ctx context.Context, ids []k) ([]t, error),
