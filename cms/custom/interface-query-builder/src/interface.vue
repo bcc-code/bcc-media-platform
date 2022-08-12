@@ -45,7 +45,7 @@ const previewFactory = async () => {
 	const views = [] as Item[];
 	let total = 0;
 	for (const item of r.data) {
-		if (total >= 10) {
+		if (total >= 20) {
 			continue;
 		}
 		total++;

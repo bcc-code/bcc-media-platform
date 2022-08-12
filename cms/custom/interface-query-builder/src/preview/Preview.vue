@@ -24,6 +24,5 @@ const items = ref([] as Item[])
 
 const reload = async () => {
     items.value = await props.factory();
-    console.log(items.value);
 }
 </script>
