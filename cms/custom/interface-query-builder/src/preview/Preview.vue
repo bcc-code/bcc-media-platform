@@ -1,6 +1,8 @@
 <template>
     <div>
-        <v-button @click="reload">Preview</v-button>
+        <label>Save before previewing</label>
+        <v-button :loading="loading" @click="reload">Preview</v-button>
+        <hr style="margin-top:10px"/>
         <div>
             <div v-for="i in items">
                 <span>{{i.type}}</span>
@@ -21,8 +23,11 @@ const props = defineProps<{
 }>()
 
 const items = ref([] as Item[])
+const loading = ref(false)
 
 const reload = async () => {
+    loading.value = true;
     items.value = await props.factory();
+    loading.value = false;
 }
 </script>

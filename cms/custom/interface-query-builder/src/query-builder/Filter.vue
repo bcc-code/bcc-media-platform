@@ -22,7 +22,7 @@
                 </div>
                 <div>
                     <h3>Value</h3>
-                    <input 
+                    <v-input 
                         :type="fieldType" 
                         v-model="selectedValue" 
                         @change="update"

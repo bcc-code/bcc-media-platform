@@ -69,6 +69,7 @@ func previewCollectionHandler(loaders *graph.BatchLoaders) gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
+		loaders.CollectionLoader.Clear(c, int(intID))
 		loaders.CollectionItemLoader.Clear(c, int(intID))
 		loaders.CollectionItemIdsLoader.Clear(c, int(intID))
 		items, err := collection.GetCollectionItems(c, loaders, int(intID))
