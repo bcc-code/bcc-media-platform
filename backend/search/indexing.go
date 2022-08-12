@@ -2,6 +2,9 @@ package search
 
 import (
 	"context"
+	"strconv"
+	"strings"
+
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/ansel1/merry/v2"
@@ -10,8 +13,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
-	"strconv"
-	"strings"
 )
 
 // Reindex every supported collection
@@ -196,7 +197,7 @@ func indexObject[k comparable, t indexable[k]](
 }
 
 // DeleteModel from index by collection and id
-func (service *Service) DeleteModel(collection string, id int) error {
+func (service *Service) DeleteModel(_ context.Context, collection string, id int) error {
 	_, err := service.index.DeleteObject(collection + "-" + strconv.Itoa(id))
 	return err
 }
