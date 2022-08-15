@@ -1,10 +1,12 @@
 package server
 
 import (
+	"io/ioutil"
 	"net/http"
 	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
+	externalevents "github.com/bcc-code/brunstadtv/backend/external-events"
 
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
@@ -93,9 +95,9 @@ func (s server) ProcessMessage(c *gin.Context) {
 			log.L.Debug().Str("MsgId", e.ID()).Msg("ignoring processed message")
 			c.Status(http.StatusOK)
 			return
-		} else {
-			messageCache.Set(e.ID(), true, cache.WithExpiration(time.Minute*5))
 		}
+
+		messageCache.Set(e.ID(), true, cache.WithExpiration(time.Minute*5))
 	}
 
 	switch e.Type() {
@@ -121,4 +123,21 @@ func (s server) ProcessMessage(c *gin.Context) {
 		c.Status(http.StatusOK)
 		return
 	}
+}
+
+func (s server) IngestEventMeta(c *gin.Context) {
+	jsonData, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		c.Error(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+	}
+
+	event, err := externalevents.ParseEvent(jsonData)
+	if err != nil {
+		c.Error(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+	}
+
+	// TODO: Do something wiht the data :D.
+	log.L.Debug().Str("eventType", event.Type.S()).Msg("Got new event Meta")
 }

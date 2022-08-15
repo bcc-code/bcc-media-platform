@@ -102,6 +102,7 @@ func main() {
 	apiGroup := router.Group("api")
 	{
 		apiGroup.POST("message", handlers.ProcessMessage)
+		apiGroup.POST("eventmeta", handlers.IngestEventMeta) // TODO: Protect the endpoint with a simple api key or soimething
 	}
 
 	span.End()
