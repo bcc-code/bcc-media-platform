@@ -267,6 +267,7 @@ type User {
 
 interface SearchResultItem {
   id: ID!
+  legacyID: ID
   collection: String!
   title: String!
   header: String
@@ -278,6 +279,7 @@ interface SearchResultItem {
 
 type EpisodeSearchItem implements SearchResultItem {
   id: ID!
+  legacyID: ID
   collection: String!
   title: String!
   header: String
@@ -295,6 +297,7 @@ type EpisodeSearchItem implements SearchResultItem {
 
 type SeasonSearchItem implements SearchResultItem {
   id: ID!
+  legacyID: ID
   collection: String!
   title: String!
   header: String
@@ -309,6 +312,7 @@ type SeasonSearchItem implements SearchResultItem {
 
 type ShowSearchItem implements SearchResultItem {
   id: ID!
+  legacyID: ID
   collection: String!
   title: String!
   header: String
