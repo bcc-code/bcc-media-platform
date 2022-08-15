@@ -36,7 +36,9 @@ const endpointConfig: EndpointConfig = {
                 console.log("Couldn't fetch data from API")
             }
 
-            res.send("")
+            res.status(500).send(JSON.stringify({
+                error: "Couldn't fetch data from API"
+            }))
         })
     }
 }
