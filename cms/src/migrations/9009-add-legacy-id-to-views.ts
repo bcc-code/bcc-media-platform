@@ -93,15 +93,12 @@ FROM shows sh
 `
 
 module.exports = {
-async up(k : Knex) {
-await k.raw(episodes_expanded_sql)
-await k.raw(seasons_expanded_sql)
-await k.raw(shows_expanded_sql)
-},
+    async up(k : Knex) {
+        await k.raw(episodes_expanded_sql)
+        await k.raw(seasons_expanded_sql)
+        await k.raw(shows_expanded_sql)
+    },
 
-async down(k : Knex) {
-await k.raw(`DROP VIEW episodes_expanded`)
-await k.raw(`DROP VIEW seasons_expanded`)
-await k.raw(`DROP VIEW shows_expanded`)
-}
+    async down(k : Knex) {
+    }
 }
