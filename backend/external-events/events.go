@@ -23,10 +23,10 @@ type Event struct {
 	Source     string
 	Type       EventType
 	Data       json.RawMessage
-	BibleData  *BibleEvent
-	SongData   *SongEvent
-	SpeechData *SpeechEvent
-	TextData   *TextEvent
+	BibleData  *BibleEvent  `json:"-"`
+	SongData   *SongEvent   `json:"-"`
+	SpeechData *SpeechEvent `json:"-"`
+	TextData   *TextEvent   `json:"-"`
 }
 
 // EventType is the type of the event.
@@ -98,20 +98,20 @@ func ParseEvent(data []byte) (*Event, error) {
 		return nil, merry.Wrap(err)
 	}
 
-	if e.Type == TypeSong {
+	switch e.Type {
+	case TypeSong:
 		s := &SongEvent{}
 		err = json.Unmarshal(e.Data, s)
 		e.SongData = s
-	} else if e.Type == TypeSpeech {
+	case TypeSpeech:
 		s := &SpeechEvent{}
 		err = json.Unmarshal(e.Data, s)
-
 		e.SpeechData = s
-	} else if e.Type == TypeBibleVerse {
+	case TypeBibleVerse:
 		s := &BibleEvent{}
 		err = json.Unmarshal(e.Data, s)
 		e.BibleData = s
-	} else if e.Type == TypeText {
+	case TypeText:
 		s := &TextEvent{}
 		err = json.Unmarshal(e.Data, s)
 		e.TextData = s
