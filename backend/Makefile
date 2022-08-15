@@ -10,4 +10,5 @@ install-dep-macos:
 	brew install sqlc
 
 gql:
-	gqlgen
+	cd graph && gqlgen
+	cd graphadmin && gqlgen

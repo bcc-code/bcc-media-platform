@@ -204,16 +204,23 @@ func (i Section) GetKey() int {
 
 // Collection is the definition of the Collection object
 type Collection struct {
-	ID         int              `json:"id"`
-	Name       string           `json:"name"`
-	Type       string           `json:"type"`
-	Collection null.String      `json:"collection"`
-	Filter     *json.RawMessage `json:"filter"`
+	ID         int         `json:"id"`
+	Name       string      `json:"name"`
+	Type       string      `json:"type"`
+	Collection null.String `json:"collection"`
+	Filter     *Filter     `json:"filter"`
 }
 
 // GetKey returns the key for this item
 func (i Collection) GetKey() int {
 	return i.ID
+}
+
+// Filter struct contains filter data
+type Filter struct {
+	Filter          json.RawMessage
+	SortBy          string
+	SortByDirection string
 }
 
 // CollectionItem is the definition of the CollectionItem object

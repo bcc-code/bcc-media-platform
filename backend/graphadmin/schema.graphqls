@@ -1,0 +1,23 @@
+directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
+    | FIELD_DEFINITION
+
+type Preview {
+    collection(collection: String!, filter: String!): PreviewCollection! @goField(forceResolver: true)
+}
+
+type PreviewCollection {
+    items: [CollectionItem!]!
+}
+
+type CollectionItem {
+    id: ID!
+    title: String!
+}
+
+schema{
+    query: QueryRoot
+}
+
+type QueryRoot {
+    preview: Preview!
+}

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/asset"
@@ -11,6 +10,8 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
+	gqladmin "github.com/bcc-code/brunstadtv/backend/graphadmin"
+	gqladmingenerated "github.com/bcc-code/brunstadtv/backend/graphadmin/generated"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/items/episode"
 	"github.com/bcc-code/brunstadtv/backend/items/page"
@@ -27,10 +28,6 @@ import (
 	"github.com/rs/zerolog"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
-	"net/http"
-	"reflect"
-	"strconv"
-	"strings"
 )
 
 // Defining the Graphql handler
@@ -52,54 +49,29 @@ func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchS
 	}
 }
 
-// Defining the Playground handler
-func playgroundHandler() gin.HandlerFunc {
-	h := playground.Handler("GraphQL", "/query")
+func adminGraphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders) gin.HandlerFunc {
+
+	resolver := gqladmin.Resolver{
+		DB:      db,
+		Queries: queries,
+		Loaders: loaders,
+	}
+
+	// NewExecutableSchema and Config are in the generated.go file
+	// Resolver is in the resolver.go file
+	h := handler.NewDefaultServer(gqladmingenerated.NewExecutableSchema(gqladmingenerated.Config{Resolvers: &resolver}))
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
 	}
 }
 
-func previewCollectionHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
+// Defining the Playground handler
+func playgroundHandler() gin.HandlerFunc {
+	h := playground.Handler("GraphQL", "/query")
+
 	return func(c *gin.Context) {
-		//TODO: authentication & authorization
-		collectionId := c.Param("id")
-		intID, err := strconv.ParseInt(collectionId, 10, 32)
-		if err != nil {
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
-		}
-		loaders.CollectionLoader.Clear(c, int(intID))
-		loaders.CollectionItemLoader.Clear(c, int(intID))
-		loaders.CollectionItemIdsLoader.Clear(c, int(intID))
-		items, err := collection.GetCollectionItems(c, loaders, int(intID))
-		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
-		}
-		var result []map[string]any
-
-		for index, item := range items {
-			if index >= 20 {
-				break
-			}
-			if err != nil {
-				c.AbortWithStatus(http.StatusInternalServerError)
-				return
-			}
-
-			t := reflect.TypeOf(item).Elem().Name()
-
-			stringed, _ := json.Marshal(item)
-			var mapped map[string]any
-			_ = json.Unmarshal(stringed, &mapped)
-			mapped["type"] = strings.ToLower(t)
-
-			result = append(result, mapped)
-		}
-
-		c.JSON(200, result)
+		h.ServeHTTP(c.Writer, c.Request)
 	}
 }
 
@@ -164,8 +136,7 @@ func main() {
 
 	r.GET("/", playgroundHandler())
 
-	preview := r.Group("/preview")
-	preview.GET("collection/:id", previewCollectionHandler(loaders))
+	r.POST("/admin", adminGraphqlHandler(db, queries, loaders))
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 

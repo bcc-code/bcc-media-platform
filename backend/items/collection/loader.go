@@ -3,15 +3,11 @@ package collection
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/jsonlogic"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
-	"github.com/lib/pq"
 	"github.com/samber/lo"
 )
 
@@ -32,34 +28,6 @@ func NewItemListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*com
 	})
 }
 
-type filter struct {
-	ID              uuid.UUID
-	Filter          json.RawMessage
-	SortBy          string
-	SortByDirection string
-}
-
-func getFilterForQueryCollection(collection *common.Collection) filter {
-	var f filter
-	if collection.Filter != nil {
-		_ = json.Unmarshal(*collection.Filter, &f)
-	}
-	return f
-}
-
-func itemIdsFromRows(rows *sql.Rows) []int {
-	var ids []int
-
-	for rows.Next() {
-		var id int
-		_ = rows.Scan(&id)
-		ids = append(ids, id)
-	}
-
-	_ = rows.Close()
-	return ids
-}
-
 // NewCollectionItemIdsLoader returns a new loader for getting ItemIds for Collection
 func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[int, *common.Collection]) *dataloader.Loader[int, []int] {
 	batchLoader := func(ctx context.Context, keys []int) []*dataloader.Result[[]int] {
@@ -77,38 +45,17 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 			for _, r := range res {
 				switch r.Type {
 				case "query":
-					f := getFilterForQueryCollection(r)
-					if f.Filter == nil {
+					if r.Filter == nil {
 						resMap[r.ID] = nil
+						continue
 					}
-
-					var filterObject map[string]any
-					_ = json.Unmarshal(f.Filter, &filterObject)
-					filterString := jsonlogic.GetSQLStringFromFilter(filterObject)
-
-					var orderByString string
-					if f.SortBy != "" {
-						orderByString = " ORDER BY " + pq.QuoteIdentifier(f.SortBy)
-					}
-					if orderByString != "" && f.SortByDirection != "" {
-						switch f.SortByDirection {
-						case "desc":
-							orderByString += " DESC"
-						case "asc":
-							orderByString += " ASC"
-						}
-					}
-
-					queryString := "SELECT id FROM " + r.Collection.ValueOrZero() + " WHERE " + filterString + orderByString
-
-					rows, err := db.Query(queryString)
+					resMap[r.ID], err = GetItemIDsForFilter(db, r.Collection.ValueOrZero(), *r.Filter)
 					if err != nil {
 						log.L.Error().Err(err).
 							Str("collection", r.Collection.ValueOrZero()).
 							Msg("Failed to select itemIds from collection")
 						continue
 					}
-					resMap[r.ID] = itemIdsFromRows(rows)
 				}
 			}
 		}
