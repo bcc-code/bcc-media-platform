@@ -13,6 +13,7 @@ type hasKey[k comparable] interface {
 // Show is the definition of the Show object
 type Show struct {
 	ID           int
+	LegacyID     null.Int
 	Availability Availability
 	Roles        Roles
 	Title        LocaleString
@@ -43,6 +44,7 @@ func (i Show) GetImage() uuid.NullUUID {
 // Season is the definition of the Season object
 type Season struct {
 	ID           int
+	LegacyID     null.Int
 	Number       int
 	Availability Availability
 	Roles        Roles
@@ -75,6 +77,7 @@ func (i Season) GetImage() uuid.NullUUID {
 // Episode is the definition of the Episode object
 type Episode struct {
 	ID               int
+	LegacyID         null.Int
 	Availability     Availability
 	Roles            Roles
 	SeasonID         null.Int

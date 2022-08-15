@@ -18,7 +18,8 @@ func mapToEpisodes(episodes []EpisodeExpanded) []common.Episode {
 		_ = json.Unmarshal(e.ExtraDescription.RawMessage, &extraDescription)
 
 		return common.Episode{
-			ID: int(e.ID),
+			ID:       int(e.ID),
+			LegacyID: e.LegacyID,
 			Availability: common.Availability{
 				Published: e.Published,
 				From:      e.AvailableFrom,
