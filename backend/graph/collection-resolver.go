@@ -21,9 +21,8 @@ func itemsResolverForIntID[t any, r any](ctx context.Context, id string, loader 
 
 func collectionItemResolver(ctx context.Context, r *Resolver, id string) ([]gqlmodel.Item, error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
-	intID := int(int64ID)
 
-	section, err := r.Loaders.SectionLoader.Load(ctx, intID)()
+	section, err := common.GetFromLoaderByID(ctx, r.Loaders.SectionLoader, int(int64ID))
 	if err != nil {
 		return nil, err
 	}
@@ -32,19 +31,13 @@ func collectionItemResolver(ctx context.Context, r *Resolver, id string) ([]gqlm
 		return nil, nil
 	}
 
-	col, err := r.Loaders.CollectionLoader.Load(ctx, int(section.CollectionID.ValueOrZero()))()
-	if err != nil {
-		return nil, err
-	}
-
-	items, err := collection.GetCollectionItems(ctx, r.Loaders, col.ID)
+	items, err := collection.GetCollectionItems(ctx, r.Loaders, int(section.CollectionID.ValueOrZero()))
 	if err != nil {
 		return nil, err
 	}
 
 	items = lo.Filter(items, func(i collection.Item, _ int) bool {
-		switch t := i.(type) {
-		case restrictedItem:
+		if t, ok := i.(restrictedItem); ok {
 			return user.ValidateAccess(ctx, t) == nil
 		}
 		return true
