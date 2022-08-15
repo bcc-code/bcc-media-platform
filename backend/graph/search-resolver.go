@@ -35,8 +35,15 @@ import (
 //}
 
 func gqlShowFromSearchResultItem(i common.SearchResultItem) gqlmodel.ShowSearchItem {
+	var legacyID *string
+	if i.LegacyID != nil {
+		str := strconv.Itoa(*i.LegacyID)
+		legacyID = &str
+	}
+
 	return gqlmodel.ShowSearchItem{
 		ID:          strconv.Itoa(i.ID),
+		LegacyID:    legacyID,
 		Collection:  i.Collection,
 		Title:       i.Title,
 		Description: i.Description,
@@ -53,8 +60,15 @@ func gqlSeasonFromSearchResultItem(i common.SearchResultItem) gqlmodel.SeasonSea
 		ID: showID,
 	}
 
+	var legacyID *string
+	if i.LegacyID != nil {
+		str := strconv.Itoa(*i.LegacyID)
+		legacyID = &str
+	}
+
 	return gqlmodel.SeasonSearchItem{
 		ID:          strconv.Itoa(i.ID),
+		LegacyID:    legacyID,
 		Collection:  i.Collection,
 		Title:       i.Title,
 		Description: i.Description,
@@ -88,8 +102,15 @@ func gqlEpisodeFromSearchResultItem(i common.SearchResultItem) gqlmodel.EpisodeS
 		}
 	}
 
+	var legacyID *string
+	if i.LegacyID != nil {
+		str := strconv.Itoa(*i.LegacyID)
+		legacyID = &str
+	}
+
 	return gqlmodel.EpisodeSearchItem{
 		ID:          strconv.Itoa(i.ID),
+		LegacyID:    legacyID,
 		Collection:  i.Collection,
 		Title:       i.Title,
 		Description: i.Description,

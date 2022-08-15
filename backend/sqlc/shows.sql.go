@@ -23,7 +23,7 @@ func (q *Queries) RefreshShowAccessView(ctx context.Context) (bool, error) {
 }
 
 const getShows = `-- name: getShows :many
-SELECT id, image_file_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM shows_expanded WHERE id = ANY($1::int[])
+SELECT id, image_file_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups, legacy_id FROM shows_expanded WHERE id = ANY($1::int[])
 `
 
 func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]ShowsExpanded, error) {
@@ -46,6 +46,7 @@ func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]ShowsExpand
 			pq.Array(&i.Usergroups),
 			pq.Array(&i.DownloadGroups),
 			pq.Array(&i.EarlyAccessGroups),
+			&i.LegacyID,
 		); err != nil {
 			return nil, err
 		}
@@ -61,7 +62,7 @@ func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]ShowsExpand
 }
 
 const listShows = `-- name: listShows :many
-SELECT id, image_file_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups FROM shows_expanded
+SELECT id, image_file_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups, legacy_id FROM shows_expanded
 `
 
 func (q *Queries) listShows(ctx context.Context) ([]ShowsExpanded, error) {
@@ -84,6 +85,7 @@ func (q *Queries) listShows(ctx context.Context) ([]ShowsExpanded, error) {
 			pq.Array(&i.Usergroups),
 			pq.Array(&i.DownloadGroups),
 			pq.Array(&i.EarlyAccessGroups),
+			&i.LegacyID,
 		); err != nil {
 			return nil, err
 		}

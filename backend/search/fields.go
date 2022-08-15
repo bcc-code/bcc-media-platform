@@ -15,6 +15,7 @@ import (
 
 const (
 	idField            = "objectID"
+	legacyIDField      = "legacyID"
 	publishedField     = "published"
 	typeField          = "type"
 	rolesField         = "roles"
@@ -33,6 +34,7 @@ const (
 
 type searchItem struct {
 	ID            string
+	LegacyID      *int
 	Published     bool
 	Type          string
 	Roles         []string
@@ -74,6 +76,9 @@ func (object searchObject) toSearchHit() (searchHit, error) {
 func (i *searchItem) toSearchObject() searchObject {
 	object := searchObject{}
 	object[idField] = i.ID
+	if i.LegacyID != nil {
+		object[legacyIDField] = i.LegacyID
+	}
 	object[publishedField] = i.Published
 	object[typeField] = i.Type
 	object[rolesField] = i.Roles

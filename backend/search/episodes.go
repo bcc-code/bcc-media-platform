@@ -39,8 +39,15 @@ func (service *Service) episodeToSearchItem(ctx context.Context, episode common.
 		}
 	}
 
+	var legacyID *int
+	if episode.LegacyID.Valid {
+		v := int(episode.LegacyID.Int64)
+		legacyID = &v
+	}
+
 	var item = searchItem{
 		ID:          "episodes-" + strconv.Itoa(episode.ID),
+		LegacyID:    legacyID,
 		Title:       episode.Title,
 		Description: episode.Description,
 		Header:      header,
