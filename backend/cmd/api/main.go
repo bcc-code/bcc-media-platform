@@ -49,7 +49,7 @@ func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchS
 	}
 }
 
-func adminGraphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders) gin.HandlerFunc {
+func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders) gin.HandlerFunc {
 
 	resolver := gqladmin.Resolver{
 		DB:      db,
@@ -61,7 +61,21 @@ func adminGraphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.Batc
 	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(gqladmingenerated.NewExecutableSchema(gqladmingenerated.Config{Resolvers: &resolver}))
 
+	directusSecret := config.Secrets.Directus
+	if directusSecret == "" {
+		log.L.Debug().Msg("No secret for Directus found in environment. Disabling endpoint")
+		return func(c *gin.Context) {
+
+		}
+	}
+
 	return func(c *gin.Context) {
+		headerValue := c.GetHeader("x-api-key")
+		if headerValue != directusSecret {
+			c.AbortWithStatus(403)
+			return
+		}
+
 		h.ServeHTTP(c.Writer, c.Request)
 	}
 }
@@ -136,7 +150,7 @@ func main() {
 
 	r.GET("/", playgroundHandler())
 
-	r.POST("/admin", adminGraphqlHandler(db, queries, loaders))
+	r.POST("/admin", adminGraphqlHandler(config, db, queries, loaders))
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 

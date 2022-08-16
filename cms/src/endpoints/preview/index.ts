@@ -2,6 +2,7 @@ import { EndpointConfig, Accountability } from "@directus/shared/src/types"
 import axios from "axios"
 
 const apiPath = process.env.API_PATH;
+const apiSecret = process.env.API_SECRET;
 
 const getAccountability = (req: any) => {
     return req.accountability as Accountability;
@@ -44,7 +45,8 @@ const endpointConfig: EndpointConfig = {
                     "query": body
                 }, {
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "X-Api-Key": apiSecret
                     }
                 })
 
