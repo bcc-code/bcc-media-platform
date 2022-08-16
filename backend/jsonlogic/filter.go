@@ -10,6 +10,12 @@ import (
 	"strings"
 )
 
+// Query is the struct for filter and joins
+type Query struct {
+	Filter string
+	Joins  []string
+}
+
 func opToDbOp(operator string) string {
 	switch operator {
 	case "==":
@@ -21,17 +27,23 @@ func opToDbOp(operator string) string {
 	}
 }
 
-func getValueFromSource(source any) (string, error) {
+func (q *Query) getValueFromSource(source any) (string, error) {
 	switch v := source.(type) {
 	case map[string]any:
 		if prop, ok := v["var"]; ok {
 			switch vt := prop.(type) {
 			case string:
-				// enough to avoid sql injection? Columns shouldn't have any spaces anyway heh
-				if strings.Contains(vt, " ") {
-					return "", merry.New("malformed property string")
+				if strings.Contains(vt, ".") {
+					parts := strings.Split(vt, ".")
+					if len(parts) > 2 {
+						return "", merry.New("too many parts")
+					}
+					q.Joins = append(q.Joins, parts[0])
+					return strings.Join(lo.Map(parts, func(s string, _ int) string {
+						return pq.QuoteIdentifier(s)
+					}), "."), nil
 				}
-				return pq.QuoteIdentifier(vt), nil
+				return "t." + pq.QuoteIdentifier(vt), nil
 			}
 		}
 	case string:
@@ -52,8 +64,7 @@ func getValueFromSource(source any) (string, error) {
 	return "", merry.New("unsupported source type")
 }
 
-// GetSQLStringFromFilter returns an SQL string from filter
-func GetSQLStringFromFilter(filter map[string]any) string {
+func (q *Query) getSQLStringFromFilter(filter map[string]any) string {
 	for key, values := range filter {
 		switch key {
 		case "and", "or":
@@ -63,7 +74,7 @@ func GetSQLStringFromFilter(filter map[string]any) string {
 				for _, value := range t {
 					switch v := value.(type) {
 					case map[string]any:
-						filters = append(filters, GetSQLStringFromFilter(v))
+						filters = append(filters, q.getSQLStringFromFilter(v))
 					}
 				}
 			}
@@ -80,11 +91,11 @@ func GetSQLStringFromFilter(filter map[string]any) string {
 				rightSource := t[1]
 
 				var err error
-				left, err = getValueFromSource(leftSource)
+				left, err = q.getValueFromSource(leftSource)
 				if err != nil {
 					return "1 = 0"
 				}
-				right, err = getValueFromSource(rightSource)
+				right, err = q.getValueFromSource(rightSource)
 				if err != nil {
 					return "1 = 0"
 				}
@@ -95,4 +106,11 @@ func GetSQLStringFromFilter(filter map[string]any) string {
 	marshalled, _ := json.Marshal(filter)
 	log.L.Debug().Str("filter", string(marshalled)).Msg("Invalid filter passed")
 	return "1 = 0"
+}
+
+// GetSQLQueryFromFilter returns an SQL string from filter
+func GetSQLQueryFromFilter(filter map[string]any) Query {
+	q := Query{}
+	q.Filter = q.getSQLStringFromFilter(filter)
+	return q
 }
