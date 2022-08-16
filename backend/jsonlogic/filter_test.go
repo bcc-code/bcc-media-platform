@@ -33,7 +33,5 @@ func TestConvertToSQL(t *testing.T) {
 
 		filterString := GetSQLStringFromFilter(f.In)
 		assert.Equal(t, f.Out, filterString)
-
-		_ = jsonFile.Close()
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lib/pq"
+	"github.com/samber/lo"
 	"strconv"
 	"strings"
 )
@@ -13,8 +14,8 @@ func opToDbOp(operator string) string {
 	switch operator {
 	case "==":
 		return "="
-	case "!=":
-		return "NOT EQUALS"
+	case "in":
+		return "IN"
 	default:
 		return operator
 	}
@@ -39,6 +40,14 @@ func getValueFromSource(source any) (string, error) {
 		return strconv.Itoa(int(v)), nil
 	case int:
 		return strconv.Itoa(v), nil
+	case []any:
+		return "(" + strings.Join(lo.Map(v, func(i any, _ int) string {
+			if s, ok := i.(string); ok {
+				return pq.QuoteLiteral(s)
+			}
+
+			return "false"
+		}), ",") + ")", nil
 	}
 	return "", merry.New("unsupported source type")
 }
@@ -59,7 +68,7 @@ func GetSQLStringFromFilter(filter map[string]any) string {
 				}
 			}
 			return "(" + strings.Join(filters, ") "+strings.ToUpper(key)+" (") + ")"
-		case "==", "!=", ">", "<", ">=", "<=":
+		case "==", "!=", ">", "<", ">=", "<=", "in":
 			var left string
 			var right string
 			switch t := values.(type) {
