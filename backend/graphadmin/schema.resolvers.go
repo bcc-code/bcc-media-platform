@@ -20,8 +20,9 @@ import (
 // Collection is the resolver for the collection field.
 func (r *previewResolver) Collection(ctx context.Context, obj *gqladminmodel.Preview, collection string, filter string) (*gqladminmodel.PreviewCollection, error) {
 	var f common.Filter
+	ctx = context.WithValue(ctx, "preview", true)
 	_ = json.Unmarshal([]byte(filter), &f)
-	ids, err := collection2.GetItemIDsForFilter(r.DB, collection, f)
+	ids, err := collection2.GetItemIDsForFilter(ctx, r.DB, collection, f)
 	if err != nil {
 		return nil, err
 	}

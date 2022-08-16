@@ -1,10 +1,12 @@
 package collection
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/jsonlogic"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lib/pq"
 )
 
@@ -22,7 +24,7 @@ func itemIdsFromRows(rows *sql.Rows) []int {
 }
 
 // GetItemIDsForFilter returns an array of ids for the collection
-func GetItemIDsForFilter(db *sql.DB, collection string, f common.Filter) ([]int, error) {
+func GetItemIDsForFilter(ctx context.Context, db *sql.DB, collection string, f common.Filter) ([]int, error) {
 	if f.Filter == nil {
 		return nil, nil
 	}
@@ -45,6 +47,10 @@ func GetItemIDsForFilter(db *sql.DB, collection string, f common.Filter) ([]int,
 	}
 
 	queryString := "SELECT id FROM " + pq.QuoteIdentifier(collection) + " WHERE " + filterString + orderByString
+
+	if ctx.Value("preview") == true {
+		log.L.Debug().Str("query", queryString).Msg("Querying database for previewing filter")
+	}
 
 	rows, err := db.Query(queryString)
 	if err != nil {

@@ -65,7 +65,8 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 	if directusSecret == "" {
 		log.L.Debug().Msg("No secret for Directus found in environment. Disabling endpoint")
 		return func(c *gin.Context) {
-
+			c.AbortWithStatus(404)
+			return
 		}
 	}
 

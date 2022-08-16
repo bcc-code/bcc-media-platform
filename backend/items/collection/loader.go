@@ -49,7 +49,7 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 						resMap[r.ID] = nil
 						continue
 					}
-					resMap[r.ID], err = GetItemIDsForFilter(db, r.Collection.ValueOrZero(), *r.Filter)
+					resMap[r.ID], err = GetItemIDsForFilter(ctx, db, r.Collection.ValueOrZero(), *r.Filter)
 					if err != nil {
 						log.L.Error().Err(err).
 							Str("collection", r.Collection.ValueOrZero()).
