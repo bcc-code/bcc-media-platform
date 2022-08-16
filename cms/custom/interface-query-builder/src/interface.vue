@@ -40,7 +40,10 @@ const types = {
 const api = useApi();
 
 const previewFactory = async () => {
-	const r = await api.get("/preview/collection/" + props.primaryKey)
+	const r = await api.post("/preview/collection", {
+		filter: props.value,
+		collection: props.fieldCollection,
+	})
 
 	const views = [] as Item[];
 	let total = 0;
@@ -51,8 +54,8 @@ const previewFactory = async () => {
 		total++;
 		views.push({
 			id: item.id,
-			title: item.title.no ?? item.title.en,
-			type: item.type,
+			title: item.title,
+			type: props.fieldCollection
 		})
 	}
 	return views;

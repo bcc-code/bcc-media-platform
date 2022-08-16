@@ -18,21 +18,40 @@ const getUserId = (req: any) => {
 const endpointConfig: EndpointConfig = {
     id: "preview",
     handler: (router) => {
-        router.get("/collection/:id", async (req, res) => {
+        router.post("/collection", async (req, res) => {
             const userId = getUserId(req)
             if (userId == null) {
                 res.status(401).send("Unauthenticated")
                 return
             }
-            
-            const collectionId = req.params["id"]
+            const filter = req.body.filter;
+            const collection = req.body.collection;
 
             try {
-                const result = await axios.get(apiPath + "preview/collection/" + collectionId)
 
-                res.send(result.data)
+                const body = `query {
+                    preview {
+                        collection(collection: "${collection}", filter: ${JSON.stringify(JSON.stringify(filter))}) {
+                            items {
+                                id
+                                title
+                            }
+                        }
+                    }
+                }`
+
+                const result = await axios.post(apiPath + "admin", {
+                    "query": body
+                }, {
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+
+                res.send(result.data.data.preview.collection.items)
                 return
-            } catch {
+            } catch (e) {
+                console.log(e);
                 console.log("Couldn't fetch data from API")
             }
 
