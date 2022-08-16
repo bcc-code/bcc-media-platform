@@ -16,12 +16,15 @@ func mapToPages(pages []getPagesRow) []common.Page {
 		_ = json.Unmarshal(p.Title.RawMessage, &title)
 		_ = json.Unmarshal(p.Title.RawMessage, &description)
 
+		from, _ := time.Parse("2006-01-02", "1900-01-01")
+		to, _ := time.Parse("2006-01-02", "2100-01-01")
+
 		return common.Page{
 			ID: int(p.ID),
 			Availability: common.Availability{
 				Published: p.Published,
-				From:      time.Date(2000, time.January, 1, 0, 0, 0, 0, nil),
-				To:        time.Date(2100, time.January, 1, 0, 0, 0, 0, nil),
+				From:      from,
+				To:        to,
 			},
 			Roles: common.Roles{
 				Access: p.Roles,

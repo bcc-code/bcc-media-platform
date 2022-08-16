@@ -26,27 +26,9 @@ type apiConfig interface {
 // It contains references to all external services and config
 type Resolver struct {
 	Queries       *sqlc.Queries
-	Loaders       *BatchLoaders
+	Loaders       *common.BatchLoaders
 	SearchService *search.Service
 	APIConfig     apiConfig
-}
-
-// BatchLoaders is a collection of GQL dataloaders
-type BatchLoaders struct {
-	PageLoader              *dataloader.Loader[int, *common.Page]
-	PageLoaderByCode        *dataloader.Loader[string, *common.Page]
-	SectionLoader           *dataloader.Loader[int, *common.Section]
-	SectionsLoader          *dataloader.Loader[int, []*common.Section]
-	CollectionLoader        *dataloader.Loader[int, *common.Collection]
-	CollectionItemIdsLoader *dataloader.Loader[int, []int]
-	CollectionItemLoader    *dataloader.Loader[int, []*common.CollectionItem]
-	ShowLoader              *dataloader.Loader[int, *common.Show]
-	SeasonLoader            *dataloader.Loader[int, *common.Season]
-	EpisodeLoader           *dataloader.Loader[int, *common.Episode]
-	SeasonsLoader           *dataloader.Loader[int, []*common.Season]
-	EpisodesLoader          *dataloader.Loader[int, []*common.Episode]
-	FilesLoader             *dataloader.Loader[int, []*common.File]
-	StreamsLoader           *dataloader.Loader[int, []*common.Stream]
 }
 
 type restrictedItem interface {
@@ -54,11 +36,9 @@ type restrictedItem interface {
 	GetAvailability() common.Availability
 }
 
-// Sentinel errors
+// ErrItemNotFound for not found items
 var (
-	ErrItemNotFound          = merry.Sentinel("item not found")
-	ErrUnsupportedType       = merry.Sentinel("unsupported type")
-	ErrUnsupportedCollection = merry.Sentinel("unsupported collection")
+	ErrItemNotFound = merry.Sentinel("item not found")
 )
 
 type hasKey[k comparable] interface {

@@ -7,8 +7,11 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
+	gqladmin "github.com/bcc-code/brunstadtv/backend/graphadmin"
+	gqladmingenerated "github.com/bcc-code/brunstadtv/backend/graphadmin/generated"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/items/episode"
 	"github.com/bcc-code/brunstadtv/backend/items/page"
@@ -28,7 +31,7 @@ import (
 )
 
 // Defining the Graphql handler
-func graphqlHandler(queries *sqlc.Queries, loaders *graph.BatchLoaders, searchService *search.Service, config envConfig) gin.HandlerFunc {
+func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, config envConfig) gin.HandlerFunc {
 
 	resolver := graph.Resolver{
 		Queries:       queries,
@@ -42,6 +45,38 @@ func graphqlHandler(queries *sqlc.Queries, loaders *graph.BatchLoaders, searchSe
 	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver}))
 
 	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders) gin.HandlerFunc {
+
+	resolver := gqladmin.Resolver{
+		DB:      db,
+		Queries: queries,
+		Loaders: loaders,
+	}
+
+	// NewExecutableSchema and Config are in the generated.go file
+	// Resolver is in the resolver.go file
+	h := handler.NewDefaultServer(gqladmingenerated.NewExecutableSchema(gqladmingenerated.Config{Resolvers: &resolver}))
+
+	directusSecret := config.Secrets.Directus
+	if directusSecret == "" {
+		log.L.Debug().Msg("No secret for Directus found in environment. Disabling endpoint")
+		return func(c *gin.Context) {
+			c.AbortWithStatus(404)
+			return
+		}
+	}
+
+	return func(c *gin.Context) {
+		headerValue := c.GetHeader("x-api-key")
+		if headerValue != directusSecret {
+			c.AbortWithStatus(403)
+			return
+		}
+
 		h.ServeHTTP(c.Writer, c.Request)
 	}
 }
@@ -87,7 +122,7 @@ func main() {
 
 	collectionLoader := collection.NewBatchLoader(*queries)
 
-	loaders := &graph.BatchLoaders{
+	loaders := &common.BatchLoaders{
 		PageLoader:              page.NewBatchLoader(*queries),
 		PageLoaderByCode:        page.NewCodeBatchLoader(*queries),
 		SectionLoader:           section.NewBatchLoader(*queries),
@@ -115,6 +150,8 @@ func main() {
 	r.POST("/query", graphqlHandler(queries, loaders, searchService, config))
 
 	r.GET("/", playgroundHandler())
+
+	r.POST("/admin", adminGraphqlHandler(config, db, queries, loaders))
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
