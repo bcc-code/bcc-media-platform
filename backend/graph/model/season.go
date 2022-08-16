@@ -17,8 +17,15 @@ func SeasonFrom(ctx context.Context, s *common.Season) *Season {
 		ID: strconv.Itoa(s.ShowID),
 	}
 
+	var legacyID *string
+	if s.LegacyID.Valid {
+		strID := strconv.Itoa(int(s.LegacyID.Int64))
+		legacyID = &strID
+	}
+
 	return &Season{
 		ID:          strconv.Itoa(s.ID),
+		LegacyID:    legacyID,
 		Title:       s.Title.Get(languages),
 		Description: s.Description.Get(languages),
 		Number:      s.Number,

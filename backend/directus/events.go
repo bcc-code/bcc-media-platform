@@ -3,6 +3,7 @@ package directus
 import (
 	"context"
 
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/mediabank-bridge/log"
 	cevent "github.com/cloudevents/sdk-go/v2/event"
 )
@@ -11,7 +12,7 @@ import (
 type Event struct {
 	Event      string `json:"event"`
 	Collection string `json:"collection"`
-	Id         int    `json:"id"`
+	ID         int    `json:"id"`
 }
 
 const (
@@ -32,16 +33,26 @@ func NewEventHandler() *EventHandler {
 	return &EventHandler{}
 }
 
-var itemsEvents = map[string][]func(ctx context.Context, collection string, id int){}
+var itemsEvents = map[string][]EventHandlerFunc{}
+
+// EventHandlerFunc is a function that can process a directus event
+type EventHandlerFunc func(ctx context.Context, collection string, id int) error
 
 // On event, do this:
-func (handler *EventHandler) On(event string, callback func(ctx context.Context, collection string, id int)) {
-	switch event {
-	case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
-		log.L.Debug().Str("event", event).Msg("Registering Directus webhook-listener for event")
-		itemsEvents[event] = append(itemsEvents[event], callback)
+func (handler *EventHandler) On(events []string, callback EventHandlerFunc) {
+	for _, event := range events {
+		switch event {
+		case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
+			log.L.Debug().Str("event", event).Msg("Registering Directus webhook-listener for event")
+			itemsEvents[event] = append(itemsEvents[event], callback)
+		}
 	}
 }
+
+// Sentinel errors
+var (
+	ErrErrorDuringProcessing = merry.Sentinel("Error while processing directus event")
+)
 
 // ProcessCloudEvent creates an Event from CloudEvent
 func (handler *EventHandler) ProcessCloudEvent(ctx context.Context, e cevent.Event) error {
@@ -51,24 +62,34 @@ func (handler *EventHandler) ProcessCloudEvent(ctx context.Context, e cevent.Eve
 		log.L.Error().Err(err).Msg("Failed to bind to event struct")
 		return err
 	}
-	return handler.Process(ctx, event)
-}
 
-// Process Event
-func (handler *EventHandler) Process(ctx context.Context, event Event) error {
-	log.L.Debug().Str("event", event.Event).Str("collection", event.Collection).Msg("Processing event")
-
-	var id = event.Id
-	if id == 0 {
-		return nil
-	}
-	switch event.Event {
-	case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
-		for i, callback := range itemsEvents[event.Event] {
-			log.L.Debug().Msgf("Executing callback #%d for event %s", i, event.Event)
-			callback(ctx, event.Collection, id)
-		}
+	errors := handler.Process(ctx, event)
+	if len(errors) > 0 {
+		log.L.Error().Errs("direcus handler errors", errors).Msg("Errors while processing Directus event")
+		return merry.Wrap(ErrErrorDuringProcessing)
 	}
 
 	return nil
+}
+
+// Process Event
+func (handler *EventHandler) Process(ctx context.Context, event Event) []error {
+	log.L.Debug().Str("event", event.Event).Str("collection", event.Collection).Msg("Processing event")
+	errors := []error{}
+
+	var id = event.ID
+	if id == 0 {
+		return errors
+	}
+
+	switch event.Event {
+	case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
+		for i, handlerFunc := range itemsEvents[event.Event] {
+			log.L.Debug().Msgf("Executing callback #%d for event %s", i, event.Event)
+			err := handlerFunc(ctx, event.Collection, id)
+			errors = append(errors, err)
+		}
+	}
+
+	return errors
 }

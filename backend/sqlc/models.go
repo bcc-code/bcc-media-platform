@@ -531,6 +531,7 @@ type EpisodesExpanded struct {
 	DownloadGroups    []string              `db:"download_groups" json:"downloadGroups"`
 	EarlyAccessGroups []string              `db:"early_access_groups" json:"earlyAccessGroups"`
 	TagIds            []int32               `db:"tag_ids" json:"tagIds"`
+	LegacyID          null_v4.Int           `db:"legacy_id" json:"legacyID"`
 }
 
 type EpisodesRole struct {
@@ -579,6 +580,44 @@ type EpisodesUsergroupsEarlyaccess struct {
 	UsergroupsCode string    `db:"usergroups_code" json:"usergroupsCode"`
 	DateCreated    time.Time `db:"date_created" json:"dateCreated"`
 	DateUpdated    time.Time `db:"date_updated" json:"dateUpdated"`
+}
+
+type Faq struct {
+	Category    int32       `db:"category" json:"category"`
+	DateCreated time.Time   `db:"date_created" json:"dateCreated"`
+	DateUpdated time.Time   `db:"date_updated" json:"dateUpdated"`
+	ID          int32       `db:"id" json:"id"`
+	Sort        null_v4.Int `db:"sort" json:"sort"`
+	Status      string      `db:"status" json:"status"`
+	UserCreated uuid.UUID   `db:"user_created" json:"userCreated"`
+	UserUpdated uuid.UUID   `db:"user_updated" json:"userUpdated"`
+}
+
+type FaqCategoriesTranslation struct {
+	FaqCategoriesID null_v4.Int    `db:"faq_categories_id" json:"faqCategoriesID"`
+	ID              int32          `db:"id" json:"id"`
+	LanguagesCode   null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title           null_v4.String `db:"title" json:"title"`
+}
+
+type FaqCategory struct {
+	ID     int32       `db:"id" json:"id"`
+	Sort   null_v4.Int `db:"sort" json:"sort"`
+	Status string      `db:"status" json:"status"`
+}
+
+type FaqsTranslation struct {
+	Answer        null_v4.String `db:"answer" json:"answer"`
+	FaqsID        null_v4.Int    `db:"faqs_id" json:"faqsID"`
+	ID            int32          `db:"id" json:"id"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Question      null_v4.String `db:"question" json:"question"`
+}
+
+type FaqsUsergroup struct {
+	FaqsID         null_v4.Int    `db:"faqs_id" json:"faqsID"`
+	ID             int32          `db:"id" json:"id"`
+	UsergroupsCode null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
 }
 
 type Language struct {
@@ -695,6 +734,7 @@ type SeasonsExpanded struct {
 	Usergroups        []string        `db:"usergroups" json:"usergroups"`
 	DownloadGroups    []string        `db:"download_groups" json:"downloadGroups"`
 	EarlyAccessGroups []string        `db:"early_access_groups" json:"earlyAccessGroups"`
+	LegacyID          null_v4.Int     `db:"legacy_id" json:"legacyID"`
 }
 
 type SeasonsRole struct {
@@ -804,6 +844,7 @@ type ShowsExpanded struct {
 	Usergroups        []string        `db:"usergroups" json:"usergroups"`
 	DownloadGroups    []string        `db:"download_groups" json:"downloadGroups"`
 	EarlyAccessGroups []string        `db:"early_access_groups" json:"earlyAccessGroups"`
+	LegacyID          null_v4.Int     `db:"legacy_id" json:"legacyID"`
 }
 
 type ShowsRole struct {

@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.6 (Debian 13.6-1.pgdg110+1)
--- Dumped by pg_dump version 14.4 (Ubuntu 14.4-1.pgdg22.04+1)
+-- Dumped from database version 13.7 (Debian 13.7-1.pgdg110+1)
+-- Dumped by pg_dump version 14.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -17,27 +17,11 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: nametolowercase(); Type: FUNCTION; Schema: public; Owner: btv
---
-
-CREATE FUNCTION public.nametolowercase() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-	NEW.Name = lower(NEW.Name);
-	RETURN NEW;
-END;
-$$;
-
-
-ALTER FUNCTION public.nametolowercase() OWNER TO btv;
-
---
 -- Name: update_access(character varying); Type: FUNCTION; Schema: public; Owner: btv
 --
 
 CREATE FUNCTION public.update_access(view character varying) RETURNS boolean
-    LANGUAGE plpgsql SECURITY DEFINER
+    LANGUAGE plpgsql
     AS $$
 DECLARE
     lr timestamptz;
@@ -464,12 +448,12 @@ CREATE TABLE public.collections (
     user_created uuid,
     user_updated uuid,
     collection character varying(255) DEFAULT 'pages'::character varying,
-    episodes_query_filter json,
-    filter_type character varying(255) DEFAULT 'select'::character varying,
-    name character varying(255) DEFAULT NULL::character varying,
-    pages_query_filter json,
+    shows_query_filter json,
     seasons_query_filter json,
-    shows_query_filter json
+    episodes_query_filter json,
+    name character varying(255),
+    filter_type character varying(255) DEFAULT 'select'::character varying,
+    pages_query_filter json
 );
 
 
@@ -502,18 +486,18 @@ ALTER SEQUENCE public.collections_id_seq OWNED BY public.collections.id;
 --
 
 CREATE TABLE public.collections_items (
-    collection_id integer,
-    date_created timestamp with time zone,
-    date_updated timestamp with time zone,
-    episode_id integer,
     id integer NOT NULL,
-    page_id integer,
-    season_id integer,
-    show_id integer,
     sort integer,
-    type character varying(255) DEFAULT NULL::character varying,
     user_created uuid,
-    user_updated uuid
+    date_created timestamp with time zone,
+    user_updated uuid,
+    date_updated timestamp with time zone,
+    collection_id integer,
+    page_id integer,
+    show_id integer,
+    season_id integer,
+    episode_id integer,
+    type character varying(255)
 );
 
 
@@ -620,8 +604,7 @@ CREATE TABLE public.directus_dashboards (
     icon character varying(30) DEFAULT 'dashboard'::character varying NOT NULL,
     note text,
     date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-    user_created uuid,
-    color character varying(255)
+    user_created uuid
 );
 
 
@@ -763,7 +746,7 @@ ALTER TABLE public.directus_migrations OWNER TO btv;
 
 CREATE TABLE public.directus_notifications (
     id integer NOT NULL,
-    "timestamp" timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    "timestamp" timestamp with time zone NOT NULL,
     status character varying(255) DEFAULT 'inbox'::character varying,
     recipient uuid NOT NULL,
     sender uuid,
@@ -1296,12 +1279,12 @@ ALTER TABLE public.episodes_availability OWNER TO btv;
 --
 
 CREATE TABLE public.episodes_usergroups (
-    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     episodes_id integer NOT NULL,
     id integer NOT NULL,
     type character varying(255) DEFAULT NULL::character varying,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -1312,11 +1295,11 @@ ALTER TABLE public.episodes_usergroups OWNER TO btv;
 --
 
 CREATE TABLE public.episodes_usergroups_download (
-    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     episodes_id integer NOT NULL,
     id integer NOT NULL,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -1327,11 +1310,11 @@ ALTER TABLE public.episodes_usergroups_download OWNER TO btv;
 --
 
 CREATE TABLE public.episodes_usergroups_earlyaccess (
-    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     episodes_id integer NOT NULL,
     id integer NOT NULL,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL,
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -1430,6 +1413,19 @@ ALTER SEQUENCE public.episodes_categories_id_seq OWNED BY public.episodes_catego
 
 
 --
+-- Name: episodes_tags; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.episodes_tags (
+    episodes_id integer NOT NULL,
+    id integer NOT NULL,
+    tags_id integer NOT NULL
+);
+
+
+ALTER TABLE public.episodes_tags OWNER TO btv;
+
+--
 -- Name: episodes_translations; Type: TABLE; Schema: public; Owner: btv
 --
 
@@ -1458,6 +1454,11 @@ CREATE VIEW public.episodes_expanded AS
             json_object_agg(t_1.languages_code, t_1.extra_description) AS extra_description
            FROM public.episodes_translations t_1
           GROUP BY t_1.episodes_id
+        ), tags AS (
+         SELECT tags_1.episodes_id,
+            array_agg(tags_1.tags_id) AS tags
+           FROM public.episodes_tags tags_1
+          GROUP BY tags_1.episodes_id
         )
  SELECT e.id,
     e.asset_id,
@@ -1473,10 +1474,13 @@ CREATE VIEW public.episodes_expanded AS
     (ea.available_to)::timestamp with time zone AS available_to,
     (ea.usergroups)::text[] AS usergroups,
     (ea.usergroups_downloads)::text[] AS download_groups,
-    (ea.usergroups_earlyaccess)::text[] AS early_access_groups
-   FROM ((public.episodes e
-     JOIN t ON ((e.id = t.episodes_id)))
-     JOIN public.episodes_access ea ON ((ea.id = e.id)));
+    (ea.usergroups_earlyaccess)::text[] AS early_access_groups,
+    tags.tags AS tag_ids,
+    e.legacy_id
+   FROM (((public.episodes e
+     LEFT JOIN t ON ((e.id = t.episodes_id)))
+     LEFT JOIN public.episodes_access ea ON ((ea.id = e.id)))
+     LEFT JOIN tags ON ((tags.episodes_id = e.id)));
 
 
 ALTER TABLE public.episodes_expanded OWNER TO btv;
@@ -1502,19 +1506,6 @@ ALTER TABLE public.episodes_id_seq OWNER TO btv;
 
 ALTER SEQUENCE public.episodes_id_seq OWNED BY public.episodes.id;
 
-
---
--- Name: episodes_tags; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.episodes_tags (
-    episodes_id integer NOT NULL,
-    id integer NOT NULL,
-    tags_id integer NOT NULL
-);
-
-
-ALTER TABLE public.episodes_tags OWNER TO btv;
 
 --
 -- Name: episodes_tags_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
@@ -1632,8 +1623,8 @@ ALTER SEQUENCE public.episodes_usergroups_id_seq OWNED BY public.episodes_usergr
 
 CREATE TABLE public.faq_categories (
     id integer NOT NULL,
-    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
-    sort integer
+    sort integer,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL
 );
 
 
@@ -1666,10 +1657,10 @@ ALTER SEQUENCE public.faq_categories_id_seq OWNED BY public.faq_categories.id;
 --
 
 CREATE TABLE public.faq_categories_translations (
-    id integer NOT NULL,
     faq_categories_id integer,
-    languages_code character varying(255),
-    title character varying(255)
+    id integer NOT NULL,
+    languages_code character varying(255) DEFAULT NULL::character varying,
+    title character varying(255) DEFAULT NULL::character varying
 );
 
 
@@ -1702,14 +1693,14 @@ ALTER SEQUENCE public.faq_categories_translations_id_seq OWNED BY public.faq_cat
 --
 
 CREATE TABLE public.faqs (
-    id integer NOT NULL,
-    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
-    sort integer,
-    user_created uuid NOT NULL,
+    category integer NOT NULL,
     date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    user_updated uuid NOT NULL,
     date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    category integer NOT NULL
+    id integer NOT NULL,
+    sort integer,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    user_created uuid NOT NULL,
+    user_updated uuid NOT NULL
 );
 
 
@@ -1742,11 +1733,11 @@ ALTER SEQUENCE public.faqs_id_seq OWNED BY public.faqs.id;
 --
 
 CREATE TABLE public.faqs_translations (
-    id integer NOT NULL,
+    answer text,
     faqs_id integer,
-    languages_code character varying(255),
-    question character varying(255),
-    answer text
+    id integer NOT NULL,
+    languages_code character varying(255) DEFAULT NULL::character varying,
+    question character varying(255) DEFAULT NULL::character varying
 );
 
 
@@ -1779,9 +1770,9 @@ ALTER SEQUENCE public.faqs_translations_id_seq OWNED BY public.faqs_translations
 --
 
 CREATE TABLE public.faqs_usergroups (
-    id integer NOT NULL,
     faqs_id integer,
-    usergroups_code character varying(255)
+    id integer NOT NULL,
+    usergroups_code character varying(255) DEFAULT NULL::character varying
 );
 
 
@@ -1925,81 +1916,15 @@ CREATE TABLE public.pages (
     status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
     user_created uuid,
     user_updated uuid,
-    collection character varying(255) DEFAULT NULL::character varying,
+    type character varying(255),
     episode_id integer,
-    season_id integer,
     show_id integer,
-    type character varying(255) DEFAULT NULL::character varying
+    collection character varying(255) DEFAULT NULL::character varying,
+    season_id integer
 );
 
 
 ALTER TABLE public.pages OWNER TO btv;
-
---
--- Name: pages_translations; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.pages_translations (
-    description character varying(255) DEFAULT NULL::character varying,
-    id integer NOT NULL,
-    languages_code character varying(255) DEFAULT NULL::character varying,
-    pages_id integer,
-    title character varying(255) DEFAULT NULL::character varying
-);
-
-
-ALTER TABLE public.pages_translations OWNER TO btv;
-
---
--- Name: sections_usergroups; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.sections_usergroups (
-    id integer NOT NULL,
-    sections_id integer NOT NULL,
-    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
-);
-
-
-ALTER TABLE public.sections_usergroups OWNER TO btv;
-
---
--- Name: pages_expanded; Type: VIEW; Schema: public; Owner: btv
---
-
-CREATE VIEW public.pages_expanded AS
- WITH t AS (
-         SELECT ts.pages_id,
-            json_object_agg(ts.languages_code, ts.title) AS title,
-            json_object_agg(ts.languages_code, ts.description) AS description
-           FROM public.pages_translations ts
-          GROUP BY ts.pages_id
-        ), r AS (
-         SELECT p_1.id AS page_id,
-            ( SELECT array_agg(DISTINCT eu.usergroups_code) AS array_agg
-                   FROM public.sections_usergroups eu
-                  WHERE (eu.sections_id IN ( SELECT e.id
-                           FROM public.episodes e
-                          WHERE (e.season_id = p_1.id)))) AS roles
-           FROM public.pages p_1
-        )
- SELECT p.id,
-    p.code,
-    p.type,
-    ((p.status)::text = 'published'::text) AS published,
-    p.show_id,
-    p.season_id,
-    p.episode_id,
-    p.collection,
-    t.title,
-    t.description,
-    r.roles
-   FROM ((public.pages p
-     LEFT JOIN t ON ((t.pages_id = p.id)))
-     LEFT JOIN r ON ((r.page_id = p.id)));
-
-
-ALTER TABLE public.pages_expanded OWNER TO btv;
 
 --
 -- Name: pages_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
@@ -2022,6 +1947,21 @@ ALTER TABLE public.pages_id_seq OWNER TO btv;
 
 ALTER SEQUENCE public.pages_id_seq OWNED BY public.pages.id;
 
+
+--
+-- Name: pages_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.pages_translations (
+    id integer NOT NULL,
+    pages_id integer,
+    languages_code character varying(255),
+    title character varying(255),
+    description character varying(255)
+);
+
+
+ALTER TABLE public.pages_translations OWNER TO btv;
 
 --
 -- Name: pages_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
@@ -2164,7 +2104,8 @@ CREATE VIEW public.seasons_expanded AS
     (access.available_to)::timestamp with time zone AS available_to,
     (access.usergroups)::text[] AS usergroups,
     (access.usergroups_downloads)::text[] AS download_groups,
-    (access.usergroups_earlyaccess)::text[] AS early_access_groups
+    (access.usergroups_earlyaccess)::text[] AS early_access_groups,
+    se.legacy_id
    FROM ((public.seasons se
      JOIN t ON ((se.id = t.seasons_id)))
      JOIN public.seasons_access access ON ((access.id = se.id)));
@@ -2263,63 +2204,13 @@ CREATE TABLE public.sections (
     status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
     user_created uuid,
     user_updated uuid,
-    page_id integer,
     sort integer,
-    style character varying(255) DEFAULT NULL::character varying
+    style character varying(255),
+    page_id integer
 );
 
 
 ALTER TABLE public.sections OWNER TO btv;
-
---
--- Name: sections_translations; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.sections_translations (
-    id integer NOT NULL,
-    languages_code character varying(255) DEFAULT NULL::character varying,
-    sections_id integer,
-    title character varying(255) DEFAULT NULL::character varying,
-    description character varying(255) DEFAULT NULL::character varying
-);
-
-
-ALTER TABLE public.sections_translations OWNER TO btv;
-
---
--- Name: sections_expanded; Type: VIEW; Schema: public; Owner: btv
---
-
-CREATE VIEW public.sections_expanded AS
- WITH t AS (
-         SELECT ts.sections_id,
-            json_object_agg(ts.languages_code, ts.title) AS title,
-            json_object_agg(ts.languages_code, ts.description) AS description
-           FROM public.sections_translations ts
-          GROUP BY ts.sections_id
-        ), u AS (
-         SELECT ug.sections_id,
-            array_agg(ug.usergroups_code) AS roles
-           FROM public.sections_usergroups ug
-          GROUP BY ug.sections_id
-        )
- SELECT s.id,
-    s.page_id,
-    s.style,
-    s.sort,
-    ((s.status)::text = 'published'::text) AS published,
-    s.date_created,
-    s.date_updated,
-    s.collection_id,
-    t.title,
-    t.description,
-    u.roles
-   FROM ((public.sections s
-     LEFT JOIN t ON ((s.id = t.sections_id)))
-     LEFT JOIN u ON ((s.id = u.sections_id)));
-
-
-ALTER TABLE public.sections_expanded OWNER TO btv;
 
 --
 -- Name: sections_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
@@ -2344,6 +2235,21 @@ ALTER SEQUENCE public.sections_id_seq OWNED BY public.sections.id;
 
 
 --
+-- Name: sections_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.sections_translations (
+    id integer NOT NULL,
+    sections_id integer,
+    languages_code character varying(255),
+    title character varying(255),
+    description character varying(255)
+);
+
+
+ALTER TABLE public.sections_translations OWNER TO btv;
+
+--
 -- Name: sections_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
@@ -2364,6 +2270,19 @@ ALTER TABLE public.sections_translations_id_seq OWNER TO btv;
 
 ALTER SEQUENCE public.sections_translations_id_seq OWNED BY public.sections_translations.id;
 
+
+--
+-- Name: sections_usergroups; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.sections_usergroups (
+    id integer NOT NULL,
+    sections_id integer NOT NULL,
+    usergroups_code character varying(255) DEFAULT NULL::character varying NOT NULL
+);
+
+
+ALTER TABLE public.sections_usergroups OWNER TO btv;
 
 --
 -- Name: sections_usergroups_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
@@ -2511,7 +2430,8 @@ CREATE VIEW public.shows_expanded AS
     (access.available_to)::timestamp with time zone AS available_to,
     (access.usergroups)::text[] AS usergroups,
     (access.usergroups_downloads)::text[] AS download_groups,
-    (access.usergroups_earlyaccess)::text[] AS early_access_groups
+    (access.usergroups_earlyaccess)::text[] AS early_access_groups,
+    sh.legacy_id
    FROM ((public.shows sh
      JOIN t ON ((sh.id = t.shows_id)))
      JOIN public.shows_access access ON ((access.id = sh.id)));
@@ -2607,9 +2527,9 @@ CREATE TABLE public.tags (
     date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id integer NOT NULL,
-    name character varying(255) DEFAULT NULL::character varying NOT NULL,
     user_created uuid,
-    user_updated uuid
+    user_updated uuid,
+    name character varying(255) DEFAULT NULL::character varying NOT NULL
 );
 
 
@@ -2643,9 +2563,9 @@ ALTER SEQUENCE public.tags_id_seq OWNED BY public.tags.id;
 
 CREATE TABLE public.tags_translations (
     id integer NOT NULL,
-    languages_code character varying(255) DEFAULT NULL::character varying,
-    name character varying(255) DEFAULT NULL::character varying,
-    tags_id integer
+    tags_id integer,
+    languages_code character varying(255),
+    name character varying(255)
 );
 
 
@@ -3723,6 +3643,13 @@ CREATE UNIQUE INDEX episodes_access_idx ON public.episodes_access USING btree (i
 
 
 --
+-- Name: pages_code_uindex; Type: INDEX; Schema: public; Owner: btv
+--
+
+CREATE UNIQUE INDEX pages_code_uindex ON public.pages USING btree (code);
+
+
+--
 -- Name: seasons_access_idx; Type: INDEX; Schema: public; Owner: btv
 --
 
@@ -3734,13 +3661,6 @@ CREATE UNIQUE INDEX seasons_access_idx ON public.seasons_access USING btree (id)
 --
 
 CREATE UNIQUE INDEX shows_access_idx ON public.shows_access USING btree (id);
-
-
---
--- Name: tags lowercasenametagtrigger; Type: TRIGGER; Schema: public; Owner: btv
---
-
-CREATE TRIGGER lowercasenametagtrigger BEFORE INSERT OR UPDATE ON public.tags FOR EACH ROW EXECUTE FUNCTION public.nametolowercase();
 
 
 --

@@ -17,44 +17,12 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
-	"github.com/go-resty/resty/v2"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"go.opentelemetry.io/otel"
 )
 
 const debugDirectus = false
-
-func initializeDirectusEventHandler(directusClient *resty.Client, searchService *search.Service, crowdinClient *crowdin.Client) *directus.EventHandler {
-	eventHandler := directus.NewEventHandler()
-
-	for _, event := range []string{directus.EventItemsCreate, directus.EventItemsUpdate} {
-		eventHandler.On(event, func(ctx context.Context, collection string, id int) {
-			err := searchService.IndexModel(ctx, collection, id)
-			if err != nil {
-				log.L.Error().Err(err).Msg("failed to index model for search")
-				return
-			}
-
-			directusHandler := directus.NewHandler(directusClient)
-			err = crowdinClient.HandleModelUpdate(ctx, directusHandler, collection, id)
-			if err != nil {
-				log.L.Error().Err(err).Msg("failed to handle model for crowdin")
-				return
-			}
-		})
-	}
-
-	eventHandler.On(directus.EventItemsDelete, func(ctx context.Context, collection string, id int) {
-		err := searchService.DeleteModel(collection, id)
-		if err != nil {
-			log.L.Error().Err(err).Msg("Error occurred when trying to delete model from search index")
-		}
-		crowdinClient.HandleModelDelete(collection, id)
-	})
-
-	return eventHandler
-}
 
 func main() {
 	ctx := context.Background()
@@ -109,8 +77,14 @@ func main() {
 	queries := sqlc.New(db)
 
 	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey)
-	crowdinClient := crowdin.New(config.Crowdin.Token, crowdin.Config{ProjectIDs: config.Crowdin.ProjectIDs})
-	directusEventHandler := initializeDirectusEventHandler(directusClient, searchService, crowdinClient)
+	directusEventHandler := directus.NewEventHandler()
+	crowdinClient := crowdin.New(config.Crowdin.Token, crowdin.Config{ProjectIDs: config.Crowdin.ProjectIDs}, directus.NewHandler(directusClient))
+
+	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, searchService.IndexModel)
+	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, crowdinClient.HandleModelUpdate)
+
+	directusEventHandler.On([]string{directus.EventItemsDelete}, searchService.DeleteModel)
+	directusEventHandler.On([]string{directus.EventItemsDelete}, crowdinClient.HandleModelDelete)
 
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
@@ -128,6 +102,7 @@ func main() {
 	apiGroup := router.Group("api")
 	{
 		apiGroup.POST("message", handlers.ProcessMessage)
+		apiGroup.POST("eventmeta", handlers.IngestEventMeta) // TODO: Protect the endpoint with a simple api key or soimething
 	}
 
 	span.End()

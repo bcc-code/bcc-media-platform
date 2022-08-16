@@ -13,6 +13,7 @@ type hasKey[k comparable] interface {
 // Show is the definition of the Show object
 type Show struct {
 	ID           int           `json:"id"`
+	LegacyID     null.Int      `json:"legacyId"`
 	Availability Availability  `json:"availability"`
 	Roles        Roles         `json:"roles"`
 	Title        LocaleString  `json:"title"`
@@ -48,6 +49,7 @@ func (i Show) IsCollectionItem() {
 // Season is the definition of the Season object
 type Season struct {
 	ID           int           `json:"id"`
+	LegacyID     null.Int      `json:"legacyId"`
 	Number       int           `json:"number"`
 	Availability Availability  `json:"availability"`
 	Roles        Roles         `json:"roles"`
@@ -85,6 +87,7 @@ func (i Season) IsCollectionItem() {
 // Episode is the definition of the Episode object
 type Episode struct {
 	ID               int           `json:"id"`
+	LegacyID         null.Int	   `json:"legacyId"`
 	Availability     Availability  `json:"availability"`
 	Roles            Roles         `json:"roles"`
 	SeasonID         null.Int      `json:"seasonId"`

@@ -1,0 +1,19 @@
+{
+	"timestamp": "2009-11-11T08:00:00+09:00",
+	"source": "some-system",
+	"type": "speech",
+	"data": {
+		"speaker": {
+			"fullName": "Toddy Talkative",
+			"personId": "1234",
+			"church": "Svartskog"
+		},
+		"translator": {
+			"fullName": "Tom Translator",
+			"personId": "1234",
+			"church": "Svartskog"
+		}
+	}
+}
+
+
