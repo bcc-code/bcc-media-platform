@@ -8,6 +8,9 @@
 	<Preview
 		:factory="previewFactory"
 	></Preview>
+	<div v-if="error" style="color:red">
+		{{error}}
+	</div>
 </template>
 
 <script lang="ts" setup>
@@ -39,24 +42,30 @@ const types = {
 
 const api = useApi();
 
-const previewFactory = async () => {
-	const r = await api.post("/preview/collection", {
-		filter: props.value,
-		collection: props.fieldCollection,
-	})
+const error = ref(null as string | null)
 
+const previewFactory = async () => {
 	const views = [] as Item[];
-	let total = 0;
-	for (const item of r.data) {
-		if (total >= 20) {
-			continue;
-		}
-		total++;
-		views.push({
-			id: item.id,
-			title: item.title,
-			type: props.fieldCollection
+	error.value = null;
+	try {
+		const r = await api.post("/preview/collection", {
+			filter: props.value,
+			collection: props.fieldCollection,
 		})
+		let total = 0;
+		for (const item of r.data) {
+			if (total >= 20) {
+				continue;
+			}
+			total++;
+			views.push({
+				id: item.id,
+				title: item.title,
+				type: props.fieldCollection
+			})
+		}
+	} catch {
+		error.value = "Failed to fetch from api"
 	}
 	return views;
 }
