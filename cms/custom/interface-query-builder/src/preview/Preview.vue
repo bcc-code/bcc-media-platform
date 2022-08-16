@@ -1,8 +1,6 @@
 <template>
     <div>
-        <label>Save before previewing</label>
-        <v-button :loading="loading" @click="reload">Preview</v-button>
-        <hr style="margin-top:10px"/>
+        <v-button style="margin-bottom:10px" :loading="loading" @click="reload">Preview</v-button>
         <div>
             <div v-for="i in items">
                 <span>{{i.type}}</span>
