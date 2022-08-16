@@ -30,19 +30,23 @@ const endpointConfig: EndpointConfig = {
 
             try {
 
-                const body = `query {
-                    preview {
-                        collection(collection: "${collection}", filter: ${JSON.stringify(JSON.stringify(filter))}) {
-                            items {
-                                id
-                                title
-                            }
-                        }
-                    }
-                }`
+                const body = `query($collection: String!, $filter: String!) {
+    preview {
+        collection(collection: $collection, filter: $filter) {
+            items {
+                id
+                title
+            }
+        }
+    }
+}`
 
                 const result = await axios.post(apiPath + "admin", {
-                    "query": body
+                    "query": body,
+                    "variables": {
+                        "collection": collection,
+                        "filter": JSON.stringify(filter)
+                    }
                 }, {
                     headers: {
                         "Content-Type": "application/json",
