@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"github.com/Masterminds/squirrel"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/jsonlogic"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lib/pq"
-	"strings"
 )
 
 func itemIdsFromRows(rows *sql.Rows) []int {
@@ -24,33 +24,29 @@ func itemIdsFromRows(rows *sql.Rows) []int {
 	return ids
 }
 
-func parseJoins(collection string, joins []string) string {
-	var result []string
+func parseJoins(query squirrel.SelectBuilder, collection string, joins []string) squirrel.SelectBuilder {
 	for _, join := range joins {
 		switch join {
 		case "show":
 			switch collection {
 			case "seasons":
-				result = append(result, "JOIN shows show ON show.id = t.show_id")
+				query = query.Join("shows show ON show.id = t.show_id")
 			case "episodes":
-				result = append(result, "JOIN seasons se ON se.id = t.season_id JOIN shows show ON show.id = se.show_id")
+				query = query.Join("seasons season ON season.id = t.season_id JOIN shows show ON show.id = season.show_id")
 			}
 		case "season":
 			switch collection {
 			case "episodes":
-				result = append(result, "JOIN seasons season ON season.id = t.season_id")
+				query = query.Join("seasons season ON season.id = t.season_id")
 			}
 		case "tags":
 			switch collection {
 			case "episodes":
-				result = append(result, "JOIN episodes_tags et ON et.episodes_id = t.id JOIN tags tags ON tags.id = et.tags_id")
+				query = query.Join("episodes_tags episodes_tags ON episodes_tags.episodes_id = t.id JOIN tags tags ON tags.id = episodes_tags.tags_id")
 			}
 		}
 	}
-	if len(result) > 0 {
-		return " " + strings.Join(result, " ")
-	}
-	return ""
+	return query
 }
 
 // GetItemIDsForFilter returns an array of ids for the collection
@@ -64,7 +60,7 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, collection string, f c
 
 	var orderByString string
 	if f.SortBy != "" {
-		orderByString = " ORDER BY t." + pq.QuoteIdentifier(f.SortBy)
+		orderByString = pq.QuoteIdentifier(f.SortBy)
 	}
 	if orderByString != "" && f.SortByDirection != "" {
 		switch f.SortByDirection {
@@ -77,15 +73,20 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, collection string, f c
 
 	query := jsonlogic.GetSQLQueryFromFilter(filterObject)
 
-	joins := parseJoins(collection, query.Joins)
+	q := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("t.id").From(collection + " t").Where(query.Filter)
 
-	queryString := "SELECT t.id FROM " + pq.QuoteIdentifier(collection) + " t" + joins + " WHERE " + query.Filter + orderByString
+	q = parseJoins(q, collection, query.Joins)
+
+	queryString, args, err := q.OrderBy(orderByString).ToSql()
+	if err != nil {
+		return nil, err
+	}
 
 	if ctx.Value("preview") == true {
 		log.L.Debug().Str("query", queryString).Msg("Querying database for previewing filter")
 	}
 
-	rows, err := db.Query(queryString)
+	rows, err := db.Query(queryString, args...)
 	if err != nil {
 		return nil, err
 	}
