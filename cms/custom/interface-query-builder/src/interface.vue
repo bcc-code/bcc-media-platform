@@ -4,7 +4,7 @@
 		:field-factory="fieldFactory"
 		@update:value="r => $emit('input', r)"
 	></QueryBuilder>
-    <hr style="margin-top: 10px; margin-bottom: 10px" />
+    <div style="margin-top: 10px; margin-bottom: 10px"></div>
 	<Preview
 		:factory="previewFactory"
 	></Preview>
