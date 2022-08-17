@@ -22,23 +22,29 @@
                 </div>
                 <div>
                     <h3>Value</h3>
-                    <input 
+                    <v-input
+                        v-if="selectedOperator != 'in'"
                         :type="fieldType" 
                         v-model="selectedValue" 
                         @change="update"
                     />
+                    <v-input 
+                        v-else
+                        type="text"
+                        v-model="selectedValue" 
+                        @change="update"
+                    ></v-input>
                 </div>
             </div>
         </div>
         <div style="display: inline-block; float: right">
-            <VButton @click="$emit('delete')">Delete</VButton>
+            <v-button @click="$emit('delete')">Delete</v-button>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import { Field, Filter as TFilter, filterOperators, Variable } from '.';
-import VButton from "./VButton.vue";
 import FieldSelector from './FieldSelector.vue';
 
 const props = defineProps<{ value: TFilter, fields: Field[] }>();
@@ -69,7 +75,11 @@ function update() {
         filter[selectedOperator.value][0] = { var: selectedProperty.value };
     }
     if (selectedValue.value !== null) {
-        filter[selectedOperator.value][1] = selectedValue.value;
+        if (selectedOperator.value === "in") {
+            filter[selectedOperator.value][1] = selectedValue.value?.split(",") ?? [];
+        } else {
+            filter[selectedOperator.value][1] = selectedValue.value;
+        }
     }
     emit("update:value", filter);
     emit("change");

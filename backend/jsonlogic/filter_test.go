@@ -31,9 +31,7 @@ func TestConvertToSQL(t *testing.T) {
 		err = json.Unmarshal(byteValue, &f)
 		assert.NoError(t, err)
 
-		filterString := GetSQLStringFromFilter(f.In)
+		filterString := GetSQLQueryFromFilter(f.In)
 		assert.Equal(t, f.Out, filterString)
-
-		_ = jsonFile.Close()
 	}
 }

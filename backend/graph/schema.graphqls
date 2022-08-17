@@ -112,6 +112,7 @@ type PageItem implements Item {
 
 type Show {
   id: ID!
+  legacyID: ID
   title: String!
   description: String!
   episodeCount: Int!
@@ -131,6 +132,7 @@ type ShowPagination {
 
 type Season {
   id: ID!
+  legacyID: ID
   title: String!
   description: String!
   number: Int!
@@ -150,6 +152,7 @@ type SeasonPagination {
 
 type Episode {
   id: ID!
+  legacyID: ID
   title: String!
   description: String!
   extraDescription: String!
@@ -264,6 +267,7 @@ type User {
 
 interface SearchResultItem {
   id: ID!
+  legacyID: ID
   collection: String!
   title: String!
   header: String
@@ -275,6 +279,7 @@ interface SearchResultItem {
 
 type EpisodeSearchItem implements SearchResultItem {
   id: ID!
+  legacyID: ID
   collection: String!
   title: String!
   header: String
@@ -292,6 +297,7 @@ type EpisodeSearchItem implements SearchResultItem {
 
 type SeasonSearchItem implements SearchResultItem {
   id: ID!
+  legacyID: ID
   collection: String!
   title: String!
   header: String
@@ -306,6 +312,7 @@ type SeasonSearchItem implements SearchResultItem {
 
 type ShowSearchItem implements SearchResultItem {
   id: ID!
+  legacyID: ID
   collection: String!
   title: String!
   header: String

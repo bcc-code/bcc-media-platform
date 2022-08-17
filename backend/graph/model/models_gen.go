@@ -52,6 +52,7 @@ type CollectionItemPagination struct {
 
 type Episode struct {
 	ID                string     `json:"id"`
+	LegacyID          *string    `json:"legacyID"`
 	Title             string     `json:"title"`
 	Description       string     `json:"description"`
 	ExtraDescription  string     `json:"extraDescription"`
@@ -84,6 +85,7 @@ type EpisodePagination struct {
 
 type EpisodeSearchItem struct {
 	ID          string  `json:"id"`
+	LegacyID    *string `json:"legacyID"`
 	Collection  string  `json:"collection"`
 	Title       string  `json:"title"`
 	Header      *string `json:"header"`
@@ -173,6 +175,7 @@ type SearchResult struct {
 
 type Season struct {
 	ID          string             `json:"id"`
+	LegacyID    *string            `json:"legacyID"`
 	Title       string             `json:"title"`
 	Description string             `json:"description"`
 	Number      int                `json:"number"`
@@ -199,6 +202,7 @@ type SeasonPagination struct {
 
 type SeasonSearchItem struct {
 	ID          string  `json:"id"`
+	LegacyID    *string `json:"legacyID"`
 	Collection  string  `json:"collection"`
 	Title       string  `json:"title"`
 	Header      *string `json:"header"`
@@ -227,6 +231,7 @@ type Settings struct {
 
 type Show struct {
 	ID           string            `json:"id"`
+	LegacyID     *string           `json:"legacyID"`
 	Title        string            `json:"title"`
 	Description  string            `json:"description"`
 	EpisodeCount int               `json:"episodeCount"`
@@ -253,6 +258,7 @@ type ShowPagination struct {
 
 type ShowSearchItem struct {
 	ID          string  `json:"id"`
+	LegacyID    *string `json:"legacyID"`
 	Collection  string  `json:"collection"`
 	Title       string  `json:"title"`
 	Header      *string `json:"header"`

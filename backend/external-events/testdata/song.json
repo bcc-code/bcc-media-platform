@@ -1,0 +1,15 @@
+{
+	"timestamp": "2009-11-11T08:00:00+09:00",
+	"source": "some-system",
+	"type": "song",
+	"data": {
+		"id": "HV123",
+		"title": "The title of the song",
+		"people": {
+			"textAuthors": ["Text Textington"],
+			"melodyAuthors": ["Old Kligon folk melody"],
+			"solists": ["Vocal: Sven Singer", "Piano: Kacey Keys"],
+			"arrangedBy": ["Arry Arranger"]
+		}
+	}
+}

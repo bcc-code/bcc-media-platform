@@ -23,10 +23,15 @@ type envConfig struct {
 	Port      string
 	JWTConfig auth0.JWTConfig
 	CDNConfig cdnConfig
+	Secrets   serviceSecrets
 }
 
 type cdnConfig struct {
 	Vod2Domain string
+}
+
+type serviceSecrets struct {
+	Directus string
 }
 
 func (c cdnConfig) GetVOD2Domain() string {
@@ -56,6 +61,9 @@ func getEnvConfig() envConfig {
 		},
 		CDNConfig: cdnConfig{
 			Vod2Domain: os.Getenv("VOD2_CDN_DOMAIN"),
+		},
+		Secrets: serviceSecrets{
+			Directus: os.Getenv("SERVICE_SECRET_DIRECTUS"),
 		},
 	}
 }

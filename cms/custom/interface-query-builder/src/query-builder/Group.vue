@@ -9,8 +9,8 @@
             </div>
             <div>
                 <h3>Add child</h3>
-                <VButton @click="addGroup()">+group</VButton>
-                <VButton @click="addFilter()">+filter</VButton>
+                <v-button @click="addGroup()">+group</v-button>
+                <v-button @click="addFilter()">+filter</v-button>
             </div>
             <div class="children">
                 <div v-for="(v, i) in children">
@@ -30,13 +30,13 @@
                     />
                     <div v-else>
                         <p>Invalid child</p>
-                        <VButton @click="handleChildDelete(i)">Delete</VButton>
+                        <v-button @click="handleChildDelete(i)">Delete</v-button>
                     </div>
                 </div>
             </div>
         </div>
         <div style="display: inline-block; float: right">
-            <VButton @click="$emit('delete')">Delete</VButton>
+            <v-button @click="$emit('delete')">Delete</v-button>
         </div>
     </div>
 </template>
@@ -44,7 +44,6 @@
 import { computed, ref } from 'vue';
 import { snakeToPascal, Field, Filter as TFilter, Group as TGroup, isGroup, isFilter } from '.';
 import Filter from './Filter.vue';
-import VButton from './VButton.vue';
 
 const props = defineProps<{ value: TGroup, fields: Field[] }>();
 const emit = defineEmits<{ 

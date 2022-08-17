@@ -2,34 +2,59 @@ package jsonlogic
 
 import (
 	"encoding/json"
+	"github.com/Masterminds/squirrel"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lib/pq"
+	"github.com/samber/lo"
 	"strconv"
 	"strings"
 )
 
-func opToDbOp(operator string) string {
-	switch operator {
-	case "==":
-		return "="
-	case "!=":
-		return "NOT EQUALS"
-	default:
-		return operator
-	}
+// Query is the struct for filter and joins
+type Query struct {
+	Filter squirrel.Sqlizer
+	Joins  []string
 }
 
-func getValueFromSource(source any) (string, error) {
+func toSquirrelQuery(operator string, property string, value any) (squirrel.Sqlizer, error) {
+	switch operator {
+	case "==", "in":
+		return squirrel.Eq{
+			property: value,
+		}, nil
+	case "!=", "notin":
+		return squirrel.NotEq{
+			property: value,
+		}, nil
+	case "<":
+		return squirrel.Lt{
+			property: value,
+		}, nil
+	case "<=":
+		return squirrel.LtOrEq{
+			property: value,
+		}, nil
+	case ">":
+		return squirrel.Gt{
+			property: value,
+		}, nil
+	case ">=":
+		return squirrel.GtOrEq{
+			property: value,
+		}, nil
+	}
+	return squirrel.Eq{
+		"1": "0",
+	}, merry.New("unknown operator")
+}
+
+func (q *Query) getValueFromSource(source any) (string, error) {
 	switch v := source.(type) {
 	case map[string]any:
 		if prop, ok := v["var"]; ok {
 			switch vt := prop.(type) {
 			case string:
-				// enough to avoid sql injection? Columns shouldn't have any spaces anyway heh
-				if strings.Contains(vt, " ") {
-					return "", merry.New("malformed property string")
-				}
 				return pq.QuoteIdentifier(vt), nil
 			}
 		}
@@ -39,51 +64,84 @@ func getValueFromSource(source any) (string, error) {
 		return strconv.Itoa(int(v)), nil
 	case int:
 		return strconv.Itoa(v), nil
+	case []any:
+		return "(" + strings.Join(lo.Map(v, func(i any, _ int) string {
+			if s, ok := i.(string); ok {
+				return pq.QuoteLiteral(s)
+			}
+
+			return "false"
+		}), ",") + ")", nil
 	}
 	return "", merry.New("unsupported source type")
 }
 
-// GetSQLStringFromFilter returns an SQL string from filter
-func GetSQLStringFromFilter(filter map[string]any) string {
+func (q *Query) getSQLStringFromFilter(filter map[string]any) squirrel.Sqlizer {
 	for key, values := range filter {
 		switch key {
 		case "and", "or":
-			var filters []string
+			var filters squirrel.And
 			switch t := values.(type) {
 			case []any:
 				for _, value := range t {
 					switch v := value.(type) {
 					case map[string]any:
-						filters = append(filters, GetSQLStringFromFilter(v))
+						filters = append(filters, q.getSQLStringFromFilter(v))
 					}
 				}
 			}
-			return "(" + strings.Join(filters, ") "+strings.ToUpper(key)+" (") + ")"
-		case "==", "!=", ">", "<", ">=", "<=":
-			var left string
-			var right string
+			return filters
+		case "==", "!=", ">", "<", ">=", "<=", "in":
+			var part squirrel.Sqlizer
 			switch t := values.(type) {
 			case []any:
 				if len(t) != 2 {
-					return "1 = 0"
+					return squirrel.Eq{
+						"1": "0",
+					}
 				}
 				leftSource := t[0]
 				rightSource := t[1]
 
-				var err error
-				left, err = getValueFromSource(leftSource)
-				if err != nil {
-					return "1 = 0"
+				var property string
+
+				if propMap, ok := leftSource.(map[string]any); ok {
+					property, ok = propMap["var"].(string)
+					if ok {
+						parts := strings.Split(property, ".")
+						if len(parts) == 2 {
+							q.Joins = append(q.Joins, parts[0])
+						} else {
+							property = "t." + pq.QuoteIdentifier(property)
+						}
+					}
 				}
-				right, err = getValueFromSource(rightSource)
+
+				if property == "" {
+					continue
+				}
+
+				var err error
+				part, err = toSquirrelQuery(key, property, rightSource)
 				if err != nil {
-					return "1 = 0"
+					return squirrel.Eq{
+						"1": "0",
+					}
 				}
 			}
-			return left + " " + opToDbOp(key) + " " + right
+			return part
 		}
 	}
 	marshalled, _ := json.Marshal(filter)
 	log.L.Debug().Str("filter", string(marshalled)).Msg("Invalid filter passed")
-	return "1 = 0"
+	return squirrel.Eq{
+		"1": "0",
+	}
+}
+
+// GetSQLQueryFromFilter returns an SQL string from filter
+func GetSQLQueryFromFilter(filter map[string]any) Query {
+	q := Query{}
+	q.Filter = q.getSQLStringFromFilter(filter)
+	return q
 }

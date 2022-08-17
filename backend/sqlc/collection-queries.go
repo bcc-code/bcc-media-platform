@@ -10,23 +10,19 @@ import (
 
 func mapToCollections(collections []Collection) []common.Collection {
 	return lo.Map(collections, func(e Collection, _ int) common.Collection {
-		var filter *json.RawMessage
+		var filter *common.Filter
 
 		switch e.FilterType.ValueOrZero() {
 		case "query":
 			switch e.Collection.ValueOrZero() {
 			case "pages":
-				msg := e.PagesQueryFilter.RawMessage
-				filter = &msg
+				_ = json.Unmarshal(e.PagesQueryFilter.RawMessage, &filter)
 			case "shows":
-				msg := e.ShowsQueryFilter.RawMessage
-				filter = &msg
+				_ = json.Unmarshal(e.ShowsQueryFilter.RawMessage, &filter)
 			case "seasons":
-				msg := e.SeasonsQueryFilter.RawMessage
-				filter = &msg
+				_ = json.Unmarshal(e.SeasonsQueryFilter.RawMessage, &filter)
 			case "episodes":
-				msg := e.EpisodesQueryFilter.RawMessage
-				filter = &msg
+				_ = json.Unmarshal(e.EpisodesQueryFilter.RawMessage, &filter)
 			}
 		}
 

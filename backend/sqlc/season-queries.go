@@ -16,7 +16,8 @@ func mapToSeasons(seasons []SeasonExpanded) []common.Season {
 		_ = json.Unmarshal(e.Description, &description)
 
 		return common.Season{
-			ID: int(e.ID),
+			ID:       int(e.ID),
+			LegacyID: e.LegacyID,
 			Availability: common.Availability{
 				Published: e.Published,
 				From:      e.AvailableFrom,

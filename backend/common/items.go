@@ -12,12 +12,13 @@ type hasKey[k comparable] interface {
 
 // Show is the definition of the Show object
 type Show struct {
-	ID           int
-	Availability Availability
-	Roles        Roles
-	Title        LocaleString
-	Description  LocaleString
-	ImageID      uuid.NullUUID
+	ID           int           `json:"id"`
+	LegacyID     null.Int      `json:"legacyId"`
+	Availability Availability  `json:"availability"`
+	Roles        Roles         `json:"roles"`
+	Title        LocaleString  `json:"title"`
+	Description  LocaleString  `json:"description"`
+	ImageID      uuid.NullUUID `json:"imageId"`
 }
 
 // GetKey returns the key for this item
@@ -40,16 +41,22 @@ func (i Show) GetImage() uuid.NullUUID {
 	return i.ImageID
 }
 
+// IsCollectionItem declares that this implements CollectionItem interfaces
+func (i Show) IsCollectionItem() {
+
+}
+
 // Season is the definition of the Season object
 type Season struct {
-	ID           int
-	Number       int
-	Availability Availability
-	Roles        Roles
-	Title        LocaleString
-	Description  LocaleString
-	ShowID       int
-	ImageID      uuid.NullUUID
+	ID           int           `json:"id"`
+	LegacyID     null.Int      `json:"legacyId"`
+	Number       int           `json:"number"`
+	Availability Availability  `json:"availability"`
+	Roles        Roles         `json:"roles"`
+	Title        LocaleString  `json:"title"`
+	Description  LocaleString  `json:"description"`
+	ShowID       int           `json:"showId"`
+	ImageID      uuid.NullUUID `json:"imageId"`
 }
 
 // GetKey returns the key for this item
@@ -72,19 +79,25 @@ func (i Season) GetImage() uuid.NullUUID {
 	return i.ImageID
 }
 
+// IsCollectionItem declares that this implements CollectionItem interfaces
+func (i Season) IsCollectionItem() {
+
+}
+
 // Episode is the definition of the Episode object
 type Episode struct {
-	ID               int
-	Availability     Availability
-	Roles            Roles
-	SeasonID         null.Int
-	Number           null.Int
-	AssetID          null.Int
-	ImageID          uuid.NullUUID
-	TagIDs           []int
-	Title            LocaleString
-	Description      LocaleString
-	ExtraDescription LocaleString
+	ID               int           `json:"id"`
+	LegacyID         null.Int	   `json:"legacyId"`
+	Availability     Availability  `json:"availability"`
+	Roles            Roles         `json:"roles"`
+	SeasonID         null.Int      `json:"seasonId"`
+	Number           null.Int      `json:"number"`
+	AssetID          null.Int      `json:"assetId"`
+	ImageID          uuid.NullUUID `json:"imageId"`
+	TagIDs           []int         `json:"tagIds"`
+	Title            LocaleString  `json:"title"`
+	Description      LocaleString  `json:"description"`
+	ExtraDescription LocaleString  `json:"extraDescription"`
 }
 
 // GetKey returns the key for this item
@@ -112,41 +125,46 @@ func (i Episode) GetTagIDs() []int {
 	return i.TagIDs
 }
 
+// IsCollectionItem declares that this implements CollectionItem interfaces
+func (i Episode) IsCollectionItem() {
+
+}
+
 // File item type
 type File struct {
-	ID               int
-	Type             string
-	EpisodeID        int
-	AssetID          int
-	AudioLanguage    null.String
-	SubtitleLanguage null.String
-	Path             string
-	Storage          string
-	MimeType         string
+	ID               int         `json:"id"`
+	Type             string      `json:"type"`
+	EpisodeID        int         `json:"episodeId"`
+	AssetID          int         `json:"assetId"`
+	AudioLanguage    null.String `json:"audioLanguage"`
+	SubtitleLanguage null.String `json:"subtitleLanguage"`
+	Path             string      `json:"path"`
+	Storage          string      `json:"storage"`
+	MimeType         string      `json:"mimeType"`
 }
 
 // Stream item type
 type Stream struct {
-	ID                int
-	Type              string
-	EpisodeID         int
-	AssetID           int
-	AudioLanguages    []string
-	SubtitleLanguages []string
-	Path              string
-	Service           string
-	Url               string
-	EncryptionKeyID   null.String
+	ID                int         `json:"id"`
+	Type              string      `json:"type"`
+	EpisodeID         int         `json:"episodeId"`
+	AssetID           int         `json:"assetId"`
+	AudioLanguages    []string    `json:"audioLanguages"`
+	SubtitleLanguages []string    `json:"subtitleLanguages"`
+	Path              string      `json:"path"`
+	Service           string      `json:"service"`
+	Url               string      `json:"url"`
+	EncryptionKeyID   null.String `json:"encryptionKeyId"`
 }
 
 // Page is the definition of the Page object
 type Page struct {
-	ID           int
-	Roles        Roles
-	Availability Availability
-	Code         string
-	Title        LocaleString
-	Description  LocaleString
+	ID           int          `json:"id"`
+	Roles        Roles        `json:"roles"`
+	Availability Availability `json:"availability"`
+	Code         string       `json:"code"`
+	Title        LocaleString `json:"title"`
+	Description  LocaleString `json:"description"`
 }
 
 // GetKey returns the key for this item
@@ -164,17 +182,22 @@ func (i Page) GetRoles() Roles {
 	return i.Roles
 }
 
+// IsCollectionItem declares that this implements CollectionItem interfaces
+func (i Page) IsCollectionItem() {
+
+}
+
 // Section is the definition of the Section object
 type Section struct {
-	ID           int
-	Sort         int
-	PageID       int
-	Type         string
-	Title        LocaleString
-	Description  LocaleString
-	Style        string
-	CollectionID null.Int
-	Roles        []string
+	ID           int          `json:"id"`
+	Sort         int          `json:"sort"`
+	PageID       int          `json:"pageId"`
+	Type         string       `json:"type"`
+	Title        LocaleString `json:"title"`
+	Description  LocaleString `json:"description"`
+	Style        string       `json:"style"`
+	CollectionID null.Int     `json:"collectionId"`
+	Roles        []string     `json:"roles"`
 }
 
 // GetKey returns the key for this item
@@ -184,11 +207,11 @@ func (i Section) GetKey() int {
 
 // Collection is the definition of the Collection object
 type Collection struct {
-	ID         int
-	Name       string
-	Type       string
-	Collection null.String
-	Filter     *json.RawMessage
+	ID         int         `json:"id"`
+	Name       string      `json:"name"`
+	Type       string      `json:"type"`
+	Collection null.String `json:"collection"`
+	Filter     *Filter     `json:"filter"`
 }
 
 // GetKey returns the key for this item
@@ -196,13 +219,20 @@ func (i Collection) GetKey() int {
 	return i.ID
 }
 
+// Filter struct contains filter data
+type Filter struct {
+	Filter          json.RawMessage
+	SortBy          string
+	SortByDirection string
+}
+
 // CollectionItem is the definition of the CollectionItem object
 type CollectionItem struct {
-	ID           int
-	Sort         int
-	CollectionID int
-	Type         string
-	ItemID       int
+	ID           int    `json:"id"`
+	Sort         int    `json:"sort"`
+	CollectionID int    `json:"collectionId"`
+	Type         string `json:"type"`
+	ItemID       int    `json:"itemId"`
 }
 
 // GetKey returns the key for this item
@@ -212,9 +242,9 @@ func (s CollectionItem) GetKey() int {
 
 // Tag struct
 type Tag struct {
-	ID   int
-	Code string
-	Name LocaleString
+	ID   int          `json:"id"`
+	Code string       `json:"code"`
+	Name LocaleString `json:"name"`
 }
 
 // GetKey returns the key for this item

@@ -11,6 +11,7 @@ import (
 
 type searchHit struct {
 	ID              string                 `json:"objectID"`
+	LegacyID        *int                   `json:"legacyID"`
 	Title           common.LocaleString    `json:"title"`
 	Header          string                 `json:"header"`
 	Description     common.LocaleString    `json:"description"`

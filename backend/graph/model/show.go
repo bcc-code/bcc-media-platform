@@ -14,8 +14,15 @@ func ShowFrom(ctx context.Context, s *common.Show) *Show {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
+	var legacyID *string
+	if s.LegacyID.Valid {
+		strID := strconv.Itoa(int(s.LegacyID.Int64))
+		legacyID = &strID
+	}
+
 	return &Show{
 		ID:          strconv.Itoa(s.ID),
+		LegacyID:    legacyID,
 		Title:       s.Title.Get(languages),
 		Description: s.Description.Get(languages),
 	}
