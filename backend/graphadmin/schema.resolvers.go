@@ -6,9 +6,12 @@ package gqladmin
 import (
 	"context"
 	"encoding/json"
+	"strconv"
+
 	"github.com/bcc-code/brunstadtv/backend/common"
 	gqladmingenerated "github.com/bcc-code/brunstadtv/backend/graphadmin/generated"
 	gqladminmodel "github.com/bcc-code/brunstadtv/backend/graphadmin/model"
+	"github.com/samber/lo"
 )
 
 // Collection is the resolver for the collection field.
@@ -26,6 +29,31 @@ func (r *previewResolver) Collection(ctx context.Context, obj *gqladminmodel.Pre
 
 	return &gqladminmodel.PreviewCollection{
 		Items: items,
+	}, nil
+}
+
+// Asset is the resolver for the asset field.
+func (r *previewResolver) Asset(ctx context.Context, obj *gqladminmodel.Preview, id string) (*gqladminmodel.PreviewAsset, error) {
+	ctx = context.WithValue(ctx, "preview", true)
+
+	intID, err := strconv.ParseInt(id, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+
+	streams, err := r.Queries.GetStreamsForAssets(ctx, []int{int(intID)})
+	if err != nil || len(streams) == 0 {
+		return nil, err
+	}
+
+	stream, found := lo.Find(streams, func(s common.Stream) bool {
+		return s.Type == "dash"
+	})
+	if !found {
+		stream = streams[0]
+	}
+	return &gqladminmodel.PreviewAsset{
+		URL: stream.Url,
 	}, nil
 }
 

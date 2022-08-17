@@ -3,10 +3,15 @@ directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITI
 
 type Preview {
     collection(collection: String!, filter: String!): PreviewCollection! @goField(forceResolver: true)
+    asset(id: ID!): PreviewAsset! @goField(forceResolver: true)
 }
 
 type PreviewCollection {
     items: [CollectionItem!]!
+}
+
+type PreviewAsset {
+    url: String!
 }
 
 type CollectionItem {

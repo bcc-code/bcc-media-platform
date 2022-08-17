@@ -50,7 +50,12 @@ type ComplexityRoot struct {
 	}
 
 	Preview struct {
+		Asset      func(childComplexity int, id string) int
 		Collection func(childComplexity int, collection string, filter string) int
+	}
+
+	PreviewAsset struct {
+		URL func(childComplexity int) int
 	}
 
 	PreviewCollection struct {
@@ -64,6 +69,7 @@ type ComplexityRoot struct {
 
 type PreviewResolver interface {
 	Collection(ctx context.Context, obj *gqladminmodel.Preview, collection string, filter string) (*gqladminmodel.PreviewCollection, error)
+	Asset(ctx context.Context, obj *gqladminmodel.Preview, id string) (*gqladminmodel.PreviewAsset, error)
 }
 type QueryRootResolver interface {
 	Preview(ctx context.Context) (*gqladminmodel.Preview, error)
@@ -98,6 +104,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CollectionItem.Title(childComplexity), true
 
+	case "Preview.asset":
+		if e.complexity.Preview.Asset == nil {
+			break
+		}
+
+		args, err := ec.field_Preview_asset_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Preview.Asset(childComplexity, args["id"].(string)), true
+
 	case "Preview.collection":
 		if e.complexity.Preview.Collection == nil {
 			break
@@ -109,6 +127,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Preview.Collection(childComplexity, args["collection"].(string), args["filter"].(string)), true
+
+	case "PreviewAsset.url":
+		if e.complexity.PreviewAsset.URL == nil {
+			break
+		}
+
+		return e.complexity.PreviewAsset.URL(childComplexity), true
 
 	case "PreviewCollection.items":
 		if e.complexity.PreviewCollection.Items == nil {
@@ -181,10 +206,15 @@ var sources = []*ast.Source{
 
 type Preview {
     collection(collection: String!, filter: String!): PreviewCollection! @goField(forceResolver: true)
+    asset(id: ID!): PreviewAsset! @goField(forceResolver: true)
 }
 
 type PreviewCollection {
     items: [CollectionItem!]!
+}
+
+type PreviewAsset {
+    url: String!
 }
 
 type CollectionItem {
@@ -205,6 +235,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Preview_asset_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Preview_collection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -430,6 +475,109 @@ func (ec *executionContext) fieldContext_Preview_collection(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Preview_asset(ctx context.Context, field graphql.CollectedField, obj *gqladminmodel.Preview) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Preview_asset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Preview().Asset(rctx, obj, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqladminmodel.PreviewAsset)
+	fc.Result = res
+	return ec.marshalNPreviewAsset2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphadminᚋmodelᚐPreviewAsset(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Preview_asset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Preview",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "url":
+				return ec.fieldContext_PreviewAsset_url(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PreviewAsset", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Preview_asset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PreviewAsset_url(ctx context.Context, field graphql.CollectedField, obj *gqladminmodel.PreviewAsset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreviewAsset_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreviewAsset_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreviewAsset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PreviewCollection_items(ctx context.Context, field graphql.CollectedField, obj *gqladminmodel.PreviewCollection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PreviewCollection_items(ctx, field)
 	if err != nil {
@@ -521,6 +669,8 @@ func (ec *executionContext) fieldContext_QueryRoot_preview(ctx context.Context, 
 			switch field.Name {
 			case "collection":
 				return ec.fieldContext_Preview_collection(ctx, field)
+			case "asset":
+				return ec.fieldContext_Preview_asset(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Preview", field.Name)
 		},
@@ -2503,6 +2653,54 @@ func (ec *executionContext) _Preview(ctx context.Context, sel ast.SelectionSet, 
 				return innerFunc(ctx)
 
 			})
+		case "asset":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Preview_asset(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var previewAssetImplementors = []string{"PreviewAsset"}
+
+func (ec *executionContext) _PreviewAsset(ctx context.Context, sel ast.SelectionSet, obj *gqladminmodel.PreviewAsset) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, previewAssetImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PreviewAsset")
+		case "url":
+
+			out.Values[i] = ec._PreviewAsset_url(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3021,6 +3219,20 @@ func (ec *executionContext) marshalNPreview2ᚖgithubᚗcomᚋbccᚑcodeᚋbruns
 		return graphql.Null
 	}
 	return ec._Preview(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPreviewAsset2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphadminᚋmodelᚐPreviewAsset(ctx context.Context, sel ast.SelectionSet, v gqladminmodel.PreviewAsset) graphql.Marshaler {
+	return ec._PreviewAsset(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPreviewAsset2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphadminᚋmodelᚐPreviewAsset(ctx context.Context, sel ast.SelectionSet, v *gqladminmodel.PreviewAsset) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PreviewAsset(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNPreviewCollection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphadminᚋmodelᚐPreviewCollection(ctx context.Context, sel ast.SelectionSet, v gqladminmodel.PreviewCollection) graphql.Marshaler {
