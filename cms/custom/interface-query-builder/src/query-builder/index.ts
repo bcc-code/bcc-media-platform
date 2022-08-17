@@ -22,7 +22,7 @@ export const isGroup = (item: Filter | Group) => {
     return false;
 }
 
-export const filterOperators = ["==", "!=", "<", "<=", ">", ">="]
+export const filterOperators = ["==", "!=", "<", "<=", ">", ">=", "in"]
 
 export const isFilter = (item: Filter | Group) => {
     const operator = Object.keys(item)[0];

@@ -5,7 +5,7 @@ export type Variable = {
 }
 
 export type Filter = {
-    [operator: string]: (string | number | Variable)[];
+    [operator: string]: (string | string[] | number | Variable)[];
 }
 
 export type Group = {

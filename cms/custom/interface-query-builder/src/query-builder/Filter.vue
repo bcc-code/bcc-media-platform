@@ -22,11 +22,18 @@
                 </div>
                 <div>
                     <h3>Value</h3>
-                    <v-input 
+                    <v-input
+                        v-if="selectedOperator != 'in'"
                         :type="fieldType" 
                         v-model="selectedValue" 
                         @change="update"
                     />
+                    <v-input 
+                        v-else
+                        type="text"
+                        v-model="selectedValue" 
+                        @change="update"
+                    ></v-input>
                 </div>
             </div>
         </div>
@@ -68,7 +75,11 @@ function update() {
         filter[selectedOperator.value][0] = { var: selectedProperty.value };
     }
     if (selectedValue.value !== null) {
-        filter[selectedOperator.value][1] = selectedValue.value;
+        if (selectedOperator.value === "in") {
+            filter[selectedOperator.value][1] = selectedValue.value?.split(",") ?? [];
+        } else {
+            filter[selectedOperator.value][1] = selectedValue.value;
+        }
     }
     emit("update:value", filter);
     emit("change");
