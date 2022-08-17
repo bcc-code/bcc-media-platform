@@ -1,5 +1,5 @@
 version: 1
-directus: 9.14.1
+directus: 9.15.1
 collections:
   - collection: ageratings
     meta:
@@ -18420,7 +18420,7 @@ relations:
       one_collection_field: null
       one_deselect_action: nullify
       one_field: sections
-      sort_field: null
+      sort_field: sort
     related_collection: pages
     schema:
       column: page_id
