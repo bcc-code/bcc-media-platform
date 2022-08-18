@@ -16,7 +16,6 @@ import (
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"github.com/samber/lo"
 )
 
 // Period is the resolver for the period field.
@@ -29,43 +28,16 @@ func (r *calendarResolver) Period(ctx context.Context, obj *gqlmodel.Calendar, f
 	if err != nil {
 		return nil, err
 	}
-	events, err := r.Queries.GetEventsForPeriod(ctx, fromTime, toTime)
-	if err != nil {
-		return nil, err
-	}
-	entries, err := r.Queries.GetCalendarEntriesForPeriod(ctx, fromTime, toTime)
-	if err != nil {
-		return nil, err
-	}
-	zone, offset := fromTime.Zone()
-	location := time.FixedZone(zone, offset)
-
-	var days []string
-	for _, entry := range entries {
-		date := entry.Start.In(location)
-		dateString := date.Format("2006-01-02")
-		if !lo.Contains(days, dateString) {
-			days = append(days, dateString)
-		}
-	}
-
-	return &gqlmodel.CalendarPeriod{
-		Events: lo.Map(events, func(e common.Event, _ int) *gqlmodel.Event {
-			return &gqlmodel.Event{
-				ID:    strconv.Itoa(e.ID),
-				Start: e.Start.In(location).Format(time.RFC3339),
-				End:   e.End.In(location).Format(time.RFC3339),
-			}
-		}),
-		ActiveDays: lo.Map(days, func(date string, _ int) string {
-			t, _ := time.ParseInLocation("2006-01-02", date, location)
-			return t.Format(time.RFC3339)
-		}),
-	}, nil
+	return r.periodResolver(ctx, fromTime, toTime)
 }
 
 // Day is the resolver for the day field.
 func (r *calendarResolver) Day(ctx context.Context, obj *gqlmodel.Calendar, day string) (*gqlmodel.CalendarDay, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+// Episode is the resolver for the episode field.
+func (r *calendarEntryResolver) Episode(ctx context.Context, obj *gqlmodel.CalendarEntry) (*gqlmodel.Episode, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
@@ -106,11 +78,6 @@ func (r *episodeSearchItemResolver) Show(ctx context.Context, obj *gqlmodel.Epis
 // Season is the resolver for the season field.
 func (r *episodeSearchItemResolver) Season(ctx context.Context, obj *gqlmodel.EpisodeSearchItem) (*gqlmodel.Season, error) {
 	return r.QueryRoot().Season(ctx, obj.Season.ID)
-}
-
-// TvGuideEntries is the resolver for the tvGuideEntries field.
-func (r *eventResolver) TvGuideEntries(ctx context.Context, obj *gqlmodel.Event) ([]*gqlmodel.TvGuideEntry, error) {
-	panic(fmt.Errorf("not implemented"))
 }
 
 // Page is the resolver for the page field.
@@ -201,7 +168,7 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 }
 
 // Calendar is the resolver for the calendar field.
-func (r *queryRootResolver) Calendar(_ context.Context) (*gqlmodel.Calendar, error) {
+func (r *queryRootResolver) Calendar(ctx context.Context) (*gqlmodel.Calendar, error) {
 	return &gqlmodel.Calendar{}, nil
 }
 
@@ -285,13 +252,11 @@ func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show, first *i
 	}, nil
 }
 
-// Episode is the resolver for the episode field.
-func (r *tvGuideEntryResolver) Episode(ctx context.Context, obj *gqlmodel.TvGuideEntry) (*gqlmodel.Episode, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
 // Calendar returns generated.CalendarResolver implementation.
 func (r *Resolver) Calendar() generated.CalendarResolver { return &calendarResolver{r} }
+
+// CalendarEntry returns generated.CalendarEntryResolver implementation.
+func (r *Resolver) CalendarEntry() generated.CalendarEntryResolver { return &calendarEntryResolver{r} }
 
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
@@ -300,9 +265,6 @@ func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver
 func (r *Resolver) EpisodeSearchItem() generated.EpisodeSearchItemResolver {
 	return &episodeSearchItemResolver{r}
 }
-
-// Event returns generated.EventResolver implementation.
-func (r *Resolver) Event() generated.EventResolver { return &eventResolver{r} }
 
 // ItemSection returns generated.ItemSectionResolver implementation.
 func (r *Resolver) ItemSection() generated.ItemSectionResolver { return &itemSectionResolver{r} }
@@ -324,17 +286,13 @@ func (r *Resolver) SeasonSearchItem() generated.SeasonSearchItemResolver {
 // Show returns generated.ShowResolver implementation.
 func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
 
-// TvGuideEntry returns generated.TvGuideEntryResolver implementation.
-func (r *Resolver) TvGuideEntry() generated.TvGuideEntryResolver { return &tvGuideEntryResolver{r} }
-
 type calendarResolver struct{ *Resolver }
+type calendarEntryResolver struct{ *Resolver }
 type episodeResolver struct{ *Resolver }
 type episodeSearchItemResolver struct{ *Resolver }
-type eventResolver struct{ *Resolver }
 type itemSectionResolver struct{ *Resolver }
 type pageResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
 type seasonResolver struct{ *Resolver }
 type seasonSearchItemResolver struct{ *Resolver }
 type showResolver struct{ *Resolver }
-type tvGuideEntryResolver struct{ *Resolver }

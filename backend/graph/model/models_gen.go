@@ -26,9 +26,18 @@ type Calendar struct {
 }
 
 type CalendarDay struct {
-	ID             string          `json:"id"`
-	Events         []*Event        `json:"events"`
-	TvGuideEntries []*TvGuideEntry `json:"tvGuideEntries"`
+	ID      string           `json:"id"`
+	Events  []*Event         `json:"events"`
+	Entries []*CalendarEntry `json:"entries"`
+}
+
+type CalendarEntry struct {
+	ID          string   `json:"id"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Start       string   `json:"start"`
+	End         string   `json:"end"`
+	Episode     *Episode `json:"episode"`
 }
 
 type CalendarPeriod struct {
@@ -104,11 +113,11 @@ type EpisodeSearchItem struct {
 func (EpisodeSearchItem) IsSearchResultItem() {}
 
 type Event struct {
-	ID             string          `json:"id"`
-	Start          string          `json:"start"`
-	End            string          `json:"end"`
-	TvGuideEntries []*TvGuideEntry `json:"tvGuideEntries"`
-	BannerImageURL string          `json:"bannerImageURL"`
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	Start string `json:"start"`
+	End   string `json:"end"`
+	Image string `json:"image"`
 }
 
 type Faq struct {
@@ -276,13 +285,6 @@ type Stream struct {
 	AudioLanguages    []Language `json:"audioLanguages"`
 	SubtitleLanguages []Language `json:"subtitleLanguages"`
 	Type              StreamType `json:"type"`
-}
-
-type TvGuideEntry struct {
-	ID      string   `json:"id"`
-	Start   string   `json:"start"`
-	End     string   `json:"end"`
-	Episode *Episode `json:"episode"`
 }
 
 type URLItem struct {

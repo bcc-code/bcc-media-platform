@@ -44,17 +44,15 @@ func (q *Queries) ListEvents(ctx context.Context) ([]common.Event, error) {
 }
 
 // GetEventsForPeriod returns events for the specific period
-func (q *Queries) GetEventsForPeriod(ctx context.Context, from time.Time, to time.Time) ([]common.Event, error) {
-	items, err := q.getEventsForPeriod(ctx, getEventsForPeriodParams{
+func (q *Queries) GetEventsForPeriod(ctx context.Context, from time.Time, to time.Time) ([]int, error) {
+	ids, err := q.getEventIDsForPeriod(ctx, getEventIDsForPeriodParams{
 		from,
 		to,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return mapToEvents(lo.Map(items, func(i getEventsForPeriodRow, _ int) getEventsRow {
-		return getEventsRow(i)
-	})), nil
+	return int32ToInt(ids), nil
 }
 
 func mapToCalendarEntries(items []getCalendarEntriesRow) []common.CalendarEntry {
@@ -97,15 +95,13 @@ func (q *Queries) ListCalendarEntries(ctx context.Context) ([]common.CalendarEnt
 }
 
 // GetCalendarEntriesForPeriod returns events for the specific period
-func (q *Queries) GetCalendarEntriesForPeriod(ctx context.Context, from time.Time, to time.Time) ([]common.CalendarEntry, error) {
-	items, err := q.getCalendarEntriesForPeriod(ctx, getCalendarEntriesForPeriodParams{
+func (q *Queries) GetCalendarEntriesForPeriod(ctx context.Context, from time.Time, to time.Time) ([]int, error) {
+	ids, err := q.getCalendarEntryIDsForPeriod(ctx, getCalendarEntryIDsForPeriodParams{
 		from,
 		to,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return mapToCalendarEntries(lo.Map(items, func(i getCalendarEntriesForPeriodRow, _ int) getCalendarEntriesRow {
-		return getCalendarEntriesRow(i)
-	})), nil
+	return int32ToInt(ids), err
 }

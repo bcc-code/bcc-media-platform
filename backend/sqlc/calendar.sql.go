@@ -152,71 +152,81 @@ func (q *Queries) getCalendarEntriesForEvents(ctx context.Context, dollar_1 []in
 	return items, nil
 }
 
-const getCalendarEntriesForPeriod = `-- name: getCalendarEntriesForPeriod :many
+const getCalendarEntryIDsForPeriod = `-- name: getCalendarEntryIDsForPeriod :many
 WITH t AS (SELECT ts.calendarentries_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
                   json_object_agg(ts.languages_code, ts.description) AS description
            FROM calendarentries_translations ts
            GROUP BY ts.calendarentries_id)
-SELECT e.id,
-       e.event_id,
-       e.link_type,
-       e.start,
-       e.end,
-       e.episode_id,
-       e.season_id,
-       e.show_id,
-       t.title,
-       t.description
+SELECT e.id
 FROM calendarentries e
          LEFT JOIN t ON e.id = t.calendarentries_id
 WHERE e.status = 'published'
-  AND ((e.start >= $1::date AND e.start <= $2::date) OR
-       (e.end >= $1::date AND e.end <= $2::date))
+  AND ((e.start >= $1::timestamptz AND e.start <= $2::timestamptz) OR
+       (e.end >= $1::timestamptz AND e.end <= $2::timestamptz))
+ORDER BY e.start
 `
 
-type getCalendarEntriesForPeriodParams struct {
+type getCalendarEntryIDsForPeriodParams struct {
 	Column1 time.Time `db:"column_1" json:"column1"`
 	Column2 time.Time `db:"column_2" json:"column2"`
 }
 
-type getCalendarEntriesForPeriodRow struct {
-	ID          int32                 `db:"id" json:"id"`
-	EventID     null_v4.Int           `db:"event_id" json:"eventID"`
-	LinkType    null_v4.String        `db:"link_type" json:"linkType"`
-	Start       time.Time             `db:"start" json:"start"`
-	End         time.Time             `db:"end" json:"end"`
-	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeID"`
-	SeasonID    null_v4.Int           `db:"season_id" json:"seasonID"`
-	ShowID      null_v4.Int           `db:"show_id" json:"showID"`
-	Title       pqtype.NullRawMessage `db:"title" json:"title"`
-	Description pqtype.NullRawMessage `db:"description" json:"description"`
-}
-
-func (q *Queries) getCalendarEntriesForPeriod(ctx context.Context, arg getCalendarEntriesForPeriodParams) ([]getCalendarEntriesForPeriodRow, error) {
-	rows, err := q.db.QueryContext(ctx, getCalendarEntriesForPeriod, arg.Column1, arg.Column2)
+func (q *Queries) getCalendarEntryIDsForPeriod(ctx context.Context, arg getCalendarEntryIDsForPeriodParams) ([]int32, error) {
+	rows, err := q.db.QueryContext(ctx, getCalendarEntryIDsForPeriod, arg.Column1, arg.Column2)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []getCalendarEntriesForPeriodRow
+	var items []int32
 	for rows.Next() {
-		var i getCalendarEntriesForPeriodRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.EventID,
-			&i.LinkType,
-			&i.Start,
-			&i.End,
-			&i.EpisodeID,
-			&i.SeasonID,
-			&i.ShowID,
-			&i.Title,
-			&i.Description,
-		); err != nil {
+		var id int32
+		if err := rows.Scan(&id); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getEventIDsForPeriod = `-- name: getEventIDsForPeriod :many
+WITH t AS (SELECT ts.events_id,
+                  json_object_agg(ts.languages_code, ts.title)       AS title
+           FROM events_translations ts
+           GROUP BY ts.events_id)
+SELECT e.id
+FROM events e
+         LEFT JOIN t ON e.id = t.events_id
+WHERE e.status = 'published'
+  AND ((e.start >= $1::timestamptz AND e.start <= $2::timestamptz) OR
+       (e.end >= $1::timestamptz AND e.end <= $2::timestamptz))
+ORDER BY e.start
+`
+
+type getEventIDsForPeriodParams struct {
+	Column1 time.Time `db:"column_1" json:"column1"`
+	Column2 time.Time `db:"column_2" json:"column2"`
+}
+
+func (q *Queries) getEventIDsForPeriod(ctx context.Context, arg getEventIDsForPeriodParams) ([]int32, error) {
+	rows, err := q.db.QueryContext(ctx, getEventIDsForPeriod, arg.Column1, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int32
+	for rows.Next() {
+		var id int32
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -258,62 +268,6 @@ func (q *Queries) getEvents(ctx context.Context, dollar_1 []int32) ([]getEventsR
 	var items []getEventsRow
 	for rows.Next() {
 		var i getEventsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Start,
-			&i.End,
-			&i.Title,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getEventsForPeriod = `-- name: getEventsForPeriod :many
-WITH t AS (SELECT ts.events_id,
-                  json_object_agg(ts.languages_code, ts.title)       AS title
-           FROM events_translations ts
-           GROUP BY ts.events_id)
-SELECT e.id,
-       e.start,
-       e.end,
-       t.title
-FROM events e
-         LEFT JOIN t ON e.id = t.events_id
-WHERE e.status = 'published'
-  AND ((e.start >= $1::date AND e.start <= $2::date) OR
-       (e.end >= $1::date AND e.end <= $2::date))
-`
-
-type getEventsForPeriodParams struct {
-	Column1 time.Time `db:"column_1" json:"column1"`
-	Column2 time.Time `db:"column_2" json:"column2"`
-}
-
-type getEventsForPeriodRow struct {
-	ID    int32                 `db:"id" json:"id"`
-	Start time.Time             `db:"start" json:"start"`
-	End   time.Time             `db:"end" json:"end"`
-	Title pqtype.NullRawMessage `db:"title" json:"title"`
-}
-
-func (q *Queries) getEventsForPeriod(ctx context.Context, arg getEventsForPeriodParams) ([]getEventsForPeriodRow, error) {
-	rows, err := q.db.QueryContext(ctx, getEventsForPeriod, arg.Column1, arg.Column2)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []getEventsForPeriodRow
-	for rows.Next() {
-		var i getEventsForPeriodRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Start,

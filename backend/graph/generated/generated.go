@@ -37,16 +37,15 @@ type Config struct {
 
 type ResolverRoot interface {
 	Calendar() CalendarResolver
+	CalendarEntry() CalendarEntryResolver
 	Episode() EpisodeResolver
 	EpisodeSearchItem() EpisodeSearchItemResolver
-	Event() EventResolver
 	ItemSection() ItemSectionResolver
 	Page() PageResolver
 	QueryRoot() QueryRootResolver
 	Season() SeasonResolver
 	SeasonSearchItem() SeasonSearchItemResolver
 	Show() ShowResolver
-	TvGuideEntry() TvGuideEntryResolver
 }
 
 type DirectiveRoot struct {
@@ -59,9 +58,18 @@ type ComplexityRoot struct {
 	}
 
 	CalendarDay struct {
-		Events         func(childComplexity int) int
-		ID             func(childComplexity int) int
-		TvGuideEntries func(childComplexity int) int
+		Entries func(childComplexity int) int
+		Events  func(childComplexity int) int
+		ID      func(childComplexity int) int
+	}
+
+	CalendarEntry struct {
+		Description func(childComplexity int) int
+		End         func(childComplexity int) int
+		Episode     func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Start       func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	CalendarPeriod struct {
@@ -133,11 +141,11 @@ type ComplexityRoot struct {
 	}
 
 	Event struct {
-		BannerImageURL func(childComplexity int) int
-		End            func(childComplexity int) int
-		ID             func(childComplexity int) int
-		Start          func(childComplexity int) int
-		TvGuideEntries func(childComplexity int) int
+		End   func(childComplexity int) int
+		ID    func(childComplexity int) int
+		Image func(childComplexity int) int
+		Start func(childComplexity int) int
+		Title func(childComplexity int) int
 	}
 
 	FAQ struct {
@@ -309,13 +317,6 @@ type ComplexityRoot struct {
 		URL               func(childComplexity int) int
 	}
 
-	TvGuideEntry struct {
-		End     func(childComplexity int) int
-		Episode func(childComplexity int) int
-		ID      func(childComplexity int) int
-		Start   func(childComplexity int) int
-	}
-
 	URLItem struct {
 		ID       func(childComplexity int) int
 		ImageURL func(childComplexity int) int
@@ -339,6 +340,9 @@ type CalendarResolver interface {
 	Period(ctx context.Context, obj *gqlmodel.Calendar, from string, to string) (*gqlmodel.CalendarPeriod, error)
 	Day(ctx context.Context, obj *gqlmodel.Calendar, day string) (*gqlmodel.CalendarDay, error)
 }
+type CalendarEntryResolver interface {
+	Episode(ctx context.Context, obj *gqlmodel.CalendarEntry) (*gqlmodel.Episode, error)
+}
 type EpisodeResolver interface {
 	Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error)
 	Files(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.File, error)
@@ -349,9 +353,6 @@ type EpisodeSearchItemResolver interface {
 	Show(ctx context.Context, obj *gqlmodel.EpisodeSearchItem) (*gqlmodel.Show, error)
 
 	Season(ctx context.Context, obj *gqlmodel.EpisodeSearchItem) (*gqlmodel.Season, error)
-}
-type EventResolver interface {
-	TvGuideEntries(ctx context.Context, obj *gqlmodel.Event) ([]*gqlmodel.TvGuideEntry, error)
 }
 type ItemSectionResolver interface {
 	Page(ctx context.Context, obj *gqlmodel.ItemSection) (*gqlmodel.Page, error)
@@ -383,9 +384,6 @@ type SeasonSearchItemResolver interface {
 }
 type ShowResolver interface {
 	Seasons(ctx context.Context, obj *gqlmodel.Show, first *int, offset *int) (*gqlmodel.SeasonPagination, error)
-}
-type TvGuideEntryResolver interface {
-	Episode(ctx context.Context, obj *gqlmodel.TvGuideEntry) (*gqlmodel.Episode, error)
 }
 
 type executableSchema struct {
@@ -427,6 +425,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Calendar.Period(childComplexity, args["from"].(string), args["to"].(string)), true
 
+	case "CalendarDay.entries":
+		if e.complexity.CalendarDay.Entries == nil {
+			break
+		}
+
+		return e.complexity.CalendarDay.Entries(childComplexity), true
+
 	case "CalendarDay.events":
 		if e.complexity.CalendarDay.Events == nil {
 			break
@@ -441,12 +446,47 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CalendarDay.ID(childComplexity), true
 
-	case "CalendarDay.tvGuideEntries":
-		if e.complexity.CalendarDay.TvGuideEntries == nil {
+	case "CalendarEntry.description":
+		if e.complexity.CalendarEntry.Description == nil {
 			break
 		}
 
-		return e.complexity.CalendarDay.TvGuideEntries(childComplexity), true
+		return e.complexity.CalendarEntry.Description(childComplexity), true
+
+	case "CalendarEntry.end":
+		if e.complexity.CalendarEntry.End == nil {
+			break
+		}
+
+		return e.complexity.CalendarEntry.End(childComplexity), true
+
+	case "CalendarEntry.episode":
+		if e.complexity.CalendarEntry.Episode == nil {
+			break
+		}
+
+		return e.complexity.CalendarEntry.Episode(childComplexity), true
+
+	case "CalendarEntry.id":
+		if e.complexity.CalendarEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.CalendarEntry.ID(childComplexity), true
+
+	case "CalendarEntry.start":
+		if e.complexity.CalendarEntry.Start == nil {
+			break
+		}
+
+		return e.complexity.CalendarEntry.Start(childComplexity), true
+
+	case "CalendarEntry.title":
+		if e.complexity.CalendarEntry.Title == nil {
+			break
+		}
+
+		return e.complexity.CalendarEntry.Title(childComplexity), true
 
 	case "CalendarPeriod.activeDays":
 		if e.complexity.CalendarPeriod.ActiveDays == nil {
@@ -777,13 +817,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.EpisodeSearchItem.URL(childComplexity), true
 
-	case "Event.bannerImageURL":
-		if e.complexity.Event.BannerImageURL == nil {
-			break
-		}
-
-		return e.complexity.Event.BannerImageURL(childComplexity), true
-
 	case "Event.end":
 		if e.complexity.Event.End == nil {
 			break
@@ -798,6 +831,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Event.ID(childComplexity), true
 
+	case "Event.image":
+		if e.complexity.Event.Image == nil {
+			break
+		}
+
+		return e.complexity.Event.Image(childComplexity), true
+
 	case "Event.start":
 		if e.complexity.Event.Start == nil {
 			break
@@ -805,12 +845,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Event.Start(childComplexity), true
 
-	case "Event.tvGuideEntries":
-		if e.complexity.Event.TvGuideEntries == nil {
+	case "Event.title":
+		if e.complexity.Event.Title == nil {
 			break
 		}
 
-		return e.complexity.Event.TvGuideEntries(childComplexity), true
+		return e.complexity.Event.Title(childComplexity), true
 
 	case "FAQ.answer":
 		if e.complexity.FAQ.Answer == nil {
@@ -1635,34 +1675,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Stream.URL(childComplexity), true
 
-	case "TvGuideEntry.end":
-		if e.complexity.TvGuideEntry.End == nil {
-			break
-		}
-
-		return e.complexity.TvGuideEntry.End(childComplexity), true
-
-	case "TvGuideEntry.episode":
-		if e.complexity.TvGuideEntry.Episode == nil {
-			break
-		}
-
-		return e.complexity.TvGuideEntry.Episode(childComplexity), true
-
-	case "TvGuideEntry.id":
-		if e.complexity.TvGuideEntry.ID == nil {
-			break
-		}
-
-		return e.complexity.TvGuideEntry.ID(childComplexity), true
-
-	case "TvGuideEntry.start":
-		if e.complexity.TvGuideEntry.Start == nil {
-			break
-		}
-
-		return e.complexity.TvGuideEntry.Start(childComplexity), true
-
 	case "URLItem.id":
 		if e.complexity.URLItem.ID == nil {
 			break
@@ -2017,19 +2029,21 @@ type CalendarPeriod {
 type CalendarDay {
   id: ID!
   events: [Event!]!
-  tvGuideEntries: [TvGuideEntry!]!
+  entries: [CalendarEntry!]!
 }
 
 type Event {
   id: ID!
+  title: String!
   start: String!
   end: String!
-  tvGuideEntries: [TvGuideEntry!]! @goField(forceResolver: true)
-  bannerImageURL: String!
+  image: String!
 }
 
-type TvGuideEntry {
+type CalendarEntry {
   id: ID!
+  title: String!
+  description: String!
   start: String!
   end: String!
   episode: Episode @goField(forceResolver: true)
@@ -2624,8 +2638,8 @@ func (ec *executionContext) fieldContext_Calendar_day(ctx context.Context, field
 				return ec.fieldContext_CalendarDay_id(ctx, field)
 			case "events":
 				return ec.fieldContext_CalendarDay_events(ctx, field)
-			case "tvGuideEntries":
-				return ec.fieldContext_CalendarDay_tvGuideEntries(ctx, field)
+			case "entries":
+				return ec.fieldContext_CalendarDay_entries(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CalendarDay", field.Name)
 		},
@@ -2729,14 +2743,14 @@ func (ec *executionContext) fieldContext_CalendarDay_events(ctx context.Context,
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Event_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Event_title(ctx, field)
 			case "start":
 				return ec.fieldContext_Event_start(ctx, field)
 			case "end":
 				return ec.fieldContext_Event_end(ctx, field)
-			case "tvGuideEntries":
-				return ec.fieldContext_Event_tvGuideEntries(ctx, field)
-			case "bannerImageURL":
-				return ec.fieldContext_Event_bannerImageURL(ctx, field)
+			case "image":
+				return ec.fieldContext_Event_image(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
@@ -2744,8 +2758,8 @@ func (ec *executionContext) fieldContext_CalendarDay_events(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _CalendarDay_tvGuideEntries(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CalendarDay) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CalendarDay_tvGuideEntries(ctx, field)
+func (ec *executionContext) _CalendarDay_entries(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CalendarDay) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CalendarDay_entries(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2758,7 +2772,7 @@ func (ec *executionContext) _CalendarDay_tvGuideEntries(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TvGuideEntries, nil
+		return obj.Entries, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2770,12 +2784,12 @@ func (ec *executionContext) _CalendarDay_tvGuideEntries(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*gqlmodel.TvGuideEntry)
+	res := resTmp.([]*gqlmodel.CalendarEntry)
 	fc.Result = res
-	return ec.marshalNTvGuideEntry2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐTvGuideEntryᚄ(ctx, field.Selections, res)
+	return ec.marshalNCalendarEntry2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarEntryᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CalendarDay_tvGuideEntries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CalendarDay_entries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CalendarDay",
 		Field:      field,
@@ -2784,15 +2798,308 @@ func (ec *executionContext) fieldContext_CalendarDay_tvGuideEntries(ctx context.
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_TvGuideEntry_id(ctx, field)
+				return ec.fieldContext_CalendarEntry_id(ctx, field)
+			case "title":
+				return ec.fieldContext_CalendarEntry_title(ctx, field)
+			case "description":
+				return ec.fieldContext_CalendarEntry_description(ctx, field)
 			case "start":
-				return ec.fieldContext_TvGuideEntry_start(ctx, field)
+				return ec.fieldContext_CalendarEntry_start(ctx, field)
 			case "end":
-				return ec.fieldContext_TvGuideEntry_end(ctx, field)
+				return ec.fieldContext_CalendarEntry_end(ctx, field)
 			case "episode":
-				return ec.fieldContext_TvGuideEntry_episode(ctx, field)
+				return ec.fieldContext_CalendarEntry_episode(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TvGuideEntry", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type CalendarEntry", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CalendarEntry_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CalendarEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CalendarEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CalendarEntry_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CalendarEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CalendarEntry_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CalendarEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CalendarEntry_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CalendarEntry_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CalendarEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CalendarEntry_description(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CalendarEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CalendarEntry_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CalendarEntry_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CalendarEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CalendarEntry_start(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CalendarEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CalendarEntry_start(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Start, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CalendarEntry_start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CalendarEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CalendarEntry_end(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CalendarEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CalendarEntry_end(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.End, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CalendarEntry_end(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CalendarEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CalendarEntry_episode(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CalendarEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CalendarEntry_episode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.CalendarEntry().Episode(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Episode)
+	fc.Result = res
+	return ec.marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisode(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CalendarEntry_episode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CalendarEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Episode_id(ctx, field)
+			case "legacyID":
+				return ec.fieldContext_Episode_legacyID(ctx, field)
+			case "title":
+				return ec.fieldContext_Episode_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Episode_description(ctx, field)
+			case "extraDescription":
+				return ec.fieldContext_Episode_extraDescription(ctx, field)
+			case "streams":
+				return ec.fieldContext_Episode_streams(ctx, field)
+			case "files":
+				return ec.fieldContext_Episode_files(ctx, field)
+			case "chapters":
+				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "season":
+				return ec.fieldContext_Episode_season(ctx, field)
+			case "duration":
+				return ec.fieldContext_Episode_duration(ctx, field)
+			case "audioLanguages":
+				return ec.fieldContext_Episode_audioLanguages(ctx, field)
+			case "subtitleLanguages":
+				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "episodeNumber":
+				return ec.fieldContext_Episode_episodeNumber(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
 	}
 	return fc, nil
@@ -2927,14 +3234,14 @@ func (ec *executionContext) fieldContext_CalendarPeriod_events(ctx context.Conte
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Event_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Event_title(ctx, field)
 			case "start":
 				return ec.fieldContext_Event_start(ctx, field)
 			case "end":
 				return ec.fieldContext_Event_end(ctx, field)
-			case "tvGuideEntries":
-				return ec.fieldContext_Event_tvGuideEntries(ctx, field)
-			case "bannerImageURL":
-				return ec.fieldContext_Event_bannerImageURL(ctx, field)
+			case "image":
+				return ec.fieldContext_Event_image(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
@@ -5017,6 +5324,50 @@ func (ec *executionContext) fieldContext_Event_id(ctx context.Context, field gra
 	return fc, nil
 }
 
+func (ec *executionContext) _Event_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Event) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Event_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Event_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Event",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Event_start(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Event) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Event_start(ctx, field)
 	if err != nil {
@@ -5105,8 +5456,8 @@ func (ec *executionContext) fieldContext_Event_end(ctx context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Event_tvGuideEntries(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Event) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Event_tvGuideEntries(ctx, field)
+func (ec *executionContext) _Event_image(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Event) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Event_image(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5119,61 +5470,7 @@ func (ec *executionContext) _Event_tvGuideEntries(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Event().TvGuideEntries(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*gqlmodel.TvGuideEntry)
-	fc.Result = res
-	return ec.marshalNTvGuideEntry2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐTvGuideEntryᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Event_tvGuideEntries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Event",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TvGuideEntry_id(ctx, field)
-			case "start":
-				return ec.fieldContext_TvGuideEntry_start(ctx, field)
-			case "end":
-				return ec.fieldContext_TvGuideEntry_end(ctx, field)
-			case "episode":
-				return ec.fieldContext_TvGuideEntry_episode(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TvGuideEntry", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Event_bannerImageURL(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Event) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Event_bannerImageURL(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.BannerImageURL, nil
+		return obj.Image, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5190,7 +5487,7 @@ func (ec *executionContext) _Event_bannerImageURL(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Event_bannerImageURL(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Event_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Event",
 		Field:      field,
@@ -7181,14 +7478,14 @@ func (ec *executionContext) fieldContext_QueryRoot_event(ctx context.Context, fi
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Event_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Event_title(ctx, field)
 			case "start":
 				return ec.fieldContext_Event_start(ctx, field)
 			case "end":
 				return ec.fieldContext_Event_end(ctx, field)
-			case "tvGuideEntries":
-				return ec.fieldContext_Event_tvGuideEntries(ctx, field)
-			case "bannerImageURL":
-				return ec.fieldContext_Event_bannerImageURL(ctx, field)
+			case "image":
+				return ec.fieldContext_Event_image(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
@@ -10495,207 +10792,6 @@ func (ec *executionContext) fieldContext_Stream_type(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _TvGuideEntry_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TvGuideEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TvGuideEntry_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TvGuideEntry_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TvGuideEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TvGuideEntry_start(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TvGuideEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TvGuideEntry_start(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Start, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TvGuideEntry_start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TvGuideEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TvGuideEntry_end(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TvGuideEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TvGuideEntry_end(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.End, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TvGuideEntry_end(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TvGuideEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TvGuideEntry_episode(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TvGuideEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TvGuideEntry_episode(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TvGuideEntry().Episode(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Episode)
-	fc.Result = res
-	return ec.marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisode(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TvGuideEntry_episode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TvGuideEntry",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Episode_id(ctx, field)
-			case "legacyID":
-				return ec.fieldContext_Episode_legacyID(ctx, field)
-			case "title":
-				return ec.fieldContext_Episode_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Episode_description(ctx, field)
-			case "extraDescription":
-				return ec.fieldContext_Episode_extraDescription(ctx, field)
-			case "streams":
-				return ec.fieldContext_Episode_streams(ctx, field)
-			case "files":
-				return ec.fieldContext_Episode_files(ctx, field)
-			case "chapters":
-				return ec.fieldContext_Episode_chapters(ctx, field)
-			case "season":
-				return ec.fieldContext_Episode_season(ctx, field)
-			case "duration":
-				return ec.fieldContext_Episode_duration(ctx, field)
-			case "audioLanguages":
-				return ec.fieldContext_Episode_audioLanguages(ctx, field)
-			case "subtitleLanguages":
-				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
-			case "episodeNumber":
-				return ec.fieldContext_Episode_episodeNumber(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _URLItem_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.URLItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_URLItem_id(ctx, field)
 	if err != nil {
@@ -13168,13 +13264,86 @@ func (ec *executionContext) _CalendarDay(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "tvGuideEntries":
+		case "entries":
 
-			out.Values[i] = ec._CalendarDay_tvGuideEntries(ctx, field, obj)
+			out.Values[i] = ec._CalendarDay_entries(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var calendarEntryImplementors = []string{"CalendarEntry"}
+
+func (ec *executionContext) _CalendarEntry(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.CalendarEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, calendarEntryImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CalendarEntry")
+		case "id":
+
+			out.Values[i] = ec._CalendarEntry_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "title":
+
+			out.Values[i] = ec._CalendarEntry_title(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "description":
+
+			out.Values[i] = ec._CalendarEntry_description(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "start":
+
+			out.Values[i] = ec._CalendarEntry_start(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "end":
+
+			out.Values[i] = ec._CalendarEntry_end(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "episode":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CalendarEntry_episode(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13697,48 +13866,35 @@ func (ec *executionContext) _Event(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = ec._Event_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
+			}
+		case "title":
+
+			out.Values[i] = ec._Event_title(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
 			}
 		case "start":
 
 			out.Values[i] = ec._Event_start(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "end":
 
 			out.Values[i] = ec._Event_end(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
-		case "tvGuideEntries":
-			field := field
+		case "image":
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Event_tvGuideEntries(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		case "bannerImageURL":
-
-			out.Values[i] = ec._Event_bannerImageURL(ctx, field, obj)
+			out.Values[i] = ec._Event_image(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -15147,65 +15303,6 @@ func (ec *executionContext) _Stream(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
-var tvGuideEntryImplementors = []string{"TvGuideEntry"}
-
-func (ec *executionContext) _TvGuideEntry(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.TvGuideEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, tvGuideEntryImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TvGuideEntry")
-		case "id":
-
-			out.Values[i] = ec._TvGuideEntry_id(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "start":
-
-			out.Values[i] = ec._TvGuideEntry_start(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "end":
-
-			out.Values[i] = ec._TvGuideEntry_end(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "episode":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TvGuideEntry_episode(ctx, field, obj)
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var uRLItemImplementors = []string{"URLItem", "Item"}
 
 func (ec *executionContext) _URLItem(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.URLItem) graphql.Marshaler {
@@ -15651,6 +15748,60 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNCalendarEntry2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.CalendarEntry) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNCalendarEntry2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarEntry(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNCalendarEntry2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarEntry(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CalendarEntry) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CalendarEntry(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNChapter2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐChapterᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Chapter) graphql.Marshaler {
@@ -16656,60 +16807,6 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNTvGuideEntry2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐTvGuideEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.TvGuideEntry) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTvGuideEntry2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐTvGuideEntry(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNTvGuideEntry2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐTvGuideEntry(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.TvGuideEntry) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TvGuideEntry(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v gqlmodel.User) graphql.Marshaler {

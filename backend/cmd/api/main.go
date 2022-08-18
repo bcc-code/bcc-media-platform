@@ -12,8 +12,10 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqladmin "github.com/bcc-code/brunstadtv/backend/graphadmin"
 	gqladmingenerated "github.com/bcc-code/brunstadtv/backend/graphadmin/generated"
+	calendar_entry "github.com/bcc-code/brunstadtv/backend/items/calendar-entry"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/items/episode"
+	"github.com/bcc-code/brunstadtv/backend/items/event"
 	"github.com/bcc-code/brunstadtv/backend/items/page"
 	"github.com/bcc-code/brunstadtv/backend/items/season"
 	"github.com/bcc-code/brunstadtv/backend/items/section"
@@ -137,6 +139,8 @@ func main() {
 		EpisodesLoader:          episode.NewListBatchLoader(*queries),
 		FilesLoader:             asset.NewBatchFilesLoader(*queries),
 		StreamsLoader:           asset.NewBatchStreamsLoader(*queries),
+		EventLoader:             event.NewBatchLoader(*queries),
+		CalendarEntryLoader:     calendar_entry.NewBatchLoader(*queries),
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")

@@ -261,6 +261,11 @@ type Event struct {
 	End   time.Time
 }
 
+// GetKey returns the key for this item
+func (i Event) GetKey() int {
+	return i.ID
+}
+
 // CalendarEntry contains details about a specific TvGuide entry
 type CalendarEntry struct {
 	ID          int
@@ -269,4 +274,9 @@ type CalendarEntry struct {
 	Description LocaleString
 	Start       time.Time
 	End         time.Time
+}
+
+// GetKey returns the key for this item
+func (i CalendarEntry) GetKey() int {
+	return i.ID
 }
