@@ -16,6 +16,18 @@ const getUserId = (req: any) => {
     }
 }
 
+const postQuery = async (query: string, variables: any) => {
+    return await axios.post(apiPath + "admin", {
+        "query": query,
+        "variables": variables,
+    }, {
+        headers: {
+            "Content-Type": "application/json",
+            "X-Api-Key": apiSecret
+        }
+    })
+}
+
 const endpointConfig: EndpointConfig = {
     id: "preview",
     handler: (router) => {
@@ -41,23 +53,47 @@ const endpointConfig: EndpointConfig = {
     }
 }`
 
-                const result = await axios.post(apiPath + "admin", {
-                    "query": body,
-                    "variables": {
-                        "collection": collection,
-                        "filter": JSON.stringify(filter)
-                    }
-                }, {
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Api-Key": apiSecret
-                    }
+                const result = await postQuery(body, {
+                    "collection": collection,
+                    "filter": JSON.stringify(filter)
                 })
 
                 res.send(result.data.data.preview.collection.items)
                 return
-            } catch (e) {
-                console.log(e);
+            } catch {
+                console.log("Couldn't fetch data from API")
+            }
+
+            res.status(500).send(JSON.stringify({
+                error: "Couldn't fetch data from API"
+            }))
+        });
+
+        router.get("/asset/:assetId", async (req, res) => {
+            const userId = getUserId(req)
+            if (userId == null) {
+                res.status(401).send("Unauthenticated")
+                return
+            }
+
+            try {
+
+                const body = `query($assetId: ID!) {
+    preview {
+        asset(id: $assetId) {
+            url
+            type
+        }
+    }
+}`
+
+                const result = await postQuery(body, {
+                    "assetId": req.params["assetId"],
+                })
+
+                res.status(200).send(result.data.data.preview.asset)
+                return
+            } catch {
                 console.log("Couldn't fetch data from API")
             }
 
