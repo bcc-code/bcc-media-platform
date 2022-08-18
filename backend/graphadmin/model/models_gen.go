@@ -13,7 +13,8 @@ type Preview struct {
 }
 
 type PreviewAsset struct {
-	URL string `json:"url"`
+	URL  string `json:"url"`
+	Type string `json:"type"`
 }
 
 type PreviewCollection struct {

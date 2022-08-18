@@ -12,6 +12,7 @@ type PreviewCollection {
 
 type PreviewAsset {
     url: String!
+    type: String!
 }
 
 type CollectionItem {

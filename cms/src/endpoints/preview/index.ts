@@ -79,6 +79,7 @@ const endpointConfig: EndpointConfig = {
     preview {
         asset(id: $assetId) {
             url
+            type
         }
     }
 }`
@@ -95,7 +96,7 @@ const endpointConfig: EndpointConfig = {
                     }
                 })
 
-                res.send(result.data.data.preview.asset.url)
+                res.status(200).send(result.data.data.preview.asset)
                 return
             } catch (e) {
                 console.log(e);

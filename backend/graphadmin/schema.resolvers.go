@@ -53,7 +53,8 @@ func (r *previewResolver) Asset(ctx context.Context, obj *gqladminmodel.Preview,
 		stream = streams[0]
 	}
 	return &gqladminmodel.PreviewAsset{
-		URL: stream.Url,
+		URL:  stream.Url,
+		Type: stream.Type,
 	}, nil
 }
 

@@ -1,7 +1,7 @@
 <template>
     <div>
-        <media-controller>
-            <video slot="media" :src="videoSrc">
+        <media-controller class="video-controller">
+            <video id="viewer-video" slot="media">
             </video>
             <media-control-bar>
                 <media-play-button></media-play-button>
@@ -22,23 +22,64 @@
 </template>
 <script lang="ts" setup>
 import { ref, computed } from "vue"
+import Hls from "hls.js"
 
 const props = defineProps<{
-    factory: () => Promise<string>
+    factory: () => Promise<{
+        type: string;
+        url: string;
+    }>
 }>()
 
 const videoSrc = ref("")
 const error = ref(null as string | null)
 const loading = ref(false)
+const type = ref("")
+
+const isHLS = computed(() => {
+    return type.value.includes("hls")
+})
 
 const load = async () => {
     error.value = null
     loading.value = true
     try {
-        videoSrc.value = await props.factory();
+        const config = await props.factory();
+        type.value = config.type;
+        videoSrc.value = config.url;
+        if (!isHLS.value) {
+            return
+        }
+        const el = document.getElementById("viewer-video") as HTMLVideoElement
+        if (!el) {
+            return
+        }
+        
+        if (el.canPlayType("application/vnd.apple.mpegurl")) {
+            el.src = config.url;
+            console.log("running")
+        } else {
+            const hls = new Hls();
+            hls.loadSource(config.url)
+            hls.attachMedia(el)
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                el.play();
+            })
+        }
+
     } catch {
         error.value = "Couldn't retrieve from API"
+    } finally {
+        loading.value = false
     }
-    loading.value = false
 }
 </script>
+<style scoped>
+#viewer-video {
+    width: 100%;
+}
+
+.video-controller {
+    width: 100%;
+}
+</style>
