@@ -9,6 +9,12 @@ type CollectionItem struct {
 
 type Preview struct {
 	Collection *PreviewCollection `json:"collection"`
+	Asset      *PreviewAsset      `json:"asset"`
+}
+
+type PreviewAsset struct {
+	URL  string `json:"url"`
+	Type string `json:"type"`
 }
 
 type PreviewCollection struct {
