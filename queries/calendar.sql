@@ -61,14 +61,8 @@ WHERE e.status = 'published'
   AND e.event_id = ANY($1::int[]);
 
 -- name: getCalendarEntryIDsForPeriod :many
-WITH t AS (SELECT ts.calendarentries_id,
-                  json_object_agg(ts.languages_code, ts.title)       AS title,
-                  json_object_agg(ts.languages_code, ts.description) AS description
-           FROM calendarentries_translations ts
-           GROUP BY ts.calendarentries_id)
 SELECT e.id
 FROM calendarentries e
-         LEFT JOIN t ON e.id = t.calendarentries_id
 WHERE e.status = 'published'
   AND ((e.start >= $1::timestamptz AND e.start <= $2::timestamptz) OR
        (e.end >= $1::timestamptz AND e.end <= $2::timestamptz))
@@ -102,13 +96,8 @@ WHERE e.status = 'published'
   AND e.id = ANY($1::int[]);
 
 -- name: getEventIDsForPeriod :many
-WITH t AS (SELECT ts.events_id,
-                  json_object_agg(ts.languages_code, ts.title)       AS title
-           FROM events_translations ts
-           GROUP BY ts.events_id)
 SELECT e.id
 FROM events e
-         LEFT JOIN t ON e.id = t.events_id
 WHERE e.status = 'published'
   AND ((e.start >= $1::timestamptz AND e.start <= $2::timestamptz) OR
        (e.end >= $1::timestamptz AND e.end <= $2::timestamptz))
