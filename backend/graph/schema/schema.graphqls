@@ -207,45 +207,6 @@ enum StreamType {
   dash
 }
 
-type CalendarPeriod {
-  id: ID!
-  activeDays: [Date!]!
-  events: [Event!]!
-}
-
-type CalendarDay {
-  id: ID!
-  events: [Event!]!
-  entries: [CalendarEntry!]!
-}
-
-type Event {
-  id: ID!
-  title: String!
-  start: String!
-  end: String!
-  image: String!
-}
-
-type CalendarEntry {
-  id: ID!
-  title: String!
-  description: String!
-  start: String!
-  end: String!
-  episode: Episode @goField(forceResolver: true)
-}
-
-type Calendar {
-  period(
-    from: Date!,
-    to: Date!
-  ): CalendarPeriod @goField(forceResolver: true)
-  day(
-    day: Date!
-  ): CalendarDay @goField(forceResolver: true)
-}
-
 type Settings {
   audioLanguages: [Language!]!
   subtitleLanguages: [Language!]!

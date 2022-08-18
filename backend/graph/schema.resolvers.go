@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"time"
 
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
@@ -17,29 +16,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
-
-// Period is the resolver for the period field.
-func (r *calendarResolver) Period(ctx context.Context, obj *gqlmodel.Calendar, from string, to string) (*gqlmodel.CalendarPeriod, error) {
-	fromTime, err := time.Parse(time.RFC3339, from)
-	if err != nil {
-		return nil, err
-	}
-	toTime, err := time.Parse(time.RFC3339, to)
-	if err != nil {
-		return nil, err
-	}
-	return r.periodResolver(ctx, fromTime, toTime)
-}
-
-// Day is the resolver for the day field.
-func (r *calendarResolver) Day(ctx context.Context, obj *gqlmodel.Calendar, day string) (*gqlmodel.CalendarDay, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-// Episode is the resolver for the episode field.
-func (r *calendarEntryResolver) Episode(ctx context.Context, obj *gqlmodel.CalendarEntry) (*gqlmodel.Episode, error) {
-	panic(fmt.Errorf("not implemented"))
-}
 
 // Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error) {
@@ -252,12 +228,6 @@ func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show, first *i
 	}, nil
 }
 
-// Calendar returns generated.CalendarResolver implementation.
-func (r *Resolver) Calendar() generated.CalendarResolver { return &calendarResolver{r} }
-
-// CalendarEntry returns generated.CalendarEntryResolver implementation.
-func (r *Resolver) CalendarEntry() generated.CalendarEntryResolver { return &calendarEntryResolver{r} }
-
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
 
@@ -286,8 +256,6 @@ func (r *Resolver) SeasonSearchItem() generated.SeasonSearchItemResolver {
 // Show returns generated.ShowResolver implementation.
 func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
 
-type calendarResolver struct{ *Resolver }
-type calendarEntryResolver struct{ *Resolver }
 type episodeResolver struct{ *Resolver }
 type episodeSearchItemResolver struct{ *Resolver }
 type itemSectionResolver struct{ *Resolver }

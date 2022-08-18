@@ -274,6 +274,8 @@ type CalendarEntry struct {
 	Description LocaleString
 	Start       time.Time
 	End         time.Time
+	Type        null.String
+	ItemID      null.Int
 }
 
 // GetKey returns the key for this item
