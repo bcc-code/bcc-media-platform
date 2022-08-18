@@ -16,6 +16,18 @@ const getUserId = (req: any) => {
     }
 }
 
+const postQuery = async (query: string, variables: any) => {
+    return await axios.post(apiPath + "admin", {
+        "query": query,
+        "variables": variables,
+    }, {
+        headers: {
+            "Content-Type": "application/json",
+            "X-Api-Key": apiSecret
+        }
+    })
+}
+
 const endpointConfig: EndpointConfig = {
     id: "preview",
     handler: (router) => {
@@ -41,23 +53,14 @@ const endpointConfig: EndpointConfig = {
     }
 }`
 
-                const result = await axios.post(apiPath + "admin", {
-                    "query": body,
-                    "variables": {
-                        "collection": collection,
-                        "filter": JSON.stringify(filter)
-                    }
-                }, {
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Api-Key": apiSecret
-                    }
+                const result = await postQuery(body, {
+                    "collection": collection,
+                    "filter": JSON.stringify(filter)
                 })
 
                 res.send(result.data.data.preview.collection.items)
                 return
-            } catch (e) {
-                console.log(e);
+            } catch {
                 console.log("Couldn't fetch data from API")
             }
 
@@ -84,22 +87,13 @@ const endpointConfig: EndpointConfig = {
     }
 }`
 
-                const result = await axios.post(apiPath + "admin", {
-                    "query": body,
-                    "variables": {
-                        "assetId": req.params["assetId"],
-                    }
-                }, {
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Api-Key": apiSecret
-                    }
+                const result = await postQuery(body, {
+                    "assetId": req.params["assetId"],
                 })
 
                 res.status(200).send(result.data.data.preview.asset)
                 return
-            } catch (e) {
-                console.log(e);
+            } catch {
                 console.log("Couldn't fetch data from API")
             }
 
