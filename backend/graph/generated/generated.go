@@ -36,14 +36,17 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Calendar() CalendarResolver
 	Episode() EpisodeResolver
 	EpisodeSearchItem() EpisodeSearchItemResolver
+	Event() EventResolver
 	ItemSection() ItemSectionResolver
 	Page() PageResolver
 	QueryRoot() QueryRootResolver
 	Season() SeasonResolver
 	SeasonSearchItem() SeasonSearchItemResolver
 	Show() ShowResolver
+	TvGuideEntry() TvGuideEntryResolver
 }
 
 type DirectiveRoot struct {
@@ -332,6 +335,10 @@ type ComplexityRoot struct {
 	}
 }
 
+type CalendarResolver interface {
+	Period(ctx context.Context, obj *gqlmodel.Calendar, from string, to string) (*gqlmodel.CalendarPeriod, error)
+	Day(ctx context.Context, obj *gqlmodel.Calendar, day string) (*gqlmodel.CalendarDay, error)
+}
 type EpisodeResolver interface {
 	Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error)
 	Files(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.File, error)
@@ -342,6 +349,9 @@ type EpisodeSearchItemResolver interface {
 	Show(ctx context.Context, obj *gqlmodel.EpisodeSearchItem) (*gqlmodel.Show, error)
 
 	Season(ctx context.Context, obj *gqlmodel.EpisodeSearchItem) (*gqlmodel.Season, error)
+}
+type EventResolver interface {
+	TvGuideEntries(ctx context.Context, obj *gqlmodel.Event) ([]*gqlmodel.TvGuideEntry, error)
 }
 type ItemSectionResolver interface {
 	Page(ctx context.Context, obj *gqlmodel.ItemSection) (*gqlmodel.Page, error)
@@ -373,6 +383,9 @@ type SeasonSearchItemResolver interface {
 }
 type ShowResolver interface {
 	Seasons(ctx context.Context, obj *gqlmodel.Show, first *int, offset *int) (*gqlmodel.SeasonPagination, error)
+}
+type TvGuideEntryResolver interface {
+	Episode(ctx context.Context, obj *gqlmodel.TvGuideEntry) (*gqlmodel.Episode, error)
 }
 
 type executableSchema struct {
@@ -1789,6 +1802,10 @@ var sources = []*ast.Source{
 	{Name: "../schema.graphqls", Input: `directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
     | FIELD_DEFINITION
 
+schema{
+  query: QueryRoot
+}
+
 type Page{
   id: ID!
   code: String!
@@ -1991,10 +2008,6 @@ enum StreamType {
   dash
 }
 
-schema{
-  query: QueryRoot
-}
-
 type CalendarPeriod {
   id: ID!
   activeDays: [Date!]!
@@ -2011,7 +2024,7 @@ type Event {
   id: ID!
   start: String!
   end: String!
-  tvGuideEntries: [TvGuideEntry!]!
+  tvGuideEntries: [TvGuideEntry!]! @goField(forceResolver: true)
   bannerImageURL: String!
 }
 
@@ -2019,12 +2032,17 @@ type TvGuideEntry {
   id: ID!
   start: String!
   end: String!
-  episode: Episode
+  episode: Episode @goField(forceResolver: true)
 }
 
 type Calendar {
-  period(from: Date!, to: Date!) : CalendarPeriod
-  day(day: Date!) : CalendarDay
+  period(
+    from: Date!,
+    to: Date!
+  ): CalendarPeriod @goField(forceResolver: true)
+  day(
+    day: Date!
+  ): CalendarDay @goField(forceResolver: true)
 }
 
 type Settings {
@@ -2520,7 +2538,7 @@ func (ec *executionContext) _Calendar_period(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Period, nil
+		return ec.resolvers.Calendar().Period(rctx, obj, fc.Args["from"].(string), fc.Args["to"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2538,8 +2556,8 @@ func (ec *executionContext) fieldContext_Calendar_period(ctx context.Context, fi
 	fc = &graphql.FieldContext{
 		Object:     "Calendar",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -2580,7 +2598,7 @@ func (ec *executionContext) _Calendar_day(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Day, nil
+		return ec.resolvers.Calendar().Day(rctx, obj, fc.Args["day"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2598,8 +2616,8 @@ func (ec *executionContext) fieldContext_Calendar_day(ctx context.Context, field
 	fc = &graphql.FieldContext{
 		Object:     "Calendar",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -5101,7 +5119,7 @@ func (ec *executionContext) _Event_tvGuideEntries(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TvGuideEntries, nil
+		return ec.resolvers.Event().TvGuideEntries(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5122,8 +5140,8 @@ func (ec *executionContext) fieldContext_Event_tvGuideEntries(ctx context.Contex
 	fc = &graphql.FieldContext{
 		Object:     "Event",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -10623,7 +10641,7 @@ func (ec *executionContext) _TvGuideEntry_episode(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Episode, nil
+		return ec.resolvers.TvGuideEntry().Episode(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10641,8 +10659,8 @@ func (ec *executionContext) fieldContext_TvGuideEntry_episode(ctx context.Contex
 	fc = &graphql.FieldContext{
 		Object:     "TvGuideEntry",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -13082,13 +13100,39 @@ func (ec *executionContext) _Calendar(ctx context.Context, sel ast.SelectionSet,
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Calendar")
 		case "period":
+			field := field
 
-			out.Values[i] = ec._Calendar_period(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Calendar_period(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "day":
+			field := field
 
-			out.Values[i] = ec._Calendar_day(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Calendar_day(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13653,35 +13697,48 @@ func (ec *executionContext) _Event(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = ec._Event_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "start":
 
 			out.Values[i] = ec._Event_start(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "end":
 
 			out.Values[i] = ec._Event_end(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "tvGuideEntries":
+			field := field
 
-			out.Values[i] = ec._Event_tvGuideEntries(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Event_tvGuideEntries(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "bannerImageURL":
 
 			out.Values[i] = ec._Event_bannerImageURL(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -15105,26 +15162,39 @@ func (ec *executionContext) _TvGuideEntry(ctx context.Context, sel ast.Selection
 			out.Values[i] = ec._TvGuideEntry_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "start":
 
 			out.Values[i] = ec._TvGuideEntry_start(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "end":
 
 			out.Values[i] = ec._TvGuideEntry_end(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "episode":
+			field := field
 
-			out.Values[i] = ec._TvGuideEntry_episode(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TvGuideEntry_episode(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

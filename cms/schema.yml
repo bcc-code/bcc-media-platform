@@ -158,7 +158,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 13
+      sort: 12
       sort_field: null
       translations: null
       unarchive_value: null
@@ -182,7 +182,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 14
+      sort: 13
       sort_field: null
       translations: null
       unarchive_value: null
@@ -198,10 +198,10 @@ collections:
       archive_value: null
       collapse: open
       collection: calendar
-      color: null
+      color: '#FFC23B'
       display_template: null
       group: null
-      hidden: true
+      hidden: false
       icon: calendar_month
       item_duplication_fields: null
       note: null
@@ -211,19 +211,19 @@ collections:
       translations: null
       unarchive_value: null
     schema: null
-  - collection: calendarevent
+  - collection: calendarentries
     meta:
       accountability: all
       archive_app_filter: true
       archive_field: status
       archive_value: archived
       collapse: open
-      collection: calendarevent
+      collection: calendarentries
       color: null
       display_template: null
       group: calendar
       hidden: false
-      icon: event
+      icon: edit_calendar
       item_duplication_fields: null
       note: null
       singleton: false
@@ -233,7 +233,31 @@ collections:
       unarchive_value: draft
     schema:
       comment: null
-      name: calendarevent
+      name: calendarentries
+      schema: public
+  - collection: calendarentries_translations
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: calendarentries_translations
+      color: null
+      display_template: null
+      group: calendarentries
+      hidden: true
+      icon: import_export
+      item_duplication_fields: null
+      note: null
+      singleton: false
+      sort: 1
+      sort_field: null
+      translations: null
+      unarchive_value: null
+    schema:
+      comment: null
+      name: calendarentries_translations
       schema: public
   - collection: categories
     meta:
@@ -409,7 +433,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 11
+      sort: 10
       sort_field: null
       translations: null
       unarchive_value: null
@@ -536,6 +560,54 @@ collections:
     schema:
       comment: null
       name: episodes_usergroups_earlyaccess
+      schema: public
+  - collection: events
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: status
+      archive_value: archived
+      collapse: open
+      collection: events
+      color: null
+      display_template: null
+      group: calendar
+      hidden: false
+      icon: event
+      item_duplication_fields: null
+      note: null
+      singleton: false
+      sort: 1
+      sort_field: null
+      translations: null
+      unarchive_value: draft
+    schema:
+      comment: null
+      name: events
+      schema: public
+  - collection: events_translations
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: events_translations
+      color: null
+      display_template: null
+      group: events
+      hidden: true
+      icon: import_export
+      item_duplication_fields: null
+      note: null
+      singleton: false
+      sort: 1
+      sort_field: null
+      translations: null
+      unarchive_value: null
+    schema:
+      comment: null
+      name: events_translations
       schema: public
   - collection: faq_categories
     meta:
@@ -721,7 +793,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 12
+      sort: 11
       sort_field: null
       translations: null
       unarchive_value: null
@@ -766,7 +838,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 15
+      sort: 14
       sort_field: null
       translations: null
       unarchive_value: null
@@ -1106,54 +1178,6 @@ collections:
     schema:
       comment: null
       name: tags_translations
-      schema: public
-  - collection: tvguideentry
-    meta:
-      accountability: all
-      archive_app_filter: true
-      archive_field: status
-      archive_value: archived
-      collapse: open
-      collection: tvguideentry
-      color: null
-      display_template: '{{title}}'
-      group: calendar
-      hidden: false
-      icon: calendar_view_day
-      item_duplication_fields: null
-      note: null
-      singleton: false
-      sort: 1
-      sort_field: null
-      translations: null
-      unarchive_value: draft
-    schema:
-      comment: null
-      name: tvguideentry
-      schema: public
-  - collection: tvguideentry_link
-    meta:
-      accountability: all
-      archive_app_filter: true
-      archive_field: null
-      archive_value: null
-      collapse: open
-      collection: tvguideentry_link
-      color: null
-      display_template: null
-      group: null
-      hidden: true
-      icon: import_export
-      item_duplication_fields: null
-      note: null
-      singleton: false
-      sort: 10
-      sort_field: null
-      translations: null
-      unarchive_value: null
-    schema:
-      comment: null
-      name: tvguideentry_link
       schema: public
   - collection: usergroups
     meta:
@@ -2333,7 +2357,7 @@ fields:
         template: '{{storage}}/{{path}}'
       readonly: false
       required: false
-      sort: 13
+      sort: 14
       special:
         - o2m
       translations: null
@@ -2550,6 +2574,31 @@ fields:
       table: assets
     type: string
   - collection: assets
+    field: preview
+    meta:
+      collection: assets
+      conditions: null
+      display: null
+      display_options: null
+      field: preview
+      group: null
+      hidden: false
+      interface: video-preview
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 13
+      special:
+        - alias
+        - no-data
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: assets
     field: status
     meta:
       collection: assets
@@ -2614,7 +2663,7 @@ fields:
         template: '{{service}}/{{path}}'
       readonly: false
       required: false
-      sort: 14
+      sort: 15
       special:
         - o2m
       translations: null
@@ -3622,10 +3671,10 @@ fields:
       schema: public
       table: assetstreams_subtitle_languages
     type: string
-  - collection: calendarevent
+  - collection: calendarentries
     field: date_created
     meta:
-      collection: calendarevent
+      collection: calendarentries
       conditions: null
       display: datetime
       display_options:
@@ -3641,7 +3690,6 @@ fields:
       sort: 4
       special:
         - date-created
-        - date-updated
       translations: null
       validation: null
       validation_message: null
@@ -3649,14 +3697,14 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: CURRENT_TIMESTAMP
+      default_value: null
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: false
+      is_nullable: true
       is_primary_key: false
       is_unique: false
       max_length: null
@@ -3664,12 +3712,12 @@ fields:
       numeric_precision: null
       numeric_scale: null
       schema: public
-      table: calendarevent
+      table: calendarentries
     type: timestamp
-  - collection: calendarevent
+  - collection: calendarentries
     field: date_updated
     meta:
-      collection: calendarevent
+      collection: calendarentries
       conditions: null
       display: datetime
       display_options:
@@ -3684,7 +3732,6 @@ fields:
       required: false
       sort: 6
       special:
-        - date-created
         - date-updated
       translations: null
       validation: null
@@ -3693,47 +3740,6 @@ fields:
     schema:
       comment: null
       data_type: timestamp with time zone
-      default_value: CURRENT_TIMESTAMP
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: false
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: date_updated
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: calendarevent
-    type: timestamp
-  - collection: calendarevent
-    field: end
-    meta:
-      collection: calendarevent
-      conditions: null
-      display: null
-      display_options: null
-      field: end
-      group: null
-      hidden: false
-      interface: datetime
-      note: null
-      options: null
-      readonly: false
-      required: true
-      sort: 9
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      comment: null
-      data_type: timestamp without time zone
       default_value: null
       foreign_key_column: null
       foreign_key_schema: null
@@ -3745,16 +3751,150 @@ fields:
       is_primary_key: false
       is_unique: false
       max_length: null
+      name: date_updated
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: calendarentries
+    type: timestamp
+  - collection: calendarentries
+    field: end
+    meta:
+      collection: calendarentries
+      conditions: null
+      display: datetime
+      display_options: null
+      field: end
+      group: null
+      hidden: false
+      interface: datetime
+      note: null
+      options: null
+      readonly: false
+      required: true
+      sort: 10
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: timestamp without time zone
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: false
+      is_primary_key: false
+      is_unique: false
+      max_length: null
       name: end
       numeric_precision: null
       numeric_scale: null
       schema: public
-      table: calendarevent
+      table: calendarentries
     type: dateTime
-  - collection: calendarevent
+  - collection: calendarentries
+    field: episode_id
+    meta:
+      collection: calendarentries
+      conditions:
+        - name: Hidden if not Episode
+          rule:
+            _and:
+              - link_type:
+                  _neq: episode
+          hidden: true
+          options:
+            enableCreate: true
+            enableSelect: true
+      display: related-values
+      display_options: null
+      field: episode_id
+      group: link
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 2
+      special:
+        - m2o
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      comment: null
+      data_type: integer
+      default_value: null
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: episodes
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: episode_id
+      numeric_precision: 32
+      numeric_scale: 0
+      schema: public
+      table: calendarentries
+    type: integer
+  - collection: calendarentries
+    field: event_id
+    meta:
+      collection: calendarentries
+      conditions: null
+      display: related-values
+      display_options: null
+      field: event_id
+      group: null
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 8
+      special:
+        - m2o
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: integer
+      default_value: null
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: events
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: event_id
+      numeric_precision: 32
+      numeric_scale: 0
+      schema: public
+      table: calendarentries
+    type: integer
+  - collection: calendarentries
     field: id
     meta:
-      collection: calendarevent
+      collection: calendarentries
       conditions: null
       display: null
       display_options: null
@@ -3775,7 +3915,7 @@ fields:
     schema:
       comment: null
       data_type: integer
-      default_value: nextval('calendarevent_id_seq'::regclass)
+      default_value: nextval('calendarentries_id_seq'::regclass)
       foreign_key_column: null
       foreign_key_schema: null
       foreign_key_table: null
@@ -3790,14 +3930,276 @@ fields:
       numeric_precision: 32
       numeric_scale: 0
       schema: public
-      table: calendarevent
+      table: calendarentries
     type: integer
-  - collection: calendarevent
-    field: start
+  - collection: calendarentries
+    field: image
     meta:
-      collection: calendarevent
+      collection: calendarentries
+      conditions: null
+      display: image
+      display_options: null
+      field: image
+      group: null
+      hidden: false
+      interface: file-image
+      note: null
+      options:
+        crop: false
+      readonly: false
+      required: false
+      sort: 12
+      special:
+        - file
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: uuid
+      default_value: null
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: directus_files
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: image
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: calendarentries
+    type: uuid
+  - collection: calendarentries
+    field: image_from_link
+    meta:
+      collection: calendarentries
+      conditions: null
+      display: boolean
+      display_options: null
+      field: image_from_link
+      group: link
+      hidden: false
+      interface: boolean
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 5
+      special:
+        - cast-boolean
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: boolean
+      default_value: true
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: false
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: image_from_link
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: calendarentries
+    type: boolean
+  - collection: calendarentries
+    field: link
+    meta:
+      collection: calendarentries
       conditions: null
       display: null
+      display_options: null
+      field: link
+      group: null
+      hidden: false
+      interface: group-detail
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 11
+      special:
+        - alias
+        - group
+        - no-data
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: calendarentries
+    field: link_type
+    meta:
+      collection: calendarentries
+      conditions: null
+      display: formatted-value
+      display_options: null
+      field: link_type
+      group: link
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        allowNone: true
+        choices:
+          - text: Episode
+            value: episode
+          - text: Season
+            value: season
+          - text: Show
+            value: show
+      readonly: false
+      required: false
+      sort: 1
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      comment: null
+      data_type: character varying
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: 255
+      name: link_type
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: calendarentries
+    type: string
+  - collection: calendarentries
+    field: season_id
+    meta:
+      collection: calendarentries
+      conditions:
+        - name: Hidden if not Season
+          rule:
+            _and:
+              - link_type:
+                  _neq: season
+          hidden: true
+          options:
+            enableCreate: true
+            enableSelect: true
+      display: related-values
+      display_options: null
+      field: season_id
+      group: link
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 3
+      special:
+        - m2o
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      comment: null
+      data_type: integer
+      default_value: null
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: seasons
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: season_id
+      numeric_precision: 32
+      numeric_scale: 0
+      schema: public
+      table: calendarentries
+    type: integer
+  - collection: calendarentries
+    field: show_id
+    meta:
+      collection: calendarentries
+      conditions:
+        - name: Hidden if not Show
+          rule:
+            _and:
+              - link_type:
+                  _neq: show
+          hidden: true
+          options:
+            enableCreate: true
+            enableSelect: true
+      display: related-values
+      display_options: null
+      field: show_id
+      group: link
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 4
+      special:
+        - m2o
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      comment: null
+      data_type: integer
+      default_value: null
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: shows
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: show_id
+      numeric_precision: 32
+      numeric_scale: 0
+      schema: public
+      table: calendarentries
+    type: integer
+  - collection: calendarentries
+    field: start
+    meta:
+      collection: calendarentries
+      conditions: null
+      display: datetime
       display_options: null
       field: start
       group: null
@@ -3807,12 +4209,12 @@ fields:
       options: null
       readonly: false
       required: true
-      sort: 8
+      sort: 9
       special: null
       translations: null
       validation: null
       validation_message: null
-      width: half
+      width: full
     schema:
       comment: null
       data_type: timestamp without time zone
@@ -3831,12 +4233,12 @@ fields:
       numeric_precision: null
       numeric_scale: null
       schema: public
-      table: calendarevent
+      table: calendarentries
     type: dateTime
-  - collection: calendarevent
+  - collection: calendarentries
     field: status
     meta:
-      collection: calendarevent
+      collection: calendarentries
       conditions: null
       display: labels
       display_options:
@@ -3893,54 +4295,36 @@ fields:
       numeric_precision: null
       numeric_scale: null
       schema: public
-      table: calendarevent
+      table: calendarentries
     type: string
-  - collection: calendarevent
-    field: title
+  - collection: calendarentries
+    field: translations
     meta:
-      collection: calendarevent
+      collection: calendarentries
       conditions: null
-      display: null
+      display: translations
       display_options: null
-      field: title
+      field: translations
       group: null
       hidden: false
-      interface: input
+      interface: translations
       note: null
-      options:
-        iconLeft: title
+      options: null
       readonly: false
       required: false
       sort: 7
-      special: null
+      special:
+        - translations
       translations: null
       validation: null
       validation_message: null
       width: full
-    schema:
-      comment: null
-      data_type: character varying
-      default_value: null
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: 255
-      name: title
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: calendarevent
-    type: string
-  - collection: calendarevent
+    schema: null
+    type: alias
+  - collection: calendarentries
     field: user_created
     meta:
-      collection: calendarevent
+      collection: calendarentries
       conditions: null
       display: user
       display_options: null
@@ -3978,12 +4362,12 @@ fields:
       numeric_precision: null
       numeric_scale: null
       schema: public
-      table: calendarevent
+      table: calendarentries
     type: uuid
-  - collection: calendarevent
+  - collection: calendarentries
     field: user_updated
     meta:
-      collection: calendarevent
+      collection: calendarentries
       conditions: null
       display: user
       display_options: null
@@ -4021,8 +4405,213 @@ fields:
       numeric_precision: null
       numeric_scale: null
       schema: public
-      table: calendarevent
+      table: calendarentries
     type: uuid
+  - collection: calendarentries_translations
+    field: calendarentries_id
+    meta:
+      collection: calendarentries_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: calendarentries_id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: integer
+      default_value: null
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: calendarentries
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: calendarentries_id
+      numeric_precision: 32
+      numeric_scale: 0
+      schema: public
+      table: calendarentries_translations
+    type: integer
+  - collection: calendarentries_translations
+    field: description
+    meta:
+      collection: calendarentries_translations
+      conditions: null
+      display: formatted-value
+      display_options: null
+      field: description
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: character varying
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: 255
+      name: description
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: calendarentries_translations
+    type: string
+  - collection: calendarentries_translations
+    field: id
+    meta:
+      collection: calendarentries_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: integer
+      default_value: nextval('calendarentries_translations_id_seq'::regclass)
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: true
+      is_generated: false
+      is_nullable: false
+      is_primary_key: true
+      is_unique: true
+      max_length: null
+      name: id
+      numeric_precision: 32
+      numeric_scale: 0
+      schema: public
+      table: calendarentries_translations
+    type: integer
+  - collection: calendarentries_translations
+    field: languages_code
+    meta:
+      collection: calendarentries_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: languages_code
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: character varying
+      default_value: null
+      foreign_key_column: code
+      foreign_key_schema: public
+      foreign_key_table: languages
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: 255
+      name: languages_code
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: calendarentries_translations
+    type: string
+  - collection: calendarentries_translations
+    field: title
+    meta:
+      collection: calendarentries_translations
+      conditions: null
+      display: formatted-value
+      display_options: null
+      field: title
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: character varying
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: 255
+      name: title
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: calendarentries_translations
+    type: string
   - collection: categories
     field: appear_in_search
     meta:
@@ -8432,6 +9021,600 @@ fields:
       numeric_scale: null
       schema: public
       table: episodes_usergroups_earlyaccess
+    type: string
+  - collection: events
+    field: date_created
+    meta:
+      collection: events
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_created
+      group: null
+      hidden: true
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 4
+      special:
+        - date-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      comment: null
+      data_type: timestamp with time zone
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: date_created
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: events
+    type: timestamp
+  - collection: events
+    field: date_updated
+    meta:
+      collection: events
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_updated
+      group: null
+      hidden: true
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 6
+      special:
+        - date-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      comment: null
+      data_type: timestamp with time zone
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: date_updated
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: events
+    type: timestamp
+  - collection: events
+    field: end
+    meta:
+      collection: events
+      conditions: null
+      display: datetime
+      display_options: null
+      field: end
+      group: null
+      hidden: false
+      interface: datetime
+      note: null
+      options: null
+      readonly: false
+      required: true
+      sort: 9
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      comment: null
+      data_type: timestamp without time zone
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: false
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: end
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: events
+    type: dateTime
+  - collection: events
+    field: id
+    meta:
+      collection: events
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: input
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 1
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: integer
+      default_value: nextval('events_id_seq'::regclass)
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: true
+      is_generated: false
+      is_nullable: false
+      is_primary_key: true
+      is_unique: true
+      max_length: null
+      name: id
+      numeric_precision: 32
+      numeric_scale: 0
+      schema: public
+      table: events
+    type: integer
+  - collection: events
+    field: start
+    meta:
+      collection: events
+      conditions: null
+      display: datetime
+      display_options: null
+      field: start
+      group: null
+      hidden: false
+      interface: datetime
+      note: null
+      options: null
+      readonly: false
+      required: true
+      sort: 8
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      comment: null
+      data_type: timestamp without time zone
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: false
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: start
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: events
+    type: dateTime
+  - collection: events
+    field: status
+    meta:
+      collection: events
+      conditions: null
+      display: labels
+      display_options:
+        choices:
+          - text: $t:published
+            value: published
+            foreground: '#FFFFFF'
+            background: var(--primary)
+          - text: $t:draft
+            value: draft
+            foreground: '#18222F'
+            background: '#D3DAE4'
+          - text: $t:archived
+            value: archived
+            foreground: '#FFFFFF'
+            background: var(--warning)
+        showAsDot: true
+      field: status
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        choices:
+          - text: $t:published
+            value: published
+          - text: $t:draft
+            value: draft
+          - text: $t:archived
+            value: archived
+      readonly: false
+      required: false
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: character varying
+      default_value: draft
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: false
+      is_primary_key: false
+      is_unique: false
+      max_length: 255
+      name: status
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: events
+    type: string
+  - collection: events
+    field: translations
+    meta:
+      collection: events
+      conditions: null
+      display: translations
+      display_options:
+        defaultLanguage: 'no'
+        languageField: code
+        template: '{{title}}'
+        userLanguage: true
+      field: translations
+      group: null
+      hidden: false
+      interface: translations
+      note: null
+      options:
+        defaultLanguage: 'no'
+        languageField: code
+        userLanguage: true
+      readonly: false
+      required: false
+      sort: 7
+      special:
+        - translations
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: events
+    field: user_created
+    meta:
+      collection: events
+      conditions: null
+      display: user
+      display_options: null
+      field: user_created
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: 3
+      special:
+        - user-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      comment: null
+      data_type: uuid
+      default_value: null
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: user_created
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: events
+    type: uuid
+  - collection: events
+    field: user_updated
+    meta:
+      collection: events
+      conditions: null
+      display: user
+      display_options: null
+      field: user_updated
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: 5
+      special:
+        - user-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      comment: null
+      data_type: uuid
+      default_value: null
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: user_updated
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: events
+    type: uuid
+  - collection: events_translations
+    field: description
+    meta:
+      collection: events_translations
+      conditions: null
+      display: formatted-value
+      display_options: null
+      field: description
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: character varying
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: 255
+      name: description
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: events_translations
+    type: string
+  - collection: events_translations
+    field: events_id
+    meta:
+      collection: events_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: events_id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: integer
+      default_value: null
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: events
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: events_id
+      numeric_precision: 32
+      numeric_scale: 0
+      schema: public
+      table: events_translations
+    type: integer
+  - collection: events_translations
+    field: id
+    meta:
+      collection: events_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: integer
+      default_value: nextval('events_translations_id_seq'::regclass)
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: true
+      is_generated: false
+      is_nullable: false
+      is_primary_key: true
+      is_unique: true
+      max_length: null
+      name: id
+      numeric_precision: 32
+      numeric_scale: 0
+      schema: public
+      table: events_translations
+    type: integer
+  - collection: events_translations
+    field: languages_code
+    meta:
+      collection: events_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: languages_code
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: character varying
+      default_value: null
+      foreign_key_column: code
+      foreign_key_schema: public
+      foreign_key_table: languages
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: 255
+      name: languages_code
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: events_translations
+    type: string
+  - collection: events_translations
+    field: title
+    meta:
+      collection: events_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: title
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options:
+        iconLeft: abc
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      comment: null
+      data_type: character varying
+      default_value: null
+      foreign_key_column: null
+      foreign_key_schema: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: 255
+      name: title
+      numeric_precision: null
+      numeric_scale: null
+      schema: public
+      table: events_translations
     type: string
   - collection: faq_categories
     field: id
@@ -15524,767 +16707,6 @@ fields:
       schema: public
       table: tags_translations
     type: integer
-  - collection: tvguideentry
-    field: date_created
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: datetime
-      display_options:
-        relative: true
-      field: date_created
-      group: null
-      hidden: true
-      interface: datetime
-      note: null
-      options: null
-      readonly: true
-      required: false
-      sort: 4
-      special:
-        - date-created
-        - date-updated
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      comment: null
-      data_type: timestamp with time zone
-      default_value: CURRENT_TIMESTAMP
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: false
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: date_created
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: tvguideentry
-    type: timestamp
-  - collection: tvguideentry
-    field: date_updated
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: datetime
-      display_options:
-        relative: true
-      field: date_updated
-      group: null
-      hidden: true
-      interface: datetime
-      note: null
-      options: null
-      readonly: true
-      required: false
-      sort: 6
-      special:
-        - date-created
-        - date-updated
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      comment: null
-      data_type: timestamp with time zone
-      default_value: CURRENT_TIMESTAMP
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: false
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: date_updated
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: tvguideentry
-    type: timestamp
-  - collection: tvguideentry
-    field: description
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: null
-      display_options: null
-      field: description
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options:
-        iconLeft: description
-      readonly: false
-      required: false
-      sort: 8
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: character varying
-      default_value: null
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: 255
-      name: description
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: tvguideentry
-    type: string
-  - collection: tvguideentry
-    field: end
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: null
-      display_options: null
-      field: end
-      group: null
-      hidden: false
-      interface: datetime
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 11
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      comment: null
-      data_type: timestamp without time zone
-      default_value: null
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: end
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: tvguideentry
-    type: dateTime
-  - collection: tvguideentry
-    field: event
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: null
-      display_options: null
-      field: event
-      group: null
-      hidden: false
-      interface: select-dropdown-m2o
-      note: null
-      options:
-        template: '{{title}}'
-      readonly: false
-      required: false
-      sort: 9
-      special:
-        - m2o
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: integer
-      default_value: null
-      foreign_key_column: id
-      foreign_key_schema: public
-      foreign_key_table: calendarevent
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: event
-      numeric_precision: 32
-      numeric_scale: 0
-      schema: public
-      table: tvguideentry
-    type: integer
-  - collection: tvguideentry
-    field: id
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: null
-      display_options: null
-      field: id
-      group: null
-      hidden: true
-      interface: input
-      note: null
-      options: null
-      readonly: true
-      required: false
-      sort: 1
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: integer
-      default_value: nextval('tvguideentry_id_seq'::regclass)
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: true
-      is_generated: false
-      is_nullable: false
-      is_primary_key: true
-      is_unique: true
-      max_length: null
-      name: id
-      numeric_precision: 32
-      numeric_scale: 0
-      schema: public
-      table: tvguideentry
-    type: integer
-  - collection: tvguideentry
-    field: image
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: null
-      display_options: null
-      field: image
-      group: null
-      hidden: false
-      interface: file-image
-      note: null
-      options:
-        crop: false
-      readonly: false
-      required: false
-      sort: 14
-      special:
-        - file
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: uuid
-      default_value: null
-      foreign_key_column: id
-      foreign_key_schema: public
-      foreign_key_table: directus_files
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: image
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: tvguideentry
-    type: uuid
-  - collection: tvguideentry
-    field: link
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: null
-      display_options: null
-      field: link
-      group: null
-      hidden: false
-      interface: list-m2a
-      note: null
-      options:
-        enableCreate: false
-      readonly: false
-      required: false
-      sort: 12
-      special:
-        - m2a
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema: null
-    type: alias
-  - collection: tvguideentry
-    field: start
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: null
-      display_options: null
-      field: start
-      group: null
-      hidden: false
-      interface: datetime
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 10
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      comment: null
-      data_type: timestamp without time zone
-      default_value: null
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: start
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: tvguideentry
-    type: dateTime
-  - collection: tvguideentry
-    field: status
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: labels
-      display_options:
-        choices:
-          - text: $t:published
-            value: published
-            foreground: '#FFFFFF'
-            background: var(--primary)
-          - text: $t:draft
-            value: draft
-            foreground: '#18222F'
-            background: '#D3DAE4'
-          - text: $t:archived
-            value: archived
-            foreground: '#FFFFFF'
-            background: var(--warning)
-        showAsDot: true
-      field: status
-      group: null
-      hidden: false
-      interface: select-dropdown
-      note: null
-      options:
-        choices:
-          - text: $t:published
-            value: published
-          - text: $t:draft
-            value: draft
-          - text: $t:archived
-            value: archived
-      readonly: false
-      required: false
-      sort: 2
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: character varying
-      default_value: published
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: 255
-      name: status
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: tvguideentry
-    type: string
-  - collection: tvguideentry
-    field: title
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: null
-      display_options: null
-      field: title
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options:
-        iconLeft: title
-      readonly: false
-      required: false
-      sort: 7
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: character varying
-      default_value: null
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: 255
-      name: title
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: tvguideentry
-    type: string
-  - collection: tvguideentry
-    field: use_image_from_link
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: null
-      display_options: null
-      field: use_image_from_link
-      group: null
-      hidden: false
-      interface: boolean
-      note: Will use the image from the linked episode if it has one.
-      options:
-        label: Use image from link
-      readonly: false
-      required: true
-      sort: 13
-      special:
-        - cast-boolean
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: boolean
-      default_value: true
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: false
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: use_image_from_link
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: tvguideentry
-    type: boolean
-  - collection: tvguideentry
-    field: user_created
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: user
-      display_options: null
-      field: user_created
-      group: null
-      hidden: true
-      interface: select-dropdown-m2o
-      note: null
-      options:
-        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
-      readonly: true
-      required: false
-      sort: 3
-      special:
-        - user-created
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      comment: null
-      data_type: uuid
-      default_value: null
-      foreign_key_column: id
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: user_created
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: tvguideentry
-    type: uuid
-  - collection: tvguideentry
-    field: user_updated
-    meta:
-      collection: tvguideentry
-      conditions: null
-      display: user
-      display_options: null
-      field: user_updated
-      group: null
-      hidden: true
-      interface: select-dropdown-m2o
-      note: null
-      options:
-        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
-      readonly: true
-      required: false
-      sort: 5
-      special:
-        - user-updated
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      comment: null
-      data_type: uuid
-      default_value: null
-      foreign_key_column: id
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: user_updated
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: tvguideentry
-    type: uuid
-  - collection: tvguideentry_link
-    field: collection
-    meta:
-      collection: tvguideentry_link
-      conditions: null
-      display: null
-      display_options: null
-      field: collection
-      group: null
-      hidden: true
-      interface: null
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: null
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: character varying
-      default_value: null
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: 255
-      name: collection
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: tvguideentry_link
-    type: string
-  - collection: tvguideentry_link
-    field: id
-    meta:
-      collection: tvguideentry_link
-      conditions: null
-      display: null
-      display_options: null
-      field: id
-      group: null
-      hidden: true
-      interface: null
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: null
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: integer
-      default_value: nextval('tvguideentry_link_id_seq'::regclass)
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: true
-      is_generated: false
-      is_nullable: false
-      is_primary_key: true
-      is_unique: true
-      max_length: null
-      name: id
-      numeric_precision: 32
-      numeric_scale: 0
-      schema: public
-      table: tvguideentry_link
-    type: integer
-  - collection: tvguideentry_link
-    field: item
-    meta:
-      collection: tvguideentry_link
-      conditions: null
-      display: null
-      display_options: null
-      field: item
-      group: null
-      hidden: true
-      interface: null
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: null
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: character varying
-      default_value: null
-      foreign_key_column: null
-      foreign_key_schema: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: 255
-      name: item
-      numeric_precision: null
-      numeric_scale: null
-      schema: public
-      table: tvguideentry_link
-    type: string
-  - collection: tvguideentry_link
-    field: tvguideentry_id
-    meta:
-      collection: tvguideentry_link
-      conditions: null
-      display: null
-      display_options: null
-      field: tvguideentry_id
-      group: null
-      hidden: true
-      interface: null
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: null
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      comment: null
-      data_type: integer
-      default_value: null
-      foreign_key_column: id
-      foreign_key_schema: public
-      foreign_key_table: tvguideentry
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: tvguideentry_id
-      numeric_precision: 32
-      numeric_scale: 0
-      schema: public
-      table: tvguideentry_link
-    type: integer
   - collection: usergroups
     field: code
     meta:
@@ -17007,11 +17429,121 @@ relations:
       on_delete: NO ACTION
       on_update: NO ACTION
       table: assetstreams_subtitle_languages
-  - collection: calendarevent
+  - collection: calendarentries
+    field: episode_id
+    meta:
+      junction_field: null
+      many_collection: calendarentries
+      many_field: episode_id
+      one_allowed_collections: null
+      one_collection: episodes
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    related_collection: episodes
+    schema:
+      column: episode_id
+      constraint_name: calendarentries_episode_id_foreign
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: episodes
+      on_delete: SET NULL
+      on_update: NO ACTION
+      table: calendarentries
+  - collection: calendarentries
+    field: event_id
+    meta:
+      junction_field: null
+      many_collection: calendarentries
+      many_field: event_id
+      one_allowed_collections: null
+      one_collection: events
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    related_collection: events
+    schema:
+      column: event_id
+      constraint_name: calendarentries_event_id_foreign
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: events
+      on_delete: SET NULL
+      on_update: NO ACTION
+      table: calendarentries
+  - collection: calendarentries
+    field: image
+    meta:
+      junction_field: null
+      many_collection: calendarentries
+      many_field: image
+      one_allowed_collections: null
+      one_collection: directus_files
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    related_collection: directus_files
+    schema:
+      column: image
+      constraint_name: calendarentries_image_foreign
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: directus_files
+      on_delete: SET NULL
+      on_update: NO ACTION
+      table: calendarentries
+  - collection: calendarentries
+    field: season_id
+    meta:
+      junction_field: null
+      many_collection: calendarentries
+      many_field: season_id
+      one_allowed_collections: null
+      one_collection: seasons
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    related_collection: seasons
+    schema:
+      column: season_id
+      constraint_name: calendarentries_season_id_foreign
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: seasons
+      on_delete: SET NULL
+      on_update: NO ACTION
+      table: calendarentries
+  - collection: calendarentries
+    field: show_id
+    meta:
+      junction_field: null
+      many_collection: calendarentries
+      many_field: show_id
+      one_allowed_collections: null
+      one_collection: shows
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    related_collection: shows
+    schema:
+      column: show_id
+      constraint_name: calendarentries_show_id_foreign
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: shows
+      on_delete: SET NULL
+      on_update: NO ACTION
+      table: calendarentries
+  - collection: calendarentries
     field: user_created
     meta:
       junction_field: null
-      many_collection: calendarevent
+      many_collection: calendarentries
       many_field: user_created
       one_allowed_collections: null
       one_collection: directus_users
@@ -17022,18 +17554,18 @@ relations:
     related_collection: directus_users
     schema:
       column: user_created
-      constraint_name: calendarevent_user_created_foreign
+      constraint_name: calendarentries_user_created_foreign
       foreign_key_column: id
       foreign_key_schema: public
       foreign_key_table: directus_users
       on_delete: NO ACTION
       on_update: NO ACTION
-      table: calendarevent
-  - collection: calendarevent
+      table: calendarentries
+  - collection: calendarentries
     field: user_updated
     meta:
       junction_field: null
-      many_collection: calendarevent
+      many_collection: calendarentries
       many_field: user_updated
       one_allowed_collections: null
       one_collection: directus_users
@@ -17044,13 +17576,57 @@ relations:
     related_collection: directus_users
     schema:
       column: user_updated
-      constraint_name: calendarevent_user_updated_foreign
+      constraint_name: calendarentries_user_updated_foreign
       foreign_key_column: id
       foreign_key_schema: public
       foreign_key_table: directus_users
       on_delete: NO ACTION
       on_update: NO ACTION
-      table: calendarevent
+      table: calendarentries
+  - collection: calendarentries_translations
+    field: calendarentries_id
+    meta:
+      junction_field: languages_code
+      many_collection: calendarentries_translations
+      many_field: calendarentries_id
+      one_allowed_collections: null
+      one_collection: calendarentries
+      one_collection_field: null
+      one_deselect_action: delete
+      one_field: translations
+      sort_field: null
+    related_collection: calendarentries
+    schema:
+      column: calendarentries_id
+      constraint_name: calendarentries_translations_calendarentries_id_foreign
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: calendarentries
+      on_delete: CASCADE
+      on_update: NO ACTION
+      table: calendarentries_translations
+  - collection: calendarentries_translations
+    field: languages_code
+    meta:
+      junction_field: calendarentries_id
+      many_collection: calendarentries_translations
+      many_field: languages_code
+      one_allowed_collections: null
+      one_collection: languages
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    related_collection: languages
+    schema:
+      column: languages_code
+      constraint_name: calendarentries_translations_languages_code_foreign
+      foreign_key_column: code
+      foreign_key_schema: public
+      foreign_key_table: languages
+      on_delete: CASCADE
+      on_update: NO ACTION
+      table: calendarentries_translations
   - collection: categories
     field: parent_id
     meta:
@@ -17755,6 +18331,94 @@ relations:
       on_delete: CASCADE
       on_update: NO ACTION
       table: episodes_usergroups_earlyaccess
+  - collection: events
+    field: user_created
+    meta:
+      junction_field: null
+      many_collection: events
+      many_field: user_created
+      one_allowed_collections: null
+      one_collection: directus_users
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    related_collection: directus_users
+    schema:
+      column: user_created
+      constraint_name: events_user_created_foreign
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      on_delete: NO ACTION
+      on_update: NO ACTION
+      table: events
+  - collection: events
+    field: user_updated
+    meta:
+      junction_field: null
+      many_collection: events
+      many_field: user_updated
+      one_allowed_collections: null
+      one_collection: directus_users
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    related_collection: directus_users
+    schema:
+      column: user_updated
+      constraint_name: events_user_updated_foreign
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      on_delete: NO ACTION
+      on_update: NO ACTION
+      table: events
+  - collection: events_translations
+    field: events_id
+    meta:
+      junction_field: languages_code
+      many_collection: events_translations
+      many_field: events_id
+      one_allowed_collections: null
+      one_collection: events
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: translations
+      sort_field: null
+    related_collection: events
+    schema:
+      column: events_id
+      constraint_name: events_translations_events_id_foreign
+      foreign_key_column: id
+      foreign_key_schema: public
+      foreign_key_table: events
+      on_delete: SET NULL
+      on_update: NO ACTION
+      table: events_translations
+  - collection: events_translations
+    field: languages_code
+    meta:
+      junction_field: events_id
+      many_collection: events_translations
+      many_field: languages_code
+      one_allowed_collections: null
+      one_collection: languages
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    related_collection: languages
+    schema:
+      column: languages_code
+      constraint_name: events_translations_languages_code_foreign
+      foreign_key_column: code
+      foreign_key_schema: public
+      foreign_key_table: languages
+      on_delete: SET NULL
+      on_update: NO ACTION
+      table: events_translations
   - collection: faq_categories_translations
     field: faq_categories_id
     meta:
@@ -18827,133 +19491,6 @@ relations:
       on_delete: SET NULL
       on_update: NO ACTION
       table: tags_translations
-  - collection: tvguideentry
-    field: event
-    meta:
-      junction_field: null
-      many_collection: tvguideentry
-      many_field: event
-      one_allowed_collections: null
-      one_collection: calendarevent
-      one_collection_field: null
-      one_deselect_action: nullify
-      one_field: null
-      sort_field: null
-    related_collection: calendarevent
-    schema:
-      column: event
-      constraint_name: tvguideentry_event_foreign
-      foreign_key_column: id
-      foreign_key_schema: public
-      foreign_key_table: calendarevent
-      on_delete: SET NULL
-      on_update: NO ACTION
-      table: tvguideentry
-  - collection: tvguideentry
-    field: image
-    meta:
-      junction_field: null
-      many_collection: tvguideentry
-      many_field: image
-      one_allowed_collections: null
-      one_collection: directus_files
-      one_collection_field: null
-      one_deselect_action: nullify
-      one_field: null
-      sort_field: null
-    related_collection: directus_files
-    schema:
-      column: image
-      constraint_name: tvguideentry_image_foreign
-      foreign_key_column: id
-      foreign_key_schema: public
-      foreign_key_table: directus_files
-      on_delete: SET NULL
-      on_update: NO ACTION
-      table: tvguideentry
-  - collection: tvguideentry
-    field: user_created
-    meta:
-      junction_field: null
-      many_collection: tvguideentry
-      many_field: user_created
-      one_allowed_collections: null
-      one_collection: directus_users
-      one_collection_field: null
-      one_deselect_action: nullify
-      one_field: null
-      sort_field: null
-    related_collection: directus_users
-    schema:
-      column: user_created
-      constraint_name: tvguideentry_user_created_foreign
-      foreign_key_column: id
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      on_delete: NO ACTION
-      on_update: NO ACTION
-      table: tvguideentry
-  - collection: tvguideentry
-    field: user_updated
-    meta:
-      junction_field: null
-      many_collection: tvguideentry
-      many_field: user_updated
-      one_allowed_collections: null
-      one_collection: directus_users
-      one_collection_field: null
-      one_deselect_action: nullify
-      one_field: null
-      sort_field: null
-    related_collection: directus_users
-    schema:
-      column: user_updated
-      constraint_name: tvguideentry_user_updated_foreign
-      foreign_key_column: id
-      foreign_key_schema: public
-      foreign_key_table: directus_users
-      on_delete: NO ACTION
-      on_update: NO ACTION
-      table: tvguideentry
-  - collection: tvguideentry_link
-    field: item
-    meta:
-      junction_field: tvguideentry_id
-      many_collection: tvguideentry_link
-      many_field: item
-      one_allowed_collections:
-        - episodes
-        - seasons
-        - shows
-      one_collection: null
-      one_collection_field: collection
-      one_deselect_action: nullify
-      one_field: null
-      sort_field: null
-    related_collection: null
-    schema: null
-  - collection: tvguideentry_link
-    field: tvguideentry_id
-    meta:
-      junction_field: item
-      many_collection: tvguideentry_link
-      many_field: tvguideentry_id
-      one_allowed_collections: null
-      one_collection: tvguideentry
-      one_collection_field: null
-      one_deselect_action: nullify
-      one_field: link
-      sort_field: null
-    related_collection: tvguideentry
-    schema:
-      column: tvguideentry_id
-      constraint_name: tvguideentry_link_tvguideentry_id_foreign
-      foreign_key_column: id
-      foreign_key_schema: public
-      foreign_key_table: tvguideentry
-      on_delete: SET NULL
-      on_update: NO ACTION
-      table: tvguideentry_link
   - collection: usergroups
     field: user_created
     meta:

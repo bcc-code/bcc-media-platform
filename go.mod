@@ -7,6 +7,7 @@ require (
 	github.com/99designs/gqlgen v0.17.9
 	github.com/Code-Hex/go-generics-cache v1.0.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.1
+	github.com/Masterminds/squirrel v1.5.3
 	github.com/algolia/algoliasearch-client-go/v3 v3.4.0
 	github.com/ansel1/merry/v2 v2.0.1
 	github.com/aws/aws-sdk-go-v2 v1.16.4
@@ -42,7 +43,6 @@ require (
 	cloud.google.com/go/iam v0.3.0 // indirect
 	cloud.google.com/go/trace v1.2.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.32.1 // indirect
-	github.com/Masterminds/squirrel v1.5.3 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.1 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.4 // indirect
