@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
@@ -55,7 +54,10 @@ func (r *calendarResolver) Day(ctx context.Context, obj *gqlmodel.Calendar, day 
 
 // Event is the resolver for the event field.
 func (r *episodeCalendarEntryResolver) Event(ctx context.Context, obj *gqlmodel.EpisodeCalendarEntry) (*gqlmodel.Event, error) {
-	panic(fmt.Errorf("not implemented"))
+	if obj.Event == nil {
+		return nil, nil
+	}
+	return r.QueryRoot().Event(ctx, obj.Event.ID)
 }
 
 // Episode is the resolver for the episode field.
@@ -65,7 +67,10 @@ func (r *episodeCalendarEntryResolver) Episode(ctx context.Context, obj *gqlmode
 
 // Event is the resolver for the event field.
 func (r *seasonCalendarEntryResolver) Event(ctx context.Context, obj *gqlmodel.SeasonCalendarEntry) (*gqlmodel.Event, error) {
-	panic(fmt.Errorf("not implemented"))
+	if obj.Event == nil {
+		return nil, nil
+	}
+	return r.QueryRoot().Event(ctx, obj.Event.ID)
 }
 
 // Season is the resolver for the season field.
@@ -75,7 +80,10 @@ func (r *seasonCalendarEntryResolver) Season(ctx context.Context, obj *gqlmodel.
 
 // Event is the resolver for the event field.
 func (r *showCalendarEntryResolver) Event(ctx context.Context, obj *gqlmodel.ShowCalendarEntry) (*gqlmodel.Event, error) {
-	panic(fmt.Errorf("not implemented"))
+	if obj.Event == nil {
+		return nil, nil
+	}
+	return r.QueryRoot().Event(ctx, obj.Event.ID)
 }
 
 // Show is the resolver for the show field.
@@ -85,7 +93,10 @@ func (r *showCalendarEntryResolver) Show(ctx context.Context, obj *gqlmodel.Show
 
 // Event is the resolver for the event field.
 func (r *simpleCalendarEntryResolver) Event(ctx context.Context, obj *gqlmodel.SimpleCalendarEntry) (*gqlmodel.Event, error) {
-	panic(fmt.Errorf("not implemented"))
+	if obj.Event == nil {
+		return nil, nil
+	}
+	return r.QueryRoot().Event(ctx, obj.Event.ID)
 }
 
 // Calendar returns generated.CalendarResolver implementation.
