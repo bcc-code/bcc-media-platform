@@ -53,11 +53,14 @@ func (r *calendarResolver) Period(ctx context.Context, obj *gqlmodel.Calendar, f
 		Events: lo.Map(events, func(e common.Event, _ int) *gqlmodel.Event {
 			return &gqlmodel.Event{
 				ID:    strconv.Itoa(e.ID),
-				Start: e.Start.Format("2006-01-02 15:05"),
-				End:   e.End.Format("2006-01-02 15:05"),
+				Start: e.Start.In(location).Format(time.RFC3339),
+				End:   e.End.In(location).Format(time.RFC3339),
 			}
 		}),
-		ActiveDays: days,
+		ActiveDays: lo.Map(days, func(date string, _ int) string {
+			t, _ := time.ParseInLocation("2006-01-02", date, location)
+			return t.Format(time.RFC3339)
+		}),
 	}, nil
 }
 
