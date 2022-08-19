@@ -1,54 +1,22 @@
 directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
     | FIELD_DEFINITION
 
-interface Page{
+type Page{
   id: ID!
-  title: String
+  code: String!
+  title: String!
   description: String
   sections(
-    first: Int!
-    after: Cursor
-  ): SectionConnection!
+    first: Int
+    offset: Int
+  ): SectionPagination! @goField(forceResolver: true)
 }
 
-type ShowPage implements Page{
-  id: ID!
-  title: String
-  description: String
-  sections(
-    first: Int!
-    after: Cursor
-  ): SectionConnection!
-  show: Show
-}
-
-type EpisodePage implements Page{
-  id: ID!
-  title: String
-  description: String
-  sections(
-    first: Int!
-    after: Cursor
-  ): SectionConnection!
-  episode: Episode
-}
-
-type PaginationInfo{
-  id: ID!
-  endCursor: Cursor!
-  hasNextPage: Boolean!
-}
-
-type SectionConnection{
-  id: ID!
-  edges: [SectionEdge!]!
-  pageInfo: PaginationInfo!
-  cursor: Cursor!
-}
-
-type SectionEdge{
-  id: ID!
-  node: Section!
+type PagePagination {
+  total: Int!
+  first: Int!
+  offset: Int!
+  items: [Page!]!
 }
 
 enum Language{
@@ -59,37 +27,30 @@ enum Language{
 
 interface Section{
   id: ID!
-  title: String
+  title: String!
 }
 
+type SectionPagination{
+  total: Int!
+  first: Int!
+  offset: Int!
+  items: [Section!]!
+}
+
+enum ItemSectionType {
+  cards
+  slider
+}
 
 type ItemSection implements Section {
   id: ID!
-  title: String
-  body: SectionBody
-  pageId: ID!
-}
-
-interface SectionBody {
-  id: ID!
-  items: [Item!]!
-}
-
-type ContainerSection implements Section{
-  id: ID!
-  title: String
-  sections: [Section!]!
-}
-
-type SliderItemsSection implements SectionBody {
-  id: ID!
-  items: [Item!]!
-}
-
-type BubblesItemsSection implements SectionBody {
-  id: ID!
-  items: [Item!]!
-  borderColor: String
+  page: Page! @goField(forceResolver: true)
+  title: String!
+  type: ItemSectionType!
+  items(
+    first: Int,
+    offset: Int,
+  ): CollectionItemPagination @goField(forceResolver: true)
 }
 
 scalar Cursor
@@ -97,52 +58,101 @@ scalar Date
 
 interface Item {
   id: ID!
-  title: String
-  imageUrl: String!
+  sort: Int!
+  title: String!
+  imageUrl: String
+}
+
+type CollectionItemPagination{
+  total: Int!
+  first: Int!
+  offset: Int!
+  items: [Item!]!
 }
 
 type URLItem implements Item {
   id: ID!
-  title: String
-  imageUrl: String!
+  sort: Int!
+  title: String!
+  imageUrl: String
   url: String!
+}
+
+type ShowItem implements Item {
+  id: ID!
+  sort: Int!
+  title: String!
+  imageUrl: String
+  show: Show!
+}
+
+type SeasonItem implements Item {
+  id: ID!
+  sort: Int!
+  title: String!
+  imageUrl: String!
+  season: Season!
 }
 
 type EpisodeItem implements Item {
   id: ID!
-  title: String
-  imageUrl: String!
-  episode: Episode
+  sort: Int!
+  title: String!
+  imageUrl: String
+  episode: Episode!
 }
 
 type PageItem implements Item {
   id: ID!
-  title: String
-  imageUrl: String!
-  pageId: ID!
+  sort: Int!
+  title: String!
+  imageUrl: String
   page: Page!
 }
 
 type Show {
   id: ID!
+  legacyID: ID
   title: String!
   description: String!
   episodeCount: Int!
   seasonCount: Int!
-  seasons: [Season!]! @goField(forceResolver: true)
+  seasons(
+    first: Int
+    offset: Int
+  ): SeasonPagination! @goField(forceResolver: true)
+}
+
+type ShowPagination {
+  total: Int!
+  first: Int!
+  offset: Int!
+  items: [Show!]!
 }
 
 type Season {
   id: ID!
+  legacyID: ID
   title: String!
   description: String!
   number: Int!
   show: Show! @goField(forceResolver: true)
-  episodes: [Episode!]! @goField(forceResolver: true)
+  episodes(
+    first: Int
+    offset: Int
+  ): EpisodePagination! @goField(forceResolver: true)
+}
+
+type SeasonPagination {
+  total: Int!
+  first: Int!
+  offset: Int!
+  items: [Season!]!
 }
 
 type Episode {
   id: ID!
+  legacyID: ID
   title: String!
   description: String!
   extraDescription: String!
@@ -154,6 +164,13 @@ type Episode {
   audioLanguages: [Language!]!
   subtitleLanguages: [Language!]!
   episodeNumber: Int
+}
+
+type EpisodePagination {
+  total: Int!
+  first: Int!
+  offset: Int!
+  items: [Episode!]!
 }
 
 type Chapter {
@@ -250,6 +267,7 @@ type User {
 
 interface SearchResultItem {
   id: ID!
+  legacyID: ID
   collection: String!
   title: String!
   header: String
@@ -261,6 +279,7 @@ interface SearchResultItem {
 
 type EpisodeSearchItem implements SearchResultItem {
   id: ID!
+  legacyID: ID
   collection: String!
   title: String!
   header: String
@@ -278,6 +297,7 @@ type EpisodeSearchItem implements SearchResultItem {
 
 type SeasonSearchItem implements SearchResultItem {
   id: ID!
+  legacyID: ID
   collection: String!
   title: String!
   header: String
@@ -292,6 +312,7 @@ type SeasonSearchItem implements SearchResultItem {
 
 type ShowSearchItem implements SearchResultItem {
   id: ID!
+  legacyID: ID
   collection: String!
   title: String!
   header: String
@@ -309,24 +330,30 @@ type SearchResult {
 
 type QueryRoot{
   page(
-    id: ID!
+    id: ID
+    code: String
   ): Page
 
-  episode(
-    id: ID!
-  ): Episode
+  pages(
+    first: Int
+    offset: Int
+  ): PagePagination!
 
-  season(
+  section(
     id: ID!
-  ): Season
+  ): Section
 
   show(
     id: ID!
   ): Show
 
-  section(
+  season(
     id: ID!
-  ): Section
+  ): Season
+
+  episode(
+    id: ID!
+  ): Episode
 
   search(
     queryString: String!

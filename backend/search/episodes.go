@@ -3,95 +3,61 @@ package search
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"strconv"
-
-	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/google/uuid"
-	"github.com/samber/lo"
 )
 
-func (service *Service) mapEpisodeToSearchObject(
-	ctx context.Context,
-	item sqlc.Episode,
-	image *sqlc.DirectusFile,
-	season *sqlc.Season,
-) searchObject {
-	object := searchObject{}
-	itemId := int(item.ID)
-	object[idField] = "episodes-" + strconv.Itoa(itemId)
-	object[typeField] = item.Type
-	object[rolesField] = service.getRolesForEpisode(ctx, item.ID)
+func (service *Service) episodeToSearchItem(ctx context.Context, episode common.Episode) (searchItem, error) {
+	var header *string
+	var showID *int
+	var showTitle *common.LocaleString
+	var seasonID *int
+	var seasonTitle *common.LocaleString
 
-	object[createdAtField] = item.DateCreated.UTC().Unix()
-	object[updatedAtField] = item.DateUpdated.UTC().Unix()
-	object[publishedAtField] = item.PublishDate.UTC().Unix()
+	if episode.SeasonID.Valid {
+		sID := int(episode.SeasonID.Int64)
+		seasonID = &sID
+		season, err := service.loaders.SeasonLoader.Load(ctx, sID)()
+		if err != nil {
+			return searchItem{}, err
+		}
+		shID := season.ShowID
+		showID = &shID
+		show, err := service.loaders.ShowLoader.Load(ctx, shID)()
+		if err != nil {
+			return searchItem{}, err
+		}
 
-	if image != nil && image.FilenameDisk.Valid {
-		object[imageField] = image.GetImageUrl()
-	}
-	if season != nil {
-		if value := item.EpisodeNumber.ValueOrZero(); value != 0 {
-			object[headerField] = fmt.Sprintf("S%d:E%d", season.SeasonNumber, value)
+		showID = &show.ID
+		showTitle = &show.Title
+		seasonID = &season.ID
+		seasonTitle = &season.Title
+
+		if episode.Number.Valid {
+			headerString := fmt.Sprintf("S%d:E%d", season.Number, episode.Number.Int64)
+			header = &headerString
 		}
 	}
 
-	object.assignVisibility(service.getVisibilityForEpisode(ctx, item.ID))
-	title, description := toLocaleStrings(service.getTranslationsForEpisode(ctx, item.ID))
-	object.mapFromLocaleString(titleField, title)
-	object.mapFromLocaleString(descriptionField, description)
-	if season != nil {
-		object[seasonIDField] = season.ID
-		seasonTitle, _ := toLocaleStrings(service.getTranslationsForSeason(ctx, season.ID))
-		object.mapFromLocaleString(seasonTitleField, seasonTitle)
-
-		object[showIDField] = season.ShowID
-		showTitle, _ := toLocaleStrings(service.getTranslationsForShow(ctx, season.ShowID))
-		object.mapFromLocaleString(showTitleField, showTitle)
+	var legacyID *int
+	if episode.LegacyID.Valid {
+		v := int(episode.LegacyID.Int64)
+		legacyID = &v
 	}
 
-	return object
-}
-
-func (service *Service) indexEpisodes(
-	ctx context.Context,
-	items []sqlc.Episode,
-	imageDict map[uuid.UUID]sqlc.DirectusFile,
-	seasonById map[int32]sqlc.Season,
-	index *search.Index,
-) error {
-	objects := lo.Map(items, func(item sqlc.Episode, _ int) searchObject {
-		var season *sqlc.Season
-		if item.SeasonID.Valid {
-			seasonResult := seasonById[int32(item.SeasonID.ValueOrZero())]
-			season = &seasonResult
-		}
-		var thumbnail *sqlc.DirectusFile
-		if item.ImageFileID.Valid {
-			thumbnailResult := imageDict[item.ImageFileID.UUID]
-			thumbnail = &thumbnailResult
-		}
-		return service.mapEpisodeToSearchObject(ctx, item, thumbnail, season)
-	})
-
-	return indexObjects(index, objects)
-}
-
-func (service *Service) indexEpisode(ctx context.Context, item sqlc.Episode) error {
-	var image *sqlc.DirectusFile
-	if item.ImageFileID.Valid {
-		thumbnailResult, _ := service.queries.GetFile(ctx, item.ImageFileID.UUID)
-		image = &thumbnailResult
+	var item = searchItem{
+		ID:          "episodes-" + strconv.Itoa(episode.ID),
+		LegacyID:    legacyID,
+		Title:       episode.Title,
+		Description: episode.Description,
+		Header:      header,
+		ShowID:      showID,
+		ShowTitle:   showTitle,
+		SeasonID:    seasonID,
+		SeasonTitle: seasonTitle,
+		Type:        "episode",
 	}
 
-	var season *sqlc.Season
-	if item.SeasonID.Valid {
-		seasonResult, _ := service.queries.GetSeason(ctx, int32(item.SeasonID.ValueOrZero()))
-		season = &seasonResult
-	}
-
-	object := service.mapEpisodeToSearchObject(ctx, item, image, season)
-
-	_, err := service.index.SaveObject(object)
-	return err
+	err := item.assignTags(ctx, service.loaders, episode)
+	return item, err
 }

@@ -2,34 +2,44 @@ package gqlmodel
 
 import (
 	"context"
-	"encoding/json"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
-// SeasonFromSQL coverts a SQL row into an GQL episode type
-func SeasonFromSQL(ctx context.Context, row *sqlc.SeasonExpanded) *Season {
-	titleMap := common.LocaleString{}
-	descriptionMap := common.LocaleString{}
-
-	_ = json.Unmarshal(row.Title, &titleMap)
-	_ = json.Unmarshal(row.Description, &descriptionMap)
-
+// SeasonFrom coverts a common.Season into an GQL episode type
+func SeasonFrom(ctx context.Context, s *common.Season) *Season {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 	show := Show{
-		ID: strconv.Itoa(int(row.ShowID)),
+		ID: strconv.Itoa(s.ShowID),
+	}
+
+	var legacyID *string
+	if s.LegacyID.Valid {
+		strID := strconv.Itoa(int(s.LegacyID.Int64))
+		legacyID = &strID
 	}
 
 	return &Season{
-		ID:          strconv.Itoa(int(row.ID)),
-		Title:       titleMap.Get(languages),
-		Description: descriptionMap.Get(languages),
-		Number:      int(row.SeasonNumber),
+		ID:          strconv.Itoa(s.ID),
+		LegacyID:    legacyID,
+		Title:       s.Title.Get(languages),
+		Description: s.Description.Get(languages),
+		Number:      s.Number,
 		Show:        &show,
+	}
+}
+
+// SeasonItemFrom returns a SeasonItem from a common.Season
+func SeasonItemFrom(ctx context.Context, row *common.Season) *SeasonItem {
+	season := SeasonFrom(ctx, row)
+
+	return &SeasonItem{
+		ID:     season.ID,
+		Season: season,
+		Title:  season.Title,
 	}
 }

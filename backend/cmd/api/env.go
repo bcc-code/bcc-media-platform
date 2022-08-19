@@ -13,9 +13,8 @@ type postgres struct {
 }
 
 type algolia struct {
-	AppId            string
-	ApiKey           string
-	SearchOnlyApiKey string
+	AppId  string
+	ApiKey string
 }
 
 type envConfig struct {
@@ -24,10 +23,15 @@ type envConfig struct {
 	Port      string
 	JWTConfig auth0.JWTConfig
 	CDNConfig cdnConfig
+	Secrets   serviceSecrets
 }
 
 type cdnConfig struct {
 	Vod2Domain string
+}
+
+type serviceSecrets struct {
+	Directus string
 }
 
 func (c cdnConfig) GetVOD2Domain() string {
@@ -52,12 +56,14 @@ func getEnvConfig() envConfig {
 		},
 		Port: os.Getenv("PORT"),
 		Algolia: algolia{
-			AppId:            os.Getenv("ALGOLIA_APP_ID"),
-			ApiKey:           os.Getenv("ALGOLIA_API_KEY"),
-			SearchOnlyApiKey: os.Getenv("ALGOLIA_SEARCH_ONLY_API_KEY"),
+			AppId:  os.Getenv("ALGOLIA_APP_ID"),
+			ApiKey: os.Getenv("ALGOLIA_API_KEY"),
 		},
 		CDNConfig: cdnConfig{
 			Vod2Domain: os.Getenv("VOD2_CDN_DOMAIN"),
+		},
+		Secrets: serviceSecrets{
+			Directus: os.Getenv("SERVICE_SECRET_DIRECTUS"),
 		},
 	}
 }

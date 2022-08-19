@@ -2,53 +2,60 @@ package gqlmodel
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
-// EpisodeFromSQL coverts a SQL row into an GQL episode type
-func EpisodeFromSQL(ctx context.Context, row *sqlc.EpisodeExpanded) *Episode {
-	titleMap := common.LocaleString{}
-	descriptionMap := common.LocaleString{}
-	extraDescriptionMap := common.LocaleString{}
-
-	_ = json.Unmarshal(row.Title, &titleMap)
-	_ = json.Unmarshal(row.Description, &descriptionMap)
-	_ = json.Unmarshal(row.ExtraDescription, &extraDescriptionMap)
-
+// EpisodeFrom coverts a common.Episode into an GQL episode type
+func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 	var season *Season
-	if row.SeasonID.Valid {
+	if e.SeasonID.Valid {
 		season = &Season{
-			ID: strconv.Itoa(int(row.SeasonID.Int64)),
+			ID: strconv.Itoa(int(e.SeasonID.Int64)),
 		}
 	}
 
 	var extraDescription string
-	if v := extraDescriptionMap.GetValueOrNil(languages); v != nil {
+	if v := e.ExtraDescription.GetValueOrNil(languages); v != nil {
 		extraDescription = *v
+	}
+
+	var legacyID *string
+	if e.LegacyID.Valid {
+		strID := strconv.Itoa(int(e.LegacyID.Int64))
+		legacyID = &strID
 	}
 
 	episode := &Episode{
 		Chapters:         []*Chapter{}, // Currently not supported
-		ID:               fmt.Sprintf("%d", row.ID),
-		Title:            titleMap.Get(languages),
-		Description:      descriptionMap.Get(languages),
+		ID:               strconv.Itoa(e.ID),
+		LegacyID:         legacyID,
+		Title:            e.Title.Get(languages),
+		Description:      e.Description.Get(languages),
 		ExtraDescription: extraDescription,
 		Season:           season,
 	}
 
-	if row.EpisodeNumber.Valid {
-		num := int(row.EpisodeNumber.Int64)
+	if e.Number.Valid {
+		num := int(e.Number.Int64)
 		episode.EpisodeNumber = &num
 	}
 
 	return episode
+}
+
+// EpisodeItemFrom converts a common.Episode into a GQL Episode Item
+func EpisodeItemFrom(ctx context.Context, e *common.Episode) *EpisodeItem {
+	episode := EpisodeFrom(ctx, e)
+
+	return &EpisodeItem{
+		ID:      episode.ID,
+		Title:   episode.Title,
+		Episode: episode,
+	}
 }

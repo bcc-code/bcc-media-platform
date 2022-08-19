@@ -7,8 +7,7 @@ import (
 )
 
 type Visibility struct {
-	Status        Status
-	PublishDate   time.Time
+	Published     bool
 	AvailableFrom *time.Time
 	AvailableTo   *time.Time
 }
@@ -31,8 +30,7 @@ func smallestTime(alts []*time.Time) time.Time {
 
 func (v *Visibility) Merge(vm Visibility) (r Visibility) {
 	r = Visibility{}
-	r.Status = MostRestrictiveStatus(v.Status, vm.Status)
-	r.PublishDate = utils.LargestTime(v.PublishDate, vm.PublishDate)
+	r.Published = vm.Published && v.Published
 	availableFrom := largestTime([]*time.Time{v.AvailableFrom, vm.AvailableFrom})
 	if availableFrom != (time.Time{}) {
 		r.AvailableFrom = &availableFrom
