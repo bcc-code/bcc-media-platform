@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/google/uuid"
 	"gopkg.in/guregu/null.v4"
+	"time"
 )
 
 type hasKey[k comparable] interface {
@@ -87,7 +88,7 @@ func (i Season) IsCollectionItem() {
 // Episode is the definition of the Episode object
 type Episode struct {
 	ID               int           `json:"id"`
-	LegacyID         null.Int	   `json:"legacyId"`
+	LegacyID         null.Int      `json:"legacyId"`
 	Availability     Availability  `json:"availability"`
 	Roles            Roles         `json:"roles"`
 	SeasonID         null.Int      `json:"seasonId"`
@@ -249,5 +250,35 @@ type Tag struct {
 
 // GetKey returns the key for this item
 func (i Tag) GetKey() int {
+	return i.ID
+}
+
+// Event contains details about a calendar event
+type Event struct {
+	ID    int
+	Title LocaleString
+	Start time.Time
+	End   time.Time
+}
+
+// GetKey returns the key for this item
+func (i Event) GetKey() int {
+	return i.ID
+}
+
+// CalendarEntry contains details about a specific TvGuide entry
+type CalendarEntry struct {
+	ID          int
+	EventID     null.Int
+	Title       LocaleString
+	Description LocaleString
+	Start       time.Time
+	End         time.Time
+	Type        null.String
+	ItemID      null.Int
+}
+
+// GetKey returns the key for this item
+func (i CalendarEntry) GetKey() int {
 	return i.ID
 }

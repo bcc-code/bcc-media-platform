@@ -145,12 +145,12 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 
 // Calendar is the resolver for the calendar field.
 func (r *queryRootResolver) Calendar(ctx context.Context) (*gqlmodel.Calendar, error) {
-	panic(fmt.Errorf("not implemented"))
+	return &gqlmodel.Calendar{}, nil
 }
 
 // Event is the resolver for the event field.
 func (r *queryRootResolver) Event(ctx context.Context, id string) (*gqlmodel.Event, error) {
-	panic(fmt.Errorf("not implemented"))
+	return resolverForIntID(ctx, id, r.Loaders.EventLoader, gqlmodel.EventFrom)
 }
 
 // AllFAQs is the resolver for the allFAQs field.

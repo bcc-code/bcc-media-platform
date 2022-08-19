@@ -1,6 +1,10 @@
 directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
     | FIELD_DEFINITION
 
+schema{
+  query: QueryRoot
+}
+
 type Page{
   id: ID!
   code: String!
@@ -201,42 +205,6 @@ enum StreamType {
   hls
   cmaf
   dash
-}
-
-schema{
-  query: QueryRoot
-}
-
-type CalendarPeriod {
-  id: ID!
-  activeDays: [Date!]!
-  events: [Event!]!
-}
-
-type CalendarDay {
-  id: ID!
-  events: [Event!]!
-  tvGuideEntries: [TvGuideEntry!]!
-}
-
-type Event {
-  id: ID!
-  start: String!
-  end: String!
-  tvGuideEntries: [TvGuideEntry!]!
-  bannerImageURL: String!
-}
-
-type TvGuideEntry {
-  id: ID!
-  start: String!
-  end: String!
-  episode: Episode
-}
-
-type Calendar {
-  period(from: Date!, to: Date!) : CalendarPeriod
-  day(day: Date!) : CalendarDay
 }
 
 type Settings {

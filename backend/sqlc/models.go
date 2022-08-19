@@ -89,16 +89,30 @@ type AssetstreamsSubtitleLanguage struct {
 	LanguagesCode  null_v4.String `db:"languages_code" json:"languagesCode"`
 }
 
-type Calendarevent struct {
-	DateCreated time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated time.Time      `db:"date_updated" json:"dateUpdated"`
-	End         null_v4.Time   `db:"end" json:"end"`
-	ID          int32          `db:"id" json:"id"`
-	Start       time.Time      `db:"start" json:"start"`
-	Status      string         `db:"status" json:"status"`
-	Title       null_v4.String `db:"title" json:"title"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+type CalendarentriesTranslation struct {
+	ID                int32          `db:"id" json:"id"`
+	CalendarentriesID null_v4.Int    `db:"calendarentries_id" json:"calendarentriesID"`
+	LanguagesCode     null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title             null_v4.String `db:"title" json:"title"`
+	Description       null_v4.String `db:"description" json:"description"`
+}
+
+type Calendarentry struct {
+	ID            int32          `db:"id" json:"id"`
+	Status        string         `db:"status" json:"status"`
+	UserCreated   uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated   sql.NullTime   `db:"date_created" json:"dateCreated"`
+	UserUpdated   uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated   sql.NullTime   `db:"date_updated" json:"dateUpdated"`
+	EventID       null_v4.Int    `db:"event_id" json:"eventID"`
+	Start         time.Time      `db:"start" json:"start"`
+	End           time.Time      `db:"end" json:"end"`
+	LinkType      null_v4.String `db:"link_type" json:"linkType"`
+	EpisodeID     null_v4.Int    `db:"episode_id" json:"episodeID"`
+	SeasonID      null_v4.Int    `db:"season_id" json:"seasonID"`
+	ShowID        null_v4.Int    `db:"show_id" json:"showID"`
+	Image         uuid.NullUUID  `db:"image" json:"image"`
+	ImageFromLink bool           `db:"image_from_link" json:"imageFromLink"`
 }
 
 type CategoriesTranslation struct {
@@ -582,6 +596,25 @@ type EpisodesUsergroupsEarlyaccess struct {
 	DateUpdated    time.Time `db:"date_updated" json:"dateUpdated"`
 }
 
+type Event struct {
+	ID          int32         `db:"id" json:"id"`
+	Status      string        `db:"status" json:"status"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated sql.NullTime  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated sql.NullTime  `db:"date_updated" json:"dateUpdated"`
+	Start       time.Time     `db:"start" json:"start"`
+	End         time.Time     `db:"end" json:"end"`
+}
+
+type EventsTranslation struct {
+	ID            int32          `db:"id" json:"id"`
+	EventsID      null_v4.Int    `db:"events_id" json:"eventsID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
+}
+
 type Faq struct {
 	Category    int32       `db:"category" json:"category"`
 	DateCreated time.Time   `db:"date_created" json:"dateCreated"`
@@ -888,29 +921,6 @@ type TagsTranslation struct {
 	TagsID        null_v4.Int    `db:"tags_id" json:"tagsID"`
 	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
 	Name          null_v4.String `db:"name" json:"name"`
-}
-
-type Tvguideentry struct {
-	DateCreated      time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated      time.Time      `db:"date_updated" json:"dateUpdated"`
-	Description      null_v4.String `db:"description" json:"description"`
-	End              null_v4.Time   `db:"end" json:"end"`
-	Event            null_v4.Int    `db:"event" json:"event"`
-	ID               int32          `db:"id" json:"id"`
-	Image            uuid.NullUUID  `db:"image" json:"image"`
-	Start            null_v4.Time   `db:"start" json:"start"`
-	Status           null_v4.String `db:"status" json:"status"`
-	Title            null_v4.String `db:"title" json:"title"`
-	UseImageFromLink bool           `db:"use_image_from_link" json:"useImageFromLink"`
-	UserCreated      uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated      uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-}
-
-type TvguideentryLink struct {
-	Collection     null_v4.String `db:"collection" json:"collection"`
-	ID             int32          `db:"id" json:"id"`
-	Item           null_v4.String `db:"item" json:"item"`
-	TvguideentryID null_v4.Int    `db:"tvguideentry_id" json:"tvguideentryID"`
 }
 
 type Usergroup struct {

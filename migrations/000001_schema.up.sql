@@ -319,29 +319,35 @@ ALTER SEQUENCE public.assetstreams_subtitle_languages_id_seq OWNED BY public.ass
 
 
 --
--- Name: calendarevent; Type: TABLE; Schema: public; Owner: btv
+-- Name: calendarentries; Type: TABLE; Schema: public; Owner: btv
 --
 
-CREATE TABLE public.calendarevent (
-    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "end" timestamp without time zone,
+CREATE TABLE public.calendarentries (
     id integer NOT NULL,
-    start timestamp without time zone NOT NULL,
     status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
-    title character varying(255) DEFAULT NULL::character varying,
     user_created uuid,
-    user_updated uuid
+    date_created timestamp with time zone,
+    user_updated uuid,
+    date_updated timestamp with time zone,
+    event_id integer,
+    start timestamp without time zone NOT NULL,
+    "end" timestamp without time zone NOT NULL,
+    link_type character varying(255),
+    episode_id integer,
+    season_id integer,
+    show_id integer,
+    image uuid,
+    image_from_link boolean DEFAULT true NOT NULL
 );
 
 
-ALTER TABLE public.calendarevent OWNER TO btv;
+ALTER TABLE public.calendarentries OWNER TO btv;
 
 --
--- Name: calendarevent_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+-- Name: calendarentries_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
 --
 
-CREATE SEQUENCE public.calendarevent_id_seq
+CREATE SEQUENCE public.calendarentries_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -350,13 +356,50 @@ CREATE SEQUENCE public.calendarevent_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.calendarevent_id_seq OWNER TO btv;
+ALTER TABLE public.calendarentries_id_seq OWNER TO btv;
 
 --
--- Name: calendarevent_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+-- Name: calendarentries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
 --
 
-ALTER SEQUENCE public.calendarevent_id_seq OWNED BY public.calendarevent.id;
+ALTER SEQUENCE public.calendarentries_id_seq OWNED BY public.calendarentries.id;
+
+
+--
+-- Name: calendarentries_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.calendarentries_translations (
+    id integer NOT NULL,
+    calendarentries_id integer,
+    languages_code character varying(255),
+    title character varying(255),
+    description character varying(255)
+);
+
+
+ALTER TABLE public.calendarentries_translations OWNER TO btv;
+
+--
+-- Name: calendarentries_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.calendarentries_translations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.calendarentries_translations_id_seq OWNER TO btv;
+
+--
+-- Name: calendarentries_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.calendarentries_translations_id_seq OWNED BY public.calendarentries_translations.id;
 
 
 --
@@ -1618,6 +1661,83 @@ ALTER SEQUENCE public.episodes_usergroups_id_seq OWNED BY public.episodes_usergr
 
 
 --
+-- Name: events; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.events (
+    id integer NOT NULL,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    user_created uuid,
+    date_created timestamp with time zone,
+    user_updated uuid,
+    date_updated timestamp with time zone,
+    start timestamp without time zone NOT NULL,
+    "end" timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.events OWNER TO btv;
+
+--
+-- Name: events_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.events_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.events_id_seq OWNER TO btv;
+
+--
+-- Name: events_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.events_id_seq OWNED BY public.events.id;
+
+
+--
+-- Name: events_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.events_translations (
+    id integer NOT NULL,
+    events_id integer,
+    languages_code character varying(255),
+    title character varying(255),
+    description character varying(255)
+);
+
+
+ALTER TABLE public.events_translations OWNER TO btv;
+
+--
+-- Name: events_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.events_translations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.events_translations_id_seq OWNER TO btv;
+
+--
+-- Name: events_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.events_translations_id_seq OWNED BY public.events_translations.id;
+
+
+--
 -- Name: faq_categories; Type: TABLE; Schema: public; Owner: btv
 --
 
@@ -2594,87 +2714,6 @@ ALTER SEQUENCE public.tags_translations_id_seq OWNED BY public.tags_translations
 
 
 --
--- Name: tvguideentry; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.tvguideentry (
-    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    description character varying(255) DEFAULT NULL::character varying,
-    "end" timestamp without time zone,
-    event integer,
-    id integer NOT NULL,
-    image uuid,
-    start timestamp without time zone,
-    status character varying(255) DEFAULT 'published'::character varying,
-    title character varying(255) DEFAULT NULL::character varying,
-    use_image_from_link boolean DEFAULT true NOT NULL,
-    user_created uuid,
-    user_updated uuid
-);
-
-
-ALTER TABLE public.tvguideentry OWNER TO btv;
-
---
--- Name: tvguideentry_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
---
-
-CREATE SEQUENCE public.tvguideentry_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.tvguideentry_id_seq OWNER TO btv;
-
---
--- Name: tvguideentry_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
---
-
-ALTER SEQUENCE public.tvguideentry_id_seq OWNED BY public.tvguideentry.id;
-
-
---
--- Name: tvguideentry_link; Type: TABLE; Schema: public; Owner: btv
---
-
-CREATE TABLE public.tvguideentry_link (
-    collection character varying(255) DEFAULT NULL::character varying,
-    id integer NOT NULL,
-    item character varying(255) DEFAULT NULL::character varying,
-    tvguideentry_id integer
-);
-
-
-ALTER TABLE public.tvguideentry_link OWNER TO btv;
-
---
--- Name: tvguideentry_link_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
---
-
-CREATE SEQUENCE public.tvguideentry_link_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.tvguideentry_link_id_seq OWNER TO btv;
-
---
--- Name: tvguideentry_link_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
---
-
-ALTER SEQUENCE public.tvguideentry_link_id_seq OWNED BY public.tvguideentry_link.id;
-
-
---
 -- Name: usergroups; Type: TABLE; Schema: public; Owner: btv
 --
 
@@ -2735,10 +2774,17 @@ ALTER TABLE ONLY public.assetstreams_subtitle_languages ALTER COLUMN id SET DEFA
 
 
 --
--- Name: calendarevent id; Type: DEFAULT; Schema: public; Owner: btv
+-- Name: calendarentries id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
-ALTER TABLE ONLY public.calendarevent ALTER COLUMN id SET DEFAULT nextval('public.calendarevent_id_seq'::regclass);
+ALTER TABLE ONLY public.calendarentries ALTER COLUMN id SET DEFAULT nextval('public.calendarentries_id_seq'::regclass);
+
+
+--
+-- Name: calendarentries_translations id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.calendarentries_translations ALTER COLUMN id SET DEFAULT nextval('public.calendarentries_translations_id_seq'::regclass);
 
 
 --
@@ -2882,6 +2928,20 @@ ALTER TABLE ONLY public.episodes_usergroups_earlyaccess ALTER COLUMN id SET DEFA
 
 
 --
+-- Name: events id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.events ALTER COLUMN id SET DEFAULT nextval('public.events_id_seq'::regclass);
+
+
+--
+-- Name: events_translations id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.events_translations ALTER COLUMN id SET DEFAULT nextval('public.events_translations_id_seq'::regclass);
+
+
+--
 -- Name: faq_categories id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
@@ -3022,20 +3082,6 @@ ALTER TABLE ONLY public.tags_translations ALTER COLUMN id SET DEFAULT nextval('p
 
 
 --
--- Name: tvguideentry id; Type: DEFAULT; Schema: public; Owner: btv
---
-
-ALTER TABLE ONLY public.tvguideentry ALTER COLUMN id SET DEFAULT nextval('public.tvguideentry_id_seq'::regclass);
-
-
---
--- Name: tvguideentry_link id; Type: DEFAULT; Schema: public; Owner: btv
---
-
-ALTER TABLE ONLY public.tvguideentry_link ALTER COLUMN id SET DEFAULT nextval('public.tvguideentry_link_id_seq'::regclass);
-
-
---
 -- Name: ageratings ageratings_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
@@ -3092,11 +3138,19 @@ ALTER TABLE ONLY public.assetstreams_subtitle_languages
 
 
 --
--- Name: calendarevent calendarevent_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+-- Name: calendarentries calendarentries_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
-ALTER TABLE ONLY public.calendarevent
-    ADD CONSTRAINT calendarevent_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.calendarentries
+    ADD CONSTRAINT calendarentries_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: calendarentries_translations calendarentries_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.calendarentries_translations
+    ADD CONSTRAINT calendarentries_translations_pkey PRIMARY KEY (id);
 
 
 --
@@ -3420,6 +3474,22 @@ ALTER TABLE ONLY public.episodes_usergroups
 
 
 --
+-- Name: events events_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.events
+    ADD CONSTRAINT events_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: events_translations events_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.events_translations
+    ADD CONSTRAINT events_translations_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: faq_categories faq_categories_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
@@ -3612,22 +3682,6 @@ ALTER TABLE ONLY public.tags_translations
 
 
 --
--- Name: tvguideentry_link tvguideentry_link_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
---
-
-ALTER TABLE ONLY public.tvguideentry_link
-    ADD CONSTRAINT tvguideentry_link_pkey PRIMARY KEY (id);
-
-
---
--- Name: tvguideentry tvguideentry_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
---
-
-ALTER TABLE ONLY public.tvguideentry
-    ADD CONSTRAINT tvguideentry_pkey PRIMARY KEY (id);
-
-
---
 -- Name: usergroups usergroups_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
@@ -3792,19 +3846,75 @@ ALTER TABLE ONLY public.assetstreams
 
 
 --
--- Name: calendarevent calendarevent_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+-- Name: calendarentries calendarentries_episode_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
-ALTER TABLE ONLY public.calendarevent
-    ADD CONSTRAINT calendarevent_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id);
+ALTER TABLE ONLY public.calendarentries
+    ADD CONSTRAINT calendarentries_episode_id_foreign FOREIGN KEY (episode_id) REFERENCES public.episodes(id) ON DELETE SET NULL;
 
 
 --
--- Name: calendarevent calendarevent_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+-- Name: calendarentries calendarentries_event_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
-ALTER TABLE ONLY public.calendarevent
-    ADD CONSTRAINT calendarevent_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+ALTER TABLE ONLY public.calendarentries
+    ADD CONSTRAINT calendarentries_event_id_foreign FOREIGN KEY (event_id) REFERENCES public.events(id) ON DELETE SET NULL;
+
+
+--
+-- Name: calendarentries calendarentries_image_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.calendarentries
+    ADD CONSTRAINT calendarentries_image_foreign FOREIGN KEY (image) REFERENCES public.directus_files(id) ON DELETE SET NULL;
+
+
+--
+-- Name: calendarentries calendarentries_season_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.calendarentries
+    ADD CONSTRAINT calendarentries_season_id_foreign FOREIGN KEY (season_id) REFERENCES public.seasons(id) ON DELETE SET NULL;
+
+
+--
+-- Name: calendarentries calendarentries_show_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.calendarentries
+    ADD CONSTRAINT calendarentries_show_id_foreign FOREIGN KEY (show_id) REFERENCES public.shows(id) ON DELETE SET NULL;
+
+
+--
+-- Name: calendarentries_translations calendarentries_translations_calendarentries_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.calendarentries_translations
+    ADD CONSTRAINT calendarentries_translations_calendarentries_id_foreign FOREIGN KEY (calendarentries_id) REFERENCES public.calendarentries(id) ON DELETE CASCADE;
+
+
+--
+-- Name: calendarentries_translations calendarentries_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.calendarentries_translations
+    ADD CONSTRAINT calendarentries_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE CASCADE;
+
+
+--
+-- Name: calendarentries calendarentries_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.calendarentries
+    ADD CONSTRAINT calendarentries_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: calendarentries calendarentries_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.calendarentries
+    ADD CONSTRAINT calendarentries_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
 
 
 --
@@ -4304,6 +4414,38 @@ ALTER TABLE ONLY public.episodes_usergroups
 
 
 --
+-- Name: events_translations events_translations_events_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.events_translations
+    ADD CONSTRAINT events_translations_events_id_foreign FOREIGN KEY (events_id) REFERENCES public.events(id) ON DELETE SET NULL;
+
+
+--
+-- Name: events_translations events_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.events_translations
+    ADD CONSTRAINT events_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE SET NULL;
+
+
+--
+-- Name: events events_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.events
+    ADD CONSTRAINT events_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: events events_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.events
+    ADD CONSTRAINT events_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+
+
+--
 -- Name: faq_categories_translations faq_categories_translations_faq_categories_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
@@ -4685,46 +4827,6 @@ ALTER TABLE ONLY public.tags
 
 ALTER TABLE ONLY public.tags
     ADD CONSTRAINT tags_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
-
-
---
--- Name: tvguideentry tvguideentry_event_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
---
-
-ALTER TABLE ONLY public.tvguideentry
-    ADD CONSTRAINT tvguideentry_event_foreign FOREIGN KEY (event) REFERENCES public.calendarevent(id) ON DELETE SET NULL;
-
-
---
--- Name: tvguideentry tvguideentry_image_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
---
-
-ALTER TABLE ONLY public.tvguideentry
-    ADD CONSTRAINT tvguideentry_image_foreign FOREIGN KEY (image) REFERENCES public.directus_files(id) ON DELETE SET NULL;
-
-
---
--- Name: tvguideentry_link tvguideentry_link_tvguideentry_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
---
-
-ALTER TABLE ONLY public.tvguideentry_link
-    ADD CONSTRAINT tvguideentry_link_tvguideentry_id_foreign FOREIGN KEY (tvguideentry_id) REFERENCES public.tvguideentry(id) ON DELETE SET NULL;
-
-
---
--- Name: tvguideentry tvguideentry_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
---
-
-ALTER TABLE ONLY public.tvguideentry
-    ADD CONSTRAINT tvguideentry_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id);
-
-
---
--- Name: tvguideentry tvguideentry_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
---
-
-ALTER TABLE ONLY public.tvguideentry
-    ADD CONSTRAINT tvguideentry_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
 
 
 --
