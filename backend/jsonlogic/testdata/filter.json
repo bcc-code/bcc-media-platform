@@ -21,13 +21,24 @@
           },
           {
             "==": [
-              "true",
-              "true"
+              {
+                "var":  "Field"
+              },
+              true
+            ]
+          },
+          {
+            "!=": [
+              {
+                "var":  "Field7"
+              },
+              "alksjdlkajds"
             ]
           }
         ]
       }
     ]
   },
-  "out": "(\"available_to\" > '2022-02-10') AND ((\"id\" = 10) OR ('true' = 'true'))"
+  "out": "(t.\"available_to\" > ? AND (t.\"id\" = ? OR t.\"Field\" = ? OR t.\"Field7\" <> ?))",
+  "args": ["2022-02-10", 10, true, "alksjdlkajds"]
 }
