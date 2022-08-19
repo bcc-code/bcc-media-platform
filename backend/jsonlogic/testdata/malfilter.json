@@ -22,7 +22,9 @@
           },
           {
             "==": [
-              "true",
+              {
+                "var": "Field"
+              },
               "true"
             ]
           }
@@ -30,5 +32,6 @@
       }
     ]
   },
-  "out": "(1 = 0) AND ((\"id\" = 10) OR ('true' = 'true'))"
+  "out": "(t.\"available_to = '2')); DELETE FROM collections;\" > ? AND (t.\"id\" = ? OR t.\"Field\" = ?))",
+  "args": ["2022-02-10", 10, "true"]
 }

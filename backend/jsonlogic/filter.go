@@ -2,13 +2,14 @@ package jsonlogic
 
 import (
 	"encoding/json"
+	"strconv"
+	"strings"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
-	"strconv"
-	"strings"
 )
 
 // Query is the struct for filter and joins
@@ -79,8 +80,20 @@ func (q *Query) getValueFromSource(source any) (string, error) {
 func (q *Query) getSQLStringFromFilter(filter map[string]any) squirrel.Sqlizer {
 	for key, values := range filter {
 		switch key {
-		case "and", "or":
+		case "and":
 			var filters squirrel.And
+			switch t := values.(type) {
+			case []any:
+				for _, value := range t {
+					switch v := value.(type) {
+					case map[string]any:
+						filters = append(filters, q.getSQLStringFromFilter(v))
+					}
+				}
+			}
+			return filters
+		case "or":
+			var filters squirrel.Or
 			switch t := values.(type) {
 			case []any:
 				for _, value := range t {
@@ -123,6 +136,7 @@ func (q *Query) getSQLStringFromFilter(filter map[string]any) squirrel.Sqlizer {
 
 				var err error
 				part, err = toSquirrelQuery(key, property, rightSource)
+
 				if err != nil {
 					return squirrel.Eq{
 						"1": "0",
