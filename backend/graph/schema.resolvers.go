@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	merry "github.com/ansel1/merry/v2"
@@ -153,9 +152,9 @@ func (r *queryRootResolver) Event(ctx context.Context, id string) (*gqlmodel.Eve
 	return resolverForIntID(ctx, id, r.Loaders.EventLoader, gqlmodel.EventFrom)
 }
 
-// AllFAQs is the resolver for the allFAQs field.
-func (r *queryRootResolver) AllFAQs(ctx context.Context) ([]*gqlmodel.FAQCategory, error) {
-	panic(fmt.Errorf("not implemented"))
+// Faq is the resolver for the faq field.
+func (r *queryRootResolver) Faq(ctx context.Context) (*gqlmodel.Faq, error) {
+	return &gqlmodel.Faq{}, nil
 }
 
 // Me is the resolver for the me field.

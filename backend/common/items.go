@@ -282,3 +282,27 @@ type CalendarEntry struct {
 func (i CalendarEntry) GetKey() int {
 	return i.ID
 }
+
+// FAQCategory contains the name of the FAQ category
+type FAQCategory struct {
+	ID    int
+	Title LocaleString
+}
+
+// GetKey returns the key for this item
+func (i FAQCategory) GetKey() int {
+	return i.ID
+}
+
+// Question contains question data
+type Question struct {
+	ID         int
+	CategoryID int
+	Question   LocaleString
+	Answer     LocaleString
+}
+
+// GetKey returns the key for this item
+func (i Question) GetKey() int {
+	return i.ID
+}

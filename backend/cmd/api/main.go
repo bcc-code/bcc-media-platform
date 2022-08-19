@@ -16,6 +16,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/items/episode"
 	"github.com/bcc-code/brunstadtv/backend/items/event"
+	"github.com/bcc-code/brunstadtv/backend/items/faq"
 	"github.com/bcc-code/brunstadtv/backend/items/page"
 	"github.com/bcc-code/brunstadtv/backend/items/season"
 	"github.com/bcc-code/brunstadtv/backend/items/section"
@@ -141,6 +142,9 @@ func main() {
 		StreamsLoader:           asset.NewBatchStreamsLoader(*queries),
 		EventLoader:             event.NewBatchLoader(*queries),
 		CalendarEntryLoader:     calendar_entry.NewBatchLoader(*queries),
+		FAQCategoryLoader:       faq.NewCategoryLoader(*queries),
+		QuestionLoader:          faq.NewQuestionLoader(*queries),
+		QuestionsLoader:         faq.NewQuestionsLoader(*queries),
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")

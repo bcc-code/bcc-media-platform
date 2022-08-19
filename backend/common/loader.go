@@ -25,6 +25,9 @@ type BatchLoaders struct {
 	StreamsLoader           *dataloader.Loader[int, []*Stream]
 	EventLoader             *dataloader.Loader[int, *Event]
 	CalendarEntryLoader     *dataloader.Loader[int, *CalendarEntry]
+	FAQCategoryLoader       *dataloader.Loader[int, *FAQCategory]
+	QuestionLoader          *dataloader.Loader[int, *Question]
+	QuestionsLoader         *dataloader.Loader[int, []*Question]
 }
 
 // NewListBatchLoader returns a configured batch loader for Lists

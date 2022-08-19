@@ -115,6 +115,18 @@ type Calendarentry struct {
 	ImageFromLink bool           `db:"image_from_link" json:"imageFromLink"`
 }
 
+type Calendarevent struct {
+	DateCreated time.Time      `db:"date_created" json:"dateCreated"`
+	DateUpdated time.Time      `db:"date_updated" json:"dateUpdated"`
+	End         null_v4.Time   `db:"end" json:"end"`
+	ID          int32          `db:"id" json:"id"`
+	Start       time.Time      `db:"start" json:"start"`
+	Status      string         `db:"status" json:"status"`
+	Title       null_v4.String `db:"title" json:"title"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+}
+
 type CategoriesTranslation struct {
 	CategoriesID  int32  `db:"categories_id" json:"categoriesID"`
 	ID            int32  `db:"id" json:"id"`
@@ -282,7 +294,7 @@ type DirectusMigration struct {
 
 type DirectusNotification struct {
 	ID         int32          `db:"id" json:"id"`
-	Timestamp  time.Time      `db:"timestamp" json:"timestamp"`
+	Timestamp  sql.NullTime   `db:"timestamp" json:"timestamp"`
 	Status     null_v4.String `db:"status" json:"status"`
 	Recipient  uuid.UUID      `db:"recipient" json:"recipient"`
 	Sender     uuid.NullUUID  `db:"sender" json:"sender"`
@@ -416,6 +428,7 @@ type DirectusSetting struct {
 	ProjectDescriptor     null_v4.String        `db:"project_descriptor" json:"projectDescriptor"`
 	TranslationStrings    pqtype.NullRawMessage `db:"translation_strings" json:"translationStrings"`
 	DefaultLanguage       string                `db:"default_language" json:"defaultLanguage"`
+	CustomAspectRatios    pqtype.NullRawMessage `db:"custom_aspect_ratios" json:"customAspectRatios"`
 }
 
 type DirectusShare struct {
@@ -921,6 +934,22 @@ type TagsTranslation struct {
 	TagsID        null_v4.Int    `db:"tags_id" json:"tagsID"`
 	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
 	Name          null_v4.String `db:"name" json:"name"`
+}
+
+type Tvguideentry struct {
+	DateCreated      time.Time      `db:"date_created" json:"dateCreated"`
+	DateUpdated      time.Time      `db:"date_updated" json:"dateUpdated"`
+	Description      null_v4.String `db:"description" json:"description"`
+	End              null_v4.Time   `db:"end" json:"end"`
+	Event            null_v4.Int    `db:"event" json:"event"`
+	ID               int32          `db:"id" json:"id"`
+	Image            uuid.NullUUID  `db:"image" json:"image"`
+	Start            null_v4.Time   `db:"start" json:"start"`
+	Status           null_v4.String `db:"status" json:"status"`
+	Title            null_v4.String `db:"title" json:"title"`
+	UseImageFromLink bool           `db:"use_image_from_link" json:"useImageFromLink"`
+	UserCreated      uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated      uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 }
 
 type Usergroup struct {
