@@ -38,24 +38,23 @@ func (q *Queries) GetSections(ctx context.Context, ids []int) ([]common.Section,
 	return mapToSections(sections), nil
 }
 
-// ListSections returns a list of sections
-func (q *Queries) ListSections(ctx context.Context) ([]common.Section, error) {
-	sections, err := q.listSections(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return mapToSections(lo.Map(sections, func(s listSectionsRow, _ int) getSectionsRow {
-		return getSectionsRow(s)
-	})), nil
+// GetID returns the id for this row
+func (row getSectionIDsForPagesRow) GetID() int {
+	return int(row.ID)
 }
 
-// GetSectionsForPageIDs returns a list of sections retrieved by page_id
-func (q *Queries) GetSectionsForPageIDs(ctx context.Context, pageIds []int) ([]common.Section, error) {
-	sections, err := q.getSectionsForPageIDs(ctx, intToInt32(pageIds))
+// GetRelationID returns the relation id for this row
+func (row getSectionIDsForPagesRow) GetRelationID() int {
+	return int(row.PageID.Int64)
+}
+
+// GetSectionIDsForPages returns a list of episodes specified by seasons
+func (q *Queries) GetSectionIDsForPages(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
+	rows, err := q.getSectionIDsForPages(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, err
 	}
-	return mapToSections(lo.Map(sections, func(s getSectionsForPageIDsRow, _ int) getSectionsRow {
-		return getSectionsRow(s)
-	})), nil
+	return lo.Map(rows, func(i getSectionIDsForPagesRow, _ int) common.Relation[int, int] {
+		return i
+	}), nil
 }

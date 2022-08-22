@@ -10,3 +10,10 @@ import (
 func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Show] {
 	return common.NewBatchLoader(queries.GetShows)
 }
+
+// NewPermissionLoader returns a loader for permissions
+func NewPermissionLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Permissions] {
+	return common.NewCustomBatchLoader(queries.GetPermissionsForShows, func(i common.Permissions) int {
+		return i.ItemID
+	})
+}

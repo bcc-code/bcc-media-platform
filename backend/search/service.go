@@ -38,6 +38,10 @@ type loaders struct {
 	EpisodeLoader *dataloader.Loader[int, *common.Episode]
 	ImageLoader   *dataloader.Loader[uuid.UUID, *sqlc.DirectusFile]
 	TagLoader     *dataloader.Loader[int, *common.Tag]
+	// Permissions
+	ShowPermissionsLoader    *dataloader.Loader[int, *common.Permissions]
+	SeasonPermissionsLoader  *dataloader.Loader[int, *common.Permissions]
+	EpisodePermissionsLoader *dataloader.Loader[int, *common.Permissions]
 }
 
 // Service is the type for the service itself

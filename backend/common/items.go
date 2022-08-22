@@ -7,34 +7,39 @@ import (
 	"time"
 )
 
-type hasKey[k comparable] interface {
+// HasKey interface for items with keys
+type HasKey[k comparable] interface {
 	GetKey() k
+}
+
+// ItemType is what type of item current struct is
+type ItemType string
+
+// Types of items
+var (
+	TypeShow    = ItemType("show")
+	TypeSeason  = ItemType("season")
+	TypeEpisode = ItemType("episode")
+)
+
+// Relation contains a simple id to relation struct
+type Relation[k comparable, kr comparable] interface {
+	GetID() k
+	GetRelationID() kr
 }
 
 // Show is the definition of the Show object
 type Show struct {
-	ID           int           `json:"id"`
-	LegacyID     null.Int      `json:"legacyId"`
-	Availability Availability  `json:"availability"`
-	Roles        Roles         `json:"roles"`
-	Title        LocaleString  `json:"title"`
-	Description  LocaleString  `json:"description"`
-	ImageID      uuid.NullUUID `json:"imageId"`
+	ID          int           `json:"id"`
+	LegacyID    null.Int      `json:"legacyId"`
+	Title       LocaleString  `json:"title"`
+	Description LocaleString  `json:"description"`
+	ImageID     uuid.NullUUID `json:"imageId"`
 }
 
 // GetKey returns the key for this item
 func (i Show) GetKey() int {
 	return i.ID
-}
-
-// GetRoles returns roles for this item
-func (i Show) GetRoles() Roles {
-	return i.Roles
-}
-
-// GetAvailability returns Availability for this item
-func (i Show) GetAvailability() Availability {
-	return i.Availability
 }
 
 // GetImage returns id of attached image
@@ -49,30 +54,18 @@ func (i Show) IsCollectionItem() {
 
 // Season is the definition of the Season object
 type Season struct {
-	ID           int           `json:"id"`
-	LegacyID     null.Int      `json:"legacyId"`
-	Number       int           `json:"number"`
-	Availability Availability  `json:"availability"`
-	Roles        Roles         `json:"roles"`
-	Title        LocaleString  `json:"title"`
-	Description  LocaleString  `json:"description"`
-	ShowID       int           `json:"showId"`
-	ImageID      uuid.NullUUID `json:"imageId"`
+	ID          int           `json:"id"`
+	LegacyID    null.Int      `json:"legacyId"`
+	Number      int           `json:"number"`
+	Title       LocaleString  `json:"title"`
+	Description LocaleString  `json:"description"`
+	ShowID      int           `json:"showId"`
+	ImageID     uuid.NullUUID `json:"imageId"`
 }
 
 // GetKey returns the key for this item
 func (i Season) GetKey() int {
 	return i.ID
-}
-
-// GetRoles returns roles for this item
-func (i Season) GetRoles() Roles {
-	return i.Roles
-}
-
-// GetAvailability returns Availability for this item
-func (i Season) GetAvailability() Availability {
-	return i.Availability
 }
 
 // GetImage returns id of attached image
@@ -89,8 +82,6 @@ func (i Season) IsCollectionItem() {
 type Episode struct {
 	ID               int           `json:"id"`
 	LegacyID         null.Int      `json:"legacyId"`
-	Availability     Availability  `json:"availability"`
-	Roles            Roles         `json:"roles"`
 	SeasonID         null.Int      `json:"seasonId"`
 	Number           null.Int      `json:"number"`
 	AssetID          null.Int      `json:"assetId"`
@@ -104,16 +95,6 @@ type Episode struct {
 // GetKey returns the key for this item
 func (i Episode) GetKey() int {
 	return i.ID
-}
-
-// GetRoles returns roles for this item
-func (i Episode) GetRoles() Roles {
-	return i.Roles
-}
-
-// GetAvailability returns Availability for this item
-func (i Episode) GetAvailability() Availability {
-	return i.Availability
 }
 
 // GetImage returns id of attached image

@@ -209,7 +209,6 @@ type ComplexityRoot struct {
 		Event    func(childComplexity int, id string) int
 		Me       func(childComplexity int) int
 		Page     func(childComplexity int, id *string, code *string) int
-		Pages    func(childComplexity int, first *int, offset *int) int
 		Search   func(childComplexity int, queryString string, first *int, offset *int) int
 		Season   func(childComplexity int, id string) int
 		Section  func(childComplexity int, id string) int
@@ -397,7 +396,6 @@ type PageResolver interface {
 }
 type QueryRootResolver interface {
 	Page(ctx context.Context, id *string, code *string) (*gqlmodel.Page, error)
-	Pages(ctx context.Context, first *int, offset *int) (*gqlmodel.PagePagination, error)
 	Section(ctx context.Context, id string) (gqlmodel.Section, error)
 	Show(ctx context.Context, id string) (*gqlmodel.Show, error)
 	Season(ctx context.Context, id string) (*gqlmodel.Season, error)
@@ -1174,18 +1172,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.QueryRoot.Page(childComplexity, args["id"].(*string), args["code"].(*string)), true
-
-	case "QueryRoot.pages":
-		if e.complexity.QueryRoot.Pages == nil {
-			break
-		}
-
-		args, err := ec.field_QueryRoot_pages_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.QueryRoot.Pages(childComplexity, args["first"].(*int), args["offset"].(*int)), true
 
 	case "QueryRoot.search":
 		if e.complexity.QueryRoot.Search == nil {
@@ -2369,11 +2355,6 @@ type QueryRoot{
     code: String
   ): Page
 
-  pages(
-    first: Int
-    offset: Int
-  ): PagePagination!
-
   section(
     id: ID!
   ): Section
@@ -2562,30 +2543,6 @@ func (ec *executionContext) field_QueryRoot_page_args(ctx context.Context, rawAr
 		}
 	}
 	args["code"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_QueryRoot_pages_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *int
-	if tmp, ok := rawArgs["first"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["first"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["offset"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["offset"] = arg1
 	return args, nil
 }
 
@@ -7153,71 +7110,6 @@ func (ec *executionContext) fieldContext_QueryRoot_page(ctx context.Context, fie
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_QueryRoot_page_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _QueryRoot_pages(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_QueryRoot_pages(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Pages(rctx, fc.Args["first"].(*int), fc.Args["offset"].(*int))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.PagePagination)
-	fc.Result = res
-	return ec.marshalNPagePagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPagePagination(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_QueryRoot_pages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "QueryRoot",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "total":
-				return ec.fieldContext_PagePagination_total(ctx, field)
-			case "first":
-				return ec.fieldContext_PagePagination_first(ctx, field)
-			case "offset":
-				return ec.fieldContext_PagePagination_offset(ctx, field)
-			case "items":
-				return ec.fieldContext_PagePagination_items(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PagePagination", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_QueryRoot_pages_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -15469,29 +15361,6 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "pages":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._QueryRoot_pages(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
 		case "section":
 			field := field
 
@@ -17798,20 +17667,6 @@ func (ec *executionContext) marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstad
 		return graphql.Null
 	}
 	return ec._Page(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNPagePagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPagePagination(ctx context.Context, sel ast.SelectionSet, v gqlmodel.PagePagination) graphql.Marshaler {
-	return ec._PagePagination(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPagePagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPagePagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PagePagination) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._PagePagination(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNSearchResult2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSearchResult(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SearchResult) graphql.Marshaler {

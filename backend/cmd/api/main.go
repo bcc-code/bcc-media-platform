@@ -125,22 +125,28 @@ func main() {
 	collectionLoader := collection.NewBatchLoader(*queries)
 
 	loaders := &common.BatchLoaders{
+		// Item
 		PageLoader:              page.NewBatchLoader(*queries),
 		PageLoaderByCode:        page.NewCodeBatchLoader(*queries),
 		SectionLoader:           section.NewBatchLoader(*queries),
-		SectionsLoader:          section.NewListBatchLoader(*queries),
-		CollectionLoader:        collectionLoader,
-		CollectionItemIdsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader),
-		CollectionItemLoader:    collection.NewItemListBatchLoader(*queries),
 		ShowLoader:              show.NewBatchLoader(*queries),
 		SeasonLoader:            season.NewBatchLoader(*queries),
 		EpisodeLoader:           episode.NewBatchLoader(*queries),
-		SeasonsLoader:           season.NewListBatchLoader(*queries),
-		EpisodesLoader:          episode.NewListBatchLoader(*queries),
-		FilesLoader:             asset.NewBatchFilesLoader(*queries),
-		StreamsLoader:           asset.NewBatchStreamsLoader(*queries),
 		EventLoader:             event.NewBatchLoader(*queries),
 		CalendarEntryLoader:     calendar_entry.NewBatchLoader(*queries),
+		FilesLoader:             asset.NewBatchFilesLoader(*queries),
+		StreamsLoader:           asset.NewBatchStreamsLoader(*queries),
+		CollectionLoader:        collectionLoader,
+		CollectionItemIdsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader),
+		CollectionItemLoader:    collection.NewItemListBatchLoader(*queries),
+		// Relations
+		SeasonsLoader:  common.NewRelationBatchLoader(queries.GetSeasonIDsForShows),
+		EpisodesLoader: common.NewRelationBatchLoader(queries.GetEpisodeIDsForSeasons),
+		SectionsLoader: common.NewRelationBatchLoader(queries.GetSectionIDsForPages),
+		// Permissions
+		ShowPermissionLoader:    show.NewPermissionLoader(*queries),
+		SeasonPermissionLoader:  season.NewPermissionLoader(*queries),
+		EpisodePermissionLoader: episode.NewPermissionLoader(*queries),
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")

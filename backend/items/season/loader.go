@@ -11,9 +11,9 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Season
 	return common.NewBatchLoader(queries.GetSeasons)
 }
 
-// NewListBatchLoader returns related data for a show
-func NewListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*common.Season] {
-	return common.NewListBatchLoader(queries.GetSeasonsForShows, func(i common.Season) int {
-		return i.ShowID
+// NewPermissionLoader returns a loader for permissions
+func NewPermissionLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Permissions] {
+	return common.NewCustomBatchLoader(queries.GetPermissionsForSeasons, func(i common.Permissions) int {
+		return i.ItemID
 	})
 }
