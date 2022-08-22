@@ -201,7 +201,7 @@ collections:
       color: '#FFC23B'
       display_template: null
       group: null
-      hidden: false
+      hidden: true
       icon: calendar_month
       item_duplication_fields: null
       note: null
