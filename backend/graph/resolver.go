@@ -37,11 +37,11 @@ var (
 )
 
 type itemLoaders[k comparable, t any] struct {
-	Permissions *dataloader.Loader[k, *common.Permissions]
+	Permissions *dataloader.Loader[k, *common.Permissions[k]]
 	Item        *dataloader.Loader[k, *t]
 }
 
-func toItemLoaders[k comparable, t any](item *dataloader.Loader[k, *t], permissions *dataloader.Loader[k, *common.Permissions]) *itemLoaders[k, t] {
+func toItemLoaders[k comparable, t any](item *dataloader.Loader[k, *t], permissions *dataloader.Loader[k, *common.Permissions[k]]) *itemLoaders[k, t] {
 	return &itemLoaders[k, t]{
 		Item:        item,
 		Permissions: permissions,

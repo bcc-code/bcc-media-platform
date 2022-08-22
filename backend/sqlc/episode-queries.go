@@ -54,8 +54,8 @@ func (q *Queries) ListEpisodes(ctx context.Context) ([]common.Episode, error) {
 	})), nil
 }
 
-// GetID returns the id for this row
-func (row getEpisodeIDsForSeasonsRow) GetID() int {
+// GetKey returns the id for this row
+func (row getEpisodeIDsForSeasonsRow) GetKey() int {
 	return int(row.ID)
 }
 
@@ -76,13 +76,13 @@ func (q *Queries) GetEpisodeIDsForSeasons(ctx context.Context, ids []int) ([]com
 }
 
 // GetPermissionsForEpisodes returns permissions for specified episodes
-func (q *Queries) GetPermissionsForEpisodes(ctx context.Context, ids []int) ([]common.Permissions, error) {
+func (q *Queries) GetPermissionsForEpisodes(ctx context.Context, ids []int) ([]common.Permissions[int], error) {
 	items, err := q.getPermissionsForEpisodes(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(items, func(i getPermissionsForEpisodesRow, _ int) common.Permissions {
-		return common.Permissions{
+	return lo.Map(items, func(i getPermissionsForEpisodesRow, _ int) common.Permissions[int] {
+		return common.Permissions[int]{
 			ItemID: int(i.ID),
 			Type:   common.TypeEpisode,
 			Availability: common.Availability{

@@ -47,8 +47,8 @@ func (q *Queries) ListSeasons(ctx context.Context) ([]common.Season, error) {
 	})), nil
 }
 
-// GetID returns the id for this row
-func (row getSeasonIDsForShowsRow) GetID() int {
+// GetKey returns the id for this row
+func (row getSeasonIDsForShowsRow) GetKey() int {
 	return int(row.ID)
 }
 
@@ -69,13 +69,13 @@ func (q *Queries) GetSeasonIDsForShows(ctx context.Context, ids []int) ([]common
 }
 
 // GetPermissionsForSeasons returns permissions for specified episodes
-func (q *Queries) GetPermissionsForSeasons(ctx context.Context, ids []int) ([]common.Permissions, error) {
+func (q *Queries) GetPermissionsForSeasons(ctx context.Context, ids []int) ([]common.Permissions[int], error) {
 	items, err := q.getPermissionsForSeasons(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(items, func(i getPermissionsForSeasonsRow, _ int) common.Permissions {
-		return common.Permissions{
+	return lo.Map(items, func(i getPermissionsForSeasonsRow, _ int) common.Permissions[int] {
+		return common.Permissions[int]{
 			ItemID: int(i.ID),
 			Type:   common.TypeSeason,
 			Availability: common.Availability{

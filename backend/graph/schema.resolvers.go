@@ -105,13 +105,19 @@ func (r *pageResolver) Sections(ctx context.Context, obj *gqlmodel.Page, first *
 func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) (*gqlmodel.Page, error) {
 	if id != nil {
 		return resolverForIntID(ctx, &itemLoaders[int, common.Page]{
-			Item: r.Loaders.PageLoader,
+			Item:        r.Loaders.PageLoader,
+			Permissions: r.Loaders.PagePermissionLoader,
 		}, *id, gqlmodel.PageFrom)
 	}
 	if code != nil {
-		return resolverFor(ctx, &itemLoaders[string, common.Page]{
-			Item: r.Loaders.PageLoaderByCode,
-		}, *code, gqlmodel.PageFrom)
+		intID, err := common.GetFromLoaderByID(ctx, r.Loaders.PageIDFromCodeLoader, *code)
+		if err != nil {
+			return nil, err
+		}
+		return resolverFor(ctx, &itemLoaders[int, common.Page]{
+			Item:        r.Loaders.PageLoader,
+			Permissions: r.Loaders.PagePermissionLoader,
+		}, *intID, gqlmodel.PageFrom)
 	}
 	return nil, merry.Sentinel("Must specify either ID or code", merry.WithHTTPCode(400))
 }

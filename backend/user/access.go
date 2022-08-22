@@ -26,12 +26,16 @@ func ValidateItemAccess(ctx context.Context, loaders *common.BatchLoaders, item 
 		return ValidateAccess(ctx, loaders.SeasonPermissionLoader, t.ID)
 	case *common.Episode:
 		return ValidateAccess(ctx, loaders.EpisodePermissionLoader, t.ID)
+	case *common.Page:
+		return ValidateAccess(ctx, loaders.PagePermissionLoader, t.ID)
+	case *common.Section:
+		return ValidateAccess(ctx, loaders.SectionPermissionLoader, t.ID)
 	}
 	return nil
 }
 
 // ValidateAccess returns error if user in context does not have access to the specified item
-func ValidateAccess[k comparable](ctx context.Context, permissionLoader *dataloader.Loader[k, *common.Permissions], id k) error {
+func ValidateAccess[k comparable](ctx context.Context, permissionLoader *dataloader.Loader[k, *common.Permissions[k]], id k) error {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return err

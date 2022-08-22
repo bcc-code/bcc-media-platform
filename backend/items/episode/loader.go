@@ -12,8 +12,8 @@ func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Episod
 }
 
 // NewPermissionLoader returns a loader for permissions
-func NewPermissionLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Permissions] {
-	return common.NewCustomBatchLoader(queries.GetPermissionsForEpisodes, func(i common.Permissions) int {
+func NewPermissionLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Permissions[int]] {
+	return common.NewCustomBatchLoader(queries.GetPermissionsForEpisodes, func(i common.Permissions[int]) int {
 		return i.ItemID
 	})
 }

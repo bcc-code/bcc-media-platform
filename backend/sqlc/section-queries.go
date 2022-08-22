@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
+	"time"
 )
 
 func mapToSections(items []getSectionsRow) []common.Section {
@@ -18,13 +19,12 @@ func mapToSections(items []getSectionsRow) []common.Section {
 		return common.Section{
 			ID:           int(s.ID),
 			Sort:         int(s.Sort.ValueOrZero()),
-			PageID:       int(s.PageID.Int64),
+			PageID:       int(s.PageID),
 			Title:        title,
 			Description:  description,
 			Type:         "item",
 			CollectionID: s.CollectionID,
 			Style:        s.Style.ValueOrZero(),
-			Roles:        s.Roles,
 		}
 	})
 }
@@ -38,14 +38,14 @@ func (q *Queries) GetSections(ctx context.Context, ids []int) ([]common.Section,
 	return mapToSections(sections), nil
 }
 
-// GetID returns the id for this row
-func (row getSectionIDsForPagesRow) GetID() int {
+// GetKey returns the id for this row
+func (row getSectionIDsForPagesRow) GetKey() int {
 	return int(row.ID)
 }
 
 // GetRelationID returns the relation id for this row
 func (row getSectionIDsForPagesRow) GetRelationID() int {
-	return int(row.PageID.Int64)
+	return int(row.PageID)
 }
 
 // GetSectionIDsForPages returns a list of episodes specified by seasons
@@ -56,5 +56,31 @@ func (q *Queries) GetSectionIDsForPages(ctx context.Context, ids []int) ([]commo
 	}
 	return lo.Map(rows, func(i getSectionIDsForPagesRow, _ int) common.Relation[int, int] {
 		return i
+	}), nil
+}
+
+// GetPermissionsForSections returns permissions for sections
+func (q *Queries) GetPermissionsForSections(ctx context.Context, ids []int) ([]common.Permissions[int], error) {
+	rows, err := q.getPermissionsForSections(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+
+	from, _ := time.Parse("2006-01-02", "1900-01-01")
+	to, _ := time.Parse("2006-01-02", "2100-01-01")
+
+	return lo.Map(rows, func(i getPermissionsForSectionsRow, _ int) common.Permissions[int] {
+		return common.Permissions[int]{
+			ItemID: int(i.ID),
+			Type:   common.TypeSection,
+			Availability: common.Availability{
+				Published: true,
+				From:      from,
+				To:        to,
+			},
+			Roles: common.Roles{
+				Access: i.Roles,
+			},
+		}
 	}), nil
 }

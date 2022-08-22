@@ -6,7 +6,9 @@ import (
 	"github.com/graph-gophers/dataloader/v7"
 )
 
-// NewBatchLoader returns a configured batch loader for sections
-func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Section] {
-	return common.NewBatchLoader(queries.GetSections)
+// NewPermissionLoader returns a loader for permissions
+func NewPermissionLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Permissions[int]] {
+	return common.NewCustomBatchLoader(queries.GetPermissionsForSections, func(i common.Permissions[int]) int {
+		return i.ItemID
+	})
 }

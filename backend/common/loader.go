@@ -8,7 +8,7 @@ import (
 // BatchLoaders contains loaders for the different items
 type BatchLoaders struct {
 	PageLoader              *dataloader.Loader[int, *Page]
-	PageLoaderByCode        *dataloader.Loader[string, *Page]
+	PageIDFromCodeLoader    *dataloader.Loader[string, *int]
 	SectionLoader           *dataloader.Loader[int, *Section]
 	SectionsLoader          *dataloader.Loader[int, []*int]
 	CollectionLoader        *dataloader.Loader[int, *Collection]
@@ -23,9 +23,12 @@ type BatchLoaders struct {
 	StreamsLoader           *dataloader.Loader[int, []*Stream]
 	EventLoader             *dataloader.Loader[int, *Event]
 	CalendarEntryLoader     *dataloader.Loader[int, *CalendarEntry]
-	ShowPermissionLoader    *dataloader.Loader[int, *Permissions]
-	SeasonPermissionLoader  *dataloader.Loader[int, *Permissions]
-	EpisodePermissionLoader *dataloader.Loader[int, *Permissions]
+	// Permissions
+	ShowPermissionLoader    *dataloader.Loader[int, *Permissions[int]]
+	SeasonPermissionLoader  *dataloader.Loader[int, *Permissions[int]]
+	EpisodePermissionLoader *dataloader.Loader[int, *Permissions[int]]
+	PagePermissionLoader    *dataloader.Loader[int, *Permissions[int]]
+	SectionPermissionLoader *dataloader.Loader[int, *Permissions[int]]
 }
 
 // NewListBatchLoader returns a configured batch loader for Lists
@@ -87,13 +90,48 @@ func NewRelationBatchLoader[k comparable, kr comparable](
 				if _, ok := resMap[key]; !ok {
 					resMap[key] = []*k{}
 				}
-				id := r.GetID()
+				id := r.GetKey()
 				resMap[key] = append(resMap[key], &id)
 			}
 		}
 
 		for _, key := range keys {
 			r := &dataloader.Result[[]*k]{
+				Error: err,
+			}
+
+			if val, ok := resMap[key]; ok {
+				r.Data = val
+			}
+
+			results = append(results, r)
+		}
+
+		return results
+	}
+	return dataloader.NewBatchedLoader(batchLoadLists)
+}
+
+// NewConversionBatchLoader returns a configured batch loader for Lists
+func NewConversionBatchLoader[o comparable, rt comparable](
+	factory func(ctx context.Context, ids []o) ([]Conversion[o, rt], error),
+) *dataloader.Loader[o, *rt] {
+	batchLoadLists := func(ctx context.Context, keys []o) []*dataloader.Result[*rt] {
+		var results []*dataloader.Result[*rt]
+
+		res, err := factory(ctx, keys)
+
+		resMap := map[o]*rt{}
+
+		if err == nil {
+			for _, r := range res {
+				v := r.GetResult()
+				resMap[r.GetOriginal()] = &v
+			}
+		}
+
+		for _, key := range keys {
+			r := &dataloader.Result[*rt]{
 				Error: err,
 			}
 

@@ -12,10 +12,8 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqladmin "github.com/bcc-code/brunstadtv/backend/graphadmin"
 	gqladmingenerated "github.com/bcc-code/brunstadtv/backend/graphadmin/generated"
-	calendar_entry "github.com/bcc-code/brunstadtv/backend/items/calendar-entry"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/items/episode"
-	"github.com/bcc-code/brunstadtv/backend/items/event"
 	"github.com/bcc-code/brunstadtv/backend/items/page"
 	"github.com/bcc-code/brunstadtv/backend/items/season"
 	"github.com/bcc-code/brunstadtv/backend/items/section"
@@ -122,18 +120,18 @@ func main() {
 
 	queries := sqlc.New(db)
 
-	collectionLoader := collection.NewBatchLoader(*queries)
+	collectionLoader := common.NewBatchLoader(queries.GetCollections)
 
 	loaders := &common.BatchLoaders{
 		// Item
-		PageLoader:              page.NewBatchLoader(*queries),
-		PageLoaderByCode:        page.NewCodeBatchLoader(*queries),
-		SectionLoader:           section.NewBatchLoader(*queries),
-		ShowLoader:              show.NewBatchLoader(*queries),
-		SeasonLoader:            season.NewBatchLoader(*queries),
-		EpisodeLoader:           episode.NewBatchLoader(*queries),
-		EventLoader:             event.NewBatchLoader(*queries),
-		CalendarEntryLoader:     calendar_entry.NewBatchLoader(*queries),
+		PageLoader:              common.NewBatchLoader(queries.GetPages),
+		PageIDFromCodeLoader:    common.NewConversionBatchLoader(queries.GetPageIDsForCodes),
+		SectionLoader:           common.NewBatchLoader(queries.GetSections),
+		ShowLoader:              common.NewBatchLoader(queries.GetShows),
+		SeasonLoader:            common.NewBatchLoader(queries.GetSeasons),
+		EpisodeLoader:           common.NewBatchLoader(queries.GetEpisodes),
+		EventLoader:             common.NewBatchLoader(queries.GetEvents),
+		CalendarEntryLoader:     common.NewBatchLoader(queries.GetCalendarEntries),
 		FilesLoader:             asset.NewBatchFilesLoader(*queries),
 		StreamsLoader:           asset.NewBatchStreamsLoader(*queries),
 		CollectionLoader:        collectionLoader,
@@ -147,6 +145,8 @@ func main() {
 		ShowPermissionLoader:    show.NewPermissionLoader(*queries),
 		SeasonPermissionLoader:  season.NewPermissionLoader(*queries),
 		EpisodePermissionLoader: episode.NewPermissionLoader(*queries),
+		PagePermissionLoader:    page.NewPermissionLoader(*queries),
+		SectionPermissionLoader: section.NewPermissionLoader(*queries),
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")

@@ -85,7 +85,7 @@ func (service *Service) indexShows(ctx context.Context) error {
 		ctx,
 		service,
 		service.loaders.ShowLoader,
-		service.loaders.ShowPermissionsLoader,
+		service.loaders.ShowPermissionLoader,
 		service.queries.ListShows,
 		service.showToSearchItem,
 	)
@@ -96,7 +96,7 @@ func (service *Service) indexShow(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	p, err := common.GetFromLoaderByID(ctx, service.loaders.ShowPermissionsLoader, id)
+	p, err := common.GetFromLoaderByID(ctx, service.loaders.ShowPermissionLoader, id)
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ func (service *Service) indexSeasons(ctx context.Context) error {
 		ctx,
 		service,
 		service.loaders.SeasonLoader,
-		service.loaders.SeasonPermissionsLoader,
+		service.loaders.SeasonPermissionLoader,
 		service.queries.ListSeasons,
 		service.seasonToSearchItem,
 	)
@@ -119,7 +119,7 @@ func (service *Service) indexSeason(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	p, err := common.GetFromLoaderByID(ctx, service.loaders.SeasonPermissionsLoader, id)
+	p, err := common.GetFromLoaderByID(ctx, service.loaders.SeasonPermissionLoader, id)
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func (service *Service) indexEpisodes(ctx context.Context) error {
 		ctx,
 		service,
 		service.loaders.EpisodeLoader,
-		service.loaders.EpisodePermissionsLoader,
+		service.loaders.EpisodePermissionLoader,
 		service.queries.ListEpisodes,
 		service.episodeToSearchItem,
 	)
@@ -142,7 +142,7 @@ func (service *Service) indexEpisode(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	p, err := common.GetFromLoaderByID(ctx, service.loaders.EpisodePermissionsLoader, id)
+	p, err := common.GetFromLoaderByID(ctx, service.loaders.EpisodePermissionLoader, id)
 	if err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func indexCollection[k comparable, t indexable[k]](
 	ctx context.Context,
 	service *Service,
 	loader *dataloader.Loader[k, *t],
-	permissionLoader *dataloader.Loader[k, *common.Permissions],
+	permissionLoader *dataloader.Loader[k, *common.Permissions[k]],
 	factory func(context.Context) ([]t, error),
 	converter func(context.Context, t) (searchItem, error),
 ) error {
@@ -203,7 +203,7 @@ func indexObject[k comparable, t indexable[k]](
 	ctx context.Context,
 	service *Service,
 	obj t,
-	perms *common.Permissions,
+	perms *common.Permissions[k],
 	converter func(context.Context, t) (searchItem, error),
 ) error {
 	item, err := converter(ctx, obj)

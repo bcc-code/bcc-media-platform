@@ -46,13 +46,13 @@ func (q *Queries) ListShows(ctx context.Context) ([]common.Show, error) {
 }
 
 // GetPermissionsForShows returns permissions for specified episodes
-func (q *Queries) GetPermissionsForShows(ctx context.Context, ids []int) ([]common.Permissions, error) {
+func (q *Queries) GetPermissionsForShows(ctx context.Context, ids []int) ([]common.Permissions[int], error) {
 	items, err := q.getPermissionsForShows(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(items, func(i getPermissionsForShowsRow, _ int) common.Permissions {
-		return common.Permissions{
+	return lo.Map(items, func(i getPermissionsForShowsRow, _ int) common.Permissions[int] {
+		return common.Permissions[int]{
 			ItemID: int(i.ID),
 			Type:   common.TypeShow,
 			Availability: common.Availability{

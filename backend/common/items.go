@@ -20,12 +20,20 @@ var (
 	TypeShow    = ItemType("show")
 	TypeSeason  = ItemType("season")
 	TypeEpisode = ItemType("episode")
+	TypePage    = ItemType("page")
+	TypeSection = ItemType("section")
 )
 
 // Relation contains a simple id to relation struct
 type Relation[k comparable, kr comparable] interface {
-	GetID() k
+	GetKey() k
 	GetRelationID() kr
+}
+
+// Conversion contains the orginal and converted value
+type Conversion[o comparable, r comparable] interface {
+	GetOriginal() o
+	GetResult() r
 }
 
 // Show is the definition of the Show object
@@ -35,6 +43,11 @@ type Show struct {
 	Title       LocaleString  `json:"title"`
 	Description LocaleString  `json:"description"`
 	ImageID     uuid.NullUUID `json:"imageId"`
+}
+
+// GetType returns type for this item
+func (i Show) GetType() ItemType {
+	return TypeShow
 }
 
 // GetKey returns the key for this item
@@ -141,27 +154,15 @@ type Stream struct {
 
 // Page is the definition of the Page object
 type Page struct {
-	ID           int          `json:"id"`
-	Roles        Roles        `json:"roles"`
-	Availability Availability `json:"availability"`
-	Code         string       `json:"code"`
-	Title        LocaleString `json:"title"`
-	Description  LocaleString `json:"description"`
+	ID          int          `json:"id"`
+	Code        string       `json:"code"`
+	Title       LocaleString `json:"title"`
+	Description LocaleString `json:"description"`
 }
 
 // GetKey returns the key for this item
 func (i Page) GetKey() int {
 	return i.ID
-}
-
-// GetAvailability returns Availability for this item
-func (i Page) GetAvailability() Availability {
-	return i.Availability
-}
-
-// GetRoles returns roles for this item
-func (i Page) GetRoles() Roles {
-	return i.Roles
 }
 
 // IsCollectionItem declares that this implements CollectionItem interfaces
@@ -179,7 +180,6 @@ type Section struct {
 	Description  LocaleString `json:"description"`
 	Style        string       `json:"style"`
 	CollectionID null.Int     `json:"collectionId"`
-	Roles        []string     `json:"roles"`
 }
 
 // GetKey returns the key for this item

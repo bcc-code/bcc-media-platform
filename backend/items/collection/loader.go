@@ -16,11 +16,6 @@ var (
 	ErrUnsupportedCollection = merry.Sentinel("unsupported collection type")
 )
 
-// NewBatchLoader returns a configured batch loader for collections
-func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Collection] {
-	return common.NewBatchLoader(queries.GetCollections)
-}
-
 // NewItemListBatchLoader returns a configured batch loader for collection-items
 func NewItemListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*common.CollectionItem] {
 	return common.NewListBatchLoader(queries.GetItemsForCollections, func(row common.CollectionItem) int {
@@ -164,11 +159,17 @@ func getItemsForSelectCollection(ctx context.Context, loaders *common.BatchLoade
 			if err != nil {
 				return nil, err
 			}
+			if i == nil {
+				continue
+			}
 			result = append(result, i)
 		case "show":
 			i, err := common.GetFromLoaderByID(ctx, loaders.ShowLoader, item.ItemID)
 			if err != nil {
 				return nil, err
+			}
+			if i == nil {
+				continue
 			}
 			result = append(result, i)
 		case "season":
@@ -176,11 +177,17 @@ func getItemsForSelectCollection(ctx context.Context, loaders *common.BatchLoade
 			if err != nil {
 				return nil, err
 			}
+			if i == nil {
+				continue
+			}
 			result = append(result, i)
 		case "episode":
 			i, err := common.GetFromLoaderByID(ctx, loaders.EpisodeLoader, item.ItemID)
 			if err != nil {
 				return nil, err
+			}
+			if i == nil {
+				continue
 			}
 			result = append(result, i)
 		}
