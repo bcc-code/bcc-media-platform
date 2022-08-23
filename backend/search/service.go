@@ -68,6 +68,10 @@ func New(db *sql.DB, algoliaAppId string, algoliaApiKey string) *Service {
 			return i.ID
 		}),
 		TagLoader: common.NewBatchLoader(service.queries.GetTags),
+		// Permissions
+		ShowPermissionLoader:    show.NewPermissionLoader(*service.queries),
+		SeasonPermissionLoader:  season.NewPermissionLoader(*service.queries),
+		EpisodePermissionLoader: episode.NewPermissionLoader(*service.queries),
 	}
 
 	return &service

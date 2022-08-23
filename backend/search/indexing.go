@@ -167,9 +167,11 @@ func indexCollection[k comparable, t indexable[k]](
 		return err
 	}
 
-	permissionLoader.LoadMany(ctx, lo.Map(items, func(i t, _ int) k {
+	ids := lo.Map(items, func(i t, _ int) k {
 		return i.GetKey()
-	}))
+	})
+
+	permissionLoader.LoadMany(ctx, ids)
 
 	var searchItems []searchObject
 	for _, i := range items {
