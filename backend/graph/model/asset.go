@@ -10,7 +10,7 @@ import (
 	"github.com/samber/lo"
 )
 
-// FileFrom converts Assetfile rows to the GQL equvivalents
+// FileFrom converts AssetFile rows to the GQL equivalents
 func FileFrom(ctx context.Context, file *common.File) *File {
 	var subLang *Language
 	if file.SubtitleLanguage.Valid {
@@ -28,7 +28,7 @@ func FileFrom(ctx context.Context, file *common.File) *File {
 	}
 }
 
-// StreamFrom converts Assetfile rows to the GQL equvivalents
+// StreamFrom converts AssetFile rows to the GQL equivalents
 func StreamFrom(ctx context.Context, vod2domain string, stream *common.Stream) *Stream {
 	url := url.URL{
 		Path:   stream.Path,

@@ -7,50 +7,31 @@ import (
 	"github.com/samber/lo"
 )
 
-func mapToEpisodes(episodes []EpisodeExpanded) []common.Episode {
-	return lo.Map(episodes, func(e EpisodeExpanded, _ int) common.Episode {
+func mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
+	return lo.Map(episodes, func(e getEpisodesRow, _ int) common.Episode {
 		var title common.LocaleString
 		var description common.LocaleString
 		var extraDescription common.LocaleString
 
-		_ = json.Unmarshal(e.Title, &title)
-		_ = json.Unmarshal(e.Description, &description)
+		_ = json.Unmarshal(e.Title.RawMessage, &title)
+		_ = json.Unmarshal(e.Description.RawMessage, &description)
 		_ = json.Unmarshal(e.ExtraDescription.RawMessage, &extraDescription)
 
 		return common.Episode{
-			ID:       int(e.ID),
-			LegacyID: e.LegacyID,
-			Availability: common.Availability{
-				Published: e.Published,
-				From:      e.AvailableFrom,
-				To:        e.AvailableTo,
-			},
+			ID:               int(e.ID),
+			LegacyID:         e.LegacyID,
 			Title:            title,
 			Description:      description,
 			ExtraDescription: extraDescription,
-			Roles: common.Roles{
-				Access:      e.Usergroups,
-				Download:    e.DownloadGroups,
-				EarlyAccess: e.EarlyAccessGroups,
-			},
-			Number:   e.EpisodeNumber,
-			SeasonID: e.SeasonID,
-			AssetID:  e.AssetID,
-			ImageID:  e.ImageFileID,
+			Number:           e.EpisodeNumber,
+			SeasonID:         e.SeasonID,
+			AssetID:          e.AssetID,
+			ImageID:          e.ImageFileID,
 			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
 				return int(id)
 			}),
 		}
 	})
-}
-
-// ListEpisodes returns a list of common.Episode retrieved from the database
-func (q *Queries) ListEpisodes(ctx context.Context) ([]common.Episode, error) {
-	episodes, err := q.listEpisodes(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return mapToEpisodes(episodes), nil
 }
 
 // GetEpisodes returns a list of common.Episode specified by ids
@@ -62,11 +43,58 @@ func (q *Queries) GetEpisodes(ctx context.Context, ids []int) ([]common.Episode,
 	return mapToEpisodes(episodes), nil
 }
 
-// GetEpisodesForSeasons returns a list of episodes specified by seasons
-func (q *Queries) GetEpisodesForSeasons(ctx context.Context, ids []int) ([]common.Episode, error) {
-	episodes, err := q.getEpisodesForSeasons(ctx, intToInt32(ids))
+// ListEpisodes returns a list of common.Episode
+func (q *Queries) ListEpisodes(ctx context.Context) ([]common.Episode, error) {
+	items, err := q.listEpisodes(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return mapToEpisodes(episodes), nil
+	return mapToEpisodes(lo.Map(items, func(i listEpisodesRow, _ int) getEpisodesRow {
+		return getEpisodesRow(i)
+	})), nil
+}
+
+// GetKey returns the id for this row
+func (row getEpisodeIDsForSeasonsRow) GetKey() int {
+	return int(row.ID)
+}
+
+// GetRelationID returns the relation id for this row
+func (row getEpisodeIDsForSeasonsRow) GetRelationID() int {
+	return int(row.SeasonID.Int64)
+}
+
+// GetEpisodeIDsForSeasons returns a list of episodes specified by seasons
+func (q *Queries) GetEpisodeIDsForSeasons(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
+	rows, err := q.getEpisodeIDsForSeasons(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getEpisodeIDsForSeasonsRow, _ int) common.Relation[int, int] {
+		return i
+	}), nil
+}
+
+// GetPermissionsForEpisodes returns permissions for specified episodes
+func (q *Queries) GetPermissionsForEpisodes(ctx context.Context, ids []int) ([]common.Permissions[int], error) {
+	items, err := q.getPermissionsForEpisodes(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(items, func(i getPermissionsForEpisodesRow, _ int) common.Permissions[int] {
+		return common.Permissions[int]{
+			ItemID: int(i.ID),
+			Type:   common.TypeEpisode,
+			Availability: common.Availability{
+				Published: i.Published,
+				From:      i.AvailableFrom,
+				To:        i.AvailableTo,
+			},
+			Roles: common.Roles{
+				Access:      i.Usergroups,
+				Download:    i.UsergroupsDownloads,
+				EarlyAccess: i.UsergroupsEarlyaccess,
+			},
+		}
+	}), nil
 }

@@ -38,6 +38,10 @@ type loaders struct {
 	EpisodeLoader *dataloader.Loader[int, *common.Episode]
 	ImageLoader   *dataloader.Loader[uuid.UUID, *sqlc.DirectusFile]
 	TagLoader     *dataloader.Loader[int, *common.Tag]
+	// Permissions
+	ShowPermissionLoader    *dataloader.Loader[int, *common.Permissions[int]]
+	SeasonPermissionLoader  *dataloader.Loader[int, *common.Permissions[int]]
+	EpisodePermissionLoader *dataloader.Loader[int, *common.Permissions[int]]
 }
 
 // Service is the type for the service itself
@@ -64,6 +68,10 @@ func New(db *sql.DB, algoliaAppId string, algoliaApiKey string) *Service {
 			return i.ID
 		}),
 		TagLoader: common.NewBatchLoader(service.queries.GetTags),
+		// Permissions
+		ShowPermissionLoader:    show.NewPermissionLoader(*service.queries),
+		SeasonPermissionLoader:  season.NewPermissionLoader(*service.queries),
+		EpisodePermissionLoader: episode.NewPermissionLoader(*service.queries),
 	}
 
 	return &service

@@ -302,11 +302,6 @@ type QueryRoot{
     code: String
   ): Page
 
-  pages(
-    first: Int
-    offset: Int
-  ): PagePagination!
-
   section(
     id: ID!
   ): Section

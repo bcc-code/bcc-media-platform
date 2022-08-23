@@ -7,8 +7,12 @@ package sqlc
 
 import (
 	"context"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"github.com/tabbed/pqtype"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const refreshShowAccessView = `-- name: RefreshShowAccessView :one
@@ -22,31 +26,133 @@ func (q *Queries) RefreshShowAccessView(ctx context.Context) (bool, error) {
 	return update_access, err
 }
 
-const getShows = `-- name: getShows :many
-SELECT id, image_file_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups, legacy_id FROM shows_expanded WHERE id = ANY($1::int[])
+const getPermissionsForShows = `-- name: getPermissionsForShows :many
+WITH sa AS (SELECT sh.id,
+                   sh.status::text = 'published'::text                          AS published,
+                   COALESCE(sh.available_from,
+                            '1800-01-01 00:00:00'::timestamp without time zone) AS available_from,
+                   COALESCE(sh.available_to,
+                            '3000-01-01 00:00:00'::timestamp without time zone) AS available_to
+            FROM shows sh),
+     sr AS (SELECT sh.id,
+                   COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
+                             FROM episodes_usergroups eu
+                             WHERE (eu.episodes_id IN (SELECT e.id
+                                                       FROM episodes e
+                                                       WHERE (e.season_id IN (SELECT se.id
+                                                                              FROM seasons se
+                                                                              WHERE se.show_id = sh.id))))),
+                            ARRAY []::character varying[]) AS roles,
+                   COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
+                             FROM episodes_usergroups_download eu
+                             WHERE (eu.episodes_id IN (SELECT e.id
+                                                       FROM episodes e
+                                                       WHERE (e.season_id IN (SELECT se.id
+                                                                              FROM seasons se
+                                                                              WHERE se.show_id = sh.id))))),
+                            ARRAY []::character varying[]) AS roles_download,
+                   COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
+                             FROM episodes_usergroups_earlyaccess eu
+                             WHERE (eu.episodes_id IN (SELECT e.id
+                                                       FROM episodes e
+                                                       WHERE (e.season_id IN (SELECT se.id
+                                                                              FROM seasons se
+                                                                              WHERE se.show_id = sh.id))))),
+                            ARRAY []::character varying[]) AS roles_earlyaccess
+            FROM shows sh)
+SELECT sh.id,
+       access.published::boolean          AS published,
+       access.available_from::timestamp   AS available_from,
+       access.available_to::timestamp     AS available_to,
+       roles.roles::varchar[]             AS usergroups,
+       roles.roles_download::varchar[]    AS usergroups_downloads,
+       roles.roles_earlyaccess::varchar[] AS usergroups_earlyaccess
+FROM shows sh
+         LEFT JOIN sa access ON access.id = sh.id
+         LEFT JOIN sr roles ON roles.id = sh.id
+WHERE sh.id = ANY ($1::int[])
 `
 
-func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]ShowsExpanded, error) {
+type getPermissionsForShowsRow struct {
+	ID                    int32     `db:"id" json:"id"`
+	Published             bool      `db:"published" json:"published"`
+	AvailableFrom         time.Time `db:"available_from" json:"availableFrom"`
+	AvailableTo           time.Time `db:"available_to" json:"availableTo"`
+	Usergroups            []string  `db:"usergroups" json:"usergroups"`
+	UsergroupsDownloads   []string  `db:"usergroups_downloads" json:"usergroupsDownloads"`
+	UsergroupsEarlyaccess []string  `db:"usergroups_earlyaccess" json:"usergroupsEarlyaccess"`
+}
+
+func (q *Queries) getPermissionsForShows(ctx context.Context, dollar_1 []int32) ([]getPermissionsForShowsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPermissionsForShows, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getPermissionsForShowsRow
+	for rows.Next() {
+		var i getPermissionsForShowsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Published,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			pq.Array(&i.Usergroups),
+			pq.Array(&i.UsergroupsDownloads),
+			pq.Array(&i.UsergroupsEarlyaccess),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getShows = `-- name: getShows :many
+WITH ts AS (SELECT shows_id,
+                  json_object_agg(languages_code, title)       AS title,
+                  json_object_agg(languages_code, description) AS description
+           FROM shows_translations
+           GROUP BY shows_id)
+SELECT sh.id,
+       sh.legacy_id,
+       sh.image_file_id,
+       ts.title,
+       ts.description
+FROM shows sh
+         LEFT JOIN ts ON sh.id = ts.shows_id
+WHERE sh.id = ANY ($1::int[])
+`
+
+type getShowsRow struct {
+	ID          int32                 `db:"id" json:"id"`
+	LegacyID    null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	ImageFileID uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
+	Title       pqtype.NullRawMessage `db:"title" json:"title"`
+	Description pqtype.NullRawMessage `db:"description" json:"description"`
+}
+
+func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]getShowsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getShows, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ShowsExpanded
+	var items []getShowsRow
 	for rows.Next() {
-		var i ShowsExpanded
+		var i getShowsRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.LegacyID,
 			&i.ImageFileID,
 			&i.Title,
 			&i.Description,
-			&i.Published,
-			&i.AvailableFrom,
-			&i.AvailableTo,
-			pq.Array(&i.Usergroups),
-			pq.Array(&i.DownloadGroups),
-			pq.Array(&i.EarlyAccessGroups),
-			&i.LegacyID,
 		); err != nil {
 			return nil, err
 		}
@@ -62,30 +168,43 @@ func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]ShowsExpand
 }
 
 const listShows = `-- name: listShows :many
-SELECT id, image_file_id, title, description, published, available_from, available_to, usergroups, download_groups, early_access_groups, legacy_id FROM shows_expanded
+WITH ts AS (SELECT shows_id,
+                   json_object_agg(languages_code, title)       AS title,
+                   json_object_agg(languages_code, description) AS description
+            FROM shows_translations
+            GROUP BY shows_id)
+SELECT sh.id,
+       sh.legacy_id,
+       sh.image_file_id,
+       ts.title,
+       ts.description
+FROM shows sh
+         LEFT JOIN ts ON sh.id = ts.shows_id
 `
 
-func (q *Queries) listShows(ctx context.Context) ([]ShowsExpanded, error) {
+type listShowsRow struct {
+	ID          int32                 `db:"id" json:"id"`
+	LegacyID    null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	ImageFileID uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
+	Title       pqtype.NullRawMessage `db:"title" json:"title"`
+	Description pqtype.NullRawMessage `db:"description" json:"description"`
+}
+
+func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
 	rows, err := q.db.QueryContext(ctx, listShows)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ShowsExpanded
+	var items []listShowsRow
 	for rows.Next() {
-		var i ShowsExpanded
+		var i listShowsRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.LegacyID,
 			&i.ImageFileID,
 			&i.Title,
 			&i.Description,
-			&i.Published,
-			&i.AvailableFrom,
-			&i.AvailableTo,
-			pq.Array(&i.Usergroups),
-			pq.Array(&i.DownloadGroups),
-			pq.Array(&i.EarlyAccessGroups),
-			&i.LegacyID,
 		); err != nil {
 			return nil, err
 		}
