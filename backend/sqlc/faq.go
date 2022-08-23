@@ -66,24 +66,23 @@ func (q *Queries) GetQuestions(ctx context.Context, ids []int) ([]common.Questio
 	return mapToQuestions(items), nil
 }
 
-// GetQuestionsForCategories returns all questions
-func (q *Queries) GetQuestionsForCategories(ctx context.Context, ids []int) ([]common.Question, error) {
-	items, err := q.getQuestionsForCategories(ctx, intToInt32(ids))
-	if err != nil {
-		return nil, err
-	}
-	return mapToQuestions(lo.Map(items, func(i getQuestionsForCategoriesRow, _ int) getQuestionsRow {
-		return getQuestionsRow(i)
-	})), nil
+// GetKey returns the id for this row
+func (row getQuestionIDsForCategoriesRow) GetKey() int {
+	return int(row.ID)
 }
 
-// ListQuestions returns all questions
-func (q *Queries) ListQuestions(ctx context.Context) ([]common.Question, error) {
-	items, err := q.listQuestions(ctx)
+// GetRelationID returns the relation id for this row
+func (row getQuestionIDsForCategoriesRow) GetRelationID() int {
+	return int(row.Category)
+}
+
+// GetQuestionIDsForCategories returns a list of episodes specified by seasons
+func (q *Queries) GetQuestionIDsForCategories(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
+	rows, err := q.getQuestionIDsForCategories(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, err
 	}
-	return mapToQuestions(lo.Map(items, func(i listQuestionsRow, _ int) getQuestionsRow {
-		return getQuestionsRow(i)
-	})), nil
+	return lo.Map(rows, func(i getQuestionIDsForCategoriesRow, _ int) common.Relation[int, int] {
+		return i
+	}), nil
 }

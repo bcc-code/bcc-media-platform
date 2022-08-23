@@ -40,9 +40,12 @@ type ResolverRoot interface {
 	Episode() EpisodeResolver
 	EpisodeCalendarEntry() EpisodeCalendarEntryResolver
 	EpisodeSearchItem() EpisodeSearchItemResolver
+	FAQ() FAQResolver
+	FAQCategory() FAQCategoryResolver
 	ItemSection() ItemSectionResolver
 	Page() PageResolver
 	QueryRoot() QueryRootResolver
+	Question() QuestionResolver
 	Season() SeasonResolver
 	SeasonCalendarEntry() SeasonCalendarEntryResolver
 	SeasonSearchItem() SeasonSearchItemResolver
@@ -151,14 +154,22 @@ type ComplexityRoot struct {
 	}
 
 	FAQ struct {
-		Answer   func(childComplexity int) int
-		Question func(childComplexity int) int
+		Categories func(childComplexity int, first *int, offset *int) int
+		Category   func(childComplexity int, id string) int
+		Question   func(childComplexity int, id string) int
 	}
 
 	FAQCategory struct {
 		ID        func(childComplexity int) int
-		Name      func(childComplexity int) int
-		Questions func(childComplexity int) int
+		Questions func(childComplexity int, first *int, offset *int) int
+		Title     func(childComplexity int) int
+	}
+
+	FAQCategoryPagination struct {
+		First  func(childComplexity int) int
+		Items  func(childComplexity int) int
+		Offset func(childComplexity int) int
+		Total  func(childComplexity int) int
 	}
 
 	File struct {
@@ -203,16 +214,30 @@ type ComplexityRoot struct {
 	}
 
 	QueryRoot struct {
-		AllFAQs  func(childComplexity int) int
 		Calendar func(childComplexity int) int
 		Episode  func(childComplexity int, id string) int
 		Event    func(childComplexity int, id string) int
+		Faq      func(childComplexity int) int
 		Me       func(childComplexity int) int
 		Page     func(childComplexity int, id *string, code *string) int
 		Search   func(childComplexity int, queryString string, first *int, offset *int) int
 		Season   func(childComplexity int, id string) int
 		Section  func(childComplexity int, id string) int
 		Show     func(childComplexity int, id string) int
+	}
+
+	Question struct {
+		Answer   func(childComplexity int) int
+		Category func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Question func(childComplexity int) int
+	}
+
+	QuestionPagination struct {
+		First  func(childComplexity int) int
+		Items  func(childComplexity int) int
+		Offset func(childComplexity int) int
+		Total  func(childComplexity int) int
 	}
 
 	SearchResult struct {
@@ -386,6 +411,14 @@ type EpisodeSearchItemResolver interface {
 
 	Season(ctx context.Context, obj *gqlmodel.EpisodeSearchItem) (*gqlmodel.Season, error)
 }
+type FAQResolver interface {
+	Categories(ctx context.Context, obj *gqlmodel.Faq, first *int, offset *int) (*gqlmodel.FAQCategoryPagination, error)
+	Category(ctx context.Context, obj *gqlmodel.Faq, id string) (*gqlmodel.FAQCategory, error)
+	Question(ctx context.Context, obj *gqlmodel.Faq, id string) (*gqlmodel.Question, error)
+}
+type FAQCategoryResolver interface {
+	Questions(ctx context.Context, obj *gqlmodel.FAQCategory, first *int, offset *int) (*gqlmodel.QuestionPagination, error)
+}
 type ItemSectionResolver interface {
 	Page(ctx context.Context, obj *gqlmodel.ItemSection) (*gqlmodel.Page, error)
 
@@ -403,8 +436,11 @@ type QueryRootResolver interface {
 	Search(ctx context.Context, queryString string, first *int, offset *int) (*gqlmodel.SearchResult, error)
 	Calendar(ctx context.Context) (*gqlmodel.Calendar, error)
 	Event(ctx context.Context, id string) (*gqlmodel.Event, error)
-	AllFAQs(ctx context.Context) ([]*gqlmodel.FAQCategory, error)
+	Faq(ctx context.Context) (*gqlmodel.Faq, error)
 	Me(ctx context.Context) (*gqlmodel.User, error)
+}
+type QuestionResolver interface {
+	Category(ctx context.Context, obj *gqlmodel.Question) (*gqlmodel.FAQCategory, error)
 }
 type SeasonResolver interface {
 	Show(ctx context.Context, obj *gqlmodel.Season) (*gqlmodel.Show, error)
@@ -889,19 +925,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Event.Title(childComplexity), true
 
-	case "FAQ.answer":
-		if e.complexity.FAQ.Answer == nil {
+	case "FAQ.categories":
+		if e.complexity.FAQ.Categories == nil {
 			break
 		}
 
-		return e.complexity.FAQ.Answer(childComplexity), true
+		args, err := ec.field_FAQ_categories_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.FAQ.Categories(childComplexity, args["first"].(*int), args["Offset"].(*int)), true
+
+	case "FAQ.category":
+		if e.complexity.FAQ.Category == nil {
+			break
+		}
+
+		args, err := ec.field_FAQ_category_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.FAQ.Category(childComplexity, args["id"].(string)), true
 
 	case "FAQ.question":
 		if e.complexity.FAQ.Question == nil {
 			break
 		}
 
-		return e.complexity.FAQ.Question(childComplexity), true
+		args, err := ec.field_FAQ_question_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.FAQ.Question(childComplexity, args["id"].(string)), true
 
 	case "FAQCategory.id":
 		if e.complexity.FAQCategory.ID == nil {
@@ -910,19 +968,52 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.FAQCategory.ID(childComplexity), true
 
-	case "FAQCategory.name":
-		if e.complexity.FAQCategory.Name == nil {
-			break
-		}
-
-		return e.complexity.FAQCategory.Name(childComplexity), true
-
 	case "FAQCategory.questions":
 		if e.complexity.FAQCategory.Questions == nil {
 			break
 		}
 
-		return e.complexity.FAQCategory.Questions(childComplexity), true
+		args, err := ec.field_FAQCategory_questions_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.FAQCategory.Questions(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+
+	case "FAQCategory.title":
+		if e.complexity.FAQCategory.Title == nil {
+			break
+		}
+
+		return e.complexity.FAQCategory.Title(childComplexity), true
+
+	case "FAQCategoryPagination.first":
+		if e.complexity.FAQCategoryPagination.First == nil {
+			break
+		}
+
+		return e.complexity.FAQCategoryPagination.First(childComplexity), true
+
+	case "FAQCategoryPagination.items":
+		if e.complexity.FAQCategoryPagination.Items == nil {
+			break
+		}
+
+		return e.complexity.FAQCategoryPagination.Items(childComplexity), true
+
+	case "FAQCategoryPagination.offset":
+		if e.complexity.FAQCategoryPagination.Offset == nil {
+			break
+		}
+
+		return e.complexity.FAQCategoryPagination.Offset(childComplexity), true
+
+	case "FAQCategoryPagination.total":
+		if e.complexity.FAQCategoryPagination.Total == nil {
+			break
+		}
+
+		return e.complexity.FAQCategoryPagination.Total(childComplexity), true
 
 	case "File.audioLanguage":
 		if e.complexity.File.AudioLanguage == nil {
@@ -1116,13 +1207,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PagePagination.Total(childComplexity), true
 
-	case "QueryRoot.allFAQs":
-		if e.complexity.QueryRoot.AllFAQs == nil {
-			break
-		}
-
-		return e.complexity.QueryRoot.AllFAQs(childComplexity), true
-
 	case "QueryRoot.calendar":
 		if e.complexity.QueryRoot.Calendar == nil {
 			break
@@ -1153,6 +1237,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.QueryRoot.Event(childComplexity, args["id"].(string)), true
+
+	case "QueryRoot.faq":
+		if e.complexity.QueryRoot.Faq == nil {
+			break
+		}
+
+		return e.complexity.QueryRoot.Faq(childComplexity), true
 
 	case "QueryRoot.me":
 		if e.complexity.QueryRoot.Me == nil {
@@ -1220,6 +1311,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.QueryRoot.Show(childComplexity, args["id"].(string)), true
+
+	case "Question.answer":
+		if e.complexity.Question.Answer == nil {
+			break
+		}
+
+		return e.complexity.Question.Answer(childComplexity), true
+
+	case "Question.category":
+		if e.complexity.Question.Category == nil {
+			break
+		}
+
+		return e.complexity.Question.Category(childComplexity), true
+
+	case "Question.id":
+		if e.complexity.Question.ID == nil {
+			break
+		}
+
+		return e.complexity.Question.ID(childComplexity), true
+
+	case "Question.question":
+		if e.complexity.Question.Question == nil {
+			break
+		}
+
+		return e.complexity.Question.Question(childComplexity), true
+
+	case "QuestionPagination.first":
+		if e.complexity.QuestionPagination.First == nil {
+			break
+		}
+
+		return e.complexity.QuestionPagination.First(childComplexity), true
+
+	case "QuestionPagination.items":
+		if e.complexity.QuestionPagination.Items == nil {
+			break
+		}
+
+		return e.complexity.QuestionPagination.Items(childComplexity), true
+
+	case "QuestionPagination.offset":
+		if e.complexity.QuestionPagination.Offset == nil {
+			break
+		}
+
+		return e.complexity.QuestionPagination.Offset(childComplexity), true
+
+	case "QuestionPagination.total":
+		if e.complexity.QuestionPagination.Total == nil {
+			break
+		}
+
+		return e.complexity.QuestionPagination.Total(childComplexity), true
 
 	case "SearchResult.hits":
 		if e.complexity.SearchResult.Hits == nil {
@@ -2051,11 +2198,61 @@ type Calendar {
         day: Date!
     ): CalendarDay @goField(forceResolver: true)
 }`, BuiltIn: false},
+	{Name: "../schema/faq.graphqls", Input: `type Question {
+    id: ID!
+    category: FAQCategory! @goField(forceResolver: true)
+    question: String!
+    answer: String!
+}
+
+type QuestionPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [Question!]!
+}
+
+type FAQCategoryPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [FAQCategory!]!
+}
+
+type FAQCategory {
+    id: ID!
+    title: String!
+    questions(
+        first: Int
+        offset: Int
+    ): QuestionPagination @goField(forceResolver: true)
+}
+
+type FAQ {
+    categories(
+        first: Int
+        Offset: Int
+    ): FAQCategoryPagination @goField(forceResolver: true)
+
+    category(
+        id: ID!
+    ): FAQCategory! @goField(forceResolver: true)
+
+    question(
+        id: ID!
+    ): Question! @goField(forceResolver: true)
+}`, BuiltIn: false},
 	{Name: "../schema/schema.graphqls", Input: `directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
     | FIELD_DEFINITION
 
 schema{
   query: QueryRoot
+}
+
+interface Pagination {
+  total: Int!
+  first: Int!
+  offset: Int!
 }
 
 type Page{
@@ -2069,7 +2266,7 @@ type Page{
   ): SectionPagination! @goField(forceResolver: true)
 }
 
-type PagePagination {
+type PagePagination implements Pagination {
   total: Int!
   first: Int!
   offset: Int!
@@ -2087,7 +2284,7 @@ interface Section{
   title: String!
 }
 
-type SectionPagination{
+type SectionPagination implements Pagination {
   total: Int!
   first: Int!
   offset: Int!
@@ -2120,7 +2317,7 @@ interface Item {
   imageUrl: String
 }
 
-type CollectionItemPagination{
+type CollectionItemPagination implements Pagination {
   total: Int!
   first: Int!
   offset: Int!
@@ -2180,7 +2377,7 @@ type Show {
   ): SeasonPagination! @goField(forceResolver: true)
 }
 
-type ShowPagination {
+type ShowPagination implements Pagination {
   total: Int!
   first: Int!
   offset: Int!
@@ -2200,7 +2397,7 @@ type Season {
   ): EpisodePagination! @goField(forceResolver: true)
 }
 
-type SeasonPagination {
+type SeasonPagination implements Pagination {
   total: Int!
   first: Int!
   offset: Int!
@@ -2223,7 +2420,7 @@ type Episode {
   episodeNumber: Int
 }
 
-type EpisodePagination {
+type EpisodePagination implements Pagination {
   total: Int!
   first: Int!
   offset: Int!
@@ -2263,17 +2460,6 @@ enum StreamType {
 type Settings {
   audioLanguages: [Language!]!
   subtitleLanguages: [Language!]!
-}
-
-type FAQ {
-  question: String!
-  answer: String!
-}
-
-type FAQCategory {
-  id: ID!
-  name: String!
-  questions: [FAQ!]!
 }
 
 type User {
@@ -2379,7 +2565,9 @@ type QueryRoot{
 
   calendar: Calendar
   event(id: ID!): Event
-  allFAQs: [FAQCategory!]!
+
+  faq: FAQ!
+
   me: User!
 }
 `, BuiltIn: false},
@@ -2426,6 +2614,84 @@ func (ec *executionContext) field_Calendar_period_args(ctx context.Context, rawA
 		}
 	}
 	args["to"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_FAQCategory_questions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_FAQ_categories_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["Offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["Offset"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_FAQ_category_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_FAQ_question_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -5619,6 +5885,131 @@ func (ec *executionContext) fieldContext_Event_image(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _FAQ_categories(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Faq) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FAQ_categories(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.FAQ().Categories(rctx, obj, fc.Args["first"].(*int), fc.Args["Offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.FAQCategoryPagination)
+	fc.Result = res
+	return ec.marshalOFAQCategoryPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategoryPagination(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FAQ_categories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FAQ",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_FAQCategoryPagination_total(ctx, field)
+			case "first":
+				return ec.fieldContext_FAQCategoryPagination_first(ctx, field)
+			case "offset":
+				return ec.fieldContext_FAQCategoryPagination_offset(ctx, field)
+			case "items":
+				return ec.fieldContext_FAQCategoryPagination_items(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FAQCategoryPagination", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_FAQ_categories_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FAQ_category(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Faq) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FAQ_category(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.FAQ().Category(rctx, obj, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.FAQCategory)
+	fc.Result = res
+	return ec.marshalNFAQCategory2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FAQ_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FAQ",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_FAQCategory_id(ctx, field)
+			case "title":
+				return ec.fieldContext_FAQCategory_title(ctx, field)
+			case "questions":
+				return ec.fieldContext_FAQCategory_questions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FAQCategory", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_FAQ_category_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _FAQ_question(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Faq) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_FAQ_question(ctx, field)
 	if err != nil {
@@ -5633,7 +6024,7 @@ func (ec *executionContext) _FAQ_question(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Question, nil
+		return ec.resolvers.FAQ().Question(rctx, obj, fc.Args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5645,64 +6036,41 @@ func (ec *executionContext) _FAQ_question(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*gqlmodel.Question)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNQuestion2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestion(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_FAQ_question(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FAQ",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Question_id(ctx, field)
+			case "category":
+				return ec.fieldContext_Question_category(ctx, field)
+			case "question":
+				return ec.fieldContext_Question_question(ctx, field)
+			case "answer":
+				return ec.fieldContext_Question_answer(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
 	}
-	return fc, nil
-}
-
-func (ec *executionContext) _FAQ_answer(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Faq) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_FAQ_answer(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
 	defer func() {
 		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Answer, nil
-	})
-	if err != nil {
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_FAQ_question_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_FAQ_answer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "FAQ",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
+		return
 	}
 	return fc, nil
 }
@@ -5751,8 +6119,8 @@ func (ec *executionContext) fieldContext_FAQCategory_id(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _FAQCategory_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FAQCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_FAQCategory_name(ctx, field)
+func (ec *executionContext) _FAQCategory_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FAQCategory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FAQCategory_title(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5765,7 +6133,7 @@ func (ec *executionContext) _FAQCategory_name(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		return obj.Title, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5782,7 +6150,7 @@ func (ec *executionContext) _FAQCategory_name(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_FAQCategory_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_FAQCategory_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FAQCategory",
 		Field:      field,
@@ -5809,7 +6177,69 @@ func (ec *executionContext) _FAQCategory_questions(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Questions, nil
+		return ec.resolvers.FAQCategory().Questions(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.QuestionPagination)
+	fc.Result = res
+	return ec.marshalOQuestionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestionPagination(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FAQCategory_questions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FAQCategory",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_QuestionPagination_total(ctx, field)
+			case "first":
+				return ec.fieldContext_QuestionPagination_first(ctx, field)
+			case "offset":
+				return ec.fieldContext_QuestionPagination_offset(ctx, field)
+			case "items":
+				return ec.fieldContext_QuestionPagination_items(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type QuestionPagination", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_FAQCategory_questions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FAQCategoryPagination_total(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FAQCategoryPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FAQCategoryPagination_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5821,25 +6251,159 @@ func (ec *executionContext) _FAQCategory_questions(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*gqlmodel.Faq)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNFAQ2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFaqᚄ(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_FAQCategory_questions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_FAQCategoryPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "FAQCategory",
+		Object:     "FAQCategoryPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FAQCategoryPagination_first(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FAQCategoryPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FAQCategoryPagination_first(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.First, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FAQCategoryPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FAQCategoryPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FAQCategoryPagination_offset(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FAQCategoryPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FAQCategoryPagination_offset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Offset, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FAQCategoryPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FAQCategoryPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FAQCategoryPagination_items(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FAQCategoryPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FAQCategoryPagination_items(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Items, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.FAQCategory)
+	fc.Result = res
+	return ec.marshalNFAQCategory2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategoryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FAQCategoryPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FAQCategoryPagination",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "question":
-				return ec.fieldContext_FAQ_question(ctx, field)
-			case "answer":
-				return ec.fieldContext_FAQ_answer(ctx, field)
+			case "id":
+				return ec.fieldContext_FAQCategory_id(ctx, field)
+			case "title":
+				return ec.fieldContext_FAQCategory_title(ctx, field)
+			case "questions":
+				return ec.fieldContext_FAQCategory_questions(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type FAQ", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type FAQCategory", field.Name)
 		},
 	}
 	return fc, nil
@@ -7558,8 +8122,8 @@ func (ec *executionContext) fieldContext_QueryRoot_event(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _QueryRoot_allFAQs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_QueryRoot_allFAQs(ctx, field)
+func (ec *executionContext) _QueryRoot_faq(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_faq(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7572,7 +8136,7 @@ func (ec *executionContext) _QueryRoot_allFAQs(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().AllFAQs(rctx)
+		return ec.resolvers.QueryRoot().Faq(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7584,12 +8148,12 @@ func (ec *executionContext) _QueryRoot_allFAQs(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*gqlmodel.FAQCategory)
+	res := resTmp.(*gqlmodel.Faq)
 	fc.Result = res
-	return ec.marshalNFAQCategory2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategoryᚄ(ctx, field.Selections, res)
+	return ec.marshalNFAQ2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFaq(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QueryRoot_allFAQs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QueryRoot_faq(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QueryRoot",
 		Field:      field,
@@ -7597,14 +8161,14 @@ func (ec *executionContext) fieldContext_QueryRoot_allFAQs(ctx context.Context, 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_FAQCategory_id(ctx, field)
-			case "name":
-				return ec.fieldContext_FAQCategory_name(ctx, field)
-			case "questions":
-				return ec.fieldContext_FAQCategory_questions(ctx, field)
+			case "categories":
+				return ec.fieldContext_FAQ_categories(ctx, field)
+			case "category":
+				return ec.fieldContext_FAQ_category(ctx, field)
+			case "question":
+				return ec.fieldContext_FAQ_question(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type FAQCategory", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type FAQ", field.Name)
 		},
 	}
 	return fc, nil
@@ -7794,6 +8358,376 @@ func (ec *executionContext) fieldContext_QueryRoot___schema(ctx context.Context,
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Question_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Question) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Question_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Question_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Question",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Question_category(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Question) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Question_category(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Question().Category(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.FAQCategory)
+	fc.Result = res
+	return ec.marshalNFAQCategory2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Question_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Question",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_FAQCategory_id(ctx, field)
+			case "title":
+				return ec.fieldContext_FAQCategory_title(ctx, field)
+			case "questions":
+				return ec.fieldContext_FAQCategory_questions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FAQCategory", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Question_question(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Question) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Question_question(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Question, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Question_question(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Question",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Question_answer(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Question) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Question_answer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Answer, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Question_answer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Question",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionPagination_total(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.QuestionPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionPagination_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionPagination_first(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.QuestionPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionPagination_first(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.First, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionPagination_offset(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.QuestionPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionPagination_offset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Offset, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionPagination_items(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.QuestionPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionPagination_items(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Items, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.Question)
+	fc.Result = res
+	return ec.marshalNQuestion2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Question_id(ctx, field)
+			case "category":
+				return ec.fieldContext_Question_category(ctx, field)
+			case "question":
+				return ec.fieldContext_Question_question(ctx, field)
+			case "answer":
+				return ec.fieldContext_Question_answer(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
 	}
 	return fc, nil
@@ -14159,6 +15093,71 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 	}
 }
 
+func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.Pagination) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case gqlmodel.QuestionPagination:
+		return ec._QuestionPagination(ctx, sel, &obj)
+	case *gqlmodel.QuestionPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._QuestionPagination(ctx, sel, obj)
+	case gqlmodel.FAQCategoryPagination:
+		return ec._FAQCategoryPagination(ctx, sel, &obj)
+	case *gqlmodel.FAQCategoryPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FAQCategoryPagination(ctx, sel, obj)
+	case gqlmodel.PagePagination:
+		return ec._PagePagination(ctx, sel, &obj)
+	case *gqlmodel.PagePagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PagePagination(ctx, sel, obj)
+	case gqlmodel.SectionPagination:
+		return ec._SectionPagination(ctx, sel, &obj)
+	case *gqlmodel.SectionPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SectionPagination(ctx, sel, obj)
+	case gqlmodel.CollectionItemPagination:
+		return ec._CollectionItemPagination(ctx, sel, &obj)
+	case *gqlmodel.CollectionItemPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._CollectionItemPagination(ctx, sel, obj)
+	case gqlmodel.ShowPagination:
+		return ec._ShowPagination(ctx, sel, &obj)
+	case *gqlmodel.ShowPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ShowPagination(ctx, sel, obj)
+	case gqlmodel.SeasonPagination:
+		return ec._SeasonPagination(ctx, sel, &obj)
+	case *gqlmodel.SeasonPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SeasonPagination(ctx, sel, obj)
+	case gqlmodel.EpisodePagination:
+		return ec._EpisodePagination(ctx, sel, &obj)
+	case *gqlmodel.EpisodePagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._EpisodePagination(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _SearchResultItem(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.SearchResultItem) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -14376,7 +15375,7 @@ func (ec *executionContext) _Chapter(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
-var collectionItemPaginationImplementors = []string{"CollectionItemPagination"}
+var collectionItemPaginationImplementors = []string{"CollectionItemPagination", "Pagination"}
 
 func (ec *executionContext) _CollectionItemPagination(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.CollectionItemPagination) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, collectionItemPaginationImplementors)
@@ -14710,7 +15709,7 @@ func (ec *executionContext) _EpisodeItem(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var episodePaginationImplementors = []string{"EpisodePagination"}
+var episodePaginationImplementors = []string{"EpisodePagination", "Pagination"}
 
 func (ec *executionContext) _EpisodePagination(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.EpisodePagination) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, episodePaginationImplementors)
@@ -14944,20 +15943,63 @@ func (ec *executionContext) _FAQ(ctx context.Context, sel ast.SelectionSet, obj 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("FAQ")
+		case "categories":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._FAQ_categories(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "category":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._FAQ_category(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "question":
+			field := field
 
-			out.Values[i] = ec._FAQ_question(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._FAQ_question(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
-		case "answer":
 
-			out.Values[i] = ec._FAQ_answer(ctx, field, obj)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -14984,18 +16026,77 @@ func (ec *executionContext) _FAQCategory(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._FAQCategory_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
-		case "name":
+		case "title":
 
-			out.Values[i] = ec._FAQCategory_name(ctx, field, obj)
+			out.Values[i] = ec._FAQCategory_title(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "questions":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._FAQCategory_questions(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var fAQCategoryPaginationImplementors = []string{"FAQCategoryPagination", "Pagination"}
+
+func (ec *executionContext) _FAQCategoryPagination(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.FAQCategoryPagination) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, fAQCategoryPaginationImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FAQCategoryPagination")
+		case "total":
+
+			out.Values[i] = ec._FAQCategoryPagination_total(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "questions":
+		case "first":
 
-			out.Values[i] = ec._FAQCategory_questions(ctx, field, obj)
+			out.Values[i] = ec._FAQCategoryPagination_first(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "offset":
+
+			out.Values[i] = ec._FAQCategoryPagination_offset(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "items":
+
+			out.Values[i] = ec._FAQCategoryPagination_items(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -15273,7 +16374,7 @@ func (ec *executionContext) _PageItem(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var pagePaginationImplementors = []string{"PagePagination"}
+var pagePaginationImplementors = []string{"PagePagination", "Pagination"}
 
 func (ec *executionContext) _PagePagination(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.PagePagination) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, pagePaginationImplementors)
@@ -15504,7 +16605,7 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "allFAQs":
+		case "faq":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -15513,7 +16614,7 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._QueryRoot_allFAQs(ctx, field)
+				res = ec._QueryRoot_faq(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -15562,6 +16663,117 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 				return ec._QueryRoot___schema(ctx, field)
 			})
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var questionImplementors = []string{"Question"}
+
+func (ec *executionContext) _Question(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Question) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, questionImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Question")
+		case "id":
+
+			out.Values[i] = ec._Question_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "category":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Question_category(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "question":
+
+			out.Values[i] = ec._Question_question(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "answer":
+
+			out.Values[i] = ec._Question_answer(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var questionPaginationImplementors = []string{"QuestionPagination", "Pagination"}
+
+func (ec *executionContext) _QuestionPagination(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.QuestionPagination) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, questionPaginationImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("QuestionPagination")
+		case "total":
+
+			out.Values[i] = ec._QuestionPagination_total(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "first":
+
+			out.Values[i] = ec._QuestionPagination_first(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "offset":
+
+			out.Values[i] = ec._QuestionPagination_offset(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "items":
+
+			out.Values[i] = ec._QuestionPagination_items(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -15854,7 +17066,7 @@ func (ec *executionContext) _SeasonItem(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var seasonPaginationImplementors = []string{"SeasonPagination"}
+var seasonPaginationImplementors = []string{"SeasonPagination", "Pagination"}
 
 func (ec *executionContext) _SeasonPagination(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SeasonPagination) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, seasonPaginationImplementors)
@@ -16006,7 +17218,7 @@ func (ec *executionContext) _SeasonSearchItem(ctx context.Context, sel ast.Selec
 	return out
 }
 
-var sectionPaginationImplementors = []string{"SectionPagination"}
+var sectionPaginationImplementors = []string{"SectionPagination", "Pagination"}
 
 func (ec *executionContext) _SectionPagination(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SectionPagination) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sectionPaginationImplementors)
@@ -16313,7 +17525,7 @@ func (ec *executionContext) _ShowItem(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var showPaginationImplementors = []string{"ShowPagination"}
+var showPaginationImplementors = []string{"ShowPagination", "Pagination"}
 
 func (ec *executionContext) _ShowPagination(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ShowPagination) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, showPaginationImplementors)
@@ -17284,48 +18496,8 @@ func (ec *executionContext) marshalNEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunsta
 	return ec._Event(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNFAQ2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFaqᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Faq) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNFAQ2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFaq(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
+func (ec *executionContext) marshalNFAQ2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFaq(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Faq) graphql.Marshaler {
+	return ec._FAQ(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNFAQ2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFaq(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Faq) graphql.Marshaler {
@@ -17336,6 +18508,10 @@ func (ec *executionContext) marshalNFAQ2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadt
 		return graphql.Null
 	}
 	return ec._FAQ(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNFAQCategory2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategory(ctx context.Context, sel ast.SelectionSet, v gqlmodel.FAQCategory) graphql.Marshaler {
+	return ec._FAQCategory(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNFAQCategory2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategoryᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.FAQCategory) graphql.Marshaler {
@@ -17667,6 +18843,64 @@ func (ec *executionContext) marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstad
 		return graphql.Null
 	}
 	return ec._Page(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNQuestion2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestion(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Question) graphql.Marshaler {
+	return ec._Question(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNQuestion2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestionᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Question) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNQuestion2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestion(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNQuestion2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestion(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Question) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Question(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNSearchResult2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSearchResult(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SearchResult) graphql.Marshaler {
@@ -18387,6 +19621,13 @@ func (ec *executionContext) marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunsta
 	return ec._Event(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOFAQCategoryPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategoryPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.FAQCategoryPagination) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._FAQCategoryPagination(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -18440,6 +19681,13 @@ func (ec *executionContext) marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstad
 		return graphql.Null
 	}
 	return ec._Page(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOQuestionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestionPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.QuestionPagination) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._QuestionPagination(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Season) graphql.Marshaler {

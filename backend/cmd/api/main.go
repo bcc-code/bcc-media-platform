@@ -14,7 +14,6 @@ import (
 	gqladmingenerated "github.com/bcc-code/brunstadtv/backend/graphadmin/generated"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/items/episode"
-	"github.com/bcc-code/brunstadtv/backend/items/faq"
 	"github.com/bcc-code/brunstadtv/backend/items/page"
 	"github.com/bcc-code/brunstadtv/backend/items/season"
 	"github.com/bcc-code/brunstadtv/backend/items/section"
@@ -148,9 +147,9 @@ func main() {
 		EpisodePermissionLoader: episode.NewPermissionLoader(*queries),
 		PagePermissionLoader:    page.NewPermissionLoader(*queries),
 		SectionPermissionLoader: section.NewPermissionLoader(*queries),
-		FAQCategoryLoader:       faq.NewCategoryLoader(*queries),
-		QuestionLoader:          faq.NewQuestionLoader(*queries),
-		QuestionsLoader:         faq.NewQuestionsLoader(*queries),
+		FAQCategoryLoader:       common.NewBatchLoader(queries.GetFAQCategories),
+		QuestionLoader:          common.NewBatchLoader(queries.GetQuestions),
+		QuestionsLoader:         common.NewRelationBatchLoader(queries.GetQuestionIDsForCategories),
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")
