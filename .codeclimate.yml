@@ -5,6 +5,8 @@ exclude_patterns:
 - "backend/sqlc"
 - "backend/graph/generated"
 - "backend/graph/model"
+- "backend/graphadmin/generated"
+- "backend/graphadmin/model"
 - "cms/src/hooks/sync-to-legacy"
 - "**/*.d.ts"
 

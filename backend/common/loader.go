@@ -2,25 +2,23 @@ package common
 
 import (
 	"context"
-	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/graph-gophers/dataloader/v7"
-	"time"
 )
 
 // BatchLoaders contains loaders for the different items
 type BatchLoaders struct {
 	PageLoader              *dataloader.Loader[int, *Page]
-	PageLoaderByCode        *dataloader.Loader[string, *Page]
+	PageIDFromCodeLoader    *dataloader.Loader[string, *int]
 	SectionLoader           *dataloader.Loader[int, *Section]
-	SectionsLoader          *dataloader.Loader[int, []*Section]
+	SectionsLoader          *dataloader.Loader[int, []*int]
 	CollectionLoader        *dataloader.Loader[int, *Collection]
 	CollectionItemIdsLoader *dataloader.Loader[int, []int]
 	CollectionItemLoader    *dataloader.Loader[int, []*CollectionItem]
 	ShowLoader              *dataloader.Loader[int, *Show]
 	SeasonLoader            *dataloader.Loader[int, *Season]
 	EpisodeLoader           *dataloader.Loader[int, *Episode]
-	SeasonsLoader           *dataloader.Loader[int, []*Season]
-	EpisodesLoader          *dataloader.Loader[int, []*Episode]
+	SeasonsLoader           *dataloader.Loader[int, []*int]
+	EpisodesLoader          *dataloader.Loader[int, []*int]
 	FilesLoader             *dataloader.Loader[int, []*File]
 	StreamsLoader           *dataloader.Loader[int, []*Stream]
 	EventLoader             *dataloader.Loader[int, *Event]
@@ -28,6 +26,12 @@ type BatchLoaders struct {
 	FAQCategoryLoader       *dataloader.Loader[int, *FAQCategory]
 	QuestionLoader          *dataloader.Loader[int, *Question]
 	QuestionsLoader         *dataloader.Loader[int, []*Question]
+	// Permissions
+	ShowPermissionLoader    *dataloader.Loader[int, *Permissions[int]]
+	SeasonPermissionLoader  *dataloader.Loader[int, *Permissions[int]]
+	EpisodePermissionLoader *dataloader.Loader[int, *Permissions[int]]
+	PagePermissionLoader    *dataloader.Loader[int, *Permissions[int]]
+	SectionPermissionLoader *dataloader.Loader[int, *Permissions[int]]
 }
 
 // NewListBatchLoader returns a configured batch loader for Lists
@@ -71,8 +75,83 @@ func NewListBatchLoader[k comparable, t any](
 	return dataloader.NewBatchedLoader(batchLoadLists)
 }
 
+// NewRelationBatchLoader returns a configured batch loader for Lists
+func NewRelationBatchLoader[k comparable, kr comparable](
+	factory func(ctx context.Context, ids []kr) ([]Relation[k, kr], error),
+) *dataloader.Loader[kr, []*k] {
+	batchLoadLists := func(ctx context.Context, keys []kr) []*dataloader.Result[[]*k] {
+		var results []*dataloader.Result[[]*k]
+
+		res, err := factory(ctx, keys)
+
+		resMap := map[kr][]*k{}
+
+		if err == nil {
+			for _, r := range res {
+				key := r.GetRelationID()
+
+				if _, ok := resMap[key]; !ok {
+					resMap[key] = []*k{}
+				}
+				id := r.GetKey()
+				resMap[key] = append(resMap[key], &id)
+			}
+		}
+
+		for _, key := range keys {
+			r := &dataloader.Result[[]*k]{
+				Error: err,
+			}
+
+			if val, ok := resMap[key]; ok {
+				r.Data = val
+			}
+
+			results = append(results, r)
+		}
+
+		return results
+	}
+	return dataloader.NewBatchedLoader(batchLoadLists)
+}
+
+// NewConversionBatchLoader returns a configured batch loader for Lists
+func NewConversionBatchLoader[o comparable, rt comparable](
+	factory func(ctx context.Context, ids []o) ([]Conversion[o, rt], error),
+) *dataloader.Loader[o, *rt] {
+	batchLoadLists := func(ctx context.Context, keys []o) []*dataloader.Result[*rt] {
+		var results []*dataloader.Result[*rt]
+
+		res, err := factory(ctx, keys)
+
+		resMap := map[o]*rt{}
+
+		if err == nil {
+			for _, r := range res {
+				v := r.GetResult()
+				resMap[r.GetOriginal()] = &v
+			}
+		}
+
+		for _, key := range keys {
+			r := &dataloader.Result[*rt]{
+				Error: err,
+			}
+
+			if val, ok := resMap[key]; ok {
+				r.Data = val
+			}
+
+			results = append(results, r)
+		}
+
+		return results
+	}
+	return dataloader.NewBatchedLoader(batchLoadLists)
+}
+
 // NewBatchLoader returns a configured batch loader for items
-func NewBatchLoader[k comparable, t hasKey[k]](
+func NewBatchLoader[k comparable, t HasKey[k]](
 	factory func(ctx context.Context, ids []k) ([]t, error),
 ) *dataloader.Loader[k, *t] {
 	return NewCustomBatchLoader(factory, func(i t) k {
@@ -155,29 +234,4 @@ func GetManyFromLoader[k comparable, t any](ctx context.Context, loader *dataloa
 		items = append(items, i)
 	}
 	return items, nil
-}
-
-var listCache = cache.New[string, any]()
-
-// List preloads results from the factory to the loader if it is not retrieved from the cache
-func List[k comparable, t hasKey[k]](ctx context.Context, loader *dataloader.Loader[k, *t], key string, factory func(context.Context) ([]t, error)) ([]*t, error) {
-	var result []*t
-	if cached, ok := listCache.Get(key); ok {
-		for _, i := range cached.([]t) {
-			v := i
-			result = append(result, &v)
-		}
-	} else {
-		items, err := factory(ctx)
-		if err != nil {
-			return nil, err
-		}
-		listCache.Set(key, items, cache.WithExpiration(time.Minute*10))
-		for _, i := range items {
-			v := i
-			loader.Prime(ctx, i.GetKey(), &v)
-			result = append(result, &v)
-		}
-	}
-	return result, nil
 }

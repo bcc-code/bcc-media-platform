@@ -108,21 +108,11 @@ func (i *searchItem) toSearchObject() searchObject {
 	return object
 }
 
-type hasRoles interface {
-	GetRoles() common.Roles
-}
-
-func (i *searchItem) assignRoles(source hasRoles) {
-	r := source.GetRoles()
+func (i *searchItem) assignRoles(r common.Roles) {
 	i.Roles = r.Access
 }
 
-type hasVisibility interface {
-	GetAvailability() common.Availability
-}
-
-func (i *searchItem) assignVisibility(source hasVisibility) {
-	a := source.GetAvailability()
+func (i *searchItem) assignVisibility(a common.Availability) {
 	i.Published = a.Published
 	if a.From.IsZero() {
 		i.AvailableFrom = 0
