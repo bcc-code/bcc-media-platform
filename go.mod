@@ -10,6 +10,7 @@ require (
 	github.com/Masterminds/squirrel v1.5.3
 	github.com/algolia/algoliasearch-client-go/v3 v3.4.0
 	github.com/ansel1/merry/v2 v2.0.1
+	github.com/aws/aws-sdk-go v1.44.81
 	github.com/aws/aws-sdk-go-v2 v1.16.4
 	github.com/aws/aws-sdk-go-v2/config v1.15.9
 	github.com/aws/aws-sdk-go-v2/service/mediapackagevod v1.17.2

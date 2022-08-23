@@ -5,6 +5,7 @@ services:
       - "8681:8681"
     image: thekevjames/gcloud-pubsub-emulator:latest
   db:
+    command: ["postgres", "-c", "log_statement=all"]
     image: postgres:13
     volumes:
     - db-data:/var/lib/postgresql/data
