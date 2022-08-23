@@ -282,7 +282,7 @@ type DirectusMigration struct {
 
 type DirectusNotification struct {
 	ID         int32          `db:"id" json:"id"`
-	Timestamp  time.Time      `db:"timestamp" json:"timestamp"`
+	Timestamp  sql.NullTime   `db:"timestamp" json:"timestamp"`
 	Status     null_v4.String `db:"status" json:"status"`
 	Recipient  uuid.UUID      `db:"recipient" json:"recipient"`
 	Sender     uuid.NullUUID  `db:"sender" json:"sender"`
@@ -416,6 +416,7 @@ type DirectusSetting struct {
 	ProjectDescriptor     null_v4.String        `db:"project_descriptor" json:"projectDescriptor"`
 	TranslationStrings    pqtype.NullRawMessage `db:"translation_strings" json:"translationStrings"`
 	DefaultLanguage       string                `db:"default_language" json:"defaultLanguage"`
+	CustomAspectRatios    pqtype.NullRawMessage `db:"custom_aspect_ratios" json:"customAspectRatios"`
 }
 
 type DirectusShare struct {
@@ -679,9 +680,41 @@ type ListsRelation struct {
 	Sort       null_v4.Int    `db:"sort" json:"sort"`
 }
 
+type Maintenancemessage struct {
+	ID          int32         `db:"id" json:"id"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated sql.NullTime  `db:"date_updated" json:"dateUpdated"`
+	Active      sql.NullBool  `db:"active" json:"active"`
+}
+
+type MaintenancemessageMessagetemplate struct {
+	ID                   int32       `db:"id" json:"id"`
+	MaintenancemessageID null_v4.Int `db:"maintenancemessage_id" json:"maintenancemessageID"`
+	MessagetemplatesID   null_v4.Int `db:"messagetemplates_id" json:"messagetemplatesID"`
+	Sort                 null_v4.Int `db:"sort" json:"sort"`
+}
+
 type MaterializedViewsMetum struct {
 	LastRefreshed sql.NullTime `db:"last_refreshed" json:"lastRefreshed"`
 	ViewName      string       `db:"view_name" json:"viewName"`
+}
+
+type Messagetemplate struct {
+	ID          int32         `db:"id" json:"id"`
+	Status      string        `db:"status" json:"status"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated sql.NullTime  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated sql.NullTime  `db:"date_updated" json:"dateUpdated"`
+	Type        string        `db:"type" json:"type"`
+}
+
+type MessagetemplatesTranslation struct {
+	ID                 int32          `db:"id" json:"id"`
+	MessagetemplatesID null_v4.Int    `db:"messagetemplates_id" json:"messagetemplatesID"`
+	LanguagesCode      null_v4.String `db:"languages_code" json:"languagesCode"`
+	Message            string         `db:"message" json:"message"`
+	Details            null_v4.String `db:"details" json:"details"`
 }
 
 type Page struct {

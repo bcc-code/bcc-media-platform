@@ -179,6 +179,11 @@ type ComplexityRoot struct {
 		Type  func(childComplexity int) int
 	}
 
+	MaintenanceMessage struct {
+		Details func(childComplexity int) int
+		Message func(childComplexity int) int
+	}
+
 	Page struct {
 		Code        func(childComplexity int) int
 		Description func(childComplexity int) int
@@ -208,6 +213,7 @@ type ComplexityRoot struct {
 		Episode  func(childComplexity int, id string) int
 		Event    func(childComplexity int, id string) int
 		Me       func(childComplexity int) int
+		Messages func(childComplexity int, timestamp *string) int
 		Page     func(childComplexity int, id *string, code *string) int
 		Pages    func(childComplexity int, first *int, offset *int) int
 		Search   func(childComplexity int, queryString string, first *int, offset *int) int
@@ -403,6 +409,7 @@ type QueryRootResolver interface {
 	Season(ctx context.Context, id string) (*gqlmodel.Season, error)
 	Episode(ctx context.Context, id string) (*gqlmodel.Episode, error)
 	Search(ctx context.Context, queryString string, first *int, offset *int) (*gqlmodel.SearchResult, error)
+	Messages(ctx context.Context, timestamp *string) ([]*gqlmodel.MaintenanceMessage, error)
 	Calendar(ctx context.Context) (*gqlmodel.Calendar, error)
 	Event(ctx context.Context, id string) (*gqlmodel.Event, error)
 	AllFAQs(ctx context.Context) ([]*gqlmodel.FAQCategory, error)
@@ -1015,6 +1022,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ItemSection.Type(childComplexity), true
 
+	case "MaintenanceMessage.details":
+		if e.complexity.MaintenanceMessage.Details == nil {
+			break
+		}
+
+		return e.complexity.MaintenanceMessage.Details(childComplexity), true
+
+	case "MaintenanceMessage.message":
+		if e.complexity.MaintenanceMessage.Message == nil {
+			break
+		}
+
+		return e.complexity.MaintenanceMessage.Message(childComplexity), true
+
 	case "Page.code":
 		if e.complexity.Page.Code == nil {
 			break
@@ -1162,6 +1183,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.QueryRoot.Me(childComplexity), true
+
+	case "QueryRoot.messages":
+		if e.complexity.QueryRoot.Messages == nil {
+			break
+		}
+
+		args, err := ec.field_QueryRoot_messages_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.Messages(childComplexity, args["timestamp"].(*string)), true
 
 	case "QueryRoot.page":
 		if e.complexity.QueryRoot.Page == nil {
@@ -2363,6 +2396,11 @@ type SearchResult {
   result: [SearchResultItem!]!
 }
 
+type MaintenanceMessage {
+  message: String!
+  details: String
+}
+
 type QueryRoot{
   page(
     id: ID
@@ -2395,6 +2433,8 @@ type QueryRoot{
     first: Int
     offset: Int
   ): SearchResult!
+
+  messages(timestamp: Date): [MaintenanceMessage!]!
 
   calendar: Calendar
   event(id: ID!): Event
@@ -2538,6 +2578,21 @@ func (ec *executionContext) field_QueryRoot_event_args(ctx context.Context, rawA
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_QueryRoot_messages_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["timestamp"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
+		arg0, err = ec.unmarshalODate2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["timestamp"] = arg0
 	return args, nil
 }
 
@@ -6440,6 +6495,91 @@ func (ec *executionContext) fieldContext_ItemSection_items(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _MaintenanceMessage_message(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.MaintenanceMessage) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MaintenanceMessage_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MaintenanceMessage_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MaintenanceMessage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MaintenanceMessage_details(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.MaintenanceMessage) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MaintenanceMessage_details(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Details, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MaintenanceMessage_details(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MaintenanceMessage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Page_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Page) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Page_id(ctx, field)
 	if err != nil {
@@ -7549,6 +7689,67 @@ func (ec *executionContext) fieldContext_QueryRoot_search(ctx context.Context, f
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_QueryRoot_search_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_messages(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_messages(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().Messages(rctx, fc.Args["timestamp"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.MaintenanceMessage)
+	fc.Result = res
+	return ec.marshalNMaintenanceMessage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐMaintenanceMessageᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_messages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "message":
+				return ec.fieldContext_MaintenanceMessage_message(ctx, field)
+			case "details":
+				return ec.fieldContext_MaintenanceMessage_details(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MaintenanceMessage", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_messages_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -15262,6 +15463,38 @@ func (ec *executionContext) _ItemSection(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
+var maintenanceMessageImplementors = []string{"MaintenanceMessage"}
+
+func (ec *executionContext) _MaintenanceMessage(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.MaintenanceMessage) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, maintenanceMessageImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MaintenanceMessage")
+		case "message":
+
+			out.Values[i] = ec._MaintenanceMessage_message(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "details":
+
+			out.Values[i] = ec._MaintenanceMessage_details(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var pageImplementors = []string{"Page"}
 
 func (ec *executionContext) _Page(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Page) graphql.Marshaler {
@@ -15582,6 +15815,29 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._QueryRoot_search(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "messages":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_messages(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -17742,6 +17998,60 @@ func (ec *executionContext) marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrun
 	return ret
 }
 
+func (ec *executionContext) marshalNMaintenanceMessage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐMaintenanceMessageᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.MaintenanceMessage) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNMaintenanceMessage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐMaintenanceMessage(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNMaintenanceMessage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐMaintenanceMessage(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.MaintenanceMessage) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._MaintenanceMessage(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNPage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Page) graphql.Marshaler {
 	return ec._Page(ctx, sel, &v)
 }
@@ -18516,6 +18826,22 @@ func (ec *executionContext) marshalOCollectionItemPagination2ᚖgithubᚗcomᚋb
 		return graphql.Null
 	}
 	return ec._CollectionItemPagination(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalODate2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalString(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalODate2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalString(*v)
+	return res
 }
 
 func (ec *executionContext) marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Episode) graphql.Marshaler {
