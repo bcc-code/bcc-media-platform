@@ -2054,6 +2054,78 @@ ALTER SEQUENCE public.lists_relations_id_seq OWNED BY public.lists_relations.id;
 
 
 --
+-- Name: maintenancemessage; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.maintenancemessage (
+    id integer NOT NULL,
+    user_updated uuid,
+    date_updated timestamp with time zone,
+    active boolean
+);
+
+
+ALTER TABLE public.maintenancemessage OWNER TO btv;
+
+--
+-- Name: maintenancemessage_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.maintenancemessage_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.maintenancemessage_id_seq OWNER TO btv;
+
+--
+-- Name: maintenancemessage_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.maintenancemessage_id_seq OWNED BY public.maintenancemessage.id;
+
+
+--
+-- Name: maintenancemessage_messagetemplates; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.maintenancemessage_messagetemplates (
+    id integer NOT NULL,
+    maintenancemessage_id integer,
+    messagetemplates_id integer,
+    sort integer
+);
+
+
+ALTER TABLE public.maintenancemessage_messagetemplates OWNER TO btv;
+
+--
+-- Name: maintenancemessage_messagetemplates_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.maintenancemessage_messagetemplates_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.maintenancemessage_messagetemplates_id_seq OWNER TO btv;
+
+--
+-- Name: maintenancemessage_messagetemplates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.maintenancemessage_messagetemplates_id_seq OWNED BY public.maintenancemessage_messagetemplates.id;
+
+
+--
 -- Name: materialized_views_meta; Type: TABLE; Schema: public; Owner: btv
 --
 
@@ -2064,6 +2136,82 @@ CREATE TABLE public.materialized_views_meta (
 
 
 ALTER TABLE public.materialized_views_meta OWNER TO btv;
+
+--
+-- Name: messagetemplates; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.messagetemplates (
+    id integer NOT NULL,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    user_created uuid,
+    date_created timestamp with time zone,
+    user_updated uuid,
+    date_updated timestamp with time zone,
+    type character varying(255) DEFAULT 'error'::character varying NOT NULL
+);
+
+
+ALTER TABLE public.messagetemplates OWNER TO btv;
+
+--
+-- Name: messagetemplates_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.messagetemplates_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.messagetemplates_id_seq OWNER TO btv;
+
+--
+-- Name: messagetemplates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.messagetemplates_id_seq OWNED BY public.messagetemplates.id;
+
+
+--
+-- Name: messagetemplates_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.messagetemplates_translations (
+    id integer NOT NULL,
+    messagetemplates_id integer,
+    languages_code character varying(255),
+    message character varying(255) NOT NULL,
+    details text
+);
+
+
+ALTER TABLE public.messagetemplates_translations OWNER TO btv;
+
+--
+-- Name: messagetemplates_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.messagetemplates_translations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.messagetemplates_translations_id_seq OWNER TO btv;
+
+--
+-- Name: messagetemplates_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.messagetemplates_translations_id_seq OWNED BY public.messagetemplates_translations.id;
+
 
 --
 -- Name: pages; Type: TABLE; Schema: public; Owner: btv
@@ -3085,6 +3233,34 @@ ALTER TABLE ONLY public.lists_relations ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
+-- Name: maintenancemessage id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage ALTER COLUMN id SET DEFAULT nextval('public.maintenancemessage_id_seq'::regclass);
+
+
+--
+-- Name: maintenancemessage_messagetemplates id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage_messagetemplates ALTER COLUMN id SET DEFAULT nextval('public.maintenancemessage_messagetemplates_id_seq'::regclass);
+
+
+--
+-- Name: messagetemplates id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates ALTER COLUMN id SET DEFAULT nextval('public.messagetemplates_id_seq'::regclass);
+
+
+--
+-- Name: messagetemplates_translations id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates_translations ALTER COLUMN id SET DEFAULT nextval('public.messagetemplates_translations_id_seq'::regclass);
+
+
+--
 -- Name: pages id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
@@ -3663,11 +3839,43 @@ ALTER TABLE ONLY public.lists_relations
 
 
 --
+-- Name: maintenancemessage_messagetemplates maintenancemessage_messagetemplates_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage_messagetemplates
+    ADD CONSTRAINT maintenancemessage_messagetemplates_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: maintenancemessage maintenancemessage_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage
+    ADD CONSTRAINT maintenancemessage_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: materialized_views_meta materialized_views_meta_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.materialized_views_meta
     ADD CONSTRAINT materialized_views_meta_pkey PRIMARY KEY (view_name);
+
+
+--
+-- Name: messagetemplates messagetemplates_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates
+    ADD CONSTRAINT messagetemplates_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: messagetemplates_translations messagetemplates_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates_translations
+    ADD CONSTRAINT messagetemplates_translations_pkey PRIMARY KEY (id);
 
 
 --
@@ -4672,6 +4880,62 @@ ALTER TABLE ONLY public.lists
 
 ALTER TABLE ONLY public.lists
     ADD CONSTRAINT lists_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: maintenancemessage_messagetemplates maintenancemessage_messagetemplates_mainte__6b993ed9_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage_messagetemplates
+    ADD CONSTRAINT maintenancemessage_messagetemplates_mainte__6b993ed9_foreign FOREIGN KEY (maintenancemessage_id) REFERENCES public.maintenancemessage(id) ON DELETE SET NULL;
+
+
+--
+-- Name: maintenancemessage_messagetemplates maintenancemessage_messagetemplates_messag__488cfa1b_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage_messagetemplates
+    ADD CONSTRAINT maintenancemessage_messagetemplates_messag__488cfa1b_foreign FOREIGN KEY (messagetemplates_id) REFERENCES public.messagetemplates(id) ON DELETE SET NULL;
+
+
+--
+-- Name: maintenancemessage maintenancemessage_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage
+    ADD CONSTRAINT maintenancemessage_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: messagetemplates_translations messagetemplates_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates_translations
+    ADD CONSTRAINT messagetemplates_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE SET NULL;
+
+
+--
+-- Name: messagetemplates_translations messagetemplates_translations_messagetemplates_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates_translations
+    ADD CONSTRAINT messagetemplates_translations_messagetemplates_id_foreign FOREIGN KEY (messagetemplates_id) REFERENCES public.messagetemplates(id) ON DELETE SET NULL;
+
+
+--
+-- Name: messagetemplates messagetemplates_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates
+    ADD CONSTRAINT messagetemplates_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: messagetemplates messagetemplates_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates
+    ADD CONSTRAINT messagetemplates_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
 
 
 --

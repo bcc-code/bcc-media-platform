@@ -5,7 +5,10 @@ package graph
 
 import (
 	"context"
+	"fmt"
+	"github.com/samber/lo"
 	"strconv"
+	"time"
 
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
@@ -155,6 +158,31 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*gqlmodel.E
 // Search is the resolver for the search field.
 func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int) (*gqlmodel.SearchResult, error) {
 	return searchResolver(r, ctx, queryString, first, offset)
+}
+
+// Messages is the resolver for the messages field.
+func (r *queryRootResolver) Messages(ctx context.Context, timestamp *string) ([]*gqlmodel.MaintenanceMessage, error) {
+	var fromtime *time.Time
+	if timestamp != nil {
+		t, err := time.Parse(time.RFC3339, *timestamp)
+		if err != nil {
+			return nil, err
+		}
+		fromtime = &t
+	}
+	messages, err := r.getMaintenanceMessages(ctx, fromtime)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(messages, func(m common.MaintenanceMessage, _ int) *gqlmodel.MaintenanceMessage {
+		ginCtx, _ := utils.GinCtx(ctx)
+		languages := user.GetLanguagesFromCtx(ginCtx)
+
+		return &gqlmodel.MaintenanceMessage{
+			Message: m.Message.Get(languages),
+			Details: m.Details.GetValueOrNil(languages),
+		}
+	}), nil
 }
 
 // Calendar is the resolver for the calendar field.

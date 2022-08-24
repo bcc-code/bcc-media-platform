@@ -174,6 +174,11 @@ type ItemSection struct {
 
 func (ItemSection) IsSection() {}
 
+type MaintenanceMessage struct {
+	Message string  `json:"message"`
+	Details *string `json:"details"`
+}
+
 type Page struct {
 	ID          string             `json:"id"`
 	Code        string             `json:"code"`
