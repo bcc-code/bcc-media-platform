@@ -5,8 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
-	"github.com/samber/lo"
 	"strconv"
 	"time"
 
@@ -17,6 +15,7 @@ import (
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/samber/lo"
 )
 
 // Streams is the resolver for the streams field.
