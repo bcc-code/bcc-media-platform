@@ -41,11 +41,11 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([
 
 // Files is the resolver for the files field.
 func (r *episodeResolver) Files(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.File, error) {
-	intID, _ := strconv.ParseInt(obj.ID, 10, 32)
+	intID, err := strconv.ParseInt(obj.ID, 10, 32)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	files, err := common.GetFromLoaderForKey(ctx, r.Resolver.Loaders.FilesLoader, int(intID))
 	if err != nil {
 		return nil, err
