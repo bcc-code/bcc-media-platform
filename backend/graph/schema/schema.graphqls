@@ -296,6 +296,11 @@ type SearchResult {
   result: [SearchResultItem!]!
 }
 
+type MaintenanceMessage {
+  message: String!
+  details: String
+}
+
 type QueryRoot{
   page(
     id: ID
@@ -323,6 +328,8 @@ type QueryRoot{
     first: Int
     offset: Int
   ): SearchResult!
+
+  messages(timestamp: Date): [MaintenanceMessage!]!
 
   calendar: Calendar
   event(id: ID!): Event

@@ -263,3 +263,9 @@ type CalendarEntry struct {
 func (i CalendarEntry) GetKey() int {
 	return i.ID
 }
+
+// MaintenanceMessage is the struct for maintenance messages
+type MaintenanceMessage struct {
+	Message LocaleString
+	Details LocaleString
+}
