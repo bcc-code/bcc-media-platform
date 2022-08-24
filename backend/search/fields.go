@@ -68,7 +68,11 @@ func (object searchObject) toSearchHit() (searchHit, error) {
 		item.SeasonTitle = seasonTitle
 	}
 	delete(object, seasonTitleField)
-	item.HighlightResult = object["_highlightResult"].(map[string]interface{})
+	if object["_highlightResult"] != nil {
+		if r, ok := object["_highlightResult"].(map[string]any); ok {
+			item.HighlightResult = r
+		}
+	}
 	err := mapstructure.Decode(object, &item)
 	return item, err
 }
