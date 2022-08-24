@@ -3,7 +3,6 @@ package graph
 import (
 	"context"
 	cache "github.com/Code-Hex/go-generics-cache"
-	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"sync"
 	"time"
@@ -30,8 +29,9 @@ var truncateTimeInterval time.Duration = 1
 func (r *Resolver) getMaintenanceMessages(ctx context.Context, timestamp *time.Time) ([]common.MaintenanceMessage, error) {
 	// Truncate time to avoid updating again within seconds
 	if timestamp != nil {
-		if timestamp.After(time.Now()) {
-			return nil, merry.New("invalid time (future)")
+		now := time.Now()
+		if timestamp.After(now) {
+			timestamp = &now
 		}
 		truncated := timestamp.Truncate(time.Second * truncateTimeInterval)
 		timestamp = &truncated
