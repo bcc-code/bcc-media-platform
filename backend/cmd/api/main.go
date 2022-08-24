@@ -158,6 +158,9 @@ func main() {
 		EpisodePermissionLoader: episode.NewPermissionLoader(*queries),
 		PagePermissionLoader:    page.NewPermissionLoader(*queries),
 		SectionPermissionLoader: section.NewPermissionLoader(*queries),
+		FAQCategoryLoader:       common.NewBatchLoader(queries.GetFAQCategories),
+		QuestionLoader:          common.NewBatchLoader(queries.GetQuestions),
+		QuestionsLoader:         common.NewRelationBatchLoader(queries.GetQuestionIDsForCategories),
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")

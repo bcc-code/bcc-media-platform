@@ -2,8 +2,7 @@ package graph
 
 import (
 	"context"
-	"strconv"
-
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -13,6 +12,9 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
+	"strconv"
+	"sync"
+	"time"
 )
 
 type apiConfig interface {
@@ -38,6 +40,36 @@ type Resolver struct {
 var (
 	ErrItemNotFound = merry.Sentinel("item not found")
 )
+
+var requestLocks = map[string]sync.Mutex{}
+var requestCache = cache.New[string, any]()
+
+func withCache[r any](ctx context.Context, key string, factory func(ctx context.Context) (r, error)) (r, error) {
+	if result, ok := requestCache.Get(key); ok {
+		return result.(r), nil
+	}
+
+	lock, ok := requestLocks[key]
+	if !ok {
+		requestLocks[key] = sync.Mutex{}
+	}
+	lock.Lock()
+	defer lock.Unlock()
+
+	if result, ok := requestCache.Get(key); ok {
+		return result.(r), nil
+	}
+
+	result, err := factory(ctx)
+	if err != nil {
+		// probably not the correct way to do this
+		return result, err
+	}
+
+	requestCache.Set(key, result, cache.WithExpiration(time.Minute*10))
+
+	return result, nil
+}
 
 type itemLoaders[k comparable, t any] struct {
 	Permissions *dataloader.Loader[k, *common.Permissions[k]]

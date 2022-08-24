@@ -403,6 +403,47 @@ ALTER SEQUENCE public.calendarentries_translations_id_seq OWNED BY public.calend
 
 
 --
+-- Name: calendarevent; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.calendarevent (
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "end" timestamp without time zone,
+    id integer NOT NULL,
+    start timestamp without time zone NOT NULL,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    title character varying(255) DEFAULT NULL::character varying,
+    user_created uuid,
+    user_updated uuid
+);
+
+
+ALTER TABLE public.calendarevent OWNER TO btv;
+
+--
+-- Name: calendarevent_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.calendarevent_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.calendarevent_id_seq OWNER TO btv;
+
+--
+-- Name: calendarevent_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.calendarevent_id_seq OWNED BY public.calendarevent.id;
+
+
+--
 -- Name: categories; Type: TABLE; Schema: public; Owner: btv
 --
 
@@ -789,7 +830,7 @@ ALTER TABLE public.directus_migrations OWNER TO btv;
 
 CREATE TABLE public.directus_notifications (
     id integer NOT NULL,
-    "timestamp" timestamp with time zone NOT NULL,
+    "timestamp" timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     status character varying(255) DEFAULT 'inbox'::character varying,
     recipient uuid NOT NULL,
     sender uuid,
@@ -1095,7 +1136,8 @@ CREATE TABLE public.directus_settings (
     module_bar json,
     project_descriptor character varying(100),
     translation_strings json,
-    default_language character varying(255) DEFAULT 'en-US'::character varying NOT NULL
+    default_language character varying(255) DEFAULT 'en-US'::character varying NOT NULL,
+    custom_aspect_ratios json
 );
 
 
@@ -2012,6 +2054,78 @@ ALTER SEQUENCE public.lists_relations_id_seq OWNED BY public.lists_relations.id;
 
 
 --
+-- Name: maintenancemessage; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.maintenancemessage (
+    id integer NOT NULL,
+    user_updated uuid,
+    date_updated timestamp with time zone,
+    active boolean
+);
+
+
+ALTER TABLE public.maintenancemessage OWNER TO btv;
+
+--
+-- Name: maintenancemessage_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.maintenancemessage_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.maintenancemessage_id_seq OWNER TO btv;
+
+--
+-- Name: maintenancemessage_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.maintenancemessage_id_seq OWNED BY public.maintenancemessage.id;
+
+
+--
+-- Name: maintenancemessage_messagetemplates; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.maintenancemessage_messagetemplates (
+    id integer NOT NULL,
+    maintenancemessage_id integer,
+    messagetemplates_id integer,
+    sort integer
+);
+
+
+ALTER TABLE public.maintenancemessage_messagetemplates OWNER TO btv;
+
+--
+-- Name: maintenancemessage_messagetemplates_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.maintenancemessage_messagetemplates_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.maintenancemessage_messagetemplates_id_seq OWNER TO btv;
+
+--
+-- Name: maintenancemessage_messagetemplates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.maintenancemessage_messagetemplates_id_seq OWNED BY public.maintenancemessage_messagetemplates.id;
+
+
+--
 -- Name: materialized_views_meta; Type: TABLE; Schema: public; Owner: btv
 --
 
@@ -2022,6 +2136,82 @@ CREATE TABLE public.materialized_views_meta (
 
 
 ALTER TABLE public.materialized_views_meta OWNER TO btv;
+
+--
+-- Name: messagetemplates; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.messagetemplates (
+    id integer NOT NULL,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    user_created uuid,
+    date_created timestamp with time zone,
+    user_updated uuid,
+    date_updated timestamp with time zone,
+    type character varying(255) DEFAULT 'error'::character varying NOT NULL
+);
+
+
+ALTER TABLE public.messagetemplates OWNER TO btv;
+
+--
+-- Name: messagetemplates_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.messagetemplates_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.messagetemplates_id_seq OWNER TO btv;
+
+--
+-- Name: messagetemplates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.messagetemplates_id_seq OWNED BY public.messagetemplates.id;
+
+
+--
+-- Name: messagetemplates_translations; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.messagetemplates_translations (
+    id integer NOT NULL,
+    messagetemplates_id integer,
+    languages_code character varying(255),
+    message character varying(255) NOT NULL,
+    details text
+);
+
+
+ALTER TABLE public.messagetemplates_translations OWNER TO btv;
+
+--
+-- Name: messagetemplates_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.messagetemplates_translations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.messagetemplates_translations_id_seq OWNER TO btv;
+
+--
+-- Name: messagetemplates_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.messagetemplates_translations_id_seq OWNED BY public.messagetemplates_translations.id;
+
 
 --
 -- Name: pages; Type: TABLE; Schema: public; Owner: btv
@@ -2714,6 +2904,51 @@ ALTER SEQUENCE public.tags_translations_id_seq OWNED BY public.tags_translations
 
 
 --
+-- Name: tvguideentry; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.tvguideentry (
+    date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    description character varying(255) DEFAULT NULL::character varying,
+    "end" timestamp without time zone,
+    event integer,
+    id integer NOT NULL,
+    image uuid,
+    start timestamp without time zone,
+    status character varying(255) DEFAULT 'published'::character varying,
+    title character varying(255) DEFAULT NULL::character varying,
+    use_image_from_link boolean DEFAULT true NOT NULL,
+    user_created uuid,
+    user_updated uuid
+);
+
+
+ALTER TABLE public.tvguideentry OWNER TO btv;
+
+--
+-- Name: tvguideentry_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.tvguideentry_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.tvguideentry_id_seq OWNER TO btv;
+
+--
+-- Name: tvguideentry_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.tvguideentry_id_seq OWNED BY public.tvguideentry.id;
+
+
+--
 -- Name: usergroups; Type: TABLE; Schema: public; Owner: btv
 --
 
@@ -2785,6 +3020,13 @@ ALTER TABLE ONLY public.calendarentries ALTER COLUMN id SET DEFAULT nextval('pub
 --
 
 ALTER TABLE ONLY public.calendarentries_translations ALTER COLUMN id SET DEFAULT nextval('public.calendarentries_translations_id_seq'::regclass);
+
+
+--
+-- Name: calendarevent id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.calendarevent ALTER COLUMN id SET DEFAULT nextval('public.calendarevent_id_seq'::regclass);
 
 
 --
@@ -2991,6 +3233,34 @@ ALTER TABLE ONLY public.lists_relations ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
+-- Name: maintenancemessage id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage ALTER COLUMN id SET DEFAULT nextval('public.maintenancemessage_id_seq'::regclass);
+
+
+--
+-- Name: maintenancemessage_messagetemplates id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage_messagetemplates ALTER COLUMN id SET DEFAULT nextval('public.maintenancemessage_messagetemplates_id_seq'::regclass);
+
+
+--
+-- Name: messagetemplates id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates ALTER COLUMN id SET DEFAULT nextval('public.messagetemplates_id_seq'::regclass);
+
+
+--
+-- Name: messagetemplates_translations id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates_translations ALTER COLUMN id SET DEFAULT nextval('public.messagetemplates_translations_id_seq'::regclass);
+
+
+--
 -- Name: pages id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
@@ -3082,6 +3352,13 @@ ALTER TABLE ONLY public.tags_translations ALTER COLUMN id SET DEFAULT nextval('p
 
 
 --
+-- Name: tvguideentry id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tvguideentry ALTER COLUMN id SET DEFAULT nextval('public.tvguideentry_id_seq'::regclass);
+
+
+--
 -- Name: ageratings ageratings_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
@@ -3151,6 +3428,14 @@ ALTER TABLE ONLY public.calendarentries
 
 ALTER TABLE ONLY public.calendarentries_translations
     ADD CONSTRAINT calendarentries_translations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: calendarevent calendarevent_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.calendarevent
+    ADD CONSTRAINT calendarevent_pkey PRIMARY KEY (id);
 
 
 --
@@ -3554,11 +3839,43 @@ ALTER TABLE ONLY public.lists_relations
 
 
 --
+-- Name: maintenancemessage_messagetemplates maintenancemessage_messagetemplates_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage_messagetemplates
+    ADD CONSTRAINT maintenancemessage_messagetemplates_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: maintenancemessage maintenancemessage_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage
+    ADD CONSTRAINT maintenancemessage_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: materialized_views_meta materialized_views_meta_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
 ALTER TABLE ONLY public.materialized_views_meta
     ADD CONSTRAINT materialized_views_meta_pkey PRIMARY KEY (view_name);
+
+
+--
+-- Name: messagetemplates messagetemplates_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates
+    ADD CONSTRAINT messagetemplates_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: messagetemplates_translations messagetemplates_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates_translations
+    ADD CONSTRAINT messagetemplates_translations_pkey PRIMARY KEY (id);
 
 
 --
@@ -3679,6 +3996,14 @@ ALTER TABLE ONLY public.tags
 
 ALTER TABLE ONLY public.tags_translations
     ADD CONSTRAINT tags_translations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: tvguideentry tvguideentry_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tvguideentry
+    ADD CONSTRAINT tvguideentry_pkey PRIMARY KEY (id);
 
 
 --
@@ -3915,6 +4240,22 @@ ALTER TABLE ONLY public.calendarentries
 
 ALTER TABLE ONLY public.calendarentries
     ADD CONSTRAINT calendarentries_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: calendarevent calendarevent_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.calendarevent
+    ADD CONSTRAINT calendarevent_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: calendarevent calendarevent_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.calendarevent
+    ADD CONSTRAINT calendarevent_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
 
 
 --
@@ -4542,6 +4883,62 @@ ALTER TABLE ONLY public.lists
 
 
 --
+-- Name: maintenancemessage_messagetemplates maintenancemessage_messagetemplates_mainte__6b993ed9_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage_messagetemplates
+    ADD CONSTRAINT maintenancemessage_messagetemplates_mainte__6b993ed9_foreign FOREIGN KEY (maintenancemessage_id) REFERENCES public.maintenancemessage(id) ON DELETE SET NULL;
+
+
+--
+-- Name: maintenancemessage_messagetemplates maintenancemessage_messagetemplates_messag__488cfa1b_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage_messagetemplates
+    ADD CONSTRAINT maintenancemessage_messagetemplates_messag__488cfa1b_foreign FOREIGN KEY (messagetemplates_id) REFERENCES public.messagetemplates(id) ON DELETE SET NULL;
+
+
+--
+-- Name: maintenancemessage maintenancemessage_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.maintenancemessage
+    ADD CONSTRAINT maintenancemessage_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: messagetemplates_translations messagetemplates_translations_languages_code_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates_translations
+    ADD CONSTRAINT messagetemplates_translations_languages_code_foreign FOREIGN KEY (languages_code) REFERENCES public.languages(code) ON DELETE SET NULL;
+
+
+--
+-- Name: messagetemplates_translations messagetemplates_translations_messagetemplates_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates_translations
+    ADD CONSTRAINT messagetemplates_translations_messagetemplates_id_foreign FOREIGN KEY (messagetemplates_id) REFERENCES public.messagetemplates(id) ON DELETE SET NULL;
+
+
+--
+-- Name: messagetemplates messagetemplates_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates
+    ADD CONSTRAINT messagetemplates_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: messagetemplates messagetemplates_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.messagetemplates
+    ADD CONSTRAINT messagetemplates_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+
+
+--
 -- Name: pages pages_episode_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
@@ -4827,6 +5224,38 @@ ALTER TABLE ONLY public.tags
 
 ALTER TABLE ONLY public.tags
     ADD CONSTRAINT tags_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: tvguideentry tvguideentry_event_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tvguideentry
+    ADD CONSTRAINT tvguideentry_event_foreign FOREIGN KEY (event) REFERENCES public.calendarevent(id) ON DELETE SET NULL;
+
+
+--
+-- Name: tvguideentry tvguideentry_image_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tvguideentry
+    ADD CONSTRAINT tvguideentry_image_foreign FOREIGN KEY (image) REFERENCES public.directus_files(id) ON DELETE SET NULL;
+
+
+--
+-- Name: tvguideentry tvguideentry_user_created_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tvguideentry
+    ADD CONSTRAINT tvguideentry_user_created_foreign FOREIGN KEY (user_created) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: tvguideentry tvguideentry_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.tvguideentry
+    ADD CONSTRAINT tvguideentry_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
 
 
 --
