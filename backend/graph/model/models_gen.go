@@ -16,6 +16,10 @@ type Item interface {
 	IsItem()
 }
 
+type Pagination interface {
+	IsPagination()
+}
+
 type SearchResultItem interface {
 	IsSearchResultItem()
 }
@@ -51,6 +55,8 @@ type CollectionItemPagination struct {
 	Offset int    `json:"offset"`
 	Items  []Item `json:"items"`
 }
+
+func (CollectionItemPagination) IsPagination() {}
 
 type Episode struct {
 	ID                string     `json:"id"`
@@ -97,6 +103,8 @@ type EpisodePagination struct {
 	Items  []*Episode `json:"items"`
 }
 
+func (EpisodePagination) IsPagination() {}
+
 type EpisodeSearchItem struct {
 	ID          string  `json:"id"`
 	LegacyID    *string `json:"legacyID"`
@@ -126,15 +134,25 @@ type Event struct {
 }
 
 type Faq struct {
-	Question string `json:"question"`
-	Answer   string `json:"answer"`
+	Categories *FAQCategoryPagination `json:"categories"`
+	Category   *FAQCategory           `json:"category"`
+	Question   *Question              `json:"question"`
 }
 
 type FAQCategory struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Questions []*Faq `json:"questions"`
+	ID        string              `json:"id"`
+	Title     string              `json:"title"`
+	Questions *QuestionPagination `json:"questions"`
 }
+
+type FAQCategoryPagination struct {
+	Total  int            `json:"total"`
+	First  int            `json:"first"`
+	Offset int            `json:"offset"`
+	Items  []*FAQCategory `json:"items"`
+}
+
+func (FAQCategoryPagination) IsPagination() {}
 
 type File struct {
 	ID               string    `json:"id"`
@@ -186,6 +204,24 @@ type PagePagination struct {
 	Items  []*Page `json:"items"`
 }
 
+func (PagePagination) IsPagination() {}
+
+type Question struct {
+	ID       string       `json:"id"`
+	Category *FAQCategory `json:"category"`
+	Question string       `json:"question"`
+	Answer   string       `json:"answer"`
+}
+
+type QuestionPagination struct {
+	Total  int         `json:"total"`
+	First  int         `json:"first"`
+	Offset int         `json:"offset"`
+	Items  []*Question `json:"items"`
+}
+
+func (QuestionPagination) IsPagination() {}
+
 type SearchResult struct {
 	Hits   int                `json:"hits"`
 	Page   int                `json:"page"`
@@ -231,6 +267,8 @@ type SeasonPagination struct {
 	Items  []*Season `json:"items"`
 }
 
+func (SeasonPagination) IsPagination() {}
+
 type SeasonSearchItem struct {
 	ID          string  `json:"id"`
 	LegacyID    *string `json:"legacyID"`
@@ -254,6 +292,8 @@ type SectionPagination struct {
 	Offset int       `json:"offset"`
 	Items  []Section `json:"items"`
 }
+
+func (SectionPagination) IsPagination() {}
 
 type Settings struct {
 	AudioLanguages    []Language `json:"audioLanguages"`
@@ -298,6 +338,8 @@ type ShowPagination struct {
 	Offset int     `json:"offset"`
 	Items  []*Show `json:"items"`
 }
+
+func (ShowPagination) IsPagination() {}
 
 type ShowSearchItem struct {
 	ID          string  `json:"id"`
