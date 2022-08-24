@@ -85,6 +85,7 @@ func (service *Service) indexShows(ctx context.Context) error {
 		ctx,
 		service,
 		service.loaders.ShowLoader,
+		service.loaders.ShowPermissionLoader,
 		service.queries.ListShows,
 		service.showToSearchItem,
 	)
@@ -95,7 +96,11 @@ func (service *Service) indexShow(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	return indexObject[int, common.Show](ctx, service, *i, service.showToSearchItem)
+	p, err := common.GetFromLoaderByID(ctx, service.loaders.ShowPermissionLoader, id)
+	if err != nil {
+		return err
+	}
+	return indexObject[int, common.Show](ctx, service, *i, p, service.showToSearchItem)
 }
 
 func (service *Service) indexSeasons(ctx context.Context) error {
@@ -103,6 +108,7 @@ func (service *Service) indexSeasons(ctx context.Context) error {
 		ctx,
 		service,
 		service.loaders.SeasonLoader,
+		service.loaders.SeasonPermissionLoader,
 		service.queries.ListSeasons,
 		service.seasonToSearchItem,
 	)
@@ -113,7 +119,11 @@ func (service *Service) indexSeason(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	return indexObject[int, common.Season](ctx, service, *i, service.seasonToSearchItem)
+	p, err := common.GetFromLoaderByID(ctx, service.loaders.SeasonPermissionLoader, id)
+	if err != nil {
+		return err
+	}
+	return indexObject[int, common.Season](ctx, service, *i, p, service.seasonToSearchItem)
 }
 
 func (service *Service) indexEpisodes(ctx context.Context) error {
@@ -121,6 +131,7 @@ func (service *Service) indexEpisodes(ctx context.Context) error {
 		ctx,
 		service,
 		service.loaders.EpisodeLoader,
+		service.loaders.EpisodePermissionLoader,
 		service.queries.ListEpisodes,
 		service.episodeToSearchItem,
 	)
@@ -131,13 +142,15 @@ func (service *Service) indexEpisode(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	return indexObject[int, common.Episode](ctx, service, *i, service.episodeToSearchItem)
+	p, err := common.GetFromLoaderByID(ctx, service.loaders.EpisodePermissionLoader, id)
+	if err != nil {
+		return err
+	}
+	return indexObject[int, common.Episode](ctx, service, *i, p, service.episodeToSearchItem)
 }
 
 type indexable[k comparable] interface {
 	GetKey() k
-	GetRoles() common.Roles
-	GetAvailability() common.Availability
 	GetImage() uuid.NullUUID
 }
 
@@ -145,6 +158,7 @@ func indexCollection[k comparable, t indexable[k]](
 	ctx context.Context,
 	service *Service,
 	loader *dataloader.Loader[k, *t],
+	permissionLoader *dataloader.Loader[k, *common.Permissions[k]],
 	factory func(context.Context) ([]t, error),
 	converter func(context.Context, t) (searchItem, error),
 ) error {
@@ -152,6 +166,13 @@ func indexCollection[k comparable, t indexable[k]](
 	if err != nil {
 		return err
 	}
+
+	ids := lo.Map(items, func(i t, _ int) k {
+		return i.GetKey()
+	})
+
+	permissionLoader.LoadMany(ctx, ids)
+
 	var searchItems []searchObject
 	for _, i := range items {
 		p := i
@@ -162,8 +183,13 @@ func indexCollection[k comparable, t indexable[k]](
 			return err
 		}
 
-		item.assignVisibility(p)
-		item.assignRoles(p)
+		perm, err := common.GetFromLoaderByID(ctx, permissionLoader, i.GetKey())
+		if err != nil {
+			return nil
+		}
+
+		item.assignVisibility(perm.Availability)
+		item.assignRoles(perm.Roles)
 		err = item.assignImage(ctx, service.loaders, p)
 		if err != nil {
 			return err
@@ -179,6 +205,7 @@ func indexObject[k comparable, t indexable[k]](
 	ctx context.Context,
 	service *Service,
 	obj t,
+	perms *common.Permissions[k],
 	converter func(context.Context, t) (searchItem, error),
 ) error {
 	item, err := converter(ctx, obj)
@@ -186,8 +213,8 @@ func indexObject[k comparable, t indexable[k]](
 		return err
 	}
 
-	item.assignVisibility(obj)
-	item.assignRoles(obj)
+	item.assignVisibility(perms.Availability)
+	item.assignRoles(perms.Roles)
 	err = item.assignImage(ctx, service.loaders, obj)
 	if err != nil {
 		return err

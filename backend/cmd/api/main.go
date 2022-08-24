@@ -14,10 +14,8 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqladmin "github.com/bcc-code/brunstadtv/backend/graphadmin"
 	gqladmingenerated "github.com/bcc-code/brunstadtv/backend/graphadmin/generated"
-	calendar_entry "github.com/bcc-code/brunstadtv/backend/items/calendar-entry"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/items/episode"
-	"github.com/bcc-code/brunstadtv/backend/items/event"
 	"github.com/bcc-code/brunstadtv/backend/items/page"
 	"github.com/bcc-code/brunstadtv/backend/items/season"
 	"github.com/bcc-code/brunstadtv/backend/items/section"
@@ -125,6 +123,7 @@ func main() {
 
 	queries := sqlc.New(db)
 
+	collectionLoader := common.NewBatchLoader(queries.GetCollections)
 	// Set up urlSigner for CDN urls access
 	key, err := sign.LoadPEMPrivKeyFile(config.CDNConfig.AWSSigningKeyPath)
 	if err != nil {
@@ -133,25 +132,32 @@ func main() {
 	}
 	urlSigner := sign.NewURLSigner(config.CDNConfig.AWSSigningKeyID, key)
 
-	collectionLoader := collection.NewBatchLoader(*queries)
 
 	loaders := &common.BatchLoaders{
-		PageLoader:              page.NewBatchLoader(*queries),
-		PageLoaderByCode:        page.NewCodeBatchLoader(*queries),
-		SectionLoader:           section.NewBatchLoader(*queries),
-		SectionsLoader:          section.NewListBatchLoader(*queries),
+		// Item
+		PageLoader:              common.NewBatchLoader(queries.GetPages),
+		PageIDFromCodeLoader:    common.NewConversionBatchLoader(queries.GetPageIDsForCodes),
+		SectionLoader:           common.NewBatchLoader(queries.GetSections),
+		ShowLoader:              common.NewBatchLoader(queries.GetShows),
+		SeasonLoader:            common.NewBatchLoader(queries.GetSeasons),
+		EpisodeLoader:           common.NewBatchLoader(queries.GetEpisodes),
+		EventLoader:             common.NewBatchLoader(queries.GetEvents),
+		CalendarEntryLoader:     common.NewBatchLoader(queries.GetCalendarEntries),
+		FilesLoader:             asset.NewBatchFilesLoader(*queries),
+		StreamsLoader:           asset.NewBatchStreamsLoader(*queries),
 		CollectionLoader:        collectionLoader,
 		CollectionItemIdsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader),
 		CollectionItemLoader:    collection.NewItemListBatchLoader(*queries),
-		ShowLoader:              show.NewBatchLoader(*queries),
-		SeasonLoader:            season.NewBatchLoader(*queries),
-		EpisodeLoader:           episode.NewBatchLoader(*queries),
-		SeasonsLoader:           season.NewListBatchLoader(*queries),
-		EpisodesLoader:          episode.NewListBatchLoader(*queries),
-		FilesLoader:             asset.NewBatchFilesLoader(*queries),
-		StreamsLoader:           asset.NewBatchStreamsLoader(*queries),
-		EventLoader:             event.NewBatchLoader(*queries),
-		CalendarEntryLoader:     calendar_entry.NewBatchLoader(*queries),
+		// Relations
+		SeasonsLoader:  common.NewRelationBatchLoader(queries.GetSeasonIDsForShows),
+		EpisodesLoader: common.NewRelationBatchLoader(queries.GetEpisodeIDsForSeasons),
+		SectionsLoader: common.NewRelationBatchLoader(queries.GetSectionIDsForPages),
+		// Permissions
+		ShowPermissionLoader:    show.NewPermissionLoader(*queries),
+		SeasonPermissionLoader:  season.NewPermissionLoader(*queries),
+		EpisodePermissionLoader: episode.NewPermissionLoader(*queries),
+		PagePermissionLoader:    page.NewPermissionLoader(*queries),
+		SectionPermissionLoader: section.NewPermissionLoader(*queries),
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")

@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/graph-gophers/dataloader/v7"
 	"time"
 
 	"github.com/ansel1/merry/v2"
@@ -16,21 +17,35 @@ var (
 	ErrItemNoAccess     = merry.Sentinel("User does not have access to this item")
 )
 
-type restrictedItem interface {
-	GetRoles() common.Roles
-	GetAvailability() common.Availability
+// ValidateItemAccess returns error if user in context does not have access to the specified item
+func ValidateItemAccess(ctx context.Context, loaders *common.BatchLoaders, item any) error {
+	switch t := item.(type) {
+	case *common.Show:
+		return ValidateAccess(ctx, loaders.ShowPermissionLoader, t.ID)
+	case *common.Season:
+		return ValidateAccess(ctx, loaders.SeasonPermissionLoader, t.ID)
+	case *common.Episode:
+		return ValidateAccess(ctx, loaders.EpisodePermissionLoader, t.ID)
+	case *common.Page:
+		return ValidateAccess(ctx, loaders.PagePermissionLoader, t.ID)
+	case *common.Section:
+		return ValidateAccess(ctx, loaders.SectionPermissionLoader, t.ID)
+	}
+	return nil
 }
 
 // ValidateAccess returns error if user in context does not have access to the specified item
-func ValidateAccess[t restrictedItem](ctx context.Context, item t) error {
+func ValidateAccess[k comparable](ctx context.Context, permissionLoader *dataloader.Loader[k, *common.Permissions[k]], id k) error {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return err
 	}
 	u := GetFromCtx(ginCtx)
 
-	roles := item.GetRoles()
-	availability := item.GetAvailability()
+	perms, err := common.GetFromLoaderByID(ctx, permissionLoader, id)
+
+	roles := perms.Roles
+	availability := perms.Availability
 
 	if len(lo.Intersect(u.Roles, roles.EarlyAccess)) == 0 && (!availability.Published ||
 		availability.From.After(time.Now()) ||

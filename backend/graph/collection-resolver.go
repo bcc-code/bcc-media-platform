@@ -6,18 +6,9 @@ import (
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/user"
-	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
 	"strconv"
 )
-
-func itemsResolverForIntID[t any, r any](ctx context.Context, id string, loader *dataloader.Loader[int, []*t], converter func(context.Context, *t) r) ([]r, error) {
-	intID, err := strconv.ParseInt(id, 10, 32)
-	if err != nil {
-		return nil, err
-	}
-	return itemsResolverFor(ctx, int(intID), loader, converter)
-}
 
 func collectionItemResolver(ctx context.Context, r *Resolver, id string) ([]gqlmodel.Item, error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
@@ -37,10 +28,7 @@ func collectionItemResolver(ctx context.Context, r *Resolver, id string) ([]gqlm
 	}
 
 	items = lo.Filter(items, func(i collection.Item, _ int) bool {
-		if t, ok := i.(restrictedItem); ok {
-			return user.ValidateAccess(ctx, t) == nil
-		}
-		return true
+		return user.ValidateItemAccess(ctx, r.Loaders, i) == nil
 	})
 	return lo.Map(items, func(i collection.Item, _ int) gqlmodel.Item {
 		switch t := i.(type) {

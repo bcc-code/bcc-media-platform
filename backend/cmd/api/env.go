@@ -37,6 +37,7 @@ type serviceSecrets struct {
 	Directus string
 }
 
+// GetVOD2Domain returns the configured VOD2Domain
 func (c cdnConfig) GetVOD2Domain() string {
 	return c.Vod2Domain
 }

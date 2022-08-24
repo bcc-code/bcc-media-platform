@@ -34,56 +34,37 @@ type Resolver struct {
 	APIConfig     apiConfig
 }
 
-type restrictedItem interface {
-	GetRoles() common.Roles
-	GetAvailability() common.Availability
-}
-
 // ErrItemNotFound for not found items
 var (
 	ErrItemNotFound = merry.Sentinel("item not found")
 )
 
-type hasKey[k comparable] interface {
-	GetKey() k
+type itemLoaders[k comparable, t any] struct {
+	Permissions *dataloader.Loader[k, *common.Permissions[k]]
+	Item        *dataloader.Loader[k, *t]
 }
 
-func resolveList[k comparable, t hasKey[k], r any](
-	ctx context.Context,
-	loader *dataloader.Loader[k, *t],
-	key string,
-	factory func(context.Context) ([]t, error),
-	converter func(context.Context, *t) r,
-) ([]r, error) {
-	items, err := common.List(ctx, loader, key, factory)
-	if err != nil {
-		return nil, err
+func toItemLoaders[k comparable, t any](item *dataloader.Loader[k, *t], permissions *dataloader.Loader[k, *common.Permissions[k]]) *itemLoaders[k, t] {
+	return &itemLoaders[k, t]{
+		Item:        item,
+		Permissions: permissions,
 	}
-	return utils.MapWithCtx(ctx, lo.Filter(items, func(i *t, _ int) bool {
-		// Validate that user has access
-		switch v := any(i).(type) {
-		case restrictedItem:
-			return user.ValidateAccess(ctx, v) == nil
-		default:
-			return true
-		}
-	}), converter), nil
 }
 
 // resolverFor returns a resolver for the specified item
-func resolverFor[k comparable, t any, r any](ctx context.Context, id k, loader *dataloader.Loader[k, *t], converter func(context.Context, *t) r) (res r, err error) {
-	obj, err := common.GetFromLoaderByID(ctx, loader, id)
+func resolverFor[k comparable, t any, r any](ctx context.Context, loaders *itemLoaders[k, t], id k, converter func(context.Context, *t) r) (res r, err error) {
+	obj, err := common.GetFromLoaderByID(ctx, loaders.Item, id)
 	if err != nil {
 		return res, err
 	}
 	if obj == nil {
 		return res, merry.Wrap(ErrItemNotFound)
 	}
-	switch t := any(obj).(type) {
-	case restrictedItem:
-		err = user.ValidateAccess(ctx, t)
+
+	if t, ok := any(obj).(common.HasKey[k]); ok {
+		err = user.ValidateAccess(ctx, loaders.Permissions, t.GetKey())
 		if err != nil {
-			return res, err
+			return res, nil
 		}
 	}
 
@@ -91,28 +72,39 @@ func resolverFor[k comparable, t any, r any](ctx context.Context, id k, loader *
 }
 
 // resolverForIntID returns a resolver for items with ints as keys
-func resolverForIntID[t any, r any](ctx context.Context, id string, loader *dataloader.Loader[int, *t], converter func(context.Context, *t) r) (res r, err error) {
+func resolverForIntID[t any, r any](ctx context.Context, loaders *itemLoaders[int, t], id string, converter func(context.Context, *t) r) (res r, err error) {
 	intID, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return res, err
 	}
 
-	return resolverFor(ctx, int(intID), loader, converter)
+	return resolverFor(ctx, loaders, int(intID), converter)
 }
 
-func itemsResolverFor[k comparable, t any, r any](ctx context.Context, id k, loader *dataloader.Loader[k, []*t], converter func(context.Context, *t) r) ([]r, error) {
-	items, err := common.GetFromLoaderForKey(ctx, loader, id)
+func itemsResolverFor[k comparable, kr comparable, t any, r any](ctx context.Context, loaders *itemLoaders[k, t], listLoader *dataloader.Loader[kr, []*k], id kr, converter func(context.Context, *t) r) ([]r, error) {
+	itemIds, err := common.GetFromLoaderForKey(ctx, listLoader, id)
 	if err != nil {
 		return nil, err
 	}
 
-	return utils.MapWithCtx(ctx, lo.Filter(items, func(i *t, _ int) bool {
-		// Validate that user has access
-		switch v := any(i).(type) {
-		case restrictedItem:
-			return user.ValidateAccess(ctx, v) == nil
-		default:
-			return true
+	ids := lo.Map(lo.Filter(itemIds, func(i *k, _ int) bool {
+		if loaders.Permissions != nil {
+			return user.ValidateAccess(ctx, loaders.Permissions, *i) == nil
 		}
-	}), converter), nil
+		return true
+	}), func(i *k, _ int) k {
+		return *i
+	})
+
+	items, err := common.GetManyFromLoader(ctx, loaders.Item, ids)
+
+	return utils.MapWithCtx(ctx, items, converter), nil
+}
+
+func itemsResolverForIntID[t any, r any](ctx context.Context, loaders *itemLoaders[int, t], listLoader *dataloader.Loader[int, []*int], id string, converter func(context.Context, *t) r) ([]r, error) {
+	intID, err := strconv.ParseInt(id, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+	return itemsResolverFor(ctx, loaders, listLoader, int(intID), converter)
 }
