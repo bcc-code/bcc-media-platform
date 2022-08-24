@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"database/sql"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -31,13 +33,14 @@ import (
 )
 
 // Defining the Graphql handler
-func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, config envConfig) gin.HandlerFunc {
+func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *sign.URLSigner, config envConfig) gin.HandlerFunc {
 
 	resolver := graph.Resolver{
 		Queries:       queries,
 		Loaders:       loaders,
 		SearchService: searchService,
 		APIConfig:     config.CDNConfig,
+		URLSigner:     urlSigner,
 	}
 
 	// NewExecutableSchema and Config are in the generated.go file
@@ -121,6 +124,14 @@ func main() {
 	queries := sqlc.New(db)
 
 	collectionLoader := common.NewBatchLoader(queries.GetCollections)
+	// Set up urlSigner for CDN urls access
+	key, err := sign.LoadPEMPrivKeyFile(config.CDNConfig.AWSSigningKeyPath)
+	if err != nil {
+		log.L.Panic().Err(err).Msg("Unable to load PEM file")
+		panic(err)
+	}
+	urlSigner := sign.NewURLSigner(config.CDNConfig.AWSSigningKeyID, key)
+
 
 	loaders := &common.BatchLoaders{
 		// Item
@@ -160,7 +171,7 @@ func main() {
 	r.Use(user.NewUserMiddleware(queries))
 
 	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey)
-	r.POST("/query", graphqlHandler(queries, loaders, searchService, config))
+	r.POST("/query", graphqlHandler(queries, loaders, searchService, urlSigner, config))
 
 	r.GET("/", playgroundHandler())
 

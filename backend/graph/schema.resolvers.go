@@ -28,7 +28,12 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([
 
 	out := []*gqlmodel.Stream{}
 	for _, s := range streams {
-		out = append(out, gqlmodel.StreamFrom(ctx, r.Resolver.APIConfig.GetVOD2Domain(), s))
+		stream, err := gqlmodel.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig.GetVOD2Domain(), s)
+		if err != nil {
+			return nil, err
+		}
+
+		out = append(out, stream)
 	}
 
 	return out, nil
@@ -40,11 +45,17 @@ func (r *episodeResolver) Files(ctx context.Context, obj *gqlmodel.Episode) ([]*
 	if err != nil {
 		return nil, err
 	}
-	items, err := common.GetFromLoaderForKey(ctx, r.Resolver.Loaders.FilesLoader, int(intID))
+
+	files, err := common.GetFromLoaderForKey(ctx, r.Resolver.Loaders.FilesLoader, int(intID))
 	if err != nil {
 		return nil, err
 	}
-	return utils.MapWithCtx(ctx, items, gqlmodel.FileFrom), nil
+
+	out := []*gqlmodel.File{}
+	for _, f := range files {
+		out = append(out, gqlmodel.FileFrom(ctx, r.URLSigner, r.Resolver.APIConfig.GetFilesCDNDomain(), f))
+	}
+	return out, nil
 }
 
 // Season is the resolver for the season field.

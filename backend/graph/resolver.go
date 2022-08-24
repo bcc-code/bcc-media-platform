@@ -4,6 +4,7 @@ import (
 	"context"
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
+	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -18,6 +19,7 @@ import (
 
 type apiConfig interface {
 	GetVOD2Domain() string
+	GetFilesCDNDomain() string
 }
 
 // This file will not be regenerated automatically.
@@ -30,6 +32,7 @@ type Resolver struct {
 	Queries       *sqlc.Queries
 	Loaders       *common.BatchLoaders
 	SearchService *search.Service
+	URLSigner     *sign.URLSigner
 	APIConfig     apiConfig
 }
 
