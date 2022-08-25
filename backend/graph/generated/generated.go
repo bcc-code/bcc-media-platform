@@ -60,7 +60,6 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	AppConfig struct {
-		Live       func(childComplexity int) int
 		MinVersion func(childComplexity int) int
 	}
 
@@ -93,7 +92,8 @@ type ComplexityRoot struct {
 	}
 
 	Config struct {
-		App func(childComplexity int, timestamp *string) int
+		App    func(childComplexity int, timestamp *string) int
+		Global func(childComplexity int, timestamp *string) int
 	}
 
 	Episode struct {
@@ -190,6 +190,11 @@ type ComplexityRoot struct {
 		Size             func(childComplexity int) int
 		SubtitleLanguage func(childComplexity int) int
 		URL              func(childComplexity int) int
+	}
+
+	GlobalConfig struct {
+		LiveOnline  func(childComplexity int) int
+		NpawEnabled func(childComplexity int) int
 	}
 
 	ItemSection struct {
@@ -413,6 +418,7 @@ type CalendarResolver interface {
 	Day(ctx context.Context, obj *gqlmodel.Calendar, day string) (*gqlmodel.CalendarDay, error)
 }
 type ConfigResolver interface {
+	Global(ctx context.Context, obj *gqlmodel.Config, timestamp *string) (*gqlmodel.GlobalConfig, error)
 	App(ctx context.Context, obj *gqlmodel.Config, timestamp *string) (*gqlmodel.AppConfig, error)
 }
 type EpisodeResolver interface {
@@ -502,13 +508,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
-
-	case "AppConfig.live":
-		if e.complexity.AppConfig.Live == nil {
-			break
-		}
-
-		return e.complexity.AppConfig.Live(childComplexity), true
 
 	case "AppConfig.minVersion":
 		if e.complexity.AppConfig.MinVersion == nil {
@@ -629,6 +628,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Config.App(childComplexity, args["timestamp"].(*string)), true
+
+	case "Config.global":
+		if e.complexity.Config.Global == nil {
+			break
+		}
+
+		args, err := ec.field_Config_global_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Config.Global(childComplexity, args["timestamp"].(*string)), true
 
 	case "Episode.audioLanguages":
 		if e.complexity.Episode.AudioLanguages == nil {
@@ -1111,6 +1122,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.File.URL(childComplexity), true
+
+	case "GlobalConfig.liveOnline":
+		if e.complexity.GlobalConfig.LiveOnline == nil {
+			break
+		}
+
+		return e.complexity.GlobalConfig.LiveOnline(childComplexity), true
+
+	case "GlobalConfig.npawEnabled":
+		if e.complexity.GlobalConfig.NpawEnabled == nil {
+			break
+		}
+
+		return e.complexity.GlobalConfig.NpawEnabled(childComplexity), true
 
 	case "ItemSection.id":
 		if e.complexity.ItemSection.ID == nil {
@@ -2281,12 +2306,17 @@ type Calendar {
 }`, BuiltIn: false},
 	{Name: "../schema/config.graphqls", Input: `
 type Config {
+    global(timestamp: String): GlobalConfig! @goField(forceResolver: true)
     app(timestamp: String): AppConfig! @goField(forceResolver: true)
 }
 
 type AppConfig {
-    live: Boolean!
     minVersion: String!
+}
+
+type GlobalConfig {
+    liveOnline: Boolean!
+    npawEnabled: Boolean!
 }
 `, BuiltIn: false},
 	{Name: "../schema/faq.graphqls", Input: `type Question {
@@ -2732,6 +2762,21 @@ func (ec *executionContext) field_Config_app_args(ctx context.Context, rawArgs m
 	return args, nil
 }
 
+func (ec *executionContext) field_Config_global_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["timestamp"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["timestamp"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_FAQCategory_questions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3105,50 +3150,6 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
-
-func (ec *executionContext) _AppConfig_live(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AppConfig) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppConfig_live(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Live, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppConfig_live(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppConfig",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
 
 func (ec *executionContext) _AppConfig_minVersion(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AppConfig) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AppConfig_minVersion(ctx, field)
@@ -3818,6 +3819,67 @@ func (ec *executionContext) fieldContext_CollectionItemPagination_items(ctx cont
 	return fc, nil
 }
 
+func (ec *executionContext) _Config_global(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Config) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Config_global(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Config().Global(rctx, obj, fc.Args["timestamp"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.GlobalConfig)
+	fc.Result = res
+	return ec.marshalNGlobalConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐGlobalConfig(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Config_global(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Config",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "liveOnline":
+				return ec.fieldContext_GlobalConfig_liveOnline(ctx, field)
+			case "npawEnabled":
+				return ec.fieldContext_GlobalConfig_npawEnabled(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GlobalConfig", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Config_global_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Config_app(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Config) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Config_app(ctx, field)
 	if err != nil {
@@ -3857,8 +3919,6 @@ func (ec *executionContext) fieldContext_Config_app(ctx context.Context, field g
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "live":
-				return ec.fieldContext_AppConfig_live(ctx, field)
 			case "minVersion":
 				return ec.fieldContext_AppConfig_minVersion(ctx, field)
 			}
@@ -6990,6 +7050,94 @@ func (ec *executionContext) fieldContext_File_mimeType(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _GlobalConfig_liveOnline(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.GlobalConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GlobalConfig_liveOnline(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LiveOnline, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GlobalConfig_liveOnline(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GlobalConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GlobalConfig_npawEnabled(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.GlobalConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GlobalConfig_npawEnabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NpawEnabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GlobalConfig_npawEnabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GlobalConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ItemSection_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ItemSection_id(ctx, field)
 	if err != nil {
@@ -8698,6 +8846,8 @@ func (ec *executionContext) fieldContext_QueryRoot_config(ctx context.Context, f
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "global":
+				return ec.fieldContext_Config_global(ctx, field)
 			case "app":
 				return ec.fieldContext_Config_app(ctx, field)
 			}
@@ -15691,13 +15841,6 @@ func (ec *executionContext) _AppConfig(ctx context.Context, sel ast.SelectionSet
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AppConfig")
-		case "live":
-
-			out.Values[i] = ec._AppConfig_live(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "minVersion":
 
 			out.Values[i] = ec._AppConfig_minVersion(ctx, field, obj)
@@ -15942,6 +16085,26 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Config")
+		case "global":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Config_global(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "app":
 			field := field
 
@@ -16710,6 +16873,41 @@ func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj
 		case "mimeType":
 
 			out.Values[i] = ec._File_mimeType(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var globalConfigImplementors = []string{"GlobalConfig"}
+
+func (ec *executionContext) _GlobalConfig(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.GlobalConfig) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, globalConfigImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GlobalConfig")
+		case "liveOnline":
+
+			out.Values[i] = ec._GlobalConfig_liveOnline(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "npawEnabled":
+
+			out.Values[i] = ec._GlobalConfig_npawEnabled(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -19275,6 +19473,20 @@ func (ec *executionContext) marshalNFile2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstad
 		return graphql.Null
 	}
 	return ec._File(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNGlobalConfig2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐGlobalConfig(ctx context.Context, sel ast.SelectionSet, v gqlmodel.GlobalConfig) graphql.Marshaler {
+	return ec._GlobalConfig(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGlobalConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐGlobalConfig(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.GlobalConfig) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GlobalConfig(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {

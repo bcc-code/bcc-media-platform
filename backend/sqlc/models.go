@@ -30,11 +30,10 @@ type AgeratingsTranslation struct {
 }
 
 type Appconfig struct {
-	ID          int32         `db:"id" json:"id"`
-	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
-	DateUpdated sql.NullTime  `db:"date_updated" json:"dateUpdated"`
-	AppVersion  string        `db:"app_version" json:"appVersion"`
-	Live        sql.NullBool  `db:"live" json:"live"`
+	ID          int32     `db:"id" json:"id"`
+	UserUpdated uuid.UUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated time.Time `db:"date_updated" json:"dateUpdated"`
+	AppVersion  string    `db:"app_version" json:"appVersion"`
 }
 
 type Asset struct {
@@ -662,6 +661,14 @@ type FaqsUsergroup struct {
 	UsergroupsCode null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
 }
 
+type Globalconfig struct {
+	ID          int32        `db:"id" json:"id"`
+	UserUpdated uuid.UUID    `db:"user_updated" json:"userUpdated"`
+	DateUpdated time.Time    `db:"date_updated" json:"dateUpdated"`
+	LiveOnline  sql.NullBool `db:"live_online" json:"liveOnline"`
+	NpawEnabled sql.NullBool `db:"npaw_enabled" json:"npawEnabled"`
+}
+
 type Language struct {
 	Code              string         `db:"code" json:"code"`
 	Legacy2LetterCode null_v4.String `db:"legacy_2_letter_code" json:"legacy2LetterCode"`
@@ -973,4 +980,10 @@ type Usergroup struct {
 	Sort        null_v4.Int    `db:"sort" json:"sort"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+}
+
+type Webconfig struct {
+	ID          int32     `db:"id" json:"id"`
+	UserUpdated uuid.UUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated time.Time `db:"date_updated" json:"dateUpdated"`
 }

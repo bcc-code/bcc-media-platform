@@ -60,5 +60,10 @@ type MaintenanceMessage struct {
 // AppConfig contains configuration of the app.
 type AppConfig struct {
 	MinVersion string
-	Live       bool
+}
+
+// GlobalConfig contains configuration of all clients
+type GlobalConfig struct {
+	LiveOnline  bool
+	NPAWEnabled bool
 }

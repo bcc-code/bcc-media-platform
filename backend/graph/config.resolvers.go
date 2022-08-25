@@ -11,18 +11,25 @@ import (
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 )
 
-// App is the resolver for the App field.
-func (r *configResolver) App(ctx context.Context, obj *gqlmodel.Config, timestamp *string) (*gqlmodel.AppConfig, error) {
-	from, err := timestampFromString(timestamp)
+// Global is the resolver for the global field.
+func (r *configResolver) Global(ctx context.Context, obj *gqlmodel.Config, timestamp *string) (*gqlmodel.GlobalConfig, error) {
+	conf, err := withCacheAndTimestamp(ctx, "global_config", r.Queries.GetGlobalConfig, time.Second*30, timestamp)
 	if err != nil {
 		return nil, err
 	}
-	conf, err := withCacheAndTimestamp(ctx, "app_config", r.Queries.GetAppConfig, time.Second*30, from)
+	return &gqlmodel.GlobalConfig{
+		LiveOnline:  conf.LiveOnline,
+		NpawEnabled: conf.NPAWEnabled,
+	}, nil
+}
+
+// App is the resolver for the App field.
+func (r *configResolver) App(ctx context.Context, obj *gqlmodel.Config, timestamp *string) (*gqlmodel.AppConfig, error) {
+	conf, err := withCacheAndTimestamp(ctx, "app_config", r.Queries.GetAppConfig, time.Second*30, timestamp)
 	if err != nil {
 		return nil, err
 	}
 	return &gqlmodel.AppConfig{
-		Live:       conf.Live,
 		MinVersion: conf.MinVersion,
 	}, nil
 }

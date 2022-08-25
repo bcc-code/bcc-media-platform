@@ -119,10 +119,9 @@ ALTER SEQUENCE public.ageratings_translations_id_seq OWNED BY public.ageratings_
 
 CREATE TABLE public.appconfig (
     id integer NOT NULL,
-    user_updated uuid,
-    date_updated timestamp with time zone,
-    app_version character varying(255) NOT NULL,
-    live boolean DEFAULT false
+    user_updated uuid NOT NULL,
+    date_updated timestamp with time zone NOT NULL,
+    app_version character varying(255) NOT NULL
 );
 
 
@@ -1959,6 +1958,43 @@ ALTER SEQUENCE public.faqs_usergroups_id_seq OWNED BY public.faqs_usergroups.id;
 
 
 --
+-- Name: globalconfig; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.globalconfig (
+    id integer NOT NULL,
+    user_updated uuid NOT NULL,
+    date_updated timestamp with time zone NOT NULL,
+    live_online boolean DEFAULT false,
+    npaw_enabled boolean DEFAULT false
+);
+
+
+ALTER TABLE public.globalconfig OWNER TO btv;
+
+--
+-- Name: globalconfig_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.globalconfig_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.globalconfig_id_seq OWNER TO btv;
+
+--
+-- Name: globalconfig_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.globalconfig_id_seq OWNED BY public.globalconfig.id;
+
+
+--
 -- Name: languages; Type: TABLE; Schema: public; Owner: btv
 --
 
@@ -2918,6 +2954,41 @@ CREATE TABLE public.usergroups (
 ALTER TABLE public.usergroups OWNER TO btv;
 
 --
+-- Name: webconfig; Type: TABLE; Schema: public; Owner: btv
+--
+
+CREATE TABLE public.webconfig (
+    id integer NOT NULL,
+    user_updated uuid NOT NULL,
+    date_updated timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.webconfig OWNER TO btv;
+
+--
+-- Name: webconfig_id_seq; Type: SEQUENCE; Schema: public; Owner: btv
+--
+
+CREATE SEQUENCE public.webconfig_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.webconfig_id_seq OWNER TO btv;
+
+--
+-- Name: webconfig_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: btv
+--
+
+ALTER SEQUENCE public.webconfig_id_seq OWNED BY public.webconfig.id;
+
+
+--
 -- Name: ageratings_translations id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
@@ -3170,6 +3241,13 @@ ALTER TABLE ONLY public.faqs_usergroups ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
+-- Name: globalconfig id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.globalconfig ALTER COLUMN id SET DEFAULT nextval('public.globalconfig_id_seq'::regclass);
+
+
+--
 -- Name: lists id; Type: DEFAULT; Schema: public; Owner: btv
 --
 
@@ -3300,6 +3378,13 @@ ALTER TABLE ONLY public.tags ALTER COLUMN id SET DEFAULT nextval('public.tags_id
 --
 
 ALTER TABLE ONLY public.tags_translations ALTER COLUMN id SET DEFAULT nextval('public.tags_translations_id_seq'::regclass);
+
+
+--
+-- Name: webconfig id; Type: DEFAULT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.webconfig ALTER COLUMN id SET DEFAULT nextval('public.webconfig_id_seq'::regclass);
 
 
 --
@@ -3759,6 +3844,14 @@ ALTER TABLE ONLY public.faqs_usergroups
 
 
 --
+-- Name: globalconfig globalconfig_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.globalconfig
+    ADD CONSTRAINT globalconfig_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: languages languages_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
 --
 
@@ -3948,6 +4041,14 @@ ALTER TABLE ONLY public.tags_translations
 
 ALTER TABLE ONLY public.usergroups
     ADD CONSTRAINT usergroups_pkey PRIMARY KEY (code);
+
+
+--
+-- Name: webconfig webconfig_pkey; Type: CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.webconfig
+    ADD CONSTRAINT webconfig_pkey PRIMARY KEY (id);
 
 
 --
@@ -4787,6 +4888,14 @@ ALTER TABLE ONLY public.faqs_usergroups
 
 
 --
+-- Name: globalconfig globalconfig_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.globalconfig
+    ADD CONSTRAINT globalconfig_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+
+
+--
 -- Name: lists_relations lists_relations_lists_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
 --
 
@@ -5168,6 +5277,14 @@ ALTER TABLE ONLY public.usergroups
 
 ALTER TABLE ONLY public.usergroups
     ADD CONSTRAINT usergroups_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
+
+
+--
+-- Name: webconfig webconfig_user_updated_foreign; Type: FK CONSTRAINT; Schema: public; Owner: btv
+--
+
+ALTER TABLE ONLY public.webconfig
+    ADD CONSTRAINT webconfig_user_updated_foreign FOREIGN KEY (user_updated) REFERENCES public.directus_users(id);
 
 
 --

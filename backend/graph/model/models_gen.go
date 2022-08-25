@@ -29,7 +29,6 @@ type Section interface {
 }
 
 type AppConfig struct {
-	Live       bool   `json:"live"`
 	MinVersion string `json:"minVersion"`
 }
 
@@ -64,7 +63,8 @@ type CollectionItemPagination struct {
 func (CollectionItemPagination) IsPagination() {}
 
 type Config struct {
-	App *AppConfig `json:"app"`
+	Global *GlobalConfig `json:"global"`
+	App    *AppConfig    `json:"app"`
 }
 
 type Episode struct {
@@ -171,6 +171,11 @@ type File struct {
 	Size             *int      `json:"size"`
 	FileName         string    `json:"fileName"`
 	MimeType         string    `json:"mimeType"`
+}
+
+type GlobalConfig struct {
+	LiveOnline  bool `json:"liveOnline"`
+	NpawEnabled bool `json:"npawEnabled"`
 }
 
 type ItemSection struct {

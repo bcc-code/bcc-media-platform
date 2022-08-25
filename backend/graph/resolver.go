@@ -79,20 +79,24 @@ type timedCacheEntry[t any] struct {
 
 var truncateTime = time.Second * 1
 
-func withCacheAndTimestamp[r any](ctx context.Context, key string, factory func(ctx context.Context) (r, error), expiry time.Duration, timestamp *time.Time) (r, error) {
-	if timestamp != nil {
+func withCacheAndTimestamp[r any](ctx context.Context, key string, factory func(ctx context.Context) (r, error), expiry time.Duration, timestamp *string) (r, error) {
+	ts, err := timestampFromString(timestamp)
+	if err != nil {
+		return nil, err
+	}
+	if ts != nil {
 		now := time.Now()
-		if timestamp.After(now) {
-			timestamp = &now
+		if ts.After(now) {
+			ts = &now
 		}
-		truncated := timestamp.Truncate(truncateTime)
-		timestamp = &truncated
+		truncated := ts.Truncate(truncateTime)
+		ts = &truncated
 	}
 
 	var entry timedCacheEntry[r]
 	if result, ok := requestCache.Get(key); ok {
 		if entry, ok = result.(timedCacheEntry[r]); ok {
-			if timestamp == nil || entry.Cached.Equal(*timestamp) || entry.Cached.After(*timestamp) {
+			if ts == nil || entry.Cached.Equal(*ts) || entry.Cached.After(*ts) {
 				return entry.Entry, nil
 			}
 		}
@@ -108,7 +112,7 @@ func withCacheAndTimestamp[r any](ctx context.Context, key string, factory func(
 
 	if result, ok := requestCache.Get(key); ok {
 		if entry, ok = result.(timedCacheEntry[r]); ok {
-			if timestamp == nil || entry.Cached.Equal(*timestamp) || entry.Cached.After(*timestamp) {
+			if ts == nil || entry.Cached.Equal(*ts) || entry.Cached.After(*ts) {
 				return entry.Entry, nil
 			}
 		}
