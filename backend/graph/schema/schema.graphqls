@@ -332,4 +332,6 @@ type QueryRoot{
   faq: FAQ!
 
   me: User!
+
+  config: Config!
 }

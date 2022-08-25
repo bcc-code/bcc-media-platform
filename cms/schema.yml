@@ -11519,7 +11519,7 @@ fields:
     meta:
       collection: lists
       conditions: null
-      display: item-list
+      display: related-values
       display_options:
         template: '{{item:shows}}{{item:episodes}}{{item:shows.translations}}'
       field: relations

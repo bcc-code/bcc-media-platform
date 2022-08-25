@@ -1,7 +1,6 @@
 package common
 
 import (
-	"gopkg.in/guregu/null.v4"
 	"time"
 )
 
@@ -52,11 +51,14 @@ type Availability struct {
 	To        time.Time
 }
 
-// Translation struct for storing a generalized translation object
-type Translation struct {
-	Language    string
-	Title       null.String
-	Description null.String
-	// Details. Usually technical
-	Details null.String
+// MaintenanceMessage is the struct for maintenance messages
+type MaintenanceMessage struct {
+	Message LocaleString
+	Details LocaleString
+}
+
+// AppConfig contains configuration of the app.
+type AppConfig struct {
+	MinVersion string
+	Live       bool
 }

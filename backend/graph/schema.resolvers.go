@@ -242,6 +242,11 @@ func (r *queryRootResolver) Me(ctx context.Context) (*gqlmodel.User, error) {
 	return u, nil
 }
 
+// Config is the resolver for the config field.
+func (r *queryRootResolver) Config(ctx context.Context) (*gqlmodel.Config, error) {
+	return &gqlmodel.Config{}, nil
+}
+
 // Show is the resolver for the show field.
 func (r *seasonResolver) Show(ctx context.Context, obj *gqlmodel.Season) (*gqlmodel.Show, error) {
 	return r.QueryRoot().Show(ctx, obj.Show.ID)

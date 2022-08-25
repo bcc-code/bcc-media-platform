@@ -28,6 +28,11 @@ type Section interface {
 	IsSection()
 }
 
+type AppConfig struct {
+	Live       bool   `json:"live"`
+	MinVersion string `json:"minVersion"`
+}
+
 type Calendar struct {
 	Period *CalendarPeriod `json:"period"`
 	Day    *CalendarDay    `json:"day"`
@@ -57,6 +62,10 @@ type CollectionItemPagination struct {
 }
 
 func (CollectionItemPagination) IsPagination() {}
+
+type Config struct {
+	App *AppConfig `json:"app"`
+}
 
 type Episode struct {
 	ID                string     `json:"id"`

@@ -1,0 +1,9 @@
+
+type Config {
+    app: AppConfig! @goField(forceResolver: true)
+}
+
+type AppConfig {
+    live: Boolean!
+    minVersion: String!
+}
