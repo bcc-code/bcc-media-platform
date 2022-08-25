@@ -171,7 +171,14 @@ func indexCollection[k comparable, t indexable[k]](
 		return i.GetKey()
 	})
 
-	permissionLoader.LoadMany(ctx, ids)
+	imageIds := lo.Map(lo.Filter(items, func(i t, _ int) bool {
+		return i.GetImage().Valid
+	}), func(i t, _ int) uuid.UUID {
+		return i.GetImage().UUID
+	})
+
+	permissionLoader.LoadMany(ctx, ids)()
+	service.loaders.ImageLoader.LoadMany(ctx, imageIds)()
 
 	var searchItems []searchObject
 	for _, i := range items {
@@ -185,7 +192,7 @@ func indexCollection[k comparable, t indexable[k]](
 
 		perm, err := common.GetFromLoaderByID(ctx, permissionLoader, i.GetKey())
 		if err != nil {
-			return nil
+			return err
 		}
 
 		item.assignVisibility(perm.Availability)
