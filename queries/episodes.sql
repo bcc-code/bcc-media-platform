@@ -72,8 +72,8 @@ WITH er AS (SELECT e.id,
                             ARRAY []::character varying[])                                AS roles_earlyaccess
             FROM episodes e),
      ea AS (SELECT e.id,
-                   e.status::text = 'published'::text AND se.status::text = 'published'::text AND
-                   s.status::text = 'published'::text                           AS published,
+                   e.status::text = 'published'::text AND (e.season_id IS NULL OR (se.status::text = 'published'::text AND
+                                                                                   s.status::text = 'published'::text))                  AS published,
                    COALESCE(GREATEST(e.available_from, se.available_from, s.available_from),
                             '1800-01-01 00:00:00'::timestamp without time zone) AS available_from,
                    COALESCE(LEAST(e.available_to, se.available_to, s.available_to),
@@ -82,12 +82,12 @@ WITH er AS (SELECT e.id,
                      LEFT JOIN seasons se ON e.season_id = se.id
                      LEFT JOIN shows s ON se.show_id = s.id)
 SELECT e.id,
-       access.published::bool             AS published,
-       access.available_from::timestamp   AS available_from,
-       access.available_to::timestamp     AS available_to,
-       roles.roles::varchar[]             AS usergroups,
-       roles.roles_download::varchar[]    AS usergroups_downloads,
-       roles.roles_earlyaccess::varchar[] AS usergroups_earlyaccess
+       access.published::bool AS published,
+       access.available_from::timestamp              AS available_from,
+       access.available_to::timestamp                AS available_to,
+       roles.roles::varchar[]                        AS usergroups,
+       roles.roles_download::varchar[]               AS usergroups_downloads,
+       roles.roles_earlyaccess::varchar[]            AS usergroups_earlyaccess
 FROM episodes e
          LEFT JOIN ea access ON access.id = e.id
          LEFT JOIN er roles ON roles.id = e.id
