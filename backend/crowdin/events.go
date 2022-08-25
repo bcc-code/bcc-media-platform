@@ -82,8 +82,18 @@ func getTranslationsForItem(ctx context.Context, d *directus.Handler, collection
 	return nil, merry.Wrap(ErrCollectionNotSupported)
 }
 
+var supportedCollections = []string{
+	"shows",
+	"seasons",
+	"episodes",
+}
+
 // HandleModelUpdate for triggering actions on object change
 func (client *Client) HandleModelUpdate(ctx context.Context, collection string, id int) error {
+	if !lo.Contains(supportedCollections, collection) {
+		return nil
+	}
+
 	if status, err := getStatusForItem(ctx, client.du, collection, id); err != nil || status != "published" {
 		// Return error, else just ignore if not published
 		return err
@@ -100,6 +110,10 @@ func (client *Client) HandleModelUpdate(ctx context.Context, collection string, 
 
 // HandleModelDelete for triggering actions to handle deletion events
 func (client *Client) HandleModelDelete(_ context.Context, collection string, id int) error {
+	if !lo.Contains(supportedCollections, collection) {
+		return nil
+	}
+
 	log.L.Debug().Str("collection", collection).Int("id", id).Msg("deleting translations - not implemented")
 	// TODO: implement deletion of translations
 	return nil
