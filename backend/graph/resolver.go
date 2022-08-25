@@ -82,7 +82,8 @@ var truncateTime = time.Second * 1
 func withCacheAndTimestamp[r any](ctx context.Context, key string, factory func(ctx context.Context) (r, error), expiry time.Duration, timestamp *string) (r, error) {
 	ts, err := timestampFromString(timestamp)
 	if err != nil {
-		return nil, err
+		var result r
+		return result, err
 	}
 	if ts != nil {
 		now := time.Now()
