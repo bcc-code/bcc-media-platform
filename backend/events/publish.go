@@ -12,9 +12,9 @@ type Service struct {
 }
 
 // NewService returns a new service
-func NewService(ctx context.Context, projectID string) (*Service, error) {
+func NewService(ctx context.Context, firebaseProjectID string) (*Service, error) {
 	app, err := firebase.NewApp(ctx, &firebase.Config{
-		ProjectID: projectID,
+		ProjectID: firebaseProjectID,
 	})
 	if err != nil {
 		return nil, err
