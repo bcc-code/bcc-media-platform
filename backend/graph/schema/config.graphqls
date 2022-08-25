@@ -1,6 +1,6 @@
 
 type Config {
-    app: AppConfig! @goField(forceResolver: true)
+    app(timestamp: String): AppConfig! @goField(forceResolver: true)
 }
 
 type AppConfig {

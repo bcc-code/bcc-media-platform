@@ -5,14 +5,19 @@ package graph
 
 import (
 	"context"
+	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 )
 
 // App is the resolver for the App field.
-func (r *configResolver) App(ctx context.Context, obj *gqlmodel.Config) (*gqlmodel.AppConfig, error) {
-	conf, err := withCache(ctx, "app_config", r.Queries.GetAppConfig)
+func (r *configResolver) App(ctx context.Context, obj *gqlmodel.Config, timestamp *string) (*gqlmodel.AppConfig, error) {
+	from, err := timestampFromString(timestamp)
+	if err != nil {
+		return nil, err
+	}
+	conf, err := withCacheAndTimestamp(ctx, "app_config", r.Queries.GetAppConfig, time.Second*30, from)
 	if err != nil {
 		return nil, err
 	}

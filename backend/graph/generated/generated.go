@@ -93,7 +93,7 @@ type ComplexityRoot struct {
 	}
 
 	Config struct {
-		App func(childComplexity int) int
+		App func(childComplexity int, timestamp *string) int
 	}
 
 	Episode struct {
@@ -413,7 +413,7 @@ type CalendarResolver interface {
 	Day(ctx context.Context, obj *gqlmodel.Calendar, day string) (*gqlmodel.CalendarDay, error)
 }
 type ConfigResolver interface {
-	App(ctx context.Context, obj *gqlmodel.Config) (*gqlmodel.AppConfig, error)
+	App(ctx context.Context, obj *gqlmodel.Config, timestamp *string) (*gqlmodel.AppConfig, error)
 }
 type EpisodeResolver interface {
 	Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error)
@@ -623,7 +623,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Config.App(childComplexity), true
+		args, err := ec.field_Config_app_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Config.App(childComplexity, args["timestamp"].(*string)), true
 
 	case "Episode.audioLanguages":
 		if e.complexity.Episode.AudioLanguages == nil {
@@ -2276,7 +2281,7 @@ type Calendar {
 }`, BuiltIn: false},
 	{Name: "../schema/config.graphqls", Input: `
 type Config {
-    app: AppConfig! @goField(forceResolver: true)
+    app(timestamp: String): AppConfig! @goField(forceResolver: true)
 }
 
 type AppConfig {
@@ -2709,6 +2714,21 @@ func (ec *executionContext) field_Calendar_period_args(ctx context.Context, rawA
 		}
 	}
 	args["to"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Config_app_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["timestamp"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["timestamp"] = arg0
 	return args, nil
 }
 
@@ -3812,7 +3832,7 @@ func (ec *executionContext) _Config_app(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Config().App(rctx, obj)
+		return ec.resolvers.Config().App(rctx, obj, fc.Args["timestamp"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3844,6 +3864,17 @@ func (ec *executionContext) fieldContext_Config_app(ctx context.Context, field g
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AppConfig", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Config_app_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }

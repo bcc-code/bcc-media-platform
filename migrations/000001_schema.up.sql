@@ -2057,7 +2057,7 @@ CREATE TABLE public.maintenancemessage (
     id integer NOT NULL,
     user_updated uuid,
     date_updated timestamp with time zone,
-    active boolean
+    active boolean DEFAULT false
 );
 
 
