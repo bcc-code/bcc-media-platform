@@ -34,7 +34,6 @@ async function createOneEpisode(p, c) {
         Visibility: 1,
         AllowSpecialAccess: false,
         AllowSpecialAccessFKTB: false,
-        EpisodeNo: 99
     }
 
     if (p.id) {
@@ -83,15 +82,13 @@ async function createOneEpisode(p, c) {
 
     if (p.type === "episode" || p.season_id) {
         let season = (await c.database("seasons").select("*").where("id", p.season_id))[0];
-        patch.SeasonId = season.legacy_id
-        patch.EpisodeNo = p.episode_number
-        let legacyEpisode = await oldKnex<EpisodeEntity>("Episode").insert(patch).returning("*")
-        p.legacy_id = legacyEpisode[0].Id
-
+        patch.SeasonId = season.legacy_id;
+        patch.EpisodeNo = p.episode_number ?? 99;
+        let legacyEpisode = await oldKnex<EpisodeEntity>("Episode").insert(patch).returning("*");
+        p.legacy_id = legacyEpisode[0].Id;
     } else if (p.type === "standalone") {
-        let legacyProgram = await oldKnex<EpisodeEntity>("Program").insert(patch).returning("*")
-
-        p.legacy_program_id = legacyProgram[0].Id
+        let legacyProgram = await oldKnex<EpisodeEntity>("Program").insert(patch).returning("*");
+        p.legacy_program_id = legacyProgram[0].Id;
     }
     return p;
 }
