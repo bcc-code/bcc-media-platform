@@ -48,18 +48,26 @@ async function createOneEpisode(p, c) {
     if (!p.legacy_title_id) {
         patch.TitleId = await createLocalizable(oldKnex)
         p.legacy_title_id = patch.TitleId
+    } else {
+        patch.TitleId = p.legacy_title_id
     }
     if (!p.legacy_description_id) {
         patch.DescriptionId = await createLocalizable(oldKnex)
         p.legacy_description_id = patch.DescriptionId
+    } else {
+        patch.DescriptionId = p.legacy_description_id
     }
     if (!p.legacy_extra_description_id) {
         patch.LongDescriptionId = await createLocalizable(oldKnex)
         p.legacy_extra_description_id = patch.LongDescriptionId
+    } else {
+        patch.LongDescriptionId = p.legacy_extra_description_id
     }
     if (!p.legacy_tags_id) {
         patch.SearchId = await createLocalizable(oldKnex)
         p.legacy_tags_id = patch.SearchId
+    } else {
+        patch.SearchId = p.legacy_tags_id
     }
 
     if (image != null) {
