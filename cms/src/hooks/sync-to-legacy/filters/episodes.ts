@@ -115,11 +115,16 @@ async function updateOneEpisode(p, episodeKey, c) {
         let result = await createOneEpisode(epBeforeUpdate, c);
         if (result.legacy_id || result.legacy_program_id) {
             // Successful
-            updateOneEpisode(result, episodeKey, c);
             console.log("Successfully fixed " + episodeKey + " in legacy.");
         } else {
             console.error("Failed to create " + episodeKey);
         }
+        p.legacy_id = result.legacy_id;
+        p.legacy_program_id = result.legacy_program_id;
+        p.legacy_title_id = result.legacy_title_id;
+        p.legacy_description_id = result.legacy_description_id;
+        p.legacy_extra_description_id = result.legacy_extra_description_id;
+        p.legacy_tags_id = result.legacy_tags_id;
         console.log("proceeding with update");
         return p;
     }
