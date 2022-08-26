@@ -113,7 +113,7 @@ async function updateOneEpisode(p, episodeKey, c) {
     if (!epBeforeUpdate.legacy_id && !epBeforeUpdate.legacy_program_id) {
         // Something weird happened
         let result = await createOneEpisode(epBeforeUpdate, c);
-        if (result.legacyId || result.legacy_program_id) {
+        if (result.legacy_id || result.legacy_program_id) {
             // Successful
             updateOneEpisode(result, episodeKey, c);
             console.log("Successfully fixed " + episodeKey + " in legacy.");
