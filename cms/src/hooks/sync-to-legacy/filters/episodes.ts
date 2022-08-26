@@ -129,7 +129,7 @@ async function updateOneEpisode(p, episodeKey, c) {
 
     // update it in original
     let patch: Partial<EpisodeEntity> = {
-        Published: p.publish_date as unknown as Date,
+        Published: p.publish_date as unknown as Date ?? new Date(),
         AvailableTo: p.available_to as unknown as Date,
         AvailableFrom: p.available_from as unknown as Date,
         LastUpdate: new Date()
