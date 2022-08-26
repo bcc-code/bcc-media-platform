@@ -83,7 +83,7 @@ async function createOneEpisode(p, c) {
     if (p.type === "episode" || p.season_id) {
         let season = (await c.database("seasons").select("*").where("id", p.season_id))[0];
         patch.SeasonId = season.legacy_id;
-        patch.EpisodeNo = p.episode_number ?? 99;
+        patch.EpisodeNo = p.episode_number ?? 0;
         let legacyEpisode = await oldKnex<EpisodeEntity>("Episode").insert(patch).returning("*");
         p.legacy_id = legacyEpisode[0].Id;
     } else if (p.type === "standalone") {
@@ -163,7 +163,7 @@ async function updateOneEpisode(p, episodeKey, c) {
             let season = (await c.database("seasons").select("*").where("id", p.season_id))[0];
             patch.SeasonId = season.legacy_id
         }
-        patch.EpisodeNo = p.episode_number
+        patch.EpisodeNo = p.episode_number ?? 0
     }
 
 
