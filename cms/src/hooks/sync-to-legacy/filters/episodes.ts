@@ -1,12 +1,16 @@
 import { oldKnex } from "../oldKnex";
-import { createLocalizable, getStatusFromNew, isObjectUseless } from "../utils";
-import { EpisodeEntity,  ProgramEntity } from "@/Database";
+import { createLocalizable, getEpisodeUsergroups, getStatusFromNew, isObjectUseless, ShouldAllowFKTBSpecialAccess, ShouldAllowSpecialAccess, ugCodesToVisibility } from "../utils";
+import { EpisodeEntity, ProgramEntity } from "@/Database";
 
 export async function createEpisode(p, m, c) {
     if (m.collection != "episodes") {
         return
     }
+    createOneEpisode(p, c);
+}
 
+
+async function createOneEpisode(p, c) {
     // get legacy id
     let asset: any
     if (p.asset_id) {
@@ -31,18 +35,35 @@ export async function createEpisode(p, m, c) {
         AllowSpecialAccess: false,
         AllowSpecialAccessFKTB: false,
     }
-    patch.TitleId = await createLocalizable(oldKnex)
-    patch.DescriptionId = await createLocalizable(oldKnex)
-    patch.LongDescriptionId = await createLocalizable(oldKnex)
-    patch.SearchId = await createLocalizable(oldKnex)
 
-    p.legacy_title_id = patch.TitleId
-    p.legacy_description_id = patch.DescriptionId
-    p.legacy_extra_description_id = patch.LongDescriptionId
-    p.legacy_tags_id = patch.SearchId
+    if (p.id) {
+        let visibilityCodes = await getEpisodeUsergroups(c, "episodes_usergroups", p.id);
+        patch.Visibility = ugCodesToVisibility(visibilityCodes);
+
+        let earlyaccess_ugs = await getEpisodeUsergroups(c, "episodes_usergroups_earlyaccess", p.id);
+        patch.AllowSpecialAccess = ShouldAllowSpecialAccess(earlyaccess_ugs);
+        patch.AllowSpecialAccess = ShouldAllowFKTBSpecialAccess(earlyaccess_ugs);
+    }
+
+    if (!p.legacy_title_id) {
+        patch.TitleId = await createLocalizable(oldKnex)
+        p.legacy_title_id = patch.TitleId
+    }
+    if (!p.legacy_description_id) {
+        patch.DescriptionId = await createLocalizable(oldKnex)
+        p.legacy_description_id = patch.DescriptionId
+    }
+    if (!p.legacy_extra_description_id) {
+        patch.LongDescriptionId = await createLocalizable(oldKnex)
+        p.legacy_extra_description_id = patch.LongDescriptionId
+    }
+    if (!p.legacy_tags_id) {
+        patch.SearchId = await createLocalizable(oldKnex)
+        p.legacy_tags_id = patch.SearchId
+    }
 
     if (image != null) {
-        patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
+        patch.Image = "https://brunstadtv.imgix.net/" + image.filename_disk
     }
 
     if (p.status == "published") {
@@ -63,17 +84,37 @@ export async function createEpisode(p, m, c) {
 
         p.legacy_program_id = legacyProgram[0].Id
     }
-
-
+    return p;
 }
 
-export async function updateEpisode(p, m, c) {
+
+export async function updateEpisodes(p, m, c) {
     if (m.collection != "episodes") {
         return
     }
-    // get legacy id
-    let epBeforeUpdate = (await c.database("episodes").select("*").where("id", m.keys[0]))[0];
+    for (var key of m.keys) {
+        await updateOneEpisode(p, key, c);
+    }
+};
 
+async function updateOneEpisode(p, episodeKey, c) {
+
+    // get legacy id
+    let epBeforeUpdate = (await c.database("episodes").select("*").where("id", episodeKey))[0];
+
+    if (!epBeforeUpdate.legacy_id && !epBeforeUpdate.legacy_program_id) {
+        // Something weird happened
+        let result = await createOneEpisode(epBeforeUpdate, c);
+        if (result.legacyId || result.legacy_program_id) {
+            // Successful
+            updateOneEpisode(result, episodeKey, c);
+            console.log("Successfully fixed " + episodeKey + " in legacy.");
+        } else {
+            console.error("Failed to create " + episodeKey);
+        }
+        console.log("proceeding with update");
+        return p;
+    }
 
     // update it in original
     let patch: Partial<EpisodeEntity> = {
@@ -97,7 +138,7 @@ export async function updateEpisode(p, m, c) {
 
     if (p.image_file_id) {
         let image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
-        patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
+        patch.Image = "https://brunstadtv.imgix.net/" + image.filename_disk
     } if (p.image_file_id === null) {
         patch.Image = null
     }
@@ -124,7 +165,7 @@ export async function updateEpisode(p, m, c) {
 
         }
     }
-};
+}
 
 export async function deleteEpisode(p, m, c) {
     if (p.length > 1) {
