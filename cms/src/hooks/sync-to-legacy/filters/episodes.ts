@@ -6,7 +6,7 @@ export async function createEpisode(p, m, c) {
     if (m.collection != "episodes") {
         return
     }
-    createOneEpisode(p, c);
+    return createOneEpisode(p, c);
 }
 
 
@@ -45,25 +45,25 @@ async function createOneEpisode(p, c) {
         patch.AllowSpecialAccess = ShouldAllowFKTBSpecialAccess(earlyaccess_ugs);
     }
 
-    if (!p.legacy_title_id) {
+    if (p.legacy_title_id == null) {
         patch.TitleId = await createLocalizable(oldKnex)
         p.legacy_title_id = patch.TitleId
     } else {
         patch.TitleId = p.legacy_title_id
     }
-    if (!p.legacy_description_id) {
+    if (p.legacy_description_id == null) {
         patch.DescriptionId = await createLocalizable(oldKnex)
         p.legacy_description_id = patch.DescriptionId
     } else {
         patch.DescriptionId = p.legacy_description_id
     }
-    if (!p.legacy_extra_description_id) {
+    if (p.legacy_extra_description_id == null) {
         patch.LongDescriptionId = await createLocalizable(oldKnex)
         p.legacy_extra_description_id = patch.LongDescriptionId
     } else {
         patch.LongDescriptionId = p.legacy_extra_description_id
     }
-    if (!p.legacy_tags_id) {
+    if (p.legacy_tags_id == null) {
         patch.SearchId = await createLocalizable(oldKnex)
         p.legacy_tags_id = patch.SearchId
     } else {
