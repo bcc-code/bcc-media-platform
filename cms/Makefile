@@ -5,6 +5,7 @@ install:
 	cd ./custom && make install
 
 build:
+	rm -rf ./extensions
 	npm run build
 	cd ./custom && make build
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/rsa"
 	"database/sql"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -125,13 +126,12 @@ func main() {
 
 	collectionLoader := common.NewBatchLoader(queries.GetCollections)
 	// Set up urlSigner for CDN urls access
-	key, err := sign.LoadPEMPrivKeyFile(config.CDNConfig.AWSSigningKeyPath)
+	var key *rsa.PrivateKey
+	key, err = sign.LoadPEMPrivKeyFile(config.CDNConfig.AWSSigningKeyPath)
 	if err != nil {
-		log.L.Panic().Err(err).Msg("Unable to load PEM file")
-		panic(err)
+		log.L.Error().Err(err).Msg("Unable to load PEM file")
 	}
 	urlSigner := sign.NewURLSigner(config.CDNConfig.AWSSigningKeyID, key)
-
 
 	loaders := &common.BatchLoaders{
 		// Item

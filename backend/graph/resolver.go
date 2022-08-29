@@ -41,17 +41,18 @@ var (
 	ErrItemNotFound = merry.Sentinel("item not found")
 )
 
-var requestLocks = map[string]sync.Mutex{}
+var requestLocks = map[string]*sync.Mutex{}
 var requestCache = cache.New[string, any]()
 
-func withCache[r any](ctx context.Context, key string, factory func(ctx context.Context) (r, error)) (r, error) {
+func withCache[r any](ctx context.Context, key string, factory func(ctx context.Context) (r, error), expiry time.Duration) (r, error) {
 	if result, ok := requestCache.Get(key); ok {
 		return result.(r), nil
 	}
 
 	lock, ok := requestLocks[key]
 	if !ok {
-		requestLocks[key] = sync.Mutex{}
+		lock = &sync.Mutex{}
+		requestLocks[key] = lock
 	}
 	lock.Lock()
 	defer lock.Unlock()
@@ -66,9 +67,81 @@ func withCache[r any](ctx context.Context, key string, factory func(ctx context.
 		return result, err
 	}
 
-	requestCache.Set(key, result, cache.WithExpiration(time.Minute*10))
+	requestCache.Set(key, result, cache.WithExpiration(expiry))
 
 	return result, nil
+}
+
+type timedCacheEntry[t any] struct {
+	Cached time.Time
+	Entry  t
+}
+
+var truncateTime = time.Second * 1
+
+func withCacheAndTimestamp[r any](ctx context.Context, key string, factory func(ctx context.Context) (r, error), expiry time.Duration, timestamp *string) (r, error) {
+	ts, err := timestampFromString(timestamp)
+	if err != nil {
+		var result r
+		return result, err
+	}
+	if ts != nil {
+		now := time.Now()
+		if ts.After(now) {
+			ts = &now
+		}
+		truncated := ts.Truncate(truncateTime)
+		ts = &truncated
+	}
+
+	var entry timedCacheEntry[r]
+	if result, ok := requestCache.Get(key); ok {
+		if entry, ok = result.(timedCacheEntry[r]); ok {
+			if ts == nil || entry.Cached.Equal(*ts) || entry.Cached.After(*ts) {
+				return entry.Entry, nil
+			}
+		}
+	}
+
+	lock, ok := requestLocks[key]
+	if !ok {
+		lock = &sync.Mutex{}
+		requestLocks[key] = lock
+	}
+	lock.Lock()
+	defer lock.Unlock()
+
+	if result, ok := requestCache.Get(key); ok {
+		if entry, ok = result.(timedCacheEntry[r]); ok {
+			if ts == nil || entry.Cached.Equal(*ts) || entry.Cached.After(*ts) {
+				return entry.Entry, nil
+			}
+		}
+	}
+
+	item, err := factory(ctx)
+	if err != nil {
+		return entry.Entry, err
+	}
+	entry = timedCacheEntry[r]{
+		Cached: time.Now().Truncate(truncateTime),
+		Entry:  item,
+	}
+	requestCache.Set(key, entry, cache.WithExpiration(expiry))
+
+	return entry.Entry, nil
+}
+
+func timestampFromString(timestamp *string) (*time.Time, error) {
+	var r *time.Time
+	if timestamp != nil {
+		t, err := time.Parse(time.RFC3339, *timestamp)
+		if err != nil {
+			return nil, err
+		}
+		r = &t
+	}
+	return r, nil
 }
 
 type itemLoaders[k comparable, t any] struct {
