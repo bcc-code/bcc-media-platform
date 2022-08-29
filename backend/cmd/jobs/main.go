@@ -81,14 +81,15 @@ func main() {
 	directusEventHandler := directus.NewEventHandler()
 	crowdinClient := crowdin.New(config.Crowdin.Token, crowdin.Config{ProjectIDs: config.Crowdin.ProjectIDs}, directus.NewHandler(directusClient))
 	eventService, err := events.NewService(ctx, config.Firebase.ProjectID)
+
 	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to initialize event service")
-		return
+		log.L.Error().Err(err).Msg("Failed to initialize event service, disabling")
+	} else {
+		directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, eventService.HandleModelUpdate)
 	}
 
 	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, searchService.IndexModel)
 	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, crowdinClient.HandleModelUpdate)
-	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, eventService.HandleModelUpdate)
 
 	directusEventHandler.On([]string{directus.EventItemsDelete}, searchService.DeleteModel)
 	directusEventHandler.On([]string{directus.EventItemsDelete}, crowdinClient.HandleModelDelete)
