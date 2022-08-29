@@ -1,7 +1,7 @@
 import { defineHook } from '@directus/extensions-sdk';
 import { createEpisodeTranslation, createSeasonTranslation, createShowTranslation, updateEpisodeTranslation, updateSeasonTranslation, updateShowTranslation } from './filters/translations';
 import { createShow, deleteShow, updateShow } from './filters/shows';
-import { createEpisode, deleteEpisode, updateEpisode } from './filters/episodes';
+import { createEpisode, deleteEpisode, updateEpisodes } from './filters/episodes';
 import { createSeason, deleteSeason, updateSeason } from './filters/seasons';
 import { createEpisodesUsergroup, deleteEpisodesUsergroup, deleteEpisodesUsergroupEarlyAccess, createEpisodesUsergroupEarlyAccess, updateUsergroup } from './filters/usergroups';
 import { createList, deleteList, updateList } from './filters/lists';
@@ -11,7 +11,7 @@ import { createAssetstream, deleteAssetstream, updateAssetstream } from './filte
 import { createEpisodeTag, deleteEpisodeTag, updateTag } from './filters/tags';
 
 
-export default defineHook(({ filter }, {}) => {
+export default defineHook(({ filter }, { }) => {
 	if (process.env.LEGACY_SYNC === "off") {
 		return
 	}
@@ -32,7 +32,7 @@ export default defineHook(({ filter }, {}) => {
 
 	filter('items.update', updateShow)
 	filter('items.update', updateSeason)
-	filter('items.update', updateEpisode)
+	filter('items.update', updateEpisodes)
 	filter('items.update', updateList)
 	filter('items.update', updateShowTranslation)
 	filter('items.update', updateSeasonTranslation)
