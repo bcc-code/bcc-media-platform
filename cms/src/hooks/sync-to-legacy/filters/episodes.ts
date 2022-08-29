@@ -6,7 +6,7 @@ export async function createEpisode(p, m, c) {
     if (m.collection != "episodes") {
         return
     }
-    return createOneEpisode(p, c);
+    return await createOneEpisode(p, c);
 }
 
 
@@ -51,18 +51,21 @@ async function createOneEpisode(p, c) {
     } else {
         patch.TitleId = p.legacy_title_id
     }
+
     if (p.legacy_description_id == null) {
         patch.DescriptionId = await createLocalizable(oldKnex)
         p.legacy_description_id = patch.DescriptionId
     } else {
         patch.DescriptionId = p.legacy_description_id
     }
+
     if (p.legacy_extra_description_id == null) {
         patch.LongDescriptionId = await createLocalizable(oldKnex)
         p.legacy_extra_description_id = patch.LongDescriptionId
     } else {
         patch.LongDescriptionId = p.legacy_extra_description_id
     }
+
     if (p.legacy_tags_id == null) {
         patch.SearchId = await createLocalizable(oldKnex)
         p.legacy_tags_id = patch.SearchId
@@ -83,6 +86,7 @@ async function createOneEpisode(p, c) {
     if (p.type === "episode" || p.season_id) {
         let season = (await c.database("seasons").select("*").where("id", p.season_id))[0];
         patch.SeasonId = season.legacy_id;
+
         patch.EpisodeNo = p.episode_number ?? 0;
         let legacyEpisode = await oldKnex<EpisodeEntity>("Episode").insert(patch).returning("*");
         p.legacy_id = legacyEpisode[0].Id;
