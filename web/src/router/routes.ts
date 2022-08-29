@@ -1,5 +1,3 @@
-import { RouteRecordRaw } from "vue-router";
+import { RouteRecordRaw } from "vue-router"
 
-export default [
-    
-] as RouteRecordRaw[]
+export default [] as RouteRecordRaw[]

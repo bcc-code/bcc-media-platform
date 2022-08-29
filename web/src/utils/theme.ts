@@ -4,18 +4,18 @@ export const current = () => {
     const theme = localStorage.getItem("theme") as Theme | null
     let dark = theme === "dark"
     if (!theme) {
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
             dark = true
         }
     }
 
-    return dark ? "dark" : "light" as Theme
+    return dark ? "dark" : ("light" as Theme)
 }
 
 export const reload = () => {
     const theme = current()
 
-    const classList = document.documentElement.classList;
+    const classList = document.documentElement.classList
 
     if (theme === "dark") {
         if (!classList.contains("dark")) {

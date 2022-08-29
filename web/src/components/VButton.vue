@@ -20,22 +20,22 @@ const styles = computed(() => {
         case "error":
             return {
                 background: "bg-red-500 hover:bg-red-700",
-                text: "text-white"
+                text: "text-white",
             }
         case "warning":
             return {
                 background: "bg-yellow-500 hover:bg-yellow-700",
-                text: "text-white"
+                text: "text-white",
             }
         case "info":
             return {
                 background: "bg-blue-500 hover:bg-blue-700",
-                text: "text-white"
+                text: "text-white",
             }
         default:
             return {
                 background: "bg-green-500 hover:bg-green-700",
-                text: "text-white"
+                text: "text-white",
             }
     }
 })
