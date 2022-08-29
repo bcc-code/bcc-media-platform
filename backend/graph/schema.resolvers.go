@@ -172,15 +172,7 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 
 // Messages is the resolver for the messages field.
 func (r *queryRootResolver) Messages(ctx context.Context, timestamp *string) ([]*gqlmodel.MaintenanceMessage, error) {
-	var fromtime *time.Time
-	if timestamp != nil {
-		t, err := time.Parse(time.RFC3339, *timestamp)
-		if err != nil {
-			return nil, err
-		}
-		fromtime = &t
-	}
-	messages, err := r.getMaintenanceMessages(ctx, fromtime)
+	messages, err := withCacheAndTimestamp(ctx, "maintenance_messages", r.Queries.GetMaintenanceMessages, time.Second*30, timestamp)
 	if err != nil {
 		return nil, err
 	}
@@ -240,6 +232,11 @@ func (r *queryRootResolver) Me(ctx context.Context) (*gqlmodel.User, error) {
 	}
 
 	return u, nil
+}
+
+// Config is the resolver for the config field.
+func (r *queryRootResolver) Config(ctx context.Context) (*gqlmodel.Config, error) {
+	return &gqlmodel.Config{}, nil
 }
 
 // Show is the resolver for the show field.

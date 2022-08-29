@@ -28,6 +28,10 @@ type Section interface {
 	IsSection()
 }
 
+type AppConfig struct {
+	MinVersion string `json:"minVersion"`
+}
+
 type Calendar struct {
 	Period *CalendarPeriod `json:"period"`
 	Day    *CalendarDay    `json:"day"`
@@ -57,6 +61,11 @@ type CollectionItemPagination struct {
 }
 
 func (CollectionItemPagination) IsPagination() {}
+
+type Config struct {
+	Global *GlobalConfig `json:"global"`
+	App    *AppConfig    `json:"app"`
+}
 
 type Episode struct {
 	ID                string     `json:"id"`
@@ -162,6 +171,11 @@ type File struct {
 	Size             *int      `json:"size"`
 	FileName         string    `json:"fileName"`
 	MimeType         string    `json:"mimeType"`
+}
+
+type GlobalConfig struct {
+	LiveOnline  bool `json:"liveOnline"`
+	NpawEnabled bool `json:"npawEnabled"`
 }
 
 type ItemSection struct {

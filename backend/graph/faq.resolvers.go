@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
@@ -15,7 +16,7 @@ import (
 
 // Categories is the resolver for the categories field.
 func (r *fAQResolver) Categories(ctx context.Context, obj *gqlmodel.Faq, first *int, offset *int) (*gqlmodel.FAQCategoryPagination, error) {
-	items, err := withCache(ctx, "categories", r.Queries.ListFAQCategories)
+	items, err := withCache(ctx, "categories", r.Queries.ListFAQCategories, time.Minute*5)
 	if err != nil {
 		return nil, err
 	}

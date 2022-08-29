@@ -11,9 +11,8 @@ WITH ts AS (SELECT messagetemplates_id,
                   FROM messagetemplates mt
                            LEFT JOIN ts ON ts.messagetemplates_id = mt.id
                            JOIN maintenancemessage_messagetemplates mm on mt.id = mm.messagetemplates_id)
-SELECT m.id, m.active, m.date_updated, json_agg(ms) as messages
+SELECT m.id, m.active, json_agg(ms) as messages
 FROM maintenancemessage m
          JOIN messages ms ON ms.maintenancemessage_id = m.id
-WHERE m.active
-GROUP BY m.id, m.active, m.date_updated
+GROUP BY m.id, m.active
 LIMIT 1;

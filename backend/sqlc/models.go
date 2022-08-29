@@ -29,6 +29,13 @@ type AgeratingsTranslation struct {
 	LanguagesCode  string         `db:"languages_code" json:"languagesCode"`
 }
 
+type Appconfig struct {
+	ID          int32     `db:"id" json:"id"`
+	UserUpdated uuid.UUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated time.Time `db:"date_updated" json:"dateUpdated"`
+	AppVersion  string    `db:"app_version" json:"appVersion"`
+}
+
 type Asset struct {
 	DateCreated     time.Time      `db:"date_created" json:"dateCreated"`
 	DateUpdated     time.Time      `db:"date_updated" json:"dateUpdated"`
@@ -113,18 +120,6 @@ type Calendarentry struct {
 	ShowID        null_v4.Int    `db:"show_id" json:"showID"`
 	Image         uuid.NullUUID  `db:"image" json:"image"`
 	ImageFromLink bool           `db:"image_from_link" json:"imageFromLink"`
-}
-
-type Calendarevent struct {
-	DateCreated time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated time.Time      `db:"date_updated" json:"dateUpdated"`
-	End         null_v4.Time   `db:"end" json:"end"`
-	ID          int32          `db:"id" json:"id"`
-	Start       time.Time      `db:"start" json:"start"`
-	Status      string         `db:"status" json:"status"`
-	Title       null_v4.String `db:"title" json:"title"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 }
 
 type CategoriesTranslation struct {
@@ -666,6 +661,14 @@ type FaqsUsergroup struct {
 	UsergroupsCode null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
 }
 
+type Globalconfig struct {
+	ID          int32        `db:"id" json:"id"`
+	UserUpdated uuid.UUID    `db:"user_updated" json:"userUpdated"`
+	DateUpdated time.Time    `db:"date_updated" json:"dateUpdated"`
+	LiveOnline  sql.NullBool `db:"live_online" json:"liveOnline"`
+	NpawEnabled sql.NullBool `db:"npaw_enabled" json:"npawEnabled"`
+}
+
 type Language struct {
 	Code              string         `db:"code" json:"code"`
 	Legacy2LetterCode null_v4.String `db:"legacy_2_letter_code" json:"legacy2LetterCode"`
@@ -968,22 +971,6 @@ type TagsTranslation struct {
 	Name          null_v4.String `db:"name" json:"name"`
 }
 
-type Tvguideentry struct {
-	DateCreated      time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated      time.Time      `db:"date_updated" json:"dateUpdated"`
-	Description      null_v4.String `db:"description" json:"description"`
-	End              null_v4.Time   `db:"end" json:"end"`
-	Event            null_v4.Int    `db:"event" json:"event"`
-	ID               int32          `db:"id" json:"id"`
-	Image            uuid.NullUUID  `db:"image" json:"image"`
-	Start            null_v4.Time   `db:"start" json:"start"`
-	Status           null_v4.String `db:"status" json:"status"`
-	Title            null_v4.String `db:"title" json:"title"`
-	UseImageFromLink bool           `db:"use_image_from_link" json:"useImageFromLink"`
-	UserCreated      uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated      uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-}
-
 type Usergroup struct {
 	Code        string         `db:"code" json:"code"`
 	DateCreated time.Time      `db:"date_created" json:"dateCreated"`
@@ -993,4 +980,10 @@ type Usergroup struct {
 	Sort        null_v4.Int    `db:"sort" json:"sort"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+}
+
+type Webconfig struct {
+	ID          int32     `db:"id" json:"id"`
+	UserUpdated uuid.UUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated time.Time `db:"date_updated" json:"dateUpdated"`
 }

@@ -24,29 +24,22 @@ WITH ts AS (SELECT messagetemplates_id,
                   FROM messagetemplates mt
                            LEFT JOIN ts ON ts.messagetemplates_id = mt.id
                            JOIN maintenancemessage_messagetemplates mm on mt.id = mm.messagetemplates_id)
-SELECT m.id, m.active, m.date_updated, json_agg(ms) as messages
+SELECT m.id, m.active, json_agg(ms) as messages
 FROM maintenancemessage m
          JOIN messages ms ON ms.maintenancemessage_id = m.id
-WHERE m.active
-GROUP BY m.id, m.active, m.date_updated
+GROUP BY m.id, m.active
 LIMIT 1
 `
 
 type getMaintenanceMessageRow struct {
-	ID          int32           `db:"id" json:"id"`
-	Active      sql.NullBool    `db:"active" json:"active"`
-	DateUpdated sql.NullTime    `db:"date_updated" json:"dateUpdated"`
-	Messages    json.RawMessage `db:"messages" json:"messages"`
+	ID       int32           `db:"id" json:"id"`
+	Active   sql.NullBool    `db:"active" json:"active"`
+	Messages json.RawMessage `db:"messages" json:"messages"`
 }
 
 func (q *Queries) getMaintenanceMessage(ctx context.Context) (getMaintenanceMessageRow, error) {
 	row := q.db.QueryRowContext(ctx, getMaintenanceMessage)
 	var i getMaintenanceMessageRow
-	err := row.Scan(
-		&i.ID,
-		&i.Active,
-		&i.DateUpdated,
-		&i.Messages,
-	)
+	err := row.Scan(&i.ID, &i.Active, &i.Messages)
 	return i, err
 }
