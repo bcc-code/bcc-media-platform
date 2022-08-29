@@ -87,7 +87,9 @@ func (handler *EventHandler) Process(ctx context.Context, event Event) []error {
 		for i, handlerFunc := range itemsEvents[event.Event] {
 			log.L.Debug().Msgf("Executing callback #%d for event %s", i, event.Event)
 			err := handlerFunc(ctx, event.Collection, id)
-			errors = append(errors, err)
+			if err != nil {
+				errors = append(errors, err)
+			}
 		}
 	}
 

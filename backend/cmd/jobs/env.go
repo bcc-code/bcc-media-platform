@@ -35,6 +35,10 @@ type crowdinConfig struct {
 	ProjectIDs []int
 }
 
+type firebase struct {
+	ProjectID string
+}
+
 type envConfig struct {
 	AWS               awsConfig
 	Directus          directusConfig
@@ -43,6 +47,7 @@ type envConfig struct {
 	DB                postgres
 	Algolia           algolia
 	Crowdin           crowdinConfig
+	Firebase          firebase
 }
 
 func getEnvConfig() envConfig {
@@ -82,6 +87,9 @@ func getEnvConfig() envConfig {
 		Crowdin: crowdinConfig{
 			Token:      os.Getenv("CROWDIN_TOKEN"),
 			ProjectIDs: crowdinProjectIDs,
+		},
+		Firebase: firebase{
+			ProjectID: os.Getenv("FIREBASE_PROJECT_ID"),
 		},
 	}
 }

@@ -938,7 +938,11 @@ collections:
       singleton: true
       sort: 1
       sort_field: null
-      translations: null
+      translations:
+        - language: en-US
+          translation: Messages
+          singular: Messages
+          plural: Messages
       unarchive_value: null
     schema:
       comment: null

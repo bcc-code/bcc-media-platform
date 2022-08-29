@@ -193,6 +193,10 @@ type MaintenanceMessage struct {
 	Details *string `json:"details"`
 }
 
+type Messages struct {
+	Maintenance []*MaintenanceMessage `json:"maintenance"`
+}
+
 type Page struct {
 	ID          string             `json:"id"`
 	Code        string             `json:"code"`

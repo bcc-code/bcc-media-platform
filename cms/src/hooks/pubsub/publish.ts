@@ -12,7 +12,18 @@ export function handleEvent(eventName: string) {
     console.log("Registering PUBSUB hook for event: " + eventName)
     const handler: ActionHandler = async (event: Event) => {
         console.log("Executing hook for event: " + JSON.stringify(event))
-        const collections = ["shows", "seasons", "episodes", "shows_translations", "seasons_translations", "episodes_translations"] as Collection[]
+        const collections = [
+            "shows", 
+            "seasons", 
+            "episodes", 
+            "shows_translations", 
+            "seasons_translations", 
+            "episodes_translations",
+            "globalconfig",
+            "appconfig",
+            "webconfig",
+            "maintenancemessage",
+        ] as Collection[]
 
         if (!collections.includes(event.collection)) { return }
         

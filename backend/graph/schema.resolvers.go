@@ -6,7 +6,6 @@ package graph
 import (
 	"context"
 	"strconv"
-	"time"
 
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
@@ -15,7 +14,6 @@ import (
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"github.com/samber/lo"
 )
 
 // Streams is the resolver for the streams field.
@@ -171,20 +169,8 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 }
 
 // Messages is the resolver for the messages field.
-func (r *queryRootResolver) Messages(ctx context.Context, timestamp *string) ([]*gqlmodel.MaintenanceMessage, error) {
-	messages, err := withCacheAndTimestamp(ctx, "maintenance_messages", r.Queries.GetMaintenanceMessages, time.Second*30, timestamp)
-	if err != nil {
-		return nil, err
-	}
-	return lo.Map(messages, func(m common.MaintenanceMessage, _ int) *gqlmodel.MaintenanceMessage {
-		ginCtx, _ := utils.GinCtx(ctx)
-		languages := user.GetLanguagesFromCtx(ginCtx)
-
-		return &gqlmodel.MaintenanceMessage{
-			Message: m.Message.Get(languages),
-			Details: m.Details.GetValueOrNil(languages),
-		}
-	}), nil
+func (r *queryRootResolver) Messages(ctx context.Context) (*gqlmodel.Messages, error) {
+	return &gqlmodel.Messages{}, nil
 }
 
 // Calendar is the resolver for the calendar field.
