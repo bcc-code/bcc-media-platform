@@ -139,6 +139,8 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 			item.Image = &value
 		}
 
+		item.LegacyID = hit.LegacyID
+
 		searchResult.ResultCount++
 		searchResult.Result = append(searchResult.Result, item)
 	}

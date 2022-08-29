@@ -1,12 +1,16 @@
 import { oldKnex } from "../oldKnex";
-import { createLocalizable, getStatusFromNew, isObjectUseless } from "../utils";
-import { EpisodeEntity,  ProgramEntity } from "@/Database";
+import { createLocalizable, getEpisodeUsergroups, getStatusFromNew, isObjectUseless, ShouldAllowFKTBSpecialAccess, ShouldAllowSpecialAccess, ugCodesToVisibility } from "../utils";
+import { EpisodeEntity, ProgramEntity } from "@/Database";
 
 export async function createEpisode(p, m, c) {
     if (m.collection != "episodes") {
         return
     }
+    return await createOneEpisode(p, c);
+}
 
+
+async function createOneEpisode(p, c) {
     // get legacy id
     let asset: any
     if (p.asset_id) {
@@ -22,7 +26,7 @@ export async function createEpisode(p, m, c) {
     // update it in original
     let patch: Partial<EpisodeEntity> = {
         VideoId: asset?.legacy_id ?? 3022, // 3022 is placeholder. videoId isnt nullable in the legacy system, but it is in the new one
-        Published: p.publish_date as unknown as Date,
+        Published: p.publish_date as unknown as Date ?? new Date(),
         AvailableTo: p.available_to as unknown as Date,
         AvailableFrom: p.available_from as unknown as Date,
         Status: getStatusFromNew(p.status),
@@ -31,18 +35,46 @@ export async function createEpisode(p, m, c) {
         AllowSpecialAccess: false,
         AllowSpecialAccessFKTB: false,
     }
-    patch.TitleId = await createLocalizable(oldKnex)
-    patch.DescriptionId = await createLocalizable(oldKnex)
-    patch.LongDescriptionId = await createLocalizable(oldKnex)
-    patch.SearchId = await createLocalizable(oldKnex)
 
-    p.legacy_title_id = patch.TitleId
-    p.legacy_description_id = patch.DescriptionId
-    p.legacy_extra_description_id = patch.LongDescriptionId
-    p.legacy_tags_id = patch.SearchId
+    if (p.id) {
+        let visibilityCodes = await getEpisodeUsergroups(c, "episodes_usergroups", p.id);
+        patch.Visibility = ugCodesToVisibility(visibilityCodes);
+
+        let earlyaccess_ugs = await getEpisodeUsergroups(c, "episodes_usergroups_earlyaccess", p.id);
+        patch.AllowSpecialAccess = ShouldAllowSpecialAccess(earlyaccess_ugs);
+        patch.AllowSpecialAccess = ShouldAllowFKTBSpecialAccess(earlyaccess_ugs);
+    }
+
+    if (p.legacy_title_id == null) {
+        patch.TitleId = await createLocalizable(oldKnex)
+        p.legacy_title_id = patch.TitleId
+    } else {
+        patch.TitleId = p.legacy_title_id
+    }
+
+    if (p.legacy_description_id == null) {
+        patch.DescriptionId = await createLocalizable(oldKnex)
+        p.legacy_description_id = patch.DescriptionId
+    } else {
+        patch.DescriptionId = p.legacy_description_id
+    }
+
+    if (p.legacy_extra_description_id == null) {
+        patch.LongDescriptionId = await createLocalizable(oldKnex)
+        p.legacy_extra_description_id = patch.LongDescriptionId
+    } else {
+        patch.LongDescriptionId = p.legacy_extra_description_id
+    }
+
+    if (p.legacy_tags_id == null) {
+        patch.SearchId = await createLocalizable(oldKnex)
+        p.legacy_tags_id = patch.SearchId
+    } else {
+        patch.SearchId = p.legacy_tags_id
+    }
 
     if (image != null) {
-        patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
+        patch.Image = "https://brunstadtv.imgix.net/" + image.filename_disk
     }
 
     if (p.status == "published") {
@@ -53,31 +85,55 @@ export async function createEpisode(p, m, c) {
 
     if (p.type === "episode" || p.season_id) {
         let season = (await c.database("seasons").select("*").where("id", p.season_id))[0];
-        patch.SeasonId = season.legacy_id
-        patch.EpisodeNo = p.episode_number
-        let legacyEpisode = await oldKnex<EpisodeEntity>("Episode").insert(patch).returning("*")
-        p.legacy_id = legacyEpisode[0].Id
+        patch.SeasonId = season.legacy_id;
 
+        patch.EpisodeNo = p.episode_number ?? 0;
+        let legacyEpisode = await oldKnex<EpisodeEntity>("Episode").insert(patch).returning("*");
+        p.legacy_id = legacyEpisode[0].Id;
     } else if (p.type === "standalone") {
-        let legacyProgram = await oldKnex<EpisodeEntity>("Program").insert(patch).returning("*")
-
-        p.legacy_program_id = legacyProgram[0].Id
+        let legacyProgram = await oldKnex<EpisodeEntity>("Program").insert(patch).returning("*");
+        p.legacy_program_id = legacyProgram[0].Id;
     }
-
-
+    return p;
 }
 
-export async function updateEpisode(p, m, c) {
+
+export async function updateEpisodes(p, m, c) {
     if (m.collection != "episodes") {
         return
     }
-    // get legacy id
-    let epBeforeUpdate = (await c.database("episodes").select("*").where("id", m.keys[0]))[0];
+    for (var key of m.keys) {
+        await updateOneEpisode(p, key, c);
+    }
+};
 
+async function updateOneEpisode(p, episodeKey, c) {
+
+    // get legacy id
+    let epBeforeUpdate = (await c.database("episodes").select("*").where("id", episodeKey))[0];
+
+    if (!epBeforeUpdate.legacy_id && !epBeforeUpdate.legacy_program_id) {
+        // Something weird happened
+        let result = await createOneEpisode(epBeforeUpdate, c);
+        if (result.legacy_id || result.legacy_program_id) {
+            // Successful
+            console.log("Successfully fixed " + episodeKey + " in legacy.");
+        } else {
+            console.error("Failed to create " + episodeKey);
+        }
+        p.legacy_id = result.legacy_id;
+        p.legacy_program_id = result.legacy_program_id;
+        p.legacy_title_id = result.legacy_title_id;
+        p.legacy_description_id = result.legacy_description_id;
+        p.legacy_extra_description_id = result.legacy_extra_description_id;
+        p.legacy_tags_id = result.legacy_tags_id;
+        console.log("proceeding with update");
+        return p;
+    }
 
     // update it in original
     let patch: Partial<EpisodeEntity> = {
-        Published: p.publish_date as unknown as Date,
+        Published: p.publish_date as unknown as Date ?? new Date(),
         AvailableTo: p.available_to as unknown as Date,
         AvailableFrom: p.available_from as unknown as Date,
         LastUpdate: new Date()
@@ -97,7 +153,7 @@ export async function updateEpisode(p, m, c) {
 
     if (p.image_file_id) {
         let image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
-        patch.Image = "https://brunstadtv.imgix.net/"+image.filename_disk
+        patch.Image = "https://brunstadtv.imgix.net/" + image.filename_disk
     } if (p.image_file_id === null) {
         patch.Image = null
     }
@@ -111,7 +167,7 @@ export async function updateEpisode(p, m, c) {
             let season = (await c.database("seasons").select("*").where("id", p.season_id))[0];
             patch.SeasonId = season.legacy_id
         }
-        patch.EpisodeNo = p.episode_number
+        patch.EpisodeNo = p.episode_number ?? 0
     }
 
 
@@ -124,7 +180,7 @@ export async function updateEpisode(p, m, c) {
 
         }
     }
-};
+}
 
 export async function deleteEpisode(p, m, c) {
     if (p.length > 1) {
