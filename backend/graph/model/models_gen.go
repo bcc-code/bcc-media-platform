@@ -80,7 +80,7 @@ type Episode struct {
 	Duration          int        `json:"duration"`
 	AudioLanguages    []Language `json:"audioLanguages"`
 	SubtitleLanguages []Language `json:"subtitleLanguages"`
-	EpisodeNumber     *int       `json:"episodeNumber"`
+	Number            *int       `json:"number"`
 }
 
 type EpisodeCalendarEntry struct {

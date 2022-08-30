@@ -173,7 +173,7 @@ type Episode {
   duration: Int!
   audioLanguages: [Language!]!
   subtitleLanguages: [Language!]!
-  episodeNumber: Int
+  number: Int
 }
 
 type EpisodePagination implements Pagination {

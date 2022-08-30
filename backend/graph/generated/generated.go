@@ -102,11 +102,11 @@ type ComplexityRoot struct {
 		Chapters          func(childComplexity int) int
 		Description       func(childComplexity int) int
 		Duration          func(childComplexity int) int
-		EpisodeNumber     func(childComplexity int) int
 		ExtraDescription  func(childComplexity int) int
 		Files             func(childComplexity int) int
 		ID                func(childComplexity int) int
 		LegacyID          func(childComplexity int) int
+		Number            func(childComplexity int) int
 		Season            func(childComplexity int) int
 		Streams           func(childComplexity int) int
 		SubtitleLanguages func(childComplexity int) int
@@ -677,13 +677,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Episode.Duration(childComplexity), true
 
-	case "Episode.episodeNumber":
-		if e.complexity.Episode.EpisodeNumber == nil {
-			break
-		}
-
-		return e.complexity.Episode.EpisodeNumber(childComplexity), true
-
 	case "Episode.extraDescription":
 		if e.complexity.Episode.ExtraDescription == nil {
 			break
@@ -711,6 +704,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.LegacyID(childComplexity), true
+
+	case "Episode.number":
+		if e.complexity.Episode.Number == nil {
+			break
+		}
+
+		return e.complexity.Episode.Number(childComplexity), true
 
 	case "Episode.season":
 		if e.complexity.Episode.Season == nil {
@@ -2562,7 +2562,7 @@ type Episode {
   duration: Int!
   audioLanguages: [Language!]!
   subtitleLanguages: [Language!]!
-  episodeNumber: Int
+  number: Int
 }
 
 type EpisodePagination implements Pagination {
@@ -4532,8 +4532,8 @@ func (ec *executionContext) fieldContext_Episode_subtitleLanguages(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _Episode_episodeNumber(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Episode) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Episode_episodeNumber(ctx, field)
+func (ec *executionContext) _Episode_number(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_number(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4546,7 +4546,7 @@ func (ec *executionContext) _Episode_episodeNumber(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.EpisodeNumber, nil
+		return obj.Number, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4560,7 +4560,7 @@ func (ec *executionContext) _Episode_episodeNumber(ctx context.Context, field gr
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_episodeNumber(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_number(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -4906,8 +4906,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
-			case "episodeNumber":
-				return ec.fieldContext_Episode_episodeNumber(ctx, field)
+			case "number":
+				return ec.fieldContext_Episode_number(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -5151,8 +5151,8 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
-			case "episodeNumber":
-				return ec.fieldContext_Episode_episodeNumber(ctx, field)
+			case "number":
+				return ec.fieldContext_Episode_number(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -5355,8 +5355,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
-			case "episodeNumber":
-				return ec.fieldContext_Episode_episodeNumber(ctx, field)
+			case "number":
+				return ec.fieldContext_Episode_number(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -8523,8 +8523,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
-			case "episodeNumber":
-				return ec.fieldContext_Episode_episodeNumber(ctx, field)
+			case "number":
+				return ec.fieldContext_Episode_number(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -16333,9 +16333,9 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "episodeNumber":
+		case "number":
 
-			out.Values[i] = ec._Episode_episodeNumber(ctx, field, obj)
+			out.Values[i] = ec._Episode_number(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))

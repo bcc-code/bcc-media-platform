@@ -43,7 +43,7 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 
 	if e.Number.Valid {
 		num := int(e.Number.Int64)
-		episode.EpisodeNumber = &num
+		episode.Number = &num
 	}
 
 	return episode

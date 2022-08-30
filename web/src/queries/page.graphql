@@ -10,9 +10,28 @@ query getPage($code: String!) {
                     items {
                         items {
                             id
-                            imageUrl
                             title
+                            imageUrl
                             sort
+                            ... on EpisodeItem {
+                                episode {
+                                    number
+                                    season {
+                                        show {
+                                            title
+                                        }
+                                        number
+                                    }
+                                }
+                            }
+                            ... on SeasonItem {
+                                season {
+                                    number
+                                    show {
+                                        title
+                                    }
+                                } 
+                            }
                         }
                     }
                 }
