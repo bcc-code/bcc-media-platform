@@ -1,6 +1,6 @@
 <template>
     <button
-        class="p-2 px-4 rounded rounded-full"
+        class="p-2 px-4 rounded rounded-lg"
         :class="[styles.background, styles.text]"
     >
         <slot></slot>
@@ -29,7 +29,7 @@ const styles = computed(() => {
             }
         case "info":
             return {
-                background: "bg-blue-500 hover:bg-blue-700",
+                background: "bg-primary hover:bg-primary-light",
                 text: "text-white",
             }
         default:

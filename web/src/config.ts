@@ -1,6 +1,9 @@
 export default {
     auth0: {
         domain: "",
-        clientId: ""
-    }
+        clientId: "",
+    },
+    api: {
+        url: "http://localhost:8077/graphql",
+    },
 }
