@@ -10,7 +10,9 @@ query getPage($code: String!) {
                     items {
                         items {
                             id
+                            imageUrl
                             title
+                            sort
                         }
                     }
                 }

@@ -235,7 +235,7 @@ export type Item = {
 export type ItemSection = Section & {
   __typename?: 'ItemSection';
   id: Scalars['ID'];
-  items?: Maybe<CollectionItemPagination>;
+  items: CollectionItemPagination;
   page: Page;
   title: Scalars['String'];
   type: ItemSectionType;
@@ -589,7 +589,14 @@ export type GetPageQueryVariables = Exact<{
 }>;
 
 
-export type GetPageQuery = { __typename?: 'QueryRoot', page?: { __typename?: 'Page', id: string, title: string, sections: { __typename?: 'SectionPagination', items: Array<{ __typename?: 'ItemSection', id: string, title: string, items?: { __typename?: 'CollectionItemPagination', items: Array<{ __typename?: 'EpisodeItem', id: string, title: string } | { __typename?: 'PageItem', id: string, title: string } | { __typename?: 'SeasonItem', id: string, title: string } | { __typename?: 'ShowItem', id: string, title: string } | { __typename?: 'URLItem', id: string, title: string }> } | null }> } } | null };
+export type GetPageQuery = { __typename?: 'QueryRoot', page?: { __typename?: 'Page', id: string, title: string, sections: { __typename?: 'SectionPagination', items: Array<{ __typename?: 'ItemSection', id: string, title: string, items: { __typename?: 'CollectionItemPagination', items: Array<{ __typename?: 'EpisodeItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename?: 'PageItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename?: 'SeasonItem', id: string, imageUrl: string, title: string, sort: number } | { __typename?: 'ShowItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename?: 'URLItem', id: string, imageUrl?: string | null, title: string, sort: number }> } }> } } | null };
+
+export type GetSectionQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetSectionQuery = { __typename?: 'QueryRoot', section?: { __typename?: 'ItemSection', id: string, title: string, items: { __typename?: 'CollectionItemPagination', items: Array<{ __typename?: 'EpisodeItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename?: 'PageItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename?: 'SeasonItem', id: string, imageUrl: string, title: string, sort: number } | { __typename?: 'ShowItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename?: 'URLItem', id: string, imageUrl?: string | null, title: string, sort: number }> } } | null };
 
 
 export const GetPageDocument = gql`
@@ -605,7 +612,9 @@ export const GetPageDocument = gql`
           items {
             items {
               id
+              imageUrl
               title
+              sort
             }
           }
         }
@@ -617,4 +626,26 @@ export const GetPageDocument = gql`
 
 export function useGetPageQuery(options: Omit<Urql.UseQueryArgs<never, GetPageQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetPageQuery>({ query: GetPageDocument, ...options });
+};
+export const GetSectionDocument = gql`
+    query getSection($id: ID!) {
+  section(id: $id) {
+    id
+    title
+    ... on ItemSection {
+      items {
+        items {
+          id
+          imageUrl
+          title
+          sort
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useGetSectionQuery(options: Omit<Urql.UseQueryArgs<never, GetSectionQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetSectionQuery>({ query: GetSectionDocument, ...options });
 };

@@ -5,12 +5,9 @@
             {{title}}
         </div>
         <div v-if="sections">
-            <div v-for="section in sections">
-                {{section.title}}
-                <p v-for="i in section.items">
-                    {{i.type}} | {{i.title}}
-                </p>
-            </div>
+            <ItemSection v-for="section in sections" :section="section">
+
+            </ItemSection>
         </div>
     </div>
 </template>
@@ -19,6 +16,7 @@ import Card from "@/components/Card.vue"
 
 import { useGetPageQuery } from "@/graph/generated";
 import { ref } from "vue";
+import ItemSection, { Section } from "@/components/ItemSection.vue";
 
 const result = useGetPageQuery({
     variables: {
@@ -26,35 +24,25 @@ const result = useGetPageQuery({
     }
 })
 
-type Section = {
-    title: string;
-    items: {
-        type: string;
-        title: string;
-    }[]
-}
-
 const title = ref(null as string | null)
-const sections = ref(null as Partial<Section>[] | null)
+const sections = ref([] as Section[])
 
 result.then((r) => {
     const page = r.data.value?.page ?? null
     if (page) {
         title.value = page.title;
 
-        const s = [] as Section[]
-
         for (const section of page.sections.items) {
-            s.push({
-                title: section.title,
-                items: section.items?.items.map(i => ({
-                    type: i.__typename ?? "",
-                    title: i.title,
-                })) ?? []
-            })
+            if (section.__typename === "ItemSection") {
+                sections.value.push({
+                    title: section.title,
+                    items: section.items.items.map(i => ({
+                        title: i.title,
+                        image: i.imageUrl ?? undefined,
+                    }))
+                })
+            }
         }
-
-        sections.value = s
     }
 })
 

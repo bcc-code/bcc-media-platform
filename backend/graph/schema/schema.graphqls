@@ -60,7 +60,7 @@ type ItemSection implements Section {
   items(
     first: Int,
     offset: Int,
-  ): CollectionItemPagination @goField(forceResolver: true)
+  ): CollectionItemPagination! @goField(forceResolver: true)
 }
 
 scalar Cursor
