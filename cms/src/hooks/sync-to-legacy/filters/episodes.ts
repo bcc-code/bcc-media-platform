@@ -167,7 +167,8 @@ async function updateOneEpisode(p, episodeKey, c) {
             let season = (await c.database("seasons").select("*").where("id", p.season_id))[0];
             patch.SeasonId = season.legacy_id
         }
-        patch.EpisodeNo = p.episode_number ?? 0
+
+        patch.EpisodeNo = p.episode_number === null ? 0 : p.episode_number
     }
 
 
