@@ -4,6 +4,6 @@ export default {
         clientId: "",
     },
     api: {
-        url: "http://localhost:8077/graphql",
+        url: "http://localhost:8077/query",
     },
 }

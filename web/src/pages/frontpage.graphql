@@ -1,0 +1,20 @@
+query getPage($code: String!) {
+    page(code: $code) {
+        id
+        title
+        sections {
+            items {
+                id
+                title
+                ... on ItemSection {
+                    items {
+                        items {
+                            id
+                            title
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

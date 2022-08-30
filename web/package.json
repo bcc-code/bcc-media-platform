@@ -14,10 +14,17 @@
         "@auth0/auth0-vue": "^1.0.2",
         "@headlessui/vue": "^1.6.7",
         "@heroicons/vue": "^2.0.8",
+        "@urql/vue": "^1.0.2",
+        "graphql": "^16.6.0",
+        "graphql-tag": "^2.12.6",
         "vue": "^3.2.37",
         "vue-router": "^4.1.5"
     },
     "devDependencies": {
+        "@graphql-codegen/cli": "^2.11.8",
+        "@graphql-codegen/typescript": "^2.7.3",
+        "@graphql-codegen/typescript-operations": "^2.5.3",
+        "@graphql-codegen/typescript-vue-urql": "^2.3.3",
         "@types/node": "^18.7.13",
         "@vitejs/plugin-vue": "^3.0.3",
         "autoprefixer": "^10.4.8",

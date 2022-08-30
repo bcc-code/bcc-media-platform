@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rsa"
 	"database/sql"
+	"github.com/gin-contrib/cors"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -169,6 +170,12 @@ func main() {
 	r.Use(otelgin.Middleware("api")) // OpenTelemetry
 	r.Use(auth0.JWT(ctx, config.JWTConfig))
 	r.Use(user.NewUserMiddleware(queries))
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     config.Cors.Origins,
+		AllowMethods:     []string{"POST", "GET"},
+		AllowHeaders:     []string{"content-type", "authorization", "accept-language"},
+		AllowCredentials: true,
+	}))
 
 	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey)
 	r.POST("/query", graphqlHandler(queries, loaders, searchService, urlSigner, config))

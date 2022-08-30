@@ -4,6 +4,8 @@ import "./index.css"
 import App from "./App.vue"
 import config from "./config"
 import router from "./router"
+import urql from "@urql/vue"
+import client from "@/services/api/client"
 
 createApp(App)
     .use(
@@ -13,5 +15,6 @@ createApp(App)
             redirect_uri: window.location.origin,
         })
     )
+    .use(urql, client)
     .use(router)
     .mount("#app")
