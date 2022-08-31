@@ -2,6 +2,10 @@ package graph
 
 import (
 	"context"
+	"strconv"
+	"sync"
+	"time"
+
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
@@ -12,9 +16,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
-	"strconv"
-	"sync"
-	"time"
 )
 
 type apiConfig interface {
@@ -166,7 +167,7 @@ func resolverFor[k comparable, t any, r any](ctx context.Context, loaders *itemL
 		return res, merry.Wrap(ErrItemNotFound)
 	}
 
-	if t, ok := any(obj).(common.HasKey[k]); ok {
+	if t, ok := any(obj).(common.HasKey[k]); ok && loaders.Permissions != nil {
 		err = user.ValidateAccess(ctx, loaders.Permissions, t.GetKey())
 		if err != nil {
 			return res, nil

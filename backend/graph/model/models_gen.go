@@ -53,6 +53,11 @@ type Chapter struct {
 	Title string `json:"title"`
 }
 
+type Collection struct {
+	ID    string                    `json:"id"`
+	Items *CollectionItemPagination `json:"items"`
+}
+
 type CollectionItemPagination struct {
 	Total  int    `json:"total"`
 	First  int    `json:"first"`

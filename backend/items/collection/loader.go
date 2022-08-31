@@ -3,6 +3,7 @@ package collection
 import (
 	"context"
 	"database/sql"
+
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -35,7 +36,6 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 		}
 
 		resMap := map[int][]int{}
-
 		if err == nil {
 			for _, r := range res {
 				switch r.Type {
@@ -150,7 +150,9 @@ func getItemsForSelectCollection(ctx context.Context, loaders *common.BatchLoade
 	if err != nil {
 		return nil, err
 	}
+
 	iterateAndPreloadCollectionItems(ctx, loaders, items)
+
 	var result []Item
 	for _, item := range items {
 		switch item.Type {
@@ -201,6 +203,7 @@ func GetCollectionItems(ctx context.Context, loaders *common.BatchLoaders, colle
 	if err != nil {
 		return nil, err
 	}
+
 	switch col.Type {
 	case "select":
 		return getItemsForSelectCollection(ctx, loaders, col.ID)

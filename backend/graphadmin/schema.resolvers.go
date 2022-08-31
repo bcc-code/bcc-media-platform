@@ -58,7 +58,7 @@ func (r *previewResolver) Asset(ctx context.Context, obj *gqladminmodel.Preview,
 	}, nil
 }
 
-// Preview is the resolver for the Preview field.
+// Preview is the resolver for the preview field.
 func (r *queryRootResolver) Preview(ctx context.Context) (*gqladminmodel.Preview, error) {
 	return &gqladminmodel.Preview{}, nil
 }

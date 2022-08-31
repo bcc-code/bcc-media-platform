@@ -16,6 +16,23 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
+// Items is the resolver for the items field.
+func (r *collectionResolver) Items(ctx context.Context, obj *gqlmodel.Collection, first *int, offset *int) (*gqlmodel.CollectionItemPagination, error) {
+	items, err := collectionItemResolverFromCollection(ctx, r.Resolver, "1")
+	if err != nil {
+		return nil, err
+	}
+
+	pagination := utils.Paginate(items, first, offset)
+
+	return &gqlmodel.CollectionItemPagination{
+		Total:  pagination.Total,
+		First:  pagination.First,
+		Offset: pagination.Offset,
+		Items:  pagination.Items,
+	}, nil
+}
+
 // Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error) {
 	intID, _ := strconv.ParseInt(obj.ID, 10, 32)
@@ -163,6 +180,13 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*gqlmodel.E
 	}, id, gqlmodel.EpisodeFrom)
 }
 
+// Collection is the resolver for the collection field.
+func (r *queryRootResolver) Collection(ctx context.Context, id string) (*gqlmodel.Collection, error) {
+	return resolverForIntID(ctx, &itemLoaders[int, common.Collection]{
+		Item: r.Loaders.CollectionLoader,
+	}, id, gqlmodel.CollectionFrom)
+}
+
 // Search is the resolver for the search field.
 func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int) (*gqlmodel.SearchResult, error) {
 	return searchResolver(r, ctx, queryString, first, offset)
@@ -267,6 +291,9 @@ func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show, first *i
 	}, nil
 }
 
+// Collection returns generated.CollectionResolver implementation.
+func (r *Resolver) Collection() generated.CollectionResolver { return &collectionResolver{r} }
+
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
 
@@ -295,6 +322,7 @@ func (r *Resolver) SeasonSearchItem() generated.SeasonSearchItemResolver {
 // Show returns generated.ShowResolver implementation.
 func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
 
+type collectionResolver struct{ *Resolver }
 type episodeResolver struct{ *Resolver }
 type episodeSearchItemResolver struct{ *Resolver }
 type itemSectionResolver struct{ *Resolver }

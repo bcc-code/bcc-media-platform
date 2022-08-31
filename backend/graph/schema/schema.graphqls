@@ -63,6 +63,14 @@ type ItemSection implements Section {
   ): CollectionItemPagination @goField(forceResolver: true)
 }
 
+type Collection {
+  id: ID!
+  items(
+    first: Int,
+    offset: Int,
+  ): CollectionItemPagination @goField(forceResolver: true)
+}
+
 scalar Cursor
 scalar Date
 
@@ -312,6 +320,10 @@ type QueryRoot{
   episode(
     id: ID!
   ): Episode
+
+  collection(
+    id: ID!
+  ): Collection
 
   search(
     queryString: String!
