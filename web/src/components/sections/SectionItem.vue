@@ -5,59 +5,47 @@
         </div>
         <div class="w-full mt-2 px-1">
             <div class="text-sm truncate text-secondary">
-                <slot name="subtitle">
-                    <p>{{item.type}}</p>
-                </slot>
+                <p
+                    v-if="
+                        item.__typename === 'EpisodeItem' &&
+                        item.episode.season &&
+                        item.episode.number
+                    "
+                >
+                    {{ item.episode.season.show.title }}
+                    <span class="text-sm text-faded"
+                        >S{{ item.episode.season.number }}:E{{
+                            item.episode.number
+                        }}</span
+                    >
+                </p>
+                <p
+                    v-else-if="
+                        item.__typename === 'SeasonItem' &&
+                        item.season.show &&
+                        item.season.number
+                    "
+                >
+                    {{ item.season.show.title }}
+                    <span class="text-sm text-faded"
+                        >S{{ item.season.number }}</span
+                    >
+                </p>
+                <p v-else-if="item.__typename === 'PageItem'">
+                    {{ item.page.code }}
+                </p>
+                <p v-else>
+                    {{ item.__typename }}
+                </p>
             </div>
             <p class="truncate">{{ item.title }}</p>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
-export type Item = EpisodeItem | SeasonItem | ShowItem | PageItem | URLItem
-
-export type EpisodeItem = {
-    id: string,
-    title: string
-    image?: string
-    type: "episode"
-    show?: string
-    season?: number
-    number?: number
-}
-
-export type SeasonItem = {
-    id: string,
-    title: string
-    image?: string
-    type: "season"
-    show: string
-    number: number
-}
-
-export type ShowItem = {
-    id: string,
-    title: string
-    image?: string
-    type: "show"
-}
-
-export type PageItem = {
-    id: string,
-    title: string
-    image?: string
-    code: string
-    type: "page"
-}
-
-export type URLItem = {
-    id: string,
-    title: string
-    image?: string
-    type: "url"
-}
+import { SectionItem } from "./types"
 
 defineProps<{
-    item: Item
+    item: SectionItem
 }>()
 </script>

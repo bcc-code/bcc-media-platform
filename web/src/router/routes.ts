@@ -9,7 +9,7 @@ export default [
             {
                 name: "page",
                 path: ":pageId",
-                component: () => import("@/pages/Page.vue")
+                component: () => import("@/pages/Page.vue"),
             },
             {
                 name: "front-page",

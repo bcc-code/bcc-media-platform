@@ -83,21 +83,18 @@ query.then((r) => {
                                 show: item.season.show.title,
                             })
                             break
-                            case "PageItem":
-                                items.push({
-                                    id: item.id,
-                                    type: "page",
-                                    title: item.title,
-                                    image: item.imageUrl ?? undefined,
-                                    code: item.page.code
-                                })
+                        case "PageItem":
+                            items.push({
+                                id: item.id,
+                                type: "page",
+                                title: item.title,
+                                image: item.imageUrl ?? undefined,
+                                code: item.page.code,
+                            })
 
                         default:
                             const type = getType(item.__typename)
-                            if (
-                                type === "show" ||
-                                type === "url"
-                            ) {
+                            if (type === "show" || type === "url") {
                                 items.push({
                                     id: item.id,
                                     type,
