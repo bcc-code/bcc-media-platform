@@ -17,7 +17,7 @@
 <script lang="ts" setup>
 import { Section, SectionItem as TSectionItem } from "./types"
 import SectionItem from "./SectionItem.vue"
-import { useRouter } from "vue-router";
+import { useRouter } from "vue-router"
 
 defineProps<{
     section: Section
@@ -32,41 +32,41 @@ const view = (item: TSectionItem) => {
                 name: "episode-page",
                 params: {
                     episodeId: item.id,
-                }
+                },
             })
-            break;
-            case "SeasonItem":
+            break
+        case "SeasonItem":
             router.push({
                 name: "season-page",
                 params: {
                     seasonId: item.id,
-                }
+                },
             })
-            break;
-            case "ShowItem":
+            break
+        case "ShowItem":
             router.push({
                 name: "show-page",
                 params: {
                     showId: item.id,
-                }
+                },
             })
-            break;
-            case "PageItem":
+            break
+        case "PageItem":
             router.push({
                 name: "page",
                 params: {
                     pageId: item.page.code,
-                }
+                },
             })
-            break;
-            case "URLItem":
+            break
+        case "URLItem":
             // router.push({
             //     name: "episode-page",
             //     params: {
             //         episodeId: item.id,
             //     }
             // })
-            break;
+            break
     }
 }
 </script>

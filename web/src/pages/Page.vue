@@ -17,7 +17,7 @@ import { GetPageQuery, ItemSection, useGetPageQuery } from "@/graph/generated"
 import { ref } from "vue"
 import ItemSectionComponent from "@/components/sections/ItemSection.vue"
 import { addError } from "@/utils/error"
-import { useRoute } from "vue-router";
+import { useRoute } from "vue-router"
 
 const route = useRoute()
 
