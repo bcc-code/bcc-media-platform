@@ -171,7 +171,7 @@ func main() {
 	r.Use(auth0.JWT(ctx, config.JWTConfig))
 	r.Use(user.NewUserMiddleware(queries))
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     config.Cors.Origins,
+		AllowAllOrigins:  true,
 		AllowMethods:     []string{"POST", "GET"},
 		AllowHeaders:     []string{"content-type", "authorization", "accept-language"},
 		AllowCredentials: true,

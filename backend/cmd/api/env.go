@@ -24,11 +24,6 @@ type envConfig struct {
 	JWTConfig auth0.JWTConfig
 	CDNConfig cdnConfig
 	Secrets   serviceSecrets
-	Cors      corsConfig
-}
-
-type corsConfig struct {
-	Origins []string
 }
 
 type cdnConfig struct {
@@ -57,11 +52,6 @@ func getEnvConfig() envConfig {
 			return strings.TrimSpace(s)
 		},
 	)
-	origins := lo.Map(strings.Split(os.Getenv("CORS_ORIGINS"), ","),
-		func(s string, _ int) string {
-			return strings.TrimSpace(s)
-		},
-	)
 
 	return envConfig{
 		DB: postgres{
@@ -85,9 +75,6 @@ func getEnvConfig() envConfig {
 		},
 		Secrets: serviceSecrets{
 			Directus: os.Getenv("SERVICE_SECRET_DIRECTUS"),
-		},
-		Cors: corsConfig{
-			Origins: origins,
 		},
 	}
 }
