@@ -1,9 +1,7 @@
 <template>
     <SectionItem :item="item">
         <template #subtitle>
-            <div class="w-full">
-                <p class="text-sm truncate text-secondary">Page</p>
-            </div>
+            <p>{{item.code}}</p>
         </template>
     </SectionItem>
 </template>

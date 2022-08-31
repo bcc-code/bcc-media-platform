@@ -15,10 +15,13 @@ import { ref } from "vue"
 import ItemSection, { Section } from "@/components/sections/ItemSection.vue"
 import { Item } from "@/components/sections/SectionItem.vue"
 import { addError } from "@/utils/error"
+import { useRoute } from "vue-router"
+
+const route = useRoute()
 
 const query = useGetPageQuery({
     variables: {
-        code: "frontpage",
+        code: route.params.pageId as string,
     },
 })
 

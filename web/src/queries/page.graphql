@@ -32,6 +32,11 @@ query getPage($code: String!) {
                                     }
                                 }
                             }
+                            ... on PageItem {
+                                page {
+                                    code
+                                }
+                            }
                         }
                     }
                 }

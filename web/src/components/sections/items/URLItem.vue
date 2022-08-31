@@ -1,9 +1,7 @@
 <template>
     <SectionItem :item="item">
         <template #subtitle>
-            <div class="w-full">
-                <p class="text-sm truncate text-secondary">Link</p>
-            </div>
+            <p>Link</p>
         </template>
     </SectionItem>
 </template>
