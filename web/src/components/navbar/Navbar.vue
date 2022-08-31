@@ -10,14 +10,14 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { computed, ref } from "vue";
-import LoginButton from "../user/LoginButton.vue";
-import VSelect from "../VSelect.vue";
+import { computed, ref } from "vue"
+import LoginButton from "../user/LoginButton.vue"
+import VSelect from "../VSelect.vue"
 
 const _languages = [
     {
         code: "no",
-        title: "NO"
+        title: "NO",
     },
     {
         code: "en",
@@ -25,21 +25,22 @@ const _languages = [
     },
     {
         code: "pl",
-        title: "PL"
-    }
+        title: "PL",
+    },
 ]
 
 const languages = computed(() => {
     if (Intl !== undefined) {
-        const languageNames = new Intl.DisplayNames(["en"], {type: "language"})
-        return _languages.map(i => ({
+        const languageNames = new Intl.DisplayNames(["en"], {
+            type: "language",
+        })
+        return _languages.map((i) => ({
             code: i.title,
-            title: languageNames.of(i.code) ?? "unknown"
+            title: languageNames.of(i.code) ?? "unknown",
         }))
     }
     return _languages
 })
-
 
 const selected = ref(languages.value[0])
 </script>

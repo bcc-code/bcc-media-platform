@@ -1,12 +1,10 @@
 <template>
     <div>
-        <Card>Main</Card>
         <div>
             {{ title }}
         </div>
         <div v-if="sections">
             <ItemSection v-for="section in sections" :section="section">
-
             </ItemSection>
         </div>
     </div>
@@ -14,16 +12,16 @@
 <script lang="ts" setup>
 import Card from "@/components/Card.vue"
 
-import { useGetPageQuery } from "@/graph/generated";
-import { ref } from "vue";
-import ItemSection, { Section } from "@/components/sections/ItemSection.vue";
-import { Item } from "@/components/sections/SectionItem.vue";
-import { addError } from "@/utils/error";
+import { useGetPageQuery } from "@/graph/generated"
+import { ref } from "vue"
+import ItemSection, { Section } from "@/components/sections/ItemSection.vue"
+import { Item } from "@/components/sections/SectionItem.vue"
+import { addError } from "@/utils/error"
 
 const query = useGetPageQuery({
     variables: {
         code: "frontpage",
-    }
+    },
 })
 
 const title = ref(null as string | null)
@@ -36,18 +34,18 @@ query.then((r) => {
     }
     const page = r.data.value?.page ?? null
     if (page) {
-        title.value = page.title;
+        title.value = page.title
 
         const getType = (type?: string) => {
             switch (type) {
                 case "ShowItem":
-                    return "show";
+                    return "show"
                 case "SeasonItem":
-                    return "season";
+                    return "season"
                 case "EpisodeItem":
-                    return "episode";
+                    return "episode"
                 case "PageItem":
-                    return "page";
+                    return "page"
                 case "URLItem":
                     return "url"
                 default:
@@ -57,11 +55,10 @@ query.then((r) => {
 
         for (const section of page.sections.items) {
             if (section.__typename === "ItemSection") {
-
                 const items: Item[] = []
                 for (const item of section.items.items) {
                     const type = getType(item.__typename)
-                    if (!type) continue;
+                    if (!type) continue
 
                     switch (item.__typename) {
                         case "EpisodeItem":
@@ -71,9 +68,9 @@ query.then((r) => {
                                 image: item.imageUrl ?? undefined,
                                 number: item.episode.number ?? undefined,
                                 season: item.episode.season?.number,
-                                show: item.episode.season?.show.title
+                                show: item.episode.season?.show.title,
                             })
-                            break;
+                            break
                         case "SeasonItem":
                             items.push({
                                 title: item.title,
@@ -82,10 +79,14 @@ query.then((r) => {
                                 number: item.season.number,
                                 show: item.season.show.title,
                             })
-                            break;
+                            break
                         default:
                             const type = getType(item.__typename)
-                            if (type === "show" || type === "page" || type === "url") {
+                            if (
+                                type === "show" ||
+                                type === "page" ||
+                                type === "url"
+                            ) {
                                 items.push({
                                     type,
                                     title: item.title,
@@ -103,5 +104,4 @@ query.then((r) => {
         }
     }
 })
-
 </script>

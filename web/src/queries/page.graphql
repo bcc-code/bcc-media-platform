@@ -30,7 +30,7 @@ query getPage($code: String!) {
                                     show {
                                         title
                                     }
-                                } 
+                                }
                             }
                         }
                     }

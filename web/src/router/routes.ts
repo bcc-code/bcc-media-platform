@@ -15,7 +15,7 @@ export default [
                 name: "episode-page",
                 path: "episode/:episodeId",
                 component: () => import("@/pages/Episode.vue"),
-            }
+            },
         ],
     },
 ] as RouteRecordRaw[]

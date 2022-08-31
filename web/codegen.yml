@@ -1,8 +1,8 @@
 schema: http://localhost:8077/query
-documents: './src/**/*.graphql'
+documents: "./src/**/*.graphql"
 generates:
-  ./src/graph/generated.ts:
-    plugins:
-      - typescript
-      - typescript-operations
-      - typescript-vue-urql
+    ./src/graph/generated.ts:
+        plugins:
+            - typescript
+            - typescript-operations
+            - typescript-vue-urql

@@ -1,6 +1,6 @@
-import config from "@/config";
-import { createClient } from "@urql/vue";
+import config from "@/config"
+import { createClient } from "@urql/vue"
 
 export default createClient({
-    url: config.api.url
+    url: config.api.url,
 })

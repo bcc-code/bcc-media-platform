@@ -9,7 +9,7 @@ module.exports = {
                     light: "#212b39",
                 },
                 secondary: "#6eb0e6",
-                faded: "#707c8e"
+                faded: "#707c8e",
             },
         },
     },
