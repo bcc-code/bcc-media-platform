@@ -18,8 +18,9 @@ import { useGetPageQuery } from "@/graph/generated";
 import { ref } from "vue";
 import ItemSection, { Section } from "@/components/sections/ItemSection.vue";
 import { Item } from "@/components/sections/SectionItem.vue";
+import { addError } from "@/utils/error";
 
-const result = useGetPageQuery({
+const query = useGetPageQuery({
     variables: {
         code: "frontpage",
     }
@@ -28,7 +29,11 @@ const result = useGetPageQuery({
 const title = ref(null as string | null)
 const sections = ref([] as Section[])
 
-result.then((r) => {
+query.then((r) => {
+    if (query.error.value) {
+        addError(query.error.value.message)
+        return
+    }
     const page = r.data.value?.page ?? null
     if (page) {
         title.value = page.title;
@@ -55,28 +60,39 @@ result.then((r) => {
 
                 const items: Item[] = []
                 for (const item of section.items.items) {
-                    let header = null as string | null
-                    let header2 = null as string | null
+                    const type = getType(item.__typename)
+                    if (!type) continue;
+
                     switch (item.__typename) {
                         case "EpisodeItem":
-                            if (item.episode.season && item.episode.number) {
-                                header = item.episode.season.show.title
-                                header2 = "S" + item.episode.season.number + ":E" + item.episode.number
-                            }
+                            items.push({
+                                title: item.title,
+                                type: "episode",
+                                image: item.imageUrl ?? undefined,
+                                number: item.episode.number ?? undefined,
+                                season: item.episode.season?.number,
+                                show: item.episode.season?.show.title
+                            })
                             break;
                         case "SeasonItem":
-                            header = item.season.show.title
-                            header2 = "S" + item.season.number
+                            items.push({
+                                title: item.title,
+                                type: "season",
+                                image: item.imageUrl ?? undefined,
+                                number: item.season.number,
+                                show: item.season.show.title,
+                            })
                             break;
+                        default:
+                            const type = getType(item.__typename)
+                            if (type === "show" || type === "page" || type === "url") {
+                                items.push({
+                                    type,
+                                    title: item.title,
+                                    image: item.imageUrl ?? undefined,
+                                })
+                            }
                     }
-
-                    items.push({
-                        title: item.title,
-                        type: getType(item.__typename),
-                        header: header ?? undefined,
-                        header2: header2 ?? undefined,
-                        image: item.imageUrl ?? undefined,
-                    })
                 }
 
                 sections.value.push({

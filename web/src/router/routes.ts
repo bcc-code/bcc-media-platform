@@ -7,10 +7,15 @@ export default [
         component: () => import("@/layout/StackedLayout.vue"),
         children: [
             {
-                name: "main-page",
+                name: "front-page",
                 path: "",
-                component: () => import("@/pages/Main.vue"),
+                component: () => import("@/pages/Front.vue"),
             },
+            {
+                name: "episode-page",
+                path: "episode/:episodeId",
+                component: () => import("@/pages/Episode.vue"),
+            }
         ],
     },
 ] as RouteRecordRaw[]
