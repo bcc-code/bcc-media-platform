@@ -287,9 +287,3 @@ type Question struct {
 func (i Question) GetKey() int {
 	return i.ID
 }
-
-// MaintenanceMessage is the struct for maintenance messages
-type MaintenanceMessage struct {
-	Message LocaleString
-	Details LocaleString
-}

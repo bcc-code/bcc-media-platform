@@ -2,8 +2,9 @@ package user
 
 import (
 	"context"
-	"github.com/graph-gophers/dataloader/v7"
 	"time"
+
+	"github.com/graph-gophers/dataloader/v7"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -43,6 +44,9 @@ func ValidateAccess[k comparable](ctx context.Context, permissionLoader *dataloa
 	u := GetFromCtx(ginCtx)
 
 	perms, err := common.GetFromLoaderByID(ctx, permissionLoader, id)
+	if err != nil {
+		return err
+	}
 
 	roles := perms.Roles
 	availability := perms.Availability

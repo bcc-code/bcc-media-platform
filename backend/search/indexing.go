@@ -7,7 +7,6 @@ import (
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
-	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
@@ -230,8 +229,19 @@ func indexObject[k comparable, t indexable[k]](
 	return err
 }
 
+var supportedCollections = []string{
+	"shows",
+	"seasons",
+	"episodes",
+}
+
 // DeleteModel from index by collection and id
 func (service *Service) DeleteModel(_ context.Context, collection string, id int) error {
+
+	if !lo.Contains(supportedCollections, collection) {
+		// no reason to send a request if the collection isn't supported
+		return nil
+	}
 	_, err := service.index.DeleteObject(collection + "-" + strconv.Itoa(id))
 	return err
 }
@@ -251,7 +261,7 @@ func (service *Service) IndexModel(ctx context.Context, collection string, id in
 	case "episodes":
 		service.loaders.EpisodeLoader.Clear(ctx, id)
 		return service.indexEpisode(ctx, id)
-	default:
-		return merry.New("collection not supported for indexing")
 	}
+	// no reason to return errors, as we know quite well what is supported
+	return nil
 }

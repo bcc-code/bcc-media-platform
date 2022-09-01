@@ -2,11 +2,7 @@ import { Directus } from '@directus/sdk';
 import { BTVTypes } from './types'
 import { faker } from '@faker-js/faker';
 
-const directus = new Directus<BTVTypes>(process.env.DU_HOST, {
-	auth: {
-		staticToken: process.env.DU_TOKEN, // You need to set this in the DU instance, and your env
-	},
-});
+const directus = new Directus<BTVTypes>(process.env.DU_HOST, {});
 
 function getRandomDate() {
 	let date = new Date()
@@ -106,6 +102,10 @@ async function makeEpisodes(seasonId: number, count : number) : Promise<Array<nu
 }
 
 async function start() {
+	await directus.auth.login({
+		email: process.env.DU_ADMIN_EMAIL,
+		password: process.env.DU_ADMIN_PASS,
+	});
 	let show = await makeShow()
 	let seasons = await makeSeasons(show, 3)
 

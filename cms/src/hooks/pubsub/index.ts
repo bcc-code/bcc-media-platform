@@ -3,7 +3,8 @@ import { HookConfig } from "@directus/shared/src/types"
 
 type Translation = "shows_translations" | "seasons_translations" | "episodes_translations"
 type Object = "shows" | "seasons" | "episodes"
-export type Collection = Translation | Object
+type Singleton = "globalconfig" | "appconfig" | "webconfig" | "maintenancemessage"
+export type Collection = Translation | Object | Singleton
 
 export interface Event {
     key: number;

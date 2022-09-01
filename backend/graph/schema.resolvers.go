@@ -6,7 +6,6 @@ package graph
 import (
 	"context"
 	"strconv"
-	"time"
 
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
@@ -15,8 +14,24 @@ import (
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"github.com/samber/lo"
 )
+
+// Items is the resolver for the items field.
+func (r *collectionResolver) Items(ctx context.Context, obj *gqlmodel.Collection, first *int, offset *int) (*gqlmodel.CollectionItemPagination, error) {
+	items, err := collectionItemResolverFromCollection(ctx, r.Resolver, "1")
+	if err != nil {
+		return nil, err
+	}
+
+	pagination := utils.Paginate(items, first, offset)
+
+	return &gqlmodel.CollectionItemPagination{
+		Total:  pagination.Total,
+		First:  pagination.First,
+		Offset: pagination.Offset,
+		Items:  pagination.Items,
+	}, nil
+}
 
 // Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error) {
@@ -165,34 +180,21 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*gqlmodel.E
 	}, id, gqlmodel.EpisodeFrom)
 }
 
+// Collection is the resolver for the collection field.
+func (r *queryRootResolver) Collection(ctx context.Context, id string) (*gqlmodel.Collection, error) {
+	return resolverForIntID(ctx, &itemLoaders[int, common.Collection]{
+		Item: r.Loaders.CollectionLoader,
+	}, id, gqlmodel.CollectionFrom)
+}
+
 // Search is the resolver for the search field.
 func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int) (*gqlmodel.SearchResult, error) {
 	return searchResolver(r, ctx, queryString, first, offset)
 }
 
 // Messages is the resolver for the messages field.
-func (r *queryRootResolver) Messages(ctx context.Context, timestamp *string) ([]*gqlmodel.MaintenanceMessage, error) {
-	var fromtime *time.Time
-	if timestamp != nil {
-		t, err := time.Parse(time.RFC3339, *timestamp)
-		if err != nil {
-			return nil, err
-		}
-		fromtime = &t
-	}
-	messages, err := r.getMaintenanceMessages(ctx, fromtime)
-	if err != nil {
-		return nil, err
-	}
-	return lo.Map(messages, func(m common.MaintenanceMessage, _ int) *gqlmodel.MaintenanceMessage {
-		ginCtx, _ := utils.GinCtx(ctx)
-		languages := user.GetLanguagesFromCtx(ginCtx)
-
-		return &gqlmodel.MaintenanceMessage{
-			Message: m.Message.Get(languages),
-			Details: m.Details.GetValueOrNil(languages),
-		}
-	}), nil
+func (r *queryRootResolver) Messages(ctx context.Context) (*gqlmodel.Messages, error) {
+	return &gqlmodel.Messages{}, nil
 }
 
 // Calendar is the resolver for the calendar field.
@@ -242,6 +244,11 @@ func (r *queryRootResolver) Me(ctx context.Context) (*gqlmodel.User, error) {
 	return u, nil
 }
 
+// Config is the resolver for the config field.
+func (r *queryRootResolver) Config(ctx context.Context) (*gqlmodel.Config, error) {
+	return &gqlmodel.Config{}, nil
+}
+
 // Show is the resolver for the show field.
 func (r *seasonResolver) Show(ctx context.Context, obj *gqlmodel.Season) (*gqlmodel.Show, error) {
 	return r.QueryRoot().Show(ctx, obj.Show.ID)
@@ -284,6 +291,9 @@ func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show, first *i
 	}, nil
 }
 
+// Collection returns generated.CollectionResolver implementation.
+func (r *Resolver) Collection() generated.CollectionResolver { return &collectionResolver{r} }
+
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
 
@@ -312,6 +322,7 @@ func (r *Resolver) SeasonSearchItem() generated.SeasonSearchItemResolver {
 // Show returns generated.ShowResolver implementation.
 func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
 
+type collectionResolver struct{ *Resolver }
 type episodeResolver struct{ *Resolver }
 type episodeSearchItemResolver struct{ *Resolver }
 type itemSectionResolver struct{ *Resolver }
