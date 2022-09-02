@@ -12,7 +12,7 @@ import (
 )
 
 const getCollectionItemsForCollections = `-- name: getCollectionItemsForCollections :many
-SELECT id, sort, user_created, date_created, user_updated, date_updated, collection_id, page_id, show_id, season_id, episode_id, type FROM collections_items ci WHERE ci.collection_id = ANY($1::int[])
+SELECT collection_id, date_created, date_updated, episode_id, id, page_id, season_id, show_id, sort, type, user_created, user_updated FROM collections_items ci WHERE ci.collection_id = ANY($1::int[])
 `
 
 func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1 []int32) ([]CollectionsItem, error) {
@@ -25,18 +25,18 @@ func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1
 	for rows.Next() {
 		var i CollectionsItem
 		if err := rows.Scan(
-			&i.ID,
-			&i.Sort,
-			&i.UserCreated,
-			&i.DateCreated,
-			&i.UserUpdated,
-			&i.DateUpdated,
 			&i.CollectionID,
-			&i.PageID,
-			&i.ShowID,
-			&i.SeasonID,
+			&i.DateCreated,
+			&i.DateUpdated,
 			&i.EpisodeID,
+			&i.ID,
+			&i.PageID,
+			&i.SeasonID,
+			&i.ShowID,
+			&i.Sort,
 			&i.Type,
+			&i.UserCreated,
+			&i.UserUpdated,
 		); err != nil {
 			return nil, err
 		}
@@ -52,7 +52,7 @@ func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1
 }
 
 const getCollections = `-- name: getCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, shows_query_filter, seasons_query_filter, episodes_query_filter, name, filter_type, pages_query_filter FROM collections c WHERE c.id = ANY($1::int[])
+SELECT id, sort, user_created, date_created, user_updated, date_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter FROM collections c WHERE c.id = ANY($1::int[])
 `
 
 func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Collection, error) {
@@ -65,19 +65,19 @@ func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 	for rows.Next() {
 		var i Collection
 		if err := rows.Scan(
-			&i.DateCreated,
-			&i.DateUpdated,
 			&i.ID,
 			&i.Sort,
 			&i.UserCreated,
+			&i.DateCreated,
 			&i.UserUpdated,
+			&i.DateUpdated,
 			&i.Collection,
-			&i.ShowsQueryFilter,
-			&i.SeasonsQueryFilter,
 			&i.EpisodesQueryFilter,
-			&i.Name,
 			&i.FilterType,
+			&i.Name,
 			&i.PagesQueryFilter,
+			&i.SeasonsQueryFilter,
+			&i.ShowsQueryFilter,
 		); err != nil {
 			return nil, err
 		}
@@ -93,7 +93,7 @@ func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 }
 
 const listCollections = `-- name: listCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, shows_query_filter, seasons_query_filter, episodes_query_filter, name, filter_type, pages_query_filter FROM collections
+SELECT id, sort, user_created, date_created, user_updated, date_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter FROM collections
 `
 
 func (q *Queries) listCollections(ctx context.Context) ([]Collection, error) {
@@ -106,19 +106,19 @@ func (q *Queries) listCollections(ctx context.Context) ([]Collection, error) {
 	for rows.Next() {
 		var i Collection
 		if err := rows.Scan(
-			&i.DateCreated,
-			&i.DateUpdated,
 			&i.ID,
 			&i.Sort,
 			&i.UserCreated,
+			&i.DateCreated,
 			&i.UserUpdated,
+			&i.DateUpdated,
 			&i.Collection,
-			&i.ShowsQueryFilter,
-			&i.SeasonsQueryFilter,
 			&i.EpisodesQueryFilter,
-			&i.Name,
 			&i.FilterType,
+			&i.Name,
 			&i.PagesQueryFilter,
+			&i.SeasonsQueryFilter,
+			&i.ShowsQueryFilter,
 		); err != nil {
 			return nil, err
 		}

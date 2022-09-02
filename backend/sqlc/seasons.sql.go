@@ -19,9 +19,9 @@ const refreshSeasonAccessView = `-- name: RefreshSeasonAccessView :one
 SELECT update_access('seasons_access')
 `
 
-func (q *Queries) RefreshSeasonAccessView(ctx context.Context) (bool, error) {
+func (q *Queries) RefreshSeasonAccessView(ctx context.Context) (interface{}, error) {
 	row := q.db.QueryRowContext(ctx, refreshSeasonAccessView)
-	var update_access bool
+	var update_access interface{}
 	err := row.Scan(&update_access)
 	return update_access, err
 }

@@ -19,9 +19,9 @@ const refreshEpisodeAccessView = `-- name: RefreshEpisodeAccessView :one
 SELECT update_access('episodes_access')
 `
 
-func (q *Queries) RefreshEpisodeAccessView(ctx context.Context) (bool, error) {
+func (q *Queries) RefreshEpisodeAccessView(ctx context.Context) (interface{}, error) {
 	row := q.db.QueryRowContext(ctx, refreshEpisodeAccessView)
-	var update_access bool
+	var update_access interface{}
 	err := row.Scan(&update_access)
 	return update_access, err
 }
