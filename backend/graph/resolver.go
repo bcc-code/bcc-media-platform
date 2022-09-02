@@ -2,6 +2,10 @@ package graph
 
 import (
 	"context"
+	"strconv"
+	"sync"
+	"time"
+
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
@@ -12,9 +16,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
-	"strconv"
-	"sync"
-	"time"
 )
 
 type apiConfig interface {

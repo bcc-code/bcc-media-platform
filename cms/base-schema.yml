@@ -14288,7 +14288,11 @@ fields:
       hidden: false
       interface: list-o2m
       note: null
-      options: null
+      options:
+        filter:
+          _and:
+            - type:
+                _eq: episode
       readonly: false
       required: false
       sort: 1
