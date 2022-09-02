@@ -1,15 +1,15 @@
 <template>
     <div>
         <h1 class="text-xl">{{ title }}</h1>
-        <div id="video-player"></div>
+        <EpisodeViewer :episode-id="(route.params.episodeId as string)"></EpisodeViewer>
     </div>
 </template>
 <script lang="ts" setup>
 import { useGetEpisodeQuery } from "@/graph/generated"
 import { addError } from "@/utils/error"
-import { onMounted, onUnmounted, onUpdated, ref } from "vue"
+import { ref } from "vue"
 import { useRoute } from "vue-router"
-import { create } from "btv-video-player"
+import EpisodeViewer from "@/components/EpisodeViewer.vue";
 
 const route = useRoute()
 
@@ -30,26 +30,5 @@ query.then((r) => {
     if (episode) {
         title.value = episode.title
     }
-})
-
-const player = ref(null as any)
-
-const current = ref(null as string | null)
-
-const load = async () => {
-    const episodeId = route.params.episodeId as string;
-    if (current.value !== episodeId) {
-        player.value = await create("video-player", {
-            episodeID: route.params.episodeId as string
-        })
-    }
-}
-
-onUpdated(load)
-
-onMounted(load)
-
-onUnmounted(() => {
-    player.value?.dispose()
 })
 </script>
