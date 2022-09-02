@@ -230,16 +230,14 @@ WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs
                             JOIN assets a ON e.asset_id = a.id
                             LEFT JOIN assetstreams s ON a.id = s.asset_id
                             LEFT JOIN assetstreams_audio_languages al ON al.assetstreams_id = s.id
-                   WHERE e.id = 1
                    GROUP BY s.id),
      sublang AS (SELECT s.id, array_agg(al.languages_code) langs
                  FROM episodes e
                           JOIN assets a ON e.asset_id = a.id
                           LEFT JOIN assetstreams s ON a.id = s.asset_id
                           LEFT JOIN assetstreams_subtitle_languages al ON al.assetstreams_id = s.id
-                 WHERE e.id = 1
                  GROUP BY s.id)
-SELECT e.id AS episodes_id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id, s.extra_metadata, s.id, s.legacy_videourl_id, s.path, s.service, s.status, s.type, s.url, s.user_created, s.user_updated, COALESCE(al.langs, array[])::text[] audio_languages, COALESCE(sl.langs, array[])::text[] subtitle_languages
+SELECT e.id AS episodes_id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id, s.extra_metadata, s.id, s.legacy_videourl_id, s.path, s.service, s.status, s.type, s.url, s.user_created, s.user_updated, COALESCE(al.langs, '{}')::text[] audio_languages, COALESCE(sl.langs, '{}')::text[] subtitle_languages
 FROM episodes e
          JOIN assets a ON e.asset_id = a.id
          JOIN assetstreams s ON a.id = s.asset_id
