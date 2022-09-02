@@ -18,12 +18,14 @@ WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs
                             JOIN assets a ON e.asset_id = a.id
                             LEFT JOIN assetstreams s ON a.id = s.asset_id
                             LEFT JOIN assetstreams_audio_languages al ON al.assetstreams_id = s.id
+                   WHERE al.languages_code IS NOT NULL
                    GROUP BY s.id),
      sublang AS (SELECT s.id, array_agg(al.languages_code) langs
                  FROM episodes e
                           JOIN assets a ON e.asset_id = a.id
                           LEFT JOIN assetstreams s ON a.id = s.asset_id
                           LEFT JOIN assetstreams_subtitle_languages al ON al.assetstreams_id = s.id
+                 WHERE al.languages_code IS NOT NULL
                  GROUP BY s.id)
 SELECT e.id AS episodes_id, s.*, COALESCE(al.langs, '{}')::text[] audio_languages, COALESCE(sl.langs, '{}')::text[] subtitle_languages
 FROM episodes e
@@ -35,20 +37,20 @@ WHERE e.id = ANY($1::int[]);
 
 -- name: getStreamsForAssets :many
 WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs
-                   FROM episodes e
-                            JOIN assets a ON e.asset_id = a.id
+                   FROM assets a
                             LEFT JOIN assetstreams s ON a.id = s.asset_id
                             LEFT JOIN assetstreams_audio_languages al ON al.assetstreams_id = s.id
+                   WHERE al.languages_code IS NOT NULL
                    GROUP BY s.id),
      sublang AS (SELECT s.id, array_agg(al.languages_code) langs
-                 FROM episodes e
-                          JOIN assets a ON e.asset_id = a.id
+                 FROM assets a
                           LEFT JOIN assetstreams s ON a.id = s.asset_id
                           LEFT JOIN assetstreams_subtitle_languages al ON al.assetstreams_id = s.id
+                 WHERE al.languages_code IS NOT NULL
                  GROUP BY s.id)
-SELECT 0::int as episodes_id, s.*, al.langs::text[] audio_languages, sl.langs::text[] subtitle_languages
+SELECT 0::int as episodes_id, s.*, COALESCE(al.langs::text[], '{}') audio_languages, COALESCE(sl.langs::text[], '{}') subtitle_languages
 FROM assets a
          JOIN assetstreams s ON a.id = s.asset_id
          LEFT JOIN audiolang al ON al.id = s.id
          LEFT JOIN sublang sl ON sl.id = s.id
-WHERE a.id = ANY($1::int[]);
+WHERE a.id = ANY ($1::int[]);
