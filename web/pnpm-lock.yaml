@@ -12,7 +12,7 @@ specifiers:
   '@urql/vue': ^1.0.2
   '@vitejs/plugin-vue': ^3.0.3
   autoprefixer: ^10.4.8
-  btv-video-player: 1.0.5
+  btv-video-player: 1.0.6
   eslint: ^8.23.0
   eslint-config-prettier: ^8.5.0
   eslint-plugin-prettier-vue: ^4.2.0
@@ -33,7 +33,7 @@ dependencies:
   '@headlessui/vue': 1.6.7_vue@3.2.37
   '@heroicons/vue': 2.0.8_vue@3.2.37
   '@urql/vue': 1.0.2_graphql@16.6.0+vue@3.2.37
-  btv-video-player: 1.0.5
+  btv-video-player: 1.0.6
   graphql: 16.6.0
   graphql-tag: 2.12.6_graphql@16.6.0
   vue: 3.2.37
@@ -1921,8 +1921,8 @@ packages:
       node-int64: 0.4.0
     dev: true
 
-  /btv-video-player/1.0.5:
-    resolution: {integrity: sha512-3VLzPGBBlMY4jVe7MLaTcawC6UzDvowka7aka0wPxiJ6Vyd/jftNi/T/NYs3c51BqXL8eMUnPIR/Nmq0kIIb6Q==}
+  /btv-video-player/1.0.6:
+    resolution: {integrity: sha512-r+1jdsi0A+a9h5v/5YoZ1xlX5QKn5ATvS8yQ6yBF613ga2oLBrt7eodNV9KcTHsUNRrVJhxFB7jJi1gw59+YCw==}
     dependencies:
       graphql: 16.6.0
       graphql-request: 5.0.0_graphql@16.6.0

@@ -15,7 +15,7 @@
         "@headlessui/vue": "^1.6.7",
         "@heroicons/vue": "^2.0.8",
         "@urql/vue": "^1.0.2",
-        "btv-video-player": "1.0.5",
+        "btv-video-player": "1.0.6",
         "graphql": "^16.6.0",
         "graphql-tag": "^2.12.6",
         "vue": "^3.2.37",

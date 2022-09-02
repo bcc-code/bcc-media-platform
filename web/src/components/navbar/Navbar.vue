@@ -2,7 +2,7 @@
     <div
         class="flex max-w-screen-lg mx-auto bg-gradient-to-r from-primary via-primary-light to-primary p-4"
     >
-        <img class="h-8" src="/logo.svg" />
+        <img @click="home()" class="h-8 cursor-pointer" src="/logo.svg" />
         <div class="flex my-auto ml-auto gap-4">
             <LoginButton>Logout</LoginButton>
             <VSelect v-model="selected" :data="languages">Language</VSelect>
@@ -11,8 +11,13 @@
 </template>
 <script lang="ts" setup>
 import { computed, ref } from "vue"
+import { useRouter } from "vue-router";
 import LoginButton from "../user/LoginButton.vue"
 import VSelect from "../VSelect.vue"
+
+const router = useRouter()
+
+const home = () => router.push({name: "front-page"})
 
 const _languages = [
     {
