@@ -1,0 +1,27 @@
+version: v1.0
+name: Deploy DEV
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2004
+fail_fast:
+  stop:
+    when: 'true'
+
+queue:
+  name: DEV Deploy Queue
+  scope: project
+
+blocks:
+  - name: Deploy
+    task:
+      jobs:
+        - name: build
+          commands:
+            - checkout
+            - ./scripts/deploy.sh dev
+      secrets:
+        - name: GoogleSemaphoreServiceAccount
+      prologue:
+        commands:
+          - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
