@@ -4,7 +4,7 @@ shopt -s extglob
 
 ## IF YOU CHANGE THIS YOU ALSO NEED TO CHANGE ./pg-diff-config.json
 ACTIVEDB=btv
-TEMPDB=btv_temp
+TEMPDB=btv2
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 cd $script_dir
