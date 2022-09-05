@@ -1,45 +1,32 @@
 <template>
     <div>
         <Listbox v-model="selected">
-            <div class="relative mt-1">
+            <div class="relative">
                 <ListboxButton
-                    class="relative w-full cursor-default rounded-lg py-2 px-4 hover:bg-primary-light text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
-                >
-                    <span class="block truncate">{{ selected.title }}</span>
+                    class="cursor-pointer rounded-md border border-primary bg-primary-light py-2 px-3 text-left shadow-sm hover:border-indigo-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm">
+                    <span class="flex items-center">
+                        <span class="block truncate">{{ selected.title }}</span>
+                    </span>
                 </ListboxButton>
 
-                <transition
-                    leave-active-class="transition duration-100 ease-in"
-                    leave-from-class="opacity-100"
-                    leave-to-class="opacity-0"
-                >
+                <transition leave-active-class="transition duration-100 ease-in" leave-from-class="opacity-100"
+                    leave-to-class="opacity-0">
                     <ListboxOptions
-                        class="absolute mt-1 max-h-60 w-full rounded-md shadow-lg focus:outline-none sm:text-sm"
-                    >
-                        <ListboxOption
-                            v-slot="{ active, selected }"
-                            v-for="(item, i) in data"
-                            :key="i"
-                            :value="item"
-                            as="template"
-                        >
-                            <li
-                                :class="[
-                                    active
-                                        ? 'bg-primary-light text-amber-100'
-                                        : 'text-gray-100',
-                                    'relative cursor-default select-none py-2 pl-4',
-                                ]"
-                            >
-                                <span
-                                    :class="[
-                                        selected
-                                            ? 'font-medium'
-                                            : 'font-normal',
-                                        'block truncate',
-                                    ]"
-                                    >{{ item.title }}</span
-                                >
+                        class="absolute mt-1 max-h-60 right-0 rounded-md shadow-lg focus:outline-none sm:text-sm overflow-auto">
+                        <ListboxOption v-slot="{ active, selected }" v-for="(item, i) in data" :key="i" :value="item"
+                            as="template">
+                            <li :class="[
+                                active
+                                    ? 'bg-primary-light text-amber-100'
+                                    : 'text-gray-100',
+                                'relative cursor-pointer select-none py-2 px-4',
+                            ]">
+                                <span :class="[
+                                    selected
+                                        ? 'font-medium'
+                                        : 'font-normal',
+                                    'block truncate',
+                                ]">{{ item.title }}</span>
                             </li>
                         </ListboxOption>
                     </ListboxOptions>

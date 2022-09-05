@@ -103,6 +103,7 @@ export type Episode = {
   extraDescription: Scalars['String'];
   files: Array<File>;
   id: Scalars['ID'];
+  imageUrl?: Maybe<Scalars['String']>;
   legacyID?: Maybe<Scalars['ID']>;
   number?: Maybe<Scalars['Int']>;
   season?: Maybe<Season>;
@@ -394,6 +395,7 @@ export type Season = {
   description: Scalars['String'];
   episodes: EpisodePagination;
   id: Scalars['ID'];
+  imageUrl?: Maybe<Scalars['String']>;
   legacyID?: Maybe<Scalars['ID']>;
   number: Scalars['Int'];
   show: Show;
@@ -467,6 +469,7 @@ export type Show = {
   description: Scalars['String'];
   episodeCount: Scalars['Int'];
   id: Scalars['ID'];
+  imageUrl?: Maybe<Scalars['String']>;
   legacyID?: Maybe<Scalars['ID']>;
   seasonCount: Scalars['Int'];
   seasons: SeasonPagination;
@@ -562,7 +565,7 @@ export type GetEpisodeQueryVariables = Exact<{
 }>;
 
 
-export type GetEpisodeQuery = { episode?: { id: string, title: string, description: string, number?: number | null, season?: { title: string, number: number, show: { title: string } } | null } | null };
+export type GetEpisodeQuery = { episode?: { id: string, title: string, description: string, imageUrl?: string | null, number?: number | null, season?: { title: string, number: number, show: { title: string } } | null } | null };
 
 export type GetPageQueryVariables = Exact<{
   code: Scalars['String'];
@@ -585,6 +588,7 @@ export const GetEpisodeDocument = gql`
     id
     title
     description
+    imageUrl
     number
     season {
       title

@@ -1,11 +1,11 @@
 <template>
-    <div>
+    <div v-if="episode">
         <EpisodeViewer :episode-id="(route.params.episodeId as string)"></EpisodeViewer>
         <div class="flex">
-            <img class="rounded rounded-lg" :src="query.data.value?.episode?.image" />
+            <img v-if="episode.imageUrl" class="rounded rounded-lg" :src="episode.imageUrl" />
             <div>
-                <h3 class="text-sm text-secondary">{{query.data.value?.episode?.season?.show.title}}</h3>
-                <h1 class="text-xl">{{ title }}</h1>
+                <h3 class="text-sm text-secondary">{{episode.season?.show.title}}</h3>
+                <h1 class="text-xl">{{ episode.title }}</h1>
             </div>
         </div>
     </div>
@@ -13,7 +13,7 @@
 <script lang="ts" setup>
 import { useGetEpisodeQuery } from "@/graph/generated"
 import { addError } from "@/utils/error"
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { useRoute } from "vue-router"
 import EpisodeViewer from "@/components/EpisodeViewer.vue";
 
@@ -25,16 +25,14 @@ const query = useGetEpisodeQuery({
     },
 })
 
-const title = ref("")
+const episode = computed(() => {
+    return query.data.value?.episode ?? null
+})
 
 query.then((r) => {
     if (query.error.value) {
         addError(query.error.value.message)
         return
-    }
-    const episode = r.data.value?.episode
-    if (episode) {
-        title.value = episode.title
     }
 })
 </script>

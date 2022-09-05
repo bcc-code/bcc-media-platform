@@ -1,6 +1,6 @@
 <template>
     <button
-        class="p-2 px-4 rounded rounded-lg"
+        class="cursor-pointer rounded-md border border-primary py-2 px-3 text-left shadow-sm hover:border-indigo-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
         :class="[styles.background, styles.text]"
     >
         <slot></slot>
