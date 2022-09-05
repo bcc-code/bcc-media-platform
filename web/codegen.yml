@@ -6,3 +6,5 @@ generates:
             - typescript
             - typescript-operations
             - typescript-vue-urql
+        config:
+            skipTypename: true

@@ -4,18 +4,18 @@
             {{ title }}
         </div>
         <div>
-            <ItemSectionComponent
+            <ItemSection
                 v-for="section in query.data.value?.page?.sections.items"
                 :section="section"
             >
-            </ItemSectionComponent>
+            </ItemSection>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
-import { GetPageQuery, ItemSection, useGetPageQuery } from "@/graph/generated"
+import { useGetPageQuery } from "@/graph/generated"
 import { ref } from "vue"
-import ItemSectionComponent from "@/components/sections/ItemSection.vue"
+import ItemSection from "@/components/sections/ItemSection.vue"
 import { addError } from "@/utils/error"
 
 const query = useGetPageQuery({

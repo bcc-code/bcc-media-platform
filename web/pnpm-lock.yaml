@@ -9,10 +9,11 @@ specifiers:
   '@headlessui/vue': ^1.6.7
   '@heroicons/vue': ^2.0.8
   '@types/node': ^18.7.13
+  '@urql/exchange-auth': ^1.0.0
   '@urql/vue': ^1.0.2
   '@vitejs/plugin-vue': ^3.0.3
   autoprefixer: ^10.4.8
-  btv-video-player: 1.0.6
+  btv-video-player: 1.0.7
   eslint: ^8.23.0
   eslint-config-prettier: ^8.5.0
   eslint-plugin-prettier-vue: ^4.2.0
@@ -32,8 +33,9 @@ dependencies:
   '@auth0/auth0-vue': 1.0.2_vue-router@4.1.5
   '@headlessui/vue': 1.6.7_vue@3.2.37
   '@heroicons/vue': 2.0.8_vue@3.2.37
+  '@urql/exchange-auth': 1.0.0_graphql@16.6.0
   '@urql/vue': 1.0.2_graphql@16.6.0+vue@3.2.37
-  btv-video-player: 1.0.6
+  btv-video-player: 1.0.7
   graphql: 16.6.0
   graphql-tag: 2.12.6_graphql@16.6.0
   vue: 3.2.37
@@ -53,7 +55,7 @@ devDependencies:
   eslint-plugin-vue: 9.4.0_eslint@8.23.0
   postcss: 8.4.16
   prettier: 2.7.1
-  tailwindcss: 3.1.8
+  tailwindcss: 3.1.8_postcss@8.4.16
   typescript: 4.8.2
   vite: 3.0.9
   vue-tsc: 0.39.5_typescript@4.8.2
@@ -1361,6 +1363,16 @@ packages:
       wonka: 6.0.0
     dev: false
 
+  /@urql/exchange-auth/1.0.0_graphql@16.6.0:
+    resolution: {integrity: sha512-79hqPQab+ifeINOxvQykvqub4ixWHBEIagN4U67ijcHGMfp3c4yEWRk4IJMPwF+OMT7LrRFuv+jRIZTQn/9VwQ==}
+    peerDependencies:
+      graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+    dependencies:
+      '@urql/core': 3.0.2_graphql@16.6.0
+      graphql: 16.6.0
+      wonka: 6.0.0
+    dev: false
+
   /@urql/vue/1.0.2_graphql@16.6.0+vue@3.2.37:
     resolution: {integrity: sha512-TBfMfu+aGmuudqAz4lE+VxlN+2y5xM0ubiQCTFsojCB4CkSa/D0n914ibhqbDtDzs2Ww5dlB/vof1ep1LGRMow==}
     peerDependencies:
@@ -1373,9 +1385,11 @@ packages:
       wonka: 6.0.0
     dev: false
 
-  /@videojs/http-streaming/2.14.2:
+  /@videojs/http-streaming/2.14.2_video.js@7.20.2:
     resolution: {integrity: sha512-K1raSfO/pq5r8iUas3OSYni0kXOj91n8ealIpV02khghzGv9LQ6O3YUqYd/eAhJ1HIrmZWOnrYpK/P+mhUExXQ==}
     engines: {node: '>=8', npm: '>=5'}
+    peerDependencies:
+      video.js: ^6 || ^7
     dependencies:
       '@babel/runtime': 7.18.9
       '@videojs/vhs-utils': 3.0.5
@@ -1921,8 +1935,8 @@ packages:
       node-int64: 0.4.0
     dev: true
 
-  /btv-video-player/1.0.6:
-    resolution: {integrity: sha512-r+1jdsi0A+a9h5v/5YoZ1xlX5QKn5ATvS8yQ6yBF613ga2oLBrt7eodNV9KcTHsUNRrVJhxFB7jJi1gw59+YCw==}
+  /btv-video-player/1.0.7:
+    resolution: {integrity: sha512-0TbEodJxHw97dt35nM0qUWF4ahc2ODXCrl+hSFh2bNXTag3MuIZ2Lvu/XjkRXN8N4wVuXN6mZsDHPkRfc/my5w==}
     dependencies:
       graphql: 16.6.0
       graphql-request: 5.0.0_graphql@16.6.0
@@ -4410,10 +4424,12 @@ packages:
       tslib: 2.4.0
     dev: true
 
-  /tailwindcss/3.1.8:
+  /tailwindcss/3.1.8_postcss@8.4.16:
     resolution: {integrity: sha512-YSneUCZSFDYMwk+TGq8qYFdCA3yfBRdBlS7txSq0LUmzyeqRe3a8fBQzbz9M3WS/iFT4BNf/nmw9mEzrnSaC0g==}
     engines: {node: '>=12.13.0'}
     hasBin: true
+    peerDependencies:
+      postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
       chokidar: 3.5.3
@@ -4616,7 +4632,7 @@ packages:
     resolution: {integrity: sha512-hdvAHKAyaL6bCDkeu0pPtFYKi1EDaOUovm7FN1xqBDolUxgH8FKy1WIgTS+Ouuaw7R54SCTcSeXjZEizhy9ouQ==}
     dependencies:
       '@babel/runtime': 7.18.9
-      '@videojs/http-streaming': 2.14.2
+      '@videojs/http-streaming': 2.14.2_video.js@7.20.2
       '@videojs/vhs-utils': 3.0.5
       '@videojs/xhr': 2.6.0
       aes-decrypter: 3.1.3

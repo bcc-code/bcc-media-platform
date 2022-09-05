@@ -5,6 +5,7 @@ query getSection($id: ID!) {
         ... on ItemSection {
             items {
                 items {
+                    __typename
                     id
                     imageUrl
                     title

@@ -9,6 +9,7 @@ query getPage($code: String!) {
                 ... on ItemSection {
                     items {
                         items {
+                            __typename
                             id
                             title
                             imageUrl
