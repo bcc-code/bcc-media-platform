@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/google/uuid"
 	"gopkg.in/guregu/null.v4"
 	"time"
@@ -123,6 +124,29 @@ func (i Episode) GetTagIDs() []int {
 // IsCollectionItem declares that this implements CollectionItem interfaces
 func (i Episode) IsCollectionItem() {
 
+}
+
+// ImageFile is files stored in our image cdn
+type ImageFile struct {
+	ID               uuid.UUID   `db:"id" json:"id"`
+	Storage          string      `db:"storage" json:"storage"`
+	FilenameDisk     null.String `db:"filename_disk" json:"filenameDisk"`
+	FilenameDownload string      `db:"filename_download" json:"filenameDownload"`
+	Title            null.String `db:"title" json:"title"`
+	Type             null.String `db:"type" json:"type"`
+}
+
+// GetKey returns the key for this item
+func (i ImageFile) GetKey() uuid.UUID {
+	return i.ID
+}
+
+// GetImageUrl returns the image url
+func (i ImageFile) GetImageUrl() string {
+	if !i.FilenameDisk.Valid {
+		return ""
+	}
+	return fmt.Sprintf("https://brunstadtv.imgix.net/%s", i.FilenameDisk.ValueOrZero())
 }
 
 // File item type

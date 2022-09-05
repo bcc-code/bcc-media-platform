@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
 )
 
@@ -26,6 +27,7 @@ type BatchLoaders struct {
 	FAQCategoryLoader       *dataloader.Loader[int, *FAQCategory]
 	QuestionLoader          *dataloader.Loader[int, *Question]
 	QuestionsLoader         *dataloader.Loader[int, []*int]
+	ImageFileLoader         *dataloader.Loader[uuid.UUID, *ImageFile]
 	// Permissions
 	ShowPermissionLoader    *dataloader.Loader[int, *Permissions[int]]
 	SeasonPermissionLoader  *dataloader.Loader[int, *Permissions[int]]

@@ -149,6 +149,7 @@ func main() {
 		CollectionLoader:        collectionLoader,
 		CollectionItemIdsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader),
 		CollectionItemLoader:    collection.NewItemListBatchLoader(*queries),
+		ImageFileLoader:         common.NewBatchLoader(queries.GetFiles),
 		// Relations
 		SeasonsLoader:  common.NewRelationBatchLoader(queries.GetSeasonIDsForShows),
 		EpisodesLoader: common.NewRelationBatchLoader(queries.GetEpisodeIDsForSeasons),

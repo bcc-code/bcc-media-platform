@@ -116,7 +116,7 @@ type EpisodeItem implements Item {
   id: ID!
   sort: Int!
   title: String!
-  imageUrl: String
+  imageUrl: String @goField(forceResolver: true)
   episode: Episode!
 }
 
@@ -133,6 +133,7 @@ type Show {
   legacyID: ID
   title: String!
   description: String!
+  imageUrl: String @goField(forceResolver: true)
   episodeCount: Int!
   seasonCount: Int!
   seasons(
@@ -153,6 +154,7 @@ type Season {
   legacyID: ID
   title: String!
   description: String!
+  imageUrl: String @goField(forceResolver: true)
   number: Int!
   show: Show! @goField(forceResolver: true)
   episodes(
@@ -174,6 +176,7 @@ type Episode {
   title: String!
   description: String!
   extraDescription: String!
+  imageUrl: String @goField(forceResolver: true)
   streams: [Stream!]! @goField(forceResolver: true)
   files: [File!]! @goField(forceResolver: true)
   chapters: [Chapter!]!

@@ -1,7 +1,13 @@
 <template>
     <div>
-        <h1 class="text-xl">{{ title }}</h1>
         <EpisodeViewer :episode-id="(route.params.episodeId as string)"></EpisodeViewer>
+        <div class="flex">
+            <img class="rounded rounded-lg" :src="query.data.value?.episode?.image" />
+            <div>
+                <h3 class="text-sm text-secondary">{{query.data.value?.episode?.season?.show.title}}</h3>
+                <h1 class="text-xl">{{ title }}</h1>
+            </div>
+        </div>
     </div>
 </template>
 <script lang="ts" setup>

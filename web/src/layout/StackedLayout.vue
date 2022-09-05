@@ -1,5 +1,5 @@
 <template>
-    <div class="w-screen h-screen bg-primary">
+    <div class="w-screen h-screen">
         <Navbar></Navbar>
         <div class="mx-auto max-w-screen-lg">
             <router-view></router-view>

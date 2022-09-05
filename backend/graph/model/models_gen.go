@@ -78,6 +78,7 @@ type Episode struct {
 	Title             string     `json:"title"`
 	Description       string     `json:"description"`
 	ExtraDescription  string     `json:"extraDescription"`
+	ImageURL          *string    `json:"imageUrl"`
 	Streams           []*Stream  `json:"streams"`
 	Files             []*File    `json:"files"`
 	Chapters          []*Chapter `json:"chapters"`
@@ -256,6 +257,7 @@ type Season struct {
 	LegacyID    *string            `json:"legacyID"`
 	Title       string             `json:"title"`
 	Description string             `json:"description"`
+	ImageURL    *string            `json:"imageUrl"`
 	Number      int                `json:"number"`
 	Show        *Show              `json:"show"`
 	Episodes    *EpisodePagination `json:"episodes"`
@@ -328,6 +330,7 @@ type Show struct {
 	LegacyID     *string           `json:"legacyID"`
 	Title        string            `json:"title"`
 	Description  string            `json:"description"`
+	ImageURL     *string           `json:"imageUrl"`
 	EpisodeCount int               `json:"episodeCount"`
 	SeasonCount  int               `json:"seasonCount"`
 	Seasons      *SeasonPagination `json:"seasons"`
