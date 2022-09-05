@@ -34,7 +34,6 @@
                   { "tableName": "directus_migrations", "tableSchema": "public", "tableKeyFields": ["version"]},
                   { "tableName": "directus_permissions", "tableSchema": "public", "tableKeyFields": ["id"]},
                   { "tableName": "directus_relations", "tableSchema": "public", "tableKeyFields": ["id"]},
-                  { "tableName": "directus_revisions", "tableSchema": "public", "tableKeyFields": ["id"]},
                   { "tableName": "directus_roles", "tableSchema": "public", "tableKeyFields": ["id"]},
                   { "tableName": "directus_webhooks", "tableSchema": "public", "tableKeyFields": ["id"]}
                 ]
@@ -81,7 +80,6 @@
                   { "tableName": "directus_migrations", "tableSchema": "public", "tableKeyFields": ["version"]},
                   { "tableName": "directus_permissions", "tableSchema": "public", "tableKeyFields": ["id"]},
                   { "tableName": "directus_relations", "tableSchema": "public", "tableKeyFields": ["id"]},
-                  { "tableName": "directus_revisions", "tableSchema": "public", "tableKeyFields": ["id"]},
                   { "tableName": "directus_roles", "tableSchema": "public", "tableKeyFields": ["id"]},
                   { "tableName": "directus_webhooks", "tableSchema": "public", "tableKeyFields": ["id"]}
                 ]
