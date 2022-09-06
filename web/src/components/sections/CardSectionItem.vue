@@ -1,9 +1,9 @@
 <template>
-    <div class="relative aspect-video bg-cover bg-center bg-no-repeat mt-2" :style="{
+    <div class="relative aspect-[4/7] bg-cover bg-center bg-no-repeat mt-2" :style="{
         'background-image': 'url(\'' + randomImageUrl() + '\')'
     }">
-        <div class="absolute bottom-0 w-full text-center pb-4 bg-gradient-to-t from-black pt-8 mt-2">
-            <div class="text-md truncate text-primary">
+        <div class="absolute bottom-0 px-4 pb-4 pt-8 w-full bg-gradient-to-t from-black">
+            <div class="text-sm truncate text-primary">
                 <p
                     v-if="
                         item.__typename === 'EpisodeItem' &&
@@ -37,7 +37,7 @@
                     {{ item.__typename }}
                 </p>
             </div>
-            <p class="truncate text-lg">{{ item.title }}</p>
+            <p class="truncate">{{ item.title }}</p>
         </div>
     </div>
 </template>

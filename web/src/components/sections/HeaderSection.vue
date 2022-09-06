@@ -3,7 +3,7 @@
         <SwiperSlide v-for="item in items">
             <HeaderSectionItem
                 @click="click(item)"
-                class="cursor-pointer"
+                class="cursor-pointer ease-in-out duration-500 transition hover:-translate-y-1"
                 :item="item"
             ></HeaderSectionItem>
         </SwiperSlide>

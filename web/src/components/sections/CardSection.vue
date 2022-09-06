@@ -10,11 +10,11 @@
             navigation
         >
             <SwiperSlide v-for="item in section.items.items">
-                <SectionItem
+                <CardSectionItem
                     class="cursor-pointer transition hover:-translate-y-1"
                     :item="item"
                     @click="click(item)"
-                ></SectionItem>
+                ></CardSectionItem>
             </SwiperSlide>
         </Swiper>
     </div>
@@ -22,8 +22,8 @@
 <script lang="ts" setup>
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { Section, SectionItem as TSectionItem } from "./types"
-import SectionItem from "./SectionItem.vue"
 import { Navigation } from "swiper"
+import CardSectionItem from "./CardSectionItem.vue";
 
 defineProps<{
     section: Section
@@ -41,20 +41,20 @@ const breakpoints = {
     },
     // when window width is >= 480px
     480: {
-        slidesPerView: 3,
+        slidesPerView: 2,
         spaceBetween: 15,
-        slidesPerGroup: 3,
+        slidesPerGroup: 2,
     },
     // when window width is >= 640px
     640: {
-        slidesPerView: 4,
+        slidesPerView: 3,
         spaceBetween: 20,
-        slidesPerGroup: 4,
+        slidesPerGroup: 3,
     },
     1200: {
-        slidesPerView: 8,
+        slidesPerView: 6,
         spaceBetween: 20,
-        slidesPerGroup: 8,
+        slidesPerGroup: 6,
     }
 }
 </script>
