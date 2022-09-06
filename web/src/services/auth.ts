@@ -1,5 +1,4 @@
 import { useAuth0 } from "@/services/auth0"
-import { time } from "console";
 
 type Token = {
     expiresAt: string;
@@ -39,7 +38,7 @@ export class Auth {
         }
     }
 
-    public static  isAuthenticated() {
+    public static isAuthenticated() {
         const { isAuthenticated } = useAuth0();
         return isAuthenticated
     }

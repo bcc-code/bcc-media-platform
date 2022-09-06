@@ -83,7 +83,7 @@ func GetAcceptedLanguagesFromCtx(ctx *gin.Context) []string {
 
 // NewUserMiddleware returns a gin middleware that injests a populated User struct
 // into the gin context
-func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
+func NewUserMiddleware(queries *sqlc.Queries, authClient *auth0.Client) func(*gin.Context) {
 	return func(ctx *gin.Context) {
 		reqCtx, span := otel.Tracer("user/middleware").Start(ctx.Request.Context(), "run")
 		defer span.End()
@@ -108,7 +108,12 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 			return
 		}
 
-		email := ctx.GetString(auth0.CtxEmail)
+		user, err := authClient.GetUser(ctx, ctx.GetString(auth0.CtxUserID))
+		if err != nil {
+			log.L.Error().Err(err).Msg("Failed to retrieve user")
+		}
+
+		email := user.Email
 
 		if email == "" {
 			// Explicit values make it easier to see that it was intended when debugging
@@ -125,9 +130,9 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 
 		roles = append(roles, RoleRegistered)
 
-		if ctx.GetBool(auth0.CtxIsBCCMember) {
-			roles = append(roles, RoleBCCMember)
-		}
+		//if ctx.GetBool(auth0.CtxIsBCCMember) {
+		//	roles = append(roles, RoleBCCMember)
+		//}
 
 		userRoles, err := GetRolesForEmail(reqCtx, queries, email)
 		if err != nil {
@@ -137,17 +142,17 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 			roles = append(roles, userRoles...)
 		}
 
-		pid := ctx.GetString(auth0.CtxPersonID)
+		pid := ctx.GetString(auth0.CtxUserID)
 
 		u := &common.User{
 			PersonID:  pid,
 			Roles:     roles,
 			Email:     email,
 			Anonymous: false,
-			ActiveBCC: ctx.GetBool(auth0.CtxIsBCCMember),
+			ActiveBCC: false,
 		}
 
-		// Add the user to the cache
+		//Add the user to the cache
 		span.AddEvent("User loaded into cache")
 		userCache.Set(email, u, cache.WithExpiration(60*time.Minute))
 		ctx.Set(CtxUser, u)

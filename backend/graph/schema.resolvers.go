@@ -266,13 +266,13 @@ func (r *queryRootResolver) Me(ctx context.Context) (*gqlmodel.User, error) {
 		Roles:     usr.Roles,
 	}
 
-	if pid := gc.GetString(auth0.CtxPersonID); pid != "" {
+	if pid := gc.GetString(auth0.CtxUserID); pid != "" {
 		u.ID = &pid
 	}
 
-	if aud := gc.GetString(auth0.CtxJWTAudience); aud != "" {
-		u.Audience = &aud
-	}
+	//if aud := gc.GetString(auth0.CtxAudience); aud != "" {
+	//	u.Audience = &aud
+	//}
 
 	if usr.Email != "" {
 		u.Email = &usr.Email
