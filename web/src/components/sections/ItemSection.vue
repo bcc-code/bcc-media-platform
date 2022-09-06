@@ -1,23 +1,20 @@
 <template>
-    <div>
-        <div v-if="section" class="overflow-hidden">
-            <h1 class="text-xl">{{ section.title }}</h1>
-            <div class="whitespace-nowrap overflow-auto">
-                <SectionItem
-                    class="m-1 w-64 top-0 h-full inline-block cursor-pointer shadow hover:shadow-lg hover:shadow-inner"
-                    v-for="item in section.items.items"
-                    :item="item"
-                    @click="view(item)"
-                ></SectionItem>
-            </div>
-        </div>
-        <div v-else>Invalid section</div>
-    </div>
+    <SwiperSection
+        v-if="section.style === 'slider'"
+        :section="section"
+        :click="view"
+    ></SwiperSection>
+    <HeaderSection
+        v-else-if="section.style === 'header'"
+        :items="section.items.items"
+        :click="view"
+    ></HeaderSection>
 </template>
 <script lang="ts" setup>
 import { Section, SectionItem as TSectionItem } from "./types"
-import SectionItem from "./SectionItem.vue"
 import { useRouter } from "vue-router"
+import SwiperSection from "./SwiperSection.vue"
+import HeaderSection from "./HeaderSection.vue"
 
 defineProps<{
     section: Section

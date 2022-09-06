@@ -1,11 +1,9 @@
 <template>
-    <div id="video-player">
-
-    </div>
+    <div id="video-player"></div>
 </template>
 <script lang="ts" setup>
-import { addError } from '@/utils/error';
-import { onMounted, onUnmounted, onUpdated, ref } from 'vue';
+import { addError } from "@/utils/error"
+import { onMounted, onUnmounted, onUpdated, ref } from "vue"
 import { create, Player } from "btv-video-player"
 
 const props = defineProps<{
@@ -21,7 +19,7 @@ const load = async () => {
     if (current.value !== episodeId) {
         current.value = episodeId
         player.value = await create("video-player", {
-            episodeID: episodeId
+            episodeID: episodeId,
         })
         if (player.value === null) {
             addError("No available VOD for this episode")

@@ -1,9 +1,12 @@
 <template>
     <div>
         <div class="rounded bg-primary-light aspect-video">
-            <img src="https://brunstadtv.imgix.net/BIHE_S01_E02_MUL.jpg" />
+            <img
+                class="w-full"
+                src="https://brunstadtv.imgix.net/BIHE_S01_E02_MUL.jpg"
+            />
         </div>
-        <div class="w-full mt-2 px-1">
+        <div class="mt-2">
             <div class="text-sm truncate text-primary">
                 <p
                     v-if="
