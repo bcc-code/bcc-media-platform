@@ -210,6 +210,7 @@ type ComplexityRoot struct {
 		ID    func(childComplexity int) int
 		Items func(childComplexity int, first *int, offset *int) int
 		Page  func(childComplexity int) int
+		Style func(childComplexity int) int
 		Title func(childComplexity int) int
 		Type  func(childComplexity int) int
 	}
@@ -1219,6 +1220,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ItemSection.Page(childComplexity), true
+
+	case "ItemSection.style":
+		if e.complexity.ItemSection.Style == nil {
+			break
+		}
+
+		return e.complexity.ItemSection.Style(childComplexity), true
 
 	case "ItemSection.title":
 		if e.complexity.ItemSection.Title == nil {
@@ -2521,6 +2529,7 @@ type ItemSection implements Section {
   page: Page! @goField(forceResolver: true)
   title: String!
   type: ItemSectionType!
+  style: String!
   items(
     first: Int,
     offset: Int,
@@ -7628,6 +7637,50 @@ func (ec *executionContext) fieldContext_ItemSection_type(ctx context.Context, f
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ItemSectionType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ItemSection_style(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemSection_style(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Style, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ItemSection_style(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ItemSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -17565,6 +17618,13 @@ func (ec *executionContext) _ItemSection(ctx context.Context, sel ast.SelectionS
 		case "type":
 
 			out.Values[i] = ec._ItemSection_type(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "style":
+
+			out.Values[i] = ec._ItemSection_style(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
