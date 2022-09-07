@@ -60,26 +60,3 @@ overrides:
       type: "Time"
     nullable: true
     db_type: "pg_catalog.timestamp"
-  - column: "episodes_expanded.published"
-    go_type: "bool"
-  - column: "seasons_expanded.published"
-    go_type: "bool"
-  - column: "shows_expanded.published"
-    go_type: "bool"
-  - column: "sections_expanded.roles"
-    go_type:
-      type: "[]string"
-  - column: "episodes_expanded.tag_ids"
-    go_type:
-      type: "[]int32"
-  - column: "episodes_expanded.tag_ids"
-    go_type:
-      type: "[]int32"
-  - column: "episodes_expanded.title"
-    go_type:
-      import: "encoding/json"
-      type: "RawMessage"
-  - column: "episodes_expanded.description"
-    go_type:
-      import: "encoding/json"
-      type: "RawMessage"

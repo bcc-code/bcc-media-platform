@@ -8,6 +8,7 @@ exclude_patterns:
 - "backend/graphadmin/generated"
 - "backend/graphadmin/model"
 - "cms/src/hooks/sync-to-legacy"
+- "web/**/*generated*.ts"
 - "**/*.d.ts"
 
 checks:

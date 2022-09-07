@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/pubsub v1.21.1
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/99designs/gqlgen v0.17.9
-	github.com/Code-Hex/go-generics-cache v1.0.1
+	github.com/Code-Hex/go-generics-cache v1.1.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.1
 	github.com/Masterminds/squirrel v1.5.3
 	github.com/algolia/algoliasearch-client-go/v3 v3.4.0
@@ -19,7 +19,8 @@ require (
 	github.com/bcc-code/mediabank-bridge v1.1.1
 	github.com/cloudevents/sdk-go/v2 v2.10.0
 	github.com/davecgh/go-spew v1.1.1
-	github.com/gin-gonic/gin v1.8.0
+	github.com/gin-contrib/cors v1.4.0
+	github.com/gin-gonic/gin v1.8.1
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/graph-gophers/dataloader/v7 v7.0.0
@@ -28,7 +29,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/zerolog v1.26.1
 	github.com/samber/lo v1.21.0
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.8.0
 	github.com/tabbed/pqtype v0.1.1
 	github.com/vektah/gqlparser/v2 v2.4.4
 	go.opencensus.io v0.23.0
@@ -112,5 +113,5 @@ require (
 	google.golang.org/grpc v1.46.2 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -48,7 +48,7 @@ WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs
                           LEFT JOIN assetstreams_subtitle_languages al ON al.assetstreams_id = s.id
                  WHERE al.languages_code IS NOT NULL
                  GROUP BY s.id)
-SELECT 0::int as episodes_id, s.*, COALESCE(al.langs::text[], '{}') audio_languages, COALESCE(sl.langs::text[], '{}') subtitle_languages
+SELECT 0::int as episodes_id, s.*, COALESCE(al.langs, '{}')::text[] audio_languages, COALESCE(sl.langs, '{}')::text[] subtitle_languages
 FROM assets a
          JOIN assetstreams s ON a.id = s.asset_id
          LEFT JOIN audiolang al ON al.id = s.id
