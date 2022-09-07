@@ -2,6 +2,28 @@
 set -euf -o pipefail
 shopt -s extglob
 
+if ! command -v pg-diff &> /dev/null
+then
+    echo "pg-diff could not be found"
+	echo "Install with: npm install -g pg-diff-cli"
+    exit
+fi
+
+if ! command -v goose &> /dev/null
+then
+    echo "goose could not be found"
+	echo "Install with: go install github.com/pressly/goose/v3/cmd/goose@latest"
+    exit
+fi
+
+if ! command -v psql &> /dev/null
+then
+    echo "psql could not be found"
+	echo "You have to have the postgresql client installed locally and in your path"
+    exit
+fi
+
+
 if [ -z "${1:-}" ]; then
 	echo "First param should be the migration name"
 	exit 1
@@ -14,18 +36,18 @@ ACTIVEDB=btv
 TEMPDB=btv2
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
-cd $script_dir
+cd $script_dir/../migrations
 
 ## Include PGPASSWORD if not set
-if [ -z "${PGPASSWORD:-}" ] && [ -f "$script_dir/.env" ]; then
+if [ -z "${PGPASSWORD:-}" ] && [ -f "$script_dir/../.env" ]; then
 	set -o allexport
 	echo "Sourcing .env"
-	source $script_dir/.env
+	source $script_dir/../.env
 fi
 
 ## Validate that it actually worked to prevent weird errors
 if [ -z "${PGPASSWORD:-}" ]; then
-	echo "Please set \$PGPASSWORD. '.env' file is supported"
+	echo "Please set \$PGPASSWORD. '.env' file at the root of the repo is supported"
 	exit 1
 fi
 
