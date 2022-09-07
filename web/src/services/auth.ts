@@ -1,5 +1,4 @@
 import { useAuth0 } from "@/services/auth0"
-import { time } from "console"
 
 type Token = {
     expiresAt: string
