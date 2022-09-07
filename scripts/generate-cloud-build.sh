@@ -36,7 +36,7 @@ function migrations {
 	echo "  secretEnv: ['PGPASSWORD']" >> $M
 	echo "availableSecrets:" >> $M
 	echo "  secretManager:" >> $M
-	echo "  - versionName: projects/\$PROJECT_ID/secrets/postgres_builder_password/latest" >> $M
+	echo "  - versionName: projects/\$PROJECT_ID/secrets/postgres_builder_password/versions/latest" >> $M
 	echo "    env: 'PGPASSWORD'"  >> $M
 }
 
