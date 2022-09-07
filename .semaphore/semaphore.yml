@@ -114,7 +114,7 @@ blocks:
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:$SEMAPHORE_GIT_BRANCH .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}" '
             - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:$SEMAPHORE_GIT_BRANCH'
-            - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMtAPHORE_GIT_SHA:0:7}"  > migrations.txt'
+            - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}"  > migrations.txt'
             - artifact push workflow migrations.txt
       secrets:
         - name: GoogleSemaphoreServiceAccount
