@@ -22,5 +22,4 @@ blocks:
         - name: GoogleSemaphoreServiceAccount
       prologue:
         commands:
-          - gcloud components update --quiet
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
