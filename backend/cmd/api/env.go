@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bcc-code/brunstadtv/backend/members"
 	"os"
 	"strings"
 
@@ -18,6 +19,7 @@ type algolia struct {
 }
 
 type envConfig struct {
+	Members   members.Config
 	DB        postgres
 	Algolia   algolia
 	Port      string
@@ -54,6 +56,9 @@ func getEnvConfig() envConfig {
 	)
 
 	return envConfig{
+		Members: members.Config{
+			Domain: os.Getenv("MEMBERS_API_DOMAIN"),
+		},
 		DB: postgres{
 			ConnectionString: os.Getenv("DB_CONNECTION_STRING"),
 		},

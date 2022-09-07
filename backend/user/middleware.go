@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/members"
 	"time"
 
 	cache "github.com/Code-Hex/go-generics-cache"
@@ -81,9 +82,9 @@ func GetAcceptedLanguagesFromCtx(ctx *gin.Context) []string {
 	return utils.ParseAcceptLanguage(accLang)
 }
 
-// NewUserMiddleware returns a gin middleware that injests a populated User struct
+// NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
-func NewUserMiddleware(queries *sqlc.Queries, authClient *auth0.Client) func(*gin.Context) {
+func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin.Context) {
 	return func(ctx *gin.Context) {
 		reqCtx, span := otel.Tracer("user/middleware").Start(ctx.Request.Context(), "run")
 		defer span.End()
@@ -108,31 +109,31 @@ func NewUserMiddleware(queries *sqlc.Queries, authClient *auth0.Client) func(*gi
 			return
 		}
 
-		user, err := authClient.GetUser(ctx, ctx.GetString(auth0.CtxUserID))
+		userID := ctx.GetString(auth0.CtxUserID)
+
+		if u, ok := userCache.Get(userID); ok {
+			span.AddEvent("User From Cache")
+			ctx.Set(CtxUser, u)
+			return
+		}
+
+		member, err := members.Lookup(ctx, ctx.GetInt(auth0.CtxPersonID))
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to retrieve user")
 		}
 
-		email := user.Email
+		email := member.Email
 
 		if email == "" {
 			// Explicit values make it easier to see that it was intended when debugging
 			email = "<MISSING>"
 		}
 
-		// We have the user in the cache
-		// Return cached object
-		if u, ok := userCache.Get(email); ok {
-			span.AddEvent("User From Cache")
-			ctx.Set(CtxUser, u)
-			return
-		}
-
 		roles = append(roles, RoleRegistered)
 
-		//if ctx.GetBool(auth0.CtxIsBCCMember) {
-		//	roles = append(roles, RoleBCCMember)
-		//}
+		if ctx.GetBool(auth0.CtxIsBCCMember) {
+			roles = append(roles, RoleBCCMember)
+		}
 
 		userRoles, err := GetRolesForEmail(reqCtx, queries, email)
 		if err != nil {
@@ -142,17 +143,17 @@ func NewUserMiddleware(queries *sqlc.Queries, authClient *auth0.Client) func(*gi
 			roles = append(roles, userRoles...)
 		}
 
-		pid := ctx.GetString(auth0.CtxUserID)
+		pid := ctx.GetString(auth0.CtxPersonID)
 
 		u := &common.User{
 			PersonID:  pid,
 			Roles:     roles,
 			Email:     email,
 			Anonymous: false,
-			ActiveBCC: false,
+			ActiveBCC: ctx.GetBool(auth0.CtxIsBCCMember),
 		}
 
-		//Add the user to the cache
+		// Add the user to the cache
 		span.AddEvent("User loaded into cache")
 		userCache.Set(email, u, cache.WithExpiration(60*time.Minute))
 		ctx.Set(CtxUser, u)

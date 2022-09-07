@@ -1,6 +1,7 @@
 package auth0
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/url"
@@ -16,7 +17,24 @@ const (
 	CtxAuthenticated = "authenticated"
 	CtxAudience      = "audience"
 	CtxUserID        = "user_id"
+	CtxPersonID      = "person_id"
+	CtxIsBCCMember   = "bcc_member"
 )
+
+type appMetadata struct {
+	HasMembership bool `json:"hasMembership"`
+	PersonID      int  `json:"personId"`
+}
+
+type customClaims struct {
+	PersonID int         `json:"https://login.bcc.no/claims/personId"`
+	Metadata appMetadata `json:"https://members.bcc.no/app_metadata"`
+}
+
+// Validate to satisfy validator.CustomClaims interface
+func (c customClaims) Validate(ctx context.Context) error {
+	return nil
+}
 
 // EnsureValidToken is a middleware that will check the validity of our JWT.
 func (c *Client) EnsureValidToken() gin.HandlerFunc {
@@ -34,6 +52,9 @@ func (c *Client) EnsureValidToken() gin.HandlerFunc {
 		issuerURL.String(),
 		config.Audiences,
 		validator.WithAllowedClockSkew(time.Minute),
+		validator.WithCustomClaims(func() validator.CustomClaims {
+			return &customClaims{}
+		}),
 	)
 	if err != nil {
 		log.Fatalf("Failed to set up the jwt validator")
@@ -62,5 +83,13 @@ func (c *Client) EnsureValidToken() gin.HandlerFunc {
 
 		ctx.Set(CtxAudience, claims.RegisteredClaims.Audience)
 		ctx.Set(CtxUserID, claims.RegisteredClaims.Subject)
+
+		custom, ok := claims.CustomClaims.(*customClaims)
+		if !ok {
+			return
+		}
+
+		ctx.Set(CtxPersonID, custom.PersonID)
+		ctx.Set(CtxIsBCCMember, custom.Metadata.HasMembership)
 	}
 }

@@ -58,34 +58,35 @@ func sendTokenRequest[t any](ctx context.Context, body t, endpoint string) (getT
 type getTokenRequest struct {
 	GrantType    string `json:"grant_type"`
 	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
+	ClientSecret string `json:"client_secret,omitempty"`
 	Audience     string `json:"audience"`
 }
 
-func (c *Client) getNewToken(ctx context.Context) (getTokenResponse, error) {
+func (c *Client) getNewToken(ctx context.Context, audience string) (getTokenResponse, error) {
 	path, _ := url.Parse(fmt.Sprintf("https://%s/oauth/token", c.config.Domain))
 	return sendTokenRequest(ctx, getTokenRequest{
 		GrantType:    "client_credentials",
 		ClientID:     c.config.ClientID,
 		ClientSecret: c.config.ClientSecret,
-		Audience:     fmt.Sprintf("https://%s/api/v2/", c.config.Domain),
+		Audience:     audience,
 	}, path.String())
 }
 
-func (c *Client) getToken(ctx context.Context) (string, error) {
+// GetToken returns a token to be used towards other apis with the client credentials
+func (c *Client) GetToken(ctx context.Context, audience string) (string, error) {
 	var err error
-	t, ok := tokenCache.Get("t")
+	t, ok := tokenCache.Get(audience)
 	if ok && t.ExpiresAt.After(time.Now()) {
 		return t.AccessToken, nil
 	} else {
-		t, err = c.getNewToken(ctx)
+		t, err = c.getNewToken(ctx, audience)
 	}
 	if err != nil {
 		return "", err
 	}
 
 	// Probably will never survive this long, but it's just in case.
-	tokenCache.Set("t", t, cache.WithExpiration(time.Hour*24))
+	tokenCache.Set(audience, t, cache.WithExpiration(time.Hour*24))
 
 	return t.AccessToken, nil
 }
