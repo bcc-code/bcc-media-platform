@@ -1,30 +1,24 @@
 <template>
-    <div>
+    <div class="mx-10">
         <ItemSection
-            v-for="section in query.data.value?.page?.sections.items"
+            v-for="section in data?.page?.sections.items"
             :section="section"
         >
         </ItemSection>
     </div>
+    <div v-if="error">{{error.message}}</div>
 </template>
 <script lang="ts" setup>
 import { useGetPageQuery } from "@/graph/generated"
 import ItemSection from "@/components/sections/ItemSection.vue"
-import { addError } from "@/utils/error"
-import { useRoute } from "vue-router"
 
-const route = useRoute()
+const props = defineProps<{
+    pageId: string
+}>()
 
-const query = useGetPageQuery({
+const { data, error } = useGetPageQuery({
     variables: {
-        code: route.params.pageId as string,
+        code: props.pageId,
     },
-})
-
-query.then((r) => {
-    if (query.error.value) {
-        addError(query.error.value.message)
-        return
-    }
 })
 </script>
