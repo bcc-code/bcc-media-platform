@@ -16,6 +16,11 @@ func mapToSections(items []getSectionsRow) []common.Section {
 		_ = json.Unmarshal(s.Title.RawMessage, &title)
 		_ = json.Unmarshal(s.Description.RawMessage, &description)
 
+		style := s.Style.ValueOrZero()
+		if style == "" {
+			style = "slider"
+		}
+
 		return common.Section{
 			ID:           int(s.ID),
 			Sort:         int(s.Sort.ValueOrZero()),
@@ -24,7 +29,7 @@ func mapToSections(items []getSectionsRow) []common.Section {
 			Description:  description,
 			Type:         "item",
 			CollectionID: s.CollectionID,
-			Style:        s.Style.ValueOrZero(),
+			Style:        style,
 		}
 	})
 }

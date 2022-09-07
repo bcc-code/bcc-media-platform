@@ -1,0 +1,17 @@
+query getSection($id: ID!) {
+    section(id: $id) {
+        id
+        title
+        ... on ItemSection {
+            items {
+                items {
+                    __typename
+                    id
+                    imageUrl
+                    title
+                    sort
+                }
+            }
+        }
+    }
+}

@@ -33,6 +33,24 @@ func (r *collectionResolver) Items(ctx context.Context, obj *gqlmodel.Collection
 	}, nil
 }
 
+// ImageURL is the resolver for the imageUrl field.
+func (r *episodeResolver) ImageURL(ctx context.Context, obj *gqlmodel.Episode) (*string, error) {
+	itemId, _ := strconv.ParseInt(obj.ID, 10, 32)
+	item, err := common.GetFromLoaderByID(ctx, r.Loaders.EpisodeLoader, int(itemId))
+	if err != nil {
+		return nil, err
+	}
+	if !item.ImageID.Valid {
+		return nil, nil
+	}
+	image, err := common.GetFromLoaderByID(ctx, r.Loaders.ImageFileLoader, item.ImageID.UUID)
+	if err != nil {
+		return nil, err
+	}
+	imageUrl := image.GetImageUrl()
+	return &imageUrl, nil
+}
+
 // Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error) {
 	intID, _ := strconv.ParseInt(obj.ID, 10, 32)
@@ -79,6 +97,24 @@ func (r *episodeResolver) Season(ctx context.Context, obj *gqlmodel.Episode) (*g
 		return r.QueryRoot().Season(ctx, obj.Season.ID)
 	}
 	return nil, nil
+}
+
+// ImageURL is the resolver for the imageUrl field.
+func (r *episodeItemResolver) ImageURL(ctx context.Context, obj *gqlmodel.EpisodeItem) (*string, error) {
+	itemId, _ := strconv.ParseInt(obj.ID, 10, 32)
+	item, err := common.GetFromLoaderByID(ctx, r.Loaders.EpisodeLoader, int(itemId))
+	if err != nil {
+		return nil, err
+	}
+	if !item.ImageID.Valid {
+		return nil, nil
+	}
+	image, err := common.GetFromLoaderByID(ctx, r.Loaders.ImageFileLoader, item.ImageID.UUID)
+	if err != nil {
+		return nil, err
+	}
+	imageUrl := image.GetImageUrl()
+	return &imageUrl, nil
 }
 
 // Show is the resolver for the show field.
@@ -152,7 +188,8 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 // Section is the resolver for the section field.
 func (r *queryRootResolver) Section(ctx context.Context, id string) (gqlmodel.Section, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Section]{
-		Item: r.Loaders.SectionLoader,
+		Item:        r.Loaders.SectionLoader,
+		Permissions: r.Loaders.SectionPermissionLoader,
 	}, id, gqlmodel.SectionFrom)
 }
 
@@ -249,6 +286,24 @@ func (r *queryRootResolver) Config(ctx context.Context) (*gqlmodel.Config, error
 	return &gqlmodel.Config{}, nil
 }
 
+// ImageURL is the resolver for the imageUrl field.
+func (r *seasonResolver) ImageURL(ctx context.Context, obj *gqlmodel.Season) (*string, error) {
+	itemId, _ := strconv.ParseInt(obj.ID, 10, 32)
+	item, err := common.GetFromLoaderByID(ctx, r.Loaders.SeasonLoader, int(itemId))
+	if err != nil {
+		return nil, err
+	}
+	if !item.ImageID.Valid {
+		return nil, nil
+	}
+	image, err := common.GetFromLoaderByID(ctx, r.Loaders.ImageFileLoader, item.ImageID.UUID)
+	if err != nil {
+		return nil, err
+	}
+	imageUrl := image.GetImageUrl()
+	return &imageUrl, nil
+}
+
 // Show is the resolver for the show field.
 func (r *seasonResolver) Show(ctx context.Context, obj *gqlmodel.Season) (*gqlmodel.Show, error) {
 	return r.QueryRoot().Show(ctx, obj.Show.ID)
@@ -276,6 +331,24 @@ func (r *seasonSearchItemResolver) Show(ctx context.Context, obj *gqlmodel.Seaso
 	return r.QueryRoot().Show(ctx, obj.Show.ID)
 }
 
+// ImageURL is the resolver for the imageUrl field.
+func (r *showResolver) ImageURL(ctx context.Context, obj *gqlmodel.Show) (*string, error) {
+	itemId, _ := strconv.ParseInt(obj.ID, 10, 32)
+	item, err := common.GetFromLoaderByID(ctx, r.Loaders.ShowLoader, int(itemId))
+	if err != nil {
+		return nil, err
+	}
+	if !item.ImageID.Valid {
+		return nil, nil
+	}
+	image, err := common.GetFromLoaderByID(ctx, r.Loaders.ImageFileLoader, item.ImageID.UUID)
+	if err != nil {
+		return nil, err
+	}
+	imageUrl := image.GetImageUrl()
+	return &imageUrl, nil
+}
+
 // Seasons is the resolver for the seasons field.
 func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show, first *int, offset *int) (*gqlmodel.SeasonPagination, error) {
 	seasons, err := itemsResolverForIntID(ctx, toItemLoaders(r.Loaders.SeasonLoader, r.Loaders.SeasonPermissionLoader), r.Resolver.Loaders.SeasonsLoader, obj.ID, gqlmodel.SeasonFrom)
@@ -296,6 +369,9 @@ func (r *Resolver) Collection() generated.CollectionResolver { return &collectio
 
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
+
+// EpisodeItem returns generated.EpisodeItemResolver implementation.
+func (r *Resolver) EpisodeItem() generated.EpisodeItemResolver { return &episodeItemResolver{r} }
 
 // EpisodeSearchItem returns generated.EpisodeSearchItemResolver implementation.
 func (r *Resolver) EpisodeSearchItem() generated.EpisodeSearchItemResolver {
@@ -324,6 +400,7 @@ func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
 
 type collectionResolver struct{ *Resolver }
 type episodeResolver struct{ *Resolver }
+type episodeItemResolver struct{ *Resolver }
 type episodeSearchItemResolver struct{ *Resolver }
 type itemSectionResolver struct{ *Resolver }
 type pageResolver struct{ *Resolver }

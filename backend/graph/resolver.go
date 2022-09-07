@@ -18,11 +18,6 @@ import (
 	"github.com/samber/lo"
 )
 
-type apiConfig interface {
-	GetVOD2Domain() string
-	GetFilesCDNDomain() string
-}
-
 // This file will not be regenerated automatically.
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
@@ -35,6 +30,11 @@ type Resolver struct {
 	SearchService *search.Service
 	URLSigner     *sign.URLSigner
 	APIConfig     apiConfig
+}
+
+type apiConfig interface {
+	GetVOD2Domain() string
+	GetFilesCDNDomain() string
 }
 
 // ErrItemNotFound for not found items
