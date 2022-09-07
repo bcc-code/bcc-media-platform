@@ -11,7 +11,7 @@
         >
             <SwiperSlide v-for="item in section.items.items">
                 <SwiperSectionItem
-                    class="cursor-pointer rounded rounded-2xl transition hover:-translate-y-1"
+                    class="cursor-pointer duration-200 rounded rounded-2xl transition-opacity hover:opacity-80"
                     :item="item"
                     @click="click(item)"
                 ></SwiperSectionItem>

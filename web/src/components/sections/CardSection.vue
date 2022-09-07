@@ -11,7 +11,7 @@
         >
             <SwiperSlide v-for="item in section.items.items">
                 <CardSectionItem
-                    class="cursor-pointer transition hover:-translate-y-1"
+                    class="cursor-pointer transition hover:-translate-y-1 mt-1"
                     :item="item"
                     @click="click(item)"
                 ></CardSectionItem>
