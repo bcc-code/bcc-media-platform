@@ -1,23 +1,25 @@
 <template>
     <div>
-        <div v-if="section" class="overflow-hidden">
-            <h1 class="text-xl">{{ section.title }}</h1>
-            <div class="whitespace-nowrap overflow-auto">
-                <SectionItem
-                    class="m-1 w-64 top-0 h-full inline-block cursor-pointer shadow hover:shadow-lg hover:shadow-inner"
-                    v-for="item in section.items.items"
-                    :item="item"
-                    @click="view(item)"
-                ></SectionItem>
-            </div>
-        </div>
-        <div v-else>Invalid section</div>
+        <HeaderSection
+            v-if="section.style === 'header'"
+            :items="section.items.items"
+            :click="view"
+        ></HeaderSection>
+        <SwiperSection
+            v-else-if="section.style === 'slider'"
+            :section="section"
+            :click="view"
+        ></SwiperSection>
+        <CardSection v-else-if="section.style === 'cards'" :click="view" :section="section">
+        </CardSection>
     </div>
 </template>
 <script lang="ts" setup>
-import { Section, SectionItem as TSectionItem } from "./types"
-import SectionItem from "./SectionItem.vue"
+import { Section, SectionItem } from "./types"
 import { useRouter } from "vue-router"
+import SwiperSection from "./SwiperSection.vue"
+import HeaderSection from "./HeaderSection.vue"
+import CardSection from "./CardSection.vue";
 
 defineProps<{
     section: Section
@@ -25,7 +27,7 @@ defineProps<{
 
 const router = useRouter()
 
-const view = (item: TSectionItem) => {
+const view = (item: SectionItem) => {
     switch (item.__typename) {
         case "EpisodeItem":
             router.push({

@@ -1,7 +1,8 @@
 <template>
     <button
-        class="cursor-pointer rounded-md border border-primary py-2 px-3 text-left shadow-sm hover:border-indigo-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+        class="cursor-pointer rounded-full border border-gray py-2 px-3 text-left shadow-sm hover:border-indigo-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
         :class="[styles.background, styles.text]"
+        :disabled="disabled"
     >
         <slot></slot>
     </button>
@@ -9,32 +10,40 @@
 <script lang="ts" setup>
 import { computed } from "vue"
 
-type Types = "default" | "error" | "warning" | "info"
+type Color = "default" | "red" | "green" | "secondary"
 
 const props = defineProps<{
-    theme?: Types
+    color?: Color
+    disabled?: boolean
 }>()
 
 const styles = computed(() => {
-    switch (props.theme) {
-        case "error":
+    if (props.disabled) {
+        return {
+            background: "bg-background",
+            text: "text-gray",
+        }
+    }
+
+    switch (props.color) {
+        case "red":
             return {
-                background: "bg-red-500 hover:bg-red-700",
+                background: "bg-red hover:bg-red-hover",
                 text: "text-white",
             }
-        case "warning":
+        case "green":
             return {
-                background: "bg-yellow-500 hover:bg-yellow-700",
+                background: "bg-green hover:bg-green-hover",
                 text: "text-white",
             }
-        case "info":
+        case "secondary":
             return {
-                background: "bg-primary hover:bg-primary-light",
+                background: "bg-secondary hover:bg-secondary-hover",
                 text: "text-white",
             }
         default:
             return {
-                background: "bg-green-500 hover:bg-green-700",
+                background: "bg-primary hover:bg-primary-hover",
                 text: "text-white",
             }
     }

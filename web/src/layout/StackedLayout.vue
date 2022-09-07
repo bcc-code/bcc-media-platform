@@ -1,7 +1,7 @@
 <template>
-    <div class="w-screen h-screen">
+    <div>
         <Navbar></Navbar>
-        <div class="mx-auto max-w-screen-lg">
+        <div class="p-4">
             <router-view></router-view>
         </div>
         <div class="text-red-500" v-if="errors">

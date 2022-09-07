@@ -1,10 +1,10 @@
 <template>
     <div>
-        <div class="rounded bg-primary-light aspect-video">
-            <img src="https://brunstadtv.imgix.net/BIHE_S01_E02_MUL.jpg" />
-        </div>
-        <div class="w-full mt-2 px-1">
-            <div class="text-sm truncate text-secondary">
+        <div class="aspect-[4/7] rounded rounded-xl  bg-cover bg-center bg-no-repeat" :style="{
+        'background-image': item.imageUrl ? 'url(\'' + item.imageUrl + '\')' : ''
+        }"></div>
+        <div class="m-4">
+            <div class="text-sm truncate text-primary">
                 <p
                     v-if="
                         item.__typename === 'EpisodeItem' &&
@@ -13,7 +13,7 @@
                     "
                 >
                     {{ item.episode.season.show.title }}
-                    <span class="text-sm text-faded"
+                    <span class="text-sm text-gray"
                         >S{{ item.episode.season.number }}:E{{
                             item.episode.number
                         }}</span
@@ -27,7 +27,7 @@
                     "
                 >
                     {{ item.season.show.title }}
-                    <span class="text-sm text-faded"
+                    <span class="text-sm text-gray"
                         >S{{ item.season.number }}</span
                     >
                 </p>
@@ -43,9 +43,14 @@
     </div>
 </template>
 <script lang="ts" setup>
+import { randomImageUrl } from "@/utils/randomImage";
 import { SectionItem } from "./types"
 
-defineProps<{
+const props = defineProps<{
     item: SectionItem
 }>()
+
+if (!props.item.imageUrl) {
+    props.item.imageUrl = randomImageUrl()
+}
 </script>

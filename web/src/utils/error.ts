@@ -15,7 +15,7 @@ export const addError = (error: string) => {
     })
 
     setTimeout(() => {
-        errors.value = errors.value.filter(i => i.id !== id)
+        errors.value = errors.value.filter((i) => i.id !== id)
     }, 5000)
 }
 

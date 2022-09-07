@@ -189,6 +189,7 @@ type ItemSection struct {
 	Page  *Page                     `json:"page"`
 	Title string                    `json:"title"`
 	Type  ItemSectionType           `json:"type"`
+	Style string                    `json:"style"`
 	Items *CollectionItemPagination `json:"items"`
 }
 

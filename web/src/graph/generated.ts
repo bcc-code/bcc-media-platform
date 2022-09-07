@@ -230,6 +230,7 @@ export type ItemSection = Section & {
   id: Scalars['ID'];
   items: CollectionItemPagination;
   page: Page;
+  style: Scalars['String'];
   title: Scalars['String'];
   type: ItemSectionType;
 };
@@ -572,7 +573,14 @@ export type GetPageQueryVariables = Exact<{
 }>;
 
 
-export type GetPageQuery = { page?: { id: string, title: string, sections: { items: Array<{ id: string, title: string, items: { items: Array<{ __typename: 'EpisodeItem', id: string, title: string, imageUrl?: string | null, sort: number, episode: { number?: number | null, season?: { number: number, show: { title: string } } | null } } | { __typename: 'PageItem', id: string, title: string, imageUrl?: string | null, sort: number, page: { code: string } } | { __typename: 'SeasonItem', id: string, title: string, imageUrl: string, sort: number, season: { number: number, show: { title: string } } } | { __typename: 'ShowItem', id: string, title: string, imageUrl?: string | null, sort: number } | { __typename: 'URLItem', id: string, title: string, imageUrl?: string | null, sort: number }> } }> } } | null };
+export type GetPageQuery = { page?: { id: string, title: string, sections: { items: Array<{ style: string, id: string, title: string, items: { items: Array<{ __typename: 'EpisodeItem', id: string, title: string, imageUrl?: string | null, sort: number, episode: { number?: number | null, season?: { number: number, show: { title: string } } | null } } | { __typename: 'PageItem', id: string, title: string, imageUrl?: string | null, sort: number, page: { code: string } } | { __typename: 'SeasonItem', id: string, title: string, imageUrl: string, sort: number, season: { number: number, show: { title: string } } } | { __typename: 'ShowItem', id: string, title: string, imageUrl?: string | null, sort: number } | { __typename: 'URLItem', id: string, title: string, imageUrl?: string | null, sort: number }> } }> } } | null };
+
+export type GetSeasonQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetSeasonQuery = { season?: { title: string, description: string, imageUrl?: string | null, number: number, show: { title: string }, episodes: { total: number, items: Array<{ title: string, description: string, imageUrl?: string | null, number?: number | null }> } } | null };
 
 export type GetSectionQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -580,6 +588,13 @@ export type GetSectionQueryVariables = Exact<{
 
 
 export type GetSectionQuery = { section?: { id: string, title: string, items: { items: Array<{ __typename: 'EpisodeItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename: 'PageItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename: 'SeasonItem', id: string, imageUrl: string, title: string, sort: number } | { __typename: 'ShowItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename: 'URLItem', id: string, imageUrl?: string | null, title: string, sort: number }> } } | null };
+
+export type GetShowQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetShowQuery = { show?: { title: string, description: string, imageUrl?: string | null, seasons: { total: number, items: Array<{ title: string, description: string, imageUrl?: string | null, number: number, episodes: { total: number, items: Array<{ title: string, imageUrl?: string | null, number?: number | null, description: string }> } }> } } | null };
 
 
 export const GetEpisodeDocument = gql`
@@ -614,6 +629,7 @@ export const GetPageDocument = gql`
         id
         title
         ... on ItemSection {
+          style
           items {
             items {
               __typename
@@ -657,6 +673,32 @@ export const GetPageDocument = gql`
 export function useGetPageQuery(options: Omit<Urql.UseQueryArgs<never, GetPageQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetPageQuery>({ query: GetPageDocument, ...options });
 };
+export const GetSeasonDocument = gql`
+    query getSeason($id: ID!) {
+  season(id: $id) {
+    title
+    description
+    imageUrl
+    number
+    show {
+      title
+    }
+    episodes {
+      total
+      items {
+        title
+        description
+        imageUrl
+        number
+      }
+    }
+  }
+}
+    `;
+
+export function useGetSeasonQuery(options: Omit<Urql.UseQueryArgs<never, GetSeasonQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetSeasonQuery>({ query: GetSeasonDocument, ...options });
+};
 export const GetSectionDocument = gql`
     query getSection($id: ID!) {
   section(id: $id) {
@@ -679,4 +721,36 @@ export const GetSectionDocument = gql`
 
 export function useGetSectionQuery(options: Omit<Urql.UseQueryArgs<never, GetSectionQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetSectionQuery>({ query: GetSectionDocument, ...options });
+};
+export const GetShowDocument = gql`
+    query getShow($id: ID!) {
+  show(id: $id) {
+    title
+    description
+    imageUrl
+    seasons {
+      total
+      items {
+        title
+        description
+        imageUrl
+        description
+        number
+        episodes {
+          total
+          items {
+            title
+            imageUrl
+            number
+            description
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useGetShowQuery(options: Omit<Urql.UseQueryArgs<never, GetShowQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetShowQuery>({ query: GetShowDocument, ...options });
 };

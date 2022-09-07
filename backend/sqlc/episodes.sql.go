@@ -32,6 +32,7 @@ SELECT
     e.season_id
 FROM episodes e
 WHERE e.season_id = ANY($1::int[])
+ORDER BY e.episode_number
 `
 
 type getEpisodeIDsForSeasonsRow struct {
@@ -88,6 +89,7 @@ FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
 WHERE id = ANY($1::int[])
+ORDER BY e.episode_number
 `
 
 type getEpisodesRow struct {

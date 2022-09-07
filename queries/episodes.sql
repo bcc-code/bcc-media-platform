@@ -49,14 +49,16 @@ SELECT e.id,
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
-WHERE id = ANY($1::int[]);
+WHERE id = ANY($1::int[])
+ORDER BY e.episode_number;
 
 -- name: getEpisodeIDsForSeasons :many
 SELECT
     e.id,
     e.season_id
 FROM episodes e
-WHERE e.season_id = ANY($1::int[]);
+WHERE e.season_id = ANY($1::int[])
+ORDER BY e.episode_number;
 
 -- name: getPermissionsForEpisodes :many
 WITH er AS (SELECT e.id,

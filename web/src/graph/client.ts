@@ -1,5 +1,10 @@
 import config from "@/config"
-import { cacheExchange, createClient, dedupExchange, fetchExchange } from "@urql/vue"
+import {
+    cacheExchange,
+    createClient,
+    dedupExchange,
+    fetchExchange,
+} from "@urql/vue"
 import { authExchange } from "@urql/exchange-auth"
 import { makeOperation } from "@urql/vue"
 import Auth from "../services/auth"
@@ -16,10 +21,10 @@ export default createClient({
         fetchExchange,
         cacheExchange,
         authExchange({
-            getAuth: async ({authState}) => {
+            getAuth: async ({ authState }) => {
                 if (!authState) {
                     return {
-                        token: await Auth.getToken()
+                        token: await Auth.getToken(),
                     }
                 }
                 return null
@@ -30,7 +35,8 @@ export default createClient({
                     return state.operation
                 }
 
-                const fetchOptions = state.operation.context.fetchOptions as RequestInit
+                const fetchOptions = state.operation.context
+                    .fetchOptions as RequestInit
 
                 return makeOperation(state.operation.kind, state.operation, {
                     ...state.operation.context,
@@ -38,11 +44,11 @@ export default createClient({
                         ...fetchOptions,
                         headers: {
                             ...fetchOptions.headers,
-                            Authorization: "Bearer " + authState.token
-                        }
-                    }
+                            Authorization: "Bearer " + authState.token,
+                        },
+                    },
                 })
-            }
+            },
         }),
-    ]
+    ],
 })

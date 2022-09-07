@@ -57,6 +57,7 @@ type ItemSection implements Section {
   page: Page! @goField(forceResolver: true)
   title: String!
   type: ItemSectionType!
+  style: String!
   items(
     first: Int,
     offset: Int,
