@@ -1,8 +1,9 @@
 <template>
-    <div class="relative aspect-[4/7] bg-cover bg-center bg-no-repeat mt-2" :style="{
-        'background-image': 'url(\'' + randomImageUrl() + '\')'
-    }">
-        <div class="absolute bottom-0 px-4 pb-4 pt-8 w-full bg-gradient-to-t from-black">
+    <div>
+        <div class="aspect-[4/7] rounded rounded-xl  bg-cover bg-center bg-no-repeat" :style="{
+        'background-image': item.imageUrl ? 'url(\'' + item.imageUrl + '\')' : ''
+        }"></div>
+        <div class="m-4">
             <div class="text-sm truncate text-primary">
                 <p
                     v-if="
@@ -45,7 +46,11 @@
 import { randomImageUrl } from "@/utils/randomImage";
 import { SectionItem } from "./types"
 
-defineProps<{
+const props = defineProps<{
     item: SectionItem
 }>()
+
+if (!props.item.imageUrl) {
+    props.item.imageUrl = randomImageUrl()
+}
 </script>

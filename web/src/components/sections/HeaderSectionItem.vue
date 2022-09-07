@@ -1,9 +1,9 @@
 <template>
-    <div class="relative aspect-video bg-cover bg-center bg-no-repeat mt-2" :style="{
-        'background-image': 'url(\'' + randomImageUrl() + '\')'
+    <div class="relative aspect-[16/7] bg-cover bg-center bg-no-repeat rounded rounded-2xl" :style="{
+        'background-image': 'linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url(\'' + item.imageUrl + '\')'
     }">
-        <div class="absolute bottom-0 w-full text-center pb-4 bg-gradient-to-t from-black pt-8 mt-2">
-            <div class="text-md truncate text-primary">
+        <div class="absolute w-full bottom-0 text-center rounded rounded-2xl pb-4 pb-8 pt-20 mt-2">
+            <!-- <div class="text-md truncate text-primary">
                 <p
                     v-if="
                         item.__typename === 'EpisodeItem' &&
@@ -36,8 +36,8 @@
                 <p v-else>
                     {{ item.__typename }}
                 </p>
-            </div>
-            <p class="truncate text-lg">{{ item.title }}</p>
+            </div> -->
+            <p class="truncate font-bold text-2xl">{{ item.title }}</p>
         </div>
     </div>
 </template>
@@ -45,7 +45,9 @@
 import { randomImageUrl } from "@/utils/randomImage";
 import { SectionItem } from "./types"
 
-defineProps<{
+const props = defineProps<{
     item: SectionItem
 }>()
+
+props.item.imageUrl ??= randomImageUrl()
 </script>

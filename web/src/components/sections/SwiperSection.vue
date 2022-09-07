@@ -10,11 +10,11 @@
             navigation
         >
             <SwiperSlide v-for="item in section.items.items">
-                <SectionItem
-                    class="cursor-pointer transition hover:-translate-y-1"
+                <SwiperSectionItem
+                    class="cursor-pointer rounded rounded-2xl transition hover:-translate-y-1"
                     :item="item"
                     @click="click(item)"
-                ></SectionItem>
+                ></SwiperSectionItem>
             </SwiperSlide>
         </Swiper>
     </div>
@@ -22,7 +22,7 @@
 <script lang="ts" setup>
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { Section, SectionItem as TSectionItem } from "./types"
-import SectionItem from "./SectionItem.vue"
+import SwiperSectionItem from "./SwiperSectionItem.vue"
 import { Navigation } from "swiper"
 
 defineProps<{

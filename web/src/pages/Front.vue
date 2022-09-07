@@ -1,15 +1,10 @@
 <template>
-    <div>
-        <div>
-            {{ title }}
-        </div>
-        <div>
-            <ItemSection
-                v-for="section in query.data.value?.page?.sections.items"
-                :section="section"
-            >
-            </ItemSection>
-        </div>
+    <div class="p-10">
+        <ItemSection
+            v-for="section in query.data.value?.page?.sections.items"
+            :section="section"
+        >
+        </ItemSection>
     </div>
 </template>
 <script lang="ts" setup>

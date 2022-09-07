@@ -1,9 +1,9 @@
 <template>
-    <Swiper :breakpoints="breakpoints" :slides-per-view="1" :space-between="20">
+    <Swiper class="rounded rounded-3xl" :breakpoints="breakpoints" :slides-per-view="1" :space-between="10">
         <SwiperSlide v-for="item in items">
             <HeaderSectionItem
                 @click="click(item)"
-                class="cursor-pointer ease-in-out duration-500 transition hover:-translate-y-1"
+                class="cursor-pointer rounded rounded-2xl"
                 :item="item"
             ></HeaderSectionItem>
         </SwiperSlide>
@@ -24,9 +24,5 @@ const breakpoints: SwiperOptions["breakpoints"] = {
     720: {
         slidesPerView: 1.5,
     },
-    1200: {
-        slidesPerView: 2,
-        slidesPerGroup: 2,
-    }
 }
 </script>
