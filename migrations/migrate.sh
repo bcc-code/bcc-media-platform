@@ -1,10 +1,10 @@
 #!/bin/bash
 set -euf -o pipefail
 shopt -s extglob
-trap cleanup SIGINT SIGTERM ERR EXIT
+trap cleanup SIGINT SIGTERM ERR
 
 cleanup() {
-  trap - SIGINT SIGTERM ERR EXIT
+  trap - SIGINT SIGTERM ERR
   echo "Cleanup" # make sure we don't just hang
   kill ${PROXY_PID:-} > /dev/null 2>&1;
   exit 1
