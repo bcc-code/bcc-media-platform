@@ -7,11 +7,9 @@ agent:
 fail_fast:
   stop:
     when: 'true'
-
 queue:
   name: STA Deploy Queue
   scope: project
-
 blocks:
   - name: Deploy
     task:
