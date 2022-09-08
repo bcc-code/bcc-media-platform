@@ -36,8 +36,8 @@ artifact pull workflow cms.txt || true
 artifact pull workflow migrations.txt
 
 # We always have migrations
-migrations $(cat migrations.txt)
 echo "steps:" > $M
+migrations $(cat migrations.txt)
 artifact push workflow $M
 
 if [ ! -f "api.txt" ] && [ ! -f "jobs.txt" ] && [ ! -f "cms.txt" ]; then
