@@ -184,7 +184,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 	r.Use(otelgin.Middleware("api")) // Open
-	r.Use(authClient.EnsureValidToken())
+	r.Use(authClient.ValidateToken())
 	r.Use(user.NewUserMiddleware(queries, membersClient))
 
 	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey)

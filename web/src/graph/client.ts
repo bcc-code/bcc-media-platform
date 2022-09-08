@@ -34,7 +34,7 @@ export default createClient({
                 return state
             },
             addAuthToOperation: (state) => {
-                const authState = state.authState as null | AuthState
+                const { authState } = state.authState as {authState: AuthState | null}
 
                 if (!authState || !authState.token) {
                     return state.operation

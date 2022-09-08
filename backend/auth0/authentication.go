@@ -2,8 +2,8 @@ package auth0
 
 import (
 	"context"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -37,30 +37,7 @@ func (c customClaims) Validate(ctx context.Context) error {
 	return nil
 }
 
-// EnsureValidToken is a middleware that will check the validity of our JWT.
-func (c *Client) EnsureValidToken() gin.HandlerFunc {
-	config := c.config
-	issuerURL, err := url.Parse("https://" + config.Domain + "/")
-	if err != nil {
-		log.Fatalf("Failed to parse the issuer url: %v", err)
-	}
-
-	provider := jwks.NewCachingProvider(issuerURL, 5*time.Minute)
-
-	jwtValidator, err := validator.New(
-		provider.KeyFunc,
-		validator.RS256,
-		issuerURL.String(),
-		config.Audiences,
-		validator.WithAllowedClockSkew(time.Minute),
-		validator.WithCustomClaims(func() validator.CustomClaims {
-			return &customClaims{}
-		}),
-	)
-	if err != nil {
-		log.Fatalf("Failed to set up the jwt validator")
-	}
-
+func validateTokenAndFillCtx(v *validator.Validator) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		parts := strings.Split(authHeader, " ")
@@ -69,7 +46,7 @@ func (c *Client) EnsureValidToken() gin.HandlerFunc {
 			return
 		}
 
-		token, err := jwtValidator.ValidateToken(ctx, parts[1])
+		token, err := v.ValidateToken(ctx, parts[1])
 		if err != nil {
 			ctx.JSON(401, "Invalid token")
 			ctx.Abort()
@@ -93,4 +70,37 @@ func (c *Client) EnsureValidToken() gin.HandlerFunc {
 		ctx.Set(CtxPersonID, strconv.Itoa(custom.PersonID))
 		ctx.Set(CtxIsBCCMember, custom.Metadata.HasMembership)
 	}
+}
+
+// ValidateToken is a middleware that will check the validity of our JWT.
+func (c *Client) ValidateToken() gin.HandlerFunc {
+	config := c.config
+	issuerURL, err := url.Parse("https://" + config.Domain + "/")
+	if err != nil {
+		log.L.Fatal().Msgf("Failed to parse the issuer url: %v", err)
+		return func(ctx *gin.Context) {
+			ctx.Set(CtxAuthenticated, false)
+		}
+	}
+
+	provider := jwks.NewCachingProvider(issuerURL, 5*time.Minute)
+
+	jwtValidator, err := validator.New(
+		provider.KeyFunc,
+		validator.RS256,
+		issuerURL.String(),
+		config.Audiences,
+		validator.WithAllowedClockSkew(time.Minute),
+		validator.WithCustomClaims(func() validator.CustomClaims {
+			return &customClaims{}
+		}),
+	)
+	if err != nil {
+		log.L.Fatal().Msg("Failed to set up the jwt validator")
+		return func(ctx *gin.Context) {
+			ctx.Set(CtxAuthenticated, false)
+		}
+	}
+
+	return validateTokenAndFillCtx(jwtValidator)
 }
