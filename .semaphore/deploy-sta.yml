@@ -1,5 +1,5 @@
 version: v1.0
-name: Deploy DEV
+name: Deploy STA
 agent:
   machine:
     type: e1-standard-2
@@ -7,11 +7,9 @@ agent:
 fail_fast:
   stop:
     when: 'true'
-
 queue:
   name: STA Deploy Queue
   scope: project
-
 blocks:
   - name: Deploy
     task:
@@ -24,4 +22,6 @@ blocks:
         - name: GoogleSemaphoreServiceAccount
       prologue:
         commands:
+          - sudo apt-get update
+          - sudo apt-get --only-upgrade install google-cloud-sdk
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
