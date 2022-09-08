@@ -7,7 +7,6 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
@@ -121,9 +120,9 @@ type getSectionsRow struct {
 	ID           int32                 `db:"id" json:"id"`
 	PageID       int32                 `db:"page_id" json:"pageID"`
 	Style        null_v4.String        `db:"style" json:"style"`
-	Sort         sql.NullInt32         `db:"sort" json:"sort"`
+	Sort         null_v4.Int           `db:"sort" json:"sort"`
 	Published    bool                  `db:"published" json:"published"`
-	CollectionID sql.NullInt32         `db:"collection_id" json:"collectionID"`
+	CollectionID null_v4.Int           `db:"collection_id" json:"collectionID"`
 	Title        pqtype.NullRawMessage `db:"title" json:"title"`
 	Description  pqtype.NullRawMessage `db:"description" json:"description"`
 }
