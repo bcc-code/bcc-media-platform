@@ -34,6 +34,11 @@ export default [
                 name: "show-page",
                 path: "show/:showId",
                 component: () => import("@/pages/Show.vue"),
+            },
+            {
+                name: "calendar",
+                path: "/calendar",
+                component: () => import("@/pages/calendar/Calendar.vue")
             }
         ],
     },

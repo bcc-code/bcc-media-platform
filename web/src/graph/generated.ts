@@ -22,8 +22,8 @@ export type AppConfig = {
 };
 
 export type Calendar = {
-  day?: Maybe<CalendarDay>;
-  period?: Maybe<CalendarPeriod>;
+  day: CalendarDay;
+  period: CalendarPeriod;
 };
 
 
@@ -596,6 +596,14 @@ export type GetShowQueryVariables = Exact<{
 
 export type GetShowQuery = { show?: { title: string, description: string, imageUrl?: string | null, seasons: { total: number, items: Array<{ title: string, description: string, imageUrl?: string | null, number: number, episodes: { total: number, items: Array<{ title: string, imageUrl?: string | null, number?: number | null, description: string }> } }> } } | null };
 
+export type GetCalendarPeriodQueryVariables = Exact<{
+  from: Scalars['Date'];
+  to: Scalars['Date'];
+}>;
+
+
+export type GetCalendarPeriodQuery = { calendar?: { period: { activeDays: Array<any>, events: Array<{ id: string, start: string, end: string, title: string }> } } | null };
+
 
 export const GetEpisodeDocument = gql`
     query getEpisode($episodeId: ID!) {
@@ -753,4 +761,23 @@ export const GetShowDocument = gql`
 
 export function useGetShowQuery(options: Omit<Urql.UseQueryArgs<never, GetShowQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetShowQuery>({ query: GetShowDocument, ...options });
+};
+export const GetCalendarPeriodDocument = gql`
+    query getCalendarPeriod($from: Date!, $to: Date!) {
+  calendar {
+    period(from: $from, to: $to) {
+      activeDays
+      events {
+        id
+        start
+        end
+        title
+      }
+    }
+  }
+}
+    `;
+
+export function useGetCalendarPeriodQuery(options: Omit<Urql.UseQueryArgs<never, GetCalendarPeriodQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetCalendarPeriodQuery>({ query: GetCalendarPeriodDocument, ...options });
 };

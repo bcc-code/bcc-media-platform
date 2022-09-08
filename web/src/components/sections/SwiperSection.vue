@@ -52,7 +52,7 @@ const breakpoints = {
         slidesPerGroup: 4,
     },
     1200: {
-        slidesPerView: 8,
+        slidesPerView: 6,
         spaceBetween: 20,
         slidesPerGroup: 8,
     }
