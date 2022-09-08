@@ -21,7 +21,7 @@ export default createClient({
         cacheExchange,
         authExchange({
             willAuthError: (_) => {
-                // Ensure that a token is retrieved on every request. Auth0 SDK handles caching and handling
+                // Ensure that a token is retrieved on every request. Auth0 SDK handles caching and errors
                 return true;
             },
             getAuth: async (state) => {
@@ -35,8 +35,6 @@ export default createClient({
             },
             addAuthToOperation: (state) => {
                 const authState = state.authState as null | AuthState
-
-                console.log(authState);
 
                 if (!authState || !authState.token) {
                     return state.operation
