@@ -7,12 +7,12 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
-	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const refreshEpisodeAccessView = `-- name: RefreshEpisodeAccessView :one
@@ -35,8 +35,8 @@ WHERE e.season_id = ANY($1::int[])
 `
 
 type getEpisodeIDsForSeasonsRow struct {
-	ID       int32       `db:"id" json:"id"`
-	SeasonID null_v4.Int `db:"season_id" json:"seasonID"`
+	ID       int32         `db:"id" json:"id"`
+	SeasonID sql.NullInt32 `db:"season_id" json:"seasonID"`
 }
 
 func (q *Queries) getEpisodeIDsForSeasons(ctx context.Context, dollar_1 []int32) ([]getEpisodeIDsForSeasonsRow, error) {
@@ -92,11 +92,11 @@ WHERE id = ANY($1::int[])
 
 type getEpisodesRow struct {
 	ID               int32                 `db:"id" json:"id"`
-	LegacyID         null_v4.Int           `db:"legacy_id" json:"legacyID"`
-	AssetID          null_v4.Int           `db:"asset_id" json:"assetID"`
-	EpisodeNumber    null_v4.Int           `db:"episode_number" json:"episodeNumber"`
+	LegacyID         sql.NullInt32         `db:"legacy_id" json:"legacyID"`
+	AssetID          sql.NullInt32         `db:"asset_id" json:"assetID"`
+	EpisodeNumber    sql.NullInt32         `db:"episode_number" json:"episodeNumber"`
 	ImageFileID      uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
-	SeasonID         null_v4.Int           `db:"season_id" json:"seasonID"`
+	SeasonID         sql.NullInt32         `db:"season_id" json:"seasonID"`
 	Type             string                `db:"type" json:"type"`
 	Title            pqtype.NullRawMessage `db:"title" json:"title"`
 	Description      pqtype.NullRawMessage `db:"description" json:"description"`
@@ -245,11 +245,11 @@ FROM episodes e
 
 type listEpisodesRow struct {
 	ID               int32                 `db:"id" json:"id"`
-	LegacyID         null_v4.Int           `db:"legacy_id" json:"legacyID"`
-	AssetID          null_v4.Int           `db:"asset_id" json:"assetID"`
-	EpisodeNumber    null_v4.Int           `db:"episode_number" json:"episodeNumber"`
+	LegacyID         sql.NullInt32         `db:"legacy_id" json:"legacyID"`
+	AssetID          sql.NullInt32         `db:"asset_id" json:"assetID"`
+	EpisodeNumber    sql.NullInt32         `db:"episode_number" json:"episodeNumber"`
 	ImageFileID      uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
-	SeasonID         null_v4.Int           `db:"season_id" json:"seasonID"`
+	SeasonID         sql.NullInt32         `db:"season_id" json:"seasonID"`
 	Type             string                `db:"type" json:"type"`
 	Title            pqtype.NullRawMessage `db:"title" json:"title"`
 	Description      pqtype.NullRawMessage `db:"description" json:"description"`

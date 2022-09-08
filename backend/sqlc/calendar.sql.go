@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/lib/pq"
@@ -38,13 +39,13 @@ AND e.id = ANY($1::int[])
 
 type getCalendarEntriesRow struct {
 	ID          int32                 `db:"id" json:"id"`
-	EventID     null_v4.Int           `db:"event_id" json:"eventID"`
+	EventID     sql.NullInt32         `db:"event_id" json:"eventID"`
 	LinkType    null_v4.String        `db:"link_type" json:"linkType"`
 	Start       time.Time             `db:"start" json:"start"`
 	End         time.Time             `db:"end" json:"end"`
-	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeID"`
-	SeasonID    null_v4.Int           `db:"season_id" json:"seasonID"`
-	ShowID      null_v4.Int           `db:"show_id" json:"showID"`
+	EpisodeID   sql.NullInt32         `db:"episode_id" json:"episodeID"`
+	SeasonID    sql.NullInt32         `db:"season_id" json:"seasonID"`
+	ShowID      sql.NullInt32         `db:"show_id" json:"showID"`
 	Title       pqtype.NullRawMessage `db:"title" json:"title"`
 	Description pqtype.NullRawMessage `db:"description" json:"description"`
 }
@@ -107,13 +108,13 @@ WHERE e.status = 'published'
 
 type getCalendarEntriesForEventsRow struct {
 	ID          int32                 `db:"id" json:"id"`
-	EventID     null_v4.Int           `db:"event_id" json:"eventID"`
+	EventID     sql.NullInt32         `db:"event_id" json:"eventID"`
 	LinkType    null_v4.String        `db:"link_type" json:"linkType"`
 	Start       time.Time             `db:"start" json:"start"`
 	End         time.Time             `db:"end" json:"end"`
-	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeID"`
-	SeasonID    null_v4.Int           `db:"season_id" json:"seasonID"`
-	ShowID      null_v4.Int           `db:"show_id" json:"showID"`
+	EpisodeID   sql.NullInt32         `db:"episode_id" json:"episodeID"`
+	SeasonID    sql.NullInt32         `db:"season_id" json:"seasonID"`
+	ShowID      sql.NullInt32         `db:"show_id" json:"showID"`
 	Title       pqtype.NullRawMessage `db:"title" json:"title"`
 	Description pqtype.NullRawMessage `db:"description" json:"description"`
 }
@@ -299,13 +300,13 @@ WHERE e.status = 'published'
 
 type listCalendarEntriesRow struct {
 	ID          int32                 `db:"id" json:"id"`
-	EventID     null_v4.Int           `db:"event_id" json:"eventID"`
+	EventID     sql.NullInt32         `db:"event_id" json:"eventID"`
 	LinkType    null_v4.String        `db:"link_type" json:"linkType"`
 	Start       time.Time             `db:"start" json:"start"`
 	End         time.Time             `db:"end" json:"end"`
-	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeID"`
-	SeasonID    null_v4.Int           `db:"season_id" json:"seasonID"`
-	ShowID      null_v4.Int           `db:"show_id" json:"showID"`
+	EpisodeID   sql.NullInt32         `db:"episode_id" json:"episodeID"`
+	SeasonID    sql.NullInt32         `db:"season_id" json:"seasonID"`
+	ShowID      sql.NullInt32         `db:"show_id" json:"showID"`
 	Title       pqtype.NullRawMessage `db:"title" json:"title"`
 	Description pqtype.NullRawMessage `db:"description" json:"description"`
 }

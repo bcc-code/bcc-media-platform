@@ -92,12 +92,40 @@ blocks:
     dependencies:
       - Build
       - Build CMS
+      - Build Migrations
     task:
       jobs:
         - name: Generate
           commands:
             - checkout
             - ./scripts/generate-cloud-build.sh
+      agent:
+        machine:
+          type: e1-standard-2
+          os_image: ubuntu2004
+  - name: Build Migrations
+    dependencies: []
+    task:
+      jobs:
+        - name: build
+          commands:
+            - checkout
+            - cd migrations
+            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:$SEMAPHORE_GIT_BRANCH .'
+            - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}" '
+            - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:$SEMAPHORE_GIT_BRANCH'
+            - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}"  > migrations.txt'
+            - artifact push workflow migrations.txt
+      secrets:
+        - name: GoogleSemaphoreServiceAccount
+      prologue:
+        commands:
+          - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
+          - gcloud auth configure-docker -q europe-west4-docker.pkg.dev
+      agent:
+        machine:
+          type: e1-standard-2
+          os_image: ubuntu2004
 promotions:
   - name: Deploy to DEV
     pipeline_file: deploy-dev.yml

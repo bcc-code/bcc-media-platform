@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -169,7 +170,7 @@ type getStreamsForAssetsRow struct {
 	EncryptionKeyID   null_v4.String        `db:"encryption_key_id" json:"encryptionKeyID"`
 	ExtraMetadata     pqtype.NullRawMessage `db:"extra_metadata" json:"extraMetadata"`
 	ID                int32                 `db:"id" json:"id"`
-	LegacyVideourlID  null_v4.Int           `db:"legacy_videourl_id" json:"legacyVideourlID"`
+	LegacyVideourlID  sql.NullInt32         `db:"legacy_videourl_id" json:"legacyVideourlID"`
 	Path              string                `db:"path" json:"path"`
 	Service           string                `db:"service" json:"service"`
 	Status            string                `db:"status" json:"status"`
@@ -254,7 +255,7 @@ type getStreamsForEpisodesRow struct {
 	EncryptionKeyID   null_v4.String        `db:"encryption_key_id" json:"encryptionKeyID"`
 	ExtraMetadata     pqtype.NullRawMessage `db:"extra_metadata" json:"extraMetadata"`
 	ID                int32                 `db:"id" json:"id"`
-	LegacyVideourlID  null_v4.Int           `db:"legacy_videourl_id" json:"legacyVideourlID"`
+	LegacyVideourlID  sql.NullInt32         `db:"legacy_videourl_id" json:"legacyVideourlID"`
 	Path              string                `db:"path" json:"path"`
 	Service           string                `db:"service" json:"service"`
 	Status            string                `db:"status" json:"status"`
