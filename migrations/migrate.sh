@@ -20,4 +20,4 @@ $PROXY -dir=./cloudsql -instances=${INSTANCE_CONNECTION_NAME}=tcp:54321 &
 PROXY_PID=$!
 sleep 2
 
-$GOOSE postgres "user=builder dbname=directus port=54321 host=localhost sslmode=disable" status
+$GOOSE postgres "user=builder dbname=directus port=54321 host=localhost sslmode=disable" up
