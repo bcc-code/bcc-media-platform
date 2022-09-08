@@ -18,6 +18,7 @@ func mapToPages(pages []getPagesRow) []common.Page {
 
 		return common.Page{
 			ID:          int(p.ID),
+			Code:        p.Code,
 			Title:       title,
 			Description: description,
 		}

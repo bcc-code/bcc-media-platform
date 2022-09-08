@@ -1,0 +1,18 @@
+In order to generate migration files you should have the following tools installed:
+
+* https://michaelsogos.github.io/pg-diff/
+* https://github.com/pressly/goose
+* https://www.postgresql.org/docs/current/app-psql.html
+
+Install:
+
+```
+npm install -g pg-diff-cli
+go install github.com/pressly/goose/v3/cmd/goose@latest
+
+```
+
+`pg-diff-cli` is used for comparing the DB and generating the scripts
+`goose` is used for actually running the migrations (because the other one does not support down migrations)
+
+

@@ -57,10 +57,11 @@ type ItemSection implements Section {
   page: Page! @goField(forceResolver: true)
   title: String!
   type: ItemSectionType!
+  style: String!
   items(
     first: Int,
     offset: Int,
-  ): CollectionItemPagination @goField(forceResolver: true)
+  ): CollectionItemPagination! @goField(forceResolver: true)
 }
 
 type Collection {
@@ -116,7 +117,7 @@ type EpisodeItem implements Item {
   id: ID!
   sort: Int!
   title: String!
-  imageUrl: String
+  imageUrl: String @goField(forceResolver: true)
   episode: Episode!
 }
 
@@ -133,6 +134,7 @@ type Show {
   legacyID: ID
   title: String!
   description: String!
+  imageUrl: String @goField(forceResolver: true)
   episodeCount: Int!
   seasonCount: Int!
   seasons(
@@ -153,6 +155,7 @@ type Season {
   legacyID: ID
   title: String!
   description: String!
+  imageUrl: String @goField(forceResolver: true)
   number: Int!
   show: Show! @goField(forceResolver: true)
   episodes(
@@ -174,6 +177,7 @@ type Episode {
   title: String!
   description: String!
   extraDescription: String!
+  imageUrl: String @goField(forceResolver: true)
   streams: [Stream!]! @goField(forceResolver: true)
   files: [File!]! @goField(forceResolver: true)
   chapters: [Chapter!]!
@@ -181,7 +185,7 @@ type Episode {
   duration: Int!
   audioLanguages: [Language!]!
   subtitleLanguages: [Language!]!
-  episodeNumber: Int
+  number: Int
 }
 
 type EpisodePagination implements Pagination {

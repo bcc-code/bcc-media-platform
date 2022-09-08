@@ -36,7 +36,7 @@ type loaders struct {
 	ShowLoader    *dataloader.Loader[int, *common.Show]
 	SeasonLoader  *dataloader.Loader[int, *common.Season]
 	EpisodeLoader *dataloader.Loader[int, *common.Episode]
-	ImageLoader   *dataloader.Loader[uuid.UUID, *sqlc.DirectusFile]
+	ImageLoader   *dataloader.Loader[uuid.UUID, *common.ImageFile]
 	TagLoader     *dataloader.Loader[int, *common.Tag]
 	// Permissions
 	ShowPermissionLoader    *dataloader.Loader[int, *common.Permissions[int]]
@@ -64,10 +64,8 @@ func New(db *sql.DB, algoliaAppId string, algoliaApiKey string) *Service {
 		ShowLoader:    show.NewBatchLoader(*service.queries),
 		SeasonLoader:  season.NewBatchLoader(*service.queries),
 		EpisodeLoader: episode.NewBatchLoader(*service.queries),
-		ImageLoader: common.NewCustomBatchLoader(service.queries.GetFilesByIds, func(i sqlc.DirectusFile) uuid.UUID {
-			return i.ID
-		}),
-		TagLoader: common.NewBatchLoader(service.queries.GetTags),
+		ImageLoader:   common.NewBatchLoader(service.queries.GetFiles),
+		TagLoader:     common.NewBatchLoader(service.queries.GetTags),
 		// Permissions
 		ShowPermissionLoader:    show.NewPermissionLoader(*service.queries),
 		SeasonPermissionLoader:  season.NewPermissionLoader(*service.queries),

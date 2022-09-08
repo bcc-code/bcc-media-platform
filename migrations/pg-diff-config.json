@@ -1,0 +1,95 @@
+{
+    "up": {
+        "sourceClient": {
+            "host": "localhost",
+            "port": 5432,
+            "database": "btv",
+            "user": "btv",
+            "applicationName": "btv"
+        },
+        "targetClient": {
+            "host": "localhost",
+            "port": 5432,
+            "database": "btv2",
+            "user": "btv",
+            "applicationName": "btv2"
+        },
+        "compareOptions": {
+            "author": "Migrations Script",
+            "outputDirectory": "./",
+            "getAuthorFromGit": true,
+            "schemaCompare": {
+                "namespaces": ["public"],
+                "dropMissingTable": true,
+                "dropMissingView": true,
+                "dropMissingFunction": true,
+                "dropMissingAggregate": true,
+                "roles": []
+            },
+            "dataCompare": {
+                "enable": true,
+                "tables": [
+                  { "tableName": "directus_collections", "tableSchema": "public", "tableKeyFields": ["collection"]},
+                  { "tableName": "directus_fields", "tableSchema": "public", "tableKeyFields": ["id"]},
+                  { "tableName": "directus_migrations", "tableSchema": "public", "tableKeyFields": ["version"]},
+                  { "tableName": "directus_permissions", "tableSchema": "public", "tableKeyFields": ["id"]},
+                  { "tableName": "directus_relations", "tableSchema": "public", "tableKeyFields": ["id"]},
+                  { "tableName": "directus_roles", "tableSchema": "public", "tableKeyFields": ["id"]},
+                  { "tableName": "directus_webhooks", "tableSchema": "public", "tableKeyFields": ["id"]}
+                ]
+            }
+        },
+        "migrationOptions": {
+            "patchesDirectory": "db_migration",
+            "historyTableName": "migrations",
+            "historyTableSchema": "public"
+        }
+    },
+    "down": {
+        "sourceClient": {
+            "host": "localhost",
+            "port": 5432,
+            "database": "btv2",
+            "user": "btv",
+            "applicationName": "btv"
+        },
+        "targetClient": {
+            "host": "localhost",
+            "port": 5432,
+            "database": "btv",
+            "user": "btv",
+            "applicationName": "btv2"
+        },
+        "compareOptions": {
+            "author": "Migrations Script",
+            "outputDirectory": "./",
+            "getAuthorFromGit": true,
+            "schemaCompare": {
+                "namespaces": ["public"],
+                "dropMissingTable": true,
+                "dropMissingView": true,
+                "dropMissingFunction": true,
+                "dropMissingAggregate": true,
+                "roles": []
+            },
+            "dataCompare": {
+                "enable": true,
+                "tables": [
+                  { "tableName": "directus_collections", "tableSchema": "public", "tableKeyFields": ["collection"]},
+                  { "tableName": "directus_fields", "tableSchema": "public", "tableKeyFields": ["id"]},
+                  { "tableName": "directus_migrations", "tableSchema": "public", "tableKeyFields": ["version"]},
+                  { "tableName": "directus_permissions", "tableSchema": "public", "tableKeyFields": ["id"]},
+                  { "tableName": "directus_relations", "tableSchema": "public", "tableKeyFields": ["id"]},
+                  { "tableName": "directus_roles", "tableSchema": "public", "tableKeyFields": ["id"]},
+                  { "tableName": "directus_webhooks", "tableSchema": "public", "tableKeyFields": ["id"]}
+                ]
+            }
+        },
+        "migrationOptions": {
+            "patchesDirectory": "db_migration",
+            "historyTableName": "migrations",
+            "historyTableSchema": "public"
+        }
+    }
+}
+

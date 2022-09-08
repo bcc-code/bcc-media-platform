@@ -32,6 +32,16 @@ overrides:
     db_type: "pg_catalog.int4"
   - go_type:
       import: "gopkg.in/guregu/null.v4"
+      type: "Int"
+    nullable: true
+    db_type: "int4"
+  - go_type:
+      import: "gopkg.in/guregu/null.v4"
+      type: "Int"
+    nullable: true
+    db_type: "int8"
+  - go_type:
+      import: "gopkg.in/guregu/null.v4"
       type: "Float"
     nullable: true
     db_type: "pg_catalog.float4"
@@ -60,26 +70,3 @@ overrides:
       type: "Time"
     nullable: true
     db_type: "pg_catalog.timestamp"
-  - column: "episodes_expanded.published"
-    go_type: "bool"
-  - column: "seasons_expanded.published"
-    go_type: "bool"
-  - column: "shows_expanded.published"
-    go_type: "bool"
-  - column: "sections_expanded.roles"
-    go_type:
-      type: "[]string"
-  - column: "episodes_expanded.tag_ids"
-    go_type:
-      type: "[]int32"
-  - column: "episodes_expanded.tag_ids"
-    go_type:
-      type: "[]int32"
-  - column: "episodes_expanded.title"
-    go_type:
-      import: "encoding/json"
-      type: "RawMessage"
-  - column: "episodes_expanded.description"
-    go_type:
-      import: "encoding/json"
-      type: "RawMessage"
