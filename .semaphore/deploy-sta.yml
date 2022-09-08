@@ -1,5 +1,5 @@
 version: v1.0
-name: Deploy DEV
+name: Deploy STA
 agent:
   machine:
     type: e1-standard-2
