@@ -1,7 +1,7 @@
 <template>
     <div>
         <HeaderSection
-            v-if="section.style === 'header'"
+            v-if="section.style === 'featured'"
             :items="section.items.items"
             :click="view"
         ></HeaderSection>

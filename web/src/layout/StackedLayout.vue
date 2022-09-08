@@ -2,7 +2,7 @@
     <div v-if="!loading">
         <Navbar></Navbar>
         <div class="p-4">
-            <router-view></router-view>
+            <router-view :key="route.fullPath"></router-view>
         </div>
         <div class="text-red-500" v-if="errors">
             <p v-for="(error, i) in errors">
@@ -25,7 +25,10 @@ import Loader from "../components/Loader.vue"
 import { provideClient } from '@urql/vue';
 
 import client from '@/graph/client';
+import { useRoute } from "vue-router";
 provideClient(client)
+
+const route = useRoute()
 
 const loading = Auth.loading()
 </script>

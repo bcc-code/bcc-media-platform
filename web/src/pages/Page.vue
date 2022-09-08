@@ -11,6 +11,7 @@
 <script lang="ts" setup>
 import { useGetPageQuery } from "@/graph/generated"
 import ItemSection from "@/components/sections/ItemSection.vue"
+import { getCurrentInstance, watch } from "vue";
 
 const props = defineProps<{
     pageId: string

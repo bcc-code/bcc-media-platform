@@ -150,7 +150,8 @@ func (r *itemSectionResolver) Items(ctx context.Context, obj *gqlmodel.ItemSecti
 // Sections is the resolver for the sections field.
 func (r *pageResolver) Sections(ctx context.Context, obj *gqlmodel.Page, first *int, offset *int) (*gqlmodel.SectionPagination, error) {
 	sections, err := itemsResolverForIntID(ctx, &itemLoaders[int, common.Section]{
-		Item: r.Loaders.SectionLoader,
+		Item:        r.Loaders.SectionLoader,
+		Permissions: r.Loaders.SectionPermissionLoader,
 	}, r.Loaders.SectionsLoader, obj.ID, gqlmodel.SectionFrom)
 	if err != nil {
 		return nil, err
