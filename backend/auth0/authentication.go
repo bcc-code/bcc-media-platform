@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -89,7 +90,7 @@ func (c *Client) EnsureValidToken() gin.HandlerFunc {
 			return
 		}
 
-		ctx.Set(CtxPersonID, custom.PersonID)
+		ctx.Set(CtxPersonID, strconv.Itoa(custom.PersonID))
 		ctx.Set(CtxIsBCCMember, custom.Metadata.HasMembership)
 	}
 }

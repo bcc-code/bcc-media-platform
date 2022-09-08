@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/members"
+	"strconv"
 	"time"
 
 	cache "github.com/Code-Hex/go-generics-cache"
@@ -117,7 +118,10 @@ func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin
 			return
 		}
 
-		member, err := members.Lookup(ctx, ctx.GetInt(auth0.CtxPersonID))
+		pid := ctx.GetString(auth0.CtxPersonID)
+		intID, _ := strconv.ParseInt(pid, 10, 32)
+
+		member, err := members.Lookup(ctx, int(intID))
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to retrieve user")
 		}
@@ -143,8 +147,6 @@ func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin
 			roles = append(roles, userRoles...)
 		}
 
-		pid := ctx.GetString(auth0.CtxPersonID)
-
 		u := &common.User{
 			PersonID:  pid,
 			Roles:     roles,
@@ -155,7 +157,7 @@ func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin
 
 		// Add the user to the cache
 		span.AddEvent("User loaded into cache")
-		userCache.Set(email, u, cache.WithExpiration(60*time.Minute))
+		userCache.Set(userID, u, cache.WithExpiration(60*time.Minute))
 		ctx.Set(CtxUser, u)
 	}
 }

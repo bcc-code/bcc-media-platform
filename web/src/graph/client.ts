@@ -18,25 +18,32 @@ export default createClient({
     maskTypename: false,
     exchanges: [
         dedupExchange,
-        fetchExchange,
         cacheExchange,
         authExchange({
-            getAuth: async ({ authState }) => {
-                if (!authState) {
-                    return {
-                        token: await Auth.getToken(),
-                    }
+            willAuthError: (_) => {
+                // Ensure that a token is retrieved on every request. Auth0 SDK handles caching and handling
+                return true;
+            },
+            getAuth: async (state) => {
+                const token = await Auth.getToken();
+                if (token) {
+                    state.authState = {token};
+                } else {
+                    state.authState = null
                 }
-                return null
+                return state
             },
             addAuthToOperation: (state) => {
                 const authState = state.authState as null | AuthState
+
+                console.log(authState);
+
                 if (!authState || !authState.token) {
                     return state.operation
                 }
 
                 const fetchOptions = state.operation.context
-                    .fetchOptions as RequestInit
+                    .fetchOptions as RequestInit ?? {}
 
                 return makeOperation(state.operation.kind, state.operation, {
                     ...state.operation.context,
@@ -50,5 +57,6 @@ export default createClient({
                 })
             },
         }),
+        fetchExchange,
     ],
 })

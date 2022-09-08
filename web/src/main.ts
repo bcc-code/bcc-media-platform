@@ -2,8 +2,6 @@ import { createApp } from "vue"
 import "./index.css"
 import App from "./App.vue"
 import router from "./router"
-import urql from "@urql/vue"
-import client from "@/graph/client"
 import auth0 from "@/services/auth0"
 import { api } from "@/config"
 
@@ -21,4 +19,7 @@ VideoClient.initialize({
     tokenFactory: async () => (await Auth.getToken()) ?? null,
 })
 
-createApp(App).use(router).use(auth0).use(urql, client).mount("#app")
+createApp(App)
+    .use(router)
+    .use(auth0)
+    .mount("#app")
