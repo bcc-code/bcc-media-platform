@@ -52,7 +52,7 @@ func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1
 }
 
 const getCollections = `-- name: getCollections :many
-SELECT id, sort, user_created, date_created, user_updated, date_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter FROM collections c WHERE c.id = ANY($1::int[])
+SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter FROM collections c WHERE c.id = ANY($1::int[])
 `
 
 func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Collection, error) {
@@ -65,12 +65,12 @@ func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 	for rows.Next() {
 		var i Collection
 		if err := rows.Scan(
+			&i.DateCreated,
+			&i.DateUpdated,
 			&i.ID,
 			&i.Sort,
 			&i.UserCreated,
-			&i.DateCreated,
 			&i.UserUpdated,
-			&i.DateUpdated,
 			&i.Collection,
 			&i.EpisodesQueryFilter,
 			&i.FilterType,
@@ -93,7 +93,7 @@ func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 }
 
 const listCollections = `-- name: listCollections :many
-SELECT id, sort, user_created, date_created, user_updated, date_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter FROM collections
+SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter FROM collections
 `
 
 func (q *Queries) listCollections(ctx context.Context) ([]Collection, error) {
@@ -106,12 +106,12 @@ func (q *Queries) listCollections(ctx context.Context) ([]Collection, error) {
 	for rows.Next() {
 		var i Collection
 		if err := rows.Scan(
+			&i.DateCreated,
+			&i.DateUpdated,
 			&i.ID,
 			&i.Sort,
 			&i.UserCreated,
-			&i.DateCreated,
 			&i.UserUpdated,
-			&i.DateUpdated,
 			&i.Collection,
 			&i.EpisodesQueryFilter,
 			&i.FilterType,

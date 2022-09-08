@@ -7,21 +7,21 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
-	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const refreshShowAccessView = `-- name: RefreshShowAccessView :one
 SELECT update_access('shows_access')
 `
 
-func (q *Queries) RefreshShowAccessView(ctx context.Context) (interface{}, error) {
+func (q *Queries) RefreshShowAccessView(ctx context.Context) (bool, error) {
 	row := q.db.QueryRowContext(ctx, refreshShowAccessView)
-	var update_access interface{}
+	var update_access bool
 	err := row.Scan(&update_access)
 	return update_access, err
 }
@@ -132,7 +132,7 @@ WHERE sh.id = ANY ($1::int[])
 
 type getShowsRow struct {
 	ID          int32                 `db:"id" json:"id"`
-	LegacyID    null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	LegacyID    sql.NullInt32         `db:"legacy_id" json:"legacyID"`
 	ImageFileID uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
 	Title       pqtype.NullRawMessage `db:"title" json:"title"`
 	Description pqtype.NullRawMessage `db:"description" json:"description"`
@@ -184,7 +184,7 @@ FROM shows sh
 
 type listShowsRow struct {
 	ID          int32                 `db:"id" json:"id"`
-	LegacyID    null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	LegacyID    sql.NullInt32         `db:"legacy_id" json:"legacyID"`
 	ImageFileID uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
 	Title       pqtype.NullRawMessage `db:"title" json:"title"`
 	Description pqtype.NullRawMessage `db:"description" json:"description"`

@@ -7,21 +7,21 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const refreshSeasonAccessView = `-- name: RefreshSeasonAccessView :one
 SELECT update_access('seasons_access')
 `
 
-func (q *Queries) RefreshSeasonAccessView(ctx context.Context) (interface{}, error) {
+func (q *Queries) RefreshSeasonAccessView(ctx context.Context) (bool, error) {
 	row := q.db.QueryRowContext(ctx, refreshSeasonAccessView)
-	var update_access interface{}
+	var update_access bool
 	err := row.Scan(&update_access)
 	return update_access, err
 }
@@ -162,7 +162,7 @@ WHERE s.id = ANY ($1::int[])
 
 type getSeasonsRow struct {
 	ID           int32           `db:"id" json:"id"`
-	LegacyID     null_v4.Int     `db:"legacy_id" json:"legacyID"`
+	LegacyID     sql.NullInt32   `db:"legacy_id" json:"legacyID"`
 	SeasonNumber int32           `db:"season_number" json:"seasonNumber"`
 	ImageFileID  uuid.NullUUID   `db:"image_file_id" json:"imageFileID"`
 	ShowID       int32           `db:"show_id" json:"showID"`
@@ -220,7 +220,7 @@ FROM seasons s
 
 type listSeasonsRow struct {
 	ID           int32           `db:"id" json:"id"`
-	LegacyID     null_v4.Int     `db:"legacy_id" json:"legacyID"`
+	LegacyID     sql.NullInt32   `db:"legacy_id" json:"legacyID"`
 	SeasonNumber int32           `db:"season_number" json:"seasonNumber"`
 	ImageFileID  uuid.NullUUID   `db:"image_file_id" json:"imageFileID"`
 	ShowID       int32           `db:"show_id" json:"showID"`
