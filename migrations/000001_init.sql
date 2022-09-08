@@ -5192,6 +5192,692 @@ COMMENT ON COLUMN "public"."goose_db_version"."tstamp"  IS NULL;
 COMMENT ON CONSTRAINT "goose_db_version_pkey" ON "public"."goose_db_version" IS NULL;
 COMMENT ON TABLE "public"."goose_db_version"  IS NULL;
 
+GRANT EXECUTE ON FUNCTION public.update_access(view character varying) TO api;
+
+GRANT EXECUTE ON FUNCTION public.nametolowercase() TO api;
+
+GRANT SELECT ON SEQUENCE public.ageratings_translations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.appconfig_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.assetfiles_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.assets_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.assetstreams_audio_languages_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.assetstreams_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.assetstreams_subtitle_languages_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.calendarentries_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.calendarentries_translations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.calendarevent_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.categories_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.categories_translations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.collections_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.collections_items_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.episodes_categories_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.episodes_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.episodes_tags_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.episodes_translations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.episodes_usergroups_download_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.episodes_usergroups_earlyaccess_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.episodes_usergroups_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.events_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.events_translations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.faq_categories_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.faq_categories_translations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.faqs_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.faqs_translations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.faqs_usergroups_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.globalconfig_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.lists_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.lists_relations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.maintenancemessage_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.maintenancemessage_messagetemplates_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.messagetemplates_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.messagetemplates_translations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.pages_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.pages_translations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.seasons_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.seasons_translations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.seasons_usergroups_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.sections_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.sections_translations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.sections_usergroups_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.shows_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.shows_translations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.shows_usergroups_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.tags_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.tags_translations_id_seq TO api;
+
+GRANT SELECT ON SEQUENCE public.webconfig_id_seq TO api;
+
+GRANT SELECT ON TABLE public.ageratings TO api;
+
+GRANT SELECT ON TABLE public.ageratings_translations TO api;
+
+GRANT SELECT ON TABLE public.appconfig TO api;
+
+GRANT SELECT ON TABLE public.assetfiles TO api;
+
+GRANT SELECT ON TABLE public.assets TO api;
+
+GRANT SELECT ON TABLE public.assetstreams TO api;
+
+GRANT SELECT ON TABLE public.assetstreams_audio_languages TO api;
+
+GRANT SELECT ON TABLE public.assetstreams_subtitle_languages TO api;
+
+GRANT SELECT ON TABLE public.calendarentries TO api;
+
+GRANT SELECT ON TABLE public.calendarentries_translations TO api;
+
+GRANT SELECT ON TABLE public.calendarevent TO api;
+
+GRANT SELECT ON TABLE public.categories TO api;
+
+GRANT SELECT ON TABLE public.categories_translations TO api;
+
+GRANT SELECT ON TABLE public.collections TO api;
+
+GRANT SELECT ON TABLE public.collections_items TO api;
+
+GRANT SELECT ON TABLE public.episodes TO api;
+
+GRANT SELECT ON TABLE public.episodes_categories TO api;
+
+GRANT SELECT ON TABLE public.episodes_tags TO api;
+
+GRANT SELECT ON TABLE public.episodes_translations TO api;
+
+GRANT SELECT ON TABLE public.episodes_usergroups TO api;
+
+GRANT SELECT ON TABLE public.episodes_usergroups_download TO api;
+
+GRANT SELECT ON TABLE public.episodes_usergroups_earlyaccess TO api;
+
+GRANT SELECT ON TABLE public.events TO api;
+
+GRANT SELECT ON TABLE public.events_translations TO api;
+
+GRANT SELECT ON TABLE public.faq_categories TO api;
+
+GRANT SELECT ON TABLE public.faq_categories_translations TO api;
+
+GRANT SELECT ON TABLE public.faqs TO api;
+
+GRANT SELECT ON TABLE public.faqs_translations TO api;
+
+GRANT SELECT ON TABLE public.faqs_usergroups TO api;
+
+GRANT SELECT ON TABLE public.globalconfig TO api;
+
+GRANT SELECT ON TABLE public.languages TO api;
+
+GRANT SELECT ON TABLE public.lists TO api;
+
+GRANT SELECT ON TABLE public.lists_relations TO api;
+
+GRANT SELECT ON TABLE public.maintenancemessage TO api;
+
+GRANT SELECT ON TABLE public.maintenancemessage_messagetemplates TO api;
+
+GRANT SELECT ON TABLE public.materialized_views_meta TO api;
+
+GRANT SELECT ON TABLE public.messagetemplates TO api;
+
+GRANT SELECT ON TABLE public.messagetemplates_translations TO api;
+
+GRANT SELECT ON TABLE public.pages TO api;
+
+GRANT SELECT ON TABLE public.pages_translations TO api;
+
+GRANT SELECT ON TABLE public.seasons TO api;
+
+GRANT SELECT ON TABLE public.seasons_translations TO api;
+
+GRANT SELECT ON TABLE public.seasons_usergroups TO api;
+
+GRANT SELECT ON TABLE public.sections TO api;
+
+GRANT SELECT ON TABLE public.sections_translations TO api;
+
+GRANT SELECT ON TABLE public.sections_usergroups TO api;
+
+GRANT SELECT ON TABLE public.shows TO api;
+
+GRANT SELECT ON TABLE public.shows_translations TO api;
+
+GRANT SELECT ON TABLE public.shows_usergroups TO api;
+
+GRANT SELECT ON TABLE public.tags TO api;
+
+GRANT SELECT ON TABLE public.tags_translations TO api;
+
+GRANT SELECT ON TABLE public.usergroups TO api;
+
+GRANT SELECT ON TABLE public.webconfig TO api;
+
+GRANT SELECT ON SEQUENCE public.directus_fields_id_seq TO directus;
+
+GRANT SELECT ON SEQUENCE public.directus_permissions_id_seq TO directus;
+
+GRANT SELECT ON SEQUENCE public.directus_relations_id_seq TO directus;
+
+GRANT SELECT ON SEQUENCE public.directus_webhooks_id_seq TO directus;
+
+GRANT SELECT ON TABLE public.directus_collections TO directus;
+
+GRANT SELECT ON TABLE public.directus_fields TO directus;
+
+GRANT SELECT ON TABLE public.directus_migrations TO directus;
+
+GRANT SELECT ON TABLE public.directus_permissions TO directus;
+
+GRANT SELECT ON TABLE public.directus_relations TO directus;
+
+GRANT SELECT ON TABLE public.directus_roles TO directus;
+
+GRANT SELECT ON TABLE public.directus_webhooks TO directus;
+
+GRANT EXECUTE ON FUNCTION public.update_access(view character varying) TO directus;
+
+GRANT EXECUTE ON FUNCTION public.nametolowercase() TO directus;
+
+GRANT ALL ON SEQUENCE public.ageratings_translations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.appconfig_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.assetfiles_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.assets_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.assetstreams_audio_languages_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.assetstreams_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.assetstreams_subtitle_languages_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.calendarentries_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.calendarentries_translations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.calendarevent_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.categories_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.categories_translations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.collections_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.collections_items_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.directus_activity_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.directus_notifications_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.directus_presets_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.directus_revisions_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.directus_settings_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.episodes_categories_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.episodes_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.episodes_tags_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.episodes_translations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.episodes_usergroups_download_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.episodes_usergroups_earlyaccess_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.episodes_usergroups_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.events_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.events_translations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.faq_categories_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.faq_categories_translations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.faqs_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.faqs_translations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.faqs_usergroups_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.globalconfig_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.lists_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.lists_relations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.maintenancemessage_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.maintenancemessage_messagetemplates_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.messagetemplates_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.messagetemplates_translations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.pages_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.pages_translations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.seasons_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.seasons_translations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.seasons_usergroups_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.sections_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.sections_translations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.sections_usergroups_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.shows_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.shows_translations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.shows_usergroups_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.tags_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.tags_translations_id_seq TO directus;
+
+GRANT ALL ON SEQUENCE public.webconfig_id_seq TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.ageratings TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.ageratings_translations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.appconfig TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.assetfiles TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.assets TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.assetstreams TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.assetstreams_audio_languages TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.assetstreams_subtitle_languages TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.calendarentries TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.calendarentries_translations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.calendarevent TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.categories TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.categories_translations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.collections TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.collections_items TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_activity TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_dashboards TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_files TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_flows TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_folders TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_notifications TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_operations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_panels TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_presets TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_revisions TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_sessions TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_settings TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_shares TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.directus_users TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.episodes TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.episodes_categories TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.episodes_tags TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.episodes_translations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.episodes_usergroups TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.episodes_usergroups_download TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.episodes_usergroups_earlyaccess TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.events TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.events_translations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.faq_categories TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.faq_categories_translations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.faqs TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.faqs_translations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.faqs_usergroups TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.globalconfig TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.languages TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.lists TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.lists_relations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.maintenancemessage TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.maintenancemessage_messagetemplates TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.materialized_views_meta TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.messagetemplates TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.messagetemplates_translations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.pages TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.pages_translations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.seasons TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.seasons_translations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.seasons_usergroups TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.sections TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.sections_translations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.sections_usergroups TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.shows TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.shows_translations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.shows_usergroups TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.tags TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.tags_translations TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.usergroups TO directus;
+
+GRANT SELECT, UPDATE, INSERT, DELETE, TRIGGER, REFERENCES ON TABLE public.webconfig TO directus;
+
+GRANT EXECUTE ON FUNCTION public.update_access(view character varying) TO background_worker;
+
+GRANT EXECUTE ON FUNCTION public.nametolowercase() TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.ageratings_translations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.appconfig_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.assetfiles_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.assets_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.assetstreams_audio_languages_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.assetstreams_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.assetstreams_subtitle_languages_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.calendarentries_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.calendarentries_translations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.calendarevent_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.categories_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.categories_translations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.collections_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.collections_items_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.episodes_categories_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.episodes_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.episodes_tags_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.episodes_translations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.episodes_usergroups_download_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.episodes_usergroups_earlyaccess_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.episodes_usergroups_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.events_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.events_translations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.faq_categories_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.faq_categories_translations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.faqs_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.faqs_translations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.faqs_usergroups_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.globalconfig_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.lists_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.lists_relations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.maintenancemessage_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.maintenancemessage_messagetemplates_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.messagetemplates_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.messagetemplates_translations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.pages_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.pages_translations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.seasons_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.seasons_translations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.seasons_usergroups_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.sections_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.sections_translations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.sections_usergroups_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.shows_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.shows_translations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.shows_usergroups_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.tags_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.tags_translations_id_seq TO background_worker;
+
+GRANT SELECT ON SEQUENCE public.webconfig_id_seq TO background_worker;
+
+GRANT SELECT ON TABLE public.ageratings TO background_worker;
+
+GRANT SELECT ON TABLE public.ageratings_translations TO background_worker;
+
+GRANT SELECT ON TABLE public.appconfig TO background_worker;
+
+GRANT SELECT ON TABLE public.assetfiles TO background_worker;
+
+GRANT SELECT ON TABLE public.assets TO background_worker;
+
+GRANT SELECT ON TABLE public.assetstreams TO background_worker;
+
+GRANT SELECT ON TABLE public.assetstreams_audio_languages TO background_worker;
+
+GRANT SELECT ON TABLE public.assetstreams_subtitle_languages TO background_worker;
+
+GRANT SELECT ON TABLE public.calendarentries TO background_worker;
+
+GRANT SELECT ON TABLE public.calendarentries_translations TO background_worker;
+
+GRANT SELECT ON TABLE public.calendarevent TO background_worker;
+
+GRANT SELECT ON TABLE public.categories TO background_worker;
+
+GRANT SELECT ON TABLE public.categories_translations TO background_worker;
+
+GRANT SELECT ON TABLE public.collections TO background_worker;
+
+GRANT SELECT ON TABLE public.collections_items TO background_worker;
+
+GRANT SELECT ON TABLE public.episodes TO background_worker;
+
+GRANT SELECT ON TABLE public.episodes_categories TO background_worker;
+
+GRANT SELECT ON TABLE public.episodes_tags TO background_worker;
+
+GRANT SELECT ON TABLE public.episodes_translations TO background_worker;
+
+GRANT SELECT ON TABLE public.episodes_usergroups TO background_worker;
+
+GRANT SELECT ON TABLE public.episodes_usergroups_download TO background_worker;
+
+GRANT SELECT ON TABLE public.episodes_usergroups_earlyaccess TO background_worker;
+
+GRANT SELECT ON TABLE public.events TO background_worker;
+
+GRANT SELECT ON TABLE public.events_translations TO background_worker;
+
+GRANT SELECT ON TABLE public.faq_categories TO background_worker;
+
+GRANT SELECT ON TABLE public.faq_categories_translations TO background_worker;
+
+GRANT SELECT ON TABLE public.faqs TO background_worker;
+
+GRANT SELECT ON TABLE public.faqs_translations TO background_worker;
+
+GRANT SELECT ON TABLE public.faqs_usergroups TO background_worker;
+
+GRANT SELECT ON TABLE public.globalconfig TO background_worker;
+
+GRANT SELECT ON TABLE public.languages TO background_worker;
+
+GRANT SELECT ON TABLE public.lists TO background_worker;
+
+GRANT SELECT ON TABLE public.lists_relations TO background_worker;
+
+GRANT SELECT ON TABLE public.maintenancemessage TO background_worker;
+
+GRANT SELECT ON TABLE public.maintenancemessage_messagetemplates TO background_worker;
+
+GRANT SELECT ON TABLE public.materialized_views_meta TO background_worker;
+
+GRANT SELECT ON TABLE public.messagetemplates TO background_worker;
+
+GRANT SELECT ON TABLE public.messagetemplates_translations TO background_worker;
+
+GRANT SELECT ON TABLE public.pages TO background_worker;
+
+GRANT SELECT ON TABLE public.pages_translations TO background_worker;
+
+GRANT SELECT ON TABLE public.seasons TO background_worker;
+
+GRANT SELECT ON TABLE public.seasons_translations TO background_worker;
+
+GRANT SELECT ON TABLE public.seasons_usergroups TO background_worker;
+
+GRANT SELECT ON TABLE public.sections TO background_worker;
+
+GRANT SELECT ON TABLE public.sections_translations TO background_worker;
+
+GRANT SELECT ON TABLE public.sections_usergroups TO background_worker;
+
+GRANT SELECT ON TABLE public.shows TO background_worker;
+
+GRANT SELECT ON TABLE public.shows_translations TO background_worker;
+
+GRANT SELECT ON TABLE public.shows_usergroups TO background_worker;
+
+GRANT SELECT ON TABLE public.tags TO background_worker;
+
+GRANT SELECT ON TABLE public.tags_translations TO background_worker;
+
+GRANT SELECT ON TABLE public.usergroups TO background_worker;
+
+GRANT SELECT ON TABLE public.webconfig TO background_worker;
+
+
+
 -- +goose Down
 
 DROP TABLE IF EXISTS "public"."goose_db_version";
