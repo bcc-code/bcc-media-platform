@@ -1,18 +1,8 @@
 #! /bin/bash
 
-artifact pull workflow api.txt || echo ""
-artifact pull workflow jobs.txt || echo ""
-artifact pull workflow cms.txt || echo ""
-artifact pull workflow migrations.txt
-
 CB="run-deploy.yaml"
-echo "steps:" > $CB
-
-M="migrations.yaml"
-echo "steps:" > $M
-
 ROUTE="run-route.yaml"
-echo "steps:" > $ROUTE
+M="migrations.yaml"
 
 function deploy {
 	echo "- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'" >> $CB
@@ -40,7 +30,23 @@ function migrations {
 	echo "    env: 'PGPASSWORD'"  >> $M
 }
 
+artifact pull workflow api.txt || true
+artifact pull workflow jobs.txt || true
+artifact pull workflow cms.txt || true
+artifact pull workflow migrations.txt
+
+# We always have migrations
+echo "steps:" > $M
 migrations $(cat migrations.txt)
+artifact push workflow $M
+
+if [ ! -f "api.txt" ] && [ ! -f "jobs.txt" ] && [ ! -f "cms.txt" ]; then
+	# Nothing to do here, skip making workflows
+	exit 0
+fi
+
+echo "steps:" > $CB
+echo "steps:" > $ROUTE
 
 if [ -f "api.txt" ]; then
 	deploy API api.txt
@@ -59,4 +65,3 @@ fi
 
 artifact push workflow $CB
 artifact push workflow $ROUTE
-artifact push workflow $M

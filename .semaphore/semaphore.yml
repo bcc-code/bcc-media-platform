@@ -33,6 +33,8 @@ blocks:
       when: change_in('/cms/')
     dependencies: []
   - name: Test
+    run:
+      when: change_in('/backend/')
     task:
       jobs:
         - name: go test
@@ -51,10 +53,10 @@ blocks:
       prologue:
         commands:
           - sem-version go 1.19
-    run:
-      when: change_in('/backend/')
     dependencies: []
   - name: Build
+    run:
+      when: change_in('/backend/')
     task:
       prologue:
         commands:
