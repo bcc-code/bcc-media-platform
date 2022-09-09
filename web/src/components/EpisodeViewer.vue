@@ -4,7 +4,8 @@
 <script lang="ts" setup>
 import { addError } from "@/utils/error"
 import { onMounted, onUnmounted, onUpdated, ref } from "vue"
-import { create, Player } from "btv-video-player"
+import { Player } from "btv-video-player"
+import playerFactory from "@/services/player";
 
 const props = defineProps<{
     episodeId: string
@@ -18,8 +19,8 @@ const load = async () => {
     const episodeId = props.episodeId
     if (current.value !== episodeId) {
         current.value = episodeId
-        player.value = await create("video-player", {
-            episodeID: episodeId,
+        player.value = await playerFactory.create("video-player", {
+            episodeId: episodeId,
         })
         if (player.value === null) {
             addError("No available VOD for this episode")
