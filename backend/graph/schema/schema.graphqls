@@ -307,27 +307,27 @@ type QueryRoot{
   page(
     id: ID
     code: String
-  ): Page
+  ): Page!
 
   section(
     id: ID!
-  ): Section
+  ): Section!
 
   show(
     id: ID!
-  ): Show
+  ): Show!
 
   season(
     id: ID!
-  ): Season
+  ): Season!
 
   episode(
     id: ID!
-  ): Episode
+  ): Episode!
 
   collection(
     id: ID!
-  ): Collection
+  ): Collection!
 
   search(
     queryString: String!
