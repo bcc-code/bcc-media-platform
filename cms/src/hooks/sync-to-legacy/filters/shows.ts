@@ -64,6 +64,7 @@ export async function createShow(p, m, c) {
         Published: p.publish_date as unknown as Date,
         AvailableTo: p.available_to as unknown as Date,
         AvailableFrom: p.available_from as unknown as Date,
+        ShowEpisodeTitles: 1,
         Status: getStatusFromNew(p.status),
         LastUpdate: p.date_created as unknown as Date  ?? new Date()
     }
