@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
+	"github.com/samber/lo"
 	"net/url"
 	"strconv"
 	"strings"
@@ -37,7 +38,7 @@ func (c customClaims) Validate(ctx context.Context) error {
 	return nil
 }
 
-func validateTokenAndFillCtx(v *validator.Validator) gin.HandlerFunc {
+func validateTokenAndFillCtx(vs []*validator.Validator) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		parts := strings.Split(authHeader, " ")
@@ -46,12 +47,24 @@ func validateTokenAndFillCtx(v *validator.Validator) gin.HandlerFunc {
 			return
 		}
 
-		token, err := v.ValidateToken(ctx, parts[1])
-		if err != nil {
+		var token any
+		success := false
+		for _, v := range vs {
+			if success {
+				break
+			}
+			var err error
+			token, err = v.ValidateToken(ctx, parts[1])
+			if err == nil {
+				success = true
+			}
+		}
+		if !success {
 			ctx.JSON(401, "Invalid token")
 			ctx.Abort()
 			return
 		}
+
 		ctx.Set(CtxAuthenticated, true)
 
 		claims, ok := token.(*validator.ValidatedClaims)
@@ -85,16 +98,22 @@ func (c *Client) ValidateToken() gin.HandlerFunc {
 
 	provider := jwks.NewCachingProvider(issuerURL, 5*time.Minute)
 
-	jwtValidator, err := validator.New(
-		provider.KeyFunc,
-		validator.RS256,
-		issuerURL.String(),
-		config.Audiences,
-		validator.WithAllowedClockSkew(time.Minute),
-		validator.WithCustomClaims(func() validator.CustomClaims {
-			return &customClaims{}
-		}),
-	)
+	validators := lo.Map(config.Audiences, func(audience string, _ int) *validator.Validator {
+		v, err := validator.New(
+			provider.KeyFunc,
+			validator.RS256,
+			issuerURL.String(),
+			[]string{audience},
+			validator.WithAllowedClockSkew(time.Minute),
+			validator.WithCustomClaims(func() validator.CustomClaims {
+				return &customClaims{}
+			}))
+		if err != nil {
+			log.L.Fatal().Err(err).Msg("Failed to setup validator")
+		}
+		return v
+	})
+
 	if err != nil {
 		log.L.Fatal().Msg("Failed to set up the jwt validator")
 		return func(ctx *gin.Context) {
@@ -102,5 +121,5 @@ func (c *Client) ValidateToken() gin.HandlerFunc {
 		}
 	}
 
-	return validateTokenAndFillCtx(jwtValidator)
+	return validateTokenAndFillCtx(validators)
 }
