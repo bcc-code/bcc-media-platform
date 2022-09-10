@@ -35,30 +35,37 @@ export default defineHook(({ filter }, { }) => {
 			throw new Error("Syncing bulk-updates hasn't been implemented. Contact Andreas if that's slowing you down much.")
 		}
 		switch (m.collection) {
-			case "shows": return updateShow(p,m,c);
-			case "seasons": return updateSeason(p,m,c);
-			case "episodes": return updateEpisodes(p,m,c);
-			case "lists": return updateList(p,m,c);
-			case "shows_translations": return updateShowTranslation(p,m,c);
-			case "seasons_translations": return updateSeasonTranslation(p,m,c);
-			case "episodes_translations": return updateEpisodeTranslation(p,m,c);
-			case "usergroups": return updateUsergroup(p,m,c);
-			case "assets": return updateAsset(p,m,c);
-			case "assetstreams": return updateAssetstream(p,m,c);
-			case "tags": return updateTag(p,m,c);
+			case "shows": return updateShow(p, m, c);
+			case "seasons": return updateSeason(p, m, c);
+			case "episodes": return updateEpisodes(p, m, c);
+			case "lists": return updateList(p, m, c);
+			case "shows_translations": return updateShowTranslation(p, m, c);
+			case "seasons_translations": return updateSeasonTranslation(p, m, c);
+			case "episodes_translations": return updateEpisodeTranslation(p, m, c);
+			case "usergroups": return updateUsergroup(p, m, c);
+			case "assets": return updateAsset(p, m, c);
+			case "assetstreams": return updateAssetstream(p, m, c);
+			case "tags": return updateTag(p, m, c);
 		}
 	});
 
-	filter('items.delete', deleteEpisodesUsergroup);
-	filter('items.delete', deleteEpisodesUsergroupEarlyAccess);
-	filter('items.delete', deleteEpisode);
-	filter('items.delete', deleteSeason);
-	filter('items.delete', deleteShow);
-	filter('items.delete', deleteList);
-	filter('items.delete', deleteListRelation);
-	filter('items.delete', deleteAsset);
-	filter('items.delete', deleteAssetstream);
-	filter('items.delete', deleteEpisodeTag);
+	filter('items.delete', (p: any[], m, c) => {
+		if (p.length > 1) {
+			throw new Error("Syncing bulk-deletes hasn't been implemented. Contact Andreas if that's slowing you down much.")
+		}
+		switch (m.collection) {
+			case "episodes_usergroups": return deleteEpisodesUsergroup(p, m, c);
+			case "episodes_usergroups_earlyaccess": return deleteEpisodesUsergroupEarlyAccess(p, m, c);
+			case "episodes": return deleteEpisode(p, m, c);
+			case "seasons": return deleteSeason(p, m, c);
+			case "shows": return deleteShow(p, m, c);
+			case "lists": return deleteList(p, m, c);
+			case "lists_relations": return deleteListRelation(p, m, c);
+			case "assets": return deleteAsset(p, m, c);
+			case "assetstreams": return deleteAssetstream(p, m, c);
+			case "episodes_tags": return deleteEpisodeTag(p, m, c);
+		}
+	})
 
 });
 
