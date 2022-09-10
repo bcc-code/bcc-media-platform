@@ -30,17 +30,24 @@ export default defineHook(({ filter }, { }) => {
 	filter('items.create', createAssetstream);
 	filter('items.create', createEpisodeTag);
 
-	filter('items.update', updateShow)
-	filter('items.update', updateSeason)
-	filter('items.update', updateEpisodes)
-	filter('items.update', updateList)
-	filter('items.update', updateShowTranslation)
-	filter('items.update', updateSeasonTranslation)
-	filter('items.update', updateEpisodeTranslation)
-	filter('items.update', updateUsergroup)
-	filter('items.update', updateAsset)
-	filter('items.update', updateAssetstream)
-	filter('items.update', updateTag)
+	filter('items.update', (p: any, m: any, c: any) => {
+		if (m.keys.length > 1 && m.collection != "episodes") {
+			throw new Error("Syncing bulk-updates hasn't been implemented. Contact Andreas if that's slowing you down much.")
+		}
+		switch (m.collection) {
+			case "shows": return updateShow(p,m,c);
+			case "seasons": return updateSeason(p,m,c);
+			case "episodes": return updateEpisodes(p,m,c);
+			case "lists": return updateList(p,m,c);
+			case "shows_translations": return updateShowTranslation(p,m,c);
+			case "seasons_translations": return updateSeasonTranslation(p,m,c);
+			case "episodes_translations": return updateEpisodeTranslation(p,m,c);
+			case "usergroups": return updateUsergroup(p,m,c);
+			case "assets": return updateAsset(p,m,c);
+			case "assetstreams": return updateAssetstream(p,m,c);
+			case "tags": return updateTag(p,m,c);
+		}
+	});
 
 	filter('items.delete', deleteEpisodesUsergroup);
 	filter('items.delete', deleteEpisodesUsergroupEarlyAccess);

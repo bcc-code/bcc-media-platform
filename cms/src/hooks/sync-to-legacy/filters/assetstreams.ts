@@ -6,12 +6,6 @@ import { ItemsService } from "directus";
 
 
 export async function createAssetstream(p, m, c) {
-    if (m.collection != "assetstreams") {
-        return
-    }
-
-
-
     let asset = (await c.database("assets").select("*").where("id", p.asset_id))[0];
 
     // update it in original

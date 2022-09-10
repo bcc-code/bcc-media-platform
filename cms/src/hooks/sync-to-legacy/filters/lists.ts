@@ -26,11 +26,6 @@ export async function createList(p, m, c) {
 
 
 export async function updateList(p, m, c) {
-    if (m.collection != "lists") {
-        return
-    }
-
-
     let languages = await oldKnex<LanguageEntity>("Language").select("*")
     let oldLang = languages.find(l => l.CultureCode == "no")
     let listBeforeUpdate = (await c.database("lists").select("*").where("id", m.keys[0]))[0];

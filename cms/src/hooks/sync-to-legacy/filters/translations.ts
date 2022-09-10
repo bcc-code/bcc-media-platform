@@ -64,11 +64,6 @@ export async function createEpisodeTranslation(p: episodes.components["schemas"]
 // Updates
 
 export async function updateShowTranslation(p: episodes.components["schemas"]["ItemsShowsTranslations"], m, c) {
-    if (m.collection != "shows_translations") {
-        return
-    }
-
-
     let translation = (await c.database("shows_translations").select("*").where("id", (m.keys[0] as number)))[0];
     let show = (await c.database("shows").select("*").where("id", (translation.shows_id as number)))[0];
 
@@ -91,11 +86,6 @@ export async function updateShowTranslation(p: episodes.components["schemas"]["I
 }
 
 export async function updateSeasonTranslation(p: episodes.components["schemas"]["ItemsSeasonsTranslations"], m, c) {
-    if (m.collection != "seasons_translations") {
-        return
-    }
-
-
     let translation = (await c.database("seasons_translations").select("*").where("id", (m.keys[0] as number)))[0];
     let season = (await c.database("seasons").select("*").where("id", (translation.seasons_id as number)))[0];
 
@@ -118,11 +108,6 @@ export async function updateSeasonTranslation(p: episodes.components["schemas"][
 }
 
 export async function updateEpisodeTranslation(p: episodes.components["schemas"]["ItemsEpisodesTranslations"], m, c) {
-    if (m.collection != "episodes_translations") {
-        return
-    }
-
-
     let translation = (await c.database("episodes_translations").select("*").where("id", (m.keys[0] as number)))[0];
     let episode = (await c.database("episodes").select("*").where("id", (translation.episodes_id as number)))[0];
 

@@ -49,12 +49,6 @@ export async function deleteEpisodeTag(p, m, c) {
 
 
 export async function updateTag(p, m, c) {
-    if (m.collection != "tags") {
-        return
-    }
-
-
-
     if (!p.name) {
         // We only care about name updates
         return
