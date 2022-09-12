@@ -6,10 +6,6 @@ import { ItemsService } from "directus";
 
 
 export async function updateShow (p, m, c) {
-    if (m.collection != "shows") {
-        return
-    }
-
     // get legacy id
     const itemsService = new ItemsService<episodes.components["schemas"]["ItemsShows"]>("shows", {
         knex: c.database as any,
