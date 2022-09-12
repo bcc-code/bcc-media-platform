@@ -30,12 +30,9 @@ FROM pages p
 WHERE p.status = 'published';
 
 -- name: getPermissionsForPages :many
-WITH r AS (SELECT id                                                   AS page_id,
+WITH r AS (SELECT id AS page_id,
                   (SELECT array_agg(DISTINCT eu.usergroups_code) AS array_agg
-                   FROM sections_usergroups eu
-                   WHERE (eu.sections_id IN (SELECT e.id
-                                             FROM episodes e
-                                             WHERE e.season_id = id))) AS roles
+                   FROM sections_usergroups eu) AS roles
            FROM pages)
 SELECT p.id::int              AS id,
        p.status = 'published' AS published,
