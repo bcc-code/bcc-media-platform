@@ -9,13 +9,12 @@ export async function createShowTranslation(p: episodes.components["schemas"]["I
     }
     let show = (await c.database("shows").select("*").where("id", (p.shows_id as number)))[0];
     let languages = await oldKnex<LanguageEntity>("Language").select("*")
-    let lang = (p.languages_code as episodes.components["schemas"]["ItemsLanguages"])
-    if (lang.code != "no") {
-        // We want original to be source of truth for translations until crowdin is up
-        return p
+    const languageCode = typeof p.languages_code == "string" ? p.languages_code : p.languages_code.code
+    if (!languageCode) {
+        return
     }
 
-    let oldLang = languages.find(l => l.CultureCode == lang.code)
+    let oldLang = languages.find(l => l.CultureCode == languageCode)
     await upsertLS(oldKnex, show.legacy_title_id, oldLang, p.title)
     await upsertLS(oldKnex, show.legacy_description_id, oldLang, p.description)
 
@@ -28,13 +27,12 @@ export async function createSeasonTranslation(p: episodes.components["schemas"][
     }
     let season = (await c.database("seasons").select("*").where("id", (p.seasons_id as number)))[0];
     let languages = await oldKnex<LanguageEntity>("Language").select("*")
-    let lang = (p.languages_code as episodes.components["schemas"]["ItemsLanguages"])
-    if (lang.code != "no") {
-        // We want original to be source of truth for translations until crowdin is up
-        return p
+    const languageCode = typeof p.languages_code == "string" ? p.languages_code : p.languages_code.code
+    if (!languageCode) {
+        return
     }
 
-    let oldLang = languages.find(l => l.CultureCode == lang.code)
+    let oldLang = languages.find(l => l.CultureCode == languageCode)
     await upsertLS(oldKnex, season.legacy_title_id, oldLang, p.title)
     await upsertLS(oldKnex, season.legacy_description_id, oldLang, p.description)
 
@@ -47,13 +45,12 @@ export async function createEpisodeTranslation(p: episodes.components["schemas"]
     }
     let episode = (await c.database("episodes").select("*").where("id", (p.episodes_id as number)))[0];
     let languages = await oldKnex<LanguageEntity>("Language").select("*")
-    let lang = (p.languages_code as episodes.components["schemas"]["ItemsLanguages"])
-    if (lang.code != "no") {
-        // We want original to be source of truth for translations until crowdin is up
-        return p
+    const languageCode = typeof p.languages_code == "string" ? p.languages_code : p.languages_code.code
+    if (!languageCode) {
+        return
     }
 
-    let oldLang = languages.find(l => l.CultureCode == lang.code)
+    let oldLang = languages.find(l => l.CultureCode == languageCode)
     await upsertLS(oldKnex, episode.legacy_title_id, oldLang, p.title)
     await upsertLS(oldKnex, episode.legacy_description_id, oldLang, p.description)
     await upsertLS(oldKnex, episode.legacy_extra_description_id, oldLang, p.extra_description)
@@ -68,18 +65,16 @@ export async function updateShowTranslation(p: episodes.components["schemas"]["I
         return
     }
 
-
     let translation = (await c.database("shows_translations").select("*").where("id", (m.keys[0] as number)))[0];
     let show = (await c.database("shows").select("*").where("id", (translation.shows_id as number)))[0];
 
     let languages = await oldKnex<LanguageEntity>("Language").select("*")
-    let lang = (p.languages_code as episodes.components["schemas"]["ItemsLanguages"])
-    if (lang.code != "no") {
-        // We want original to be source of truth for translations until crowdin is up
-        return p
+    const languageCode = translation.languages_code
+    if (!languageCode) {
+        return
     }
 
-    let oldLang = languages.find(l => l.CultureCode == lang.code)
+    let oldLang = languages.find(l => l.CultureCode == languageCode)
     if (p.hasOwnProperty('title')) {
         await upsertLS(oldKnex, show.legacy_title_id, oldLang, p.title)
     }
@@ -95,18 +90,16 @@ export async function updateSeasonTranslation(p: episodes.components["schemas"][
         return
     }
 
-
     let translation = (await c.database("seasons_translations").select("*").where("id", (m.keys[0] as number)))[0];
     let season = (await c.database("seasons").select("*").where("id", (translation.seasons_id as number)))[0];
 
     let languages = await oldKnex<LanguageEntity>("Language").select("*")
-    let lang = (p.languages_code as episodes.components["schemas"]["ItemsLanguages"])
-    if (lang.code != "no") {
-        // We want original to be source of truth for translations until crowdin is up
-        return p
+    const languageCode = translation.languages_code
+    if (!languageCode) {
+        return
     }
 
-    let oldLang = languages.find(l => l.CultureCode == lang.code)
+    let oldLang = languages.find(l => l.CultureCode == languageCode)
     if (p.hasOwnProperty('title')) {
         await upsertLS(oldKnex, season.legacy_title_id, oldLang, p.title)
     }
@@ -122,18 +115,16 @@ export async function updateEpisodeTranslation(p: episodes.components["schemas"]
         return
     }
 
-
     let translation = (await c.database("episodes_translations").select("*").where("id", (m.keys[0] as number)))[0];
     let episode = (await c.database("episodes").select("*").where("id", (translation.episodes_id as number)))[0];
 
     let languages = await oldKnex<LanguageEntity>("Language").select("*")
-    let lang = (p.languages_code as episodes.components["schemas"]["ItemsLanguages"])
-    if (lang.code != "no") {
-        // We want original to be source of truth for translations until crowdin is up
-        return p
+    const languageCode = translation.languages_code
+    if (!languageCode) {
+        return
     }
 
-    let oldLang = languages.find(l => l.CultureCode == lang.code)
+    let oldLang = languages.find(l => l.CultureCode == languageCode)
     if (p.hasOwnProperty('title')) {
         await upsertLS(oldKnex, episode.legacy_title_id, oldLang, p.title)
     }
