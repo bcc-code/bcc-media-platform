@@ -50,10 +50,11 @@ if [ ! -f "api.txt" ] && [ ! -f "jobs.txt" ] && [ ! -f "cms.txt" ]; then
 	exit 0
 fi
 
-echo "steps:" > $CB
 allow_loose $CB
-echo "steps:" > $ROUTE
+echo "steps:" >> $CB
+
 allow_loose $ROUTE
+echo "steps:" >> $ROUTE
 
 if [ -f "api.txt" ]; then
 	deploy API api.txt
