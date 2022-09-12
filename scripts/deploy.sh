@@ -7,7 +7,7 @@ artifact pull workflow run-deploy.yaml || true
 artifact pull workflow run-route.yaml || true
 artifact pull workflow migrations.yaml
 
-if [ -f "run-deploy.yam" ]; then
+if [ -f "run-deploy.yaml" ]; then
 	# Deploy images
 	gcloud builds submit \
 		--project="btv-platform-${ENV}-2" \
@@ -23,7 +23,7 @@ gcloud builds submit \
 	--substitutions=_INSTANCE_CONNECTION_NAME=btv-platform-${ENV}-2:europe-west4:main-instance \
 	--config=migrations.yaml
 
-if [ -f "run-route.yam" ]; then
+if [ -f "run-route.yaml" ]; then
 	# Route Traffic
 	gcloud builds submit \
 		--project="btv-platform-${ENV}-2" \
