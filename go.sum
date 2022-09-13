@@ -74,8 +74,6 @@ github.com/99designs/gqlgen v0.17.9/go.mod h1:PThAZAK9t2pAat7g8QdSI4dCBMOhBO+t2q
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/toml v1.1.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/Code-Hex/go-generics-cache v1.0.1 h1:c1xG0S161RzPxAS83DuO2Ro/ibHUJCzQ5nJvcBq1XLM=
-github.com/Code-Hex/go-generics-cache v1.0.1/go.mod h1:qxcC9kRVrct9rHeiYpFWSoW1vxyillCVzX13KZG8dl4=
 github.com/Code-Hex/go-generics-cache v1.1.0 h1:S3QFzvwNE8y2T848Y5C48VFXK86qtphVGgWJlPV7ztw=
 github.com/Code-Hex/go-generics-cache v1.1.0/go.mod h1:qxcC9kRVrct9rHeiYpFWSoW1vxyillCVzX13KZG8dl4=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.1 h1:Tn/3pMqRSsI09jFVdGEuMqLIBNOmRHVqKp9DSQg4HPM=
