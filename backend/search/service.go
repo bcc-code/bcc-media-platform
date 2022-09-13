@@ -44,6 +44,12 @@ type loaders struct {
 	EpisodePermissionLoader *dataloader.Loader[int, *common.Permissions[int]]
 }
 
+// Config contains configuration options for the service
+type Config struct {
+	AppID  string
+	APIKey string
+}
+
 // Service is the type for the service itself
 type Service struct {
 	algoliaClient *search.Client
@@ -53,9 +59,9 @@ type Service struct {
 }
 
 // New creates a new instance of the search service
-func New(db *sql.DB, algoliaAppId string, algoliaApiKey string) *Service {
+func New(db *sql.DB, config Config) *Service {
 	service := Service{
-		algoliaClient: search.NewClient(algoliaAppId, algoliaApiKey),
+		algoliaClient: search.NewClient(config.AppID, config.APIKey),
 	}
 	service.index = service.algoliaClient.InitIndex(indexName)
 	service.queries = sqlc.New(db)

@@ -165,7 +165,7 @@ func main() {
 		QuestionsLoader:         common.NewRelationBatchLoader(queries.GetQuestionIDsForCategories),
 	}
 
-	authClient := auth0.New(config.JWTConfig)
+	authClient := auth0.New(config.Auth0)
 	membersClient := members.New(config.Members, func(ctx context.Context) string {
 		token, err := authClient.GetToken(ctx, config.Members.Domain)
 		if err != nil {
@@ -187,7 +187,7 @@ func main() {
 	r.Use(authClient.ValidateToken())
 	r.Use(user.NewUserMiddleware(queries, membersClient))
 
-	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey)
+	searchService := search.New(db, config.Algolia)
 	r.POST("/query", graphqlHandler(queries, loaders, searchService, urlSigner, config))
 
 	r.GET("/", playgroundHandler())

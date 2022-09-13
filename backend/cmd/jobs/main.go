@@ -77,7 +77,7 @@ func main() {
 
 	queries := sqlc.New(db)
 
-	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey)
+	searchService := search.New(db, config.Algolia)
 	directusEventHandler := directus.NewEventHandler()
 	crowdinClient := crowdin.New(config.Crowdin.Token, crowdin.Config{ProjectIDs: config.Crowdin.ProjectIDs}, directus.NewHandler(directusClient))
 	eventService, err := events.NewService(ctx, config.Firebase.ProjectID)
