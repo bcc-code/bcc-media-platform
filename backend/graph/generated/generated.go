@@ -2397,11 +2397,12 @@ type Calendar {
     period(
         from: Date!,
         to: Date!
-    ): CalendarPeriod @goField(forceResolver: true)
+    ): CalendarPeriod! @goField(forceResolver: true)
     day(
         day: Date!
-    ): CalendarDay @goField(forceResolver: true)
-}`, BuiltIn: false},
+    ): CalendarDay! @goField(forceResolver: true)
+}
+`, BuiltIn: false},
 	{Name: "../schema/config.graphqls", Input: `
 type Config {
     global(timestamp: String): GlobalConfig! @goField(forceResolver: true)
@@ -3373,11 +3374,14 @@ func (ec *executionContext) _Calendar_period(ctx context.Context, field graphql.
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*gqlmodel.CalendarPeriod)
 	fc.Result = res
-	return ec.marshalOCalendarPeriod2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarPeriod(ctx, field.Selections, res)
+	return ec.marshalNCalendarPeriod2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarPeriod(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Calendar_period(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3431,11 +3435,14 @@ func (ec *executionContext) _Calendar_day(ctx context.Context, field graphql.Col
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*gqlmodel.CalendarDay)
 	fc.Result = res
-	return ec.marshalOCalendarDay2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarDay(ctx, field.Selections, res)
+	return ec.marshalNCalendarDay2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarDay(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Calendar_day(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -16452,6 +16459,9 @@ func (ec *executionContext) _Calendar(ctx context.Context, sel ast.SelectionSet,
 					}
 				}()
 				res = ec._Calendar_period(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -16469,6 +16479,9 @@ func (ec *executionContext) _Calendar(ctx context.Context, sel ast.SelectionSet,
 					}
 				}()
 				res = ec._Calendar_day(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -19811,6 +19824,20 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) marshalNCalendarDay2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarDay(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CalendarDay) graphql.Marshaler {
+	return ec._CalendarDay(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCalendarDay2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarDay(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CalendarDay) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CalendarDay(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNCalendarEntry2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarEntry(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CalendarEntry) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -19863,6 +19890,20 @@ func (ec *executionContext) marshalNCalendarEntry2ᚕgithubᚗcomᚋbccᚑcode�
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNCalendarPeriod2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarPeriod(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CalendarPeriod) graphql.Marshaler {
+	return ec._CalendarPeriod(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCalendarPeriod2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarPeriod(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CalendarPeriod) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CalendarPeriod(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNChapter2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐChapterᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Chapter) graphql.Marshaler {
@@ -21286,20 +21327,6 @@ func (ec *executionContext) marshalOCalendar2ᚖgithubᚗcomᚋbccᚑcodeᚋbrun
 		return graphql.Null
 	}
 	return ec._Calendar(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOCalendarDay2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarDay(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CalendarDay) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._CalendarDay(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOCalendarPeriod2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarPeriod(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CalendarPeriod) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._CalendarPeriod(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCollection(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Collection) graphql.Marshaler {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bcc-code/brunstadtv/backend/members"
 	"os"
 	"strings"
 
@@ -18,10 +19,11 @@ type algolia struct {
 }
 
 type envConfig struct {
+	Members   members.Config
 	DB        postgres
 	Algolia   algolia
 	Port      string
-	JWTConfig auth0.JWTConfig
+	JWTConfig auth0.Config
 	CDNConfig cdnConfig
 	Secrets   serviceSecrets
 }
@@ -47,20 +49,24 @@ func (c cdnConfig) GetFilesCDNDomain() string {
 }
 
 func getEnvConfig() envConfig {
-	aud := lo.Map(strings.Split(os.Getenv("JWT_AUDIENCES"), ","),
+	aud := lo.Map(strings.Split(os.Getenv("AUTH0_AUDIENCES"), ","),
 		func(s string, _ int) string {
 			return strings.TrimSpace(s)
 		},
 	)
 
 	return envConfig{
+		Members: members.Config{
+			Domain: os.Getenv("MEMBERS_API_DOMAIN"),
+		},
 		DB: postgres{
 			ConnectionString: os.Getenv("DB_CONNECTION_STRING"),
 		},
-		JWTConfig: auth0.JWTConfig{
-			Domain:    os.Getenv("JWT_DOMAIN"),
-			Issuer:    os.Getenv("JWT_ISSUER"),
-			Audiences: aud,
+		JWTConfig: auth0.Config{
+			ClientID:     os.Getenv("AUTH0_CLIENT_ID"),
+			ClientSecret: os.Getenv("AUTH0_CLIENT_SECRET"),
+			Domain:       os.Getenv("AUTH0_DOMAIN"),
+			Audiences:    aud,
 		},
 		Port: os.Getenv("PORT"),
 		Algolia: algolia{

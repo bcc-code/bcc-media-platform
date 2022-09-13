@@ -68,8 +68,8 @@ type Calendar {
     period(
         from: Date!,
         to: Date!
-    ): CalendarPeriod @goField(forceResolver: true)
+    ): CalendarPeriod! @goField(forceResolver: true)
     day(
         day: Date!
-    ): CalendarDay @goField(forceResolver: true)
+    ): CalendarDay! @goField(forceResolver: true)
 }

@@ -1,9 +1,9 @@
 import { useAuth0 } from "@/services/auth0"
 
-type Token = {
-    expiresAt: string
-    token: string
-}
+// type Token = {
+//     expiresAt: string
+//     token: string
+// }
 
 export class Auth {
     public static async signIn() {
@@ -18,30 +18,21 @@ export class Auth {
         })
     }
 
-    private static _token: Token | null = JSON.parse(
-        localStorage.getItem("token") ?? "null"
-    )
+    public static loading() {
+        const { isLoading } = useAuth0()
+        return isLoading;
+    }
 
     public static async getToken() {
-        if (!this.isAuthenticated().value) {
-            return null
+        // const { getAccessTokenSilently, isAuthenticated } = useAuth0()
+        const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
+        while (isLoading.value) {
+            await new Promise(r => setTimeout(r, 50))
         }
-        if (this._token) {
-            const date = new Date(this._token.expiresAt)
-            if (date.getTime() > new Date().getTime()) return this._token.token
+        if (isAuthenticated.value) {
+            return await getAccessTokenSilently();
         }
-        try {
-            const { getAccessTokenSilently } = useAuth0()
-            const date = new Date()
-            date.setHours(date.getHours() + 12)
-            this._token = {
-                expiresAt: date.toISOString(),
-                token: await getAccessTokenSilently(),
-            }
-            localStorage.setItem("token", JSON.stringify(this._token))
-            return this._token.token
-        } finally {
-        }
+        return null;
     }
 
     public static isAuthenticated() {
