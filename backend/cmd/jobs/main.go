@@ -79,7 +79,7 @@ func main() {
 
 	searchService := search.New(db, config.Algolia)
 	directusEventHandler := directus.NewEventHandler()
-	crowdinClient := crowdin.New(config.Crowdin.Token, crowdin.Config{ProjectIDs: config.Crowdin.ProjectIDs}, directus.NewHandler(directusClient))
+	crowdinClient := crowdin.New(config.Crowdin, directus.NewHandler(directusClient))
 	eventService, err := events.NewService(ctx, config.Firebase.ProjectID)
 
 	if err != nil {
