@@ -2693,8 +2693,8 @@ type Stream {
 }
 
 enum StreamType {
-  hls
-  cmaf
+  hls_ts
+  hls_cmaf
   dash
 }
 
