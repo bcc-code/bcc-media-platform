@@ -206,6 +206,11 @@ type Section struct {
 	CollectionID null.Int     `json:"collectionId"`
 }
 
+// IsCollectionItem declares that this implements CollectionItem interfaces
+func (i Section) IsCollectionItem() {
+
+}
+
 // GetKey returns the key for this item
 func (i Section) GetKey() int {
 	return i.ID

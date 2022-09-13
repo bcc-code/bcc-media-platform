@@ -2,8 +2,8 @@ package directus
 
 // Stream types
 const (
-	HLSCmaf = "hls-cmaf"
-	HLSTs   = "hls-ts"
+	HLSCmaf = "hls_cmaf"
+	HLSTs   = "hls_ts"
 	Dash    = "dash"
 )
 
