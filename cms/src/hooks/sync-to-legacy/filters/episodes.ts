@@ -99,9 +99,6 @@ async function createOneEpisode(p, c) {
 
 
 export async function updateEpisodes(p, m, c) {
-    if (m.collection != "episodes") {
-        return
-    }
     for (var key of m.keys) {
         await updateOneEpisode(p, key, c);
     }

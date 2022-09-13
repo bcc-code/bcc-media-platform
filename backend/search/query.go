@@ -50,6 +50,8 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 	}
 	if query.Limit != nil {
 		opts = append(opts, opt.Length(*query.Limit))
+	} else {
+		opts = append(opts, opt.Length(20))
 	}
 	if query.Offset != nil {
 		opts = append(opts, opt.Offset(*query.Offset))

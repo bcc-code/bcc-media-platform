@@ -108,10 +108,6 @@ export async function deleteEpisodesUsergroupEarlyAccess(p, m, c) {
 }
 
 export async function updateUsergroup(p, m, c) {
-    if (m.collection != "usergroups") {
-        return
-    }
-
     let ug_code = m.keys[0]
 
     if (!p.emails) {

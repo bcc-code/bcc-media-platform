@@ -49,11 +49,6 @@ export async function createSeason(p, m, c) {
 
 
 export async function updateSeason(p, m, c) {
-
-
-    if (m.collection != "seasons") {
-        return
-    }
     // get legacy id
     let seasonBeforeupdate = (await c.database("seasons").select("*").where("id", Number(m.keys[0])))[0];
 
