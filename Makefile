@@ -8,3 +8,15 @@ background-worker-docker:
 
 release:
 	./scripts/new-release.sh
+
+install:
+	docker-compose up -d
+	cd ./migrations && make install
+
+init:
+	docker-compose up -d
+	cd ./cms && make init
+
+diff:
+	./scripts/db_diff.sh
+	cd ./migrations && goose fix

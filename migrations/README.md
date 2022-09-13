@@ -28,7 +28,7 @@ Note: Some statements here can throw errors (if roles exist). This is not an iss
 Note 2: The script will appear to hang for a minute before erroring if there are other active connections to the DB!
 
 ```
-psql -h localhost -p 5432 -U btv < ./special/00-reset.sql
+psql -h localhost -p 5432 -U btv postgres < ./special/00-reset.sql
 goose postgres "user=builder dbname=btv port=5432 host=localhost sslmode=disable" up
 psql -h localhost -p 5432 -U btv btv < ./special/01-admin-user.sql
 ```

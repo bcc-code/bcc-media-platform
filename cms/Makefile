@@ -17,9 +17,8 @@ s:
 init:
 	-cp -n .template.env .env
 	npm i
-	make build
-	# TODO: Goose UP
-	docker-compose up -d
+	rm -rf ./extensions
+	npm run build
 	cd ./custom && make init
 
 reset:

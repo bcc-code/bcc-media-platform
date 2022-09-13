@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -148,6 +149,7 @@ func main() {
 	flag.Parse()
 	projectId := "btv-local"
 	topicId := "background-jobs"
+	_ = os.Setenv("PUBSUB_EMULATOR_HOST", "localhost:8681")
 
 	switch *task {
 	case "create":
