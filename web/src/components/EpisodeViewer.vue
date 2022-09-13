@@ -4,7 +4,7 @@
 <script lang="ts" setup>
 import { addError } from "@/utils/error"
 import { onMounted, onUnmounted, onUpdated, ref } from "vue"
-import { Player } from "btv-video-player"
+import { Player } from "bccm-video-player"
 import playerFactory from "@/services/player";
 
 const props = defineProps<{

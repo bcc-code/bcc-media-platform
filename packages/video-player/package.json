@@ -1,6 +1,6 @@
 {
     "name": "bccm-video-player",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "type": "commonjs",
     "types": "build/types",
     "files": [
@@ -8,8 +8,8 @@
     ],
     "exports": {
         ".": {
-            "import": "./build/btv-video-player.mjs",
-            "require": "./build/btv-video-player.umd.js"
+            "import": "./build/bccm-video-player.mjs",
+            "require": "./build/bccm-video-player.umd.js"
         },
         "./css": "./build/style.css"
     },
