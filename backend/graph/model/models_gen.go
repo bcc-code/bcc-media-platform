@@ -508,20 +508,20 @@ func (e Language) MarshalGQL(w io.Writer) {
 type StreamType string
 
 const (
-	StreamTypeHls  StreamType = "hls"
-	StreamTypeCmaf StreamType = "cmaf"
-	StreamTypeDash StreamType = "dash"
+	StreamTypeHlsTs   StreamType = "hls_ts"
+	StreamTypeHlsCmaf StreamType = "hls_cmaf"
+	StreamTypeDash    StreamType = "dash"
 )
 
 var AllStreamType = []StreamType{
-	StreamTypeHls,
-	StreamTypeCmaf,
+	StreamTypeHlsTs,
+	StreamTypeHlsCmaf,
 	StreamTypeDash,
 }
 
 func (e StreamType) IsValid() bool {
 	switch e {
-	case StreamTypeHls, StreamTypeCmaf, StreamTypeDash:
+	case StreamTypeHlsTs, StreamTypeHlsCmaf, StreamTypeDash:
 		return true
 	}
 	return false
