@@ -19,8 +19,8 @@ const load = () => {
         return
     }
     switch (props.asset.type) {
-        case "hls-cmaf":
-        case "hls-ts":
+        case "hls_cmaf":
+        case "hls_ts":
             if (Hls.isSupported()) {
                 const hls = new Hls()
                 hls.loadSource(props.asset.url)

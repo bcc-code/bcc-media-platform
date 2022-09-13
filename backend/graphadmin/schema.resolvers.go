@@ -47,7 +47,7 @@ func (r *previewResolver) Asset(ctx context.Context, obj *gqladminmodel.Preview,
 	}
 
 	stream, found := lo.Find(streams, func(s common.Stream) bool {
-		return s.Type == "hls-cmaf"
+		return s.Type == "hls_cmaf"
 	})
 	if !found {
 		stream = streams[0]
