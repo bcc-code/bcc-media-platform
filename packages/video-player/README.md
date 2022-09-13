@@ -21,7 +21,7 @@ pnpm dev #pnpm build
 ```
 
 # Publishing
-Verify version number before publishing, and make sure you have access to the npmjs repository.
+Verify version number before publishing, and make sure you have access to the npmjs package.
 ```
 pnpm publish
 ```
