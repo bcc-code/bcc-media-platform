@@ -178,6 +178,9 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 		if err != nil {
 			return nil, err
 		}
+		if intID == nil {
+			return nil, ErrItemNotFound
+		}
 		return resolverFor(ctx, &itemLoaders[int, common.Page]{
 			Item:        r.Loaders.PageLoader,
 			Permissions: r.Loaders.PagePermissionLoader,
