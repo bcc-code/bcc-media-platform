@@ -26,6 +26,15 @@ func (service *Service) Reindex(ctx context.Context) error {
 		return err
 	}
 
+	// Make sure we're not fetching from cache anywhere,
+	// although that shouldn't be an issue, as we're priming on fetch anyway
+	service.loaders.ShowLoader.ClearAll()
+	service.loaders.ShowPermissionLoader.ClearAll()
+	service.loaders.SeasonLoader.ClearAll()
+	service.loaders.SeasonPermissionLoader.ClearAll()
+	service.loaders.EpisodeLoader.ClearAll()
+	service.loaders.EpisodePermissionLoader.ClearAll()
+
 	// Makes it possible to filter in query, which fields you are searching on
 	// Also configures hits per page
 	primaryFields, err := service.getPrimaryTranslatedFields()
