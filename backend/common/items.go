@@ -3,9 +3,16 @@ package common
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/google/uuid"
 	"gopkg.in/guregu/null.v4"
-	"time"
+)
+
+// Various media services that we have available
+const (
+	StreamServiceAzureMedia   = "azure_media_services"
+	StreamServiceMediapackage = "mediapackage"
 )
 
 // HasKey interface for items with keys

@@ -48,6 +48,18 @@ func (c cdnConfig) GetFilesCDNDomain() string {
 	return c.FilesDomain
 }
 
+func (c envConfig) GetAwsSigningKeyPath() string {
+	return c.CDNConfig.AWSSigningKeyPath
+}
+
+func (c envConfig) GetAwsSigningKeyID() string {
+	return c.CDNConfig.AWSSigningKeyID
+}
+
+func (c envConfig) GetAzureRSAKey() []byte {
+	return []byte("TODO: THIS")
+}
+
 func getEnvConfig() envConfig {
 	aud := lo.Map(strings.Split(os.Getenv("AUTH0_AUDIENCES"), ","),
 		func(s string, _ int) string {
