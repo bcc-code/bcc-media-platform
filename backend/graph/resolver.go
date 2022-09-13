@@ -170,7 +170,7 @@ func resolverFor[k comparable, t any, r any](ctx context.Context, loaders *itemL
 	if t, ok := any(obj).(common.HasKey[k]); ok && loaders.Permissions != nil {
 		err = user.ValidateAccess(ctx, loaders.Permissions, t.GetKey())
 		if err != nil {
-			return res, nil
+			return res, err
 		}
 	}
 

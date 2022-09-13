@@ -30,6 +30,11 @@ function migrations {
 	echo "    env: 'PGPASSWORD'"  >> $M
 }
 
+function allow_loose {
+	echo "options:" >> $1
+	echo "   substitution_option: 'ALLOW_LOOSE'" >> $1
+}
+
 artifact pull workflow api.txt || true
 artifact pull workflow jobs.txt || true
 artifact pull workflow cms.txt || true
@@ -45,8 +50,11 @@ if [ ! -f "api.txt" ] && [ ! -f "jobs.txt" ] && [ ! -f "cms.txt" ]; then
 	exit 0
 fi
 
-echo "steps:" > $CB
-echo "steps:" > $ROUTE
+allow_loose $CB
+echo "steps:" >> $CB
+
+allow_loose $ROUTE
+echo "steps:" >> $ROUTE
 
 if [ -f "api.txt" ]; then
 	deploy API api.txt
