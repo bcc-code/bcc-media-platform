@@ -6,11 +6,17 @@
             :click="view"
         ></HeaderSection>
         <SwiperSection
-            v-else-if="section.style === 'slider'"
+            v-else-if="
+                section.style === 'slider' || section.style === 'carousel'
+            "
             :section="section"
             :click="view"
         ></SwiperSection>
-        <CardSection v-else-if="section.style === 'cards'" :click="view" :section="section">
+        <CardSection
+            v-else-if="section.style === 'cards'"
+            :click="view"
+            :section="section"
+        >
         </CardSection>
     </div>
 </template>
@@ -19,7 +25,7 @@ import { Section, SectionItem } from "./types"
 import { useRouter } from "vue-router"
 import SwiperSection from "./SwiperSection.vue"
 import HeaderSection from "./HeaderSection.vue"
-import CardSection from "./CardSection.vue";
+import CardSection from "./CardSection.vue"
 
 defineProps<{
     section: Section

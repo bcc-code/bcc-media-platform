@@ -5,7 +5,7 @@
 import { addError } from "@/utils/error"
 import { onMounted, onUnmounted, onUpdated, ref } from "vue"
 import { Player } from "bccm-video-player"
-import playerFactory from "@/services/player";
+import playerFactory from "@/services/player"
 
 const props = defineProps<{
     episodeId: string

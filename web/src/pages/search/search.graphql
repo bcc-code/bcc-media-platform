@@ -1,0 +1,14 @@
+query search($query: String!) {
+    search(queryString: $query) {
+        hits
+        page
+        result {
+            __typename
+            id
+            header
+            title
+            description
+            image
+        }
+    }
+}
