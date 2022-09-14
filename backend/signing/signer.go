@@ -19,31 +19,40 @@ type Signer struct {
 	jwkKey           jwk.Key
 }
 
-type config interface {
+// Config for Signer
+type Config interface {
 	GetAwsSigningKeyPath() string
 	GetAwsSigningKeyID() string
-	GetAzureRSAKey() []byte
+	GetAzureSigningKeyPath() string
 }
 
 // NewSigner with all secret material configured
-func NewSigner(config config) *Signer {
+func NewSigner(config Config) (*Signer, error) {
 	// Set up urlSigner for CDN urls access
 	key, err := sign.LoadPEMPrivKeyFile(config.GetAwsSigningKeyPath())
 	if err != nil {
 		log.L.Error().Err(err).Msg("Unable to load PEM file")
+		return nil, merry.Wrap(err)
 	}
 
 	urlSigner := sign.NewURLSigner(config.GetAwsSigningKeyID(), key)
 
-	privkey, err := jwk.ParseKey(config.GetAzureRSAKey())
+	key2, err := sign.LoadPEMPrivKeyFile(config.GetAzureSigningKeyPath())
 	if err != nil {
 		log.L.Error().Err(err).Msg("Unable to load RSA KEY")
+		return nil, merry.Wrap(err)
+	}
+
+	privkey, err := jwk.FromRaw(key2)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Unable to load RSA KEY")
+		return nil, merry.Wrap(err)
 	}
 
 	return &Signer{
 		cloudfrontSigner: *urlSigner,
 		jwkKey:           privkey,
-	}
+	}, nil
 }
 
 // SignAzureURL with a token as the query param
@@ -63,9 +72,15 @@ func (s Signer) SignAzureURL(url *url.URL, encryptionKeyID string) (string, erro
 	}
 
 	// Sign a JWT!
-	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.RS256, ""))
+	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.RS256, s.jwkKey))
+	if err != nil {
+		return "", merry.Wrap(err)
+	}
 
-	url.Query().Add("token", string(signed))
+	q := url.Query()
+	q.Add("token", string(signed))
+
+	url.RawQuery = q.Encode()
 
 	return url.String(), nil
 }

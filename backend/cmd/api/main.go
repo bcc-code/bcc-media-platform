@@ -113,6 +113,12 @@ func main() {
 		return
 	}
 
+	urlSigner, err := signing.NewSigner(config.CDNConfig)
+	if err != nil {
+		log.L.Panic().Err(err).Msg("Unable to create URL signers")
+		return
+	}
+
 	db.SetMaxIdleConns(2)
 	// TODO: What makes sense here? We should gather some metrics over time
 	db.SetMaxOpenConns(10)
@@ -181,7 +187,7 @@ func main() {
 	r.Use(user.NewUserMiddleware(queries, membersClient))
 
 	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey)
-	urlSigner := signing.NewSigner(config)
+
 	r.POST("/query", graphqlHandler(queries, loaders, searchService, urlSigner, config))
 
 	r.GET("/", playgroundHandler())
