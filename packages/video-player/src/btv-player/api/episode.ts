@@ -36,7 +36,7 @@ export const getEpisodeStreams = async (episodeID: string, client?: ApiClient) =
             audioLanguages: string[];
             subtitleLanguages: string[];
             url: string;
-            type: "hls-cmaf" | "dash" | "hls-ts";
+            type: "hls_cmaf" | "dash" | "hls_ts";
         }[]
     };
 }

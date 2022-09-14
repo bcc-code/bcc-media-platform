@@ -7,7 +7,7 @@ export * from "./api"
 
 export class PlayerFactory {
     private client: ApiClient
-    
+
     constructor(options: ApiClientOptions) {
         this.client = new ApiClient(options)
     }
@@ -19,11 +19,11 @@ export class PlayerFactory {
         const episode = await getEpisodeStreams(options.episodeId, this.client)
 
         const streams = episode.streams
-    
+
         if (streams.length) {
-            let stream = streams.find(s => s.type === "hls-cmaf")
+            let stream = streams.find(s => s.type === "hls_cmaf")
             if (!stream) {
-                stream = streams.find(s => s.type === "hls-ts")
+                stream = streams.find(s => s.type === "hls_ts")
             }
             if (!stream) {
                 stream = streams.find(s => s.type === "dash")
@@ -42,7 +42,7 @@ export class PlayerFactory {
                 ))
             }
         }
-    
+
         return null
     }
 }
