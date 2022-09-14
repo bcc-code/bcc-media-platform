@@ -14,13 +14,13 @@ gql:
 	cd graphadmin && gqlgen
 
 topic.create:
-	go run ./cmd/pubsub-helper -task create
+	go run ./cmd/pubsub-helper -task create -host localhost:8681
 
 topic.delete:
-	go run ./cmd/pubsub-helper -task delete
+	go run ./cmd/pubsub-helper -task delete -host localhost:8681
 
 event.search.reindex:
-	go run ./cmd/pubsub-helper -task searchReindex
+	go run ./cmd/pubsub-helper -task searchReindex -host localhost:8681
 
 event.translations.sync:
-	go run ./cmd/pubsub-helper -task syncTranslations
+	go run ./cmd/pubsub-helper -task syncTranslations -host localhost:8681

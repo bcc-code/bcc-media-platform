@@ -146,10 +146,14 @@ func simpleEvent(projectID string, topicID string, event string) {
 
 func main() {
 	task := flag.String("task", "", "")
+	host := flag.String("host", "", "")
 	flag.Parse()
 	projectId := "btv-local"
 	topicId := "background-jobs"
-	_ = os.Setenv("PUBSUB_EMULATOR_HOST", "localhost:8681")
+
+	if host != nil {
+		_ = os.Setenv("PUBSUB_EMULATOR_HOST", *host)
+	}
 
 	switch *task {
 	case "create":
