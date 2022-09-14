@@ -15,7 +15,7 @@ dist/api dist/jobs dist/pubsub-helper: ./**/*.go sqlc/.generated
 	CGO_ENABLED=0 go build -v -o $@ ./cmd/$(@F)
 
 sqlc/.generated: ../migrations/*.sql
-	sqlc generate
+	@sqlc generate || (printf "${YELLOW}Are you missing sqlc? Install it, e.g. with brew install sqlc.${RESET}\n" && false)
 	touch .generated
 
 run:
