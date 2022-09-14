@@ -2,6 +2,7 @@
     <div class="relative invisible md:visible p-4">
         <div class="absolute right-4 flex">
             <div class="flex ml-auto my-auto gap-4">
+                <router-link :to="{name: 'search'}">Search</router-link>
                 <LoginButton>Logout</LoginButton>
                 <VSelect v-model="selected" :data="languages">Language</VSelect>
             </div>
@@ -18,6 +19,7 @@ import { computed, ref } from "vue"
 import { useRouter } from "vue-router"
 import LoginButton from "../user/LoginButton.vue"
 import VSelect from "../VSelect.vue"
+import VButton from "../VButton.vue";
 
 const router = useRouter()
 

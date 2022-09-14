@@ -43,7 +43,7 @@ export default [
             {
                 name: "search",
                 path: "/search",
-                component: () => import("@/pages/")
+                component: () => import("@/pages/search/Search.vue")
             }
         ],
     },
