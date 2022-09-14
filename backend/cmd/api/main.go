@@ -4,8 +4,6 @@ import (
 	"context"
 	"crypto/rsa"
 	"database/sql"
-	"github.com/gin-contrib/cors"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
@@ -22,11 +20,13 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/items/season"
 	"github.com/bcc-code/brunstadtv/backend/items/section"
 	"github.com/bcc-code/brunstadtv/backend/items/show"
+	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
@@ -165,18 +165,27 @@ func main() {
 		QuestionsLoader:         common.NewRelationBatchLoader(queries.GetQuestionIDsForCategories),
 	}
 
+	authClient := auth0.New(config.JWTConfig)
+	membersClient := members.New(config.Members, func(ctx context.Context) string {
+		token, err := authClient.GetToken(ctx, config.Members.Domain)
+		if err != nil {
+			log.L.Panic().Err(err).Msg("Failed to retrieve token for members")
+		}
+		return token
+	})
+
 	log.L.Debug().Msg("Set up HTTP server")
 	r := gin.Default()
 	r.Use(utils.GinContextToContextMiddleware())
-	r.Use(otelgin.Middleware("api")) // OpenTelemetry
-	r.Use(auth0.JWT(ctx, config.JWTConfig))
-	r.Use(user.NewUserMiddleware(queries))
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
 		AllowMethods:     []string{"POST", "GET"},
 		AllowHeaders:     []string{"content-type", "authorization", "accept-language"},
 		AllowCredentials: true,
 	}))
+	r.Use(otelgin.Middleware("api")) // Open
+	r.Use(authClient.ValidateToken())
+	r.Use(user.NewUserMiddleware(queries, membersClient))
 
 	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey)
 	r.POST("/query", graphqlHandler(queries, loaders, searchService, urlSigner, config))

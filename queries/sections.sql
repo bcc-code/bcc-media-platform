@@ -26,7 +26,8 @@ FROM sections s
          JOIN pages p ON s.page_id = p.id
 WHERE p.id = ANY ($1::int[])
   AND s.status = 'published'
-  AND p.status = 'published';
+  AND p.status = 'published'
+ORDER BY s.sort;
 
 -- name: getPermissionsForSections :many
 WITH u AS (SELECT ug.sections_id,

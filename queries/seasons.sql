@@ -16,10 +16,10 @@ FROM seasons s
 
 -- name: getSeasons :many
 WITH ts AS (SELECT seasons_id,
-                  json_object_agg(languages_code, title)       AS title,
-                  json_object_agg(languages_code, description) AS description
-           FROM seasons_translations
-           GROUP BY seasons_id)
+                   json_object_agg(languages_code, title)       AS title,
+                   json_object_agg(languages_code, description) AS description
+            FROM seasons_translations
+            GROUP BY seasons_id)
 SELECT s.id,
        s.legacy_id,
        s.season_number,
@@ -32,7 +32,10 @@ FROM seasons s
 WHERE s.id = ANY ($1::int[]);
 
 -- name: getSeasonIDsForShows :many
-SELECT s.id, s.show_id FROM seasons s WHERE s.show_id = ANY ($1::int[]);
+SELECT s.id, s.show_id
+FROM seasons s
+WHERE s.show_id = ANY ($1::int[])
+ORDER BY s.season_number;
 
 -- name: getPermissionsForSeasons :many
 WITH sa AS (SELECT se.id,

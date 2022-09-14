@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/members"
+	"strconv"
 	"time"
 
 	cache "github.com/Code-Hex/go-generics-cache"
@@ -81,9 +83,9 @@ func GetAcceptedLanguagesFromCtx(ctx *gin.Context) []string {
 	return utils.ParseAcceptLanguage(accLang)
 }
 
-// NewUserMiddleware returns a gin middleware that injests a populated User struct
+// NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
-func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
+func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin.Context) {
 	return func(ctx *gin.Context) {
 		reqCtx, span := otel.Tracer("user/middleware").Start(ctx.Request.Context(), "run")
 		defer span.End()
@@ -108,19 +110,27 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 			return
 		}
 
-		email := ctx.GetString(auth0.CtxEmail)
+		userID := ctx.GetString(auth0.CtxUserID)
+
+		if u, ok := userCache.Get(userID); ok {
+			span.AddEvent("User From Cache")
+			ctx.Set(CtxUser, u)
+			return
+		}
+
+		pid := ctx.GetString(auth0.CtxPersonID)
+		intID, _ := strconv.ParseInt(pid, 10, 32)
+
+		member, err := members.Lookup(ctx, int(intID))
+		if err != nil {
+			log.L.Error().Err(err).Msg("Failed to retrieve user")
+		}
+
+		email := member.Email
 
 		if email == "" {
 			// Explicit values make it easier to see that it was intended when debugging
 			email = "<MISSING>"
-		}
-
-		// We have the user in the cache
-		// Return cached object
-		if u, ok := userCache.Get(email); ok {
-			span.AddEvent("User From Cache")
-			ctx.Set(CtxUser, u)
-			return
 		}
 
 		roles = append(roles, RoleRegistered)
@@ -137,8 +147,6 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 			roles = append(roles, userRoles...)
 		}
 
-		pid := ctx.GetString(auth0.CtxPersonID)
-
 		u := &common.User{
 			PersonID:  pid,
 			Roles:     roles,
@@ -149,7 +157,7 @@ func NewUserMiddleware(queries *sqlc.Queries) func(*gin.Context) {
 
 		// Add the user to the cache
 		span.AddEvent("User loaded into cache")
-		userCache.Set(email, u, cache.WithExpiration(60*time.Minute))
+		userCache.Set(userID, u, cache.WithExpiration(60*time.Minute))
 		ctx.Set(CtxUser, u)
 	}
 }

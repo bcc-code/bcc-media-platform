@@ -1,7 +1,7 @@
 <template>
     <div>
         <HeaderSection
-            v-if="section.style === 'header'"
+            v-if="section.style === 'featured'"
             :items="section.items.items"
             :click="view"
         ></HeaderSection>
@@ -15,7 +15,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { Section, SectionItem as TSectionItem } from "./types"
+import { Section, SectionItem } from "./types"
 import { useRouter } from "vue-router"
 import SwiperSection from "./SwiperSection.vue"
 import HeaderSection from "./HeaderSection.vue"
@@ -27,7 +27,7 @@ defineProps<{
 
 const router = useRouter()
 
-const view = (item: TSectionItem) => {
+const view = (item: SectionItem) => {
     switch (item.__typename) {
         case "EpisodeItem":
             router.push({
