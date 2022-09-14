@@ -7,18 +7,19 @@ ifneq (,$(findstring xterm,${TERM}))
 else
 	YELLOW       := ""
 endif
-.PHONY: pubsub
+.PHONY: sqlc
 
 build: dist/api dist/jobs dist/pubsub-helper
 
-dist/api dist/jobs dist/pubsub-helper: ./**/*.go
+dist/api dist/jobs dist/pubsub-helper: ./**/*.go sqlc/.generated
 	CGO_ENABLED=0 go build -v -o $@ ./cmd/$(@F)
+
+sqlc/.generated: ../migrations/*.sql
+	sqlc generate
+	touch .generated
 
 run:
 	@echo "No 'run'. Did you mean 'run-api'?"
-
-sqlc:
-	sqlc generate
 
 install-dep-macos:
 	brew install sqlc

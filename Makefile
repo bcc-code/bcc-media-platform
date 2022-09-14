@@ -18,5 +18,6 @@ init:
 	cd ./cms && make init
 
 diff:
-	./scripts/db_diff.sh
+	./scripts/db_diff.sh $(name)
 	cd ./migrations && goose fix
+	cd ./backend && make ./sqlc/.generated
