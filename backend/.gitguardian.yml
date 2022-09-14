@@ -1,0 +1,15 @@
+version: 2
+
+secret:
+  ignored-paths:
+    - '**/README.md'
+    - 'doc/*'
+    - 'LICENSE'
+    - '**/testdata/*'
+
+  # Ignore security incidents with the SHA256 of the occurrence obtained at output or the secret itself
+  ignored-matches:
+    - name: local-dev-pass
+      match: btv123
+
+  show-secrets: false # default: false
