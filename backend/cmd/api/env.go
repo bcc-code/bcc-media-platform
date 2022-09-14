@@ -29,10 +29,11 @@ type envConfig struct {
 }
 
 type cdnConfig struct {
-	Vod2Domain        string
-	FilesDomain       string
-	AWSSigningKeyPath string
-	AWSSigningKeyID   string
+	Vod2Domain          string
+	FilesDomain         string
+	AWSSigningKeyPath   string
+	AWSSigningKeyID     string
+	AzureSigningKeyPath string
 }
 
 type serviceSecrets struct {
@@ -46,6 +47,18 @@ func (c cdnConfig) GetVOD2Domain() string {
 
 func (c cdnConfig) GetFilesCDNDomain() string {
 	return c.FilesDomain
+}
+
+func (c cdnConfig) GetAwsSigningKeyPath() string {
+	return c.AWSSigningKeyPath
+}
+
+func (c cdnConfig) GetAwsSigningKeyID() string {
+	return c.AWSSigningKeyID
+}
+
+func (c cdnConfig) GetAzureSigningKeyPath() string {
+	return c.AzureSigningKeyPath
 }
 
 func getEnvConfig() envConfig {
@@ -74,10 +87,11 @@ func getEnvConfig() envConfig {
 			ApiKey: os.Getenv("ALGOLIA_API_KEY"),
 		},
 		CDNConfig: cdnConfig{
-			Vod2Domain:        os.Getenv("VOD2_CDN_DOMAIN"),
-			FilesDomain:       os.Getenv("FILES_CDN_DOMAIN"),
-			AWSSigningKeyID:   os.Getenv("CF_SIGNING_KEY_ID"),
-			AWSSigningKeyPath: os.Getenv("CF_SIGNING_KEY_PATH"),
+			Vod2Domain:          os.Getenv("VOD2_CDN_DOMAIN"),
+			FilesDomain:         os.Getenv("FILES_CDN_DOMAIN"),
+			AWSSigningKeyID:     os.Getenv("CF_SIGNING_KEY_ID"),
+			AWSSigningKeyPath:   os.Getenv("CF_SIGNING_KEY_PATH"),
+			AzureSigningKeyPath: os.Getenv("AZ_SIGNING_KEY_PATH"),
 		},
 		Secrets: serviceSecrets{
 			Directus: os.Getenv("SERVICE_SECRET_DIRECTUS"),
