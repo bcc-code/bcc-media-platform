@@ -10,7 +10,7 @@ export const randomImageUrl = () => {
         "e51ba4d5-34f2-4b6c-9ede-97520604c27e.jpg",
         "f4224f5e-d73b-42b0-816c-d348655a237d.jpg",
         "KIDS_MV_ET_RENT_HJERTE_MAS_NOR.mxf.jpg",
-        "forbundsmodell.jpg"
+        "forbundsmodell.jpg",
     ]
 
     const index = Math.floor(Math.random() * filenames.length)

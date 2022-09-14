@@ -1,5 +1,8 @@
 <template>
-    <section class="max-w-screen-2xl mx-auto p-10 rounded rounded-2xl" v-if="episode">
+    <section
+        class="max-w-screen-2xl mx-auto p-10 rounded rounded-2xl"
+        v-if="episode"
+    >
         <EpisodeViewer
             class="drop-shadow-xl"
             :episode-id="(route.params.episodeId as string)"
@@ -17,7 +20,7 @@
                 <h1 class="text-xl">{{ episode.title }}</h1>
             </div>
         </div>
-        <div v-if="error" class="text-red">{{error.message}}</div>
+        <div v-if="error" class="text-red">{{ error.message }}</div>
     </section>
 </template>
 <script lang="ts" setup>
@@ -28,7 +31,7 @@ import EpisodeViewer from "@/components/EpisodeViewer.vue"
 
 const route = useRoute()
 
-const {data, error } = useGetEpisodeQuery({
+const { data, error } = useGetEpisodeQuery({
     variables: {
         episodeId: route.params.episodeId as string,
     },

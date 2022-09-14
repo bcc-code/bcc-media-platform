@@ -22,10 +22,10 @@ import Navbar from "@/components/navbar/Navbar.vue"
 import { errors, removeError } from "@/utils/error"
 import Auth from "@/services/auth"
 import Loader from "../components/Loader.vue"
-import { useRoute } from "vue-router";
+import { useRoute } from "vue-router"
 
-import { provideClient } from '@urql/vue';
-import client from '@/graph/client';
+import { provideClient } from "@urql/vue"
+import client from "@/graph/client"
 provideClient(client)
 
 const route = useRoute()
