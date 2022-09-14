@@ -3,8 +3,8 @@
 help:
 	@echo "Sorry, can't help you"
 
-background-worker-docker:
-	 docker build -f ./backend/Dockerfile.background-worker -t btv-background-jobs -t "eu.gcr.io/btv-platform-dev/background-worker/background-jobs" .
+run:
+	@echo "No 'run' here. Try switching to a subfolder like 'cms' or 'backend' and doing 'make run' there."
 
 release:
 	./scripts/new-release.sh
@@ -18,8 +18,6 @@ init:
 	cd ./cms && make init
 
 diff:
-	./scripts/db_diff.sh
+	./scripts/db_diff.sh $(name)
 	cd ./migrations && goose fix
-
-run:
-	@echo "No 'run' here. Try switching to a subfolder like 'cms' or 'backend' and doing 'make run' there."
+	cd ./backend && make ./sqlc/.generated

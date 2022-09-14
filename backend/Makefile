@@ -7,13 +7,19 @@ ifneq (,$(findstring xterm,${TERM}))
 else
 	YELLOW       := ""
 endif
-.PHONY: pubsub sqlc
+.PHONY: sqlc
 
-pubsub:
-	./scripts/pubsub.sh
+build: dist/api dist/jobs dist/pubsub-helper
 
-sqlc:
+dist/api dist/jobs dist/pubsub-helper: ./**/*.go sqlc/.generated
+	CGO_ENABLED=0 go build -v -o $@ ./cmd/$(@F)
+
+sqlc/.generated: ../migrations/*.sql
 	sqlc generate
+	touch .generated
+
+run:
+	@echo "No 'run'. Did you mean 'run-api'?"
 
 install-dep-macos:
 	brew install sqlc
@@ -34,10 +40,7 @@ event.search.reindex:
 event.translations.sync:
 	go run ./cmd/pubsub-helper -task syncTranslations -host localhost:8681
 
-run:
-	@echo "No 'run'. Did you mean 'run-api'?"
-
-run-api:
+run-api: dist/api
 	@cp -n ./cmd/api/env.sample ./cmd/api/.env || true
 	@printf "${YELLOW}Running the API.\nRemember to update ./cmd/api/.env with proper values!${RESET}\n\n\n"
-	cd ./cmd/api && go run github.com/joho/godotenv/cmd/godotenv@latest -f .env go run .
+	go run github.com/joho/godotenv/cmd/godotenv@latest -f ./cmd/api/.env dist/api
