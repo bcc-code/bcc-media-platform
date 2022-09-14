@@ -1,0 +1,280 @@
+@import "plugins";
+
+@import "https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&display=swap";
+
+@mixin scrollbars(
+    $size,
+    $foreground-color,
+    $background-color: mix($foreground-color, white, 50%)
+) {
+    // For Google Chrome
+    &::-webkit-scrollbar {
+        width: $size;
+        height: $size;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $foreground-color;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: $background-color;
+    }
+
+    // For Internet Explorer
+    & {
+        scrollbar-face-color: $foreground-color;
+        scrollbar-track-color: $background-color;
+    }
+}
+
+$other-fonts: Arial, Helvetica, sans-serif;
+$side-padding: 10px;
+.vjs-brunstadtv-skin {
+    font-size: 0.75em;
+    font-family: "Barlow", $other-fonts;
+    .vjs-menu .vjs-menu-content,
+    button {
+        font-family: "Barlow", $other-fonts;
+    }
+
+    &.vjs-show-startup-spinner:not(.vjs-has-started):not(.vjs-error):not(.vjs-paused) {
+        .vjs-big-play-button {
+            display: none;
+        }
+        .vjs-loading-spinner {
+            display: block;
+            visibility: visible;
+        }
+        .vjs-loading-spinner:before,
+        .vjs-loading-spinner:after {
+            animation: vjs-spinner-spin 1.1s cubic-bezier(0.6, 0.2, 0, 0.8)
+                    infinite,
+                vjs-spinner-fade 1.1s linear infinite;
+        }
+    }
+
+    .vjs-play-progress:before {
+        font-size: 0.95em;
+        z-index: 1;
+    }
+
+    .vjs-load-progress {
+        background: rgba(204, 221, 255, 0.1);
+    }
+
+    .vjs-play-progress .vjs-time-tooltip {
+        display: none !important;
+    }
+
+    .vjs-seek-to-live-control {
+        margin-right: auto;
+    }
+
+    &:not(.vjs-live) {
+        .vjs-remaining-time {
+            display: none;
+        }
+
+        .vjs-current-time {
+            display: block;
+            padding-right: 0px;
+        }
+
+        .vjs-time-divider {
+            padding: 0 0.5em;
+            min-width: 0;
+            display: block;
+        }
+
+        .vjs-duration {
+            padding-left: 0px;
+            display: block;
+            margin-right: auto;
+        }
+    }
+
+    .vjs-slider {
+        background: rgba(204, 221, 255, 0.1);
+    }
+
+    .vjs-button .vjs-icon-placeholder:before {
+        font-size: 2.1em;
+        line-height: 1.5;
+    }
+    .vjs-fullscreen-control .vjs-icon-placeholder:before {
+        font-size: 2.5em !important;
+        line-height: 1.2em !important;
+    }
+    .vjs-chromecast-button {
+        margin-top: 1px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .vjs-icon-placeholder {
+            display: block;
+            width: 23px;
+            height: 23px;
+        }
+    }
+
+    &.rounded {
+        border-radius: 10px;
+        .vjs-tech {
+            border-radius: 10px;
+        }
+    }
+    .vjs-menu-button-popup .vjs-menu {
+        height: 100px; // note that vjs-menu-content is position:absolute so this doesnt do anything visually.
+        // It just adds some overlap in cases where the menu is outside the buttons hover-area.
+
+        margin-bottom: 3em;
+        .vjs-menu-content {
+            @include scrollbars(7px, #738cad50, #0d162380);
+            border-radius: 5px;
+            background-color: #0d1623;
+            bottom: 0;
+            z-index: 2;
+
+            li {
+                text-transform: initial;
+                padding: 5px;
+            }
+            li.vjs-menu-item:hover {
+                background-color: rgba(204, 221, 255, 0.1);
+            }
+            li.vjs-selected:hover {
+                background-color: #fff;
+            }
+        }
+    }
+    .vjs-text-track-settings {
+        background: #0d1117;
+        overflow: auto;
+        box-shadow: rgba(0, 0, 0, 0.7);
+
+        &:before {
+            content: "Subtitle settings";
+            position: absolute;
+            left: 32px;
+            top: 25px;
+            font-size: 1.4em;
+        }
+        select {
+            color: #000;
+            background: #fff;
+        }
+        .vjs-modal-dialog-content {
+            padding-top: 45px;
+        }
+        .vjs-track-settings-controls button {
+            background-color: #fff;
+            background-image: none;
+        }
+    }
+
+    &:hover {
+        .vjs-big-play-button {
+            background: none;
+            .vjs-icon-placeholder:before {
+                text-shadow: 0px 0px 40px #0d1623;
+            }
+        }
+    }
+    .vjs-big-play-button {
+        top: calc(50% - 0.75em);
+        left: calc(50% - 0.5em);
+        width: 1em;
+        font-size: 6em;
+        height: 1.5em;
+        background: none;
+        border: none;
+        &:focus {
+            background: none;
+        }
+        .vjs-icon-placeholder:before {
+            transition: 0s all;
+            text-shadow: 0px 0px 50px #0d1623;
+        }
+    }
+
+    cursor: pointer;
+    &.vjs-controls-disabled,
+    &.vjs-has-started,
+    &.vjs-using-native-controls,
+    &.vjs-error {
+        cursor: inherit;
+    }
+
+    .vjs-control-bar {
+        &:before {
+            content: " ";
+            background: linear-gradient(
+                180deg,
+                transparent,
+                rgba(0, 0, 0, 0.7)
+            );
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 300%;
+            pointer-events: none;
+            margin-left: -$side-padding;
+        }
+        &:before &.vjs-has-started.vjs-user-inactive.vjs-playing {
+            display: none;
+        }
+
+        width: 100%;
+        padding-left: $side-padding;
+        padding-right: $side-padding;
+        padding-bottom: 6px;
+        height: 3.5em;
+        background: none;
+        /* 
+        .vjs-time-control {
+            margin-right: auto;
+        } */
+        .vjs-progress-control {
+            position: absolute;
+            display: flex;
+            width: calc(100% - #{$side-padding * 2});
+            height: 1em;
+            bottom: 100%;
+        }
+    }
+    .vjs-seek-forward-control,
+    .vjs-seek-backward-control {
+        cursor: pointer;
+        .vjs-icon-placeholder:before {
+            content: "15";
+            padding-top: 1.2em;
+            padding-right: 1px;
+            font-size: 0.8em;
+            background: url('data:image/svg+xml;charset=UTF-8,<svg width="55" height="61" viewBox="0 0 55 61" font-size="10px" fill="none" xmlns="http://www.w3.org/2000/svg"><path  font-size="20px" fill-rule="evenodd" clip-rule="evenodd" d="M23.1875 0.0603027V6.18537C10.1365 8.26534 0.159576 19.6225 0.159576 33.321C0.159576 48.4957 12.4026 60.7972 27.5051 60.7972C42.6075 60.7972 54.8505 48.4957 54.8505 33.321C54.8505 32.8359 54.838 32.3538 54.8133 31.8749H50.4886C50.5179 32.3532 50.5328 32.8353 50.5328 33.321C50.5328 46.0997 40.2229 56.4589 27.5051 56.4589C14.7872 56.4589 4.47731 46.0997 4.47731 33.321C4.47731 22.0251 12.5334 12.6198 23.1875 10.5892V17.4137L34.7012 9.70118V17.4137L47.6543 8.737L34.7012 0.0603027V7.77282L23.1875 0.0603027Z" fill="white"/></svg>');
+            background-repeat: no-repeat;
+            background-origin: border-box;
+            background-position: center;
+            background-size: 2em;
+        }
+    }
+    .vjs-seek-backward-control {
+        .vjs-icon-placeholder:before {
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="56" height="61" viewBox="0 0 56 61" font-size="10px" fill="none" xmlns="http://www.w3.org/2000/svg"><path font-size="20px" fill-rule="evenodd" clip-rule="evenodd" d="M32.2846 0.0603027V6.1853C45.3356 8.26531 55.3124 19.6224 55.3124 33.3209C55.3124 48.4956 43.0694 60.7971 27.9669 60.7971C12.8645 60.7971 0.62146 48.4956 0.62146 33.3209C0.62146 32.8359 0.63397 32.3537 0.658684 31.8748H4.98346C4.95411 32.3531 4.93922 32.8353 4.93922 33.3209C4.93922 46.0996 15.2491 56.4588 27.967 56.4588C40.6849 56.4588 50.9948 46.0996 50.9948 33.3209C50.9948 22.0251 42.9387 12.6198 32.2846 10.5891V17.4137L20.7707 9.70107V17.4137L7.81761 8.737L20.7707 0.0603027V7.77292L32.2846 0.0603027Z" fill="white"/></svg>');
+            margin-top: 1px;
+        }
+    }
+    .vjs-dismiss-control {
+        cursor: pointer;
+        .vjs-control-text {
+            position: relative;
+            clip: initial;
+        }
+    }
+    &.vjs-paused {
+        .vjs-dismiss-control {
+            display: none;
+        }
+    }
+    @import "small-screen-ui";
+}
