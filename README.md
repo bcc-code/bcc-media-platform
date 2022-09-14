@@ -58,3 +58,7 @@ The CMS is the system for managing the content, and is run in a separate contain
 The database must be running and installed with the migrations in order for this to work. It is run with the `make run` command in the respective directory.
 
 Setup the cms with `make init`.
+
+The initial login credentials are:
+**Username:** admin@brunstad.tv
+**Pass:** btv123
