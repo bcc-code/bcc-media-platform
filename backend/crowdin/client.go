@@ -19,6 +19,7 @@ import (
 
 // Config for the client
 type Config struct {
+	Token      string
 	ProjectIDs []int
 }
 
@@ -40,10 +41,10 @@ func ensureSuccess(res *resty.Response) error {
 }
 
 // New client for requests
-func New(token string, config Config, directusHandler *directus.Handler) *Client {
+func New(config Config, directusHandler *directus.Handler) *Client {
 	c := resty.New().
 		SetBaseURL("https://api.crowdin.com/api/v2/").
-		SetAuthToken(token)
+		SetAuthToken(config.Token)
 	return &Client{
 		du:     directusHandler,
 		c:      c,

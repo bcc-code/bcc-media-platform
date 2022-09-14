@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "target": "ES2019",
+        "moduleResolution": "node",
+        "sourceMap": false,
+        "rootDir": "./src",
+        "outDir": "./extensions",
+        "baseUrl": "./",
+        "strict": false,
+        "lib": ["es2019"],
+        "skipLibCheck": true,
+        "declaration": true,
+        "resolveJsonModule": true,
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "packages", "extensions"]
+}

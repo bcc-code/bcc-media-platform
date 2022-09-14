@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/bcc-code/brunstadtv/backend/members"
+	"github.com/bcc-code/brunstadtv/backend/search"
 	"os"
 	"strings"
 
@@ -13,17 +14,12 @@ type postgres struct {
 	ConnectionString string
 }
 
-type algolia struct {
-	AppId  string
-	ApiKey string
-}
-
 type envConfig struct {
 	Members   members.Config
 	DB        postgres
-	Algolia   algolia
+	Algolia   search.Config
 	Port      string
-	JWTConfig auth0.Config
+	Auth0     auth0.Config
 	CDNConfig cdnConfig
 	Secrets   serviceSecrets
 }
@@ -45,6 +41,7 @@ func (c cdnConfig) GetVOD2Domain() string {
 	return c.Vod2Domain
 }
 
+// GetFilesCDNDomain returns the configured FilesCDNDomain
 func (c cdnConfig) GetFilesCDNDomain() string {
 	return c.FilesDomain
 }
@@ -75,16 +72,16 @@ func getEnvConfig() envConfig {
 		DB: postgres{
 			ConnectionString: os.Getenv("DB_CONNECTION_STRING"),
 		},
-		JWTConfig: auth0.Config{
+		Auth0: auth0.Config{
 			ClientID:     os.Getenv("AUTH0_CLIENT_ID"),
 			ClientSecret: os.Getenv("AUTH0_CLIENT_SECRET"),
 			Domain:       os.Getenv("AUTH0_DOMAIN"),
 			Audiences:    aud,
 		},
 		Port: os.Getenv("PORT"),
-		Algolia: algolia{
-			AppId:  os.Getenv("ALGOLIA_APP_ID"),
-			ApiKey: os.Getenv("ALGOLIA_API_KEY"),
+		Algolia: search.Config{
+			AppID:  os.Getenv("ALGOLIA_APP_ID"),
+			APIKey: os.Getenv("ALGOLIA_API_KEY"),
 		},
 		CDNConfig: cdnConfig{
 			Vod2Domain:          os.Getenv("VOD2_CDN_DOMAIN"),
