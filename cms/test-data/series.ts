@@ -11,7 +11,7 @@ function getRandomDate() {
 	date.setSeconds(0)
 	date.setMilliseconds(0)
 	let increment = Math.floor(Math.random() * 10)
-	if (Math.random() >= 0.5) {
+	if (Math.random() >= 0.1) {
 		increment = increment * -1
 	}
 	date.setDate(date.getDate() + increment)
@@ -20,7 +20,7 @@ function getRandomDate() {
 
 function getRandomDateGreaterThan(date: Date) {
 	let newDate = new Date(date)
-	let increment = 5 + Math.floor(Math.random() * 100)
+	let increment = 5 + Math.floor(Math.random() * 10000)
 	newDate.setDate(date.getDate() + increment)
 	return newDate
 }
@@ -110,7 +110,7 @@ async function start() {
 	let seasons = await makeSeasons(show, 3)
 
 	for (let i in seasons) {
-		await makeEpisodes(seasons[i], 10)
+		await makeEpisodes(seasons[i], 5)
 	}
 }
 

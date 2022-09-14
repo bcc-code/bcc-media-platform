@@ -14,14 +14,26 @@ import (
 	"github.com/samber/lo"
 )
 
+const tempIndexName = "temp"
+
 // Reindex every supported collection
 func (service *Service) Reindex(ctx context.Context) error {
-	index := service.index
-
-	_, err := index.ClearObjects()
+	res, err := service.algoliaClient.CopyIndex(indexName, tempIndexName)
+	_ = res.Wait()
+	index := service.algoliaClient.InitIndex(tempIndexName)
+	_, err = index.ClearObjects()
 	if err != nil {
 		return err
 	}
+
+	// Make sure we're not fetching from cache anywhere,
+	// although that shouldn't be an issue, as we're priming on fetch anyway
+	service.loaders.ShowLoader.ClearAll()
+	service.loaders.ShowPermissionLoader.ClearAll()
+	service.loaders.SeasonLoader.ClearAll()
+	service.loaders.SeasonPermissionLoader.ClearAll()
+	service.loaders.EpisodeLoader.ClearAll()
+	service.loaders.EpisodePermissionLoader.ClearAll()
 
 	// Makes it possible to filter in query, which fields you are searching on
 	// Also configures hits per page
@@ -61,28 +73,33 @@ func (service *Service) Reindex(ctx context.Context) error {
 	}
 
 	log.L.Debug().Str("collection", "shows").Msg("Indexing")
-	err = service.indexShows(ctx)
+	err = service.indexShows(ctx, index)
 	if err != nil {
 		return err
 	}
 	log.L.Debug().Str("collection", "seasons").Msg("Indexing")
-	err = service.indexSeasons(ctx)
+	err = service.indexSeasons(ctx, index)
 	if err != nil {
 		return err
 	}
 	log.L.Debug().Str("collection", "episodes").Msg("Indexing")
-	err = service.indexEpisodes(ctx)
+	err = service.indexEpisodes(ctx, index)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	res, err = service.algoliaClient.MoveIndex(tempIndexName, indexName)
+	if err != nil {
+		return err
+	}
+	return res.Wait()
 }
 
-func (service *Service) indexShows(ctx context.Context) error {
+func (service *Service) indexShows(ctx context.Context, index *search.Index) error {
 	return indexCollection[int, common.Show](
 		ctx,
 		service,
+		index,
 		service.loaders.ShowLoader,
 		service.loaders.ShowPermissionLoader,
 		service.queries.ListShows,
@@ -102,10 +119,11 @@ func (service *Service) indexShow(ctx context.Context, id int) error {
 	return indexObject[int, common.Show](ctx, service, *i, p, service.showToSearchItem)
 }
 
-func (service *Service) indexSeasons(ctx context.Context) error {
+func (service *Service) indexSeasons(ctx context.Context, index *search.Index) error {
 	return indexCollection[int, common.Season](
 		ctx,
 		service,
+		index,
 		service.loaders.SeasonLoader,
 		service.loaders.SeasonPermissionLoader,
 		service.queries.ListSeasons,
@@ -125,10 +143,11 @@ func (service *Service) indexSeason(ctx context.Context, id int) error {
 	return indexObject[int, common.Season](ctx, service, *i, p, service.seasonToSearchItem)
 }
 
-func (service *Service) indexEpisodes(ctx context.Context) error {
+func (service *Service) indexEpisodes(ctx context.Context, index *search.Index) error {
 	return indexCollection[int, common.Episode](
 		ctx,
 		service,
+		index,
 		service.loaders.EpisodeLoader,
 		service.loaders.EpisodePermissionLoader,
 		service.queries.ListEpisodes,
@@ -156,6 +175,7 @@ type indexable[k comparable] interface {
 func indexCollection[k comparable, t indexable[k]](
 	ctx context.Context,
 	service *Service,
+	index *search.Index,
 	loader *dataloader.Loader[k, *t],
 	permissionLoader *dataloader.Loader[k, *common.Permissions[k]],
 	factory func(context.Context) ([]t, error),
@@ -180,6 +200,17 @@ func indexCollection[k comparable, t indexable[k]](
 	service.loaders.ImageLoader.LoadMany(ctx, imageIds)()
 
 	var searchItems []searchObject
+	pushItems := func(force bool) error {
+		if len(searchItems) > 200 || (force && len(searchItems) > 0) {
+			_, err := index.SaveObjects(searchItems)
+			if err != nil {
+				return err
+			}
+			searchItems = []searchObject{}
+		}
+		return nil
+	}
+
 	for _, i := range items {
 		p := i
 		loader.Prime(ctx, p.GetKey(), &p)
@@ -202,9 +233,9 @@ func indexCollection[k comparable, t indexable[k]](
 		}
 
 		searchItems = append(searchItems, item.toSearchObject())
+		err = pushItems(false)
 	}
-	_, err = service.index.SaveObjects(searchItems)
-	return err
+	return pushItems(true)
 }
 
 func indexObject[k comparable, t indexable[k]](
