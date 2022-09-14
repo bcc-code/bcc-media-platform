@@ -173,6 +173,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		return err
 	}
 
+	log.L.Debug().Msg("Start processing JSON")
 	// Calculate the base path on the ingest S3 bucket
 	assetMeta.BasePath = path.Dir(msg.JSONMetaPath)
 
@@ -185,6 +186,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	// Prepare to copy the old files. Because the new files get the same destination,
 	// they will replace the copy instructions and we will not unnecessarily copy old files
 	// that will just get replaced
+	log.L.Debug().Msg("Prepare to copy old files")
 	if oldAsset != nil {
 		res, err := s3client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
 			Bucket: config.GetStorageBucket(),
@@ -217,6 +219,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		Status:          common.StatusDraft,
 	}
 
+	log.L.Debug().Msg("Save Directus Asset object")
 	a, err = directus.SaveItem(ctx, services.GetDirectusClient(), *a, true)
 	if err != nil {
 		return merry.Wrap(err)
@@ -311,6 +314,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 	if hasStreams {
 		mpc := services.GetMediaPackageVOD()
+		log.L.Debug().Msg("Creating MediaPackager Asset")
 		asset, err := mpc.CreateAsset(ctx,
 			&mediapackagevod.CreateAssetInput{
 				Id:               &storagePrefix,
