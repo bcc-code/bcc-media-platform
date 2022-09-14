@@ -20,19 +20,20 @@ export class Auth {
 
     public static loading() {
         const { isLoading } = useAuth0()
-        return isLoading;
+        return isLoading
     }
 
     public static async getToken() {
         // const { getAccessTokenSilently, isAuthenticated } = useAuth0()
-        const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
+        const { getAccessTokenSilently, isAuthenticated, isLoading } =
+            useAuth0()
         while (isLoading.value) {
-            await new Promise(r => setTimeout(r, 50))
+            await new Promise((r) => setTimeout(r, 50))
         }
         if (isAuthenticated.value) {
-            return await getAccessTokenSilently();
+            return await getAccessTokenSilently()
         }
-        return null;
+        return null
     }
 
     public static isAuthenticated() {

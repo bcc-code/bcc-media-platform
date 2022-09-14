@@ -23,7 +23,7 @@
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { Section, SectionItem as TSectionItem } from "./types"
 import { Navigation } from "swiper"
-import CardSectionItem from "./CardSectionItem.vue";
+import CardSectionItem from "./CardSectionItem.vue"
 
 defineProps<{
     section: Section
@@ -55,6 +55,6 @@ const breakpoints = {
         slidesPerView: 6,
         spaceBetween: 20,
         slidesPerGroup: 6,
-    }
+    },
 }
 </script>

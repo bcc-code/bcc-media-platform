@@ -10,7 +10,4 @@ import "swiper/css/navigation"
 import "swiper/css/pagination"
 import "swiper/css/scrollbar"
 
-createApp(App)
-    .use(router)
-    .use(auth0)
-    .mount("#app")
+createApp(App).use(router).use(auth0).mount("#app")

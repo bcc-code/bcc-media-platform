@@ -1,8 +1,16 @@
 <template>
-    <div class="relative aspect-[16/7] bg-cover bg-center bg-no-repeat rounded rounded-2xl" :style="{
-        'background-image': 'linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url(\'' + item.imageUrl + '\')'
-    }">
-        <div class="absolute w-full bottom-0 text-center rounded rounded-2xl pb-4 pb-8 pt-20 mt-2">
+    <div
+        class="relative aspect-[16/7] bg-cover bg-center bg-no-repeat rounded rounded-2xl"
+        :style="{
+            'background-image':
+                'linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url(\'' +
+                item.imageUrl +
+                '\')',
+        }"
+    >
+        <div
+            class="absolute w-full bottom-0 text-center rounded rounded-2xl pb-4 pb-8 pt-20 mt-2"
+        >
             <!-- <div class="text-md truncate text-primary">
                 <p
                     v-if="
@@ -42,7 +50,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { randomImageUrl } from "@/utils/randomImage";
+import { randomImageUrl } from "@/utils/randomImage"
 import { SectionItem } from "./types"
 
 const props = defineProps<{

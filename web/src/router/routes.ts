@@ -17,8 +17,8 @@ export default [
                 path: "",
                 component: () => import("@/pages/Page.vue"),
                 props: {
-                    "pageId": "frontpage"
-                }
+                    pageId: "frontpage",
+                },
             },
             {
                 name: "episode-page",
@@ -28,7 +28,7 @@ export default [
             {
                 name: "season-page",
                 path: "season/:seasonId",
-                component: () => import("@/pages/Season.vue")
+                component: () => import("@/pages/Season.vue"),
             },
             {
                 name: "show-page",
@@ -38,7 +38,12 @@ export default [
             {
                 name: "calendar",
                 path: "/calendar",
-                component: () => import("@/pages/calendar/Calendar.vue")
+                component: () => import("@/pages/calendar/Calendar.vue"),
+            },
+            {
+                name: "search",
+                path: "/search",
+                component: () => import("@/pages/search/Search.vue")
             }
         ],
     },

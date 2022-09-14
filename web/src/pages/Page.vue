@@ -6,10 +6,8 @@
         >
         </ItemSection>
     </div>
-    <div v-else-if="!fetching">
-        Uh oh. Missing content
-    </div>
-    <div v-if="error">{{error.message}}</div>
+    <div v-else-if="!fetching">Uh oh. Missing content</div>
+    <div v-if="error">{{ error.message }}</div>
 </template>
 <script lang="ts" setup>
 import { useGetPageQuery } from "@/graph/generated"

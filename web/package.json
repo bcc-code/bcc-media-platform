@@ -16,7 +16,7 @@
         "@heroicons/vue": "^2.0.10",
         "@urql/exchange-auth": "^1.0.0",
         "@urql/vue": "^1.0.2",
-        "bccm-video-player": "^1.1.2",
+        "bccm-video-player": "^1.2.0",
         "graphql": "^16.6.0",
         "graphql-tag": "^2.12.6",
         "swiper": "^8.3.2",
