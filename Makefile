@@ -10,11 +10,11 @@ release:
 	./scripts/new-release.sh
 
 install:
-	docker-compose up -d
+	docker compose up -d --wait
 	cd ./migrations && make install
 
 init:
-	docker-compose up -d
+	docker compose up -d --wait
 	cd ./cms && make init
 
 diff:

@@ -11,7 +11,7 @@ build:
 
 s:
 	make build
-	docker-compose up -d
+	docker compose up -d --wait
 	npx directus start
 
 init:
