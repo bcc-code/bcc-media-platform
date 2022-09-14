@@ -1,3 +1,12 @@
+SHELL=/bin/bash
+
+# define standard colors
+ifneq (,$(findstring xterm,${TERM}))
+	YELLOW       := $(shell tput -Txterm setaf 3)
+	RESET 		 := $(shell tput -Txterm sgr0)
+else
+	YELLOW       := ""
+endif
 .PHONY: pubsub sqlc
 
 pubsub:
@@ -24,3 +33,11 @@ event.search.reindex:
 
 event.translations.sync:
 	go run ./cmd/pubsub-helper -task syncTranslations -host localhost:8681
+
+run:
+	@echo "No 'run'. Did you mean 'run-api'?"
+
+run-api:
+	@cp -n ./cmd/api/env.sample ./cmd/api/.env || true
+	@printf "${YELLOW}Running the API.\nRemember to update ./cmd/api/.env with proper values!${RESET}\n\n\n"
+	cd ./cmd/api && go run github.com/joho/godotenv/cmd/godotenv@latest -f .env go run .
