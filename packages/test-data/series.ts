@@ -100,12 +100,18 @@ async function makeEpisodes(seasonId: number, count : number) : Promise<Array<nu
 
 	return out
 }
+async function createLanguages() {
+	try {
+		let s = await directus.items('languages').createOne({code: 'no', 'name': 'Norsk'})
+	} catch {}
+}
 
 async function start() {
 	await directus.auth.login({
 		email: process.env.DU_ADMIN_EMAIL,
 		password: process.env.DU_ADMIN_PASS,
 	});
+	await createLanguages()
 	let show = await makeShow()
 	let seasons = await makeSeasons(show, 3)
 

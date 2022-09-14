@@ -62,3 +62,6 @@ Setup the cms with `make init`.
 The initial login credentials are:
 **Username:** admin@brunstad.tv
 **Pass:** btv123
+
+### Test-data
+You can quickly make some dummy data with `./packages/test-data`. Do `npm install` and `make all`.
