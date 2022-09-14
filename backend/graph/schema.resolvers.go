@@ -179,7 +179,7 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 			return nil, err
 		}
 		if intID == nil {
-			return nil, ErrItemNotFound
+			return nil, merry.Sentinel("No page found with that code")
 		}
 		return resolverFor(ctx, &itemLoaders[int, common.Page]{
 			Item:        r.Loaders.PageLoader,

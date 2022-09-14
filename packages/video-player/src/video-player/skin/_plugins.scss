@@ -1,0 +1,32 @@
+@import "@/../external-projects/videojs-chromecast/src/scss/videojs-chromecast.scss";
+//@import "~@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css";
+@import "@/../external-projects/videojs-hls-quality-selector/src/plugin.scss";
+
+$icon-chromecast--default: './chromecast.svg';
+$icon-chromecast--hover: './chromecast.svg';
+$icon-chromecast-casting: './chromecast-filled.svg';
+$icon-chromecast-casting--hover: './chromecast-filled.svg';
+
+.vjs-chromecast-button {
+    .vjs-icon-placeholder {
+        background: url($icon-chromecast--default) center center no-repeat !important;
+    }
+
+    &:hover {
+        cursor: pointer;
+
+        .vjs-icon-placeholder {
+            background-image: url($icon-chromecast--hover) !important;
+        }
+    }
+
+    &.vjs-chromecast-casting-state {
+        .vjs-icon-placeholder {
+            background-image: url($icon-chromecast-casting) !important;
+        }
+
+        &:hover .vjs-icon-placeholder {
+            background-image: url($icon-chromecast-casting--hover) !important;
+        }
+    }
+}
