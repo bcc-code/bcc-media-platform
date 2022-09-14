@@ -20,6 +20,7 @@ func mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 		return common.Episode{
 			ID:               int(e.ID),
 			LegacyID:         e.LegacyID,
+			LegacyProgramID:  e.LegacyProgramID,
 			Title:            title,
 			Description:      description,
 			ExtraDescription: extraDescription,

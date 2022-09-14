@@ -75,6 +75,7 @@ type Config struct {
 type Episode struct {
 	ID                string     `json:"id"`
 	LegacyID          *string    `json:"legacyID"`
+	LegacyProgramID   *string    `json:"legacyProgramID"`
 	Title             string     `json:"title"`
 	Description       string     `json:"description"`
 	ExtraDescription  string     `json:"extraDescription"`

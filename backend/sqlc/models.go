@@ -193,6 +193,7 @@ type DirectusActivity struct {
 	Collection string         `db:"collection" json:"collection"`
 	Item       string         `db:"item" json:"item"`
 	Comment    null_v4.String `db:"comment" json:"comment"`
+	Origin     null_v4.String `db:"origin" json:"origin"`
 }
 
 type DirectusCollection struct {
@@ -412,6 +413,7 @@ type DirectusSession struct {
 	Ip        null_v4.String `db:"ip" json:"ip"`
 	UserAgent null_v4.String `db:"user_agent" json:"userAgent"`
 	Share     uuid.NullUUID  `db:"share" json:"share"`
+	Origin    null_v4.String `db:"origin" json:"origin"`
 }
 
 type DirectusSetting struct {

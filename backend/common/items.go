@@ -103,6 +103,7 @@ func (i Season) IsCollectionItem() {
 type Episode struct {
 	ID               int           `json:"id"`
 	LegacyID         null.Int      `json:"legacyId"`
+	LegacyProgramID  null.Int      `json:"legacyProgramId"`
 	SeasonID         null.Int      `json:"seasonId"`
 	Number           null.Int      `json:"number"`
 	AssetID          null.Int      `json:"assetId"`
