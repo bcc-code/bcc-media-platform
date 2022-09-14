@@ -22,8 +22,8 @@ export type AppConfig = {
 };
 
 export type Calendar = {
-  day?: Maybe<CalendarDay>;
-  period?: Maybe<CalendarPeriod>;
+  day: CalendarDay;
+  period: CalendarPeriod;
 };
 
 
@@ -303,18 +303,18 @@ export type Pagination = {
 
 export type QueryRoot = {
   calendar?: Maybe<Calendar>;
-  collection?: Maybe<Collection>;
+  collection: Collection;
   config: Config;
-  episode?: Maybe<Episode>;
+  episode: Episode;
   event?: Maybe<Event>;
   faq: Faq;
   me: User;
   messages: Messages;
-  page?: Maybe<Page>;
+  page: Page;
   search: SearchResult;
-  season?: Maybe<Season>;
-  section?: Maybe<Section>;
-  show?: Maybe<Show>;
+  season: Season;
+  section: Section;
+  show: Show;
 };
 
 
@@ -566,7 +566,7 @@ export type GetEpisodeQueryVariables = Exact<{
 }>;
 
 
-export type GetEpisodeQuery = { episode?: { id: string, title: string, description: string, imageUrl?: string | null, number?: number | null, season?: { title: string, number: number, show: { title: string } } | null } | null };
+export type GetEpisodeQuery = { episode: { id: string, title: string, description: string, imageUrl?: string | null, number?: number | null, season?: { title: string, number: number, show: { title: string } } | null } };
 
 export type EpisodeItemFragment = { episode: { number?: number | null, season?: { number: number, show: { title: string } } | null } };
 
@@ -583,35 +583,28 @@ export type GetPageQueryVariables = Exact<{
 }>;
 
 
-export type GetPageQuery = { page?: { id: string, title: string, sections: { items: Array<{ id: string, title: string, style: string, items: { items: Array<{ __typename: 'EpisodeItem', id: string, title: string, imageUrl?: string | null, sort: number, episode: { number?: number | null, season?: { number: number, show: { title: string } } | null } } | { __typename: 'PageItem', id: string, title: string, imageUrl?: string | null, sort: number, page: { code: string } } | { __typename: 'SeasonItem', id: string, title: string, imageUrl: string, sort: number, season: { number: number, show: { title: string } } } | { __typename: 'ShowItem', id: string, title: string, imageUrl?: string | null, sort: number, show: { title: string } } | { __typename: 'URLItem', id: string, title: string, imageUrl?: string | null, sort: number }> } }> } } | null };
-
-export type SearchQueryVariables = Exact<{
-  query: Scalars['String'];
-}>;
-
-
-export type SearchQuery = { search: { hits: number, page: number, result: Array<{ __typename: 'EpisodeSearchItem', id: string, header?: string | null, title: string, description?: string | null, image?: string | null } | { __typename: 'SeasonSearchItem', id: string, header?: string | null, title: string, description?: string | null, image?: string | null } | { __typename: 'ShowSearchItem', id: string, header?: string | null, title: string, description?: string | null, image?: string | null }> } };
+export type GetPageQuery = { page: { id: string, title: string, sections: { items: Array<{ id: string, title: string, style: string, items: { items: Array<{ __typename: 'EpisodeItem', id: string, title: string, imageUrl?: string | null, sort: number, episode: { number?: number | null, season?: { number: number, show: { title: string } } | null } } | { __typename: 'PageItem', id: string, title: string, imageUrl?: string | null, sort: number, page: { code: string } } | { __typename: 'SeasonItem', id: string, title: string, imageUrl: string, sort: number, season: { number: number, show: { title: string } } } | { __typename: 'ShowItem', id: string, title: string, imageUrl?: string | null, sort: number, show: { title: string } } | { __typename: 'URLItem', id: string, title: string, imageUrl?: string | null, sort: number }> } }> } } };
 
 export type GetSeasonQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetSeasonQuery = { season?: { title: string, description: string, imageUrl?: string | null, number: number, show: { title: string }, episodes: { total: number, items: Array<{ title: string, description: string, imageUrl?: string | null, number?: number | null }> } } | null };
+export type GetSeasonQuery = { season: { title: string, description: string, imageUrl?: string | null, number: number, show: { title: string }, episodes: { total: number, items: Array<{ title: string, description: string, imageUrl?: string | null, number?: number | null }> } } };
 
 export type GetSectionQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetSectionQuery = { section?: { id: string, title: string, items: { items: Array<{ __typename: 'EpisodeItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename: 'PageItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename: 'SeasonItem', id: string, imageUrl: string, title: string, sort: number } | { __typename: 'ShowItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename: 'URLItem', id: string, imageUrl?: string | null, title: string, sort: number }> } } | null };
+export type GetSectionQuery = { section: { id: string, title: string, items: { items: Array<{ __typename: 'EpisodeItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename: 'PageItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename: 'SeasonItem', id: string, imageUrl: string, title: string, sort: number } | { __typename: 'ShowItem', id: string, imageUrl?: string | null, title: string, sort: number } | { __typename: 'URLItem', id: string, imageUrl?: string | null, title: string, sort: number }> } } };
 
 export type GetShowQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetShowQuery = { show?: { title: string, description: string, imageUrl?: string | null, seasons: { total: number, items: Array<{ title: string, description: string, imageUrl?: string | null, number: number, episodes: { total: number, items: Array<{ title: string, imageUrl?: string | null, number?: number | null, description: string }> } }> } } | null };
+export type GetShowQuery = { show: { title: string, description: string, imageUrl?: string | null, seasons: { total: number, items: Array<{ title: string, description: string, imageUrl?: string | null, number: number, episodes: { total: number, items: Array<{ title: string, imageUrl?: string | null, number?: number | null, description: string }> } }> } } };
 
 export type GetCalendarPeriodQueryVariables = Exact<{
   from: Scalars['Date'];
@@ -619,7 +612,14 @@ export type GetCalendarPeriodQueryVariables = Exact<{
 }>;
 
 
-export type GetCalendarPeriodQuery = { calendar?: { period?: { activeDays: Array<any>, events: Array<{ id: string, start: string, end: string, title: string }> } | null } | null };
+export type GetCalendarPeriodQuery = { calendar?: { period: { activeDays: Array<any>, events: Array<{ id: string, start: string, end: string, title: string }> } } | null };
+
+export type SearchQueryVariables = Exact<{
+  query: Scalars['String'];
+}>;
+
+
+export type SearchQuery = { search: { hits: number, page: number, result: Array<{ __typename: 'EpisodeSearchItem', id: string, header?: string | null, title: string, description?: string | null, image?: string | null } | { __typename: 'SeasonSearchItem', id: string, header?: string | null, title: string, description?: string | null, image?: string | null } | { __typename: 'ShowSearchItem', id: string, header?: string | null, title: string, description?: string | null, image?: string | null }> } };
 
 export const EpisodeItemFragmentDoc = gql`
     fragment EpisodeItem on EpisodeItem {
@@ -720,26 +720,6 @@ export const GetPageDocument = gql`
 export function useGetPageQuery(options: Omit<Urql.UseQueryArgs<never, GetPageQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetPageQuery>({ query: GetPageDocument, ...options });
 };
-export const SearchDocument = gql`
-    query search($query: String!) {
-  search(queryString: $query) {
-    hits
-    page
-    result {
-      __typename
-      id
-      header
-      title
-      description
-      image
-    }
-  }
-}
-    `;
-
-export function useSearchQuery(options: Omit<Urql.UseQueryArgs<never, SearchQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<SearchQuery>({ query: SearchDocument, ...options });
-};
 export const GetSeasonDocument = gql`
     query getSeason($id: ID!) {
   season(id: $id) {
@@ -839,4 +819,24 @@ export const GetCalendarPeriodDocument = gql`
 
 export function useGetCalendarPeriodQuery(options: Omit<Urql.UseQueryArgs<never, GetCalendarPeriodQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetCalendarPeriodQuery>({ query: GetCalendarPeriodDocument, ...options });
+};
+export const SearchDocument = gql`
+    query search($query: String!) {
+  search(queryString: $query) {
+    hits
+    page
+    result {
+      __typename
+      id
+      header
+      title
+      description
+      image
+    }
+  }
+}
+    `;
+
+export function useSearchQuery(options: Omit<Urql.UseQueryArgs<never, SearchQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<SearchQuery>({ query: SearchDocument, ...options });
 };
