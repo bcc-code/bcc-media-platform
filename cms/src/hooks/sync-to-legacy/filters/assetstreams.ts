@@ -4,9 +4,11 @@ import episodes from '../../../btv';
 import {  VideoUrlEntity } from "@/Database";
 import { ItemsService } from "directus";
 
-
 export async function createAssetstream(p, m, c) {
     let asset = (await c.database("assets").select("*").where("id", p.asset_id))[0];
+
+	console.log("createAssetstream")
+	console.log("legacy_id", asset.legacy_id)
 
     // update it in original
     let patch: Partial<VideoUrlEntity> = {
@@ -60,7 +62,7 @@ export async function updateAssetstream (p, m, c) {
     if (!service) {
         service = assetstreamBeforeUpdate.service;
     }
- 
+
     if (p.type === "hls_cmaf" && p.service.indexOf('mediapackage') !== -1) {
         // Hacky solution for mediapackge to work.
         // The app accepts application/vnd.apple.mpegurl
