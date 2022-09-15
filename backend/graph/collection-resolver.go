@@ -34,53 +34,21 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 		return nil, err
 	}
 
-	preloadPermissions := func(fromIndex int, toIndex int) {
-		for i, e := range entries {
-			if i >= toIndex {
-				break
-			}
-			if i > fromIndex {
-				switch e.Type {
-				case "page":
-					loaders.PagePermissionLoader.Load(ctx, e.ID)
-				case "show":
-					loaders.ShowPermissionLoader.Load(ctx, e.ID)
-				case "season":
-					loaders.SeasonPermissionLoader.Load(ctx, e.ID)
-				case "episode":
-					loaders.EpisodePermissionLoader.Load(ctx, e.ID)
-				}
-			}
+	for _, e := range entries {
+		switch e.Type {
+		case "page":
+			loaders.PagePermissionLoader.Load(ctx, e.ID)
+		case "show":
+			loaders.ShowPermissionLoader.Load(ctx, e.ID)
+		case "season":
+			loaders.SeasonPermissionLoader.Load(ctx, e.ID)
+		case "episode":
+			loaders.EpisodePermissionLoader.Load(ctx, e.ID)
 		}
-	}
-
-	f := 20
-	if first != nil {
-		f = *first
-	}
-	o := 0
-	if offset != nil {
-		o = *offset
-	}
-
-	result := utils.PaginationResult[gqlmodel.Item]{
-		First:  f,
-		Offset: o,
-		Total:  len(entries),
 	}
 
 	var returnEntries []collection.Entry
-	loops := 0
-	for i, e := range entries {
-		if i%(f*2) == 0 {
-			if loops >= 4 {
-				// Most likely not enough items to fill collection.
-				result.Total = len(returnEntries)
-				break
-			}
-			preloadPermissions(i, i+(f*2))
-			loops++
-		}
+	for _, e := range entries {
 		var err error
 		switch e.Type {
 		case "page":
@@ -96,17 +64,15 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 		}
 		if err == nil {
 			returnEntries = append(returnEntries, e)
-		} else {
-			result.Total--
-		}
-		if len(returnEntries) >= (f + o) {
-			break
 		}
 	}
 
-	preloadLoaders(ctx, loaders, returnEntries)
+	pagination := utils.Paginate(returnEntries, first, offset)
 
-	for _, e := range returnEntries {
+	preloadLoaders(ctx, loaders, pagination.Items)
+
+	var items []gqlmodel.Item
+	for _, e := range pagination.Items {
 		var item gqlmodel.Item
 		switch e.Type {
 		case "page":
@@ -135,10 +101,16 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 			item = gqlmodel.EpisodeItemFrom(ctx, i, e.Sort)
 		}
 		if item != nil {
-			result.Items = append(result.Items, item)
+			items = append(items, item)
 		}
 	}
-	return &result, nil
+
+	return &utils.PaginationResult[gqlmodel.Item]{
+		Total:  pagination.Total,
+		First:  pagination.First,
+		Offset: pagination.Offset,
+		Items:  items,
+	}, nil
 }
 
 func collectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[gqlmodel.Item], error) {
