@@ -22,12 +22,13 @@ func PageFrom(ctx context.Context, p *common.Page) *Page {
 }
 
 // PageItemFrom returns a PageItem from common.Page
-func PageItemFrom(ctx context.Context, p *common.Page) *PageItem {
+func PageItemFrom(ctx context.Context, p *common.Page, sort int) *PageItem {
 	page := PageFrom(ctx, p)
 
 	return &PageItem{
 		ID:    page.ID,
 		Title: page.Title,
 		Page:  page,
+		Sort:  sort,
 	}
 }

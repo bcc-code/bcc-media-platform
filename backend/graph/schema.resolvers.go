@@ -18,12 +18,10 @@ import (
 
 // Items is the resolver for the items field.
 func (r *collectionResolver) Items(ctx context.Context, obj *gqlmodel.Collection, first *int, offset *int) (*gqlmodel.CollectionItemPagination, error) {
-	items, err := collectionItemResolverFromCollection(ctx, r.Resolver, "1")
+	pagination, err := collectionItemResolverFromCollection(ctx, r.Resolver, obj.ID, first, offset)
 	if err != nil {
 		return nil, err
 	}
-
-	pagination := utils.Paginate(items, first, offset)
 
 	return &gqlmodel.CollectionItemPagination{
 		Total:  pagination.Total,
@@ -134,11 +132,10 @@ func (r *itemSectionResolver) Page(ctx context.Context, obj *gqlmodel.ItemSectio
 
 // Items is the resolver for the items field.
 func (r *itemSectionResolver) Items(ctx context.Context, obj *gqlmodel.ItemSection, first *int, offset *int) (*gqlmodel.CollectionItemPagination, error) {
-	items, err := collectionItemResolver(ctx, r.Resolver, obj.ID)
+	pagination, err := collectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 	if err != nil {
 		return nil, err
 	}
-	pagination := utils.Paginate(items, first, offset)
 	return &gqlmodel.CollectionItemPagination{
 		Total:  pagination.Total,
 		First:  pagination.First,

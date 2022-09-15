@@ -34,12 +34,13 @@ func SeasonFrom(ctx context.Context, s *common.Season) *Season {
 }
 
 // SeasonItemFrom returns a SeasonItem from a common.Season
-func SeasonItemFrom(ctx context.Context, row *common.Season) *SeasonItem {
+func SeasonItemFrom(ctx context.Context, row *common.Season, sort int) *SeasonItem {
 	season := SeasonFrom(ctx, row)
 
 	return &SeasonItem{
 		ID:     season.ID,
 		Season: season,
 		Title:  season.Title,
+		Sort:   sort,
 	}
 }

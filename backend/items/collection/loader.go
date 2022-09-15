@@ -3,6 +3,7 @@ package collection
 import (
 	"context"
 	"database/sql"
+	"strings"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -209,6 +210,58 @@ func GetCollectionItems(ctx context.Context, loaders *common.BatchLoaders, colle
 		return getItemsForSelectCollection(ctx, loaders, col.ID)
 	case "query":
 		return getItemsForQueryCollection(ctx, loaders, col.ID, col.Collection.ValueOrZero())
+	}
+	return nil, nil
+}
+
+// Entry contains the ID and collection of a CollectionItem
+type Entry struct {
+	ID   int
+	Type string
+	Sort int
+}
+
+func collectionToType(collection string) string {
+	switch collection {
+	case "episodes", "pages", "shows", "seasons":
+		return strings.TrimSuffix(collection, "s")
+	default:
+		return "unknown"
+	}
+}
+
+// GetCollectionEntries returns entries for the specified collection
+func GetCollectionEntries(ctx context.Context, loaders *common.BatchLoaders, collectionId int) ([]Entry, error) {
+	col, err := common.GetFromLoaderByID(ctx, loaders.CollectionLoader, collectionId)
+	if err != nil {
+		return nil, err
+	}
+
+	switch col.Type {
+	case "select":
+		items, err := common.GetFromLoaderForKey(ctx, loaders.CollectionItemLoader, col.ID)
+		if err != nil {
+			return nil, err
+		}
+		return lo.Map(items, func(i *common.CollectionItem, _ int) Entry {
+			return Entry{
+				ID:   i.ItemID,
+				Type: i.Type,
+				Sort: i.Sort,
+			}
+		}), nil
+	case "query":
+		itemIds, err := loaders.CollectionItemIdsLoader.Load(ctx, col.ID)()
+		if err != nil {
+			return nil, err
+		}
+		return lo.Map(itemIds, func(id int, index int) Entry {
+			return Entry{
+				ID:   id,
+				Type: collectionToType(col.Collection.ValueOrZero()),
+				Sort: index,
+			}
+		}), nil
 	}
 	return nil, nil
 }
