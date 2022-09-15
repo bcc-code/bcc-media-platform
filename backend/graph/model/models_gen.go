@@ -281,7 +281,7 @@ type SeasonItem struct {
 	ID       string  `json:"id"`
 	Sort     int     `json:"sort"`
 	Title    string  `json:"title"`
-	ImageURL string  `json:"imageUrl"`
+	ImageURL *string `json:"imageUrl"`
 	Season   *Season `json:"season"`
 }
 

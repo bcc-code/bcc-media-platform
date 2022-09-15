@@ -101,7 +101,7 @@ type ShowItem implements Item {
   id: ID!
   sort: Int!
   title: String!
-  imageUrl: String
+  imageUrl: String @goField(forceResolver: true)
   show: Show!
 }
 
@@ -109,7 +109,7 @@ type SeasonItem implements Item {
   id: ID!
   sort: Int!
   title: String!
-  imageUrl: String!
+  imageUrl: String @goField(forceResolver: true)
   season: Season!
 }
 

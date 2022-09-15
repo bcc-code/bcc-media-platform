@@ -52,9 +52,11 @@ type ResolverRoot interface {
 	Question() QuestionResolver
 	Season() SeasonResolver
 	SeasonCalendarEntry() SeasonCalendarEntryResolver
+	SeasonItem() SeasonItemResolver
 	SeasonSearchItem() SeasonSearchItemResolver
 	Show() ShowResolver
 	ShowCalendarEntry() ShowCalendarEntryResolver
+	ShowItem() ShowItemResolver
 	SimpleCalendarEntry() SimpleCalendarEntryResolver
 }
 
@@ -510,6 +512,9 @@ type SeasonCalendarEntryResolver interface {
 
 	Season(ctx context.Context, obj *gqlmodel.SeasonCalendarEntry) (*gqlmodel.Season, error)
 }
+type SeasonItemResolver interface {
+	ImageURL(ctx context.Context, obj *gqlmodel.SeasonItem) (*string, error)
+}
 type SeasonSearchItemResolver interface {
 	Show(ctx context.Context, obj *gqlmodel.SeasonSearchItem) (*gqlmodel.Show, error)
 }
@@ -522,6 +527,9 @@ type ShowCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *gqlmodel.ShowCalendarEntry) (*gqlmodel.Event, error)
 
 	Show(ctx context.Context, obj *gqlmodel.ShowCalendarEntry) (*gqlmodel.Show, error)
+}
+type ShowItemResolver interface {
+	ImageURL(ctx context.Context, obj *gqlmodel.ShowItem) (*string, error)
 }
 type SimpleCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *gqlmodel.SimpleCalendarEntry) (*gqlmodel.Event, error)
@@ -2582,7 +2590,7 @@ type ShowItem implements Item {
   id: ID!
   sort: Int!
   title: String!
-  imageUrl: String
+  imageUrl: String @goField(forceResolver: true)
   show: Show!
 }
 
@@ -2590,7 +2598,7 @@ type SeasonItem implements Item {
   id: ID!
   sort: Int!
   title: String!
-  imageUrl: String!
+  imageUrl: String @goField(forceResolver: true)
   season: Season!
 }
 
@@ -10909,29 +10917,26 @@ func (ec *executionContext) _SeasonItem_imageUrl(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ImageURL, nil
+		return ec.resolvers.SeasonItem().ImageURL(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SeasonItem_imageUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonItem",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -12835,7 +12840,7 @@ func (ec *executionContext) _ShowItem_imageUrl(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ImageURL, nil
+		return ec.resolvers.ShowItem().ImageURL(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12853,8 +12858,8 @@ func (ec *executionContext) fieldContext_ShowItem_imageUrl(ctx context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "ShowItem",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -18697,35 +18702,45 @@ func (ec *executionContext) _SeasonItem(ctx context.Context, sel ast.SelectionSe
 			out.Values[i] = ec._SeasonItem_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "sort":
 
 			out.Values[i] = ec._SeasonItem_sort(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 
 			out.Values[i] = ec._SeasonItem_title(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "imageUrl":
+			field := field
 
-			out.Values[i] = ec._SeasonItem_imageUrl(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SeasonItem_imageUrl(ctx, field, obj)
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "season":
 
 			out.Values[i] = ec._SeasonItem_season(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -19176,32 +19191,45 @@ func (ec *executionContext) _ShowItem(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = ec._ShowItem_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "sort":
 
 			out.Values[i] = ec._ShowItem_sort(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 
 			out.Values[i] = ec._ShowItem_title(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "imageUrl":
+			field := field
 
-			out.Values[i] = ec._ShowItem_imageUrl(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ShowItem_imageUrl(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "show":
 
 			out.Values[i] = ec._ShowItem_show(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))

@@ -330,6 +330,11 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *gqlmodel.Season, fir
 	}, nil
 }
 
+// ImageURL is the resolver for the imageUrl field.
+func (r *seasonItemResolver) ImageURL(ctx context.Context, obj *gqlmodel.SeasonItem) (*string, error) {
+	return r.Season().ImageURL(ctx, &gqlmodel.Season{ID: obj.ID})
+}
+
 // Show is the resolver for the show field.
 func (r *seasonSearchItemResolver) Show(ctx context.Context, obj *gqlmodel.SeasonSearchItem) (*gqlmodel.Show, error) {
 	return r.QueryRoot().Show(ctx, obj.Show.ID)
@@ -368,6 +373,11 @@ func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show, first *i
 	}, nil
 }
 
+// ImageURL is the resolver for the imageUrl field.
+func (r *showItemResolver) ImageURL(ctx context.Context, obj *gqlmodel.ShowItem) (*string, error) {
+	return r.Show().ImageURL(ctx, &gqlmodel.Show{ID: obj.ID})
+}
+
 // Collection returns generated.CollectionResolver implementation.
 func (r *Resolver) Collection() generated.CollectionResolver { return &collectionResolver{r} }
 
@@ -394,6 +404,9 @@ func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootRe
 // Season returns generated.SeasonResolver implementation.
 func (r *Resolver) Season() generated.SeasonResolver { return &seasonResolver{r} }
 
+// SeasonItem returns generated.SeasonItemResolver implementation.
+func (r *Resolver) SeasonItem() generated.SeasonItemResolver { return &seasonItemResolver{r} }
+
 // SeasonSearchItem returns generated.SeasonSearchItemResolver implementation.
 func (r *Resolver) SeasonSearchItem() generated.SeasonSearchItemResolver {
 	return &seasonSearchItemResolver{r}
@@ -401,6 +414,9 @@ func (r *Resolver) SeasonSearchItem() generated.SeasonSearchItemResolver {
 
 // Show returns generated.ShowResolver implementation.
 func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
+
+// ShowItem returns generated.ShowItemResolver implementation.
+func (r *Resolver) ShowItem() generated.ShowItemResolver { return &showItemResolver{r} }
 
 type collectionResolver struct{ *Resolver }
 type episodeResolver struct{ *Resolver }
@@ -410,5 +426,7 @@ type itemSectionResolver struct{ *Resolver }
 type pageResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
 type seasonResolver struct{ *Resolver }
+type seasonItemResolver struct{ *Resolver }
 type seasonSearchItemResolver struct{ *Resolver }
 type showResolver struct{ *Resolver }
+type showItemResolver struct{ *Resolver }
