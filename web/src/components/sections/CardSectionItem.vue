@@ -1,8 +1,13 @@
 <template>
     <div>
-        <div class="aspect-[4/7] rounded rounded-xl  bg-cover bg-center bg-no-repeat" :style="{
-        'background-image': item.imageUrl ? 'url(\'' + item.imageUrl + '\')' : ''
-        }"></div>
+        <div
+            class="aspect-[4/7] rounded rounded-xl bg-cover bg-center bg-no-repeat"
+            :style="{
+                'background-image': item.imageUrl
+                    ? 'url(\'' + item.imageUrl + '\')'
+                    : '',
+            }"
+        ></div>
         <div class="m-4">
             <div class="text-sm truncate text-primary">
                 <p
@@ -43,7 +48,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { randomImageUrl } from "@/utils/randomImage";
+import { randomImageUrl } from "@/utils/randomImage"
 import { SectionItem } from "./types"
 
 const props = defineProps<{

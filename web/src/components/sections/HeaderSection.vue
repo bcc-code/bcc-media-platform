@@ -1,5 +1,10 @@
 <template>
-    <Swiper class="rounded rounded-3xl" :breakpoints="breakpoints" :slides-per-view="1" :space-between="10">
+    <Swiper
+        class="rounded rounded-3xl"
+        :breakpoints="breakpoints"
+        :slides-per-view="1"
+        :space-between="10"
+    >
         <SwiperSlide v-for="item in items">
             <HeaderSectionItem
                 @click="click(item)"
@@ -13,7 +18,7 @@
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { SectionItem } from "./types"
 import HeaderSectionItem from "./HeaderSectionItem.vue"
-import { SwiperOptions } from "swiper";
+import { SwiperOptions } from "swiper"
 
 defineProps<{
     items: SectionItem[]

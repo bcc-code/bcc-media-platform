@@ -1,0 +1,47 @@
+{
+    "name": "bccm-video-player",
+    "version": "1.2.0",
+    "type": "commonjs",
+    "types": "build/types",
+    "files": [
+        "build"
+    ],
+    "exports": {
+        ".": {
+            "import": "./build/bccm-video-player.mjs",
+            "require": "./build/bccm-video-player.umd.js"
+        },
+        "./css": "./build/style.css"
+    },
+    "scripts": {
+        "dev": "vite",
+        "types": "tsc --emitDeclarationOnly && mv build/src build/types && rm -r build/external-projects",
+        "build": "tsc --noEmit && vite build && pnpm types",
+        "preview": "vite preview",
+        "prettier": "prettier --write ."
+    },
+    "dependencies": {
+        "graphql": "^16.6.0",
+        "graphql-request": "^5.0.0",
+        "ua-parser-js": "^1.0.2",
+        "video.js": "^7.20.2",
+        "videojs-contrib-quality-levels": "^2.1.0",
+        "videojs-event-tracking": "^1.0.3",
+        "videojs-mux": "^4.8.1",
+        "vue": "^3.2.38",
+        "youbora-adapter-videojs": "^6.8.9",
+        "youboralib": "^6.8.28"
+    },
+    "devDependencies": {
+        "@types/node": "^18.7.14",
+        "@types/ua-parser-js": "^0.7.36",
+        "@types/video.js": "^7.3.46",
+        "@vitejs/plugin-vue": "^3.0.3",
+        "postcss": "^8.4.16",
+        "prettier": "^2.7.1",
+        "sass": "^1.54.8",
+        "typescript": "^4.8.2",
+        "vite": "^3.0.9",
+        "vue-tsc": "^0.40.5"
+    }
+}

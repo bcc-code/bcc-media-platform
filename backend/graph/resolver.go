@@ -8,9 +8,9 @@ import (
 
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
-	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/search"
+	"github.com/bcc-code/brunstadtv/backend/signing"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -28,7 +28,7 @@ type Resolver struct {
 	Queries       *sqlc.Queries
 	Loaders       *common.BatchLoaders
 	SearchService *search.Service
-	URLSigner     *sign.URLSigner
+	URLSigner     *signing.Signer
 	APIConfig     apiConfig
 }
 

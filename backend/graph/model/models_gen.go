@@ -75,6 +75,7 @@ type Config struct {
 type Episode struct {
 	ID                string     `json:"id"`
 	LegacyID          *string    `json:"legacyID"`
+	LegacyProgramID   *string    `json:"legacyProgramID"`
 	Title             string     `json:"title"`
 	Description       string     `json:"description"`
 	ExtraDescription  string     `json:"extraDescription"`
@@ -280,7 +281,7 @@ type SeasonItem struct {
 	ID       string  `json:"id"`
 	Sort     int     `json:"sort"`
 	Title    string  `json:"title"`
-	ImageURL string  `json:"imageUrl"`
+	ImageURL *string `json:"imageUrl"`
 	Season   *Season `json:"season"`
 }
 

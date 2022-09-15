@@ -32,6 +32,7 @@ SELECT
     e.season_id
 FROM episodes e
 WHERE e.season_id = ANY($1::int[])
+ORDER BY e.episode_number
 `
 
 type getEpisodeIDsForSeasonsRow struct {
@@ -75,6 +76,7 @@ WITH ts AS (SELECT episodes_id,
               GROUP BY episodes_id)
 SELECT e.id,
        e.legacy_id,
+       e.legacy_program_id,
        e.asset_id,
        e.episode_number,
        e.image_file_id,
@@ -88,11 +90,13 @@ FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
 WHERE id = ANY($1::int[])
+ORDER BY e.episode_number
 `
 
 type getEpisodesRow struct {
 	ID               int32                 `db:"id" json:"id"`
 	LegacyID         null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	LegacyProgramID  null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
 	AssetID          null_v4.Int           `db:"asset_id" json:"assetID"`
 	EpisodeNumber    null_v4.Int           `db:"episode_number" json:"episodeNumber"`
 	ImageFileID      uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
@@ -116,6 +120,7 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 		if err := rows.Scan(
 			&i.ID,
 			&i.LegacyID,
+			&i.LegacyProgramID,
 			&i.AssetID,
 			&i.EpisodeNumber,
 			&i.ImageFileID,
@@ -229,6 +234,7 @@ WITH ts AS (SELECT episodes_id,
               GROUP BY episodes_id)
 SELECT e.id,
        e.legacy_id,
+       e.legacy_program_id,
        e.asset_id,
        e.episode_number,
        e.image_file_id,
@@ -246,6 +252,7 @@ FROM episodes e
 type listEpisodesRow struct {
 	ID               int32                 `db:"id" json:"id"`
 	LegacyID         null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	LegacyProgramID  null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
 	AssetID          null_v4.Int           `db:"asset_id" json:"assetID"`
 	EpisodeNumber    null_v4.Int           `db:"episode_number" json:"episodeNumber"`
 	ImageFileID      uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
@@ -269,6 +276,7 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.LegacyID,
+			&i.LegacyProgramID,
 			&i.AssetID,
 			&i.EpisodeNumber,
 			&i.ImageFileID,

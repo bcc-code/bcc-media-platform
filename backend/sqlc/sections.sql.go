@@ -64,6 +64,7 @@ FROM sections s
 WHERE p.id = ANY ($1::int[])
   AND s.status = 'published'
   AND p.status = 'published'
+ORDER BY s.sort
 `
 
 type getSectionIDsForPagesRow struct {

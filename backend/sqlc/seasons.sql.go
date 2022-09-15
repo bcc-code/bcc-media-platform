@@ -111,7 +111,10 @@ func (q *Queries) getPermissionsForSeasons(ctx context.Context, dollar_1 []int32
 }
 
 const getSeasonIDsForShows = `-- name: getSeasonIDsForShows :many
-SELECT s.id, s.show_id FROM seasons s WHERE s.show_id = ANY ($1::int[])
+SELECT s.id, s.show_id
+FROM seasons s
+WHERE s.show_id = ANY ($1::int[])
+ORDER BY s.season_number
 `
 
 type getSeasonIDsForShowsRow struct {
@@ -144,10 +147,10 @@ func (q *Queries) getSeasonIDsForShows(ctx context.Context, dollar_1 []int32) ([
 
 const getSeasons = `-- name: getSeasons :many
 WITH ts AS (SELECT seasons_id,
-                  json_object_agg(languages_code, title)       AS title,
-                  json_object_agg(languages_code, description) AS description
-           FROM seasons_translations
-           GROUP BY seasons_id)
+                   json_object_agg(languages_code, title)       AS title,
+                   json_object_agg(languages_code, description) AS description
+            FROM seasons_translations
+            GROUP BY seasons_id)
 SELECT s.id,
        s.legacy_id,
        s.season_number,

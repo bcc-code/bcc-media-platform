@@ -31,10 +31,17 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		legacyID = &strID
 	}
 
+	var legacyProgramID *string
+	if e.LegacyProgramID.Valid {
+		strID := strconv.Itoa(int(e.LegacyProgramID.Int64))
+		legacyProgramID = &strID
+	}
+
 	episode := &Episode{
 		Chapters:         []*Chapter{}, // Currently not supported
 		ID:               strconv.Itoa(e.ID),
 		LegacyID:         legacyID,
+		LegacyProgramID:  legacyProgramID,
 		Title:            e.Title.Get(languages),
 		Description:      e.Description.Get(languages),
 		ExtraDescription: extraDescription,

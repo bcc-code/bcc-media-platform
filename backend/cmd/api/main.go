@@ -2,13 +2,10 @@ package main
 
 import (
 	"context"
-	"crypto/rsa"
 	"database/sql"
-	"github.com/gin-contrib/cors"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -22,11 +19,14 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/items/season"
 	"github.com/bcc-code/brunstadtv/backend/items/section"
 	"github.com/bcc-code/brunstadtv/backend/items/show"
+	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/search"
+	"github.com/bcc-code/brunstadtv/backend/signing"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
@@ -35,7 +35,7 @@ import (
 )
 
 // Defining the Graphql handler
-func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *sign.URLSigner, config envConfig) gin.HandlerFunc {
+func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
 
 	resolver := graph.Resolver{
 		Queries:       queries,
@@ -113,6 +113,12 @@ func main() {
 		return
 	}
 
+	urlSigner, err := signing.NewSigner(config.CDNConfig)
+	if err != nil {
+		log.L.Panic().Err(err).Msg("Unable to create URL signers")
+		return
+	}
+
 	db.SetMaxIdleConns(2)
 	// TODO: What makes sense here? We should gather some metrics over time
 	db.SetMaxOpenConns(10)
@@ -126,13 +132,6 @@ func main() {
 	queries := sqlc.New(db)
 
 	collectionLoader := common.NewBatchLoader(queries.GetCollections)
-	// Set up urlSigner for CDN urls access
-	var key *rsa.PrivateKey
-	key, err = sign.LoadPEMPrivKeyFile(config.CDNConfig.AWSSigningKeyPath)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Unable to load PEM file")
-	}
-	urlSigner := sign.NewURLSigner(config.CDNConfig.AWSSigningKeyID, key)
 
 	loaders := &common.BatchLoaders{
 		// Item
@@ -165,20 +164,29 @@ func main() {
 		QuestionsLoader:         common.NewRelationBatchLoader(queries.GetQuestionIDsForCategories),
 	}
 
+	authClient := auth0.New(config.Auth0)
+	membersClient := members.New(config.Members, func(ctx context.Context) string {
+		token, err := authClient.GetToken(ctx, config.Members.Domain)
+		if err != nil {
+			log.L.Panic().Err(err).Msg("Failed to retrieve token for members")
+		}
+		return token
+	})
+
 	log.L.Debug().Msg("Set up HTTP server")
 	r := gin.Default()
 	r.Use(utils.GinContextToContextMiddleware())
-	r.Use(otelgin.Middleware("api")) // OpenTelemetry
-	r.Use(auth0.JWT(ctx, config.JWTConfig))
-	r.Use(user.NewUserMiddleware(queries))
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
 		AllowMethods:     []string{"POST", "GET"},
 		AllowHeaders:     []string{"content-type", "authorization", "accept-language"},
 		AllowCredentials: true,
 	}))
+	r.Use(otelgin.Middleware("api")) // Open
+	r.Use(authClient.ValidateToken())
+	r.Use(user.NewUserMiddleware(queries, membersClient))
 
-	searchService := search.New(db, config.Algolia.AppId, config.Algolia.ApiKey)
+	searchService := search.New(db, config.Algolia)
 	r.POST("/query", graphqlHandler(queries, loaders, searchService, urlSigner, config))
 
 	r.GET("/", playgroundHandler())

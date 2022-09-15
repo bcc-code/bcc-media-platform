@@ -24,12 +24,9 @@ Run the following from this folder:
 
 *This WILL ***destroy*** your local DB*
 
-Note: Some statements here can throw errors (if roles exist). This is not an issue.
+Note: Some the script can throw errors (if roles exist). This is not an issue.
 Note 2: The script will appear to hang for a minute before erroring if there are other active connections to the DB!
 
 ```
-psql -h localhost -p 5432 -U btv < ./special/00-reset.sql
-goose postgres "user=builder dbname=btv port=5432 host=localhost sslmode=disable" up
-psql -h localhost -p 5432 -U btv btv < ./special/01-admin-user.sql
+make reset
 ```
-

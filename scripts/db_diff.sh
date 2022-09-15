@@ -80,7 +80,7 @@ if [ -z "${DOWN}" ]; then
 fi
 
 ## CREATE A NEW MIGRATION AND SAVE FILENAME
-MIGRATION=$(goose create "$MIGRATIONNAME" sql 2>&1 | sed --posix 's/.*: //')
+MIGRATION=$(goose create "$MIGRATIONNAME" sql 2>&1 | sed 's/.*: //')
 
 ## FILL THE MIGRATION FILE
 echo "-- +goose Up" > $MIGRATION

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/bcc-code/brunstadtv/backend/crowdin"
+	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/samber/lo"
 	"os"
 	"strconv"
@@ -20,19 +22,9 @@ type postgres struct {
 	ConnectionString string
 }
 
-type algolia struct {
-	AppId  string
-	ApiKey string
-}
-
 type directusConfig struct {
 	BaseURL string
 	Key     string
-}
-
-type crowdinConfig struct {
-	Token      string
-	ProjectIDs []int
 }
 
 type firebase struct {
@@ -45,8 +37,8 @@ type envConfig struct {
 	Port              string
 	DeleteIngestFiles bool
 	DB                postgres
-	Algolia           algolia
-	Crowdin           crowdinConfig
+	Algolia           search.Config
+	Crowdin           crowdin.Config
 	Firebase          firebase
 }
 
@@ -80,11 +72,11 @@ func getEnvConfig() envConfig {
 		DB: postgres{
 			ConnectionString: os.Getenv("DB_CONNECTION_STRING"),
 		},
-		Algolia: algolia{
-			AppId:  os.Getenv("ALGOLIA_APP_ID"),
-			ApiKey: os.Getenv("ALGOLIA_API_KEY"),
+		Algolia: search.Config{
+			AppID:  os.Getenv("ALGOLIA_APP_ID"),
+			APIKey: os.Getenv("ALGOLIA_API_KEY"),
 		},
-		Crowdin: crowdinConfig{
+		Crowdin: crowdin.Config{
 			Token:      os.Getenv("CROWDIN_TOKEN"),
 			ProjectIDs: crowdinProjectIDs,
 		},

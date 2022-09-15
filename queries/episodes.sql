@@ -11,6 +11,7 @@ WITH ts AS (SELECT episodes_id,
               GROUP BY episodes_id)
 SELECT e.id,
        e.legacy_id,
+       e.legacy_program_id,
        e.asset_id,
        e.episode_number,
        e.image_file_id,
@@ -37,6 +38,7 @@ WITH ts AS (SELECT episodes_id,
               GROUP BY episodes_id)
 SELECT e.id,
        e.legacy_id,
+       e.legacy_program_id,
        e.asset_id,
        e.episode_number,
        e.image_file_id,
@@ -49,14 +51,16 @@ SELECT e.id,
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
-WHERE id = ANY($1::int[]);
+WHERE id = ANY($1::int[])
+ORDER BY e.episode_number;
 
 -- name: getEpisodeIDsForSeasons :many
 SELECT
     e.id,
     e.season_id
 FROM episodes e
-WHERE e.season_id = ANY($1::int[]);
+WHERE e.season_id = ANY($1::int[])
+ORDER BY e.episode_number;
 
 -- name: getPermissionsForEpisodes :many
 WITH er AS (SELECT e.id,

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -145,9 +146,14 @@ func simpleEvent(projectID string, topicID string, event string) {
 
 func main() {
 	task := flag.String("task", "", "")
+	host := flag.String("host", "", "")
 	flag.Parse()
 	projectId := "btv-local"
 	topicId := "background-jobs"
+
+	if host != nil {
+		_ = os.Setenv("PUBSUB_EMULATOR_HOST", *host)
+	}
 
 	switch *task {
 	case "create":

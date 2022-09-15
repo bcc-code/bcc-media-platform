@@ -11,7 +11,7 @@
         >
             <SwiperSlide v-for="item in section.items.items">
                 <CardSectionItem
-                    class="cursor-pointer transition hover:-translate-y-1"
+                    class="cursor-pointer transition hover:-translate-y-1 mt-1"
                     :item="item"
                     @click="click(item)"
                 ></CardSectionItem>
@@ -23,7 +23,7 @@
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { Section, SectionItem as TSectionItem } from "./types"
 import { Navigation } from "swiper"
-import CardSectionItem from "./CardSectionItem.vue";
+import CardSectionItem from "./CardSectionItem.vue"
 
 defineProps<{
     section: Section
@@ -55,6 +55,6 @@ const breakpoints = {
         slidesPerView: 6,
         spaceBetween: 20,
         slidesPerGroup: 6,
-    }
+    },
 }
 </script>
