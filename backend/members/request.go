@@ -17,13 +17,13 @@ func sendRequest[t any](ctx context.Context, client *Client, req *http.Request) 
 		return nil, err
 	}
 
-	if 200 > res.StatusCode && res.StatusCode > 299 {
-		return nil, merry.New("error occured when trying to fetch data from members", merry.WithHTTPCode(res.StatusCode))
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if 200 > res.StatusCode || res.StatusCode > 299 {
+		return nil, merry.New("error occured when trying to fetch data from members", merry.WithHTTPCode(res.StatusCode), merry.WithMessage(string(body)))
 	}
 
 	var data result[t]
