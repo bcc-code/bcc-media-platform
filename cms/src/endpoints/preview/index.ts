@@ -60,7 +60,8 @@ const endpointConfig: EndpointConfig = {
 
                 res.send(result.data.data.preview.collection.items)
                 return
-            } catch {
+            } catch (e) {
+                console.log(e)
                 console.log("Couldn't fetch data from API")
             }
 

@@ -243,6 +243,7 @@ type Filter struct {
 	Filter          json.RawMessage
 	SortBy          string
 	SortByDirection string
+	Limit           *int
 }
 
 // CollectionItem is the definition of the CollectionItem object

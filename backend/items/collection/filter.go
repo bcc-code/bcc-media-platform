@@ -75,6 +75,11 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, collection string, f c
 
 	q := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("t.id").From(collection + " t").Where(query.Filter)
 
+	if f.Limit != nil && *f.Limit > 0 {
+		limit := *f.Limit
+		q = q.Limit(uint64(limit))
+	}
+
 	q = parseJoins(q, collection, query.Joins)
 
 	queryString, args, err := q.OrderBy(orderByString).ToSql()
