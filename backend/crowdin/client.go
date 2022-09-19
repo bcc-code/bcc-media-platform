@@ -423,7 +423,9 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 			lo.Filter(
 				items,
 				func(i *simpleTranslation, _ int) bool {
-					return i.Changed
+					return i.Changed && lo.SomeBy(sourceTranslations, func(t simpleTranslation) bool {
+						return t.ParentID == i.ParentID
+					})
 				},
 			),
 			func(i *simpleTranslation, _ int) simpleTranslation {
