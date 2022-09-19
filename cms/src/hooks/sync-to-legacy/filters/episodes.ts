@@ -174,8 +174,9 @@ async function updateOneEpisode(p, episodeKey, c) {
             let a = await oldKnex<EpisodeEntity>("Episode").where("Id", epBeforeUpdate.legacy_id).update(patch).returning("*")
 
         } else if (epBeforeUpdate.type === "standalone") {
-            let a = await oldKnex<ProgramEntity>("Program").where("Id", epBeforeUpdate.legacy_program_id).update(patch).returning("*")
-
+            let programPatch = patch as Partial<ProgramEntity>;
+            programPatch.AgeRatingCode = p.agerating_code
+            let a = await oldKnex<ProgramEntity>("Program").where("Id", epBeforeUpdate.legacy_program_id).update(programPatch).returning("*")
         }
     }
 }
