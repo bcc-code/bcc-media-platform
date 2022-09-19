@@ -91,7 +91,9 @@ async function createOneEpisode(p, c) {
         let legacyEpisode = await oldKnex<EpisodeEntity>("Episode").insert(patch).returning("*");
         p.legacy_id = legacyEpisode[0].Id;
     } else if (p.type === "standalone") {
-        let legacyProgram = await oldKnex<EpisodeEntity>("Program").insert(patch).returning("*");
+        let programPatch = patch as Partial<ProgramEntity>;
+        programPatch.AgeRatingCode = p.agerating_code;
+        let legacyProgram = await oldKnex<EpisodeEntity>("Program").insert(programPatch).returning("*");
         p.legacy_program_id = legacyProgram[0].Id;
     }
     return p;
@@ -175,7 +177,7 @@ async function updateOneEpisode(p, episodeKey, c) {
 
         } else if (epBeforeUpdate.type === "standalone") {
             let programPatch = patch as Partial<ProgramEntity>;
-            programPatch.AgeRatingCode = p.agerating_code
+            programPatch.AgeRatingCode = p.agerating_code;
             let a = await oldKnex<ProgramEntity>("Program").where("Id", epBeforeUpdate.legacy_program_id).update(programPatch).returning("*")
         }
     }
