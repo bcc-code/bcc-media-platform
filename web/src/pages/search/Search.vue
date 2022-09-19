@@ -1,10 +1,10 @@
 <template>
     <div>
-        <h1>Search</h1>
         <div class="flex">
-            <input v-model="query" class="bg-slate-800 p-2" type="text" placeholder="Search..." />
-
-            <div v-if="fetching">Fetching</div>
+            <div class="text-xl">
+                <input v-model="query" class="bg-slate-800 p-2 w-96" type="text" placeholder="Search..." />
+                <div v-if="fetching">Fetching</div>
+            </div>
         </div>
         <div class="grid grid-cols-4 gap-4">
             <SearchItem v-for="r in result" :item="r" :key="r.__typename + r.id"></SearchItem>
