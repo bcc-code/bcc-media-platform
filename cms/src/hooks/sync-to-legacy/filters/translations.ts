@@ -49,6 +49,11 @@ export async function createEpisodeTranslation(p: episodes.components["schemas"]
     if (!languageCode) {
         return
     }
+    if (!episode) {
+        const err = new Error("Episode not found: " + JSON.stringify(p))
+        console.error(err)
+        throw new Error("Episode not found")
+    }
 
     let oldLang = languages.find(l => l.CultureCode == languageCode)
     await upsertLS(oldKnex, episode.legacy_title_id, oldLang, p.title)
