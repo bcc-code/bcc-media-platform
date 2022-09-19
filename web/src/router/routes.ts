@@ -43,8 +43,8 @@ export default [
             {
                 name: "search",
                 path: "/search",
-                component: () => import("@/pages/search/Search.vue")
-            }
+                component: () => import("@/pages/search/Search.vue"),
+            },
         ],
     },
 ] as RouteRecordRaw[]

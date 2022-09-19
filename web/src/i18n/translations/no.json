@@ -1,5 +1,7 @@
 {
     "buttons": {
-        "save": "Lagre"
+        "save": "Lagre",
+        "login": "Logg inn",
+        "logout": "Logg ut"
     }
 }
