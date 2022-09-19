@@ -23,7 +23,7 @@ export default [
             {
                 name: "episode-page",
                 path: "episode/:episodeId",
-                component: () => import("@/pages/Episode.vue"),
+                component: () => import("@/pages/episode/Episode.vue"),
             },
             {
                 name: "season-page",
