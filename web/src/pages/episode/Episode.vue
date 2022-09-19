@@ -41,9 +41,9 @@
                     </div>
                 </div>
                 <div>
-                    <h3 class="text-sm text-primary">
+                    <h3 class="text-2xl text-primary">
                         {{ episode.season?.show.title }}
-                        <span>{{ episode.season?.title }}</span>
+                        <span class="ml-2 text-lg text-gray">{{ episode.season?.title }}</span>
                     </h3>
                     <h1 class="text-xl">{{ episode.title }}</h1>
                     <p>{{ episode.description }}</p>
