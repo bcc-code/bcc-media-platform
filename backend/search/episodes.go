@@ -56,6 +56,8 @@ func (service *Service) episodeToSearchItem(ctx context.Context, episode common.
 		SeasonID:    seasonID,
 		SeasonTitle: seasonTitle,
 		Type:        "episode",
+		AgeRating:   &episode.AgeRating,
+		Duration:    &episode.Duration,
 	}
 
 	err := item.assignTags(ctx, service.loaders, episode)

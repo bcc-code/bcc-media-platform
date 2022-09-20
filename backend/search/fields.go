@@ -24,6 +24,8 @@ const (
 	descriptionField   = "description"
 	titleField         = "title"
 	headerField        = "header"
+	durationField      = "duration"
+	ageRatingField     = "ageRating"
 	availableFromField = "availableFrom"
 	availableToField   = "availableTo"
 	showIDField        = "showID"
@@ -43,6 +45,8 @@ type searchItem struct {
 	Title         common.LocaleString
 	Description   common.LocaleString
 	Header        *string
+	AgeRating     *string
+	Duration      *int
 	AvailableFrom int
 	AvailableTo   int
 	ShowID        *int
@@ -87,6 +91,8 @@ func (i *searchItem) toSearchObject() searchObject {
 	object[typeField] = i.Type
 	object[rolesField] = i.Roles
 	object[tagsField] = i.Tags
+	object[durationField] = i.Duration
+	object[ageRatingField] = i.AgeRating
 	if i.Image != nil {
 		object[imageField] = i.Image
 	}
