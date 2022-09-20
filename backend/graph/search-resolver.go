@@ -66,6 +66,11 @@ func gqlSeasonFromSearchResultItem(i common.SearchResultItem) gqlmodel.SeasonSea
 		legacyID = &str
 	}
 
+	var ageRating = "A"
+	if i.AgeRating != nil {
+		ageRating = *i.AgeRating
+	}
+
 	return gqlmodel.SeasonSearchItem{
 		ID:          strconv.Itoa(i.ID),
 		LegacyID:    legacyID,
@@ -79,6 +84,7 @@ func gqlSeasonFromSearchResultItem(i common.SearchResultItem) gqlmodel.SeasonSea
 		Show:        show,
 		ShowID:      showID,
 		ShowTitle:   *i.Show,
+		AgeRating:   ageRating,
 	}
 }
 
@@ -108,6 +114,16 @@ func gqlEpisodeFromSearchResultItem(i common.SearchResultItem) gqlmodel.EpisodeS
 		legacyID = &str
 	}
 
+	var duration = 0
+	if i.Duration != nil {
+		duration = *i.Duration
+	}
+
+	var ageRating = "A"
+	if i.AgeRating != nil {
+		ageRating = *i.AgeRating
+	}
+
 	return gqlmodel.EpisodeSearchItem{
 		ID:          strconv.Itoa(i.ID),
 		LegacyID:    legacyID,
@@ -124,6 +140,8 @@ func gqlEpisodeFromSearchResultItem(i common.SearchResultItem) gqlmodel.EpisodeS
 		Season:      season,
 		SeasonID:    seasonID,
 		SeasonTitle: i.Season,
+		Duration:    duration,
+		AgeRating:   ageRating,
 	}
 }
 
