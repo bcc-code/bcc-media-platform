@@ -29,9 +29,10 @@ type Body struct {
 // ^^ Above is copy pasted from https://www.w3.org/TR/SMIL2/smil-content.html#edef-switch
 // Basically it's a wrapper saying everything in here is the same material in different formats
 type Switch struct {
-	XMLName xml.Name `xml:"switch"`
-	Videos  []Video  `xml:"video"`
-	Audios  []Audio  `xml:"audio"`
+	XMLName xml.Name     `xml:"switch"`
+	Videos  []Video      `xml:"video"`
+	Audios  []Audio      `xml:"audio"`
+	Subs    []Textstream `xml:"textstream"`
 }
 
 // Video source
@@ -48,6 +49,14 @@ type Audio struct {
 	XMLName xml.Name `xml:"audio"`
 	Src     string   `xml:"src,attr"`
 	Params  []Param  `xml:"param"`
+}
+
+// Textstream it the subtitle source
+type Textstream struct {
+	XMLName        xml.Name `xml:"textstream"`
+	Src            string   `xml:"src,attr"`
+	SystemLanguage string   `xml:"systemLanguage,attr"`
+	SubtitleName   string   `xml:"subtitleName,attr"`
 }
 
 // Param contains additional informaion for Audio, Video, Text such as

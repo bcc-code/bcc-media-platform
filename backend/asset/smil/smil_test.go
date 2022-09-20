@@ -29,7 +29,7 @@ func TestUnmarshall(t *testing.T) {
 			fmt.Println(err)
 		}
 
-		fmt.Println("Successfully Opened users.xml")
+		fmt.Println("Successfully Opened " + fileName)
 		// defer the closing of our xmlFile so that we can parse it later on
 		defer xmlFile.Close()
 

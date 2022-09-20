@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<smil xmlns="https://www.w3.org/2001/SMIL20/Language">
+	<head>
+		<meta name="formats" content="mp4" />
+	</head>
+	<body>
+		<switch>
+			<video src="DUMMY1_1280x720_3000.mp4" includeAudio="true" systemLanguage="ita,deu,fra" audioName="Italian" />
+			<video src="DUMMY1_1920x1080_5000.mp4" includeAudio="true" systemLanguage="nor,fin,swe" audioName="Norwegian" />
+			<video src="DUMMY1_1.mp4" includeAudio="false" systemLanguage="nor,fin,swe" audioName="Norwegian" />
+			<video src="DUMMY2_1.mp4" includeAudio="true" />
+			<textstream src="english.srt" systemLanguage="eng" subtitleName="English"/>
+			<textstream src="spanish.srt" systemLanguage="spa" subtitleName="Spanish"/>
+			<textstream src="french.srt" systemLanguage="fra" subtitleName="French"/>
+		</switch>
+	</body>
+</smil>

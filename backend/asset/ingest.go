@@ -231,6 +231,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	}
 
 	audioLanguages := []directus.AssetStreamLanguage{}
+	subLanguages := []directus.AssetStreamLanguage{}
 	assetfiles := []directus.AssetFile{}
 
 	// If we have a "smilFile" then we have defined streams
@@ -262,6 +263,25 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			}
 
 			audioLanguages = append(audioLanguages, GetLanguagesFromVideoElement(file)...)
+
+			filesToCopy[*coi.Key] = coi
+			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
+		}
+
+		for _, sub := range smil.Body.Switch.Subs {
+			target := path.Join(storagePrefix, "stream", path.Base(sub.Src))
+			src := path.Join(*config.GetIngestBucket(), assetMeta.BasePath, sub.Src)
+			coi := &s3.CopyObjectInput{
+				Bucket:     config.GetStorageBucket(),
+				Key:        aws.String(target),
+				CopySource: aws.String(src),
+			}
+
+			langCode := utils.LegacyLanguageCodeTo639_1(sub.SystemLanguage)
+			subLanguages = append(subLanguages, directus.AssetStreamLanguage{
+				LanguagesCode: directus.LanguagesCode{Code: langCode},
+				AssetStreamID: "+", // Directus requirement
+			})
 
 			filesToCopy[*coi.Key] = coi
 			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
@@ -351,7 +371,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 					Delete: []int{},
 				},
 				SubtitleLanguages: directus.CRUDArrays[directus.AssetStreamLanguage]{
-					Create: []directus.AssetStreamLanguage{},
+					Create: subLanguages,
 					Update: []directus.AssetStreamLanguage{},
 					Delete: []int{},
 				},
