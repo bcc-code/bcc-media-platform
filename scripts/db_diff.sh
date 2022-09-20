@@ -91,6 +91,21 @@ cat $DOWN | sed 's/CREATE FUNCTION/-- +goose StatementBegin\nCREATE FUNCTION/' |
 echo Cleanup
 rm -v $UP $DOWN
 
+goose fix
+cd $script_dir/../migrations
+NEW_MIGRATION_NO=$(find -maxdepth 1 -name *.sql | sort | tail -n1 | xargs basename | cut -d_ -f1)
+
+read -p "Do you want to fake application of the latest migration (${NEW_MIGRATION_NO}) locally? " -n 1 -r
+echo    # (optional) move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+	echo "Ok, adding entry."
+	psql -h localhost -U btv -c "INSERT INTO goose_db_version (version_id, is_applied, tstamp) VALUES (${NEW_MIGRATION_NO}, true, NOW());"
+else
+	echo "Skipping"
+fi
+
+
 echo "Note: If you have things like triggers you may need to add"
 echo "-- +goose statementStart"
 echo "-- +goose statmmentEnd"
