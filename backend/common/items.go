@@ -248,11 +248,11 @@ type Filter struct {
 
 // CollectionItem is the definition of the CollectionItem object
 type CollectionItem struct {
-	ID           int    `json:"id"`
-	Sort         int    `json:"sort"`
-	CollectionID int    `json:"collectionId"`
-	Type         string `json:"type"`
-	ItemID       int    `json:"itemId"`
+	ID           int      `json:"id"`
+	Sort         int      `json:"sort"`
+	CollectionID int      `json:"collectionId"`
+	Type         ItemType `json:"type"`
+	ItemID       int      `json:"itemId"`
 }
 
 // GetKey returns the key for this item

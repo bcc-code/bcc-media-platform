@@ -2,12 +2,12 @@ package graph
 
 import (
 	"context"
-	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"strconv"
 )
 
@@ -36,33 +36,37 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 
 	for _, e := range entries {
 		switch e.Type {
-		case "page":
+		case common.TypePage:
 			loaders.PagePermissionLoader.Load(ctx, e.ID)
-		case "show":
+		case common.TypeShow:
 			loaders.ShowPermissionLoader.Load(ctx, e.ID)
-		case "season":
+		case common.TypeSeason:
 			loaders.SeasonPermissionLoader.Load(ctx, e.ID)
-		case "episode":
+		case common.TypeEpisode:
 			loaders.EpisodePermissionLoader.Load(ctx, e.ID)
+		case common.TypeSection:
+			loaders.SectionPermissionLoader.Load(ctx, e.ID)
 		}
 	}
 
 	var returnEntries []collection.Entry
 	for _, e := range entries {
-		var err error
+		var success bool
 		switch e.Type {
-		case "page":
-			err = user.ValidateAccess(ctx, loaders.PagePermissionLoader, e.ID)
-		case "show":
-			err = user.ValidateAccess(ctx, loaders.ShowPermissionLoader, e.ID)
-		case "season":
-			err = user.ValidateAccess(ctx, loaders.SeasonPermissionLoader, e.ID)
-		case "episode":
-			err = user.ValidateAccess(ctx, loaders.EpisodePermissionLoader, e.ID)
+		case common.TypePage:
+			success = user.ValidateAccess(ctx, loaders.PagePermissionLoader, e.ID) == nil
+		case common.TypeShow:
+			success = user.ValidateAccess(ctx, loaders.ShowPermissionLoader, e.ID) == nil
+		case common.TypeSeason:
+			success = user.ValidateAccess(ctx, loaders.SeasonPermissionLoader, e.ID) == nil
+		case common.TypeEpisode:
+			success = user.ValidateAccess(ctx, loaders.EpisodePermissionLoader, e.ID) == nil
+		case common.TypeSection:
+			success = user.ValidateAccess(ctx, loaders.SectionPermissionLoader, e.ID) == nil
 		default:
-			err = merry.New(" collection not supported")
+			log.L.Error().Str("type", string(e.Type)).Msg("Invalid/unsupported entry type in collection")
 		}
-		if err == nil {
+		if success {
 			returnEntries = append(returnEntries, e)
 		}
 	}

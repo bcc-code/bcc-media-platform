@@ -70,14 +70,15 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 // Entry contains the ID and collection of a CollectionItem
 type Entry struct {
 	ID   int
-	Type string
+	Type common.ItemType
 	Sort int
 }
 
-func collectionToType(collection string) string {
+func collectionToType(collection string) common.ItemType {
 	switch collection {
+	// !!! Watch out for which collections you enter here, as this will only work for simple plurals
 	case "episodes", "pages", "shows", "seasons":
-		return strings.TrimSuffix(collection, "s")
+		return common.ItemType(strings.TrimSuffix(collection, "s"))
 	default:
 		return "unknown"
 	}
