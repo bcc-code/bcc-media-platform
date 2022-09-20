@@ -76,6 +76,7 @@ type Episode struct {
 	ID                string     `json:"id"`
 	LegacyID          *string    `json:"legacyID"`
 	LegacyProgramID   *string    `json:"legacyProgramID"`
+	AgeRating         string     `json:"ageRating"`
 	Title             string     `json:"title"`
 	Description       string     `json:"description"`
 	ExtraDescription  string     `json:"extraDescription"`
@@ -257,6 +258,7 @@ type SearchResult struct {
 type Season struct {
 	ID          string             `json:"id"`
 	LegacyID    *string            `json:"legacyID"`
+	AgeRating   string             `json:"ageRating"`
 	Title       string             `json:"title"`
 	Description string             `json:"description"`
 	ImageURL    *string            `json:"imageUrl"`

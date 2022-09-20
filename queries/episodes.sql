@@ -20,10 +20,14 @@ SELECT e.id,
        ts.title,
        ts.description,
        ts.extra_description,
-       tags.tags::int[] AS tag_ids
+       tags.tags::int[] AS tag_ids,
+       assets.duration as duration,
+       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
-         LEFT JOIN tags ON tags.episodes_id = e.id;
+         LEFT JOIN tags ON tags.episodes_id = e.id
+         LEFT JOIN assets ON e.asset_id = assets.id
+         LEFT JOIN seasons s ON e.season_id = s.id;
 
 -- name: getEpisodes :many
 WITH ts AS (SELECT episodes_id,
@@ -47,11 +51,15 @@ SELECT e.id,
        ts.title,
        ts.description,
        ts.extra_description,
-       tags.tags::int[] AS tag_ids
+       tags.tags::int[] AS tag_ids,
+       assets.duration as duration,
+       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
-WHERE id = ANY($1::int[])
+         LEFT JOIN assets ON e.asset_id = assets.id
+         LEFT JOIN seasons s ON e.season_id = s.id
+WHERE e.id = ANY($1::int[])
 ORDER BY e.episode_number;
 
 -- name: getEpisodeIDsForSeasons :many

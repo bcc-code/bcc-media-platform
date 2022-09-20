@@ -107,6 +107,7 @@ type ComplexityRoot struct {
 	}
 
 	Episode struct {
+		AgeRating         func(childComplexity int) int
 		AudioLanguages    func(childComplexity int) int
 		Chapters          func(childComplexity int) int
 		Description       func(childComplexity int) int
@@ -287,6 +288,7 @@ type ComplexityRoot struct {
 	}
 
 	Season struct {
+		AgeRating   func(childComplexity int) int
 		Description func(childComplexity int) int
 		Episodes    func(childComplexity int, first *int, offset *int) int
 		ID          func(childComplexity int) int
@@ -700,6 +702,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Config.Global(childComplexity, args["timestamp"].(*string)), true
+
+	case "Episode.ageRating":
+		if e.complexity.Episode.AgeRating == nil {
+			break
+		}
+
+		return e.complexity.Episode.AgeRating(childComplexity), true
 
 	case "Episode.audioLanguages":
 		if e.complexity.Episode.AudioLanguages == nil {
@@ -1594,6 +1603,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SearchResult.Result(childComplexity), true
+
+	case "Season.ageRating":
+		if e.complexity.Season.AgeRating == nil {
+			break
+		}
+
+		return e.complexity.Season.AgeRating(childComplexity), true
 
 	case "Season.description":
 		if e.complexity.Season.Description == nil {
@@ -2642,6 +2658,7 @@ type ShowPagination implements Pagination {
 type Season {
   id: ID!
   legacyID: ID
+  ageRating: String!
   title: String!
   description: String!
   imageUrl: String @goField(forceResolver: true)
@@ -2664,6 +2681,7 @@ type Episode {
   id: ID!
   legacyID: ID
   legacyProgramID: ID
+  ageRating: String!
   title: String!
   description: String!
   extraDescription: String!
@@ -4352,6 +4370,50 @@ func (ec *executionContext) fieldContext_Episode_legacyProgramID(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_ageRating(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_ageRating(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AgeRating, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_ageRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_title(ctx, field)
 	if err != nil {
@@ -4733,6 +4795,8 @@ func (ec *executionContext) fieldContext_Episode_season(ctx context.Context, fie
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
 			case "description":
@@ -5240,6 +5304,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -5489,6 +5555,8 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -5697,6 +5765,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -6372,6 +6442,8 @@ func (ec *executionContext) fieldContext_EpisodeSearchItem_season(ctx context.Co
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
 			case "description":
@@ -8861,6 +8933,8 @@ func (ec *executionContext) fieldContext_QueryRoot_season(ctx context.Context, f
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
 			case "description":
@@ -8936,6 +9010,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -10139,6 +10215,50 @@ func (ec *executionContext) fieldContext_Season_legacyID(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Season_ageRating(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Season) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Season_ageRating(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AgeRating, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Season_ageRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Season",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Season_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Season) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Season_title(ctx, field)
 	if err != nil {
@@ -10752,6 +10872,8 @@ func (ec *executionContext) fieldContext_SeasonCalendarEntry_season(ctx context.
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
 			case "description":
@@ -10987,6 +11109,8 @@ func (ec *executionContext) fieldContext_SeasonItem_season(ctx context.Context, 
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
 			case "description":
@@ -11181,6 +11305,8 @@ func (ec *executionContext) fieldContext_SeasonPagination_items(ctx context.Cont
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
 			case "description":
@@ -16873,6 +16999,13 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._Episode_legacyProgramID(ctx, field, obj)
 
+		case "ageRating":
+
+			out.Values[i] = ec._Episode_ageRating(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "title":
 
 			out.Values[i] = ec._Episode_title(ctx, field, obj)
@@ -18508,6 +18641,13 @@ func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Values[i] = ec._Season_legacyID(ctx, field, obj)
 
+		case "ageRating":
+
+			out.Values[i] = ec._Season_ageRating(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "title":
 
 			out.Values[i] = ec._Season_title(ctx, field, obj)

@@ -23,6 +23,7 @@ func mapToSeasons(seasons []getSeasonsRow) []common.Season {
 			Number:      int(e.SeasonNumber),
 			ImageID:     e.ImageFileID,
 			ShowID:      int(e.ShowID),
+			AgeRating:   e.Agerating,
 		}
 	})
 }

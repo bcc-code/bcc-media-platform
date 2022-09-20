@@ -85,11 +85,15 @@ SELECT e.id,
        ts.title,
        ts.description,
        ts.extra_description,
-       tags.tags::int[] AS tag_ids
+       tags.tags::int[] AS tag_ids,
+       assets.duration as duration,
+       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
-WHERE id = ANY($1::int[])
+         LEFT JOIN assets ON e.asset_id = assets.id
+         LEFT JOIN seasons s ON e.season_id = s.id
+WHERE e.id = ANY($1::int[])
 ORDER BY e.episode_number
 `
 
@@ -106,6 +110,8 @@ type getEpisodesRow struct {
 	Description      pqtype.NullRawMessage `db:"description" json:"description"`
 	ExtraDescription pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
 	TagIds           []int32               `db:"tag_ids" json:"tagIds"`
+	Duration         null_v4.Int           `db:"duration" json:"duration"`
+	Agerating        string                `db:"agerating" json:"agerating"`
 }
 
 func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpisodesRow, error) {
@@ -130,6 +136,8 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.Description,
 			&i.ExtraDescription,
 			pq.Array(&i.TagIds),
+			&i.Duration,
+			&i.Agerating,
 		); err != nil {
 			return nil, err
 		}
@@ -243,10 +251,14 @@ SELECT e.id,
        ts.title,
        ts.description,
        ts.extra_description,
-       tags.tags::int[] AS tag_ids
+       tags.tags::int[] AS tag_ids,
+       assets.duration as duration,
+       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
+         LEFT JOIN assets ON e.asset_id = assets.id
+         LEFT JOIN seasons s ON e.season_id = s.id
 `
 
 type listEpisodesRow struct {
@@ -262,6 +274,8 @@ type listEpisodesRow struct {
 	Description      pqtype.NullRawMessage `db:"description" json:"description"`
 	ExtraDescription pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
 	TagIds           []int32               `db:"tag_ids" json:"tagIds"`
+	Duration         null_v4.Int           `db:"duration" json:"duration"`
+	Agerating        string                `db:"agerating" json:"agerating"`
 }
 
 func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
@@ -286,6 +300,8 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 			&i.Description,
 			&i.ExtraDescription,
 			pq.Array(&i.TagIds),
+			&i.Duration,
+			&i.Agerating,
 		); err != nil {
 			return nil, err
 		}

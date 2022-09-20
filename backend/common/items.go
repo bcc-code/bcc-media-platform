@@ -78,6 +78,7 @@ type Season struct {
 	ID          int           `json:"id"`
 	LegacyID    null.Int      `json:"legacyId"`
 	Number      int           `json:"number"`
+	AgeRating   string        `json:"ageRating"`
 	Title       LocaleString  `json:"title"`
 	Description LocaleString  `json:"description"`
 	ShowID      int           `json:"showId"`
@@ -106,6 +107,8 @@ type Episode struct {
 	LegacyProgramID  null.Int      `json:"legacyProgramId"`
 	SeasonID         null.Int      `json:"seasonId"`
 	Number           null.Int      `json:"number"`
+	Duration         int           `json:"duration"`
+	AgeRating        string        `json:"ageRating"`
 	AssetID          null.Int      `json:"assetId"`
 	ImageID          uuid.NullUUID `json:"imageId"`
 	TagIDs           []int         `json:"tagIds"`

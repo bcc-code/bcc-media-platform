@@ -28,6 +28,8 @@ func mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			SeasonID:         e.SeasonID,
 			AssetID:          e.AssetID,
 			ImageID:          e.ImageFileID,
+			AgeRating:        e.Agerating,
+			Duration:         int(e.Duration.ValueOrZero()),
 			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
 				return int(id)
 			}),

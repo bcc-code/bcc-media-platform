@@ -30,6 +30,7 @@ func SeasonFrom(ctx context.Context, s *common.Season) *Season {
 		Description: s.Description.Get(languages),
 		Number:      s.Number,
 		Show:        &show,
+		AgeRating:   s.AgeRating,
 	}
 }
 

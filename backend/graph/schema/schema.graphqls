@@ -153,6 +153,7 @@ type ShowPagination implements Pagination {
 type Season {
   id: ID!
   legacyID: ID
+  ageRating: String!
   title: String!
   description: String!
   imageUrl: String @goField(forceResolver: true)
@@ -175,6 +176,7 @@ type Episode {
   id: ID!
   legacyID: ID
   legacyProgramID: ID
+  ageRating: String!
   title: String!
   description: String!
   extraDescription: String!
