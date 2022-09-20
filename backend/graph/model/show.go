@@ -29,12 +29,13 @@ func ShowFrom(ctx context.Context, s *common.Show) *Show {
 }
 
 // ShowItemFrom returns a ShowItem from a sql row
-func ShowItemFrom(ctx context.Context, s *common.Show) *ShowItem {
+func ShowItemFrom(ctx context.Context, s *common.Show, sort int) *ShowItem {
 	show := ShowFrom(ctx, s)
 
 	return &ShowItem{
 		ID:    show.ID,
 		Show:  show,
 		Title: show.Title,
+		Sort:  sort,
 	}
 }

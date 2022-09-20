@@ -76,7 +76,7 @@ func (q *Queries) GetItemsForCollections(ctx context.Context, ids []int) ([]comm
 			ID:           int(i.ID),
 			Sort:         int(i.Sort.ValueOrZero()),
 			CollectionID: int(i.CollectionID.Int64),
-			Type:         i.Type.ValueOrZero(),
+			Type:         common.ItemType(i.Type.ValueOrZero()),
 			ItemID:       int(itemID.ValueOrZero()),
 		}
 	}), nil
