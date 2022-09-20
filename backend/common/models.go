@@ -24,6 +24,8 @@ type SearchResult struct {
 type SearchResultItem struct {
 	ID          int     `json:"id"`
 	LegacyID    *int    `json:"legacyID"`
+	Duration    *int    `json:"duration"`
+	AgeRating   *string `json:"ageRating"`
 	Collection  string  `json:"collection"`
 	Title       string  `json:"title"`
 	Header      *string `json:"header"`

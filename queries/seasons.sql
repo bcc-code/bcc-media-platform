@@ -9,6 +9,7 @@ SELECT s.id,
        s.season_number,
        s.image_file_id,
        s.show_id,
+       COALESCE(s.agerating_code, 'A') as agerating,
        ts.title,
        ts.description
 FROM seasons s
@@ -25,6 +26,7 @@ SELECT s.id,
        s.season_number,
        s.image_file_id,
        s.show_id,
+       COALESCE(s.agerating_code, 'A') as agerating,
        ts.title,
        ts.description
 FROM seasons s

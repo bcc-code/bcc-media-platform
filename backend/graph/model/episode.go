@@ -46,6 +46,8 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		Description:      e.Description.Get(languages),
 		ExtraDescription: extraDescription,
 		Season:           season,
+		Duration:         e.Duration,
+		AgeRating:        e.AgeRating,
 	}
 
 	if e.Number.Valid {

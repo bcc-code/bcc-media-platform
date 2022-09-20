@@ -107,6 +107,7 @@ type ComplexityRoot struct {
 	}
 
 	Episode struct {
+		AgeRating         func(childComplexity int) int
 		AudioLanguages    func(childComplexity int) int
 		Chapters          func(childComplexity int) int
 		Description       func(childComplexity int) int
@@ -150,21 +151,24 @@ type ComplexityRoot struct {
 	}
 
 	EpisodeSearchItem struct {
-		Collection  func(childComplexity int) int
-		Description func(childComplexity int) int
-		Header      func(childComplexity int) int
-		Highlight   func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Image       func(childComplexity int) int
-		LegacyID    func(childComplexity int) int
-		Season      func(childComplexity int) int
-		SeasonID    func(childComplexity int) int
-		SeasonTitle func(childComplexity int) int
-		Show        func(childComplexity int) int
-		ShowID      func(childComplexity int) int
-		ShowTitle   func(childComplexity int) int
-		Title       func(childComplexity int) int
-		URL         func(childComplexity int) int
+		AgeRating       func(childComplexity int) int
+		Collection      func(childComplexity int) int
+		Description     func(childComplexity int) int
+		Duration        func(childComplexity int) int
+		Header          func(childComplexity int) int
+		Highlight       func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Image           func(childComplexity int) int
+		LegacyID        func(childComplexity int) int
+		LegacyProgramID func(childComplexity int) int
+		Season          func(childComplexity int) int
+		SeasonID        func(childComplexity int) int
+		SeasonTitle     func(childComplexity int) int
+		Show            func(childComplexity int) int
+		ShowID          func(childComplexity int) int
+		ShowTitle       func(childComplexity int) int
+		Title           func(childComplexity int) int
+		URL             func(childComplexity int) int
 	}
 
 	Event struct {
@@ -287,6 +291,7 @@ type ComplexityRoot struct {
 	}
 
 	Season struct {
+		AgeRating   func(childComplexity int) int
 		Description func(childComplexity int) int
 		Episodes    func(childComplexity int, first *int, offset *int) int
 		ID          func(childComplexity int) int
@@ -323,6 +328,7 @@ type ComplexityRoot struct {
 	}
 
 	SeasonSearchItem struct {
+		AgeRating   func(childComplexity int) int
 		Collection  func(childComplexity int) int
 		Description func(childComplexity int) int
 		Header      func(childComplexity int) int
@@ -701,6 +707,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Config.Global(childComplexity, args["timestamp"].(*string)), true
 
+	case "Episode.ageRating":
+		if e.complexity.Episode.AgeRating == nil {
+			break
+		}
+
+		return e.complexity.Episode.AgeRating(childComplexity), true
+
 	case "Episode.audioLanguages":
 		if e.complexity.Episode.AudioLanguages == nil {
 			break
@@ -918,6 +931,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.EpisodePagination.Total(childComplexity), true
 
+	case "EpisodeSearchItem.ageRating":
+		if e.complexity.EpisodeSearchItem.AgeRating == nil {
+			break
+		}
+
+		return e.complexity.EpisodeSearchItem.AgeRating(childComplexity), true
+
 	case "EpisodeSearchItem.collection":
 		if e.complexity.EpisodeSearchItem.Collection == nil {
 			break
@@ -931,6 +951,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.EpisodeSearchItem.Description(childComplexity), true
+
+	case "EpisodeSearchItem.duration":
+		if e.complexity.EpisodeSearchItem.Duration == nil {
+			break
+		}
+
+		return e.complexity.EpisodeSearchItem.Duration(childComplexity), true
 
 	case "EpisodeSearchItem.header":
 		if e.complexity.EpisodeSearchItem.Header == nil {
@@ -966,6 +993,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.EpisodeSearchItem.LegacyID(childComplexity), true
+
+	case "EpisodeSearchItem.legacyProgramID":
+		if e.complexity.EpisodeSearchItem.LegacyProgramID == nil {
+			break
+		}
+
+		return e.complexity.EpisodeSearchItem.LegacyProgramID(childComplexity), true
 
 	case "EpisodeSearchItem.season":
 		if e.complexity.EpisodeSearchItem.Season == nil {
@@ -1595,6 +1629,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SearchResult.Result(childComplexity), true
 
+	case "Season.ageRating":
+		if e.complexity.Season.AgeRating == nil {
+			break
+		}
+
+		return e.complexity.Season.AgeRating(childComplexity), true
+
 	case "Season.description":
 		if e.complexity.Season.Description == nil {
 			break
@@ -1767,6 +1808,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SeasonPagination.Total(childComplexity), true
+
+	case "SeasonSearchItem.ageRating":
+		if e.complexity.SeasonSearchItem.AgeRating == nil {
+			break
+		}
+
+		return e.complexity.SeasonSearchItem.AgeRating(childComplexity), true
 
 	case "SeasonSearchItem.collection":
 		if e.complexity.SeasonSearchItem.Collection == nil {
@@ -2642,6 +2690,7 @@ type ShowPagination implements Pagination {
 type Season {
   id: ID!
   legacyID: ID
+  ageRating: String!
   title: String!
   description: String!
   imageUrl: String @goField(forceResolver: true)
@@ -2664,6 +2713,7 @@ type Episode {
   id: ID!
   legacyID: ID
   legacyProgramID: ID
+  ageRating: String!
   title: String!
   description: String!
   extraDescription: String!
@@ -2730,69 +2780,6 @@ type User {
   roles: [String!]!
 }
 
-interface SearchResultItem {
-  id: ID!
-  legacyID: ID
-  collection: String!
-  title: String!
-  header: String
-  description: String
-  highlight: String
-  image: String
-  url: String!
-}
-
-type EpisodeSearchItem implements SearchResultItem {
-  id: ID!
-  legacyID: ID
-  collection: String!
-  title: String!
-  header: String
-  description: String
-  highlight: String
-  image: String
-  url: String!
-  showId: ID
-  showTitle: String
-  show: Show @goField(forceResolver: true)
-  seasonId: ID
-  seasonTitle: String
-  season: Season @goField(forceResolver: true)
-}
-
-type SeasonSearchItem implements SearchResultItem {
-  id: ID!
-  legacyID: ID
-  collection: String!
-  title: String!
-  header: String
-  description: String
-  highlight: String
-  image: String
-  url: String!
-  showId: ID!
-  showTitle: String!
-  show: Show! @goField(forceResolver: true)
-}
-
-type ShowSearchItem implements SearchResultItem {
-  id: ID!
-  legacyID: ID
-  collection: String!
-  title: String!
-  header: String
-  description: String
-  highlight: String
-  image: String
-  url: String!
-}
-
-type SearchResult {
-  hits: Int!
-  page: Int!
-  result: [SearchResultItem!]!
-}
-
 type QueryRoot{
   page(
     id: ID
@@ -2835,6 +2822,75 @@ type QueryRoot{
   me: User!
 
   config: Config!
+}
+`, BuiltIn: false},
+	{Name: "../schema/search.graphqls", Input: `
+
+interface SearchResultItem {
+    id: ID!
+    legacyID: ID
+    collection: String!
+    title: String!
+    header: String
+    description: String
+    highlight: String
+    image: String
+    url: String!
+}
+
+type EpisodeSearchItem implements SearchResultItem {
+    id: ID!
+    legacyID: ID
+    legacyProgramID: ID
+    duration: Int!
+    ageRating: String!
+    collection: String!
+    title: String!
+    header: String
+    description: String
+    highlight: String
+    image: String
+    url: String!
+    showId: ID
+    showTitle: String
+    show: Show @goField(forceResolver: true)
+    seasonId: ID
+    seasonTitle: String
+    season: Season @goField(forceResolver: true)
+}
+
+type SeasonSearchItem implements SearchResultItem {
+    id: ID!
+    legacyID: ID
+    ageRating: String!
+    collection: String!
+    title: String!
+    header: String
+    description: String
+    highlight: String
+    image: String
+    url: String!
+    showId: ID!
+    showTitle: String!
+    show: Show! @goField(forceResolver: true)
+}
+
+type ShowSearchItem implements SearchResultItem {
+    id: ID!
+    legacyID: ID
+    collection: String!
+    title: String!
+    header: String
+    description: String
+    highlight: String
+    image: String
+    url: String!
+}
+
+type SearchResult {
+    hits: Int!
+    page: Int!
+    result: [SearchResultItem!]!
 }
 `, BuiltIn: false},
 }
@@ -4352,6 +4408,50 @@ func (ec *executionContext) fieldContext_Episode_legacyProgramID(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_ageRating(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_ageRating(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AgeRating, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_ageRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_title(ctx, field)
 	if err != nil {
@@ -4733,6 +4833,8 @@ func (ec *executionContext) fieldContext_Episode_season(ctx context.Context, fie
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
 			case "description":
@@ -5240,6 +5342,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -5489,6 +5593,8 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -5697,6 +5803,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -5808,6 +5916,135 @@ func (ec *executionContext) fieldContext_EpisodeSearchItem_legacyID(ctx context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EpisodeSearchItem_legacyProgramID(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.EpisodeSearchItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EpisodeSearchItem_legacyProgramID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LegacyProgramID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EpisodeSearchItem_legacyProgramID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EpisodeSearchItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EpisodeSearchItem_duration(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.EpisodeSearchItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EpisodeSearchItem_duration(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Duration, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EpisodeSearchItem_duration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EpisodeSearchItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EpisodeSearchItem_ageRating(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.EpisodeSearchItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EpisodeSearchItem_ageRating(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AgeRating, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EpisodeSearchItem_ageRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EpisodeSearchItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6372,6 +6609,8 @@ func (ec *executionContext) fieldContext_EpisodeSearchItem_season(ctx context.Co
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
 			case "description":
@@ -8861,6 +9100,8 @@ func (ec *executionContext) fieldContext_QueryRoot_season(ctx context.Context, f
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
 			case "description":
@@ -8936,6 +9177,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -10139,6 +10382,50 @@ func (ec *executionContext) fieldContext_Season_legacyID(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Season_ageRating(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Season) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Season_ageRating(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AgeRating, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Season_ageRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Season",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Season_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Season) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Season_title(ctx, field)
 	if err != nil {
@@ -10752,6 +11039,8 @@ func (ec *executionContext) fieldContext_SeasonCalendarEntry_season(ctx context.
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
 			case "description":
@@ -10987,6 +11276,8 @@ func (ec *executionContext) fieldContext_SeasonItem_season(ctx context.Context, 
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
 			case "description":
@@ -11181,6 +11472,8 @@ func (ec *executionContext) fieldContext_SeasonPagination_items(ctx context.Cont
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
 			case "description":
@@ -11280,6 +11573,50 @@ func (ec *executionContext) fieldContext_SeasonSearchItem_legacyID(ctx context.C
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SeasonSearchItem_ageRating(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SeasonSearchItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SeasonSearchItem_ageRating(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AgeRating, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SeasonSearchItem_ageRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SeasonSearchItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -16873,6 +17210,13 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._Episode_legacyProgramID(ctx, field, obj)
 
+		case "ageRating":
+
+			out.Values[i] = ec._Episode_ageRating(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "title":
 
 			out.Values[i] = ec._Episode_title(ctx, field, obj)
@@ -17237,6 +17581,24 @@ func (ec *executionContext) _EpisodeSearchItem(ctx context.Context, sel ast.Sele
 
 			out.Values[i] = ec._EpisodeSearchItem_legacyID(ctx, field, obj)
 
+		case "legacyProgramID":
+
+			out.Values[i] = ec._EpisodeSearchItem_legacyProgramID(ctx, field, obj)
+
+		case "duration":
+
+			out.Values[i] = ec._EpisodeSearchItem_duration(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "ageRating":
+
+			out.Values[i] = ec._EpisodeSearchItem_ageRating(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "collection":
 
 			out.Values[i] = ec._EpisodeSearchItem_collection(ctx, field, obj)
@@ -18508,6 +18870,13 @@ func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Values[i] = ec._Season_legacyID(ctx, field, obj)
 
+		case "ageRating":
+
+			out.Values[i] = ec._Season_ageRating(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "title":
 
 			out.Values[i] = ec._Season_title(ctx, field, obj)
@@ -18823,6 +19192,13 @@ func (ec *executionContext) _SeasonSearchItem(ctx context.Context, sel ast.Selec
 
 			out.Values[i] = ec._SeasonSearchItem_legacyID(ctx, field, obj)
 
+		case "ageRating":
+
+			out.Values[i] = ec._SeasonSearchItem_ageRating(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "collection":
 
 			out.Values[i] = ec._SeasonSearchItem_collection(ctx, field, obj)

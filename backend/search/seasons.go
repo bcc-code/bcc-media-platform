@@ -27,6 +27,7 @@ func (service *Service) seasonToSearchItem(ctx context.Context, season common.Se
 		ShowID:      &season.ShowID,
 		ShowTitle:   &show.Title,
 		Type:        "season",
+		AgeRating:   &season.AgeRating,
 	}
 	return item, nil
 }

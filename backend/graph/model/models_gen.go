@@ -76,6 +76,7 @@ type Episode struct {
 	ID                string     `json:"id"`
 	LegacyID          *string    `json:"legacyID"`
 	LegacyProgramID   *string    `json:"legacyProgramID"`
+	AgeRating         string     `json:"ageRating"`
 	Title             string     `json:"title"`
 	Description       string     `json:"description"`
 	ExtraDescription  string     `json:"extraDescription"`
@@ -122,21 +123,24 @@ type EpisodePagination struct {
 func (EpisodePagination) IsPagination() {}
 
 type EpisodeSearchItem struct {
-	ID          string  `json:"id"`
-	LegacyID    *string `json:"legacyID"`
-	Collection  string  `json:"collection"`
-	Title       string  `json:"title"`
-	Header      *string `json:"header"`
-	Description *string `json:"description"`
-	Highlight   *string `json:"highlight"`
-	Image       *string `json:"image"`
-	URL         string  `json:"url"`
-	ShowID      *string `json:"showId"`
-	ShowTitle   *string `json:"showTitle"`
-	Show        *Show   `json:"show"`
-	SeasonID    *string `json:"seasonId"`
-	SeasonTitle *string `json:"seasonTitle"`
-	Season      *Season `json:"season"`
+	ID              string  `json:"id"`
+	LegacyID        *string `json:"legacyID"`
+	LegacyProgramID *string `json:"legacyProgramID"`
+	Duration        int     `json:"duration"`
+	AgeRating       string  `json:"ageRating"`
+	Collection      string  `json:"collection"`
+	Title           string  `json:"title"`
+	Header          *string `json:"header"`
+	Description     *string `json:"description"`
+	Highlight       *string `json:"highlight"`
+	Image           *string `json:"image"`
+	URL             string  `json:"url"`
+	ShowID          *string `json:"showId"`
+	ShowTitle       *string `json:"showTitle"`
+	Show            *Show   `json:"show"`
+	SeasonID        *string `json:"seasonId"`
+	SeasonTitle     *string `json:"seasonTitle"`
+	Season          *Season `json:"season"`
 }
 
 func (EpisodeSearchItem) IsSearchResultItem() {}
@@ -257,6 +261,7 @@ type SearchResult struct {
 type Season struct {
 	ID          string             `json:"id"`
 	LegacyID    *string            `json:"legacyID"`
+	AgeRating   string             `json:"ageRating"`
 	Title       string             `json:"title"`
 	Description string             `json:"description"`
 	ImageURL    *string            `json:"imageUrl"`
@@ -299,6 +304,7 @@ func (SeasonPagination) IsPagination() {}
 type SeasonSearchItem struct {
 	ID          string  `json:"id"`
 	LegacyID    *string `json:"legacyID"`
+	AgeRating   string  `json:"ageRating"`
 	Collection  string  `json:"collection"`
 	Title       string  `json:"title"`
 	Header      *string `json:"header"`
