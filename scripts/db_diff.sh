@@ -38,8 +38,6 @@ TEMPDB=btv2
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 cd $script_dir/../migrations
 
-OLD_MIGRATION_NO=$(find -maxdepth 1 -name *.sql | tail -n1 | xargs basename | cut -d_ -f1)
-
 ## Include PGPASSWORD if not set
 if [ -z "${PGPASSWORD:-}" ] && [ -f "$script_dir/../.env" ]; then
 	set -o allexport
