@@ -1,0 +1,27 @@
+query getEpisode($episodeId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {
+    episode(id: $episodeId) {
+        id
+        title
+        description
+        imageUrl
+        number
+        season {
+            id
+            title
+            imageUrl
+            number
+            episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
+                total
+                items {
+                    id
+                    number
+                    title
+                }
+            }
+            show {
+                id
+                title
+            }
+        }
+    }
+}

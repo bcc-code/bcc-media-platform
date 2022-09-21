@@ -2,8 +2,8 @@
     <div class="relative invisible md:visible p-4">
         <div class="absolute right-4 flex">
             <div class="flex ml-auto my-auto gap-4">
-                <router-link :to="{name: 'search'}">Search</router-link>
-                <LoginButton>Logout</LoginButton>
+                <router-link :to="{ name: 'search' }">Search</router-link>
+                <LoginButton></LoginButton>
                 <VSelect v-model="selected" :data="languages">Language</VSelect>
             </div>
         </div>
@@ -15,11 +15,15 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { computed, ref } from "vue"
+import i18n, { loadLocaleMessages, setLanguage } from "@/i18n"
+import settings from "@/services/settings"
+import { computed, ref, watch } from "vue"
+import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import LoginButton from "../user/LoginButton.vue"
 import VSelect from "../VSelect.vue"
-import VButton from "../VButton.vue";
+
+const { t } = useI18n()
 
 const router = useRouter()
 
@@ -46,12 +50,26 @@ const languages = computed(() => {
             type: "language",
         })
         return _languages.map((i) => ({
-            code: i.title,
+            code: i.code,
             title: languageNames.of(i.code) ?? "unknown",
         }))
     }
     return _languages
 })
 
-const selected = ref(languages.value[0])
+const selected = ref(
+    languages.value.find((i) => i.code === settings.locale) ?? {
+        title: "English",
+        code: "en",
+    }
+)
+
+watch(
+    () => selected.value,
+    async () => {
+        await loadLocaleMessages(i18n, selected.value.code)
+        setLanguage(i18n, selected.value.code)
+        settings.locale = selected.value.code
+    }
+)
 </script>
