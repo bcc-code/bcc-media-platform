@@ -135,9 +135,9 @@ blocks:
         - name: build
           commands:
             - sem-version node 16
+            - checkout
             - cache restore
             - npm i -g pnpm
-            - checkout
             - cd ./web
             - pnpm i
             - pnpm build --mode dev
