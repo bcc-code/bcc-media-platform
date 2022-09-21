@@ -90,23 +90,6 @@ blocks:
         - name: GoogleSemaphoreServiceAccount
     dependencies:
       - Test
-  - name: Web
-    run:
-      when: change_in('/web/')
-    task:
-      prologue:
-        commands:
-          - sem-version node 16
-          - checkout
-          - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
-          - npm i -g pnpm
-      jobs:
-        - name: Deploy
-          commands:
-            - cd ./web
-            - pnpm build --mode ${ENV}
-      secrets:
-        - name: GoogleSemaphoreServiceAccount
   - name: Generate Deploy File
     dependencies:
       - Build
