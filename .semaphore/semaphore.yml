@@ -141,16 +141,7 @@ blocks:
             - cd ./web
             - cache restore
             - npm i -g pnpm
-            - pnpm i
-            - pnpm build --mode dev
-            - mv build build-dev
-            - artifact push workflow build-dev
-            - pnpm build --mode sta
-            - mv build build-sta
-            - artifact push workflow build-sta
-            - pnpm build --mode prod
-            - mv build build-prod
-            - artifact push workflow build-prod
+            - ../scripts/generate-web-builds.sh
       epilogue:
         on_pass:
           commands:
