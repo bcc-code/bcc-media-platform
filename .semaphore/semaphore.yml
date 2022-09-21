@@ -138,6 +138,7 @@ blocks:
             - npm i -g pnpm
             - checkout
             - cd ./web
+            - cache restore
             - pnpm build --mode dev
             - mv build build-dev
             - artifact push workflow build-dev
@@ -147,6 +148,10 @@ blocks:
             - pnpm build --mode prod
             - mv build build-prod
             - artifact push workflow build-prod
+      epilogue:
+        on_pass:
+          commands:
+            - cache store
 promotions:
   - name: Deploy to DEV
     pipeline_file: deploy-dev.yml
