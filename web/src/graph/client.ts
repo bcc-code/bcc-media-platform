@@ -8,6 +8,7 @@ import {
 import { authExchange } from "@urql/exchange-auth"
 import { makeOperation } from "@urql/vue"
 import Auth from "../services/auth"
+import settings from "@/services/settings"
 
 type AuthState = {
     token: string
@@ -16,6 +17,13 @@ type AuthState = {
 export default createClient({
     url: config.api.url,
     maskTypename: false,
+    fetchOptions: () => {
+        return {
+            headers: {
+                "Accept-Language": settings.locale,
+            },
+        }
+    },
     exchanges: [
         dedupExchange,
         cacheExchange,

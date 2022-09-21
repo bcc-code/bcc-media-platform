@@ -19,5 +19,5 @@ init:
 
 diff:
 	./scripts/db_diff.sh $(name)
-	cd ./migrations && goose fix
+	cd ./migrations
 	cd ./backend && make ./sqlc/.generated

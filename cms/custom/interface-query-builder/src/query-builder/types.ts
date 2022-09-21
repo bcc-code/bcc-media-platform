@@ -50,4 +50,5 @@ export type Root = {
 	filter: Group | null;
 	sortBy: string | null;
 	sortByDirection: "asc" | "desc" | null;
+	limit: number | null;
 }

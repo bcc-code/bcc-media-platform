@@ -46,6 +46,8 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		Description:      e.Description.Get(languages),
 		ExtraDescription: extraDescription,
 		Season:           season,
+		Duration:         e.Duration,
+		AgeRating:        e.AgeRating,
 	}
 
 	if e.Number.Valid {
@@ -57,12 +59,13 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 }
 
 // EpisodeItemFrom converts a common.Episode into a GQL Episode Item
-func EpisodeItemFrom(ctx context.Context, e *common.Episode) *EpisodeItem {
+func EpisodeItemFrom(ctx context.Context, e *common.Episode, sort int) *EpisodeItem {
 	episode := EpisodeFrom(ctx, e)
 
 	return &EpisodeItem{
 		ID:      episode.ID,
 		Title:   episode.Title,
 		Episode: episode,
+		Sort:    sort,
 	}
 }

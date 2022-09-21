@@ -1,10 +1,10 @@
 <template>
 	<div v-if="group">
         <h1>Filter</h1>
-		<Group 
+		<Group
             style="margin-left: 10px"
 			:value="group"
-			:fields="fields" 
+			:fields="fields"
 			@delete="group = null"
             @update:value="(f) => group = f"
             @change="handleChange"
@@ -25,6 +25,11 @@
                 <option value="desc">Descending</option>
 			</select>
 		</div>
+        <hr class="separator" />
+        <h1>Limit</h1>
+        <div class="limit">
+            <input v-model="limit" @change="handleChange" type="number" />
+        </div>
 	</div>
 	<div v-else>
 		<v-button @click="clearGroup()">Create filter</v-button>
@@ -49,6 +54,7 @@ const fields = ref(await props.fieldFactory() as TField[]);
 const group = ref(props.value?.filter ?? null);
 const sortBy = ref(props.value?.sortBy ?? null);
 const sortByDirection = ref(props.value?.sortByDirection ?? null)
+const limit = ref(props.value?.limit ?? null);
 
 function handleChange(): void {
     emit('update:value', {
@@ -56,6 +62,7 @@ function handleChange(): void {
         filter: group.value,
         sortBy: sortBy.value,
         sortByDirection: sortByDirection.value,
+        limit: limit.value,
     })
 }
 

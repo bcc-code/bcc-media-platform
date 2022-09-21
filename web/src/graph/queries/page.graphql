@@ -40,10 +40,10 @@ fragment Section on ItemSection {
             title
             imageUrl
             sort
-            ... EpisodeItem
-            ... SeasonItem
-            ... ShowItem
-            ... PageItem
+            ...EpisodeItem
+            ...SeasonItem
+            ...ShowItem
+            ...PageItem
         }
     }
 }
@@ -56,7 +56,7 @@ query getPage($code: String!) {
             items {
                 id
                 title
-                ... Section
+                ...Section
             }
         }
     }

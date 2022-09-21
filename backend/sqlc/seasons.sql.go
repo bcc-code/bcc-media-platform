@@ -156,6 +156,7 @@ SELECT s.id,
        s.season_number,
        s.image_file_id,
        s.show_id,
+       COALESCE(s.agerating_code, 'A') as agerating,
        ts.title,
        ts.description
 FROM seasons s
@@ -169,6 +170,7 @@ type getSeasonsRow struct {
 	SeasonNumber int32           `db:"season_number" json:"seasonNumber"`
 	ImageFileID  uuid.NullUUID   `db:"image_file_id" json:"imageFileID"`
 	ShowID       int32           `db:"show_id" json:"showID"`
+	Agerating    string          `db:"agerating" json:"agerating"`
 	Title        json.RawMessage `db:"title" json:"title"`
 	Description  json.RawMessage `db:"description" json:"description"`
 }
@@ -188,6 +190,7 @@ func (q *Queries) getSeasons(ctx context.Context, dollar_1 []int32) ([]getSeason
 			&i.SeasonNumber,
 			&i.ImageFileID,
 			&i.ShowID,
+			&i.Agerating,
 			&i.Title,
 			&i.Description,
 		); err != nil {
@@ -215,6 +218,7 @@ SELECT s.id,
        s.season_number,
        s.image_file_id,
        s.show_id,
+       COALESCE(s.agerating_code, 'A') as agerating,
        ts.title,
        ts.description
 FROM seasons s
@@ -227,6 +231,7 @@ type listSeasonsRow struct {
 	SeasonNumber int32           `db:"season_number" json:"seasonNumber"`
 	ImageFileID  uuid.NullUUID   `db:"image_file_id" json:"imageFileID"`
 	ShowID       int32           `db:"show_id" json:"showID"`
+	Agerating    string          `db:"agerating" json:"agerating"`
 	Title        json.RawMessage `db:"title" json:"title"`
 	Description  json.RawMessage `db:"description" json:"description"`
 }
@@ -246,6 +251,7 @@ func (q *Queries) listSeasons(ctx context.Context) ([]listSeasonsRow, error) {
 			&i.SeasonNumber,
 			&i.ImageFileID,
 			&i.ShowID,
+			&i.Agerating,
 			&i.Title,
 			&i.Description,
 		); err != nil {
