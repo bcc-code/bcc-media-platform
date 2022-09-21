@@ -40,8 +40,6 @@ blocks:
         - name: GoogleSemaphoreServiceAccount
       prologue:
         commands:
-          - sem-version node 16
-          - npm i -g pnpm
           - sudo apt-get update
           - sudo apt-get --only-upgrade install google-cloud-sdk
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
