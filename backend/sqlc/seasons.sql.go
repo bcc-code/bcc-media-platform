@@ -154,13 +154,14 @@ WITH ts AS (SELECT seasons_id,
 SELECT s.id,
        s.legacy_id,
        s.season_number,
-       s.image_file_id,
+       COALESCE(s.image_file_id, sh.image_file_id)::uuid as image_file_id,
        s.show_id,
        COALESCE(s.agerating_code, 'A') as agerating,
        ts.title,
        ts.description
 FROM seasons s
          JOIN ts ON s.id = ts.seasons_id
+         JOIN shows sh ON s.show_id = sh.id
 WHERE s.id = ANY ($1::int[])
 `
 
@@ -168,7 +169,7 @@ type getSeasonsRow struct {
 	ID           int32           `db:"id" json:"id"`
 	LegacyID     null_v4.Int     `db:"legacy_id" json:"legacyID"`
 	SeasonNumber int32           `db:"season_number" json:"seasonNumber"`
-	ImageFileID  uuid.NullUUID   `db:"image_file_id" json:"imageFileID"`
+	ImageFileID  uuid.UUID       `db:"image_file_id" json:"imageFileID"`
 	ShowID       int32           `db:"show_id" json:"showID"`
 	Agerating    string          `db:"agerating" json:"agerating"`
 	Title        json.RawMessage `db:"title" json:"title"`
@@ -216,20 +217,21 @@ WITH ts AS (SELECT seasons_id,
 SELECT s.id,
        s.legacy_id,
        s.season_number,
-       s.image_file_id,
+       COALESCE(s.image_file_id, sh.image_file_id)::uuid as image_file_id,
        s.show_id,
        COALESCE(s.agerating_code, 'A') as agerating,
        ts.title,
        ts.description
 FROM seasons s
          JOIN ts ON s.id = ts.seasons_id
+         JOIN shows sh ON s.show_id = sh.id
 `
 
 type listSeasonsRow struct {
 	ID           int32           `db:"id" json:"id"`
 	LegacyID     null_v4.Int     `db:"legacy_id" json:"legacyID"`
 	SeasonNumber int32           `db:"season_number" json:"seasonNumber"`
-	ImageFileID  uuid.NullUUID   `db:"image_file_id" json:"imageFileID"`
+	ImageFileID  uuid.UUID       `db:"image_file_id" json:"imageFileID"`
 	ShowID       int32           `db:"show_id" json:"showID"`
 	Agerating    string          `db:"agerating" json:"agerating"`
 	Title        json.RawMessage `db:"title" json:"title"`

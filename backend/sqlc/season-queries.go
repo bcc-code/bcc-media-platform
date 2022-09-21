@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
@@ -21,9 +22,12 @@ func mapToSeasons(seasons []getSeasonsRow) []common.Season {
 			Title:       title,
 			Description: description,
 			Number:      int(e.SeasonNumber),
-			ImageID:     e.ImageFileID,
-			ShowID:      int(e.ShowID),
-			AgeRating:   e.Agerating,
+			ImageID: uuid.NullUUID{
+				UUID:  e.ImageFileID,
+				Valid: e.ImageFileID != uuid.Nil,
+			},
+			ShowID:    int(e.ShowID),
+			AgeRating: e.Agerating,
 		}
 	})
 }
