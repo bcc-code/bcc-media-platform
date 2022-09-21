@@ -21,7 +21,7 @@ export default createClient({
         return {
             headers: {
                 "Accept-Language": settings.locale,
-            }
+            },
         }
     },
     exchanges: [

@@ -15,15 +15,15 @@
     </div>
 </template>
 <script lang="ts" setup>
-import i18n, { loadLocaleMessages, setLanguage } from "@/i18n";
-import settings from "@/services/settings";
+import i18n, { loadLocaleMessages, setLanguage } from "@/i18n"
+import settings from "@/services/settings"
 import { computed, ref, watch } from "vue"
-import { useI18n } from "vue-i18n";
+import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import LoginButton from "../user/LoginButton.vue"
 import VSelect from "../VSelect.vue"
 
-const { t } = useI18n();
+const { t } = useI18n()
 
 const router = useRouter()
 
@@ -57,11 +57,19 @@ const languages = computed(() => {
     return _languages
 })
 
-const selected = ref(languages.value.find(i => i.code === settings.locale) ?? {title: "English", code: "en"})
+const selected = ref(
+    languages.value.find((i) => i.code === settings.locale) ?? {
+        title: "English",
+        code: "en",
+    }
+)
 
-watch(() => selected.value, async () => {
-    await loadLocaleMessages(i18n, selected.value.code)
-    setLanguage(i18n, selected.value.code)
-    settings.locale = selected.value.code
-})
+watch(
+    () => selected.value,
+    async () => {
+        await loadLocaleMessages(i18n, selected.value.code)
+        setLanguage(i18n, selected.value.code)
+        settings.locale = selected.value.code
+    }
+)
 </script>
