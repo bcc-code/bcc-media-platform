@@ -33,7 +33,7 @@ blocks:
         - name: deploy
           commands:
             - checkout
-            - ./scripts/web.sh dev
+            - ./scripts/deploy-web.sh dev
       secrets:
         - name: GoogleSemaphoreServiceAccount
       prologue:
