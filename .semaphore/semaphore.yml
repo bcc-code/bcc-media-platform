@@ -141,7 +141,8 @@ blocks:
             - cd ./web
             - cache restore
             - npm i -g pnpm
-            - ../scripts/generate-web-builds.sh
+            - cd ..
+            - ./scripts/generate-web-builds.sh
       epilogue:
         on_pass:
           commands:

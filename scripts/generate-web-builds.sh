@@ -1,4 +1,6 @@
 
+cd ./web
+
 pnpm i
 
 pnpm build --mode dev
