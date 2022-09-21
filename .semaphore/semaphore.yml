@@ -135,10 +135,11 @@ blocks:
         - name: build
           commands:
             - sem-version node 16
+            - cache restore
             - npm i -g pnpm
             - checkout
             - cd ./web
-            - cache restore
+            - pnpm i
             - pnpm build --mode dev
             - mv build build-dev
             - artifact push workflow build-dev
