@@ -3,6 +3,7 @@ set -Eeuo pipefail
 
 ENV=$1
 
+# Retrieve the build folder
 artifact pull workflow build-$ENV
 
 # Upload objects to the bucket root
