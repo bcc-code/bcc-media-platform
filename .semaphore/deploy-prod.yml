@@ -27,3 +27,19 @@ blocks:
           - sudo apt-get update
           - sudo apt-get --only-upgrade install google-cloud-sdk
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
+  - name: Web
+    run:
+      when: change_in('/web/')
+    task:
+      jobs:
+        - name: deploy
+          commands:
+            - checkout
+            - ./scripts/deploy-web.sh prod
+      secrets:
+        - name: GoogleSemaphoreServiceAccount
+      prologue:
+        commands:
+          - sudo apt-get update
+          - sudo apt-get --only-upgrade install google-cloud-sdk
+          - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
