@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"database/sql"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	cache "github.com/Code-Hex/go-generics-cache"
+	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -30,9 +31,14 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
+	"strings"
+	"time"
 )
+
+var generalCache = cache.New[string, any]()
 
 // Defining the Graphql handler
 func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
@@ -95,6 +101,22 @@ func playgroundHandler() gin.HandlerFunc {
 	}
 }
 
+func getApplications(ctx context.Context, queries *sqlc.Queries) []common.Application {
+	var key = "applications"
+	cached, ok := generalCache.Get(key)
+	if ok {
+		return cached.([]common.Application)
+	} else {
+		apps, err := queries.ListApplications(ctx)
+		if err != nil {
+			panic(err)
+		}
+		// Cache with expiration in case the container lives too long
+		generalCache.Set(key, apps, cache.WithExpiration(time.Minute*5))
+		return apps
+	}
+}
+
 func main() {
 	ctx := context.Background()
 
@@ -134,6 +156,9 @@ func main() {
 	collectionLoader := common.NewBatchLoader(queries.GetCollections)
 
 	loaders := &common.BatchLoaders{
+		// App
+		ApplicationLoader:           common.NewBatchLoader(queries.GetApplications),
+		ApplicationIDFromCodeLoader: common.NewConversionBatchLoader(queries.GetApplicationIDsForCodes),
 		// Item
 		PageLoader:              common.NewBatchLoader(queries.GetPages),
 		PageIDFromCodeLoader:    common.NewConversionBatchLoader(queries.GetPageIDsForCodes),
@@ -185,6 +210,24 @@ func main() {
 	r.Use(otelgin.Middleware("api")) // Open
 	r.Use(authClient.ValidateToken())
 	r.Use(user.NewUserMiddleware(queries, membersClient))
+
+	r.Use(applications.RoleMiddleware(func(ctx context.Context, code string) *common.Application {
+		apps := getApplications(ctx, queries)
+
+		app, found := lo.Find(apps, func(i common.Application) bool {
+			return i.Code == strings.ToLower(strings.TrimSpace(code))
+		})
+		if found {
+			return &app
+		}
+		app, found = lo.Find(apps, func(i common.Application) bool {
+			return i.Default
+		})
+		if found {
+			return &app
+		}
+		return nil
+	}))
 
 	searchService := search.New(db, config.Algolia)
 	r.POST("/query", graphqlHandler(queries, loaders, searchService, urlSigner, config))
