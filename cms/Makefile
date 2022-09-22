@@ -14,7 +14,7 @@ build:
 
 init:
 	make install
-	mnake build
+	make build
 	cd ./custom && make init
 
 reset:
