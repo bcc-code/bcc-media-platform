@@ -31,7 +31,7 @@ COMMENT ON TABLE "public"."sectionstyles"  IS NULL;
 
 --- BEGIN SYNCHRONIZE TABLE
 
-INSERT INTO "public"."sectionstyles" (code) VALUES ('featured'), ('slider'), ('cards');
+INSERT INTO "public"."sectionstyles" (code) VALUES ('featured'), ('slider'), ('carousel'), ('cards');
 
 --- BEGIN ALTER TABLE "public"."sections" ---
 
