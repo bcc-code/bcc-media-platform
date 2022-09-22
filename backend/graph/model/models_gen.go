@@ -28,10 +28,6 @@ type Section interface {
 	IsSection()
 }
 
-type AppConfig struct {
-	MinVersion string `json:"minVersion"`
-}
-
 type Application struct {
 	ID            string `json:"id"`
 	Code          string `json:"code"`
@@ -76,7 +72,6 @@ func (CollectionItemPagination) IsPagination() {}
 
 type Config struct {
 	Global *GlobalConfig `json:"global"`
-	App    *AppConfig    `json:"app"`
 }
 
 type Episode struct {

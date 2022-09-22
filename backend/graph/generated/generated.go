@@ -65,10 +65,6 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	AppConfig struct {
-		MinVersion func(childComplexity int) int
-	}
-
 	Application struct {
 		ClientVersion func(childComplexity int) int
 		Code          func(childComplexity int) int
@@ -110,7 +106,6 @@ type ComplexityRoot struct {
 	}
 
 	Config struct {
-		App    func(childComplexity int, timestamp *string) int
 		Global func(childComplexity int, timestamp *string) int
 	}
 
@@ -460,7 +455,6 @@ type CollectionResolver interface {
 }
 type ConfigResolver interface {
 	Global(ctx context.Context, obj *gqlmodel.Config, timestamp *string) (*gqlmodel.GlobalConfig, error)
-	App(ctx context.Context, obj *gqlmodel.Config, timestamp *string) (*gqlmodel.AppConfig, error)
 }
 type EpisodeResolver interface {
 	ImageURL(ctx context.Context, obj *gqlmodel.Episode) (*string, error)
@@ -568,13 +562,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
-
-	case "AppConfig.minVersion":
-		if e.complexity.AppConfig.MinVersion == nil {
-			break
-		}
-
-		return e.complexity.AppConfig.MinVersion(childComplexity), true
 
 	case "Application.clientVersion":
 		if e.complexity.Application.ClientVersion == nil {
@@ -723,18 +710,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CollectionItemPagination.Total(childComplexity), true
-
-	case "Config.app":
-		if e.complexity.Config.App == nil {
-			break
-		}
-
-		args, err := ec.field_Config_app_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Config.App(childComplexity, args["timestamp"].(*string)), true
 
 	case "Config.global":
 		if e.complexity.Config.Global == nil {
@@ -2525,12 +2500,12 @@ type Calendar {
 	{Name: "../schema/config.graphqls", Input: `
 type Config {
     global(timestamp: String): GlobalConfig! @goField(forceResolver: true)
-    app(timestamp: String): AppConfig! @goField(forceResolver: true)
+#    app(timestamp: String): AppConfig! @goField(forceResolver: true)
 }
 
-type AppConfig {
-    minVersion: String!
-}
+#type AppConfig {
+#    minVersion: String!
+#}
 
 type GlobalConfig {
     liveOnline: Boolean!
@@ -3020,21 +2995,6 @@ func (ec *executionContext) field_Collection_items_args(ctx context.Context, raw
 	return args, nil
 }
 
-func (ec *executionContext) field_Config_app_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := rawArgs["timestamp"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
-		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["timestamp"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Config_global_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3438,50 +3398,6 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
-
-func (ec *executionContext) _AppConfig_minVersion(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AppConfig) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppConfig_minVersion(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MinVersion, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppConfig_minVersion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppConfig",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
 
 func (ec *executionContext) _Application_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Application) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Application_id(ctx, field)
@@ -4459,65 +4375,6 @@ func (ec *executionContext) fieldContext_Config_global(ctx context.Context, fiel
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Config_global_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Config_app(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Config) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Config_app(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Config().App(rctx, obj, fc.Args["timestamp"].(*string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.AppConfig)
-	fc.Result = res
-	return ec.marshalNAppConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐAppConfig(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Config_app(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Config",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "minVersion":
-				return ec.fieldContext_AppConfig_minVersion(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AppConfig", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Config_app_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -9953,8 +9810,6 @@ func (ec *executionContext) fieldContext_QueryRoot_config(ctx context.Context, f
 			switch field.Name {
 			case "global":
 				return ec.fieldContext_Config_global(ctx, field)
-			case "app":
-				return ec.fieldContext_Config_app(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Config", field.Name)
 		},
@@ -17125,34 +16980,6 @@ func (ec *executionContext) _Section(ctx context.Context, sel ast.SelectionSet, 
 
 // region    **************************** object.gotpl ****************************
 
-var appConfigImplementors = []string{"AppConfig"}
-
-func (ec *executionContext) _AppConfig(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AppConfig) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, appConfigImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AppConfig")
-		case "minVersion":
-
-			out.Values[i] = ec._AppConfig_minVersion(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var applicationImplementors = []string{"Application"}
 
 func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Application) graphql.Marshaler {
@@ -17499,26 +17326,6 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 					}
 				}()
 				res = ec._Config_global(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		case "app":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Config_app(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -20674,20 +20481,6 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
-
-func (ec *executionContext) marshalNAppConfig2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐAppConfig(ctx context.Context, sel ast.SelectionSet, v gqlmodel.AppConfig) graphql.Marshaler {
-	return ec._AppConfig(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNAppConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐAppConfig(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AppConfig) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._AppConfig(ctx, sel, v)
-}
 
 func (ec *executionContext) marshalNApplication2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐApplication(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Application) graphql.Marshaler {
 	return ec._Application(ctx, sel, &v)
