@@ -1,14 +1,14 @@
 -- +goose Up
 /***********************************************************/
 /*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/
-/***    CREATED ON: 2022-09-22T12:49:05.847Z             ***/
+/***    CREATED ON: 2022-09-22T13:35:29.030Z             ***/
 /***********************************************************/
 
 --- BEGIN CREATE SEQUENCE "public"."applications_usergroups_id_seq" ---
 
 
-CREATE SEQUENCE IF NOT EXISTS "public"."applications_usergroups_id_seq" 
-	INCREMENT BY 1 
+CREATE SEQUENCE IF NOT EXISTS "public"."applications_usergroups_id_seq"
+	INCREMENT BY 1
 	MINVALUE 1
 	MAXVALUE 2147483647
 	START WITH 1
@@ -27,8 +27,8 @@ COMMENT ON SEQUENCE "public"."applications_usergroups_id_seq"  IS NULL;
 --- BEGIN CREATE SEQUENCE "public"."applications_id_seq" ---
 
 
-CREATE SEQUENCE IF NOT EXISTS "public"."applications_id_seq" 
-	INCREMENT BY 1 
+CREATE SEQUENCE IF NOT EXISTS "public"."applications_id_seq"
+	INCREMENT BY 1
 	MINVALUE 1
 	MAXVALUE 2147483647
 	START WITH 1
@@ -51,8 +51,7 @@ CREATE TABLE IF NOT EXISTS "public"."applications_usergroups" (
 	"applications_id" int4 NULL  ,
 	"usergroups_code" varchar(255) NULL  ,
 	CONSTRAINT "applications_usergroups_pkey" PRIMARY KEY (id) ,
-	CONSTRAINT "applications_usergroups_usergroups_code_foreign" FOREIGN KEY (usergroups_code) REFERENCES usergroups(code) ON DELETE SET NULL ,
-	CONSTRAINT "applications_usergroups_applications_id_foreign" FOREIGN KEY (applications_id) REFERENCES applications(id) ON DELETE SET NULL 
+	CONSTRAINT "applications_usergroups_usergroups_code_foreign" FOREIGN KEY (usergroups_code) REFERENCES usergroups(code) ON DELETE SET NULL
 );
 
 ALTER TABLE IF EXISTS "public"."applications_usergroups" OWNER TO btv;
@@ -74,12 +73,6 @@ COMMENT ON COLUMN "public"."applications_usergroups"."applications_id"  IS NULL;
 COMMENT ON COLUMN "public"."applications_usergroups"."usergroups_code"  IS NULL;
 
 COMMENT ON CONSTRAINT "applications_usergroups_pkey" ON "public"."applications_usergroups" IS NULL;
-
-
-COMMENT ON CONSTRAINT "applications_usergroups_usergroups_code_foreign" ON "public"."applications_usergroups" IS NULL;
-
-
-COMMENT ON CONSTRAINT "applications_usergroups_applications_id_foreign" ON "public"."applications_usergroups" IS NULL;
 
 COMMENT ON TABLE "public"."applications_usergroups"  IS NULL;
 
@@ -103,7 +96,7 @@ CREATE TABLE IF NOT EXISTS "public"."applications" (
 	CONSTRAINT "applications_code_unique" UNIQUE (code) ,
 	CONSTRAINT "applications_user_created_foreign" FOREIGN KEY (user_created) REFERENCES directus_users(id) ,
 	CONSTRAINT "applications_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id) ,
-	CONSTRAINT "applications_page_id_foreign" FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE SET NULL 
+	CONSTRAINT "applications_page_id_foreign" FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE SET NULL
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS applications_code_unique ON public.applications USING btree (code);
@@ -167,6 +160,13 @@ COMMENT ON CONSTRAINT "applications_page_id_foreign" ON "public"."applications" 
 COMMENT ON INDEX "public"."applications_code_unique"  IS NULL;
 
 COMMENT ON TABLE "public"."applications"  IS NULL;
+
+ALTER TABLE ONLY public.applications_usergroups
+    ADD CONSTRAINT "applications_usergroups_applications_id_foreign" FOREIGN KEY (applications_id) REFERENCES applications(id) ON DELETE SET NULL;
+
+COMMENT ON CONSTRAINT "applications_usergroups_usergroups_code_foreign" ON "public"."applications_usergroups" IS NULL;
+
+COMMENT ON CONSTRAINT "applications_usergroups_applications_id_foreign" ON "public"."applications_usergroups" IS NULL;
 
 --- END CREATE TABLE "public"."applications" ---
 
@@ -234,7 +234,7 @@ INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field"
 -- +goose Down
 /***********************************************************/
 /*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/
-/***    CREATED ON: 2022-09-22T12:49:07.028Z             ***/
+/***    CREATED ON: 2022-09-22T13:35:30.184Z             ***/
 /***********************************************************/
 
 --- BEGIN DROP TABLE "public"."applications_usergroups" ---
