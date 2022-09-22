@@ -335,7 +335,7 @@ type Application struct {
 	Default       bool
 	Code          string
 	ClientVersion string
-	DefaultPage   *string
+	DefaultPageID null.Int
 	Roles         []string
 }
 

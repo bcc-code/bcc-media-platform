@@ -32,6 +32,13 @@ type AppConfig struct {
 	MinVersion string `json:"minVersion"`
 }
 
+type Application struct {
+	ID            string `json:"id"`
+	Code          string `json:"code"`
+	ClientVersion string `json:"clientVersion"`
+	Page          *Page  `json:"page"`
+}
+
 type Calendar struct {
 	Period *CalendarPeriod `json:"period"`
 	Day    *CalendarDay    `json:"day"`

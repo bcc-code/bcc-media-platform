@@ -8,11 +8,6 @@ import (
 
 func mapToApplications(applications []getApplicationsRow) []common.Application {
 	return lo.Map(applications, func(p getApplicationsRow, _ int) common.Application {
-		var defaultPage *string
-
-		if p.DefaultPage.Valid {
-			defaultPage = &p.DefaultPage.String
-		}
 
 		return common.Application{
 			ID:            int(p.ID),
@@ -20,7 +15,7 @@ func mapToApplications(applications []getApplicationsRow) []common.Application {
 			Code:          p.Code,
 			Roles:         p.Roles,
 			ClientVersion: p.ClientVersion.ValueOrZero(),
-			DefaultPage:   defaultPage,
+			DefaultPageID: p.DefaultPageID,
 		}
 	})
 }

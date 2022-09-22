@@ -8,11 +8,10 @@ SELECT a.id::int                          AS id,
        a.default                          AS "default",
        a.client_version,
        a.status = 'published'             AS published,
-       p.code                             AS default_page,
+       a.page_id                          AS default_page_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
          LEFT JOIN roles r ON a.id = r.applications_id
-         LEFT JOIN pages p ON a.page_id = p.id
 WHERE a.id = ANY ($1::int[])
   AND a.status = 'published';
 
@@ -26,11 +25,10 @@ SELECT a.id::int                          AS id,
        a.default                          AS "default",
        a.client_version,
        a.status = 'published'             AS published,
-       p.code                             AS default_page,
+       a.page_id                          AS default_page_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
          LEFT JOIN roles r ON a.id = r.applications_id
-         LEFT JOIN pages p ON a.page_id = p.id
 WHERE a.status = 'published';
 
 -- name: getApplicationIDsForCodes :many

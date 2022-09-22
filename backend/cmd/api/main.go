@@ -117,6 +117,26 @@ func getApplications(ctx context.Context, queries *sqlc.Queries) []common.Applic
 	}
 }
 
+func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code string) *common.Application {
+	return func(ctx context.Context, code string) *common.Application {
+		apps := getApplications(ctx, queries)
+
+		app, found := lo.Find(apps, func(i common.Application) bool {
+			return i.Code == strings.ToLower(strings.TrimSpace(code))
+		})
+		if found {
+			return &app
+		}
+		app, found = lo.Find(apps, func(i common.Application) bool {
+			return i.Default
+		})
+		if found {
+			return &app
+		}
+		return nil
+	}
+}
+
 func main() {
 	ctx := context.Background()
 
@@ -211,23 +231,8 @@ func main() {
 	r.Use(authClient.ValidateToken())
 	r.Use(user.NewUserMiddleware(queries, membersClient))
 
-	r.Use(applications.RoleMiddleware(func(ctx context.Context, code string) *common.Application {
-		apps := getApplications(ctx, queries)
-
-		app, found := lo.Find(apps, func(i common.Application) bool {
-			return i.Code == strings.ToLower(strings.TrimSpace(code))
-		})
-		if found {
-			return &app
-		}
-		app, found = lo.Find(apps, func(i common.Application) bool {
-			return i.Default
-		})
-		if found {
-			return &app
-		}
-		return nil
-	}))
+	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
+	r.Use(applications.RoleMiddleware())
 
 	searchService := search.New(db, config.Algolia)
 	r.POST("/query", graphqlHandler(queries, loaders, searchService, urlSigner, config))

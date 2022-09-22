@@ -244,6 +244,8 @@ type User {
 }
 
 type QueryRoot{
+  application: Application!
+
   page(
     id: ID
     code: String
