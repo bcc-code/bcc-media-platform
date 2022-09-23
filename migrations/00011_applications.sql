@@ -15,10 +15,10 @@ CREATE SEQUENCE IF NOT EXISTS "public"."applications_usergroups_id_seq"
 	CACHE 1
 	NO CYCLE;
 
-ALTER SEQUENCE "public"."applications_usergroups_id_seq" OWNER TO btv;
-GRANT SELECT ON SEQUENCE "public"."applications_usergroups_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT USAGE ON SEQUENCE "public"."applications_usergroups_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."applications_usergroups_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+ALTER SEQUENCE "public"."applications_usergroups_id_seq" OWNER TO manager;
+GRANT SELECT ON SEQUENCE "public"."applications_usergroups_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT USAGE ON SEQUENCE "public"."applications_usergroups_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON SEQUENCE "public"."applications_usergroups_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON SEQUENCE "public"."applications_usergroups_id_seq"  IS NULL;
 
@@ -35,10 +35,10 @@ CREATE SEQUENCE IF NOT EXISTS "public"."applications_id_seq"
 	CACHE 1
 	NO CYCLE;
 
-ALTER SEQUENCE "public"."applications_id_seq" OWNER TO btv;
-GRANT SELECT ON SEQUENCE "public"."applications_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT USAGE ON SEQUENCE "public"."applications_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."applications_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+ALTER SEQUENCE "public"."applications_id_seq" OWNER TO manager;
+GRANT SELECT ON SEQUENCE "public"."applications_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT USAGE ON SEQUENCE "public"."applications_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON SEQUENCE "public"."applications_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON SEQUENCE "public"."applications_id_seq"  IS NULL;
 
@@ -54,15 +54,15 @@ CREATE TABLE IF NOT EXISTS "public"."applications_usergroups" (
 	CONSTRAINT "applications_usergroups_usergroups_code_foreign" FOREIGN KEY (usergroups_code) REFERENCES usergroups(code) ON DELETE SET NULL
 );
 
-ALTER TABLE IF EXISTS "public"."applications_usergroups" OWNER TO btv;
+ALTER TABLE IF EXISTS "public"."applications_usergroups" OWNER TO manager;
 
-GRANT SELECT ON TABLE "public"."applications_usergroups" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."applications_usergroups" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."applications_usergroups" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."applications_usergroups" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."applications_usergroups" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."applications_usergroups" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."applications_usergroups" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."applications_usergroups" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT INSERT ON TABLE "public"."applications_usergroups" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON TABLE "public"."applications_usergroups" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT DELETE ON TABLE "public"."applications_usergroups" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT TRUNCATE ON TABLE "public"."applications_usergroups" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT REFERENCES ON TABLE "public"."applications_usergroups" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT TRIGGER ON TABLE "public"."applications_usergroups" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."applications_usergroups"."id"  IS NULL;
 
@@ -101,15 +101,15 @@ CREATE TABLE IF NOT EXISTS "public"."applications" (
 
 CREATE UNIQUE INDEX IF NOT EXISTS applications_code_unique ON public.applications USING btree (code);
 
-ALTER TABLE IF EXISTS "public"."applications" OWNER TO btv;
+ALTER TABLE IF EXISTS "public"."applications" OWNER TO manager;
 
-GRANT SELECT ON TABLE "public"."applications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."applications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."applications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."applications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."applications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."applications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."applications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."applications" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT INSERT ON TABLE "public"."applications" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON TABLE "public"."applications" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT DELETE ON TABLE "public"."applications" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT TRUNCATE ON TABLE "public"."applications" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT REFERENCES ON TABLE "public"."applications" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT TRIGGER ON TABLE "public"."applications" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."applications"."id"  IS NULL;
 
@@ -169,6 +169,9 @@ COMMENT ON CONSTRAINT "applications_usergroups_usergroups_code_foreign" ON "publ
 COMMENT ON CONSTRAINT "applications_usergroups_applications_id_foreign" ON "public"."applications_usergroups" IS NULL;
 
 --- END CREATE TABLE "public"."applications" ---
+
+GRANT SELECT ON "public"."applications" TO api;
+GRANT SELECT ON "public"."applications_usergroups" TO api;
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
 
