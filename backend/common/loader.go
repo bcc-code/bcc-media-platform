@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
+	"go.opentelemetry.io/otel"
 )
 
 // BatchLoaders contains loaders for the different items
@@ -203,6 +204,8 @@ func NewCustomBatchLoader[K comparable, V any](
 
 // GetFromLoaderByID returns the object from the loader
 func GetFromLoaderByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], id k) (*t, error) {
+	ctx, span := otel.Tracer("loader").Start(ctx, "single")
+	defer span.End()
 	thunk := loader.Load(ctx, id)
 	result, err := thunk()
 	if err != nil {
@@ -216,6 +219,8 @@ func GetFromLoaderByID[k comparable, t any](ctx context.Context, loader *dataloa
 //
 // It uses the dataloader to efficiently load data from DB or cache (as available)
 func GetFromLoaderForKey[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, []*t], key k) ([]*t, error) {
+	ctx, span := otel.Tracer("loader").Start(ctx, "keyed")
+	defer span.End()
 	thunk := loader.Load(ctx, key)
 	result, err := thunk()
 	if err != nil {
@@ -227,6 +232,8 @@ func GetFromLoaderForKey[k comparable, t any](ctx context.Context, loader *datal
 
 // GetManyFromLoader retrieves multiple items from specified loader
 func GetManyFromLoader[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], ids []k) ([]*t, error) {
+	ctx, span := otel.Tracer("loader").Start(ctx, "multiple")
+	defer span.End()
 	thunk := loader.LoadMany(ctx, ids)
 	result, errs := thunk()
 	if len(errs) > 0 {
