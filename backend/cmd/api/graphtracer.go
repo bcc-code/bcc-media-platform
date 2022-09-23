@@ -16,14 +16,16 @@ func (t *graphTracer) ExtensionName() string {
 
 // InterceptField intercepts
 func (t *graphTracer) InterceptField(ctx context.Context, next graphql.Resolver) (any, error) {
-	ctx, span := otel.Tracer("graph").Start(ctx, "field")
+	field := graphql.GetFieldContext(ctx)
+	ctx, span := otel.Tracer("graph-field").Start(ctx, field.Field.Name)
 	defer span.End()
 	return next(ctx)
 }
 
 // InterceptOperation intercepts
 func (t *graphTracer) InterceptOperation(ctx context.Context, next graphql.OperationHandler) graphql.ResponseHandler {
-	ctx, span := otel.Tracer("graph").Start(ctx, "operation")
+	op := graphql.GetOperationContext(ctx)
+	ctx, span := otel.Tracer("graph-operation").Start(ctx, op.OperationName)
 	defer span.End()
 	return next(ctx)
 }
