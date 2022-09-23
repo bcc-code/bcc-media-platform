@@ -23,17 +23,6 @@ func (r *configResolver) Global(ctx context.Context, obj *gqlmodel.Config, times
 	}, nil
 }
 
-// App is the resolver for the app field.
-func (r *configResolver) App(ctx context.Context, obj *gqlmodel.Config, timestamp *string) (*gqlmodel.AppConfig, error) {
-	conf, err := withCacheAndTimestamp(ctx, "app_config", r.Queries.GetAppConfig, time.Second*30, timestamp)
-	if err != nil {
-		return nil, err
-	}
-	return &gqlmodel.AppConfig{
-		MinVersion: conf.MinVersion,
-	}, nil
-}
-
 // Config returns generated.ConfigResolver implementation.
 func (r *Resolver) Config() generated.ConfigResolver { return &configResolver{r} }
 

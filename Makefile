@@ -21,3 +21,12 @@ diff:
 	./scripts/db_diff.sh $(name)
 	cd ./migrations
 	cd ./backend && make ./sqlc/.generated
+
+migrate.up:
+	cd ./migrations && goose postgres "postgres://btv:btv123@localhost:5432/btv?sslmode=disable" up
+
+migrate.down:
+	cd ./migrations && goose postgres "postgres://btv:btv123@localhost:5432/btv?sslmode=disable" down
+
+migrate.status:
+	cd ./migrations && goose postgres "postgres://btv:btv123@localhost:5432/btv?sslmode=disable" status

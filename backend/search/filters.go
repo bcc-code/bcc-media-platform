@@ -5,15 +5,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
 )
 
-func (service *Service) getFiltersForUser(u *common.User) (string, error) {
+func (service *Service) getFiltersForRoles(roles []string) (string, error) {
 	now := time.Now().Unix()
 
 	filters := []string{
-		strings.Join(lo.Map(u.Roles, func(role string, _ int) string {
+		strings.Join(lo.Map(roles, func(role string, _ int) string {
 			return fmt.Sprintf("%s:%s", rolesField, role)
 		}), " OR "),
 		fmt.Sprintf("%s:true", publishedField),

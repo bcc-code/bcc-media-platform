@@ -26,13 +26,13 @@ type searchHit struct {
 }
 
 func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (searchResult common.SearchResult, err error) {
-	u := user.GetFromCtx(ctx)
+	roles := user.GetRolesFromCtx(ctx)
 
-	if len(u.Roles) == 0 {
+	if len(roles) == 0 {
 		return
 	}
 
-	filterString, err := service.getFiltersForUser(u)
+	filterString, err := service.getFiltersForRoles(roles)
 	if err != nil {
 		return
 	}

@@ -328,3 +328,18 @@ type Question struct {
 func (i Question) GetKey() int {
 	return i.ID
 }
+
+// Application contains data for
+type Application struct {
+	ID            int
+	Default       bool
+	Code          string
+	ClientVersion string
+	DefaultPageID null.Int
+	Roles         []string
+}
+
+// GetKey returns the key for this item
+func (i Application) GetKey() int {
+	return i.ID
+}
