@@ -51,9 +51,12 @@ func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchS
 		URLSigner:     urlSigner,
 	}
 
+	tracer := &graphTracer{}
+
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver}))
+	h.Use(tracer)
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
