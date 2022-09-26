@@ -6,9 +6,11 @@ import (
 
 // SearchQuery used as body in the POST request to the API
 type SearchQuery struct {
-	Query  string `json:"query"`
-	Limit  *int   `json:"limit"`
-	Offset *int   `json:"offset"`
+	Query    string  `json:"query"`
+	Limit    *int    `json:"limit"`
+	Offset   *int    `json:"offset"`
+	Type     *string `json:"type"`
+	MinScore *int    `json:"minScore"`
 }
 
 // SearchResult for exposing a list of search results

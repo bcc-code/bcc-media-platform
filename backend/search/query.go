@@ -9,8 +9,13 @@ import (
 	"strings"
 )
 
+type rankingInfo struct {
+	UserScore int `json:"userScore"`
+}
+
 type searchHit struct {
 	ID              string                 `json:"objectID"`
+	Type            string                 `json:"type"`
 	LegacyID        *int                   `json:"legacyID"`
 	AgeRating       *string                `json:"ageRating"`
 	Duration        *int                   `json:"duration"`
@@ -23,8 +28,10 @@ type searchHit struct {
 	SeasonTitle     common.LocaleString    `json:"seasonTitle"`
 	Image           string                 `json:"image"`
 	HighlightResult map[string]interface{} `json:"_highlightResult"`
+	RankingInfo     rankingInfo            `json:"_rankingInfo"`
 }
 
+// Search sends a search query to the engine and returns related results
 func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (searchResult common.SearchResult, err error) {
 	roles := user.GetRolesFromCtx(ctx)
 
@@ -32,7 +39,7 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 		return
 	}
 
-	filterString, err := service.getFiltersForRoles(roles)
+	filterString, err := service.getFiltersForRoles(roles, query.Type)
 	if err != nil {
 		return
 	}
@@ -49,6 +56,7 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 	opts := []interface{}{
 		opt.Filters(filterString),
 		opt.AttributesToHighlight(highlightFields...),
+		opt.GetRankingInfo(true),
 	}
 	if query.Limit != nil {
 		opts = append(opts, opt.Length(*query.Limit))
@@ -91,6 +99,12 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 		if e != nil {
 			err = e
 			return
+		}
+
+		if query.MinScore != nil {
+			if hit.RankingInfo.UserScore < *query.MinScore {
+				continue
+			}
 		}
 
 		// TODO: Implement permission checking here as well
