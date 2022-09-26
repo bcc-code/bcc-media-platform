@@ -8,7 +8,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (service *Service) getFiltersForRoles(roles []string) (string, error) {
+func (service *Service) getFiltersForRoles(roles []string, documentType *string) (string, error) {
 	now := time.Now().Unix()
 
 	filters := []string{
@@ -18,6 +18,10 @@ func (service *Service) getFiltersForRoles(roles []string) (string, error) {
 		fmt.Sprintf("%s:true", publishedField),
 		fmt.Sprintf("%[1]s = 0 OR %[1]s < %[2]d", availableFromField, now),
 		fmt.Sprintf("%[1]s = 0 OR %[1]s > %[2]d", availableToField, now),
+	}
+
+	if documentType != nil {
+		filters = append(filters, fmt.Sprintf("type:%s", *documentType))
 	}
 
 	return "(" + strings.Join(filters, ") AND (") + ")", nil

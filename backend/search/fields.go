@@ -77,6 +77,7 @@ func (object searchObject) toSearchHit() (searchHit, error) {
 			item.HighlightResult = r
 		}
 	}
+	object["rankingInfo"] = object["_rankingInfo"]
 	err := mapstructure.Decode(object, &item)
 	return item, err
 }
@@ -197,6 +198,30 @@ func (service *Service) getTextFields() []string {
 // These are the fields which we use to filter for permissions
 func (service *Service) getFilterFields() []string {
 	return []string{rolesField, tagsField, typeField, publishedField}
+}
+
+func (service *Service) getTranslatedTitleFields() ([]string, error) {
+	var fields []string
+	ls, err := service.getLanguageKeys()
+	if err != nil {
+		return nil, err
+	}
+	for _, language := range ls {
+		fields = append(fields, titleField+"_"+language)
+	}
+	return fields, nil
+}
+
+func (service *Service) getTranslatedDescriptionFields() ([]string, error) {
+	var fields []string
+	ls, err := service.getLanguageKeys()
+	if err != nil {
+		return nil, err
+	}
+	for _, language := range ls {
+		fields = append(fields, descriptionField+"_"+language)
+	}
+	return fields, nil
 }
 
 func (service *Service) getPrimaryTranslatedFields() ([]string, error) {
