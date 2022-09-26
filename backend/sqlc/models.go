@@ -35,6 +35,26 @@ type Appconfig struct {
 	UserUpdated uuid.UUID `db:"user_updated" json:"userUpdated"`
 }
 
+type Application struct {
+	ID            int32          `db:"id" json:"id"`
+	Status        string         `db:"status" json:"status"`
+	UserCreated   uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated   null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated   uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated   null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Name          string         `db:"name" json:"name"`
+	Code          string         `db:"code" json:"code"`
+	ClientVersion null_v4.String `db:"client_version" json:"clientVersion"`
+	PageID        null_v4.Int    `db:"page_id" json:"pageID"`
+	Default       bool           `db:"default" json:"default"`
+}
+
+type ApplicationsUsergroup struct {
+	ID             int32          `db:"id" json:"id"`
+	ApplicationsID null_v4.Int    `db:"applications_id" json:"applicationsID"`
+	UsergroupsCode null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
+}
+
 type Asset struct {
 	DateCreated     time.Time      `db:"date_created" json:"dateCreated"`
 	DateUpdated     time.Time      `db:"date_updated" json:"dateUpdated"`

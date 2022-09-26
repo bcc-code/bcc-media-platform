@@ -93,7 +93,7 @@ rm -v $UP $DOWN
 
 goose fix
 cd $script_dir/../migrations
-NEW_MIGRATION_NO=$(find -maxdepth 1 -name *.sql | sort | tail -n1 | xargs basename | cut -d_ -f1)
+NEW_MIGRATION_NO=$(find . -maxdepth 1 -name *.sql | sort | tail -n1 | xargs basename | cut -d_ -f1)
 
 read -p "Do you want to fake application of the latest migration (${NEW_MIGRATION_NO}) locally? " -n 1 -r
 echo    # (optional) move to a new line

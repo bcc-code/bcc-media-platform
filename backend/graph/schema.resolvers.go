@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	merry "github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/generated"
@@ -149,6 +150,32 @@ func (r *pageResolver) Sections(ctx context.Context, obj *gqlmodel.Page, first *
 		First:  pagination.First,
 		Offset: pagination.Offset,
 		Items:  pagination.Items,
+	}, nil
+}
+
+// Application is the resolver for the application field.
+func (r *queryRootResolver) Application(ctx context.Context) (*gqlmodel.Application, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	app, err := applications.GetFromCtx(ginCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	var page *gqlmodel.Page
+	if app.DefaultPageID.Valid {
+		page = &gqlmodel.Page{
+			ID: strconv.Itoa(int(app.DefaultPageID.Int64)),
+		}
+	}
+
+	return &gqlmodel.Application{
+		ID:            strconv.Itoa(app.ID),
+		Code:          app.Code,
+		Page:          page,
+		ClientVersion: app.ClientVersion,
 	}, nil
 }
 
