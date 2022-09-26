@@ -1,10 +1,11 @@
 <template>
-    <video id="video-player"></video>
+    <div id="video-player"></div>
 </template>
 <script lang="ts" setup>
-import Hls from "hls.js"
-import Dash from "dashjs"
+// import Hls from "hls.js"
+// import Dash from "dashjs"
 import { onMounted, watch } from "vue";
+import { createPlayer } from "bccm-video-player"
 
 const props = defineProps<{
     asset: {
@@ -18,24 +19,12 @@ const load = () => {
     if (!video) {
         return
     }
-    switch (props.asset.type) {
-        case "hls_cmaf":
-        case "hls_ts":
-            if (Hls.isSupported()) {
-                const hls = new Hls()
-                hls.loadSource(props.asset.url)
-                hls.attachMedia(video)
-                // Autoplay on load
-                hls.on(Hls.Events.MANIFEST_LOADED, () => {
-                    video.play()
-                })
-            }
-        case "dash":
-            if (Dash.supportsMediaSource()) {
-                const player = Dash.MediaPlayer().create();
-                player.initialize(video, props.asset.url, true)
-            }
-    }
+
+    createPlayer(video.id, {
+        src: {
+            src: props.asset.url
+        }
+    })
 }
 
 onMounted(load)

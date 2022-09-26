@@ -1,6 +1,7 @@
 import { defineInterface } from '@directus/extensions-sdk';
 import InterfaceComponent from './interface.vue';
-import "media-chrome";
+import "bccm-video-player"
+import "bccm-video-player/css"
 
 export default defineInterface({
 	id: 'video-preview',
