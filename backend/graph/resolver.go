@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"go.opentelemetry.io/otel"
 	"strconv"
 	"sync"
 	"time"
@@ -46,6 +47,8 @@ var requestLocks = map[string]*sync.Mutex{}
 var requestCache = cache.New[string, any]()
 
 func withCache[r any](ctx context.Context, key string, factory func(ctx context.Context) (r, error), expiry time.Duration) (r, error) {
+	ctx, span := otel.Tracer("cache").Start(ctx, "simple")
+	defer span.End()
 	if result, ok := requestCache.Get(key); ok {
 		return result.(r), nil
 	}
@@ -81,6 +84,8 @@ type timedCacheEntry[t any] struct {
 var truncateTime = time.Second * 1
 
 func withCacheAndTimestamp[r any](ctx context.Context, key string, factory func(ctx context.Context) (r, error), expiry time.Duration, timestamp *string) (r, error) {
+	ctx, span := otel.Tracer("cache").Start(ctx, "with-timestamp")
+	defer span.End()
 	ts, err := timestampFromString(timestamp)
 	if err != nil {
 		var result r
@@ -159,6 +164,8 @@ func toItemLoaders[k comparable, t any](item *dataloader.Loader[k, *t], permissi
 
 // resolverFor returns a resolver for the specified item
 func resolverFor[k comparable, t any, r any](ctx context.Context, loaders *itemLoaders[k, t], id k, converter func(context.Context, *t) r) (res r, err error) {
+	ctx, span := otel.Tracer("resolver").Start(ctx, "item")
+	defer span.End()
 	obj, err := common.GetFromLoaderByID(ctx, loaders.Item, id)
 	if err != nil {
 		return res, err
@@ -188,6 +195,8 @@ func resolverForIntID[t any, r any](ctx context.Context, loaders *itemLoaders[in
 }
 
 func itemsResolverFor[k comparable, kr comparable, t any, r any](ctx context.Context, loaders *itemLoaders[k, t], listLoader *dataloader.Loader[kr, []*k], id kr, converter func(context.Context, *t) r) ([]r, error) {
+	ctx, span := otel.Tracer("resolver").Start(ctx, "items")
+	defer span.End()
 	itemIds, err := common.GetFromLoaderForKey(ctx, listLoader, id)
 	if err != nil {
 		return nil, err

@@ -1,16 +1,20 @@
 <template>
     <div>
-        <media-controller class="video-controller" v-if="asset">
-            <Player :asset="asset" slot="media"></Player>
+        <div>
+            <Player v-if="asset" :asset="asset"></Player>
+        </div>
+        <!-- <media-controller class="video-controller" v-if="asset">
+            
             <media-control-bar>
                 <media-play-button></media-play-button>
                 <media-mute-button></media-mute-button>
                 <media-volume-range></media-volume-range>
                 <media-time-range></media-time-range>
+                <media-captions-button></media-captions-button>
                 <media-pip-button></media-pip-button>
                 <media-fullscreen-button></media-fullscreen-button>
             </media-control-bar>
-        </media-controller>
+        </media-controller> -->
         <div>
             <v-button @click="load" :loading="loading">Load</v-button>
             <div v-if="error">
