@@ -4,6 +4,7 @@ import "github.com/bcc-code/mediabank-bridge/log"
 
 var langMap = map[string]string{
 	"nor":       "no",
+	"nob":       "no",
 	"no-x":      "nb",
 	"no-x-tolk": "nb",
 	"dan":       "da",
@@ -31,6 +32,7 @@ var langMap = map[string]string{
 	"ita":       "it",
 	"slv":       "sl",
 	"swe":       "sv",
+	"cmn":       "zh",
 	"zho":       "zh",
 	"chi":       "zh",
 	"zht":       "zh",
