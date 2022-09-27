@@ -2,7 +2,8 @@
     <div v-if="!loading">
         <Navbar></Navbar>
         <div class="p-4">
-            <router-view :key="route.fullPath"></router-view>
+            <router-view :key="route.fullPath"> 
+            </router-view>
         </div>
         <div class="text-red-500" v-if="errors">
             <p v-for="(error, i) in errors">

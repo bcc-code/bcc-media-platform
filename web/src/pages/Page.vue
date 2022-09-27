@@ -1,13 +1,15 @@
 <template>
-    <div class="mx-10" v-if="data?.page?.sections.items.length">
-        <ItemSection
-            v-for="section in data?.page?.sections.items"
-            :section="section"
-        >
-        </ItemSection>
-    </div>
-    <div v-else-if="!fetching">Uh oh. Missing content</div>
-    <div v-if="error">{{ error.message }}</div>
+    <section>
+        <div class="mx-10" v-if="data?.page?.sections.items.length">
+            <ItemSection
+                v-for="section in data?.page?.sections.items"
+                :section="section"
+            >
+            </ItemSection>
+        </div>
+        <div v-else-if="!fetching">Uh oh. Missing content</div>
+        <div v-if="error">{{ error.message }}</div>
+    </section>
 </template>
 <script lang="ts" setup>
 import { useGetPageQuery } from "@/graph/generated"

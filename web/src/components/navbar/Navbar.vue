@@ -141,19 +141,10 @@ import settings from "@/services/settings"
 import { computed, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import { RouteLocationRaw, useRouter } from "vue-router"
-import LoginButton from "../user/LoginButton.vue"
-import VSelect from "../VSelect.vue"
 import NavLink from "./NavLink.vue"
 import {
     Disclosure,
-    DisclosureButton,
-    DisclosurePanel,
-    Menu,
-    MenuButton,
-    MenuItem,
-    MenuItems,
 } from "@headlessui/vue"
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/vue/24/outline"
 
 const navigation: {
     name: string
@@ -184,7 +175,7 @@ const navigation: {
     { 
         name: "Calendar",
         to: {
-            name: "front-page"
+            name: "calendar"
         },
         iconFolder: "/icons/TabBar/Calendar"
     },
