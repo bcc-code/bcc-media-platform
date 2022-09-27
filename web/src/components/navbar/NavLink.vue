@@ -1,7 +1,7 @@
 <template>
-    <router-link :to="to" class="flex" v-slot="{isExactActive}">
-        <img class="w-8 my-auto" :src="iconFolder + (isExactActive ? '/Selected.svg' : '/Default.svg')" />
-        <h1 class="ml-2 my-auto">
+    <router-link :to="to" class="lg:flex gap-2" v-slot="{isExactActive}">
+        <img class="w-8 my-auto mx-auto" :src="iconFolder + (isExactActive ? '/Selected.svg' : '/Default.svg')" />
+        <h1 class="my-auto text-center">
             <slot></slot>
         </h1>
     </router-link>

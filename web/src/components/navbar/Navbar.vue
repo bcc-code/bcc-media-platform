@@ -1,40 +1,38 @@
 <template>
-    <div class="flex md:visible p-4">
-        <div class="ml-auto flex">
-            <div class="flex ml-auto my-auto gap-4">
-                <NavLink 
-                    :to="{ name: 'front-page' }" 
-                    icon-folder="/icons/TabBar/Home"
-                >
-                    Home
-                </NavLink>
-                <NavLink 
-                    :to="{ name: 'search' }" 
-                    icon-folder="/icons/TabBar/Search"
-                >
-                    Search
-                </NavLink>
-                <NavLink 
-                    :to="{ name: 'front-page' }" 
-                    icon-folder="/icons/TabBar/Live"
-                >
-                    Live
-                </NavLink>
-                <NavLink 
-                    :to="{ name: 'front-page' }" 
-                    icon-folder="/icons/TabBar/Calendar"
-                >
-                    Calendar
-                </NavLink>
-                <NavLink 
-                    :to="{ name: 'front-page' }" 
-                    icon-folder="/icons/TabBar/Feed"
-                >
-                    FAQ
-                </NavLink>
-                <LoginButton></LoginButton>
-                <VSelect v-model="selected" :data="languages">Language</VSelect>
-            </div>
+    <div class="flex p-4">
+        <div class="flex mx-auto my-auto gap-4">
+            <NavLink 
+                :to="{ name: 'front-page' }" 
+                icon-folder="/icons/TabBar/Home"
+            >
+                Home
+            </NavLink>
+            <NavLink 
+                :to="{ name: 'search' }" 
+                icon-folder="/icons/TabBar/Search"
+            >
+                Search
+            </NavLink>
+            <NavLink 
+                :to="{ name: 'front-page' }" 
+                icon-folder="/icons/TabBar/Live"
+            >
+                Live
+            </NavLink>
+            <NavLink 
+                :to="{ name: 'front-page' }" 
+                icon-folder="/icons/TabBar/Calendar"
+            >
+                Calendar
+            </NavLink>
+            <NavLink 
+                :to="{ name: 'front-page' }" 
+                icon-folder="/icons/TabBar/Feed"
+            >
+                FAQ
+            </NavLink>
+            <LoginButton></LoginButton>
+            <VSelect v-model="selected" :data="languages">Language</VSelect>
         </div>
     </div>
 </template>
