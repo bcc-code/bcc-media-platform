@@ -1,8 +1,13 @@
 <template>
     <div>
-        <h1 class="text-xl font-semibold text-primary mb-2" :class="{
-            'hidden': result.length === 0,
-        }">Episodes</h1>
+        <h1
+            class="text-xl font-semibold text-primary mb-2"
+            :class="{
+                hidden: result.length === 0,
+            }"
+        >
+            Episodes
+        </h1>
         <div class="grid grid-cols-4 gap-4">
             <SearchItem
                 v-for="r in result"

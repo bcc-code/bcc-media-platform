@@ -1,8 +1,13 @@
 <template>
     <div>
-        <h1 class="text-xl font-semibold text-primary mb-2" :class="{
-            'hidden': result.length === 0,
-        }">Shows</h1>
+        <h1
+            class="text-xl font-semibold text-primary mb-2"
+            :class="{
+                hidden: result.length === 0,
+            }"
+        >
+            Shows
+        </h1>
         <Swiper
             :slides-per-view="1"
             :space-between="10"

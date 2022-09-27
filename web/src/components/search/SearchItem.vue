@@ -8,7 +8,9 @@
                 '\')',
         }"
     >
-        <h1 class="text-lg p-2 text-primary font-semibold mt-auto">{{ item.title }}</h1>
+        <h1 class="text-lg p-2 text-primary font-semibold mt-auto">
+            {{ item.title }}
+        </h1>
     </div>
 </template>
 <script lang="ts" setup>
