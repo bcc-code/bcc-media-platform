@@ -268,7 +268,7 @@ type ComplexityRoot struct {
 		Me          func(childComplexity int) int
 		Messages    func(childComplexity int) int
 		Page        func(childComplexity int, id *string, code *string) int
-		Search      func(childComplexity int, queryString string, first *int, offset *int) int
+		Search      func(childComplexity int, queryString string, first *int, offset *int, typeArg *string, minScore *int) int
 		Season      func(childComplexity int, id string) int
 		Section     func(childComplexity int, id string) int
 		Show        func(childComplexity int, id string) int
@@ -503,7 +503,7 @@ type QueryRootResolver interface {
 	Season(ctx context.Context, id string) (*gqlmodel.Season, error)
 	Episode(ctx context.Context, id string) (*gqlmodel.Episode, error)
 	Collection(ctx context.Context, id string) (*gqlmodel.Collection, error)
-	Search(ctx context.Context, queryString string, first *int, offset *int) (*gqlmodel.SearchResult, error)
+	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*gqlmodel.SearchResult, error)
 	Messages(ctx context.Context) (*gqlmodel.Messages, error)
 	Calendar(ctx context.Context) (*gqlmodel.Calendar, error)
 	Event(ctx context.Context, id string) (*gqlmodel.Event, error)
@@ -1537,7 +1537,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.QueryRoot.Search(childComplexity, args["queryString"].(string), args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.QueryRoot.Search(childComplexity, args["queryString"].(string), args["first"].(*int), args["offset"].(*int), args["type"].(*string), args["minScore"].(*int)), true
 
 	case "QueryRoot.season":
 		if e.complexity.QueryRoot.Season == nil {
@@ -2842,6 +2842,8 @@ type QueryRoot{
     queryString: String!
     first: Int
     offset: Int
+    type: String
+    minScore: Int
   ): SearchResult!
 
   messages: Messages!
@@ -3265,6 +3267,24 @@ func (ec *executionContext) field_QueryRoot_search_args(ctx context.Context, raw
 		}
 	}
 	args["offset"] = arg2
+	var arg3 *string
+	if tmp, ok := rawArgs["type"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+		arg3, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["type"] = arg3
+	var arg4 *int
+	if tmp, ok := rawArgs["minScore"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minScore"))
+		arg4, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["minScore"] = arg4
 	return args, nil
 }
 
@@ -9449,7 +9469,7 @@ func (ec *executionContext) _QueryRoot_search(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Search(rctx, fc.Args["queryString"].(string), fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.QueryRoot().Search(rctx, fc.Args["queryString"].(string), fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["type"].(*string), fc.Args["minScore"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

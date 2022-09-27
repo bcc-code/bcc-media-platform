@@ -275,6 +275,8 @@ type QueryRoot{
     queryString: String!
     first: Int
     offset: Int
+    type: String
+    minScore: Int
   ): SearchResult!
 
   messages: Messages!

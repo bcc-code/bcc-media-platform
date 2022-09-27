@@ -165,15 +165,17 @@ func convertToGQL(items []common.SearchResultItem) []gqlmodel.SearchResultItem {
 	return results
 }
 
-func searchResolver(r *queryRootResolver, ctx context.Context, queryString string, first *int, offset *int) (*gqlmodel.SearchResult, error) {
+func searchResolver(r *queryRootResolver, ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*gqlmodel.SearchResult, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
 	}
 	searchResult, err := r.SearchService.Search(ginCtx, common.SearchQuery{
-		Query:  queryString,
-		Limit:  first,
-		Offset: offset,
+		Query:    queryString,
+		Limit:    first,
+		Offset:   offset,
+		Type:     typeArg,
+		MinScore: minScore,
 	})
 	if err != nil {
 		return nil, err

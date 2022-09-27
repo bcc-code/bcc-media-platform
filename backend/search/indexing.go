@@ -37,7 +37,11 @@ func (service *Service) Reindex(ctx context.Context) error {
 
 	// Makes it possible to filter in query, which fields you are searching on
 	// Also configures hits per page
-	primaryFields, err := service.getPrimaryTranslatedFields()
+	titleFields, err := service.getPrimaryTranslatedFields()
+	if err != nil {
+		return err
+	}
+	descriptionFields, err := service.getTranslatedDescriptionFields()
 	if err != nil {
 		return err
 	}
@@ -46,7 +50,8 @@ func (service *Service) Reindex(ctx context.Context) error {
 		return err
 	}
 	searchableAttributes := opt.SearchableAttributes(
-		strings.Join(primaryFields, ", "),
+		strings.Join(titleFields, ", "),
+		strings.Join(descriptionFields, ", "),
 		strings.Join(relationalFields, ", "),
 		strings.Join(getFunctionalFields(), ", "),
 	)

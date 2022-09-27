@@ -243,8 +243,8 @@ func (r *queryRootResolver) Collection(ctx context.Context, id string) (*gqlmode
 }
 
 // Search is the resolver for the search field.
-func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int) (*gqlmodel.SearchResult, error) {
-	return searchResolver(r, ctx, queryString, first, offset)
+func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*gqlmodel.SearchResult, error) {
+	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)
 }
 
 // Messages is the resolver for the messages field.
