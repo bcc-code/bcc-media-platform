@@ -1,17 +1,41 @@
 <template>
-    <div class="relative invisible md:visible p-4">
-        <div class="absolute right-4 flex">
+    <div class="flex md:visible p-4">
+        <div class="ml-auto flex">
             <div class="flex ml-auto my-auto gap-4">
-                <router-link :to="{ name: 'search' }">Search</router-link>
+                <NavLink 
+                    :to="{ name: 'front-page' }" 
+                    icon-folder="/icons/TabBar/Home"
+                >
+                    Home
+                </NavLink>
+                <NavLink 
+                    :to="{ name: 'search' }" 
+                    icon-folder="/icons/TabBar/Search"
+                >
+                    Search
+                </NavLink>
+                <NavLink 
+                    :to="{ name: 'front-page' }" 
+                    icon-folder="/icons/TabBar/Live"
+                >
+                    Live
+                </NavLink>
+                <NavLink 
+                    :to="{ name: 'front-page' }" 
+                    icon-folder="/icons/TabBar/Calendar"
+                >
+                    Calendar
+                </NavLink>
+                <NavLink 
+                    :to="{ name: 'front-page' }" 
+                    icon-folder="/icons/TabBar/Feed"
+                >
+                    FAQ
+                </NavLink>
                 <LoginButton></LoginButton>
                 <VSelect v-model="selected" :data="languages">Language</VSelect>
             </div>
         </div>
-        <img
-            @click="home()"
-            class="h-8 mx-auto cursor-pointer"
-            src="/logo.svg"
-        />
     </div>
 </template>
 <script lang="ts" setup>
@@ -22,6 +46,7 @@ import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import LoginButton from "../user/LoginButton.vue"
 import VSelect from "../VSelect.vue"
+import NavLink from "./NavLink.vue"
 
 const { t } = useI18n()
 
