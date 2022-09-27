@@ -1,11 +1,14 @@
 <template>
-    <div class="max-w-sm">
-        <img v-if="item.image" :src="item.image" />
-        <div class="flex">
-            <h1 class="text-lg text-primary font-bold">{{ item.title }}</h1>
-            <p class="ml-auto text-gray">{{ item.__typename }}</p>
-        </div>
-        <p>{{ item.description }}</p>
+    <div
+        class="flex aspect-video bg-cover bg-center bg-no-repeat rounded rounded-2xl"
+        :style="{
+            'background-image':
+                'linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url(\'' +
+                item.image +
+                '\')',
+        }"
+    >
+        <h1 class="text-lg p-2 text-primary font-semibold mt-auto">{{ item.title }}</h1>
     </div>
 </template>
 <script lang="ts" setup>

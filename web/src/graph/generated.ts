@@ -23,8 +23,11 @@ export type Scalars = {
     Date: any
 }
 
-export type AppConfig = {
-    minVersion: Scalars["String"]
+export type Application = {
+    clientVersion: Scalars["String"]
+    code: Scalars["String"]
+    id: Scalars["ID"]
+    page?: Maybe<Page>
 }
 
 export type Calendar = {
@@ -84,12 +87,7 @@ export type CollectionItemPagination = Pagination & {
 }
 
 export type Config = {
-    app: AppConfig
     global: GlobalConfig
-}
-
-export type ConfigAppArgs = {
-    timestamp?: InputMaybe<Scalars["String"]>
 }
 
 export type ConfigGlobalArgs = {
@@ -97,6 +95,7 @@ export type ConfigGlobalArgs = {
 }
 
 export type Episode = {
+    ageRating: Scalars["String"]
     audioLanguages: Array<Language>
     chapters: Array<Chapter>
     description: Scalars["String"]
@@ -140,13 +139,16 @@ export type EpisodePagination = Pagination & {
 }
 
 export type EpisodeSearchItem = SearchResultItem & {
+    ageRating: Scalars["String"]
     collection: Scalars["String"]
     description?: Maybe<Scalars["String"]>
+    duration: Scalars["Int"]
     header?: Maybe<Scalars["String"]>
     highlight?: Maybe<Scalars["String"]>
     id: Scalars["ID"]
     image?: Maybe<Scalars["String"]>
     legacyID?: Maybe<Scalars["ID"]>
+    legacyProgramID?: Maybe<Scalars["ID"]>
     season?: Maybe<Season>
     seasonId?: Maybe<Scalars["ID"]>
     seasonTitle?: Maybe<Scalars["String"]>
@@ -297,6 +299,7 @@ export type Pagination = {
 }
 
 export type QueryRoot = {
+    application: Application
     calendar?: Maybe<Calendar>
     collection: Collection
     config: Config
@@ -331,8 +334,10 @@ export type QueryRootPageArgs = {
 
 export type QueryRootSearchArgs = {
     first?: InputMaybe<Scalars["Int"]>
+    minScore?: InputMaybe<Scalars["Int"]>
     offset?: InputMaybe<Scalars["Int"]>
     queryString: Scalars["String"]
+    type?: InputMaybe<Scalars["String"]>
 }
 
 export type QueryRootSeasonArgs = {
@@ -380,6 +385,7 @@ export type SearchResultItem = {
 }
 
 export type Season = {
+    ageRating: Scalars["String"]
     description: Scalars["String"]
     episodes: EpisodePagination
     id: Scalars["ID"]
@@ -421,6 +427,7 @@ export type SeasonPagination = Pagination & {
 }
 
 export type SeasonSearchItem = SearchResultItem & {
+    ageRating: Scalars["String"]
     collection: Scalars["String"]
     description?: Maybe<Scalars["String"]>
     header?: Maybe<Scalars["String"]>
@@ -839,6 +846,8 @@ export type GetEpisodeQuery = {
 
 export type SearchQueryVariables = Exact<{
     query: Scalars["String"]
+    type?: InputMaybe<Scalars["String"]>
+    minScore?: InputMaybe<Scalars["Int"]>
 }>
 
 export type SearchQuery = {
@@ -1127,8 +1136,8 @@ export function useGetEpisodeQuery(
     })
 }
 export const SearchDocument = gql`
-    query search($query: String!) {
-        search(queryString: $query) {
+    query search($query: String!, $type: String, $minScore: Int) {
+        search(queryString: $query, type: $type, minScore: $minScore) {
             hits
             page
             result {
