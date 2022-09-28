@@ -17,12 +17,15 @@ type AuthState = {
 export default createClient({
     url: config.api.url,
     maskTypename: false,
-    fetchOptions: () => {
-        return {
-            headers: {
-                "Accept-Language": settings.locale,
-            },
-        }
+    fetch(input, init) {
+        return fetch(
+            input,
+            Object.assign(init ?? {}, {
+                headers: Object.assign(init?.headers ?? {}, {
+                    "Accept-Language": settings.locale,
+                }),
+            })
+        )
     },
     exchanges: [
         dedupExchange,

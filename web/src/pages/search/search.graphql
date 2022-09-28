@@ -1,5 +1,5 @@
-query search($query: String!) {
-    search(queryString: $query) {
+query search($query: String!, $type: String, $minScore: Int) {
+    search(queryString: $query, type: $type, minScore: $minScore) {
         hits
         page
         result {
