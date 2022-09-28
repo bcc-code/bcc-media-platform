@@ -3,6 +3,7 @@ package crowdin
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"regexp"
 	"strconv"
 	"strings"
@@ -28,6 +29,7 @@ type Client struct {
 	c      *resty.Client
 	du     *directus.Handler
 	config Config
+	q      *sqlc.Queries
 }
 
 // ErrRequestFailed error for failed requests
@@ -41,7 +43,7 @@ func ensureSuccess(res *resty.Response) error {
 }
 
 // New client for requests
-func New(config Config, directusHandler *directus.Handler) *Client {
+func New(config Config, directusHandler *directus.Handler, queries *sqlc.Queries) *Client {
 	c := resty.New().
 		SetBaseURL("https://api.crowdin.com/api/v2/").
 		SetAuthToken(config.Token)
@@ -49,6 +51,7 @@ func New(config Config, directusHandler *directus.Handler) *Client {
 		du:     directusHandler,
 		c:      c,
 		config: config,
+		q:      queries,
 	}
 }
 
@@ -267,13 +270,14 @@ func dbLanguage(language string) string {
 	return language
 }
 
-func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, project Project, directoryId int, collection string, translations []simpleTranslation) error {
+func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, project Project, directoryId int, collection string, translationFactory func(ctx context.Context, language string) ([]simpleTranslation, error)) error {
 	log.L.Debug().Int("project", project.ID).Str("collection", collection).Msg("Syncing collection")
 	projectId := project.ID
 	language := project.SourceLanguageId
-	sourceTranslations := lo.Filter(translations, func(t simpleTranslation, _ int) bool {
-		return t.Language == language // && t.IsPrimary == true
-	})
+	sourceTranslations, err := translationFactory(ctx, language)
+	if err != nil {
+		return err
+	}
 	file, err := client.getFileForCollection(project, directoryId, collection)
 	if err != nil {
 		log.L.Debug().Msg("Creating file")
@@ -348,9 +352,9 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 	for _, language := range project.TargetLanguages {
 		log.L.Debug().Str("language", language.ID).Msg("Syncing translations.")
 
-		existingTranslations := lo.Filter(translations, func(t simpleTranslation, _ int) bool {
-			return t.Language == dbLanguage(language.ID)
-		})
+		lan := dbLanguage(language.ID)
+
+		existingTranslations, err := translationFactory(ctx, lan)
 
 		log.L.Debug().Int("count", len(existingTranslations)).Msg("Found existing translations")
 
@@ -449,75 +453,60 @@ type hasStatus interface {
 	GetStatus() common.Status
 }
 
-func getPublishedDictionary[t hasStatus](items []t, getParentValue func(t) bool) map[int]bool {
-	return lo.Reduce(items, func(dict map[int]bool, i t, _ int) map[int]bool {
-		dict[i.UID()] = getParentValue(i) && i.GetStatus() == common.StatusPublished
-		return dict
-	}, map[int]bool{})
+func (client *Client) syncEpisodes(ctx context.Context, d *directus.Handler, project Project, directoryId int) error {
+	return client.syncCollection(ctx, d, project, directoryId, "episodes", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		ts, err := client.q.ListEpisodeTranslations(ctx, []string{language})
+		if err != nil {
+			return nil, err
+		}
+		return lo.Map(
+			ts,
+			func(t sqlc.ListEpisodeTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID:          int(t.ID),
+					Description: t.Description.ValueOrZero(),
+					Title:       t.Title.ValueOrZero(),
+					Language:    t.LanguagesCode,
+					ParentID:    int(t.ParentID),
+				}
+			}), nil
+	})
 }
 
-func (client *Client) syncEpisodes(ctx context.Context, d *directus.Handler, published map[int]bool, project Project, directoryId int) error {
-	sourceTranslations, err := d.ListEpisodeTranslations(ctx, "", false, 0)
-
-	if err != nil {
-		return err
-	}
-	translations := lo.Map(
-		lo.Filter(sourceTranslations, func(i directus.EpisodesTranslation, _ int) bool {
-			return published[i.EpisodesID]
-		}),
-		func(t directus.EpisodesTranslation, _ int) simpleTranslation {
+func (client *Client) syncSeasons(ctx context.Context, d *directus.Handler, project Project, directoryId int) error {
+	return client.syncCollection(ctx, d, project, directoryId, "seasons", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		ts, err := client.q.ListSeasonTranslations(ctx, []string{language})
+		if err != nil {
+			return nil, err
+		}
+		return lo.Map(ts, func(t sqlc.ListSeasonTranslationsRow, _ int) simpleTranslation {
 			return simpleTranslation{
-				ID:          t.ID,
-				Description: t.Description,
-				Title:       t.Title,
+				ID:          int(t.ID),
+				Description: t.Description.ValueOrZero(),
+				Title:       t.Title.ValueOrZero(),
 				Language:    t.LanguagesCode,
-				ParentID:    t.EpisodesID,
+				ParentID:    int(t.ParentID),
 			}
-		})
-	return client.syncCollection(ctx, d, project, directoryId, "episodes", translations)
+		}), nil
+	})
 }
 
-func (client *Client) syncSeasons(ctx context.Context, d *directus.Handler, published map[int]bool, project Project, directoryId int) error {
-	sourceTranslations, err := d.ListSeasonTranslations(ctx, "", false, 0)
-	if err != nil {
-		return err
-	}
-	translations := lo.Map(
-		lo.Filter(sourceTranslations, func(i directus.SeasonsTranslation, _ int) bool {
-			return published[i.SeasonsID]
-		}),
-		func(t directus.SeasonsTranslation, _ int) simpleTranslation {
+func (client *Client) syncShows(ctx context.Context, d *directus.Handler, project Project, directoryId int) error {
+	return client.syncCollection(ctx, d, project, directoryId, "shows", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		ts, err := client.q.ListShowTranslations(ctx, []string{language})
+		if err != nil {
+			return nil, err
+		}
+		return lo.Map(ts, func(t sqlc.ListShowTranslationsRow, _ int) simpleTranslation {
 			return simpleTranslation{
-				ID:          t.ID,
-				Description: t.Description,
-				Title:       t.Title,
+				ID:          int(t.ID),
+				Description: t.Description.ValueOrZero(),
+				Title:       t.Title.ValueOrZero(),
 				Language:    t.LanguagesCode,
-				ParentID:    t.SeasonsID,
+				ParentID:    int(t.ParentID),
 			}
-		})
-	return client.syncCollection(ctx, d, project, directoryId, "seasons", translations)
-}
-
-func (client *Client) syncShows(ctx context.Context, d *directus.Handler, published map[int]bool, project Project, directoryId int) error {
-	sourceTranslations, err := d.ListShowTranslations(ctx, "", false, 0)
-	if err != nil {
-		return err
-	}
-	translations := lo.Map(
-		lo.Filter(sourceTranslations, func(i directus.ShowsTranslation, _ int) bool {
-			return published[i.ShowsID]
-		}),
-		func(t directus.ShowsTranslation, _ int) simpleTranslation {
-			return simpleTranslation{
-				ID:          t.ID,
-				Description: t.Description,
-				Title:       t.Title,
-				Language:    t.LanguagesCode,
-				ParentID:    t.ShowsID,
-			}
-		})
-	return client.syncCollection(ctx, d, project, directoryId, "shows", translations)
+		}), nil
+	})
 }
 
 var projectCache = cache.New[int, Project]()
@@ -548,33 +537,15 @@ func (client *Client) Sync(ctx context.Context, d *directus.Handler) error {
 			return err
 		}
 
-		shows, err := d.ListShows(ctx)
+		err = client.syncEpisodes(ctx, d, project, directory.ID)
 		if err != nil {
 			return err
 		}
-		publishedShows := getPublishedDictionary(shows, func(i directus.Show) bool { return true })
-		seasons, err := d.ListSeasons(ctx)
+		err = client.syncSeasons(ctx, d, project, directory.ID)
 		if err != nil {
 			return err
 		}
-		publishedSeasons := getPublishedDictionary(seasons, func(i directus.Season) bool { return publishedShows[i.ShowID] })
-		episodes, err := d.ListEpisodes(ctx)
-		if err != nil {
-			return err
-		}
-		publishedEpisodes := getPublishedDictionary(episodes, func(i directus.Episode) bool {
-			return !i.SeasonID.Valid || publishedSeasons[int(i.SeasonID.ValueOrZero())]
-		})
-
-		err = client.syncEpisodes(ctx, d, publishedEpisodes, project, directory.ID)
-		if err != nil {
-			return err
-		}
-		err = client.syncSeasons(ctx, d, publishedSeasons, project, directory.ID)
-		if err != nil {
-			return err
-		}
-		err = client.syncShows(ctx, d, publishedShows, project, directory.ID)
+		err = client.syncShows(ctx, d, project, directory.ID)
 		if err != nil {
 			return err
 		}
