@@ -8,7 +8,9 @@
             </ItemSection>
         </div>
         <div v-if="fetching">FETCHING</div>
-        <div v-else-if="!data?.page.sections.items.length">Uh oh. Missing content</div>
+        <div v-else-if="!data?.page.sections.items.length">
+            Uh oh. Missing content
+        </div>
         <div v-if="error">{{ error.message }}</div>
     </section>
 </template>

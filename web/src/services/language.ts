@@ -1,4 +1,8 @@
-import i18n, { loadLocaleMessages, SUPPORT_LOCALES, setLanguage as i18nSetLanguage } from "@/i18n"
+import i18n, {
+    loadLocaleMessages,
+    SUPPORT_LOCALES,
+    setLanguage as i18nSetLanguage,
+} from "@/i18n"
 import { computed, ref } from "vue"
 import settings from "./settings"
 
@@ -47,7 +51,7 @@ const getCurrentLanguage = () => {
     }
 
     const navLanguage = navigator.language?.split("-")[0]?.toLowerCase() ?? ""
-    
+
     if (SUPPORT_LOCALES.includes(navLanguage)) {
         return navLanguage
     }
@@ -58,7 +62,9 @@ const getCurrentLanguage = () => {
 export const languages = ref(getLanguages(getCurrentLanguage()))
 
 export const current = computed(() => {
-    return languages.value.find(l => l.code === getCurrentLanguage()) as Language
+    return languages.value.find(
+        (l) => l.code === getCurrentLanguage()
+    ) as Language
 })
 
 export const setLanguage = async (l: string) => {

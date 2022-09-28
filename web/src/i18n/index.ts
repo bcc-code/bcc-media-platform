@@ -13,7 +13,7 @@ export function setup(options: I18nOptions = { locale: "en" }): I18n {
 }
 
 export function setLanguage(i18n: I18n, locale: Locale): void {
-    (i18n.global as Composer).locale.value = locale
+    ;(i18n.global as Composer).locale.value = locale
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
