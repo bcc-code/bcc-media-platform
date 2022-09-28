@@ -4,7 +4,7 @@ import en from "./translations/en.json"
 
 import type { I18n, I18nOptions, Locale, Composer } from "vue-i18n"
 
-export const SUPPORT_LOCALES = ["en", "no", "ja"]
+export const SUPPORT_LOCALES = ["en", "no"]
 
 export function setup(options: I18nOptions = { locale: "en" }): I18n {
     const i18n = createI18n(options)
