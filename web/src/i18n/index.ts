@@ -4,7 +4,7 @@ import en from "./translations/en.json"
 
 import type { I18n, I18nOptions, Locale, Composer } from "vue-i18n"
 
-export const SUPPORT_LOCALES = ["en", "ja"]
+export const SUPPORT_LOCALES = ["en", "no", "ja"]
 
 export function setup(options: I18nOptions = { locale: "en" }): I18n {
     const i18n = createI18n(options)
@@ -13,8 +13,7 @@ export function setup(options: I18nOptions = { locale: "en" }): I18n {
 }
 
 export function setLanguage(i18n: I18n, locale: Locale): void {
-    const instance = i18n.global as Composer
-    instance.locale.value = locale
+    (i18n.global as Composer).locale.value = locale
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

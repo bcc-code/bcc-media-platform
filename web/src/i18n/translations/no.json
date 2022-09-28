@@ -3,5 +3,12 @@
         "save": "Lagre",
         "login": "Logg inn",
         "logout": "Logg ut"
+    },
+    "page": {
+        "home": "Hjem",
+        "search": "Søk",
+        "live": "Live",
+        "calendar": "Kalender",
+        "faq": "FAQ"
     }
 }

@@ -1,10 +1,15 @@
-import { SUPPORT_LOCALES } from "@/i18n"
-import { ref } from "vue"
+import i18n, { loadLocaleMessages, SUPPORT_LOCALES, setLanguage as i18nSetLanguage } from "@/i18n"
+import { computed, ref } from "vue"
+import settings from "./settings"
 
 export type Language = {
     code: string
     name: string
     english?: string
+}
+
+const capFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
 const getLanguages: (language: string) => Language[] = (language) => {
@@ -22,7 +27,7 @@ const getLanguages: (language: string) => Language[] = (language) => {
 
             return {
                 code: l,
-                name: name ?? l,
+                name: capFirstLetter(name ?? l),
                 english: name === enName ? undefined : enName,
             }
         })
@@ -35,6 +40,36 @@ const getLanguages: (language: string) => Language[] = (language) => {
     })
 }
 
-export const languages = ref(getLanguages("en"))
+const getCurrentLanguage = () => {
+    const saved = settings.locale
+    if (saved && SUPPORT_LOCALES.includes(saved)) {
+        return saved
+    }
 
-export default {}
+    const navLanguage = navigator.language?.split("-")[0]?.toLowerCase() ?? ""
+    
+    if (SUPPORT_LOCALES.includes(navLanguage)) {
+        return navLanguage
+    }
+
+    return "en"
+}
+
+export const languages = ref(getLanguages(getCurrentLanguage()))
+
+export const current = computed(() => {
+    return languages.value.find(l => l.code === getCurrentLanguage()) as Language
+})
+
+export const setLanguage = async (l: string) => {
+    settings.locale = l
+
+    await loadLocaleMessages(i18n, l)
+    i18nSetLanguage(i18n, l)
+
+    languages.value = getLanguages(l)
+}
+
+export const init = async () => {
+    await setLanguage(current.value.code)
+}

@@ -19,8 +19,104 @@
                     </div>
                     <div class="hidden lg:ml-6 lg:block">
                         <div class="flex space-x-4">
-                            <NavLink v-for="item in navigation" :icon-folder="item.iconFolder" :to="item.to">{{item.name}}</NavLink>
+                            <NavLink v-for="item in navigation" :icon-folder="item.iconFolder" :to="item.to">{{t(item.name)}}</NavLink>
                         </div>
+                    </div>
+                    <div class="hidden lg:ml-6 lg:block">
+                        <Menu as="div" class="relative inline-block text-left">
+                            <MenuButton
+                                :class="open ? '' : 'text-opacity-90'"
+                                class="group inline-flex items-center rounded-md text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="h-8 fill-primary" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM4.25203 10C4.08751 10.6392 4 11.3094 4 12C4 12.6906 4.08751 13.3608 4.25203 14H7.09432C7.03228 13.3521 7 12.6829 7 12C7 11.3171 7.03228 10.6479 7.09432 10H4.25203ZM5.07026 8H7.39317C7.60515 6.9765 7.89762 6.04022 8.25776 5.2299C8.31802 5.09431 8.38064 4.96122 8.44561 4.83099C7.03292 5.53275 5.8571 6.63979 5.07026 8ZM9.10446 10C9.03652 10.6376 9 11.3072 9 12C9 12.6928 9.03652 13.3624 9.10446 14H14.8955C14.9635 13.3624 15 12.6928 15 12C15 11.3072 14.9635 10.6376 14.8955 10H9.10446ZM14.5584 8H9.44164C9.61531 7.26765 9.83379 6.60826 10.0854 6.04218C10.4134 5.30422 10.778 4.76892 11.1324 4.43166C11.4816 4.0993 11.7731 4 12 4C12.2269 4 12.5184 4.0993 12.8676 4.43166C13.222 4.76892 13.5866 5.30422 13.9146 6.04218C14.1662 6.60826 14.3847 7.26765 14.5584 8ZM16.9057 10C16.9677 10.6479 17 11.3171 17 12C17 12.6829 16.9677 13.3521 16.9057 14H19.748C19.9125 13.3608 20 12.6906 20 12C20 11.3094 19.9125 10.6392 19.748 10H16.9057ZM18.9297 8H16.6068C16.3949 6.9765 16.1024 6.04022 15.7422 5.2299C15.682 5.09431 15.6194 4.96122 15.5544 4.83099C16.9671 5.53275 18.1429 6.63979 18.9297 8ZM8.44561 19.169C7.03292 18.4672 5.85709 17.3602 5.07026 16H7.39317C7.60515 17.0235 7.89762 17.9598 8.25776 18.7701C8.31802 18.9057 8.38064 19.0388 8.44561 19.169ZM10.0854 17.9578C9.83379 17.3917 9.61531 16.7324 9.44164 16H14.5584C14.3847 16.7324 14.1662 17.3917 13.9146 17.9578C13.5866 18.6958 13.222 19.2311 12.8676 19.5683C12.5184 19.9007 12.2269 20 12 20C11.7731 20 11.4816 19.9007 11.1324 19.5683C10.778 19.2311 10.4134 18.6958 10.0854 17.9578ZM15.7422 18.7701C16.1024 17.9598 16.3949 17.0235 16.6068 16H18.9297C18.1429 17.3602 16.9671 18.4672 15.5544 19.169C15.6194 19.0388 15.682 18.9057 15.7422 18.7701Z"/>
+                                </svg>
+                                <p class="uppercase">
+                                    {{current.code}}
+                                </p>
+                            </MenuButton>
+                            <transition
+                                enter-active-class="transition duration-200 ease-out"
+                                enter-from-class="translate-y-1 opacity-0"
+                                enter-to-class="translate-y-0 opacity-100"
+                                leave-active-class="transition duration-150 ease-in"
+                                leave-from-class="translate-y-0 opacity-100"
+                                leave-to-class="translate-y-1 opacity-0"
+                            >
+                                <MenuItems class="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-slate-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                                    <div class="p-1">
+                                        <MenuItem v-slot="{active}" v-for="l in languages">
+                                            <div
+                                                @click="setLanguage(l.code)"
+                                                :class="[
+                                                    active ? 'bg-violet-500 text-white' : 'text-gray-900',
+                                                    'w-full rounded-md px-2 py-2 text-sm transition duration-50',
+                                                ]"
+                                            >
+                                                <p class="text-base">{{l.name}}</p>
+                                                <p v-if="l.english" class="text-gray">{{l.english}}</p>
+                                            </div>
+                                        </MenuItem>
+                                    </div>
+                                </MenuItems>
+                            </transition>
+                        </Menu>
+                        <Menu as="div" class="relative inline-block text-left ml-2">
+                            <div>
+                                <MenuButton
+                                    :class="open ? '' : 'text-opacity-90'"
+                                    class="group inline-flex items-center rounded-md text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                                >
+                                    <img 
+                                        class="h-8 w-auto"
+                                    src="/icons/Utility/Medium/Profile/Tint.svg" />
+                                </MenuButton>
+                            </div>
+                            <transition
+                                enter-active-class="transition duration-200 ease-out"
+                                enter-from-class="translate-y-1 opacity-0"
+                                enter-to-class="translate-y-0 opacity-100"
+                                leave-active-class="transition duration-150 ease-in"
+                                leave-from-class="translate-y-0 opacity-100"
+                                leave-to-class="translate-y-1 opacity-0"
+                            >
+                                <MenuItems class="absolute text-base right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-slate-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                                    <div class="p-1">
+                                        <MenuItem v-slot="{active}">
+                                            <button @click="authenticated ? signOut() : signIn()"
+
+                                                :class="[
+                                                    active ? 'bg-violet-500 text-white' : 'text-gray-900',
+                                                    'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
+                                                ]"
+                                            >
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" :class="[authenticated ? 'stroke-red-500' : 'stroke-primary']" xmlns="http://www.w3.org/2000/svg">
+                                                    <circle cx="12" cy="8" r="5" stroke-width="2"/>
+                                                    <path d="M20 21C20 16.5817 16.4183 13 12 13C7.58172 13 4 16.5817 4 21" stroke-width="2"/>
+                                                </svg>
+
+                                                <p class="ml-2 text-base">
+                                                    {{
+                                                        t("buttons." + (authenticated ? "logout" : "login"))
+                                                    }}
+                                                </p>
+                                            </button>
+                                        </MenuItem>
+                                        <MenuItem v-slot="{active}">
+                                            <button
+                                                :class="[
+                                                    active ? 'bg-violet-500 text-white' : 'text-gray-900',
+                                                    'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
+                                                ]"
+                                            >
+                                                <img src="/icons/Utility/Medium/Settings.svg" class="h-6 w-auto" />
+                                                <p class="ml-2 text-base">Settings</p>
+                                            </button>
+                                        </MenuItem>
+                                    </div>
+                                </MenuItems>
+                            </transition>
+                        </Menu>
                     </div>
                 </div>
                 <div
@@ -39,112 +135,30 @@
                     <div class="mx-auto flex space-x-4">
                         <NavLink v-for="item in navigation" :icon-folder="item.iconFolder" :to="item.to">{{item.name}}</NavLink>
                     </div>
-                    <!-- Mobile menu button-->
-                    <!-- <DisclosureButton
-                        class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-                    >
-                        <span class="sr-only">Open main menu</span>
-                        <Bars3Icon
-                            v-if="!open"
-                            class="block h-6 w-6"
-                            aria-hidden="true"
-                        />
-                        <XMarkIcon
-                            v-else
-                            class="block h-6 w-6"
-                            aria-hidden="true"
-                        />
-                    </DisclosureButton> -->
                 </div>
-                <!-- <div
-                    class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
-                >
-                    <button
-                        type="button"
-                        class="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                    >
-                        <span class="sr-only">View notifications</span>
-                        <BellIcon class="h-6 w-6" aria-hidden="true" />
-                    </button>
-
-                    <Menu as="div" class="relative ml-3">
-                        <div>
-                            <MenuButton
-                                class="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                            >
-                                <span class="sr-only">Open user menu</span>
-                                <img
-                                    class="h-8 w-8 rounded-full"
-                                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                    alt=""
-                                />
-                            </MenuButton>
-                        </div>
-                        <transition
-                            enter-active-class="transition ease-out duration-100"
-                            enter-from-class="transform opacity-0 scale-95"
-                            enter-to-class="transform opacity-100 scale-100"
-                            leave-active-class="transition ease-in duration-75"
-                            leave-from-class="transform opacity-100 scale-100"
-                            leave-to-class="transform opacity-0 scale-95"
-                        >
-                            <MenuItems
-                                class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                            >
-                                <MenuItem v-slot="{ active }">
-                                    <a
-                                        href="#"
-                                        :class="[
-                                            active ? 'bg-gray-100' : '',
-                                            'block px-4 py-2 text-sm text-gray-700',
-                                        ]"
-                                        >Your Profile</a
-                                    >
-                                </MenuItem>
-                                <MenuItem v-slot="{ active }">
-                                    <a
-                                        href="#"
-                                        :class="[
-                                            active ? 'bg-gray-100' : '',
-                                            'block px-4 py-2 text-sm text-gray-700',
-                                        ]"
-                                        >Settings</a
-                                    >
-                                </MenuItem>
-                                <MenuItem v-slot="{ active }">
-                                    <a
-                                        href="#"
-                                        :class="[
-                                            active ? 'bg-gray-100' : '',
-                                            'block px-4 py-2 text-sm text-gray-700',
-                                        ]"
-                                        >Sign out</a
-                                    >
-                                </MenuItem>
-                            </MenuItems>
-                        </transition>
-                    </Menu>
-                </div> -->
             </div>
         </div>
-
-        <!-- <DisclosurePanel class="sm:hidden">
-            <div class="flex space-y-1 px-2 pt-2 pb-3">
-                <NavLink v-for="item in navigation" :icon-folder="item.iconFolder" :to="item.to">{{item.name}}</NavLink>
-            </div>
-        </DisclosurePanel> -->
     </Disclosure>
 </template>
 <script lang="ts" setup>
-import i18n, { loadLocaleMessages, setLanguage } from "@/i18n"
-import settings from "@/services/settings"
-import { computed, ref, watch } from "vue"
-import { useI18n } from "vue-i18n"
-import { RouteLocationRaw, useRouter } from "vue-router"
+import type { RouteLocationRaw } from "vue-router"
 import NavLink from "./NavLink.vue"
 import {
     Disclosure,
+    Menu,
+    MenuButton,
+    MenuItems,
+    MenuItem,
 } from "@headlessui/vue"
+import Auth from "@/services/auth"
+import { useI18n } from "vue-i18n"
+import { current, setLanguage, languages } from "@/services/language"
+
+const { t } = useI18n()
+
+const authenticated = Auth.isAuthenticated()
+const signIn = Auth.signIn
+const signOut = Auth.signOut
 
 const navigation: {
     name: string
@@ -152,89 +166,39 @@ const navigation: {
     iconFolder: string
 }[] = [
     { 
-        name: "Home",
+        name: "page.home",
         to: {
             name: "front-page"
         },
         iconFolder: "/icons/TabBar/Home"
     },
     { 
-        name: "Search",
+        name: "page.search",
         to: {
             name: "search"
         },
         iconFolder: "/icons/TabBar/Search"
     },
     { 
-        name: "Live",
+        name: "page.live",
         to: {
             name: "front-page"
         },
         iconFolder: "/icons/TabBar/Live"
     },
     { 
-        name: "Calendar",
+        name: "page.calendar",
         to: {
             name: "calendar"
         },
         iconFolder: "/icons/TabBar/Calendar"
     },
     { 
-        name: "FAQ",
+        name: "page.faq",
         to: {
             name: "front-page"
         },
         iconFolder: "/icons/TabBar/Feed"
     },
 ]
-
-const { t } = useI18n()
-
-const router = useRouter()
-
-const home = () => router.push({ name: "front-page" })
-
-const _languages = [
-    {
-        code: "no",
-        title: "NO",
-    },
-    {
-        code: "en",
-        title: "EN",
-    },
-    {
-        code: "pl",
-        title: "PL",
-    },
-]
-
-const languages = computed(() => {
-    if (Intl !== undefined) {
-        const languageNames = new Intl.DisplayNames(["en"], {
-            type: "language",
-        })
-        return _languages.map((i) => ({
-            code: i.code,
-            title: languageNames.of(i.code) ?? "unknown",
-        }))
-    }
-    return _languages
-})
-
-const selected = ref(
-    languages.value.find((i) => i.code === settings.locale) ?? {
-        title: "English",
-        code: "en",
-    }
-)
-
-watch(
-    () => selected.value,
-    async () => {
-        await loadLocaleMessages(i18n, selected.value.code)
-        setLanguage(i18n, selected.value.code)
-        settings.locale = selected.value.code
-    }
-)
 </script>

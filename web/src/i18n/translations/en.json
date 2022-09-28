@@ -1,7 +1,14 @@
 {
     "buttons": {
-        "save": "Lagre",
+        "save": "Save",
         "login": "Login",
         "logout": "Logout"
+    },
+    "page": {
+        "home": "Home",
+        "search": "Search",
+        "live": "Live",
+        "calendar": "Calendar",
+        "faq": "FAQ"
     }
 }

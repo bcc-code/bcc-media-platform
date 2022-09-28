@@ -27,9 +27,12 @@ import { useRoute } from "vue-router"
 
 import { provideClient } from "@urql/vue"
 import client from "@/graph/client"
+import { init } from "@/services/language"
 provideClient(client)
 
 const route = useRoute()
 
 const loading = Auth.loading()
+
+init()
 </script>
