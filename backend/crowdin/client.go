@@ -436,7 +436,7 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 				return *i
 			},
 		)...)
-		err = pushTranslations(false)
+		err = pushTranslations(true)
 		if err != nil {
 			return err
 		}
