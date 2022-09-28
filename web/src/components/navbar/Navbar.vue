@@ -21,7 +21,6 @@
                         <NavLink
                             v-for="item in navigation"
                             :icon="item.icon"
-                            :icon-folder="item.iconFolder"
                             :to="item.to"
                         >
                             {{ t(item.name) }}</NavLink
