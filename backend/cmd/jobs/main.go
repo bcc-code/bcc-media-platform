@@ -97,7 +97,7 @@ func main() {
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
 
-	handlers := server.NewServer(server.ExternalServices{
+	handlers := server.NewServer(db, server.ExternalServices{
 		S3Client:             s3Client,
 		MediaPackageVOD:      mediaPackageVOD,
 		DirectusClient:       directusClient,
