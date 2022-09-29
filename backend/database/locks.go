@@ -1,3 +1,8 @@
+// -------------------------------------
+// Copied from author allisson:
+// https://github.com/allisson/go-pglock
+// -------------------------------------
+
 package database
 
 import (
