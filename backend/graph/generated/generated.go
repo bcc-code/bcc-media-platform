@@ -220,6 +220,7 @@ type ComplexityRoot struct {
 		ID    func(childComplexity int) int
 		Items func(childComplexity int, first *int, offset *int) int
 		Page  func(childComplexity int) int
+		Size  func(childComplexity int) int
 		Style func(childComplexity int) int
 		Title func(childComplexity int) int
 		Type  func(childComplexity int) int
@@ -248,13 +249,6 @@ type ComplexityRoot struct {
 		Page     func(childComplexity int) int
 		Sort     func(childComplexity int) int
 		Title    func(childComplexity int) int
-	}
-
-	PagePagination struct {
-		First  func(childComplexity int) int
-		Items  func(childComplexity int) int
-		Offset func(childComplexity int) int
-		Total  func(childComplexity int) int
 	}
 
 	QueryRoot struct {
@@ -1287,6 +1281,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ItemSection.Page(childComplexity), true
 
+	case "ItemSection.size":
+		if e.complexity.ItemSection.Size == nil {
+			break
+		}
+
+		return e.complexity.ItemSection.Size(childComplexity), true
+
 	case "ItemSection.style":
 		if e.complexity.ItemSection.Style == nil {
 			break
@@ -1408,34 +1409,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PageItem.Title(childComplexity), true
-
-	case "PagePagination.first":
-		if e.complexity.PagePagination.First == nil {
-			break
-		}
-
-		return e.complexity.PagePagination.First(childComplexity), true
-
-	case "PagePagination.items":
-		if e.complexity.PagePagination.Items == nil {
-			break
-		}
-
-		return e.complexity.PagePagination.Items(childComplexity), true
-
-	case "PagePagination.offset":
-		if e.complexity.PagePagination.Offset == nil {
-			break
-		}
-
-		return e.complexity.PagePagination.Offset(childComplexity), true
-
-	case "PagePagination.total":
-		if e.complexity.PagePagination.Total == nil {
-			break
-		}
-
-		return e.complexity.PagePagination.Total(childComplexity), true
 
 	case "QueryRoot.application":
 		if e.complexity.QueryRoot.Application == nil {
@@ -2565,6 +2538,56 @@ type MaintenanceMessage {
     details: String
 }
 `, BuiltIn: false},
+	{Name: "../schema/pages.graphqls", Input: `
+type Page{
+    id: ID!
+    code: String!
+    title: String!
+    description: String
+    sections(
+        first: Int
+        offset: Int
+    ): SectionPagination! @goField(forceResolver: true)
+}
+
+interface Section{
+    id: ID!
+    title: String!
+}
+
+type SectionPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [Section!]!
+}
+
+enum ItemSectionType {
+    cards
+    slider
+}
+
+type ItemSection implements Section {
+    id: ID!
+    page: Page! @goField(forceResolver: true)
+    title: String!
+    type: ItemSectionType!
+    style: String!
+    size: String!
+    items(
+        first: Int,
+        offset: Int,
+    ): CollectionItemPagination! @goField(forceResolver: true)
+}
+
+type Collection {
+    id: ID!
+    items(
+        first: Int,
+        offset: Int,
+    ): CollectionItemPagination @goField(forceResolver: true)
+}
+`, BuiltIn: false},
 	{Name: "../schema/schema.graphqls", Input: `directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
     | FIELD_DEFINITION
 
@@ -2578,65 +2601,11 @@ interface Pagination {
   offset: Int!
 }
 
-type Page{
-  id: ID!
-  code: String!
-  title: String!
-  description: String
-  sections(
-    first: Int
-    offset: Int
-  ): SectionPagination! @goField(forceResolver: true)
-}
-
-type PagePagination implements Pagination {
-  total: Int!
-  first: Int!
-  offset: Int!
-  items: [Page!]!
-}
 
 enum Language{
   en
   no
   de
-}
-
-interface Section{
-  id: ID!
-  title: String!
-}
-
-type SectionPagination implements Pagination {
-  total: Int!
-  first: Int!
-  offset: Int!
-  items: [Section!]!
-}
-
-enum ItemSectionType {
-  cards
-  slider
-}
-
-type ItemSection implements Section {
-  id: ID!
-  page: Page! @goField(forceResolver: true)
-  title: String!
-  type: ItemSectionType!
-  style: String!
-  items(
-    first: Int,
-    offset: Int,
-  ): CollectionItemPagination! @goField(forceResolver: true)
-}
-
-type Collection {
-  id: ID!
-  items(
-    first: Int,
-    offset: Int,
-  ): CollectionItemPagination @goField(forceResolver: true)
 }
 
 scalar Cursor
@@ -8115,6 +8084,50 @@ func (ec *executionContext) fieldContext_ItemSection_style(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _ItemSection_size(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemSection_size(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Size, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ItemSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ItemSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ItemSection_items(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ItemSection_items(ctx, field)
 	if err != nil {
@@ -8771,194 +8784,6 @@ func (ec *executionContext) _PageItem_page(ctx context.Context, field graphql.Co
 func (ec *executionContext) fieldContext_PageItem_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PageItem",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Page_id(ctx, field)
-			case "code":
-				return ec.fieldContext_Page_code(ctx, field)
-			case "title":
-				return ec.fieldContext_Page_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Page_description(ctx, field)
-			case "sections":
-				return ec.fieldContext_Page_sections(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PagePagination_total(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PagePagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PagePagination_total(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Total, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PagePagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PagePagination",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PagePagination_first(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PagePagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PagePagination_first(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.First, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PagePagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PagePagination",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PagePagination_offset(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PagePagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PagePagination_offset(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Offset, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PagePagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PagePagination",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PagePagination_items(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PagePagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PagePagination_items(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Items, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*gqlmodel.Page)
-	fc.Result = res
-	return ec.marshalNPage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPageᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PagePagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PagePagination",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -16903,13 +16728,6 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._FAQCategoryPagination(ctx, sel, obj)
-	case gqlmodel.PagePagination:
-		return ec._PagePagination(ctx, sel, &obj)
-	case *gqlmodel.PagePagination:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._PagePagination(ctx, sel, obj)
 	case gqlmodel.SectionPagination:
 		return ec._SectionPagination(ctx, sel, &obj)
 	case *gqlmodel.SectionPagination:
@@ -18271,6 +18089,13 @@ func (ec *executionContext) _ItemSection(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "size":
+
+			out.Values[i] = ec._ItemSection_size(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "items":
 			field := field
 
@@ -18479,55 +18304,6 @@ func (ec *executionContext) _PageItem(ctx context.Context, sel ast.SelectionSet,
 		case "page":
 
 			out.Values[i] = ec._PageItem_page(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var pagePaginationImplementors = []string{"PagePagination", "Pagination"}
-
-func (ec *executionContext) _PagePagination(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.PagePagination) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, pagePaginationImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PagePagination")
-		case "total":
-
-			out.Values[i] = ec._PagePagination_total(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "first":
-
-			out.Values[i] = ec._PagePagination_first(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "offset":
-
-			out.Values[i] = ec._PagePagination_offset(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "items":
-
-			out.Values[i] = ec._PagePagination_items(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -21257,50 +21033,6 @@ func (ec *executionContext) marshalNMessages2ᚖgithubᚗcomᚋbccᚑcodeᚋbrun
 
 func (ec *executionContext) marshalNPage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Page) graphql.Marshaler {
 	return ec._Page(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPageᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Page) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPage(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Page) graphql.Marshaler {

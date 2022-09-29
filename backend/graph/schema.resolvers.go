@@ -17,21 +17,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
-// Items is the resolver for the items field.
-func (r *collectionResolver) Items(ctx context.Context, obj *gqlmodel.Collection, first *int, offset *int) (*gqlmodel.CollectionItemPagination, error) {
-	pagination, err := collectionItemResolverFromCollection(ctx, r.Resolver, obj.ID, first, offset)
-	if err != nil {
-		return nil, err
-	}
-
-	return &gqlmodel.CollectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
-	}, nil
-}
-
 // ImageURL is the resolver for the imageUrl field.
 func (r *episodeResolver) ImageURL(ctx context.Context, obj *gqlmodel.Episode) (*string, error) {
 	itemId, _ := strconv.ParseInt(obj.ID, 10, 32)
@@ -114,43 +99,6 @@ func (r *episodeItemResolver) ImageURL(ctx context.Context, obj *gqlmodel.Episod
 	}
 	imageUrl := image.GetImageUrl()
 	return &imageUrl, nil
-}
-
-// Page is the resolver for the page field.
-func (r *itemSectionResolver) Page(ctx context.Context, obj *gqlmodel.ItemSection) (*gqlmodel.Page, error) {
-	return r.QueryRoot().Page(ctx, &obj.Page.ID, nil)
-}
-
-// Items is the resolver for the items field.
-func (r *itemSectionResolver) Items(ctx context.Context, obj *gqlmodel.ItemSection, first *int, offset *int) (*gqlmodel.CollectionItemPagination, error) {
-	pagination, err := collectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
-	if err != nil {
-		return nil, err
-	}
-	return &gqlmodel.CollectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
-	}, nil
-}
-
-// Sections is the resolver for the sections field.
-func (r *pageResolver) Sections(ctx context.Context, obj *gqlmodel.Page, first *int, offset *int) (*gqlmodel.SectionPagination, error) {
-	sections, err := itemsResolverForIntID(ctx, &itemLoaders[int, common.Section]{
-		Item:        r.Loaders.SectionLoader,
-		Permissions: r.Loaders.SectionPermissionLoader,
-	}, r.Loaders.SectionsLoader, obj.ID, gqlmodel.SectionFrom)
-	if err != nil {
-		return nil, err
-	}
-	pagination := utils.Paginate(sections, first, offset)
-	return &gqlmodel.SectionPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
-	}, nil
 }
 
 // Application is the resolver for the application field.
@@ -387,20 +335,11 @@ func (r *showItemResolver) ImageURL(ctx context.Context, obj *gqlmodel.ShowItem)
 	return r.Show().ImageURL(ctx, &gqlmodel.Show{ID: obj.ID})
 }
 
-// Collection returns generated.CollectionResolver implementation.
-func (r *Resolver) Collection() generated.CollectionResolver { return &collectionResolver{r} }
-
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
 
 // EpisodeItem returns generated.EpisodeItemResolver implementation.
 func (r *Resolver) EpisodeItem() generated.EpisodeItemResolver { return &episodeItemResolver{r} }
-
-// ItemSection returns generated.ItemSectionResolver implementation.
-func (r *Resolver) ItemSection() generated.ItemSectionResolver { return &itemSectionResolver{r} }
-
-// Page returns generated.PageResolver implementation.
-func (r *Resolver) Page() generated.PageResolver { return &pageResolver{r} }
 
 // QueryRoot returns generated.QueryRootResolver implementation.
 func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
@@ -417,11 +356,8 @@ func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
 // ShowItem returns generated.ShowItemResolver implementation.
 func (r *Resolver) ShowItem() generated.ShowItemResolver { return &showItemResolver{r} }
 
-type collectionResolver struct{ *Resolver }
 type episodeResolver struct{ *Resolver }
 type episodeItemResolver struct{ *Resolver }
-type itemSectionResolver struct{ *Resolver }
-type pageResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
 type seasonResolver struct{ *Resolver }
 type seasonItemResolver struct{ *Resolver }
