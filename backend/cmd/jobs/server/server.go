@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"database/sql"
 	"github.com/bcc-code/brunstadtv/backend/database"
 	"io/ioutil"
 	"net/http"
@@ -47,9 +46,8 @@ var (
 
 // NewServer returns a new server for handling the HTTP requests
 // Yes, go, I know it's "annoying to work with" but in this case you will have to deal with it
-func NewServer(db *sql.DB, s ExternalServices, c ConfigData) *server {
+func NewServer(s ExternalServices, c ConfigData) *server {
 	return &server{
-		db:       db,
 		services: s,
 		config:   c,
 	}
@@ -57,7 +55,6 @@ func NewServer(db *sql.DB, s ExternalServices, c ConfigData) *server {
 
 // Server is the base for all HTTP handler
 type server struct {
-	db       *sql.DB
 	services ExternalServices
 	config   ConfigData
 }
@@ -65,7 +62,7 @@ type server struct {
 func (s server) runIfNotLocked(ctx context.Context, lockID int, task func() error) error {
 	var locker database.Lock
 	var err error
-	locker, err = database.NewLock(ctx, lockID, s.db)
+	locker, err = database.NewLock(ctx, lockID, s.services.Database)
 	if err != nil {
 		return err
 	}
