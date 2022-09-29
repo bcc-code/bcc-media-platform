@@ -1,6 +1,7 @@
 package server
 
 import (
+	"database/sql"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
@@ -17,6 +18,7 @@ type ExternalServices struct {
 	DirectusClient       *resty.Client
 	SearchService        *search.Service
 	DirectusEventHandler *directus.EventHandler
+	Database             *sql.DB
 	Queries              *sqlc.Queries
 	CrowdinClient        *crowdin.Client
 }

@@ -98,6 +98,7 @@ func main() {
 	router := gin.Default()
 
 	handlers := server.NewServer(server.ExternalServices{
+		Database:             db,
 		S3Client:             s3Client,
 		MediaPackageVOD:      mediaPackageVOD,
 		DirectusClient:       directusClient,
