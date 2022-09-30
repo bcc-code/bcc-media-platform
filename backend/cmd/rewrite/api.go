@@ -101,3 +101,35 @@ query getEpisode($id: ID!) {
 		"id": id,
 	})
 }
+
+func getSeason(id string) *season {
+	return get[season](`
+query getSeason($id: ID!) {
+    season(id: $id) {
+        title
+        description
+        image
+        number
+        show {
+            title
+        }
+    }
+}
+`, map[string]any{
+		"id": id,
+	})
+}
+
+func getShow(id string) *show {
+	return get[show](`
+query getShow($id: ID!) {
+    show(id: $id) {
+        title
+        description
+        image
+    }
+}
+`, map[string]any{
+		"id": id,
+	})
+}

@@ -117,17 +117,67 @@ func main() {
 	r := gin.Default()
 
 	r.GET("episodes/:id", func(ctx *gin.Context) {
-		episodeResult := getEpisode(ctx.Param("id"))
+		res := getEpisode(ctx.Param("id"))
 
-		if episodeResult == nil {
+		if res == nil {
 			ctx.Header("Content-Type", "text/html")
 			ctx.String(200, rw.getDefaultHtmlString())
 			return
 		}
 
-		e := episodeResult.Episode
+		e := res.Episode
 
-		log.Default().Print(episodeResult)
+		log.Default().Print(res)
+
+		options := meta{
+			Title:       e.Title,
+			Description: e.Description,
+		}
+		if e.Image != nil {
+			options.OGImage = *e.Image
+		}
+
+		h := rw.writeMeta(options)
+
+		ctx.Header("Content-Type", "text/html")
+		ctx.String(200, h)
+	})
+
+	r.GET("seasons/:id", func(ctx *gin.Context) {
+		res := getSeason(ctx.Param("id"))
+
+		if res == nil {
+			ctx.Header("Content-Type", "text/html")
+			ctx.String(200, rw.getDefaultHtmlString())
+			return
+		}
+
+		e := res.Season
+
+		options := meta{
+			Title:       e.Title,
+			Description: e.Description,
+		}
+		if e.Image != nil {
+			options.OGImage = *e.Image
+		}
+
+		h := rw.writeMeta(options)
+
+		ctx.Header("Content-Type", "text/html")
+		ctx.String(200, h)
+	})
+
+	r.GET("shows/:id", func(ctx *gin.Context) {
+		res := getShow(ctx.Param("id"))
+
+		if res == nil {
+			ctx.Header("Content-Type", "text/html")
+			ctx.String(200, rw.getDefaultHtmlString())
+			return
+		}
+
+		e := res.Show
 
 		options := meta{
 			Title:       e.Title,
