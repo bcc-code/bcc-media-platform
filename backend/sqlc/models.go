@@ -790,6 +790,8 @@ type Section struct {
 	PageID       null_v4.Int    `db:"page_id" json:"pageID"`
 	Sort         null_v4.Int    `db:"sort" json:"sort"`
 	Style        null_v4.String `db:"style" json:"style"`
+	Size         null_v4.String `db:"size" json:"size"`
+	GridSize     null_v4.String `db:"grid_size" json:"gridSize"`
 }
 
 type SectionsTranslation struct {

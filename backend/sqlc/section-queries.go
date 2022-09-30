@@ -20,6 +20,12 @@ func mapToSections(items []getSectionsRow) []common.Section {
 		if style == "" {
 			style = "slider"
 		}
+		var size string
+		if style == "grid" {
+			size = s.GridSize.ValueOrZero()
+		} else {
+			size = s.Size.ValueOrZero()
+		}
 
 		return common.Section{
 			ID:           int(s.ID),
@@ -30,6 +36,7 @@ func mapToSections(items []getSectionsRow) []common.Section {
 			Type:         "item",
 			CollectionID: s.CollectionID,
 			Style:        style,
+			Size:         size,
 		}
 	})
 }

@@ -174,6 +174,7 @@ type Section struct {
 	Title        LocaleString `json:"title"`
 	Description  LocaleString `json:"description"`
 	Style        string       `json:"style"`
+	Size         string       `json:"size"`
 	CollectionID null.Int     `json:"collectionId"`
 }
 

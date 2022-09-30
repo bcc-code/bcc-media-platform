@@ -21,5 +21,6 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			ID: strconv.Itoa(s.PageID),
 		},
 		Style: s.Style,
+		Size:  s.Size,
 	}
 }

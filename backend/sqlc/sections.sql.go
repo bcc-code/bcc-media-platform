@@ -104,6 +104,8 @@ WITH t AS (SELECT ts.sections_id,
 SELECT s.id,
        p.id::int                    AS page_id,
        s.style,
+       s.size,
+       s.grid_size,
        s.sort,
        s.status::text = 'published'::text AS published,
        s.collection_id,
@@ -121,6 +123,8 @@ type getSectionsRow struct {
 	ID           int32                 `db:"id" json:"id"`
 	PageID       int32                 `db:"page_id" json:"pageID"`
 	Style        null_v4.String        `db:"style" json:"style"`
+	Size         null_v4.String        `db:"size" json:"size"`
+	GridSize     null_v4.String        `db:"grid_size" json:"gridSize"`
 	Sort         null_v4.Int           `db:"sort" json:"sort"`
 	Published    bool                  `db:"published" json:"published"`
 	CollectionID null_v4.Int           `db:"collection_id" json:"collectionID"`
@@ -141,6 +145,8 @@ func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSecti
 			&i.ID,
 			&i.PageID,
 			&i.Style,
+			&i.Size,
+			&i.GridSize,
 			&i.Sort,
 			&i.Published,
 			&i.CollectionID,

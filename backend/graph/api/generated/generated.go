@@ -13,7 +13,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -220,6 +220,7 @@ type ComplexityRoot struct {
 		ID    func(childComplexity int) int
 		Items func(childComplexity int, first *int, offset *int) int
 		Page  func(childComplexity int) int
+		Size  func(childComplexity int) int
 		Style func(childComplexity int) int
 		Title func(childComplexity int) int
 		Type  func(childComplexity int) int
@@ -248,13 +249,6 @@ type ComplexityRoot struct {
 		Page     func(childComplexity int) int
 		Sort     func(childComplexity int) int
 		Title    func(childComplexity int) int
-	}
-
-	PagePagination struct {
-		First  func(childComplexity int) int
-		Items  func(childComplexity int) int
-		Offset func(childComplexity int) int
-		Total  func(childComplexity int) int
 	}
 
 	QueryRoot struct {
@@ -1287,6 +1281,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ItemSection.Page(childComplexity), true
 
+	case "ItemSection.size":
+		if e.complexity.ItemSection.Size == nil {
+			break
+		}
+
+		return e.complexity.ItemSection.Size(childComplexity), true
+
 	case "ItemSection.style":
 		if e.complexity.ItemSection.Style == nil {
 			break
@@ -1408,34 +1409,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PageItem.Title(childComplexity), true
-
-	case "PagePagination.first":
-		if e.complexity.PagePagination.First == nil {
-			break
-		}
-
-		return e.complexity.PagePagination.First(childComplexity), true
-
-	case "PagePagination.items":
-		if e.complexity.PagePagination.Items == nil {
-			break
-		}
-
-		return e.complexity.PagePagination.Items(childComplexity), true
-
-	case "PagePagination.offset":
-		if e.complexity.PagePagination.Offset == nil {
-			break
-		}
-
-		return e.complexity.PagePagination.Offset(childComplexity), true
-
-	case "PagePagination.total":
-		if e.complexity.PagePagination.Total == nil {
-			break
-		}
-
-		return e.complexity.PagePagination.Total(childComplexity), true
 
 	case "QueryRoot.application":
 		if e.complexity.QueryRoot.Application == nil {
@@ -2565,6 +2538,56 @@ type MaintenanceMessage {
     details: String
 }
 `, BuiltIn: false},
+	{Name: "../schema/pages.graphqls", Input: `
+type Page{
+    id: ID!
+    code: String!
+    title: String!
+    description: String
+    sections(
+        first: Int
+        offset: Int
+    ): SectionPagination! @goField(forceResolver: true)
+}
+
+interface Section{
+    id: ID!
+    title: String!
+}
+
+type SectionPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [Section!]!
+}
+
+enum ItemSectionType {
+    cards
+    slider
+}
+
+type ItemSection implements Section {
+    id: ID!
+    page: Page! @goField(forceResolver: true)
+    title: String!
+    type: ItemSectionType!
+    style: String!
+    size: String!
+    items(
+        first: Int,
+        offset: Int,
+    ): CollectionItemPagination! @goField(forceResolver: true)
+}
+
+type Collection {
+    id: ID!
+    items(
+        first: Int,
+        offset: Int,
+    ): CollectionItemPagination @goField(forceResolver: true)
+}
+`, BuiltIn: false},
 	{Name: "../schema/schema.graphqls", Input: `directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
     | FIELD_DEFINITION
 
@@ -2578,65 +2601,11 @@ interface Pagination {
   offset: Int!
 }
 
-type Page{
-  id: ID!
-  code: String!
-  title: String!
-  description: String
-  sections(
-    first: Int
-    offset: Int
-  ): SectionPagination! @goField(forceResolver: true)
-}
-
-type PagePagination implements Pagination {
-  total: Int!
-  first: Int!
-  offset: Int!
-  items: [Page!]!
-}
 
 enum Language{
   en
   no
   de
-}
-
-interface Section{
-  id: ID!
-  title: String!
-}
-
-type SectionPagination implements Pagination {
-  total: Int!
-  first: Int!
-  offset: Int!
-  items: [Section!]!
-}
-
-enum ItemSectionType {
-  cards
-  slider
-}
-
-type ItemSection implements Section {
-  id: ID!
-  page: Page! @goField(forceResolver: true)
-  title: String!
-  type: ItemSectionType!
-  style: String!
-  items(
-    first: Int,
-    offset: Int,
-  ): CollectionItemPagination! @goField(forceResolver: true)
-}
-
-type Collection {
-  id: ID!
-  items(
-    first: Int,
-    offset: Int,
-  ): CollectionItemPagination @goField(forceResolver: true)
 }
 
 scalar Cursor
@@ -3576,7 +3545,7 @@ func (ec *executionContext) _Application_page(ctx context.Context, field graphql
 	}
 	res := resTmp.(*gqlmodel.Page)
 	fc.Result = res
-	return ec.marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx, field.Selections, res)
+	return ec.marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Application_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3632,7 +3601,7 @@ func (ec *executionContext) _Calendar_period(ctx context.Context, field graphql.
 	}
 	res := resTmp.(*gqlmodel.CalendarPeriod)
 	fc.Result = res
-	return ec.marshalNCalendarPeriod2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarPeriod(ctx, field.Selections, res)
+	return ec.marshalNCalendarPeriod2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarPeriod(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Calendar_period(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3693,7 +3662,7 @@ func (ec *executionContext) _Calendar_day(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*gqlmodel.CalendarDay)
 	fc.Result = res
-	return ec.marshalNCalendarDay2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarDay(ctx, field.Selections, res)
+	return ec.marshalNCalendarDay2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarDay(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Calendar_day(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3754,7 +3723,7 @@ func (ec *executionContext) _CalendarDay_events(ctx context.Context, field graph
 	}
 	res := resTmp.([]*gqlmodel.Event)
 	fc.Result = res
-	return ec.marshalNEvent2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEventᚄ(ctx, field.Selections, res)
+	return ec.marshalNEvent2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEventᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CalendarDay_events(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3810,7 +3779,7 @@ func (ec *executionContext) _CalendarDay_entries(ctx context.Context, field grap
 	}
 	res := resTmp.([]gqlmodel.CalendarEntry)
 	fc.Result = res
-	return ec.marshalNCalendarEntry2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntryᚄ(ctx, field.Selections, res)
+	return ec.marshalNCalendarEntry2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarEntryᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CalendarDay_entries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3898,7 +3867,7 @@ func (ec *executionContext) _CalendarPeriod_events(ctx context.Context, field gr
 	}
 	res := resTmp.([]*gqlmodel.Event)
 	fc.Result = res
-	return ec.marshalNEvent2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEventᚄ(ctx, field.Selections, res)
+	return ec.marshalNEvent2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEventᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CalendarPeriod_events(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4127,7 +4096,7 @@ func (ec *executionContext) _Collection_items(ctx context.Context, field graphql
 	}
 	res := resTmp.(*gqlmodel.CollectionItemPagination)
 	fc.Result = res
-	return ec.marshalOCollectionItemPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCollectionItemPagination(ctx, field.Selections, res)
+	return ec.marshalOCollectionItemPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCollectionItemPagination(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Collection_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4324,7 +4293,7 @@ func (ec *executionContext) _CollectionItemPagination_items(ctx context.Context,
 	}
 	res := resTmp.([]gqlmodel.Item)
 	fc.Result = res
-	return ec.marshalNItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐItemᚄ(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐItemᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CollectionItemPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4368,7 +4337,7 @@ func (ec *executionContext) _Config_global(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*gqlmodel.GlobalConfig)
 	fc.Result = res
-	return ec.marshalNGlobalConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐGlobalConfig(ctx, field.Selections, res)
+	return ec.marshalNGlobalConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐGlobalConfig(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Config_global(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4772,7 +4741,7 @@ func (ec *executionContext) _Episode_streams(ctx context.Context, field graphql.
 	}
 	res := resTmp.([]*gqlmodel.Stream)
 	fc.Result = res
-	return ec.marshalNStream2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStreamᚄ(ctx, field.Selections, res)
+	return ec.marshalNStream2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐStreamᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_streams(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4828,7 +4797,7 @@ func (ec *executionContext) _Episode_files(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.([]*gqlmodel.File)
 	fc.Result = res
-	return ec.marshalNFile2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFileᚄ(ctx, field.Selections, res)
+	return ec.marshalNFile2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFileᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_files(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4888,7 +4857,7 @@ func (ec *executionContext) _Episode_chapters(ctx context.Context, field graphql
 	}
 	res := resTmp.([]*gqlmodel.Chapter)
 	fc.Result = res
-	return ec.marshalNChapter2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐChapterᚄ(ctx, field.Selections, res)
+	return ec.marshalNChapter2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐChapterᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_chapters(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4937,7 +4906,7 @@ func (ec *executionContext) _Episode_season(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*gqlmodel.Season)
 	fc.Result = res
-	return ec.marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx, field.Selections, res)
+	return ec.marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeason(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_season(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5045,7 +5014,7 @@ func (ec *executionContext) _Episode_audioLanguages(ctx context.Context, field g
 	}
 	res := resTmp.([]gqlmodel.Language)
 	fc.Result = res
-	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
+	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_audioLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5089,7 +5058,7 @@ func (ec *executionContext) _Episode_subtitleLanguages(ctx context.Context, fiel
 	}
 	res := resTmp.([]gqlmodel.Language)
 	fc.Result = res
-	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
+	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_subtitleLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5215,7 +5184,7 @@ func (ec *executionContext) _EpisodeCalendarEntry_event(ctx context.Context, fie
 	}
 	res := resTmp.(*gqlmodel.Event)
 	fc.Result = res
-	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx, field.Selections, res)
+	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEvent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_EpisodeCalendarEntry_event(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5444,7 +5413,7 @@ func (ec *executionContext) _EpisodeCalendarEntry_episode(ctx context.Context, f
 	}
 	res := resTmp.(*gqlmodel.Episode)
 	fc.Result = res
-	return ec.marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
+	return ec.marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisode(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5695,7 +5664,7 @@ func (ec *executionContext) _EpisodeItem_episode(ctx context.Context, field grap
 	}
 	res := resTmp.(*gqlmodel.Episode)
 	fc.Result = res
-	return ec.marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
+	return ec.marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisode(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5905,7 +5874,7 @@ func (ec *executionContext) _EpisodePagination_items(ctx context.Context, field 
 	}
 	res := resTmp.([]*gqlmodel.Episode)
 	fc.Result = res
-	return ec.marshalNEpisode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeᚄ(ctx, field.Selections, res)
+	return ec.marshalNEpisode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisodeᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6572,7 +6541,7 @@ func (ec *executionContext) _EpisodeSearchItem_show(ctx context.Context, field g
 	}
 	res := resTmp.(*gqlmodel.Show)
 	fc.Result = res
-	return ec.marshalOShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, field.Selections, res)
+	return ec.marshalOShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐShow(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_EpisodeSearchItem_show(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6713,7 +6682,7 @@ func (ec *executionContext) _EpisodeSearchItem_season(ctx context.Context, field
 	}
 	res := resTmp.(*gqlmodel.Season)
 	fc.Result = res
-	return ec.marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx, field.Selections, res)
+	return ec.marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeason(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_EpisodeSearchItem_season(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6994,7 +6963,7 @@ func (ec *executionContext) _FAQ_categories(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*gqlmodel.FAQCategoryPagination)
 	fc.Result = res
-	return ec.marshalOFAQCategoryPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFAQCategoryPagination(ctx, field.Selections, res)
+	return ec.marshalOFAQCategoryPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategoryPagination(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_FAQ_categories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7059,7 +7028,7 @@ func (ec *executionContext) _FAQ_category(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*gqlmodel.FAQCategory)
 	fc.Result = res
-	return ec.marshalNFAQCategory2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFAQCategory(ctx, field.Selections, res)
+	return ec.marshalNFAQCategory2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategory(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_FAQ_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7122,7 +7091,7 @@ func (ec *executionContext) _FAQ_question(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*gqlmodel.Question)
 	fc.Result = res
-	return ec.marshalNQuestion2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐQuestion(ctx, field.Selections, res)
+	return ec.marshalNQuestion2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestion(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_FAQ_question(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7272,7 +7241,7 @@ func (ec *executionContext) _FAQCategory_questions(ctx context.Context, field gr
 	}
 	res := resTmp.(*gqlmodel.QuestionPagination)
 	fc.Result = res
-	return ec.marshalOQuestionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐQuestionPagination(ctx, field.Selections, res)
+	return ec.marshalOQuestionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestionPagination(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_FAQCategory_questions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7469,7 +7438,7 @@ func (ec *executionContext) _FAQCategoryPagination_items(ctx context.Context, fi
 	}
 	res := resTmp.([]*gqlmodel.FAQCategory)
 	fc.Result = res
-	return ec.marshalNFAQCategory2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFAQCategoryᚄ(ctx, field.Selections, res)
+	return ec.marshalNFAQCategory2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategoryᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_FAQCategoryPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7609,7 +7578,7 @@ func (ec *executionContext) _File_audioLanguage(ctx context.Context, field graph
 	}
 	res := resTmp.(gqlmodel.Language)
 	fc.Result = res
-	return ec.marshalNLanguage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguage(ctx, field.Selections, res)
+	return ec.marshalNLanguage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_File_audioLanguage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7650,7 +7619,7 @@ func (ec *executionContext) _File_subtitleLanguage(ctx context.Context, field gr
 	}
 	res := resTmp.(*gqlmodel.Language)
 	fc.Result = res
-	return ec.marshalOLanguage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguage(ctx, field.Selections, res)
+	return ec.marshalOLanguage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_File_subtitleLanguage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7955,7 +7924,7 @@ func (ec *executionContext) _ItemSection_page(ctx context.Context, field graphql
 	}
 	res := resTmp.(*gqlmodel.Page)
 	fc.Result = res
-	return ec.marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx, field.Selections, res)
+	return ec.marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ItemSection_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8055,7 +8024,7 @@ func (ec *executionContext) _ItemSection_type(ctx context.Context, field graphql
 	}
 	res := resTmp.(gqlmodel.ItemSectionType)
 	fc.Result = res
-	return ec.marshalNItemSectionType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionType(ctx, field.Selections, res)
+	return ec.marshalNItemSectionType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐItemSectionType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ItemSection_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8115,6 +8084,50 @@ func (ec *executionContext) fieldContext_ItemSection_style(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _ItemSection_size(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemSection_size(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Size, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ItemSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ItemSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ItemSection_items(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ItemSection_items(ctx, field)
 	if err != nil {
@@ -8143,7 +8156,7 @@ func (ec *executionContext) _ItemSection_items(ctx context.Context, field graphq
 	}
 	res := resTmp.(*gqlmodel.CollectionItemPagination)
 	fc.Result = res
-	return ec.marshalNCollectionItemPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCollectionItemPagination(ctx, field.Selections, res)
+	return ec.marshalNCollectionItemPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCollectionItemPagination(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ItemSection_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8293,7 +8306,7 @@ func (ec *executionContext) _Messages_maintenance(ctx context.Context, field gra
 	}
 	res := resTmp.([]*gqlmodel.MaintenanceMessage)
 	fc.Result = res
-	return ec.marshalNMaintenanceMessage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐMaintenanceMessageᚄ(ctx, field.Selections, res)
+	return ec.marshalNMaintenanceMessage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐMaintenanceMessageᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Messages_maintenance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8527,7 +8540,7 @@ func (ec *executionContext) _Page_sections(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*gqlmodel.SectionPagination)
 	fc.Result = res
-	return ec.marshalNSectionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionPagination(ctx, field.Selections, res)
+	return ec.marshalNSectionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSectionPagination(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Page_sections(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8765,200 +8778,12 @@ func (ec *executionContext) _PageItem_page(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*gqlmodel.Page)
 	fc.Result = res
-	return ec.marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx, field.Selections, res)
+	return ec.marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_PageItem_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PageItem",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Page_id(ctx, field)
-			case "code":
-				return ec.fieldContext_Page_code(ctx, field)
-			case "title":
-				return ec.fieldContext_Page_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Page_description(ctx, field)
-			case "sections":
-				return ec.fieldContext_Page_sections(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PagePagination_total(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PagePagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PagePagination_total(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Total, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PagePagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PagePagination",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PagePagination_first(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PagePagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PagePagination_first(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.First, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PagePagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PagePagination",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PagePagination_offset(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PagePagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PagePagination_offset(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Offset, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PagePagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PagePagination",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PagePagination_items(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PagePagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PagePagination_items(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Items, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*gqlmodel.Page)
-	fc.Result = res
-	return ec.marshalNPage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPageᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PagePagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PagePagination",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -9009,7 +8834,7 @@ func (ec *executionContext) _QueryRoot_application(ctx context.Context, field gr
 	}
 	res := resTmp.(*gqlmodel.Application)
 	fc.Result = res
-	return ec.marshalNApplication2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐApplication(ctx, field.Selections, res)
+	return ec.marshalNApplication2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐApplication(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_application(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9063,7 +8888,7 @@ func (ec *executionContext) _QueryRoot_page(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*gqlmodel.Page)
 	fc.Result = res
-	return ec.marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx, field.Selections, res)
+	return ec.marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9130,7 +8955,7 @@ func (ec *executionContext) _QueryRoot_section(ctx context.Context, field graphq
 	}
 	res := resTmp.(gqlmodel.Section)
 	fc.Result = res
-	return ec.marshalNSection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSection(ctx, field.Selections, res)
+	return ec.marshalNSection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_section(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9185,7 +9010,7 @@ func (ec *executionContext) _QueryRoot_show(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*gqlmodel.Show)
 	fc.Result = res
-	return ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, field.Selections, res)
+	return ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐShow(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_show(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9258,7 +9083,7 @@ func (ec *executionContext) _QueryRoot_season(ctx context.Context, field graphql
 	}
 	res := resTmp.(*gqlmodel.Season)
 	fc.Result = res
-	return ec.marshalNSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx, field.Selections, res)
+	return ec.marshalNSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeason(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_season(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9333,7 +9158,7 @@ func (ec *executionContext) _QueryRoot_episode(ctx context.Context, field graphq
 	}
 	res := resTmp.(*gqlmodel.Episode)
 	fc.Result = res
-	return ec.marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
+	return ec.marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisode(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9422,7 +9247,7 @@ func (ec *executionContext) _QueryRoot_collection(ctx context.Context, field gra
 	}
 	res := resTmp.(*gqlmodel.Collection)
 	fc.Result = res
-	return ec.marshalNCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCollection(ctx, field.Selections, res)
+	return ec.marshalNCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCollection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_collection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9483,7 +9308,7 @@ func (ec *executionContext) _QueryRoot_search(ctx context.Context, field graphql
 	}
 	res := resTmp.(*gqlmodel.SearchResult)
 	fc.Result = res
-	return ec.marshalNSearchResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSearchResult(ctx, field.Selections, res)
+	return ec.marshalNSearchResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSearchResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_search(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9546,7 +9371,7 @@ func (ec *executionContext) _QueryRoot_messages(ctx context.Context, field graph
 	}
 	res := resTmp.(*gqlmodel.Messages)
 	fc.Result = res
-	return ec.marshalNMessages2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐMessages(ctx, field.Selections, res)
+	return ec.marshalNMessages2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐMessages(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_messages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9591,7 +9416,7 @@ func (ec *executionContext) _QueryRoot_calendar(ctx context.Context, field graph
 	}
 	res := resTmp.(*gqlmodel.Calendar)
 	fc.Result = res
-	return ec.marshalOCalendar2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCalendar(ctx, field.Selections, res)
+	return ec.marshalOCalendar2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendar(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_calendar(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9638,7 +9463,7 @@ func (ec *executionContext) _QueryRoot_event(ctx context.Context, field graphql.
 	}
 	res := resTmp.(*gqlmodel.Event)
 	fc.Result = res
-	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx, field.Selections, res)
+	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEvent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_event(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9705,7 +9530,7 @@ func (ec *executionContext) _QueryRoot_faq(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*gqlmodel.Faq)
 	fc.Result = res
-	return ec.marshalNFAQ2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFaq(ctx, field.Selections, res)
+	return ec.marshalNFAQ2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFaq(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_faq(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9757,7 +9582,7 @@ func (ec *executionContext) _QueryRoot_me(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*gqlmodel.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_me(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9817,7 +9642,7 @@ func (ec *executionContext) _QueryRoot_config(ctx context.Context, field graphql
 	}
 	res := resTmp.(*gqlmodel.Config)
 	fc.Result = res
-	return ec.marshalNConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐConfig(ctx, field.Selections, res)
+	return ec.marshalNConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐConfig(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_config(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10038,7 +9863,7 @@ func (ec *executionContext) _Question_category(ctx context.Context, field graphq
 	}
 	res := resTmp.(*gqlmodel.FAQCategory)
 	fc.Result = res
-	return ec.marshalNFAQCategory2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFAQCategory(ctx, field.Selections, res)
+	return ec.marshalNFAQCategory2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategory(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Question_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10310,7 +10135,7 @@ func (ec *executionContext) _QuestionPagination_items(ctx context.Context, field
 	}
 	res := resTmp.([]*gqlmodel.Question)
 	fc.Result = res
-	return ec.marshalNQuestion2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐQuestionᚄ(ctx, field.Selections, res)
+	return ec.marshalNQuestion2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestionᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QuestionPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10452,7 +10277,7 @@ func (ec *executionContext) _SearchResult_result(ctx context.Context, field grap
 	}
 	res := resTmp.([]gqlmodel.SearchResultItem)
 	fc.Result = res
-	return ec.marshalNSearchResultItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSearchResultItemᚄ(ctx, field.Selections, res)
+	return ec.marshalNSearchResultItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSearchResultItemᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SearchResult_result(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10798,7 +10623,7 @@ func (ec *executionContext) _Season_show(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(*gqlmodel.Show)
 	fc.Result = res
-	return ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, field.Selections, res)
+	return ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐShow(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Season_show(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10860,7 +10685,7 @@ func (ec *executionContext) _Season_episodes(ctx context.Context, field graphql.
 	}
 	res := resTmp.(*gqlmodel.EpisodePagination)
 	fc.Result = res
-	return ec.marshalNEpisodePagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodePagination(ctx, field.Selections, res)
+	return ec.marshalNEpisodePagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisodePagination(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Season_episodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10966,7 +10791,7 @@ func (ec *executionContext) _SeasonCalendarEntry_event(ctx context.Context, fiel
 	}
 	res := resTmp.(*gqlmodel.Event)
 	fc.Result = res
-	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx, field.Selections, res)
+	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEvent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SeasonCalendarEntry_event(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -11195,7 +11020,7 @@ func (ec *executionContext) _SeasonCalendarEntry_season(ctx context.Context, fie
 	}
 	res := resTmp.(*gqlmodel.Season)
 	fc.Result = res
-	return ec.marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx, field.Selections, res)
+	return ec.marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeason(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SeasonCalendarEntry_season(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -11432,7 +11257,7 @@ func (ec *executionContext) _SeasonItem_season(ctx context.Context, field graphq
 	}
 	res := resTmp.(*gqlmodel.Season)
 	fc.Result = res
-	return ec.marshalNSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx, field.Selections, res)
+	return ec.marshalNSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeason(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SeasonItem_season(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -11628,7 +11453,7 @@ func (ec *executionContext) _SeasonPagination_items(ctx context.Context, field g
 	}
 	res := resTmp.([]*gqlmodel.Season)
 	fc.Result = res
-	return ec.marshalNSeason2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeasonᚄ(ctx, field.Selections, res)
+	return ec.marshalNSeason2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeasonᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SeasonPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12205,7 +12030,7 @@ func (ec *executionContext) _SeasonSearchItem_show(ctx context.Context, field gr
 	}
 	res := resTmp.(*gqlmodel.Show)
 	fc.Result = res
-	return ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, field.Selections, res)
+	return ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐShow(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SeasonSearchItem_show(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12399,7 +12224,7 @@ func (ec *executionContext) _SectionPagination_items(ctx context.Context, field 
 	}
 	res := resTmp.([]gqlmodel.Section)
 	fc.Result = res
-	return ec.marshalNSection2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionᚄ(ctx, field.Selections, res)
+	return ec.marshalNSection2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSectionᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SectionPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12443,7 +12268,7 @@ func (ec *executionContext) _Settings_audioLanguages(ctx context.Context, field 
 	}
 	res := resTmp.([]gqlmodel.Language)
 	fc.Result = res
-	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
+	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Settings_audioLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12487,7 +12312,7 @@ func (ec *executionContext) _Settings_subtitleLanguages(ctx context.Context, fie
 	}
 	res := resTmp.([]gqlmodel.Language)
 	fc.Result = res
-	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
+	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Settings_subtitleLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12833,7 +12658,7 @@ func (ec *executionContext) _Show_seasons(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*gqlmodel.SeasonPagination)
 	fc.Result = res
-	return ec.marshalNSeasonPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeasonPagination(ctx, field.Selections, res)
+	return ec.marshalNSeasonPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeasonPagination(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Show_seasons(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12939,7 +12764,7 @@ func (ec *executionContext) _ShowCalendarEntry_event(ctx context.Context, field 
 	}
 	res := resTmp.(*gqlmodel.Event)
 	fc.Result = res
-	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx, field.Selections, res)
+	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEvent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ShowCalendarEntry_event(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13168,7 +12993,7 @@ func (ec *executionContext) _ShowCalendarEntry_show(ctx context.Context, field g
 	}
 	res := resTmp.(*gqlmodel.Show)
 	fc.Result = res
-	return ec.marshalOShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, field.Selections, res)
+	return ec.marshalOShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐShow(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ShowCalendarEntry_show(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13403,7 +13228,7 @@ func (ec *executionContext) _ShowItem_show(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*gqlmodel.Show)
 	fc.Result = res
-	return ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, field.Selections, res)
+	return ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐShow(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ShowItem_show(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13597,7 +13422,7 @@ func (ec *executionContext) _ShowPagination_items(ctx context.Context, field gra
 	}
 	res := resTmp.([]*gqlmodel.Show)
 	fc.Result = res
-	return ec.marshalNShow2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShowᚄ(ctx, field.Selections, res)
+	return ec.marshalNShow2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐShowᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ShowPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14081,7 +13906,7 @@ func (ec *executionContext) _SimpleCalendarEntry_event(ctx context.Context, fiel
 	}
 	res := resTmp.(*gqlmodel.Event)
 	fc.Result = res
-	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx, field.Selections, res)
+	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEvent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SimpleCalendarEntry_event(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14401,7 +14226,7 @@ func (ec *executionContext) _Stream_audioLanguages(ctx context.Context, field gr
 	}
 	res := resTmp.([]gqlmodel.Language)
 	fc.Result = res
-	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
+	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Stream_audioLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14445,7 +14270,7 @@ func (ec *executionContext) _Stream_subtitleLanguages(ctx context.Context, field
 	}
 	res := resTmp.([]gqlmodel.Language)
 	fc.Result = res
-	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
+	return ec.marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguageᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Stream_subtitleLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14489,7 +14314,7 @@ func (ec *executionContext) _Stream_type(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(gqlmodel.StreamType)
 	fc.Result = res
-	return ec.marshalNStreamType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStreamType(ctx, field.Selections, res)
+	return ec.marshalNStreamType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐStreamType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Stream_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14961,7 +14786,7 @@ func (ec *executionContext) _User_settings(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*gqlmodel.Settings)
 	fc.Result = res
-	return ec.marshalNSettings2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSettings(ctx, field.Selections, res)
+	return ec.marshalNSettings2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSettings(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_settings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -16903,13 +16728,6 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._FAQCategoryPagination(ctx, sel, obj)
-	case gqlmodel.PagePagination:
-		return ec._PagePagination(ctx, sel, &obj)
-	case *gqlmodel.PagePagination:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._PagePagination(ctx, sel, obj)
 	case gqlmodel.SectionPagination:
 		return ec._SectionPagination(ctx, sel, &obj)
 	case *gqlmodel.SectionPagination:
@@ -18271,6 +18089,13 @@ func (ec *executionContext) _ItemSection(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "size":
+
+			out.Values[i] = ec._ItemSection_size(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "items":
 			field := field
 
@@ -18479,55 +18304,6 @@ func (ec *executionContext) _PageItem(ctx context.Context, sel ast.SelectionSet,
 		case "page":
 
 			out.Values[i] = ec._PageItem_page(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var pagePaginationImplementors = []string{"PagePagination", "Pagination"}
-
-func (ec *executionContext) _PagePagination(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.PagePagination) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, pagePaginationImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PagePagination")
-		case "total":
-
-			out.Values[i] = ec._PagePagination_total(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "first":
-
-			out.Values[i] = ec._PagePagination_first(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "offset":
-
-			out.Values[i] = ec._PagePagination_offset(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "items":
-
-			out.Values[i] = ec._PagePagination_items(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -20502,11 +20278,11 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNApplication2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐApplication(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Application) graphql.Marshaler {
+func (ec *executionContext) marshalNApplication2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐApplication(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Application) graphql.Marshaler {
 	return ec._Application(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNApplication2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐApplication(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Application) graphql.Marshaler {
+func (ec *executionContext) marshalNApplication2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐApplication(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Application) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -20531,11 +20307,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNCalendarDay2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarDay(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CalendarDay) graphql.Marshaler {
+func (ec *executionContext) marshalNCalendarDay2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarDay(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CalendarDay) graphql.Marshaler {
 	return ec._CalendarDay(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCalendarDay2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarDay(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CalendarDay) graphql.Marshaler {
+func (ec *executionContext) marshalNCalendarDay2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarDay(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CalendarDay) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -20545,7 +20321,7 @@ func (ec *executionContext) marshalNCalendarDay2ᚖgithubᚗcomᚋbccᚑcodeᚋb
 	return ec._CalendarDay(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNCalendarEntry2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntry(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CalendarEntry) graphql.Marshaler {
+func (ec *executionContext) marshalNCalendarEntry2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarEntry(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CalendarEntry) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -20555,7 +20331,7 @@ func (ec *executionContext) marshalNCalendarEntry2githubᚗcomᚋbccᚑcodeᚋbr
 	return ec._CalendarEntry(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNCalendarEntry2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.CalendarEntry) graphql.Marshaler {
+func (ec *executionContext) marshalNCalendarEntry2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.CalendarEntry) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -20579,7 +20355,7 @@ func (ec *executionContext) marshalNCalendarEntry2ᚕgithubᚗcomᚋbccᚑcode�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCalendarEntry2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntry(ctx, sel, v[i])
+			ret[i] = ec.marshalNCalendarEntry2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarEntry(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -20599,11 +20375,11 @@ func (ec *executionContext) marshalNCalendarEntry2ᚕgithubᚗcomᚋbccᚑcode�
 	return ret
 }
 
-func (ec *executionContext) marshalNCalendarPeriod2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarPeriod(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CalendarPeriod) graphql.Marshaler {
+func (ec *executionContext) marshalNCalendarPeriod2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarPeriod(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CalendarPeriod) graphql.Marshaler {
 	return ec._CalendarPeriod(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCalendarPeriod2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarPeriod(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CalendarPeriod) graphql.Marshaler {
+func (ec *executionContext) marshalNCalendarPeriod2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendarPeriod(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CalendarPeriod) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -20613,7 +20389,7 @@ func (ec *executionContext) marshalNCalendarPeriod2ᚖgithubᚗcomᚋbccᚑcode�
 	return ec._CalendarPeriod(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNChapter2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐChapterᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Chapter) graphql.Marshaler {
+func (ec *executionContext) marshalNChapter2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐChapterᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Chapter) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -20637,7 +20413,7 @@ func (ec *executionContext) marshalNChapter2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbr
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNChapter2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐChapter(ctx, sel, v[i])
+			ret[i] = ec.marshalNChapter2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐChapter(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -20657,7 +20433,7 @@ func (ec *executionContext) marshalNChapter2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbr
 	return ret
 }
 
-func (ec *executionContext) marshalNChapter2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐChapter(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Chapter) graphql.Marshaler {
+func (ec *executionContext) marshalNChapter2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐChapter(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Chapter) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -20667,11 +20443,11 @@ func (ec *executionContext) marshalNChapter2ᚖgithubᚗcomᚋbccᚑcodeᚋbruns
 	return ec._Chapter(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNCollection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCollection(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Collection) graphql.Marshaler {
+func (ec *executionContext) marshalNCollection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCollection(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Collection) graphql.Marshaler {
 	return ec._Collection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCollection(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Collection) graphql.Marshaler {
+func (ec *executionContext) marshalNCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCollection(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Collection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -20681,11 +20457,11 @@ func (ec *executionContext) marshalNCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbr
 	return ec._Collection(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNCollectionItemPagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCollectionItemPagination(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CollectionItemPagination) graphql.Marshaler {
+func (ec *executionContext) marshalNCollectionItemPagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCollectionItemPagination(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CollectionItemPagination) graphql.Marshaler {
 	return ec._CollectionItemPagination(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCollectionItemPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCollectionItemPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CollectionItemPagination) graphql.Marshaler {
+func (ec *executionContext) marshalNCollectionItemPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCollectionItemPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CollectionItemPagination) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -20695,11 +20471,11 @@ func (ec *executionContext) marshalNCollectionItemPagination2ᚖgithubᚗcomᚋb
 	return ec._CollectionItemPagination(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNConfig2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐConfig(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Config) graphql.Marshaler {
+func (ec *executionContext) marshalNConfig2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐConfig(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Config) graphql.Marshaler {
 	return ec._Config(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐConfig(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Config) graphql.Marshaler {
+func (ec *executionContext) marshalNConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐConfig(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Config) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -20756,11 +20532,11 @@ func (ec *executionContext) marshalNDate2ᚕstringᚄ(ctx context.Context, sel a
 	return ret
 }
 
-func (ec *executionContext) marshalNEpisode2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Episode) graphql.Marshaler {
+func (ec *executionContext) marshalNEpisode2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Episode) graphql.Marshaler {
 	return ec._Episode(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNEpisode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Episode) graphql.Marshaler {
+func (ec *executionContext) marshalNEpisode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisodeᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Episode) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -20784,7 +20560,7 @@ func (ec *executionContext) marshalNEpisode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbr
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, sel, v[i])
+			ret[i] = ec.marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisode(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -20804,7 +20580,7 @@ func (ec *executionContext) marshalNEpisode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbr
 	return ret
 }
 
-func (ec *executionContext) marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Episode) graphql.Marshaler {
+func (ec *executionContext) marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Episode) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -20814,11 +20590,11 @@ func (ec *executionContext) marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbruns
 	return ec._Episode(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNEpisodePagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodePagination(ctx context.Context, sel ast.SelectionSet, v gqlmodel.EpisodePagination) graphql.Marshaler {
+func (ec *executionContext) marshalNEpisodePagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisodePagination(ctx context.Context, sel ast.SelectionSet, v gqlmodel.EpisodePagination) graphql.Marshaler {
 	return ec._EpisodePagination(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNEpisodePagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodePagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.EpisodePagination) graphql.Marshaler {
+func (ec *executionContext) marshalNEpisodePagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisodePagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.EpisodePagination) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -20828,7 +20604,7 @@ func (ec *executionContext) marshalNEpisodePagination2ᚖgithubᚗcomᚋbccᚑco
 	return ec._EpisodePagination(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNEvent2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEventᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Event) graphql.Marshaler {
+func (ec *executionContext) marshalNEvent2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEventᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Event) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -20852,7 +20628,7 @@ func (ec *executionContext) marshalNEvent2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrun
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx, sel, v[i])
+			ret[i] = ec.marshalNEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEvent(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -20872,7 +20648,7 @@ func (ec *executionContext) marshalNEvent2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrun
 	return ret
 }
 
-func (ec *executionContext) marshalNEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Event) graphql.Marshaler {
+func (ec *executionContext) marshalNEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEvent(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Event) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -20882,11 +20658,11 @@ func (ec *executionContext) marshalNEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunsta
 	return ec._Event(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNFAQ2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFaq(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Faq) graphql.Marshaler {
+func (ec *executionContext) marshalNFAQ2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFaq(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Faq) graphql.Marshaler {
 	return ec._FAQ(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNFAQ2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFaq(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Faq) graphql.Marshaler {
+func (ec *executionContext) marshalNFAQ2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFaq(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Faq) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -20896,11 +20672,11 @@ func (ec *executionContext) marshalNFAQ2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadt
 	return ec._FAQ(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNFAQCategory2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFAQCategory(ctx context.Context, sel ast.SelectionSet, v gqlmodel.FAQCategory) graphql.Marshaler {
+func (ec *executionContext) marshalNFAQCategory2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategory(ctx context.Context, sel ast.SelectionSet, v gqlmodel.FAQCategory) graphql.Marshaler {
 	return ec._FAQCategory(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNFAQCategory2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFAQCategoryᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.FAQCategory) graphql.Marshaler {
+func (ec *executionContext) marshalNFAQCategory2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategoryᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.FAQCategory) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -20924,7 +20700,7 @@ func (ec *executionContext) marshalNFAQCategory2ᚕᚖgithubᚗcomᚋbccᚑcode�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNFAQCategory2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFAQCategory(ctx, sel, v[i])
+			ret[i] = ec.marshalNFAQCategory2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategory(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -20944,7 +20720,7 @@ func (ec *executionContext) marshalNFAQCategory2ᚕᚖgithubᚗcomᚋbccᚑcode�
 	return ret
 }
 
-func (ec *executionContext) marshalNFAQCategory2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFAQCategory(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.FAQCategory) graphql.Marshaler {
+func (ec *executionContext) marshalNFAQCategory2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategory(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.FAQCategory) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -20954,7 +20730,7 @@ func (ec *executionContext) marshalNFAQCategory2ᚖgithubᚗcomᚋbccᚑcodeᚋb
 	return ec._FAQCategory(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNFile2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFileᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.File) graphql.Marshaler {
+func (ec *executionContext) marshalNFile2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFileᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.File) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -20978,7 +20754,7 @@ func (ec *executionContext) marshalNFile2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbruns
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNFile2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFile(ctx, sel, v[i])
+			ret[i] = ec.marshalNFile2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFile(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -20998,7 +20774,7 @@ func (ec *executionContext) marshalNFile2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbruns
 	return ret
 }
 
-func (ec *executionContext) marshalNFile2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFile(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.File) graphql.Marshaler {
+func (ec *executionContext) marshalNFile2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFile(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.File) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21008,11 +20784,11 @@ func (ec *executionContext) marshalNFile2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstad
 	return ec._File(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNGlobalConfig2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐGlobalConfig(ctx context.Context, sel ast.SelectionSet, v gqlmodel.GlobalConfig) graphql.Marshaler {
+func (ec *executionContext) marshalNGlobalConfig2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐGlobalConfig(ctx context.Context, sel ast.SelectionSet, v gqlmodel.GlobalConfig) graphql.Marshaler {
 	return ec._GlobalConfig(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNGlobalConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐGlobalConfig(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.GlobalConfig) graphql.Marshaler {
+func (ec *executionContext) marshalNGlobalConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐGlobalConfig(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.GlobalConfig) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21052,7 +20828,7 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNItem2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Item) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Item) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21062,7 +20838,7 @@ func (ec *executionContext) marshalNItem2githubᚗcomᚋbccᚑcodeᚋbrunstadtv�
 	return ec._Item(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐItemᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Item) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐItemᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Item) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -21086,7 +20862,7 @@ func (ec *executionContext) marshalNItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstad
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNItem2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐItem(ctx, sel, v[i])
+			ret[i] = ec.marshalNItem2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -21106,27 +20882,27 @@ func (ec *executionContext) marshalNItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstad
 	return ret
 }
 
-func (ec *executionContext) unmarshalNItemSectionType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionType(ctx context.Context, v interface{}) (gqlmodel.ItemSectionType, error) {
+func (ec *executionContext) unmarshalNItemSectionType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐItemSectionType(ctx context.Context, v interface{}) (gqlmodel.ItemSectionType, error) {
 	var res gqlmodel.ItemSectionType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNItemSectionType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ItemSectionType) graphql.Marshaler {
+func (ec *executionContext) marshalNItemSectionType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐItemSectionType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ItemSectionType) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalNLanguage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguage(ctx context.Context, v interface{}) (gqlmodel.Language, error) {
+func (ec *executionContext) unmarshalNLanguage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguage(ctx context.Context, v interface{}) (gqlmodel.Language, error) {
 	var res gqlmodel.Language
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNLanguage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguage(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Language) graphql.Marshaler {
+func (ec *executionContext) marshalNLanguage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguage(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Language) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageᚄ(ctx context.Context, v interface{}) ([]gqlmodel.Language, error) {
+func (ec *executionContext) unmarshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguageᚄ(ctx context.Context, v interface{}) ([]gqlmodel.Language, error) {
 	var vSlice []interface{}
 	if v != nil {
 		vSlice = graphql.CoerceList(v)
@@ -21135,7 +20911,7 @@ func (ec *executionContext) unmarshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbr
 	res := make([]gqlmodel.Language, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNLanguage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguage(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNLanguage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguage(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -21143,7 +20919,7 @@ func (ec *executionContext) unmarshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbr
 	return res, nil
 }
 
-func (ec *executionContext) marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Language) graphql.Marshaler {
+func (ec *executionContext) marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguageᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Language) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -21167,7 +20943,7 @@ func (ec *executionContext) marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrun
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNLanguage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguage(ctx, sel, v[i])
+			ret[i] = ec.marshalNLanguage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguage(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -21187,7 +20963,7 @@ func (ec *executionContext) marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrun
 	return ret
 }
 
-func (ec *executionContext) marshalNMaintenanceMessage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐMaintenanceMessageᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.MaintenanceMessage) graphql.Marshaler {
+func (ec *executionContext) marshalNMaintenanceMessage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐMaintenanceMessageᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.MaintenanceMessage) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -21211,7 +20987,7 @@ func (ec *executionContext) marshalNMaintenanceMessage2ᚕᚖgithubᚗcomᚋbcc�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNMaintenanceMessage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐMaintenanceMessage(ctx, sel, v[i])
+			ret[i] = ec.marshalNMaintenanceMessage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐMaintenanceMessage(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -21231,7 +21007,7 @@ func (ec *executionContext) marshalNMaintenanceMessage2ᚕᚖgithubᚗcomᚋbcc�
 	return ret
 }
 
-func (ec *executionContext) marshalNMaintenanceMessage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐMaintenanceMessage(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.MaintenanceMessage) graphql.Marshaler {
+func (ec *executionContext) marshalNMaintenanceMessage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐMaintenanceMessage(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.MaintenanceMessage) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21241,11 +21017,11 @@ func (ec *executionContext) marshalNMaintenanceMessage2ᚖgithubᚗcomᚋbccᚑc
 	return ec._MaintenanceMessage(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNMessages2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐMessages(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Messages) graphql.Marshaler {
+func (ec *executionContext) marshalNMessages2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐMessages(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Messages) graphql.Marshaler {
 	return ec._Messages(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNMessages2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐMessages(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Messages) graphql.Marshaler {
+func (ec *executionContext) marshalNMessages2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐMessages(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Messages) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21255,55 +21031,11 @@ func (ec *executionContext) marshalNMessages2ᚖgithubᚗcomᚋbccᚑcodeᚋbrun
 	return ec._Messages(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Page) graphql.Marshaler {
+func (ec *executionContext) marshalNPage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Page) graphql.Marshaler {
 	return ec._Page(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPageᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Page) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Page) graphql.Marshaler {
+func (ec *executionContext) marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Page) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21313,11 +21045,11 @@ func (ec *executionContext) marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstad
 	return ec._Page(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNQuestion2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐQuestion(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Question) graphql.Marshaler {
+func (ec *executionContext) marshalNQuestion2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestion(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Question) graphql.Marshaler {
 	return ec._Question(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNQuestion2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐQuestionᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Question) graphql.Marshaler {
+func (ec *executionContext) marshalNQuestion2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestionᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Question) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -21341,7 +21073,7 @@ func (ec *executionContext) marshalNQuestion2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋb
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNQuestion2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐQuestion(ctx, sel, v[i])
+			ret[i] = ec.marshalNQuestion2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestion(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -21361,7 +21093,7 @@ func (ec *executionContext) marshalNQuestion2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋb
 	return ret
 }
 
-func (ec *executionContext) marshalNQuestion2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐQuestion(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Question) graphql.Marshaler {
+func (ec *executionContext) marshalNQuestion2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestion(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Question) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21371,11 +21103,11 @@ func (ec *executionContext) marshalNQuestion2ᚖgithubᚗcomᚋbccᚑcodeᚋbrun
 	return ec._Question(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSearchResult2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSearchResult(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SearchResult) graphql.Marshaler {
+func (ec *executionContext) marshalNSearchResult2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSearchResult(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SearchResult) graphql.Marshaler {
 	return ec._SearchResult(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSearchResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSearchResult(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SearchResult) graphql.Marshaler {
+func (ec *executionContext) marshalNSearchResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSearchResult(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SearchResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21385,7 +21117,7 @@ func (ec *executionContext) marshalNSearchResult2ᚖgithubᚗcomᚋbccᚑcodeᚋ
 	return ec._SearchResult(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSearchResultItem2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSearchResultItem(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SearchResultItem) graphql.Marshaler {
+func (ec *executionContext) marshalNSearchResultItem2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSearchResultItem(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SearchResultItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21395,7 +21127,7 @@ func (ec *executionContext) marshalNSearchResultItem2githubᚗcomᚋbccᚑcode�
 	return ec._SearchResultItem(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSearchResultItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSearchResultItemᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.SearchResultItem) graphql.Marshaler {
+func (ec *executionContext) marshalNSearchResultItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSearchResultItemᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.SearchResultItem) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -21419,7 +21151,7 @@ func (ec *executionContext) marshalNSearchResultItem2ᚕgithubᚗcomᚋbccᚑcod
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNSearchResultItem2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSearchResultItem(ctx, sel, v[i])
+			ret[i] = ec.marshalNSearchResultItem2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSearchResultItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -21439,11 +21171,11 @@ func (ec *executionContext) marshalNSearchResultItem2ᚕgithubᚗcomᚋbccᚑcod
 	return ret
 }
 
-func (ec *executionContext) marshalNSeason2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Season) graphql.Marshaler {
+func (ec *executionContext) marshalNSeason2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Season) graphql.Marshaler {
 	return ec._Season(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSeason2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeasonᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Season) graphql.Marshaler {
+func (ec *executionContext) marshalNSeason2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeasonᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Season) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -21467,7 +21199,7 @@ func (ec *executionContext) marshalNSeason2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbru
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx, sel, v[i])
+			ret[i] = ec.marshalNSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeason(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -21487,7 +21219,7 @@ func (ec *executionContext) marshalNSeason2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbru
 	return ret
 }
 
-func (ec *executionContext) marshalNSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Season) graphql.Marshaler {
+func (ec *executionContext) marshalNSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Season) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21497,11 +21229,11 @@ func (ec *executionContext) marshalNSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunst
 	return ec._Season(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSeasonPagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeasonPagination(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SeasonPagination) graphql.Marshaler {
+func (ec *executionContext) marshalNSeasonPagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeasonPagination(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SeasonPagination) graphql.Marshaler {
 	return ec._SeasonPagination(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSeasonPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeasonPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SeasonPagination) graphql.Marshaler {
+func (ec *executionContext) marshalNSeasonPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeasonPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SeasonPagination) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21511,7 +21243,7 @@ func (ec *executionContext) marshalNSeasonPagination2ᚖgithubᚗcomᚋbccᚑcod
 	return ec._SeasonPagination(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSection(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Section) graphql.Marshaler {
+func (ec *executionContext) marshalNSection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSection(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Section) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21521,7 +21253,7 @@ func (ec *executionContext) marshalNSection2githubᚗcomᚋbccᚑcodeᚋbrunstad
 	return ec._Section(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSection2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Section) graphql.Marshaler {
+func (ec *executionContext) marshalNSection2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSectionᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Section) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -21545,7 +21277,7 @@ func (ec *executionContext) marshalNSection2ᚕgithubᚗcomᚋbccᚑcodeᚋbruns
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNSection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSection(ctx, sel, v[i])
+			ret[i] = ec.marshalNSection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSection(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -21565,11 +21297,11 @@ func (ec *executionContext) marshalNSection2ᚕgithubᚗcomᚋbccᚑcodeᚋbruns
 	return ret
 }
 
-func (ec *executionContext) marshalNSectionPagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionPagination(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SectionPagination) graphql.Marshaler {
+func (ec *executionContext) marshalNSectionPagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSectionPagination(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SectionPagination) graphql.Marshaler {
 	return ec._SectionPagination(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSectionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SectionPagination) graphql.Marshaler {
+func (ec *executionContext) marshalNSectionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSectionPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SectionPagination) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21579,7 +21311,7 @@ func (ec *executionContext) marshalNSectionPagination2ᚖgithubᚗcomᚋbccᚑco
 	return ec._SectionPagination(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSettings2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Settings) graphql.Marshaler {
+func (ec *executionContext) marshalNSettings2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Settings) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21589,11 +21321,11 @@ func (ec *executionContext) marshalNSettings2ᚖgithubᚗcomᚋbccᚑcodeᚋbrun
 	return ec._Settings(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNShow2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Show) graphql.Marshaler {
+func (ec *executionContext) marshalNShow2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Show) graphql.Marshaler {
 	return ec._Show(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNShow2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShowᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Show) graphql.Marshaler {
+func (ec *executionContext) marshalNShow2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐShowᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Show) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -21617,7 +21349,7 @@ func (ec *executionContext) marshalNShow2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbruns
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, sel, v[i])
+			ret[i] = ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐShow(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -21637,7 +21369,7 @@ func (ec *executionContext) marshalNShow2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbruns
 	return ret
 }
 
-func (ec *executionContext) marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Show) graphql.Marshaler {
+func (ec *executionContext) marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Show) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21647,7 +21379,7 @@ func (ec *executionContext) marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstad
 	return ec._Show(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNStream2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStreamᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Stream) graphql.Marshaler {
+func (ec *executionContext) marshalNStream2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐStreamᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Stream) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -21671,7 +21403,7 @@ func (ec *executionContext) marshalNStream2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbru
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNStream2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStream(ctx, sel, v[i])
+			ret[i] = ec.marshalNStream2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐStream(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -21691,7 +21423,7 @@ func (ec *executionContext) marshalNStream2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbru
 	return ret
 }
 
-func (ec *executionContext) marshalNStream2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStream(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Stream) graphql.Marshaler {
+func (ec *executionContext) marshalNStream2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐStream(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Stream) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -21701,13 +21433,13 @@ func (ec *executionContext) marshalNStream2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunst
 	return ec._Stream(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNStreamType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStreamType(ctx context.Context, v interface{}) (gqlmodel.StreamType, error) {
+func (ec *executionContext) unmarshalNStreamType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐStreamType(ctx context.Context, v interface{}) (gqlmodel.StreamType, error) {
 	var res gqlmodel.StreamType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNStreamType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStreamType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.StreamType) graphql.Marshaler {
+func (ec *executionContext) marshalNStreamType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐStreamType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.StreamType) graphql.Marshaler {
 	return v
 }
 
@@ -21758,11 +21490,11 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v gqlmodel.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v gqlmodel.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -22051,35 +21783,35 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalOCalendar2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCalendar(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Calendar) graphql.Marshaler {
+func (ec *executionContext) marshalOCalendar2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCalendar(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Calendar) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Calendar(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOCollectionItemPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐCollectionItemPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CollectionItemPagination) graphql.Marshaler {
+func (ec *executionContext) marshalOCollectionItemPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐCollectionItemPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CollectionItemPagination) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._CollectionItemPagination(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Episode) graphql.Marshaler {
+func (ec *executionContext) marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Episode) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Episode(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Event) graphql.Marshaler {
+func (ec *executionContext) marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐEvent(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Event) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Event(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOFAQCategoryPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐFAQCategoryPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.FAQCategoryPagination) graphql.Marshaler {
+func (ec *executionContext) marshalOFAQCategoryPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐFAQCategoryPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.FAQCategoryPagination) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -22118,7 +21850,7 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) unmarshalOLanguage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguage(ctx context.Context, v interface{}) (*gqlmodel.Language, error) {
+func (ec *executionContext) unmarshalOLanguage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguage(ctx context.Context, v interface{}) (*gqlmodel.Language, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -22127,35 +21859,35 @@ func (ec *executionContext) unmarshalOLanguage2ᚖgithubᚗcomᚋbccᚑcodeᚋbr
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOLanguage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLanguage(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Language) graphql.Marshaler {
+func (ec *executionContext) marshalOLanguage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐLanguage(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Language) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return v
 }
 
-func (ec *executionContext) marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Page) graphql.Marshaler {
+func (ec *executionContext) marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Page) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Page(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOQuestionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐQuestionPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.QuestionPagination) graphql.Marshaler {
+func (ec *executionContext) marshalOQuestionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐQuestionPagination(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.QuestionPagination) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._QuestionPagination(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Season) graphql.Marshaler {
+func (ec *executionContext) marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Season) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Season(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Show) graphql.Marshaler {
+func (ec *executionContext) marshalOShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Show) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
