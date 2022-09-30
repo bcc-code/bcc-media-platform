@@ -197,6 +197,7 @@ type ItemSection struct {
 	Title string                    `json:"title"`
 	Type  ItemSectionType           `json:"type"`
 	Style string                    `json:"style"`
+	Size  string                    `json:"size"`
 	Items *CollectionItemPagination `json:"items"`
 }
 
@@ -228,15 +229,6 @@ type PageItem struct {
 }
 
 func (PageItem) IsItem() {}
-
-type PagePagination struct {
-	Total  int     `json:"total"`
-	First  int     `json:"first"`
-	Offset int     `json:"offset"`
-	Items  []*Page `json:"items"`
-}
-
-func (PagePagination) IsPagination() {}
 
 type Question struct {
 	ID       string       `json:"id"`
