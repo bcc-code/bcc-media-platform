@@ -48,7 +48,7 @@ type Show struct {
 	LegacyID    null.Int     `json:"legacyId"`
 	Title       LocaleString `json:"title"`
 	Description LocaleString `json:"description"`
-	Image       string       `json:"image"`
+	Image       null.String  `json:"image"`
 }
 
 // GetType returns type for this item
@@ -75,7 +75,7 @@ type Season struct {
 	Title       LocaleString `json:"title"`
 	Description LocaleString `json:"description"`
 	ShowID      int          `json:"showId"`
-	Image       string       `json:"image"`
+	Image       null.String  `json:"image"`
 }
 
 // GetKey returns the key for this item
@@ -98,7 +98,7 @@ type Episode struct {
 	Duration         int          `json:"duration"`
 	AgeRating        string       `json:"ageRating"`
 	AssetID          null.Int     `json:"assetId"`
-	Image            string       `json:"image"`
+	Image            null.String  `json:"image"`
 	TagIDs           []int        `json:"tagIds"`
 	Title            LocaleString `json:"title"`
 	Description      LocaleString `json:"description"`

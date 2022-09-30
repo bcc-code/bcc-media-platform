@@ -5,6 +5,7 @@ package graphpub
 
 import (
 	"context"
+
 	gqlpublicgenerated "github.com/bcc-code/brunstadtv/backend/graph/public/generated"
 	publicmodel "github.com/bcc-code/brunstadtv/backend/graph/public/model"
 )

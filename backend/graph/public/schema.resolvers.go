@@ -5,10 +5,10 @@ package graphpub
 
 import (
 	"context"
-	"fmt"
-	"github.com/bcc-code/brunstadtv/backend/common"
 	"strconv"
 
+	merry "github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	gqlpublicgenerated "github.com/bcc-code/brunstadtv/backend/graph/public/generated"
 	publicmodel "github.com/bcc-code/brunstadtv/backend/graph/public/model"
 )
@@ -16,42 +16,97 @@ import (
 // Episode is the resolver for the episode field.
 func (r *queryRootResolver) Episode(ctx context.Context, id string) (*publicmodel.Episode, error) {
 	intID, _ := strconv.ParseInt(id, 10, 64)
-	episode, err := common.GetFromLoaderByID(ctx, r.Loaders.EpisodeLoader, int(intID))
+	item, err := common.GetFromLoaderByID(ctx, r.Loaders.EpisodeLoader, int(intID))
 	if err != nil {
 		return nil, err
+	}
+	if item == nil {
+		return nil, merry.New("item not found", merry.WithUserMessage("item not found"))
 	}
 
 	languages := []string{"en"}
 	var season *publicmodel.Season
-	if episode.SeasonID.Valid {
+	if item.SeasonID.Valid {
 		season = &publicmodel.Season{
-			ID: strconv.Itoa(int(episode.SeasonID.Int64)),
+			ID: strconv.Itoa(int(item.SeasonID.Int64)),
 		}
 	}
 
 	var num *int
-	if episode.Number.Valid {
-		n := int(episode.Number.Int64)
+	if item.Number.Valid {
+		n := int(item.Number.Int64)
 		num = &n
 	}
 
+	var image *string
+	if item.Image.Valid {
+		image = &item.Image.String
+	}
+
 	return &publicmodel.Episode{
-		ID:          strconv.Itoa(episode.ID),
-		Title:       episode.Title.Get(languages),
-		Description: episode.Description.Get(languages),
+		ID:          strconv.Itoa(item.ID),
+		Title:       item.Title.Get(languages),
+		Description: item.Description.Get(languages),
 		Number:      num,
 		Season:      season,
+		Image:       image,
 	}, nil
 }
 
 // Season is the resolver for the season field.
 func (r *queryRootResolver) Season(ctx context.Context, id string) (*publicmodel.Season, error) {
-	panic(fmt.Errorf("not implemented"))
+	intID, _ := strconv.ParseInt(id, 10, 64)
+	item, err := common.GetFromLoaderByID(ctx, r.Loaders.SeasonLoader, int(intID))
+	if err != nil {
+		return nil, err
+	}
+	if item == nil {
+		return nil, merry.New("item not found", merry.WithUserMessage("item not found"))
+	}
+
+	languages := []string{"en"}
+
+	var image *string
+	if item.Image.Valid {
+		image = &item.Image.String
+	}
+
+	return &publicmodel.Season{
+		ID:          strconv.Itoa(item.ID),
+		Title:       item.Title.Get(languages),
+		Description: item.Description.Get(languages),
+		Number:      item.Number,
+		Image:       image,
+		Show: &publicmodel.Show{
+			ID: strconv.Itoa(item.ShowID),
+		},
+	}, nil
 }
 
 // Show is the resolver for the show field.
 func (r *queryRootResolver) Show(ctx context.Context, id string) (*publicmodel.Show, error) {
-	panic(fmt.Errorf("not implemented"))
+	intID, _ := strconv.ParseInt(id, 10, 64)
+	item, err := common.GetFromLoaderByID(ctx, r.Loaders.ShowLoader, int(intID))
+	if err != nil {
+		return nil, err
+	}
+	if item == nil {
+		return nil, merry.New("item not found", merry.WithUserMessage("item not found"))
+	}
+
+	languages := []string{"en"}
+
+	var image *string
+	if item.Image.Valid {
+		image = &item.Image.String
+	}
+
+	return &publicmodel.Show{
+		ID:          strconv.Itoa(item.ID),
+		Title:       item.Title.Get(languages),
+		Description: item.Description.Get(languages),
+		Image:       image,
+	}, nil
 }
 
 // QueryRoot returns gqlpublicgenerated.QueryRootResolver implementation.

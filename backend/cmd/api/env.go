@@ -25,6 +25,7 @@ type envConfig struct {
 }
 
 type cdnConfig struct {
+	ImageCDNDomain      string
 	Vod2Domain          string
 	FilesDomain         string
 	AWSSigningKeyPath   string
@@ -84,6 +85,7 @@ func getEnvConfig() envConfig {
 			APIKey: os.Getenv("ALGOLIA_API_KEY"),
 		},
 		CDNConfig: cdnConfig{
+			ImageCDNDomain:      os.Getenv("IMAGE_CDN_DOMAIN"),
 			Vod2Domain:          os.Getenv("VOD2_CDN_DOMAIN"),
 			FilesDomain:         os.Getenv("FILES_CDN_DOMAIN"),
 			AWSSigningKeyID:     os.Getenv("CF_SIGNING_KEY_ID"),

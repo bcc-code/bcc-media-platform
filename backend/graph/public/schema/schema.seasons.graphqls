@@ -4,6 +4,6 @@ type Season {
     title: String!
     description: String!
     image: String
-    number: Int
+    number: Int!
     show: Show @goField(forceResolver: true)
 }

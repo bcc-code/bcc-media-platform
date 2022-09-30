@@ -9,7 +9,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
 	null_v4 "gopkg.in/guregu/null.v4"
@@ -176,19 +175,20 @@ WITH ts AS (SELECT shows_id,
             GROUP BY shows_id)
 SELECT sh.id,
        sh.legacy_id,
-       sh.image_file_id,
+       fs.filename_disk as image_file_name,
        ts.title,
        ts.description
 FROM shows sh
          LEFT JOIN ts ON sh.id = ts.shows_id
+         LEFT JOIN directus_files fs ON fs.id = sh.image_file_id
 `
 
 type listShowsRow struct {
-	ID          int32                 `db:"id" json:"id"`
-	LegacyID    null_v4.Int           `db:"legacy_id" json:"legacyID"`
-	ImageFileID uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
-	Title       pqtype.NullRawMessage `db:"title" json:"title"`
-	Description pqtype.NullRawMessage `db:"description" json:"description"`
+	ID            int32                 `db:"id" json:"id"`
+	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	Title         pqtype.NullRawMessage `db:"title" json:"title"`
+	Description   pqtype.NullRawMessage `db:"description" json:"description"`
 }
 
 func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
@@ -203,7 +203,7 @@ func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.LegacyID,
-			&i.ImageFileID,
+			&i.ImageFileName,
 			&i.Title,
 			&i.Description,
 		); err != nil {

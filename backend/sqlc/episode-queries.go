@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
@@ -28,12 +27,9 @@ func mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			Number:           e.EpisodeNumber,
 			SeasonID:         e.SeasonID,
 			AssetID:          e.AssetID,
-			ImageID: uuid.NullUUID{
-				UUID:  e.ImageFileID,
-				Valid: e.ImageFileID != uuid.Nil,
-			},
-			AgeRating: e.Agerating,
-			Duration:  int(e.Duration.ValueOrZero()),
+			Image:            e.ImageFileName,
+			AgeRating:        e.Agerating,
+			Duration:         int(e.Duration.ValueOrZero()),
 			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
 				return int(id)
 			}),

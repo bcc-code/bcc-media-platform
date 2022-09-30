@@ -20,7 +20,7 @@ func mapToShows(shows []getShowsRow) []common.Show {
 			LegacyID:    e.LegacyID,
 			Title:       title,
 			Description: description,
-			ImageID:     e.ImageFileID,
+			Image:       e.ImageFileName,
 		}
 	})
 }

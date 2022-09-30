@@ -2,6 +2,7 @@ package gqlmodel
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -20,11 +21,18 @@ func ShowFrom(ctx context.Context, s *common.Show) *Show {
 		legacyID = &strID
 	}
 
+	var image *string
+	if s.Image.Valid {
+		imageUrl := fmt.Sprintf("https://%s/%s", imageCDNDomain, s.Image.String)
+		image = &imageUrl
+	}
+
 	return &Show{
 		ID:          strconv.Itoa(s.ID),
 		LegacyID:    legacyID,
 		Title:       s.Title.Get(languages),
 		Description: s.Description.Get(languages),
+		ImageURL:    image,
 	}
 }
 

@@ -9,7 +9,6 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
 )
@@ -174,7 +173,6 @@ func (service *Service) indexEpisode(ctx context.Context, id int) error {
 
 type indexable[k comparable] interface {
 	GetKey() k
-	GetImage() uuid.NullUUID
 }
 
 func indexCollection[k comparable, t indexable[k]](
@@ -195,14 +193,7 @@ func indexCollection[k comparable, t indexable[k]](
 		return i.GetKey()
 	})
 
-	imageIds := lo.Map(lo.Filter(items, func(i t, _ int) bool {
-		return i.GetImage().Valid
-	}), func(i t, _ int) uuid.UUID {
-		return i.GetImage().UUID
-	})
-
 	permissionLoader.LoadMany(ctx, ids)()
-	service.loaders.ImageLoader.LoadMany(ctx, imageIds)()
 
 	var searchItems []searchObject
 	pushItems := func(force bool) error {
@@ -232,10 +223,6 @@ func indexCollection[k comparable, t indexable[k]](
 
 		item.assignVisibility(perm.Availability)
 		item.assignRoles(perm.Roles)
-		err = item.assignImage(ctx, service.loaders, p)
-		if err != nil {
-			return err
-		}
 
 		searchItems = append(searchItems, item.toSearchObject())
 		err = pushItems(false)
@@ -257,10 +244,6 @@ func indexObject[k comparable, t indexable[k]](
 
 	item.assignVisibility(perms.Availability)
 	item.assignRoles(perms.Roles)
-	err = item.assignImage(ctx, service.loaders, obj)
-	if err != nil {
-		return err
-	}
 	_, err = service.index.SaveObject(item)
 	return err
 }

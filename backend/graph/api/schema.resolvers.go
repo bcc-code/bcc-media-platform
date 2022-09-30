@@ -1,4 +1,4 @@
-package graph
+package graphapi
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -11,29 +11,11 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/graph/generated"
-	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
+	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
+	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
-
-// ImageURL is the resolver for the imageUrl field.
-func (r *episodeResolver) ImageURL(ctx context.Context, obj *gqlmodel.Episode) (*string, error) {
-	itemId, _ := strconv.ParseInt(obj.ID, 10, 32)
-	item, err := common.GetFromLoaderByID(ctx, r.Loaders.EpisodeLoader, int(itemId))
-	if err != nil {
-		return nil, err
-	}
-	if !item.ImageID.Valid {
-		return nil, nil
-	}
-	image, err := common.GetFromLoaderByID(ctx, r.Loaders.ImageFileLoader, item.ImageID.UUID)
-	if err != nil {
-		return nil, err
-	}
-	imageUrl := image.GetImageUrl()
-	return &imageUrl, nil
-}
 
 // Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([]*gqlmodel.Stream, error) {
@@ -81,24 +63,6 @@ func (r *episodeResolver) Season(ctx context.Context, obj *gqlmodel.Episode) (*g
 		return r.QueryRoot().Season(ctx, obj.Season.ID)
 	}
 	return nil, nil
-}
-
-// ImageURL is the resolver for the imageUrl field.
-func (r *episodeItemResolver) ImageURL(ctx context.Context, obj *gqlmodel.EpisodeItem) (*string, error) {
-	itemId, _ := strconv.ParseInt(obj.ID, 10, 32)
-	item, err := common.GetFromLoaderByID(ctx, r.Loaders.EpisodeLoader, int(itemId))
-	if err != nil {
-		return nil, err
-	}
-	if !item.ImageID.Valid {
-		return nil, nil
-	}
-	image, err := common.GetFromLoaderByID(ctx, r.Loaders.ImageFileLoader, item.ImageID.UUID)
-	if err != nil {
-		return nil, err
-	}
-	imageUrl := image.GetImageUrl()
-	return &imageUrl, nil
 }
 
 // Application is the resolver for the application field.
@@ -252,24 +216,6 @@ func (r *queryRootResolver) Config(ctx context.Context) (*gqlmodel.Config, error
 	return &gqlmodel.Config{}, nil
 }
 
-// ImageURL is the resolver for the imageUrl field.
-func (r *seasonResolver) ImageURL(ctx context.Context, obj *gqlmodel.Season) (*string, error) {
-	itemId, _ := strconv.ParseInt(obj.ID, 10, 32)
-	item, err := common.GetFromLoaderByID(ctx, r.Loaders.SeasonLoader, int(itemId))
-	if err != nil {
-		return nil, err
-	}
-	if !item.ImageID.Valid {
-		return nil, nil
-	}
-	image, err := common.GetFromLoaderByID(ctx, r.Loaders.ImageFileLoader, item.ImageID.UUID)
-	if err != nil {
-		return nil, err
-	}
-	imageUrl := image.GetImageUrl()
-	return &imageUrl, nil
-}
-
 // Show is the resolver for the show field.
 func (r *seasonResolver) Show(ctx context.Context, obj *gqlmodel.Season) (*gqlmodel.Show, error) {
 	return r.QueryRoot().Show(ctx, obj.Show.ID)
@@ -292,29 +238,6 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *gqlmodel.Season, fir
 	}, nil
 }
 
-// ImageURL is the resolver for the imageUrl field.
-func (r *seasonItemResolver) ImageURL(ctx context.Context, obj *gqlmodel.SeasonItem) (*string, error) {
-	return r.Season().ImageURL(ctx, &gqlmodel.Season{ID: obj.ID})
-}
-
-// ImageURL is the resolver for the imageUrl field.
-func (r *showResolver) ImageURL(ctx context.Context, obj *gqlmodel.Show) (*string, error) {
-	itemId, _ := strconv.ParseInt(obj.ID, 10, 32)
-	item, err := common.GetFromLoaderByID(ctx, r.Loaders.ShowLoader, int(itemId))
-	if err != nil {
-		return nil, err
-	}
-	if !item.ImageID.Valid {
-		return nil, nil
-	}
-	image, err := common.GetFromLoaderByID(ctx, r.Loaders.ImageFileLoader, item.ImageID.UUID)
-	if err != nil {
-		return nil, err
-	}
-	imageUrl := image.GetImageUrl()
-	return &imageUrl, nil
-}
-
 // Seasons is the resolver for the seasons field.
 func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show, first *int, offset *int) (*gqlmodel.SeasonPagination, error) {
 	seasons, err := itemsResolverForIntID(ctx, toItemLoaders(r.Loaders.SeasonLoader, r.Loaders.SeasonPermissionLoader), r.Resolver.Loaders.SeasonsLoader, obj.ID, gqlmodel.SeasonFrom)
@@ -330,16 +253,8 @@ func (r *showResolver) Seasons(ctx context.Context, obj *gqlmodel.Show, first *i
 	}, nil
 }
 
-// ImageURL is the resolver for the imageUrl field.
-func (r *showItemResolver) ImageURL(ctx context.Context, obj *gqlmodel.ShowItem) (*string, error) {
-	return r.Show().ImageURL(ctx, &gqlmodel.Show{ID: obj.ID})
-}
-
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
-
-// EpisodeItem returns generated.EpisodeItemResolver implementation.
-func (r *Resolver) EpisodeItem() generated.EpisodeItemResolver { return &episodeItemResolver{r} }
 
 // QueryRoot returns generated.QueryRootResolver implementation.
 func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
@@ -347,19 +262,10 @@ func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootRe
 // Season returns generated.SeasonResolver implementation.
 func (r *Resolver) Season() generated.SeasonResolver { return &seasonResolver{r} }
 
-// SeasonItem returns generated.SeasonItemResolver implementation.
-func (r *Resolver) SeasonItem() generated.SeasonItemResolver { return &seasonItemResolver{r} }
-
 // Show returns generated.ShowResolver implementation.
 func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
 
-// ShowItem returns generated.ShowItemResolver implementation.
-func (r *Resolver) ShowItem() generated.ShowItemResolver { return &showItemResolver{r} }
-
 type episodeResolver struct{ *Resolver }
-type episodeItemResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
 type seasonResolver struct{ *Resolver }
-type seasonItemResolver struct{ *Resolver }
 type showResolver struct{ *Resolver }
-type showItemResolver struct{ *Resolver }

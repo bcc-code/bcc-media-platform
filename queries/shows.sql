@@ -6,11 +6,12 @@ WITH ts AS (SELECT shows_id,
             GROUP BY shows_id)
 SELECT sh.id,
        sh.legacy_id,
-       sh.image_file_id,
+       fs.filename_disk as image_file_name,
        ts.title,
        ts.description
 FROM shows sh
-         LEFT JOIN ts ON sh.id = ts.shows_id;
+         LEFT JOIN ts ON sh.id = ts.shows_id
+         LEFT JOIN directus_files fs ON fs.id = sh.image_file_id;
 
 
 -- name: getShows :many

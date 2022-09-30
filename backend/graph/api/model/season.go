@@ -2,6 +2,7 @@ package gqlmodel
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -23,6 +24,12 @@ func SeasonFrom(ctx context.Context, s *common.Season) *Season {
 		legacyID = &strID
 	}
 
+	var image *string
+	if s.Image.Valid {
+		imageUrl := fmt.Sprintf("https://%s/%s", imageCDNDomain, s.Image.String)
+		image = &imageUrl
+	}
+
 	return &Season{
 		ID:          strconv.Itoa(s.ID),
 		LegacyID:    legacyID,
@@ -31,6 +38,7 @@ func SeasonFrom(ctx context.Context, s *common.Season) *Season {
 		Number:      s.Number,
 		Show:        &show,
 		AgeRating:   s.AgeRating,
+		ImageURL:    image,
 	}
 }
 

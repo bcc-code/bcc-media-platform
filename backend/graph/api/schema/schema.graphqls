@@ -47,7 +47,7 @@ type ShowItem implements Item {
   id: ID!
   sort: Int!
   title: String!
-  imageUrl: String @goField(forceResolver: true)
+  imageUrl: String
   show: Show!
 }
 
@@ -55,7 +55,7 @@ type SeasonItem implements Item {
   id: ID!
   sort: Int!
   title: String!
-  imageUrl: String @goField(forceResolver: true)
+  imageUrl: String
   season: Season!
 }
 
@@ -63,7 +63,7 @@ type EpisodeItem implements Item {
   id: ID!
   sort: Int!
   title: String!
-  imageUrl: String @goField(forceResolver: true)
+  imageUrl: String
   episode: Episode!
 }
 
@@ -80,7 +80,7 @@ type Show {
   legacyID: ID
   title: String!
   description: String!
-  imageUrl: String @goField(forceResolver: true)
+  imageUrl: String
   episodeCount: Int!
   seasonCount: Int!
   seasons(
@@ -102,7 +102,7 @@ type Season {
   ageRating: String!
   title: String!
   description: String!
-  imageUrl: String @goField(forceResolver: true)
+  imageUrl: String
   number: Int!
   show: Show! @goField(forceResolver: true)
   episodes(
@@ -126,7 +126,7 @@ type Episode {
   title: String!
   description: String!
   extraDescription: String!
-  imageUrl: String @goField(forceResolver: true)
+  imageUrl: String
   streams: [Stream!]! @goField(forceResolver: true)
   files: [File!]! @goField(forceResolver: true)
   chapters: [Chapter!]!

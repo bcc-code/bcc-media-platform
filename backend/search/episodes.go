@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"os"
 	"strconv"
 )
+
+var imageCDNDomain = os.Getenv("IMAGE_CDN_DOMAIN")
 
 func (service *Service) episodeToSearchItem(ctx context.Context, episode common.Episode) (searchItem, error) {
 	var header *string
@@ -45,6 +48,12 @@ func (service *Service) episodeToSearchItem(ctx context.Context, episode common.
 		legacyID = &v
 	}
 
+	var image *string
+	if episode.Image.Valid {
+		imageUrl := fmt.Sprintf("https://%s/%s", imageCDNDomain, episode.Image.String)
+		image = &imageUrl
+	}
+
 	var item = searchItem{
 		ID:          "episodes-" + strconv.Itoa(episode.ID),
 		LegacyID:    legacyID,
@@ -58,6 +67,7 @@ func (service *Service) episodeToSearchItem(ctx context.Context, episode common.
 		Type:        "episode",
 		AgeRating:   &episode.AgeRating,
 		Duration:    &episode.Duration,
+		Image:       image,
 	}
 
 	err := item.assignTags(ctx, service.loaders, episode)

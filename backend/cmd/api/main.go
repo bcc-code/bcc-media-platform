@@ -14,6 +14,8 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
+	graphpub "github.com/bcc-code/brunstadtv/backend/graph/public"
+	gqlgenerated_pub "github.com/bcc-code/brunstadtv/backend/graph/public/generated"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/items/episode"
 	"github.com/bcc-code/brunstadtv/backend/items/page"
@@ -56,6 +58,27 @@ func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchS
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver}))
+	h.Use(tracer)
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func publicGraphqlHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
+	resolver := graphpub.Resolver{
+		Loaders: &graphpub.Loaders{
+			EpisodeLoader: loaders.EpisodeLoader,
+			SeasonLoader:  loaders.SeasonLoader,
+			ShowLoader:    loaders.ShowLoader,
+		},
+	}
+
+	tracer := &graphTracer{}
+
+	// NewExecutableSchema and Config are in the generated.go file
+	// Resolver is in the resolver.go file
+	h := handler.NewDefaultServer(gqlgenerated_pub.NewExecutableSchema(gqlgenerated_pub.Config{Resolvers: &resolver}))
 	h.Use(tracer)
 
 	return func(c *gin.Context) {
@@ -196,7 +219,6 @@ func main() {
 		CollectionLoader:        collectionLoader,
 		CollectionItemIdsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader),
 		CollectionItemLoader:    collection.NewItemListBatchLoader(*queries),
-		ImageFileLoader:         common.NewBatchLoader(queries.GetFiles),
 		// Relations
 		SeasonsLoader:  common.NewRelationBatchLoader(queries.GetSeasonIDsForShows),
 		EpisodesLoader: common.NewRelationBatchLoader(queries.GetEpisodeIDsForSeasons),
@@ -243,6 +265,8 @@ func main() {
 	r.GET("/", playgroundHandler())
 
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, loaders))
+
+	r.POST("/public", publicGraphqlHandler(loaders))
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 

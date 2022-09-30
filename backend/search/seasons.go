@@ -2,6 +2,7 @@ package search
 
 import (
 	"context"
+	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"strconv"
 )
@@ -18,6 +19,12 @@ func (service *Service) seasonToSearchItem(ctx context.Context, season common.Se
 		legacyID = &v
 	}
 
+	var image *string
+	if season.Image.Valid {
+		imageUrl := fmt.Sprintf("https://%s/%s", imageCDNDomain, season.Image.String)
+		image = &imageUrl
+	}
+
 	var item = searchItem{
 		ID:          "seasons-" + strconv.Itoa(season.ID),
 		LegacyID:    legacyID,
@@ -28,6 +35,7 @@ func (service *Service) seasonToSearchItem(ctx context.Context, season common.Se
 		ShowTitle:   &show.Title,
 		Type:        "season",
 		AgeRating:   &season.AgeRating,
+		Image:       image,
 	}
 	return item, nil
 }

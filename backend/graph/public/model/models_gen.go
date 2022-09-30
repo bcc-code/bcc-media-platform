@@ -16,7 +16,7 @@ type Season struct {
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
 	Image       *string `json:"image"`
-	Number      *int    `json:"number"`
+	Number      int     `json:"number"`
 	Show        *Show   `json:"show"`
 }
 
