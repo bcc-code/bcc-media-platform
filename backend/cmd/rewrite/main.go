@@ -16,6 +16,13 @@ func (rw *rewriter) getDefaultHtml() *html.Node {
 	return doc
 }
 
+func (rw *rewriter) getDefaultHtmlString() string {
+	b := &bytes.Buffer{}
+	_ = html.Render(b, rw.getDefaultHtml())
+
+	return b.String()
+}
+
 type meta struct {
 	Title         string
 	Description   string
@@ -109,11 +116,32 @@ func main() {
 
 	r := gin.Default()
 
-	log.Default().Print(rw.writeMeta(meta{
-		Title: "OIOIOIS",
-	}))
-
 	r.GET("episodes/:id", func(ctx *gin.Context) {
+		episodeResult := getEpisode(ctx.Param("id"))
 
+		if episodeResult == nil {
+			ctx.Header("Content-Type", "text/html")
+			ctx.String(200, rw.getDefaultHtmlString())
+			return
+		}
+
+		e := episodeResult.Episode
+
+		log.Default().Print(episodeResult)
+
+		options := meta{
+			Title:       e.Title,
+			Description: e.Description,
+		}
+		if e.Image != nil {
+			options.OGImage = *e.Image
+		}
+
+		h := rw.writeMeta(options)
+
+		ctx.Header("Content-Type", "text/html")
+		ctx.String(200, h)
 	})
+
+	_ = r.Run(":8076")
 }
