@@ -9,8 +9,8 @@ import (
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
-	gqladmingenerated "github.com/bcc-code/brunstadtv/backend/graphadmin/generated"
-	gqladminmodel "github.com/bcc-code/brunstadtv/backend/graphadmin/model"
+	gqladmingenerated "github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
+	gqladminmodel "github.com/bcc-code/brunstadtv/backend/graph/admin/model"
 	"github.com/samber/lo"
 )
 

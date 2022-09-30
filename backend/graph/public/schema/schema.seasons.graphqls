@@ -1,0 +1,9 @@
+
+type Season {
+    id: ID!
+    title: String!
+    description: String!
+    image: String
+    number: Int
+    show: Show @goField(forceResolver: true)
+}

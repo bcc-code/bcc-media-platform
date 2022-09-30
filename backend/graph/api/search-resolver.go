@@ -1,9 +1,9 @@
-package graph
+package graphapi
 
 import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
+	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"strconv"
 )

@@ -24,9 +24,16 @@ run:
 install-dep-macos:
 	brew install sqlc
 
-gql:
-	cd graph && gqlgen
-	cd graphadmin && gqlgen
+gql.api:
+	cd graph/api && gqlgen
+
+gql.public:
+	cd graph/public && gqlgen
+
+gql.admin:
+	cd graph/admin && gqlgen
+
+gql: gql.api gql.public gql.admin
 
 topic.create:
 	go run ./cmd/pubsub-helper -task create -host localhost:8681

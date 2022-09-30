@@ -1,4 +1,4 @@
-package graph
+package graphapi
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/graph/generated"
-	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
+	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
+	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"

@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
@@ -154,7 +153,7 @@ WITH ts AS (SELECT seasons_id,
 SELECT s.id,
        s.legacy_id,
        s.season_number,
-       COALESCE(s.image_file_id, sh.image_file_id)::uuid as image_file_id,
+       fs.filename_disk as image_file_name,
        s.show_id,
        COALESCE(s.agerating_code, 'A') as agerating,
        ts.title,
@@ -162,18 +161,19 @@ SELECT s.id,
 FROM seasons s
          JOIN ts ON s.id = ts.seasons_id
          JOIN shows sh ON s.show_id = sh.id
+         LEFT JOIN directus_files fs ON fs.id = COALESCE(s.image_file_id, sh.image_file_id)
 WHERE s.id = ANY ($1::int[])
 `
 
 type getSeasonsRow struct {
-	ID           int32           `db:"id" json:"id"`
-	LegacyID     null_v4.Int     `db:"legacy_id" json:"legacyID"`
-	SeasonNumber int32           `db:"season_number" json:"seasonNumber"`
-	ImageFileID  uuid.UUID       `db:"image_file_id" json:"imageFileID"`
-	ShowID       int32           `db:"show_id" json:"showID"`
-	Agerating    string          `db:"agerating" json:"agerating"`
-	Title        json.RawMessage `db:"title" json:"title"`
-	Description  json.RawMessage `db:"description" json:"description"`
+	ID            int32           `db:"id" json:"id"`
+	LegacyID      null_v4.Int     `db:"legacy_id" json:"legacyID"`
+	SeasonNumber  int32           `db:"season_number" json:"seasonNumber"`
+	ImageFileName null_v4.String  `db:"image_file_name" json:"imageFileName"`
+	ShowID        int32           `db:"show_id" json:"showID"`
+	Agerating     string          `db:"agerating" json:"agerating"`
+	Title         json.RawMessage `db:"title" json:"title"`
+	Description   json.RawMessage `db:"description" json:"description"`
 }
 
 func (q *Queries) getSeasons(ctx context.Context, dollar_1 []int32) ([]getSeasonsRow, error) {
@@ -189,7 +189,7 @@ func (q *Queries) getSeasons(ctx context.Context, dollar_1 []int32) ([]getSeason
 			&i.ID,
 			&i.LegacyID,
 			&i.SeasonNumber,
-			&i.ImageFileID,
+			&i.ImageFileName,
 			&i.ShowID,
 			&i.Agerating,
 			&i.Title,
@@ -217,7 +217,7 @@ WITH ts AS (SELECT seasons_id,
 SELECT s.id,
        s.legacy_id,
        s.season_number,
-       COALESCE(s.image_file_id, sh.image_file_id)::uuid as image_file_id,
+       fs.filename_disk as image_file_name,
        s.show_id,
        COALESCE(s.agerating_code, 'A') as agerating,
        ts.title,
@@ -225,17 +225,18 @@ SELECT s.id,
 FROM seasons s
          JOIN ts ON s.id = ts.seasons_id
          JOIN shows sh ON s.show_id = sh.id
+         LEFT JOIN directus_files fs ON fs.id = COALESCE(s.image_file_id, sh.image_file_id)
 `
 
 type listSeasonsRow struct {
-	ID           int32           `db:"id" json:"id"`
-	LegacyID     null_v4.Int     `db:"legacy_id" json:"legacyID"`
-	SeasonNumber int32           `db:"season_number" json:"seasonNumber"`
-	ImageFileID  uuid.UUID       `db:"image_file_id" json:"imageFileID"`
-	ShowID       int32           `db:"show_id" json:"showID"`
-	Agerating    string          `db:"agerating" json:"agerating"`
-	Title        json.RawMessage `db:"title" json:"title"`
-	Description  json.RawMessage `db:"description" json:"description"`
+	ID            int32           `db:"id" json:"id"`
+	LegacyID      null_v4.Int     `db:"legacy_id" json:"legacyID"`
+	SeasonNumber  int32           `db:"season_number" json:"seasonNumber"`
+	ImageFileName null_v4.String  `db:"image_file_name" json:"imageFileName"`
+	ShowID        int32           `db:"show_id" json:"showID"`
+	Agerating     string          `db:"agerating" json:"agerating"`
+	Title         json.RawMessage `db:"title" json:"title"`
+	Description   json.RawMessage `db:"description" json:"description"`
 }
 
 func (q *Queries) listSeasons(ctx context.Context) ([]listSeasonsRow, error) {
@@ -251,7 +252,7 @@ func (q *Queries) listSeasons(ctx context.Context) ([]listSeasonsRow, error) {
 			&i.ID,
 			&i.LegacyID,
 			&i.SeasonNumber,
-			&i.ImageFileID,
+			&i.ImageFileName,
 			&i.ShowID,
 			&i.Agerating,
 			&i.Title,

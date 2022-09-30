@@ -2,10 +2,8 @@ package common
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"gopkg.in/guregu/null.v4"
 )
 
@@ -46,11 +44,11 @@ type Conversion[o comparable, r comparable] interface {
 
 // Show is the definition of the Show object
 type Show struct {
-	ID          int           `json:"id"`
-	LegacyID    null.Int      `json:"legacyId"`
-	Title       LocaleString  `json:"title"`
-	Description LocaleString  `json:"description"`
-	ImageID     uuid.NullUUID `json:"imageId"`
+	ID          int          `json:"id"`
+	LegacyID    null.Int     `json:"legacyId"`
+	Title       LocaleString `json:"title"`
+	Description LocaleString `json:"description"`
+	Image       string       `json:"image"`
 }
 
 // GetType returns type for this item
@@ -63,11 +61,6 @@ func (i Show) GetKey() int {
 	return i.ID
 }
 
-// GetImage returns id of attached image
-func (i Show) GetImage() uuid.NullUUID {
-	return i.ImageID
-}
-
 // IsCollectionItem declares that this implements CollectionItem interfaces
 func (i Show) IsCollectionItem() {
 
@@ -75,24 +68,19 @@ func (i Show) IsCollectionItem() {
 
 // Season is the definition of the Season object
 type Season struct {
-	ID          int           `json:"id"`
-	LegacyID    null.Int      `json:"legacyId"`
-	Number      int           `json:"number"`
-	AgeRating   string        `json:"ageRating"`
-	Title       LocaleString  `json:"title"`
-	Description LocaleString  `json:"description"`
-	ShowID      int           `json:"showId"`
-	ImageID     uuid.NullUUID `json:"imageId"`
+	ID          int          `json:"id"`
+	LegacyID    null.Int     `json:"legacyId"`
+	Number      int          `json:"number"`
+	AgeRating   string       `json:"ageRating"`
+	Title       LocaleString `json:"title"`
+	Description LocaleString `json:"description"`
+	ShowID      int          `json:"showId"`
+	Image       string       `json:"image"`
 }
 
 // GetKey returns the key for this item
 func (i Season) GetKey() int {
 	return i.ID
-}
-
-// GetImage returns id of attached image
-func (i Season) GetImage() uuid.NullUUID {
-	return i.ImageID
 }
 
 // IsCollectionItem declares that this implements CollectionItem interfaces
@@ -102,29 +90,24 @@ func (i Season) IsCollectionItem() {
 
 // Episode is the definition of the Episode object
 type Episode struct {
-	ID               int           `json:"id"`
-	LegacyID         null.Int      `json:"legacyId"`
-	LegacyProgramID  null.Int      `json:"legacyProgramId"`
-	SeasonID         null.Int      `json:"seasonId"`
-	Number           null.Int      `json:"number"`
-	Duration         int           `json:"duration"`
-	AgeRating        string        `json:"ageRating"`
-	AssetID          null.Int      `json:"assetId"`
-	ImageID          uuid.NullUUID `json:"imageId"`
-	TagIDs           []int         `json:"tagIds"`
-	Title            LocaleString  `json:"title"`
-	Description      LocaleString  `json:"description"`
-	ExtraDescription LocaleString  `json:"extraDescription"`
+	ID               int          `json:"id"`
+	LegacyID         null.Int     `json:"legacyId"`
+	LegacyProgramID  null.Int     `json:"legacyProgramId"`
+	SeasonID         null.Int     `json:"seasonId"`
+	Number           null.Int     `json:"number"`
+	Duration         int          `json:"duration"`
+	AgeRating        string       `json:"ageRating"`
+	AssetID          null.Int     `json:"assetId"`
+	Image            string       `json:"image"`
+	TagIDs           []int        `json:"tagIds"`
+	Title            LocaleString `json:"title"`
+	Description      LocaleString `json:"description"`
+	ExtraDescription LocaleString `json:"extraDescription"`
 }
 
 // GetKey returns the key for this item
 func (i Episode) GetKey() int {
 	return i.ID
-}
-
-// GetImage returns id of attached image
-func (i Episode) GetImage() uuid.NullUUID {
-	return i.ImageID
 }
 
 // GetTagIDs returns ids of related tags
@@ -135,29 +118,6 @@ func (i Episode) GetTagIDs() []int {
 // IsCollectionItem declares that this implements CollectionItem interfaces
 func (i Episode) IsCollectionItem() {
 
-}
-
-// ImageFile is files stored in our image cdn
-type ImageFile struct {
-	ID               uuid.UUID   `db:"id" json:"id"`
-	Storage          string      `db:"storage" json:"storage"`
-	FilenameDisk     null.String `db:"filename_disk" json:"filenameDisk"`
-	FilenameDownload string      `db:"filename_download" json:"filenameDownload"`
-	Title            null.String `db:"title" json:"title"`
-	Type             null.String `db:"type" json:"type"`
-}
-
-// GetKey returns the key for this item
-func (i ImageFile) GetKey() uuid.UUID {
-	return i.ID
-}
-
-// GetImageUrl returns the image url
-func (i ImageFile) GetImageUrl() string {
-	if !i.FilenameDisk.Valid {
-		return ""
-	}
-	return fmt.Sprintf("https://brunstadtv.imgix.net/%s", i.FilenameDisk.ValueOrZero())
 }
 
 // File item type

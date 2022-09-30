@@ -10,10 +10,10 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/graph"
-	"github.com/bcc-code/brunstadtv/backend/graph/generated"
-	gqladmin "github.com/bcc-code/brunstadtv/backend/graphadmin"
-	gqladmingenerated "github.com/bcc-code/brunstadtv/backend/graphadmin/generated"
+	"github.com/bcc-code/brunstadtv/backend/graph/admin"
+	"github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
+	"github.com/bcc-code/brunstadtv/backend/graph/api"
+	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/items/episode"
 	"github.com/bcc-code/brunstadtv/backend/items/page"
@@ -43,7 +43,7 @@ var generalCache = cache.New[string, any]()
 // Defining the Graphql handler
 func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
 
-	resolver := graph.Resolver{
+	resolver := graphapi.Resolver{
 		Queries:       queries,
 		Loaders:       loaders,
 		SearchService: searchService,

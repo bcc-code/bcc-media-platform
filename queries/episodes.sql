@@ -14,7 +14,7 @@ SELECT e.id,
        e.legacy_program_id,
        e.asset_id,
        e.episode_number,
-       COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id)::uuid as image_file_id,
+       fs.filename_disk as image_file_name,
        e.season_id,
        e.type,
        ts.title,
@@ -28,7 +28,8 @@ FROM episodes e
          LEFT JOIN tags ON tags.episodes_id = e.id
          LEFT JOIN assets ON e.asset_id = assets.id
          LEFT JOIN seasons s ON e.season_id = s.id
-         LEFT JOIN shows sh ON s.show_id = sh.id;
+         LEFT JOIN shows sh ON s.show_id = sh.id
+         LEFT JOIN directus_files fs ON fs.id = COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id);
 
 -- name: getEpisodes :many
 WITH ts AS (SELECT episodes_id,
@@ -46,7 +47,7 @@ SELECT e.id,
        e.legacy_program_id,
        e.asset_id,
        e.episode_number,
-       COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id)::uuid as image_file_id,
+       fs.filename_disk as image_file_name,
        e.season_id,
        e.type,
        ts.title,
@@ -61,6 +62,7 @@ FROM episodes e
          LEFT JOIN assets ON e.asset_id = assets.id
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
+         LEFT JOIN directus_files fs ON fs.id = COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id)
 WHERE e.id = ANY($1::int[])
 ORDER BY e.episode_number;
 

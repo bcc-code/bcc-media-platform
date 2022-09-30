@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	gqladminmodel "github.com/bcc-code/brunstadtv/backend/graphadmin/model"
+	"github.com/bcc-code/brunstadtv/backend/graph/admin/model"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"

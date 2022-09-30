@@ -7,14 +7,15 @@ WITH ts AS (SELECT seasons_id,
 SELECT s.id,
        s.legacy_id,
        s.season_number,
-       COALESCE(s.image_file_id, sh.image_file_id)::uuid as image_file_id,
+       fs.filename_disk as image_file_name,
        s.show_id,
        COALESCE(s.agerating_code, 'A') as agerating,
        ts.title,
        ts.description
 FROM seasons s
          JOIN ts ON s.id = ts.seasons_id
-         JOIN shows sh ON s.show_id = sh.id;
+         JOIN shows sh ON s.show_id = sh.id
+         LEFT JOIN directus_files fs ON fs.id = COALESCE(s.image_file_id, sh.image_file_id);
 
 -- name: getSeasons :many
 WITH ts AS (SELECT seasons_id,
@@ -25,7 +26,7 @@ WITH ts AS (SELECT seasons_id,
 SELECT s.id,
        s.legacy_id,
        s.season_number,
-       COALESCE(s.image_file_id, sh.image_file_id)::uuid as image_file_id,
+       fs.filename_disk as image_file_name,
        s.show_id,
        COALESCE(s.agerating_code, 'A') as agerating,
        ts.title,
@@ -33,6 +34,7 @@ SELECT s.id,
 FROM seasons s
          JOIN ts ON s.id = ts.seasons_id
          JOIN shows sh ON s.show_id = sh.id
+         LEFT JOIN directus_files fs ON fs.id = COALESCE(s.image_file_id, sh.image_file_id)
 WHERE s.id = ANY ($1::int[]);
 
 -- name: getSeasonIDsForShows :many

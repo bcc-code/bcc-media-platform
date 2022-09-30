@@ -1,9 +1,9 @@
-package graph
+package graphapi
 
 import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/model"
+	gqlmodel2 "github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
@@ -41,7 +41,7 @@ func getActiveDays(entries []*common.CalendarEntry, sourceTime time.Time) []stri
 	})
 }
 
-func (r *calendarResolver) periodResolver(ctx context.Context, from time.Time, to time.Time) (*gqlmodel.CalendarPeriod, error) {
+func (r *calendarResolver) periodResolver(ctx context.Context, from time.Time, to time.Time) (*gqlmodel2.CalendarPeriod, error) {
 	events, err := getForPeriod(ctx, r.Loaders.EventLoader, r.Queries.GetEventsForPeriod, from, to)
 	if err != nil {
 		return nil, err
@@ -51,8 +51,8 @@ func (r *calendarResolver) periodResolver(ctx context.Context, from time.Time, t
 		return nil, err
 	}
 
-	return &gqlmodel.CalendarPeriod{
-		Events:     utils.MapWithCtx(ctx, events, gqlmodel.EventFrom),
+	return &gqlmodel2.CalendarPeriod{
+		Events:     utils.MapWithCtx(ctx, events, gqlmodel2.EventFrom),
 		ActiveDays: getActiveDays(entries, from),
 	}, nil
 }
