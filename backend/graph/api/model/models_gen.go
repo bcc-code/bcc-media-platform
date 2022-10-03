@@ -90,6 +90,7 @@ type Episode struct {
 	Duration          int        `json:"duration"`
 	AudioLanguages    []Language `json:"audioLanguages"`
 	SubtitleLanguages []Language `json:"subtitleLanguages"`
+	Images            []*Image   `json:"images"`
 	Number            *int       `json:"number"`
 }
 
@@ -191,6 +192,11 @@ type GlobalConfig struct {
 	NpawEnabled bool `json:"npawEnabled"`
 }
 
+type Image struct {
+	Style string `json:"style"`
+	URL   string `json:"url"`
+}
+
 type ItemSection struct {
 	ID    string                    `json:"id"`
 	Page  *Page                     `json:"page"`
@@ -259,6 +265,7 @@ type Season struct {
 	Title       string             `json:"title"`
 	Description string             `json:"description"`
 	ImageURL    *string            `json:"imageUrl"`
+	Images      []*Image           `json:"images"`
 	Number      int                `json:"number"`
 	Show        *Show              `json:"show"`
 	Episodes    *EpisodePagination `json:"episodes"`
@@ -333,6 +340,7 @@ type Show struct {
 	Title        string            `json:"title"`
 	Description  string            `json:"description"`
 	ImageURL     *string           `json:"imageUrl"`
+	Images       []*Image          `json:"images"`
 	EpisodeCount int               `json:"episodeCount"`
 	SeasonCount  int               `json:"seasonCount"`
 	Seasons      *SeasonPagination `json:"seasons"`

@@ -153,19 +153,28 @@ WITH ts AS (SELECT seasons_id,
      tags AS (SELECT seasons_id,
                      array_agg(tags_id) AS tags
               FROM seasons_tags
-              GROUP BY seasons_id)
+              GROUP BY seasons_id),
+
+     images AS (WITH images AS (SELECT season_id, style, language, filename_disk
+                                FROM images img
+                                         JOIN directus_files df on img.file = df.id)
+                SELECT season_id, json_agg(images) as json
+                FROM images
+                GROUP BY season_id)
 SELECT s.id,
        s.legacy_id,
        s.season_number,
-       fs.filename_disk as image_file_name,
+       fs.filename_disk                as image_file_name,
        s.show_id,
-       COALESCE(s.agerating_code, 'A')                   as agerating,
-       tags.tags::int[]                                  AS tag_ids,
+       COALESCE(s.agerating_code, 'A') as agerating,
+       tags.tags::int[]                AS tag_ids,
+       COALESCE(img.json, '[]')        as images,
        ts.title,
        ts.description
 FROM seasons s
          JOIN ts ON s.id = ts.seasons_id
          LEFT JOIN tags ON tags.seasons_id = s.id
+         LEFT JOIN images img ON img.season_id = s.id
          JOIN shows sh ON s.show_id = sh.id
          LEFT JOIN directus_files fs ON fs.id = COALESCE(s.image_file_id, sh.image_file_id)
 WHERE s.id = ANY ($1::int[])
@@ -179,6 +188,7 @@ type getSeasonsRow struct {
 	ShowID        int32           `db:"show_id" json:"showID"`
 	Agerating     string          `db:"agerating" json:"agerating"`
 	TagIds        []int32         `db:"tag_ids" json:"tagIds"`
+	Images        json.RawMessage `db:"images" json:"images"`
 	Title         json.RawMessage `db:"title" json:"title"`
 	Description   json.RawMessage `db:"description" json:"description"`
 }
@@ -200,6 +210,7 @@ func (q *Queries) getSeasons(ctx context.Context, dollar_1 []int32) ([]getSeason
 			&i.ShowID,
 			&i.Agerating,
 			pq.Array(&i.TagIds),
+			&i.Images,
 			&i.Title,
 			&i.Description,
 		); err != nil {
@@ -225,19 +236,28 @@ WITH ts AS (SELECT seasons_id,
      tags AS (SELECT seasons_id,
                      array_agg(tags_id) AS tags
               FROM seasons_tags
-              GROUP BY seasons_id)
+              GROUP BY seasons_id),
+
+     images AS (WITH images AS (SELECT season_id, style, language, filename_disk
+                                FROM images img
+                                         JOIN directus_files df on img.file = df.id)
+                SELECT season_id, json_agg(images) as json
+                FROM images
+                GROUP BY season_id)
 SELECT s.id,
        s.legacy_id,
        s.season_number,
-       fs.filename_disk as image_file_name,
+       fs.filename_disk                as image_file_name,
        s.show_id,
-       COALESCE(s.agerating_code, 'A')                   as agerating,
-       tags.tags::int[]                                  AS tag_ids,
+       COALESCE(s.agerating_code, 'A') as agerating,
+       tags.tags::int[]                AS tag_ids,
+       COALESCE(img.json, '[]')        as images,
        ts.title,
        ts.description
 FROM seasons s
          JOIN ts ON s.id = ts.seasons_id
          LEFT JOIN tags ON tags.seasons_id = s.id
+         LEFT JOIN images img ON img.season_id = s.id
          JOIN shows sh ON s.show_id = sh.id
          LEFT JOIN directus_files fs ON fs.id = COALESCE(s.image_file_id, sh.image_file_id)
 `
@@ -250,6 +270,7 @@ type listSeasonsRow struct {
 	ShowID        int32           `db:"show_id" json:"showID"`
 	Agerating     string          `db:"agerating" json:"agerating"`
 	TagIds        []int32         `db:"tag_ids" json:"tagIds"`
+	Images        json.RawMessage `db:"images" json:"images"`
 	Title         json.RawMessage `db:"title" json:"title"`
 	Description   json.RawMessage `db:"description" json:"description"`
 }
@@ -271,6 +292,7 @@ func (q *Queries) listSeasons(ctx context.Context) ([]listSeasonsRow, error) {
 			&i.ShowID,
 			&i.Agerating,
 			pq.Array(&i.TagIds),
+			&i.Images,
 			&i.Title,
 			&i.Description,
 		); err != nil {

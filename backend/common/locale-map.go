@@ -22,7 +22,7 @@ func (localeMap LocaleMap[T]) Get(languages []string) T {
 
 	log.L.Warn().
 		Strs("languages", languages).
-		Str("localeString", spew.Sdump(localeMap)).
+		Str("localeMap", spew.Sdump(localeMap)).
 		Msg("Failed to find any localeString for specified languages")
 
 	var r T
@@ -33,7 +33,7 @@ func (localeMap LocaleMap[T]) Get(languages []string) T {
 func (localeMap LocaleMap[T]) GetValueOrNil(languages []string) *T {
 	languages = append(languages, DefaultLanguages...) // We force the DefaultLanguages as the last languages regardless if they have been specified before already
 	for _, l := range languages {
-		if val, ok := localeMap[l]; ok && val != nil {
+		if val, ok := localeMap[l]; ok {
 			return &val
 		}
 	}
