@@ -76,6 +76,7 @@ func main() {
 	}
 
 	queries := sqlc.New(db)
+	queries.SetImageCDNDomain(config.ImageCDNDomain)
 
 	searchService := search.New(db, config.Algolia)
 	directusEventHandler := directus.NewEventHandler()
