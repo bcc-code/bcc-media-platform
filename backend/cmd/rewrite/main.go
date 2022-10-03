@@ -162,10 +162,8 @@ func main() {
 			options.OGImage = *e.Image
 		}
 
-		h := rw.writeMeta(options)
-
 		ctx.Header("Content-Type", "text/html")
-		ctx.String(200, h)
+		ctx.String(200, rw.writeMeta(options))
 	})
 
 	r.GET("shows/:id", func(ctx *gin.Context) {
