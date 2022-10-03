@@ -178,7 +178,7 @@ type getSeasonsRow struct {
 	ImageFileName null_v4.String  `db:"image_file_name" json:"imageFileName"`
 	ShowID        int32           `db:"show_id" json:"showID"`
 	Agerating     string          `db:"agerating" json:"agerating"`
-	TagIds       []int32         `db:"tag_ids" json:"tagIds"`
+	TagIds        []int32         `db:"tag_ids" json:"tagIds"`
 	Title         json.RawMessage `db:"title" json:"title"`
 	Description   json.RawMessage `db:"description" json:"description"`
 }
@@ -249,7 +249,7 @@ type listSeasonsRow struct {
 	ImageFileName null_v4.String  `db:"image_file_name" json:"imageFileName"`
 	ShowID        int32           `db:"show_id" json:"showID"`
 	Agerating     string          `db:"agerating" json:"agerating"`
-	TagIds       []int32         `db:"tag_ids" json:"tagIds"`
+	TagIds        []int32         `db:"tag_ids" json:"tagIds"`
 	Title         json.RawMessage `db:"title" json:"title"`
 	Description   json.RawMessage `db:"description" json:"description"`
 }

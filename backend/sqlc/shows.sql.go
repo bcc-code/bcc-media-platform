@@ -140,7 +140,7 @@ type getShowsRow struct {
 	ID            int32                 `db:"id" json:"id"`
 	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
-	TagIds      []int32               `db:"tag_ids" json:"tagIds"`
+	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
 	Title         pqtype.NullRawMessage `db:"title" json:"title"`
 	Description   pqtype.NullRawMessage `db:"description" json:"description"`
 }
@@ -201,7 +201,7 @@ type listShowsRow struct {
 	ID            int32                 `db:"id" json:"id"`
 	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
-	TagIds      []int32               `db:"tag_ids" json:"tagIds"`
+	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
 	Title         pqtype.NullRawMessage `db:"title" json:"title"`
 	Description   pqtype.NullRawMessage `db:"description" json:"description"`
 }
