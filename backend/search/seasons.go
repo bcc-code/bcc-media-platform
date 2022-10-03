@@ -35,5 +35,6 @@ func (service *Service) seasonToSearchItem(ctx context.Context, season common.Se
 		AgeRating:   &season.AgeRating,
 		Image:       image,
 	}
-	return item, nil
+	err = item.assignTags(ctx, service.loaders, season)
+	return item, err
 }

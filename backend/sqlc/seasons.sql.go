@@ -149,17 +149,23 @@ WITH ts AS (SELECT seasons_id,
                    json_object_agg(languages_code, title)       AS title,
                    json_object_agg(languages_code, description) AS description
             FROM seasons_translations
-            GROUP BY seasons_id)
+            GROUP BY seasons_id),
+     tags AS (SELECT seasons_id,
+                     array_agg(tags_id) AS tags
+              FROM seasons_tags
+              GROUP BY seasons_id)
 SELECT s.id,
        s.legacy_id,
        s.season_number,
        fs.filename_disk as image_file_name,
        s.show_id,
-       COALESCE(s.agerating_code, 'A') as agerating,
+       COALESCE(s.agerating_code, 'A')                   as agerating,
+       tags.tags::int[]                                  AS tag_ids,
        ts.title,
        ts.description
 FROM seasons s
          JOIN ts ON s.id = ts.seasons_id
+         LEFT JOIN tags ON tags.seasons_id = s.id
          JOIN shows sh ON s.show_id = sh.id
          LEFT JOIN directus_files fs ON fs.id = COALESCE(s.image_file_id, sh.image_file_id)
 WHERE s.id = ANY ($1::int[])
@@ -172,6 +178,7 @@ type getSeasonsRow struct {
 	ImageFileName null_v4.String  `db:"image_file_name" json:"imageFileName"`
 	ShowID        int32           `db:"show_id" json:"showID"`
 	Agerating     string          `db:"agerating" json:"agerating"`
+	TagIds       []int32         `db:"tag_ids" json:"tagIds"`
 	Title         json.RawMessage `db:"title" json:"title"`
 	Description   json.RawMessage `db:"description" json:"description"`
 }
@@ -192,6 +199,7 @@ func (q *Queries) getSeasons(ctx context.Context, dollar_1 []int32) ([]getSeason
 			&i.ImageFileName,
 			&i.ShowID,
 			&i.Agerating,
+			pq.Array(&i.TagIds),
 			&i.Title,
 			&i.Description,
 		); err != nil {
@@ -213,17 +221,23 @@ WITH ts AS (SELECT seasons_id,
                    json_object_agg(languages_code, title)       AS title,
                    json_object_agg(languages_code, description) AS description
             FROM seasons_translations
-            GROUP BY seasons_id)
+            GROUP BY seasons_id),
+     tags AS (SELECT seasons_id,
+                     array_agg(tags_id) AS tags
+              FROM seasons_tags
+              GROUP BY seasons_id)
 SELECT s.id,
        s.legacy_id,
        s.season_number,
        fs.filename_disk as image_file_name,
        s.show_id,
-       COALESCE(s.agerating_code, 'A') as agerating,
+       COALESCE(s.agerating_code, 'A')                   as agerating,
+       tags.tags::int[]                                  AS tag_ids,
        ts.title,
        ts.description
 FROM seasons s
          JOIN ts ON s.id = ts.seasons_id
+         LEFT JOIN tags ON tags.seasons_id = s.id
          JOIN shows sh ON s.show_id = sh.id
          LEFT JOIN directus_files fs ON fs.id = COALESCE(s.image_file_id, sh.image_file_id)
 `
@@ -235,6 +249,7 @@ type listSeasonsRow struct {
 	ImageFileName null_v4.String  `db:"image_file_name" json:"imageFileName"`
 	ShowID        int32           `db:"show_id" json:"showID"`
 	Agerating     string          `db:"agerating" json:"agerating"`
+	TagIds       []int32         `db:"tag_ids" json:"tagIds"`
 	Title         json.RawMessage `db:"title" json:"title"`
 	Description   json.RawMessage `db:"description" json:"description"`
 }
@@ -255,6 +270,7 @@ func (q *Queries) listSeasons(ctx context.Context) ([]listSeasonsRow, error) {
 			&i.ImageFileName,
 			&i.ShowID,
 			&i.Agerating,
+			pq.Array(&i.TagIds),
 			&i.Title,
 			&i.Description,
 		); err != nil {

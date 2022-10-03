@@ -28,6 +28,9 @@ func (q *Queries) mapToShows(shows []getShowsRow) []common.Show {
 			Title:       title,
 			Description: description,
 			Image:       image,
+			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
+				return int(id)
+			}),
 		}
 	})
 }
