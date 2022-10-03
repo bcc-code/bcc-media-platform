@@ -15,10 +15,9 @@ CREATE SEQUENCE IF NOT EXISTS "public"."shows_tags_id_seq"
 	CACHE 1
 	NO CYCLE;
 
-ALTER SEQUENCE "public"."shows_tags_id_seq" OWNER TO builder;
-GRANT SELECT ON SEQUENCE "public"."shows_tags_id_seq" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT USAGE ON SEQUENCE "public"."shows_tags_id_seq" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."shows_tags_id_seq" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON SEQUENCE "public"."shows_tags_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT USAGE ON SEQUENCE "public"."shows_tags_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON SEQUENCE "public"."shows_tags_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON SEQUENCE "public"."shows_tags_id_seq"  IS NULL;
 
@@ -35,10 +34,9 @@ CREATE SEQUENCE IF NOT EXISTS "public"."seasons_tags_id_seq"
 	CACHE 1
 	NO CYCLE;
 
-ALTER SEQUENCE "public"."seasons_tags_id_seq" OWNER TO builder;
-GRANT SELECT ON SEQUENCE "public"."seasons_tags_id_seq" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT USAGE ON SEQUENCE "public"."seasons_tags_id_seq" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."seasons_tags_id_seq" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON SEQUENCE "public"."seasons_tags_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT USAGE ON SEQUENCE "public"."seasons_tags_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON SEQUENCE "public"."seasons_tags_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON SEQUENCE "public"."seasons_tags_id_seq"  IS NULL;
 
@@ -57,13 +55,10 @@ CREATE TABLE IF NOT EXISTS "public"."shows_tags" (
 
 ALTER TABLE IF EXISTS "public"."shows_tags" OWNER TO builder;
 
-GRANT SELECT ON TABLE "public"."shows_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."shows_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."shows_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."shows_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."shows_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."shows_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."shows_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."shows_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT INSERT ON TABLE "public"."shows_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON TABLE "public"."shows_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT DELETE ON TABLE "public"."shows_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 GRANT SELECT ON TABLE "public"."shows_tags" TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
@@ -98,15 +93,10 @@ CREATE TABLE IF NOT EXISTS "public"."seasons_tags" (
 	CONSTRAINT "seasons_tags_seasons_id_foreign" FOREIGN KEY (seasons_id) REFERENCES seasons(id) ON DELETE CASCADE
 );
 
-ALTER TABLE IF EXISTS "public"."seasons_tags" OWNER TO btv;
-
-GRANT SELECT ON TABLE "public"."seasons_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."seasons_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."seasons_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."seasons_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."seasons_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."seasons_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."seasons_tags" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."seasons_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT INSERT ON TABLE "public"."seasons_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON TABLE "public"."seasons_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT DELETE ON TABLE "public"."seasons_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 GRANT SELECT ON TABLE "public"."seasons_tags" TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
