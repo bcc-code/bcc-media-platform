@@ -17,7 +17,11 @@ func (t *graphTracer) ExtensionName() string {
 // InterceptField intercepts
 func (t *graphTracer) InterceptField(ctx context.Context, next graphql.Resolver) (any, error) {
 	field := graphql.GetFieldContext(ctx)
-	ctx, span := otel.Tracer("graph-field").Start(ctx, field.Field.Name)
+	fieldName := field.Field.Name
+	if fieldName == "" {
+		fieldName = "unknown"
+	}
+	ctx, span := otel.Tracer("graph-field").Start(ctx, fieldName)
 	defer span.End()
 	return next(ctx)
 }
@@ -25,7 +29,11 @@ func (t *graphTracer) InterceptField(ctx context.Context, next graphql.Resolver)
 // InterceptOperation intercepts
 func (t *graphTracer) InterceptOperation(ctx context.Context, next graphql.OperationHandler) graphql.ResponseHandler {
 	op := graphql.GetOperationContext(ctx)
-	ctx, span := otel.Tracer("graph-operation").Start(ctx, op.OperationName)
+	opName := op.OperationName
+	if opName == "" {
+		opName = "unknown"
+	}
+	ctx, span := otel.Tracer("graph-operation").Start(ctx, opName)
 	defer span.End()
 	return next(ctx)
 }

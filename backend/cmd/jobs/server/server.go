@@ -1,6 +1,8 @@
 package server
 
 import (
+	"context"
+	"github.com/bcc-code/brunstadtv/backend/database"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -37,6 +39,9 @@ var (
 		events.TypeTranslationsSync: {},
 		events.TypeDirectusEvent:    {},
 	}
+	eventLockIDs = map[string]int{
+		events.TypeTranslationsSync: 20001,
+	}
 )
 
 // NewServer returns a new server for handling the HTTP requests
@@ -52,6 +57,29 @@ func NewServer(s ExternalServices, c ConfigData) *server {
 type server struct {
 	services ExternalServices
 	config   ConfigData
+}
+
+func (s server) runIfNotLocked(ctx context.Context, lockID int, task func() error) error {
+	var locker database.Lock
+	var err error
+	locker, err = database.NewLock(ctx, lockID, s.services.Database)
+	if err != nil {
+		return err
+	}
+	var retrievedLock bool
+	retrievedLock, err = locker.Lock(ctx)
+	if err != nil || !retrievedLock {
+		log.L.Debug().Err(err).Msg("Ignoring message. Most likely locked")
+		return err
+	}
+	defer func(locker *database.Lock, ctx context.Context) {
+		err := locker.Unlock(ctx)
+		if err != nil {
+			log.L.Error().Err(err).Int("id", lockID).Msg("Failed to unlock lock")
+		}
+	}(&locker, ctx)
+
+	return task()
 }
 
 // IngestVod processes the message for ingesting a VOD asset
@@ -110,7 +138,9 @@ func (s server) ProcessMessage(c *gin.Context) {
 	case events.TypeSearchReindex:
 		err = s.services.GetSearchService().Reindex(ctx)
 	case events.TypeTranslationsSync:
-		err = crowdin.HandleEvent(ctx, s.services, e)
+		err = s.runIfNotLocked(ctx, eventLockIDs[events.TypeTranslationsSync], func() error {
+			return crowdin.HandleEvent(ctx, s.services, e)
+		})
 	default:
 		err = merry.Wrap(errUndefinedHandler)
 	}

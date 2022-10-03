@@ -13,6 +13,7 @@ type Translation struct {
 	Title         string `json:"title"`
 	Description   string `json:"description,omitempty"`
 	LanguagesCode string `json:"languages_code"`
+	IsPrimary     bool   `json:"is_primary"`
 }
 
 // EpisodesTranslation extends Translation
