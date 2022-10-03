@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"github.com/ansel1/merry/v2"
 	"io"
@@ -81,55 +82,29 @@ func get[T any](query string, variables map[string]any) *T {
 	return &r.Data
 }
 
+//go:embed queries/episode.graphql
+var episodeQuery string
+
 func getEpisode(id string) *episode {
-	return get[episode](`
-query getEpisode($id: ID!) {
-    episode(id: $id) {
-        title
-        description
-        image
-        number
-        season {
-            title
-            show {
-                title
-            }
-        }
-    }
-}
-`, map[string]any{
+	return get[episode](episodeQuery, map[string]any{
 		"id": id,
 	})
 }
+
+//go:embed queries/season.graphql
+var seasonQuery string
 
 func getSeason(id string) *season {
-	return get[season](`
-query getSeason($id: ID!) {
-    season(id: $id) {
-        title
-        description
-        image
-        number
-        show {
-            title
-        }
-    }
-}
-`, map[string]any{
+	return get[season](seasonQuery, map[string]any{
 		"id": id,
 	})
 }
 
+//go:embed queries/show.graphql
+var showQuery string
+
 func getShow(id string) *show {
-	return get[show](`
-query getShow($id: ID!) {
-    show(id: $id) {
-        title
-        description
-        image
-    }
-}
-`, map[string]any{
+	return get[show](showQuery, map[string]any{
 		"id": id,
 	})
 }
