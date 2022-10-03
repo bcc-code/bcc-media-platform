@@ -3,17 +3,23 @@ WITH ts AS (SELECT seasons_id,
                    json_object_agg(languages_code, title)       AS title,
                    json_object_agg(languages_code, description) AS description
             FROM seasons_translations
-            GROUP BY seasons_id)
+            GROUP BY seasons_id),
+     tags AS (SELECT seasons_id,
+                     array_agg(tags_id) AS tags
+              FROM seasons_tags
+              GROUP BY seasons_id)
 SELECT s.id,
        s.legacy_id,
        s.season_number,
        COALESCE(s.image_file_id, sh.image_file_id)::uuid as image_file_id,
        s.show_id,
-       COALESCE(s.agerating_code, 'A') as agerating,
+       COALESCE(s.agerating_code, 'A')                   as agerating,
+       tags.tags::int[]                                  AS tag_ids,
        ts.title,
        ts.description
 FROM seasons s
          JOIN ts ON s.id = ts.seasons_id
+         LEFT JOIN tags ON tags.seasons_id = s.id
          JOIN shows sh ON s.show_id = sh.id;
 
 -- name: getSeasons :many
@@ -21,17 +27,23 @@ WITH ts AS (SELECT seasons_id,
                    json_object_agg(languages_code, title)       AS title,
                    json_object_agg(languages_code, description) AS description
             FROM seasons_translations
-            GROUP BY seasons_id)
+            GROUP BY seasons_id),
+     tags AS (SELECT seasons_id,
+                     array_agg(tags_id) AS tags
+              FROM seasons_tags
+              GROUP BY seasons_id)
 SELECT s.id,
        s.legacy_id,
        s.season_number,
        COALESCE(s.image_file_id, sh.image_file_id)::uuid as image_file_id,
        s.show_id,
-       COALESCE(s.agerating_code, 'A') as agerating,
+       COALESCE(s.agerating_code, 'A')                   as agerating,
+       tags.tags::int[]                                  AS tag_ids,
        ts.title,
        ts.description
 FROM seasons s
          JOIN ts ON s.id = ts.seasons_id
+         LEFT JOIN tags ON tags.seasons_id = s.id
          JOIN shows sh ON s.show_id = sh.id
 WHERE s.id = ANY ($1::int[]);
 

@@ -29,5 +29,6 @@ func (service *Service) seasonToSearchItem(ctx context.Context, season common.Se
 		Type:        "season",
 		AgeRating:   &season.AgeRating,
 	}
-	return item, nil
+	err = item.assignTags(ctx, service.loaders, season)
+	return item, err
 }

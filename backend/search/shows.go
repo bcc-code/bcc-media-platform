@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func (service *Service) showToSearchItem(_ context.Context, show common.Show) (searchItem, error) {
+func (service *Service) showToSearchItem(ctx context.Context, show common.Show) (searchItem, error) {
 	var legacyID *int
 	if show.LegacyID.Valid {
 		v := int(show.LegacyID.Int64)
@@ -21,5 +21,7 @@ func (service *Service) showToSearchItem(_ context.Context, show common.Show) (s
 		Header:      nil,
 		Type:        "show",
 	}
-	return item, nil
+
+	err := item.assignTags(ctx, service.loaders, show)
+	return item, err
 }

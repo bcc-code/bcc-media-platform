@@ -116,16 +116,22 @@ func (q *Queries) getPermissionsForShows(ctx context.Context, dollar_1 []int32) 
 
 const getShows = `-- name: getShows :many
 WITH ts AS (SELECT shows_id,
-                  json_object_agg(languages_code, title)       AS title,
-                  json_object_agg(languages_code, description) AS description
-           FROM shows_translations
-           GROUP BY shows_id)
+                   json_object_agg(languages_code, title)       AS title,
+                   json_object_agg(languages_code, description) AS description
+            FROM shows_translations
+            GROUP BY shows_id),
+     tags AS (SELECT shows_id,
+                     array_agg(tags_id) AS tags
+              FROM shows_tags
+              GROUP BY shows_id)
 SELECT sh.id,
        sh.legacy_id,
        sh.image_file_id,
+       tags.tags::int[]                                  AS tag_ids,
        ts.title,
        ts.description
 FROM shows sh
+         LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
 WHERE sh.id = ANY ($1::int[])
 `
@@ -134,6 +140,7 @@ type getShowsRow struct {
 	ID          int32                 `db:"id" json:"id"`
 	LegacyID    null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	ImageFileID uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
+	TagIds      []int32               `db:"tag_ids" json:"tagIds"`
 	Title       pqtype.NullRawMessage `db:"title" json:"title"`
 	Description pqtype.NullRawMessage `db:"description" json:"description"`
 }
@@ -151,6 +158,7 @@ func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]getShowsRow
 			&i.ID,
 			&i.LegacyID,
 			&i.ImageFileID,
+			pq.Array(&i.TagIds),
 			&i.Title,
 			&i.Description,
 		); err != nil {
@@ -172,13 +180,19 @@ WITH ts AS (SELECT shows_id,
                    json_object_agg(languages_code, title)       AS title,
                    json_object_agg(languages_code, description) AS description
             FROM shows_translations
-            GROUP BY shows_id)
+            GROUP BY shows_id),
+     tags AS (SELECT shows_id,
+                     array_agg(tags_id) AS tags
+              FROM shows_tags
+              GROUP BY shows_id)
 SELECT sh.id,
        sh.legacy_id,
        sh.image_file_id,
+       tags.tags::int[]                                  AS tag_ids,
        ts.title,
        ts.description
 FROM shows sh
+         LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
 `
 
@@ -186,6 +200,7 @@ type listShowsRow struct {
 	ID          int32                 `db:"id" json:"id"`
 	LegacyID    null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	ImageFileID uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
+	TagIds      []int32               `db:"tag_ids" json:"tagIds"`
 	Title       pqtype.NullRawMessage `db:"title" json:"title"`
 	Description pqtype.NullRawMessage `db:"description" json:"description"`
 }
@@ -203,6 +218,7 @@ func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
 			&i.ID,
 			&i.LegacyID,
 			&i.ImageFileID,
+			pq.Array(&i.TagIds),
 			&i.Title,
 			&i.Description,
 		); err != nil {
