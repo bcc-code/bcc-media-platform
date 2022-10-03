@@ -45,7 +45,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *gqlmodel.Episode) ([
 
 	out := []*gqlmodel.Stream{}
 	for _, s := range streams {
-		stream, err := gqlmodel.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig.GetVOD2Domain(), s)
+		stream, err := gqlmodel.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
 		if err != nil {
 			return nil, err
 		}

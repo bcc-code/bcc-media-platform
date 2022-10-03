@@ -1,6 +1,7 @@
 package signing
 
 import (
+	"encoding/base64"
 	"net/url"
 	"regexp"
 	"time"
@@ -23,7 +24,7 @@ type Signer struct {
 type Config interface {
 	GetAwsSigningKeyPath() string
 	GetAwsSigningKeyID() string
-	GetAzureSigningKeyPath() string
+	GetAzureSigningKey() string
 }
 
 // NewSigner with all secret material configured
@@ -37,15 +38,10 @@ func NewSigner(config Config) (*Signer, error) {
 
 	urlSigner := sign.NewURLSigner(config.GetAwsSigningKeyID(), key)
 
-	key2, err := sign.LoadPEMPrivKeyFile(config.GetAzureSigningKeyPath())
+	keyBytes, _ := base64.StdEncoding.DecodeString(config.GetAzureSigningKey())
+	privkey, err := jwk.FromRaw(keyBytes)
 	if err != nil {
-		log.L.Error().Err(err).Msg("Unable to load RSA KEY")
-		return nil, merry.Wrap(err)
-	}
-
-	privkey, err := jwk.FromRaw(key2)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Unable to load RSA KEY")
+		log.L.Error().Err(err).Msg("Unable to load Azure simmetric key")
 		return nil, merry.Wrap(err)
 	}
 
@@ -72,7 +68,7 @@ func (s Signer) SignAzureURL(url *url.URL, encryptionKeyID string) (string, erro
 	}
 
 	// Sign a JWT!
-	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.RS256, s.jwkKey))
+	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.HS256, s.jwkKey))
 	if err != nil {
 		return "", merry.Wrap(err)
 	}

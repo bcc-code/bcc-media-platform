@@ -2,10 +2,11 @@ package graph
 
 import (
 	"context"
-	"go.opentelemetry.io/otel"
 	"strconv"
 	"sync"
 	"time"
+
+	"go.opentelemetry.io/otel"
 
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
@@ -36,6 +37,7 @@ type Resolver struct {
 type apiConfig interface {
 	GetVOD2Domain() string
 	GetFilesCDNDomain() string
+	GetLegacyVODDomain() string
 }
 
 // ErrItemNotFound for not found items
