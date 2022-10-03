@@ -5,7 +5,7 @@ schema:
 # Where should the generated server code go?
 exec:
   filename: ./generated/generated.go
-  package: gqladmingenerated
+  package: generated
 
 # Uncomment to enable federation
 # federation:
@@ -15,13 +15,13 @@ exec:
 # Where should any generated models go?
 model:
   filename: ./model/models_gen.go
-  package: gqladminmodel
+  package: model
 
 # Where should the resolver implementations go?
 resolver:
   layout: follow-schema
   dir: ./
-  package: gqladmin
+  package: graph
 
 # Optional: turn on use ` + "`" + `gqlgen:"fieldName"` + "`" + ` tags in your models
 # struct_tag: json

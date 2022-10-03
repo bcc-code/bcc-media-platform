@@ -1,4 +1,4 @@
-package graphpub
+package graph
 
 import (
 	"github.com/bcc-code/brunstadtv/backend/common"

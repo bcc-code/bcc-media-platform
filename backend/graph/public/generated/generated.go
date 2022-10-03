@@ -13,7 +13,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	gqlmodel_pub "github.com/bcc-code/brunstadtv/backend/graph/public/model"
+	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -78,15 +78,15 @@ type ComplexityRoot struct {
 }
 
 type EpisodeResolver interface {
-	Season(ctx context.Context, obj *gqlmodel_pub.Episode) (*gqlmodel_pub.Season, error)
+	Season(ctx context.Context, obj *model.Episode) (*model.Season, error)
 }
 type QueryRootResolver interface {
-	Episode(ctx context.Context, id string) (*gqlmodel_pub.Episode, error)
-	Season(ctx context.Context, id string) (*gqlmodel_pub.Season, error)
-	Show(ctx context.Context, id string) (*gqlmodel_pub.Show, error)
+	Episode(ctx context.Context, id string) (*model.Episode, error)
+	Season(ctx context.Context, id string) (*model.Season, error)
+	Show(ctx context.Context, id string) (*model.Show, error)
 }
 type SeasonResolver interface {
-	Show(ctx context.Context, obj *gqlmodel_pub.Season) (*gqlmodel_pub.Show, error)
+	Show(ctx context.Context, obj *model.Season) (*model.Show, error)
 }
 
 type executableSchema struct {
@@ -450,7 +450,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Episode_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Episode) (ret graphql.Marshaler) {
+func (ec *executionContext) _Episode_id(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -494,7 +494,7 @@ func (ec *executionContext) fieldContext_Episode_id(ctx context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Episode_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Episode) (ret graphql.Marshaler) {
+func (ec *executionContext) _Episode_title(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_title(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -538,7 +538,7 @@ func (ec *executionContext) fieldContext_Episode_title(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Episode_description(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Episode) (ret graphql.Marshaler) {
+func (ec *executionContext) _Episode_description(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_description(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -582,7 +582,7 @@ func (ec *executionContext) fieldContext_Episode_description(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Episode_image(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Episode) (ret graphql.Marshaler) {
+func (ec *executionContext) _Episode_image(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_image(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -623,7 +623,7 @@ func (ec *executionContext) fieldContext_Episode_image(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Episode_number(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Episode) (ret graphql.Marshaler) {
+func (ec *executionContext) _Episode_number(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_number(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -664,7 +664,7 @@ func (ec *executionContext) fieldContext_Episode_number(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Episode_season(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Episode) (ret graphql.Marshaler) {
+func (ec *executionContext) _Episode_season(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_season(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -687,7 +687,7 @@ func (ec *executionContext) _Episode_season(ctx context.Context, field graphql.C
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel_pub.Season)
+	res := resTmp.(*model.Season)
 	fc.Result = res
 	return ec.marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐSeason(ctx, field.Selections, res)
 }
@@ -745,7 +745,7 @@ func (ec *executionContext) _QueryRoot_episode(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel_pub.Episode)
+	res := resTmp.(*model.Episode)
 	fc.Result = res
 	return ec.marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐEpisode(ctx, field.Selections, res)
 }
@@ -814,7 +814,7 @@ func (ec *executionContext) _QueryRoot_season(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel_pub.Season)
+	res := resTmp.(*model.Season)
 	fc.Result = res
 	return ec.marshalNSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐSeason(ctx, field.Selections, res)
 }
@@ -883,7 +883,7 @@ func (ec *executionContext) _QueryRoot_show(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel_pub.Show)
+	res := resTmp.(*model.Show)
 	fc.Result = res
 	return ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐShow(ctx, field.Selections, res)
 }
@@ -1051,7 +1051,7 @@ func (ec *executionContext) fieldContext_QueryRoot___schema(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Season_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Season) (ret graphql.Marshaler) {
+func (ec *executionContext) _Season_id(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Season_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1095,7 +1095,7 @@ func (ec *executionContext) fieldContext_Season_id(ctx context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Season_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Season) (ret graphql.Marshaler) {
+func (ec *executionContext) _Season_title(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Season_title(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1139,7 +1139,7 @@ func (ec *executionContext) fieldContext_Season_title(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Season_description(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Season) (ret graphql.Marshaler) {
+func (ec *executionContext) _Season_description(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Season_description(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1183,7 +1183,7 @@ func (ec *executionContext) fieldContext_Season_description(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Season_image(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Season) (ret graphql.Marshaler) {
+func (ec *executionContext) _Season_image(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Season_image(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1224,7 +1224,7 @@ func (ec *executionContext) fieldContext_Season_image(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Season_number(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Season) (ret graphql.Marshaler) {
+func (ec *executionContext) _Season_number(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Season_number(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1268,7 +1268,7 @@ func (ec *executionContext) fieldContext_Season_number(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Season_show(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Season) (ret graphql.Marshaler) {
+func (ec *executionContext) _Season_show(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Season_show(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1291,7 +1291,7 @@ func (ec *executionContext) _Season_show(ctx context.Context, field graphql.Coll
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel_pub.Show)
+	res := resTmp.(*model.Show)
 	fc.Result = res
 	return ec.marshalOShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐShow(ctx, field.Selections, res)
 }
@@ -1319,7 +1319,7 @@ func (ec *executionContext) fieldContext_Season_show(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Show_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Show) (ret graphql.Marshaler) {
+func (ec *executionContext) _Show_id(ctx context.Context, field graphql.CollectedField, obj *model.Show) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Show_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1363,7 +1363,7 @@ func (ec *executionContext) fieldContext_Show_id(ctx context.Context, field grap
 	return fc, nil
 }
 
-func (ec *executionContext) _Show_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Show) (ret graphql.Marshaler) {
+func (ec *executionContext) _Show_title(ctx context.Context, field graphql.CollectedField, obj *model.Show) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Show_title(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1407,7 +1407,7 @@ func (ec *executionContext) fieldContext_Show_title(ctx context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Show_description(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Show) (ret graphql.Marshaler) {
+func (ec *executionContext) _Show_description(ctx context.Context, field graphql.CollectedField, obj *model.Show) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Show_description(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1451,7 +1451,7 @@ func (ec *executionContext) fieldContext_Show_description(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Show_image(ctx context.Context, field graphql.CollectedField, obj *gqlmodel_pub.Show) (ret graphql.Marshaler) {
+func (ec *executionContext) _Show_image(ctx context.Context, field graphql.CollectedField, obj *model.Show) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Show_image(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3275,7 +3275,7 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 var episodeImplementors = []string{"Episode"}
 
-func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel_pub.Episode) graphql.Marshaler {
+func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, obj *model.Episode) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, episodeImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -3453,7 +3453,7 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 
 var seasonImplementors = []string{"Season"}
 
-func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel_pub.Season) graphql.Marshaler {
+func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, obj *model.Season) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, seasonImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -3523,7 +3523,7 @@ func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, o
 
 var showImplementors = []string{"Show"}
 
-func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel_pub.Show) graphql.Marshaler {
+func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj *model.Show) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, showImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -3900,11 +3900,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNEpisode2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v gqlmodel_pub.Episode) graphql.Marshaler {
+func (ec *executionContext) marshalNEpisode2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v model.Episode) graphql.Marshaler {
 	return ec._Episode(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v *gqlmodel_pub.Episode) graphql.Marshaler {
+func (ec *executionContext) marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v *model.Episode) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -3944,11 +3944,11 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNSeason2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v gqlmodel_pub.Season) graphql.Marshaler {
+func (ec *executionContext) marshalNSeason2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v model.Season) graphql.Marshaler {
 	return ec._Season(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v *gqlmodel_pub.Season) graphql.Marshaler {
+func (ec *executionContext) marshalNSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v *model.Season) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -3958,11 +3958,11 @@ func (ec *executionContext) marshalNSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunst
 	return ec._Season(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNShow2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v gqlmodel_pub.Show) graphql.Marshaler {
+func (ec *executionContext) marshalNShow2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v model.Show) graphql.Marshaler {
 	return ec._Show(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v *gqlmodel_pub.Show) graphql.Marshaler {
+func (ec *executionContext) marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v *model.Show) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4282,14 +4282,14 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v *gqlmodel_pub.Season) graphql.Marshaler {
+func (ec *executionContext) marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v *model.Season) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Season(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v *gqlmodel_pub.Show) graphql.Marshaler {
+func (ec *executionContext) marshalOShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v *model.Show) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

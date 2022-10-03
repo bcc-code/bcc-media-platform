@@ -1,4 +1,4 @@
-package gqladmin
+package graph
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -9,13 +9,13 @@ import (
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
-	gqladmingenerated "github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
-	gqladminmodel "github.com/bcc-code/brunstadtv/backend/graph/admin/model"
+	"github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
+	"github.com/bcc-code/brunstadtv/backend/graph/admin/model"
 	"github.com/samber/lo"
 )
 
 // Collection is the resolver for the collection field.
-func (r *previewResolver) Collection(ctx context.Context, obj *gqladminmodel.Preview, collection string, filter string) (*gqladminmodel.PreviewCollection, error) {
+func (r *previewResolver) Collection(ctx context.Context, obj *model.Preview, collection string, filter string) (*model.PreviewCollection, error) {
 	ctx = context.WithValue(ctx, "preview", true)
 
 	var f common.Filter
@@ -27,13 +27,13 @@ func (r *previewResolver) Collection(ctx context.Context, obj *gqladminmodel.Pre
 		return nil, err
 	}
 
-	return &gqladminmodel.PreviewCollection{
+	return &model.PreviewCollection{
 		Items: items,
 	}, nil
 }
 
 // Asset is the resolver for the asset field.
-func (r *previewResolver) Asset(ctx context.Context, obj *gqladminmodel.Preview, id string) (*gqladminmodel.PreviewAsset, error) {
+func (r *previewResolver) Asset(ctx context.Context, obj *model.Preview, id string) (*model.PreviewAsset, error) {
 	ctx = context.WithValue(ctx, "preview", true)
 
 	intID, err := strconv.ParseInt(id, 10, 32)
@@ -52,22 +52,22 @@ func (r *previewResolver) Asset(ctx context.Context, obj *gqladminmodel.Preview,
 	if !found {
 		stream = streams[0]
 	}
-	return &gqladminmodel.PreviewAsset{
+	return &model.PreviewAsset{
 		URL:  stream.Url,
 		Type: stream.Type,
 	}, nil
 }
 
 // Preview is the resolver for the preview field.
-func (r *queryRootResolver) Preview(ctx context.Context) (*gqladminmodel.Preview, error) {
-	return &gqladminmodel.Preview{}, nil
+func (r *queryRootResolver) Preview(ctx context.Context) (*model.Preview, error) {
+	return &model.Preview{}, nil
 }
 
-// Preview returns gqladmingenerated.PreviewResolver implementation.
-func (r *Resolver) Preview() gqladmingenerated.PreviewResolver { return &previewResolver{r} }
+// Preview returns generated.PreviewResolver implementation.
+func (r *Resolver) Preview() generated.PreviewResolver { return &previewResolver{r} }
 
-// QueryRoot returns gqladmingenerated.QueryRootResolver implementation.
-func (r *Resolver) QueryRoot() gqladmingenerated.QueryRootResolver { return &queryRootResolver{r} }
+// QueryRoot returns generated.QueryRootResolver implementation.
+func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
 
 type previewResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }

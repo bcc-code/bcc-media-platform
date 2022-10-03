@@ -10,12 +10,12 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/graph/admin"
-	"github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
-	"github.com/bcc-code/brunstadtv/backend/graph/api"
-	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
+	graphadmin "github.com/bcc-code/brunstadtv/backend/graph/admin"
+	graphadmingenerated "github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
+	graphapi "github.com/bcc-code/brunstadtv/backend/graph/api"
+	graphapigenerated "github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	graphpub "github.com/bcc-code/brunstadtv/backend/graph/public"
-	gqlgenerated_pub "github.com/bcc-code/brunstadtv/backend/graph/public/generated"
+	graphpubgenerated "github.com/bcc-code/brunstadtv/backend/graph/public/generated"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/items/episode"
 	"github.com/bcc-code/brunstadtv/backend/items/page"
@@ -57,7 +57,7 @@ func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchS
 
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
-	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver}))
+	h := handler.NewDefaultServer(graphapigenerated.NewExecutableSchema(graphapigenerated.Config{Resolvers: &resolver}))
 	h.Use(tracer)
 
 	return func(c *gin.Context) {
@@ -78,7 +78,7 @@ func publicGraphqlHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
 
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
-	h := handler.NewDefaultServer(gqlgenerated_pub.NewExecutableSchema(gqlgenerated_pub.Config{Resolvers: &resolver}))
+	h := handler.NewDefaultServer(graphpubgenerated.NewExecutableSchema(graphpubgenerated.Config{Resolvers: &resolver}))
 	h.Use(tracer)
 
 	return func(c *gin.Context) {
@@ -88,7 +88,7 @@ func publicGraphqlHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
 
 func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders) gin.HandlerFunc {
 
-	resolver := gqladmin.Resolver{
+	resolver := graphadmin.Resolver{
 		DB:      db,
 		Queries: queries,
 		Loaders: loaders,
@@ -96,7 +96,7 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
-	h := handler.NewDefaultServer(gqladmingenerated.NewExecutableSchema(gqladmingenerated.Config{Resolvers: &resolver}))
+	h := handler.NewDefaultServer(graphadmingenerated.NewExecutableSchema(graphadmingenerated.Config{Resolvers: &resolver}))
 
 	directusSecret := config.Secrets.Directus
 	if directusSecret == "" {
