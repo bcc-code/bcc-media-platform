@@ -51,7 +51,7 @@ export async function createShow(p, m, c) {
 
     // get legacy id
     p = p as episodes.components["schemas"]["ItemsShows"]
-    //let image = e.image_file_id as episodes.components["schemas"]["Files"]
+    //let image = e.image_file_id as episodes.components["schema"]["Files"]
 
 
     // update it in original

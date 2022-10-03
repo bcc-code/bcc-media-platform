@@ -1,12 +1,14 @@
 package sqlc
 
-import (
-	"fmt"
-)
+import "os"
 
-func (file *DirectusFile) GetImageUrl() string {
-	if !file.FilenameDisk.Valid {
-		return ""
-	}
-	return fmt.Sprintf("https://brunstadtv.imgix.net/%s", file.FilenameDisk.ValueOrZero())
+var imageCDNDomain = os.Getenv("IMAGE_CDN_DOMAIN")
+
+func (q *Queries) getImageCDNDomain() string {
+	return imageCDNDomain
+}
+
+// SetImageCDNDomain sets the domain for the image CDN
+func (q *Queries) SetImageCDNDomain(domain string) {
+	imageCDNDomain = domain
 }

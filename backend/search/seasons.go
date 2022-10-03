@@ -18,6 +18,11 @@ func (service *Service) seasonToSearchItem(ctx context.Context, season common.Se
 		legacyID = &v
 	}
 
+	var image *string
+	if season.Image.Valid {
+		image = &season.Image.String
+	}
+
 	var item = searchItem{
 		ID:          "seasons-" + strconv.Itoa(season.ID),
 		LegacyID:    legacyID,
@@ -28,6 +33,8 @@ func (service *Service) seasonToSearchItem(ctx context.Context, season common.Se
 		ShowTitle:   &show.Title,
 		Type:        "season",
 		AgeRating:   &season.AgeRating,
+		Image:       image,
 	}
-	return item, nil
+	err = item.assignTags(ctx, service.loaders, season)
+	return item, err
 }

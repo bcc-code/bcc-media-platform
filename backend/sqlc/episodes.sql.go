@@ -9,7 +9,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
 	null_v4 "gopkg.in/guregu/null.v4"
@@ -79,7 +78,7 @@ SELECT e.id,
        e.legacy_program_id,
        e.asset_id,
        e.episode_number,
-       COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id)::uuid as image_file_id,
+       fs.filename_disk as image_file_name,
        e.season_id,
        e.type,
        ts.title,
@@ -94,6 +93,7 @@ FROM episodes e
          LEFT JOIN assets ON e.asset_id = assets.id
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
+         LEFT JOIN directus_files fs ON fs.id = COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id)
 WHERE e.id = ANY($1::int[])
 ORDER BY e.episode_number
 `
@@ -104,7 +104,7 @@ type getEpisodesRow struct {
 	LegacyProgramID  null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
 	AssetID          null_v4.Int           `db:"asset_id" json:"assetID"`
 	EpisodeNumber    null_v4.Int           `db:"episode_number" json:"episodeNumber"`
-	ImageFileID      uuid.UUID             `db:"image_file_id" json:"imageFileID"`
+	ImageFileName    null_v4.String        `db:"image_file_name" json:"imageFileName"`
 	SeasonID         null_v4.Int           `db:"season_id" json:"seasonID"`
 	Type             string                `db:"type" json:"type"`
 	Title            pqtype.NullRawMessage `db:"title" json:"title"`
@@ -130,7 +130,7 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.LegacyProgramID,
 			&i.AssetID,
 			&i.EpisodeNumber,
-			&i.ImageFileID,
+			&i.ImageFileName,
 			&i.SeasonID,
 			&i.Type,
 			&i.Title,
@@ -246,7 +246,7 @@ SELECT e.id,
        e.legacy_program_id,
        e.asset_id,
        e.episode_number,
-       COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id)::uuid as image_file_id,
+       fs.filename_disk as image_file_name,
        e.season_id,
        e.type,
        ts.title,
@@ -261,6 +261,7 @@ FROM episodes e
          LEFT JOIN assets ON e.asset_id = assets.id
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
+         LEFT JOIN directus_files fs ON fs.id = COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id)
 `
 
 type listEpisodesRow struct {
@@ -269,7 +270,7 @@ type listEpisodesRow struct {
 	LegacyProgramID  null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
 	AssetID          null_v4.Int           `db:"asset_id" json:"assetID"`
 	EpisodeNumber    null_v4.Int           `db:"episode_number" json:"episodeNumber"`
-	ImageFileID      uuid.UUID             `db:"image_file_id" json:"imageFileID"`
+	ImageFileName    null_v4.String        `db:"image_file_name" json:"imageFileName"`
 	SeasonID         null_v4.Int           `db:"season_id" json:"seasonID"`
 	Type             string                `db:"type" json:"type"`
 	Title            pqtype.NullRawMessage `db:"title" json:"title"`
@@ -295,7 +296,7 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 			&i.LegacyProgramID,
 			&i.AssetID,
 			&i.EpisodeNumber,
-			&i.ImageFileID,
+			&i.ImageFileName,
 			&i.SeasonID,
 			&i.Type,
 			&i.Title,

@@ -10,10 +10,12 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/graph"
-	"github.com/bcc-code/brunstadtv/backend/graph/generated"
-	gqladmin "github.com/bcc-code/brunstadtv/backend/graphadmin"
-	gqladmingenerated "github.com/bcc-code/brunstadtv/backend/graphadmin/generated"
+	graphadmin "github.com/bcc-code/brunstadtv/backend/graph/admin"
+	graphadmingenerated "github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
+	graphapi "github.com/bcc-code/brunstadtv/backend/graph/api"
+	graphapigenerated "github.com/bcc-code/brunstadtv/backend/graph/api/generated"
+	graphpub "github.com/bcc-code/brunstadtv/backend/graph/public"
+	graphpubgenerated "github.com/bcc-code/brunstadtv/backend/graph/public/generated"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/items/episode"
 	"github.com/bcc-code/brunstadtv/backend/items/page"
@@ -43,7 +45,7 @@ var generalCache = cache.New[string, any]()
 // Defining the Graphql handler
 func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
 
-	resolver := graph.Resolver{
+	resolver := graphapi.Resolver{
 		Queries:       queries,
 		Loaders:       loaders,
 		SearchService: searchService,
@@ -55,7 +57,28 @@ func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchS
 
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
-	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver}))
+	h := handler.NewDefaultServer(graphapigenerated.NewExecutableSchema(graphapigenerated.Config{Resolvers: &resolver}))
+	h.Use(tracer)
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func publicGraphqlHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
+	resolver := graphpub.Resolver{
+		Loaders: &graphpub.Loaders{
+			EpisodeLoader: loaders.EpisodeLoader,
+			SeasonLoader:  loaders.SeasonLoader,
+			ShowLoader:    loaders.ShowLoader,
+		},
+	}
+
+	tracer := &graphTracer{}
+
+	// NewExecutableSchema and Config are in the generated.go file
+	// Resolver is in the resolver.go file
+	h := handler.NewDefaultServer(graphpubgenerated.NewExecutableSchema(graphpubgenerated.Config{Resolvers: &resolver}))
 	h.Use(tracer)
 
 	return func(c *gin.Context) {
@@ -65,7 +88,7 @@ func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchS
 
 func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders) gin.HandlerFunc {
 
-	resolver := gqladmin.Resolver{
+	resolver := graphadmin.Resolver{
 		DB:      db,
 		Queries: queries,
 		Loaders: loaders,
@@ -73,7 +96,7 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
-	h := handler.NewDefaultServer(gqladmingenerated.NewExecutableSchema(gqladmingenerated.Config{Resolvers: &resolver}))
+	h := handler.NewDefaultServer(graphadmingenerated.NewExecutableSchema(graphadmingenerated.Config{Resolvers: &resolver}))
 
 	directusSecret := config.Secrets.Directus
 	if directusSecret == "" {
@@ -175,6 +198,7 @@ func main() {
 	}
 
 	queries := sqlc.New(db)
+	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
 
 	collectionLoader := common.NewBatchLoader(queries.GetCollections)
 
@@ -196,7 +220,6 @@ func main() {
 		CollectionLoader:        collectionLoader,
 		CollectionItemIdsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader),
 		CollectionItemLoader:    collection.NewItemListBatchLoader(*queries),
-		ImageFileLoader:         common.NewBatchLoader(queries.GetFiles),
 		// Relations
 		SeasonsLoader:  common.NewRelationBatchLoader(queries.GetSeasonIDsForShows),
 		EpisodesLoader: common.NewRelationBatchLoader(queries.GetEpisodeIDsForSeasons),
@@ -243,6 +266,8 @@ func main() {
 	r.GET("/", playgroundHandler())
 
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, loaders))
+
+	r.POST("/public", publicGraphqlHandler(loaders))
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 

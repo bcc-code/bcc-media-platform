@@ -4,13 +4,13 @@ cd ./web
 
 pnpm i
 
-pnpm build --mode dev
+pnpm build:dev
 mv build build-dev
 
-pnpm build --mode sta
+pnpm build:sta
 mv build build-sta
 
-pnpm build --mode prod
+pnpm build:prod
 mv build build-prod
 
 artifact push workflow build-dev

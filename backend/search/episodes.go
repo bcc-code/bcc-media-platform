@@ -45,6 +45,11 @@ func (service *Service) episodeToSearchItem(ctx context.Context, episode common.
 		legacyID = &v
 	}
 
+	var image *string
+	if episode.Image.Valid {
+		image = &episode.Image.String
+	}
+
 	var item = searchItem{
 		ID:          "episodes-" + strconv.Itoa(episode.ID),
 		LegacyID:    legacyID,
@@ -58,6 +63,7 @@ func (service *Service) episodeToSearchItem(ctx context.Context, episode common.
 		Type:        "episode",
 		AgeRating:   &episode.AgeRating,
 		Duration:    &episode.Duration,
+		Image:       image,
 	}
 
 	err := item.assignTags(ctx, service.loaders, episode)
