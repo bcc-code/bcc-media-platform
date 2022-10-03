@@ -6,11 +6,16 @@ import (
 	"strconv"
 )
 
-func (service *Service) showToSearchItem(_ context.Context, show common.Show) (searchItem, error) {
+func (service *Service) showToSearchItem(ctx context.Context, show common.Show) (searchItem, error) {
 	var legacyID *int
 	if show.LegacyID.Valid {
 		v := int(show.LegacyID.Int64)
 		legacyID = &v
+	}
+
+	var image *string
+	if show.Image.Valid {
+		image = &show.Image.String
 	}
 
 	var item = searchItem{
@@ -20,6 +25,9 @@ func (service *Service) showToSearchItem(_ context.Context, show common.Show) (s
 		Description: show.Description,
 		Header:      nil,
 		Type:        "show",
+		Image:       image,
 	}
-	return item, nil
+
+	err := item.assignTags(ctx, service.loaders, show)
+	return item, err
 }

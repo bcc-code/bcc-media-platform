@@ -8,7 +8,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/items/season"
 	"github.com/bcc-code/brunstadtv/backend/items/show"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
 	_ "github.com/lib/pq"
 )
@@ -36,7 +35,6 @@ type loaders struct {
 	ShowLoader    *dataloader.Loader[int, *common.Show]
 	SeasonLoader  *dataloader.Loader[int, *common.Season]
 	EpisodeLoader *dataloader.Loader[int, *common.Episode]
-	ImageLoader   *dataloader.Loader[uuid.UUID, *common.ImageFile]
 	TagLoader     *dataloader.Loader[int, *common.Tag]
 	// Permissions
 	ShowPermissionLoader    *dataloader.Loader[int, *common.Permissions[int]]
@@ -70,7 +68,6 @@ func New(db *sql.DB, config Config) *Service {
 		ShowLoader:    show.NewBatchLoader(*service.queries),
 		SeasonLoader:  season.NewBatchLoader(*service.queries),
 		EpisodeLoader: episode.NewBatchLoader(*service.queries),
-		ImageLoader:   common.NewBatchLoader(service.queries.GetFiles),
 		TagLoader:     common.NewBatchLoader(service.queries.GetTags),
 		// Permissions
 		ShowPermissionLoader:    show.NewPermissionLoader(*service.queries),

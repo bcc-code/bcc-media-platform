@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/bcc-code/brunstadtv/backend/members"
-	"github.com/bcc-code/brunstadtv/backend/search"
 	"os"
 	"strings"
+
+	"github.com/bcc-code/brunstadtv/backend/members"
+	"github.com/bcc-code/brunstadtv/backend/search"
 
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/samber/lo"
@@ -25,11 +26,13 @@ type envConfig struct {
 }
 
 type cdnConfig struct {
-	Vod2Domain          string
-	FilesDomain         string
-	AWSSigningKeyPath   string
-	AWSSigningKeyID     string
-	AzureSigningKeyPath string
+	ImageCDNDomain      string
+	Vod2Domain        string
+	LegacyVODDomain   string
+	FilesDomain       string
+	AWSSigningKeyPath string
+	AWSSigningKeyID   string
+	AzureSigningKey   string
 }
 
 type serviceSecrets struct {
@@ -39,6 +42,10 @@ type serviceSecrets struct {
 // GetVOD2Domain returns the configured VOD2Domain
 func (c cdnConfig) GetVOD2Domain() string {
 	return c.Vod2Domain
+}
+
+func (c cdnConfig) GetLegacyVODDomain() string {
+	return c.LegacyVODDomain
 }
 
 // GetFilesCDNDomain returns the configured FilesCDNDomain
@@ -54,8 +61,8 @@ func (c cdnConfig) GetAwsSigningKeyID() string {
 	return c.AWSSigningKeyID
 }
 
-func (c cdnConfig) GetAzureSigningKeyPath() string {
-	return c.AzureSigningKeyPath
+func (c cdnConfig) GetAzureSigningKey() string {
+	return c.AzureSigningKey
 }
 
 func getEnvConfig() envConfig {
@@ -84,11 +91,13 @@ func getEnvConfig() envConfig {
 			APIKey: os.Getenv("ALGOLIA_API_KEY"),
 		},
 		CDNConfig: cdnConfig{
-			Vod2Domain:          os.Getenv("VOD2_CDN_DOMAIN"),
-			FilesDomain:         os.Getenv("FILES_CDN_DOMAIN"),
-			AWSSigningKeyID:     os.Getenv("CF_SIGNING_KEY_ID"),
-			AWSSigningKeyPath:   os.Getenv("CF_SIGNING_KEY_PATH"),
-			AzureSigningKeyPath: os.Getenv("AZ_SIGNING_KEY_PATH"),
+			ImageCDNDomain:      os.Getenv("IMAGE_CDN_DOMAIN"),
+			Vod2Domain:        os.Getenv("VOD2_CDN_DOMAIN"),
+			FilesDomain:       os.Getenv("FILES_CDN_DOMAIN"),
+			AWSSigningKeyID:   os.Getenv("CF_SIGNING_KEY_ID"),
+			AWSSigningKeyPath: os.Getenv("CF_SIGNING_KEY_PATH"),
+			AzureSigningKey:   os.Getenv("AZ_SIGNING_KEY"),
+			LegacyVODDomain:   os.Getenv("LEGACY_CDN_DOMAIN"),
 		},
 		Secrets: serviceSecrets{
 			Directus: os.Getenv("SERVICE_SECRET_DIRECTUS"),

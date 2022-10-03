@@ -3,12 +3,13 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
 )
 
-func mapToSeasons(seasons []getSeasonsRow) []common.Season {
+func (q *Queries) mapToSeasons(seasons []getSeasonsRow) []common.Season {
 	return lo.Map(seasons, func(e getSeasonsRow, _ int) common.Season {
 		var title common.LocaleString
 		var description common.LocaleString
@@ -16,18 +17,23 @@ func mapToSeasons(seasons []getSeasonsRow) []common.Season {
 		_ = json.Unmarshal(e.Title, &title)
 		_ = json.Unmarshal(e.Description, &description)
 
+		var image null.String
+		if e.ImageFileName.Valid {
+			image = null.StringFrom(fmt.Sprintf("https://%s/%s", q.getImageCDNDomain(), e.ImageFileName.String))
+		}
+
 		return common.Season{
 			ID:          int(e.ID),
 			LegacyID:    e.LegacyID,
 			Title:       title,
 			Description: description,
 			Number:      int(e.SeasonNumber),
-			ImageID: uuid.NullUUID{
-				UUID:  e.ImageFileID,
-				Valid: e.ImageFileID != uuid.Nil,
-			},
-			ShowID:    int(e.ShowID),
-			AgeRating: e.Agerating,
+			Image:       image,
+			ShowID:      int(e.ShowID),
+			AgeRating:   e.Agerating,
+			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
+				return int(id)
+			}),
 		}
 	})
 }
@@ -38,7 +44,7 @@ func (q *Queries) GetSeasons(ctx context.Context, ids []int) ([]common.Season, e
 	if err != nil {
 		return nil, err
 	}
-	return mapToSeasons(seasons), nil
+	return q.mapToSeasons(seasons), nil
 }
 
 // ListSeasons returns a list of common.Season
@@ -47,7 +53,7 @@ func (q *Queries) ListSeasons(ctx context.Context) ([]common.Season, error) {
 	if err != nil {
 		return nil, err
 	}
-	return mapToSeasons(lo.Map(items, func(i listSeasonsRow, _ int) getSeasonsRow {
+	return q.mapToSeasons(lo.Map(items, func(i listSeasonsRow, _ int) getSeasonsRow {
 		return getSeasonsRow(i)
 	})), nil
 }

@@ -1,0 +1,11 @@
+query getSeason($id: ID!) {
+    season(id: $id) {
+        title
+        description
+        image
+        number
+        show {
+            title
+        }
+    }
+}

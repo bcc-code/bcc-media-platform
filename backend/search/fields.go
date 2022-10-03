@@ -5,7 +5,6 @@ import (
 	"fmt"
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
@@ -135,23 +134,6 @@ func (i *searchItem) assignVisibility(a common.Availability) {
 	} else {
 		i.AvailableTo = int(a.To.Unix())
 	}
-}
-
-type hasImage interface {
-	GetImage() uuid.NullUUID
-}
-
-func (i *searchItem) assignImage(ctx context.Context, loaders loaders, source hasImage) error {
-	id := source.GetImage()
-	if id.Valid {
-		image, err := loaders.ImageLoader.Load(ctx, id.UUID)()
-		if err != nil {
-			return err
-		}
-		imageUrl := image.GetImageUrl()
-		i.Image = &imageUrl
-	}
-	return nil
 }
 
 type hasTags interface {

@@ -1,0 +1,22 @@
+{
+  "name": "GQL Public",
+  "schemaPath": "schema.graphql",
+  "extensions": {
+    "endpoints": {
+      "Debug": {
+        "url": "http://localhost:8077/public",
+        "headers": {
+          "user-agent": "JS GraphQL"
+        },
+        "introspect": false
+      },
+      "Production": {
+        "url": "https://api.brunstad.tv/public",
+        "headers": {
+          "user-agent": "JS GraphQL"
+        },
+        "introspect": false
+      }
+    }
+  }
+}

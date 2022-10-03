@@ -40,6 +40,7 @@ type envConfig struct {
 	Algolia           search.Config
 	Crowdin           crowdin.Config
 	Firebase          firebase
+	ImageCDNDomain    string
 }
 
 func getEnvConfig() envConfig {
@@ -57,6 +58,7 @@ func getEnvConfig() envConfig {
 	return envConfig{
 		Port:              os.Getenv("PORT"),
 		DeleteIngestFiles: deleteIngestFilesStringBool,
+		ImageCDNDomain:    os.Getenv("IMAGE_CDN_DOMAIN"),
 		AWS: awsConfig{
 			Region:                os.Getenv("AWS_DEFAULT_REGION"),
 			PackagingGroupARN:     os.Getenv("AWS_PACKAGING_GROUP"),
