@@ -67,7 +67,10 @@ func get[T any](query string, variables map[string]any) *T {
 		return nil
 	}
 
-	resString, _ := io.ReadAll(res.Body)
+	resString, err := io.ReadAll(res.Body)
+	if err != nil {
+
+	}
 
 	if res.StatusCode < 200 || res.StatusCode > 299 {
 		log.Default().Print(merry.New("Error occurred when fetching", merry.WithHTTPCode(res.StatusCode), merry.WithMessage(string(resString))))
@@ -76,7 +79,12 @@ func get[T any](query string, variables map[string]any) *T {
 
 	var r response[T]
 	err = json.Unmarshal(resString, &r)
-	if err != nil || r.Errors != nil {
+	if err != nil {
+		log.Default().Print(err)
+		return nil
+	}
+	if r.Errors != nil {
+		// Usually just permissions or not found errors. Ignore
 		return nil
 	}
 	return &r.Data

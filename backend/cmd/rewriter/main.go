@@ -3,25 +3,42 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
 	"golang.org/x/net/html"
-	"log"
 	"net/http"
 )
 
-func (rw *rewriter) getDefaultHtml() *html.Node {
-	req, _ := http.NewRequest("GET", rw.webEndpoint, nil)
-	res, _ := http.DefaultClient.Do(req)
-
-	doc, _ := html.Parse(res.Body)
-	return doc
+func (rw *rewriter) getDefaultHtml() (*html.Node, error) {
+	req, err := http.NewRequest("GET", rw.webEndpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	doc, err := html.Parse(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	return doc, nil
 }
 
-func (rw *rewriter) getDefaultHtmlString() string {
+func (rw *rewriter) getDefaultHtmlString() (string, error) {
 	b := &bytes.Buffer{}
-	_ = html.Render(b, rw.getDefaultHtml())
+	h, err := rw.getDefaultHtml()
+	if err != nil {
+		return "", err
+	}
+	err = html.Render(b, h)
+	if err != nil {
+		return "", err
+	}
 
-	return b.String()
+	return b.String(), nil
 }
 
 type meta struct {
@@ -91,96 +108,101 @@ func addMetaTags(n *html.Node, meta meta) {
 	}
 }
 
-func (rw *rewriter) writeMeta(meta meta) string {
-	doc := rw.getDefaultHtml()
+func (rw *rewriter) writeMeta(meta meta) (string, error) {
+	doc, err := rw.getDefaultHtml()
+	if err != nil || doc == nil {
+		return "", err
+	}
 
 	addMetaTags(doc, meta)
 
 	b := &bytes.Buffer{}
-	_ = html.Render(b, doc)
+	err = html.Render(b, doc)
+	if err != nil {
+		return "", err
+	}
 
-	return b.String()
+	return b.String(), nil
+}
+
+func metaForEpisode(res *episode) meta {
+	e := res.Episode
+
+	options := meta{
+		Title:       e.Title,
+		Description: e.Description,
+	}
+	if e.Image != nil {
+		options.OGImage = *e.Image
+	}
+
+	return options
+}
+
+func metaForSeason(res *season) meta {
+	e := res.Season
+
+	options := meta{
+		Title:       e.Title,
+		Description: e.Description,
+	}
+	if e.Image != nil {
+		options.OGImage = *e.Image
+	}
+
+	return options
+}
+
+func metaForShow(res *show) meta {
+	e := res.Show
+
+	options := meta{
+		Title:       e.Title,
+		Description: e.Description,
+	}
+	if e.Image != nil {
+		options.OGImage = *e.Image
+	}
+
+	return options
+}
+
+func metaHandler[T any](rw *rewriter, factory func(string) *T, optFactory func(*T) meta) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		res := factory(ctx.Param("id"))
+		if res == nil {
+			h, err := rw.getDefaultHtmlString()
+			if err != nil {
+				log.L.Error().Err(err).Msg("error occurred trying to retrieve default html")
+			}
+
+			ctx.Header("Content-Type", "text/html")
+			ctx.String(200, h)
+			return
+		}
+
+		options := optFactory(res)
+
+		h, err := rw.writeMeta(options)
+		if err != nil {
+			log.L.Error().Err(err).Msg("error occurred trying to write meta to html")
+		}
+
+		ctx.Header("Content-Type", "text/html")
+		ctx.String(200, h)
+	}
 }
 
 func episodeHandler(rw *rewriter) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		res := getEpisode(ctx.Param("id"))
-
-		if res == nil {
-			ctx.Header("Content-Type", "text/html")
-			ctx.String(200, rw.getDefaultHtmlString())
-			return
-		}
-
-		e := res.Episode
-
-		log.Default().Print(res)
-
-		options := meta{
-			Title:       e.Title,
-			Description: e.Description,
-		}
-		if e.Image != nil {
-			options.OGImage = *e.Image
-		}
-
-		h := rw.writeMeta(options)
-
-		ctx.Header("Content-Type", "text/html")
-		ctx.String(200, h)
-	}
+	return metaHandler(rw, getEpisode, metaForEpisode)
 }
 
 func seasonHandler(rw *rewriter) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		res := getSeason(ctx.Param("id"))
-
-		if res == nil {
-			ctx.Header("Content-Type", "text/html")
-			ctx.String(200, rw.getDefaultHtmlString())
-			return
-		}
-
-		e := res.Season
-
-		options := meta{
-			Title:       e.Title,
-			Description: e.Description,
-		}
-		if e.Image != nil {
-			options.OGImage = *e.Image
-		}
-
-		ctx.Header("Content-Type", "text/html")
-		ctx.String(200, rw.writeMeta(options))
-	}
+	return metaHandler(rw, getSeason, metaForSeason)
 }
 
 func showHandler(rw *rewriter) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		res := getShow(ctx.Param("id"))
-
-		if res == nil {
-			ctx.Header("Content-Type", "text/html")
-			ctx.String(200, rw.getDefaultHtmlString())
-			return
-		}
-
-		e := res.Show
-
-		options := meta{
-			Title:       e.Title,
-			Description: e.Description,
-		}
-		if e.Image != nil {
-			options.OGImage = *e.Image
-		}
-
-		h := rw.writeMeta(options)
-
-		ctx.Header("Content-Type", "text/html")
-		ctx.String(200, h)
-	}
+	return metaHandler(rw, getShow, metaForShow)
 }
 
 type rewriter struct {
@@ -189,6 +211,11 @@ type rewriter struct {
 }
 
 func main() {
+	log.ConfigureGlobalLogger(zerolog.DebugLevel)
+	log.L.Debug().Msg("Setting up tracing!")
+
+	utils.MustSetupTracing()
+
 	config := getEnvConfig()
 
 	rw := &rewriter{
