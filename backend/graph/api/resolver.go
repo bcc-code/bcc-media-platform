@@ -1,4 +1,4 @@
-package graphapi
+package graph
 
 import (
 	"context"
