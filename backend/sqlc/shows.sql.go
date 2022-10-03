@@ -9,7 +9,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
 	null_v4 "gopkg.in/guregu/null.v4"
@@ -126,23 +125,24 @@ WITH ts AS (SELECT shows_id,
               GROUP BY shows_id)
 SELECT sh.id,
        sh.legacy_id,
-       sh.image_file_id,
+       fs.filename_disk as image_file_name,
        tags.tags::int[]                                  AS tag_ids,
        ts.title,
        ts.description
 FROM shows sh
          LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
+         LEFT JOIN directus_files fs ON fs.id = sh.image_file_id
 WHERE sh.id = ANY ($1::int[])
 `
 
 type getShowsRow struct {
-	ID          int32                 `db:"id" json:"id"`
-	LegacyID    null_v4.Int           `db:"legacy_id" json:"legacyID"`
-	ImageFileID uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
-	TagIds      []int32               `db:"tag_ids" json:"tagIds"`
-	Title       pqtype.NullRawMessage `db:"title" json:"title"`
-	Description pqtype.NullRawMessage `db:"description" json:"description"`
+	ID            int32                 `db:"id" json:"id"`
+	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
+	Title         pqtype.NullRawMessage `db:"title" json:"title"`
+	Description   pqtype.NullRawMessage `db:"description" json:"description"`
 }
 
 func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]getShowsRow, error) {
@@ -157,7 +157,7 @@ func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]getShowsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.LegacyID,
-			&i.ImageFileID,
+			&i.ImageFileName,
 			pq.Array(&i.TagIds),
 			&i.Title,
 			&i.Description,
@@ -187,22 +187,23 @@ WITH ts AS (SELECT shows_id,
               GROUP BY shows_id)
 SELECT sh.id,
        sh.legacy_id,
-       sh.image_file_id,
+       fs.filename_disk as image_file_name,
        tags.tags::int[]                                  AS tag_ids,
        ts.title,
        ts.description
 FROM shows sh
          LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
+         LEFT JOIN directus_files fs ON fs.id = sh.image_file_id
 `
 
 type listShowsRow struct {
-	ID          int32                 `db:"id" json:"id"`
-	LegacyID    null_v4.Int           `db:"legacy_id" json:"legacyID"`
-	ImageFileID uuid.NullUUID         `db:"image_file_id" json:"imageFileID"`
-	TagIds      []int32               `db:"tag_ids" json:"tagIds"`
-	Title       pqtype.NullRawMessage `db:"title" json:"title"`
-	Description pqtype.NullRawMessage `db:"description" json:"description"`
+	ID            int32                 `db:"id" json:"id"`
+	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
+	Title         pqtype.NullRawMessage `db:"title" json:"title"`
+	Description   pqtype.NullRawMessage `db:"description" json:"description"`
 }
 
 func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
@@ -217,7 +218,7 @@ func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.LegacyID,
-			&i.ImageFileID,
+			&i.ImageFileName,
 			pq.Array(&i.TagIds),
 			&i.Title,
 			&i.Description,

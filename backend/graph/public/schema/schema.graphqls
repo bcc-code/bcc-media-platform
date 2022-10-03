@@ -1,0 +1,12 @@
+directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
+    | FIELD_DEFINITION
+
+schema{
+    query: QueryRoot
+}
+
+type QueryRoot {
+    episode(id: ID!): Episode!
+    season(id: ID!): Season!
+    show(id: ID!): Show!
+}

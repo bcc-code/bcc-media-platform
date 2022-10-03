@@ -13,6 +13,11 @@ func (service *Service) showToSearchItem(ctx context.Context, show common.Show) 
 		legacyID = &v
 	}
 
+	var image *string
+	if show.Image.Valid {
+		image = &show.Image.String
+	}
+
 	var item = searchItem{
 		ID:          "shows-" + strconv.Itoa(show.ID),
 		LegacyID:    legacyID,
@@ -20,6 +25,7 @@ func (service *Service) showToSearchItem(ctx context.Context, show common.Show) 
 		Description: show.Description,
 		Header:      nil,
 		Type:        "show",
+		Image:       image,
 	}
 
 	err := item.assignTags(ctx, service.loaders, show)
