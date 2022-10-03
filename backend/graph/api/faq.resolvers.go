@@ -9,13 +9,13 @@ import (
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
-	gqlmodel2 "github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
 )
 
 // Categories is the resolver for the categories field.
-func (r *fAQResolver) Categories(ctx context.Context, obj *gqlmodel2.Faq, first *int, offset *int) (*gqlmodel2.FAQCategoryPagination, error) {
+func (r *fAQResolver) Categories(ctx context.Context, obj *model.Faq, first *int, offset *int) (*model.FAQCategoryPagination, error) {
 	items, err := withCache(ctx, "categories", r.Queries.ListFAQCategories, time.Minute*5)
 	if err != nil {
 		return nil, err
@@ -23,11 +23,11 @@ func (r *fAQResolver) Categories(ctx context.Context, obj *gqlmodel2.Faq, first 
 
 	cats := utils.MapWithCtx(ctx, lo.Map(items, func(i common.FAQCategory, _ int) *common.FAQCategory {
 		return &i
-	}), gqlmodel2.FAQCategoryFrom)
+	}), model.FAQCategoryFrom)
 
 	page := utils.Paginate(cats, first, offset)
 
-	return &gqlmodel2.FAQCategoryPagination{
+	return &model.FAQCategoryPagination{
 		Total:  page.Total,
 		First:  page.First,
 		Offset: page.Offset,
@@ -36,31 +36,31 @@ func (r *fAQResolver) Categories(ctx context.Context, obj *gqlmodel2.Faq, first 
 }
 
 // Category is the resolver for the category field.
-func (r *fAQResolver) Category(ctx context.Context, obj *gqlmodel2.Faq, id string) (*gqlmodel2.FAQCategory, error) {
+func (r *fAQResolver) Category(ctx context.Context, obj *model.Faq, id string) (*model.FAQCategory, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.FAQCategory]{
 		Item: r.Loaders.FAQCategoryLoader,
-	}, id, gqlmodel2.FAQCategoryFrom)
+	}, id, model.FAQCategoryFrom)
 }
 
 // Question is the resolver for the question field.
-func (r *fAQResolver) Question(ctx context.Context, obj *gqlmodel2.Faq, id string) (*gqlmodel2.Question, error) {
+func (r *fAQResolver) Question(ctx context.Context, obj *model.Faq, id string) (*model.Question, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Question]{
 		Item: r.Loaders.QuestionLoader,
-	}, id, gqlmodel2.QuestionFrom)
+	}, id, model.QuestionFrom)
 }
 
 // Questions is the resolver for the questions field.
-func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *gqlmodel2.FAQCategory, first *int, offset *int) (*gqlmodel2.QuestionPagination, error) {
+func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *model.FAQCategory, first *int, offset *int) (*model.QuestionPagination, error) {
 	items, err := itemsResolverForIntID(ctx, &itemLoaders[int, common.Question]{
 		Item: r.Loaders.QuestionLoader,
-	}, r.Loaders.QuestionsLoader, obj.ID, gqlmodel2.QuestionFrom)
+	}, r.Loaders.QuestionsLoader, obj.ID, model.QuestionFrom)
 	if err != nil {
 		return nil, err
 	}
 
 	page := utils.Paginate(items, first, offset)
 
-	return &gqlmodel2.QuestionPagination{
+	return &model.QuestionPagination{
 		Total:  page.Total,
 		First:  page.First,
 		Offset: page.Offset,
@@ -69,7 +69,7 @@ func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *gqlmodel2.FAQC
 }
 
 // Category is the resolver for the category field.
-func (r *questionResolver) Category(ctx context.Context, obj *gqlmodel2.Question) (*gqlmodel2.FAQCategory, error) {
+func (r *questionResolver) Category(ctx context.Context, obj *model.Question) (*model.FAQCategory, error) {
 	return r.FAQ().Category(ctx, nil, obj.Category.ID)
 }
 

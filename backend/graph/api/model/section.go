@@ -1,4 +1,4 @@
-package gqlmodel
+package model
 
 import (
 	"context"

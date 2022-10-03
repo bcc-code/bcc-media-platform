@@ -9,12 +9,12 @@ import (
 
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	gqlpublicgenerated "github.com/bcc-code/brunstadtv/backend/graph/public/generated"
-	publicmodel "github.com/bcc-code/brunstadtv/backend/graph/public/model"
+	"github.com/bcc-code/brunstadtv/backend/graph/public/generated"
+	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
 )
 
 // Episode is the resolver for the episode field.
-func (r *queryRootResolver) Episode(ctx context.Context, id string) (*publicmodel.Episode, error) {
+func (r *queryRootResolver) Episode(ctx context.Context, id string) (*model.Episode, error) {
 	intID, _ := strconv.ParseInt(id, 10, 64)
 	item, err := common.GetFromLoaderByID(ctx, r.Loaders.EpisodeLoader, int(intID))
 	if err != nil {
@@ -25,9 +25,9 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*publicmode
 	}
 
 	languages := []string{"en"}
-	var season *publicmodel.Season
+	var season *model.Season
 	if item.SeasonID.Valid {
-		season = &publicmodel.Season{
+		season = &model.Season{
 			ID: strconv.Itoa(int(item.SeasonID.Int64)),
 		}
 	}
@@ -43,7 +43,7 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*publicmode
 		image = &item.Image.String
 	}
 
-	return &publicmodel.Episode{
+	return &model.Episode{
 		ID:          strconv.Itoa(item.ID),
 		Title:       item.Title.Get(languages),
 		Description: item.Description.Get(languages),
@@ -54,7 +54,7 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*publicmode
 }
 
 // Season is the resolver for the season field.
-func (r *queryRootResolver) Season(ctx context.Context, id string) (*publicmodel.Season, error) {
+func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Season, error) {
 	intID, _ := strconv.ParseInt(id, 10, 64)
 	item, err := common.GetFromLoaderByID(ctx, r.Loaders.SeasonLoader, int(intID))
 	if err != nil {
@@ -71,20 +71,20 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*publicmodel
 		image = &item.Image.String
 	}
 
-	return &publicmodel.Season{
+	return &model.Season{
 		ID:          strconv.Itoa(item.ID),
 		Title:       item.Title.Get(languages),
 		Description: item.Description.Get(languages),
 		Number:      item.Number,
 		Image:       image,
-		Show: &publicmodel.Show{
+		Show: &model.Show{
 			ID: strconv.Itoa(item.ShowID),
 		},
 	}, nil
 }
 
 // Show is the resolver for the show field.
-func (r *queryRootResolver) Show(ctx context.Context, id string) (*publicmodel.Show, error) {
+func (r *queryRootResolver) Show(ctx context.Context, id string) (*model.Show, error) {
 	intID, _ := strconv.ParseInt(id, 10, 64)
 	item, err := common.GetFromLoaderByID(ctx, r.Loaders.ShowLoader, int(intID))
 	if err != nil {
@@ -101,7 +101,7 @@ func (r *queryRootResolver) Show(ctx context.Context, id string) (*publicmodel.S
 		image = &item.Image.String
 	}
 
-	return &publicmodel.Show{
+	return &model.Show{
 		ID:          strconv.Itoa(item.ID),
 		Title:       item.Title.Get(languages),
 		Description: item.Description.Get(languages),
@@ -109,7 +109,7 @@ func (r *queryRootResolver) Show(ctx context.Context, id string) (*publicmodel.S
 	}, nil
 }
 
-// QueryRoot returns gqlpublicgenerated.QueryRootResolver implementation.
-func (r *Resolver) QueryRoot() gqlpublicgenerated.QueryRootResolver { return &queryRootResolver{r} }
+// QueryRoot returns generated.QueryRootResolver implementation.
+func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
 
 type queryRootResolver struct{ *Resolver }

@@ -15,7 +15,7 @@ exec:
 # Where should any generated models go?
 model:
   filename: ./model/models_gen.go
-  package: gqlmodel
+  package: model
 
 # Where should the resolver implementations go?
 resolver:

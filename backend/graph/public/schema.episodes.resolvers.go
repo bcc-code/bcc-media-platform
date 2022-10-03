@@ -6,19 +6,19 @@ package graphpub
 import (
 	"context"
 
-	gqlpublicgenerated "github.com/bcc-code/brunstadtv/backend/graph/public/generated"
-	publicmodel "github.com/bcc-code/brunstadtv/backend/graph/public/model"
+	"github.com/bcc-code/brunstadtv/backend/graph/public/generated"
+	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
 )
 
 // Season is the resolver for the season field.
-func (r *episodeResolver) Season(ctx context.Context, obj *publicmodel.Episode) (*publicmodel.Season, error) {
+func (r *episodeResolver) Season(ctx context.Context, obj *model.Episode) (*model.Season, error) {
 	if obj.Season == nil {
 		return nil, nil
 	}
 	return r.QueryRoot().Season(ctx, obj.Season.ID)
 }
 
-// Episode returns gqlpublicgenerated.EpisodeResolver implementation.
-func (r *Resolver) Episode() gqlpublicgenerated.EpisodeResolver { return &episodeResolver{r} }
+// Episode returns generated_pub.EpisodeResolver implementation.
+func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
 
 type episodeResolver struct{ *Resolver }

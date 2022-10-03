@@ -3,7 +3,7 @@ package graphapi
 import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	gqlmodel2 "github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -28,7 +28,7 @@ func preloadLoaders(ctx context.Context, loaders *common.BatchLoaders, entries [
 	}
 }
 
-func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, collectionId int, first *int, offset *int) (*utils.PaginationResult[gqlmodel2.Item], error) {
+func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, collectionId int, first *int, offset *int) (*utils.PaginationResult[model.Item], error) {
 	entries, err := collection.GetCollectionEntries(ctx, loaders, collectionId)
 	if err != nil {
 		return nil, err
@@ -75,41 +75,41 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 
 	preloadLoaders(ctx, loaders, pagination.Items)
 
-	var items []gqlmodel2.Item
+	var items []model.Item
 	for _, e := range pagination.Items {
-		var item gqlmodel2.Item
+		var item model.Item
 		switch e.Type {
 		case "page":
 			i, err := common.GetFromLoaderByID(ctx, loaders.PageLoader, e.ID)
 			if err != nil {
 				return nil, err
 			}
-			item = gqlmodel2.PageItemFrom(ctx, i, e.Sort)
+			item = model.PageItemFrom(ctx, i, e.Sort)
 		case "show":
 			i, err := common.GetFromLoaderByID(ctx, loaders.ShowLoader, e.ID)
 			if err != nil {
 				return nil, err
 			}
-			item = gqlmodel2.ShowItemFrom(ctx, i, e.Sort)
+			item = model.ShowItemFrom(ctx, i, e.Sort)
 		case "season":
 			i, err := common.GetFromLoaderByID(ctx, loaders.SeasonLoader, e.ID)
 			if err != nil {
 				return nil, err
 			}
-			item = gqlmodel2.SeasonItemFrom(ctx, i, e.Sort)
+			item = model.SeasonItemFrom(ctx, i, e.Sort)
 		case "episode":
 			i, err := common.GetFromLoaderByID(ctx, loaders.EpisodeLoader, e.ID)
 			if err != nil {
 				return nil, err
 			}
-			item = gqlmodel2.EpisodeItemFrom(ctx, i, e.Sort)
+			item = model.EpisodeItemFrom(ctx, i, e.Sort)
 		}
 		if item != nil {
 			items = append(items, item)
 		}
 	}
 
-	return &utils.PaginationResult[gqlmodel2.Item]{
+	return &utils.PaginationResult[model.Item]{
 		Total:  pagination.Total,
 		First:  pagination.First,
 		Offset: pagination.Offset,
@@ -117,7 +117,7 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 	}, nil
 }
 
-func collectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[gqlmodel2.Item], error) {
+func collectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[model.Item], error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 
 	section, err := common.GetFromLoaderByID(ctx, r.Loaders.SectionLoader, int(int64ID))
@@ -132,7 +132,7 @@ func collectionItemResolver(ctx context.Context, r *Resolver, id string, first *
 	return collectionEntryResolver(ctx, r.Loaders, int(section.CollectionID.Int64), first, offset)
 }
 
-func collectionItemResolverFromCollection(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[gqlmodel2.Item], error) {
+func collectionItemResolverFromCollection(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[model.Item], error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 
 	return collectionEntryResolver(ctx, r.Loaders, int(int64ID), first, offset)

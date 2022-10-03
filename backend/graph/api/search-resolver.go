@@ -8,40 +8,14 @@ import (
 	"strconv"
 )
 
-//func preloadItems(ctx context.Context, r *queryRootResolver, items []common.SearchResultItem) {
-//	var keysByCollection = map[string][]int{}
-//
-//	for _, i := range items {
-//		keysByCollection[i.Collection] = append(keysByCollection[i.Collection], i.ID)
-//	}
-//
-//	if keys, ok := keysByCollection["shows"]; ok {
-//		r.Loaders.ShowLoader.LoadMany(ctx, keys)
-//	}
-//	if keys, ok := keysByCollection["seasons"]; ok {
-//		r.Loaders.SeasonLoader.LoadMany(ctx, keys)
-//	}
-//	if keys, ok := keysByCollection["episodes"]; ok {
-//		r.Loaders.EpisodeLoader.LoadMany(ctx, keys)
-//	}
-//}
-//
-//func filterOrAppend[t gqlmodel.SearchResultItem](ctx context.Context, results []gqlmodel.SearchResultItem, id int, factory func(context.Context, string) (*t, error)) []gqlmodel.SearchResultItem {
-//	item, err := factory(ctx, strconv.Itoa(id))
-//	if err != nil {
-//		return results
-//	}
-//	return append(results, *item)
-//}
-
-func gqlShowFromSearchResultItem(i common.SearchResultItem) gqlmodel.ShowSearchItem {
+func gqlShowFromSearchResultItem(i common.SearchResultItem) model.ShowSearchItem {
 	var legacyID *string
 	if i.LegacyID != nil {
 		str := strconv.Itoa(*i.LegacyID)
 		legacyID = &str
 	}
 
-	return gqlmodel.ShowSearchItem{
+	return model.ShowSearchItem{
 		ID:          strconv.Itoa(i.ID),
 		LegacyID:    legacyID,
 		Collection:  i.Collection,
@@ -54,9 +28,9 @@ func gqlShowFromSearchResultItem(i common.SearchResultItem) gqlmodel.ShowSearchI
 	}
 }
 
-func gqlSeasonFromSearchResultItem(i common.SearchResultItem) gqlmodel.SeasonSearchItem {
+func gqlSeasonFromSearchResultItem(i common.SearchResultItem) model.SeasonSearchItem {
 	showID := strconv.Itoa(*i.ShowID)
-	show := &gqlmodel.Show{
+	show := &model.Show{
 		ID: showID,
 	}
 
@@ -71,7 +45,7 @@ func gqlSeasonFromSearchResultItem(i common.SearchResultItem) gqlmodel.SeasonSea
 		ageRating = *i.AgeRating
 	}
 
-	return gqlmodel.SeasonSearchItem{
+	return model.SeasonSearchItem{
 		ID:          strconv.Itoa(i.ID),
 		LegacyID:    legacyID,
 		Collection:  i.Collection,
@@ -88,22 +62,22 @@ func gqlSeasonFromSearchResultItem(i common.SearchResultItem) gqlmodel.SeasonSea
 	}
 }
 
-func gqlEpisodeFromSearchResultItem(i common.SearchResultItem) gqlmodel.EpisodeSearchItem {
+func gqlEpisodeFromSearchResultItem(i common.SearchResultItem) model.EpisodeSearchItem {
 	var showID *string
-	var show *gqlmodel.Show
+	var show *model.Show
 	if i.ShowID != nil {
 		strID := strconv.Itoa(*i.ShowID)
 		showID = &strID
-		show = &gqlmodel.Show{
+		show = &model.Show{
 			ID: strID,
 		}
 	}
 	var seasonID *string
-	var season *gqlmodel.Season
+	var season *model.Season
 	if i.ShowID != nil {
 		strID := strconv.Itoa(*i.SeasonID)
 		seasonID = &strID
-		season = &gqlmodel.Season{
+		season = &model.Season{
 			ID: strID,
 		}
 	}
@@ -124,7 +98,7 @@ func gqlEpisodeFromSearchResultItem(i common.SearchResultItem) gqlmodel.EpisodeS
 		ageRating = *i.AgeRating
 	}
 
-	return gqlmodel.EpisodeSearchItem{
+	return model.EpisodeSearchItem{
 		ID:          strconv.Itoa(i.ID),
 		LegacyID:    legacyID,
 		Collection:  i.Collection,
@@ -145,8 +119,8 @@ func gqlEpisodeFromSearchResultItem(i common.SearchResultItem) gqlmodel.EpisodeS
 	}
 }
 
-func convertToGQL(items []common.SearchResultItem) []gqlmodel.SearchResultItem {
-	var results []gqlmodel.SearchResultItem
+func convertToGQL(items []common.SearchResultItem) []model.SearchResultItem {
+	var results []model.SearchResultItem
 	for _, i := range items {
 		//TODO: Do we need to filter on permissions again?
 		//Search is usually quicker to index, and respect roles and permissions on search.
@@ -165,7 +139,7 @@ func convertToGQL(items []common.SearchResultItem) []gqlmodel.SearchResultItem {
 	return results
 }
 
-func searchResolver(r *queryRootResolver, ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*gqlmodel.SearchResult, error) {
+func searchResolver(r *queryRootResolver, ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -181,7 +155,7 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 		return nil, err
 	}
 
-	return &gqlmodel.SearchResult{
+	return &model.SearchResult{
 		Result: convertToGQL(searchResult.Result),
 		Page:   searchResult.Page,
 		Hits:   searchResult.HitCount,

@@ -7,21 +7,21 @@ import (
 	"context"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
-	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 )
 
 // Show is the resolver for the show field.
-func (r *episodeSearchItemResolver) Show(ctx context.Context, obj *gqlmodel.EpisodeSearchItem) (*gqlmodel.Show, error) {
+func (r *episodeSearchItemResolver) Show(ctx context.Context, obj *model.EpisodeSearchItem) (*model.Show, error) {
 	return r.QueryRoot().Show(ctx, obj.Show.ID)
 }
 
 // Season is the resolver for the season field.
-func (r *episodeSearchItemResolver) Season(ctx context.Context, obj *gqlmodel.EpisodeSearchItem) (*gqlmodel.Season, error) {
+func (r *episodeSearchItemResolver) Season(ctx context.Context, obj *model.EpisodeSearchItem) (*model.Season, error) {
 	return r.QueryRoot().Season(ctx, obj.Season.ID)
 }
 
 // Show is the resolver for the show field.
-func (r *seasonSearchItemResolver) Show(ctx context.Context, obj *gqlmodel.SeasonSearchItem) (*gqlmodel.Show, error) {
+func (r *seasonSearchItemResolver) Show(ctx context.Context, obj *model.SeasonSearchItem) (*model.Show, error) {
 	return r.QueryRoot().Show(ctx, obj.Show.ID)
 }
 

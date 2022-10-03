@@ -8,16 +8,16 @@ import (
 	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
-	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 )
 
 // Global is the resolver for the global field.
-func (r *configResolver) Global(ctx context.Context, obj *gqlmodel.Config, timestamp *string) (*gqlmodel.GlobalConfig, error) {
+func (r *configResolver) Global(ctx context.Context, obj *model.Config, timestamp *string) (*model.GlobalConfig, error) {
 	conf, err := withCacheAndTimestamp(ctx, "global_config", r.Queries.GetGlobalConfig, time.Second*30, timestamp)
 	if err != nil {
 		return nil, err
 	}
-	return &gqlmodel.GlobalConfig{
+	return &model.GlobalConfig{
 		LiveOnline:  conf.LiveOnline,
 		NpawEnabled: conf.NPAWEnabled,
 	}, nil

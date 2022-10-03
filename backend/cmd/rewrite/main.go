@@ -53,49 +53,48 @@ func addMetaProperty(node *html.Node, meta map[string]string) {
 	addTag(node, "meta", meta)
 }
 
+func addMetaTags(n *html.Node, meta meta) {
+	if n.Type == html.ElementNode && n.Data == "title" && n.Parent.Data == "head" {
+		if n.FirstChild.Type == html.TextNode {
+			n.FirstChild.Data = "BrunstadTV - " + meta.Title
+		}
+	}
+	if n.Type == html.ElementNode && n.Data == "head" {
+		addMetaProperty(n, map[string]string{
+			"name":    "description",
+			"content": meta.Description,
+		})
+		addMetaProperty(n, map[string]string{
+			"property": "og:title",
+			"content":  meta.OGTitle,
+		})
+		addMetaProperty(n, map[string]string{
+			"property": "og:description",
+			"content":  meta.OGTitle,
+		})
+		addMetaProperty(n, map[string]string{
+			"property": "og:url",
+			"content":  meta.OGUrl,
+		})
+		addMetaProperty(n, map[string]string{
+			"property": "og:image",
+			"content":  meta.OGImage,
+		})
+		addTag(n, "link", map[string]string{
+			"rel":  "shortcut icon",
+			"href": meta.Favicon,
+			"type": "image/x-icon",
+		})
+	}
+	for at := n.FirstChild; at != nil; at = at.NextSibling {
+		addMetaTags(at, meta)
+	}
+}
+
 func (rw *rewriter) writeMeta(meta meta) string {
 	doc := rw.getDefaultHtml()
 
-	var f func(*html.Node)
-	f = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "title" && n.Parent.Data == "head" {
-			if n.FirstChild.Type == html.TextNode {
-				n.FirstChild.Data = "BrunstadTV - " + meta.Title
-			}
-		}
-		if n.Type == html.ElementNode && n.Data == "head" {
-			addMetaProperty(n, map[string]string{
-				"name":    "description",
-				"content": meta.Description,
-			})
-			addMetaProperty(n, map[string]string{
-				"property": "og:title",
-				"content":  meta.OGTitle,
-			})
-			addMetaProperty(n, map[string]string{
-				"property": "og:description",
-				"content":  meta.OGTitle,
-			})
-			addMetaProperty(n, map[string]string{
-				"property": "og:url",
-				"content":  meta.OGUrl,
-			})
-			addMetaProperty(n, map[string]string{
-				"property": "og:image",
-				"content":  meta.OGImage,
-			})
-			addTag(n, "link", map[string]string{
-				"rel":  "shortcut icon",
-				"href": meta.Favicon,
-				"type": "image/x-icon",
-			})
-		}
-		for at := n.FirstChild; at != nil; at = at.NextSibling {
-			f(at)
-		}
-	}
-
-	f(doc)
+	addMetaTags(doc, meta)
 
 	b := &bytes.Buffer{}
 	_ = html.Render(b, doc)
@@ -103,22 +102,8 @@ func (rw *rewriter) writeMeta(meta meta) string {
 	return b.String()
 }
 
-type rewriter struct {
-	webEndpoint string
-	apiEndpoint string
-}
-
-func main() {
-	config := getEnvConfig()
-
-	rw := &rewriter{
-		apiEndpoint: config.APIEndpoint,
-		webEndpoint: config.WebEndpoint,
-	}
-
-	r := gin.Default()
-
-	r.GET("episodes/:id", func(ctx *gin.Context) {
+func episodeHandler(rw *rewriter) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
 		res := getEpisode(ctx.Param("id"))
 
 		if res == nil {
@@ -143,9 +128,11 @@ func main() {
 
 		ctx.Header("Content-Type", "text/html")
 		ctx.String(200, h)
-	})
+	}
+}
 
-	r.GET("seasons/:id", func(ctx *gin.Context) {
+func seasonHandler(rw *rewriter) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
 		res := getSeason(ctx.Param("id"))
 
 		if res == nil {
@@ -166,9 +153,11 @@ func main() {
 
 		ctx.Header("Content-Type", "text/html")
 		ctx.String(200, rw.writeMeta(options))
-	})
+	}
+}
 
-	r.GET("shows/:id", func(ctx *gin.Context) {
+func showHandler(rw *rewriter) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
 		res := getShow(ctx.Param("id"))
 
 		if res == nil {
@@ -191,7 +180,27 @@ func main() {
 
 		ctx.Header("Content-Type", "text/html")
 		ctx.String(200, h)
-	})
+	}
+}
+
+type rewriter struct {
+	webEndpoint string
+	apiEndpoint string
+}
+
+func main() {
+	config := getEnvConfig()
+
+	rw := &rewriter{
+		apiEndpoint: config.APIEndpoint,
+		webEndpoint: config.WebEndpoint,
+	}
+
+	r := gin.Default()
+
+	r.GET("episodes/:id", episodeHandler(rw))
+	r.GET("seasons/:id", seasonHandler(rw))
+	r.GET("shows/:id", showHandler(rw))
 
 	_ = r.Run(fmt.Sprintf(":%s", config.Port))
 }
