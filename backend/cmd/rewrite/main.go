@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/html"
 	"log"
@@ -54,6 +55,7 @@ func addMetaProperty(node *html.Node, meta map[string]string) {
 
 func (rw *rewriter) writeMeta(meta meta) string {
 	doc := rw.getDefaultHtml()
+
 	var f func(*html.Node)
 	f = func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "title" && n.Parent.Data == "head" {
@@ -191,5 +193,5 @@ func main() {
 		ctx.String(200, h)
 	})
 
-	_ = r.Run(":8076")
+	_ = r.Run(fmt.Sprintf(":%s", config.Port))
 }
