@@ -28,6 +28,9 @@ func mapToSeasons(seasons []getSeasonsRow) []common.Season {
 			},
 			ShowID:    int(e.ShowID),
 			AgeRating: e.Agerating,
+			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
+				return int(id)
+			}),
 		}
 	})
 }

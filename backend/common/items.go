@@ -47,6 +47,7 @@ type Conversion[o comparable, r comparable] interface {
 // Show is the definition of the Show object
 type Show struct {
 	ID          int           `json:"id"`
+	TagIDs      []int         `json:"tagIds"`
 	LegacyID    null.Int      `json:"legacyId"`
 	Title       LocaleString  `json:"title"`
 	Description LocaleString  `json:"description"`
@@ -68,6 +69,11 @@ func (i Show) GetImage() uuid.NullUUID {
 	return i.ImageID
 }
 
+// GetTagIDs returns ids of related tags
+func (i Show) GetTagIDs() []int {
+	return i.TagIDs
+}
+
 // IsCollectionItem declares that this implements CollectionItem interfaces
 func (i Show) IsCollectionItem() {
 
@@ -77,6 +83,7 @@ func (i Show) IsCollectionItem() {
 type Season struct {
 	ID          int           `json:"id"`
 	LegacyID    null.Int      `json:"legacyId"`
+	TagIDs      []int         `json:"tagIds"`
 	Number      int           `json:"number"`
 	AgeRating   string        `json:"ageRating"`
 	Title       LocaleString  `json:"title"`
@@ -93,6 +100,11 @@ func (i Season) GetKey() int {
 // GetImage returns id of attached image
 func (i Season) GetImage() uuid.NullUUID {
 	return i.ImageID
+}
+
+// GetTagIDs returns ids of related tags
+func (i Season) GetTagIDs() []int {
+	return i.TagIDs
 }
 
 // IsCollectionItem declares that this implements CollectionItem interfaces

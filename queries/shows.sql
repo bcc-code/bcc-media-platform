@@ -3,28 +3,40 @@ WITH ts AS (SELECT shows_id,
                    json_object_agg(languages_code, title)       AS title,
                    json_object_agg(languages_code, description) AS description
             FROM shows_translations
-            GROUP BY shows_id)
+            GROUP BY shows_id),
+     tags AS (SELECT shows_id,
+                     array_agg(tags_id) AS tags
+              FROM shows_tags
+              GROUP BY shows_id)
 SELECT sh.id,
        sh.legacy_id,
        sh.image_file_id,
+       tags.tags::int[]                                  AS tag_ids,
        ts.title,
        ts.description
 FROM shows sh
+         LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id;
 
 
 -- name: getShows :many
 WITH ts AS (SELECT shows_id,
-                  json_object_agg(languages_code, title)       AS title,
-                  json_object_agg(languages_code, description) AS description
-           FROM shows_translations
-           GROUP BY shows_id)
+                   json_object_agg(languages_code, title)       AS title,
+                   json_object_agg(languages_code, description) AS description
+            FROM shows_translations
+            GROUP BY shows_id),
+     tags AS (SELECT shows_id,
+                     array_agg(tags_id) AS tags
+              FROM shows_tags
+              GROUP BY shows_id)
 SELECT sh.id,
        sh.legacy_id,
        sh.image_file_id,
+       tags.tags::int[]                                  AS tag_ids,
        ts.title,
        ts.description
 FROM shows sh
+         LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
 WHERE sh.id = ANY ($1::int[]);
 

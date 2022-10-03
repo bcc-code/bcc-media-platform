@@ -762,6 +762,12 @@ type Season struct {
 	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 }
 
+type SeasonsTag struct {
+	ID        int32       `db:"id" json:"id"`
+	SeasonsID null_v4.Int `db:"seasons_id" json:"seasonsID"`
+	TagsID    null_v4.Int `db:"tags_id" json:"tagsID"`
+}
+
 type SeasonsTranslation struct {
 	Description         null_v4.String `db:"description" json:"description"`
 	ID                  int32          `db:"id" json:"id"`
@@ -824,6 +830,12 @@ type Show struct {
 	Type                string         `db:"type" json:"type"`
 	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+}
+
+type ShowsTag struct {
+	ID      int32       `db:"id" json:"id"`
+	ShowsID null_v4.Int `db:"shows_id" json:"showsID"`
+	TagsID  null_v4.Int `db:"tags_id" json:"tagsID"`
 }
 
 type ShowsTranslation struct {
