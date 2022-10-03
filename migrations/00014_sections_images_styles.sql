@@ -15,10 +15,9 @@ CREATE SEQUENCE IF NOT EXISTS "public"."sections_links_id_seq"
 	CACHE 1
 	NO CYCLE;
 
-ALTER SEQUENCE "public"."sections_links_id_seq" OWNER TO builder;
-GRANT SELECT ON SEQUENCE "public"."sections_links_id_seq" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT USAGE ON SEQUENCE "public"."sections_links_id_seq" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."sections_links_id_seq" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON SEQUENCE "public"."sections_links_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT USAGE ON SEQUENCE "public"."sections_links_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON SEQUENCE "public"."sections_links_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON SEQUENCE "public"."sections_links_id_seq"  IS NULL;
 
@@ -35,10 +34,9 @@ CREATE SEQUENCE IF NOT EXISTS "public"."images_id_seq"
 	CACHE 1
 	NO CYCLE;
 
-ALTER SEQUENCE "public"."images_id_seq" OWNER TO btv;
-GRANT SELECT ON SEQUENCE "public"."images_id_seq" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT USAGE ON SEQUENCE "public"."images_id_seq" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."images_id_seq" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON SEQUENCE "public"."images_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT USAGE ON SEQUENCE "public"."images_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON SEQUENCE "public"."images_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON SEQUENCE "public"."images_id_seq"  IS NULL;
 
@@ -67,13 +65,10 @@ CREATE TABLE IF NOT EXISTS "public"."sections_links" (
 
 ALTER TABLE IF EXISTS "public"."sections_links" OWNER TO builder;
 
-GRANT SELECT ON TABLE "public"."sections_links" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."sections_links" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."sections_links" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."sections_links" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."sections_links" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."sections_links" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."sections_links" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."sections_links" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT INSERT ON TABLE "public"."sections_links" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON TABLE "public"."sections_links" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT DELETE ON TABLE "public"."sections_links" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 GRANT SELECT ON TABLE "public"."sections_links" TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
@@ -153,13 +148,10 @@ CREATE TABLE IF NOT EXISTS "public"."images" (
 
 ALTER TABLE IF EXISTS "public"."images" OWNER TO builder;
 
-GRANT SELECT ON TABLE "public"."images" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."images" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."images" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."images" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."images" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."images" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."images" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT INSERT ON TABLE "public"."images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON TABLE "public"."images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT DELETE ON TABLE "public"."images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 GRANT SELECT ON TABLE "public"."images" TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 

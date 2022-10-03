@@ -5,6 +5,9 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
+// DefaultLanguages is the order of languages if none is defined by the user
+var DefaultLanguages = []string{"en", "no"}
+
 // LocaleMap is a map of strings to nullable strings
 type LocaleMap[T any] map[string]T
 

@@ -2,18 +2,18 @@ package common
 
 // Image contains a language and url
 type Image struct {
-	Style    string
 	Language string
 	URL      string
 }
 
 // Images is a map of styles with related images
-type Images []Image
+type Images map[string]LocaleMap[string]
 
 // GetForLanguages retrieves Image for
-func (i Images) GetForLanguages(languages []string) []Image {
-	var images []Image
-	for _, image := range i {
-
+func (i Images) GetForLanguages(languages []string) map[string]*string {
+	var images map[string]*string
+	for style, image := range i {
+		images[style] = image.GetValueOrNil(languages)
 	}
+	return images
 }
