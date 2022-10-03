@@ -3,11 +3,13 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
 )
 
-func mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
+func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 	return lo.Map(episodes, func(e getEpisodesRow, _ int) common.Episode {
 		var title common.LocaleString
 		var description common.LocaleString
@@ -16,6 +18,11 @@ func mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 		_ = json.Unmarshal(e.Title.RawMessage, &title)
 		_ = json.Unmarshal(e.Description.RawMessage, &description)
 		_ = json.Unmarshal(e.ExtraDescription.RawMessage, &extraDescription)
+
+		var image null.String
+		if e.ImageFileName.Valid {
+			image = null.StringFrom(fmt.Sprintf("https://%s/%s", q.getImageCDNDomain(), e.ImageFileName.String))
+		}
 
 		return common.Episode{
 			ID:               int(e.ID),
@@ -27,7 +34,7 @@ func mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			Number:           e.EpisodeNumber,
 			SeasonID:         e.SeasonID,
 			AssetID:          e.AssetID,
-			Image:            e.ImageFileName,
+			Image:            image,
 			AgeRating:        e.Agerating,
 			Duration:         int(e.Duration.ValueOrZero()),
 			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
@@ -43,7 +50,7 @@ func (q *Queries) GetEpisodes(ctx context.Context, ids []int) ([]common.Episode,
 	if err != nil {
 		return nil, err
 	}
-	return mapToEpisodes(episodes), nil
+	return q.mapToEpisodes(episodes), nil
 }
 
 // ListEpisodes returns a list of common.Episode
@@ -52,7 +59,7 @@ func (q *Queries) ListEpisodes(ctx context.Context) ([]common.Episode, error) {
 	if err != nil {
 		return nil, err
 	}
-	return mapToEpisodes(lo.Map(items, func(i listEpisodesRow, _ int) getEpisodesRow {
+	return q.mapToEpisodes(lo.Map(items, func(i listEpisodesRow, _ int) getEpisodesRow {
 		return getEpisodesRow(i)
 	})), nil
 }

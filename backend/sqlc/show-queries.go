@@ -3,11 +3,13 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
 )
 
-func mapToShows(shows []getShowsRow) []common.Show {
+func (q *Queries) mapToShows(shows []getShowsRow) []common.Show {
 	return lo.Map(shows, func(e getShowsRow, _ int) common.Show {
 		var title common.LocaleString
 		var description common.LocaleString
@@ -15,12 +17,17 @@ func mapToShows(shows []getShowsRow) []common.Show {
 		_ = json.Unmarshal(e.Title.RawMessage, &title)
 		_ = json.Unmarshal(e.Description.RawMessage, &description)
 
+		var image null.String
+		if e.ImageFileName.Valid {
+			image = null.StringFrom(fmt.Sprintf("https://%s/%s", q.getImageCDNDomain(), e.ImageFileName.String))
+		}
+
 		return common.Show{
 			ID:          int(e.ID),
 			LegacyID:    e.LegacyID,
 			Title:       title,
 			Description: description,
-			Image:       e.ImageFileName,
+			Image:       image,
 		}
 	})
 }
@@ -31,7 +38,7 @@ func (q *Queries) GetShows(ctx context.Context, ids []int) ([]common.Show, error
 	if err != nil {
 		return nil, err
 	}
-	return mapToShows(shows), nil
+	return q.mapToShows(shows), nil
 }
 
 // ListShows returns a list of common.Show
@@ -40,7 +47,7 @@ func (q *Queries) ListShows(ctx context.Context) ([]common.Show, error) {
 	if err != nil {
 		return nil, err
 	}
-	return mapToShows(lo.Map(items, func(i listShowsRow, _ int) getShowsRow {
+	return q.mapToShows(lo.Map(items, func(i listShowsRow, _ int) getShowsRow {
 		return getShowsRow(i)
 	})), nil
 }

@@ -2,7 +2,6 @@ package search
 
 import (
 	"context"
-	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"strconv"
 )
@@ -16,8 +15,7 @@ func (service *Service) showToSearchItem(_ context.Context, show common.Show) (s
 
 	var image *string
 	if show.Image.Valid {
-		imageUrl := fmt.Sprintf("https://%s/%s", imageCDNDomain, show.Image.String)
-		image = &imageUrl
+		image = &show.Image.String
 	}
 
 	var item = searchItem{

@@ -2,16 +2,12 @@ package gqlmodel
 
 import (
 	"context"
-	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
-
-var imageCDNDomain = os.Getenv("IMAGE_CDN_DOMAIN")
 
 // EpisodeFrom coverts a common.Episode into an GQL episode type
 func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
@@ -43,8 +39,7 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 
 	var image *string
 	if e.Image.Valid {
-		imageUrl := fmt.Sprintf("https://%s/%s", imageCDNDomain, e.Image.String)
-		image = &imageUrl
+		image = &e.Image.String
 	}
 
 	episode := &Episode{

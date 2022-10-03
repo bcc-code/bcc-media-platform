@@ -2,7 +2,6 @@ package gqlmodel
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -26,8 +25,7 @@ func SeasonFrom(ctx context.Context, s *common.Season) *Season {
 
 	var image *string
 	if s.Image.Valid {
-		imageUrl := fmt.Sprintf("https://%s/%s", imageCDNDomain, s.Image.String)
-		image = &imageUrl
+		image = &s.Image.String
 	}
 
 	return &Season{

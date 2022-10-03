@@ -198,6 +198,7 @@ func main() {
 	}
 
 	queries := sqlc.New(db)
+	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
 
 	collectionLoader := common.NewBatchLoader(queries.GetCollections)
 
