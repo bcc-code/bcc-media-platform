@@ -5,7 +5,13 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
+        "dev:prod": "vite --mode prod",
+        "dev:sta": "vite --mode sta",
+        "dev:dev": "vite --mode dev",
         "build": "vue-tsc --noEmit && vite build",
+        "build:prod": "vue-tsc --noEmit && vite build --mode prod",
+        "build:sta": "vue-tsc --noEmit && vite build --mode sta",
+        "build:dev": "vue-tsc --noEmit && vite build --mode dev",
         "preview": "vite preview",
         "prettier": "prettier --write .",
         "generate": "graphql-codegen --config codegen.yml"
