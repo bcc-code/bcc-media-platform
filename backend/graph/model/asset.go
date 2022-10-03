@@ -18,6 +18,11 @@ type signatureProvider interface {
 	SignWithPolicy(string, *sign.Policy) (string, error)
 }
 
+type cdnConfig interface {
+	GetLegacyVODDomain() string
+	GetVOD2Domain() string
+}
+
 // FileFrom converts Assetfile rows to the GQL equvivalents
 func FileFrom(ctx context.Context, signer signatureProvider, cdnDomain string, file *common.File) *File {
 	var subLang *Language
@@ -50,19 +55,29 @@ func FileFrom(ctx context.Context, signer signatureProvider, cdnDomain string, f
 }
 
 // StreamFrom converts Assetfile rows to the GQL equvivalents
-func StreamFrom(ctx context.Context, signer signatureProvider, vod2domain string, stream *common.Stream) (*Stream, error) {
+func StreamFrom(ctx context.Context, signer signatureProvider, cdn cdnConfig, stream *common.Stream) (*Stream, error) {
 	signedURL := ""
 	var err error
 
 	if stream.Service == common.StreamServiceAzureMedia {
-		url, err := url.Parse(stream.Url)
+		streamURL, err := url.Parse(stream.Url)
 		if err != nil {
 			return nil, err
 		}
 
-		signedURL, err = signer.SignAzureURL(url, stream.EncryptionKeyID.ValueOrZero())
+		streamURL.Host = cdn.GetLegacyVODDomain()
+		streamURL.Scheme = "https"
+
+		// This is intentionally hardcoded for now
+		manifestURL, _ := url.Parse("https://proxy.brunstad.tv/api/vod/toplevelmanifest")
+
+		q := manifestURL.Query()
+		q.Add("playbackUrl", streamURL.String())
+		manifestURL.RawQuery = q.Encode()
+
+		signedURL, err = signer.SignAzureURL(manifestURL, stream.EncryptionKeyID.ValueOrZero())
 	} else {
-		signedURL, err = signer.SignCloudfrontURL(stream.Path, vod2domain)
+		signedURL, err = signer.SignCloudfrontURL(stream.Path, cdn.GetVOD2Domain())
 	}
 
 	if err != nil {
