@@ -51,9 +51,10 @@ func ShowItemFrom(ctx context.Context, s *common.Show, sort int) *ShowItem {
 	show := ShowFrom(ctx, s)
 
 	return &ShowItem{
-		ID:    show.ID,
-		Show:  show,
-		Title: show.Title,
-		Sort:  sort,
+		ID:       show.ID,
+		Show:     show,
+		Title:    show.Title,
+		ImageURL: show.ImageURL,
+		Sort:     sort,
 	}
 }
