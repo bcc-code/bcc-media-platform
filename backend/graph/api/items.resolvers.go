@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/user"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -86,53 +85,12 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first 
 
 // FirstEpisode is the resolver for the firstEpisode field.
 func (r *seasonResolver) FirstEpisode(ctx context.Context, obj *model.Season) (*model.Episode, error) {
-	intID, err := strconv.ParseInt(obj.ID, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-	itemIds, err := common.GetFromLoaderForKey(ctx, r.Resolver.Loaders.EpisodesLoader, int(intID))
-
-	for i := 0; i < len(itemIds); i++ {
-		if i > 10 {
-			break
-		}
-		id := itemIds[i]
-		if id == nil {
-			continue
-		}
-		err = user.ValidateAccess(ctx, r.Loaders.EpisodePermissionLoader, *id)
-		if err == nil {
-			return r.QueryRoot().Episode(ctx, strconv.Itoa(*id))
-		}
-	}
-
-	return nil, nil
+	return firstOf(ctx, obj.ID, r.Loaders.EpisodePermissionLoader, r.Loaders.EpisodesLoader, r.QueryRoot().Episode)
 }
 
 // LastEpisode is the resolver for the lastEpisode field.
 func (r *seasonResolver) LastEpisode(ctx context.Context, obj *model.Season) (*model.Episode, error) {
-	intID, err := strconv.ParseInt(obj.ID, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-	itemIds, err := common.GetFromLoaderForKey(ctx, r.Resolver.Loaders.EpisodesLoader, int(intID))
-	length := len(itemIds)
-
-	for i := length - 1; i >= 0; i-- {
-		if i < length-10 {
-			break
-		}
-		id := itemIds[i]
-		if id == nil {
-			continue
-		}
-		err = user.ValidateAccess(ctx, r.Loaders.EpisodePermissionLoader, *id)
-		if err == nil {
-			return r.QueryRoot().Episode(ctx, strconv.Itoa(*id))
-		}
-	}
-
-	return nil, nil
+	return lastOf(ctx, obj.ID, r.Loaders.EpisodePermissionLoader, r.Loaders.EpisodesLoader, r.QueryRoot().Episode)
 }
 
 // Seasons is the resolver for the seasons field.
@@ -152,53 +110,12 @@ func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int,
 
 // FirstSeason is the resolver for the firstSeason field.
 func (r *showResolver) FirstSeason(ctx context.Context, obj *model.Show) (*model.Season, error) {
-	intID, err := strconv.ParseInt(obj.ID, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-	itemIds, err := common.GetFromLoaderForKey(ctx, r.Resolver.Loaders.SeasonsLoader, int(intID))
-
-	for i := 0; i < len(itemIds); i++ {
-		if i > 10 {
-			break
-		}
-		id := itemIds[i]
-		if id == nil {
-			continue
-		}
-		err = user.ValidateAccess(ctx, r.Loaders.SeasonPermissionLoader, *id)
-		if err == nil {
-			return r.QueryRoot().Season(ctx, strconv.Itoa(*id))
-		}
-	}
-
-	return nil, nil
+	return firstOf(ctx, obj.ID, r.Loaders.SeasonPermissionLoader, r.Loaders.SeasonsLoader, r.QueryRoot().Season)
 }
 
 // LastSeason is the resolver for the lastSeason field.
 func (r *showResolver) LastSeason(ctx context.Context, obj *model.Show) (*model.Season, error) {
-	intID, err := strconv.ParseInt(obj.ID, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-	itemIds, err := common.GetFromLoaderForKey(ctx, r.Resolver.Loaders.SeasonsLoader, int(intID))
-	length := len(itemIds)
-
-	for i := length - 1; i >= 0; i-- {
-		if i < length-10 {
-			break
-		}
-		id := itemIds[i]
-		if id == nil {
-			continue
-		}
-		err = user.ValidateAccess(ctx, r.Loaders.SeasonPermissionLoader, *id)
-		if err == nil {
-			return r.QueryRoot().Season(ctx, strconv.Itoa(*id))
-		}
-	}
-
-	return nil, nil
+	return lastOf(ctx, obj.ID, r.Loaders.SeasonPermissionLoader, r.Loaders.SeasonsLoader, r.QueryRoot().Season)
 }
 
 // Episode returns generated.EpisodeResolver implementation.
