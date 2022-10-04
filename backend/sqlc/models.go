@@ -656,6 +656,20 @@ type GooseDbVersion struct {
 	Tstamp    null_v4.Time `db:"tstamp" json:"tstamp"`
 }
 
+type Image struct {
+	ID          int32         `db:"id" json:"id"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	ShowID      null_v4.Int   `db:"show_id" json:"showID"`
+	SeasonID    null_v4.Int   `db:"season_id" json:"seasonID"`
+	EpisodeID   null_v4.Int   `db:"episode_id" json:"episodeID"`
+	Style       string        `db:"style" json:"style"`
+	File        uuid.NullUUID `db:"file" json:"file"`
+	Language    string        `db:"language" json:"language"`
+}
+
 type Language struct {
 	Code              string         `db:"code" json:"code"`
 	Legacy2LetterCode null_v4.String `db:"legacy_2_letter_code" json:"legacy2LetterCode"`
@@ -798,6 +812,22 @@ type Section struct {
 	Style        null_v4.String `db:"style" json:"style"`
 	Size         null_v4.String `db:"size" json:"size"`
 	GridSize     null_v4.String `db:"grid_size" json:"gridSize"`
+	Type         null_v4.String `db:"type" json:"type"`
+	LinkStyle    null_v4.String `db:"link_style" json:"linkStyle"`
+	ShowTitle    sql.NullBool   `db:"show_title" json:"showTitle"`
+}
+
+type SectionsLink struct {
+	ID          int32          `db:"id" json:"id"`
+	Sort        null_v4.Int    `db:"sort" json:"sort"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	PageID      null_v4.Int    `db:"page_id" json:"pageID"`
+	Url         null_v4.String `db:"url" json:"url"`
+	SectionID   int32          `db:"section_id" json:"sectionID"`
+	Icon        uuid.NullUUID  `db:"icon" json:"icon"`
 }
 
 type SectionsTranslation struct {

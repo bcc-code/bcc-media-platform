@@ -28,6 +28,17 @@ func SeasonFrom(ctx context.Context, s *common.Season) *Season {
 		image = &s.Image.String
 	}
 
+	var images []*Image
+	for style, img := range s.Images.GetForLanguages(languages) {
+		if img == nil {
+			continue
+		}
+		images = append(images, &Image{
+			Style: style,
+			URL:   *img,
+		})
+	}
+
 	return &Season{
 		ID:          strconv.Itoa(s.ID),
 		LegacyID:    legacyID,
@@ -37,6 +48,7 @@ func SeasonFrom(ctx context.Context, s *common.Season) *Season {
 		Show:        &show,
 		AgeRating:   s.AgeRating,
 		ImageURL:    image,
+		Images:      images,
 	}
 }
 
@@ -49,6 +61,7 @@ func SeasonItemFrom(ctx context.Context, row *common.Season, sort int) *SeasonIt
 		Season:   season,
 		Title:    season.Title,
 		ImageURL: season.ImageURL,
+		Images:   season.Images,
 		Sort:     sort,
 	}
 }

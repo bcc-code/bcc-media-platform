@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/lib/pq"
@@ -122,16 +123,24 @@ WITH ts AS (SELECT shows_id,
      tags AS (SELECT shows_id,
                      array_agg(tags_id) AS tags
               FROM shows_tags
-              GROUP BY shows_id)
+              GROUP BY shows_id),
+     images AS (WITH images AS (SELECT show_id, style, language, filename_disk
+                                FROM images img
+                                         JOIN directus_files df on img.file = df.id)
+                SELECT show_id, json_agg(images) as json
+                FROM images
+                GROUP BY show_id)
 SELECT sh.id,
        sh.legacy_id,
-       fs.filename_disk as image_file_name,
-       tags.tags::int[]                                  AS tag_ids,
+       fs.filename_disk            as image_file_name,
+       tags.tags::int[]            AS tag_ids,
+       COALESCE(images.json, '[]') as images,
        ts.title,
        ts.description
 FROM shows sh
          LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
+         LEFT JOIN images ON sh.id = images.show_id
          LEFT JOIN directus_files fs ON fs.id = sh.image_file_id
 WHERE sh.id = ANY ($1::int[])
 `
@@ -141,6 +150,7 @@ type getShowsRow struct {
 	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
 	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
+	Images        json.RawMessage       `db:"images" json:"images"`
 	Title         pqtype.NullRawMessage `db:"title" json:"title"`
 	Description   pqtype.NullRawMessage `db:"description" json:"description"`
 }
@@ -159,6 +169,7 @@ func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]getShowsRow
 			&i.LegacyID,
 			&i.ImageFileName,
 			pq.Array(&i.TagIds),
+			&i.Images,
 			&i.Title,
 			&i.Description,
 		); err != nil {
@@ -184,16 +195,24 @@ WITH ts AS (SELECT shows_id,
      tags AS (SELECT shows_id,
                      array_agg(tags_id) AS tags
               FROM shows_tags
-              GROUP BY shows_id)
+              GROUP BY shows_id),
+     images AS (WITH images AS (SELECT show_id, style, language, filename_disk
+                                FROM images img
+                                         JOIN directus_files df on img.file = df.id)
+                SELECT show_id, json_agg(images) as json
+                FROM images
+                GROUP BY show_id)
 SELECT sh.id,
        sh.legacy_id,
-       fs.filename_disk as image_file_name,
-       tags.tags::int[]                                  AS tag_ids,
+       fs.filename_disk            as image_file_name,
+       tags.tags::int[]            AS tag_ids,
+       COALESCE(images.json, '[]') as images,
        ts.title,
        ts.description
 FROM shows sh
          LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
+         LEFT JOIN images ON sh.id = images.show_id
          LEFT JOIN directus_files fs ON fs.id = sh.image_file_id
 `
 
@@ -202,6 +221,7 @@ type listShowsRow struct {
 	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
 	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
+	Images        json.RawMessage       `db:"images" json:"images"`
 	Title         pqtype.NullRawMessage `db:"title" json:"title"`
 	Description   pqtype.NullRawMessage `db:"description" json:"description"`
 }
@@ -220,6 +240,7 @@ func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
 			&i.LegacyID,
 			&i.ImageFileName,
 			pq.Array(&i.TagIds),
+			&i.Images,
 			&i.Title,
 			&i.Description,
 		); err != nil {

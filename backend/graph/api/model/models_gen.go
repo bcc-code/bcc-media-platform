@@ -90,6 +90,7 @@ type Episode struct {
 	Duration          int        `json:"duration"`
 	AudioLanguages    []Language `json:"audioLanguages"`
 	SubtitleLanguages []Language `json:"subtitleLanguages"`
+	Images            []*Image   `json:"images"`
 	Number            *int       `json:"number"`
 }
 
@@ -110,6 +111,7 @@ type EpisodeItem struct {
 	Sort     int      `json:"sort"`
 	Title    string   `json:"title"`
 	ImageURL *string  `json:"imageUrl"`
+	Images   []*Image `json:"images"`
 	Episode  *Episode `json:"episode"`
 }
 
@@ -191,6 +193,11 @@ type GlobalConfig struct {
 	NpawEnabled bool `json:"npawEnabled"`
 }
 
+type Image struct {
+	Style string `json:"style"`
+	URL   string `json:"url"`
+}
+
 type ItemSection struct {
 	ID    string                    `json:"id"`
 	Page  *Page                     `json:"page"`
@@ -259,6 +266,7 @@ type Season struct {
 	Title       string             `json:"title"`
 	Description string             `json:"description"`
 	ImageURL    *string            `json:"imageUrl"`
+	Images      []*Image           `json:"images"`
 	Number      int                `json:"number"`
 	Show        *Show              `json:"show"`
 	Episodes    *EpisodePagination `json:"episodes"`
@@ -277,11 +285,12 @@ type SeasonCalendarEntry struct {
 func (SeasonCalendarEntry) IsCalendarEntry() {}
 
 type SeasonItem struct {
-	ID       string  `json:"id"`
-	Sort     int     `json:"sort"`
-	Title    string  `json:"title"`
-	ImageURL *string `json:"imageUrl"`
-	Season   *Season `json:"season"`
+	ID       string   `json:"id"`
+	Sort     int      `json:"sort"`
+	Title    string   `json:"title"`
+	ImageURL *string  `json:"imageUrl"`
+	Images   []*Image `json:"images"`
+	Season   *Season  `json:"season"`
 }
 
 func (SeasonItem) IsItem() {}
@@ -333,6 +342,7 @@ type Show struct {
 	Title        string            `json:"title"`
 	Description  string            `json:"description"`
 	ImageURL     *string           `json:"imageUrl"`
+	Images       []*Image          `json:"images"`
 	EpisodeCount int               `json:"episodeCount"`
 	SeasonCount  int               `json:"seasonCount"`
 	Seasons      *SeasonPagination `json:"seasons"`
@@ -351,11 +361,12 @@ type ShowCalendarEntry struct {
 func (ShowCalendarEntry) IsCalendarEntry() {}
 
 type ShowItem struct {
-	ID       string  `json:"id"`
-	Sort     int     `json:"sort"`
-	Title    string  `json:"title"`
-	ImageURL *string `json:"imageUrl"`
-	Show     *Show   `json:"show"`
+	ID       string   `json:"id"`
+	Sort     int      `json:"sort"`
+	Title    string   `json:"title"`
+	ImageURL *string  `json:"imageUrl"`
+	Images   []*Image `json:"images"`
+	Show     *Show    `json:"show"`
 }
 
 func (ShowItem) IsItem() {}
