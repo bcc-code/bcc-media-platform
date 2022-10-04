@@ -45,9 +45,10 @@ func SeasonItemFrom(ctx context.Context, row *common.Season, sort int) *SeasonIt
 	season := SeasonFrom(ctx, row)
 
 	return &SeasonItem{
-		ID:     season.ID,
-		Season: season,
-		Title:  season.Title,
-		Sort:   sort,
+		ID:       season.ID,
+		Season:   season,
+		Title:    season.Title,
+		ImageURL: season.ImageURL,
+		Sort:     sort,
 	}
 }
