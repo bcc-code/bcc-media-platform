@@ -36,18 +36,42 @@ import (
 	"github.com/samber/lo"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
+	"sort"
 	"strings"
 	"time"
 )
 
 var generalCache = cache.New[string, any]()
 
+var rolesLoaderCache = map[string]*common.FilteredLoaders{}
+
+func getLoadersForRoles(queries *sqlc.Queries, roles []string) *common.FilteredLoaders {
+	sort.Strings(roles)
+
+	key := strings.Join(roles, "-")
+
+	if loaders, ok := rolesLoaderCache[key]; ok {
+		return loaders
+	}
+
+	loaders := &common.FilteredLoaders{
+		EpisodesLoader: NewBatchLoader(),
+	}
+
+	return loaders
+}
+
 // Defining the Graphql handler
 func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
 
 	resolver := graphapi.Resolver{
-		Queries:       queries,
-		Loaders:       loaders,
+		Queries: queries,
+		Loaders: loaders,
+		LoadersFactory: func(ctx context.Context) *common.FilteredLoaders {
+			ginCtx, _ := utils.GinCtx(ctx)
+			roles := user.GetRolesFromCtx(ginCtx)
+			return getLoadersForRoles(roles)
+		},
 		SearchService: searchService,
 		APIConfig:     config.CDNConfig,
 		URLSigner:     urlSigner,

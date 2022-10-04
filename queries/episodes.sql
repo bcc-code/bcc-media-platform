@@ -83,10 +83,56 @@ WHERE e.id = ANY ($1::int[])
 ORDER BY e.episode_number;
 
 -- name: getEpisodeIDsForSeasons :many
+WITH permissions AS (WITH er AS (SELECT e.id,
+                                        COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
+                                                  FROM episodes_usergroups eu
+                                                  WHERE eu.episodes_id = e.id), ARRAY []::character varying[]) AS roles,
+                                        COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
+                                                  FROM episodes_usergroups_download eu
+                                                  WHERE eu.episodes_id = e.id),
+                                                 ARRAY []::character varying[])                                AS roles_download,
+                                        COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
+                                                  FROM episodes_usergroups_earlyaccess eu
+                                                  WHERE eu.episodes_id = e.id),
+                                                 ARRAY []::character varying[])                                AS roles_earlyaccess
+                                 FROM episodes e),
+                          ea AS (SELECT e.id,
+                                        e.status::text = 'published'::text AND
+                                        (e.season_id IS NULL OR (se.status::text = 'published'::text AND
+                                                                 s.status::text = 'published'::text)) AS published,
+                                        COALESCE(GREATEST(e.available_from, se.available_from, s.available_from),
+                                                 '1800-01-01 00:00:00'::timestamp without time zone)  AS available_from,
+                                        COALESCE(LEAST(e.available_to, se.available_to, s.available_to),
+                                                 '3000-01-01 00:00:00'::timestamp without time zone)  AS available_to
+                                 FROM episodes e
+                                          LEFT JOIN seasons se ON e.season_id = se.id
+                                          LEFT JOIN shows s ON se.show_id = s.id)
+                     SELECT e.id,
+                            access.published::bool             AS published,
+                            access.available_from::timestamp   AS available_from,
+                            access.available_to::timestamp     AS available_to,
+                            roles.roles::varchar[]             AS usergroups,
+                            roles.roles_download::varchar[]    AS usergroups_downloads,
+                            roles.roles_earlyaccess::varchar[] AS usergroups_earlyaccess
+                     FROM episodes e
+                              LEFT JOIN ea access ON access.id = e.id
+                              LEFT JOIN er roles ON roles.id = e.id)
 SELECT e.id,
        e.season_id
 FROM episodes e
-WHERE e.season_id = ANY ($1::int[])
+         JOIN permissions p ON p.id = e.id
+WHERE p.published
+  AND (
+        (
+                p.usergroups_earlyaccess = ANY ($2::varchar[])
+            )
+        OR (
+                    p.available_from < now()
+                AND p.available_to > now()
+                AND p.usergroups = ANY ($2::varchar[])
+            )
+    )
+  AND e.season_id = ANY($1::int[])
 ORDER BY e.episode_number;
 
 -- name: getPermissionsForEpisodes :many

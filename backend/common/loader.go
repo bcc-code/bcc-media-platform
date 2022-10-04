@@ -37,6 +37,12 @@ type BatchLoaders struct {
 	SectionPermissionLoader *dataloader.Loader[int, *Permissions[int]]
 }
 
+// FilteredLoaders contains loaders that will be filtered by permissions.
+type FilteredLoaders struct {
+	EpisodesLoader *dataloader.Loader[int, []*int]
+	SeasonsLoader  *dataloader.Loader[int, []*int]
+}
+
 // NewListBatchLoader returns a configured batch loader for Lists
 func NewListBatchLoader[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
