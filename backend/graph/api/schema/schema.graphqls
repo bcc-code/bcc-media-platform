@@ -48,6 +48,7 @@ type ShowItem implements Item {
   sort: Int!
   title: String!
   imageUrl: String
+  images: [Image]!
   show: Show!
 }
 
@@ -56,6 +57,7 @@ type SeasonItem implements Item {
   sort: Int!
   title: String!
   imageUrl: String
+  images: [Image]!
   season: Season!
 }
 
@@ -64,6 +66,7 @@ type EpisodeItem implements Item {
   sort: Int!
   title: String!
   imageUrl: String
+  images: [Image]!
   episode: Episode!
 }
 

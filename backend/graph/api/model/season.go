@@ -61,6 +61,7 @@ func SeasonItemFrom(ctx context.Context, row *common.Season, sort int) *SeasonIt
 		Season:   season,
 		Title:    season.Title,
 		ImageURL: season.ImageURL,
+		Images:   season.Images,
 		Sort:     sort,
 	}
 }

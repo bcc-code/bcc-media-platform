@@ -85,6 +85,7 @@ func EpisodeItemFrom(ctx context.Context, e *common.Episode, sort int) *EpisodeI
 		Title:    episode.Title,
 		Episode:  episode,
 		ImageURL: episode.ImageURL,
+		Images:   episode.Images,
 		Sort:     sort,
 	}
 }

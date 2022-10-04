@@ -111,6 +111,7 @@ type EpisodeItem struct {
 	Sort     int      `json:"sort"`
 	Title    string   `json:"title"`
 	ImageURL *string  `json:"imageUrl"`
+	Images   []*Image `json:"images"`
 	Episode  *Episode `json:"episode"`
 }
 
@@ -284,11 +285,12 @@ type SeasonCalendarEntry struct {
 func (SeasonCalendarEntry) IsCalendarEntry() {}
 
 type SeasonItem struct {
-	ID       string  `json:"id"`
-	Sort     int     `json:"sort"`
-	Title    string  `json:"title"`
-	ImageURL *string `json:"imageUrl"`
-	Season   *Season `json:"season"`
+	ID       string   `json:"id"`
+	Sort     int      `json:"sort"`
+	Title    string   `json:"title"`
+	ImageURL *string  `json:"imageUrl"`
+	Images   []*Image `json:"images"`
+	Season   *Season  `json:"season"`
 }
 
 func (SeasonItem) IsItem() {}
@@ -359,11 +361,12 @@ type ShowCalendarEntry struct {
 func (ShowCalendarEntry) IsCalendarEntry() {}
 
 type ShowItem struct {
-	ID       string  `json:"id"`
-	Sort     int     `json:"sort"`
-	Title    string  `json:"title"`
-	ImageURL *string `json:"imageUrl"`
-	Show     *Show   `json:"show"`
+	ID       string   `json:"id"`
+	Sort     int      `json:"sort"`
+	Title    string   `json:"title"`
+	ImageURL *string  `json:"imageUrl"`
+	Images   []*Image `json:"images"`
+	Show     *Show    `json:"show"`
 }
 
 func (ShowItem) IsItem() {}
