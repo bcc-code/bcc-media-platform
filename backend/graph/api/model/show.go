@@ -25,12 +25,24 @@ func ShowFrom(ctx context.Context, s *common.Show) *Show {
 		image = &s.Image.String
 	}
 
+	var images []*Image
+	for style, img := range s.Images.GetForLanguages(languages) {
+		if img == nil {
+			continue
+		}
+		images = append(images, &Image{
+			Style: style,
+			URL:   *img,
+		})
+	}
+
 	return &Show{
 		ID:          strconv.Itoa(s.ID),
 		LegacyID:    legacyID,
 		Title:       s.Title.Get(languages),
 		Description: s.Description.Get(languages),
 		ImageURL:    image,
+		Images:      images,
 	}
 }
 
@@ -43,6 +55,7 @@ func ShowItemFrom(ctx context.Context, s *common.Show, sort int) *ShowItem {
 		Show:     show,
 		Title:    show.Title,
 		ImageURL: show.ImageURL,
+		Images:   show.Images,
 		Sort:     sort,
 	}
 }

@@ -42,6 +42,17 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		image = &e.Image.String
 	}
 
+	var images []*Image
+	for style, img := range e.Images.GetForLanguages(languages) {
+		if img == nil {
+			continue
+		}
+		images = append(images, &Image{
+			Style: style,
+			URL:   *img,
+		})
+	}
+
 	episode := &Episode{
 		Chapters:         []*Chapter{}, // Currently not supported
 		ID:               strconv.Itoa(e.ID),
@@ -54,6 +65,7 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		Duration:         e.Duration,
 		AgeRating:        e.AgeRating,
 		ImageURL:         image,
+		Images:           images,
 	}
 
 	if e.Number.Valid {
@@ -73,6 +85,7 @@ func EpisodeItemFrom(ctx context.Context, e *common.Episode, sort int) *EpisodeI
 		Title:    episode.Title,
 		Episode:  episode,
 		ImageURL: episode.ImageURL,
+		Images:   episode.Images,
 		Sort:     sort,
 	}
 }

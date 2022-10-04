@@ -29,6 +29,7 @@ func (q *Queries) mapToSeasons(seasons []getSeasonsRow) []common.Season {
 			Description: description,
 			Number:      int(e.SeasonNumber),
 			Image:       image,
+			Images:      q.getImages(e.Images),
 			ShowID:      int(e.ShowID),
 			AgeRating:   e.Agerating,
 			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
