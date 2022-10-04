@@ -228,11 +228,12 @@ type Page struct {
 }
 
 type PageItem struct {
-	ID       string  `json:"id"`
-	Sort     int     `json:"sort"`
-	Title    string  `json:"title"`
-	ImageURL *string `json:"imageUrl"`
-	Page     *Page   `json:"page"`
+	ID       string   `json:"id"`
+	Sort     int      `json:"sort"`
+	Title    string   `json:"title"`
+	ImageURL *string  `json:"imageUrl"`
+	Images   []*Image `json:"images"`
+	Page     *Page    `json:"page"`
 }
 
 func (PageItem) IsItem() {}
@@ -260,16 +261,18 @@ type SearchResult struct {
 }
 
 type Season struct {
-	ID          string             `json:"id"`
-	LegacyID    *string            `json:"legacyID"`
-	AgeRating   string             `json:"ageRating"`
-	Title       string             `json:"title"`
-	Description string             `json:"description"`
-	ImageURL    *string            `json:"imageUrl"`
-	Images      []*Image           `json:"images"`
-	Number      int                `json:"number"`
-	Show        *Show              `json:"show"`
-	Episodes    *EpisodePagination `json:"episodes"`
+	ID           string             `json:"id"`
+	LegacyID     *string            `json:"legacyID"`
+	AgeRating    string             `json:"ageRating"`
+	Title        string             `json:"title"`
+	Description  string             `json:"description"`
+	ImageURL     *string            `json:"imageUrl"`
+	Images       []*Image           `json:"images"`
+	Number       int                `json:"number"`
+	Show         *Show              `json:"show"`
+	Episodes     *EpisodePagination `json:"episodes"`
+	FirstEpisode *Episode           `json:"firstEpisode"`
+	LastEpisode  *Episode           `json:"lastEpisode"`
 }
 
 type SeasonCalendarEntry struct {
@@ -346,6 +349,8 @@ type Show struct {
 	EpisodeCount int               `json:"episodeCount"`
 	SeasonCount  int               `json:"seasonCount"`
 	Seasons      *SeasonPagination `json:"seasons"`
+	FirstSeason  *Season           `json:"firstSeason"`
+	LastSeason   *Season           `json:"lastSeason"`
 }
 
 type ShowCalendarEntry struct {
@@ -370,15 +375,6 @@ type ShowItem struct {
 }
 
 func (ShowItem) IsItem() {}
-
-type ShowPagination struct {
-	Total  int     `json:"total"`
-	First  int     `json:"first"`
-	Offset int     `json:"offset"`
-	Items  []*Show `json:"items"`
-}
-
-func (ShowPagination) IsPagination() {}
 
 type ShowSearchItem struct {
 	ID          string  `json:"id"`
@@ -414,11 +410,12 @@ type Stream struct {
 }
 
 type URLItem struct {
-	ID       string  `json:"id"`
-	Sort     int     `json:"sort"`
-	Title    string  `json:"title"`
-	ImageURL *string `json:"imageUrl"`
-	URL      string  `json:"url"`
+	ID       string   `json:"id"`
+	Sort     int      `json:"sort"`
+	Title    string   `json:"title"`
+	ImageURL *string  `json:"imageUrl"`
+	Images   []*Image `json:"images"`
+	URL      string   `json:"url"`
 }
 
 func (URLItem) IsItem() {}
