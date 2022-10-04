@@ -14,7 +14,7 @@ func mapToTags(items []getTagsRow) []common.Tag {
 
 		return common.Tag{
 			ID:   int(i.ID),
-			Code: i.Code.ValueOrZero(),
+			Code: i.Code,
 			Name: name,
 		}
 	})
