@@ -69,9 +69,10 @@ func EpisodeItemFrom(ctx context.Context, e *common.Episode, sort int) *EpisodeI
 	episode := EpisodeFrom(ctx, e)
 
 	return &EpisodeItem{
-		ID:      episode.ID,
-		Title:   episode.Title,
-		Episode: episode,
-		Sort:    sort,
+		ID:       episode.ID,
+		Title:    episode.Title,
+		Episode:  episode,
+		ImageURL: episode.ImageURL,
+		Sort:     sort,
 	}
 }
