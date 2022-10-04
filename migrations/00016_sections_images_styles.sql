@@ -72,6 +72,8 @@ GRANT DELETE ON TABLE "public"."sections_links" TO directus; --WARN: Grant\Revok
 
 GRANT SELECT ON TABLE "public"."sections_links" TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
+GRANT SELECT ON TABLE "public"."sections_links" TO background_worker;
+
 COMMENT ON COLUMN "public"."sections_links"."id"  IS NULL;
 
 
@@ -154,6 +156,8 @@ GRANT UPDATE ON TABLE "public"."images" TO directus; --WARN: Grant\Revoke privil
 GRANT DELETE ON TABLE "public"."images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 GRANT SELECT ON TABLE "public"."images" TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+
+GRANT SELECT ON TABLE "public"."images" TO background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."images"."id"  IS NULL;
 

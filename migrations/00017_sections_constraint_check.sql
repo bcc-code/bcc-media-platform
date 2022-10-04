@@ -17,24 +17,6 @@ COMMENT ON CONSTRAINT "one_item" ON "public"."images" IS NULL;
 /***    CREATED ON: 2022-10-03T12:02:56.929Z             ***/
 /***********************************************************/
 
---- BEGIN ALTER SEQUENCE "public"."sections_links_id_seq" ---
-
-ALTER SEQUENCE IF EXISTS "public"."sections_links_id_seq" OWNER TO btv;
-
---- END ALTER SEQUENCE "public"."sections_links_id_seq" ---
-
---- BEGIN ALTER SEQUENCE "public"."shows_tags_id_seq" ---
-
-ALTER SEQUENCE IF EXISTS "public"."shows_tags_id_seq" OWNER TO btv;
-
---- END ALTER SEQUENCE "public"."shows_tags_id_seq" ---
-
---- BEGIN ALTER SEQUENCE "public"."seasons_tags_id_seq" ---
-
-ALTER SEQUENCE IF EXISTS "public"."seasons_tags_id_seq" OWNER TO btv;
-
---- END ALTER SEQUENCE "public"."seasons_tags_id_seq" ---
-
 --- BEGIN ALTER TABLE "public"."images" ---
 
 ALTER TABLE IF EXISTS "public"."images" DROP CONSTRAINT IF EXISTS "one_item";
