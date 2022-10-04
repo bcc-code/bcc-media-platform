@@ -45,11 +45,12 @@ type Conversion[o comparable, r comparable] interface {
 // Show is the definition of the Show object
 type Show struct {
 	ID          int          `json:"id"`
-	TagIDs      []int         `json:"tagIds"`
+	TagIDs      []int        `json:"tagIds"`
 	LegacyID    null.Int     `json:"legacyId"`
 	Title       LocaleString `json:"title"`
 	Description LocaleString `json:"description"`
 	Image       null.String  `json:"image"`
+	Images      Images       `json:"images"`
 }
 
 // GetType returns type for this item
@@ -61,7 +62,6 @@ func (i Show) GetType() ItemType {
 func (i Show) GetKey() int {
 	return i.ID
 }
-
 
 // GetTagIDs returns ids of related tags
 func (i Show) GetTagIDs() []int {
@@ -77,13 +77,14 @@ func (i Show) IsCollectionItem() {
 type Season struct {
 	ID          int          `json:"id"`
 	LegacyID    null.Int     `json:"legacyId"`
-	TagIDs      []int         `json:"tagIds"`
+	TagIDs      []int        `json:"tagIds"`
 	Number      int          `json:"number"`
 	AgeRating   string       `json:"ageRating"`
 	Title       LocaleString `json:"title"`
 	Description LocaleString `json:"description"`
 	ShowID      int          `json:"showId"`
 	Image       null.String  `json:"image"`
+	Images      Images       `json:"images"`
 }
 
 // GetKey returns the key for this item
@@ -112,6 +113,7 @@ type Episode struct {
 	AgeRating        string       `json:"ageRating"`
 	AssetID          null.Int     `json:"assetId"`
 	Image            null.String  `json:"image"`
+	Images           Images       `json:"images"`
 	TagIDs           []int        `json:"tagIds"`
 	Title            LocaleString `json:"title"`
 	Description      LocaleString `json:"description"`

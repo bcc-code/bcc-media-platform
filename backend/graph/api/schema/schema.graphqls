@@ -48,6 +48,7 @@ type ShowItem implements Item {
   sort: Int!
   title: String!
   imageUrl: String
+  images: [Image]!
   show: Show!
 }
 
@@ -56,6 +57,7 @@ type SeasonItem implements Item {
   sort: Int!
   title: String!
   imageUrl: String
+  images: [Image]!
   season: Season!
 }
 
@@ -64,6 +66,7 @@ type EpisodeItem implements Item {
   sort: Int!
   title: String!
   imageUrl: String
+  images: [Image]!
   episode: Episode!
 }
 
@@ -81,6 +84,7 @@ type Show {
   title: String!
   description: String!
   imageUrl: String
+  images: [Image!]!
   episodeCount: Int!
   seasonCount: Int!
   seasons(
@@ -103,6 +107,7 @@ type Season {
   title: String!
   description: String!
   imageUrl: String
+  images: [Image!]!
   number: Int!
   show: Show! @goField(forceResolver: true)
   episodes(
@@ -134,6 +139,7 @@ type Episode {
   duration: Int!
   audioLanguages: [Language!]!
   subtitleLanguages: [Language!]!
+  images: [Image!]!
   number: Int
 }
 
@@ -158,6 +164,11 @@ type File {
   size: Int
   fileName: String!
   mimeType: String!
+}
+
+type Image {
+  style: String!
+  url: String!
 }
 
 type Stream {
