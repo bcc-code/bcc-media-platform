@@ -19,7 +19,7 @@
             "outputDirectory": "./",
             "getAuthorFromGit": true,
             "schemaCompare": {
-                "namespaces": ["public"],
+                "namespaces": ["public", "users"],
                 "dropMissingTable": true,
                 "dropMissingView": true,
                 "dropMissingFunction": true,
