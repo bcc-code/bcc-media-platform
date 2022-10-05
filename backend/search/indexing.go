@@ -50,6 +50,7 @@ func (service *Service) Reindex(ctx context.Context) error {
 	}
 	searchableAttributes := opt.SearchableAttributes(
 		strings.Join(titleFields, ", "),
+		tagsField,
 		strings.Join(descriptionFields, ", "),
 		strings.Join(relationalFields, ", "),
 		strings.Join(getFunctionalFields(), ", "),
