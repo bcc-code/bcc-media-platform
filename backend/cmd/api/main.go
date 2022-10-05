@@ -55,26 +55,41 @@ func getLoadersForRoles(queries *sqlc.Queries, roles []string) *common.FilteredL
 	}
 
 	loaders := &common.FilteredLoaders{
-		EpisodesLoader: NewBatchLoader(),
+		EpisodesLoader: common.NewRelationBatchLoader(func(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
+			return queries.GetEpisodeIDsForSeasonsWithRoles(ctx, ids, roles)
+		}),
+		SeasonsLoader: common.NewRelationBatchLoader(func(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
+			return queries.GetSeasonIDsForShowsWithRoles(ctx, ids, roles)
+		}),
 	}
 
 	return loaders
+}
+
+func filteredLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *common.FilteredLoaders {
+	return func(ctx context.Context) *common.FilteredLoaders {
+		ginCtx, err := utils.GinCtx(ctx)
+		var roles []string
+		if err != nil {
+			log.L.Error().Err(err).Msg("failed to get gin ctx from context")
+			roles = []string{"unknown"}
+		} else {
+			roles = user.GetRolesFromCtx(ginCtx)
+		}
+		return getLoadersForRoles(queries, roles)
+	}
 }
 
 // Defining the Graphql handler
 func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
 
 	resolver := graphapi.Resolver{
-		Queries: queries,
-		Loaders: loaders,
-		LoadersFactory: func(ctx context.Context) *common.FilteredLoaders {
-			ginCtx, _ := utils.GinCtx(ctx)
-			roles := user.GetRolesFromCtx(ginCtx)
-			return getLoadersForRoles(roles)
-		},
-		SearchService: searchService,
-		APIConfig:     config.CDNConfig,
-		URLSigner:     urlSigner,
+		Queries:         queries,
+		Loaders:         loaders,
+		FilteredLoaders: filteredLoaderFactory(queries),
+		SearchService:   searchService,
+		APIConfig:       config.CDNConfig,
+		URLSigner:       urlSigner,
 	}
 
 	tracer := &graphTracer{}

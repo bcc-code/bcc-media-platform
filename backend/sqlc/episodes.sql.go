@@ -62,6 +62,78 @@ func (q *Queries) getEpisodeIDsForSeasons(ctx context.Context, dollar_1 []int32)
 	return items, nil
 }
 
+const getEpisodeIDsForSeasonsWithRoles = `-- name: getEpisodeIDsForSeasonsWithRoles :many
+WITH er AS (SELECT e.id,
+                   COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
+                             FROM episodes_usergroups eu
+                             WHERE eu.episodes_id = e.id), ARRAY []::character varying[]) AS roles,
+                   COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
+                             FROM episodes_usergroups_download eu
+                             WHERE eu.episodes_id = e.id), ARRAY []::character varying[]) AS roles_download,
+                   COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
+                             FROM episodes_usergroups_earlyaccess eu
+                             WHERE eu.episodes_id = e.id),
+                            ARRAY []::character varying[])                                AS roles_earlyaccess
+            FROM episodes e),
+     ea AS (SELECT e.id,
+                   e.status::text = 'published'::text AND
+                   (e.season_id IS NULL OR (se.status::text = 'published'::text AND
+                                            s.status::text = 'published'::text)) AS published,
+                   COALESCE(GREATEST(e.available_from, se.available_from, s.available_from),
+                            '1800-01-01 00:00:00'::timestamp without time zone)  AS available_from,
+                   COALESCE(LEAST(e.available_to, se.available_to, s.available_to),
+                            '3000-01-01 00:00:00'::timestamp without time zone)  AS available_to
+            FROM episodes e
+                     LEFT JOIN seasons se ON e.season_id = se.id
+                     LEFT JOIN shows s ON se.show_id = s.id)
+SELECT e.id,
+       e.season_id
+FROM episodes e
+         LEFT JOIN ea access ON access.id = e.id
+         LEFT JOIN er roles ON roles.id = e.id
+WHERE season_id = ANY ($1::int[])
+  AND access.published
+  AND access.available_to > now()
+  AND (
+        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+        (roles.roles_earlyaccess && $2::varchar[])
+    )
+ORDER BY e.episode_number
+`
+
+type getEpisodeIDsForSeasonsWithRolesParams struct {
+	Column1 []int32  `db:"column_1" json:"column1"`
+	Column2 []string `db:"column_2" json:"column2"`
+}
+
+type getEpisodeIDsForSeasonsWithRolesRow struct {
+	ID       int32       `db:"id" json:"id"`
+	SeasonID null_v4.Int `db:"season_id" json:"seasonID"`
+}
+
+func (q *Queries) getEpisodeIDsForSeasonsWithRoles(ctx context.Context, arg getEpisodeIDsForSeasonsWithRolesParams) ([]getEpisodeIDsForSeasonsWithRolesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeIDsForSeasonsWithRoles, pq.Array(arg.Column1), pq.Array(arg.Column2))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getEpisodeIDsForSeasonsWithRolesRow
+	for rows.Next() {
+		var i getEpisodeIDsForSeasonsWithRolesRow
+		if err := rows.Scan(&i.ID, &i.SeasonID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getEpisodes = `-- name: getEpisodes :many
 WITH ts AS (SELECT episodes_id,
                    json_object_agg(languages_code, title)             AS title,
