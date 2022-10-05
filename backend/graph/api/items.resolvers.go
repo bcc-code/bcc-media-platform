@@ -78,14 +78,12 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first 
 		return nil, err
 	}
 
-	page := utils.Paginate(itemIDs, first, offset)
+	page := utils.Paginate(itemIDs, first, offset, dir)
 
 	episodes, err := common.GetManyFromLoader(ctx, r.Loaders.EpisodeLoader, utils.PointerIntArrayToIntArray(page.Items))
 	if err != nil {
 		return nil, err
 	}
-
-	page := utils.Paginate(items, first, offset, dir)
 
 	return &model.EpisodePagination{
 		Total:  page.Total,
