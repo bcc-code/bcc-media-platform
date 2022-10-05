@@ -5,7 +5,7 @@ WITH ts AS (SELECT ts.tags_id,
            GROUP BY ts.tags_id)
 SELECT
     t.id,
-    t.code,
+    t.name as code,
     ts.name
 FROM tags t
          LEFT JOIN ts ON ts.tags_id = t.id;
@@ -17,7 +17,7 @@ WITH ts AS (SELECT ts.tags_id,
             GROUP BY ts.tags_id)
 SELECT
     t.id,
-    t.code,
+    t.name as code,
     ts.name
 FROM tags t
          LEFT JOIN ts ON ts.tags_id = t.id
