@@ -25,7 +25,7 @@ func (r *fAQResolver) Categories(ctx context.Context, obj *model.Faq, first *int
 		return &i
 	}), model.FAQCategoryFrom)
 
-	page := utils.Paginate(cats, first, offset)
+	page := utils.Paginate(cats, first, offset, nil)
 
 	return &model.FAQCategoryPagination{
 		Total:  page.Total,
@@ -58,7 +58,7 @@ func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *model.FAQCateg
 		return nil, err
 	}
 
-	page := utils.Paginate(items, first, offset)
+	page := utils.Paginate(items, first, offset, nil)
 
 	return &model.QuestionPagination{
 		Total:  page.Total,

@@ -261,18 +261,16 @@ type SearchResult struct {
 }
 
 type Season struct {
-	ID           string             `json:"id"`
-	LegacyID     *string            `json:"legacyID"`
-	AgeRating    string             `json:"ageRating"`
-	Title        string             `json:"title"`
-	Description  string             `json:"description"`
-	ImageURL     *string            `json:"imageUrl"`
-	Images       []*Image           `json:"images"`
-	Number       int                `json:"number"`
-	Show         *Show              `json:"show"`
-	Episodes     *EpisodePagination `json:"episodes"`
-	FirstEpisode *Episode           `json:"firstEpisode"`
-	LastEpisode  *Episode           `json:"lastEpisode"`
+	ID          string             `json:"id"`
+	LegacyID    *string            `json:"legacyID"`
+	AgeRating   string             `json:"ageRating"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	ImageURL    *string            `json:"imageUrl"`
+	Images      []*Image           `json:"images"`
+	Number      int                `json:"number"`
+	Show        *Show              `json:"show"`
+	Episodes    *EpisodePagination `json:"episodes"`
 }
 
 type SeasonCalendarEntry struct {
@@ -349,8 +347,6 @@ type Show struct {
 	EpisodeCount int               `json:"episodeCount"`
 	SeasonCount  int               `json:"seasonCount"`
 	Seasons      *SeasonPagination `json:"seasons"`
-	FirstSeason  *Season           `json:"firstSeason"`
-	LastSeason   *Season           `json:"lastSeason"`
 }
 
 type ShowCalendarEntry struct {

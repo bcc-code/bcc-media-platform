@@ -32,7 +32,7 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 		return nil, err
 	}
 
-	pagination := utils.Paginate(entries, first, offset)
+	pagination := utils.Paginate(entries, first, offset, nil)
 
 	preloadLoaders(ctx, loaders, pagination.Items)
 
