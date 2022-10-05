@@ -70,6 +70,8 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 		CollectionItemIDsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader, roles),
 	}
 
+	rolesLoaderCache[key] = loaders
+
 	return loaders
 }
 
