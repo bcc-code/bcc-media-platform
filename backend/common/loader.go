@@ -15,7 +15,6 @@ type BatchLoaders struct {
 	SectionLoader               *dataloader.Loader[int, *Section]
 	SectionsLoader              *dataloader.Loader[int, []*int]
 	CollectionLoader            *dataloader.Loader[int, *Collection]
-	CollectionItemIdsLoader     *dataloader.Loader[int, []int]
 	CollectionItemLoader        *dataloader.Loader[int, []*CollectionItem]
 	ShowLoader                  *dataloader.Loader[int, *Show]
 	SeasonLoader                *dataloader.Loader[int, *Season]
@@ -39,8 +38,10 @@ type BatchLoaders struct {
 
 // FilteredLoaders contains loaders that will be filtered by permissions.
 type FilteredLoaders struct {
-	EpisodesLoader *dataloader.Loader[int, []*int]
-	SeasonsLoader  *dataloader.Loader[int, []*int]
+	EpisodesLoader          *dataloader.Loader[int, []*int]
+	SeasonsLoader           *dataloader.Loader[int, []*int]
+	CollectionItemsLoader   *dataloader.Loader[int, []*CollectionItem]
+	CollectionItemIDsLoader *dataloader.Loader[int, []int]
 }
 
 // NewListBatchLoader returns a configured batch loader for Lists

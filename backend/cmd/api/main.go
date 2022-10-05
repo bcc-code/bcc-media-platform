@@ -31,6 +31,7 @@ import (
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/graph-gophers/dataloader/v7"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
@@ -45,7 +46,7 @@ var generalCache = cache.New[string, any]()
 
 var rolesLoaderCache = map[string]*common.FilteredLoaders{}
 
-func getLoadersForRoles(queries *sqlc.Queries, roles []string) *common.FilteredLoaders {
+func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dataloader.Loader[int, *common.Collection], roles []string) *common.FilteredLoaders {
 	sort.Strings(roles)
 
 	key := strings.Join(roles, "-")
@@ -61,12 +62,18 @@ func getLoadersForRoles(queries *sqlc.Queries, roles []string) *common.FilteredL
 		SeasonsLoader: common.NewRelationBatchLoader(func(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
 			return queries.GetSeasonIDsForShowsWithRoles(ctx, ids, roles)
 		}),
+		CollectionItemsLoader: common.NewListBatchLoader(func(ctx context.Context, ids []int) ([]common.CollectionItem, error) {
+			return queries.GetItemsForCollectionsWithRoles(ctx, ids, roles)
+		}, func(i common.CollectionItem) int {
+			return i.CollectionID
+		}),
+		CollectionItemIDsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader, roles),
 	}
 
 	return loaders
 }
 
-func filteredLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *common.FilteredLoaders {
+func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *dataloader.Loader[int, *common.Collection]) func(ctx context.Context) *common.FilteredLoaders {
 	return func(ctx context.Context) *common.FilteredLoaders {
 		ginCtx, err := utils.GinCtx(ctx)
 		var roles []string
@@ -76,17 +83,17 @@ func filteredLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *com
 		} else {
 			roles = user.GetRolesFromCtx(ginCtx)
 		}
-		return getLoadersForRoles(queries, roles)
+		return getLoadersForRoles(db, queries, collectionLoader, roles)
 	}
 }
 
 // Defining the Graphql handler
-func graphqlHandler(queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
+func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
 
 	resolver := graphapi.Resolver{
 		Queries:         queries,
 		Loaders:         loaders,
-		FilteredLoaders: filteredLoaderFactory(queries),
+		FilteredLoaders: filteredLoaderFactory(db, queries, loaders.CollectionLoader),
 		SearchService:   searchService,
 		APIConfig:       config.CDNConfig,
 		URLSigner:       urlSigner,
@@ -246,19 +253,18 @@ func main() {
 		ApplicationLoader:           common.NewBatchLoader(queries.GetApplications),
 		ApplicationIDFromCodeLoader: common.NewConversionBatchLoader(queries.GetApplicationIDsForCodes),
 		// Item
-		PageLoader:              common.NewBatchLoader(queries.GetPages),
-		PageIDFromCodeLoader:    common.NewConversionBatchLoader(queries.GetPageIDsForCodes),
-		SectionLoader:           common.NewBatchLoader(queries.GetSections),
-		ShowLoader:              common.NewBatchLoader(queries.GetShows),
-		SeasonLoader:            common.NewBatchLoader(queries.GetSeasons),
-		EpisodeLoader:           common.NewBatchLoader(queries.GetEpisodes),
-		EventLoader:             common.NewBatchLoader(queries.GetEvents),
-		CalendarEntryLoader:     common.NewBatchLoader(queries.GetCalendarEntries),
-		FilesLoader:             asset.NewBatchFilesLoader(*queries),
-		StreamsLoader:           asset.NewBatchStreamsLoader(*queries),
-		CollectionLoader:        collectionLoader,
-		CollectionItemIdsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader),
-		CollectionItemLoader:    collection.NewItemListBatchLoader(*queries),
+		PageLoader:           common.NewBatchLoader(queries.GetPages),
+		PageIDFromCodeLoader: common.NewConversionBatchLoader(queries.GetPageIDsForCodes),
+		SectionLoader:        common.NewBatchLoader(queries.GetSections),
+		ShowLoader:           common.NewBatchLoader(queries.GetShows),
+		SeasonLoader:         common.NewBatchLoader(queries.GetSeasons),
+		EpisodeLoader:        common.NewBatchLoader(queries.GetEpisodes),
+		EventLoader:          common.NewBatchLoader(queries.GetEvents),
+		CalendarEntryLoader:  common.NewBatchLoader(queries.GetCalendarEntries),
+		FilesLoader:          asset.NewBatchFilesLoader(*queries),
+		StreamsLoader:        asset.NewBatchStreamsLoader(*queries),
+		CollectionLoader:     collectionLoader,
+		CollectionItemLoader: collection.NewItemListBatchLoader(*queries),
 		// Relations
 		SeasonsLoader:  common.NewRelationBatchLoader(queries.GetSeasonIDsForShows),
 		EpisodesLoader: common.NewRelationBatchLoader(queries.GetEpisodeIDsForSeasons),
@@ -300,7 +306,7 @@ func main() {
 	r.Use(applications.RoleMiddleware())
 
 	searchService := search.New(db, config.Algolia)
-	r.POST("/query", graphqlHandler(queries, loaders, searchService, urlSigner, config))
+	r.POST("/query", graphqlHandler(db, queries, loaders, searchService, urlSigner, config))
 
 	r.GET("/", playgroundHandler())
 

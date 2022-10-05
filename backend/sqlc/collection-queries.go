@@ -54,12 +54,7 @@ func (q *Queries) GetCollections(ctx context.Context, ids []int) ([]common.Colle
 	return mapToCollections(collections), nil
 }
 
-// GetItemsForCollections returns []common.CollectionItem for specified collections
-func (q *Queries) GetItemsForCollections(ctx context.Context, ids []int) ([]common.CollectionItem, error) {
-	items, err := q.getCollectionItemsForCollections(ctx, intToInt32(ids))
-	if err != nil {
-		return nil, err
-	}
+func mapToCollectionItems(items []CollectionsItem) []common.CollectionItem {
 	return lo.Map(items, func(i CollectionsItem, _ int) common.CollectionItem {
 		var itemID null.Int
 		switch i.Type.ValueOrZero() {
@@ -79,5 +74,26 @@ func (q *Queries) GetItemsForCollections(ctx context.Context, ids []int) ([]comm
 			Type:         common.ItemType(i.Type.ValueOrZero()),
 			ItemID:       int(itemID.ValueOrZero()),
 		}
-	}), nil
+	})
+}
+
+// GetItemsForCollections returns []common.CollectionItem for specified collections
+func (q *Queries) GetItemsForCollections(ctx context.Context, ids []int) ([]common.CollectionItem, error) {
+	items, err := q.getCollectionItemsForCollections(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+	return mapToCollectionItems(items), nil
+}
+
+// GetItemsForCollectionsWithRoles returns []common.CollectionItem for specified collections
+func (q *Queries) GetItemsForCollectionsWithRoles(ctx context.Context, ids []int, roles []string) ([]common.CollectionItem, error) {
+	items, err := q.getCollectionItemsForCollectionsWithRoles(ctx, getCollectionItemsForCollectionsWithRolesParams{
+		Column1: intToInt32(ids),
+		Column2: roles,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return mapToCollectionItems(items), nil
 }
