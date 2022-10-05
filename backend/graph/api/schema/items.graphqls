@@ -11,9 +11,8 @@ type Show {
     seasons(
         first: Int
         offset: Int
+        dir: String
     ): SeasonPagination! @goField(forceResolver: true)
-    firstSeason: Season @goField(forceResolver: true)
-    lastSeason: Season @goField(forceResolver: true)
 }
 
 type Season {
@@ -29,9 +28,8 @@ type Season {
     episodes(
         first: Int
         offset: Int
+        dir: String
     ): EpisodePagination! @goField(forceResolver: true)
-    firstEpisode: Episode @goField(forceResolver: true)
-    lastEpisode: Episode @goField(forceResolver: true)
 }
 
 type SeasonPagination implements Pagination {

@@ -294,18 +294,16 @@ type ComplexityRoot struct {
 	}
 
 	Season struct {
-		AgeRating    func(childComplexity int) int
-		Description  func(childComplexity int) int
-		Episodes     func(childComplexity int, first *int, offset *int) int
-		FirstEpisode func(childComplexity int) int
-		ID           func(childComplexity int) int
-		ImageURL     func(childComplexity int) int
-		Images       func(childComplexity int) int
-		LastEpisode  func(childComplexity int) int
-		LegacyID     func(childComplexity int) int
-		Number       func(childComplexity int) int
-		Show         func(childComplexity int) int
-		Title        func(childComplexity int) int
+		AgeRating   func(childComplexity int) int
+		Description func(childComplexity int) int
+		Episodes    func(childComplexity int, first *int, offset *int, dir *string) int
+		ID          func(childComplexity int) int
+		ImageURL    func(childComplexity int) int
+		Images      func(childComplexity int) int
+		LegacyID    func(childComplexity int) int
+		Number      func(childComplexity int) int
+		Show        func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	SeasonCalendarEntry struct {
@@ -365,14 +363,12 @@ type ComplexityRoot struct {
 	Show struct {
 		Description  func(childComplexity int) int
 		EpisodeCount func(childComplexity int) int
-		FirstSeason  func(childComplexity int) int
 		ID           func(childComplexity int) int
 		ImageURL     func(childComplexity int) int
 		Images       func(childComplexity int) int
-		LastSeason   func(childComplexity int) int
 		LegacyID     func(childComplexity int) int
 		SeasonCount  func(childComplexity int) int
-		Seasons      func(childComplexity int, first *int, offset *int) int
+		Seasons      func(childComplexity int, first *int, offset *int, dir *string) int
 		Title        func(childComplexity int) int
 	}
 
@@ -513,9 +509,7 @@ type QuestionResolver interface {
 }
 type SeasonResolver interface {
 	Show(ctx context.Context, obj *model.Season) (*model.Show, error)
-	Episodes(ctx context.Context, obj *model.Season, first *int, offset *int) (*model.EpisodePagination, error)
-	FirstEpisode(ctx context.Context, obj *model.Season) (*model.Episode, error)
-	LastEpisode(ctx context.Context, obj *model.Season) (*model.Episode, error)
+	Episodes(ctx context.Context, obj *model.Season, first *int, offset *int, dir *string) (*model.EpisodePagination, error)
 }
 type SeasonCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.SeasonCalendarEntry) (*model.Event, error)
@@ -526,9 +520,7 @@ type SeasonSearchItemResolver interface {
 	Show(ctx context.Context, obj *model.SeasonSearchItem) (*model.Show, error)
 }
 type ShowResolver interface {
-	Seasons(ctx context.Context, obj *model.Show, first *int, offset *int) (*model.SeasonPagination, error)
-	FirstSeason(ctx context.Context, obj *model.Show) (*model.Season, error)
-	LastSeason(ctx context.Context, obj *model.Show) (*model.Season, error)
+	Seasons(ctx context.Context, obj *model.Show, first *int, offset *int, dir *string) (*model.SeasonPagination, error)
 }
 type ShowCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.ShowCalendarEntry) (*model.Event, error)
@@ -1681,14 +1673,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Season.Episodes(childComplexity, args["first"].(*int), args["offset"].(*int)), true
-
-	case "Season.firstEpisode":
-		if e.complexity.Season.FirstEpisode == nil {
-			break
-		}
-
-		return e.complexity.Season.FirstEpisode(childComplexity), true
+		return e.complexity.Season.Episodes(childComplexity, args["first"].(*int), args["offset"].(*int), args["dir"].(*string)), true
 
 	case "Season.id":
 		if e.complexity.Season.ID == nil {
@@ -1710,13 +1695,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Season.Images(childComplexity), true
-
-	case "Season.lastEpisode":
-		if e.complexity.Season.LastEpisode == nil {
-			break
-		}
-
-		return e.complexity.Season.LastEpisode(childComplexity), true
 
 	case "Season.legacyID":
 		if e.complexity.Season.LegacyID == nil {
@@ -2012,13 +1990,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Show.EpisodeCount(childComplexity), true
 
-	case "Show.firstSeason":
-		if e.complexity.Show.FirstSeason == nil {
-			break
-		}
-
-		return e.complexity.Show.FirstSeason(childComplexity), true
-
 	case "Show.id":
 		if e.complexity.Show.ID == nil {
 			break
@@ -2039,13 +2010,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Show.Images(childComplexity), true
-
-	case "Show.lastSeason":
-		if e.complexity.Show.LastSeason == nil {
-			break
-		}
-
-		return e.complexity.Show.LastSeason(childComplexity), true
 
 	case "Show.legacyID":
 		if e.complexity.Show.LegacyID == nil {
@@ -2071,7 +2035,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Show.Seasons(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.Show.Seasons(childComplexity, args["first"].(*int), args["offset"].(*int), args["dir"].(*string)), true
 
 	case "Show.title":
 		if e.complexity.Show.Title == nil {
@@ -2669,9 +2633,8 @@ type Show {
     seasons(
         first: Int
         offset: Int
+        dir: String
     ): SeasonPagination! @goField(forceResolver: true)
-    firstSeason: Season @goField(forceResolver: true)
-    lastSeason: Season @goField(forceResolver: true)
 }
 
 type Season {
@@ -2687,9 +2650,8 @@ type Season {
     episodes(
         first: Int
         offset: Int
+        dir: String
     ): EpisodePagination! @goField(forceResolver: true)
-    firstEpisode: Episode @goField(forceResolver: true)
-    lastEpisode: Episode @goField(forceResolver: true)
 }
 
 type SeasonPagination implements Pagination {
@@ -3403,6 +3365,15 @@ func (ec *executionContext) field_Season_episodes_args(ctx context.Context, rawA
 		}
 	}
 	args["offset"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["dir"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dir"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["dir"] = arg2
 	return args, nil
 }
 
@@ -3427,6 +3398,15 @@ func (ec *executionContext) field_Show_seasons_args(ctx context.Context, rawArgs
 		}
 	}
 	args["offset"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["dir"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dir"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["dir"] = arg2
 	return args, nil
 }
 
@@ -5017,10 +4997,6 @@ func (ec *executionContext) fieldContext_Episode_season(ctx context.Context, fie
 				return ec.fieldContext_Season_show(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Season_episodes(ctx, field)
-			case "firstEpisode":
-				return ec.fieldContext_Season_firstEpisode(ctx, field)
-			case "lastEpisode":
-				return ec.fieldContext_Season_lastEpisode(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Season", field.Name)
 		},
@@ -6762,10 +6738,6 @@ func (ec *executionContext) fieldContext_EpisodeSearchItem_show(ctx context.Cont
 				return ec.fieldContext_Show_seasonCount(ctx, field)
 			case "seasons":
 				return ec.fieldContext_Show_seasons(ctx, field)
-			case "firstSeason":
-				return ec.fieldContext_Show_firstSeason(ctx, field)
-			case "lastSeason":
-				return ec.fieldContext_Show_lastSeason(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Show", field.Name)
 		},
@@ -6911,10 +6883,6 @@ func (ec *executionContext) fieldContext_EpisodeSearchItem_season(ctx context.Co
 				return ec.fieldContext_Season_show(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Season_episodes(ctx, field)
-			case "firstEpisode":
-				return ec.fieldContext_Season_firstEpisode(ctx, field)
-			case "lastEpisode":
-				return ec.fieldContext_Season_lastEpisode(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Season", field.Name)
 		},
@@ -9381,10 +9349,6 @@ func (ec *executionContext) fieldContext_QueryRoot_show(ctx context.Context, fie
 				return ec.fieldContext_Show_seasonCount(ctx, field)
 			case "seasons":
 				return ec.fieldContext_Show_seasons(ctx, field)
-			case "firstSeason":
-				return ec.fieldContext_Show_firstSeason(ctx, field)
-			case "lastSeason":
-				return ec.fieldContext_Show_lastSeason(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Show", field.Name)
 		},
@@ -9462,10 +9426,6 @@ func (ec *executionContext) fieldContext_QueryRoot_season(ctx context.Context, f
 				return ec.fieldContext_Season_show(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Season_episodes(ctx, field)
-			case "firstEpisode":
-				return ec.fieldContext_Season_firstEpisode(ctx, field)
-			case "lastEpisode":
-				return ec.fieldContext_Season_lastEpisode(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Season", field.Name)
 		},
@@ -11058,10 +11018,6 @@ func (ec *executionContext) fieldContext_Season_show(ctx context.Context, field 
 				return ec.fieldContext_Show_seasonCount(ctx, field)
 			case "seasons":
 				return ec.fieldContext_Show_seasons(ctx, field)
-			case "firstSeason":
-				return ec.fieldContext_Show_firstSeason(ctx, field)
-			case "lastSeason":
-				return ec.fieldContext_Show_lastSeason(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Show", field.Name)
 		},
@@ -11083,7 +11039,7 @@ func (ec *executionContext) _Season_episodes(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Season().Episodes(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Season().Episodes(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["dir"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11130,160 +11086,6 @@ func (ec *executionContext) fieldContext_Season_episodes(ctx context.Context, fi
 	if fc.Args, err = ec.field_Season_episodes_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Season_firstEpisode(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Season_firstEpisode(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Season().FirstEpisode(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Episode)
-	fc.Result = res
-	return ec.marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Season_firstEpisode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Season",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Episode_id(ctx, field)
-			case "legacyID":
-				return ec.fieldContext_Episode_legacyID(ctx, field)
-			case "legacyProgramID":
-				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
-			case "ageRating":
-				return ec.fieldContext_Episode_ageRating(ctx, field)
-			case "title":
-				return ec.fieldContext_Episode_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Episode_description(ctx, field)
-			case "extraDescription":
-				return ec.fieldContext_Episode_extraDescription(ctx, field)
-			case "imageUrl":
-				return ec.fieldContext_Episode_imageUrl(ctx, field)
-			case "streams":
-				return ec.fieldContext_Episode_streams(ctx, field)
-			case "files":
-				return ec.fieldContext_Episode_files(ctx, field)
-			case "chapters":
-				return ec.fieldContext_Episode_chapters(ctx, field)
-			case "season":
-				return ec.fieldContext_Episode_season(ctx, field)
-			case "duration":
-				return ec.fieldContext_Episode_duration(ctx, field)
-			case "audioLanguages":
-				return ec.fieldContext_Episode_audioLanguages(ctx, field)
-			case "subtitleLanguages":
-				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
-			case "images":
-				return ec.fieldContext_Episode_images(ctx, field)
-			case "number":
-				return ec.fieldContext_Episode_number(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Season_lastEpisode(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Season_lastEpisode(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Season().LastEpisode(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Episode)
-	fc.Result = res
-	return ec.marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Season_lastEpisode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Season",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Episode_id(ctx, field)
-			case "legacyID":
-				return ec.fieldContext_Episode_legacyID(ctx, field)
-			case "legacyProgramID":
-				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
-			case "ageRating":
-				return ec.fieldContext_Episode_ageRating(ctx, field)
-			case "title":
-				return ec.fieldContext_Episode_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Episode_description(ctx, field)
-			case "extraDescription":
-				return ec.fieldContext_Episode_extraDescription(ctx, field)
-			case "imageUrl":
-				return ec.fieldContext_Episode_imageUrl(ctx, field)
-			case "streams":
-				return ec.fieldContext_Episode_streams(ctx, field)
-			case "files":
-				return ec.fieldContext_Episode_files(ctx, field)
-			case "chapters":
-				return ec.fieldContext_Episode_chapters(ctx, field)
-			case "season":
-				return ec.fieldContext_Episode_season(ctx, field)
-			case "duration":
-				return ec.fieldContext_Episode_duration(ctx, field)
-			case "audioLanguages":
-				return ec.fieldContext_Episode_audioLanguages(ctx, field)
-			case "subtitleLanguages":
-				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
-			case "images":
-				return ec.fieldContext_Episode_images(ctx, field)
-			case "number":
-				return ec.fieldContext_Episode_number(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
-		},
 	}
 	return fc, nil
 }
@@ -11617,10 +11419,6 @@ func (ec *executionContext) fieldContext_SeasonCalendarEntry_season(ctx context.
 				return ec.fieldContext_Season_show(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Season_episodes(ctx, field)
-			case "firstEpisode":
-				return ec.fieldContext_Season_firstEpisode(ctx, field)
-			case "lastEpisode":
-				return ec.fieldContext_Season_lastEpisode(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Season", field.Name)
 		},
@@ -11910,10 +11708,6 @@ func (ec *executionContext) fieldContext_SeasonItem_season(ctx context.Context, 
 				return ec.fieldContext_Season_show(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Season_episodes(ctx, field)
-			case "firstEpisode":
-				return ec.fieldContext_Season_firstEpisode(ctx, field)
-			case "lastEpisode":
-				return ec.fieldContext_Season_lastEpisode(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Season", field.Name)
 		},
@@ -12112,10 +11906,6 @@ func (ec *executionContext) fieldContext_SeasonPagination_items(ctx context.Cont
 				return ec.fieldContext_Season_show(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Season_episodes(ctx, field)
-			case "firstEpisode":
-				return ec.fieldContext_Season_firstEpisode(ctx, field)
-			case "lastEpisode":
-				return ec.fieldContext_Season_lastEpisode(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Season", field.Name)
 		},
@@ -12693,10 +12483,6 @@ func (ec *executionContext) fieldContext_SeasonSearchItem_show(ctx context.Conte
 				return ec.fieldContext_Show_seasonCount(ctx, field)
 			case "seasons":
 				return ec.fieldContext_Show_seasons(ctx, field)
-			case "firstSeason":
-				return ec.fieldContext_Show_firstSeason(ctx, field)
-			case "lastSeason":
-				return ec.fieldContext_Show_lastSeason(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Show", field.Name)
 		},
@@ -13334,7 +13120,7 @@ func (ec *executionContext) _Show_seasons(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Show().Seasons(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Show().Seasons(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["dir"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13381,140 +13167,6 @@ func (ec *executionContext) fieldContext_Show_seasons(ctx context.Context, field
 	if fc.Args, err = ec.field_Show_seasons_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Show_firstSeason(ctx context.Context, field graphql.CollectedField, obj *model.Show) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Show_firstSeason(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Show().FirstSeason(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Season)
-	fc.Result = res
-	return ec.marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Show_firstSeason(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Show",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Season_id(ctx, field)
-			case "legacyID":
-				return ec.fieldContext_Season_legacyID(ctx, field)
-			case "ageRating":
-				return ec.fieldContext_Season_ageRating(ctx, field)
-			case "title":
-				return ec.fieldContext_Season_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Season_description(ctx, field)
-			case "imageUrl":
-				return ec.fieldContext_Season_imageUrl(ctx, field)
-			case "images":
-				return ec.fieldContext_Season_images(ctx, field)
-			case "number":
-				return ec.fieldContext_Season_number(ctx, field)
-			case "show":
-				return ec.fieldContext_Season_show(ctx, field)
-			case "episodes":
-				return ec.fieldContext_Season_episodes(ctx, field)
-			case "firstEpisode":
-				return ec.fieldContext_Season_firstEpisode(ctx, field)
-			case "lastEpisode":
-				return ec.fieldContext_Season_lastEpisode(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Season", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Show_lastSeason(ctx context.Context, field graphql.CollectedField, obj *model.Show) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Show_lastSeason(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Show().LastSeason(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Season)
-	fc.Result = res
-	return ec.marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Show_lastSeason(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Show",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Season_id(ctx, field)
-			case "legacyID":
-				return ec.fieldContext_Season_legacyID(ctx, field)
-			case "ageRating":
-				return ec.fieldContext_Season_ageRating(ctx, field)
-			case "title":
-				return ec.fieldContext_Season_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Season_description(ctx, field)
-			case "imageUrl":
-				return ec.fieldContext_Season_imageUrl(ctx, field)
-			case "images":
-				return ec.fieldContext_Season_images(ctx, field)
-			case "number":
-				return ec.fieldContext_Season_number(ctx, field)
-			case "show":
-				return ec.fieldContext_Season_show(ctx, field)
-			case "episodes":
-				return ec.fieldContext_Season_episodes(ctx, field)
-			case "firstEpisode":
-				return ec.fieldContext_Season_firstEpisode(ctx, field)
-			case "lastEpisode":
-				return ec.fieldContext_Season_lastEpisode(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Season", field.Name)
-		},
 	}
 	return fc, nil
 }
@@ -13846,10 +13498,6 @@ func (ec *executionContext) fieldContext_ShowCalendarEntry_show(ctx context.Cont
 				return ec.fieldContext_Show_seasonCount(ctx, field)
 			case "seasons":
 				return ec.fieldContext_Show_seasons(ctx, field)
-			case "firstSeason":
-				return ec.fieldContext_Show_firstSeason(ctx, field)
-			case "lastSeason":
-				return ec.fieldContext_Show_lastSeason(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Show", field.Name)
 		},
@@ -14137,10 +13785,6 @@ func (ec *executionContext) fieldContext_ShowItem_show(ctx context.Context, fiel
 				return ec.fieldContext_Show_seasonCount(ctx, field)
 			case "seasons":
 				return ec.fieldContext_Show_seasons(ctx, field)
-			case "firstSeason":
-				return ec.fieldContext_Show_firstSeason(ctx, field)
-			case "lastSeason":
-				return ec.fieldContext_Show_lastSeason(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Show", field.Name)
 		},
@@ -19695,40 +19339,6 @@ func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, o
 				return innerFunc(ctx)
 
 			})
-		case "firstEpisode":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Season_firstEpisode(ctx, field, obj)
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		case "lastEpisode":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Season_lastEpisode(ctx, field, obj)
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -20206,40 +19816,6 @@ func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		case "firstSeason":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Show_firstSeason(ctx, field, obj)
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		case "lastSeason":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Show_lastSeason(ctx, field, obj)
 				return res
 			}
 

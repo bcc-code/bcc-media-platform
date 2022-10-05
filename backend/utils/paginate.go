@@ -1,6 +1,9 @@
 package utils
 
-import "github.com/samber/lo"
+import (
+	"github.com/samber/lo"
+	"strings"
+)
 
 var defaultFirst = 20
 
@@ -13,7 +16,7 @@ type PaginationResult[t any] struct {
 }
 
 // Paginate a collection with specified parameters
-func Paginate[t any](collection []t, first *int, offset *int) PaginationResult[t] {
+func Paginate[t any](collection []t, first *int, offset *int, dir *string) PaginationResult[t] {
 	var result PaginationResult[t]
 	result.Total = len(collection)
 	if offset != nil {
@@ -23,6 +26,12 @@ func Paginate[t any](collection []t, first *int, offset *int) PaginationResult[t
 		result.First = *first
 	} else {
 		result.First = defaultFirst
+	}
+
+	if dir != nil {
+		if strings.ToLower(*dir) == "desc" {
+			collection = lo.Reverse(collection)
+		}
 	}
 
 	collection = lo.Filter(collection, func(_ t, index int) bool {

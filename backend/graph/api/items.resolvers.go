@@ -67,13 +67,13 @@ func (r *seasonResolver) Show(ctx context.Context, obj *model.Season) (*model.Sh
 }
 
 // Episodes is the resolver for the episodes field.
-func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first *int, offset *int) (*model.EpisodePagination, error) {
+func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first *int, offset *int, dir *string) (*model.EpisodePagination, error) {
 	items, err := itemsResolverForIntID(ctx, toItemLoaders(r.Loaders.EpisodeLoader, r.Loaders.EpisodePermissionLoader), r.Resolver.Loaders.EpisodesLoader, obj.ID, model.EpisodeFrom)
 	if err != nil {
 		return nil, err
 	}
 
-	page := utils.Paginate(items, first, offset)
+	page := utils.Paginate(items, first, offset, dir)
 
 	return &model.EpisodePagination{
 		Total:  page.Total,
@@ -83,39 +83,19 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first 
 	}, nil
 }
 
-// FirstEpisode is the resolver for the firstEpisode field.
-func (r *seasonResolver) FirstEpisode(ctx context.Context, obj *model.Season) (*model.Episode, error) {
-	return firstOf(ctx, obj.ID, r.Loaders.EpisodePermissionLoader, r.Loaders.EpisodesLoader, r.QueryRoot().Episode)
-}
-
-// LastEpisode is the resolver for the lastEpisode field.
-func (r *seasonResolver) LastEpisode(ctx context.Context, obj *model.Season) (*model.Episode, error) {
-	return lastOf(ctx, obj.ID, r.Loaders.EpisodePermissionLoader, r.Loaders.EpisodesLoader, r.QueryRoot().Episode)
-}
-
 // Seasons is the resolver for the seasons field.
-func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int, offset *int) (*model.SeasonPagination, error) {
+func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int, offset *int, dir *string) (*model.SeasonPagination, error) {
 	seasons, err := itemsResolverForIntID(ctx, toItemLoaders(r.Loaders.SeasonLoader, r.Loaders.SeasonPermissionLoader), r.Resolver.Loaders.SeasonsLoader, obj.ID, model.SeasonFrom)
 	if err != nil {
 		return nil, err
 	}
-	pagination := utils.Paginate(seasons, first, offset)
+	pagination := utils.Paginate(seasons, first, offset, dir)
 	return &model.SeasonPagination{
 		Total:  pagination.Total,
 		First:  pagination.First,
 		Offset: pagination.Offset,
 		Items:  pagination.Items,
 	}, nil
-}
-
-// FirstSeason is the resolver for the firstSeason field.
-func (r *showResolver) FirstSeason(ctx context.Context, obj *model.Show) (*model.Season, error) {
-	return firstOf(ctx, obj.ID, r.Loaders.SeasonPermissionLoader, r.Loaders.SeasonsLoader, r.QueryRoot().Season)
-}
-
-// LastSeason is the resolver for the lastSeason field.
-func (r *showResolver) LastSeason(ctx context.Context, obj *model.Show) (*model.Season, error) {
-	return lastOf(ctx, obj.ID, r.Loaders.SeasonPermissionLoader, r.Loaders.SeasonsLoader, r.QueryRoot().Season)
 }
 
 // Episode returns generated.EpisodeResolver implementation.
