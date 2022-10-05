@@ -10,7 +10,6 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
-	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getTags = `-- name: getTags :many
@@ -20,7 +19,7 @@ WITH ts AS (SELECT ts.tags_id,
             GROUP BY ts.tags_id)
 SELECT
     t.id,
-    t.code,
+    t.name as code,
     ts.name
 FROM tags t
          LEFT JOIN ts ON ts.tags_id = t.id
@@ -29,7 +28,7 @@ WHERE id = ANY($1::int[])
 
 type getTagsRow struct {
 	ID   int32                 `db:"id" json:"id"`
-	Code null_v4.String        `db:"code" json:"code"`
+	Code string                `db:"code" json:"code"`
 	Name pqtype.NullRawMessage `db:"name" json:"name"`
 }
 
@@ -63,7 +62,7 @@ WITH ts AS (SELECT ts.tags_id,
            GROUP BY ts.tags_id)
 SELECT
     t.id,
-    t.code,
+    t.name as code,
     ts.name
 FROM tags t
          LEFT JOIN ts ON ts.tags_id = t.id
@@ -71,7 +70,7 @@ FROM tags t
 
 type listTagsRow struct {
 	ID   int32                 `db:"id" json:"id"`
-	Code null_v4.String        `db:"code" json:"code"`
+	Code string                `db:"code" json:"code"`
 	Name pqtype.NullRawMessage `db:"name" json:"name"`
 }
 
