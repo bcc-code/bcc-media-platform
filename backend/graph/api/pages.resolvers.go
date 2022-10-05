@@ -55,7 +55,7 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 	if err != nil {
 		return nil, err
 	}
-	pagination := utils.Paginate(sections, first, offset)
+	pagination := utils.Paginate(sections, first, offset, nil)
 	return &model.SectionPagination{
 		Total:  pagination.Total,
 		First:  pagination.First,

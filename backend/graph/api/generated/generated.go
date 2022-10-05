@@ -250,6 +250,7 @@ type ComplexityRoot struct {
 	PageItem struct {
 		ID       func(childComplexity int) int
 		ImageURL func(childComplexity int) int
+		Images   func(childComplexity int) int
 		Page     func(childComplexity int) int
 		Sort     func(childComplexity int) int
 		Title    func(childComplexity int) int
@@ -295,7 +296,7 @@ type ComplexityRoot struct {
 	Season struct {
 		AgeRating   func(childComplexity int) int
 		Description func(childComplexity int) int
-		Episodes    func(childComplexity int, first *int, offset *int) int
+		Episodes    func(childComplexity int, first *int, offset *int, dir *string) int
 		ID          func(childComplexity int) int
 		ImageURL    func(childComplexity int) int
 		Images      func(childComplexity int) int
@@ -367,7 +368,7 @@ type ComplexityRoot struct {
 		Images       func(childComplexity int) int
 		LegacyID     func(childComplexity int) int
 		SeasonCount  func(childComplexity int) int
-		Seasons      func(childComplexity int, first *int, offset *int) int
+		Seasons      func(childComplexity int, first *int, offset *int, dir *string) int
 		Title        func(childComplexity int) int
 	}
 
@@ -388,13 +389,6 @@ type ComplexityRoot struct {
 		Show     func(childComplexity int) int
 		Sort     func(childComplexity int) int
 		Title    func(childComplexity int) int
-	}
-
-	ShowPagination struct {
-		First  func(childComplexity int) int
-		Items  func(childComplexity int) int
-		Offset func(childComplexity int) int
-		Total  func(childComplexity int) int
 	}
 
 	ShowSearchItem struct {
@@ -429,6 +423,7 @@ type ComplexityRoot struct {
 	URLItem struct {
 		ID       func(childComplexity int) int
 		ImageURL func(childComplexity int) int
+		Images   func(childComplexity int) int
 		Sort     func(childComplexity int) int
 		Title    func(childComplexity int) int
 		URL      func(childComplexity int) int
@@ -514,7 +509,7 @@ type QuestionResolver interface {
 }
 type SeasonResolver interface {
 	Show(ctx context.Context, obj *model.Season) (*model.Show, error)
-	Episodes(ctx context.Context, obj *model.Season, first *int, offset *int) (*model.EpisodePagination, error)
+	Episodes(ctx context.Context, obj *model.Season, first *int, offset *int, dir *string) (*model.EpisodePagination, error)
 }
 type SeasonCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.SeasonCalendarEntry) (*model.Event, error)
@@ -525,7 +520,7 @@ type SeasonSearchItemResolver interface {
 	Show(ctx context.Context, obj *model.SeasonSearchItem) (*model.Show, error)
 }
 type ShowResolver interface {
-	Seasons(ctx context.Context, obj *model.Show, first *int, offset *int) (*model.SeasonPagination, error)
+	Seasons(ctx context.Context, obj *model.Show, first *int, offset *int, dir *string) (*model.SeasonPagination, error)
 }
 type ShowCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.ShowCalendarEntry) (*model.Event, error)
@@ -1411,6 +1406,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PageItem.ImageURL(childComplexity), true
 
+	case "PageItem.images":
+		if e.complexity.PageItem.Images == nil {
+			break
+		}
+
+		return e.complexity.PageItem.Images(childComplexity), true
+
 	case "PageItem.page":
 		if e.complexity.PageItem.Page == nil {
 			break
@@ -1671,7 +1673,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Season.Episodes(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.Season.Episodes(childComplexity, args["first"].(*int), args["offset"].(*int), args["dir"].(*string)), true
 
 	case "Season.id":
 		if e.complexity.Season.ID == nil {
@@ -2033,7 +2035,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Show.Seasons(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.Show.Seasons(childComplexity, args["first"].(*int), args["offset"].(*int), args["dir"].(*string)), true
 
 	case "Show.title":
 		if e.complexity.Show.Title == nil {
@@ -2132,34 +2134,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ShowItem.Title(childComplexity), true
-
-	case "ShowPagination.first":
-		if e.complexity.ShowPagination.First == nil {
-			break
-		}
-
-		return e.complexity.ShowPagination.First(childComplexity), true
-
-	case "ShowPagination.items":
-		if e.complexity.ShowPagination.Items == nil {
-			break
-		}
-
-		return e.complexity.ShowPagination.Items(childComplexity), true
-
-	case "ShowPagination.offset":
-		if e.complexity.ShowPagination.Offset == nil {
-			break
-		}
-
-		return e.complexity.ShowPagination.Offset(childComplexity), true
-
-	case "ShowPagination.total":
-		if e.complexity.ShowPagination.Total == nil {
-			break
-		}
-
-		return e.complexity.ShowPagination.Total(childComplexity), true
 
 	case "ShowSearchItem.collection":
 		if e.complexity.ShowSearchItem.Collection == nil {
@@ -2314,6 +2288,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.URLItem.ImageURL(childComplexity), true
+
+	case "URLItem.images":
+		if e.complexity.URLItem.Images == nil {
+			break
+		}
+
+		return e.complexity.URLItem.Images(childComplexity), true
 
 	case "URLItem.sort":
 		if e.complexity.URLItem.Sort == nil {
@@ -2520,6 +2501,66 @@ type Calendar {
     ): CalendarDay! @goField(forceResolver: true)
 }
 `, BuiltIn: false},
+	{Name: "../schema/collections.graphqls", Input: `interface Item {
+    id: ID!
+    sort: Int!
+    title: String!
+    imageUrl: String
+    images: [Image!]!
+}
+
+type CollectionItemPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [Item!]!
+}
+
+type URLItem implements Item {
+    id: ID!
+    sort: Int!
+    title: String!
+    imageUrl: String
+    images: [Image!]!
+    url: String!
+}
+
+type ShowItem implements Item {
+    id: ID!
+    sort: Int!
+    title: String!
+    imageUrl: String
+    images: [Image!]!
+    show: Show!
+}
+
+type SeasonItem implements Item {
+    id: ID!
+    sort: Int!
+    title: String!
+    imageUrl: String
+    images: [Image!]!
+    season: Season!
+}
+
+type EpisodeItem implements Item {
+    id: ID!
+    sort: Int!
+    title: String!
+    imageUrl: String
+    images: [Image!]!
+    episode: Episode!
+}
+
+type PageItem implements Item {
+    id: ID!
+    sort: Int!
+    title: String!
+    imageUrl: String
+    images: [Image!]!
+    page: Page!
+}
+`, BuiltIn: false},
 	{Name: "../schema/config.graphqls", Input: `
 type Config {
     global(timestamp: String): GlobalConfig! @goField(forceResolver: true)
@@ -2579,6 +2620,109 @@ type FAQ {
         id: ID!
     ): Question! @goField(forceResolver: true)
 }`, BuiltIn: false},
+	{Name: "../schema/items.graphqls", Input: `
+type Show {
+    id: ID!
+    legacyID: ID
+    title: String!
+    description: String!
+    imageUrl: String
+    images: [Image!]!
+    episodeCount: Int!
+    seasonCount: Int!
+    seasons(
+        first: Int
+        offset: Int
+        dir: String
+    ): SeasonPagination! @goField(forceResolver: true)
+}
+
+type Season {
+    id: ID!
+    legacyID: ID
+    ageRating: String!
+    title: String!
+    description: String!
+    imageUrl: String
+    images: [Image!]!
+    number: Int!
+    show: Show! @goField(forceResolver: true)
+    episodes(
+        first: Int
+        offset: Int
+        dir: String
+    ): EpisodePagination! @goField(forceResolver: true)
+}
+
+type SeasonPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [Season!]!
+}
+
+type Episode {
+    id: ID!
+    legacyID: ID
+    legacyProgramID: ID
+    ageRating: String!
+    title: String!
+    description: String!
+    extraDescription: String!
+    imageUrl: String
+    streams: [Stream!]! @goField(forceResolver: true)
+    files: [File!]! @goField(forceResolver: true)
+    chapters: [Chapter!]!
+    season: Season @goField(forceResolver: true)
+    duration: Int!
+    audioLanguages: [Language!]!
+    subtitleLanguages: [Language!]!
+    images: [Image!]!
+    number: Int
+}
+
+type EpisodePagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [Episode!]!
+}
+
+type Chapter {
+    id: ID!
+    start: Int!
+    title: String!
+}
+
+type File {
+    id: ID!
+    url: String!
+    audioLanguage: Language!
+    subtitleLanguage: Language
+    size: Int
+    fileName: String!
+    mimeType: String!
+}
+
+type Image {
+    style: String!
+    url: String!
+}
+
+type Stream {
+    id: ID!
+    url: String!
+    audioLanguages: [Language!]!
+    subtitleLanguages: [Language!]!
+    type: StreamType!
+}
+
+enum StreamType {
+    hls_ts
+    hls_cmaf
+    dash
+}
+`, BuiltIn: false},
 	{Name: "../schema/messages.graphqls", Input: `type Messages {
     maintenance(timestamp: String): [MaintenanceMessage!]! @goField(forceResolver: true)
 }
@@ -2661,169 +2805,6 @@ enum Language{
 scalar Cursor
 scalar Date
 
-interface Item {
-  id: ID!
-  sort: Int!
-  title: String!
-  imageUrl: String
-}
-
-type CollectionItemPagination implements Pagination {
-  total: Int!
-  first: Int!
-  offset: Int!
-  items: [Item!]!
-}
-
-type URLItem implements Item {
-  id: ID!
-  sort: Int!
-  title: String!
-  imageUrl: String
-  url: String!
-}
-
-type ShowItem implements Item {
-  id: ID!
-  sort: Int!
-  title: String!
-  imageUrl: String
-  images: [Image]!
-  show: Show!
-}
-
-type SeasonItem implements Item {
-  id: ID!
-  sort: Int!
-  title: String!
-  imageUrl: String
-  images: [Image]!
-  season: Season!
-}
-
-type EpisodeItem implements Item {
-  id: ID!
-  sort: Int!
-  title: String!
-  imageUrl: String
-  images: [Image]!
-  episode: Episode!
-}
-
-type PageItem implements Item {
-  id: ID!
-  sort: Int!
-  title: String!
-  imageUrl: String
-  page: Page!
-}
-
-type Show {
-  id: ID!
-  legacyID: ID
-  title: String!
-  description: String!
-  imageUrl: String
-  images: [Image!]!
-  episodeCount: Int!
-  seasonCount: Int!
-  seasons(
-    first: Int
-    offset: Int
-  ): SeasonPagination! @goField(forceResolver: true)
-}
-
-type ShowPagination implements Pagination {
-  total: Int!
-  first: Int!
-  offset: Int!
-  items: [Show!]!
-}
-
-type Season {
-  id: ID!
-  legacyID: ID
-  ageRating: String!
-  title: String!
-  description: String!
-  imageUrl: String
-  images: [Image!]!
-  number: Int!
-  show: Show! @goField(forceResolver: true)
-  episodes(
-    first: Int
-    offset: Int
-  ): EpisodePagination! @goField(forceResolver: true)
-}
-
-type SeasonPagination implements Pagination {
-  total: Int!
-  first: Int!
-  offset: Int!
-  items: [Season!]!
-}
-
-type Episode {
-  id: ID!
-  legacyID: ID
-  legacyProgramID: ID
-  ageRating: String!
-  title: String!
-  description: String!
-  extraDescription: String!
-  imageUrl: String
-  streams: [Stream!]! @goField(forceResolver: true)
-  files: [File!]! @goField(forceResolver: true)
-  chapters: [Chapter!]!
-  season: Season @goField(forceResolver: true)
-  duration: Int!
-  audioLanguages: [Language!]!
-  subtitleLanguages: [Language!]!
-  images: [Image!]!
-  number: Int
-}
-
-type EpisodePagination implements Pagination {
-  total: Int!
-  first: Int!
-  offset: Int!
-  items: [Episode!]!
-}
-
-type Chapter {
-  id: ID!
-  start: Int!
-  title: String!
-}
-
-type File {
-  id: ID!
-  url: String!
-  audioLanguage: Language!
-  subtitleLanguage: Language
-  size: Int
-  fileName: String!
-  mimeType: String!
-}
-
-type Image {
-  style: String!
-  url: String!
-}
-
-type Stream {
-  id: ID!
-  url: String!
-  audioLanguages: [Language!]!
-  subtitleLanguages: [Language!]!
-  type: StreamType!
-}
-
-enum StreamType {
-  hls_ts
-  hls_cmaf
-  dash
-}
 
 type Settings {
   audioLanguages: [Language!]!
@@ -3384,6 +3365,15 @@ func (ec *executionContext) field_Season_episodes_args(ctx context.Context, rawA
 		}
 	}
 	args["offset"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["dir"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dir"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["dir"] = arg2
 	return args, nil
 }
 
@@ -3408,6 +3398,15 @@ func (ec *executionContext) field_Show_seasons_args(ctx context.Context, rawArgs
 		}
 	}
 	args["offset"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["dir"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dir"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["dir"] = arg2
 	return args, nil
 }
 
@@ -5779,7 +5778,7 @@ func (ec *executionContext) _EpisodeItem_images(ctx context.Context, field graph
 	}
 	res := resTmp.([]*model.Image)
 	fc.Result = res
-	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImage(ctx, field.Selections, res)
+	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_EpisodeItem_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9011,6 +9010,56 @@ func (ec *executionContext) fieldContext_PageItem_imageUrl(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _PageItem_images(ctx context.Context, field graphql.CollectedField, obj *model.PageItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PageItem_images(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Images, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Image)
+	fc.Result = res
+	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PageItem_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PageItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "style":
+				return ec.fieldContext_Image_style(ctx, field)
+			case "url":
+				return ec.fieldContext_Image_url(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Image", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PageItem_page(ctx context.Context, field graphql.CollectedField, obj *model.PageItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PageItem_page(ctx, field)
 	if err != nil {
@@ -10990,7 +11039,7 @@ func (ec *executionContext) _Season_episodes(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Season().Episodes(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Season().Episodes(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["dir"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11578,7 +11627,7 @@ func (ec *executionContext) _SeasonItem_images(ctx context.Context, field graphq
 	}
 	res := resTmp.([]*model.Image)
 	fc.Result = res
-	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImage(ctx, field.Selections, res)
+	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SeasonItem_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13071,7 +13120,7 @@ func (ec *executionContext) _Show_seasons(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Show().Seasons(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Show().Seasons(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["dir"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13657,7 +13706,7 @@ func (ec *executionContext) _ShowItem_images(ctx context.Context, field graphql.
 	}
 	res := resTmp.([]*model.Image)
 	fc.Result = res
-	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImage(ctx, field.Selections, res)
+	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ShowItem_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13713,202 +13762,6 @@ func (ec *executionContext) _ShowItem_show(ctx context.Context, field graphql.Co
 func (ec *executionContext) fieldContext_ShowItem_show(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowItem",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Show_id(ctx, field)
-			case "legacyID":
-				return ec.fieldContext_Show_legacyID(ctx, field)
-			case "title":
-				return ec.fieldContext_Show_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Show_description(ctx, field)
-			case "imageUrl":
-				return ec.fieldContext_Show_imageUrl(ctx, field)
-			case "images":
-				return ec.fieldContext_Show_images(ctx, field)
-			case "episodeCount":
-				return ec.fieldContext_Show_episodeCount(ctx, field)
-			case "seasonCount":
-				return ec.fieldContext_Show_seasonCount(ctx, field)
-			case "seasons":
-				return ec.fieldContext_Show_seasons(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Show", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ShowPagination_total(ctx context.Context, field graphql.CollectedField, obj *model.ShowPagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ShowPagination_total(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Total, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ShowPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ShowPagination",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ShowPagination_first(ctx context.Context, field graphql.CollectedField, obj *model.ShowPagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ShowPagination_first(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.First, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ShowPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ShowPagination",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ShowPagination_offset(ctx context.Context, field graphql.CollectedField, obj *model.ShowPagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ShowPagination_offset(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Offset, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ShowPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ShowPagination",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ShowPagination_items(ctx context.Context, field graphql.CollectedField, obj *model.ShowPagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ShowPagination_items(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Items, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Show)
-	fc.Result = res
-	return ec.marshalNShow2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShowᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ShowPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ShowPagination",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -14981,6 +14834,56 @@ func (ec *executionContext) fieldContext_URLItem_imageUrl(ctx context.Context, f
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _URLItem_images(ctx context.Context, field graphql.CollectedField, obj *model.URLItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_URLItem_images(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Images, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Image)
+	fc.Result = res
+	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_URLItem_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "URLItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "style":
+				return ec.fieldContext_Image_style(ctx, field)
+			case "url":
+				return ec.fieldContext_Image_url(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Image", field.Name)
 		},
 	}
 	return fc, nil
@@ -17197,6 +17100,13 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
+	case model.CollectionItemPagination:
+		return ec._CollectionItemPagination(ctx, sel, &obj)
+	case *model.CollectionItemPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._CollectionItemPagination(ctx, sel, obj)
 	case model.QuestionPagination:
 		return ec._QuestionPagination(ctx, sel, &obj)
 	case *model.QuestionPagination:
@@ -17211,27 +17121,6 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._FAQCategoryPagination(ctx, sel, obj)
-	case model.SectionPagination:
-		return ec._SectionPagination(ctx, sel, &obj)
-	case *model.SectionPagination:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SectionPagination(ctx, sel, obj)
-	case model.CollectionItemPagination:
-		return ec._CollectionItemPagination(ctx, sel, &obj)
-	case *model.CollectionItemPagination:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._CollectionItemPagination(ctx, sel, obj)
-	case model.ShowPagination:
-		return ec._ShowPagination(ctx, sel, &obj)
-	case *model.ShowPagination:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ShowPagination(ctx, sel, obj)
 	case model.SeasonPagination:
 		return ec._SeasonPagination(ctx, sel, &obj)
 	case *model.SeasonPagination:
@@ -17246,6 +17135,13 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._EpisodePagination(ctx, sel, obj)
+	case model.SectionPagination:
+		return ec._SectionPagination(ctx, sel, &obj)
+	case *model.SectionPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SectionPagination(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -18807,6 +18703,13 @@ func (ec *executionContext) _PageItem(ctx context.Context, sel ast.SelectionSet,
 
 			out.Values[i] = ec._PageItem_imageUrl(ctx, field, obj)
 
+		case "images":
+
+			out.Values[i] = ec._PageItem_images(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "page":
 
 			out.Values[i] = ec._PageItem_page(ctx, field, obj)
@@ -20081,55 +19984,6 @@ func (ec *executionContext) _ShowItem(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var showPaginationImplementors = []string{"ShowPagination", "Pagination"}
-
-func (ec *executionContext) _ShowPagination(ctx context.Context, sel ast.SelectionSet, obj *model.ShowPagination) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, showPaginationImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ShowPagination")
-		case "total":
-
-			out.Values[i] = ec._ShowPagination_total(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "first":
-
-			out.Values[i] = ec._ShowPagination_first(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "offset":
-
-			out.Values[i] = ec._ShowPagination_offset(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "items":
-
-			out.Values[i] = ec._ShowPagination_items(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var showSearchItemImplementors = []string{"ShowSearchItem", "SearchResultItem"}
 
 func (ec *executionContext) _ShowSearchItem(ctx context.Context, sel ast.SelectionSet, obj *model.ShowSearchItem) graphql.Marshaler {
@@ -20363,6 +20217,13 @@ func (ec *executionContext) _URLItem(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._URLItem_imageUrl(ctx, field, obj)
 
+		case "images":
+
+			out.Values[i] = ec._URLItem_images(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "url":
 
 			out.Values[i] = ec._URLItem_url(ctx, field, obj)
@@ -21295,44 +21156,6 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImage(ctx context.Context, sel ast.SelectionSet, v []*model.Image) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOImage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImage(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
 func (ec *executionContext) marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Image) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -21899,50 +21722,6 @@ func (ec *executionContext) marshalNShow2githubᚗcomᚋbccᚑcodeᚋbrunstadtv�
 	return ec._Show(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNShow2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShowᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Show) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
 func (ec *executionContext) marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v *model.Show) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -22406,13 +22185,6 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 	}
 	res := graphql.MarshalID(*v)
 	return res
-}
-
-func (ec *executionContext) marshalOImage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImage(ctx context.Context, sel ast.SelectionSet, v *model.Image) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Image(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
