@@ -935,11 +935,13 @@ type UsersDevice struct {
 	Token     string    `db:"token" json:"token"`
 	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
 	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
+	Name      string    `db:"name" json:"name"`
 }
 
 type UsersProfile struct {
 	ID     uuid.UUID `db:"id" json:"id"`
 	UserID string    `db:"user_id" json:"userID"`
+	Name   string    `db:"name" json:"name"`
 }
 
 type Webconfig struct {

@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS "users"."devices"
 (
     "token"      varchar   NOT NULL,
     "profile_id" uuid      NOT NULL,
-    "updated_at" timestamp NOT NULL
+    "updated_at" timestamp NOT NULL,
+    "name"       varchar NOT NULL
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS devices_token_uindex ON users.devices USING btree (token);
@@ -58,6 +59,7 @@ CREATE TABLE IF NOT EXISTS "users"."profiles"
 (
     "id"      uuid    NOT NULL,
     "user_id" varchar NOT NULL,
+    "name"    varchar NOT NULL,
     CONSTRAINT "profiles_pk" PRIMARY KEY (id)
 );
 
@@ -87,7 +89,7 @@ COMMENT ON TABLE "users"."profiles" IS NULL;
 ALTER TABLE "users"."devices"
     ADD CONSTRAINT "devices_profile_id_fk" FOREIGN KEY (profile_id) REFERENCES users.profiles (id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 ALTER TABLE "users"."devices"
-    ADD CONSTRAINT "devices_pk" PRIMARY KEY (token);
+    ADD CONSTRAINT "devices_pk" PRIMARY KEY (token, profile_id);
 
 
 COMMENT ON CONSTRAINT "devices_profile_id_fk" ON "users"."devices" IS NULL;

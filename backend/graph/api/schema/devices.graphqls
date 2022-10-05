@@ -1,0 +1,4 @@
+type Device {
+    token: String!
+    updatedAt: Date!
+}

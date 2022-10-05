@@ -74,6 +74,11 @@ type Config struct {
 	Global *GlobalConfig `json:"global"`
 }
 
+type Device struct {
+	Token     string `json:"token"`
+	UpdatedAt string `json:"updatedAt"`
+}
+
 type Episode struct {
 	ID                string     `json:"id"`
 	LegacyID          *string    `json:"legacyID"`
@@ -237,6 +242,11 @@ type PageItem struct {
 }
 
 func (PageItem) IsItem() {}
+
+type Profile struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
 
 type Question struct {
 	ID       string       `json:"id"`

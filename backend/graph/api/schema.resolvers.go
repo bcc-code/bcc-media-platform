@@ -15,7 +15,43 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
+
+// SetDeviceToken is the resolver for the setDeviceToken field.
+func (r *mutationRootResolver) SetDeviceToken(ctx context.Context, token string) (*model.Device, error) {
+	panic(nil)
+}
+
+// CreateProfile is the resolver for the createProfile field.
+func (r *mutationRootResolver) CreateProfile(ctx context.Context, name string) (*model.Profile, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	u := user.GetFromCtx(ginCtx)
+	if u.IsAnonymous() {
+		return nil, merry.New("anonymous user", merry.WithUserMessage("Anonymous users cannot create profiles"))
+	}
+
+	profile := common.Profile{
+		ID:     uuid.New(),
+		Name:   name,
+		UserID: u.PersonID,
+	}
+
+	err = r.Queries.SaveProfile(ctx, profile)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Profile{
+		ID:   profile.ID.String(),
+		Name: profile.Name,
+	}, nil
+}
 
 // Application is the resolver for the application field.
 func (r *queryRootResolver) Application(ctx context.Context) (*model.Application, error) {
@@ -168,7 +204,41 @@ func (r *queryRootResolver) Config(ctx context.Context) (*model.Config, error) {
 	return &model.Config{}, nil
 }
 
+// Profiles is the resolver for the profiles field.
+func (r *queryRootResolver) Profiles(ctx context.Context) ([]*model.Profile, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	profiles := user.GetProfilesFromCtx(ginCtx)
+
+	return lo.Map(profiles, func(i *common.Profile, _ int) *model.Profile {
+		return &model.Profile{
+			ID:   i.ID.String(),
+			Name: i.Name,
+		}
+	}), nil
+}
+
+// Profile is the resolver for the profile field.
+func (r *queryRootResolver) Profile(ctx context.Context) (*model.Profile, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	profile := user.GetProfileFromCtx(ginCtx)
+
+	return &model.Profile{
+		ID:   profile.ID.String(),
+		Name: profile.Name,
+	}, nil
+}
+
+// MutationRoot returns generated.MutationRootResolver implementation.
+func (r *Resolver) MutationRoot() generated.MutationRootResolver { return &mutationRootResolver{r} }
+
 // QueryRoot returns generated.QueryRootResolver implementation.
 func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
 
+type mutationRootResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }

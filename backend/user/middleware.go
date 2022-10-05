@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/members"
+	"github.com/google/uuid"
 	"strconv"
 	"time"
 
@@ -30,6 +31,8 @@ const (
 	CtxUser      = "ctx-user"
 	CacheRoles   = "roles"
 	CtxLanguages = "ctx-languages"
+	CtxProfiles  = "ctx-profiles"
+	CtxProfile   = "ctx-profile"
 )
 
 var userCache = cache.New[string, *common.User]()
@@ -148,11 +151,12 @@ func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin
 		}
 
 		u := &common.User{
-			PersonID:  pid,
-			Roles:     roles,
-			Email:     email,
-			Anonymous: false,
-			ActiveBCC: ctx.GetBool(auth0.CtxIsBCCMember),
+			PersonID:    pid,
+			DisplayName: member.DisplayName,
+			Roles:       roles,
+			Email:       email,
+			Anonymous:   false,
+			ActiveBCC:   ctx.GetBool(auth0.CtxIsBCCMember),
 		}
 
 		// Add the user to the cache
@@ -170,6 +174,64 @@ func GetFromCtx(ctx *gin.Context) *common.User {
 	}
 
 	return u.(*common.User)
+}
+
+// NewProfileMiddleware prefills context with a profileID
+func NewProfileMiddleware(queries *sqlc.Queries, loaders *common.BatchLoaders) func(*gin.Context) {
+	return func(ctx *gin.Context) {
+		u := GetFromCtx(ctx)
+
+		if u.PersonID == "" {
+			return
+		}
+		profiles, err := common.GetFromLoaderForKey(ctx, loaders.ProfilesLoader, u.PersonID)
+		if err != nil {
+			log.L.Error().Err(err).Msg("Failed to retrieve profiles from loader")
+			return
+		}
+		profileID := ctx.GetHeader("x-profile")
+		profile, found := lo.Find(profiles, func(p *common.Profile) bool {
+			return p.ID.String() == profileID || p.Name == profileID
+		})
+		if !found {
+			if len(profiles) == 0 {
+				profile = &common.Profile{
+					ID:     uuid.New(),
+					Name:   u.DisplayName,
+					UserID: u.PersonID,
+				}
+				profiles = append(profiles, profile)
+				loaders.ProfilesLoader.Prime(ctx, u.PersonID, profiles)
+				err = queries.SaveProfile(ctx, *profile)
+				if err != nil {
+					log.L.Error().Err(err).Msg("Error occurred trying to save new profile")
+				}
+			} else {
+				profile = profiles[0]
+			}
+		}
+
+		ctx.Set(CtxProfiles, profiles)
+		ctx.Set(CtxProfile, profile)
+	}
+}
+
+// GetProfileFromCtx returns the current profile
+func GetProfileFromCtx(ctx *gin.Context) *common.Profile {
+	p, ok := ctx.Get(CtxProfile)
+	if !ok {
+		return nil
+	}
+	return p.(*common.Profile)
+}
+
+// GetProfilesFromCtx returns the current profile
+func GetProfilesFromCtx(ctx *gin.Context) []*common.Profile {
+	p, ok := ctx.Get(CtxProfiles)
+	if !ok {
+		return nil
+	}
+	return p.([]*common.Profile)
 }
 
 // GetLanguagesFromCtx as provided in the request
