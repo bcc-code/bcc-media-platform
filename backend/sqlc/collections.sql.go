@@ -12,7 +12,9 @@ import (
 )
 
 const getCollectionItemsForCollections = `-- name: getCollectionItemsForCollections :many
-SELECT collection_id, date_created, date_updated, episode_id, id, page_id, season_id, show_id, sort, type, user_created, user_updated FROM collections_items ci WHERE ci.collection_id = ANY($1::int[])
+SELECT collection_id, date_created, date_updated, episode_id, id, page_id, season_id, show_id, sort, type, user_created, user_updated
+FROM collections_items ci
+WHERE ci.collection_id = ANY ($1::int[])
 `
 
 func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1 []int32) ([]CollectionsItem, error) {
@@ -51,8 +53,85 @@ func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1
 	return items, nil
 }
 
+const getCollectionItemsForCollectionsWithRoles = `-- name: getCollectionItemsForCollectionsWithRoles :many
+SELECT
+    ci.collection_id, ci.date_created, ci.date_updated, ci.episode_id, ci.id, ci.page_id, ci.season_id, ci.show_id, ci.sort, ci.type, ci.user_created, ci.user_updated
+FROM collections_items ci
+         LEFT JOIN episode_roles er ON er.id = ci.episode_id
+         LEFT JOIN episode_availability ea ON ea.id = ci.episode_id
+         LEFT JOIN season_roles sr ON sr.id = ci.season_id
+         LEFT JOIN season_availability sa ON sa.id = ci.season_id
+         LEFT JOIN show_roles shr ON shr.id = ci.show_id
+         LEFT JOIN show_availability sha ON sha.id = ci.show_id
+WHERE ci.collection_id = ANY ($1::int[])
+  AND (ci.episode_id IS NULL OR (
+        ea.published
+        AND ea.available_to > now()
+        AND (
+                (er.roles && $2::varchar[] AND ea.available_from < now()) OR
+                (er.roles_earlyaccess && $2::varchar[])
+            )))
+  AND (ci.season_id IS NULL OR (
+        sa.published
+        AND sa.available_to > now()
+        AND (
+                (sr.roles && $2::varchar[] AND sa.available_from < now()) OR
+                (sr.roles_earlyaccess && $2::varchar[])
+            )))
+  AND (ci.show_id IS NULL OR (
+        sha.published
+        AND sha.available_to > now()
+        AND (
+                (shr.roles && $2::varchar[] AND sha.available_from < now()) OR
+                (shr.roles_earlyaccess && $2::varchar[])
+            )))
+`
+
+type getCollectionItemsForCollectionsWithRolesParams struct {
+	Column1 []int32  `db:"column_1" json:"column1"`
+	Column2 []string `db:"column_2" json:"column2"`
+}
+
+func (q *Queries) getCollectionItemsForCollectionsWithRoles(ctx context.Context, arg getCollectionItemsForCollectionsWithRolesParams) ([]CollectionsItem, error) {
+	rows, err := q.db.QueryContext(ctx, getCollectionItemsForCollectionsWithRoles, pq.Array(arg.Column1), pq.Array(arg.Column2))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []CollectionsItem
+	for rows.Next() {
+		var i CollectionsItem
+		if err := rows.Scan(
+			&i.CollectionID,
+			&i.DateCreated,
+			&i.DateUpdated,
+			&i.EpisodeID,
+			&i.ID,
+			&i.PageID,
+			&i.SeasonID,
+			&i.ShowID,
+			&i.Sort,
+			&i.Type,
+			&i.UserCreated,
+			&i.UserUpdated,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getCollections = `-- name: getCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter FROM collections c WHERE c.id = ANY($1::int[])
+SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter
+FROM collections c
+WHERE c.id = ANY ($1::int[])
 `
 
 func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Collection, error) {
@@ -93,7 +172,8 @@ func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 }
 
 const listCollections = `-- name: listCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter FROM collections
+SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter
+FROM collections
 `
 
 func (q *Queries) listCollections(ctx context.Context) ([]Collection, error) {

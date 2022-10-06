@@ -80,6 +80,20 @@ func (q *Queries) GetSeasonIDsForShows(ctx context.Context, ids []int) ([]common
 	}), nil
 }
 
+// GetSeasonIDsForShowsWithRoles returns episodeIDs for season filtered by roles
+func (q *Queries) GetSeasonIDsForShowsWithRoles(ctx context.Context, ids []int, roles []string) ([]common.Relation[int, int], error) {
+	rows, err := q.getSeasonIDsForShowsWithRoles(ctx, getSeasonIDsForShowsWithRolesParams{
+		Column1: intToInt32(ids),
+		Column2: roles,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getSeasonIDsForShowsWithRolesRow, _ int) common.Relation[int, int] {
+		return getSeasonIDsForShowsRow(i)
+	}), nil
+}
+
 // GetPermissionsForSeasons returns permissions for specified episodes
 func (q *Queries) GetPermissionsForSeasons(ctx context.Context, ids []int) ([]common.Permissions[int], error) {
 	items, err := q.getPermissionsForSeasons(ctx, intToInt32(ids))

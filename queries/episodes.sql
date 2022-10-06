@@ -89,7 +89,7 @@ FROM episodes e
 WHERE e.season_id = ANY ($1::int[])
 ORDER BY e.episode_number;
 
--- name: getPermissionsForEpisodes :many
+-- name: getEpisodeIDsForSeasonsWithRoles :many
 WITH er AS (SELECT e.id,
                    COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
                              FROM episodes_usergroups eu
@@ -114,6 +114,21 @@ WITH er AS (SELECT e.id,
                      LEFT JOIN seasons se ON e.season_id = se.id
                      LEFT JOIN shows s ON se.show_id = s.id)
 SELECT e.id,
+       e.season_id
+FROM episodes e
+         LEFT JOIN ea access ON access.id = e.id
+         LEFT JOIN er roles ON roles.id = e.id
+WHERE season_id = ANY ($1::int[])
+  AND access.published
+  AND access.available_to > now()
+  AND (
+        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+        (roles.roles_earlyaccess && $2::varchar[])
+    )
+ORDER BY e.episode_number;
+
+-- name: getPermissionsForEpisodes :many
+SELECT e.id,
        access.published::bool             AS published,
        access.available_from::timestamp   AS available_from,
        access.available_to::timestamp     AS available_to,
@@ -121,8 +136,8 @@ SELECT e.id,
        roles.roles_download::varchar[]    AS usergroups_downloads,
        roles.roles_earlyaccess::varchar[] AS usergroups_earlyaccess
 FROM episodes e
-         LEFT JOIN ea access ON access.id = e.id
-         LEFT JOIN er roles ON roles.id = e.id
+         LEFT JOIN episode_availability access ON access.id = e.id
+         LEFT JOIN episode_roles roles ON roles.id = e.id
 WHERE e.id = ANY ($1::int[]);
 
 -- name: RefreshEpisodeAccessView :one
