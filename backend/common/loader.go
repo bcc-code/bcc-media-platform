@@ -20,8 +20,6 @@ type BatchLoaders struct {
 	ShowLoader                  *dataloader.Loader[int, *Show]
 	SeasonLoader                *dataloader.Loader[int, *Season]
 	EpisodeLoader               *dataloader.Loader[int, *Episode]
-	SeasonsLoader               *dataloader.Loader[int, []*int]
-	EpisodesLoader              *dataloader.Loader[int, []*int]
 	FilesLoader                 *dataloader.Loader[int, []*File]
 	StreamsLoader               *dataloader.Loader[int, []*Stream]
 	EventLoader                 *dataloader.Loader[int, *Event]

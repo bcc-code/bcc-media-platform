@@ -271,8 +271,6 @@ func main() {
 		CollectionLoader:     collectionLoader,
 		CollectionItemLoader: collection.NewItemListBatchLoader(*queries),
 		// Relations
-		SeasonsLoader:  common.NewRelationBatchLoader(queries.GetSeasonIDsForShows),
-		EpisodesLoader: common.NewRelationBatchLoader(queries.GetEpisodeIDsForSeasons),
 		SectionsLoader: common.NewRelationBatchLoader(queries.GetSectionIDsForPages),
 		// Permissions
 		ShowPermissionLoader:    show.NewPermissionLoader(*queries),
