@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
@@ -106,6 +107,7 @@ SELECT s.id,
        s.style,
        s.size,
        s.grid_size,
+       s.show_title,
        s.sort,
        s.status::text = 'published'::text AS published,
        s.collection_id,
@@ -125,6 +127,7 @@ type getSectionsRow struct {
 	Style        null_v4.String        `db:"style" json:"style"`
 	Size         null_v4.String        `db:"size" json:"size"`
 	GridSize     null_v4.String        `db:"grid_size" json:"gridSize"`
+	ShowTitle    sql.NullBool          `db:"show_title" json:"showTitle"`
 	Sort         null_v4.Int           `db:"sort" json:"sort"`
 	Published    bool                  `db:"published" json:"published"`
 	CollectionID null_v4.Int           `db:"collection_id" json:"collectionID"`
@@ -147,6 +150,7 @@ func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSecti
 			&i.Style,
 			&i.Size,
 			&i.GridSize,
+			&i.ShowTitle,
 			&i.Sort,
 			&i.Published,
 			&i.CollectionID,

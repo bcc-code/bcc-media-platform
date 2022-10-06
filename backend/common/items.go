@@ -186,6 +186,7 @@ type Section struct {
 	Sort         int          `json:"sort"`
 	PageID       int          `json:"pageId"`
 	Type         string       `json:"type"`
+	ShowTitle    bool         `json:"showTitle"`
 	Title        LocaleString `json:"title"`
 	Description  LocaleString `json:"description"`
 	Style        string       `json:"style"`
