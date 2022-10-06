@@ -42,10 +42,17 @@ func (r *mutationRootResolver) CreateProfile(ctx context.Context, name string) (
 		UserID: u.PersonID,
 	}
 
+	profiles := user.GetProfilesFromCtx(ginCtx)
+
 	err = r.Queries.SaveProfile(ctx, profile)
 	if err != nil {
 		return nil, err
 	}
+
+	profiles = append(profiles, &profile)
+
+	r.Loaders.ProfilesLoader.Clear(ctx, u.PersonID)
+	r.Loaders.ProfilesLoader.Prime(ctx, u.PersonID, profiles)
 
 	return &model.Profile{
 		ID:   profile.ID.String(),

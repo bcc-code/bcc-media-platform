@@ -46,7 +46,6 @@ COMMENT ON COLUMN "users"."devices"."updated_at" IS NULL;
 
 COMMENT ON INDEX "users"."devices_token_uindex" IS NULL;
 
-
 COMMENT ON INDEX "users"."devices_updated_at_uindex" IS NULL;
 
 COMMENT ON TABLE "users"."devices" IS NULL;
@@ -99,3 +98,9 @@ COMMENT ON CONSTRAINT "devices_pk" ON "users"."devices" IS NULL;
 
 --- END CREATE TABLE "users"."profiles" ---
 -- +goose Down
+
+DROP TABLE users.devices;
+
+DROP TABLE users.profiles;
+
+DROP SCHEMA users;
