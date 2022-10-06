@@ -78,10 +78,68 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 	}, nil
 }
 
+func sectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, section *common.Section, first *int, offset *int) (*utils.PaginationResult[*model.SectionItem], error) {
+	if !section.CollectionID.Valid {
+		return nil, nil
+	}
+
+	collectionID := int(section.CollectionID.Int64)
+
+	entries, err := collection.GetCollectionEntries(ctx, loaders, filteredLoaders, collectionID)
+	if err != nil {
+		return nil, err
+	}
+
+	pagination := utils.Paginate(entries, first, offset, nil)
+
+	preloadLoaders(ctx, loaders, pagination.Items)
+
+	var items []*model.SectionItem
+	for _, e := range pagination.Items {
+		var item *model.SectionItem
+		switch e.Type {
+		case "page":
+			i, err := common.GetFromLoaderByID(ctx, loaders.PageLoader, e.ID)
+			if err != nil {
+				return nil, err
+			}
+			item = model.PageSectionItemFrom(ctx, i, e.Sort, section.Style)
+		case "show":
+			i, err := common.GetFromLoaderByID(ctx, loaders.ShowLoader, e.ID)
+			if err != nil {
+				return nil, err
+			}
+			item = model.ShowSectionItemFrom(ctx, i, e.Sort, section.Style)
+		case "season":
+			i, err := common.GetFromLoaderByID(ctx, loaders.SeasonLoader, e.ID)
+			if err != nil {
+				return nil, err
+			}
+			item = model.SeasonSectionItemFrom(ctx, i, e.Sort, section.Style)
+		case "episode":
+			i, err := common.GetFromLoaderByID(ctx, loaders.EpisodeLoader, e.ID)
+			if err != nil {
+				return nil, err
+			}
+			item = model.EpisodeSectionItemFrom(ctx, i, e.Sort, section.Style)
+		}
+		if item != nil {
+			items = append(items, item)
+		}
+	}
+
+	return &utils.PaginationResult[*model.SectionItem]{
+		Total:  pagination.Total,
+		First:  pagination.First,
+		Offset: pagination.Offset,
+		Items:  items,
+	}, nil
+}
+
 func collectionItemResolverFromCollection(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[model.Item], error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 
-	return collectionEntryResolver(ctx, r.Loaders, int(int64ID), first, offset)
+	return collectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), int(int64ID), first, offset)
 }
 
 func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[*model.SectionItem], error) {
@@ -92,9 +150,5 @@ func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, 
 		return nil, err
 	}
 
-	if !section.CollectionID.Valid {
-		return nil, nil
-	}
-
-	return collectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), int(section.CollectionID.Int64), first, offset)
+	return sectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), section, first, offset)
 }
