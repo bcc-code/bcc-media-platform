@@ -14,8 +14,6 @@ ALTER TABLE IF EXISTS "public"."sections_links" ALTER COLUMN "title" SET NOT NUL
 
 COMMENT ON COLUMN "public"."sections_links"."title"  IS NULL;
 
-ALTER TABLE IF EXISTS "public"."sections_links" OWNER TO btv;
-
 --- END ALTER TABLE "public"."sections_links" ---
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
