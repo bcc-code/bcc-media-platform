@@ -71,7 +71,7 @@ func getEntriesWithAccess(ctx context.Context, loaders *common.BatchLoaders, ent
 
 func sectionCollectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, section *common.Section, first *int, offset *int) (*utils.PaginationResult[*model.SectionItem], error) {
 	if !section.CollectionID.Valid {
-		return nil, nil
+		return &utils.PaginationResult[*model.SectionItem]{}, nil
 	}
 
 	entries, err := collection.GetCollectionEntries(ctx, loaders, int(section.CollectionID.ValueOrZero()))
@@ -181,6 +181,48 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 	}, nil
 }
 
+func sectionLinkEntryResolver(ctx context.Context, loaders *common.BatchLoaders, section *common.Section, first *int, offset *int) (*utils.PaginationResult[model.LinkItem], error) {
+	links, err := common.GetFromLoaderForKey(ctx, loaders.SectionLinksLoader, section.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var items []model.LinkItem
+	for _, l := range links {
+		var icon *string
+		if l.Icon.Valid {
+			icon = &l.Icon.String
+		}
+
+		if l.PageID.Valid {
+			items = append(items, &model.PageLinkItem{
+				ID:    strconv.Itoa(int(l.PageID.Int64)),
+				Icon:  icon,
+				Title: l.Title,
+				Page: &model.Page{
+					ID: strconv.Itoa(int(l.PageID.Int64)),
+				},
+			})
+		} else {
+			items = append(items, &model.URLLinkItem{
+				ID:    strconv.Itoa(l.ID),
+				Icon:  icon,
+				Title: l.Title,
+				URL:   l.URL.String,
+			})
+		}
+	}
+
+	pagination := utils.Paginate(items, first, offset, nil)
+
+	return &utils.PaginationResult[model.LinkItem]{
+		Total:  pagination.Total,
+		First:  pagination.First,
+		Offset: pagination.Offset,
+		Items:  pagination.Items,
+	}, nil
+}
+
 func collectionItemResolverFromCollection(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[model.Item], error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 
@@ -196,4 +238,15 @@ func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, 
 	}
 
 	return sectionCollectionEntryResolver(ctx, r.Loaders, section, first, offset)
+}
+
+func sectionLinkItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[model.LinkItem], error) {
+	int64ID, _ := strconv.ParseInt(id, 10, 32)
+
+	section, err := common.GetFromLoaderByID(ctx, r.Loaders.SectionLoader, int(int64ID))
+	if err != nil {
+		return nil, err
+	}
+
+	return sectionLinkEntryResolver(ctx, r.Loaders, section, first, offset)
 }

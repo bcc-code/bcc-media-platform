@@ -215,7 +215,7 @@ func itemsResolverFor[k comparable, kr comparable, t any, r any](ctx context.Con
 
 	items, err := common.GetManyFromLoader(ctx, loaders.Item, ids)
 
-	return utils.MapWithCtx(ctx, items, converter), nil
+	return utils.MapWithCtx(ctx, items, converter), err
 }
 
 func itemsResolverForIntID[t any, r any](ctx context.Context, loaders *itemLoaders[int, t], listLoader *dataloader.Loader[int, []*int], id string, converter func(context.Context, *t) r) ([]r, error) {

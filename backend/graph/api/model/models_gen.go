@@ -12,10 +12,6 @@ type CalendarEntry interface {
 	IsCalendarEntry()
 }
 
-type IconItem interface {
-	IsIconItem()
-}
-
 type Item interface {
 	IsItem()
 }
@@ -25,8 +21,8 @@ type ItemSection interface {
 	IsItemSection()
 }
 
-type LabelItem interface {
-	IsLabelItem()
+type LinkItem interface {
+	IsLinkItem()
 }
 
 type LinkSection interface {
@@ -248,8 +244,9 @@ func (GridSection) IsSection()     {}
 func (GridSection) IsItemSection() {}
 
 type IconSection struct {
-	ID    string  `json:"id"`
-	Title *string `json:"title"`
+	ID    string              `json:"id"`
+	Title *string             `json:"title"`
+	Items *LinkItemPagination `json:"items"`
 }
 
 func (IconSection) IsSection()     {}
@@ -260,23 +257,23 @@ type Image struct {
 	URL   string `json:"url"`
 }
 
-type LabelItemPagination struct {
-	Total  int         `json:"total"`
-	First  int         `json:"first"`
-	Offset int         `json:"offset"`
-	Items  []LabelItem `json:"items"`
-}
-
-func (LabelItemPagination) IsPagination() {}
-
 type LabelSection struct {
-	ID    string               `json:"id"`
-	Title *string              `json:"title"`
-	Items *LabelItemPagination `json:"items"`
+	ID    string              `json:"id"`
+	Title *string             `json:"title"`
+	Items *LinkItemPagination `json:"items"`
 }
 
 func (LabelSection) IsSection()     {}
 func (LabelSection) IsLinkSection() {}
+
+type LinkItemPagination struct {
+	Total  int        `json:"total"`
+	First  int        `json:"first"`
+	Offset int        `json:"offset"`
+	Items  []LinkItem `json:"items"`
+}
+
+func (LinkItemPagination) IsPagination() {}
 
 type MaintenanceMessage struct {
 	Message string  `json:"message"`
@@ -308,13 +305,14 @@ type PageItem struct {
 
 func (PageItem) IsItem() {}
 
-type PageLabelItem struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
-	Page  *Page  `json:"page"`
+type PageLinkItem struct {
+	ID    string  `json:"id"`
+	Title string  `json:"title"`
+	Icon  *string `json:"icon"`
+	Page  *Page   `json:"page"`
 }
 
-func (PageLabelItem) IsLabelItem() {}
+func (PageLinkItem) IsLinkItem() {}
 
 type PosterSection struct {
 	ID    string                 `json:"id"`
@@ -525,13 +523,14 @@ type URLItem struct {
 
 func (URLItem) IsItem() {}
 
-type URLLabelItem struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
-	URL   string `json:"url"`
+type URLLinkItem struct {
+	ID    string  `json:"id"`
+	Title string  `json:"title"`
+	Icon  *string `json:"icon"`
+	URL   string  `json:"url"`
 }
 
-func (URLLabelItem) IsLabelItem() {}
+func (URLLinkItem) IsLinkItem() {}
 
 type User struct {
 	ID        *string   `json:"id"`
