@@ -28,16 +28,7 @@ func preloadLoaders(ctx context.Context, loaders *common.BatchLoaders, entries [
 	}
 }
 
-func sectionCollectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, section *common.Section, first *int, offset *int) (*utils.PaginationResult[*model.SectionItem], error) {
-	if !section.CollectionID.Valid {
-		return nil, nil
-	}
-
-	entries, err := collection.GetCollectionEntries(ctx, loaders, int(section.CollectionID.ValueOrZero()))
-	if err != nil {
-		return nil, err
-	}
-
+func getEntriesWithAccess(ctx context.Context, loaders *common.BatchLoaders, entries []collection.Entry) []collection.Entry {
 	for _, e := range entries {
 		switch e.Type {
 		case common.TypePage:
@@ -74,6 +65,21 @@ func sectionCollectionEntryResolver(ctx context.Context, loaders *common.BatchLo
 			returnEntries = append(returnEntries, e)
 		}
 	}
+
+	return returnEntries
+}
+
+func sectionCollectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, section *common.Section, first *int, offset *int) (*utils.PaginationResult[*model.SectionItem], error) {
+	if !section.CollectionID.Valid {
+		return nil, nil
+	}
+
+	entries, err := collection.GetCollectionEntries(ctx, loaders, int(section.CollectionID.ValueOrZero()))
+	if err != nil {
+		return nil, err
+	}
+
+	returnEntries := getEntriesWithAccess(ctx, loaders, entries)
 
 	pagination := utils.Paginate(returnEntries, first, offset, nil)
 
@@ -127,42 +133,7 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 		return nil, err
 	}
 
-	for _, e := range entries {
-		switch e.Type {
-		case common.TypePage:
-			loaders.PagePermissionLoader.Load(ctx, e.ID)
-		case common.TypeShow:
-			loaders.ShowPermissionLoader.Load(ctx, e.ID)
-		case common.TypeSeason:
-			loaders.SeasonPermissionLoader.Load(ctx, e.ID)
-		case common.TypeEpisode:
-			loaders.EpisodePermissionLoader.Load(ctx, e.ID)
-		case common.TypeSection:
-			loaders.SectionPermissionLoader.Load(ctx, e.ID)
-		}
-	}
-
-	var returnEntries []collection.Entry
-	for _, e := range entries {
-		var success bool
-		switch e.Type {
-		case common.TypePage:
-			success = user.ValidateAccess(ctx, loaders.PagePermissionLoader, e.ID) == nil
-		case common.TypeShow:
-			success = user.ValidateAccess(ctx, loaders.ShowPermissionLoader, e.ID) == nil
-		case common.TypeSeason:
-			success = user.ValidateAccess(ctx, loaders.SeasonPermissionLoader, e.ID) == nil
-		case common.TypeEpisode:
-			success = user.ValidateAccess(ctx, loaders.EpisodePermissionLoader, e.ID) == nil
-		case common.TypeSection:
-			success = user.ValidateAccess(ctx, loaders.SectionPermissionLoader, e.ID) == nil
-		default:
-			log.L.Error().Str("type", string(e.Type)).Msg("Invalid/unsupported entry type in collection")
-		}
-		if success {
-			returnEntries = append(returnEntries, e)
-		}
-	}
+	returnEntries := getEntriesWithAccess(ctx, loaders, entries)
 
 	pagination := utils.Paginate(returnEntries, first, offset, nil)
 
