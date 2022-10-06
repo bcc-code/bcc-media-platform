@@ -856,6 +856,7 @@ type SectionsLink struct {
 	Url         null_v4.String `db:"url" json:"url"`
 	SectionID   int32          `db:"section_id" json:"sectionID"`
 	Icon        uuid.NullUUID  `db:"icon" json:"icon"`
+	Title       string         `db:"title" json:"title"`
 }
 
 type SectionsTranslation struct {

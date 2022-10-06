@@ -1,45 +1,56 @@
-fragment EpisodeItem on EpisodeItem {
-    episode {
-        number
-        season {
-            show {
-                title
+fragment EpisodeItem on SectionItem {
+    item {
+        ... on Episode {
+            episodeNumber: number
+            season {
+                show {
+                    title
+                }
+                number
             }
-            number
         }
     }
 }
 
-fragment SeasonItem on SeasonItem {
-    season {
-        number
-        show {
+fragment SeasonItem on SectionItem {
+    item {
+        ... on Season {
+            seasonNumber: number
+            show {
+                title
+            }
+        }
+    }
+}
+
+fragment ShowItem on SectionItem {
+    item {
+        ... on Show {
             title
         }
     }
 }
 
-fragment ShowItem on ShowItem {
-    show {
-        title
-    }
-}
-
-fragment PageItem on PageItem {
-    page {
-        code
+fragment PageItem on SectionItem {
+    item {
+        ... on Page {
+            code
+        }
     }
 }
 
 fragment Section on ItemSection {
-    style
+    __typename
     items {
         items {
             __typename
             id
             title
-            imageUrl
+            image
             sort
+            item {
+                __typename
+            }
             ...EpisodeItem
             ...SeasonItem
             ...ShowItem
@@ -54,6 +65,7 @@ query getPage($code: String!) {
         title
         sections {
             items {
+                __typename
                 id
                 title
                 ...Section

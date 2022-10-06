@@ -77,7 +77,23 @@ func (r *gridSectionResolver) Items(ctx context.Context, obj *model.GridSection,
 }
 
 // Items is the resolver for the items field.
-func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSection) (*model.LabelItemPagination, error) {
+func (r *iconSectionResolver) Items(ctx context.Context, obj *model.IconSection, first *int, offset *int) (*model.LinkItemPagination, error) {
+	pagination, err := sectionLinkItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.LinkItemPagination{
+		Total:  pagination.Total,
+		First:  pagination.First,
+		Offset: pagination.Offset,
+		Items:  pagination.Items,
+	}, nil
+}
+
+// Items is the resolver for the items field.
+func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int) (*model.LinkItemPagination, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
@@ -100,8 +116,8 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 }
 
 // Page is the resolver for the page field.
-func (r *pageLabelItemResolver) Page(ctx context.Context, obj *model.PageLabelItem) (*model.Page, error) {
-	return r.QueryRoot().Page(ctx, &obj.ID, nil)
+func (r *pageLinkItemResolver) Page(ctx context.Context, obj *model.PageLinkItem) (*model.Page, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 // Items is the resolver for the items field.
@@ -136,14 +152,17 @@ func (r *Resolver) FeaturedSection() generated.FeaturedSectionResolver {
 // GridSection returns generated.GridSectionResolver implementation.
 func (r *Resolver) GridSection() generated.GridSectionResolver { return &gridSectionResolver{r} }
 
+// IconSection returns generated.IconSectionResolver implementation.
+func (r *Resolver) IconSection() generated.IconSectionResolver { return &iconSectionResolver{r} }
+
 // LabelSection returns generated.LabelSectionResolver implementation.
 func (r *Resolver) LabelSection() generated.LabelSectionResolver { return &labelSectionResolver{r} }
 
 // Page returns generated.PageResolver implementation.
 func (r *Resolver) Page() generated.PageResolver { return &pageResolver{r} }
 
-// PageLabelItem returns generated.PageLabelItemResolver implementation.
-func (r *Resolver) PageLabelItem() generated.PageLabelItemResolver { return &pageLabelItemResolver{r} }
+// PageLinkItem returns generated.PageLinkItemResolver implementation.
+func (r *Resolver) PageLinkItem() generated.PageLinkItemResolver { return &pageLinkItemResolver{r} }
 
 // PosterSection returns generated.PosterSectionResolver implementation.
 func (r *Resolver) PosterSection() generated.PosterSectionResolver { return &posterSectionResolver{r} }
@@ -152,7 +171,8 @@ type collectionResolver struct{ *Resolver }
 type defaultSectionResolver struct{ *Resolver }
 type featuredSectionResolver struct{ *Resolver }
 type gridSectionResolver struct{ *Resolver }
+type iconSectionResolver struct{ *Resolver }
 type labelSectionResolver struct{ *Resolver }
 type pageResolver struct{ *Resolver }
-type pageLabelItemResolver struct{ *Resolver }
+type pageLinkItemResolver struct{ *Resolver }
 type posterSectionResolver struct{ *Resolver }

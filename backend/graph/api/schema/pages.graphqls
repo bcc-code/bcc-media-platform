@@ -26,47 +26,46 @@ type SectionPagination implements Pagination {
 interface LinkSection implements Section {
     id: ID!
     title: String
+    items(first: Int, offset: Int): LinkItemPagination! @goField(forceResolver: true)
 }
 
 type IconSection implements Section & LinkSection {
     id: ID!
     title: String
+    items(first: Int, offset: Int): LinkItemPagination! @goField(forceResolver: true)
 }
 
-interface LabelItem {
-    id: ID!
-    title: String!
-}
-
-interface IconItem {
+interface LinkItem {
     id: ID!
     title: String!
     icon: String
 }
 
-type PageLabelItem implements LabelItem {
+type PageLinkItem implements LinkItem {
     id: ID!
     title: String!
+    icon: String
     page: Page! @goField(forceResolver: true)
 }
 
-type URLLabelItem implements LabelItem {
+type URLLinkItem implements LinkItem {
     id: ID!
     title: String!
+    icon: String
     url: String!
 }
 
-type LabelItemPagination implements Pagination {
+type LinkItemPagination implements Pagination {
     total: Int!
     first: Int!
     offset: Int!
-    items: [LabelItem!]!
+    items: [LinkItem!]!
 }
 
 type LabelSection implements Section & LinkSection {
     id: ID!
     title: String
-    items: LabelItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int): LinkItemPagination! @goField(forceResolver: true)
 }
 
 # ITEM SECTION

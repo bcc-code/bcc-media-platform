@@ -97,3 +97,22 @@ func (q *Queries) GetPermissionsForSections(ctx context.Context, ids []int) ([]c
 		}
 	}), nil
 }
+
+// GetLinksForSections returns links for sections
+func (q *Queries) GetLinksForSections(ctx context.Context, ids []int) ([]common.SectionLink, error) {
+	rows, err := q.getLinksForSection(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(rows, func(i getLinksForSectionRow, _ int) common.SectionLink {
+		return common.SectionLink{
+			ID:        int(i.ID),
+			Title:     i.Title,
+			SectionID: int(i.SectionID),
+			PageID:    i.PageID,
+			URL:       i.Url,
+			Icon:      i.FilenameDisk,
+		}
+	}), nil
+}

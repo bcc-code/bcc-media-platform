@@ -5,7 +5,7 @@ WITH t AS (SELECT ts.sections_id,
            FROM sections_translations ts
            GROUP BY ts.sections_id)
 SELECT s.id,
-       p.id::int                    AS page_id,
+       p.id::int                          AS page_id,
        s.style,
        s.size,
        s.grid_size,
@@ -23,7 +23,7 @@ WHERE s.id = ANY ($1::int[])
   AND p.status = 'published';
 
 -- name: getSectionIDsForPages :many
-SELECT s.id::int       AS id,
+SELECT s.id::int AS id,
        p.id::int AS page_id
 FROM sections s
          JOIN pages p ON s.page_id = p.id
@@ -46,3 +46,14 @@ WHERE s.id = ANY ($1::int[])
   AND s.status = 'published'
   AND p.status = 'published';
 
+-- name: getLinksForSection :many
+SELECT
+    sl.id,
+    sl.section_id,
+    sl.page_id,
+    sl.title,
+    sl.url,
+    df.filename_disk
+FROM sections_links sl
+    LEFT JOIN directus_files df on sl.icon = df.id
+WHERE sl.section_id = ANY ($1::int[]);
