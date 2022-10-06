@@ -3,44 +3,41 @@
         <div
             class="aspect-[4/7] rounded rounded-xl bg-cover bg-center bg-no-repeat"
             :style="{
-                'background-image': item.imageUrl
-                    ? 'url(\'' + item.imageUrl + '\')'
+                'background-image': item.image
+                    ? 'url(\'' + item.image + '\')'
                     : '',
             }"
         ></div>
         <div class="m-4">
+            
             <div class="text-sm truncate text-primary">
                 <p
-                    v-if="
-                        item.__typename === 'EpisodeItem' &&
-                        item.episode.season &&
-                        item.episode.number
-                    "
+                    v-if="item.item?.__typename == 'Episode' && item.item.season && item.item.episodeNumber"
                 >
-                    {{ item.episode.season.show.title }}
+                    {{ item.item.season.show.title }}
                     <span class="text-sm text-gray"
-                        >S{{ item.episode.season.number }}:E{{
-                            item.episode.number
+                        >S{{ item.item.season.number }}:E{{
+                            item.item.episodeNumber
                         }}</span
                     >
                 </p>
                 <p
                     v-else-if="
-                        item.__typename === 'SeasonItem' &&
-                        item.season.show &&
-                        item.season.number
+                        item.item?.__typename === 'Season' &&
+                        item.item.show &&
+                        item.item.seasonNumber
                     "
                 >
-                    {{ item.season.show.title }}
+                    {{ item.item.show.title }}
                     <span class="text-sm text-gray"
-                        >S{{ item.season.number }}</span
+                        >S{{ item.item.seasonNumber }}</span
                     >
                 </p>
-                <p v-else-if="item.__typename === 'PageItem'">
-                    {{ item.page.code }}
+                <p v-else-if="item.item?.__typename === 'Page'">
+                    {{ item.item.code }}
                 </p>
                 <p v-else>
-                    {{ item.__typename }}
+                    {{ item.item?.__typename }}
                 </p>
             </div>
             <p class="truncate">{{ item.title }}</p>
@@ -55,7 +52,7 @@ const props = defineProps<{
     item: SectionItem
 }>()
 
-if (!props.item.imageUrl) {
-    props.item.imageUrl = randomImageUrl()
+if (!props.item.image) {
+    props.item.image = randomImageUrl()
 }
 </script>

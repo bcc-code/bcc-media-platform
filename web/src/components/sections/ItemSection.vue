@@ -1,19 +1,19 @@
 <template>
     <div>
         <HeaderSection
-            v-if="section.style === 'featured'"
+            v-if="section.__typename == 'FeaturedSection'"
             :items="section.items.items"
             :click="view"
         ></HeaderSection>
         <SwiperSection
             v-else-if="
-                section.style === 'slider' || section.style === 'carousel'
+                section.__typename === 'DefaultSection'
             "
             :section="section"
             :click="view"
         ></SwiperSection>
         <CardSection
-            v-else-if="section.style === 'cards'"
+            v-else-if="section.__typename === 'PosterSection'"
             :click="view"
             :section="section"
         >
@@ -34,8 +34,8 @@ defineProps<{
 const router = useRouter()
 
 const view = (item: SectionItem) => {
-    switch (item.__typename) {
-        case "EpisodeItem":
+    switch (item.item?.__typename) {
+        case "Episode":
             router.push({
                 name: "episode-page",
                 params: {
@@ -43,7 +43,7 @@ const view = (item: SectionItem) => {
                 },
             })
             break
-        case "SeasonItem":
+        case "Season":
             router.push({
                 name: "season-page",
                 params: {
@@ -51,7 +51,7 @@ const view = (item: SectionItem) => {
                 },
             })
             break
-        case "ShowItem":
+        case "Show":
             router.push({
                 name: "show-page",
                 params: {
@@ -59,21 +59,13 @@ const view = (item: SectionItem) => {
                 },
             })
             break
-        case "PageItem":
+        case "Page":
             router.push({
                 name: "page",
                 params: {
-                    pageId: item.page.code,
+                    pageId: item.item.code,
                 },
             })
-            break
-        case "URLItem":
-            // router.push({
-            //     name: "episode-page",
-            //     params: {
-            //         episodeId: item.id,
-            //     }
-            // })
             break
     }
 }

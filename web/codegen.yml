@@ -8,3 +8,4 @@ generates:
             - typescript-vue-urql
         config:
             skipTypename: true
+            experimentalFragmentVariables: true
