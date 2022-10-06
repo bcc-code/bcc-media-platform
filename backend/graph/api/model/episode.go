@@ -89,3 +89,19 @@ func EpisodeItemFrom(ctx context.Context, e *common.Episode, sort int) *EpisodeI
 		Sort:     sort,
 	}
 }
+
+// EpisodeSectionItemFrom returns a SectionItem
+func EpisodeSectionItemFrom(ctx context.Context, s *common.Episode, sort int, sectionStyle string) *SectionItem {
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	episode := EpisodeFrom(ctx, s)
+
+	return &SectionItem{
+		ID:    episode.ID,
+		Item:  episode,
+		Title: episode.Title,
+		Image: s.Images.GetDefault(languages, sectionStyle),
+		Sort:  sort,
+	}
+}

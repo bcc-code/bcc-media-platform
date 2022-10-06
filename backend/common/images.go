@@ -11,3 +11,21 @@ func (i Images) GetForLanguages(languages []string) map[string]*string {
 	}
 	return images
 }
+
+// GetDefault returns the default image for language and style
+func (i Images) GetDefault(languages []string, style string) *string {
+	images := i.GetForLanguages(languages)
+
+	img, ok := images[style]
+	if ok {
+		return img
+	}
+	img, ok = images["default"]
+	if ok {
+		return img
+	}
+	for _, fb := range images {
+		return fb
+	}
+	return nil
+}

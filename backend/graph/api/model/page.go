@@ -32,3 +32,16 @@ func PageItemFrom(ctx context.Context, p *common.Page, sort int) *PageItem {
 		Sort:  sort,
 	}
 }
+
+// PageSectionItemFrom returns a SectionItem from common.Page
+func PageSectionItemFrom(ctx context.Context, p *common.Page, sort int, sectionStyle string) *SectionItem {
+	page := PageFrom(ctx, p)
+
+	return &SectionItem{
+		ID:    page.ID,
+		Title: page.Title,
+		Image: nil,
+		Item:  page,
+		Sort:  sort,
+	}
+}
