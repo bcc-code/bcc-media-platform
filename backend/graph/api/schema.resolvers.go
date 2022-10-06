@@ -6,6 +6,7 @@ package graph
 import (
 	"context"
 	"strconv"
+	"time"
 
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/applications"
@@ -19,9 +20,34 @@ import (
 	"github.com/samber/lo"
 )
 
-// SetDeviceToken is the resolver for the setDeviceToken field.
-func (r *mutationRootResolver) SetDeviceToken(ctx context.Context, token string) (*model.Device, error) {
-	panic(nil)
+// SetDevice is the resolver for the setDevice field.
+func (r *mutationRootResolver) SetDevice(ctx context.Context, device model.DeviceInput) (*model.Device, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	profile := user.GetProfileFromCtx(ginCtx)
+	if profile == nil {
+		return nil, merry.New(
+			"profile is null",
+			merry.WithUserMessage("device must be connected to a profile, which is not supported by anonymous accounts"),
+		)
+	}
+	d := common.Device{
+		Token:     device.Token,
+		ProfileID: profile.ID,
+		Name:      device.Name,
+		UpdatedAt: time.Now(),
+	}
+	err = r.Queries.SaveDevice(ginCtx, d)
+	if err != nil {
+		return nil, err
+	}
+	return &model.Device{
+		Token:     d.Token,
+		UpdatedAt: d.UpdatedAt.Format(time.RFC3339),
+		Name:      d.Name,
+	}, nil
 }
 
 // CreateProfile is the resolver for the createProfile field.

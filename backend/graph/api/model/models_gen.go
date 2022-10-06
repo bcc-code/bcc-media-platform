@@ -76,7 +76,13 @@ type Config struct {
 
 type Device struct {
 	Token     string `json:"token"`
+	Name      string `json:"name"`
 	UpdatedAt string `json:"updatedAt"`
+}
+
+type DeviceInput struct {
+	Token string `json:"token"`
+	Name  string `json:"name"`
 }
 
 type Episode struct {
