@@ -58,6 +58,7 @@ type ResolverRoot interface {
 	Season() SeasonResolver
 	SeasonCalendarEntry() SeasonCalendarEntryResolver
 	SeasonSearchItem() SeasonSearchItemResolver
+	SectionItem() SectionItemResolver
 	Show() ShowResolver
 	ShowCalendarEntry() ShowCalendarEntryResolver
 	SimpleCalendarEntry() SimpleCalendarEntryResolver
@@ -397,7 +398,7 @@ type ComplexityRoot struct {
 
 	SectionItem struct {
 		ID    func(childComplexity int) int
-		Image func(childComplexity int) int
+		Image func(childComplexity int, height *int) int
 		Item  func(childComplexity int) int
 		Sort  func(childComplexity int) int
 		Title func(childComplexity int) int
@@ -599,6 +600,9 @@ type SeasonCalendarEntryResolver interface {
 }
 type SeasonSearchItemResolver interface {
 	Show(ctx context.Context, obj *model.SeasonSearchItem) (*model.Show, error)
+}
+type SectionItemResolver interface {
+	Image(ctx context.Context, obj *model.SectionItem, height *int) (*string, error)
 }
 type ShowResolver interface {
 	Seasons(ctx context.Context, obj *model.Show, first *int, offset *int, dir *string) (*model.SeasonPagination, error)
@@ -2189,7 +2193,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.SectionItem.Image(childComplexity), true
+		args, err := ec.field_SectionItem_image_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.SectionItem.Image(childComplexity, args["height"].(*int)), true
 
 	case "SectionItem.item":
 		if e.complexity.SectionItem.Item == nil {
@@ -3188,7 +3197,7 @@ type SectionItem {
     id: ID!
     sort: Int!
     title: String!
-    image: String
+    image(height: Int): String @goField(forceResolver: true)
     item: SectionItemType
 }
 
@@ -3863,6 +3872,21 @@ func (ec *executionContext) field_Season_episodes_args(ctx context.Context, rawA
 		}
 	}
 	args["dir"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_SectionItem_image_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["height"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("height"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["height"] = arg0
 	return args, nil
 }
 
@@ -14104,7 +14128,7 @@ func (ec *executionContext) _SectionItem_image(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Image, nil
+		return ec.resolvers.SectionItem().Image(rctx, obj, fc.Args["height"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14122,11 +14146,22 @@ func (ec *executionContext) fieldContext_SectionItem_image(ctx context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "SectionItem",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_SectionItem_image_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -22192,26 +22227,39 @@ func (ec *executionContext) _SectionItem(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._SectionItem_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "sort":
 
 			out.Values[i] = ec._SectionItem_sort(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 
 			out.Values[i] = ec._SectionItem_title(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "image":
+			field := field
 
-			out.Values[i] = ec._SectionItem_image(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SectionItem_image(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "item":
 
 			out.Values[i] = ec._SectionItem_item(ctx, field, obj)

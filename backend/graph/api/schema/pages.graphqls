@@ -127,7 +127,7 @@ type SectionItem {
     id: ID!
     sort: Int!
     title: String!
-    image: String
+    image(height: Int): String @goField(forceResolver: true)
     item: SectionItemType
 }
 

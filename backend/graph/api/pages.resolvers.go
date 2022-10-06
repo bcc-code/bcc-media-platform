@@ -120,6 +120,11 @@ func (r *posterSectionResolver) Items(ctx context.Context, obj *model.PosterSect
 	}, nil
 }
 
+// Image is the resolver for the image field.
+func (r *sectionItemResolver) Image(ctx context.Context, obj *model.SectionItem, height *int) (*string, error) {
+	return obj.Image, nil
+}
+
 // Collection returns generated.CollectionResolver implementation.
 func (r *Resolver) Collection() generated.CollectionResolver { return &collectionResolver{r} }
 
@@ -148,6 +153,9 @@ func (r *Resolver) PageLabelItem() generated.PageLabelItemResolver { return &pag
 // PosterSection returns generated.PosterSectionResolver implementation.
 func (r *Resolver) PosterSection() generated.PosterSectionResolver { return &posterSectionResolver{r} }
 
+// SectionItem returns generated.SectionItemResolver implementation.
+func (r *Resolver) SectionItem() generated.SectionItemResolver { return &sectionItemResolver{r} }
+
 type collectionResolver struct{ *Resolver }
 type defaultSectionResolver struct{ *Resolver }
 type featuredSectionResolver struct{ *Resolver }
@@ -156,3 +164,4 @@ type labelSectionResolver struct{ *Resolver }
 type pageResolver struct{ *Resolver }
 type pageLabelItemResolver struct{ *Resolver }
 type posterSectionResolver struct{ *Resolver }
+type sectionItemResolver struct{ *Resolver }
