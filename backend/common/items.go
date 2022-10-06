@@ -53,11 +53,6 @@ type Show struct {
 	Images      Images       `json:"images"`
 }
 
-// GetType returns type for this item
-func (i Show) GetType() ItemType {
-	return TypeShow
-}
-
 // GetKey returns the key for this item
 func (i Show) GetKey() int {
 	return i.ID
@@ -66,11 +61,6 @@ func (i Show) GetKey() int {
 // GetTagIDs returns ids of related tags
 func (i Show) GetTagIDs() []int {
 	return i.TagIDs
-}
-
-// IsCollectionItem declares that this implements CollectionItem interfaces
-func (i Show) IsCollectionItem() {
-
 }
 
 // Season is the definition of the Season object
@@ -95,11 +85,6 @@ func (i Season) GetKey() int {
 // GetTagIDs returns ids of related tags
 func (i Season) GetTagIDs() []int {
 	return i.TagIDs
-}
-
-// IsCollectionItem declares that this implements CollectionItem interfaces
-func (i Season) IsCollectionItem() {
-
 }
 
 // Episode is the definition of the Episode object
@@ -128,11 +113,6 @@ func (i Episode) GetKey() int {
 // GetTagIDs returns ids of related tags
 func (i Episode) GetTagIDs() []int {
 	return i.TagIDs
-}
-
-// IsCollectionItem declares that this implements CollectionItem interfaces
-func (i Episode) IsCollectionItem() {
-
 }
 
 // File item type
@@ -175,11 +155,6 @@ func (i Page) GetKey() int {
 	return i.ID
 }
 
-// IsCollectionItem declares that this implements CollectionItem interfaces
-func (i Page) IsCollectionItem() {
-
-}
-
 // Section is the definition of the Section object
 type Section struct {
 	ID           int          `json:"id"`
@@ -192,11 +167,6 @@ type Section struct {
 	Style        string       `json:"style"`
 	Size         string       `json:"size"`
 	CollectionID null.Int     `json:"collectionId"`
-}
-
-// IsCollectionItem declares that this implements CollectionItem interfaces
-func (i Section) IsCollectionItem() {
-
 }
 
 // GetKey returns the key for this item
