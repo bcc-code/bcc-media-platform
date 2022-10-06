@@ -31,6 +31,7 @@ func mapToSections(items []getSectionsRow) []common.Section {
 			ID:           int(s.ID),
 			Sort:         int(s.Sort.ValueOrZero()),
 			PageID:       int(s.PageID),
+			ShowTitle:    s.ShowTitle.Bool,
 			Title:        title,
 			Description:  description,
 			Type:         "item",

@@ -78,7 +78,13 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 	}, nil
 }
 
-func collectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[model.Item], error) {
+func collectionItemResolverFromCollection(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[model.Item], error) {
+	int64ID, _ := strconv.ParseInt(id, 10, 32)
+
+	return collectionEntryResolver(ctx, r.Loaders, int(int64ID), first, offset)
+}
+
+func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[*model.SectionItem], error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 
 	section, err := common.GetFromLoaderByID(ctx, r.Loaders.SectionLoader, int(int64ID))
@@ -91,10 +97,4 @@ func collectionItemResolver(ctx context.Context, r *Resolver, id string, first *
 	}
 
 	return collectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), int(section.CollectionID.Int64), first, offset)
-}
-
-func collectionItemResolverFromCollection(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[model.Item], error) {
-	int64ID, _ := strconv.ParseInt(id, 10, 32)
-
-	return collectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), int(int64ID), first, offset)
 }

@@ -12,8 +12,26 @@ type CalendarEntry interface {
 	IsCalendarEntry()
 }
 
+type IconItem interface {
+	IsIconItem()
+}
+
 type Item interface {
 	IsItem()
+}
+
+type ItemSection interface {
+	Section
+	IsItemSection()
+}
+
+type LabelItem interface {
+	IsLabelItem()
+}
+
+type LinkSection interface {
+	Section
+	IsLinkSection()
 }
 
 type Pagination interface {
@@ -26,6 +44,10 @@ type SearchResultItem interface {
 
 type Section interface {
 	IsSection()
+}
+
+type SectionItemType interface {
+	IsSectionItemType()
 }
 
 type Application struct {
@@ -74,6 +96,16 @@ type Config struct {
 	Global *GlobalConfig `json:"global"`
 }
 
+type DefaultSection struct {
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Size  SectionSize            `json:"size"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (DefaultSection) IsSection()     {}
+func (DefaultSection) IsItemSection() {}
+
 type Episode struct {
 	ID                string     `json:"id"`
 	LegacyID          *string    `json:"legacyID"`
@@ -93,6 +125,8 @@ type Episode struct {
 	Images            []*Image   `json:"images"`
 	Number            *int       `json:"number"`
 }
+
+func (Episode) IsSectionItemType() {}
 
 type EpisodeCalendarEntry struct {
 	ID          string   `json:"id"`
@@ -178,6 +212,16 @@ type FAQCategoryPagination struct {
 
 func (FAQCategoryPagination) IsPagination() {}
 
+type FeaturedSection struct {
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Size  SectionSize            `json:"size"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (FeaturedSection) IsSection()     {}
+func (FeaturedSection) IsItemSection() {}
+
 type File struct {
 	ID               string    `json:"id"`
 	URL              string    `json:"url"`
@@ -193,22 +237,46 @@ type GlobalConfig struct {
 	NpawEnabled bool `json:"npawEnabled"`
 }
 
+type GridSection struct {
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Size  GridSectionSize        `json:"size"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (GridSection) IsSection()     {}
+func (GridSection) IsItemSection() {}
+
+type IconSection struct {
+	ID    string  `json:"id"`
+	Title *string `json:"title"`
+}
+
+func (IconSection) IsSection()     {}
+func (IconSection) IsLinkSection() {}
+
 type Image struct {
 	Style string `json:"style"`
 	URL   string `json:"url"`
 }
 
-type ItemSection struct {
-	ID    string                    `json:"id"`
-	Page  *Page                     `json:"page"`
-	Title string                    `json:"title"`
-	Type  ItemSectionType           `json:"type"`
-	Style string                    `json:"style"`
-	Size  string                    `json:"size"`
-	Items *CollectionItemPagination `json:"items"`
+type LabelItemPagination struct {
+	Total  int         `json:"total"`
+	First  int         `json:"first"`
+	Offset int         `json:"offset"`
+	Items  []LabelItem `json:"items"`
 }
 
-func (ItemSection) IsSection() {}
+func (LabelItemPagination) IsPagination() {}
+
+type LabelSection struct {
+	ID    string               `json:"id"`
+	Title *string              `json:"title"`
+	Items *LabelItemPagination `json:"items"`
+}
+
+func (LabelSection) IsSection()     {}
+func (LabelSection) IsLinkSection() {}
 
 type MaintenanceMessage struct {
 	Message string  `json:"message"`
@@ -227,6 +295,8 @@ type Page struct {
 	Sections    *SectionPagination `json:"sections"`
 }
 
+func (Page) IsSectionItemType() {}
+
 type PageItem struct {
 	ID       string   `json:"id"`
 	Sort     int      `json:"sort"`
@@ -237,6 +307,24 @@ type PageItem struct {
 }
 
 func (PageItem) IsItem() {}
+
+type PageLabelItem struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	Page  *Page  `json:"page"`
+}
+
+func (PageLabelItem) IsLabelItem() {}
+
+type PosterSection struct {
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Size  SectionSize            `json:"size"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (PosterSection) IsSection()     {}
+func (PosterSection) IsItemSection() {}
 
 type Question struct {
 	ID       string       `json:"id"`
@@ -272,6 +360,8 @@ type Season struct {
 	Show        *Show              `json:"show"`
 	Episodes    *EpisodePagination `json:"episodes"`
 }
+
+func (Season) IsSectionItemType() {}
 
 type SeasonCalendarEntry struct {
 	ID          string  `json:"id"`
@@ -323,6 +413,23 @@ type SeasonSearchItem struct {
 
 func (SeasonSearchItem) IsSearchResultItem() {}
 
+type SectionItem struct {
+	ID    string          `json:"id"`
+	Sort  int             `json:"sort"`
+	Title string          `json:"title"`
+	Image *string         `json:"image"`
+	Item  SectionItemType `json:"item"`
+}
+
+type SectionItemPagination struct {
+	First  int            `json:"first"`
+	Offset int            `json:"offset"`
+	Total  int            `json:"total"`
+	Items  []*SectionItem `json:"items"`
+}
+
+func (SectionItemPagination) IsPagination() {}
+
 type SectionPagination struct {
 	Total  int       `json:"total"`
 	First  int       `json:"first"`
@@ -348,6 +455,8 @@ type Show struct {
 	SeasonCount  int               `json:"seasonCount"`
 	Seasons      *SeasonPagination `json:"seasons"`
 }
+
+func (Show) IsSectionItemType() {}
 
 type ShowCalendarEntry struct {
 	ID          string `json:"id"`
@@ -416,6 +525,14 @@ type URLItem struct {
 
 func (URLItem) IsItem() {}
 
+type URLLabelItem struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	URL   string `json:"url"`
+}
+
+func (URLLabelItem) IsLabelItem() {}
+
 type User struct {
 	ID        *string   `json:"id"`
 	Anonymous bool      `json:"anonymous"`
@@ -426,44 +543,42 @@ type User struct {
 	Roles     []string  `json:"roles"`
 }
 
-type ItemSectionType string
+type GridSectionSize string
 
 const (
-	ItemSectionTypeCards  ItemSectionType = "cards"
-	ItemSectionTypeSlider ItemSectionType = "slider"
+	GridSectionSizeHalf GridSectionSize = "half"
 )
 
-var AllItemSectionType = []ItemSectionType{
-	ItemSectionTypeCards,
-	ItemSectionTypeSlider,
+var AllGridSectionSize = []GridSectionSize{
+	GridSectionSizeHalf,
 }
 
-func (e ItemSectionType) IsValid() bool {
+func (e GridSectionSize) IsValid() bool {
 	switch e {
-	case ItemSectionTypeCards, ItemSectionTypeSlider:
+	case GridSectionSizeHalf:
 		return true
 	}
 	return false
 }
 
-func (e ItemSectionType) String() string {
+func (e GridSectionSize) String() string {
 	return string(e)
 }
 
-func (e *ItemSectionType) UnmarshalGQL(v interface{}) error {
+func (e *GridSectionSize) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = ItemSectionType(str)
+	*e = GridSectionSize(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ItemSectionType", str)
+		return fmt.Errorf("%s is not a valid GridSectionSize", str)
 	}
 	return nil
 }
 
-func (e ItemSectionType) MarshalGQL(w io.Writer) {
+func (e GridSectionSize) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -507,6 +622,47 @@ func (e *Language) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Language) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type SectionSize string
+
+const (
+	SectionSizeSmall  SectionSize = "small"
+	SectionSizeMedium SectionSize = "medium"
+)
+
+var AllSectionSize = []SectionSize{
+	SectionSizeSmall,
+	SectionSizeMedium,
+}
+
+func (e SectionSize) IsValid() bool {
+	switch e {
+	case SectionSizeSmall, SectionSizeMedium:
+		return true
+	}
+	return false
+}
+
+func (e SectionSize) String() string {
+	return string(e)
+}
+
+func (e *SectionSize) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SectionSize(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SectionSize", str)
+	}
+	return nil
+}
+
+func (e SectionSize) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

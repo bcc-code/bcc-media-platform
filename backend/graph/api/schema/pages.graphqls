@@ -12,7 +12,7 @@ type Page{
 
 interface Section{
     id: ID!
-    title: String!
+    title: String
 }
 
 type SectionPagination implements Pagination {
@@ -22,22 +22,95 @@ type SectionPagination implements Pagination {
     items: [Section!]!
 }
 
-enum ItemSectionType {
-    cards
-    slider
+# LINK SECTION
+interface LinkSection implements Section {
+    id: ID!
+    title: String
 }
 
-type ItemSection implements Section {
+type IconSection implements Section & LinkSection {
     id: ID!
-    page: Page! @goField(forceResolver: true)
+    title: String
+}
+
+interface LabelItem {
+    id: ID!
     title: String!
-    type: ItemSectionType!
-    style: String!
-    size: String!
-    items(
-        first: Int,
-        offset: Int,
-    ): CollectionItemPagination! @goField(forceResolver: true)
+}
+
+interface IconItem {
+    id: ID!
+    title: String!
+    icon: String
+}
+
+type PageLabelItem implements LabelItem {
+    id: ID!
+    title: String!
+    page: Page! @goField(forceResolver: true)
+}
+
+type URLLabelItem implements LabelItem {
+    id: ID!
+    title: String!
+    url: String!
+}
+
+type LabelItemPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [LabelItem!]!
+}
+
+type LabelSection implements Section & LinkSection {
+    id: ID!
+    title: String
+    items: LabelItemPagination! @goField(forceResolver: true)
+}
+
+# ITEM SECTION
+enum SectionSize {
+    small
+    medium
+}
+
+enum GridSectionSize {
+    half
+}
+
+interface ItemSection implements Section {
+    id: ID!
+    title: String
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type PosterSection implements Section & ItemSection {
+    id: ID!
+    title: String
+    size: SectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type FeaturedSection implements Section & ItemSection {
+    id: ID!
+    title: String
+    size: SectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type DefaultSection implements Section & ItemSection {
+    id: ID!
+    title: String
+    size: SectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type GridSection implements Section & ItemSection {
+    id: ID!
+    title: String
+    size: GridSectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type Collection {
@@ -46,4 +119,21 @@ type Collection {
         first: Int,
         offset: Int,
     ): CollectionItemPagination @goField(forceResolver: true)
+}
+
+union SectionItemType = Show | Season | Episode | Page
+
+type SectionItem {
+    id: ID!
+    sort: Int!
+    title: String!
+    image: String
+    item: SectionItemType
+}
+
+type SectionItemPagination implements Pagination {
+    first: Int!
+    offset: Int!
+    total: Int!
+    items: [SectionItem!]!
 }
