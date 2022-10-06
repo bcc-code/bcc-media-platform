@@ -59,3 +59,19 @@ func ShowItemFrom(ctx context.Context, s *common.Show, sort int) *ShowItem {
 		Sort:     sort,
 	}
 }
+
+// ShowSectionItemFrom returns a SectionItem from a sql row
+func ShowSectionItemFrom(ctx context.Context, s *common.Show, sort int, sectionStyle string) *SectionItem {
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	show := ShowFrom(ctx, s)
+
+	return &SectionItem{
+		ID:    show.ID,
+		Item:  show,
+		Title: show.Title,
+		Image: s.Images.GetDefault(languages, sectionStyle),
+		Sort:  sort,
+	}
+}

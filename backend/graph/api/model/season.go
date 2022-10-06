@@ -53,15 +53,31 @@ func SeasonFrom(ctx context.Context, s *common.Season) *Season {
 }
 
 // SeasonItemFrom returns a SeasonItem from a common.Season
-func SeasonItemFrom(ctx context.Context, row *common.Season, sort int) *SeasonItem {
-	season := SeasonFrom(ctx, row)
+func SeasonItemFrom(ctx context.Context, s *common.Season, sort int) *SeasonItem {
+	season := SeasonFrom(ctx, s)
 
 	return &SeasonItem{
 		ID:       season.ID,
 		Season:   season,
 		Title:    season.Title,
-		ImageURL: season.ImageURL,
-		Images:   season.Images,
 		Sort:     sort,
+		Images:   season.Images,
+		ImageURL: season.ImageURL,
+	}
+}
+
+// SeasonSectionItemFrom returns a SeasonItem from a common.Season
+func SeasonSectionItemFrom(ctx context.Context, s *common.Season, sort int, sectionStyle string) *SectionItem {
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	season := SeasonFrom(ctx, s)
+
+	return &SectionItem{
+		ID:    season.ID,
+		Item:  season,
+		Title: season.Title,
+		Image: s.Images.GetDefault(languages, sectionStyle),
+		Sort:  sort,
 	}
 }
