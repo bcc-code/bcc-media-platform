@@ -227,7 +227,6 @@ type ComplexityRoot struct {
 		Size  func(childComplexity int) int
 		Style func(childComplexity int) int
 		Title func(childComplexity int) int
-		Type  func(childComplexity int) int
 	}
 
 	MaintenanceMessage struct {
@@ -1318,13 +1317,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ItemSection.Title(childComplexity), true
-
-	case "ItemSection.type":
-		if e.complexity.ItemSection.Type == nil {
-			break
-		}
-
-		return e.complexity.ItemSection.Type(childComplexity), true
 
 	case "MaintenanceMessage.details":
 		if e.complexity.MaintenanceMessage.Details == nil {
@@ -2756,17 +2748,19 @@ type SectionPagination implements Pagination {
     items: [Section!]!
 }
 
-enum ItemSectionType {
-    cards
-    slider
+enum ItemSectionStyle {
+    featured
+    default
+    grid
+    posters
+    labels
 }
 
 type ItemSection implements Section {
     id: ID!
     page: Page! @goField(forceResolver: true)
     title: String!
-    type: ItemSectionType!
-    style: String!
+    style: ItemSectionStyle!
     size: String!
     items(
         first: Int,
@@ -8256,50 +8250,6 @@ func (ec *executionContext) fieldContext_ItemSection_title(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _ItemSection_type(ctx context.Context, field graphql.CollectedField, obj *model.ItemSection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemSection_type(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.ItemSectionType)
-	fc.Result = res
-	return ec.marshalNItemSectionType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ItemSection_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ItemSection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ItemSectionType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _ItemSection_style(ctx context.Context, field graphql.CollectedField, obj *model.ItemSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ItemSection_style(ctx, field)
 	if err != nil {
@@ -8326,9 +8276,9 @@ func (ec *executionContext) _ItemSection_style(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(model.ItemSectionStyle)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNItemSectionStyle2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionStyle(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ItemSection_style(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8338,7 +8288,7 @@ func (ec *executionContext) fieldContext_ItemSection_style(ctx context.Context, 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type ItemSectionStyle does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18477,13 +18427,6 @@ func (ec *executionContext) _ItemSection(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "type":
-
-			out.Values[i] = ec._ItemSection_type(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
 		case "style":
 
 			out.Values[i] = ec._ItemSection_style(ctx, field, obj)
@@ -21279,13 +21222,13 @@ func (ec *executionContext) marshalNItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstad
 	return ret
 }
 
-func (ec *executionContext) unmarshalNItemSectionType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionType(ctx context.Context, v interface{}) (model.ItemSectionType, error) {
-	var res model.ItemSectionType
+func (ec *executionContext) unmarshalNItemSectionStyle2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionStyle(ctx context.Context, v interface{}) (model.ItemSectionStyle, error) {
+	var res model.ItemSectionStyle
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNItemSectionType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionType(ctx context.Context, sel ast.SelectionSet, v model.ItemSectionType) graphql.Marshaler {
+func (ec *executionContext) marshalNItemSectionStyle2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionStyle(ctx context.Context, sel ast.SelectionSet, v model.ItemSectionStyle) graphql.Marshaler {
 	return v
 }
 

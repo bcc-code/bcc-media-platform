@@ -16,11 +16,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 	return &ItemSection{
 		ID:    strconv.Itoa(s.ID),
 		Title: s.Title.Get(languages),
-		Type:  ItemSectionType(s.Style),
 		Page: &Page{
 			ID: strconv.Itoa(s.PageID),
 		},
-		Style: s.Style,
+		Style: ItemSectionStyle(s.Style),
 		Size:  s.Size,
 	}
 }

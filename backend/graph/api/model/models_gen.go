@@ -202,8 +202,7 @@ type ItemSection struct {
 	ID    string                    `json:"id"`
 	Page  *Page                     `json:"page"`
 	Title string                    `json:"title"`
-	Type  ItemSectionType           `json:"type"`
-	Style string                    `json:"style"`
+	Style ItemSectionStyle          `json:"style"`
 	Size  string                    `json:"size"`
 	Items *CollectionItemPagination `json:"items"`
 }
@@ -426,44 +425,50 @@ type User struct {
 	Roles     []string  `json:"roles"`
 }
 
-type ItemSectionType string
+type ItemSectionStyle string
 
 const (
-	ItemSectionTypeCards  ItemSectionType = "cards"
-	ItemSectionTypeSlider ItemSectionType = "slider"
+	ItemSectionStyleFeatured ItemSectionStyle = "featured"
+	ItemSectionStyleDefault  ItemSectionStyle = "default"
+	ItemSectionStyleGrid     ItemSectionStyle = "grid"
+	ItemSectionStylePosters  ItemSectionStyle = "posters"
+	ItemSectionStyleLabels   ItemSectionStyle = "labels"
 )
 
-var AllItemSectionType = []ItemSectionType{
-	ItemSectionTypeCards,
-	ItemSectionTypeSlider,
+var AllItemSectionStyle = []ItemSectionStyle{
+	ItemSectionStyleFeatured,
+	ItemSectionStyleDefault,
+	ItemSectionStyleGrid,
+	ItemSectionStylePosters,
+	ItemSectionStyleLabels,
 }
 
-func (e ItemSectionType) IsValid() bool {
+func (e ItemSectionStyle) IsValid() bool {
 	switch e {
-	case ItemSectionTypeCards, ItemSectionTypeSlider:
+	case ItemSectionStyleFeatured, ItemSectionStyleDefault, ItemSectionStyleGrid, ItemSectionStylePosters, ItemSectionStyleLabels:
 		return true
 	}
 	return false
 }
 
-func (e ItemSectionType) String() string {
+func (e ItemSectionStyle) String() string {
 	return string(e)
 }
 
-func (e *ItemSectionType) UnmarshalGQL(v interface{}) error {
+func (e *ItemSectionStyle) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = ItemSectionType(str)
+	*e = ItemSectionStyle(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ItemSectionType", str)
+		return fmt.Errorf("%s is not a valid ItemSectionStyle", str)
 	}
 	return nil
 }
 
-func (e ItemSectionType) MarshalGQL(w io.Writer) {
+func (e ItemSectionStyle) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

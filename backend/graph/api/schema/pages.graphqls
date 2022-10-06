@@ -22,17 +22,19 @@ type SectionPagination implements Pagination {
     items: [Section!]!
 }
 
-enum ItemSectionType {
-    cards
-    slider
+enum ItemSectionStyle {
+    featured
+    default
+    grid
+    posters
+    labels
 }
 
 type ItemSection implements Section {
     id: ID!
     page: Page! @goField(forceResolver: true)
     title: String!
-    type: ItemSectionType!
-    style: String!
+    style: ItemSectionStyle!
     size: String!
     items(
         first: Int,
