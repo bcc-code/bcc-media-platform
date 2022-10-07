@@ -7,10 +7,10 @@ import (
 	"gopkg.in/guregu/null.v4"
 )
 
-// Various media services that we have available
+// StreamServiceAzureMedia Various media services that we have available
 const (
-	StreamServiceAzureMedia   = "azure_media_services"
-	StreamServiceMediapackage = "mediapackage"
+	StreamServiceAzureMedia = "azure_media_services"
+	//StreamServiceMediapackage = "mediapackage"
 )
 
 // HasKey interface for items with keys
@@ -36,7 +36,7 @@ type Relation[k comparable, kr comparable] interface {
 	GetRelationID() kr
 }
 
-// Conversion contains the orginal and converted value
+// Conversion contains the original and converted value
 type Conversion[o comparable, r comparable] interface {
 	GetOriginal() o
 	GetResult() r
@@ -44,13 +44,15 @@ type Conversion[o comparable, r comparable] interface {
 
 // Show is the definition of the Show object
 type Show struct {
-	ID          int          `json:"id"`
-	TagIDs      []int        `json:"tagIds"`
-	LegacyID    null.Int     `json:"legacyId"`
-	Title       LocaleString `json:"title"`
-	Description LocaleString `json:"description"`
-	Image       null.String  `json:"image"`
-	Images      Images       `json:"images"`
+	ID             int          `json:"id"`
+	Type           string       `json:"type"`
+	TagIDs         []int        `json:"tagIds"`
+	LegacyID       null.Int     `json:"legacyId"`
+	Title          LocaleString `json:"title"`
+	Description    LocaleString `json:"description"`
+	Image          null.String  `json:"image"`
+	Images         Images       `json:"images"`
+	DefaultEpisode *string      `json:"defaultEpisode"`
 }
 
 // GetKey returns the key for this item
@@ -93,6 +95,7 @@ type Episode struct {
 	LegacyID         null.Int     `json:"legacyId"`
 	LegacyProgramID  null.Int     `json:"legacyProgramId"`
 	SeasonID         null.Int     `json:"seasonId"`
+	ProductionDate   null.Time    `json:"productionDate"`
 	Number           null.Int     `json:"number"`
 	Duration         int          `json:"duration"`
 	AgeRating        string       `json:"ageRating"`

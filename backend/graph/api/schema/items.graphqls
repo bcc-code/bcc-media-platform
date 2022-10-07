@@ -13,6 +13,7 @@ type Show {
         offset: Int
         dir: String
     ): SeasonPagination! @goField(forceResolver: true)
+    defaultEpisode: Episode @goField(forceResolver: true)
 }
 
 type Season {
@@ -48,6 +49,7 @@ type Episode {
     description: String!
     extraDescription: String!
     imageUrl: String
+    productionDate: String
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)
     chapters: [Chapter!]!

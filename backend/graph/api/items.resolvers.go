@@ -10,6 +10,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/items/show"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
@@ -117,6 +118,20 @@ func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int,
 		Offset: page.Offset,
 		Items:  utils.MapWithCtx(ctx, seasons, model.SeasonFrom),
 	}, nil
+}
+
+// DefaultEpisode is the resolver for the defaultEpisode field.
+func (r *showResolver) DefaultEpisode(ctx context.Context, obj *model.Show) (*model.Episode, error) {
+	s, err := common.GetFromLoaderByID(ctx, r.Loaders.ShowLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	ls := r.FilteredLoaders(ctx)
+	eID, err := show.DefaultEpisodeID(ctx, ls, s)
+	if err != nil || eID == nil {
+		return nil, err
+	}
+	return r.QueryRoot().Episode(ctx, strconv.Itoa(*eID))
 }
 
 // Episode returns generated.EpisodeResolver implementation.

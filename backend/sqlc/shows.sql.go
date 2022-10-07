@@ -15,17 +15,6 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const refreshShowAccessView = `-- name: RefreshShowAccessView :one
-SELECT update_access('shows_access')
-`
-
-func (q *Queries) RefreshShowAccessView(ctx context.Context) (bool, error) {
-	row := q.db.QueryRowContext(ctx, refreshShowAccessView)
-	var update_access bool
-	err := row.Scan(&update_access)
-	return update_access, err
-}
-
 const getPermissionsForShows = `-- name: getPermissionsForShows :many
 SELECT sh.id,
        access.published::boolean          AS published,
@@ -99,6 +88,7 @@ WITH ts AS (SELECT shows_id,
                 GROUP BY show_id)
 SELECT sh.id,
        sh.legacy_id,
+       sh.type,
        fs.filename_disk            as image_file_name,
        tags.tags::int[]            AS tag_ids,
        COALESCE(images.json, '[]') as images,
@@ -115,6 +105,7 @@ WHERE sh.id = ANY ($1::int[])
 type getShowsRow struct {
 	ID            int32                 `db:"id" json:"id"`
 	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	Type          string                `db:"type" json:"type"`
 	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
 	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
 	Images        json.RawMessage       `db:"images" json:"images"`
@@ -134,6 +125,7 @@ func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]getShowsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.LegacyID,
+			&i.Type,
 			&i.ImageFileName,
 			pq.Array(&i.TagIds),
 			&i.Images,
@@ -171,6 +163,7 @@ WITH ts AS (SELECT shows_id,
                 GROUP BY show_id)
 SELECT sh.id,
        sh.legacy_id,
+       sh.type,
        fs.filename_disk            as image_file_name,
        tags.tags::int[]            AS tag_ids,
        COALESCE(images.json, '[]') as images,
@@ -186,6 +179,7 @@ FROM shows sh
 type listShowsRow struct {
 	ID            int32                 `db:"id" json:"id"`
 	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	Type          string                `db:"type" json:"type"`
 	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
 	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
 	Images        json.RawMessage       `db:"images" json:"images"`
@@ -205,6 +199,7 @@ func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.LegacyID,
+			&i.Type,
 			&i.ImageFileName,
 			pq.Array(&i.TagIds),
 			&i.Images,

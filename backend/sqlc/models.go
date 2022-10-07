@@ -535,6 +535,7 @@ type Episode struct {
 	Type                     string                `db:"type" json:"type"`
 	UserCreated              uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated              uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	ProductionDate           null_v4.Time          `db:"production_date" json:"productionDate"`
 }
 
 type EpisodeAvailability struct {
@@ -874,21 +875,22 @@ type SectionsUsergroup struct {
 }
 
 type Show struct {
-	AgeratingCode       null_v4.String `db:"agerating_code" json:"ageratingCode"`
-	AvailableFrom       null_v4.Time   `db:"available_from" json:"availableFrom"`
-	AvailableTo         null_v4.Time   `db:"available_to" json:"availableTo"`
-	DateCreated         time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated         time.Time      `db:"date_updated" json:"dateUpdated"`
-	ID                  int32          `db:"id" json:"id"`
-	ImageFileID         uuid.NullUUID  `db:"image_file_id" json:"imageFileID"`
-	LegacyDescriptionID null_v4.Int    `db:"legacy_description_id" json:"legacyDescriptionID"`
-	LegacyID            null_v4.Int    `db:"legacy_id" json:"legacyID"`
-	LegacyTitleID       null_v4.Int    `db:"legacy_title_id" json:"legacyTitleID"`
-	PublishDate         time.Time      `db:"publish_date" json:"publishDate"`
-	Status              string         `db:"status" json:"status"`
-	Type                string         `db:"type" json:"type"`
-	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	AgeratingCode           null_v4.String `db:"agerating_code" json:"ageratingCode"`
+	AvailableFrom           null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo             null_v4.Time   `db:"available_to" json:"availableTo"`
+	DateCreated             time.Time      `db:"date_created" json:"dateCreated"`
+	DateUpdated             time.Time      `db:"date_updated" json:"dateUpdated"`
+	ID                      int32          `db:"id" json:"id"`
+	ImageFileID             uuid.NullUUID  `db:"image_file_id" json:"imageFileID"`
+	LegacyDescriptionID     null_v4.Int    `db:"legacy_description_id" json:"legacyDescriptionID"`
+	LegacyID                null_v4.Int    `db:"legacy_id" json:"legacyID"`
+	LegacyTitleID           null_v4.Int    `db:"legacy_title_id" json:"legacyTitleID"`
+	PublishDate             time.Time      `db:"publish_date" json:"publishDate"`
+	Status                  string         `db:"status" json:"status"`
+	Type                    string         `db:"type" json:"type"`
+	UserCreated             uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated             uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DefaultEpisodeBehaviour null_v4.String `db:"default_episode_behaviour" json:"defaultEpisodeBehaviour"`
 }
 
 type ShowAvailability struct {

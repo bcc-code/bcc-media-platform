@@ -111,6 +111,7 @@ type Episode struct {
 	Description       string     `json:"description"`
 	ExtraDescription  string     `json:"extraDescription"`
 	ImageURL          *string    `json:"imageUrl"`
+	ProductionDate    *string    `json:"productionDate"`
 	Streams           []*Stream  `json:"streams"`
 	Files             []*File    `json:"files"`
 	Chapters          []*Chapter `json:"chapters"`
@@ -443,15 +444,16 @@ type Settings struct {
 }
 
 type Show struct {
-	ID           string            `json:"id"`
-	LegacyID     *string           `json:"legacyID"`
-	Title        string            `json:"title"`
-	Description  string            `json:"description"`
-	ImageURL     *string           `json:"imageUrl"`
-	Images       []*Image          `json:"images"`
-	EpisodeCount int               `json:"episodeCount"`
-	SeasonCount  int               `json:"seasonCount"`
-	Seasons      *SeasonPagination `json:"seasons"`
+	ID             string            `json:"id"`
+	LegacyID       *string           `json:"legacyID"`
+	Title          string            `json:"title"`
+	Description    string            `json:"description"`
+	ImageURL       *string           `json:"imageUrl"`
+	Images         []*Image          `json:"images"`
+	EpisodeCount   int               `json:"episodeCount"`
+	SeasonCount    int               `json:"seasonCount"`
+	Seasons        *SeasonPagination `json:"seasons"`
+	DefaultEpisode *Episode          `json:"defaultEpisode"`
 }
 
 func (Show) IsSectionItemType() {}

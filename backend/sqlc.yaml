@@ -69,4 +69,9 @@ overrides:
       import: "gopkg.in/guregu/null.v4"
       type: "Time"
     nullable: true
+    db_type: "date"
+  - go_type:
+      import: "gopkg.in/guregu/null.v4"
+      type: "Time"
+    nullable: true
     db_type: "pg_catalog.timestamp"

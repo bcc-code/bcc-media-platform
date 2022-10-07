@@ -53,11 +53,18 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		})
 	}
 
+	var productionDate *string
+	if e.ProductionDate.Valid {
+		ds := e.ProductionDate.Time.String()
+		productionDate = &ds
+	}
+
 	episode := &Episode{
 		Chapters:         []*Chapter{}, // Currently not supported
 		ID:               strconv.Itoa(e.ID),
 		LegacyID:         legacyID,
 		LegacyProgramID:  legacyProgramID,
+		ProductionDate:   productionDate,
 		Title:            e.Title.Get(languages),
 		Description:      e.Description.Get(languages),
 		ExtraDescription: extraDescription,
