@@ -24,7 +24,7 @@ import { Swiper, SwiperSlide } from "swiper/vue"
 import { Section, SectionItem as TSectionItem } from "./types"
 import SwiperSectionItem from "./SwiperSectionItem.vue"
 import { Navigation } from "swiper"
-import { SectionFragment } from "@/graph/generated";
+import { SectionFragment } from "@/graph/generated"
 
 defineProps<{
     section: SectionFragment & Section

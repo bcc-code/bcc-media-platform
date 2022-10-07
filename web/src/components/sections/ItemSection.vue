@@ -6,9 +6,7 @@
             :click="view"
         ></HeaderSection>
         <SwiperSection
-            v-else-if="
-                section.__typename === 'DefaultSection'
-            "
+            v-else-if="section.__typename === 'DefaultSection'"
             :section="section"
             :click="view"
         ></SwiperSection>
