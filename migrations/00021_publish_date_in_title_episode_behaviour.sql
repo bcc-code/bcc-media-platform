@@ -28,7 +28,7 @@ UPDATE "public"."directus_fields" SET "sort" = 8 WHERE "id" = 130;
 
 UPDATE "public"."directus_fields" SET "sort" = 10 WHERE "id" = 123;
 
-INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (612, 'episodes', 'publish_date_in_title', 'cast-boolean', NULL, NULL, NULL, NULL, false, false, 5, 'half', NULL, 'Defaults to true if show type is event', NULL, false, 'metadata', NULL, NULL);
+INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (612, 'episodes', 'publish_date_in_title', 'cast-boolean', 'boolean', NULL, 'boolean', NULL, false, false, 5, 'half', NULL, 'Defaults to true if show type is event', NULL, false, 'metadata', NULL, NULL);
 
 UPDATE "public"."directus_fields" SET "sort" = 7 WHERE "id" = 119;
 

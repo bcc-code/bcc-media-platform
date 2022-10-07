@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/user"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -13,6 +14,20 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/items/show"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
+
+// Image is the resolver for the image field.
+func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *model.ImageStyle) (*string, error) {
+	e, err := common.GetFromLoaderByID(ctx, r.Loaders.EpisodeLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	ginCtx, _ := utils.GinCtx(ctx)
+	s := "default"
+	if style != nil && style.IsValid() {
+		s = style.String()
+	}
+	return e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s), nil
+}
 
 // Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*model.Stream, error) {
@@ -62,6 +77,20 @@ func (r *episodeResolver) Season(ctx context.Context, obj *model.Episode) (*mode
 	return nil, nil
 }
 
+// Image is the resolver for the image field.
+func (r *seasonResolver) Image(ctx context.Context, obj *model.Season, style *model.ImageStyle) (*string, error) {
+	e, err := common.GetFromLoaderByID(ctx, r.Loaders.SeasonLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	ginCtx, _ := utils.GinCtx(ctx)
+	s := "default"
+	if style != nil && style.IsValid() {
+		s = style.String()
+	}
+	return e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s), nil
+}
+
 // Show is the resolver for the show field.
 func (r *seasonResolver) Show(ctx context.Context, obj *model.Season) (*model.Show, error) {
 	return r.QueryRoot().Show(ctx, obj.Show.ID)
@@ -92,6 +121,20 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first 
 		Offset: page.Offset,
 		Items:  utils.MapWithCtx(ctx, episodes, model.EpisodeFrom),
 	}, nil
+}
+
+// Image is the resolver for the image field.
+func (r *showResolver) Image(ctx context.Context, obj *model.Show, style *model.ImageStyle) (*string, error) {
+	e, err := common.GetFromLoaderByID(ctx, r.Loaders.ShowLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	ginCtx, _ := utils.GinCtx(ctx)
+	s := "default"
+	if style != nil && style.IsValid() {
+		s = style.String()
+	}
+	return e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s), nil
 }
 
 // Seasons is the resolver for the seasons field.
