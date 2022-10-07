@@ -152,7 +152,9 @@
                                                     'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
                                                 ]"
                                             >
-                                                <SettingsIcon class="h-6"></SettingsIcon>
+                                                <SettingsIcon
+                                                    class="h-6"
+                                                ></SettingsIcon>
                                                 <p class="ml-2 text-base">
                                                     Settings
                                                 </p>
@@ -296,7 +298,9 @@
                                                     'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
                                                 ]"
                                             >
-                                                <SettingsIcon class="h-6"></SettingsIcon>
+                                                <SettingsIcon
+                                                    class="h-6"
+                                                ></SettingsIcon>
                                                 <p class="ml-2 text-base">
                                                     Settings
                                                 </p>
@@ -310,7 +314,11 @@
                 </div>
                 <div class="flex lg:hidden">
                     <div class="mx-auto flex space-x-4">
-                        <NavLink v-for="item in navigation" :to="item.to" :icon="item.icon">
+                        <NavLink
+                            v-for="item in navigation"
+                            :to="item.to"
+                            :icon="item.icon"
+                        >
                             {{ t(item.name) }}
                         </NavLink>
                     </div>
@@ -339,7 +347,7 @@ import {
     LiveIcon,
     ProfileIcon,
     SearchIcon,
-    SettingsIcon
+    SettingsIcon,
 } from "../icons"
 
 const { t } = useI18n()

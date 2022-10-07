@@ -14,14 +14,12 @@ type BatchLoaders struct {
 	PageIDFromCodeLoader        *dataloader.Loader[string, *int]
 	SectionLoader               *dataloader.Loader[int, *Section]
 	SectionsLoader              *dataloader.Loader[int, []*int]
+	SectionLinksLoader          *dataloader.Loader[int, []*SectionLink]
 	CollectionLoader            *dataloader.Loader[int, *Collection]
-	CollectionItemIdsLoader     *dataloader.Loader[int, []int]
 	CollectionItemLoader        *dataloader.Loader[int, []*CollectionItem]
 	ShowLoader                  *dataloader.Loader[int, *Show]
 	SeasonLoader                *dataloader.Loader[int, *Season]
 	EpisodeLoader               *dataloader.Loader[int, *Episode]
-	SeasonsLoader               *dataloader.Loader[int, []*int]
-	EpisodesLoader              *dataloader.Loader[int, []*int]
 	FilesLoader                 *dataloader.Loader[int, []*File]
 	StreamsLoader               *dataloader.Loader[int, []*Stream]
 	EventLoader                 *dataloader.Loader[int, *Event]
@@ -35,6 +33,14 @@ type BatchLoaders struct {
 	EpisodePermissionLoader *dataloader.Loader[int, *Permissions[int]]
 	PagePermissionLoader    *dataloader.Loader[int, *Permissions[int]]
 	SectionPermissionLoader *dataloader.Loader[int, *Permissions[int]]
+}
+
+// FilteredLoaders contains loaders that will be filtered by permissions.
+type FilteredLoaders struct {
+	EpisodesLoader          *dataloader.Loader[int, []*int]
+	SeasonsLoader           *dataloader.Loader[int, []*int]
+	CollectionItemsLoader   *dataloader.Loader[int, []*CollectionItem]
+	CollectionItemIDsLoader *dataloader.Loader[int, []int]
 }
 
 // NewListBatchLoader returns a configured batch loader for Lists

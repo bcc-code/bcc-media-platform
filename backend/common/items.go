@@ -174,6 +174,16 @@ func (i Section) GetKey() int {
 	return i.ID
 }
 
+// SectionLink is the model definition of the SectionLink object
+type SectionLink struct {
+	ID        int         `json:"id"`
+	SectionID int         `json:"sectionId"`
+	Title     string      `json:"title"`
+	PageID    null.Int    `json:"pageId"`
+	URL       null.String `json:"url"`
+	Icon      null.String `json:"icon"`
+}
+
 // Collection is the definition of the Collection object
 type Collection struct {
 	ID         int         `json:"id"`

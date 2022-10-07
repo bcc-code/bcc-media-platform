@@ -21,7 +21,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 		return nil, err
 	}
 
-	out := []*model.Stream{}
+	var out []*model.Stream
 	for _, s := range streams {
 		stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
 		if err != nil {
@@ -46,7 +46,7 @@ func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode) ([]*mod
 		return nil, err
 	}
 
-	out := []*model.File{}
+	var out []*model.File
 	for _, f := range files {
 		out = append(out, model.FileFrom(ctx, r.URLSigner, r.Resolver.APIConfig.GetFilesCDNDomain(), f))
 	}
@@ -68,33 +68,54 @@ func (r *seasonResolver) Show(ctx context.Context, obj *model.Season) (*model.Sh
 
 // Episodes is the resolver for the episodes field.
 func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first *int, offset *int, dir *string) (*model.EpisodePagination, error) {
-	items, err := itemsResolverForIntID(ctx, toItemLoaders(r.Loaders.EpisodeLoader, r.Loaders.EpisodePermissionLoader), r.Resolver.Loaders.EpisodesLoader, obj.ID, model.EpisodeFrom)
+	intID, err := strconv.ParseInt(obj.ID, 10, 64)
 	if err != nil {
 		return nil, err
 	}
 
-	page := utils.Paginate(items, first, offset, dir)
+	itemIDs, err := common.GetFromLoaderForKey(ctx, r.FilteredLoaders(ctx).EpisodesLoader, int(intID))
+	if err != nil {
+		return nil, err
+	}
+
+	page := utils.Paginate(itemIDs, first, offset, dir)
+
+	episodes, err := common.GetManyFromLoader(ctx, r.Loaders.EpisodeLoader, utils.PointerIntArrayToIntArray(page.Items))
+	if err != nil {
+		return nil, err
+	}
 
 	return &model.EpisodePagination{
 		Total:  page.Total,
 		First:  page.First,
 		Offset: page.Offset,
-		Items:  page.Items,
+		Items:  utils.MapWithCtx(ctx, episodes, model.EpisodeFrom),
 	}, nil
 }
 
 // Seasons is the resolver for the seasons field.
 func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int, offset *int, dir *string) (*model.SeasonPagination, error) {
-	seasons, err := itemsResolverForIntID(ctx, toItemLoaders(r.Loaders.SeasonLoader, r.Loaders.SeasonPermissionLoader), r.Resolver.Loaders.SeasonsLoader, obj.ID, model.SeasonFrom)
+	intID, err := strconv.ParseInt(obj.ID, 10, 64)
 	if err != nil {
 		return nil, err
 	}
-	pagination := utils.Paginate(seasons, first, offset, dir)
+
+	itemIDs, err := common.GetFromLoaderForKey(ctx, r.FilteredLoaders(ctx).SeasonsLoader, int(intID))
+	if err != nil {
+		return nil, err
+	}
+
+	page := utils.Paginate(itemIDs, first, offset, dir)
+
+	seasons, err := common.GetManyFromLoader(ctx, r.Loaders.SeasonLoader, utils.PointerIntArrayToIntArray(page.Items))
+	if err != nil {
+		return nil, err
+	}
 	return &model.SeasonPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
+		Total:  page.Total,
+		First:  page.First,
+		Offset: page.Offset,
+		Items:  utils.MapWithCtx(ctx, seasons, model.SeasonFrom),
 	}, nil
 }
 

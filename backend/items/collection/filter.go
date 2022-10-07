@@ -4,11 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"github.com/Masterminds/squirrel"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/jsonlogic"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lib/pq"
+	"strings"
 )
 
 func itemIdsFromRows(rows *sql.Rows) []int {
@@ -49,8 +51,37 @@ func parseJoins(query squirrel.SelectBuilder, collection string, joins []string)
 	return query
 }
 
+func addPermissionFilter(query squirrel.SelectBuilder, collection string, roles []string) squirrel.SelectBuilder {
+	var roleTable string
+	var availabilityTable string
+	switch collection {
+	case "episodes":
+		roleTable = "episode_roles"
+		availabilityTable = "episode_availability"
+	case "season":
+		roleTable = "season_roles"
+		availabilityTable = "season_availability"
+	case "show":
+		roleTable = "show_roles"
+		availabilityTable = "show_availability"
+	default:
+		return query
+	}
+	query = query.Join(fmt.Sprintf("%s roles ON roles.id = t.id", roleTable))
+	query = query.Join(fmt.Sprintf("%s availability ON availability.id = t.id", availabilityTable))
+	query = query.Where(squirrel.And{
+		squirrel.Eq{
+			"availability.published": "true",
+		},
+		squirrel.Expr("availability.available_to > now()"),
+		squirrel.Expr("availability.available_from < now()"),
+		squirrel.Expr("roles.roles && ?", fmt.Sprintf("{%s}", strings.Join(roles, ","))),
+	})
+	return query
+}
+
 // GetItemIDsForFilter returns an array of ids for the collection
-func GetItemIDsForFilter(ctx context.Context, db *sql.DB, collection string, f common.Filter) ([]int, error) {
+func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, collection string, f common.Filter) ([]int, error) {
 	if f.Filter == nil {
 		return nil, nil
 	}
@@ -82,16 +113,21 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, collection string, f c
 
 	q = parseJoins(q, collection, query.Joins)
 
-	queryString, args, err := q.OrderBy(orderByString).ToSql()
-	if err != nil {
-		return nil, err
+	if roles != nil {
+		q = addPermissionFilter(q, collection, roles)
 	}
 
+	q = q.OrderBy(orderByString)
+
 	if ctx.Value("preview") == true {
+		queryString, _, err := q.OrderBy(orderByString).ToSql()
+		if err != nil {
+			return nil, err
+		}
 		log.L.Debug().Str("query", queryString).Msg("Querying database for previewing filter")
 	}
 
-	rows, err := db.Query(queryString, args...)
+	rows, err := q.RunWith(db).Query()
 	if err != nil {
 		return nil, err
 	}

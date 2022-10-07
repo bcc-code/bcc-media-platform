@@ -9,7 +9,11 @@
         <div class="mt-2">
             <div class="text-sm truncate text-primary">
                 <p
-                    v-if="item.item?.__typename == 'Episode' && item.item.season && item.item.episodeNumber"
+                    v-if="
+                        item.item?.__typename == 'Episode' &&
+                        item.item.season &&
+                        item.item.episodeNumber
+                    "
                 >
                     {{ item.item.season.show.title }}
                     <span class="text-sm text-gray"

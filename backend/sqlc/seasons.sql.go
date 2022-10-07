@@ -144,6 +144,55 @@ func (q *Queries) getSeasonIDsForShows(ctx context.Context, dollar_1 []int32) ([
 	return items, nil
 }
 
+const getSeasonIDsForShowsWithRoles = `-- name: getSeasonIDsForShowsWithRoles :many
+SELECT se.id,
+       se.show_id
+FROM seasons se
+         LEFT JOIN season_availability access ON access.id = se.id
+         LEFT JOIN season_roles roles ON roles.id = se.id
+WHERE se.show_id = ANY ($1::int[])
+  AND access.published
+  AND access.available_to > now()
+  AND (
+        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+        (roles.roles_earlyaccess && $2::varchar[])
+    )
+ORDER BY se.season_number
+`
+
+type getSeasonIDsForShowsWithRolesParams struct {
+	Column1 []int32  `db:"column_1" json:"column1"`
+	Column2 []string `db:"column_2" json:"column2"`
+}
+
+type getSeasonIDsForShowsWithRolesRow struct {
+	ID     int32 `db:"id" json:"id"`
+	ShowID int32 `db:"show_id" json:"showID"`
+}
+
+func (q *Queries) getSeasonIDsForShowsWithRoles(ctx context.Context, arg getSeasonIDsForShowsWithRolesParams) ([]getSeasonIDsForShowsWithRolesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSeasonIDsForShowsWithRoles, pq.Array(arg.Column1), pq.Array(arg.Column2))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getSeasonIDsForShowsWithRolesRow
+	for rows.Next() {
+		var i getSeasonIDsForShowsWithRolesRow
+		if err := rows.Scan(&i.ID, &i.ShowID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSeasons = `-- name: getSeasons :many
 WITH ts AS (SELECT seasons_id,
                    json_object_agg(languages_code, title)       AS title,

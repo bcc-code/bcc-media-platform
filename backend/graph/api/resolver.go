@@ -27,11 +27,12 @@ import (
 // Resolver is the main struct for the GQL implementation
 // It contains references to all external services and config
 type Resolver struct {
-	Queries       *sqlc.Queries
-	Loaders       *common.BatchLoaders
-	SearchService *search.Service
-	URLSigner     *signing.Signer
-	APIConfig     apiConfig
+	Queries         *sqlc.Queries
+	Loaders         *common.BatchLoaders
+	FilteredLoaders func(ctx context.Context) *common.FilteredLoaders
+	SearchService   *search.Service
+	URLSigner       *signing.Signer
+	APIConfig       apiConfig
 }
 
 type apiConfig interface {
@@ -215,7 +216,7 @@ func itemsResolverFor[k comparable, kr comparable, t any, r any](ctx context.Con
 
 	items, err := common.GetManyFromLoader(ctx, loaders.Item, ids)
 
-	return utils.MapWithCtx(ctx, items, converter), nil
+	return utils.MapWithCtx(ctx, items, converter), err
 }
 
 func itemsResolverForIntID[t any, r any](ctx context.Context, loaders *itemLoaders[int, t], listLoader *dataloader.Loader[int, []*int], id string, converter func(context.Context, *t) r) ([]r, error) {
