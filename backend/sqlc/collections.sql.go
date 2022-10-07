@@ -54,8 +54,7 @@ func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1
 }
 
 const getCollectionItemsForCollectionsWithRoles = `-- name: getCollectionItemsForCollectionsWithRoles :many
-SELECT
-    ci.collection_id, ci.date_created, ci.date_updated, ci.episode_id, ci.id, ci.page_id, ci.season_id, ci.show_id, ci.sort, ci.type, ci.user_created, ci.user_updated
+SELECT ci.collection_id, ci.date_created, ci.date_updated, ci.episode_id, ci.id, ci.page_id, ci.season_id, ci.show_id, ci.sort, ci.type, ci.user_created, ci.user_updated
 FROM collections_items ci
          LEFT JOIN episode_roles er ON er.id = ci.episode_id
          LEFT JOIN episode_availability ea ON ea.id = ci.episode_id
@@ -67,24 +66,18 @@ WHERE ci.collection_id = ANY ($1::int[])
   AND (ci.episode_id IS NULL OR (
         ea.published
         AND ea.available_to > now()
-        AND (
-                (er.roles && $2::varchar[] AND ea.available_from < now()) OR
-                (er.roles_earlyaccess && $2::varchar[])
-            )))
+        AND er.roles && $2::varchar[] AND ea.available_from < now()
+    ))
   AND (ci.season_id IS NULL OR (
         sa.published
         AND sa.available_to > now()
-        AND (
-                (sr.roles && $2::varchar[] AND sa.available_from < now()) OR
-                (sr.roles_earlyaccess && $2::varchar[])
-            )))
+        AND sr.roles && $2::varchar[] AND sa.available_from < now()
+    ))
   AND (ci.show_id IS NULL OR (
         sha.published
         AND sha.available_to > now()
-        AND (
-                (shr.roles && $2::varchar[] AND sha.available_from < now()) OR
-                (shr.roles_earlyaccess && $2::varchar[])
-            )))
+        AND shr.roles && $2::varchar[] AND sha.available_from < now()
+    ))
 `
 
 type getCollectionItemsForCollectionsWithRolesParams struct {
