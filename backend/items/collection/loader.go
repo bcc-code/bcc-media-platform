@@ -93,7 +93,7 @@ func GetCollectionEntries(ctx context.Context, loaders *common.BatchLoaders, fil
 
 	switch col.Type {
 	case "select":
-		items, err := common.GetFromLoaderForKey(ctx, loaders.CollectionItemLoader, col.ID)
+		items, err := common.GetFromLoaderForKey(ctx, filteredLoaders.CollectionItemsLoader, col.ID)
 		if err != nil {
 			return nil, err
 		}
