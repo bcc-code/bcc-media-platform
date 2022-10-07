@@ -9,6 +9,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
@@ -180,7 +181,8 @@ func (r *sectionItemResolver) TertiaryTitle(ctx context.Context, obj *model.Sect
 			return nil, err
 		}
 		if e.PublishDateInTitle {
-			str := e.PublishDate.Format("2. Jan 2006")
+			ginCtx, _ := utils.GinCtx(ctx)
+			str := utils.FormatDateInLocale(e.PublishDate, user.GetLanguagesFromCtx(ginCtx))
 			return &str, nil
 		}
 		if t.Season != nil {
