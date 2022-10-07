@@ -53,8 +53,6 @@ CREATE TABLE IF NOT EXISTS "public"."shows_tags" (
 	CONSTRAINT "shows_tags_shows_id_foreign" FOREIGN KEY (shows_id) REFERENCES shows(id) ON DELETE CASCADE
 );
 
-ALTER TABLE IF EXISTS "public"."shows_tags" OWNER TO builder;
-
 GRANT SELECT ON TABLE "public"."shows_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."shows_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."shows_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!

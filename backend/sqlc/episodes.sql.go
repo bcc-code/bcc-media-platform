@@ -122,7 +122,8 @@ SELECT e.id,
        e.legacy_program_id,
        e.asset_id,
        e.episode_number,
-       e.production_date,
+       e.publish_date,
+       COALESCE(e.publish_date_in_title, sh.type == 'event') AS publish_date_in_title,
        fs.filename_disk                                  as image_file_name,
        e.season_id,
        e.type,
@@ -146,22 +147,23 @@ ORDER BY e.episode_number
 `
 
 type getEpisodesRow struct {
-	ID               int32                 `db:"id" json:"id"`
-	LegacyID         null_v4.Int           `db:"legacy_id" json:"legacyID"`
-	LegacyProgramID  null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
-	AssetID          null_v4.Int           `db:"asset_id" json:"assetID"`
-	EpisodeNumber    null_v4.Int           `db:"episode_number" json:"episodeNumber"`
-	ProductionDate   null_v4.Time          `db:"production_date" json:"productionDate"`
-	ImageFileName    null_v4.String        `db:"image_file_name" json:"imageFileName"`
-	SeasonID         null_v4.Int           `db:"season_id" json:"seasonID"`
-	Type             string                `db:"type" json:"type"`
-	Images           json.RawMessage       `db:"images" json:"images"`
-	Title            pqtype.NullRawMessage `db:"title" json:"title"`
-	Description      pqtype.NullRawMessage `db:"description" json:"description"`
-	ExtraDescription pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
-	TagIds           []int32               `db:"tag_ids" json:"tagIds"`
-	Duration         null_v4.Int           `db:"duration" json:"duration"`
-	Agerating        string                `db:"agerating" json:"agerating"`
+	ID                 int32                 `db:"id" json:"id"`
+	LegacyID           null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	LegacyProgramID    null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
+	AssetID            null_v4.Int           `db:"asset_id" json:"assetID"`
+	EpisodeNumber      null_v4.Int           `db:"episode_number" json:"episodeNumber"`
+	PublishDate        time.Time             `db:"publish_date" json:"publishDate"`
+	PublishDateInTitle bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
+	ImageFileName      null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	SeasonID           null_v4.Int           `db:"season_id" json:"seasonID"`
+	Type               string                `db:"type" json:"type"`
+	Images             json.RawMessage       `db:"images" json:"images"`
+	Title              pqtype.NullRawMessage `db:"title" json:"title"`
+	Description        pqtype.NullRawMessage `db:"description" json:"description"`
+	ExtraDescription   pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
+	TagIds             []int32               `db:"tag_ids" json:"tagIds"`
+	Duration           null_v4.Int           `db:"duration" json:"duration"`
+	Agerating          string                `db:"agerating" json:"agerating"`
 }
 
 func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpisodesRow, error) {
@@ -179,7 +181,8 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.LegacyProgramID,
 			&i.AssetID,
 			&i.EpisodeNumber,
-			&i.ProductionDate,
+			&i.PublishDate,
+			&i.PublishDateInTitle,
 			&i.ImageFileName,
 			&i.SeasonID,
 			&i.Type,
@@ -281,7 +284,8 @@ SELECT e.id,
        e.legacy_program_id,
        e.asset_id,
        e.episode_number,
-       e.production_date,
+       e.publish_date,
+       COALESCE(e.publish_date_in_title, sh.type == 'event') AS publish_date_in_title,
        fs.filename_disk                                  as image_file_name,
        e.season_id,
        e.type,
@@ -303,22 +307,23 @@ FROM episodes e
 `
 
 type listEpisodesRow struct {
-	ID               int32                 `db:"id" json:"id"`
-	LegacyID         null_v4.Int           `db:"legacy_id" json:"legacyID"`
-	LegacyProgramID  null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
-	AssetID          null_v4.Int           `db:"asset_id" json:"assetID"`
-	EpisodeNumber    null_v4.Int           `db:"episode_number" json:"episodeNumber"`
-	ProductionDate   null_v4.Time          `db:"production_date" json:"productionDate"`
-	ImageFileName    null_v4.String        `db:"image_file_name" json:"imageFileName"`
-	SeasonID         null_v4.Int           `db:"season_id" json:"seasonID"`
-	Type             string                `db:"type" json:"type"`
-	Images           json.RawMessage       `db:"images" json:"images"`
-	Title            pqtype.NullRawMessage `db:"title" json:"title"`
-	Description      pqtype.NullRawMessage `db:"description" json:"description"`
-	ExtraDescription pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
-	TagIds           []int32               `db:"tag_ids" json:"tagIds"`
-	Duration         null_v4.Int           `db:"duration" json:"duration"`
-	Agerating        string                `db:"agerating" json:"agerating"`
+	ID                 int32                 `db:"id" json:"id"`
+	LegacyID           null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	LegacyProgramID    null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
+	AssetID            null_v4.Int           `db:"asset_id" json:"assetID"`
+	EpisodeNumber      null_v4.Int           `db:"episode_number" json:"episodeNumber"`
+	PublishDate        time.Time             `db:"publish_date" json:"publishDate"`
+	PublishDateInTitle bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
+	ImageFileName      null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	SeasonID           null_v4.Int           `db:"season_id" json:"seasonID"`
+	Type               string                `db:"type" json:"type"`
+	Images             json.RawMessage       `db:"images" json:"images"`
+	Title              pqtype.NullRawMessage `db:"title" json:"title"`
+	Description        pqtype.NullRawMessage `db:"description" json:"description"`
+	ExtraDescription   pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
+	TagIds             []int32               `db:"tag_ids" json:"tagIds"`
+	Duration           null_v4.Int           `db:"duration" json:"duration"`
+	Agerating          string                `db:"agerating" json:"agerating"`
 }
 
 func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
@@ -336,7 +341,8 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 			&i.LegacyProgramID,
 			&i.AssetID,
 			&i.EpisodeNumber,
-			&i.ProductionDate,
+			&i.PublishDate,
+			&i.PublishDateInTitle,
 			&i.ImageFileName,
 			&i.SeasonID,
 			&i.Type,

@@ -535,7 +535,7 @@ type Episode struct {
 	Type                     string                `db:"type" json:"type"`
 	UserCreated              uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated              uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
-	ProductionDate           null_v4.Time          `db:"production_date" json:"productionDate"`
+	PublishDateInTitle       sql.NullBool          `db:"publish_date_in_title" json:"publishDateInTitle"`
 }
 
 type EpisodeAvailability struct {

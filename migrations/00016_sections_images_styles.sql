@@ -63,8 +63,6 @@ CREATE TABLE IF NOT EXISTS "public"."sections_links" (
 	CONSTRAINT "sections_links_icon_foreign" FOREIGN KEY (icon) REFERENCES directus_files(id) ON DELETE SET NULL
 );
 
-ALTER TABLE IF EXISTS "public"."sections_links" OWNER TO builder;
-
 GRANT SELECT ON TABLE "public"."sections_links" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."sections_links" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."sections_links" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -147,8 +145,6 @@ CREATE TABLE IF NOT EXISTS "public"."images" (
 	CONSTRAINT "images_season_id_foreign" FOREIGN KEY (season_id) REFERENCES seasons(id) ON DELETE CASCADE ,
 	CONSTRAINT "images_episode_id_foreign" FOREIGN KEY (episode_id) REFERENCES episodes(id) ON DELETE CASCADE
 );
-
-ALTER TABLE IF EXISTS "public"."images" OWNER TO builder;
 
 GRANT SELECT ON TABLE "public"."images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!

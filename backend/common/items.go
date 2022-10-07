@@ -91,21 +91,22 @@ func (i Season) GetTagIDs() []int {
 
 // Episode is the definition of the Episode object
 type Episode struct {
-	ID               int          `json:"id"`
-	LegacyID         null.Int     `json:"legacyId"`
-	LegacyProgramID  null.Int     `json:"legacyProgramId"`
-	SeasonID         null.Int     `json:"seasonId"`
-	ProductionDate   null.Time    `json:"productionDate"`
-	Number           null.Int     `json:"number"`
-	Duration         int          `json:"duration"`
-	AgeRating        string       `json:"ageRating"`
-	AssetID          null.Int     `json:"assetId"`
-	Image            null.String  `json:"image"`
-	Images           Images       `json:"images"`
-	TagIDs           []int        `json:"tagIds"`
-	Title            LocaleString `json:"title"`
-	Description      LocaleString `json:"description"`
-	ExtraDescription LocaleString `json:"extraDescription"`
+	ID                 int          `json:"id"`
+	LegacyID           null.Int     `json:"legacyId"`
+	LegacyProgramID    null.Int     `json:"legacyProgramId"`
+	SeasonID           null.Int     `json:"seasonId"`
+	PublishDateInTitle bool         `json:"publishDateInTitle"`
+	PublishDate        time.Time    `json:"publishDate"`
+	Number             null.Int     `json:"number"`
+	Duration           int          `json:"duration"`
+	AgeRating          string       `json:"ageRating"`
+	AssetID            null.Int     `json:"assetId"`
+	Image              null.String  `json:"image"`
+	Images             Images       `json:"images"`
+	TagIDs             []int        `json:"tagIds"`
+	Title              LocaleString `json:"title"`
+	Description        LocaleString `json:"description"`
+	ExtraDescription   LocaleString `json:"extraDescription"`
 }
 
 // GetKey returns the key for this item

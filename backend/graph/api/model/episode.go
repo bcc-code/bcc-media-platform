@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"strconv"
+	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/user"
@@ -54,8 +55,8 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 	}
 
 	var productionDate *string
-	if e.ProductionDate.Valid {
-		ds := e.ProductionDate.Time.String()
+	if e.PublishDateInTitle {
+		ds := e.PublishDate.Format(time.RFC3339)
 		productionDate = &ds
 	}
 
