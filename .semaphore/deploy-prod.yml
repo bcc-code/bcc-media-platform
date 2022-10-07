@@ -29,7 +29,7 @@ blocks:
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
   - name: Web
     run:
-      when: change_in('/web/')
+      when: branch = 'master'
     task:
       jobs:
         - name: deploy
