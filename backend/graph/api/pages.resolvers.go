@@ -6,6 +6,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
@@ -94,24 +95,43 @@ func (r *iconSectionResolver) Items(ctx context.Context, obj *model.IconSection,
 
 // Items is the resolver for the items field.
 func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int) (*model.LinkItemPagination, error) {
-	panic(fmt.Errorf("not implemented"))
-}
+	pagination, err := sectionLinkItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 
-// Sections is the resolver for the sections field.
-func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int, offset *int) (*model.SectionPagination, error) {
-	sections, err := itemsResolverForIntID(ctx, &itemLoaders[int, common.Section]{
-		Item:        r.Loaders.SectionLoader,
-		Permissions: r.Loaders.SectionPermissionLoader,
-	}, r.Loaders.SectionsLoader, obj.ID, model.SectionFrom)
 	if err != nil {
 		return nil, err
 	}
-	pagination := utils.Paginate(sections, first, offset, nil)
-	return &model.SectionPagination{
+
+	return &model.LinkItemPagination{
 		Total:  pagination.Total,
 		First:  pagination.First,
 		Offset: pagination.Offset,
 		Items:  pagination.Items,
+	}, nil
+}
+
+// Sections is the resolver for the sections field.
+func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int, offset *int) (*model.SectionPagination, error) {
+	intID, err := strconv.ParseInt(obj.ID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	itemIDs, err := common.GetFromLoaderForKey(ctx, r.FilteredLoaders(ctx).SectionsLoader, int(intID))
+	if err != nil {
+		return nil, err
+	}
+
+	page := utils.Paginate(itemIDs, first, offset, nil)
+
+	sections, err := common.GetManyFromLoader(ctx, r.Loaders.SectionLoader, utils.PointerIntArrayToIntArray(page.Items))
+	if err != nil {
+		return nil, err
+	}
+	return &model.SectionPagination{
+		Total:  page.Total,
+		First:  page.First,
+		Offset: page.Offset,
+		Items:  utils.MapWithCtx(ctx, sections, model.SectionFrom),
 	}, nil
 }
 
