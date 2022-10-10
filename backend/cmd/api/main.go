@@ -211,7 +211,7 @@ func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code st
 	}
 }
 
-func initBatchLoaders(db *sql.DB, queries *sqlc.Queries) *common.BatchLoaders {
+func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 	collectionLoader := common.NewBatchLoader(queries.GetCollections)
 
 	return &common.BatchLoaders{
@@ -289,7 +289,7 @@ func main() {
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
 
-	loaders := initBatchLoaders(db, queries)
+	loaders := initBatchLoaders(queries)
 
 	authClient := auth0.New(config.Auth0)
 	membersClient := members.New(config.Members, func(ctx context.Context) string {
