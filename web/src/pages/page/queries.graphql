@@ -1,0 +1,85 @@
+fragment SectionItem on SectionItem {
+    item {
+        __typename
+        ... on Episode {
+            episodeNumber: number
+            season {
+                number
+                show {
+                    title
+                }
+            }
+        }
+        ... on Season {
+            seasonNumber: number
+            show {
+                title
+            }
+        }
+        ... on Page {
+            code
+        }
+    }
+}
+
+fragment ItemSection on ItemSection {
+    items {
+        items {
+            id
+            image
+            title
+            sort
+            ...SectionItem
+        }
+    }
+    ... on DefaultSection {
+        size
+    }
+    ... on FeaturedSection {
+        size
+    }
+    ... on GridSection {
+        gridSize: size
+    }
+    ... on PosterSection {
+        size
+    }
+}
+
+fragment LinkSection on LinkSection {
+    items {
+        items {
+            id
+            title
+            icon
+            ... on PageLinkItem {
+                page {
+                    id
+                }
+            }
+            ... on URLLinkItem {
+                url
+            }
+        }
+    }
+}
+
+fragment StyledSections on Section {
+    ...LinkSection
+    ...ItemSection
+}
+
+query getPage($code: String!) {
+    page(code: $code) {
+        id
+        title
+        sections {
+            items {
+                __typename
+                id
+                title
+                ...StyledSections
+            }
+        }
+    }
+}

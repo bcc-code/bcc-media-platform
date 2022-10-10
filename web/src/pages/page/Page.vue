@@ -1,11 +1,11 @@
 <template>
     <section>
         <div class="mx-10" v-if="data?.page?.sections.items.length">
-            <ItemSection
+            <Section
                 v-for="section in data?.page?.sections.items"
                 :section="section"
             >
-            </ItemSection>
+            </Section>
         </div>
         <div v-if="fetching">FETCHING</div>
         <div v-else-if="!data?.page.sections.items.length">
@@ -16,7 +16,7 @@
 </template>
 <script lang="ts" setup>
 import { useGetPageQuery } from "@/graph/generated"
-import ItemSection from "@/components/sections/ItemSection.vue"
+import Section from "@/components/sections/Section.vue"
 
 const props = defineProps<{
     pageId: string
