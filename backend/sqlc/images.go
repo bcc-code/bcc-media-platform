@@ -22,7 +22,11 @@ func (q *Queries) getImages(jsonMessage json.RawMessage) common.Images {
 			existing = common.LocaleMap[string]{}
 			m[i.Style] = existing
 		}
-		existing[i.Language] = fmt.Sprintf("https://%s/%s", q.getImageCDNDomain(), i.FilenameDisk)
+		existing[i.Language] = q.filenameToImageURL(i.FilenameDisk)
 		return m
 	}, common.Images{})
+}
+
+func (q *Queries) filenameToImageURL(filename string) string {
+	return fmt.Sprintf("https://%s/%s", q.getImageCDNDomain(), filename)
 }
