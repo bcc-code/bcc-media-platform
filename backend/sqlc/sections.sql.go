@@ -148,6 +148,59 @@ func (q *Queries) getSectionIDsForPages(ctx context.Context, dollar_1 []int32) (
 	return items, nil
 }
 
+const getSectionIDsForPagesWithRoles = `-- name: getSectionIDsForPagesWithRoles :many
+WITH roles AS (
+    SELECT s.id,
+           COALESCE((SELECT array_agg(DISTINCT seu.usergroups_code) AS code
+                     FROM sections_usergroups seu
+                     WHERE seu.sections_id = s.id), ARRAY []::character varying[]) AS roles
+    FROM sections s
+)
+SELECT s.id::int AS id,
+       p.id::int AS page_id
+FROM sections s
+     JOIN pages p ON s.page_id = p.id
+     JOIN roles r ON r.id = s.id
+WHERE p.id = ANY ($1::int[])
+  AND s.status = 'published'
+  AND p.status = 'published'
+  AND r.roles && $2::varchar[]
+ORDER BY s.sort
+`
+
+type getSectionIDsForPagesWithRolesParams struct {
+	Column1 []int32  `db:"column_1" json:"column1"`
+	Column2 []string `db:"column_2" json:"column2"`
+}
+
+type getSectionIDsForPagesWithRolesRow struct {
+	ID     int32 `db:"id" json:"id"`
+	PageID int32 `db:"page_id" json:"pageID"`
+}
+
+func (q *Queries) getSectionIDsForPagesWithRoles(ctx context.Context, arg getSectionIDsForPagesWithRolesParams) ([]getSectionIDsForPagesWithRolesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSectionIDsForPagesWithRoles, pq.Array(arg.Column1), pq.Array(arg.Column2))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getSectionIDsForPagesWithRolesRow
+	for rows.Next() {
+		var i getSectionIDsForPagesWithRolesRow
+		if err := rows.Scan(&i.ID, &i.PageID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSections = `-- name: getSections :many
 WITH t AS (SELECT ts.sections_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
@@ -156,7 +209,9 @@ WITH t AS (SELECT ts.sections_id,
            GROUP BY ts.sections_id)
 SELECT s.id,
        p.id::int                          AS page_id,
+       s.type,
        s.style,
+       s.link_style,
        s.size,
        s.grid_size,
        s.show_title,
@@ -176,7 +231,9 @@ WHERE s.id = ANY ($1::int[])
 type getSectionsRow struct {
 	ID           int32                 `db:"id" json:"id"`
 	PageID       int32                 `db:"page_id" json:"pageID"`
+	Type         null_v4.String        `db:"type" json:"type"`
 	Style        null_v4.String        `db:"style" json:"style"`
+	LinkStyle    null_v4.String        `db:"link_style" json:"linkStyle"`
 	Size         null_v4.String        `db:"size" json:"size"`
 	GridSize     null_v4.String        `db:"grid_size" json:"gridSize"`
 	ShowTitle    sql.NullBool          `db:"show_title" json:"showTitle"`
@@ -199,7 +256,9 @@ func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSecti
 		if err := rows.Scan(
 			&i.ID,
 			&i.PageID,
+			&i.Type,
 			&i.Style,
+			&i.LinkStyle,
 			&i.Size,
 			&i.GridSize,
 			&i.ShowTitle,
