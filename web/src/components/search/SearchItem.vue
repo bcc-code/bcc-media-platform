@@ -7,8 +7,14 @@
                 item.image +
                 '\')',
         }"
-    >  
-        <div v-if="adminOn" class="absolute text-primary right-0 bg-black p-2 rounded cursor-pointer m-2" @click="open">EDIT</div> 
+    >
+        <div
+            v-if="adminOn"
+            class="absolute text-primary right-0 bg-black p-2 rounded cursor-pointer m-2"
+            @click="open"
+        >
+            EDIT
+        </div>
         <h1 class="text-lg p-2 text-primary font-semibold mt-auto">
             {{ item.title }}
         </h1>
@@ -28,15 +34,20 @@ const open = () => {
     switch (props.item.__typename) {
         case "EpisodeSearchItem":
             collection = "episodes"
-            break;
-            case "SeasonSearchItem":
-                collection = "seasons"
-                break;
-                case "ShowSearchItem":
-                    collection = "shows"
-                    break;
+            break
+        case "SeasonSearchItem":
+            collection = "seasons"
+            break
+        case "ShowSearchItem":
+            collection = "shows"
+            break
     }
 
-    window.open("https://admin.brunstad.tv/admin/content/"+ collection + "/" + props.item.id)
+    window.open(
+        "https://admin.brunstad.tv/admin/content/" +
+            collection +
+            "/" +
+            props.item.id
+    )
 }
 </script>

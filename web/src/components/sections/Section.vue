@@ -1,21 +1,39 @@
 <template>
     <div>
-        <PosterSection v-if="section.__typename === 'PosterSection'" :item="section"></PosterSection>
-        <FeaturedSection v-if="section.__typename === 'FeaturedSection'" :item="section"></FeaturedSection>
-        <DefaultSection v-if="section.__typename === 'DefaultSection'" :item="section"></DefaultSection>
-        <GridSection v-if="section.__typename === 'GridSection'" :item="section"></GridSection>
-        <LabelSection v-if="section.__typename === 'LabelSection'" :item="section"></LabelSection>
-        <IconSection v-if="section.__typename === 'IconSection'" :item="section"></IconSection>
+        <PosterSection
+            v-if="section.__typename === 'PosterSection'"
+            :item="section"
+        ></PosterSection>
+        <FeaturedSection
+            v-if="section.__typename === 'FeaturedSection'"
+            :item="section"
+        ></FeaturedSection>
+        <DefaultSection
+            v-if="section.__typename === 'DefaultSection'"
+            :item="section"
+        ></DefaultSection>
+        <GridSection
+            v-if="section.__typename === 'GridSection'"
+            :item="section"
+        ></GridSection>
+        <LabelSection
+            v-if="section.__typename === 'LabelSection'"
+            :item="section"
+        ></LabelSection>
+        <IconSection
+            v-if="section.__typename === 'IconSection'"
+            :item="section"
+        ></IconSection>
     </div>
 </template>
 <script lang="ts" setup>
 import { Section } from "./types"
-import PosterSection from "./PosterSection.vue";
-import FeaturedSection from "./FeaturedSection.vue";
-import DefaultSection from "./DefaultSection.vue";
-import GridSection from "./GridSection.vue";
-import LabelSection from "./LabelSection.vue";
-import IconSection from "./IconSection.vue";
+import PosterSection from "./PosterSection.vue"
+import FeaturedSection from "./FeaturedSection.vue"
+import DefaultSection from "./DefaultSection.vue"
+import GridSection from "./GridSection.vue"
+import LabelSection from "./LabelSection.vue"
+import IconSection from "./IconSection.vue"
 
 defineProps<{
     section: Section
