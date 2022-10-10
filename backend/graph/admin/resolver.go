@@ -21,7 +21,7 @@ type Resolver struct {
 }
 
 func (r *previewResolver) getItemsForFilter(ctx context.Context, col string, filter common.Filter) ([]*model.CollectionItem, error) {
-	ids, err := collection.GetItemIDsForFilter(ctx, r.DB, col, filter)
+	ids, err := collection.GetItemIDsForFilter(ctx, r.DB, nil, col, filter)
 	if err != nil {
 		return nil, err
 	}

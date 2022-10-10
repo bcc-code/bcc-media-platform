@@ -537,6 +537,20 @@ type Episode struct {
 	UserUpdated              uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 }
 
+type EpisodeAvailability struct {
+	ID            int32       `db:"id" json:"id"`
+	Published     interface{} `db:"published" json:"published"`
+	AvailableFrom interface{} `db:"available_from" json:"availableFrom"`
+	AvailableTo   interface{} `db:"available_to" json:"availableTo"`
+}
+
+type EpisodeRole struct {
+	ID               int32       `db:"id" json:"id"`
+	Roles            interface{} `db:"roles" json:"roles"`
+	RolesDownload    interface{} `db:"roles_download" json:"rolesDownload"`
+	RolesEarlyaccess interface{} `db:"roles_earlyaccess" json:"rolesEarlyaccess"`
+}
+
 type EpisodesCategory struct {
 	CategoriesID int32 `db:"categories_id" json:"categoriesID"`
 	EpisodesID   int32 `db:"episodes_id" json:"episodesID"`
@@ -776,6 +790,20 @@ type Season struct {
 	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 }
 
+type SeasonAvailability struct {
+	ID            int32       `db:"id" json:"id"`
+	Published     interface{} `db:"published" json:"published"`
+	AvailableFrom interface{} `db:"available_from" json:"availableFrom"`
+	AvailableTo   interface{} `db:"available_to" json:"availableTo"`
+}
+
+type SeasonRole struct {
+	ID               int32       `db:"id" json:"id"`
+	Roles            interface{} `db:"roles" json:"roles"`
+	RolesDownload    interface{} `db:"roles_download" json:"rolesDownload"`
+	RolesEarlyaccess interface{} `db:"roles_earlyaccess" json:"rolesEarlyaccess"`
+}
+
 type SeasonsTag struct {
 	ID        int32       `db:"id" json:"id"`
 	SeasonsID null_v4.Int `db:"seasons_id" json:"seasonsID"`
@@ -828,6 +856,7 @@ type SectionsLink struct {
 	Url         null_v4.String `db:"url" json:"url"`
 	SectionID   int32          `db:"section_id" json:"sectionID"`
 	Icon        uuid.NullUUID  `db:"icon" json:"icon"`
+	Title       string         `db:"title" json:"title"`
 }
 
 type SectionsTranslation struct {
@@ -860,6 +889,20 @@ type Show struct {
 	Type                string         `db:"type" json:"type"`
 	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+}
+
+type ShowAvailability struct {
+	ID            int32     `db:"id" json:"id"`
+	Published     bool      `db:"published" json:"published"`
+	AvailableFrom time.Time `db:"available_from" json:"availableFrom"`
+	AvailableTo   time.Time `db:"available_to" json:"availableTo"`
+}
+
+type ShowRole struct {
+	ID               int32       `db:"id" json:"id"`
+	Roles            interface{} `db:"roles" json:"roles"`
+	RolesDownload    interface{} `db:"roles_download" json:"rolesDownload"`
+	RolesEarlyaccess interface{} `db:"roles_earlyaccess" json:"rolesEarlyaccess"`
 }
 
 type ShowsTag struct {

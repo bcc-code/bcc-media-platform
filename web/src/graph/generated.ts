@@ -94,6 +94,19 @@ export type ConfigGlobalArgs = {
     timestamp?: InputMaybe<Scalars["String"]>
 }
 
+export type DefaultSection = ItemSection &
+    Section & {
+        id: Scalars["ID"]
+        items: SectionItemPagination
+        size: SectionSize
+        title?: Maybe<Scalars["String"]>
+    }
+
+export type DefaultSectionItemsArgs = {
+    first?: InputMaybe<Scalars["Int"]>
+    offset?: InputMaybe<Scalars["Int"]>
+}
+
 export type Episode = {
     ageRating: Scalars["String"]
     audioLanguages: Array<Language>
@@ -104,6 +117,7 @@ export type Episode = {
     files: Array<File>
     id: Scalars["ID"]
     imageUrl?: Maybe<Scalars["String"]>
+    images: Array<Image>
     legacyID?: Maybe<Scalars["ID"]>
     legacyProgramID?: Maybe<Scalars["ID"]>
     number?: Maybe<Scalars["Int"]>
@@ -127,6 +141,7 @@ export type EpisodeItem = Item & {
     episode: Episode
     id: Scalars["ID"]
     imageUrl?: Maybe<Scalars["String"]>
+    images: Array<Image>
     sort: Scalars["Int"]
     title: Scalars["String"]
 }
@@ -204,6 +219,19 @@ export type FaqCategoryPagination = Pagination & {
     total: Scalars["Int"]
 }
 
+export type FeaturedSection = ItemSection &
+    Section & {
+        id: Scalars["ID"]
+        items: SectionItemPagination
+        size: SectionSize
+        title?: Maybe<Scalars["String"]>
+    }
+
+export type FeaturedSectionItemsArgs = {
+    first?: InputMaybe<Scalars["Int"]>
+    offset?: InputMaybe<Scalars["Int"]>
+}
+
 export type File = {
     audioLanguage: Language
     fileName: Scalars["String"]
@@ -219,20 +247,52 @@ export type GlobalConfig = {
     npawEnabled: Scalars["Boolean"]
 }
 
+export type GridSection = ItemSection &
+    Section & {
+        id: Scalars["ID"]
+        items: SectionItemPagination
+        size: GridSectionSize
+        title?: Maybe<Scalars["String"]>
+    }
+
+export type GridSectionItemsArgs = {
+    first?: InputMaybe<Scalars["Int"]>
+    offset?: InputMaybe<Scalars["Int"]>
+}
+
+export enum GridSectionSize {
+    Half = "half",
+}
+
+export type IconItem = {
+    icon?: Maybe<Scalars["String"]>
+    id: Scalars["ID"]
+    title: Scalars["String"]
+}
+
+export type IconSection = LinkSection &
+    Section & {
+        id: Scalars["ID"]
+        title?: Maybe<Scalars["String"]>
+    }
+
+export type Image = {
+    style: Scalars["String"]
+    url: Scalars["String"]
+}
+
 export type Item = {
     id: Scalars["ID"]
     imageUrl?: Maybe<Scalars["String"]>
+    images: Array<Image>
     sort: Scalars["Int"]
     title: Scalars["String"]
 }
 
-export type ItemSection = Section & {
+export type ItemSection = {
     id: Scalars["ID"]
-    items: CollectionItemPagination
-    page: Page
-    style: Scalars["String"]
-    title: Scalars["String"]
-    type: ItemSectionType
+    items: SectionItemPagination
+    title?: Maybe<Scalars["String"]>
 }
 
 export type ItemSectionItemsArgs = {
@@ -240,15 +300,34 @@ export type ItemSectionItemsArgs = {
     offset?: InputMaybe<Scalars["Int"]>
 }
 
-export enum ItemSectionType {
-    Cards = "cards",
-    Slider = "slider",
+export type LabelItem = {
+    id: Scalars["ID"]
+    title: Scalars["String"]
 }
+
+export type LabelItemPagination = Pagination & {
+    first: Scalars["Int"]
+    items: Array<LabelItem>
+    offset: Scalars["Int"]
+    total: Scalars["Int"]
+}
+
+export type LabelSection = LinkSection &
+    Section & {
+        id: Scalars["ID"]
+        items: LabelItemPagination
+        title?: Maybe<Scalars["String"]>
+    }
 
 export enum Language {
     De = "de",
     En = "en",
     No = "no",
+}
+
+export type LinkSection = {
+    id: Scalars["ID"]
+    title?: Maybe<Scalars["String"]>
 }
 
 export type MaintenanceMessage = {
@@ -280,22 +359,35 @@ export type PageSectionsArgs = {
 export type PageItem = Item & {
     id: Scalars["ID"]
     imageUrl?: Maybe<Scalars["String"]>
+    images: Array<Image>
     page: Page
     sort: Scalars["Int"]
     title: Scalars["String"]
 }
 
-export type PagePagination = Pagination & {
-    first: Scalars["Int"]
-    items: Array<Page>
-    offset: Scalars["Int"]
-    total: Scalars["Int"]
+export type PageLabelItem = LabelItem & {
+    id: Scalars["ID"]
+    page: Page
+    title: Scalars["String"]
 }
 
 export type Pagination = {
     first: Scalars["Int"]
     offset: Scalars["Int"]
     total: Scalars["Int"]
+}
+
+export type PosterSection = ItemSection &
+    Section & {
+        id: Scalars["ID"]
+        items: SectionItemPagination
+        size: SectionSize
+        title?: Maybe<Scalars["String"]>
+    }
+
+export type PosterSectionItemsArgs = {
+    first?: InputMaybe<Scalars["Int"]>
+    offset?: InputMaybe<Scalars["Int"]>
 }
 
 export type QueryRoot = {
@@ -390,6 +482,7 @@ export type Season = {
     episodes: EpisodePagination
     id: Scalars["ID"]
     imageUrl?: Maybe<Scalars["String"]>
+    images: Array<Image>
     legacyID?: Maybe<Scalars["ID"]>
     number: Scalars["Int"]
     show: Show
@@ -397,6 +490,7 @@ export type Season = {
 }
 
 export type SeasonEpisodesArgs = {
+    dir?: InputMaybe<Scalars["String"]>
     first?: InputMaybe<Scalars["Int"]>
     offset?: InputMaybe<Scalars["Int"]>
 }
@@ -414,6 +508,7 @@ export type SeasonCalendarEntry = CalendarEntry & {
 export type SeasonItem = Item & {
     id: Scalars["ID"]
     imageUrl?: Maybe<Scalars["String"]>
+    images: Array<Image>
     season: Season
     sort: Scalars["Int"]
     title: Scalars["String"]
@@ -444,14 +539,36 @@ export type SeasonSearchItem = SearchResultItem & {
 
 export type Section = {
     id: Scalars["ID"]
+    title?: Maybe<Scalars["String"]>
+}
+
+export type SectionItem = {
+    id: Scalars["ID"]
+    image?: Maybe<Scalars["String"]>
+    item?: Maybe<SectionItemType>
+    sort: Scalars["Int"]
     title: Scalars["String"]
 }
+
+export type SectionItemPagination = Pagination & {
+    first: Scalars["Int"]
+    items: Array<SectionItem>
+    offset: Scalars["Int"]
+    total: Scalars["Int"]
+}
+
+export type SectionItemType = Episode | Page | Season | Show
 
 export type SectionPagination = Pagination & {
     first: Scalars["Int"]
     items: Array<Section>
     offset: Scalars["Int"]
     total: Scalars["Int"]
+}
+
+export enum SectionSize {
+    Medium = "medium",
+    Small = "small",
 }
 
 export type Settings = {
@@ -464,6 +581,7 @@ export type Show = {
     episodeCount: Scalars["Int"]
     id: Scalars["ID"]
     imageUrl?: Maybe<Scalars["String"]>
+    images: Array<Image>
     legacyID?: Maybe<Scalars["ID"]>
     seasonCount: Scalars["Int"]
     seasons: SeasonPagination
@@ -471,6 +589,7 @@ export type Show = {
 }
 
 export type ShowSeasonsArgs = {
+    dir?: InputMaybe<Scalars["String"]>
     first?: InputMaybe<Scalars["Int"]>
     offset?: InputMaybe<Scalars["Int"]>
 }
@@ -488,16 +607,10 @@ export type ShowCalendarEntry = CalendarEntry & {
 export type ShowItem = Item & {
     id: Scalars["ID"]
     imageUrl?: Maybe<Scalars["String"]>
+    images: Array<Image>
     show: Show
     sort: Scalars["Int"]
     title: Scalars["String"]
-}
-
-export type ShowPagination = Pagination & {
-    first: Scalars["Int"]
-    items: Array<Show>
-    offset: Scalars["Int"]
-    total: Scalars["Int"]
 }
 
 export type ShowSearchItem = SearchResultItem & {
@@ -538,7 +651,14 @@ export enum StreamType {
 export type UrlItem = Item & {
     id: Scalars["ID"]
     imageUrl?: Maybe<Scalars["String"]>
+    images: Array<Image>
     sort: Scalars["Int"]
+    title: Scalars["String"]
+    url: Scalars["String"]
+}
+
+export type UrlLabelItem = LabelItem & {
+    id: Scalars["ID"]
     title: Scalars["String"]
     url: Scalars["String"]
 }
@@ -554,72 +674,158 @@ export type User = {
 }
 
 export type EpisodeItemFragment = {
-    episode: {
-        number?: number | null
-        season?: { number: number; show: { title: string } } | null
-    }
+    item?:
+        | {
+              episodeNumber?: number | null
+              season?: { number: number; show: { title: string } } | null
+          }
+        | {}
+        | null
 }
+
+export type EpisodeItemFragmentVariables = Exact<{ [key: string]: never }>
 
 export type SeasonItemFragment = {
-    season: { number: number; show: { title: string } }
+    item?: { seasonNumber: number; show: { title: string } } | {} | null
 }
 
-export type ShowItemFragment = { show: { title: string } }
+export type SeasonItemFragmentVariables = Exact<{ [key: string]: never }>
 
-export type PageItemFragment = { page: { code: string } }
+export type ShowItemFragment = { item?: { title: string } | {} | null }
 
-export type SectionFragment = {
-    style: string
+export type ShowItemFragmentVariables = Exact<{ [key: string]: never }>
+
+export type PageItemFragment = { item?: { code: string } | {} | null }
+
+export type PageItemFragmentVariables = Exact<{ [key: string]: never }>
+
+type Section_DefaultSection_Fragment = {
+    __typename: "DefaultSection"
     items: {
-        items: Array<
-            | {
-                  __typename: "EpisodeItem"
-                  id: string
-                  title: string
-                  imageUrl?: string | null
-                  sort: number
-                  episode: {
-                      number?: number | null
+        items: Array<{
+            __typename: "SectionItem"
+            id: string
+            title: string
+            image?: string | null
+            sort: number
+            item?:
+                | {
+                      __typename: "Episode"
+                      episodeNumber?: number | null
                       season?: {
                           number: number
                           show: { title: string }
                       } | null
                   }
-              }
-            | {
-                  __typename: "PageItem"
-                  id: string
-                  title: string
-                  imageUrl?: string | null
-                  sort: number
-                  page: { code: string }
-              }
-            | {
-                  __typename: "SeasonItem"
-                  id: string
-                  title: string
-                  imageUrl?: string | null
-                  sort: number
-                  season: { number: number; show: { title: string } }
-              }
-            | {
-                  __typename: "ShowItem"
-                  id: string
-                  title: string
-                  imageUrl?: string | null
-                  sort: number
-                  show: { title: string }
-              }
-            | {
-                  __typename: "URLItem"
-                  id: string
-                  title: string
-                  imageUrl?: string | null
-                  sort: number
-              }
-        >
+                | { __typename: "Page"; code: string }
+                | {
+                      __typename: "Season"
+                      seasonNumber: number
+                      show: { title: string }
+                  }
+                | { __typename: "Show"; title: string }
+                | null
+        }>
     }
 }
+
+type Section_FeaturedSection_Fragment = {
+    __typename: "FeaturedSection"
+    items: {
+        items: Array<{
+            __typename: "SectionItem"
+            id: string
+            title: string
+            image?: string | null
+            sort: number
+            item?:
+                | {
+                      __typename: "Episode"
+                      episodeNumber?: number | null
+                      season?: {
+                          number: number
+                          show: { title: string }
+                      } | null
+                  }
+                | { __typename: "Page"; code: string }
+                | {
+                      __typename: "Season"
+                      seasonNumber: number
+                      show: { title: string }
+                  }
+                | { __typename: "Show"; title: string }
+                | null
+        }>
+    }
+}
+
+type Section_GridSection_Fragment = {
+    __typename: "GridSection"
+    items: {
+        items: Array<{
+            __typename: "SectionItem"
+            id: string
+            title: string
+            image?: string | null
+            sort: number
+            item?:
+                | {
+                      __typename: "Episode"
+                      episodeNumber?: number | null
+                      season?: {
+                          number: number
+                          show: { title: string }
+                      } | null
+                  }
+                | { __typename: "Page"; code: string }
+                | {
+                      __typename: "Season"
+                      seasonNumber: number
+                      show: { title: string }
+                  }
+                | { __typename: "Show"; title: string }
+                | null
+        }>
+    }
+}
+
+type Section_PosterSection_Fragment = {
+    __typename: "PosterSection"
+    items: {
+        items: Array<{
+            __typename: "SectionItem"
+            id: string
+            title: string
+            image?: string | null
+            sort: number
+            item?:
+                | {
+                      __typename: "Episode"
+                      episodeNumber?: number | null
+                      season?: {
+                          number: number
+                          show: { title: string }
+                      } | null
+                  }
+                | { __typename: "Page"; code: string }
+                | {
+                      __typename: "Season"
+                      seasonNumber: number
+                      show: { title: string }
+                  }
+                | { __typename: "Show"; title: string }
+                | null
+        }>
+    }
+}
+
+export type SectionFragment =
+    | Section_DefaultSection_Fragment
+    | Section_FeaturedSection_Fragment
+    | Section_GridSection_Fragment
+    | Section_PosterSection_Fragment
+
+export type SectionFragmentVariables = Exact<{ [key: string]: never }>
 
 export type GetPageQueryVariables = Exact<{
     code: Scalars["String"]
@@ -630,63 +836,142 @@ export type GetPageQuery = {
         id: string
         title: string
         sections: {
-            items: Array<{
-                id: string
-                title: string
-                style: string
-                items: {
-                    items: Array<
-                        | {
-                              __typename: "EpisodeItem"
+            items: Array<
+                | {
+                      __typename: "DefaultSection"
+                      id: string
+                      title?: string | null
+                      items: {
+                          items: Array<{
+                              __typename: "SectionItem"
                               id: string
                               title: string
-                              imageUrl?: string | null
+                              image?: string | null
                               sort: number
-                              episode: {
-                                  number?: number | null
-                                  season?: {
-                                      number: number
-                                      show: { title: string }
-                                  } | null
-                              }
-                          }
-                        | {
-                              __typename: "PageItem"
+                              item?:
+                                  | {
+                                        __typename: "Episode"
+                                        episodeNumber?: number | null
+                                        season?: {
+                                            number: number
+                                            show: { title: string }
+                                        } | null
+                                    }
+                                  | { __typename: "Page"; code: string }
+                                  | {
+                                        __typename: "Season"
+                                        seasonNumber: number
+                                        show: { title: string }
+                                    }
+                                  | { __typename: "Show"; title: string }
+                                  | null
+                          }>
+                      }
+                  }
+                | {
+                      __typename: "FeaturedSection"
+                      id: string
+                      title?: string | null
+                      items: {
+                          items: Array<{
+                              __typename: "SectionItem"
                               id: string
                               title: string
-                              imageUrl?: string | null
+                              image?: string | null
                               sort: number
-                              page: { code: string }
-                          }
-                        | {
-                              __typename: "SeasonItem"
+                              item?:
+                                  | {
+                                        __typename: "Episode"
+                                        episodeNumber?: number | null
+                                        season?: {
+                                            number: number
+                                            show: { title: string }
+                                        } | null
+                                    }
+                                  | { __typename: "Page"; code: string }
+                                  | {
+                                        __typename: "Season"
+                                        seasonNumber: number
+                                        show: { title: string }
+                                    }
+                                  | { __typename: "Show"; title: string }
+                                  | null
+                          }>
+                      }
+                  }
+                | {
+                      __typename: "GridSection"
+                      id: string
+                      title?: string | null
+                      items: {
+                          items: Array<{
+                              __typename: "SectionItem"
                               id: string
                               title: string
-                              imageUrl?: string | null
+                              image?: string | null
                               sort: number
-                              season: {
-                                  number: number
-                                  show: { title: string }
-                              }
-                          }
-                        | {
-                              __typename: "ShowItem"
+                              item?:
+                                  | {
+                                        __typename: "Episode"
+                                        episodeNumber?: number | null
+                                        season?: {
+                                            number: number
+                                            show: { title: string }
+                                        } | null
+                                    }
+                                  | { __typename: "Page"; code: string }
+                                  | {
+                                        __typename: "Season"
+                                        seasonNumber: number
+                                        show: { title: string }
+                                    }
+                                  | { __typename: "Show"; title: string }
+                                  | null
+                          }>
+                      }
+                  }
+                | {
+                      __typename: "IconSection"
+                      id: string
+                      title?: string | null
+                  }
+                | {
+                      __typename: "LabelSection"
+                      id: string
+                      title?: string | null
+                  }
+                | {
+                      __typename: "PosterSection"
+                      id: string
+                      title?: string | null
+                      items: {
+                          items: Array<{
+                              __typename: "SectionItem"
                               id: string
                               title: string
-                              imageUrl?: string | null
+                              image?: string | null
                               sort: number
-                              show: { title: string }
-                          }
-                        | {
-                              __typename: "URLItem"
-                              id: string
-                              title: string
-                              imageUrl?: string | null
-                              sort: number
-                          }
-                    >
-                }
-            }>
+                              item?:
+                                  | {
+                                        __typename: "Episode"
+                                        episodeNumber?: number | null
+                                        season?: {
+                                            number: number
+                                            show: { title: string }
+                                        } | null
+                                    }
+                                  | { __typename: "Page"; code: string }
+                                  | {
+                                        __typename: "Season"
+                                        seasonNumber: number
+                                        show: { title: string }
+                                    }
+                                  | { __typename: "Show"; title: string }
+                                  | null
+                          }>
+                      }
+                  }
+            >
         }
     }
 }
@@ -710,56 +995,6 @@ export type GetSeasonQuery = {
                 imageUrl?: string | null
                 number?: number | null
             }>
-        }
-    }
-}
-
-export type GetSectionQueryVariables = Exact<{
-    id: Scalars["ID"]
-}>
-
-export type GetSectionQuery = {
-    section: {
-        id: string
-        title: string
-        items: {
-            items: Array<
-                | {
-                      __typename: "EpisodeItem"
-                      id: string
-                      imageUrl?: string | null
-                      title: string
-                      sort: number
-                  }
-                | {
-                      __typename: "PageItem"
-                      id: string
-                      imageUrl?: string | null
-                      title: string
-                      sort: number
-                  }
-                | {
-                      __typename: "SeasonItem"
-                      id: string
-                      imageUrl?: string | null
-                      title: string
-                      sort: number
-                  }
-                | {
-                      __typename: "ShowItem"
-                      id: string
-                      imageUrl?: string | null
-                      title: string
-                      sort: number
-                  }
-                | {
-                      __typename: "URLItem"
-                      id: string
-                      imageUrl?: string | null
-                      title: string
-                      sort: number
-                  }
-            >
         }
     }
 }
@@ -884,52 +1119,63 @@ export type SearchQuery = {
 }
 
 export const EpisodeItemFragmentDoc = gql`
-    fragment EpisodeItem on EpisodeItem {
-        episode {
-            number
-            season {
-                show {
-                    title
+    fragment EpisodeItem on SectionItem {
+        item {
+            ... on Episode {
+                episodeNumber: number
+                season {
+                    show {
+                        title
+                    }
+                    number
                 }
-                number
             }
         }
     }
 `
 export const SeasonItemFragmentDoc = gql`
-    fragment SeasonItem on SeasonItem {
-        season {
-            number
-            show {
-                title
+    fragment SeasonItem on SectionItem {
+        item {
+            ... on Season {
+                seasonNumber: number
+                show {
+                    title
+                }
             }
         }
     }
 `
 export const ShowItemFragmentDoc = gql`
-    fragment ShowItem on ShowItem {
-        show {
-            title
+    fragment ShowItem on SectionItem {
+        item {
+            ... on Show {
+                title
+            }
         }
     }
 `
 export const PageItemFragmentDoc = gql`
-    fragment PageItem on PageItem {
-        page {
-            code
+    fragment PageItem on SectionItem {
+        item {
+            ... on Page {
+                code
+            }
         }
     }
 `
 export const SectionFragmentDoc = gql`
     fragment Section on ItemSection {
-        style
+        __typename
         items {
             items {
                 __typename
                 id
                 title
-                imageUrl
+                image
                 sort
+                item {
+                    __typename
+                }
                 ...EpisodeItem
                 ...SeasonItem
                 ...ShowItem
@@ -949,6 +1195,7 @@ export const GetPageDocument = gql`
             title
             sections {
                 items {
+                    __typename
                     id
                     title
                     ...Section
@@ -995,37 +1242,6 @@ export function useGetSeasonQuery(
 ) {
     return Urql.useQuery<GetSeasonQuery>({
         query: GetSeasonDocument,
-        ...options,
-    })
-}
-export const GetSectionDocument = gql`
-    query getSection($id: ID!) {
-        section(id: $id) {
-            id
-            title
-            ... on ItemSection {
-                items {
-                    items {
-                        __typename
-                        id
-                        imageUrl
-                        title
-                        sort
-                    }
-                }
-            }
-        }
-    }
-`
-
-export function useGetSectionQuery(
-    options: Omit<
-        Urql.UseQueryArgs<never, GetSectionQueryVariables>,
-        "query"
-    > = {}
-) {
-    return Urql.useQuery<GetSectionQuery>({
-        query: GetSectionDocument,
         ...options,
     })
 }

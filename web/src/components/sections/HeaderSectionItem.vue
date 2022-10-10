@@ -4,7 +4,7 @@
         :style="{
             'background-image':
                 'linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url(\'' +
-                item.imageUrl +
+                item.image +
                 '\')',
         }"
     >
@@ -57,5 +57,5 @@ const props = defineProps<{
     item: SectionItem
 }>()
 
-props.item.imageUrl ??= randomImageUrl()
+props.item.image ??= randomImageUrl()
 </script>

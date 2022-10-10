@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
 	"time"
 )
 
@@ -16,9 +17,19 @@ func mapToSections(items []getSectionsRow) []common.Section {
 		_ = json.Unmarshal(s.Title.RawMessage, &title)
 		_ = json.Unmarshal(s.Description.RawMessage, &description)
 
-		style := s.Style.ValueOrZero()
+		t := "item"
+		if s.Type.Valid {
+			t = s.Type.ValueOrZero()
+		}
+
+		var style string
+		if t == "item" {
+			style = s.Style.ValueOrZero()
+		} else {
+			style = s.LinkStyle.ValueOrZero()
+		}
 		if style == "" {
-			style = "slider"
+			style = "default"
 		}
 		var size string
 		if style == "grid" {
@@ -31,9 +42,10 @@ func mapToSections(items []getSectionsRow) []common.Section {
 			ID:           int(s.ID),
 			Sort:         int(s.Sort.ValueOrZero()),
 			PageID:       int(s.PageID),
+			ShowTitle:    s.ShowTitle.Bool,
 			Title:        title,
 			Description:  description,
-			Type:         "item",
+			Type:         t,
 			CollectionID: s.CollectionID,
 			Style:        style,
 			Size:         size,
@@ -93,6 +105,30 @@ func (q *Queries) GetPermissionsForSections(ctx context.Context, ids []int) ([]c
 			Roles: common.Roles{
 				Access: i.Roles,
 			},
+		}
+	}), nil
+}
+
+// GetLinksForSections returns links for sections
+func (q *Queries) GetLinksForSections(ctx context.Context, ids []int) ([]common.SectionLink, error) {
+	rows, err := q.getLinksForSection(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(rows, func(i getLinksForSectionRow, _ int) common.SectionLink {
+		var icon null.String
+		if i.FilenameDisk.Valid {
+			icon = null.StringFrom(q.filenameToImageURL(i.FilenameDisk.String))
+		}
+
+		return common.SectionLink{
+			ID:        int(i.ID),
+			Title:     i.Title,
+			SectionID: int(i.SectionID),
+			PageID:    i.PageID,
+			URL:       i.Url,
+			Icon:      icon,
 		}
 	}), nil
 }
