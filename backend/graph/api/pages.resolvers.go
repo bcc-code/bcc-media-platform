@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -137,7 +136,7 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 
 // Page is the resolver for the page field.
 func (r *pageLinkItemResolver) Page(ctx context.Context, obj *model.PageLinkItem) (*model.Page, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.QueryRoot().Page(ctx, &obj.Page.ID, nil)
 }
 
 // Items is the resolver for the items field.

@@ -97,11 +97,16 @@ func EpisodeSectionItemFrom(ctx context.Context, s *common.Episode, sort int, se
 
 	episode := EpisodeFrom(ctx, s)
 
+	img := s.Images.GetDefault(languages, sectionStyle)
+	if img == nil {
+		img = episode.ImageURL
+	}
+
 	return &SectionItem{
 		ID:    episode.ID,
 		Item:  episode,
 		Title: episode.Title,
-		Image: s.Images.GetDefault(languages, sectionStyle),
+		Image: img,
 		Sort:  sort,
 	}
 }
