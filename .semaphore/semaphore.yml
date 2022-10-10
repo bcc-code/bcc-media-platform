@@ -129,8 +129,6 @@ blocks:
           type: e1-standard-2
           os_image: ubuntu2004
   - name: Web
-    run:
-      when: change_in('/web/')
     dependencies: []
     task:
       jobs:

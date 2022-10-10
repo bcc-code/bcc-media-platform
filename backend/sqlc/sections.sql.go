@@ -156,7 +156,9 @@ WITH t AS (SELECT ts.sections_id,
            GROUP BY ts.sections_id)
 SELECT s.id,
        p.id::int                          AS page_id,
+       s.type,
        s.style,
+       s.link_style,
        s.size,
        s.grid_size,
        s.show_title,
@@ -176,7 +178,9 @@ WHERE s.id = ANY ($1::int[])
 type getSectionsRow struct {
 	ID           int32                 `db:"id" json:"id"`
 	PageID       int32                 `db:"page_id" json:"pageID"`
+	Type         null_v4.String        `db:"type" json:"type"`
 	Style        null_v4.String        `db:"style" json:"style"`
+	LinkStyle    null_v4.String        `db:"link_style" json:"linkStyle"`
 	Size         null_v4.String        `db:"size" json:"size"`
 	GridSize     null_v4.String        `db:"grid_size" json:"gridSize"`
 	ShowTitle    sql.NullBool          `db:"show_title" json:"showTitle"`
@@ -199,7 +203,9 @@ func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSecti
 		if err := rows.Scan(
 			&i.ID,
 			&i.PageID,
+			&i.Type,
 			&i.Style,
+			&i.LinkStyle,
 			&i.Size,
 			&i.GridSize,
 			&i.ShowTitle,
