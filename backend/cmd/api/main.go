@@ -214,6 +214,47 @@ func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code st
 	}
 }
 
+func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
+	collectionLoader := common.NewBatchLoader(queries.GetCollections)
+
+	return &common.BatchLoaders{
+		// App
+		ApplicationLoader:           common.NewBatchLoader(queries.GetApplications),
+		ApplicationIDFromCodeLoader: common.NewConversionBatchLoader(queries.GetApplicationIDsForCodes),
+		// Item
+		PageLoader:           common.NewBatchLoader(queries.GetPages),
+		PageIDFromCodeLoader: common.NewConversionBatchLoader(queries.GetPageIDsForCodes),
+		SectionLoader:        common.NewBatchLoader(queries.GetSections),
+		SectionLinksLoader: common.NewListBatchLoader(queries.GetLinksForSections, func(i common.SectionLink) int {
+			return i.SectionID
+		}),
+		ShowLoader:           common.NewBatchLoader(queries.GetShows),
+		SeasonLoader:         common.NewBatchLoader(queries.GetSeasons),
+		EpisodeLoader:        common.NewBatchLoader(queries.GetEpisodes),
+		EventLoader:          common.NewBatchLoader(queries.GetEvents),
+		CalendarEntryLoader:  common.NewBatchLoader(queries.GetCalendarEntries),
+		FilesLoader:          asset.NewBatchFilesLoader(*queries),
+		StreamsLoader:        asset.NewBatchStreamsLoader(*queries),
+		CollectionLoader:     collectionLoader,
+		CollectionItemLoader: collection.NewItemListBatchLoader(*queries),
+		// Relations
+		SectionsLoader: common.NewRelationBatchLoader(queries.GetSectionIDsForPages),
+		// Permissions
+		ShowPermissionLoader:    show.NewPermissionLoader(*queries),
+		SeasonPermissionLoader:  season.NewPermissionLoader(*queries),
+		EpisodePermissionLoader: episode.NewPermissionLoader(*queries),
+		PagePermissionLoader:    page.NewPermissionLoader(*queries),
+		SectionPermissionLoader: section.NewPermissionLoader(*queries),
+		FAQCategoryLoader:       common.NewBatchLoader(queries.GetFAQCategories),
+		QuestionLoader:          common.NewBatchLoader(queries.GetQuestions),
+		QuestionsLoader:         common.NewRelationBatchLoader(queries.GetQuestionIDsForCategories),
+		// User Data
+		ProfilesLoader: common.NewListBatchLoader(queries.GetProfilesForUserIDs, func(i common.Profile) string {
+			return i.UserID
+		}),
+	}
+}
+
 func main() {
 	ctx := context.Background()
 
@@ -251,40 +292,7 @@ func main() {
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
 
-	collectionLoader := common.NewBatchLoader(queries.GetCollections)
-
-	loaders := &common.BatchLoaders{
-		// App
-		ApplicationLoader:           common.NewBatchLoader(queries.GetApplications),
-		ApplicationIDFromCodeLoader: common.NewConversionBatchLoader(queries.GetApplicationIDsForCodes),
-		// Item
-		PageLoader:           common.NewBatchLoader(queries.GetPages),
-		PageIDFromCodeLoader: common.NewConversionBatchLoader(queries.GetPageIDsForCodes),
-		SectionLoader:        common.NewBatchLoader(queries.GetSections),
-		SectionLinksLoader: common.NewListBatchLoader(queries.GetLinksForSections, func(i common.SectionLink) int {
-			return i.SectionID
-		}),
-		ShowLoader:           common.NewBatchLoader(queries.GetShows),
-		SeasonLoader:         common.NewBatchLoader(queries.GetSeasons),
-		EpisodeLoader:        common.NewBatchLoader(queries.GetEpisodes),
-		EventLoader:          common.NewBatchLoader(queries.GetEvents),
-		CalendarEntryLoader:  common.NewBatchLoader(queries.GetCalendarEntries),
-		FilesLoader:          asset.NewBatchFilesLoader(*queries),
-		StreamsLoader:        asset.NewBatchStreamsLoader(*queries),
-		CollectionLoader:     collectionLoader,
-		CollectionItemLoader: collection.NewItemListBatchLoader(*queries),
-		// Relations
-		SectionsLoader: common.NewRelationBatchLoader(queries.GetSectionIDsForPages),
-		// Permissions
-		ShowPermissionLoader:    show.NewPermissionLoader(*queries),
-		SeasonPermissionLoader:  season.NewPermissionLoader(*queries),
-		EpisodePermissionLoader: episode.NewPermissionLoader(*queries),
-		PagePermissionLoader:    page.NewPermissionLoader(*queries),
-		SectionPermissionLoader: section.NewPermissionLoader(*queries),
-		FAQCategoryLoader:       common.NewBatchLoader(queries.GetFAQCategories),
-		QuestionLoader:          common.NewBatchLoader(queries.GetQuestions),
-		QuestionsLoader:         common.NewRelationBatchLoader(queries.GetQuestionIDsForCategories),
-	}
+	loaders := initBatchLoaders(queries)
 
 	authClient := auth0.New(config.Auth0)
 	membersClient := members.New(config.Members, func(ctx context.Context) string {
@@ -307,6 +315,7 @@ func main() {
 	r.Use(otelgin.Middleware("api")) // Open
 	r.Use(authClient.ValidateToken())
 	r.Use(user.NewUserMiddleware(queries, membersClient))
+	r.Use(user.NewProfileMiddleware(queries, loaders))
 
 	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
 	r.Use(applications.RoleMiddleware())

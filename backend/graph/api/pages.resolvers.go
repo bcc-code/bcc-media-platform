@@ -6,12 +6,13 @@ package graph
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"strconv"
 )
 
 // Items is the resolver for the items field.

@@ -102,6 +102,11 @@ type DefaultSection struct {
 func (DefaultSection) IsSection()     {}
 func (DefaultSection) IsItemSection() {}
 
+type Device struct {
+	Token     string `json:"token"`
+	UpdatedAt string `json:"updatedAt"`
+}
+
 type Episode struct {
 	ID                string     `json:"id"`
 	LegacyID          *string    `json:"legacyID"`
@@ -325,6 +330,11 @@ type PosterSection struct {
 
 func (PosterSection) IsSection()     {}
 func (PosterSection) IsItemSection() {}
+
+type Profile struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
 
 type Question struct {
 	ID       string       `json:"id"`
