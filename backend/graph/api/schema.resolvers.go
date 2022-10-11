@@ -16,12 +16,11 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
-// SetDevice is the resolver for the setDevice field.
-func (r *mutationRootResolver) SetDevice(ctx context.Context, device model.DeviceInput) (*model.Device, error) {
+// SetDevicePushToken is the resolver for the setDevicePushToken field.
+func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token string) (*model.Device, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -34,9 +33,9 @@ func (r *mutationRootResolver) SetDevice(ctx context.Context, device model.Devic
 		)
 	}
 	d := common.Device{
-		Token:     device.Token,
+		Token:     token,
 		ProfileID: profile.ID,
-		Name:      device.Name,
+		Name:      "default",
 		UpdatedAt: time.Now(),
 	}
 	err = r.Queries.SaveDevice(ginCtx, d)
@@ -46,43 +45,6 @@ func (r *mutationRootResolver) SetDevice(ctx context.Context, device model.Devic
 	return &model.Device{
 		Token:     d.Token,
 		UpdatedAt: d.UpdatedAt.Format(time.RFC3339),
-		Name:      d.Name,
-	}, nil
-}
-
-// CreateProfile is the resolver for the createProfile field.
-func (r *mutationRootResolver) CreateProfile(ctx context.Context, name string) (*model.Profile, error) {
-	ginCtx, err := utils.GinCtx(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	u := user.GetFromCtx(ginCtx)
-	if u.IsAnonymous() {
-		return nil, merry.New("anonymous user", merry.WithUserMessage("Anonymous users cannot create profiles"))
-	}
-
-	profile := common.Profile{
-		ID:     uuid.New(),
-		Name:   name,
-		UserID: u.PersonID,
-	}
-
-	profiles := user.GetProfilesFromCtx(ginCtx)
-
-	err = r.Queries.SaveProfile(ctx, profile)
-	if err != nil {
-		return nil, err
-	}
-
-	profiles = append(profiles, &profile)
-
-	r.Loaders.ProfilesLoader.Clear(ctx, u.PersonID)
-	r.Loaders.ProfilesLoader.Prime(ctx, u.PersonID, profiles)
-
-	return &model.Profile{
-		ID:   profile.ID.String(),
-		Name: profile.Name,
 	}, nil
 }
 

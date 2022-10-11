@@ -122,7 +122,6 @@ type ComplexityRoot struct {
 	}
 
 	Device struct {
-		Name      func(childComplexity int) int
 		Token     func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
 	}
@@ -286,8 +285,7 @@ type ComplexityRoot struct {
 	}
 
 	MutationRoot struct {
-		CreateProfile func(childComplexity int, name string) int
-		SetDevice     func(childComplexity int, device model.DeviceInput) int
+		SetDevicePushToken func(childComplexity int, token string) int
 	}
 
 	Page struct {
@@ -597,8 +595,7 @@ type MessagesResolver interface {
 	Maintenance(ctx context.Context, obj *model.Messages, timestamp *string) ([]*model.MaintenanceMessage, error)
 }
 type MutationRootResolver interface {
-	SetDevice(ctx context.Context, device model.DeviceInput) (*model.Device, error)
-	CreateProfile(ctx context.Context, name string) (*model.Profile, error)
+	SetDevicePushToken(ctx context.Context, token string) (*model.Device, error)
 }
 type PageResolver interface {
 	Sections(ctx context.Context, obj *model.Page, first *int, offset *int) (*model.SectionPagination, error)
@@ -870,13 +867,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DefaultSection.Title(childComplexity), true
-
-	case "Device.name":
-		if e.complexity.Device.Name == nil {
-			break
-		}
-
-		return e.complexity.Device.Name(childComplexity), true
 
 	case "Device.token":
 		if e.complexity.Device.Token == nil {
@@ -1649,29 +1639,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Messages.Maintenance(childComplexity, args["timestamp"].(*string)), true
 
-	case "MutationRoot.createProfile":
-		if e.complexity.MutationRoot.CreateProfile == nil {
+	case "MutationRoot.setDevicePushToken":
+		if e.complexity.MutationRoot.SetDevicePushToken == nil {
 			break
 		}
 
-		args, err := ec.field_MutationRoot_createProfile_args(context.TODO(), rawArgs)
+		args, err := ec.field_MutationRoot_setDevicePushToken_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.MutationRoot.CreateProfile(childComplexity, args["name"].(string)), true
-
-	case "MutationRoot.setDevice":
-		if e.complexity.MutationRoot.SetDevice == nil {
-			break
-		}
-
-		args, err := ec.field_MutationRoot_setDevice_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.MutationRoot.SetDevice(childComplexity, args["device"].(model.DeviceInput)), true
+		return e.complexity.MutationRoot.SetDevicePushToken(childComplexity, args["token"].(string)), true
 
 	case "Page.code":
 		if e.complexity.Page.Code == nil {
@@ -2919,9 +2897,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputDeviceInput,
-	)
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
 	first := true
 
 	switch rc.Operation.Operation {
@@ -3141,14 +3117,14 @@ type GlobalConfig {
 `, BuiltIn: false},
 	{Name: "../schema/devices.graphqls", Input: `type Device {
     token: String!
-    name: String!
+#    name: String!
     updatedAt: Date!
 }
 
-input DeviceInput {
-    token: String!
-    name: String!
-}
+#input DeviceInput {
+#    token: String!
+#    name: String!
+#}
 `, BuiltIn: false},
 	{Name: "../schema/faq.graphqls", Input: `type Question {
     id: ID!
@@ -3554,8 +3530,8 @@ type QueryRoot{
 }
 
 type MutationRoot {
-  setDevice(device: DeviceInput!): Device
-  createProfile(name: String!): Profile
+  setDevicePushToken(token: String!): Device
+#  createProfile(name: String!): Profile
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -3940,33 +3916,18 @@ func (ec *executionContext) field_Messages_maintenance_args(ctx context.Context,
 	return args, nil
 }
 
-func (ec *executionContext) field_MutationRoot_createProfile_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_MutationRoot_setDevicePushToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+	if tmp, ok := rawArgs["token"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_MutationRoot_setDevice_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 model.DeviceInput
-	if tmp, ok := rawArgs["device"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("device"))
-		arg0, err = ec.unmarshalNDeviceInput2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐDeviceInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["device"] = arg0
+	args["token"] = arg0
 	return args, nil
 }
 
@@ -5540,50 +5501,6 @@ func (ec *executionContext) _Device_token(ctx context.Context, field graphql.Col
 }
 
 func (ec *executionContext) fieldContext_Device_token(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Device",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Device_name(ctx context.Context, field graphql.CollectedField, obj *model.Device) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Device_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Device_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Device",
 		Field:      field,
@@ -10445,8 +10362,8 @@ func (ec *executionContext) fieldContext_Messages_maintenance(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _MutationRoot_setDevice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MutationRoot_setDevice(ctx, field)
+func (ec *executionContext) _MutationRoot_setDevicePushToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_setDevicePushToken(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10459,7 +10376,7 @@ func (ec *executionContext) _MutationRoot_setDevice(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MutationRoot().SetDevice(rctx, fc.Args["device"].(model.DeviceInput))
+		return ec.resolvers.MutationRoot().SetDevicePushToken(rctx, fc.Args["token"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10473,7 +10390,7 @@ func (ec *executionContext) _MutationRoot_setDevice(ctx context.Context, field g
 	return ec.marshalODevice2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐDevice(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MutationRoot_setDevice(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MutationRoot_setDevicePushToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MutationRoot",
 		Field:      field,
@@ -10483,8 +10400,6 @@ func (ec *executionContext) fieldContext_MutationRoot_setDevice(ctx context.Cont
 			switch field.Name {
 			case "token":
 				return ec.fieldContext_Device_token(ctx, field)
-			case "name":
-				return ec.fieldContext_Device_name(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Device_updatedAt(ctx, field)
 			}
@@ -10498,65 +10413,7 @@ func (ec *executionContext) fieldContext_MutationRoot_setDevice(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_MutationRoot_setDevice_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _MutationRoot_createProfile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MutationRoot_createProfile(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MutationRoot().CreateProfile(rctx, fc.Args["name"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Profile)
-	fc.Result = res
-	return ec.marshalOProfile2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐProfile(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_MutationRoot_createProfile(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MutationRoot",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Profile_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Profile_name(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Profile", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_MutationRoot_createProfile_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_MutationRoot_setDevicePushToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -20420,42 +20277,6 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputDeviceInput(ctx context.Context, obj interface{}) (model.DeviceInput, error) {
-	var it model.DeviceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"token", "name"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "token":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
-			it.Token, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "name":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -21260,13 +21081,6 @@ func (ec *executionContext) _Device(ctx context.Context, sel ast.SelectionSet, o
 		case "token":
 
 			out.Values[i] = ec._Device_token(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "name":
-
-			out.Values[i] = ec._Device_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -22542,16 +22356,10 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("MutationRoot")
-		case "setDevice":
+		case "setDevicePushToken":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._MutationRoot_setDevice(ctx, field)
-			})
-
-		case "createProfile":
-
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._MutationRoot_createProfile(ctx, field)
+				return ec._MutationRoot_setDevicePushToken(ctx, field)
 			})
 
 		default:
@@ -25307,11 +25115,6 @@ func (ec *executionContext) marshalNDate2ᚕstringᚄ(ctx context.Context, sel a
 	return ret
 }
 
-func (ec *executionContext) unmarshalNDeviceInput2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐDeviceInput(ctx context.Context, v interface{}) (model.DeviceInput, error) {
-	res, err := ec.unmarshalInputDeviceInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) marshalNEpisode2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v model.Episode) graphql.Marshaler {
 	return ec._Episode(ctx, sel, &v)
 }
@@ -26834,13 +26637,6 @@ func (ec *executionContext) marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstad
 		return graphql.Null
 	}
 	return ec._Page(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOProfile2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐProfile(ctx context.Context, sel ast.SelectionSet, v *model.Profile) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Profile(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOQuestionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐQuestionPagination(ctx context.Context, sel ast.SelectionSet, v *model.QuestionPagination) graphql.Marshaler {

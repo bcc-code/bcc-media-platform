@@ -90,6 +90,6 @@ type QueryRoot{
 }
 
 type MutationRoot {
-  setDevice(device: DeviceInput!): Device
-  createProfile(name: String!): Profile
+  setDevicePushToken(token: String!): Device
+#  createProfile(name: String!): Profile
 }
