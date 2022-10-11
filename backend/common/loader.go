@@ -27,6 +27,7 @@ type BatchLoaders struct {
 	FAQCategoryLoader           *dataloader.Loader[int, *FAQCategory]
 	QuestionLoader              *dataloader.Loader[int, *Question]
 	QuestionsLoader             *dataloader.Loader[int, []*int]
+	ProfilesLoader              *dataloader.Loader[string, []*Profile]
 	// Permissions
 	ShowPermissionLoader    *dataloader.Loader[int, *Permissions[int]]
 	SeasonPermissionLoader  *dataloader.Loader[int, *Permissions[int]]

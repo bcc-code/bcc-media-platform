@@ -15,17 +15,6 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const refreshEpisodeAccessView = `-- name: RefreshEpisodeAccessView :one
-SELECT update_access('episodes_access')
-`
-
-func (q *Queries) RefreshEpisodeAccessView(ctx context.Context) (bool, error) {
-	row := q.db.QueryRowContext(ctx, refreshEpisodeAccessView)
-	var update_access bool
-	err := row.Scan(&update_access)
-	return update_access, err
-}
-
 const getEpisodeIDsForSeasons = `-- name: getEpisodeIDsForSeasons :many
 SELECT e.id,
        e.season_id
@@ -63,34 +52,11 @@ func (q *Queries) getEpisodeIDsForSeasons(ctx context.Context, dollar_1 []int32)
 }
 
 const getEpisodeIDsForSeasonsWithRoles = `-- name: getEpisodeIDsForSeasonsWithRoles :many
-WITH er AS (SELECT e.id,
-                   COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
-                             FROM episodes_usergroups eu
-                             WHERE eu.episodes_id = e.id), ARRAY []::character varying[]) AS roles,
-                   COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
-                             FROM episodes_usergroups_download eu
-                             WHERE eu.episodes_id = e.id), ARRAY []::character varying[]) AS roles_download,
-                   COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code) AS code
-                             FROM episodes_usergroups_earlyaccess eu
-                             WHERE eu.episodes_id = e.id),
-                            ARRAY []::character varying[])                                AS roles_earlyaccess
-            FROM episodes e),
-     ea AS (SELECT e.id,
-                   e.status::text = 'published'::text AND
-                   (e.season_id IS NULL OR (se.status::text = 'published'::text AND
-                                            s.status::text = 'published'::text)) AS published,
-                   COALESCE(GREATEST(e.available_from, se.available_from, s.available_from),
-                            '1800-01-01 00:00:00'::timestamp without time zone)  AS available_from,
-                   COALESCE(LEAST(e.available_to, se.available_to, s.available_to),
-                            '3000-01-01 00:00:00'::timestamp without time zone)  AS available_to
-            FROM episodes e
-                     LEFT JOIN seasons se ON e.season_id = se.id
-                     LEFT JOIN shows s ON se.show_id = s.id)
 SELECT e.id,
        e.season_id
 FROM episodes e
-         LEFT JOIN ea access ON access.id = e.id
-         LEFT JOIN er roles ON roles.id = e.id
+         LEFT JOIN episode_availability access ON access.id = e.id
+         LEFT JOIN episode_roles roles ON roles.id = e.id
 WHERE season_id = ANY ($1::int[])
   AND access.published
   AND access.available_to > now()
@@ -156,6 +122,8 @@ SELECT e.id,
        e.legacy_program_id,
        e.asset_id,
        e.episode_number,
+       e.publish_date,
+       COALESCE(e.publish_date_in_title, sh.type = 'event') AS publish_date_in_title,
        fs.filename_disk                                  as image_file_name,
        e.season_id,
        e.type,
@@ -179,21 +147,23 @@ ORDER BY e.episode_number
 `
 
 type getEpisodesRow struct {
-	ID               int32                 `db:"id" json:"id"`
-	LegacyID         null_v4.Int           `db:"legacy_id" json:"legacyID"`
-	LegacyProgramID  null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
-	AssetID          null_v4.Int           `db:"asset_id" json:"assetID"`
-	EpisodeNumber    null_v4.Int           `db:"episode_number" json:"episodeNumber"`
-	ImageFileName    null_v4.String        `db:"image_file_name" json:"imageFileName"`
-	SeasonID         null_v4.Int           `db:"season_id" json:"seasonID"`
-	Type             string                `db:"type" json:"type"`
-	Images           json.RawMessage       `db:"images" json:"images"`
-	Title            pqtype.NullRawMessage `db:"title" json:"title"`
-	Description      pqtype.NullRawMessage `db:"description" json:"description"`
-	ExtraDescription pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
-	TagIds           []int32               `db:"tag_ids" json:"tagIds"`
-	Duration         null_v4.Int           `db:"duration" json:"duration"`
-	Agerating        string                `db:"agerating" json:"agerating"`
+	ID                 int32                 `db:"id" json:"id"`
+	LegacyID           null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	LegacyProgramID    null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
+	AssetID            null_v4.Int           `db:"asset_id" json:"assetID"`
+	EpisodeNumber      null_v4.Int           `db:"episode_number" json:"episodeNumber"`
+	PublishDate        time.Time             `db:"publish_date" json:"publishDate"`
+	PublishDateInTitle bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
+	ImageFileName      null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	SeasonID           null_v4.Int           `db:"season_id" json:"seasonID"`
+	Type               string                `db:"type" json:"type"`
+	Images             json.RawMessage       `db:"images" json:"images"`
+	Title              pqtype.NullRawMessage `db:"title" json:"title"`
+	Description        pqtype.NullRawMessage `db:"description" json:"description"`
+	ExtraDescription   pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
+	TagIds             []int32               `db:"tag_ids" json:"tagIds"`
+	Duration           null_v4.Int           `db:"duration" json:"duration"`
+	Agerating          string                `db:"agerating" json:"agerating"`
 }
 
 func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpisodesRow, error) {
@@ -211,6 +181,8 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.LegacyProgramID,
 			&i.AssetID,
 			&i.EpisodeNumber,
+			&i.PublishDate,
+			&i.PublishDateInTitle,
 			&i.ImageFileName,
 			&i.SeasonID,
 			&i.Type,
@@ -312,6 +284,8 @@ SELECT e.id,
        e.legacy_program_id,
        e.asset_id,
        e.episode_number,
+       e.publish_date,
+       COALESCE(e.publish_date_in_title, sh.type = 'event') AS publish_date_in_title,
        fs.filename_disk                                  as image_file_name,
        e.season_id,
        e.type,
@@ -333,21 +307,23 @@ FROM episodes e
 `
 
 type listEpisodesRow struct {
-	ID               int32                 `db:"id" json:"id"`
-	LegacyID         null_v4.Int           `db:"legacy_id" json:"legacyID"`
-	LegacyProgramID  null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
-	AssetID          null_v4.Int           `db:"asset_id" json:"assetID"`
-	EpisodeNumber    null_v4.Int           `db:"episode_number" json:"episodeNumber"`
-	ImageFileName    null_v4.String        `db:"image_file_name" json:"imageFileName"`
-	SeasonID         null_v4.Int           `db:"season_id" json:"seasonID"`
-	Type             string                `db:"type" json:"type"`
-	Images           json.RawMessage       `db:"images" json:"images"`
-	Title            pqtype.NullRawMessage `db:"title" json:"title"`
-	Description      pqtype.NullRawMessage `db:"description" json:"description"`
-	ExtraDescription pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
-	TagIds           []int32               `db:"tag_ids" json:"tagIds"`
-	Duration         null_v4.Int           `db:"duration" json:"duration"`
-	Agerating        string                `db:"agerating" json:"agerating"`
+	ID                 int32                 `db:"id" json:"id"`
+	LegacyID           null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	LegacyProgramID    null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
+	AssetID            null_v4.Int           `db:"asset_id" json:"assetID"`
+	EpisodeNumber      null_v4.Int           `db:"episode_number" json:"episodeNumber"`
+	PublishDate        time.Time             `db:"publish_date" json:"publishDate"`
+	PublishDateInTitle bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
+	ImageFileName      null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	SeasonID           null_v4.Int           `db:"season_id" json:"seasonID"`
+	Type               string                `db:"type" json:"type"`
+	Images             json.RawMessage       `db:"images" json:"images"`
+	Title              pqtype.NullRawMessage `db:"title" json:"title"`
+	Description        pqtype.NullRawMessage `db:"description" json:"description"`
+	ExtraDescription   pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
+	TagIds             []int32               `db:"tag_ids" json:"tagIds"`
+	Duration           null_v4.Int           `db:"duration" json:"duration"`
+	Agerating          string                `db:"agerating" json:"agerating"`
 }
 
 func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
@@ -365,6 +341,8 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 			&i.LegacyProgramID,
 			&i.AssetID,
 			&i.EpisodeNumber,
+			&i.PublishDate,
+			&i.PublishDateInTitle,
 			&i.ImageFileName,
 			&i.SeasonID,
 			&i.Type,

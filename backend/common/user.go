@@ -2,11 +2,12 @@ package common
 
 // User represents an acutal user in the system
 type User struct {
-	Roles     []string
-	Email     string
-	PersonID  string
-	Anonymous bool
-	ActiveBCC bool
+	DisplayName string
+	Roles       []string
+	Email       string
+	PersonID    string
+	Anonymous   bool
+	ActiveBCC   bool
 }
 
 // IsAnonymous user?

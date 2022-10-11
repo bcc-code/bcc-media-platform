@@ -37,8 +37,6 @@ INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", 
 
 ALTER TABLE IF EXISTS "public"."sections_links" DROP COLUMN IF EXISTS "title" CASCADE; --WARN: Drop column can occure in data loss!
 
-ALTER TABLE IF EXISTS "public"."sections_links" OWNER TO builder;
-
 --- END ALTER TABLE "public"."sections_links" ---
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
