@@ -9,13 +9,13 @@ export default [
             {
                 name: "page",
                 path: ":pageId",
-                component: () => import("@/pages/Page.vue"),
+                component: () => import("@/pages/page/Page.vue"),
                 props: true,
             },
             {
                 name: "front-page",
                 path: "",
-                component: () => import("@/pages/Page.vue"),
+                component: () => import("@/pages/page/Page.vue"),
                 props: {
                     pageId: "frontpage",
                 },
