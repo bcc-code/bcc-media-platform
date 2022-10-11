@@ -4,19 +4,16 @@ import (
 	"os"
 	"strconv"
 
-	texporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
 	"github.com/bcc-code/mediabank-bridge/log"
-	"go.opentelemetry.io/otel"
-	stdout "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"github.com/uptrace/uptrace-go/uptrace"
 )
 
 // MustSetupTracing for Google Stack driver
 //
 // It uses the following ENV vars to do some auto config:
-// * GOOGLE_CLOUD_PROJECT
-// * TRACE_SAMPLING_FREQUENCY - A number between 0.0 and 1.0 that determines how often requests should be traced.
-//  1.0 means every request. Default is 0.1, 10% of requests
+//   - GOOGLE_CLOUD_PROJECT
+//   - TRACE_SAMPLING_FREQUENCY - A number between 0.0 and 1.0 that determines how often requests should be traced.
+//     1.0 means every request. Default is 0.1, 10% of requests
 func MustSetupTracing() {
 	samplingFrequencyString := os.Getenv("TRACE_SAMPLING_FREQUENCY")
 	frequency, err := strconv.ParseFloat(samplingFrequencyString, 32)
@@ -27,9 +24,22 @@ func MustSetupTracing() {
 
 	if frequency == 0 {
 		// Disabled
+		log.L.Info().Msg("Tracing disabled")
+
 		return
 	}
 
+	uptrace.ConfigureOpentelemetry(
+		// copy your project DSN here or use UPTRACE_DSN env var
+		//uptrace.WithDSN("https://<token>@uptrace.dev/<project_id>"),
+
+		uptrace.WithServiceName("myservice"),
+		uptrace.WithServiceVersion("v1.0.0"),
+	)
+
+}
+
+/*
 	var exporter sdktrace.SpanExporter
 	exporter, _ = stdout.New(stdout.WithPrettyPrint())
 
@@ -47,4 +57,4 @@ func MustSetupTracing() {
 
 	traceProvider := sdktrace.NewTracerProvider(sdktrace.WithBatcher(exporter))
 	otel.SetTracerProvider(traceProvider)
-}
+}*/

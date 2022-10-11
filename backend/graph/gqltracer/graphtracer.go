@@ -2,7 +2,9 @@ package gqltracer
 
 import (
 	"context"
+
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/davecgh/go-spew/spew"
 	"go.opentelemetry.io/otel"
 )
 
