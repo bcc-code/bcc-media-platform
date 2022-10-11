@@ -79,10 +79,11 @@ func SeasonSectionItemFrom(ctx context.Context, s *common.Season, sort int, sect
 	}
 
 	return &SectionItem{
-		ID:    season.ID,
-		Item:  season,
-		Title: season.Title,
-		Image: img,
-		Sort:  sort,
+		ID:          season.ID,
+		Item:        season,
+		Title:       season.Title,
+		Description: season.Description,
+		Image:       img,
+		Sort:        sort,
 	}
 }

@@ -425,13 +425,12 @@ type SeasonSearchItem struct {
 func (SeasonSearchItem) IsSearchResultItem() {}
 
 type SectionItem struct {
-	ID            string          `json:"id"`
-	Sort          int             `json:"sort"`
-	Title         string          `json:"title"`
-	Subtitle      *string         `json:"subtitle"`
-	TertiaryTitle *string         `json:"tertiaryTitle"`
-	Image         *string         `json:"image"`
-	Item          SectionItemType `json:"item"`
+	ID          string          `json:"id"`
+	Sort        int             `json:"sort"`
+	Title       string          `json:"title"`
+	Description string          `json:"description"`
+	Image       *string         `json:"image"`
+	Item        SectionItemType `json:"item"`
 }
 
 type SectionItemPagination struct {
