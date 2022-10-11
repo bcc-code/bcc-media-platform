@@ -73,11 +73,16 @@ func SeasonSectionItemFrom(ctx context.Context, s *common.Season, sort int, sect
 
 	season := SeasonFrom(ctx, s)
 
+	img := s.Images.GetDefault(languages, sectionStyle)
+	if img == nil {
+		img = season.ImageURL
+	}
+
 	return &SectionItem{
 		ID:    season.ID,
 		Item:  season,
 		Title: season.Title,
-		Image: s.Images.GetDefault(languages, sectionStyle),
+		Image: img,
 		Sort:  sort,
 	}
 }

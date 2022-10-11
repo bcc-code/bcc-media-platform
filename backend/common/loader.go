@@ -39,6 +39,7 @@ type BatchLoaders struct {
 type FilteredLoaders struct {
 	EpisodesLoader          *dataloader.Loader[int, []*int]
 	SeasonsLoader           *dataloader.Loader[int, []*int]
+	SectionsLoader          *dataloader.Loader[int, []*int]
 	CollectionItemsLoader   *dataloader.Loader[int, []*CollectionItem]
 	CollectionItemIDsLoader *dataloader.Loader[int, []int]
 }

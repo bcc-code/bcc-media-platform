@@ -67,11 +67,16 @@ func ShowSectionItemFrom(ctx context.Context, s *common.Show, sort int, sectionS
 
 	show := ShowFrom(ctx, s)
 
+	img := s.Images.GetDefault(languages, sectionStyle)
+	if img == nil {
+		img = show.ImageURL
+	}
+
 	return &SectionItem{
 		ID:    show.ID,
 		Item:  show,
 		Title: show.Title,
-		Image: s.Images.GetDefault(languages, sectionStyle),
+		Image: img,
 		Sort:  sort,
 	}
 }
