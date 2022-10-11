@@ -188,7 +188,7 @@ func getApplications(ctx context.Context, queries *sqlc.Queries) []common.Applic
 		if err != nil {
 			panic(err)
 		}
-		// Cache with expiration in case the container lives too long
+		// Cache with expiration in case the container lives too long.
 		generalCache.Set(key, apps, cache.WithExpiration(time.Minute*5))
 		return apps
 	}
