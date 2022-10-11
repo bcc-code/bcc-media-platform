@@ -8,21 +8,23 @@
         >
             <SwiperSlide
                 v-for="i in item.items.items"
-                class="relative h-full aspect-[4/3]"
+                class="h-full aspect-[4/3]"
             >
-                <img 
-                    v-if="i.image"
-                    :src="i.image + '?h=1080'"
-                    class="rounded rounded-xl h-full object-cover"
-                />
-                <div class="absolute rounded rounded-xl z-10 top-0 bg-gradient-to-t from-black via-transparent to-transparent h-full w-full opacity-100">
-                    
+                <div class="relative h-full aspect-[4/3]">
+                    <img 
+                        v-if="i.image"
+                        :src="i.image + '?h=1080'"
+                        class="rounded rounded-xl h-full object-cover"
+                    />
+                    <div class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent p- pt-8">
+                        <h1 class="text-2xl font-bold">
+                            {{ i.title }}
+                        </h1>
+                        <p class="opacity-80">Placeholder descriptive description</p>
+                    </div>
                 </div>
-                <div class="absolute z-20 bottom-0 p-4 w-full text-center">
-                    <h1 class="text-2xl font-bold mx-auto">
-                        {{ i.title }}
-                    </h1>
-                    <p class="opacity-80">What does it mean!?</p>
+                <div class="text-center mt-2">
+                    <button class="bg-slate-800 px-4 py-1 rounded-full font-bold text-lg flex mx-auto"><Play></Play><span class="ml-1">Watch now</span></button>
                 </div>
             </SwiperSlide>
         </Swiper>
@@ -41,6 +43,7 @@ import "swiper/css/navigation";
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { computed } from "vue";
 import SectionTitle from "./SectionTitle.vue";
+import Play from "../icons/Play.vue";
 
 const props = defineProps<{
     item: Section & { __typename: "FeaturedSection" }

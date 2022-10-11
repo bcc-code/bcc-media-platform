@@ -1,6 +1,5 @@
 <template>
     <svg
-        v-if="!selected"
         width="28"
         height="28"
         viewBox="0 0 28 28"
@@ -21,7 +20,7 @@
             fill="#B4C0D2"
         />
     </svg>
-    <svg
+    <!-- <svg
         v-else
         width="28"
         height="28"
@@ -48,7 +47,7 @@
                 <stop offset="1" stop-color="#57A7E9" />
             </linearGradient>
         </defs>
-    </svg>
+    </svg> -->
 </template>
 <script lang="ts" setup>
 defineProps<{
