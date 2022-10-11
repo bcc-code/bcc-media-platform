@@ -5,12 +5,13 @@ package graph
 
 import (
 	"context"
-	"strconv"
+	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"strconv"
 )
 
 // Items is the resolver for the items field.
@@ -95,18 +96,6 @@ func (r *iconSectionResolver) Items(ctx context.Context, obj *model.IconSection,
 // Items is the resolver for the items field.
 func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int) (*model.LinkItemPagination, error) {
 	pagination, err := sectionLinkItemResolver(ctx, r.Resolver, obj.ID, first, offset)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.LinkItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
-	}, nil
-}
 
 	if err != nil {
 		return nil, err
