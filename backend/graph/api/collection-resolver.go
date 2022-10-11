@@ -82,7 +82,7 @@ func sectionCollectionEntryResolver(ctx context.Context, loaders *common.BatchLo
 	}, nil
 }
 
-func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, collectionId int, first *int, offset *int) (*utils.PaginationResult[model.Item], error) {
+func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, collectionId int, first *int, offset *int) (*utils.PaginationResult[model.CollectionItem], error) {
 	entries, err := collection.GetCollectionEntries(ctx, loaders, filteredLoaders, collectionId)
 	if err != nil {
 		return nil, err
@@ -92,9 +92,9 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 
 	preloadLoaders(ctx, loaders, pagination.Items)
 
-	var items []model.Item
+	var items []model.CollectionItem
 	for _, e := range pagination.Items {
-		var item model.Item
+		var item model.CollectionItem
 		switch e.Type {
 		case "page":
 			i, err := common.GetFromLoaderByID(ctx, loaders.PageLoader, e.ID)
@@ -126,7 +126,7 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 		}
 	}
 
-	return &utils.PaginationResult[model.Item]{
+	return &utils.PaginationResult[model.CollectionItem]{
 		Total:  pagination.Total,
 		First:  pagination.First,
 		Offset: pagination.Offset,
@@ -176,7 +176,7 @@ func sectionLinkEntryResolver(ctx context.Context, loaders *common.BatchLoaders,
 	}, nil
 }
 
-func collectionItemResolverFromCollection(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[model.Item], error) {
+func collectionItemResolverFromCollection(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[model.CollectionItem], error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 
 	return collectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), int(int64ID), first, offset)

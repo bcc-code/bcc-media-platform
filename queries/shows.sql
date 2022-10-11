@@ -16,6 +16,7 @@ WITH ts AS (SELECT shows_id,
                 GROUP BY show_id)
 SELECT sh.id,
        sh.legacy_id,
+       sh.type,
        fs.filename_disk            as image_file_name,
        tags.tags::int[]            AS tag_ids,
        COALESCE(images.json, '[]') as images,
@@ -46,6 +47,7 @@ WITH ts AS (SELECT shows_id,
                 GROUP BY show_id)
 SELECT sh.id,
        sh.legacy_id,
+       sh.type,
        fs.filename_disk            as image_file_name,
        tags.tags::int[]            AS tag_ids,
        COALESCE(images.json, '[]') as images,
@@ -70,6 +72,3 @@ FROM shows sh
          LEFT JOIN show_availability access ON access.id = sh.id
          LEFT JOIN show_roles roles ON roles.id = sh.id
 WHERE sh.id = ANY ($1::int[]);
-
--- name: RefreshShowAccessView :one
-SELECT update_access('shows_access');

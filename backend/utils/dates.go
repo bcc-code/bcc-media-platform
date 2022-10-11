@@ -1,6 +1,9 @@
 package utils
 
-import "time"
+import (
+	"github.com/goodsign/monday"
+	"time"
+)
 
 // LargestTime returns the largest time of the alternatives
 func LargestTime(timeStamps ...time.Time) time.Time {
@@ -23,4 +26,26 @@ func SmallestTime(timeStamps ...time.Time) time.Time {
 		}
 	}
 	return smallest
+}
+
+var locales = map[string]monday.Locale{
+	"en": monday.LocaleEnGB,
+	"no": monday.LocaleNbNO,
+	"nl": monday.LocaleNlNL,
+	"fr": monday.LocaleFrFR,
+}
+
+// FormatDateInLocale formats specific date in a supported locale
+func FormatDateInLocale(date time.Time, languages []string) string {
+	// Using external library at the moment.
+	languages = append(languages, "en", "no")
+
+	for _, l := range languages {
+		loc, ok := locales[l]
+		if ok {
+			return monday.Format(date, "2 Jan 2006", loc)
+		}
+	}
+
+	return ""
 }

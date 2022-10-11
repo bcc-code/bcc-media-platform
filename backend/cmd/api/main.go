@@ -62,6 +62,9 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 		SeasonsLoader: common.NewRelationBatchLoader(func(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
 			return queries.GetSeasonIDsForShowsWithRoles(ctx, ids, roles)
 		}),
+		SectionsLoader: common.NewRelationBatchLoader(func(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
+			return queries.GetSectionIDsForPagesWithRoles(ctx, ids, roles)
+		}),
 		CollectionItemsLoader: common.NewListBatchLoader(func(ctx context.Context, ids []int) ([]common.CollectionItem, error) {
 			return queries.GetItemsForCollectionsWithRoles(ctx, ids, roles)
 		}, func(i common.CollectionItem) int {
