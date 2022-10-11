@@ -10,5 +10,11 @@
         "live": "Live",
         "calendar": "Kalender",
         "faq": "FAQ"
+    },
+    "section": {
+        "item": {
+            "episode": "0 episoder | 1 episode | {count} episoder",
+            "season": "0 sesonger | 1 sesong | {count} sesonger"
+        }
     }
 }

@@ -3,6 +3,7 @@ fragment SectionItem on SectionItem {
         __typename
         ... on Episode {
             episodeNumber: number
+            duration
             season {
                 number
                 show {
@@ -15,6 +16,10 @@ fragment SectionItem on SectionItem {
             show {
                 title
             }
+        }
+        ... on Show {
+            episodeCount
+            seasonCount
         }
         ... on Page {
             code
@@ -29,6 +34,7 @@ fragment ItemSection on ItemSection {
             image
             title
             sort
+            description
             ...SectionItem
         }
     }

@@ -20,7 +20,7 @@
                         <h1 class="text-2xl font-bold">
                             {{ i.title }}
                         </h1>
-                        <p class="opacity-80">Placeholder descriptive description</p>
+                        <p v-if="i.description" class="opacity-80 truncate px-8">{{i.description}}</p>
                     </div>
                 </div>
                 <div class="text-center mt-2">
