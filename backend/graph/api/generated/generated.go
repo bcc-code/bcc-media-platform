@@ -60,7 +60,6 @@ type ResolverRoot interface {
 	Season() SeasonResolver
 	SeasonCalendarEntry() SeasonCalendarEntryResolver
 	SeasonSearchItem() SeasonSearchItemResolver
-	SectionItem() SectionItemResolver
 	Show() ShowResolver
 	ShowCalendarEntry() ShowCalendarEntryResolver
 	SimpleCalendarEntry() SimpleCalendarEntryResolver
@@ -420,13 +419,12 @@ type ComplexityRoot struct {
 	}
 
 	SectionItem struct {
-		ID            func(childComplexity int) int
-		Image         func(childComplexity int) int
-		Item          func(childComplexity int) int
-		Sort          func(childComplexity int) int
-		Subtitle      func(childComplexity int) int
-		TertiaryTitle func(childComplexity int) int
-		Title         func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Image       func(childComplexity int) int
+		Item        func(childComplexity int) int
+		Sort        func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	SectionItemPagination struct {
@@ -640,10 +638,6 @@ type SeasonCalendarEntryResolver interface {
 }
 type SeasonSearchItemResolver interface {
 	Show(ctx context.Context, obj *model.SeasonSearchItem) (*model.Show, error)
-}
-type SectionItemResolver interface {
-	Subtitle(ctx context.Context, obj *model.SectionItem) (*string, error)
-	TertiaryTitle(ctx context.Context, obj *model.SectionItem) (*string, error)
 }
 type ShowResolver interface {
 	Image(ctx context.Context, obj *model.Show, style *model.ImageStyle) (*string, error)
@@ -2334,6 +2328,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SeasonSearchItem.URL(childComplexity), true
 
+	case "SectionItem.description":
+		if e.complexity.SectionItem.Description == nil {
+			break
+		}
+
+		return e.complexity.SectionItem.Description(childComplexity), true
+
 	case "SectionItem.id":
 		if e.complexity.SectionItem.ID == nil {
 			break
@@ -2361,20 +2362,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SectionItem.Sort(childComplexity), true
-
-	case "SectionItem.subtitle":
-		if e.complexity.SectionItem.Subtitle == nil {
-			break
-		}
-
-		return e.complexity.SectionItem.Subtitle(childComplexity), true
-
-	case "SectionItem.tertiaryTitle":
-		if e.complexity.SectionItem.TertiaryTitle == nil {
-			break
-		}
-
-		return e.complexity.SectionItem.TertiaryTitle(childComplexity), true
 
 	case "SectionItem.title":
 		if e.complexity.SectionItem.Title == nil {
@@ -3420,8 +3407,7 @@ type SectionItem {
     id: ID!
     sort: Int!
     title: String!
-    subtitle: String @goField(forceResolver: true)
-    tertiaryTitle: String @goField(forceResolver: true)
+    description: String!
     image: String
     item: SectionItemType
 }
@@ -15086,8 +15072,8 @@ func (ec *executionContext) fieldContext_SectionItem_title(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _SectionItem_subtitle(ctx context.Context, field graphql.CollectedField, obj *model.SectionItem) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SectionItem_subtitle(ctx, field)
+func (ec *executionContext) _SectionItem_description(ctx context.Context, field graphql.CollectedField, obj *model.SectionItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SectionItem_description(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -15100,67 +15086,29 @@ func (ec *executionContext) _SectionItem_subtitle(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.SectionItem().Subtitle(rctx, obj)
+		return obj.Description, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SectionItem_subtitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SectionItem",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SectionItem_tertiaryTitle(ctx context.Context, field graphql.CollectedField, obj *model.SectionItem) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SectionItem_tertiaryTitle(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
 		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.SectionItem().TertiaryTitle(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
 		return graphql.Null
 	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionItem_tertiaryTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionItem_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionItem",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -15427,10 +15375,8 @@ func (ec *executionContext) fieldContext_SectionItemPagination_items(ctx context
 				return ec.fieldContext_SectionItem_sort(ctx, field)
 			case "title":
 				return ec.fieldContext_SectionItem_title(ctx, field)
-			case "subtitle":
-				return ec.fieldContext_SectionItem_subtitle(ctx, field)
-			case "tertiaryTitle":
-				return ec.fieldContext_SectionItem_tertiaryTitle(ctx, field)
+			case "description":
+				return ec.fieldContext_SectionItem_description(ctx, field)
 			case "image":
 				return ec.fieldContext_SectionItem_image(ctx, field)
 			case "item":
@@ -23661,56 +23607,29 @@ func (ec *executionContext) _SectionItem(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._SectionItem_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "sort":
 
 			out.Values[i] = ec._SectionItem_sort(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "title":
 
 			out.Values[i] = ec._SectionItem_title(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
-		case "subtitle":
-			field := field
+		case "description":
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._SectionItem_subtitle(ctx, field, obj)
-				return res
+			out.Values[i] = ec._SectionItem_description(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
 			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		case "tertiaryTitle":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._SectionItem_tertiaryTitle(ctx, field, obj)
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		case "image":
 
 			out.Values[i] = ec._SectionItem_image(ctx, field, obj)

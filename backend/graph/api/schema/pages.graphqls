@@ -126,8 +126,7 @@ type SectionItem {
     id: ID!
     sort: Int!
     title: String!
-    subtitle: String @goField(forceResolver: true)
-    tertiaryTitle: String @goField(forceResolver: true)
+    description: String!
     image: String
     item: SectionItemType
 }

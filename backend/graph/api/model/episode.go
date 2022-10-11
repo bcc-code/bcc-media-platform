@@ -111,10 +111,11 @@ func EpisodeSectionItemFrom(ctx context.Context, s *common.Episode, sort int, se
 	}
 
 	return &SectionItem{
-		ID:    episode.ID,
-		Item:  episode,
-		Title: episode.Title,
-		Image: img,
-		Sort:  sort,
+		ID:          episode.ID,
+		Item:        episode,
+		Title:       episode.Title,
+		Description: episode.Description,
+		Image:       img,
+		Sort:        sort,
 	}
 }
