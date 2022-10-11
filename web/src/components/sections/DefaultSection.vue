@@ -2,24 +2,31 @@
     <section>
         <SectionTitle v-if="item.title">{{item.title}}</SectionTitle>
         <Swiper 
-            :slides-per-view="4"
-            :breakpoints="options"
+            :breakpoints="breakpoints(item.size)"
             :modules="modules"
         >
             <SwiperSlide
                 v-for="i in item.items.items"
-                class="flex flex-col h-full aspect-video rounded rounded-md"
+                class="flex flex-col h-full aspect-video"
             >
-                <div class="rounded-md top-0 h-full w-full bg-cover bg-no-repeat" :style="{
-                    'background-image': `url(${i.image}?h=400)`
-                }">
-                    
-                </div>
-                <div class="">
-                    <h3 class="text-xs text-primary w-full">Show title<span class="ml-1 text-gray">10.0.0</span></h3>
+                <img :src="i.image + '?h=400'" class="rounded-md top-0 h-full w-full object-cover border-2 border-slate-800 mb-1"/>
+                <div v-if="i.item?.__typename === 'Episode'">
+                    <h3 class="text-sm text-primary w-full">{{i.item.season?.show.title}}<span class="ml-1 text-gray">S{{i.item.season?.number}}:E{{i.item.episodeNumber}}</span></h3>
                     <h1 :class="style.title">
                         {{ i.title }}
                     </h1>
+                </div>
+                <div v-else-if="i.item?.__typename === 'Season'">
+                    <h3 class="text-sm text-primary w-full">{{i.item.show.title}}<span class="ml-1 text-gray">S{{i.item.seasonNumber}}</span></h3>
+                    <h1 :class="style.title">
+                        {{ i.title }}
+                    </h1>
+                </div>
+                <div v-else-if="i.item?.__typename === 'Show'">
+                    <h1 :class="style.title">
+                        {{ i.title }}
+                    </h1>
+                    <p class="text-gray">{{t('section.item.season', i.item.seasonCount)}} - {{t('section.item.episode', i.item.episodeCount)}}</p>
                 </div>
             </SwiperSlide>
         </Swiper>
@@ -28,7 +35,7 @@
 <script lang="ts" setup>
 import { Section } from "./types"
 
-import { Navigation, Pagination, SwiperOptions } from "swiper"
+import { Navigation, Pagination } from "swiper"
 
 import "swiper/css";
 
@@ -38,6 +45,10 @@ import "swiper/css/navigation";
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { computed } from "vue";
 import SectionTitle from "./SectionTitle.vue";
+import breakpoints from "./breakpoints";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n()
 
 const props = defineProps<{
     item: Section & { __typename: "DefaultSection" }
@@ -51,47 +62,8 @@ const style = computed(() => {
             title: "text-md lg:text-lg"
         },
         medium: {
-            title: "text-sm lg:text-lg"
+            title: "text-md lg:text-lg"
         }
     }[props.item.size]
-})
-
-const options = computed(() => {
-    switch (props.item.size) {
-        case "small":
-            return {
-                0: {
-                    slidesPerView: 3.5,
-                    spaceBetween: 4,
-                },
-                1280: {
-                    slidesPerView: 6,
-                    spaceBetween: 4,
-                },
-                1920: {
-                    slidesPerView: 9,
-                    spaceBetween: 4,
-                }
-            } as {
-                [key: number]: SwiperOptions
-            }
-        case "medium":
-            return {
-                0: {
-                    slidesPerView: 2.5,
-                    spaceBetween: 4,
-                },
-                1280: {
-                    slidesPerView: 4,
-                    spaceBetween: 4,
-                },
-                1920: {
-                    slidesPerView: 6,
-                    spaceBetween: 4,
-                }
-            } as {
-                [key: number]: SwiperOptions
-            }
-    }
 })
 </script>
