@@ -642,6 +642,8 @@ type SeasonSearchItemResolver interface {
 type ShowResolver interface {
 	Image(ctx context.Context, obj *model.Show, style *model.ImageStyle) (*string, error)
 
+	EpisodeCount(ctx context.Context, obj *model.Show) (int, error)
+	SeasonCount(ctx context.Context, obj *model.Show) (int, error)
 	Seasons(ctx context.Context, obj *model.Show, first *int, offset *int, dir *string) (*model.SeasonPagination, error)
 	DefaultEpisode(ctx context.Context, obj *model.Show) (*model.Episode, error)
 }
@@ -3171,8 +3173,8 @@ type Show {
     image(style: ImageStyle): String @goField(forceResolver: true)
     imageUrl: String
     images: [Image!]!
-    episodeCount: Int!
-    seasonCount: Int!
+    episodeCount: Int! @goField(forceResolver: true)
+    seasonCount: Int! @goField(forceResolver: true)
     seasons(
         first: Int
         offset: Int
@@ -15982,7 +15984,7 @@ func (ec *executionContext) _Show_episodeCount(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.EpisodeCount, nil
+		return ec.resolvers.Show().EpisodeCount(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16003,8 +16005,8 @@ func (ec *executionContext) fieldContext_Show_episodeCount(ctx context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
 		},
@@ -16026,7 +16028,7 @@ func (ec *executionContext) _Show_seasonCount(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.SeasonCount, nil
+		return ec.resolvers.Show().SeasonCount(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16047,8 +16049,8 @@ func (ec *executionContext) fieldContext_Show_seasonCount(ctx context.Context, f
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
 		},
@@ -23846,19 +23848,45 @@ func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "episodeCount":
+			field := field
 
-			out.Values[i] = ec._Show_episodeCount(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Show_episodeCount(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "seasonCount":
+			field := field
 
-			out.Values[i] = ec._Show_seasonCount(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Show_seasonCount(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "seasons":
 			field := field
 
