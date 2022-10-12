@@ -8,9 +8,9 @@
         >
             <SwiperSlide
                 v-for="i in item.items.items"
-                class="h-full aspect-[4/3]"
+                class="h-full aspect-[4/3] md:aspect-video"
             >
-                <div class="relative h-full aspect-[4/3]">
+                <div class="relative h-full">
                     <img 
                         v-if="i.image"
                         :src="i.image + '?h=1080'"
