@@ -68,6 +68,7 @@ type Asset struct {
 	Status          null_v4.String `db:"status" json:"status"`
 	UserCreated     uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated     uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	AwsArn          null_v4.String `db:"aws_arn" json:"awsArn"`
 }
 
 type Assetfile struct {
