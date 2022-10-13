@@ -35,12 +35,17 @@ func PageItemFrom(ctx context.Context, p *common.Page, sort int) *PageItem {
 
 // PageSectionItemFrom returns a SectionItem from common.Page
 func PageSectionItemFrom(ctx context.Context, p *common.Page, sort int, sectionStyle string) *SectionItem {
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
 	page := PageFrom(ctx, p)
+
+	img := p.Images.GetDefault(languages, sectionStyle)
 
 	return &SectionItem{
 		ID:    page.ID,
 		Title: page.Title,
-		Image: nil,
+		Image: img,
 		Item:  page,
 		Sort:  sort,
 	}
