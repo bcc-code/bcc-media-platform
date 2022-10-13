@@ -14,7 +14,6 @@ import (
 	"github.com/samber/lo"
 )
 
-// Categories is the resolver for the categories field.
 func (r *fAQResolver) Categories(ctx context.Context, obj *model.Faq, first *int, offset *int) (*model.FAQCategoryPagination, error) {
 	items, err := withCache(ctx, "categories", r.Queries.ListFAQCategories, time.Minute*5)
 	if err != nil {
@@ -35,21 +34,18 @@ func (r *fAQResolver) Categories(ctx context.Context, obj *model.Faq, first *int
 	}, nil
 }
 
-// Category is the resolver for the category field.
 func (r *fAQResolver) Category(ctx context.Context, obj *model.Faq, id string) (*model.FAQCategory, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.FAQCategory]{
 		Item: r.Loaders.FAQCategoryLoader,
 	}, id, model.FAQCategoryFrom)
 }
 
-// Question is the resolver for the question field.
 func (r *fAQResolver) Question(ctx context.Context, obj *model.Faq, id string) (*model.Question, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Question]{
 		Item: r.Loaders.QuestionLoader,
 	}, id, model.QuestionFrom)
 }
 
-// Questions is the resolver for the questions field.
 func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *model.FAQCategory, first *int, offset *int) (*model.QuestionPagination, error) {
 	items, err := itemsResolverForIntID(ctx, &itemLoaders[int, common.Question]{
 		Item: r.Loaders.QuestionLoader,
@@ -68,7 +64,6 @@ func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *model.FAQCateg
 	}, nil
 }
 
-// Category is the resolver for the category field.
 func (r *questionResolver) Category(ctx context.Context, obj *model.Question) (*model.FAQCategory, error) {
 	return r.FAQ().Category(ctx, nil, obj.Category.ID)
 }

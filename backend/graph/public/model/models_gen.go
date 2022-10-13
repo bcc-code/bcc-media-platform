@@ -26,3 +26,7 @@ type Show struct {
 	Description string  `json:"description"`
 	Image       *string `json:"image"`
 }
+
+type Version struct {
+	BuildSha string `json:"build_sha"`
+}

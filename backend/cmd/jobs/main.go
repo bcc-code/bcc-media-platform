@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/bcc-code/brunstadtv/backend/events"
+	"github.com/bcc-code/brunstadtv/backend/version"
 
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
@@ -115,6 +116,8 @@ func main() {
 		apiGroup.POST("aws", handlers.ProcessAwsMessage)
 		apiGroup.POST("eventmeta", handlers.IngestEventMeta) // TODO: Protect the endpoint with a simple api key or soimething
 	}
+
+	r.GET("/versionz", version.GinHandler)
 
 	span.End()
 

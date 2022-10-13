@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/version"
 	"strconv"
 
 	merry "github.com/ansel1/merry/v2"
@@ -13,7 +14,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
 )
 
-// Episode is the resolver for the episode field.
 func (r *queryRootResolver) Episode(ctx context.Context, id string) (*model.Episode, error) {
 	intID, _ := strconv.ParseInt(id, 10, 64)
 	item, err := common.GetFromLoaderByID(ctx, r.Loaders.EpisodeLoader, int(intID))
@@ -53,7 +53,6 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*model.Epis
 	}, nil
 }
 
-// Season is the resolver for the season field.
 func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Season, error) {
 	intID, _ := strconv.ParseInt(id, 10, 64)
 	item, err := common.GetFromLoaderByID(ctx, r.Loaders.SeasonLoader, int(intID))
@@ -83,7 +82,6 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 	}, nil
 }
 
-// Show is the resolver for the show field.
 func (r *queryRootResolver) Show(ctx context.Context, id string) (*model.Show, error) {
 	intID, _ := strconv.ParseInt(id, 10, 64)
 	item, err := common.GetFromLoaderByID(ctx, r.Loaders.ShowLoader, int(intID))
@@ -107,6 +105,10 @@ func (r *queryRootResolver) Show(ctx context.Context, id string) (*model.Show, e
 		Description: item.Description.Get(languages),
 		Image:       image,
 	}, nil
+}
+
+func (r *queryRootResolver) Version(ctx context.Context) (*model.Version, error) {
+	return version.GQLHandler()
 }
 
 // QueryRoot returns generated.QueryRootResolver implementation.

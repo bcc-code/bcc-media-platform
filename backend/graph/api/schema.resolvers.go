@@ -19,7 +19,6 @@ import (
 	"github.com/samber/lo"
 )
 
-// SetDevicePushToken is the resolver for the setDevicePushToken field.
 func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token string) (*model.Device, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
@@ -48,7 +47,6 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 	}, nil
 }
 
-// Application is the resolver for the application field.
 func (r *queryRootResolver) Application(ctx context.Context) (*model.Application, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
@@ -74,7 +72,6 @@ func (r *queryRootResolver) Application(ctx context.Context) (*model.Application
 	}, nil
 }
 
-// Page is the resolver for the page field.
 func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) (*model.Page, error) {
 	if id != nil {
 		return resolverForIntID(ctx, &itemLoaders[int, common.Page]{
@@ -98,7 +95,6 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 	return nil, merry.Sentinel("Must specify either ID or code", merry.WithHTTPCode(400))
 }
 
-// Section is the resolver for the section field.
 func (r *queryRootResolver) Section(ctx context.Context, id string) (model.Section, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Section]{
 		Item:        r.Loaders.SectionLoader,
@@ -106,7 +102,6 @@ func (r *queryRootResolver) Section(ctx context.Context, id string) (model.Secti
 	}, id, model.SectionFrom)
 }
 
-// Show is the resolver for the show field.
 func (r *queryRootResolver) Show(ctx context.Context, id string) (*model.Show, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Show]{
 		Item:        r.Loaders.ShowLoader,
@@ -114,7 +109,6 @@ func (r *queryRootResolver) Show(ctx context.Context, id string) (*model.Show, e
 	}, id, model.ShowFrom)
 }
 
-// Season is the resolver for the season field.
 func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Season, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Season]{
 		Item:        r.Loaders.SeasonLoader,
@@ -122,7 +116,6 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 	}, id, model.SeasonFrom)
 }
 
-// Episode is the resolver for the episode field.
 func (r *queryRootResolver) Episode(ctx context.Context, id string) (*model.Episode, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
 		Item:        r.Loaders.EpisodeLoader,
@@ -130,41 +123,34 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*model.Epis
 	}, id, model.EpisodeFrom)
 }
 
-// Collection is the resolver for the collection field.
 func (r *queryRootResolver) Collection(ctx context.Context, id string) (*model.Collection, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Collection]{
 		Item: r.Loaders.CollectionLoader,
 	}, id, model.CollectionFrom)
 }
 
-// Search is the resolver for the search field.
 func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error) {
 	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)
 }
 
-// Messages is the resolver for the messages field.
 func (r *queryRootResolver) Messages(ctx context.Context) (*model.Messages, error) {
 	return &model.Messages{}, nil
 }
 
-// Calendar is the resolver for the calendar field.
 func (r *queryRootResolver) Calendar(ctx context.Context) (*model.Calendar, error) {
 	return &model.Calendar{}, nil
 }
 
-// Event is the resolver for the event field.
 func (r *queryRootResolver) Event(ctx context.Context, id string) (*model.Event, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Event]{
 		Item: r.Loaders.EventLoader,
 	}, id, model.EventFrom)
 }
 
-// Faq is the resolver for the faq field.
 func (r *queryRootResolver) Faq(ctx context.Context) (*model.Faq, error) {
 	return &model.Faq{}, nil
 }
 
-// Me is the resolver for the me field.
 func (r *queryRootResolver) Me(ctx context.Context) (*model.User, error) {
 	gc, err := utils.GinCtx(ctx)
 	if err != nil {
@@ -194,12 +180,10 @@ func (r *queryRootResolver) Me(ctx context.Context) (*model.User, error) {
 	return u, nil
 }
 
-// Config is the resolver for the config field.
 func (r *queryRootResolver) Config(ctx context.Context) (*model.Config, error) {
 	return &model.Config{}, nil
 }
 
-// Profiles is the resolver for the profiles field.
 func (r *queryRootResolver) Profiles(ctx context.Context) ([]*model.Profile, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
@@ -215,7 +199,6 @@ func (r *queryRootResolver) Profiles(ctx context.Context) ([]*model.Profile, err
 	}), nil
 }
 
-// Profile is the resolver for the profile field.
 func (r *queryRootResolver) Profile(ctx context.Context) (*model.Profile, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {

@@ -10,7 +10,6 @@ import (
 	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/api/model"
 )
 
-// Page is the resolver for the page field.
 func (r *applicationResolver) Page(ctx context.Context, obj *gqlmodel.Application) (*gqlmodel.Page, error) {
 	if obj.Page != nil {
 		return r.QueryRoot().Page(ctx, &obj.Page.ID, nil)

@@ -29,6 +29,7 @@ require (
 	github.com/lestrrat-go/jwx/v2 v2.0.6
 	github.com/lib/pq v1.10.6
 	github.com/mitchellh/mapstructure v1.5.0
+	github.com/robbiet480/go.sns v0.0.0-20221010181423-5d7c717f43d9
 	github.com/rs/zerolog v1.26.1
 	github.com/samber/lo v1.21.0
 	github.com/stretchr/testify v1.8.0
@@ -96,7 +97,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/robbiet480/go.sns v0.0.0-20221010181423-5d7c717f43d9 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect

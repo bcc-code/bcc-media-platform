@@ -28,6 +28,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/brunstadtv/backend/version"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -328,6 +329,8 @@ func main() {
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, loaders))
 
 	r.POST("/public", publicGraphqlHandler(loaders))
+
+	r.GET("/versionz", version.GinHandler)
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 

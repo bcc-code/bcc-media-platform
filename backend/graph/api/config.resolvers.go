@@ -11,7 +11,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 )
 
-// Global is the resolver for the global field.
 func (r *configResolver) Global(ctx context.Context, obj *model.Config, timestamp *string) (*model.GlobalConfig, error) {
 	conf, err := withCacheAndTimestamp(ctx, "global_config", r.Queries.GetGlobalConfig, time.Second*30, timestamp)
 	if err != nil {
