@@ -5,13 +5,13 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/version"
 	"strconv"
 
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/public/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
+	"github.com/bcc-code/brunstadtv/backend/version"
 )
 
 func (r *queryRootResolver) Episode(ctx context.Context, id string) (*model.Episode, error) {
