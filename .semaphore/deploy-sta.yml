@@ -22,8 +22,6 @@ blocks:
         - name: GoogleSemaphoreServiceAccount
       prologue:
         commands:
-          - sudo apt-get update
-          - sudo apt-get --only-upgrade install google-cloud-sdk
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
   - name: Web
     task:
@@ -36,6 +34,4 @@ blocks:
         - name: GoogleSemaphoreServiceAccount
       prologue:
         commands:
-          - sudo apt-get update
-          - sudo apt-get --only-upgrade install google-cloud-sdk
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
