@@ -152,6 +152,7 @@ type Page struct {
 	Code        string       `json:"code"`
 	Title       LocaleString `json:"title"`
 	Description LocaleString `json:"description"`
+	Images      Images       `json:"images"`
 }
 
 // GetKey returns the key for this item

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func mapToPages(pages []getPagesRow) []common.Page {
+func (q *Queries) mapToPages(pages []getPagesRow) []common.Page {
 	return lo.Map(pages, func(p getPagesRow, _ int) common.Page {
 		var title common.LocaleString
 		var description common.LocaleString
@@ -21,6 +21,7 @@ func mapToPages(pages []getPagesRow) []common.Page {
 			Code:        p.Code,
 			Title:       title,
 			Description: description,
+			Images:      q.getImages(p.Images),
 		}
 	})
 }
@@ -31,7 +32,7 @@ func (q *Queries) GetPages(ctx context.Context, ids []int) ([]common.Page, error
 	if err != nil {
 		return nil, err
 	}
-	return mapToPages(pages), err
+	return q.mapToPages(pages), err
 }
 
 // ListPages returns a list of pages
@@ -40,7 +41,7 @@ func (q *Queries) ListPages(ctx context.Context) ([]common.Page, error) {
 	if err != nil {
 		return nil, err
 	}
-	return mapToPages(lo.Map(pages, func(p listPagesRow, _ int) getPagesRow {
+	return q.mapToPages(lo.Map(pages, func(p listPagesRow, _ int) getPagesRow {
 		return getPagesRow(p)
 	})), nil
 }
