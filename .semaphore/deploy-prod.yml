@@ -16,7 +16,7 @@ blocks:
       when: branch = 'master'
     task:
       jobs:
-        - name: build
+        - name: Deploy Backend
           commands:
             - checkout
             - ./scripts/deploy.sh prod
@@ -30,7 +30,7 @@ blocks:
       when: branch = 'master'
     task:
       jobs:
-        - name: deploy
+        - name: Deploy Web
           commands:
             - checkout
             - ./scripts/deploy-web.sh prod
