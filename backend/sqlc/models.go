@@ -684,6 +684,7 @@ type Image struct {
 	Style       string        `db:"style" json:"style"`
 	File        uuid.NullUUID `db:"file" json:"file"`
 	Language    string        `db:"language" json:"language"`
+	PageID      null_v4.Int   `db:"page_id" json:"pageID"`
 }
 
 type Language struct {
