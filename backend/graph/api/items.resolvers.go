@@ -137,6 +137,37 @@ func (r *showResolver) Image(ctx context.Context, obj *model.Show, style *model.
 	return e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s), nil
 }
 
+// EpisodeCount is the resolver for the episodeCount field.
+func (r *showResolver) EpisodeCount(ctx context.Context, obj *model.Show) (int, error) {
+	seasonIDs, err := common.GetFromLoaderForKey(ctx, r.FilteredLoaders(ctx).SeasonsLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return 0, err
+	}
+	el := r.FilteredLoaders(ctx).EpisodesLoader
+	for _, id := range seasonIDs {
+		el.Load(ctx, *id)
+	}
+
+	count := 0
+	for _, id := range seasonIDs {
+		episodeIDs, err := common.GetFromLoaderForKey(ctx, el, *id)
+		if err != nil {
+			return 0, err
+		}
+		count += len(episodeIDs)
+	}
+	return count, nil
+}
+
+// SeasonCount is the resolver for the seasonCount field.
+func (r *showResolver) SeasonCount(ctx context.Context, obj *model.Show) (int, error) {
+	seasonIDs, err := common.GetFromLoaderForKey(ctx, r.FilteredLoaders(ctx).SeasonsLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return 0, err
+	}
+	return len(seasonIDs), nil
+}
+
 // Seasons is the resolver for the seasons field.
 func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int, offset *int, dir *string) (*model.SeasonPagination, error) {
 	intID, err := strconv.ParseInt(obj.ID, 10, 64)
