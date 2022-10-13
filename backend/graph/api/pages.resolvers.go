@@ -5,15 +5,16 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/user"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
+// Items is the resolver for the items field.
 func (r *collectionResolver) Items(ctx context.Context, obj *model.Collection, first *int, offset *int) (*model.CollectionItemPagination, error) {
 	pagination, err := collectionItemResolverFromCollection(ctx, r.Resolver, obj.ID, first, offset)
 	if err != nil {
@@ -28,6 +29,7 @@ func (r *collectionResolver) Items(ctx context.Context, obj *model.Collection, f
 	}, nil
 }
 
+// Items is the resolver for the items field.
 func (r *defaultSectionResolver) Items(ctx context.Context, obj *model.DefaultSection, first *int, offset *int) (*model.SectionItemPagination, error) {
 	pagination, err := sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 
@@ -43,6 +45,7 @@ func (r *defaultSectionResolver) Items(ctx context.Context, obj *model.DefaultSe
 	}, nil
 }
 
+// Items is the resolver for the items field.
 func (r *featuredSectionResolver) Items(ctx context.Context, obj *model.FeaturedSection, first *int, offset *int) (*model.SectionItemPagination, error) {
 	pagination, err := sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 
@@ -58,6 +61,7 @@ func (r *featuredSectionResolver) Items(ctx context.Context, obj *model.Featured
 	}, nil
 }
 
+// Items is the resolver for the items field.
 func (r *gridSectionResolver) Items(ctx context.Context, obj *model.GridSection, first *int, offset *int) (*model.SectionItemPagination, error) {
 	pagination, err := sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 
@@ -73,6 +77,7 @@ func (r *gridSectionResolver) Items(ctx context.Context, obj *model.GridSection,
 	}, nil
 }
 
+// Items is the resolver for the items field.
 func (r *iconSectionResolver) Items(ctx context.Context, obj *model.IconSection, first *int, offset *int) (*model.LinkItemPagination, error) {
 	pagination, err := sectionLinkItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 
@@ -88,6 +93,7 @@ func (r *iconSectionResolver) Items(ctx context.Context, obj *model.IconSection,
 	}, nil
 }
 
+// Items is the resolver for the items field.
 func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int) (*model.LinkItemPagination, error) {
 	pagination, err := sectionLinkItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 
@@ -117,6 +123,7 @@ func (r *pageResolver) Image(ctx context.Context, obj *model.Page, style *model.
 	return e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s), nil
 }
 
+// Sections is the resolver for the sections field.
 func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int, offset *int) (*model.SectionPagination, error) {
 	intID, err := strconv.ParseInt(obj.ID, 10, 64)
 	if err != nil {
@@ -142,10 +149,12 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 	}, nil
 }
 
+// Page is the resolver for the page field.
 func (r *pageLinkItemResolver) Page(ctx context.Context, obj *model.PageLinkItem) (*model.Page, error) {
 	return r.QueryRoot().Page(ctx, &obj.Page.ID, nil)
 }
 
+// Items is the resolver for the items field.
 func (r *posterSectionResolver) Items(ctx context.Context, obj *model.PosterSection, first *int, offset *int) (*model.SectionItemPagination, error) {
 	pagination, err := sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 

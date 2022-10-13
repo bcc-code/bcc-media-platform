@@ -15,6 +15,7 @@ import (
 	"github.com/samber/lo"
 )
 
+// Maintenance is the resolver for the maintenance field.
 func (r *messagesResolver) Maintenance(ctx context.Context, obj *model.Messages, timestamp *string) ([]*model.MaintenanceMessage, error) {
 	messages, err := withCacheAndTimestamp(ctx, "maintenance_messages", r.Queries.GetMaintenanceMessages, time.Second*30, timestamp)
 	if err != nil {

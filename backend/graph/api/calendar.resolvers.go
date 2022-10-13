@@ -12,6 +12,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
+// Period is the resolver for the period field.
 func (r *calendarResolver) Period(ctx context.Context, obj *model.Calendar, from string, to string) (*model.CalendarPeriod, error) {
 	fromTime, err := time.Parse(time.RFC3339, from)
 	if err != nil {
@@ -24,6 +25,7 @@ func (r *calendarResolver) Period(ctx context.Context, obj *model.Calendar, from
 	return r.periodResolver(ctx, fromTime, toTime)
 }
 
+// Day is the resolver for the day field.
 func (r *calendarResolver) Day(ctx context.Context, obj *model.Calendar, day string) (*model.CalendarDay, error) {
 	source, err := time.Parse(time.RFC3339, day)
 	if err != nil {
@@ -50,6 +52,7 @@ func (r *calendarResolver) Day(ctx context.Context, obj *model.Calendar, day str
 	}, nil
 }
 
+// Event is the resolver for the event field.
 func (r *episodeCalendarEntryResolver) Event(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Event, error) {
 	if obj.Event == nil {
 		return nil, nil
@@ -57,10 +60,12 @@ func (r *episodeCalendarEntryResolver) Event(ctx context.Context, obj *model.Epi
 	return r.QueryRoot().Event(ctx, obj.Event.ID)
 }
 
+// Episode is the resolver for the episode field.
 func (r *episodeCalendarEntryResolver) Episode(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Episode, error) {
 	return r.QueryRoot().Episode(ctx, obj.Episode.ID)
 }
 
+// Event is the resolver for the event field.
 func (r *seasonCalendarEntryResolver) Event(ctx context.Context, obj *model.SeasonCalendarEntry) (*model.Event, error) {
 	if obj.Event == nil {
 		return nil, nil
@@ -68,10 +73,12 @@ func (r *seasonCalendarEntryResolver) Event(ctx context.Context, obj *model.Seas
 	return r.QueryRoot().Event(ctx, obj.Event.ID)
 }
 
+// Season is the resolver for the season field.
 func (r *seasonCalendarEntryResolver) Season(ctx context.Context, obj *model.SeasonCalendarEntry) (*model.Season, error) {
 	return r.QueryRoot().Season(ctx, obj.Season.ID)
 }
 
+// Event is the resolver for the event field.
 func (r *showCalendarEntryResolver) Event(ctx context.Context, obj *model.ShowCalendarEntry) (*model.Event, error) {
 	if obj.Event == nil {
 		return nil, nil
@@ -79,10 +86,12 @@ func (r *showCalendarEntryResolver) Event(ctx context.Context, obj *model.ShowCa
 	return r.QueryRoot().Event(ctx, obj.Event.ID)
 }
 
+// Show is the resolver for the show field.
 func (r *showCalendarEntryResolver) Show(ctx context.Context, obj *model.ShowCalendarEntry) (*model.Show, error) {
 	return r.QueryRoot().Show(ctx, obj.Show.ID)
 }
 
+// Event is the resolver for the event field.
 func (r *simpleCalendarEntryResolver) Event(ctx context.Context, obj *model.SimpleCalendarEntry) (*model.Event, error) {
 	if obj.Event == nil {
 		return nil, nil

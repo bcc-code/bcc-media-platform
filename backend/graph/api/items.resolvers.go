@@ -15,6 +15,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
+// Image is the resolver for the image field.
 func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *model.ImageStyle) (*string, error) {
 	e, err := common.GetFromLoaderByID(ctx, r.Loaders.EpisodeLoader, utils.AsInt(obj.ID))
 	if err != nil {
@@ -28,6 +29,7 @@ func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *
 	return e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s), nil
 }
 
+// Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*model.Stream, error) {
 	intID, _ := strconv.ParseInt(obj.ID, 10, 32)
 	streams, err := common.GetFromLoaderForKey(ctx, r.Resolver.Loaders.StreamsLoader, int(intID))
@@ -48,6 +50,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 	return out, nil
 }
 
+// Files is the resolver for the files field.
 func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode) ([]*model.File, error) {
 	intID, err := strconv.ParseInt(obj.ID, 10, 32)
 	if err != nil {
@@ -66,6 +69,7 @@ func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode) ([]*mod
 	return out, nil
 }
 
+// Season is the resolver for the season field.
 func (r *episodeResolver) Season(ctx context.Context, obj *model.Episode) (*model.Season, error) {
 	if obj.Season != nil {
 		return r.QueryRoot().Season(ctx, obj.Season.ID)
@@ -73,6 +77,7 @@ func (r *episodeResolver) Season(ctx context.Context, obj *model.Episode) (*mode
 	return nil, nil
 }
 
+// Image is the resolver for the image field.
 func (r *seasonResolver) Image(ctx context.Context, obj *model.Season, style *model.ImageStyle) (*string, error) {
 	e, err := common.GetFromLoaderByID(ctx, r.Loaders.SeasonLoader, utils.AsInt(obj.ID))
 	if err != nil {
@@ -86,10 +91,12 @@ func (r *seasonResolver) Image(ctx context.Context, obj *model.Season, style *mo
 	return e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s), nil
 }
 
+// Show is the resolver for the show field.
 func (r *seasonResolver) Show(ctx context.Context, obj *model.Season) (*model.Show, error) {
 	return r.QueryRoot().Show(ctx, obj.Show.ID)
 }
 
+// Episodes is the resolver for the episodes field.
 func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first *int, offset *int, dir *string) (*model.EpisodePagination, error) {
 	intID, err := strconv.ParseInt(obj.ID, 10, 64)
 	if err != nil {
@@ -116,6 +123,7 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first 
 	}, nil
 }
 
+// Image is the resolver for the image field.
 func (r *showResolver) Image(ctx context.Context, obj *model.Show, style *model.ImageStyle) (*string, error) {
 	e, err := common.GetFromLoaderByID(ctx, r.Loaders.ShowLoader, utils.AsInt(obj.ID))
 	if err != nil {
@@ -129,6 +137,7 @@ func (r *showResolver) Image(ctx context.Context, obj *model.Show, style *model.
 	return e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s), nil
 }
 
+// EpisodeCount is the resolver for the episodeCount field.
 func (r *showResolver) EpisodeCount(ctx context.Context, obj *model.Show) (int, error) {
 	seasonIDs, err := common.GetFromLoaderForKey(ctx, r.FilteredLoaders(ctx).SeasonsLoader, utils.AsInt(obj.ID))
 	if err != nil {
@@ -150,6 +159,7 @@ func (r *showResolver) EpisodeCount(ctx context.Context, obj *model.Show) (int, 
 	return count, nil
 }
 
+// SeasonCount is the resolver for the seasonCount field.
 func (r *showResolver) SeasonCount(ctx context.Context, obj *model.Show) (int, error) {
 	seasonIDs, err := common.GetFromLoaderForKey(ctx, r.FilteredLoaders(ctx).SeasonsLoader, utils.AsInt(obj.ID))
 	if err != nil {
@@ -158,6 +168,7 @@ func (r *showResolver) SeasonCount(ctx context.Context, obj *model.Show) (int, e
 	return len(seasonIDs), nil
 }
 
+// Seasons is the resolver for the seasons field.
 func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int, offset *int, dir *string) (*model.SeasonPagination, error) {
 	intID, err := strconv.ParseInt(obj.ID, 10, 64)
 	if err != nil {
@@ -183,6 +194,7 @@ func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int,
 	}, nil
 }
 
+// DefaultEpisode is the resolver for the defaultEpisode field.
 func (r *showResolver) DefaultEpisode(ctx context.Context, obj *model.Show) (*model.Episode, error) {
 	s, err := common.GetFromLoaderByID(ctx, r.Loaders.ShowLoader, utils.AsInt(obj.ID))
 	if err != nil {

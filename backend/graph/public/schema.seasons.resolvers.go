@@ -10,6 +10,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
 )
 
+// Show is the resolver for the show field.
 func (r *seasonResolver) Show(ctx context.Context, obj *model.Season) (*model.Show, error) {
 	return r.QueryRoot().Show(ctx, obj.Show.ID)
 }

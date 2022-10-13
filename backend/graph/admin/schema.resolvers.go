@@ -14,6 +14,7 @@ import (
 	"github.com/samber/lo"
 )
 
+// Collection is the resolver for the collection field.
 func (r *previewResolver) Collection(ctx context.Context, obj *model.Preview, collection string, filter string) (*model.PreviewCollection, error) {
 	ctx = context.WithValue(ctx, "preview", true)
 
@@ -31,6 +32,7 @@ func (r *previewResolver) Collection(ctx context.Context, obj *model.Preview, co
 	}, nil
 }
 
+// Asset is the resolver for the asset field.
 func (r *previewResolver) Asset(ctx context.Context, obj *model.Preview, id string) (*model.PreviewAsset, error) {
 	ctx = context.WithValue(ctx, "preview", true)
 
@@ -56,6 +58,7 @@ func (r *previewResolver) Asset(ctx context.Context, obj *model.Preview, id stri
 	}, nil
 }
 
+// Preview is the resolver for the preview field.
 func (r *queryRootResolver) Preview(ctx context.Context) (*model.Preview, error) {
 	return &model.Preview{}, nil
 }

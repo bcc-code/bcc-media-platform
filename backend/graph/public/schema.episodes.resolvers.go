@@ -10,6 +10,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
 )
 
+// Season is the resolver for the season field.
 func (r *episodeResolver) Season(ctx context.Context, obj *model.Episode) (*model.Season, error) {
 	if obj.Season == nil {
 		return nil, nil
