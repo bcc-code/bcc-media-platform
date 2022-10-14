@@ -24,6 +24,7 @@ type Asset struct {
 	EncodingVersion string        `json:"encoding_version"`
 	MainStoragePath string        `json:"main_storage_path"`
 	Status          common.Status `json:"status"`
+	ARN             string        `json:"aws_arn"`
 }
 
 // ForUpdate prepares a copy of the struct for Directus update op
@@ -40,6 +41,49 @@ func (a Asset) UID() int {
 // TypeName of the item. Statically set to "asset"
 func (Asset) TypeName() string {
 	return "assets"
+}
+
+// FindAssetByAWSArn finds the asset with the specified ARN
+func FindAssetByAWSArn(c *resty.Client, arn string) (*Asset, error) {
+	q := url.URL{}
+	q.Path = "items/assets"
+
+	// Just the newest one
+	qq := q.Query()
+	qq.Add("limit", "1")
+	qq.Add("page", "1")
+
+	qq.Add("fields[]", "id")
+	qq.Add("fields[]", "name")
+	qq.Add("fields[]", "files")
+	qq.Add("fields[]", "duration")
+	qq.Add("fields[]", "mediabanken_id")
+	qq.Add("fields[]", "encoding_version")
+	qq.Add("fields[]", "main_storage_path")
+	qq.Add("fields[]", "status")
+	qq.Add("fields[]", "aws_arn")
+
+	qq.Add("filter", fmt.Sprintf(`{"_and":[{"aws_arn":{"_contains":"%s"}}]}`, arn))
+
+	x := struct {
+		Data []Asset
+	}{}
+
+	q.RawQuery = qq.Encode()
+	req := c.R().SetResult(x)
+
+	res, err := req.Get(q.String())
+	if err != nil {
+		return nil, merry.Wrap(err)
+	}
+
+	assetList := res.Result().(*struct{ Data []Asset })
+
+	if len(assetList.Data) == 0 {
+		return nil, merry.Wrap(ErrNotFound, merry.WithValue("arn", arn))
+	}
+
+	return &assetList.Data[0], nil
 }
 
 // FindNewestAssetByMediabankenID in directus

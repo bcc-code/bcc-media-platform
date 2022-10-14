@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/user"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -106,6 +107,20 @@ func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSectio
 		Offset: pagination.Offset,
 		Items:  pagination.Items,
 	}, nil
+}
+
+// Image is the resolver for the image field.
+func (r *pageResolver) Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error) {
+	e, err := common.GetFromLoaderByID(ctx, r.Loaders.PageLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	ginCtx, _ := utils.GinCtx(ctx)
+	s := "default"
+	if style != nil && style.IsValid() {
+		s = style.String()
+	}
+	return e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s), nil
 }
 
 // Sections is the resolver for the sections field.

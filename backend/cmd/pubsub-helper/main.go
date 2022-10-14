@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -151,7 +152,8 @@ func main() {
 	projectId := "btv-local"
 	topicId := "background-jobs"
 
-	if host != nil {
+	if host != nil && *host != "" {
+		log.Default().Println("Setting host")
 		_ = os.Setenv("PUBSUB_EMULATOR_HOST", *host)
 	}
 

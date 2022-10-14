@@ -296,6 +296,8 @@ type Page struct {
 	Code        string             `json:"code"`
 	Title       string             `json:"title"`
 	Description *string            `json:"description"`
+	Image       *string            `json:"image"`
+	Images      []*Image           `json:"images"`
 	Sections    *SectionPagination `json:"sections"`
 }
 

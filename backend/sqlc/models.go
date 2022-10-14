@@ -68,6 +68,7 @@ type Asset struct {
 	Status          null_v4.String `db:"status" json:"status"`
 	UserCreated     uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated     uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	AwsArn          null_v4.String `db:"aws_arn" json:"awsArn"`
 }
 
 type Assetfile struct {
@@ -683,6 +684,7 @@ type Image struct {
 	Style       string        `db:"style" json:"style"`
 	File        uuid.NullUUID `db:"file" json:"file"`
 	Language    string        `db:"language" json:"language"`
+	PageID      null_v4.Int   `db:"page_id" json:"pageID"`
 }
 
 type Language struct {

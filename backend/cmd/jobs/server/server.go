@@ -2,18 +2,19 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/database"
-	"io/ioutil"
+	sns "github.com/robbiet480/go.sns"
+	"io"
 	"net/http"
 	"time"
-
-	"github.com/bcc-code/brunstadtv/backend/crowdin"
-	externalevents "github.com/bcc-code/brunstadtv/backend/external-events"
 
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/asset"
+	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"github.com/bcc-code/brunstadtv/backend/events"
+	externalevents "github.com/bcc-code/brunstadtv/backend/external-events"
 	"github.com/bcc-code/brunstadtv/backend/maintenance"
 	"github.com/bcc-code/brunstadtv/backend/pubsub"
 	"github.com/bcc-code/mediabank-bridge/log"
@@ -156,7 +157,7 @@ func (s server) ProcessMessage(c *gin.Context) {
 }
 
 func (s server) IngestEventMeta(c *gin.Context) {
-	jsonData, err := ioutil.ReadAll(c.Request.Body)
+	jsonData, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.Error(err)
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -170,4 +171,69 @@ func (s server) IngestEventMeta(c *gin.Context) {
 
 	// TODO: Do something wiht the data :D.
 	log.L.Debug().Str("eventType", event.Type.S()).Msg("Got new event Meta")
+}
+
+func (s server) ProcessAwsMessage(c *gin.Context) {
+	ctx := c.Request.Context()
+	ctx, span := otel.Tracer("jobs/core").Start(ctx, "ProcessAWSMessage")
+	defer span.End()
+
+	jsonData, err := io.ReadAll(c.Request.Body)
+
+	if err != nil {
+		log.L.Error().Err(err).Send()
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	var notificationPayload sns.Payload
+	err = json.Unmarshal([]byte(jsonData), &notificationPayload)
+	if err != nil {
+		log.L.Error().Err(err).Send()
+		c.Error(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	err = notificationPayload.VerifyPayload()
+	if err != nil {
+		log.L.Error().Err(err).Send()
+		c.Error(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	span.AddEvent("AWSSNS Message validated")
+
+	switch notificationPayload.Type {
+	case "SubscriptionConfirmation":
+		_, err := notificationPayload.Subscribe()
+		if err != nil {
+			log.L.Error().Err(err).Send()
+			c.Error(err)
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		span.AddEvent("Confirmed AWS SNS subscription")
+		c.Status(http.StatusOK)
+		return
+	case "Notification":
+		n, err := pubsub.ParseMediaPackageNotification(notificationPayload.Message)
+		if err != nil {
+			log.L.Error().Err(err).Send()
+			c.Error(err)
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		err = asset.UpdateIngestStatus(ctx, s.services, s.config, *n)
+		if err != nil {
+			log.L.Error().Err(err).Send()
+			c.Error(err)
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		return
+	default:
+		log.L.Warn().Str("message", string(jsonData)).Msg("Unable to process AWS SNS Message")
+	}
 }

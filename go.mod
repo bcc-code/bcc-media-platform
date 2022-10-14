@@ -29,6 +29,7 @@ require (
 	github.com/lestrrat-go/jwx/v2 v2.0.6
 	github.com/lib/pq v1.10.6
 	github.com/mitchellh/mapstructure v1.5.0
+	github.com/robbiet480/go.sns v0.0.0-20221010181423-5d7c717f43d9
 	github.com/rs/zerolog v1.26.1
 	github.com/samber/lo v1.21.0
 	github.com/stretchr/testify v1.8.0

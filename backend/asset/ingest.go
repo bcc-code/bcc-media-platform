@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/pubsub"
 	"net/url"
 	"path"
 	"regexp"
@@ -31,8 +32,9 @@ import (
 
 // Sentinel errors
 var (
-	ErrDurationEmpty = merry.Sentinel("duration string can not be empty")
-	ErrDuringCopy    = merry.Sentinel("error copying files on S3. See log for more details")
+	ErrResourcesEmpty = merry.Sentinel("AWS assets list empty")
+	ErrDurationEmpty  = merry.Sentinel("duration string can not be empty")
+	ErrDuringCopy     = merry.Sentinel("error copying files on S3. See log for more details")
 )
 
 // Regexes
@@ -122,7 +124,9 @@ func SafeString(s string) string {
 // https://aws.amazon.com/blogs/media/smil-using-aws-elemental-mediapackage-vod/
 // For example:
 // ```
-//      <video name="example_1080.mp4" systemLanguage="eng,spa,fra" audioName="English,Spanish,French"/>
+//
+//	<video name="example_1080.mp4" systemLanguage="eng,spa,fra" audioName="English,Spanish,French"/>
+//
 // ```
 // If systemLanguage param is not present the return will be an empty array
 func GetLanguagesFromVideoElement(videoElement smil.Video) []directus.AssetStreamLanguage {
@@ -178,7 +182,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	assetMeta.BasePath = path.Dir(msg.JSONMetaPath)
 
 	// Generate a sane name, in order to be able to search/browse the bucket
-	// This should not required for any functionality and can be changed
+	// This should not be required for any functionality and can be changed
 	storagePrefix := fmt.Sprintf("%s-%s", SafeString(assetMeta.Title), uuid.NewString())
 
 	filesToCopy := map[string]*s3.CopyObjectInput{}
@@ -346,6 +350,10 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			return merry.Wrap(err)
 		}
 
+		if asset.Arn != nil {
+			a.ARN = *asset.Arn
+		}
+
 		// Insert all stream endpoints into the CMS
 		for _, e := range asset.EgressEndpoints {
 			log.L.Debug().
@@ -394,13 +402,13 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		}
 	}
 
-	a.Status = common.StatusPublished
-	a, err = directus.SaveItem(ctx, services.GetDirectusClient(), *a, false)
+	a.Status = common.StatusDraft
+	_, err = directus.SaveItem(ctx, services.GetDirectusClient(), *a, false)
 	if err != nil {
 		return merry.Wrap(err)
 	}
 
-	log.L.Debug().Msg("Done inserting stuff into Directus")
+	log.L.Debug().Msg("Inserted asset in DRAFT state")
 
 	deleteInputs := &s3.DeleteObjectsInput{
 		Bucket: config.GetIngestBucket(),
@@ -425,4 +433,29 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	}
 
 	return nil
+}
+
+func UpdateIngestStatus(ctx context.Context, services externalServices, config config, event pubsub.MediaPackageInputNotification) error {
+	ctx, span := otel.Tracer("asset").Start(ctx, "updateIngestStatus")
+	defer span.End()
+
+	log.L.Debug().Str("EventType", event.Detail.Event).Msg("Processing event type")
+	if event.Detail.Event != "IngestComplete" {
+		// We don't currently want to do anything for the other events
+		return nil
+	}
+
+	if len(event.Resources) < 1 {
+		return merry.Wrap(ErrResourcesEmpty)
+	}
+
+	asset, err := directus.FindAssetByAWSArn(services.GetDirectusClient(), event.Resources[0])
+	if err != nil {
+		log.L.Warn().Err(err).Strs("arn", event.Resources).Msg("Error finding the asset to update")
+		return merry.Wrap(err)
+	}
+
+	asset.Status = common.StatusPublished
+	_, err = directus.SaveItem(ctx, services.GetDirectusClient(), asset, false)
+	return err
 }

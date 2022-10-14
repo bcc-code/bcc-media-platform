@@ -16,7 +16,7 @@ blocks:
       when: branch = 'master'
     task:
       jobs:
-        - name: build
+        - name: Deploy Backend
           commands:
             - checkout
             - ./scripts/deploy.sh prod
@@ -24,15 +24,13 @@ blocks:
         - name: GoogleSemaphoreServiceAccount
       prologue:
         commands:
-          - sudo apt-get update
-          - sudo apt-get --only-upgrade install google-cloud-sdk
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
   - name: Web
     run:
       when: branch = 'master'
     task:
       jobs:
-        - name: deploy
+        - name: Deploy Web
           commands:
             - checkout
             - ./scripts/deploy-web.sh prod
@@ -40,6 +38,4 @@ blocks:
         - name: GoogleSemaphoreServiceAccount
       prologue:
         commands:
-          - sudo apt-get update
-          - sudo apt-get --only-upgrade install google-cloud-sdk
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
