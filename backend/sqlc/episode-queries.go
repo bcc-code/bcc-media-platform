@@ -26,6 +26,7 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 
 		return common.Episode{
 			ID:                 int(e.ID),
+			Type:               e.Type,
 			LegacyID:           e.LegacyID,
 			LegacyProgramID:    e.LegacyProgramID,
 			Title:              title,

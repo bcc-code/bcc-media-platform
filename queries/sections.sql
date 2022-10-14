@@ -8,7 +8,6 @@ SELECT s.id,
        p.id::int                          AS page_id,
        s.type,
        s.style,
-       s.link_style,
        s.size,
        s.grid_size,
        s.show_title,
@@ -35,18 +34,16 @@ WHERE p.id = ANY ($1::int[])
 ORDER BY s.sort;
 
 -- name: getSectionIDsForPagesWithRoles :many
-WITH roles AS (
-    SELECT s.id,
-           COALESCE((SELECT array_agg(DISTINCT seu.usergroups_code) AS code
-                     FROM sections_usergroups seu
-                     WHERE seu.sections_id = s.id), ARRAY []::character varying[]) AS roles
-    FROM sections s
-)
+WITH roles AS (SELECT s.id,
+                      COALESCE((SELECT array_agg(DISTINCT seu.usergroups_code) AS code
+                                FROM sections_usergroups seu
+                                WHERE seu.sections_id = s.id), ARRAY []::character varying[]) AS roles
+               FROM sections s)
 SELECT s.id::int AS id,
        p.id::int AS page_id
 FROM sections s
-     JOIN pages p ON s.page_id = p.id
-     JOIN roles r ON r.id = s.id
+         JOIN pages p ON s.page_id = p.id
+         JOIN roles r ON r.id = s.id
 WHERE p.id = ANY ($1::int[])
   AND s.status = 'published'
   AND p.status = 'published'
@@ -67,14 +64,25 @@ WHERE s.id = ANY ($1::int[])
   AND s.status = 'published'
   AND p.status = 'published';
 
--- name: getLinksForSection :many
-SELECT
-    sl.id,
-    sl.section_id,
-    sl.page_id,
-    sl.title,
-    sl.url,
-    df.filename_disk
-FROM sections_links sl
-    LEFT JOIN directus_files df on sl.icon = df.id
-WHERE sl.section_id = ANY ($1::int[]);
+-- name: getLinks :many
+WITH ts AS (SELECT links_id,
+                   json_object_agg(languages_code, title)       AS title,
+                   json_object_agg(languages_code, description) AS description
+            FROM links_translations
+            GROUP BY links_id),
+     images AS (WITH images AS (SELECT link_id, style, language, filename_disk
+                                FROM images img
+                                         JOIN directus_files df on img.file = df.id)
+                SELECT link_id, json_agg(images) as json
+                FROM images
+                GROUP BY link_id)
+SELECT ls.id,
+       ls.url,
+       COALESCE(images.json, '[]') as images,
+       ts.title,
+       ts.description
+FROM links ls
+         LEFT JOIN ts ON ls.id = ts.links_id
+         LEFT JOIN images ON ls.id = images.link_id
+WHERE ls.id = ANY ($1::int[])
+  AND ls.status = 'published';

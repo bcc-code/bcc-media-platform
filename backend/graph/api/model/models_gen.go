@@ -21,15 +21,6 @@ type ItemSection interface {
 	IsItemSection()
 }
 
-type LinkItem interface {
-	IsLinkItem()
-}
-
-type LinkSection interface {
-	Section
-	IsLinkSection()
-}
-
 type Pagination interface {
 	IsPagination()
 }
@@ -251,13 +242,13 @@ func (GridSection) IsSection()     {}
 func (GridSection) IsItemSection() {}
 
 type IconSection struct {
-	ID    string              `json:"id"`
-	Title *string             `json:"title"`
-	Items *LinkItemPagination `json:"items"`
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Items *SectionItemPagination `json:"items"`
 }
 
 func (IconSection) IsSection()     {}
-func (IconSection) IsLinkSection() {}
+func (IconSection) IsItemSection() {}
 
 type Image struct {
 	Style string `json:"style"`
@@ -265,22 +256,20 @@ type Image struct {
 }
 
 type LabelSection struct {
-	ID    string              `json:"id"`
-	Title *string             `json:"title"`
-	Items *LinkItemPagination `json:"items"`
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Items *SectionItemPagination `json:"items"`
 }
 
 func (LabelSection) IsSection()     {}
-func (LabelSection) IsLinkSection() {}
+func (LabelSection) IsItemSection() {}
 
-type LinkItemPagination struct {
-	Total  int        `json:"total"`
-	First  int        `json:"first"`
-	Offset int        `json:"offset"`
-	Items  []LinkItem `json:"items"`
+type Link struct {
+	ID  string `json:"id"`
+	URL string `json:"url"`
 }
 
-func (LinkItemPagination) IsPagination() {}
+func (Link) IsSectionItemType() {}
 
 type MaintenanceMessage struct {
 	Message string  `json:"message"`
@@ -313,15 +302,6 @@ type PageItem struct {
 }
 
 func (PageItem) IsCollectionItem() {}
-
-type PageLinkItem struct {
-	ID    string  `json:"id"`
-	Title string  `json:"title"`
-	Icon  *string `json:"icon"`
-	Page  *Page   `json:"page"`
-}
-
-func (PageLinkItem) IsLinkItem() {}
 
 type PosterSection struct {
 	ID    string                 `json:"id"`
@@ -529,26 +509,6 @@ type Stream struct {
 	SubtitleLanguages []Language `json:"subtitleLanguages"`
 	Type              StreamType `json:"type"`
 }
-
-type URLItem struct {
-	ID       string   `json:"id"`
-	Sort     int      `json:"sort"`
-	Title    string   `json:"title"`
-	ImageURL *string  `json:"imageUrl"`
-	Images   []*Image `json:"images"`
-	URL      string   `json:"url"`
-}
-
-func (URLItem) IsCollectionItem() {}
-
-type URLLinkItem struct {
-	ID    string  `json:"id"`
-	Title string  `json:"title"`
-	Icon  *string `json:"icon"`
-	URL   string  `json:"url"`
-}
-
-func (URLLinkItem) IsLinkItem() {}
 
 type User struct {
 	ID        *string   `json:"id"`

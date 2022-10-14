@@ -225,12 +225,10 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		PageLoader:           common.NewBatchLoader(queries.GetPages),
 		PageIDFromCodeLoader: common.NewConversionBatchLoader(queries.GetPageIDsForCodes),
 		SectionLoader:        common.NewBatchLoader(queries.GetSections),
-		SectionLinksLoader: common.NewListBatchLoader(queries.GetLinksForSections, func(i common.SectionLink) int {
-			return i.SectionID
-		}),
 		ShowLoader:           common.NewBatchLoader(queries.GetShows),
 		SeasonLoader:         common.NewBatchLoader(queries.GetSeasons),
 		EpisodeLoader:        common.NewBatchLoader(queries.GetEpisodes),
+		LinkLoader:           common.NewBatchLoader(queries.GetLinks),
 		EventLoader:          common.NewBatchLoader(queries.GetEvents),
 		CalendarEntryLoader:  common.NewBatchLoader(queries.GetCalendarEntries),
 		FilesLoader:          asset.NewBatchFilesLoader(*queries),

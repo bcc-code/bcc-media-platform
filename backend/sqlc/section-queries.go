@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
-	"gopkg.in/guregu/null.v4"
 	"time"
 )
 
@@ -18,16 +17,12 @@ func mapToSections(items []getSectionsRow) []common.Section {
 		_ = json.Unmarshal(s.Description.RawMessage, &description)
 
 		t := "item"
-		if s.Type.Valid {
-			t = s.Type.ValueOrZero()
-		}
+		//if s.Type.Valid {
+		//	t = s.Type.ValueOrZero()
+		//}
 
 		var style string
-		if t == "item" {
-			style = s.Style.ValueOrZero()
-		} else {
-			style = s.LinkStyle.ValueOrZero()
-		}
+		style = s.Style.ValueOrZero()
 		if style == "" {
 			style = "default"
 		}
@@ -123,26 +118,25 @@ func (q *Queries) GetPermissionsForSections(ctx context.Context, ids []int) ([]c
 	}), nil
 }
 
-// GetLinksForSections returns links for sections
-func (q *Queries) GetLinksForSections(ctx context.Context, ids []int) ([]common.SectionLink, error) {
-	rows, err := q.getLinksForSection(ctx, intToInt32(ids))
+// GetLinks returns links from the database
+func (q *Queries) GetLinks(ctx context.Context, ids []int) ([]common.Link, error) {
+	links, err := q.getLinks(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, err
 	}
+	return lo.Map(links, func(i getLinksRow, _ int) common.Link {
+		var title common.LocaleString
+		var desc common.LocaleString
 
-	return lo.Map(rows, func(i getLinksForSectionRow, _ int) common.SectionLink {
-		var icon null.String
-		if i.FilenameDisk.Valid {
-			icon = null.StringFrom(q.filenameToImageURL(i.FilenameDisk.String))
-		}
+		_ = json.Unmarshal(i.Title.RawMessage, &title)
+		_ = json.Unmarshal(i.Description.RawMessage, &desc)
 
-		return common.SectionLink{
-			ID:        int(i.ID),
-			Title:     i.Title,
-			SectionID: int(i.SectionID),
-			PageID:    i.PageID,
-			URL:       i.Url,
-			Icon:      icon,
+		return common.Link{
+			ID:          int(i.ID),
+			Title:       title,
+			Description: desc,
+			URL:         i.Url,
+			Images:      q.getImages(i.Images),
 		}
 	}), nil
 }

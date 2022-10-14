@@ -71,3 +71,10 @@ type GlobalConfig struct {
 	LiveOnline  bool
 	NPAWEnabled bool
 }
+
+// Notification contains notification data
+type Notification struct {
+	Title       LocaleString      `json:"title"`
+	Description LocaleString      `json:"description"`
+	Image       LocaleMap[string] `json:"images"`
+}
