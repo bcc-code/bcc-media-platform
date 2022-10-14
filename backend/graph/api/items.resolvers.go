@@ -26,7 +26,11 @@ func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *
 	if style != nil && style.IsValid() {
 		s = style.String()
 	}
-	return e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s), nil
+	img := e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s)
+	if img == nil && e.Image.Valid {
+		img = &e.Image.String
+	}
+	return img, nil
 }
 
 // Streams is the resolver for the streams field.
@@ -88,7 +92,11 @@ func (r *seasonResolver) Image(ctx context.Context, obj *model.Season, style *mo
 	if style != nil && style.IsValid() {
 		s = style.String()
 	}
-	return e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s), nil
+	img := e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s)
+	if img == nil && e.Image.Valid {
+		img = &e.Image.String
+	}
+	return img, nil
 }
 
 // Show is the resolver for the show field.
@@ -134,7 +142,11 @@ func (r *showResolver) Image(ctx context.Context, obj *model.Show, style *model.
 	if style != nil && style.IsValid() {
 		s = style.String()
 	}
-	return e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s), nil
+	img := e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s)
+	if img == nil && e.Image.Valid {
+		img = &e.Image.String
+	}
+	return img, nil
 }
 
 // EpisodeCount is the resolver for the episodeCount field.
