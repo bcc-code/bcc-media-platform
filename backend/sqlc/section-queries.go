@@ -17,9 +17,9 @@ func mapToSections(items []getSectionsRow) []common.Section {
 		_ = json.Unmarshal(s.Description.RawMessage, &description)
 
 		t := "item"
-		//if s.Type.Valid {
-		//	t = s.Type.ValueOrZero()
-		//}
+		if s.Type.Valid {
+			t = s.Type.ValueOrZero()
+		}
 
 		var style string
 		style = s.Style.ValueOrZero()
