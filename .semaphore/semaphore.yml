@@ -115,7 +115,7 @@ blocks:
       jobs:
         - name: build
           commands:
-            - scripts/gen-version.sh
+            - ./scripts/gen-version.sh
             - cp version.json ./migrations
             - checkout
             - cd migrations
