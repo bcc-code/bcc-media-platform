@@ -115,9 +115,9 @@ blocks:
       jobs:
         - name: build
           commands:
-            - ./scripts/gen-version.sh
-            - cp version.json ./migrations
             - checkout
+            - scripts/gen-version.sh
+            - cp version.json ./migrations
             - cd migrations
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:$SEMAPHORE_GIT_BRANCH .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}" '
