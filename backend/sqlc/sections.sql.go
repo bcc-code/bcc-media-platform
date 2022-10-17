@@ -8,50 +8,60 @@ package sqlc
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const getLinksForSection = `-- name: getLinksForSection :many
-SELECT
-    sl.id,
-    sl.section_id,
-    sl.page_id,
-    sl.title,
-    sl.url,
-    df.filename_disk
-FROM sections_links sl
-    LEFT JOIN directus_files df on sl.icon = df.id
-WHERE sl.section_id = ANY ($1::int[])
+const getLinks = `-- name: getLinks :many
+WITH ts AS (SELECT links_id,
+                   json_object_agg(languages_code, title)       AS title,
+                   json_object_agg(languages_code, description) AS description
+            FROM links_translations
+            GROUP BY links_id),
+     images AS (WITH images AS (SELECT link_id, style, language, filename_disk
+                                FROM images img
+                                         JOIN directus_files df on img.file = df.id)
+                SELECT link_id, json_agg(images) as json
+                FROM images
+                GROUP BY link_id)
+SELECT ls.id,
+       ls.url,
+       COALESCE(images.json, '[]') as images,
+       ts.title,
+       ts.description
+FROM links ls
+         LEFT JOIN ts ON ls.id = ts.links_id
+         LEFT JOIN images ON ls.id = images.link_id
+WHERE ls.id = ANY ($1::int[])
+  AND ls.status = 'published'
 `
 
-type getLinksForSectionRow struct {
-	ID           int32          `db:"id" json:"id"`
-	SectionID    int32          `db:"section_id" json:"sectionID"`
-	PageID       null_v4.Int    `db:"page_id" json:"pageID"`
-	Title        string         `db:"title" json:"title"`
-	Url          null_v4.String `db:"url" json:"url"`
-	FilenameDisk null_v4.String `db:"filename_disk" json:"filenameDisk"`
+type getLinksRow struct {
+	ID          int32                 `db:"id" json:"id"`
+	Url         string                `db:"url" json:"url"`
+	Images      json.RawMessage       `db:"images" json:"images"`
+	Title       pqtype.NullRawMessage `db:"title" json:"title"`
+	Description pqtype.NullRawMessage `db:"description" json:"description"`
 }
 
-func (q *Queries) getLinksForSection(ctx context.Context, dollar_1 []int32) ([]getLinksForSectionRow, error) {
-	rows, err := q.db.QueryContext(ctx, getLinksForSection, pq.Array(dollar_1))
+func (q *Queries) getLinks(ctx context.Context, dollar_1 []int32) ([]getLinksRow, error) {
+	rows, err := q.db.QueryContext(ctx, getLinks, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []getLinksForSectionRow
+	var items []getLinksRow
 	for rows.Next() {
-		var i getLinksForSectionRow
+		var i getLinksRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.SectionID,
-			&i.PageID,
-			&i.Title,
 			&i.Url,
-			&i.FilenameDisk,
+			&i.Images,
+			&i.Title,
+			&i.Description,
 		); err != nil {
 			return nil, err
 		}
@@ -149,18 +159,16 @@ func (q *Queries) getSectionIDsForPages(ctx context.Context, dollar_1 []int32) (
 }
 
 const getSectionIDsForPagesWithRoles = `-- name: getSectionIDsForPagesWithRoles :many
-WITH roles AS (
-    SELECT s.id,
-           COALESCE((SELECT array_agg(DISTINCT seu.usergroups_code) AS code
-                     FROM sections_usergroups seu
-                     WHERE seu.sections_id = s.id), ARRAY []::character varying[]) AS roles
-    FROM sections s
-)
+WITH roles AS (SELECT s.id,
+                      COALESCE((SELECT array_agg(DISTINCT seu.usergroups_code) AS code
+                                FROM sections_usergroups seu
+                                WHERE seu.sections_id = s.id), ARRAY []::character varying[]) AS roles
+               FROM sections s)
 SELECT s.id::int AS id,
        p.id::int AS page_id
 FROM sections s
-     JOIN pages p ON s.page_id = p.id
-     JOIN roles r ON r.id = s.id
+         JOIN pages p ON s.page_id = p.id
+         JOIN roles r ON r.id = s.id
 WHERE p.id = ANY ($1::int[])
   AND s.status = 'published'
   AND p.status = 'published'
@@ -211,7 +219,6 @@ SELECT s.id,
        p.id::int                          AS page_id,
        s.type,
        s.style,
-       s.link_style,
        s.size,
        s.grid_size,
        s.show_title,
@@ -233,7 +240,6 @@ type getSectionsRow struct {
 	PageID       int32                 `db:"page_id" json:"pageID"`
 	Type         null_v4.String        `db:"type" json:"type"`
 	Style        null_v4.String        `db:"style" json:"style"`
-	LinkStyle    null_v4.String        `db:"link_style" json:"linkStyle"`
 	Size         null_v4.String        `db:"size" json:"size"`
 	GridSize     null_v4.String        `db:"grid_size" json:"gridSize"`
 	ShowTitle    sql.NullBool          `db:"show_title" json:"showTitle"`
@@ -258,7 +264,6 @@ func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSecti
 			&i.PageID,
 			&i.Type,
 			&i.Style,
-			&i.LinkStyle,
 			&i.Size,
 			&i.GridSize,
 			&i.ShowTitle,

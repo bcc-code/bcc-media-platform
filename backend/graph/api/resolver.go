@@ -2,6 +2,8 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"gopkg.in/guregu/null.v4"
 	"strconv"
 	"sync"
 	"time"
@@ -158,13 +160,6 @@ type itemLoaders[k comparable, t any] struct {
 	Item        *dataloader.Loader[k, *t]
 }
 
-func toItemLoaders[k comparable, t any](item *dataloader.Loader[k, *t], permissions *dataloader.Loader[k, *common.Permissions[k]]) *itemLoaders[k, t] {
-	return &itemLoaders[k, t]{
-		Item:        item,
-		Permissions: permissions,
-	}
-}
-
 // resolverFor returns a resolver for the specified item
 func resolverFor[k comparable, t any, r any](ctx context.Context, loaders *itemLoaders[k, t], id k, converter func(context.Context, *t) r) (res r, err error) {
 	ctx, span := otel.Tracer("resolver").Start(ctx, "item")
@@ -225,4 +220,18 @@ func itemsResolverForIntID[t any, r any](ctx context.Context, loaders *itemLoade
 		return nil, err
 	}
 	return itemsResolverFor(ctx, loaders, listLoader, int(intID), converter)
+}
+
+func imageOrFallback(ctx context.Context, images common.Images, fallback null.String, style *model.ImageStyle) *string {
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+	s := "default"
+	if style != nil && style.IsValid() {
+		s = style.String()
+	}
+	img := images.GetDefault(languages, s)
+	if img == nil && fallback.Valid {
+		img = &fallback.String
+	}
+	return img
 }

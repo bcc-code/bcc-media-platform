@@ -92,6 +92,7 @@ func (i Season) GetTagIDs() []int {
 // Episode is the definition of the Episode object
 type Episode struct {
 	ID                 int          `json:"id"`
+	Type               string       `json:"type"`
 	LegacyID           null.Int     `json:"legacyId"`
 	LegacyProgramID    null.Int     `json:"legacyProgramId"`
 	SeasonID           null.Int     `json:"seasonId"`
@@ -160,6 +161,20 @@ func (i Page) GetKey() int {
 	return i.ID
 }
 
+// Link contains link data
+type Link struct {
+	ID          int          `json:"id"`
+	Title       LocaleString `json:"title"`
+	Description LocaleString `json:"description"`
+	URL         string       `json:"url"`
+	Images      Images       `json:"images"`
+}
+
+// GetKey returns the key for this item
+func (i Link) GetKey() int {
+	return i.ID
+}
+
 // Section is the definition of the Section object
 type Section struct {
 	ID           int          `json:"id"`
@@ -177,16 +192,6 @@ type Section struct {
 // GetKey returns the key for this item
 func (i Section) GetKey() int {
 	return i.ID
-}
-
-// SectionLink is the model definition of the SectionLink object
-type SectionLink struct {
-	ID        int         `json:"id"`
-	SectionID int         `json:"sectionId"`
-	Title     string      `json:"title"`
-	PageID    null.Int    `json:"pageId"`
-	URL       null.String `json:"url"`
-	Icon      null.String `json:"icon"`
 }
 
 // Collection is the definition of the Collection object

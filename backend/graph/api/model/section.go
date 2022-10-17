@@ -69,3 +69,23 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 		Size:  SectionSizeMedium,
 	}
 }
+
+// LinkSectionItemFrom creates a sectionitem from a link
+func LinkSectionItemFrom(ctx context.Context, s *common.Link, sort int, sectionStyle string) *SectionItem {
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	img := s.Images.GetDefault(languages, sectionStyle)
+
+	return &SectionItem{
+		ID: strconv.Itoa(s.ID),
+		Item: &Link{
+			ID:  strconv.Itoa(s.ID),
+			URL: s.URL,
+		},
+		Title:       s.Title.Get(languages),
+		Description: s.Description.Get(languages),
+		Image:       img,
+		Sort:        sort,
+	}
+}

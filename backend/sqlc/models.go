@@ -202,6 +202,7 @@ type CollectionsItem struct {
 	Type         null_v4.String `db:"type" json:"type"`
 	UserCreated  uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated  uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	LinkID       null_v4.Int    `db:"link_id" json:"linkID"`
 }
 
 type DirectusActivity struct {
@@ -685,6 +686,7 @@ type Image struct {
 	File        uuid.NullUUID `db:"file" json:"file"`
 	Language    string        `db:"language" json:"language"`
 	PageID      null_v4.Int   `db:"page_id" json:"pageID"`
+	LinkID      null_v4.Int   `db:"link_id" json:"linkID"`
 }
 
 type Language struct {
@@ -692,6 +694,24 @@ type Language struct {
 	Legacy2LetterCode null_v4.String `db:"legacy_2_letter_code" json:"legacy2LetterCode"`
 	Legacy3LetterCode null_v4.String `db:"legacy_3_letter_code" json:"legacy3LetterCode"`
 	Name              null_v4.String `db:"name" json:"name"`
+}
+
+type Link struct {
+	ID          int32         `db:"id" json:"id"`
+	Status      string        `db:"status" json:"status"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	Url         string        `db:"url" json:"url"`
+}
+
+type LinksTranslation struct {
+	ID            int32          `db:"id" json:"id"`
+	LinksID       null_v4.Int    `db:"links_id" json:"linksID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         string         `db:"title" json:"title"`
+	Description   string         `db:"description" json:"description"`
 }
 
 type List struct {
@@ -844,22 +864,7 @@ type Section struct {
 	Size         null_v4.String `db:"size" json:"size"`
 	GridSize     null_v4.String `db:"grid_size" json:"gridSize"`
 	Type         null_v4.String `db:"type" json:"type"`
-	LinkStyle    null_v4.String `db:"link_style" json:"linkStyle"`
 	ShowTitle    sql.NullBool   `db:"show_title" json:"showTitle"`
-}
-
-type SectionsLink struct {
-	ID          int32          `db:"id" json:"id"`
-	Sort        null_v4.Int    `db:"sort" json:"sort"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	PageID      null_v4.Int    `db:"page_id" json:"pageID"`
-	Url         null_v4.String `db:"url" json:"url"`
-	SectionID   int32          `db:"section_id" json:"sectionID"`
-	Icon        uuid.NullUUID  `db:"icon" json:"icon"`
-	Title       string         `db:"title" json:"title"`
 }
 
 type SectionsTranslation struct {
