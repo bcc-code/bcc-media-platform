@@ -11,7 +11,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/items/show"
-	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
@@ -21,16 +20,7 @@ func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *
 	if err != nil {
 		return nil, err
 	}
-	ginCtx, _ := utils.GinCtx(ctx)
-	s := "default"
-	if style != nil && style.IsValid() {
-		s = style.String()
-	}
-	img := e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s)
-	if img == nil && e.Image.Valid {
-		img = &e.Image.String
-	}
-	return img, nil
+	return imageOrFallback(ctx, e.Images, e.Image, style), nil
 }
 
 // Streams is the resolver for the streams field.
@@ -87,16 +77,7 @@ func (r *seasonResolver) Image(ctx context.Context, obj *model.Season, style *mo
 	if err != nil {
 		return nil, err
 	}
-	ginCtx, _ := utils.GinCtx(ctx)
-	s := "default"
-	if style != nil && style.IsValid() {
-		s = style.String()
-	}
-	img := e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s)
-	if img == nil && e.Image.Valid {
-		img = &e.Image.String
-	}
-	return img, nil
+	return imageOrFallback(ctx, e.Images, e.Image, style), nil
 }
 
 // Show is the resolver for the show field.
@@ -137,16 +118,7 @@ func (r *showResolver) Image(ctx context.Context, obj *model.Show, style *model.
 	if err != nil {
 		return nil, err
 	}
-	ginCtx, _ := utils.GinCtx(ctx)
-	s := "default"
-	if style != nil && style.IsValid() {
-		s = style.String()
-	}
-	img := e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s)
-	if img == nil && e.Image.Valid {
-		img = &e.Image.String
-	}
-	return img, nil
+	return imageOrFallback(ctx, e.Images, e.Image, style), nil
 }
 
 // EpisodeCount is the resolver for the episodeCount field.
