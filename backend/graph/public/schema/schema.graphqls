@@ -9,4 +9,9 @@ type QueryRoot {
     episode(id: ID!): Episode!
     season(id: ID!): Season!
     show(id: ID!): Show!
+    version: Version!
+}
+
+type Version {
+    build_sha: String!
 }

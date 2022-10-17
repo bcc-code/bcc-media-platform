@@ -58,6 +58,7 @@ type ComplexityRoot struct {
 		Episode func(childComplexity int, id string) int
 		Season  func(childComplexity int, id string) int
 		Show    func(childComplexity int, id string) int
+		Version func(childComplexity int) int
 	}
 
 	Season struct {
@@ -75,6 +76,10 @@ type ComplexityRoot struct {
 		Image       func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
+
+	Version struct {
+		BuildSha func(childComplexity int) int
+	}
 }
 
 type EpisodeResolver interface {
@@ -84,6 +89,7 @@ type QueryRootResolver interface {
 	Episode(ctx context.Context, id string) (*model.Episode, error)
 	Season(ctx context.Context, id string) (*model.Season, error)
 	Show(ctx context.Context, id string) (*model.Show, error)
+	Version(ctx context.Context) (*model.Version, error)
 }
 type SeasonResolver interface {
 	Show(ctx context.Context, obj *model.Season) (*model.Show, error)
@@ -182,6 +188,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QueryRoot.Show(childComplexity, args["id"].(string)), true
 
+	case "QueryRoot.version":
+		if e.complexity.QueryRoot.Version == nil {
+			break
+		}
+
+		return e.complexity.QueryRoot.Version(childComplexity), true
+
 	case "Season.description":
 		if e.complexity.Season.Description == nil {
 			break
@@ -251,6 +264,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Show.Title(childComplexity), true
+
+	case "Version.build_sha":
+		if e.complexity.Version.BuildSha == nil {
+			break
+		}
+
+		return e.complexity.Version.BuildSha(childComplexity), true
 
 	}
 	return 0, false
@@ -325,6 +345,11 @@ type QueryRoot {
     episode(id: ID!): Episode!
     season(id: ID!): Season!
     show(id: ID!): Show!
+    version: Version!
+}
+
+type Version {
+    build_sha: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/schema.seasons.graphqls", Input: `
@@ -922,6 +947,54 @@ func (ec *executionContext) fieldContext_QueryRoot_show(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _QueryRoot_version(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_version(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().Version(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Version)
+	fc.Result = res
+	return ec.marshalNVersion2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐVersion(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_version(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "build_sha":
+				return ec.fieldContext_Version_build_sha(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Version", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _QueryRoot___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_QueryRoot___type(ctx, field)
 	if err != nil {
@@ -1482,6 +1555,50 @@ func (ec *executionContext) _Show_image(ctx context.Context, field graphql.Colle
 func (ec *executionContext) fieldContext_Show_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Version_build_sha(ctx context.Context, field graphql.CollectedField, obj *model.Version) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Version_build_sha(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BuildSha, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Version_build_sha(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Version",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3428,6 +3545,29 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "version":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_version(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -3556,6 +3696,34 @@ func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = ec._Show_image(ctx, field, obj)
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var versionImplementors = []string{"Version"}
+
+func (ec *executionContext) _Version(ctx context.Context, sel ast.SelectionSet, obj *model.Version) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, versionImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Version")
+		case "build_sha":
+
+			out.Values[i] = ec._Version_build_sha(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3985,6 +4153,20 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNVersion2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐVersion(ctx context.Context, sel ast.SelectionSet, v model.Version) graphql.Marshaler {
+	return ec._Version(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNVersion2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋpublicᚋmodelᚐVersion(ctx context.Context, sel ast.SelectionSet, v *model.Version) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Version(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

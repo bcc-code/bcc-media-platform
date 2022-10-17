@@ -11,6 +11,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/public/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
+	"github.com/bcc-code/brunstadtv/backend/version"
 )
 
 // Episode is the resolver for the episode field.
@@ -107,6 +108,11 @@ func (r *queryRootResolver) Show(ctx context.Context, id string) (*model.Show, e
 		Description: item.Description.Get(languages),
 		Image:       image,
 	}, nil
+}
+
+// Version is the resolver for the version field.
+func (r *queryRootResolver) Version(ctx context.Context) (*model.Version, error) {
+	return version.GQLHandler()
 }
 
 // QueryRoot returns generated.QueryRootResolver implementation.

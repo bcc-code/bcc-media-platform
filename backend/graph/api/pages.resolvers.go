@@ -10,8 +10,8 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
-	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	null "gopkg.in/guregu/null.v4"
 )
 
 // Items is the resolver for the items field.
@@ -115,12 +115,7 @@ func (r *pageResolver) Image(ctx context.Context, obj *model.Page, style *model.
 	if err != nil {
 		return nil, err
 	}
-	ginCtx, _ := utils.GinCtx(ctx)
-	s := "default"
-	if style != nil && style.IsValid() {
-		s = style.String()
-	}
-	return e.Images.GetDefault(user.GetLanguagesFromCtx(ginCtx), s), nil
+	return imageOrFallback(ctx, e.Images, null.String{}, style), nil
 }
 
 // Sections is the resolver for the sections field.
