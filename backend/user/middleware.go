@@ -235,11 +235,8 @@ func getProfilesFromDatabase(ctx context.Context, queries *sqlc.Queries, user *c
 	if err != nil {
 		return nil, err
 	}
-	profiles = append(profiles, common.Profile{
-		ID:     uuid.New(),
-		Name:   user.DisplayName,
-		UserID: user.PersonID,
-	})
+
+	profiles = append(profiles, profile)
 
 	return profiles, nil
 }
