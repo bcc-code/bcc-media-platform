@@ -4,8 +4,9 @@ import (
 	"context"
 	"firebase.google.com/go"
 	"firebase.google.com/go/messaging"
-	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/samber/lo"
 	"github.com/samber/lo/parallel"
 )
 
@@ -39,9 +40,9 @@ func notificationToPayload(notification common.Notification) map[string]string {
 			payload["description_"+lan] = val.ValueOrZero()
 		}
 	}
-	for lan, val := range notification.Image {
-		if val != "" {
-			payload["image_"+lan] = val
+	for lan, val := range notification.Images {
+		if val.Valid {
+			payload["image_"+lan] = val.String
 		}
 	}
 	return payload
@@ -80,20 +81,24 @@ func (s *Service) SendNotificationToDevices(ctx context.Context, deviceTokens []
 		ranges = append(ranges, messages[i:r])
 	}
 
-	errors := parallel.Map(ranges, func(r []*messaging.Message, _ int) error {
+	errors := parallel.Map(ranges, func(r []*messaging.Message, _ int) []error {
 		res, err := client.SendAll(ctx, r)
-		//TODO: Implement error checking
+		//TODO: Implement error handling
 		if err != nil {
-			return err
+			return []error{err}
 		}
-		if res.FailureCount > 0 {
-			return merry.New("Failure-count is not zero")
-		}
-		return nil
+		return lo.Map(lo.Filter(res.Responses, func(r *messaging.SendResponse, _ int) bool {
+			return r.Error != nil
+		}), func(r *messaging.SendResponse, _ int) error {
+			return r.Error
+		})
 	})
 
-	if len(errors) > 0 {
-		return errors[0]
+	for _, errs := range errors {
+		for _, err := range errs {
+			log.L.Error().Err(err).Msg("Error occurred when sending message")
+		}
 	}
+
 	return nil
 }
