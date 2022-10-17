@@ -124,6 +124,18 @@ func (s *Service) SendNotificationToTopic(ctx context.Context, topic string, not
 	})
 }
 
+func (s *Service) pushNotification(ctx context.Context, notification common.Notification) {
+	tokens, err := s.queries.ListDeviceTokens(ctx)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Error occurred trying to fetch device tokens")
+		return
+	}
+	err = s.SendNotificationToDevices(ctx, tokens, notification)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Error occurred pushing notifications")
+	}
+}
+
 // HandleModelUpdate handles model updates
 func (s *Service) HandleModelUpdate(ctx context.Context, collection string, key int) error {
 	switch collection {
@@ -136,7 +148,7 @@ func (s *Service) HandleModelUpdate(ctx context.Context, collection string, key 
 			if n.Status != common.StatusPublished {
 				continue
 			}
-
+			s.pushNotification(ctx, n)
 		}
 	}
 

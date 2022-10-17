@@ -5,3 +5,6 @@ ON CONFLICT (token, profile_id) DO UPDATE SET updated_at = EXCLUDED.updated_at, 
 
 -- name: getDevicesForProfiles :many
 SELECT * FROM users.devices WHERE profile_id = ANY($1::uuid[]);
+
+-- name: ListDeviceTokens :many
+SELECT token FROM users.devices;
