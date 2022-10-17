@@ -3,7 +3,11 @@ package user
 import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/members"
+	"github.com/go-redis/redis/v9"
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/google/uuid"
+	"github.com/vmihailenco/msgpack/v5"
 	"strconv"
 	"time"
 
@@ -176,44 +180,135 @@ func GetFromCtx(ctx *gin.Context) *common.User {
 	return u.(*common.User)
 }
 
+var profileCache = cache.New[string, []common.Profile]()
+
+func cacheProfilesAndReturn(ctx context.Context, redisCache *redis.Client, key string, profiles []common.Profile) ([]common.Profile, error) {
+	profileCache.Set(key, profiles, cache.WithExpiration(time.Second*1))
+	if redisCache != nil {
+		bytes, err := msgpack.Marshal(profiles)
+		if err != nil {
+			return nil, err
+		}
+		err = redisCache.Set(ctx, key, bytes, time.Minute*5).Err()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return profiles, nil
+}
+
+func checkCachedProfiles(ctx context.Context, redisClient *redis.Client, key string) ([]common.Profile, error) {
+	bytes, err := redisClient.Get(ctx, key).Bytes()
+	if err != nil && err != redis.Nil {
+		return nil, err
+	}
+	if err == nil {
+		var profiles []common.Profile
+		if err != nil {
+			return nil, err
+		}
+		_ = msgpack.Unmarshal(bytes, &profiles)
+		return cacheProfilesAndReturn(ctx, nil, key, profiles)
+	}
+	if err != redis.Nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func getProfilesFromDatabase(ctx context.Context, queries *sqlc.Queries, user *common.User) ([]common.Profile, error) {
+	profiles, err := queries.GetProfilesForUserIDs(ctx, []string{user.PersonID})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(profiles) != 0 {
+		return profiles, nil
+	}
+
+	profile := common.Profile{
+		ID:     uuid.New(),
+		Name:   user.DisplayName,
+		UserID: user.PersonID,
+	}
+	err = queries.SaveProfile(ctx, profile)
+	if err != nil {
+		return nil, err
+	}
+	profiles = append(profiles, common.Profile{
+		ID:     uuid.New(),
+		Name:   user.DisplayName,
+		UserID: user.PersonID,
+	})
+
+	return profiles, nil
+}
+
+func getProfiles(ctx *gin.Context, queries *sqlc.Queries, redisClient *redis.Client, rs *redsync.Redsync, user *common.User) ([]common.Profile, error) {
+	key := "profiles:" + user.PersonID
+	if p, ok := profileCache.Get(key); ok {
+		return p, nil
+	}
+
+	lock := utils.Lock(key)
+	lock.Lock()
+	defer lock.Unlock()
+
+	if p, ok := profileCache.Get(user.PersonID); ok {
+		return p, nil
+	}
+
+	profiles, err := checkCachedProfiles(ctx, redisClient, key)
+	if err != nil || len(profiles) > 0 {
+		return profiles, err
+	}
+
+	rl, err := utils.RedisLock(rs, key)
+	if err != nil {
+		return nil, err
+	}
+	defer utils.UnlockRedisLock(rl)
+
+	profiles, err = checkCachedProfiles(ctx, redisClient, key)
+	if err != nil || len(profiles) > 0 {
+		return profiles, err
+	}
+
+	profiles, err = getProfilesFromDatabase(ctx, queries, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return cacheProfilesAndReturn(ctx, redisClient, key, profiles)
+}
+
 // NewProfileMiddleware prefills context with a profileID
-func NewProfileMiddleware(queries *sqlc.Queries, loaders *common.BatchLoaders) func(*gin.Context) {
+func NewProfileMiddleware(queries *sqlc.Queries, client *redis.Client) func(*gin.Context) {
+	pool := goredis.NewPool(client)
+	rs := redsync.New(pool)
+
 	return func(ctx *gin.Context) {
 		u := GetFromCtx(ctx)
 
 		if u.PersonID == "" {
 			return
 		}
-		profiles, err := common.GetFromLoaderForKey(ctx, loaders.ProfilesLoader, u.PersonID)
+
+		profiles, err := getProfiles(ctx, queries, client, rs, u)
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to retrieve profiles from loader")
 			return
 		}
 		profileID := ctx.GetHeader("x-profile")
-		profile, found := lo.Find(profiles, func(p *common.Profile) bool {
+		profile, found := lo.Find(profiles, func(p common.Profile) bool {
 			return p.ID.String() == profileID || p.Name == profileID
 		})
 		if !found {
-			if len(profiles) == 0 {
-				profile = &common.Profile{
-					ID:     uuid.New(),
-					Name:   u.DisplayName,
-					UserID: u.PersonID,
-				}
-				profiles = append(profiles, profile)
-				loaders.ProfilesLoader.Clear(ctx, u.PersonID)
-				loaders.ProfilesLoader.Prime(ctx, u.PersonID, profiles)
-				err = queries.SaveProfile(ctx, *profile)
-				if err != nil {
-					log.L.Error().Err(err).Msg("Error occurred trying to save new profile")
-				}
-			} else {
-				profile = profiles[0]
-			}
+			profile = profiles[0]
 		}
 
 		ctx.Set(CtxProfiles, profiles)
-		ctx.Set(CtxProfile, profile)
+		ctx.Set(CtxProfile, &profile)
 	}
 }
 
@@ -227,12 +322,12 @@ func GetProfileFromCtx(ctx *gin.Context) *common.Profile {
 }
 
 // GetProfilesFromCtx returns the current profile
-func GetProfilesFromCtx(ctx *gin.Context) []*common.Profile {
+func GetProfilesFromCtx(ctx *gin.Context) []common.Profile {
 	p, ok := ctx.Get(CtxProfiles)
 	if !ok {
 		return nil
 	}
-	return p.([]*common.Profile)
+	return p.([]common.Profile)
 }
 
 // GetLanguagesFromCtx as provided in the request

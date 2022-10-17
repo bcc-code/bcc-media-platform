@@ -15,7 +15,7 @@ func PointerIntArrayToIntArray(collection []*int) []int {
 }
 
 // AsInt implies that the string exclusively contains an int
-func AsInt(idString string) int {
-	intID64, _ := strconv.ParseInt(idString, 10, 64)
+func AsInt(intString string) int {
+	intID64, _ := strconv.ParseInt(intString, 10, 64)
 	return int(intID64)
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bcc-code/brunstadtv/backend/utils"
 	"os"
 	"strings"
 
@@ -23,16 +24,24 @@ type envConfig struct {
 	Auth0     auth0.Config
 	CDNConfig cdnConfig
 	Secrets   serviceSecrets
+	Redis     redisConfig
 }
 
 type cdnConfig struct {
-	ImageCDNDomain      string
+	ImageCDNDomain    string
 	Vod2Domain        string
 	LegacyVODDomain   string
 	FilesDomain       string
 	AWSSigningKeyPath string
 	AWSSigningKeyID   string
 	AzureSigningKey   string
+}
+
+type redisConfig struct {
+	Address  string
+	Username string
+	Password string
+	Database int
 }
 
 type serviceSecrets struct {
@@ -91,7 +100,7 @@ func getEnvConfig() envConfig {
 			APIKey: os.Getenv("ALGOLIA_API_KEY"),
 		},
 		CDNConfig: cdnConfig{
-			ImageCDNDomain:      os.Getenv("IMAGE_CDN_DOMAIN"),
+			ImageCDNDomain:    os.Getenv("IMAGE_CDN_DOMAIN"),
 			Vod2Domain:        os.Getenv("VOD2_CDN_DOMAIN"),
 			FilesDomain:       os.Getenv("FILES_CDN_DOMAIN"),
 			AWSSigningKeyID:   os.Getenv("CF_SIGNING_KEY_ID"),
@@ -101,6 +110,12 @@ func getEnvConfig() envConfig {
 		},
 		Secrets: serviceSecrets{
 			Directus: os.Getenv("SERVICE_SECRET_DIRECTUS"),
+		},
+		Redis: redisConfig{
+			Address:  os.Getenv("REDIS_ADDRESS"),
+			Username: os.Getenv("REDIS_USERNAME"),
+			Password: os.Getenv("REDIS_PASSWORD"),
+			Database: utils.AsInt(os.Getenv("REDIS_DATABASE")),
 		},
 	}
 }
