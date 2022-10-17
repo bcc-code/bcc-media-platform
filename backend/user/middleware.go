@@ -201,6 +201,7 @@ func NewProfileMiddleware(queries *sqlc.Queries, loaders *common.BatchLoaders) f
 					UserID: u.PersonID,
 				}
 				profiles = append(profiles, profile)
+				loaders.ProfilesLoader.Clear(ctx, u.PersonID)
 				loaders.ProfilesLoader.Prime(ctx, u.PersonID, profiles)
 				err = queries.SaveProfile(ctx, *profile)
 				if err != nil {
