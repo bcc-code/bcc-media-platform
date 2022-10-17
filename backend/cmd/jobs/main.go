@@ -117,7 +117,7 @@ func main() {
 		apiGroup.POST("eventmeta", handlers.IngestEventMeta) // TODO: Protect the endpoint with a simple api key or soimething
 	}
 
-	r.GET("/versionz", version.GinHandler)
+	router.GET("/versionz", version.GinHandler)
 
 	span.End()
 
