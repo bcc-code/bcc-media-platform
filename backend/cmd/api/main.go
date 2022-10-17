@@ -28,6 +28,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/brunstadtv/backend/version"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -225,12 +226,10 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		PageLoader:           common.NewBatchLoader(queries.GetPages),
 		PageIDFromCodeLoader: common.NewConversionBatchLoader(queries.GetPageIDsForCodes),
 		SectionLoader:        common.NewBatchLoader(queries.GetSections),
-		SectionLinksLoader: common.NewListBatchLoader(queries.GetLinksForSections, func(i common.SectionLink) int {
-			return i.SectionID
-		}),
 		ShowLoader:           common.NewBatchLoader(queries.GetShows),
 		SeasonLoader:         common.NewBatchLoader(queries.GetSeasons),
 		EpisodeLoader:        common.NewBatchLoader(queries.GetEpisodes),
+		LinkLoader:           common.NewBatchLoader(queries.GetLinks),
 		EventLoader:          common.NewBatchLoader(queries.GetEvents),
 		CalendarEntryLoader:  common.NewBatchLoader(queries.GetCalendarEntries),
 		FilesLoader:          asset.NewBatchFilesLoader(*queries),
@@ -328,6 +327,8 @@ func main() {
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, loaders))
 
 	r.POST("/public", publicGraphqlHandler(loaders))
+
+	r.GET("/versionz", version.GinHandler)
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 

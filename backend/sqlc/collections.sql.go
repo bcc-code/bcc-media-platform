@@ -12,7 +12,7 @@ import (
 )
 
 const getCollectionItemsForCollections = `-- name: getCollectionItemsForCollections :many
-SELECT collection_id, date_created, date_updated, episode_id, id, page_id, season_id, show_id, sort, type, user_created, user_updated
+SELECT collection_id, date_created, date_updated, episode_id, id, page_id, season_id, show_id, sort, type, user_created, user_updated, link_id
 FROM collections_items ci
 WHERE ci.collection_id = ANY ($1::int[])
 `
@@ -39,6 +39,7 @@ func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1
 			&i.Type,
 			&i.UserCreated,
 			&i.UserUpdated,
+			&i.LinkID,
 		); err != nil {
 			return nil, err
 		}
@@ -54,7 +55,7 @@ func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1
 }
 
 const getCollectionItemsForCollectionsWithRoles = `-- name: getCollectionItemsForCollectionsWithRoles :many
-SELECT ci.collection_id, ci.date_created, ci.date_updated, ci.episode_id, ci.id, ci.page_id, ci.season_id, ci.show_id, ci.sort, ci.type, ci.user_created, ci.user_updated
+SELECT ci.collection_id, ci.date_created, ci.date_updated, ci.episode_id, ci.id, ci.page_id, ci.season_id, ci.show_id, ci.sort, ci.type, ci.user_created, ci.user_updated, ci.link_id
 FROM collections_items ci
          LEFT JOIN episode_roles er ON er.id = ci.episode_id
          LEFT JOIN episode_availability ea ON ea.id = ci.episode_id
@@ -107,6 +108,7 @@ func (q *Queries) getCollectionItemsForCollectionsWithRoles(ctx context.Context,
 			&i.Type,
 			&i.UserCreated,
 			&i.UserUpdated,
+			&i.LinkID,
 		); err != nil {
 			return nil, err
 		}
