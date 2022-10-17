@@ -5,14 +5,13 @@ package graph
 
 import (
 	"context"
-	"gopkg.in/guregu/null.v4"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
-	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	null "gopkg.in/guregu/null.v4"
 )
 
 // Items is the resolver for the items field.
