@@ -276,6 +276,7 @@ func main() {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     config.Redis.Address,
 		Password: config.Redis.Password,
+		Username: config.Redis.Username,
 		DB:       config.Redis.Database,
 	})
 
