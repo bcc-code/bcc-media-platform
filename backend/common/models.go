@@ -75,6 +75,8 @@ type GlobalConfig struct {
 
 // Notification contains notification data
 type Notification struct {
+	ID          int
+	Status      Status
 	Title       LocaleString           `json:"title"`
 	Description LocaleString           `json:"description"`
 	Images      LocaleMap[null.String] `json:"images"`

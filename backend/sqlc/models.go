@@ -770,6 +770,24 @@ type MessagetemplatesTranslation struct {
 	MessagetemplatesID null_v4.Int    `db:"messagetemplates_id" json:"messagetemplatesID"`
 }
 
+type Notification struct {
+	ID          int32         `db:"id" json:"id"`
+	Status      string        `db:"status" json:"status"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+}
+
+type NotificationsTranslation struct {
+	ID              int32          `db:"id" json:"id"`
+	NotificationsID null_v4.Int    `db:"notifications_id" json:"notificationsID"`
+	LanguagesCode   null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title           string         `db:"title" json:"title"`
+	Description     null_v4.String `db:"description" json:"description"`
+	Image           uuid.NullUUID  `db:"image" json:"image"`
+}
+
 type Page struct {
 	Code        null_v4.String `db:"code" json:"code"`
 	DateCreated time.Time      `db:"date_created" json:"dateCreated"`

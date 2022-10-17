@@ -5,6 +5,7 @@ import (
 	"firebase.google.com/go"
 	"firebase.google.com/go/messaging"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
 	"github.com/samber/lo/parallel"
@@ -12,11 +13,12 @@ import (
 
 // Service is the struct containing the firebase app and methods for interacting with messaging
 type Service struct {
-	app *firebase.App
+	app     *firebase.App
+	queries *sqlc.Queries
 }
 
 // NewService returns a new instance of the push service
-func NewService(ctx context.Context, firebaseProjectID string) (*Service, error) {
+func NewService(ctx context.Context, firebaseProjectID string, queries *sqlc.Queries) (*Service, error) {
 	app, err := firebase.NewApp(ctx, &firebase.Config{
 		ProjectID: firebaseProjectID,
 	})
@@ -25,6 +27,7 @@ func NewService(ctx context.Context, firebaseProjectID string) (*Service, error)
 	}
 	return &Service{
 		app,
+		queries,
 	}, nil
 }
 
@@ -48,23 +51,10 @@ func notificationToPayload(notification common.Notification) map[string]string {
 	return payload
 }
 
-// SendNotificationToDevices sends a push notification to the specified tokens
-func (s *Service) SendNotificationToDevices(ctx context.Context, deviceTokens []string, notification common.Notification) error {
-	// TODO: actually implement notifications, not this placeholder things
+func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Message) error {
 	client, err := s.app.Messaging(ctx)
 	if err != nil {
 		return err
-	}
-
-	var messages []*messaging.Message
-
-	data := notificationToPayload(notification)
-
-	for _, t := range deviceTokens {
-		messages = append(messages, &messaging.Message{
-			Data:  data,
-			Token: t,
-		})
 	}
 
 	const maxConcurrent = 200
@@ -77,6 +67,9 @@ func (s *Service) SendNotificationToDevices(ctx context.Context, deviceTokens []
 			r = len(messages)
 		} else {
 			r = i + maxConcurrent
+		}
+		if r == 0 {
+			break
 		}
 		ranges = append(ranges, messages[i:r])
 	}
@@ -97,6 +90,53 @@ func (s *Service) SendNotificationToDevices(ctx context.Context, deviceTokens []
 	for _, errs := range errors {
 		for _, err := range errs {
 			log.L.Error().Err(err).Msg("Error occurred when sending message")
+		}
+	}
+
+	return nil
+}
+
+func (s *Service) pushMessage(ctx context.Context, message *messaging.Message) error {
+	return s.pushMessages(ctx, []*messaging.Message{message})
+}
+
+// SendNotificationToDevices sends a push notification to the specified tokens
+func (s *Service) SendNotificationToDevices(ctx context.Context, deviceTokens []string, notification common.Notification) error {
+	var messages []*messaging.Message
+
+	data := notificationToPayload(notification)
+
+	for _, t := range deviceTokens {
+		messages = append(messages, &messaging.Message{
+			Data:  data,
+			Token: t,
+		})
+	}
+
+	return s.pushMessages(ctx, messages)
+}
+
+// SendNotificationToTopic sends a notification to devices subscribed to a topic
+func (s *Service) SendNotificationToTopic(ctx context.Context, topic string, notification common.Notification) error {
+	return s.pushMessage(ctx, &messaging.Message{
+		Data:  notificationToPayload(notification),
+		Topic: topic,
+	})
+}
+
+// HandleModelUpdate handles model updates
+func (s *Service) HandleModelUpdate(ctx context.Context, collection string, key int) error {
+	switch collection {
+	case "notifications":
+		ns, err := s.queries.GetNotifications(ctx, []int{key})
+		if err != nil {
+			return err
+		}
+		for _, n := range ns {
+			if n.Status != common.StatusPublished {
+				continue
+			}
+
 		}
 	}
 
