@@ -32,6 +32,7 @@ import (
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v9"
 	"github.com/graph-gophers/dataloader/v7"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
@@ -272,6 +273,19 @@ func main() {
 		return
 	}
 
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     config.Redis.Address,
+		Password: config.Redis.Password,
+		Username: config.Redis.Username,
+		DB:       config.Redis.Database,
+	})
+
+	status := rdb.Ping(ctx)
+	if status.Err() != nil {
+		log.L.Panic().Err(status.Err()).Msg("Failed to ping redis database")
+		return
+	}
+
 	urlSigner, err := signing.NewSigner(config.CDNConfig)
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Unable to create URL signers")
@@ -314,7 +328,7 @@ func main() {
 	r.Use(otelgin.Middleware("api")) // Open
 	r.Use(authClient.ValidateToken())
 	r.Use(user.NewUserMiddleware(queries, membersClient))
-	r.Use(user.NewProfileMiddleware(queries, loaders))
+	r.Use(user.NewProfileMiddleware(queries, rdb))
 
 	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
 	r.Use(applications.RoleMiddleware())

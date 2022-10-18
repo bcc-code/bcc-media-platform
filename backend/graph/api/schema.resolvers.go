@@ -207,7 +207,7 @@ func (r *queryRootResolver) Profiles(ctx context.Context) ([]*model.Profile, err
 	}
 	profiles := user.GetProfilesFromCtx(ginCtx)
 
-	return lo.Map(profiles, func(i *common.Profile, _ int) *model.Profile {
+	return lo.Map(profiles, func(i common.Profile, _ int) *model.Profile {
 		return &model.Profile{
 			ID:   i.ID.String(),
 			Name: i.Name,
