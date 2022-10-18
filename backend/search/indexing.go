@@ -36,7 +36,7 @@ func (service *Service) Reindex(ctx context.Context) error {
 
 	// Makes it possible to filter in query, which fields you are searching on
 	// Also configures hits per page
-	titleFields, err := service.getPrimaryTranslatedFields()
+	titleFields, err := service.getTranslatedTitleFields()
 	if err != nil {
 		return err
 	}
