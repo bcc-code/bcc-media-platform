@@ -7,18 +7,17 @@
 --- BEGIN CREATE SEQUENCE "public"."notifications_id_seq" ---
 
 
-CREATE SEQUENCE IF NOT EXISTS "public"."notifications_id_seq" 
-	INCREMENT BY 1 
+CREATE SEQUENCE IF NOT EXISTS "public"."notifications_id_seq"
+	INCREMENT BY 1
 	MINVALUE 1
 	MAXVALUE 2147483647
 	START WITH 1
 	CACHE 1
 	NO CYCLE;
 
-ALTER SEQUENCE "public"."notifications_id_seq" OWNER TO btv;
-GRANT SELECT ON SEQUENCE "public"."notifications_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT USAGE ON SEQUENCE "public"."notifications_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."notifications_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON SEQUENCE "public"."notifications_id_seq" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT USAGE ON SEQUENCE "public"."notifications_id_seq" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON SEQUENCE "public"."notifications_id_seq" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON SEQUENCE "public"."notifications_id_seq"  IS NULL;
 
@@ -27,18 +26,17 @@ COMMENT ON SEQUENCE "public"."notifications_id_seq"  IS NULL;
 --- BEGIN CREATE SEQUENCE "public"."notifications_translations_id_seq" ---
 
 
-CREATE SEQUENCE IF NOT EXISTS "public"."notifications_translations_id_seq" 
-	INCREMENT BY 1 
+CREATE SEQUENCE IF NOT EXISTS "public"."notifications_translations_id_seq"
+	INCREMENT BY 1
 	MINVALUE 1
 	MAXVALUE 2147483647
 	START WITH 1
 	CACHE 1
 	NO CYCLE;
 
-ALTER SEQUENCE "public"."notifications_translations_id_seq" OWNER TO btv;
-GRANT SELECT ON SEQUENCE "public"."notifications_translations_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT USAGE ON SEQUENCE "public"."notifications_translations_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."notifications_translations_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON SEQUENCE "public"."notifications_translations_id_seq" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT USAGE ON SEQUENCE "public"."notifications_translations_id_seq" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON SEQUENCE "public"."notifications_translations_id_seq" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON SEQUENCE "public"."notifications_translations_id_seq"  IS NULL;
 
@@ -55,18 +53,16 @@ CREATE TABLE IF NOT EXISTS "public"."notifications" (
 	"date_updated" timestamptz NULL  ,
 	CONSTRAINT "notifications_pkey" PRIMARY KEY (id) ,
 	CONSTRAINT "notifications_user_created_foreign" FOREIGN KEY (user_created) REFERENCES directus_users(id) ,
-	CONSTRAINT "notifications_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id) 
+	CONSTRAINT "notifications_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id)
 );
 
-ALTER TABLE IF EXISTS "public"."notifications" OWNER TO btv;
-
-GRANT SELECT ON TABLE "public"."notifications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."notifications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."notifications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."notifications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."notifications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."notifications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."notifications" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."notifications" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT INSERT ON TABLE "public"."notifications" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON TABLE "public"."notifications" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT DELETE ON TABLE "public"."notifications" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT TRUNCATE ON TABLE "public"."notifications" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT REFERENCES ON TABLE "public"."notifications" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT TRIGGER ON TABLE "public"."notifications" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."notifications"."id"  IS NULL;
 
@@ -109,18 +105,16 @@ CREATE TABLE IF NOT EXISTS "public"."notifications_translations" (
 	CONSTRAINT "notifications_translations_languages_code_foreign" FOREIGN KEY (languages_code) REFERENCES languages(code) ON DELETE SET NULL ,
 	CONSTRAINT "notifications_translations_notifications_id_foreign" FOREIGN KEY (notifications_id) REFERENCES notifications(id) ON DELETE SET NULL ,
 	CONSTRAINT "notifications_translations_image_foreign" FOREIGN KEY (image) REFERENCES directus_files(id) ON DELETE SET NULL ,
-	CONSTRAINT "notifications_translations_pkey" PRIMARY KEY (id) 
+	CONSTRAINT "notifications_translations_pkey" PRIMARY KEY (id)
 );
 
-ALTER TABLE IF EXISTS "public"."notifications_translations" OWNER TO btv;
-
-GRANT SELECT ON TABLE "public"."notifications_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."notifications_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."notifications_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."notifications_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."notifications_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."notifications_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."notifications_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."notifications_translations" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT INSERT ON TABLE "public"."notifications_translations" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON TABLE "public"."notifications_translations" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT DELETE ON TABLE "public"."notifications_translations" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT TRUNCATE ON TABLE "public"."notifications_translations" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT REFERENCES ON TABLE "public"."notifications_translations" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT TRIGGER ON TABLE "public"."notifications_translations" TO background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."notifications_translations"."id"  IS NULL;
 
