@@ -280,6 +280,12 @@ func main() {
 		DB:       config.Redis.Database,
 	})
 
+	status := rdb.Ping(ctx)
+	if status.Err() != nil {
+		log.L.Panic().Err(status.Err()).Msg("Failed to ping redis database")
+		return
+	}
+
 	urlSigner, err := signing.NewSigner(config.CDNConfig)
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Unable to create URL signers")
