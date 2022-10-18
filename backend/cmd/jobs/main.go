@@ -83,12 +83,14 @@ func main() {
 	searchService := search.New(db, config.Algolia)
 	directusEventHandler := directus.NewEventHandler()
 	crowdinClient := crowdin.New(config.Crowdin, directus.NewHandler(directusClient), queries)
+
 	pushService, err := push.NewService(ctx, config.Firebase.ProjectID, queries)
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Failed to initialize push service")
-	} else {
-		directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, pushService.HandleModelUpdate)
+		return
 	}
+
+	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, pushService.HandleModelUpdate)
 
 	eventService, err := events.NewService(ctx, config.Firebase.ProjectID)
 	if err != nil {

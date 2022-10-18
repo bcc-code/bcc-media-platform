@@ -80,6 +80,7 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 		if err != nil {
 			return []error{err}
 		}
+		// Just return errors for now. This part filters the responses and only returns errors that arent nil.
 		return lo.Map(lo.Filter(res.Responses, func(r *messaging.SendResponse, _ int) bool {
 			return r.Error != nil
 		}), func(r *messaging.SendResponse, _ int) error {
@@ -88,8 +89,8 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 	})
 
 	for _, errs := range errors {
-		for _, err := range errs {
-			log.L.Error().Err(err).Msg("Error occurred when sending message")
+		if len(errs) > 0 {
+			log.L.Error().Errs("errors", errs).Msg("Errors occurred when sending messages")
 		}
 	}
 
@@ -124,6 +125,18 @@ func (s *Service) SendNotificationToTopic(ctx context.Context, topic string, not
 	})
 }
 
+func (s *Service) pushNotification(ctx context.Context, notification common.Notification) {
+	tokens, err := s.queries.ListDeviceTokens(ctx)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Error occurred trying to fetch device tokens")
+		return
+	}
+	err = s.SendNotificationToDevices(ctx, tokens, notification)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Error occurred pushing notifications")
+	}
+}
+
 // HandleModelUpdate handles model updates
 func (s *Service) HandleModelUpdate(ctx context.Context, collection string, key int) error {
 	switch collection {
@@ -136,7 +149,7 @@ func (s *Service) HandleModelUpdate(ctx context.Context, collection string, key 
 			if n.Status != common.StatusPublished {
 				continue
 			}
-
+			s.pushNotification(ctx, n)
 		}
 	}
 

@@ -13,6 +13,33 @@ import (
 	"github.com/lib/pq"
 )
 
+const listDeviceTokens = `-- name: ListDeviceTokens :many
+SELECT token FROM users.devices
+`
+
+func (q *Queries) ListDeviceTokens(ctx context.Context) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, listDeviceTokens)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var token string
+		if err := rows.Scan(&token); err != nil {
+			return nil, err
+		}
+		items = append(items, token)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getDevicesForProfiles = `-- name: getDevicesForProfiles :many
 SELECT token, profile_id, updated_at, name FROM users.devices WHERE profile_id = ANY($1::uuid[])
 `
