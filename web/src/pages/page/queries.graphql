@@ -3,7 +3,6 @@ fragment SectionItem on SectionItem {
         __typename
         ... on Episode {
             episodeNumber: number
-            duration
             season {
                 number
                 show {
@@ -20,6 +19,9 @@ fragment SectionItem on SectionItem {
         ... on Show {
             episodeCount
             seasonCount
+            defaultEpisode {
+                id
+            }
         }
         ... on Page {
             code
@@ -34,45 +36,32 @@ fragment ItemSection on ItemSection {
             image
             title
             sort
-            description
             ...SectionItem
         }
     }
     ... on DefaultSection {
         size
+        items {
+            items {
+                description
+            }
+        }
     }
     ... on FeaturedSection {
         size
+        items {
+            items {
+                description
+            }
+        }
     }
     ... on GridSection {
         gridSize: size
+
     }
     ... on PosterSection {
         size
     }
-}
-
-fragment LinkSection on LinkSection {
-    items {
-        items {
-            id
-            title
-            icon
-            ... on PageLinkItem {
-                page {
-                    id
-                }
-            }
-            ... on URLLinkItem {
-                url
-            }
-        }
-    }
-}
-
-fragment StyledSections on Section {
-    ...LinkSection
-    ...ItemSection
 }
 
 query getPage($code: String!) {
@@ -84,7 +73,7 @@ query getPage($code: String!) {
                 __typename
                 id
                 title
-                ...StyledSections
+                ...ItemSection
             }
         }
     }

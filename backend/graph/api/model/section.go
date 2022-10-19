@@ -47,9 +47,6 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				Title: title,
 				Size:  GridSectionSize(s.Size),
 			}
-		}
-	case "link":
-		switch s.Style {
 		case "icons":
 			return &IconSection{
 				ID:    id,
