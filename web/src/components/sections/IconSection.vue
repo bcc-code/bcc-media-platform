@@ -1,12 +1,12 @@
 <template>
     <section>
-        <SectionTitle v-if="item.title">{{item.title}}</SectionTitle>
+        <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="flex">
-            <div
-                v-for="i in item.items.items"
-            >
-                <div class="bg-slate-800 aspect-square rounded-xl border-2 border-slate-700 p-4 h-24">
-                    <img :src="i.image + '?h=400'"/>
+            <div v-for="i in item.items.items">
+                <div
+                    class="bg-slate-800 aspect-square rounded-xl border-2 border-slate-700 p-4 h-24"
+                >
+                    <img :src="i.image + '?h=400'" />
                 </div>
                 <div class="text-center mx-auto">
                     <h1>
@@ -20,11 +20,9 @@
 <script lang="ts" setup>
 import { Section } from "./types"
 
-import SectionTitle from "./SectionTitle.vue";
+import SectionTitle from "./SectionTitle.vue"
 
-const props = defineProps<{
+defineProps<{
     item: Section & { __typename: "IconSection" }
 }>()
-
-console.log(props);
 </script>
