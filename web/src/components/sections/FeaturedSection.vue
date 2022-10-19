@@ -5,7 +5,7 @@
             <SwiperSlide
                 v-for="i in item.items.items"
                 class="h-full aspect-[4/3] md:aspect-video"
-                @click="goToItem(i)"
+                @click="goToSectionItem(i)"
             >
                 <div class="relative h-full">
                     <img
@@ -52,7 +52,7 @@ import { Swiper, SwiperSlide } from "swiper/vue"
 import { computed } from "vue"
 import SectionTitle from "./SectionTitle.vue"
 import Play from "../icons/Play.vue"
-import { goToItem } from "@/utils/episodes"
+import { goToSectionItem } from "@/utils/items"
 
 const props = defineProps<{
     item: Section & { __typename: "FeaturedSection" }
