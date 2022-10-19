@@ -1,4 +1,8 @@
 fragment SectionItem on SectionItem {
+    id
+    image
+    title
+    sort
     item {
         __typename
         ... on Episode {
@@ -32,10 +36,6 @@ fragment SectionItem on SectionItem {
 fragment ItemSection on ItemSection {
     items {
         items {
-            id
-            image
-            title
-            sort
             ...SectionItem
         }
     }
@@ -57,7 +57,6 @@ fragment ItemSection on ItemSection {
     }
     ... on GridSection {
         gridSize: size
-
     }
     ... on PosterSection {
         size

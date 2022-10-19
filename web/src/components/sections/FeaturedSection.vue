@@ -1,30 +1,38 @@
 <template>
     <section>
-        <SectionTitle v-if="item.title">{{item.title}}</SectionTitle>
-        <Swiper
-            :breakpoints="options"
-            :modules="modules"
-            :navigation="true"
-        >
+        <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
+        <Swiper :breakpoints="options" :modules="modules" :navigation="true">
             <SwiperSlide
                 v-for="i in item.items.items"
                 class="h-full aspect-[4/3] md:aspect-video"
+                @click="goToItem(i)"
             >
                 <div class="relative h-full">
-                    <img 
+                    <img
                         v-if="i.image"
                         :src="i.image + '?h=1080'"
                         class="rounded rounded-xl h-full object-cover"
                     />
-                    <div class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent p- pt-8">
+                    <div
+                        class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent p- pt-8"
+                    >
                         <h1 class="text-2xl font-bold">
                             {{ i.title }}
                         </h1>
-                        <p v-if="i.description" class="opacity-80 truncate px-8">{{i.description}}</p>
+                        <p
+                            v-if="i.description"
+                            class="opacity-80 truncate px-8"
+                        >
+                            {{ i.description }}
+                        </p>
                     </div>
                 </div>
                 <div class="text-center mt-2">
-                    <button class="bg-slate-800 px-4 py-1 rounded-full font-bold text-lg flex mx-auto"><Play></Play><span class="ml-1">Watch now</span></button>
+                    <button
+                        class="bg-slate-800 px-4 py-1 rounded-full font-bold text-lg flex mx-auto"
+                    >
+                        <Play></Play><span class="ml-1">Watch now</span>
+                    </button>
                 </div>
             </SwiperSlide>
         </Swiper>
@@ -35,21 +43,22 @@ import { Section } from "./types"
 
 import { Navigation, Pagination, SwiperOptions } from "swiper"
 
-import "swiper/css";
+import "swiper/css"
 
-import "swiper/css/pagination";
-import "swiper/css/navigation";
+import "swiper/css/pagination"
+import "swiper/css/navigation"
 
 import { Swiper, SwiperSlide } from "swiper/vue"
-import { computed } from "vue";
-import SectionTitle from "./SectionTitle.vue";
-import Play from "../icons/Play.vue";
+import { computed } from "vue"
+import SectionTitle from "./SectionTitle.vue"
+import Play from "../icons/Play.vue"
+import { goToItem } from "@/utils/episodes"
 
 const props = defineProps<{
     item: Section & { __typename: "FeaturedSection" }
 }>()
 
-const modules = [ Navigation, Pagination]
+const modules = [Navigation, Pagination]
 
 const options = computed(() => {
     switch (props.item.size) {
@@ -66,7 +75,7 @@ const options = computed(() => {
                 1920: {
                     slidesPerView: 4,
                     spaceBetween: 4,
-                }
+                },
             } as {
                 [key: number]: SwiperOptions
             }
@@ -83,7 +92,7 @@ const options = computed(() => {
                 1920: {
                     slidesPerView: 2,
                     spaceBetween: 4,
-                }
+                },
             } as {
                 [key: number]: SwiperOptions
             }
