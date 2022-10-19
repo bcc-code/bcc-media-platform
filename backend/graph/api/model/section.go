@@ -24,28 +24,44 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 	case "item":
 		switch s.Style {
 		case "featured":
+			size := SectionSize(s.Size)
+			if !size.IsValid() {
+				size = SectionSizeMedium
+			}
 			return &FeaturedSection{
 				ID:    id,
 				Title: title,
-				Size:  SectionSize(s.Size),
+				Size:  size,
 			}
 		case "default":
+			size := SectionSize(s.Size)
+			if !size.IsValid() {
+				size = SectionSizeMedium
+			}
 			return &DefaultSection{
 				ID:    id,
 				Title: title,
-				Size:  SectionSize(s.Size),
+				Size:  size,
 			}
 		case "posters":
+			size := SectionSize(s.Size)
+			if !size.IsValid() {
+				size = SectionSizeMedium
+			}
 			return &PosterSection{
 				ID:    id,
 				Title: title,
-				Size:  SectionSize(s.Size),
+				Size:  size,
 			}
 		case "grid":
+			size := GridSectionSize(s.Size)
+			if !size.IsValid() {
+				size = GridSectionSizeHalf
+			}
 			return &GridSection{
 				ID:    id,
 				Title: title,
-				Size:  GridSectionSize(s.Size),
+				Size:  size,
 			}
 		case "icons":
 			return &IconSection{
