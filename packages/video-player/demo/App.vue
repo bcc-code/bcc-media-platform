@@ -11,12 +11,12 @@ import { PlayerFactory } from "../src";
 
 const factory = new PlayerFactory({
     tokenFactory: null,
-    endpoint: "http://localhost:8077/query"
+    endpoint: "https://api.brunstad.tv/query"
 })
 
 onMounted(async () => {
     await factory.create("btv-video", {
-        episodeId: "1"
+        episodeId: "1582"
     })
 })
 
