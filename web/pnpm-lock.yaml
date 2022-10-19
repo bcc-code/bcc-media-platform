@@ -13,7 +13,7 @@ specifiers:
   '@urql/vue': ^1.0.2
   '@vitejs/plugin-vue': ^3.1.0
   autoprefixer: ^10.4.8
-  bccm-video-player: 1.2.2
+  bccm-video-player: ^1.2.2
   eslint: ^8.23.0
   eslint-config-prettier: ^8.5.0
   eslint-plugin-prettier-vue: ^4.2.0
