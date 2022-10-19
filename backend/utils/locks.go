@@ -6,12 +6,15 @@ import (
 	"sync"
 )
 
+var mapLock = &sync.Mutex{}
 var locks = map[string]*sync.Mutex{}
 
 // Lock returns a new stored lock
 func Lock(key string) *sync.Mutex {
 	lock, ok := locks[key]
 	if !ok {
+		mapLock.Lock()
+		defer mapLock.Unlock()
 		lock = &sync.Mutex{}
 		locks[key] = lock
 	}
