@@ -9,7 +9,7 @@
             <SwiperSlide
                 v-for="i in item.items.items"
                 class="flex flex-col h-full aspect-[2/3] rounded rounded-md"
-                @click="goToItem(i)"
+                @click="goToSectionItem(i)"
             >
                 <img
                     class="rounded-md top-0 h-full w-full object-cover border-2 border-slate-800"
@@ -56,7 +56,7 @@ import { Swiper, SwiperSlide } from "swiper/vue"
 import { computed } from "vue"
 import SectionTitle from "./SectionTitle.vue"
 import breakpoints from "./breakpoints"
-import { goToItem } from "@/utils/episodes"
+import { goToSectionItem } from "@/utils/items"
 
 const { t } = useI18n()
 

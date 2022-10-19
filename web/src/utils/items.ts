@@ -10,7 +10,7 @@ export const goToEpisode = (episodeId: string) => {
     })
 }
 
-export const goToItem = (item: SectionItemFragment) => {
+export const goToSectionItem = (item: SectionItemFragment) => {
     switch (item.item?.__typename) {
         case "Episode":
             goToEpisode(item.id)

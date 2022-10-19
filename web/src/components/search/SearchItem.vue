@@ -1,6 +1,7 @@
 <template>
     <div
         class="flex relative aspect-video bg-cover bg-center bg-no-repeat rounded rounded-2xl"
+        @click="pause = false"
         :style="{
             'background-image':
                 'linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url(\'' +
@@ -21,7 +22,9 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { SearchQuery } from "@/graph/generated"
+import { SearchQuery, useGetDefaultEpisodeIdQuery } from "@/graph/generated"
+import { goToEpisode, goToSectionItem } from "@/utils/items";
+import { ref, watch } from "vue";
 
 const props = defineProps<{
     item: SearchQuery["search"]["result"][0]
@@ -49,5 +52,31 @@ const open = () => {
             "/" +
             props.item.id
     )
+}
+
+let pause = ref(true)
+
+switch (props.item.__typename) {
+    case "ShowSearchItem":
+        const { data, resume, then } = useGetDefaultEpisodeIdQuery({
+            pause,
+            variables: {
+
+                showId: props.item.id,
+            }
+        })
+        watch(() => pause.value, () => {
+            then(() => {
+                if (data.value?.show.defaultEpisode) {
+                    goToEpisode(data.value.show.defaultEpisode.id)
+                }
+            })
+            resume()
+        })
+        break;
+    case "EpisodeSearchItem":
+        watch(() => pause.value, () => {
+            goToEpisode(props.item.id)
+        })
 }
 </script>

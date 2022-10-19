@@ -12,3 +12,11 @@ query search($query: String!, $type: String, $minScore: Int) {
         }
     }
 }
+
+query getDefaultEpisodeId($showId: ID!) {
+    show(id: $showId) {
+        defaultEpisode {
+            id
+        }
+    }
+}

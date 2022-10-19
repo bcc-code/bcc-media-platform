@@ -5,7 +5,7 @@
             <SwiperSlide
                 v-for="i in item.items.items"
                 class="flex flex-col h-full aspect-video"
-                @click="goToItem(i)"
+                @click="goToSectionItem(i)"
             >
                 <img
                     :src="i.image + '?h=400'"
@@ -63,7 +63,7 @@ import { computed } from "vue"
 import SectionTitle from "./SectionTitle.vue"
 import breakpoints from "./breakpoints"
 import { useI18n } from "vue-i18n"
-import { goToItem } from "@/utils/episodes"
+import { goToSectionItem } from "@/utils/items"
 
 const { t } = useI18n()
 
