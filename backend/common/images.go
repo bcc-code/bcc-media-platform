@@ -20,6 +20,9 @@ func (i Images) GetDefault(languages []string, style string) *string {
 	if ok {
 		return img
 	}
+	if style == "icon" {
+		return nil
+	}
 	img, ok = images["default"]
 	if ok {
 		return img
