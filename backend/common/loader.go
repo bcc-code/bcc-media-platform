@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+
 	"github.com/graph-gophers/dataloader/v7"
 	"go.opentelemetry.io/otel"
 )
@@ -38,6 +39,7 @@ type BatchLoaders struct {
 
 // FilteredLoaders contains loaders that will be filtered by permissions.
 type FilteredLoaders struct {
+	ShowsLoader             *dataloader.Loader[int, []*int]
 	EpisodesLoader          *dataloader.Loader[int, []*int]
 	SeasonsLoader           *dataloader.Loader[int, []*int]
 	SectionsLoader          *dataloader.Loader[int, []*int]

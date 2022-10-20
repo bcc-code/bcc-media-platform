@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"database/sql"
+	"sort"
+	"strings"
+	"time"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	cache "github.com/Code-Hex/go-generics-cache"
@@ -10,6 +14,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/export"
 	graphadmin "github.com/bcc-code/brunstadtv/backend/graph/admin"
 	graphadmingenerated "github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
 	graphapi "github.com/bcc-code/brunstadtv/backend/graph/api"
@@ -38,9 +43,6 @@ import (
 	"github.com/samber/lo"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
-	"sort"
-	"strings"
-	"time"
 )
 
 var generalCache = cache.New[string, any]()
@@ -57,6 +59,11 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 	}
 
 	loaders := &common.FilteredLoaders{
+		ShowsLoader: common.NewListBatchLoader(func(ctx context.Context, _ []int) ([]int, error) {
+			return queries.ListAllPermittedShowIDs(ctx, roles)
+		}, func(i int) int {
+			return common.ReturnAllID
+		}),
 		EpisodesLoader: common.NewRelationBatchLoader(func(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
 			return queries.GetEpisodeIDsForSeasonsWithRoles(ctx, ids, roles)
 		}),
@@ -94,7 +101,7 @@ func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *
 }
 
 // Defining the Graphql handler
-func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
+func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) (gin.HandlerFunc, graphapi.Resolver) {
 
 	resolver := graphapi.Resolver{
 		Queries:         queries,
@@ -114,7 +121,7 @@ func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoad
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
-	}
+	}, resolver
 }
 
 func publicGraphqlHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
@@ -320,7 +327,8 @@ func main() {
 	r.Use(applications.RoleMiddleware())
 
 	searchService := search.New(db, config.Algolia)
-	r.POST("/query", graphqlHandler(db, queries, loaders, searchService, urlSigner, config))
+	gqlHandler, apiResolvers := graphqlHandler(db, queries, loaders, searchService, urlSigner, config)
+	r.POST("/query", gqlHandler)
 
 	r.GET("/", playgroundHandler())
 
@@ -329,6 +337,9 @@ func main() {
 	r.POST("/public", publicGraphqlHandler(loaders))
 
 	r.GET("/versionz", version.GinHandler)
+
+	// TODO: Remove. This is only for local dev!
+	r.GET("/export", export.NewHandler(apiResolvers, queries))
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 

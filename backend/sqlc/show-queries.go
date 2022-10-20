@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
@@ -55,6 +56,16 @@ func (q *Queries) ListShows(ctx context.Context) ([]common.Show, error) {
 	return q.mapToShows(lo.Map(items, func(i listShowsRow, _ int) getShowsRow {
 		return getShowsRow(i)
 	})), nil
+}
+
+// ListAllPermittedShows returns a list of common.Show
+func (q *Queries) ListAllPermittedShowIDs(ctx context.Context, permissions []string) ([]int, error) {
+	ids, err := q.listAllPermittedShowIDs(ctx, permissions)
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(ids, func(i int32, _ int) int { return int(i) }), nil
 }
 
 // GetPermissionsForShows returns permissions for specified episodes

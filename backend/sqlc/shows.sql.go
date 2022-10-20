@@ -145,6 +145,39 @@ func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]getShowsRow
 	return items, nil
 }
 
+const listAllPermittedShowIDs = `-- name: listAllPermittedShowIDs :many
+SELECT sh.id
+FROM shows sh
+         LEFT JOIN show_availability access ON access.id = sh.id
+         LEFT JOIN show_roles roles ON roles.id = sh.id
+WHERE access.available_from < NOW()
+  AND access.available_to > NOW()
+  AND roles.roles && ($1::character varying[])
+`
+
+func (q *Queries) listAllPermittedShowIDs(ctx context.Context, dollar_1 []string) ([]int32, error) {
+	rows, err := q.db.QueryContext(ctx, listAllPermittedShowIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int32
+	for rows.Next() {
+		var id int32
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listShows = `-- name: listShows :many
 WITH ts AS (SELECT shows_id,
                    json_object_agg(languages_code, title)       AS title,

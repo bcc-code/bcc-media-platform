@@ -1,5 +1,7 @@
 package common
 
+const ReturnAllID = -99999
+
 // Images is a map of styles with related images
 type Images map[string]LocaleMap[string]
 

@@ -1,6 +1,8 @@
 package common
 
 import (
+	"encoding/json"
+
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/guregu/null.v4"
@@ -8,6 +10,7 @@ import (
 
 // LocaleString is a map of strings to nullable strings
 type LocaleString LocaleMap[null.String]
+type nnLocaleString LocaleMap[string]
 
 // Get from a translation map based on the fallbacks
 func (localeString LocaleString) Get(languages []string) string {
@@ -36,4 +39,32 @@ func (localeString LocaleString) GetValueOrNil(languages []string) *string {
 	}
 
 	return nil
+}
+
+// AsJSON returns the values as a JSON string
+//
+// For example:
+// ```
+//
+//	{
+//		"de": "Wilkommen",
+//	 "en": "Welcome",
+//	}
+func (localeString LocaleString) AsJSON() []byte {
+	out := nnLocaleString{}
+
+	for l, s := range localeString {
+		if !s.Valid {
+			continue
+		}
+
+		out[l] = s.String
+	}
+
+	j, err := json.Marshal(out)
+	if err != nil {
+		log.L.Error().Err(err).Send()
+	}
+
+	return j
 }
