@@ -142,11 +142,6 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)
 }
 
-// Messages is the resolver for the messages field.
-func (r *queryRootResolver) Messages(ctx context.Context) (*model.Messages, error) {
-	return &model.Messages{}, nil
-}
-
 // Calendar is the resolver for the calendar field.
 func (r *queryRootResolver) Calendar(ctx context.Context) (*model.Calendar, error) {
 	return &model.Calendar{}, nil

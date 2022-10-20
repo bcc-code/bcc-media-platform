@@ -235,3 +235,26 @@ func imageOrFallback(ctx context.Context, images common.Images, fallback null.St
 	}
 	return img
 }
+
+func messageStyleFromString(styleString string) *model.MessageStyle {
+	style := &model.MessageStyle{}
+	switch styleString {
+	case "error":
+		style.Background = "#bf3b32"
+		style.Text = "#ffffff"
+		style.Border = "#8c2b24"
+	case "info":
+		style.Background = "#133747"
+		style.Border = "#1f5770"
+		style.Text = "#ffffff"
+	case "warning":
+		style.Border = "#ff9408"
+		style.Background = "#633800"
+		style.Text = "#ffffff"
+	default:
+		style.Background = "#133747"
+		style.Border = "#1f5770"
+		style.Text = "#ffffff"
+	}
+	return style
+}

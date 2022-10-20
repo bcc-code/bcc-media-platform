@@ -271,13 +271,24 @@ type Link struct {
 
 func (Link) IsSectionItemType() {}
 
-type MaintenanceMessage struct {
-	Message string  `json:"message"`
-	Details *string `json:"details"`
+type Message struct {
+	Title   string        `json:"title"`
+	Content string        `json:"content"`
+	Style   *MessageStyle `json:"style"`
 }
 
-type Messages struct {
-	Maintenance []*MaintenanceMessage `json:"maintenance"`
+type MessageSection struct {
+	ID       string     `json:"id"`
+	Title    *string    `json:"title"`
+	Messages []*Message `json:"messages"`
+}
+
+func (MessageSection) IsSection() {}
+
+type MessageStyle struct {
+	Text       string `json:"text"`
+	Background string `json:"background"`
+	Border     string `json:"border"`
 }
 
 type Page struct {

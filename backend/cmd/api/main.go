@@ -248,6 +248,7 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		FAQCategoryLoader:       common.NewBatchLoader(queries.GetFAQCategories),
 		QuestionLoader:          common.NewBatchLoader(queries.GetQuestions),
 		QuestionsLoader:         common.NewRelationBatchLoader(queries.GetQuestionIDsForCategories),
+		MessageGroupLoader:      common.NewBatchLoader(queries.GetMessageGroups),
 		// User Data
 		ProfilesLoader: common.NewListBatchLoader(queries.GetProfilesForUserIDs, func(i common.Profile) string {
 			return i.UserID
