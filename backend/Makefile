@@ -51,3 +51,9 @@ run-api: dist/api
 	@cp -n ./cmd/api/env.sample ./cmd/api/.env || true
 	@printf "${YELLOW}Running the API.\nRemember to update ./cmd/api/.env with proper values!${RESET}\n\n\n"
 	go run github.com/joho/godotenv/cmd/godotenv@latest -f ./cmd/api/.env dist/api
+
+test.integration:
+	docker rm -f redis-integration-test
+	docker run --name redis-integration-test -d -p 6999:6379 redis
+	export REDIS_ADDRESS=localhost:6999 && go test ./... -tags=integration
+	docker rm -f redis-integration-test
