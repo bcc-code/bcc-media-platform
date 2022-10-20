@@ -15,3 +15,9 @@ FROM messages groups
 WHERE groups.status = 'published'
   AND groups.id = ANY ($1::int[])
 GROUP BY groups.id, groups.enabled;
+
+-- name: GetSectionIDsWithMessageIDs :many
+SELECT s.id
+FROM sections s
+         JOIN messages m ON m.id = s.message_id
+WHERE m.id = ANY ($1::int[]);

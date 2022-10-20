@@ -24,6 +24,7 @@ export function handleEvent(eventName: string) {
             "webconfig",
             "maintenancemessage",
             "notifications",
+            "messages",
         ] as Collection[]
 
         if (!collections.includes(event.collection)) { return }

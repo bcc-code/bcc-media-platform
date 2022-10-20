@@ -13,6 +13,36 @@ import (
 	"github.com/lib/pq"
 )
 
+const getSectionIDsWithMessageIDs = `-- name: GetSectionIDsWithMessageIDs :many
+SELECT s.id
+FROM sections s
+         JOIN messages m ON m.id = s.message_id
+WHERE m.id = ANY ($1::int[])
+`
+
+func (q *Queries) GetSectionIDsWithMessageIDs(ctx context.Context, dollar_1 []int32) ([]int32, error) {
+	rows, err := q.db.QueryContext(ctx, getSectionIDsWithMessageIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int32
+	for rows.Next() {
+		var id int32
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getMessageGroups = `-- name: getMessageGroups :many
 WITH ts AS (SELECT messagetemplates_id,
                    json_object_agg(languages_code, message) AS message,

@@ -338,7 +338,7 @@ type ComplexityRoot struct {
 		Profiles    func(childComplexity int) int
 		Search      func(childComplexity int, queryString string, first *int, offset *int, typeArg *string, minScore *int) int
 		Season      func(childComplexity int, id string) int
-		Section     func(childComplexity int, id string) int
+		Section     func(childComplexity int, id string, timestamp *string) int
 		Show        func(childComplexity int, id string) int
 	}
 
@@ -590,7 +590,7 @@ type PosterSectionResolver interface {
 type QueryRootResolver interface {
 	Application(ctx context.Context) (*model.Application, error)
 	Page(ctx context.Context, id *string, code *string) (*model.Page, error)
-	Section(ctx context.Context, id string) (model.Section, error)
+	Section(ctx context.Context, id string, timestamp *string) (model.Section, error)
 	Show(ctx context.Context, id string) (*model.Show, error)
 	Season(ctx context.Context, id string) (*model.Season, error)
 	Episode(ctx context.Context, id string) (*model.Episode, error)
@@ -1931,7 +1931,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.QueryRoot.Section(childComplexity, args["id"].(string)), true
+		return e.complexity.QueryRoot.Section(childComplexity, args["id"].(string), args["timestamp"].(*string)), true
 
 	case "QueryRoot.show":
 		if e.complexity.QueryRoot.Show == nil {
@@ -3367,6 +3367,7 @@ type QueryRoot{
 
   section(
     id: ID!
+    timestamp: String
   ): Section!
 
   show(
@@ -4018,6 +4019,15 @@ func (ec *executionContext) field_QueryRoot_section_args(ctx context.Context, ra
 		}
 	}
 	args["id"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["timestamp"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["timestamp"] = arg1
 	return args, nil
 }
 
@@ -11517,7 +11527,7 @@ func (ec *executionContext) _QueryRoot_section(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Section(rctx, fc.Args["id"].(string))
+		return ec.resolvers.QueryRoot().Section(rctx, fc.Args["id"].(string), fc.Args["timestamp"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

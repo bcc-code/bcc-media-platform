@@ -7,8 +7,8 @@
 --- BEGIN CREATE SEQUENCE "public"."messages_id_seq" ---
 
 
-CREATE SEQUENCE IF NOT EXISTS "public"."messages_id_seq" 
-	INCREMENT BY 1 
+CREATE SEQUENCE IF NOT EXISTS "public"."messages_id_seq"
+	INCREMENT BY 1
 	MINVALUE 1
 	MAXVALUE 2147483647
 	START WITH 1
@@ -27,8 +27,8 @@ COMMENT ON SEQUENCE "public"."messages_id_seq"  IS NULL;
 --- BEGIN CREATE SEQUENCE "public"."messages_messagetemplates_id_seq" ---
 
 
-CREATE SEQUENCE IF NOT EXISTS "public"."messages_messagetemplates_id_seq" 
-	INCREMENT BY 1 
+CREATE SEQUENCE IF NOT EXISTS "public"."messages_messagetemplates_id_seq"
+	INCREMENT BY 1
 	MINVALUE 1
 	MAXVALUE 2147483647
 	START WITH 1
@@ -50,10 +50,6 @@ ALTER TABLE IF EXISTS "public"."sections" ADD COLUMN IF NOT EXISTS "message_id" 
 
 COMMENT ON COLUMN "public"."sections"."message_id"  IS NULL;
 
-ALTER TABLE IF EXISTS "public"."sections" ADD CONSTRAINT "sections_message_id_foreign" FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE SET NULL;
-
-COMMENT ON CONSTRAINT "sections_message_id_foreign" ON "public"."sections" IS NULL;
-
 --- END ALTER TABLE "public"."sections" ---
 
 --- BEGIN CREATE TABLE "public"."messages" ---
@@ -69,7 +65,7 @@ CREATE TABLE IF NOT EXISTS "public"."messages" (
 	"name" varchar(255) NULL  ,
 	CONSTRAINT "messages_pkey" PRIMARY KEY (id) ,
 	CONSTRAINT "messages_user_created_foreign" FOREIGN KEY (user_created) REFERENCES directus_users(id) ,
-	CONSTRAINT "messages_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id) 
+	CONSTRAINT "messages_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id)
 );
 
 ALTER TABLE IF EXISTS "public"."messages" OWNER TO btv;
@@ -125,7 +121,7 @@ CREATE TABLE IF NOT EXISTS "public"."messages_messagetemplates" (
 	"messagetemplates_id" int4 NULL  ,
 	CONSTRAINT "messages_messagetemplates_pkey" PRIMARY KEY (id) ,
 	CONSTRAINT "messages_messagetemplates_messagetemplates_id_foreign" FOREIGN KEY (messagetemplates_id) REFERENCES messagetemplates(id) ON DELETE SET NULL ,
-	CONSTRAINT "messages_messagetemplates_messages_id_foreign" FOREIGN KEY (messages_id) REFERENCES messages(id) ON DELETE SET NULL 
+	CONSTRAINT "messages_messagetemplates_messages_id_foreign" FOREIGN KEY (messages_id) REFERENCES messages(id) ON DELETE SET NULL
 );
 
 ALTER TABLE IF EXISTS "public"."messages_messagetemplates" OWNER TO btv;
@@ -168,12 +164,6 @@ ALTER TABLE IF EXISTS "public"."messagetemplates" DROP COLUMN IF EXISTS "type" C
 
 --- END ALTER TABLE "public"."messagetemplates" ---
 
---- BEGIN DROP TABLE "public"."maintenancemessage" ---
-
-DROP TABLE IF EXISTS "public"."maintenancemessage";
-
---- END DROP TABLE "public"."maintenancemessage" ---
-
 --- BEGIN DROP TABLE "public"."maintenancemessage_messagetemplates" ---
 
 DROP TABLE IF EXISTS "public"."maintenancemessage_messagetemplates";
@@ -181,6 +171,14 @@ DROP TABLE IF EXISTS "public"."maintenancemessage_messagetemplates";
 --- END DROP TABLE "public"."maintenancemessage_messagetemplates" ---
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
+
+--- BEGIN DROP TABLE "public"."maintenancemessage" ---
+
+DROP TABLE IF EXISTS "public"."maintenancemessage";
+
+--- END DROP TABLE "public"."maintenancemessage" ---
+
+INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "display_template", "hidden", "singleton", "translations", "archive_field", "archive_app_filter", "archive_value", "unarchive_value", "sort_field", "accountability", "color", "item_duplication_fields", "sort", "group", "collapse")  VALUES ('messages', NULL, NULL, '{{name}}', false, false, NULL, 'status', true, 'archived', 'draft', NULL, 'all', NULL, NULL, 6, NULL, 'open');
 
 UPDATE "public"."directus_collections" SET "sort" = 1, "group" = 'messages' WHERE "collection" = 'messagetemplates';
 
@@ -194,8 +192,6 @@ UPDATE "public"."directus_collections" SET "sort" = 10 WHERE "collection" = 'sea
 
 UPDATE "public"."directus_collections" SET "sort" = 13 WHERE "collection" = 'lists_relations';
 
-INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "display_template", "hidden", "singleton", "translations", "archive_field", "archive_app_filter", "archive_value", "unarchive_value", "sort_field", "accountability", "color", "item_duplication_fields", "sort", "group", "collapse")  VALUES ('messages', NULL, NULL, '{{name}}', false, false, NULL, 'status', true, 'archived', 'draft', NULL, 'all', NULL, NULL, 6, NULL, 'open');
-
 UPDATE "public"."directus_collections" SET "sort" = 8 WHERE "collection" = 'config';
 
 UPDATE "public"."directus_collections" SET "sort" = 15 WHERE "collection" = 'assetstreams_subtitle_languages';
@@ -208,11 +204,6 @@ UPDATE "public"."directus_collections" SET "sort" = 18 WHERE "collection" = 'app
 
 INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "display_template", "hidden", "singleton", "translations", "archive_field", "archive_app_filter", "archive_value", "unarchive_value", "sort_field", "accountability", "color", "item_duplication_fields", "sort", "group", "collapse")  VALUES ('messages_messagetemplates', 'import_export', NULL, NULL, true, false, NULL, NULL, true, NULL, NULL, NULL, 'all', NULL, NULL, 2, 'messages', 'open');
 
-DELETE FROM "public"."directus_collections" WHERE "collection" = 'maintenance_messages';
-
-DELETE FROM "public"."directus_collections" WHERE "collection" = 'maintenancemessage';
-
-DELETE FROM "public"."directus_collections" WHERE "collection" = 'maintenancemessage_messagetemplates';
 
 --- END SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
 
@@ -302,6 +293,17 @@ DELETE FROM "public"."directus_relations" WHERE "id" = 135;
 
 DELETE FROM "public"."directus_relations" WHERE "id" = 136;
 
+ALTER TABLE IF EXISTS "public"."sections" ADD CONSTRAINT "sections_message_id_foreign" FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE SET NULL;
+
+COMMENT ON CONSTRAINT "sections_message_id_foreign" ON "public"."sections" IS NULL;
+
+
+DELETE FROM "public"."directus_collections" WHERE "collection" = 'maintenancemessage';
+
+DELETE FROM "public"."directus_collections" WHERE "collection" = 'maintenancemessage_messagetemplates';
+
+DELETE FROM "public"."directus_collections" WHERE "collection" = 'maintenance_messages';
+
 --- END SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
 -- +goose Down
 /***********************************************************/
@@ -317,18 +319,11 @@ CREATE TABLE IF NOT EXISTS "public"."maintenancemessage" (
 	"id" int4 NOT NULL DEFAULT nextval('maintenancemessage_id_seq'::regclass) ,
 	"user_updated" uuid NULL  ,
 	CONSTRAINT "maintenancemessage_pkey" PRIMARY KEY (id) ,
-	CONSTRAINT "maintenancemessage_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id) 
+	CONSTRAINT "maintenancemessage_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id)
 );
 
-ALTER TABLE IF EXISTS "public"."maintenancemessage" OWNER TO manager;
+ALTER TABLE IF EXISTS "public"."maintenancemessage" OWNER TO builder;
 
-GRANT SELECT ON TABLE "public"."maintenancemessage" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."maintenancemessage" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."maintenancemessage" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."maintenancemessage" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."maintenancemessage" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."maintenancemessage" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."maintenancemessage" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT SELECT ON TABLE "public"."maintenancemessage" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."maintenancemessage" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."maintenancemessage" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -366,7 +361,7 @@ CREATE TABLE IF NOT EXISTS "public"."maintenancemessage_messagetemplates" (
 	"sort" int4 NULL  ,
 	CONSTRAINT "maintenancemessage_messagetemplates_pkey" PRIMARY KEY (id) ,
 	CONSTRAINT "maintenancemessage_messagetemplates_mainte__6b993ed9_foreign" FOREIGN KEY (maintenancemessage_id) REFERENCES maintenancemessage(id) ON DELETE SET NULL ,
-	CONSTRAINT "maintenancemessage_messagetemplates_messag__488cfa1b_foreign" FOREIGN KEY (messagetemplates_id) REFERENCES messagetemplates(id) ON DELETE SET NULL 
+	CONSTRAINT "maintenancemessage_messagetemplates_messag__488cfa1b_foreign" FOREIGN KEY (messagetemplates_id) REFERENCES messagetemplates(id) ON DELETE SET NULL
 );
 
 ALTER TABLE IF EXISTS "public"."maintenancemessage_messagetemplates" OWNER TO manager;
@@ -427,17 +422,17 @@ ALTER TABLE IF EXISTS "public"."sections" DROP CONSTRAINT IF EXISTS "sections_me
 
 --- END ALTER TABLE "public"."sections" ---
 
---- BEGIN DROP TABLE "public"."messages" ---
-
-DROP TABLE IF EXISTS "public"."messages";
-
---- END DROP TABLE "public"."messages" ---
-
 --- BEGIN DROP TABLE "public"."messages_messagetemplates" ---
 
 DROP TABLE IF EXISTS "public"."messages_messagetemplates";
 
 --- END DROP TABLE "public"."messages_messagetemplates" ---
+
+--- BEGIN DROP TABLE "public"."messages" ---
+
+DROP TABLE IF EXISTS "public"."messages";
+
+--- END DROP TABLE "public"."messages" ---
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
 
@@ -469,9 +464,9 @@ UPDATE "public"."directus_collections" SET "sort" = 2, "group" = 'maintenance_me
 
 UPDATE "public"."directus_collections" SET "sort" = 17 WHERE "collection" = 'applications_usergroups';
 
-DELETE FROM "public"."directus_collections" WHERE "collection" = 'messages';
-
 DELETE FROM "public"."directus_collections" WHERE "collection" = 'messages_messagetemplates';
+
+DELETE FROM "public"."directus_collections" WHERE "collection" = 'messages';
 
 --- END SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
 

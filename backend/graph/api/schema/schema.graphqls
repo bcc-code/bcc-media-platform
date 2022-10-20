@@ -48,6 +48,7 @@ type QueryRoot{
 
   section(
     id: ID!
+    timestamp: String
   ): Section!
 
   show(

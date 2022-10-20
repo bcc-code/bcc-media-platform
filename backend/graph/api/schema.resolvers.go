@@ -99,7 +99,7 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 }
 
 // Section is the resolver for the section field.
-func (r *queryRootResolver) Section(ctx context.Context, id string) (model.Section, error) {
+func (r *queryRootResolver) Section(ctx context.Context, id string, timestamp *string) (model.Section, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Section]{
 		Item:        r.Loaders.SectionLoader,
 		Permissions: r.Loaders.SectionPermissionLoader,
