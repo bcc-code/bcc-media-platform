@@ -2,7 +2,10 @@ package graph
 
 import (
 	"context"
+	"fmt"
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"gopkg.in/guregu/null.v4"
 	"strconv"
 	"sync"
@@ -257,4 +260,57 @@ func messageStyleFromString(styleString string) *model.MessageStyle {
 		style.Text = "#ffffff"
 	}
 	return style
+}
+
+func resolveMessageSection(ctx context.Context, r *messageSectionResolver, s *common.Section) ([]*model.Message, error) {
+	var timestamp *string
+	fieldCtx := graphql.GetRootFieldContext(ctx)
+	for _, a := range fieldCtx.Field.Arguments {
+		if a.Name == "timestamp" && a.Value.Raw != "null" {
+			timestamp = &a.Value.Raw
+		}
+	}
+
+	t, err := utils.TimestampFromString(timestamp)
+	if err != nil {
+		return nil, err
+	}
+	if t != nil {
+		now := time.Now()
+		if t.After(now) {
+			t = &now
+		}
+		truncated := t.Truncate(truncateTime)
+		t = &truncated
+	}
+
+	key := fmt.Sprintf("section:%d:message_group", s.ID)
+	group, err := memorycache.GetWithTimestamp[common.MessageGroup](key, timestamp)
+	if group == nil {
+		r.Loaders.MessageGroupLoader.Clear(ctx, int(s.MessageID.Int64))
+		group, err = common.GetFromLoaderByID(ctx, r.Loaders.MessageGroupLoader, int(s.MessageID.Int64))
+		if err != nil {
+			return nil, err
+		}
+		memorycache.SetWithTimestamp(key, group, cache.WithExpiration(time.Minute*5))
+		r.Loaders.MessageGroupLoader.Clear(ctx, int(s.MessageID.Int64))
+	}
+
+	if group == nil || !group.Enabled {
+		return nil, nil
+	}
+
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	return lo.Map(group.Messages, func(i common.Message, _ int) *model.Message {
+		return &model.Message{
+			Style:   messageStyleFromString(i.Style),
+			Title:   i.Title.Get(languages),
+			Content: i.Content.Get(languages),
+		}
+	}), nil
 }

@@ -10,9 +10,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
-	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"github.com/samber/lo"
 	null "gopkg.in/guregu/null.v4"
 )
 
@@ -117,24 +115,7 @@ func (r *messageSectionResolver) Messages(ctx context.Context, obj *model.Messag
 	if err != nil {
 		return nil, err
 	}
-	group, err := common.GetFromLoaderByID(ctx, r.Loaders.MessageGroupLoader, int(s.MessageID.Int64))
-	if err != nil || group == nil || !group.Enabled {
-		return nil, err
-	}
-
-	ginCtx, err := utils.GinCtx(ctx)
-	if err != nil {
-		return nil, err
-	}
-	languages := user.GetLanguagesFromCtx(ginCtx)
-
-	return lo.Map(group.Messages, func(i common.Message, _ int) *model.Message {
-		return &model.Message{
-			Style:   messageStyleFromString(i.Style),
-			Title:   i.Title.Get(languages),
-			Content: i.Content.Get(languages),
-		}
-	}), nil
+	return resolveMessageSection(ctx, r, s)
 }
 
 // Image is the resolver for the image field.
