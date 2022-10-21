@@ -15,10 +15,9 @@ CREATE SEQUENCE IF NOT EXISTS "public"."messages_id_seq"
 	CACHE 1
 	NO CYCLE;
 
-ALTER SEQUENCE "public"."messages_id_seq" OWNER TO btv;
-GRANT SELECT ON SEQUENCE "public"."messages_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT USAGE ON SEQUENCE "public"."messages_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."messages_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON SEQUENCE "public"."messages_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT USAGE ON SEQUENCE "public"."messages_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON SEQUENCE "public"."messages_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON SEQUENCE "public"."messages_id_seq"  IS NULL;
 
@@ -35,10 +34,9 @@ CREATE SEQUENCE IF NOT EXISTS "public"."messages_messagetemplates_id_seq"
 	CACHE 1
 	NO CYCLE;
 
-ALTER SEQUENCE "public"."messages_messagetemplates_id_seq" OWNER TO btv;
-GRANT SELECT ON SEQUENCE "public"."messages_messagetemplates_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT USAGE ON SEQUENCE "public"."messages_messagetemplates_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."messages_messagetemplates_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON SEQUENCE "public"."messages_messagetemplates_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT USAGE ON SEQUENCE "public"."messages_messagetemplates_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON SEQUENCE "public"."messages_messagetemplates_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON SEQUENCE "public"."messages_messagetemplates_id_seq"  IS NULL;
 
@@ -68,15 +66,13 @@ CREATE TABLE IF NOT EXISTS "public"."messages" (
 	CONSTRAINT "messages_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id)
 );
 
-ALTER TABLE IF EXISTS "public"."messages" OWNER TO btv;
-
-GRANT SELECT ON TABLE "public"."messages" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."messages" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."messages" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."messages" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."messages" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."messages" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."messages" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."messages" TO api, background_worker, directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT INSERT ON TABLE "public"."messages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON TABLE "public"."messages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT DELETE ON TABLE "public"."messages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT TRUNCATE ON TABLE "public"."messages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT REFERENCES ON TABLE "public"."messages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT TRIGGER ON TABLE "public"."messages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."messages"."id"  IS NULL;
 
@@ -124,15 +120,10 @@ CREATE TABLE IF NOT EXISTS "public"."messages_messagetemplates" (
 	CONSTRAINT "messages_messagetemplates_messages_id_foreign" FOREIGN KEY (messages_id) REFERENCES messages(id) ON DELETE SET NULL
 );
 
-ALTER TABLE IF EXISTS "public"."messages_messagetemplates" OWNER TO btv;
-
-GRANT SELECT ON TABLE "public"."messages_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."messages_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."messages_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."messages_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."messages_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."messages_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."messages_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."messages_messagetemplates" TO directus, api, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT INSERT ON TABLE "public"."messages_messagetemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON TABLE "public"."messages_messagetemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT DELETE ON TABLE "public"."messages_messagetemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."messages_messagetemplates"."id"  IS NULL;
 
@@ -364,16 +355,7 @@ CREATE TABLE IF NOT EXISTS "public"."maintenancemessage_messagetemplates" (
 	CONSTRAINT "maintenancemessage_messagetemplates_messag__488cfa1b_foreign" FOREIGN KEY (messagetemplates_id) REFERENCES messagetemplates(id) ON DELETE SET NULL
 );
 
-ALTER TABLE IF EXISTS "public"."maintenancemessage_messagetemplates" OWNER TO manager;
-
-GRANT SELECT ON TABLE "public"."maintenancemessage_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."maintenancemessage_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."maintenancemessage_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."maintenancemessage_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."maintenancemessage_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."maintenancemessage_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."maintenancemessage_messagetemplates" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT SELECT ON TABLE "public"."maintenancemessage_messagetemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."maintenancemessage_messagetemplates" TO directus, api, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."maintenancemessage_messagetemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."maintenancemessage_messagetemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."maintenancemessage_messagetemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
