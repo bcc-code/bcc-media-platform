@@ -285,15 +285,15 @@ func resolveMessageSection(ctx context.Context, r *messageSectionResolver, s *co
 	}
 
 	key := fmt.Sprintf("section:%d:message_group", s.ID)
-	group, err := memorycache.GetWithTimestamp[common.MessageGroup](key, timestamp)
-	if group == nil {
+	if refresh, _ := memorycache.GetWithTimestamp[bool](key, timestamp); refresh == nil {
+		value := true
 		r.Loaders.MessageGroupLoader.Clear(ctx, int(s.MessageID.Int64))
-		group, err = common.GetFromLoaderByID(ctx, r.Loaders.MessageGroupLoader, int(s.MessageID.Int64))
-		if err != nil {
-			return nil, err
-		}
-		memorycache.SetWithTimestamp(key, group, cache.WithExpiration(time.Minute*5))
-		r.Loaders.MessageGroupLoader.Clear(ctx, int(s.MessageID.Int64))
+		memorycache.SetWithTimestamp(key, &value, cache.WithExpiration(time.Minute*5))
+	}
+
+	group, err := common.GetFromLoaderByID(ctx, r.Loaders.MessageGroupLoader, int(s.MessageID.Int64))
+	if err != nil {
+		return nil, err
 	}
 
 	if group == nil || !group.Enabled {
