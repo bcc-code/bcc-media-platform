@@ -284,11 +284,20 @@ func resolveMessageSection(ctx context.Context, r *messageSectionResolver, s *co
 		t = &truncated
 	}
 
-	key := fmt.Sprintf("section:%d:message_group", s.ID)
-	if refresh, _ := memorycache.GetWithTimestamp[bool](key, timestamp); refresh == nil {
-		value := true
-		r.Loaders.MessageGroupLoader.Clear(ctx, int(s.MessageID.Int64))
-		memorycache.SetWithTimestamp(key, &value, cache.WithExpiration(time.Minute*5))
+	ts, err := utils.TimestampFromString(timestamp)
+	if err != nil {
+		return nil, err
+	}
+	if ts != nil {
+		// This code should just clear the cached entry from loader
+		// in case the specified timestamp is later than the stored.
+		key := fmt.Sprintf("section:%d:message_group", s.ID)
+		stored := memorycache.Get[time.Time](key)
+		if stored == nil || stored.Before(ts.Truncate(truncateTime)) {
+			r.Loaders.MessageGroupLoader.Clear(ctx, int(s.MessageID.Int64))
+			now := time.Now().Truncate(truncateTime)
+			memorycache.Set(key, &now, cache.WithExpiration(time.Minute*5))
+		}
 	}
 
 	group, err := common.GetFromLoaderByID(ctx, r.Loaders.MessageGroupLoader, int(s.MessageID.Int64))
