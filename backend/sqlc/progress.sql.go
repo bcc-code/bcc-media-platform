@@ -13,6 +13,23 @@ import (
 	"github.com/lib/pq"
 )
 
+const deleteProgress = `-- name: deleteProgress :exec
+DELETE
+FROM "users"."progress"
+WHERE profile_id = $1::uuid
+  AND episode_id = $2::int
+`
+
+type deleteProgressParams struct {
+	Column1 uuid.UUID `db:"column_1" json:"column1"`
+	Column2 int32     `db:"column_2" json:"column2"`
+}
+
+func (q *Queries) deleteProgress(ctx context.Context, arg deleteProgressParams) error {
+	_, err := q.db.ExecContext(ctx, deleteProgress, arg.Column1, arg.Column2)
+	return err
+}
+
 const getProgressForProfile = `-- name: getProgressForProfile :many
 SELECT episode_id, progress
 FROM "users"."progress"
@@ -51,4 +68,21 @@ func (q *Queries) getProgressForProfile(ctx context.Context, arg getProgressForP
 		return nil, err
 	}
 	return items, nil
+}
+
+const saveProgress = `-- name: saveProgress :exec
+INSERT INTO "users"."progress" (profile_id, episode_id, progress)
+VALUES ($1::uuid, $2::int, $3::time)
+ON CONFLICT (profile_id, episode_id) DO UPDATE SET progress = EXCLUDED.progress
+`
+
+type saveProgressParams struct {
+	Column1 uuid.UUID `db:"column_1" json:"column1"`
+	Column2 int32     `db:"column_2" json:"column2"`
+	Column3 time.Time `db:"column_3" json:"column3"`
+}
+
+func (q *Queries) saveProgress(ctx context.Context, arg saveProgressParams) error {
+	_, err := q.db.ExecContext(ctx, saveProgress, arg.Column1, arg.Column2, arg.Column3)
+	return err
 }

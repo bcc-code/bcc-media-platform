@@ -282,6 +282,7 @@ type ComplexityRoot struct {
 	}
 
 	MutationRoot struct {
+		EpisodeProgress    func(childComplexity int, id string, progress *string) int
 		SetDevicePushToken func(childComplexity int, token string) int
 	}
 
@@ -573,6 +574,7 @@ type MessagesResolver interface {
 }
 type MutationRootResolver interface {
 	SetDevicePushToken(ctx context.Context, token string) (*model.Device, error)
+	EpisodeProgress(ctx context.Context, id string, progress *string) (*model.Episode, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -1605,6 +1607,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Messages.Maintenance(childComplexity, args["timestamp"].(*string)), true
+
+	case "MutationRoot.episodeProgress":
+		if e.complexity.MutationRoot.EpisodeProgress == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_episodeProgress_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.EpisodeProgress(childComplexity, args["id"].(string), args["progress"].(*string)), true
 
 	case "MutationRoot.setDevicePushToken":
 		if e.complexity.MutationRoot.SetDevicePushToken == nil {
@@ -3375,7 +3389,7 @@ type QueryRoot{
 
 type MutationRoot {
   setDevicePushToken(token: String!): Device
-#  createProfile(name: String!): Profile
+  episodeProgress(id: ID!, progress: String): Episode
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -3757,6 +3771,30 @@ func (ec *executionContext) field_Messages_maintenance_args(ctx context.Context,
 		}
 	}
 	args["timestamp"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_episodeProgress_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["progress"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("progress"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["progress"] = arg1
 	return args, nil
 }
 
@@ -10236,6 +10274,100 @@ func (ec *executionContext) fieldContext_MutationRoot_setDevicePushToken(ctx con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_MutationRoot_setDevicePushToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_episodeProgress(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_episodeProgress(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().EpisodeProgress(rctx, fc.Args["id"].(string), fc.Args["progress"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Episode)
+	fc.Result = res
+	return ec.marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_episodeProgress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Episode_id(ctx, field)
+			case "legacyID":
+				return ec.fieldContext_Episode_legacyID(ctx, field)
+			case "legacyProgramID":
+				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "title":
+				return ec.fieldContext_Episode_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Episode_description(ctx, field)
+			case "extraDescription":
+				return ec.fieldContext_Episode_extraDescription(ctx, field)
+			case "image":
+				return ec.fieldContext_Episode_image(ctx, field)
+			case "imageUrl":
+				return ec.fieldContext_Episode_imageUrl(ctx, field)
+			case "productionDate":
+				return ec.fieldContext_Episode_productionDate(ctx, field)
+			case "streams":
+				return ec.fieldContext_Episode_streams(ctx, field)
+			case "files":
+				return ec.fieldContext_Episode_files(ctx, field)
+			case "chapters":
+				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "season":
+				return ec.fieldContext_Episode_season(ctx, field)
+			case "duration":
+				return ec.fieldContext_Episode_duration(ctx, field)
+			case "progress":
+				return ec.fieldContext_Episode_progress(ctx, field)
+			case "audioLanguages":
+				return ec.fieldContext_Episode_audioLanguages(ctx, field)
+			case "subtitleLanguages":
+				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "images":
+				return ec.fieldContext_Episode_images(ctx, field)
+			case "number":
+				return ec.fieldContext_Episode_number(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_episodeProgress_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -21590,6 +21722,12 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._MutationRoot_setDevicePushToken(ctx, field)
+			})
+
+		case "episodeProgress":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_episodeProgress(ctx, field)
 			})
 
 		default:

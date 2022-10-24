@@ -5,6 +5,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"time"
 )
 
 // ProfileQueries contains methods for retrieving profile specific queries
@@ -36,4 +37,21 @@ func (q *ProfileQueries) GetProgressForEpisodes(ctx context.Context, episodeIDs 
 			Progress:  row.Progress,
 		}
 	}), nil
+}
+
+// SaveProgress stores the progress
+func (q *ProfileQueries) SaveProgress(ctx context.Context, episodeID int, progress time.Time) error {
+	return q.saveProgress(ctx, saveProgressParams{
+		Column1: q.profileID,
+		Column2: int32(episodeID),
+		Column3: progress,
+	})
+}
+
+// ClearProgress removes the progress from database
+func (q *ProfileQueries) ClearProgress(ctx context.Context, episodeID int) error {
+	return q.deleteProgress(ctx, deleteProgressParams{
+		Column1: q.profileID,
+		Column2: int32(episodeID),
+	})
 }
