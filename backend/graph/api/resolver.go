@@ -233,7 +233,7 @@ func imageOrFallback(ctx context.Context, images common.Images, fallback null.St
 		s = style.String()
 	}
 	img := images.GetDefault(languages, s)
-	if img == nil && fallback.Valid {
+	if img == nil && s != "icon" && fallback.Valid {
 		img = &fallback.String
 	}
 	return img
