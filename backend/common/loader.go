@@ -39,8 +39,11 @@ type BatchLoaders struct {
 
 // FilteredLoaders contains loaders that will be filtered by permissions.
 type FilteredLoaders struct {
+	EpisodeFilterLoader     *dataloader.Loader[int, *int]
 	EpisodesLoader          *dataloader.Loader[int, []*int]
+	SeasonFilterLoader      *dataloader.Loader[int, *int]
 	SeasonsLoader           *dataloader.Loader[int, []*int]
+	ShowFilterLoader        *dataloader.Loader[int, *int]
 	SectionsLoader          *dataloader.Loader[int, []*int]
 	CollectionItemsLoader   *dataloader.Loader[int, []*CollectionItem]
 	CollectionItemIDsLoader *dataloader.Loader[int, []int]
@@ -173,6 +176,13 @@ func NewBatchLoader[K comparable, V HasKey[K]](
 ) *dataloader.Loader[K, *V] {
 	return NewCustomBatchLoader(factory, func(i V) K {
 		return i.GetKey()
+	})
+}
+
+// NewFilterLoader is just for filtering a list of keys or checking if user has access to a specific id
+func NewFilterLoader[K comparable](factory func(ctx context.Context, keys []K) ([]K, error)) *dataloader.Loader[K, *K] {
+	return NewCustomBatchLoader(factory, func(key K) K {
+		return key
 	})
 }
 

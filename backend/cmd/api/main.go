@@ -58,19 +58,16 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 		return loaders
 	}
 
+	rq := queries.RoleQueries(roles)
+
 	loaders := &common.FilteredLoaders{
-		EpisodesLoader: common.NewRelationBatchLoader(func(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
-			return queries.GetEpisodeIDsForSeasonsWithRoles(ctx, ids, roles)
-		}),
-		SeasonsLoader: common.NewRelationBatchLoader(func(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
-			return queries.GetSeasonIDsForShowsWithRoles(ctx, ids, roles)
-		}),
-		SectionsLoader: common.NewRelationBatchLoader(func(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
-			return queries.GetSectionIDsForPagesWithRoles(ctx, ids, roles)
-		}),
-		CollectionItemsLoader: common.NewListBatchLoader(func(ctx context.Context, ids []int) ([]common.CollectionItem, error) {
-			return queries.GetItemsForCollectionsWithRoles(ctx, ids, roles)
-		}, func(i common.CollectionItem) int {
+		ShowFilterLoader:    common.NewFilterLoader(rq.GetShowIDsWithRoles),
+		SeasonFilterLoader:  common.NewFilterLoader(rq.GetSeasonIDsWithRoles),
+		EpisodeFilterLoader: common.NewFilterLoader(rq.GetEpisodeIDsWithRoles),
+		SeasonsLoader:       common.NewRelationBatchLoader(rq.GetSeasonIDsForShowsWithRoles),
+		SectionsLoader:      common.NewRelationBatchLoader(rq.GetSectionIDsForPagesWithRoles),
+		EpisodesLoader:      common.NewRelationBatchLoader(rq.GetEpisodeIDsForSeasonsWithRoles),
+		CollectionItemsLoader: common.NewListBatchLoader(rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
 			return i.CollectionID
 		}),
 		CollectionItemIDsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader, roles),
