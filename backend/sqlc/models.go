@@ -1014,6 +1014,12 @@ type UsersProfile struct {
 	Name   string    `db:"name" json:"name"`
 }
 
+type UsersProgress struct {
+	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
+	EpisodeID int32     `db:"episode_id" json:"episodeID"`
+	Progress  time.Time `db:"progress" json:"progress"`
+}
+
 type Webconfig struct {
 	DateUpdated time.Time `db:"date_updated" json:"dateUpdated"`
 	ID          int32     `db:"id" json:"id"`

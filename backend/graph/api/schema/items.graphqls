@@ -63,6 +63,7 @@ type Episode {
     chapters: [Chapter!]!
     season: Season @goField(forceResolver: true)
     duration: Int!
+    progress: String @goField(forceResolver: true)
     audioLanguages: [Language!]!
     subtitleLanguages: [Language!]!
     images: [Image!]!

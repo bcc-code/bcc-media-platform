@@ -114,6 +114,7 @@ type Episode struct {
 	Chapters          []*Chapter `json:"chapters"`
 	Season            *Season    `json:"season"`
 	Duration          int        `json:"duration"`
+	Progress          *string    `json:"progress"`
 	AudioLanguages    []Language `json:"audioLanguages"`
 	SubtitleLanguages []Language `json:"subtitleLanguages"`
 	Images            []*Image   `json:"images"`

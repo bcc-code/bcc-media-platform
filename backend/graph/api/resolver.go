@@ -32,6 +32,7 @@ type Resolver struct {
 	Queries         *sqlc.Queries
 	Loaders         *common.BatchLoaders
 	FilteredLoaders func(ctx context.Context) *common.FilteredLoaders
+	ProfileLoaders  func(ctx context.Context) *common.ProfileLoaders
 	SearchService   *search.Service
 	URLSigner       *signing.Signer
 	APIConfig       apiConfig

@@ -33,6 +33,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v9"
+	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
@@ -46,14 +47,14 @@ import (
 
 var generalCache = cache.New[string, any]()
 
-var rolesLoaderCache = map[string]*common.FilteredLoaders{}
+var rolesLoaderCache = cache.New[string, *common.FilteredLoaders]()
 
 func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dataloader.Loader[int, *common.Collection], roles []string) *common.FilteredLoaders {
 	sort.Strings(roles)
 
 	key := strings.Join(roles, "-")
 
-	if loaders, ok := rolesLoaderCache[key]; ok {
+	if loaders, ok := rolesLoaderCache.Get(key); ok {
 		return loaders
 	}
 
@@ -75,7 +76,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 		CollectionItemIDsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader, roles),
 	}
 
-	rolesLoaderCache[key] = loaders
+	rolesLoaderCache.Set(key, loaders)
 
 	return loaders
 }
@@ -94,6 +95,37 @@ func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *
 	}
 }
 
+var profilesLoaderCache = cache.New[uuid.UUID, *common.ProfileLoaders]()
+
+func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.ProfileLoaders {
+	if loaders, ok := profilesLoaderCache.Get(profileID); ok {
+		return loaders
+	}
+
+	profileQueries := queries.ProfileQueries(profileID)
+	loaders := &common.ProfileLoaders{
+		ProgressLoader: common.NewBatchLoader(profileQueries.GetProgressForEpisodes),
+	}
+
+	profilesLoaderCache.Set(profileID, loaders, cache.WithExpiration(time.Minute*5))
+
+	return loaders
+}
+
+func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *common.ProfileLoaders {
+	return func(ctx context.Context) *common.ProfileLoaders {
+		ginCtx, err := utils.GinCtx(ctx)
+		if err != nil {
+			return nil
+		}
+		p := user.GetProfileFromCtx(ginCtx)
+		if p == nil {
+			return nil
+		}
+		return getLoadersForProfile(queries, p.ID)
+	}
+}
+
 // Defining the Graphql handler
 func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
 
@@ -101,6 +133,7 @@ func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoad
 		Queries:         queries,
 		Loaders:         loaders,
 		FilteredLoaders: filteredLoaderFactory(db, queries, loaders.CollectionLoader),
+		ProfileLoaders:  profileLoaderFactory(queries),
 		SearchService:   searchService,
 		APIConfig:       config.CDNConfig,
 		URLSigner:       urlSigner,

@@ -45,6 +45,11 @@ type FilteredLoaders struct {
 	CollectionItemIDsLoader *dataloader.Loader[int, []int]
 }
 
+// ProfileLoaders contains loaders per profile
+type ProfileLoaders struct {
+	ProgressLoader *dataloader.Loader[int, *Progress]
+}
+
 // NewListBatchLoader returns a configured batch loader for Lists
 func NewListBatchLoader[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
