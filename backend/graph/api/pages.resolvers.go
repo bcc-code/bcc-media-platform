@@ -109,6 +109,15 @@ func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSectio
 	}, nil
 }
 
+// Messages is the resolver for the messages field.
+func (r *messageSectionResolver) Messages(ctx context.Context, obj *model.MessageSection) ([]*model.Message, error) {
+	s, err := common.GetFromLoaderByID(ctx, r.Loaders.SectionLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	return resolveMessageSection(ctx, r, s)
+}
+
 // Image is the resolver for the image field.
 func (r *pageResolver) Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error) {
 	e, err := common.GetFromLoaderByID(ctx, r.Loaders.PageLoader, utils.AsInt(obj.ID))
@@ -182,6 +191,11 @@ func (r *Resolver) IconSection() generated.IconSectionResolver { return &iconSec
 // LabelSection returns generated.LabelSectionResolver implementation.
 func (r *Resolver) LabelSection() generated.LabelSectionResolver { return &labelSectionResolver{r} }
 
+// MessageSection returns generated.MessageSectionResolver implementation.
+func (r *Resolver) MessageSection() generated.MessageSectionResolver {
+	return &messageSectionResolver{r}
+}
+
 // Page returns generated.PageResolver implementation.
 func (r *Resolver) Page() generated.PageResolver { return &pageResolver{r} }
 
@@ -194,5 +208,6 @@ type featuredSectionResolver struct{ *Resolver }
 type gridSectionResolver struct{ *Resolver }
 type iconSectionResolver struct{ *Resolver }
 type labelSectionResolver struct{ *Resolver }
+type messageSectionResolver struct{ *Resolver }
 type pageResolver struct{ *Resolver }
 type posterSectionResolver struct{ *Resolver }

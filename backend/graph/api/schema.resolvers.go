@@ -99,7 +99,7 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 }
 
 // Section is the resolver for the section field.
-func (r *queryRootResolver) Section(ctx context.Context, id string) (model.Section, error) {
+func (r *queryRootResolver) Section(ctx context.Context, id string, timestamp *string) (model.Section, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Section]{
 		Item:        r.Loaders.SectionLoader,
 		Permissions: r.Loaders.SectionPermissionLoader,
@@ -140,11 +140,6 @@ func (r *queryRootResolver) Collection(ctx context.Context, id string) (*model.C
 // Search is the resolver for the search field.
 func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error) {
 	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)
-}
-
-// Messages is the resolver for the messages field.
-func (r *queryRootResolver) Messages(ctx context.Context) (*model.Messages, error) {
-	return &model.Messages{}, nil
 }
 
 // Calendar is the resolver for the calendar field.

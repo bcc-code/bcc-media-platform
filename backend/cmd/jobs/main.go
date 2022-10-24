@@ -92,7 +92,7 @@ func main() {
 
 	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, pushService.HandleModelUpdate)
 
-	eventService, err := events.NewService(ctx, config.Firebase.ProjectID)
+	eventService, err := events.NewService(ctx, config.Firebase.ProjectID, queries)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to initialize event service, disabling")
 	} else {

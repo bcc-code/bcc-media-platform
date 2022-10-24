@@ -2,7 +2,10 @@ package graph
 
 import (
 	"context"
+	"fmt"
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"gopkg.in/guregu/null.v4"
 	"strconv"
 	"sync"
@@ -234,4 +237,85 @@ func imageOrFallback(ctx context.Context, images common.Images, fallback null.St
 		img = &fallback.String
 	}
 	return img
+}
+
+func messageStyleFromString(styleString string) *model.MessageStyle {
+	style := &model.MessageStyle{}
+	switch styleString {
+	case "error":
+		style.Background = "#bf3b32"
+		style.Text = "#ffffff"
+		style.Border = "#8c2b24"
+	case "info":
+		style.Background = "#133747"
+		style.Border = "#1f5770"
+		style.Text = "#ffffff"
+	case "warning":
+		style.Border = "#ff9408"
+		style.Background = "#633800"
+		style.Text = "#ffffff"
+	default:
+		style.Background = "#133747"
+		style.Border = "#1f5770"
+		style.Text = "#ffffff"
+	}
+	return style
+}
+
+func resolveMessageSection(ctx context.Context, r *messageSectionResolver, s *common.Section) ([]*model.Message, error) {
+	var timestamp *string
+	fieldCtx := graphql.GetRootFieldContext(ctx)
+	for _, a := range fieldCtx.Field.Arguments {
+		if a.Name == "timestamp" && a.Value.Raw != "null" {
+			timestamp = &a.Value.Raw
+		}
+	}
+
+	t, err := utils.TimestampFromString(timestamp)
+	if err != nil {
+		return nil, err
+	}
+	if t != nil {
+		now := time.Now()
+		if t.After(now) {
+			t = &now
+		}
+		truncated := t.Truncate(truncateTime)
+		t = &truncated
+	}
+
+	if t != nil {
+		// This code should just clear the cached entry from loader
+		// in case the specified timestamp is later than the stored.
+		key := fmt.Sprintf("section:%d:message_group", s.ID)
+		stored := memorycache.Get[time.Time](key)
+		if stored == nil || stored.Before(t.Truncate(truncateTime)) {
+			r.Loaders.MessageGroupLoader.Clear(ctx, int(s.MessageID.Int64))
+			now := time.Now().Truncate(truncateTime)
+			memorycache.Set(key, &now, cache.WithExpiration(time.Minute*5))
+		}
+	}
+
+	group, err := common.GetFromLoaderByID(ctx, r.Loaders.MessageGroupLoader, int(s.MessageID.Int64))
+	if err != nil {
+		return nil, err
+	}
+
+	if group == nil || !group.Enabled {
+		return nil, nil
+	}
+
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	return lo.Map(group.Messages, func(i common.Message, _ int) *model.Message {
+		return &model.Message{
+			Style:   messageStyleFromString(i.Style),
+			Title:   i.Title.Get(languages),
+			Content: i.Content.Get(languages),
+		}
+	}), nil
 }

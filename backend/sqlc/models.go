@@ -733,33 +733,36 @@ type ListsRelation struct {
 	Sort       null_v4.Int    `db:"sort" json:"sort"`
 }
 
-type Maintenancemessage struct {
-	Active      sql.NullBool  `db:"active" json:"active"`
-	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
-	ID          int32         `db:"id" json:"id"`
-	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
-}
-
-type MaintenancemessageMessagetemplate struct {
-	ID                   int32       `db:"id" json:"id"`
-	MaintenancemessageID null_v4.Int `db:"maintenancemessage_id" json:"maintenancemessageID"`
-	MessagetemplatesID   null_v4.Int `db:"messagetemplates_id" json:"messagetemplatesID"`
-	Sort                 null_v4.Int `db:"sort" json:"sort"`
-}
-
 type MaterializedViewsMetum struct {
 	ViewName      string       `db:"view_name" json:"viewName"`
 	LastRefreshed null_v4.Time `db:"last_refreshed" json:"lastRefreshed"`
 }
 
+type Message struct {
+	ID          int32          `db:"id" json:"id"`
+	Status      string         `db:"status" json:"status"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Enabled     sql.NullBool   `db:"enabled" json:"enabled"`
+	Name        null_v4.String `db:"name" json:"name"`
+}
+
+type MessagesMessagetemplate struct {
+	ID                 int32       `db:"id" json:"id"`
+	MessagesID         null_v4.Int `db:"messages_id" json:"messagesID"`
+	MessagetemplatesID null_v4.Int `db:"messagetemplates_id" json:"messagetemplatesID"`
+}
+
 type Messagetemplate struct {
-	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
-	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
-	ID          int32         `db:"id" json:"id"`
-	Status      string        `db:"status" json:"status"`
-	Type        string        `db:"type" json:"type"`
-	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
-	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	ID          int32          `db:"id" json:"id"`
+	Status      string         `db:"status" json:"status"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	Style       null_v4.String `db:"style" json:"style"`
 }
 
 type MessagetemplatesTranslation struct {
@@ -883,6 +886,7 @@ type Section struct {
 	GridSize     null_v4.String `db:"grid_size" json:"gridSize"`
 	Type         null_v4.String `db:"type" json:"type"`
 	ShowTitle    sql.NullBool   `db:"show_title" json:"showTitle"`
+	MessageID    null_v4.Int    `db:"message_id" json:"messageID"`
 }
 
 type SectionsTranslation struct {
