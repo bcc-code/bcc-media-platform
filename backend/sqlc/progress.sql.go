@@ -7,7 +7,6 @@ package sqlc
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -31,11 +30,11 @@ func (q *Queries) deleteProgress(ctx context.Context, arg deleteProgressParams) 
 }
 
 const getProgressForProfile = `-- name: getProgressForProfile :many
-SELECT episode_id, progress
-FROM "users"."progress"
-WHERE profile_id = $1::uuid
-  AND episode_id = ANY ($2::int[])
-ORDER BY updated_at DESC
+SELECT p.episode_id, p.progress, p.duration, (p.progress::float / p.duration) > 0.8 AS watched
+FROM "users"."progress" p
+WHERE p.profile_id = $1::uuid
+  AND p.episode_id = ANY ($2::int[])
+ORDER BY watched, updated_at DESC
 `
 
 type getProgressForProfileParams struct {
@@ -44,8 +43,10 @@ type getProgressForProfileParams struct {
 }
 
 type getProgressForProfileRow struct {
-	EpisodeID int32     `db:"episode_id" json:"episodeID"`
-	Progress  time.Time `db:"progress" json:"progress"`
+	EpisodeID int32 `db:"episode_id" json:"episodeID"`
+	Progress  int32 `db:"progress" json:"progress"`
+	Duration  int32 `db:"duration" json:"duration"`
+	Watched   bool  `db:"watched" json:"watched"`
 }
 
 func (q *Queries) getProgressForProfile(ctx context.Context, arg getProgressForProfileParams) ([]getProgressForProfileRow, error) {
@@ -57,7 +58,12 @@ func (q *Queries) getProgressForProfile(ctx context.Context, arg getProgressForP
 	var items []getProgressForProfileRow
 	for rows.Next() {
 		var i getProgressForProfileRow
-		if err := rows.Scan(&i.EpisodeID, &i.Progress); err != nil {
+		if err := rows.Scan(
+			&i.EpisodeID,
+			&i.Progress,
+			&i.Duration,
+			&i.Watched,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -72,18 +78,25 @@ func (q *Queries) getProgressForProfile(ctx context.Context, arg getProgressForP
 }
 
 const saveProgress = `-- name: saveProgress :exec
-INSERT INTO "users"."progress" (profile_id, episode_id, progress, updated_at)
-VALUES ($1::uuid, $2::int, $3::time, NOW())
-ON CONFLICT (profile_id, episode_id) DO UPDATE SET progress = EXCLUDED.progress
+INSERT INTO "users"."progress" (profile_id, episode_id, progress, duration, updated_at)
+VALUES ($1::uuid, $2::int, $3::int, $4::int, NOW())
+ON CONFLICT (profile_id, episode_id) DO UPDATE SET progress = EXCLUDED.progress,
+                                                   duration = EXCLUDED.duration
 `
 
 type saveProgressParams struct {
 	Column1 uuid.UUID `db:"column_1" json:"column1"`
 	Column2 int32     `db:"column_2" json:"column2"`
-	Column3 time.Time `db:"column_3" json:"column3"`
+	Column3 int32     `db:"column_3" json:"column3"`
+	Column4 int32     `db:"column_4" json:"column4"`
 }
 
 func (q *Queries) saveProgress(ctx context.Context, arg saveProgressParams) error {
-	_, err := q.db.ExecContext(ctx, saveProgress, arg.Column1, arg.Column2, arg.Column3)
+	_, err := q.db.ExecContext(ctx, saveProgress,
+		arg.Column1,
+		arg.Column2,
+		arg.Column3,
+		arg.Column4,
+	)
 	return err
 }

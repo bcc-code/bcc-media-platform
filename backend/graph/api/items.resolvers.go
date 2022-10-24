@@ -72,7 +72,7 @@ func (r *episodeResolver) Season(ctx context.Context, obj *model.Episode) (*mode
 }
 
 // Progress is the resolver for the progress field.
-func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*string, error) {
+func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*int, error) {
 	profileLoaders := r.ProfileLoaders(ctx)
 	if profileLoaders == nil {
 		return nil, nil
@@ -81,8 +81,7 @@ func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*st
 	if err != nil || progress == nil {
 		return nil, err
 	}
-	progressTime := progress.Progress.Format("15:04:05")
-	return &progressTime, nil
+	return &progress.Progress, nil
 }
 
 // Image is the resolver for the image field.

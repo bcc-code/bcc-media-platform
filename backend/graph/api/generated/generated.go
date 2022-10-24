@@ -291,7 +291,7 @@ type ComplexityRoot struct {
 	}
 
 	MutationRoot struct {
-		EpisodeProgress    func(childComplexity int, id string, progress *string) int
+		EpisodeProgress    func(childComplexity int, id string, progress *int, duration *int) int
 		SetDevicePushToken func(childComplexity int, token string) int
 	}
 
@@ -545,7 +545,7 @@ type EpisodeResolver interface {
 
 	Season(ctx context.Context, obj *model.Episode) (*model.Season, error)
 
-	Progress(ctx context.Context, obj *model.Episode) (*string, error)
+	Progress(ctx context.Context, obj *model.Episode) (*int, error)
 }
 type EpisodeCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Event, error)
@@ -582,7 +582,7 @@ type MessageSectionResolver interface {
 }
 type MutationRootResolver interface {
 	SetDevicePushToken(ctx context.Context, token string) (*model.Device, error)
-	EpisodeProgress(ctx context.Context, id string, progress *string) (*model.Episode, error)
+	EpisodeProgress(ctx context.Context, id string, progress *int, duration *int) (*model.Episode, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -1662,7 +1662,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.MutationRoot.EpisodeProgress(childComplexity, args["id"].(string), args["progress"].(*string)), true
+		return e.complexity.MutationRoot.EpisodeProgress(childComplexity, args["id"].(string), args["progress"].(*int), args["duration"].(*int)), true
 
 	case "MutationRoot.setDevicePushToken":
 		if e.complexity.MutationRoot.SetDevicePushToken == nil {
@@ -3158,7 +3158,7 @@ type Episode {
     chapters: [Chapter!]!
     season: Season @goField(forceResolver: true)
     duration: Int!
-    progress: String @goField(forceResolver: true)
+    progress: Int @goField(forceResolver: true)
     audioLanguages: [Language!]!
     subtitleLanguages: [Language!]!
     images: [Image!]!
@@ -3434,7 +3434,7 @@ type QueryRoot{
 
 type MutationRoot {
   setDevicePushToken(token: String!): Device
-  episodeProgress(id: ID!, progress: String): Episode!
+  episodeProgress(id: ID!, progress: Int, duration: Int): Episode!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -3816,15 +3816,24 @@ func (ec *executionContext) field_MutationRoot_episodeProgress_args(ctx context.
 		}
 	}
 	args["id"] = arg0
-	var arg1 *string
+	var arg1 *int
 	if tmp, ok := rawArgs["progress"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("progress"))
-		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["progress"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["duration"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("duration"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["duration"] = arg2
 	return args, nil
 }
 
@@ -6233,9 +6242,9 @@ func (ec *executionContext) _Episode_progress(ctx context.Context, field graphql
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*int)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_progress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6245,7 +6254,7 @@ func (ec *executionContext) fieldContext_Episode_progress(ctx context.Context, f
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10593,7 +10602,7 @@ func (ec *executionContext) _MutationRoot_episodeProgress(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MutationRoot().EpisodeProgress(rctx, fc.Args["id"].(string), fc.Args["progress"].(*string))
+		return ec.resolvers.MutationRoot().EpisodeProgress(rctx, fc.Args["id"].(string), fc.Args["progress"].(*int), fc.Args["duration"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

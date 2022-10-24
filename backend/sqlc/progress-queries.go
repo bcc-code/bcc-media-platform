@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
-	"time"
 )
 
 // GetProgressForEpisodes returns progress for the specified episodes
@@ -19,17 +18,20 @@ func (pq *ProfileQueries) GetProgressForEpisodes(ctx context.Context, episodeIDs
 	return lo.Map(progress, func(row getProgressForProfileRow, _ int) common.Progress {
 		return common.Progress{
 			EpisodeID: int(row.EpisodeID),
-			Progress:  row.Progress,
+			Progress:  int(row.Progress),
+			Duration:  int(row.Duration),
+			Watched:   row.Watched,
 		}
 	}), nil
 }
 
 // SaveProgress stores the progress
-func (pq *ProfileQueries) SaveProgress(ctx context.Context, episodeID int, progress time.Time) error {
+func (pq *ProfileQueries) SaveProgress(ctx context.Context, progress common.Progress) error {
 	return pq.queries.saveProgress(ctx, saveProgressParams{
 		Column1: pq.profileID,
-		Column2: int32(episodeID),
-		Column3: progress,
+		Column2: int32(progress.EpisodeID),
+		Column3: int32(progress.Progress),
+		Column4: int32(progress.Duration),
 	})
 }
 

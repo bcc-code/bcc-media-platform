@@ -49,7 +49,7 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 }
 
 // EpisodeProgress is the resolver for the episodeProgress field.
-func (r *mutationRootResolver) EpisodeProgress(ctx context.Context, id string, progress *string) (*model.Episode, error) {
+func (r *mutationRootResolver) EpisodeProgress(ctx context.Context, id string, progress *int, duration *int) (*model.Episode, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -68,16 +68,17 @@ func (r *mutationRootResolver) EpisodeProgress(ctx context.Context, id string, p
 	if progress == nil {
 		err = q.ClearProgress(ctx, episodeID)
 	} else {
-		var t time.Time
-		t, err = time.Parse("15:04:05", *progress)
-		if err != nil {
-			return nil, err
+		dur := e.Duration
+		if duration != nil {
+			dur = *duration
 		}
-		err = q.SaveProgress(ctx, episodeID, t)
-		episodeProgress = &common.Progress{
+		pr := common.Progress{
 			EpisodeID: episodeID,
-			Progress:  t,
+			Progress:  *progress,
+			Duration:  dur,
 		}
+		err = q.SaveProgress(ctx, pr)
+		episodeProgress = &pr
 	}
 	pl := r.ProfileLoaders(ctx).ProgressLoader
 	pl.Clear(ctx, episodeID)

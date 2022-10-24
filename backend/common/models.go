@@ -79,7 +79,9 @@ type Notification struct {
 // Progress contains basic data for progress
 type Progress struct {
 	EpisodeID int
-	Progress  time.Time
+	Progress  int
+	Duration  int
+	Watched   bool
 }
 
 // GetKey returns the key for this item
