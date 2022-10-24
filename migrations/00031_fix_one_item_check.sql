@@ -23,6 +23,8 @@ COMMENT ON CONSTRAINT "one_item" ON "public"."images" IS NULL;
 
 ALTER TABLE IF EXISTS "public"."images" DROP CONSTRAINT IF EXISTS "one_item";
 
+DELETE FROM "public"."images" WHERE page_id IS NULL OR link_id IS NULL;
+
 ALTER TABLE IF EXISTS "public"."images" ADD CONSTRAINT "one_item" CHECK ((((show_id IS NOT NULL) AND (season_id IS NULL) AND (episode_id IS NULL)) OR ((season_id IS NOT NULL) AND (show_id IS NULL) AND (episode_id IS NULL)) OR ((episode_id IS NOT NULL) AND (show_id IS NULL) AND (season_id IS NULL))));
 
 COMMENT ON CONSTRAINT "one_item" ON "public"."images" IS NULL;
