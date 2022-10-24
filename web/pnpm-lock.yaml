@@ -13,7 +13,7 @@ specifiers:
   '@urql/vue': ^1.0.2
   '@vitejs/plugin-vue': ^3.1.0
   autoprefixer: ^10.4.8
-  bccm-video-player: ^1.2.2
+  bccm-video-player: 1.2.4
   eslint: ^8.23.0
   eslint-config-prettier: ^8.5.0
   eslint-plugin-prettier-vue: ^4.2.0
@@ -38,7 +38,7 @@ dependencies:
   '@heroicons/vue': 2.0.10_vue@3.2.38
   '@urql/exchange-auth': 1.0.0_graphql@16.6.0
   '@urql/vue': 1.0.2_graphql@16.6.0+vue@3.2.38
-  bccm-video-player: 1.2.2
+  bccm-video-player: 1.2.4
   graphql: 16.6.0
   graphql-tag: 2.12.6_graphql@16.6.0
   swiper: 8.3.2
@@ -1845,8 +1845,8 @@ packages:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
     dev: true
 
-  /bccm-video-player/1.2.2:
-    resolution: {integrity: sha512-t1GH3tljUCIVfaWWcymuDoxQh8IaNdHbSUu8a/Ga89SlAKgY/PZEAenPV2LnNqhhCvDCRixXMMauch2g+0mTVA==}
+  /bccm-video-player/1.2.4:
+    resolution: {integrity: sha512-Lme3EAEjOntTdrzB8EypN8CQz8rRqA3h+dSj+9r3/29oVE9vEbJpdKvWUCmeY8NAmryMC8HcwGVByxoKIxxFJA==}
     dependencies:
       graphql: 16.6.0
       graphql-request: 5.0.0_graphql@16.6.0
