@@ -146,7 +146,7 @@ func collectionItemResolverFromCollection(ctx context.Context, r *Resolver, id s
 	return collectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), int(int64ID), first, offset)
 }
 
-func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[*model.SectionItem], error) {
+func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*model.SectionItemPagination, error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 
 	section, err := common.GetFromLoaderByID(ctx, r.Loaders.SectionLoader, int(int64ID))
@@ -154,5 +154,15 @@ func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, 
 		return nil, err
 	}
 
-	return sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), section, first, offset)
+	pagination, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), section, first, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.SectionItemPagination{
+		Total:  pagination.Total,
+		First:  pagination.First,
+		Offset: pagination.Offset,
+		Items:  pagination.Items,
+	}, nil
 }

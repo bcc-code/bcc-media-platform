@@ -16,6 +16,12 @@ type CollectionItem interface {
 	IsCollectionItem()
 }
 
+type GridSection interface {
+	Section
+	ItemSection
+	IsGridSection()
+}
+
 type ItemSection interface {
 	Section
 	IsItemSection()
@@ -82,6 +88,17 @@ func (CollectionItemPagination) IsPagination() {}
 type Config struct {
 	Global *GlobalConfig `json:"global"`
 }
+
+type DefaultGridSection struct {
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Size  GridSectionSize        `json:"size"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (DefaultGridSection) IsSection()     {}
+func (DefaultGridSection) IsItemSection() {}
+func (DefaultGridSection) IsGridSection() {}
 
 type DefaultSection struct {
 	ID    string                 `json:"id"`
@@ -231,16 +248,6 @@ type GlobalConfig struct {
 	NpawEnabled bool `json:"npawEnabled"`
 }
 
-type GridSection struct {
-	ID    string                 `json:"id"`
-	Title *string                `json:"title"`
-	Size  GridSectionSize        `json:"size"`
-	Items *SectionItemPagination `json:"items"`
-}
-
-func (GridSection) IsSection()     {}
-func (GridSection) IsItemSection() {}
-
 type IconSection struct {
 	ID    string                 `json:"id"`
 	Title *string                `json:"title"`
@@ -313,6 +320,17 @@ type PageItem struct {
 }
 
 func (PageItem) IsCollectionItem() {}
+
+type PosterGridSection struct {
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Size  GridSectionSize        `json:"size"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (PosterGridSection) IsSection()     {}
+func (PosterGridSection) IsItemSection() {}
+func (PosterGridSection) IsGridSection() {}
 
 type PosterSection struct {
 	ID    string                 `json:"id"`
