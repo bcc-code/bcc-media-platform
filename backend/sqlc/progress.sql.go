@@ -34,7 +34,7 @@ SELECT p.episode_id, p.progress, p.duration, (p.progress::float / p.duration) > 
 FROM "users"."progress" p
 WHERE p.profile_id = $1::uuid
   AND p.episode_id = ANY ($2::int[])
-ORDER BY watched, updated_at DESC
+ORDER BY watched, p.updated_at DESC
 `
 
 type getProgressForProfileParams struct {
