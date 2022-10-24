@@ -225,6 +225,7 @@ SELECT s.id,
        s.sort,
        s.status::text = 'published'::text AS published,
        s.collection_id,
+       s.message_id,
        t.title,
        t.description
 FROM sections s
@@ -246,6 +247,7 @@ type getSectionsRow struct {
 	Sort         null_v4.Int           `db:"sort" json:"sort"`
 	Published    bool                  `db:"published" json:"published"`
 	CollectionID null_v4.Int           `db:"collection_id" json:"collectionID"`
+	MessageID    null_v4.Int           `db:"message_id" json:"messageID"`
 	Title        pqtype.NullRawMessage `db:"title" json:"title"`
 	Description  pqtype.NullRawMessage `db:"description" json:"description"`
 }
@@ -270,6 +272,7 @@ func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSecti
 			&i.Sort,
 			&i.Published,
 			&i.CollectionID,
+			&i.MessageID,
 			&i.Title,
 			&i.Description,
 		); err != nil {

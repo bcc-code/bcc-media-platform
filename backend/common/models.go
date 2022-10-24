@@ -56,12 +56,6 @@ type Availability struct {
 	To        time.Time
 }
 
-// MaintenanceMessage is the struct for maintenance messages
-type MaintenanceMessage struct {
-	Message LocaleString
-	Details LocaleString
-}
-
 // AppConfig contains configuration of the app.
 type AppConfig struct {
 	MinVersion string

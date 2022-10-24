@@ -14,6 +14,7 @@ SELECT s.id,
        s.sort,
        s.status::text = 'published'::text AS published,
        s.collection_id,
+       s.message_id,
        t.title,
        t.description
 FROM sections s

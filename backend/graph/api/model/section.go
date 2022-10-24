@@ -74,6 +74,11 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				Title: title,
 			}
 		}
+	case "message":
+		return &MessageSection{
+			ID:    id,
+			Title: title,
+		}
 	}
 
 	return &DefaultSection{

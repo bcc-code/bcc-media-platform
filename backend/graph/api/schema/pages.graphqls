@@ -79,6 +79,12 @@ type LabelSection implements Section & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
+type MessageSection implements Section {
+    id: ID!
+    title: String
+    messages: [Message!] @goField(forceResolver: true)
+}
+
 type Collection {
     id: ID!
     items(
