@@ -148,6 +148,7 @@ type ComplexityRoot struct {
 		LegacyProgramID   func(childComplexity int) int
 		Number            func(childComplexity int) int
 		ProductionDate    func(childComplexity int) int
+		PublishDate       func(childComplexity int) int
 		Season            func(childComplexity int) int
 		Streams           func(childComplexity int) int
 		SubtitleLanguages func(childComplexity int) int
@@ -1013,6 +1014,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.ProductionDate(childComplexity), true
+
+	case "Episode.publishDate":
+		if e.complexity.Episode.PublishDate == nil {
+			break
+		}
+
+		return e.complexity.Episode.PublishDate(childComplexity), true
 
 	case "Episode.season":
 		if e.complexity.Episode.Season == nil {
@@ -3166,6 +3174,7 @@ type Episode {
     id: ID!
     legacyID: ID
     legacyProgramID: ID
+    publishDate: String!
     ageRating: String!
     title: String!
     description: String!
@@ -5850,6 +5859,50 @@ func (ec *executionContext) fieldContext_Episode_legacyProgramID(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_publishDate(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_publishDate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PublishDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_publishDate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_ageRating(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_ageRating(ctx, field)
 	if err != nil {
@@ -6931,6 +6984,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "publishDate":
+				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
 			case "title":
@@ -7238,6 +7293,8 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "publishDate":
+				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
 			case "title":
@@ -7454,6 +7511,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "publishDate":
+				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
 			case "title":
@@ -12047,6 +12106,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "publishDate":
+				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
 			case "title":
@@ -16393,6 +16454,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "publishDate":
+				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
 			case "title":
@@ -20933,6 +20996,13 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._Episode_legacyProgramID(ctx, field, obj)
 
+		case "publishDate":
+
+			out.Values[i] = ec._Episode_publishDate(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "ageRating":
 
 			out.Values[i] = ec._Episode_ageRating(ctx, field, obj)
