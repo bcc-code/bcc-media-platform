@@ -8,7 +8,7 @@
         >
             <SwiperSlide
                 v-for="i in item.items.items"
-                class="flex flex-col h-full aspect-[2/3] rounded rounded-md"
+                class="flex flex-col h-full aspect-[9/16] rounded rounded-md"
                 @click="goToSectionItem(i)"
             >
                 <img
@@ -16,7 +16,7 @@
                     :src="i.image + '?w=1080'"
                 />
                 <div class="mt-1" v-if="i.item?.__typename === 'Episode'">
-                    <h3 class="text-sm text-primary w-full">
+                    <h3 class="text-sm text-primary w-full" v-if="i.item.season">
                         {{ i.item.season?.show.title
                         }}<span class="ml-1 text-gray"
                             >S{{ i.item.season?.number }}:E{{
@@ -24,14 +24,10 @@
                             }}</span
                         >
                     </h3>
-                    <h1 :class="style.title">
-                        {{ i.title }}
-                    </h1>
+                    <SectionTitle>{{i.title}}</SectionTitle>
                 </div>
                 <div class="mt-1" v-if="i.item?.__typename === 'Show'">
-                    <h1 :class="style.title">
-                        {{ i.title }}
-                    </h1>
+                    <SectionTitle>{{i.title}}</SectionTitle>
                     <p class="text-gray">
                         {{ t("section.item.season", i.item.seasonCount) }} -
                         {{ t("section.item.episode", i.item.episodeCount) }}
@@ -47,11 +43,6 @@ import { Section } from "./types"
 import { Navigation, Pagination } from "swiper"
 import { useI18n } from "vue-i18n"
 
-import "swiper/css"
-
-import "swiper/css/pagination"
-import "swiper/css/navigation"
-
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { computed } from "vue"
 import SectionTitle from "./SectionTitle.vue"
@@ -65,19 +56,4 @@ const props = defineProps<{
 }>()
 
 const modules = [Navigation, Pagination]
-
-const style = computed(() => {
-    return (
-        {
-            small: {
-                title: "text-md lg:text-lg",
-            },
-            medium: {
-                title: "text-sm lg:text-lg",
-            },
-        }[props.item.size] ?? {
-            title: "text-md lg:text-lg",
-        }
-    )
-})
 </script>

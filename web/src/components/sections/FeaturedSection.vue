@@ -43,11 +43,6 @@ import { Section } from "./types"
 
 import { Navigation, Pagination, SwiperOptions } from "swiper"
 
-import "swiper/css"
-
-import "swiper/css/pagination"
-import "swiper/css/navigation"
-
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { computed } from "vue"
 import SectionTitle from "./SectionTitle.vue"

@@ -11,6 +11,6 @@ import { Section } from "./types"
 import SectionTitle from "./SectionTitle.vue"
 
 defineProps<{
-    item: Section & { __typename: "GridSection" }
+    item: Section & { __typename: "DefaultGridSection" }
 }>()
 </script>
