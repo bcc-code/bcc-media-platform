@@ -13,7 +13,7 @@ specifiers:
   '@urql/vue': ^1.0.2
   '@vitejs/plugin-vue': ^3.1.2
   autoprefixer: ^10.4.12
-  bccm-video-player: 1.2.4
+  bccm-video-player: ^1.2.4
   eslint: ^8.26.0
   eslint-config-prettier: ^8.5.0
   eslint-plugin-prettier-vue: ^4.2.0
@@ -1864,8 +1864,8 @@ packages:
       videojs-event-tracking: 1.0.3
       videojs-mux: 4.8.5
       vue: 3.2.41
-      youbora-adapter-videojs: 6.8.11
-      youboralib: 6.8.32
+      youbora-adapter-videojs: 6.8.12
+      youboralib: 6.8.33
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -4902,16 +4902,16 @@ packages:
   /youbora-adapter-freewheel/6.8.2:
     resolution: {integrity: sha512-7fNsMqe5ciQ3GA1YiqSZmoKWDtmAQjLAfBpVZkdlTp0/J0t4oeTKt0E5uk2EhVusnBdzkn33OW48Kujl+eNwCA==}
     dependencies:
-      youboralib: 6.8.32
+      youboralib: 6.8.33
     dev: false
 
-  /youbora-adapter-videojs/6.8.11:
-    resolution: {integrity: sha512-4PTlUfGuRkng3X2vcjCGDhzLleNlZ41v/0ibpU3cJrTzdGyB+ylDs62Y127GDueQF6E+ykMY1w64DDir6uWLgg==}
+  /youbora-adapter-videojs/6.8.12:
+    resolution: {integrity: sha512-Dp+b2kFXDBtWOH3GUdPFA2p3bqaykc+bUMFKn8xPdzbCQRStSoxIKGuUek20UkksyV7Vo6f/5JYXavFekE/73Q==}
     dependencies:
       youbora-adapter-freewheel: 6.8.2
-      youboralib: 6.8.32
+      youboralib: 6.8.33
     dev: false
 
-  /youboralib/6.8.32:
-    resolution: {integrity: sha512-RnyBx3LFhFMvwCQ10inzDQZDn62dQENxlJHtfemLut/Iwfb6D4Bg2mLB9DQkx7ruoush63z6ZfbU9C4TQrxUlw==}
+  /youboralib/6.8.33:
+    resolution: {integrity: sha512-+JZGAQ89zcD9cSqj6gUiSLTZStCogM96LNmN+qn7OI4zJgdmMdCDRDDFRNk9q+62LihaFkdqRcaUPkibpseDlA==}
     dev: false

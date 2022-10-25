@@ -14,8 +14,8 @@
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div class="flex flex-col aspect-[9/16] rounded rounded-md mx-2 mt-1">
                     <img
-                        class="rounded-md top-0 h-full w-full object-cover border-2 border-slate-800"
-                        :src="i.image + '?w=1080'"
+                        :src="i.image + `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`"
+                        class="rounded-md top-0 h-full w-full object-cover mb-1"
                     />
                     <div class="mt-1" v-if="i.item?.__typename === 'Episode'">
                         <h3 class="text-sm text-primary w-full" v-if="i.item.season">
@@ -51,12 +51,26 @@ import SectionTitle from "./SectionTitle.vue"
 import breakpoints from "./breakpoints"
 import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
+import { computed } from "vue"
 
 const { t } = useI18n()
 
-defineProps<{
+const props = defineProps<{
     item: Section & { __typename: "PosterSection" }
 }>()
 
 const modules = [Navigation, Pagination]
+
+const imageSize = computed(() => {
+    return {
+        small: {
+            height: 800,
+            width: 450,
+        },
+        medium: {
+            height: 800,
+            width: 450,
+        },
+    }[props.item.size]
+})
 </script>

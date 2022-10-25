@@ -10,11 +10,11 @@
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div class="flex flex-col cursor-pointer mx-2 mt-2">
                     <img
-                        :src="i.image + '?h=400'"
+                        :src="i.image + `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`"
                         class="rounded-md top-0 h-full w-full object-cover mb-1"
                     />
                     <div v-if="i.item?.__typename === 'Episode'">
-                        <h3 class="text-sm text-primary w-full">
+                        <h3 class="text-sm text-primary w-full" v-if="i.item.season">
                             {{ i.item.season?.show.title
                             }}<span class="ml-1 text-gray"
                                 >S{{ i.item.season?.number }}:E{{
@@ -22,9 +22,7 @@
                                 }}</span
                             >
                         </h3>
-                        <h1 :class="style.title">
-                            {{ i.title }}
-                        </h1>
+                        <SectionTitle>{{i.title}}</SectionTitle>
                     </div>
                     <div v-else-if="i.item?.__typename === 'Season'">
                         <h3 class="text-sm text-primary w-full">
@@ -33,14 +31,10 @@
                                 >S{{ i.item.seasonNumber }}</span
                             >
                         </h3>
-                        <h1 :class="style.title">
-                            {{ i.title }}
-                        </h1>
+                        <SectionTitle>{{i.title}}</SectionTitle>
                     </div>
                     <div v-else-if="i.item?.__typename === 'Show'">
-                        <h1 :class="style.title">
-                            {{ i.title }}
-                        </h1>
+                        <SectionTitle>{{i.title}}</SectionTitle>
                         <p class="text-gray">
                             {{ t("section.item.season", i.item.seasonCount) }} -
                             {{ t("section.item.episode", i.item.episodeCount) }}
@@ -73,13 +67,15 @@ const props = defineProps<{
 
 const modules = [Navigation, Pagination]
 
-const style = computed(() => {
+const imageSize = computed(() => {
     return {
         small: {
-            title: "text-md lg:text-lg",
+            height: 225,
+            width: 400,
         },
         medium: {
-            title: "text-md lg:text-lg",
+            height: 225,
+            width: 400,
         },
     }[props.item.size]
 })
