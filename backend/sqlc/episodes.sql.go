@@ -100,6 +100,48 @@ func (q *Queries) getEpisodeIDsForSeasonsWithRoles(ctx context.Context, arg getE
 	return items, nil
 }
 
+const getEpisodeIDsWithRoles = `-- name: getEpisodeIDsWithRoles :many
+SELECT e.id
+FROM episodes e
+         LEFT JOIN episode_availability access ON access.id = e.id
+         LEFT JOIN episode_roles roles ON roles.id = e.id
+WHERE e.id = ANY ($1::int[])
+  AND access.published
+  AND access.available_to > now()
+  AND (
+        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+        (roles.roles_earlyaccess && $2::varchar[])
+    )
+`
+
+type getEpisodeIDsWithRolesParams struct {
+	Column1 []int32  `db:"column_1" json:"column1"`
+	Column2 []string `db:"column_2" json:"column2"`
+}
+
+func (q *Queries) getEpisodeIDsWithRoles(ctx context.Context, arg getEpisodeIDsWithRolesParams) ([]int32, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeIDsWithRoles, pq.Array(arg.Column1), pq.Array(arg.Column2))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int32
+	for rows.Next() {
+		var id int32
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getEpisodes = `-- name: getEpisodes :many
 WITH ts AS (SELECT episodes_id,
                    json_object_agg(languages_code, title)             AS title,
@@ -124,16 +166,16 @@ SELECT e.id,
        e.episode_number,
        e.publish_date,
        COALESCE(e.publish_date_in_title, sh.type = 'event', false) AS publish_date_in_title,
-       fs.filename_disk                                  as image_file_name,
+       fs.filename_disk                                            as image_file_name,
        e.season_id,
        e.type,
-       COALESCE(img.json, '[]')                          as images,
+       COALESCE(img.json, '[]')                                    as images,
        ts.title,
        ts.description,
        ts.extra_description,
-       tags.tags::int[]                                  AS tag_ids,
-       assets.duration                                   as duration,
-       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating
+       tags.tags::int[]                                            AS tag_ids,
+       assets.duration                                             as duration,
+       COALESCE(e.agerating_code, s.agerating_code, 'A')           as agerating
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
@@ -286,16 +328,16 @@ SELECT e.id,
        e.episode_number,
        e.publish_date,
        COALESCE(e.publish_date_in_title, sh.type = 'event', false) AS publish_date_in_title,
-       fs.filename_disk                                  as image_file_name,
+       fs.filename_disk                                            as image_file_name,
        e.season_id,
        e.type,
-       COALESCE(img.json, '[]')                          as images,
+       COALESCE(img.json, '[]')                                    as images,
        ts.title,
        ts.description,
        ts.extra_description,
-       tags.tags::int[]                                  AS tag_ids,
-       assets.duration                                   as duration,
-       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating
+       tags.tags::int[]                                            AS tag_ids,
+       assets.duration                                             as duration,
+       COALESCE(e.agerating_code, s.agerating_code, 'A')           as agerating
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id

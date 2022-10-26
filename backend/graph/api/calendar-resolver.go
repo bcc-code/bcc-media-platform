@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -15,7 +16,7 @@ func getForPeriod[k comparable, t any](ctx context.Context, loader *dataloader.L
 	if err != nil {
 		return nil, err
 	}
-	items, err := common.GetManyFromLoader(ctx, loader, ids)
+	items, err := batchloaders.GetMany(ctx, loader, ids)
 	if err != nil {
 		return nil, err
 	}

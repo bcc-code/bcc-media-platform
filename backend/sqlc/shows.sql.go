@@ -70,6 +70,48 @@ func (q *Queries) getPermissionsForShows(ctx context.Context, dollar_1 []int32) 
 	return items, nil
 }
 
+const getShowIDsWithRoles = `-- name: getShowIDsWithRoles :many
+SELECT sh.id
+FROM shows sh
+         LEFT JOIN show_availability access ON access.id = sh.id
+         LEFT JOIN show_roles roles ON roles.id = sh.id
+WHERE sh.id = ANY ($1::int[])
+  AND access.published
+  AND access.available_to > now()
+  AND (
+        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+        (roles.roles_earlyaccess && $2::varchar[])
+    )
+`
+
+type getShowIDsWithRolesParams struct {
+	Column1 []int32  `db:"column_1" json:"column1"`
+	Column2 []string `db:"column_2" json:"column2"`
+}
+
+func (q *Queries) getShowIDsWithRoles(ctx context.Context, arg getShowIDsWithRolesParams) ([]int32, error) {
+	rows, err := q.db.QueryContext(ctx, getShowIDsWithRoles, pq.Array(arg.Column1), pq.Array(arg.Column2))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int32
+	for rows.Next() {
+		var id int32
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getShows = `-- name: getShows :many
 WITH ts AS (SELECT shows_id,
                    json_object_agg(languages_code, title)       AS title,

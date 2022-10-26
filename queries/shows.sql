@@ -60,6 +60,19 @@ FROM shows sh
          LEFT JOIN directus_files fs ON fs.id = sh.image_file_id
 WHERE sh.id = ANY ($1::int[]);
 
+-- name: getShowIDsWithRoles :many
+SELECT sh.id
+FROM shows sh
+         LEFT JOIN show_availability access ON access.id = sh.id
+         LEFT JOIN show_roles roles ON roles.id = sh.id
+WHERE sh.id = ANY ($1::int[])
+  AND access.published
+  AND access.available_to > now()
+  AND (
+        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+        (roles.roles_earlyaccess && $2::varchar[])
+    );
+
 -- name: getPermissionsForShows :many
 SELECT sh.id,
        access.published::boolean          AS published,

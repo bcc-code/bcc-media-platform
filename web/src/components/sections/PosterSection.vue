@@ -17,24 +17,7 @@
                         :src="i.image + `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`"
                         class="rounded-md top-0 h-full w-full object-cover mb-1"
                     />
-                    <div class="mt-1" v-if="i.item?.__typename === 'Episode'">
-                        <h3 class="text-sm text-primary w-full" v-if="i.item.season">
-                            {{ i.item.season?.show.title
-                            }}<span class="ml-1 text-gray"
-                                >S{{ i.item.season?.number }}:E{{
-                                    i.item.episodeNumber
-                                }}</span
-                            >
-                        </h3>
-                        <SectionTitle>{{i.title}}</SectionTitle>
-                    </div>
-                    <div class="mt-1" v-if="i.item?.__typename === 'Show'">
-                        <SectionTitle>{{i.title}}</SectionTitle>
-                        <p class="text-gray">
-                            {{ t("section.item.season", i.item.seasonCount) }} -
-                            {{ t("section.item.episode", i.item.episodeCount) }}
-                        </p>
-                    </div>
+                    <SectionItemTitle :i="i"></SectionItemTitle>
                 </div>
             </SwiperSlide>
         </Swiper>
@@ -52,6 +35,7 @@ import breakpoints from "./breakpoints"
 import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import { computed } from "vue"
+import SectionItemTitle from "./SectionItemTitle.vue"
 
 const { t } = useI18n()
 

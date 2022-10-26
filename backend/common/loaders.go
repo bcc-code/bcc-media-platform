@@ -1,0 +1,54 @@
+package common
+
+import (
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
+	"github.com/graph-gophers/dataloader/v7"
+)
+
+// BatchLoaders contains loaders for the different items
+type BatchLoaders struct {
+	ApplicationLoader           *dataloader.Loader[int, *Application]
+	ApplicationIDFromCodeLoader *dataloader.Loader[string, *int]
+	PageLoader                  *dataloader.Loader[int, *Page]
+	PageIDFromCodeLoader        *dataloader.Loader[string, *int]
+	SectionLoader               *dataloader.Loader[int, *Section]
+	SectionsLoader              *dataloader.Loader[int, []*int]
+	CollectionLoader            *dataloader.Loader[int, *Collection]
+	CollectionItemLoader        *dataloader.Loader[int, []*CollectionItem]
+	ShowLoader                  *dataloader.Loader[int, *Show]
+	SeasonLoader                *dataloader.Loader[int, *Season]
+	EpisodeLoader               *dataloader.Loader[int, *Episode]
+	LinkLoader                  *dataloader.Loader[int, *Link]
+	FilesLoader                 *dataloader.Loader[int, []*File]
+	StreamsLoader               *dataloader.Loader[int, []*Stream]
+	EventLoader                 *dataloader.Loader[int, *Event]
+	CalendarEntryLoader         *dataloader.Loader[int, *CalendarEntry]
+	FAQCategoryLoader           *dataloader.Loader[int, *FAQCategory]
+	QuestionLoader              *dataloader.Loader[int, *Question]
+	QuestionsLoader             *dataloader.Loader[int, []*int]
+	ProfilesLoader              *dataloader.Loader[string, []*Profile]
+	MessageGroupLoader          *dataloader.Loader[int, *MessageGroup]
+	// Permissions
+	ShowPermissionLoader    *dataloader.Loader[int, *Permissions[int]]
+	SeasonPermissionLoader  *dataloader.Loader[int, *Permissions[int]]
+	EpisodePermissionLoader *dataloader.Loader[int, *Permissions[int]]
+	PagePermissionLoader    *dataloader.Loader[int, *Permissions[int]]
+	SectionPermissionLoader *dataloader.Loader[int, *Permissions[int]]
+}
+
+// FilteredLoaders contains loaders that will be filtered by permissions.
+type FilteredLoaders struct {
+	EpisodeFilterLoader     *dataloader.Loader[int, *int]
+	EpisodesLoader          *dataloader.Loader[int, []*int]
+	SeasonFilterLoader      *dataloader.Loader[int, *int]
+	SeasonsLoader           *dataloader.Loader[int, []*int]
+	ShowFilterLoader        *dataloader.Loader[int, *int]
+	SectionsLoader          *dataloader.Loader[int, []*int]
+	CollectionItemsLoader   *dataloader.Loader[int, []*CollectionItem]
+	CollectionItemIDsLoader *dataloader.Loader[int, []int]
+}
+
+// ProfileLoaders contains loaders per profile
+type ProfileLoaders struct {
+	ProgressLoader *batchloaders.BatchLoader[int, *Progress]
+}

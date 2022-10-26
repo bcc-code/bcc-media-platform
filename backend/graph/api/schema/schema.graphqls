@@ -90,5 +90,5 @@ type QueryRoot{
 
 type MutationRoot {
   setDevicePushToken(token: String!): Device
-#  createProfile(name: String!): Profile
+  setEpisodeProgress(id: ID!, progress: Int, duration: Int): Episode!
 }

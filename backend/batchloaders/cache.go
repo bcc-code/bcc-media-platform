@@ -1,4 +1,4 @@
-package common
+package batchloaders
 
 import (
 	"context"
@@ -7,15 +7,15 @@ import (
 	"time"
 )
 
-const expiration = time.Minute * 5
-
 type loaderCache[K comparable, V any] struct {
-	cache *cache.Cache[K, dataloader.Thunk[V]]
+	expiration time.Duration
+	cache      *cache.Cache[K, dataloader.Thunk[V]]
 }
 
-func newLoaderCache[K comparable, V any]() *loaderCache[K, V] {
+func newMemoryLoaderCache[K comparable, V any](expiration time.Duration) *loaderCache[K, V] {
 	return &loaderCache[K, V]{
-		cache: cache.New[K, dataloader.Thunk[V]](),
+		expiration: expiration,
+		cache:      cache.New[K, dataloader.Thunk[V]](),
 	}
 }
 
@@ -26,7 +26,7 @@ func (c *loaderCache[K, V]) Get(ctx context.Context, key K) (dataloader.Thunk[V]
 
 // Set sets the specified key to value
 func (c *loaderCache[K, V]) Set(ctx context.Context, key K, val dataloader.Thunk[V]) {
-	c.cache.Set(key, val, cache.WithExpiration(expiration))
+	c.cache.Set(key, val, cache.WithExpiration(c.expiration))
 }
 
 // Delete deletes the specified key
@@ -38,4 +38,19 @@ func (c *loaderCache[K, V]) Delete(ctx context.Context, key K) bool {
 // Clear clears the entire cache
 func (c *loaderCache[K, V]) Clear() {
 	c.cache = cache.New[K, dataloader.Thunk[V]]()
+}
+
+func (mc memoryCache) isOption() {
+
+}
+
+type memoryCache struct {
+	expiration time.Duration
+}
+
+// WithMemoryCache defines how long a key should live in the cache
+func WithMemoryCache(expiration time.Duration) Option {
+	return memoryCache{
+		expiration: expiration,
+	}
 }

@@ -3,6 +3,7 @@ package search
 import (
 	"database/sql"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/items/episode"
 	"github.com/bcc-code/brunstadtv/backend/items/season"
@@ -68,7 +69,7 @@ func New(db *sql.DB, config Config) *Service {
 		ShowLoader:    show.NewBatchLoader(*service.queries),
 		SeasonLoader:  season.NewBatchLoader(*service.queries),
 		EpisodeLoader: episode.NewBatchLoader(*service.queries),
-		TagLoader:     common.NewBatchLoader(service.queries.GetTags),
+		TagLoader:     batchloaders.NewLoader(service.queries.GetTags),
 		// Permissions
 		ShowPermissionLoader:    show.NewPermissionLoader(*service.queries),
 		SeasonPermissionLoader:  season.NewPermissionLoader(*service.queries),

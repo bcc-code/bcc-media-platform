@@ -3,6 +3,7 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -85,12 +86,12 @@ func (row getPageIDsForCodesRow) GetResult() int {
 }
 
 // GetPageIDsForCodes returns ids for the requested codes
-func (q *Queries) GetPageIDsForCodes(ctx context.Context, codes []string) ([]common.Conversion[string, int], error) {
+func (q *Queries) GetPageIDsForCodes(ctx context.Context, codes []string) ([]batchloaders.Conversion[string, int], error) {
 	rows, err := q.getPageIDsForCodes(ctx, codes)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getPageIDsForCodesRow, _ int) common.Conversion[string, int] {
+	return lo.Map(rows, func(i getPageIDsForCodesRow, _ int) batchloaders.Conversion[string, int] {
 		return i
 	}), nil
 }
