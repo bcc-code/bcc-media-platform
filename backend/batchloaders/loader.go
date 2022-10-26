@@ -188,14 +188,30 @@ type HasKey[k comparable] interface {
 	GetKey() k
 }
 
+type keyFunc[K comparable, V any] func(V) K
+
 // New creates a new batch loader
-func New[K comparable, V HasKey[K]](
+func New[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	opts ...any,
 ) *BatchLoader[K, *V] {
-	loader := NewCustomLoader(factory, func(i V) K {
-		return i.GetKey()
-	}, opts...)
+	var getKey func(V) K
+	for _, opt := range opts {
+		switch t := opt.(type) {
+		case keyFunc[K, V]:
+			getKey = t
+		}
+	}
+	if getKey == nil {
+		var i V
+		if _, ok := any(i).(HasKey[K]); !ok {
+			panic("Couldn't determine key for item")
+		}
+		getKey = func(i V) K {
+			return any(i).(HasKey[K]).GetKey()
+		}
+	}
+	loader := NewCustomLoader(factory, getKey, opts...)
 	return &BatchLoader[K, *V]{
 		loader,
 	}

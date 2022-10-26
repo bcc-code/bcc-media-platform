@@ -248,22 +248,22 @@ func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code st
 }
 
 func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
-	collectionLoader := batchloaders.NewLoader(queries.GetCollections)
+	collectionLoader := batchloaders.New(queries.GetCollections).Loader
 
 	return &common.BatchLoaders{
 		// App
 		ApplicationLoader:           batchloaders.NewLoader(queries.GetApplications),
 		ApplicationIDFromCodeLoader: batchloaders.NewConversionLoader[string, int](queries.GetApplicationIDsForCodes),
 		// Item
-		PageLoader:           batchloaders.NewLoader(queries.GetPages),
+		PageLoader:           batchloaders.New(queries.GetPages).Loader,
 		PageIDFromCodeLoader: batchloaders.NewConversionLoader[string, int](queries.GetPageIDsForCodes),
-		SectionLoader:        batchloaders.NewLoader(queries.GetSections),
-		ShowLoader:           batchloaders.NewLoader(queries.GetShows),
-		SeasonLoader:         batchloaders.NewLoader(queries.GetSeasons),
-		EpisodeLoader:        batchloaders.NewLoader(queries.GetEpisodes),
-		LinkLoader:           batchloaders.NewLoader(queries.GetLinks),
-		EventLoader:          batchloaders.NewLoader(queries.GetEvents),
-		CalendarEntryLoader:  batchloaders.NewLoader(queries.GetCalendarEntries),
+		SectionLoader:        batchloaders.New(queries.GetSections).Loader,
+		ShowLoader:           batchloaders.New(queries.GetShows).Loader,
+		SeasonLoader:         batchloaders.New(queries.GetSeasons).Loader,
+		EpisodeLoader:        batchloaders.New(queries.GetEpisodes).Loader,
+		LinkLoader:           batchloaders.New(queries.GetLinks).Loader,
+		EventLoader:          batchloaders.New(queries.GetEvents).Loader,
+		CalendarEntryLoader:  batchloaders.New(queries.GetCalendarEntries).Loader,
 		FilesLoader:          asset.NewBatchFilesLoader(*queries),
 		StreamsLoader:        asset.NewBatchStreamsLoader(*queries),
 		CollectionLoader:     collectionLoader,
