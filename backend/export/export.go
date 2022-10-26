@@ -226,7 +226,7 @@ func exportSections(ctx context.Context, r graphapi.Resolver, liteQueries sqlexp
 	neededCollectionIDs := map[int]interface{}{}
 	for _, s := range sections {
 
-		allowedPageIDs[s.ID] = nil
+		allowedPageIDs[s.PageID] = nil
 		neededCollectionIDs[int(s.CollectionID.ValueOrZero())] = nil
 
 		liteQueries.InsertSection(ctx, sqlexport.InsertSectionParams{
