@@ -122,7 +122,7 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 		}, *id, model.PageFrom)
 	}
 	if code != nil {
-		intID, err := batchloaders.GetFromLoaderByID(ctx, r.Loaders.PageIDFromCodeLoader, *code)
+		intID, err := batchloaders.GetByID(ctx, r.Loaders.PageIDFromCodeLoader, *code)
 		if err != nil {
 			return nil, err
 		}

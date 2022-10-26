@@ -104,7 +104,6 @@ func (service *Service) Reindex(ctx context.Context) error {
 func (service *Service) indexShows(ctx context.Context, index *search.Index) error {
 	return indexCollection[int, common.Show](
 		ctx,
-		service,
 		index,
 		service.loaders.ShowLoader,
 		service.loaders.ShowPermissionLoader,
@@ -118,7 +117,7 @@ func (service *Service) indexShow(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	p, err := batchloaders.GetFromLoaderByID(ctx, service.loaders.ShowPermissionLoader, id)
+	p, err := batchloaders.GetByID(ctx, service.loaders.ShowPermissionLoader, id)
 	if err != nil {
 		return err
 	}
@@ -128,7 +127,6 @@ func (service *Service) indexShow(ctx context.Context, id int) error {
 func (service *Service) indexSeasons(ctx context.Context, index *search.Index) error {
 	return indexCollection[int, common.Season](
 		ctx,
-		service,
 		index,
 		service.loaders.SeasonLoader,
 		service.loaders.SeasonPermissionLoader,
@@ -142,7 +140,7 @@ func (service *Service) indexSeason(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	p, err := batchloaders.GetFromLoaderByID(ctx, service.loaders.SeasonPermissionLoader, id)
+	p, err := batchloaders.GetByID(ctx, service.loaders.SeasonPermissionLoader, id)
 	if err != nil {
 		return err
 	}
@@ -152,7 +150,6 @@ func (service *Service) indexSeason(ctx context.Context, id int) error {
 func (service *Service) indexEpisodes(ctx context.Context, index *search.Index) error {
 	return indexCollection[int, common.Episode](
 		ctx,
-		service,
 		index,
 		service.loaders.EpisodeLoader,
 		service.loaders.EpisodePermissionLoader,
@@ -166,7 +163,7 @@ func (service *Service) indexEpisode(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	p, err := batchloaders.GetFromLoaderByID(ctx, service.loaders.EpisodePermissionLoader, id)
+	p, err := batchloaders.GetByID(ctx, service.loaders.EpisodePermissionLoader, id)
 	if err != nil {
 		return err
 	}
@@ -179,7 +176,6 @@ type indexable[k comparable] interface {
 
 func indexCollection[k comparable, t indexable[k]](
 	ctx context.Context,
-	service *Service,
 	index *search.Index,
 	loader *dataloader.Loader[k, *t],
 	permissionLoader *dataloader.Loader[k, *common.Permissions[k]],
@@ -218,7 +214,7 @@ func indexCollection[k comparable, t indexable[k]](
 			return err
 		}
 
-		perm, err := batchloaders.GetFromLoaderByID(ctx, permissionLoader, i.GetKey())
+		perm, err := batchloaders.GetByID(ctx, permissionLoader, i.GetKey())
 		if err != nil {
 			return err
 		}

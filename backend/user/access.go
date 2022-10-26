@@ -27,7 +27,7 @@ func ValidateAccess[k comparable](ctx context.Context, permissionLoader *dataloa
 	}
 	rs := GetRolesFromCtx(ginCtx)
 
-	perms, err := batchloaders.GetFromLoaderByID(ctx, permissionLoader, id)
+	perms, err := batchloaders.GetByID(ctx, permissionLoader, id)
 	if err != nil {
 		return err
 	}

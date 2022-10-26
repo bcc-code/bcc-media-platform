@@ -9,7 +9,7 @@ import (
 
 // NewPermissionLoader returns a loader for permissions
 func NewPermissionLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Permissions[int]] {
-	return batchloaders.NewCustomBatchLoader(queries.GetPermissionsForSections, func(i common.Permissions[int]) int {
+	return batchloaders.NewCustomLoader(queries.GetPermissionsForSections, func(i common.Permissions[int]) int {
 		return i.ItemID
 	})
 }

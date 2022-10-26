@@ -9,12 +9,12 @@ import (
 
 // NewBatchLoader returns a configured batch loader for episodes
 func NewBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Episode] {
-	return batchloaders.NewBatchLoader(queries.GetEpisodes)
+	return batchloaders.NewLoader(queries.GetEpisodes)
 }
 
 // NewPermissionLoader returns a loader for permissions
 func NewPermissionLoader(queries sqlc.Queries) *dataloader.Loader[int, *common.Permissions[int]] {
-	return batchloaders.NewCustomBatchLoader(queries.GetPermissionsForEpisodes, func(i common.Permissions[int]) int {
+	return batchloaders.NewCustomLoader(queries.GetPermissionsForEpisodes, func(i common.Permissions[int]) int {
 		return i.ItemID
 	})
 }

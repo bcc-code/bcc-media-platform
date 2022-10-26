@@ -16,7 +16,7 @@ func getForPeriod[k comparable, t any](ctx context.Context, loader *dataloader.L
 	if err != nil {
 		return nil, err
 	}
-	items, err := batchloaders.GetManyFromLoader(ctx, loader, ids)
+	items, err := batchloaders.GetMany(ctx, loader, ids)
 	if err != nil {
 		return nil, err
 	}

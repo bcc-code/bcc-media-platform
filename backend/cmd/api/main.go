@@ -65,10 +65,10 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 		ShowFilterLoader:    batchloaders.NewFilterLoader(rq.GetShowIDsWithRoles),
 		SeasonFilterLoader:  batchloaders.NewFilterLoader(rq.GetSeasonIDsWithRoles),
 		EpisodeFilterLoader: batchloaders.NewFilterLoader(rq.GetEpisodeIDsWithRoles),
-		SeasonsLoader:       batchloaders.NewRelationBatchLoader(rq.GetSeasonIDsForShowsWithRoles),
-		SectionsLoader:      batchloaders.NewRelationBatchLoader(rq.GetSectionIDsForPagesWithRoles),
-		EpisodesLoader:      batchloaders.NewRelationBatchLoader(rq.GetEpisodeIDsForSeasonsWithRoles),
-		CollectionItemsLoader: batchloaders.NewListBatchLoader(rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
+		SeasonsLoader:       batchloaders.NewRelationLoader(rq.GetSeasonIDsForShowsWithRoles),
+		SectionsLoader:      batchloaders.NewRelationLoader(rq.GetSectionIDsForPagesWithRoles),
+		EpisodesLoader:      batchloaders.NewRelationLoader(rq.GetEpisodeIDsForSeasonsWithRoles),
+		CollectionItemsLoader: batchloaders.NewListLoader(rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
 			return i.CollectionID
 		}),
 		CollectionItemIDsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader, roles),
@@ -102,7 +102,7 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 
 	profileQueries := queries.ProfileQueries(profileID)
 	loaders := &common.ProfileLoaders{
-		ProgressLoader: batchloaders.NewBatchLoader(profileQueries.GetProgressForEpisodes, batchloaders.WithMemoryCache(time.Second*5)),
+		ProgressLoader: batchloaders.NewLoader(profileQueries.GetProgressForEpisodes, batchloaders.WithMemoryCache(time.Second*5)),
 	}
 
 	profilesLoaderCache.Set(profileID, loaders, cache.WithExpiration(time.Minute*5))
@@ -248,40 +248,40 @@ func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code st
 }
 
 func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
-	collectionLoader := batchloaders.NewBatchLoader(queries.GetCollections)
+	collectionLoader := batchloaders.NewLoader(queries.GetCollections)
 
 	return &common.BatchLoaders{
 		// App
-		ApplicationLoader:           batchloaders.NewBatchLoader(queries.GetApplications),
-		ApplicationIDFromCodeLoader: batchloaders.NewConversionBatchLoader(queries.GetApplicationIDsForCodes),
+		ApplicationLoader:           batchloaders.NewLoader(queries.GetApplications),
+		ApplicationIDFromCodeLoader: batchloaders.NewConversionLoader(queries.GetApplicationIDsForCodes),
 		// Item
-		PageLoader:           batchloaders.NewBatchLoader(queries.GetPages),
-		PageIDFromCodeLoader: batchloaders.NewConversionBatchLoader(queries.GetPageIDsForCodes),
-		SectionLoader:        batchloaders.NewBatchLoader(queries.GetSections),
-		ShowLoader:           batchloaders.NewBatchLoader(queries.GetShows),
-		SeasonLoader:         batchloaders.NewBatchLoader(queries.GetSeasons),
-		EpisodeLoader:        batchloaders.NewBatchLoader(queries.GetEpisodes),
-		LinkLoader:           batchloaders.NewBatchLoader(queries.GetLinks),
-		EventLoader:          batchloaders.NewBatchLoader(queries.GetEvents),
-		CalendarEntryLoader:  batchloaders.NewBatchLoader(queries.GetCalendarEntries),
+		PageLoader:           batchloaders.NewLoader(queries.GetPages),
+		PageIDFromCodeLoader: batchloaders.NewConversionLoader(queries.GetPageIDsForCodes),
+		SectionLoader:        batchloaders.NewLoader(queries.GetSections),
+		ShowLoader:           batchloaders.NewLoader(queries.GetShows),
+		SeasonLoader:         batchloaders.NewLoader(queries.GetSeasons),
+		EpisodeLoader:        batchloaders.NewLoader(queries.GetEpisodes),
+		LinkLoader:           batchloaders.NewLoader(queries.GetLinks),
+		EventLoader:          batchloaders.NewLoader(queries.GetEvents),
+		CalendarEntryLoader:  batchloaders.NewLoader(queries.GetCalendarEntries),
 		FilesLoader:          asset.NewBatchFilesLoader(*queries),
 		StreamsLoader:        asset.NewBatchStreamsLoader(*queries),
 		CollectionLoader:     collectionLoader,
 		CollectionItemLoader: collection.NewItemListBatchLoader(*queries),
 		// Relations
-		SectionsLoader: batchloaders.NewRelationBatchLoader(queries.GetSectionIDsForPages),
+		SectionsLoader: batchloaders.NewRelationLoader(queries.GetSectionIDsForPages),
 		// Permissions
 		ShowPermissionLoader:    show.NewPermissionLoader(*queries),
 		SeasonPermissionLoader:  season.NewPermissionLoader(*queries),
 		EpisodePermissionLoader: episode.NewPermissionLoader(*queries),
 		PagePermissionLoader:    page.NewPermissionLoader(*queries),
 		SectionPermissionLoader: section.NewPermissionLoader(*queries),
-		FAQCategoryLoader:       batchloaders.NewBatchLoader(queries.GetFAQCategories),
-		QuestionLoader:          batchloaders.NewBatchLoader(queries.GetQuestions),
-		QuestionsLoader:         batchloaders.NewRelationBatchLoader(queries.GetQuestionIDsForCategories),
-		MessageGroupLoader:      batchloaders.NewBatchLoader(queries.GetMessageGroups),
+		FAQCategoryLoader:       batchloaders.NewLoader(queries.GetFAQCategories),
+		QuestionLoader:          batchloaders.NewLoader(queries.GetQuestions),
+		QuestionsLoader:         batchloaders.NewRelationLoader(queries.GetQuestionIDsForCategories),
+		MessageGroupLoader:      batchloaders.NewLoader(queries.GetMessageGroups),
 		// User Data
-		ProfilesLoader: batchloaders.NewListBatchLoader(queries.GetProfilesForUserIDs, func(i common.Profile) string {
+		ProfilesLoader: batchloaders.NewListLoader(queries.GetProfilesForUserIDs, func(i common.Profile) string {
 			return i.UserID
 		}),
 	}

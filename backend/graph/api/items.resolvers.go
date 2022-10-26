@@ -16,7 +16,7 @@ import (
 
 // Image is the resolver for the image field.
 func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *model.ImageStyle) (*string, error) {
-	e, err := batchloaders.GetFromLoaderByID(ctx, r.Loaders.EpisodeLoader, utils.AsInt(obj.ID))
+	e, err := batchloaders.GetByID(ctx, r.Loaders.EpisodeLoader, utils.AsInt(obj.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *
 // Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*model.Stream, error) {
 	intID, _ := strconv.ParseInt(obj.ID, 10, 32)
-	streams, err := batchloaders.GetFromLoaderForKey(ctx, r.Resolver.Loaders.StreamsLoader, int(intID))
+	streams, err := batchloaders.GetForKey(ctx, r.Resolver.Loaders.StreamsLoader, int(intID))
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode) ([]*mod
 		return nil, err
 	}
 
-	files, err := batchloaders.GetFromLoaderForKey(ctx, r.Resolver.Loaders.FilesLoader, int(intID))
+	files, err := batchloaders.GetForKey(ctx, r.Resolver.Loaders.FilesLoader, int(intID))
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*in
 	if profileLoaders == nil {
 		return nil, nil
 	}
-	progress, err := batchloaders.GetFromLoaderByID(ctx, profileLoaders.ProgressLoader, utils.AsInt(obj.ID))
+	progress, err := batchloaders.GetByID(ctx, profileLoaders.ProgressLoader, utils.AsInt(obj.ID))
 	if err != nil || progress == nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*in
 
 // Image is the resolver for the image field.
 func (r *seasonResolver) Image(ctx context.Context, obj *model.Season, style *model.ImageStyle) (*string, error) {
-	e, err := batchloaders.GetFromLoaderByID(ctx, r.Loaders.SeasonLoader, utils.AsInt(obj.ID))
+	e, err := batchloaders.GetByID(ctx, r.Loaders.SeasonLoader, utils.AsInt(obj.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -105,14 +105,14 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first 
 		return nil, err
 	}
 
-	itemIDs, err := batchloaders.GetFromLoaderForKey(ctx, r.FilteredLoaders(ctx).EpisodesLoader, int(intID))
+	itemIDs, err := batchloaders.GetForKey(ctx, r.FilteredLoaders(ctx).EpisodesLoader, int(intID))
 	if err != nil {
 		return nil, err
 	}
 
 	page := utils.Paginate(itemIDs, first, offset, dir)
 
-	episodes, err := batchloaders.GetManyFromLoader(ctx, r.Loaders.EpisodeLoader, utils.PointerIntArrayToIntArray(page.Items))
+	episodes, err := batchloaders.GetMany(ctx, r.Loaders.EpisodeLoader, utils.PointerIntArrayToIntArray(page.Items))
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first 
 
 // Image is the resolver for the image field.
 func (r *showResolver) Image(ctx context.Context, obj *model.Show, style *model.ImageStyle) (*string, error) {
-	e, err := batchloaders.GetFromLoaderByID(ctx, r.Loaders.ShowLoader, utils.AsInt(obj.ID))
+	e, err := batchloaders.GetByID(ctx, r.Loaders.ShowLoader, utils.AsInt(obj.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (r *showResolver) Image(ctx context.Context, obj *model.Show, style *model.
 
 // EpisodeCount is the resolver for the episodeCount field.
 func (r *showResolver) EpisodeCount(ctx context.Context, obj *model.Show) (int, error) {
-	seasonIDs, err := batchloaders.GetFromLoaderForKey(ctx, r.FilteredLoaders(ctx).SeasonsLoader, utils.AsInt(obj.ID))
+	seasonIDs, err := batchloaders.GetForKey(ctx, r.FilteredLoaders(ctx).SeasonsLoader, utils.AsInt(obj.ID))
 	if err != nil {
 		return 0, err
 	}
@@ -147,7 +147,7 @@ func (r *showResolver) EpisodeCount(ctx context.Context, obj *model.Show) (int, 
 
 	count := 0
 	for _, id := range seasonIDs {
-		episodeIDs, err := batchloaders.GetFromLoaderForKey(ctx, el, *id)
+		episodeIDs, err := batchloaders.GetForKey(ctx, el, *id)
 		if err != nil {
 			return 0, err
 		}
@@ -158,7 +158,7 @@ func (r *showResolver) EpisodeCount(ctx context.Context, obj *model.Show) (int, 
 
 // SeasonCount is the resolver for the seasonCount field.
 func (r *showResolver) SeasonCount(ctx context.Context, obj *model.Show) (int, error) {
-	seasonIDs, err := batchloaders.GetFromLoaderForKey(ctx, r.FilteredLoaders(ctx).SeasonsLoader, utils.AsInt(obj.ID))
+	seasonIDs, err := batchloaders.GetForKey(ctx, r.FilteredLoaders(ctx).SeasonsLoader, utils.AsInt(obj.ID))
 	if err != nil {
 		return 0, err
 	}
@@ -172,14 +172,14 @@ func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int,
 		return nil, err
 	}
 
-	itemIDs, err := batchloaders.GetFromLoaderForKey(ctx, r.FilteredLoaders(ctx).SeasonsLoader, int(intID))
+	itemIDs, err := batchloaders.GetForKey(ctx, r.FilteredLoaders(ctx).SeasonsLoader, int(intID))
 	if err != nil {
 		return nil, err
 	}
 
 	page := utils.Paginate(itemIDs, first, offset, dir)
 
-	seasons, err := batchloaders.GetManyFromLoader(ctx, r.Loaders.SeasonLoader, utils.PointerIntArrayToIntArray(page.Items))
+	seasons, err := batchloaders.GetMany(ctx, r.Loaders.SeasonLoader, utils.PointerIntArrayToIntArray(page.Items))
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +193,7 @@ func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int,
 
 // DefaultEpisode is the resolver for the defaultEpisode field.
 func (r *showResolver) DefaultEpisode(ctx context.Context, obj *model.Show) (*model.Episode, error) {
-	s, err := batchloaders.GetFromLoaderByID(ctx, r.Loaders.ShowLoader, utils.AsInt(obj.ID))
+	s, err := batchloaders.GetByID(ctx, r.Loaders.ShowLoader, utils.AsInt(obj.ID))
 	if err != nil {
 		return nil, err
 	}

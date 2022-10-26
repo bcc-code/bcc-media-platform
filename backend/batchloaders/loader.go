@@ -29,8 +29,8 @@ func getOptions[K comparable, V any](opts ...any) []dataloader.Option[K, V] {
 	return options
 }
 
-// NewListBatchLoader returns a configured batch loader for Lists
-func NewListBatchLoader[K comparable, V any](
+// NewListLoader returns a configured batch loader for Lists
+func NewListLoader[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	getKey func(item V) K,
 	opts ...any,
@@ -74,8 +74,8 @@ func NewListBatchLoader[K comparable, V any](
 	return dataloader.NewBatchedLoader(batchLoadLists, options...)
 }
 
-// NewRelationBatchLoader returns a configured batch loader for Lists
-func NewRelationBatchLoader[K comparable, R comparable](
+// NewRelationLoader returns a configured batch loader for Lists
+func NewRelationLoader[K comparable, R comparable](
 	factory func(ctx context.Context, ids []R) ([]common.Relation[K, R], error),
 	opts ...any,
 ) *dataloader.Loader[R, []*K] {
@@ -118,8 +118,8 @@ func NewRelationBatchLoader[K comparable, R comparable](
 	return dataloader.NewBatchedLoader(batchLoadLists, options...)
 }
 
-// NewConversionBatchLoader returns a configured batch loader for Lists
-func NewConversionBatchLoader[o comparable, rt comparable](
+// NewConversionLoader returns a configured batch loader for Lists
+func NewConversionLoader[o comparable, rt comparable](
 	factory func(ctx context.Context, ids []o) ([]common.Conversion[o, rt], error),
 	opts ...any,
 ) *dataloader.Loader[o, *rt] {
@@ -157,25 +157,25 @@ func NewConversionBatchLoader[o comparable, rt comparable](
 	return dataloader.NewBatchedLoader(batchLoadLists, options...)
 }
 
-// NewBatchLoader returns a configured batch loader for items
-func NewBatchLoader[K comparable, V common.HasKey[K]](
+// NewLoader returns a configured batch loader for items
+func NewLoader[K comparable, V common.HasKey[K]](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	opts ...any,
 ) *dataloader.Loader[K, *V] {
-	return NewCustomBatchLoader(factory, func(i V) K {
+	return NewCustomLoader(factory, func(i V) K {
 		return i.GetKey()
 	}, opts...)
 }
 
 // NewFilterLoader is just for filtering a list of keys or checking if user has access to a specific id
 func NewFilterLoader[K comparable](factory func(ctx context.Context, keys []K) ([]K, error), opts ...any) *dataloader.Loader[K, *K] {
-	return NewCustomBatchLoader(factory, func(key K) K {
+	return NewCustomLoader(factory, func(key K) K {
 		return key
 	}, opts...)
 }
 
-// NewCustomBatchLoader returns a configured batch loader for items
-func NewCustomBatchLoader[K comparable, V any](
+// NewCustomLoader returns a configured batch loader for items
+func NewCustomLoader[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	getKey func(V) K,
 	opts ...any,
@@ -215,8 +215,8 @@ func NewCustomBatchLoader[K comparable, V any](
 	return dataloader.NewBatchedLoader(batchLoadItems, options...)
 }
 
-// GetFromLoaderByID returns the object from the loader
-func GetFromLoaderByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], id k) (*t, error) {
+// GetByID returns the object from the loader
+func GetByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], id k) (*t, error) {
 	ctx, span := otel.Tracer("loader").Start(ctx, "single")
 	defer span.End()
 	thunk := loader.Load(ctx, id)
@@ -228,10 +228,10 @@ func GetFromLoaderByID[k comparable, t any](ctx context.Context, loader *dataloa
 	return result, nil
 }
 
-// GetFromLoaderForKey retrieves file assets currently associated with the specified asset
+// GetForKey retrieves file assets currently associated with the specified asset
 //
 // It uses the dataloader to efficiently load data from DB or cache (as available)
-func GetFromLoaderForKey[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, []*t], key k) ([]*t, error) {
+func GetForKey[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, []*t], key k) ([]*t, error) {
 	ctx, span := otel.Tracer("loader").Start(ctx, "keyed")
 	defer span.End()
 	thunk := loader.Load(ctx, key)
@@ -243,8 +243,8 @@ func GetFromLoaderForKey[k comparable, t any](ctx context.Context, loader *datal
 	return result, nil
 }
 
-// GetManyFromLoader retrieves multiple items from specified loader
-func GetManyFromLoader[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], ids []k) ([]*t, error) {
+// GetMany retrieves multiple items from specified loader
+func GetMany[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], ids []k) ([]*t, error) {
 	ctx, span := otel.Tracer("loader").Start(ctx, "multiple")
 	defer span.End()
 	thunk := loader.LoadMany(ctx, ids)

@@ -69,7 +69,7 @@ func New(db *sql.DB, config Config) *Service {
 		ShowLoader:    show.NewBatchLoader(*service.queries),
 		SeasonLoader:  season.NewBatchLoader(*service.queries),
 		EpisodeLoader: episode.NewBatchLoader(*service.queries),
-		TagLoader:     batchloaders.NewBatchLoader(service.queries.GetTags),
+		TagLoader:     batchloaders.NewLoader(service.queries.GetTags),
 		// Permissions
 		ShowPermissionLoader:    show.NewPermissionLoader(*service.queries),
 		SeasonPermissionLoader:  season.NewPermissionLoader(*service.queries),
