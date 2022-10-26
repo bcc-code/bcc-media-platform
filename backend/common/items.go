@@ -187,6 +187,7 @@ type Section struct {
 	Style        string       `json:"style"`
 	Size         string       `json:"size"`
 	CollectionID null.Int     `json:"collectionId"`
+	MessageID    null.Int     `json:"messageId"`
 }
 
 // GetKey returns the key for this item
@@ -309,4 +310,24 @@ type Application struct {
 // GetKey returns the key for this item
 func (i Application) GetKey() int {
 	return i.ID
+}
+
+// MessageGroup is a group of messages
+type MessageGroup struct {
+	ID       int       `json:"id"`
+	Enabled  bool      `json:"enabled"`
+	Messages []Message `json:"messages"`
+}
+
+// GetKey returns key for this item
+func (i MessageGroup) GetKey() int {
+	return i.ID
+}
+
+// Message is a message
+type Message struct {
+	ID      int          `json:"id"`
+	Style   string       `json:"style"`
+	Title   LocaleString `json:"message"`
+	Content LocaleString `json:"details"`
 }

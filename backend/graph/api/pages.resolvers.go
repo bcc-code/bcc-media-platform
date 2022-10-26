@@ -30,83 +30,37 @@ func (r *collectionResolver) Items(ctx context.Context, obj *model.Collection, f
 }
 
 // Items is the resolver for the items field.
+func (r *defaultGridSectionResolver) Items(ctx context.Context, obj *model.DefaultGridSection, first *int, offset *int) (*model.SectionItemPagination, error) {
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+}
+
+// Items is the resolver for the items field.
 func (r *defaultSectionResolver) Items(ctx context.Context, obj *model.DefaultSection, first *int, offset *int) (*model.SectionItemPagination, error) {
-	pagination, err := sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.SectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
-	}, nil
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 }
 
 // Items is the resolver for the items field.
 func (r *featuredSectionResolver) Items(ctx context.Context, obj *model.FeaturedSection, first *int, offset *int) (*model.SectionItemPagination, error) {
-	pagination, err := sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.SectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
-	}, nil
-}
-
-// Items is the resolver for the items field.
-func (r *gridSectionResolver) Items(ctx context.Context, obj *model.GridSection, first *int, offset *int) (*model.SectionItemPagination, error) {
-	pagination, err := sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.SectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
-	}, nil
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 }
 
 // Items is the resolver for the items field.
 func (r *iconSectionResolver) Items(ctx context.Context, obj *model.IconSection, first *int, offset *int) (*model.SectionItemPagination, error) {
-	pagination, err := sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.SectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
-	}, nil
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 }
 
 // Items is the resolver for the items field.
 func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int) (*model.SectionItemPagination, error) {
-	pagination, err := sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+}
 
+// Messages is the resolver for the messages field.
+func (r *messageSectionResolver) Messages(ctx context.Context, obj *model.MessageSection) ([]*model.Message, error) {
+	s, err := common.GetFromLoaderByID(ctx, r.Loaders.SectionLoader, utils.AsInt(obj.ID))
 	if err != nil {
 		return nil, err
 	}
-
-	return &model.SectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
-	}, nil
+	return resolveMessageSection(ctx, r, s)
 }
 
 // Image is the resolver for the image field.
@@ -145,23 +99,22 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 }
 
 // Items is the resolver for the items field.
+func (r *posterGridSectionResolver) Items(ctx context.Context, obj *model.PosterGridSection, first *int, offset *int) (*model.SectionItemPagination, error) {
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+}
+
+// Items is the resolver for the items field.
 func (r *posterSectionResolver) Items(ctx context.Context, obj *model.PosterSection, first *int, offset *int) (*model.SectionItemPagination, error) {
-	pagination, err := sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.SectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
-	}, nil
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 }
 
 // Collection returns generated.CollectionResolver implementation.
 func (r *Resolver) Collection() generated.CollectionResolver { return &collectionResolver{r} }
+
+// DefaultGridSection returns generated.DefaultGridSectionResolver implementation.
+func (r *Resolver) DefaultGridSection() generated.DefaultGridSectionResolver {
+	return &defaultGridSectionResolver{r}
+}
 
 // DefaultSection returns generated.DefaultSectionResolver implementation.
 func (r *Resolver) DefaultSection() generated.DefaultSectionResolver {
@@ -173,26 +126,35 @@ func (r *Resolver) FeaturedSection() generated.FeaturedSectionResolver {
 	return &featuredSectionResolver{r}
 }
 
-// GridSection returns generated.GridSectionResolver implementation.
-func (r *Resolver) GridSection() generated.GridSectionResolver { return &gridSectionResolver{r} }
-
 // IconSection returns generated.IconSectionResolver implementation.
 func (r *Resolver) IconSection() generated.IconSectionResolver { return &iconSectionResolver{r} }
 
 // LabelSection returns generated.LabelSectionResolver implementation.
 func (r *Resolver) LabelSection() generated.LabelSectionResolver { return &labelSectionResolver{r} }
 
+// MessageSection returns generated.MessageSectionResolver implementation.
+func (r *Resolver) MessageSection() generated.MessageSectionResolver {
+	return &messageSectionResolver{r}
+}
+
 // Page returns generated.PageResolver implementation.
 func (r *Resolver) Page() generated.PageResolver { return &pageResolver{r} }
+
+// PosterGridSection returns generated.PosterGridSectionResolver implementation.
+func (r *Resolver) PosterGridSection() generated.PosterGridSectionResolver {
+	return &posterGridSectionResolver{r}
+}
 
 // PosterSection returns generated.PosterSectionResolver implementation.
 func (r *Resolver) PosterSection() generated.PosterSectionResolver { return &posterSectionResolver{r} }
 
 type collectionResolver struct{ *Resolver }
+type defaultGridSectionResolver struct{ *Resolver }
 type defaultSectionResolver struct{ *Resolver }
 type featuredSectionResolver struct{ *Resolver }
-type gridSectionResolver struct{ *Resolver }
 type iconSectionResolver struct{ *Resolver }
 type labelSectionResolver struct{ *Resolver }
+type messageSectionResolver struct{ *Resolver }
 type pageResolver struct{ *Resolver }
+type posterGridSectionResolver struct{ *Resolver }
 type posterSectionResolver struct{ *Resolver }

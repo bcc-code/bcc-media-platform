@@ -16,6 +16,12 @@ type CollectionItem interface {
 	IsCollectionItem()
 }
 
+type GridSection interface {
+	Section
+	ItemSection
+	IsGridSection()
+}
+
 type ItemSection interface {
 	Section
 	IsItemSection()
@@ -83,6 +89,17 @@ type Config struct {
 	Global *GlobalConfig `json:"global"`
 }
 
+type DefaultGridSection struct {
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Size  GridSectionSize        `json:"size"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (DefaultGridSection) IsSection()     {}
+func (DefaultGridSection) IsItemSection() {}
+func (DefaultGridSection) IsGridSection() {}
+
 type DefaultSection struct {
 	ID    string                 `json:"id"`
 	Title *string                `json:"title"`
@@ -102,6 +119,7 @@ type Episode struct {
 	ID                string     `json:"id"`
 	LegacyID          *string    `json:"legacyID"`
 	LegacyProgramID   *string    `json:"legacyProgramID"`
+	PublishDate       string     `json:"publishDate"`
 	AgeRating         string     `json:"ageRating"`
 	Title             string     `json:"title"`
 	Description       string     `json:"description"`
@@ -231,16 +249,6 @@ type GlobalConfig struct {
 	NpawEnabled bool `json:"npawEnabled"`
 }
 
-type GridSection struct {
-	ID    string                 `json:"id"`
-	Title *string                `json:"title"`
-	Size  GridSectionSize        `json:"size"`
-	Items *SectionItemPagination `json:"items"`
-}
-
-func (GridSection) IsSection()     {}
-func (GridSection) IsItemSection() {}
-
 type IconSection struct {
 	ID    string                 `json:"id"`
 	Title *string                `json:"title"`
@@ -271,13 +279,24 @@ type Link struct {
 
 func (Link) IsSectionItemType() {}
 
-type MaintenanceMessage struct {
-	Message string  `json:"message"`
-	Details *string `json:"details"`
+type Message struct {
+	Title   string        `json:"title"`
+	Content string        `json:"content"`
+	Style   *MessageStyle `json:"style"`
 }
 
-type Messages struct {
-	Maintenance []*MaintenanceMessage `json:"maintenance"`
+type MessageSection struct {
+	ID       string     `json:"id"`
+	Title    *string    `json:"title"`
+	Messages []*Message `json:"messages"`
+}
+
+func (MessageSection) IsSection() {}
+
+type MessageStyle struct {
+	Text       string `json:"text"`
+	Background string `json:"background"`
+	Border     string `json:"border"`
 }
 
 type Page struct {
@@ -302,6 +321,17 @@ type PageItem struct {
 }
 
 func (PageItem) IsCollectionItem() {}
+
+type PosterGridSection struct {
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Size  GridSectionSize        `json:"size"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (PosterGridSection) IsSection()     {}
+func (PosterGridSection) IsItemSection() {}
+func (PosterGridSection) IsGridSection() {}
 
 type PosterSection struct {
 	ID    string                 `json:"id"`

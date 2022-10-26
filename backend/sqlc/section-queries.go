@@ -43,6 +43,7 @@ func mapToSections(items []getSectionsRow) []common.Section {
 			Description:  description,
 			Type:         t,
 			CollectionID: s.CollectionID,
+			MessageID:    s.MessageID,
 			Style:        style,
 			Size:         size,
 		}

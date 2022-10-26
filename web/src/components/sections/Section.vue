@@ -12,10 +12,14 @@
             v-if="section.__typename === 'DefaultSection'"
             :item="section"
         ></DefaultSection>
-        <GridSection
-            v-if="section.__typename === 'GridSection'"
+        <DefaultGridSection
+            v-if="section.__typename === 'DefaultGridSection'"
             :item="section"
-        ></GridSection>
+        ></DefaultGridSection>
+        <PosterGridSection
+            v-if="section.__typename === 'PosterGridSection'"
+            :item="section"
+        ></PosterGridSection>
         <LabelSection
             v-if="section.__typename === 'LabelSection'"
             :item="section"
@@ -31,7 +35,8 @@ import { Section } from "./types"
 import PosterSection from "./PosterSection.vue"
 import FeaturedSection from "./FeaturedSection.vue"
 import DefaultSection from "./DefaultSection.vue"
-import GridSection from "./GridSection.vue"
+import DefaultGridSection from "./DefaultGridSection.vue"
+import PosterGridSection from "./PosterGridSection.vue"
 import LabelSection from "./LabelSection.vue"
 import IconSection from "./IconSection.vue"
 

@@ -1,6 +1,7 @@
 package common
 
 import (
+	"gopkg.in/guregu/null.v4"
 	"time"
 )
 
@@ -55,12 +56,6 @@ type Availability struct {
 	To        time.Time
 }
 
-// MaintenanceMessage is the struct for maintenance messages
-type MaintenanceMessage struct {
-	Message LocaleString
-	Details LocaleString
-}
-
 // AppConfig contains configuration of the app.
 type AppConfig struct {
 	MinVersion string
@@ -74,7 +69,9 @@ type GlobalConfig struct {
 
 // Notification contains notification data
 type Notification struct {
-	Title       LocaleString      `json:"title"`
-	Description LocaleString      `json:"description"`
-	Image       LocaleMap[string] `json:"images"`
+	ID          int
+	Status      Status
+	Title       LocaleString           `json:"title"`
+	Description LocaleString           `json:"description"`
+	Images      LocaleMap[null.String] `json:"images"`
 }

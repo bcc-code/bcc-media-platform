@@ -1,6 +1,9 @@
 <template>
     <section>
-        <div class="flex flex-col gap-8" v-if="data?.page?.sections.items.length">
+        <div
+            class="flex flex-col gap-8"
+            v-if="data?.page?.sections.items.length"
+        >
             <Section
                 v-for="section in data?.page?.sections.items"
                 :section="section"

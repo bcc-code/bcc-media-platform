@@ -26,8 +26,8 @@ if (!videojs.getPlugin("hlsQualitySelector")) {
 let castLoaded = false;
 
 CastLoader.load().then(() => {
-    castLoaded = true
     registerChromecastPlugin(videojs, undefined)
+    castLoaded = true
 })
 
 export type Player = VideoJsPlayer
@@ -71,7 +71,22 @@ export type Options = {
     videojs: VideoJsPlayerOptions
 }
 
-const getDefaults = () => ({
+const getDefaults = () => {
+    const plugins: {
+        [key: string]: any
+    } = {
+        eventTracking: true,
+        smallScreen: {},
+    };
+
+    if (castLoaded) {
+        plugins.chromecast = {
+            buttonPositionIndex: 10,
+            receiverAppID: "BC91FA3B", // BEE6F0D4 for debug
+        }
+    }
+
+    return {
     src: {
         type: "application/x-mpegURL",
     },
@@ -110,21 +125,14 @@ const getDefaults = () => ({
         liveTracker: {
             trackingThreshold: 15, // default is 30, had issues because occassionally liveWindow is 29.97.
         },
-        plugins: {
-            eventTracking: true,
-            chromecast: {
-                buttonPositionIndex: 10,
-                receiverAppID: "BC91FA3B", // BEE6F0D4 for debug
-            },
-            smallScreen: {},
-        },
+        plugins,
         responsive: true,
-        techOrder: ["chromecast", "html5"],
+        techOrder: castLoaded ? ["chromecast", "html5"] : ["html5"],
         userActions: {
             hotkeys: true,
         },
     },
-} as Options) 
+} as Options}
 
 function createVideoElement(id: string, options: Options) {
     const videoEl = document.createElement("video")
@@ -137,7 +145,7 @@ function createVideoElement(id: string, options: Options) {
 }
 
 function setAudioTrackToLanguage(player: VideoJsPlayer, language?: string) {
-    let track = null as videojs.VideojsAudioTrack | null    
+    let track = null as videojs.VideojsAudioTrack | null
 
     for (const t of Object.values(player.audioTracks())) {
         if (t.language === language) {
@@ -162,7 +170,7 @@ function setSubtitleTrackToLanguage(player: VideoJsPlayer, language?: string) {
 
 function setupVideoJs(videoElId: Element, options: Options) {
     const player = videojs(videoElId, options.videojs)
-    player.src(options.src.src ?? "")
+    player.src(options.src as any)
 
     if (options.subtitles) {
         for (var x = 0; x < options.subtitles.length; x++) {

@@ -23,30 +23,41 @@ export function handleEvent(eventName: string) {
             "appconfig",
             "webconfig",
             "maintenancemessage",
+            "notifications",
+            "messages",
         ] as Collection[]
 
         if (!collections.includes(event.collection)) { return }
         
-        // Use show, season or episode ID as ids.
-        if (!event.key) {
-            event.key = event.keys.map(i => Number(i))[0]
-        }
-        const topic = pubsub.topic(topicId)
-        const e = new CloudEvent({
-            id: uuid(),
-            type: "directus.event",
-            source: "directus",
-            data: {
-                event: eventName,
-                collection: event.collection,
-                id: event.key,
-           }
-        })
+        const keys = [] as number[]
 
-        console.log("Pushing event: " + JSON.stringify(e))
-        await topic.publishMessage({
-            data: Buffer.from(JSON.stringify(e))
-        })
+        if (event.key) {
+            keys.push(event.key)
+        }
+        
+        if (event.keys) {
+            keys.push(...event.keys.map(i => Number(i)))
+        }
+
+        const topic = pubsub.topic(topicId)
+
+        for (const key of keys) {
+            const e = new CloudEvent({
+                id: uuid(),
+                type: "directus.event",
+                source: "directus",
+                data: {
+                    event: eventName,
+                    collection: event.collection,
+                    id: key,
+               }
+            })
+    
+            console.log("Pushing event: " + JSON.stringify(e))
+            await topic.publishMessage({
+                data: Buffer.from(JSON.stringify(e))
+            })
+        }
     }
     return handler
 }

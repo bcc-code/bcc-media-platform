@@ -32,7 +32,7 @@ export class PlayerFactory {
                 return await createPlayer(elementId, videojs.mergeOptions(
                     {
                         src: {
-                            src: stream.url
+                            src: stream.url,
                         },
                         videojs: {
                             poster: episode.imageUrl

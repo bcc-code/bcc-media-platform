@@ -1,9 +1,14 @@
 fragment SectionItem on SectionItem {
+    id
+    image
+    title
+    sort
     item {
         __typename
         ... on Episode {
             episodeNumber: number
-            duration
+            productionDate
+            publishDate
             season {
                 number
                 show {
@@ -16,10 +21,27 @@ fragment SectionItem on SectionItem {
             show {
                 title
             }
+            episodes(first: 1, dir: "desc") {
+                items {
+                    publishDate
+                }
+            }
         }
         ... on Show {
             episodeCount
             seasonCount
+            defaultEpisode {
+                id
+            }
+            seasons(first: 1, dir: "desc") {
+                items {
+                    episodes(first: 1, dir: "desc") {
+                        items {
+                            publishDate
+                        }
+                    }
+                }
+            }
         }
         ... on Page {
             code
@@ -30,19 +52,24 @@ fragment SectionItem on SectionItem {
 fragment ItemSection on ItemSection {
     items {
         items {
-            id
-            image
-            title
-            sort
-            description
             ...SectionItem
         }
     }
     ... on DefaultSection {
         size
+        items {
+            items {
+                description
+            }
+        }
     }
     ... on FeaturedSection {
         size
+        items {
+            items {
+                description
+            }
+        }
     }
     ... on GridSection {
         gridSize: size
@@ -50,29 +77,6 @@ fragment ItemSection on ItemSection {
     ... on PosterSection {
         size
     }
-}
-
-fragment LinkSection on LinkSection {
-    items {
-        items {
-            id
-            title
-            icon
-            ... on PageLinkItem {
-                page {
-                    id
-                }
-            }
-            ... on URLLinkItem {
-                url
-            }
-        }
-    }
-}
-
-fragment StyledSections on Section {
-    ...LinkSection
-    ...ItemSection
 }
 
 query getPage($code: String!) {
@@ -84,7 +88,7 @@ query getPage($code: String!) {
                 __typename
                 id
                 title
-                ...StyledSections
+                ...ItemSection
             }
         }
     }
