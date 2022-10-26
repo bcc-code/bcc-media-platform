@@ -53,3 +53,23 @@ CREATE TABLE pages (
 	image TEXT,
 	section_ids TEXT NOT NULL
 );
+
+CREATE TABLE sections (
+	id INTEGER NOT NULL PRIMARY KEY,
+	sort INTEGER NOT NULL,
+	page_id INTEGER NOT NULL,
+	type TEXT NOT NULL,
+	show_title BOOLEAN NOT NULL,
+	title TEXT NOT NULL,
+	description TEXT NOT NULL,
+	style TEXT NOT NULL,
+	size TEXT NOT NULL,
+	collection_id INTEGER
+);
+
+CREATE TABLE collections (
+	id INTEGER NOT NULL PRIMARY KEY,
+	name TEXT NOT NULL,
+	type TEXT NOT NULL,
+	collection_items TEXT NOT NULL
+);

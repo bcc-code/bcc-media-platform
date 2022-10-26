@@ -15,6 +15,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/export/sqlexport"
 	graphapi "github.com/bcc-code/brunstadtv/backend/graph/api"
+	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
@@ -199,36 +200,98 @@ func exportCurrentApplication(ctx *gin.Context, r graphapi.Resolver, liteQueries
 	})
 }
 
-func exportSections(ctx context.Context, r graphapi.Resolver, liteQueries sqlexport.Queries, queries sqlc.Queries) ([]int, error) {
+func exportSections(ctx context.Context, r graphapi.Resolver, liteQueries sqlexport.Queries, queries sqlc.Queries) ([]int, []int, error) {
 	filteredLoaders := r.FilteredLoaders(ctx)
 	pages, err := queries.ListPages(ctx)
 	if err != err {
-		return nil, err
+		return nil, nil, err
 	}
 
 	allPageIDs := lo.Map(pages, func(p common.Page, _ int) int { return p.ID })
-	thunk := filteredLoaders.EpisodesLoader.LoadMany(ctx, allPageIDs)
+	thunk := filteredLoaders.SectionsLoader.LoadMany(ctx, allPageIDs)
 	sectionIDsResult, errs := thunk()
-
 	if len(errs) > 0 {
 		log.L.Error().Errs("errs", errs)
-		err := merry.New("err getting episode IDs")
-		return nil, err
+		err := merry.New("err getting section IDs")
+		return nil, nil, err
 	}
 
 	sectionIDs := lo.Map(lo.Flatten(sectionIDsResult), func(i *int, _ int) int { return *i })
 	sections, err := common.GetManyFromLoader(ctx, r.Loaders.SectionLoader, sectionIDs)
 	if err != nil {
-		return nil, merry.Wrap(err)
+		return nil, nil, merry.Wrap(err)
 	}
 
 	allowedPageIDs := map[int]interface{}{}
+	neededCollectionIDs := map[int]interface{}{}
 	for _, s := range sections {
+
 		allowedPageIDs[s.ID] = nil
-		// TODO: Insert Section
+		neededCollectionIDs[int(s.CollectionID.ValueOrZero())] = nil
+
+		liteQueries.InsertSection(ctx, sqlexport.InsertSectionParams{
+			ID:           int64(s.ID),
+			Sort:         int64(s.Sort),
+			PageID:       int64(s.PageID),
+			Type:         s.Type,
+			ShowTitle:    s.ShowTitle,
+			Title:        string(s.Title.AsJSON()),
+			Description:  string(s.Description.AsJSON()),
+			Style:        s.Style,
+			Size:         s.Size,
+			CollectionID: s.CollectionID.NullInt64,
+		})
 	}
 
-	return lo.Keys(allowedPageIDs), nil
+	return lo.Keys(allowedPageIDs), lo.Keys(neededCollectionIDs), nil
+}
+
+func exportPages(ctx context.Context, r graphapi.Resolver, liteQueries sqlexport.Queries, pageIDs []int) error {
+	pages, err := common.GetManyFromLoader(ctx, r.Loaders.PageLoader, pageIDs)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	for _, p := range pages {
+		img := sql.NullString{}
+		img.Scan(p.Images.GetDefault([]string{"no"}, "default"))
+
+		liteQueries.InsertPage(ctx, sqlexport.InsertPageParams{
+			ID:          int64(p.ID),
+			Code:        p.Code,
+			Title:       string(p.Title.AsJSON()),
+			Description: string(p.Description.AsJSON()),
+			Image:       img,
+		})
+	}
+
+	return nil
+}
+
+func exportCollections(ctx context.Context, r graphapi.Resolver, liteQueries sqlexport.Queries, collectionIDs []int) error {
+	filteredLoaders := r.FilteredLoaders(ctx)
+	collections, err := common.GetManyFromLoader(ctx, r.Loaders.CollectionLoader, collectionIDs)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	for _, c := range collections {
+		entries, err := collection.GetCollectionEntries(ctx, r.Loaders, filteredLoaders, c.ID)
+		if err != nil {
+			return merry.Wrap(err)
+		}
+
+		entryIDs := lo.Map(entries, func(e collection.Entry, _ int) int { return e.ID })
+		entryIDsJSON, _ := json.Marshal(entryIDs)
+
+		liteQueries.InsertCollection(ctx, sqlexport.InsertCollectionParams{
+			ID:              int64(c.ID),
+			Name:            c.Name,
+			Type:            c.Type,
+			CollectionItems: string(entryIDsJSON),
+		})
+	}
+	return nil
 }
 
 // TODO: This is a placeholder function
@@ -260,12 +323,37 @@ func export(gctx *gin.Context, r graphapi.Resolver, queries *sqlc.Queries) {
 		spew.Dump(err)
 		return
 	}
-	exportEpisodes(ctx, r, *liteQueries, seasonIDs)
+
+	_, err = exportEpisodes(ctx, r, *liteQueries, seasonIDs)
+	if err != nil {
+		spew.Dump(err)
+		return
+	}
 
 	// Just the current app for now. We can look into expanding later
-	exportCurrentApplication(gctx, r, *liteQueries)
+	err = exportCurrentApplication(gctx, r, *liteQueries)
+	if err != nil {
+		spew.Dump(err)
+		return
+	}
 
-	spew.Dump(exportSections(ctx, r, *liteQueries, *queries))
+	pagesToExport, collectionsToExport, err := exportSections(ctx, r, *liteQueries, *queries)
+	if err != nil {
+		spew.Dump(err)
+		return
+	}
+
+	err = exportPages(ctx, r, *liteQueries, pagesToExport)
+	if err != nil {
+		spew.Dump(err)
+		return
+	}
+
+	err = exportCollections(ctx, r, *liteQueries, collectionsToExport)
+	if err != nil {
+		spew.Dump(err)
+		return
+	}
 
 	gctx.JSON(http.StatusOK, gin.H{"path": dbPath})
 

@@ -3,9 +3,10 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+	"time"
+
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
-	"time"
 )
 
 func mapToSections(items []getSectionsRow) []common.Section {

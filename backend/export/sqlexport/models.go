@@ -15,6 +15,13 @@ type Application struct {
 	DefaultPageID sql.NullInt64 `db:"default_page_id" json:"defaultPageID"`
 }
 
+type Collection struct {
+	ID              int64  `db:"id" json:"id"`
+	Name            string `db:"name" json:"name"`
+	Type            string `db:"type" json:"type"`
+	CollectionItems string `db:"collection_items" json:"collectionItems"`
+}
+
 type Episode struct {
 	ID               int64          `db:"id" json:"id"`
 	LegacyID         sql.NullInt64  `db:"legacy_id" json:"legacyID"`
@@ -50,6 +57,19 @@ type Season struct {
 	Description string         `db:"description" json:"description"`
 	ShowID      int64          `db:"show_id" json:"showID"`
 	Image       sql.NullString `db:"image" json:"image"`
+}
+
+type Section struct {
+	ID           int64         `db:"id" json:"id"`
+	Sort         int64         `db:"sort" json:"sort"`
+	PageID       int64         `db:"page_id" json:"pageID"`
+	Type         string        `db:"type" json:"type"`
+	ShowTitle    bool          `db:"show_title" json:"showTitle"`
+	Title        string        `db:"title" json:"title"`
+	Description  string        `db:"description" json:"description"`
+	Style        string        `db:"style" json:"style"`
+	Size         string        `db:"size" json:"size"`
+	CollectionID sql.NullInt64 `db:"collection_id" json:"collectionID"`
 }
 
 type Show struct {
