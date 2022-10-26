@@ -101,7 +101,7 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 
 	profileQueries := queries.ProfileQueries(profileID)
 	loaders := &common.ProfileLoaders{
-		ProgressLoader: common.NewBatchLoader(profileQueries.GetProgressForEpisodes),
+		ProgressLoader: common.NewBatchLoader(profileQueries.GetProgressForEpisodes, common.WithMemoryCache(time.Second*5)),
 	}
 
 	profilesLoaderCache.Set(profileID, loaders, cache.WithExpiration(time.Minute*5))

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/graph-gophers/dataloader/v7"
 	"go.opentelemetry.io/otel"
+	"time"
 )
 
 // BatchLoaders contains loaders for the different items
@@ -54,10 +55,32 @@ type ProfileLoaders struct {
 	ProgressLoader *dataloader.Loader[int, *Progress]
 }
 
+func getOptions[K comparable, V any](opts ...any) []dataloader.Option[K, V] {
+	var options []dataloader.Option[K, V]
+
+	memoryCacheAdded := false
+
+	for _, opt := range opts {
+		switch t := opt.(type) {
+		case memoryCache:
+			options = append(options, dataloader.WithCache[K, V](newMemoryLoaderCache[K, V](t.expiration)))
+			memoryCacheAdded = true
+		}
+	}
+
+	// We want a TTL for everything.
+	if !memoryCacheAdded {
+		options = append(options, dataloader.WithCache[K, V](newMemoryLoaderCache[K, V](time.Minute*5)))
+	}
+
+	return options
+}
+
 // NewListBatchLoader returns a configured batch loader for Lists
 func NewListBatchLoader[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	getKey func(item V) K,
+	opts ...any,
 ) *dataloader.Loader[K, []*V] {
 	batchLoadLists := func(ctx context.Context, keys []K) []*dataloader.Result[[]*V] {
 		var results []*dataloader.Result[[]*V]
@@ -92,12 +115,16 @@ func NewListBatchLoader[K comparable, V any](
 
 		return results
 	}
-	return dataloader.NewBatchedLoader(batchLoadLists, dataloader.WithCache[K, []*V](newLoaderCache[K, []*V]()))
+
+	options := getOptions[K, []*V](opts...)
+
+	return dataloader.NewBatchedLoader(batchLoadLists, options...)
 }
 
 // NewRelationBatchLoader returns a configured batch loader for Lists
 func NewRelationBatchLoader[K comparable, R comparable](
 	factory func(ctx context.Context, ids []R) ([]Relation[K, R], error),
+	opts ...any,
 ) *dataloader.Loader[R, []*K] {
 	batchLoadLists := func(ctx context.Context, keys []R) []*dataloader.Result[[]*K] {
 		var results []*dataloader.Result[[]*K]
@@ -132,12 +159,16 @@ func NewRelationBatchLoader[K comparable, R comparable](
 
 		return results
 	}
-	return dataloader.NewBatchedLoader(batchLoadLists, dataloader.WithCache[R, []*K](newLoaderCache[R, []*K]()))
+
+	options := getOptions[R, []*K](opts...)
+
+	return dataloader.NewBatchedLoader(batchLoadLists, options...)
 }
 
 // NewConversionBatchLoader returns a configured batch loader for Lists
 func NewConversionBatchLoader[o comparable, rt comparable](
 	factory func(ctx context.Context, ids []o) ([]Conversion[o, rt], error),
+	opts ...any,
 ) *dataloader.Loader[o, *rt] {
 	batchLoadLists := func(ctx context.Context, keys []o) []*dataloader.Result[*rt] {
 		var results []*dataloader.Result[*rt]
@@ -167,29 +198,34 @@ func NewConversionBatchLoader[o comparable, rt comparable](
 
 		return results
 	}
-	return dataloader.NewBatchedLoader(batchLoadLists, dataloader.WithCache[o, *rt](newLoaderCache[o, *rt]()))
+
+	options := getOptions[o, *rt](opts...)
+
+	return dataloader.NewBatchedLoader(batchLoadLists, options...)
 }
 
 // NewBatchLoader returns a configured batch loader for items
 func NewBatchLoader[K comparable, V HasKey[K]](
 	factory func(ctx context.Context, ids []K) ([]V, error),
+	opts ...any,
 ) *dataloader.Loader[K, *V] {
 	return NewCustomBatchLoader(factory, func(i V) K {
 		return i.GetKey()
-	})
+	}, opts...)
 }
 
 // NewFilterLoader is just for filtering a list of keys or checking if user has access to a specific id
-func NewFilterLoader[K comparable](factory func(ctx context.Context, keys []K) ([]K, error)) *dataloader.Loader[K, *K] {
+func NewFilterLoader[K comparable](factory func(ctx context.Context, keys []K) ([]K, error), opts ...any) *dataloader.Loader[K, *K] {
 	return NewCustomBatchLoader(factory, func(key K) K {
 		return key
-	})
+	}, opts...)
 }
 
 // NewCustomBatchLoader returns a configured batch loader for items
 func NewCustomBatchLoader[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	getKey func(V) K,
+	opts ...any,
 ) *dataloader.Loader[K, *V] {
 	batchLoadItems := func(ctx context.Context, keys []K) []*dataloader.Result[*V] {
 		var results []*dataloader.Result[*V]
@@ -220,8 +256,21 @@ func NewCustomBatchLoader[K comparable, V any](
 		return results
 	}
 
+	options := getOptions[K, *V](opts...)
+
 	// Currently we do not want to cache at the GQL level
-	return dataloader.NewBatchedLoader(batchLoadItems, dataloader.WithCache[K, *V](newLoaderCache[K, *V]()))
+	return dataloader.NewBatchedLoader(batchLoadItems, options...)
+}
+
+type memoryCache struct {
+	expiration time.Duration
+}
+
+// WithMemoryCache defines how long a key should live in the cache
+func WithMemoryCache(expiration time.Duration) any {
+	return memoryCache{
+		expiration: expiration,
+	}
 }
 
 // GetFromLoaderByID returns the object from the loader

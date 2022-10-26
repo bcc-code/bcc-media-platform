@@ -1,5 +1,5 @@
 -- name: getProgressForProfile :many
-SELECT p.episode_id, p.progress, p.duration, (p.progress::float / p.duration) > 0.8 AS watched
+SELECT p.episode_id, p.progress, p.duration, COALESCE((p.progress::float / NULLIF(p.duration,0)) > 0.8, false)::bool AS watched
 FROM "users"."progress" p
 WHERE p.profile_id = $1::uuid
   AND p.episode_id = ANY ($2::int[])
