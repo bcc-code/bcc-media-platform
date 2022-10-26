@@ -2,11 +2,25 @@ package batchloaders
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/graph-gophers/dataloader/v7"
 	"go.opentelemetry.io/otel"
 	"time"
 )
+
+// BatchLoader contains loader and additional functions to retrieve data easily
+type BatchLoader[K comparable, V any] struct {
+	*dataloader.Loader[K, V]
+}
+
+// Get retrieves a specific entry from the loader
+func (bl *BatchLoader[K, V]) Get(ctx context.Context, key K) (V, error) {
+	return GetByID(ctx, bl.Loader, key)
+}
+
+// GetMany retrieves the specified entries from the loader
+func (bl *BatchLoader[K, V]) GetMany(ctx context.Context, keys []K) ([]V, error) {
+	return GetMany(ctx, bl.Loader, keys)
+}
 
 func getOptions[K comparable, V any](opts ...any) []dataloader.Option[K, V] {
 	var options []dataloader.Option[K, V]
@@ -74,9 +88,15 @@ func NewListLoader[K comparable, V any](
 	return dataloader.NewBatchedLoader(batchLoadLists, options...)
 }
 
+// Relation contains a simple id to relation struct
+type Relation[k comparable, kr comparable] interface {
+	GetKey() k
+	GetRelationID() kr
+}
+
 // NewRelationLoader returns a configured batch loader for Lists
 func NewRelationLoader[K comparable, R comparable](
-	factory func(ctx context.Context, ids []R) ([]common.Relation[K, R], error),
+	factory func(ctx context.Context, ids []R) ([]Relation[K, R], error),
 	opts ...any,
 ) *dataloader.Loader[R, []*K] {
 	batchLoadLists := func(ctx context.Context, keys []R) []*dataloader.Result[[]*K] {
@@ -118,9 +138,15 @@ func NewRelationLoader[K comparable, R comparable](
 	return dataloader.NewBatchedLoader(batchLoadLists, options...)
 }
 
+// Conversion contains the original and converted value
+type Conversion[o comparable, r comparable] interface {
+	GetOriginal() o
+	GetResult() r
+}
+
 // NewConversionLoader returns a configured batch loader for Lists
 func NewConversionLoader[o comparable, rt comparable](
-	factory func(ctx context.Context, ids []o) ([]common.Conversion[o, rt], error),
+	factory func(ctx context.Context, ids []o) ([]Conversion[o, rt], error),
 	opts ...any,
 ) *dataloader.Loader[o, *rt] {
 	batchLoadLists := func(ctx context.Context, keys []o) []*dataloader.Result[*rt] {
@@ -157,8 +183,26 @@ func NewConversionLoader[o comparable, rt comparable](
 	return dataloader.NewBatchedLoader(batchLoadLists, options...)
 }
 
+// HasKey interface for items with keys
+type HasKey[k comparable] interface {
+	GetKey() k
+}
+
+// New creates a new batch loader
+func New[K comparable, V HasKey[K]](
+	factory func(ctx context.Context, ids []K) ([]V, error),
+	opts ...any,
+) *BatchLoader[K, *V] {
+	loader := NewCustomLoader(factory, func(i V) K {
+		return i.GetKey()
+	}, opts...)
+	return &BatchLoader[K, *V]{
+		loader,
+	}
+}
+
 // NewLoader returns a configured batch loader for items
-func NewLoader[K comparable, V common.HasKey[K]](
+func NewLoader[K comparable, V HasKey[K]](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	opts ...any,
 ) *dataloader.Loader[K, *V] {
@@ -216,13 +260,14 @@ func NewCustomLoader[K comparable, V any](
 }
 
 // GetByID returns the object from the loader
-func GetByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], id k) (*t, error) {
+func GetByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, t], id k) (t, error) {
 	ctx, span := otel.Tracer("loader").Start(ctx, "single")
 	defer span.End()
 	thunk := loader.Load(ctx, id)
 	result, err := thunk()
 	if err != nil {
-		return nil, err
+		var empty t
+		return empty, err
 	}
 
 	return result, nil
@@ -231,7 +276,7 @@ func GetByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader
 // GetForKey retrieves file assets currently associated with the specified asset
 //
 // It uses the dataloader to efficiently load data from DB or cache (as available)
-func GetForKey[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, []*t], key k) ([]*t, error) {
+func GetForKey[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, []t], key k) ([]t, error) {
 	ctx, span := otel.Tracer("loader").Start(ctx, "keyed")
 	defer span.End()
 	thunk := loader.Load(ctx, key)
@@ -244,7 +289,7 @@ func GetForKey[k comparable, t any](ctx context.Context, loader *dataloader.Load
 }
 
 // GetMany retrieves multiple items from specified loader
-func GetMany[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], ids []k) ([]*t, error) {
+func GetMany[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, t], ids []k) ([]t, error) {
 	ctx, span := otel.Tracer("loader").Start(ctx, "multiple")
 	defer span.End()
 	thunk := loader.LoadMany(ctx, ids)
@@ -253,7 +298,7 @@ func GetMany[k comparable, t any](ctx context.Context, loader *dataloader.Loader
 		return nil, errs[0]
 	}
 
-	var items []*t
+	var items []t
 	for _, i := range result {
 		items = append(items, i)
 	}

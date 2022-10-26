@@ -178,7 +178,7 @@ func resolverFor[k comparable, t any, r any](ctx context.Context, loaders *itemL
 		return res, merry.Wrap(ErrItemNotFound)
 	}
 
-	if t, ok := any(obj).(common.HasKey[k]); ok && loaders.Permissions != nil {
+	if t, ok := any(obj).(batchloaders.HasKey[k]); ok && loaders.Permissions != nil {
 		err = user.ValidateAccess(ctx, loaders.Permissions, t.GetKey())
 		if err != nil {
 			return res, err

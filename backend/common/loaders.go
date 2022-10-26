@@ -1,6 +1,9 @@
 package common
 
-import "github.com/graph-gophers/dataloader/v7"
+import (
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
+	"github.com/graph-gophers/dataloader/v7"
+)
 
 // BatchLoaders contains loaders for the different items
 type BatchLoaders struct {
@@ -47,5 +50,5 @@ type FilteredLoaders struct {
 
 // ProfileLoaders contains loaders per profile
 type ProfileLoaders struct {
-	ProgressLoader *dataloader.Loader[int, *Progress]
+	ProgressLoader *batchloaders.BatchLoader[int, *Progress]
 }

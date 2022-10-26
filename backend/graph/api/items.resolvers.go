@@ -77,7 +77,7 @@ func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*in
 	if profileLoaders == nil {
 		return nil, nil
 	}
-	progress, err := batchloaders.GetByID(ctx, profileLoaders.ProgressLoader, utils.AsInt(obj.ID))
+	progress, err := profileLoaders.ProgressLoader.Get(ctx, utils.AsInt(obj.ID))
 	if err != nil || progress == nil {
 		return nil, err
 	}

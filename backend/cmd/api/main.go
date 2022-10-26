@@ -102,7 +102,7 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 
 	profileQueries := queries.ProfileQueries(profileID)
 	loaders := &common.ProfileLoaders{
-		ProgressLoader: batchloaders.NewLoader(profileQueries.GetProgressForEpisodes, batchloaders.WithMemoryCache(time.Second*5)),
+		ProgressLoader: batchloaders.New(profileQueries.GetProgressForEpisodes, batchloaders.WithMemoryCache(time.Second*5)),
 	}
 
 	profilesLoaderCache.Set(profileID, loaders, cache.WithExpiration(time.Minute*5))
@@ -253,10 +253,10 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 	return &common.BatchLoaders{
 		// App
 		ApplicationLoader:           batchloaders.NewLoader(queries.GetApplications),
-		ApplicationIDFromCodeLoader: batchloaders.NewConversionLoader(queries.GetApplicationIDsForCodes),
+		ApplicationIDFromCodeLoader: batchloaders.NewConversionLoader[string, int](queries.GetApplicationIDsForCodes),
 		// Item
 		PageLoader:           batchloaders.NewLoader(queries.GetPages),
-		PageIDFromCodeLoader: batchloaders.NewConversionLoader(queries.GetPageIDsForCodes),
+		PageIDFromCodeLoader: batchloaders.NewConversionLoader[string, int](queries.GetPageIDsForCodes),
 		SectionLoader:        batchloaders.NewLoader(queries.GetSections),
 		ShowLoader:           batchloaders.NewLoader(queries.GetShows),
 		SeasonLoader:         batchloaders.NewLoader(queries.GetSeasons),
