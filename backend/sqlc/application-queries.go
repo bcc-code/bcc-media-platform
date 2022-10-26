@@ -2,6 +2,7 @@ package sqlc
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
 )
@@ -51,12 +52,12 @@ func (row getApplicationIDsForCodesRow) GetResult() int {
 }
 
 // GetApplicationIDsForCodes returns ids for the requested codes
-func (q *Queries) GetApplicationIDsForCodes(ctx context.Context, codes []string) ([]common.Conversion[string, int], error) {
+func (q *Queries) GetApplicationIDsForCodes(ctx context.Context, codes []string) ([]batchloaders.Conversion[string, int], error) {
 	rows, err := q.getApplicationIDsForCodes(ctx, codes)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getApplicationIDsForCodesRow, _ int) common.Conversion[string, int] {
+	return lo.Map(rows, func(i getApplicationIDsForCodesRow, _ int) batchloaders.Conversion[string, int] {
 		return i
 	}), nil
 }

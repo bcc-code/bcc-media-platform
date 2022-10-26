@@ -1,4 +1,4 @@
-package common
+package batchloaders
 
 import (
 	"context"
@@ -7,55 +7,22 @@ import (
 	"time"
 )
 
-// BatchLoaders contains loaders for the different items
-type BatchLoaders struct {
-	ApplicationLoader           *dataloader.Loader[int, *Application]
-	ApplicationIDFromCodeLoader *dataloader.Loader[string, *int]
-	PageLoader                  *dataloader.Loader[int, *Page]
-	PageIDFromCodeLoader        *dataloader.Loader[string, *int]
-	SectionLoader               *dataloader.Loader[int, *Section]
-	SectionsLoader              *dataloader.Loader[int, []*int]
-	CollectionLoader            *dataloader.Loader[int, *Collection]
-	CollectionItemLoader        *dataloader.Loader[int, []*CollectionItem]
-	ShowLoader                  *dataloader.Loader[int, *Show]
-	SeasonLoader                *dataloader.Loader[int, *Season]
-	EpisodeLoader               *dataloader.Loader[int, *Episode]
-	LinkLoader                  *dataloader.Loader[int, *Link]
-	FilesLoader                 *dataloader.Loader[int, []*File]
-	StreamsLoader               *dataloader.Loader[int, []*Stream]
-	EventLoader                 *dataloader.Loader[int, *Event]
-	CalendarEntryLoader         *dataloader.Loader[int, *CalendarEntry]
-	FAQCategoryLoader           *dataloader.Loader[int, *FAQCategory]
-	QuestionLoader              *dataloader.Loader[int, *Question]
-	QuestionsLoader             *dataloader.Loader[int, []*int]
-	ProfilesLoader              *dataloader.Loader[string, []*Profile]
-	MessageGroupLoader          *dataloader.Loader[int, *MessageGroup]
-	// Permissions
-	ShowPermissionLoader    *dataloader.Loader[int, *Permissions[int]]
-	SeasonPermissionLoader  *dataloader.Loader[int, *Permissions[int]]
-	EpisodePermissionLoader *dataloader.Loader[int, *Permissions[int]]
-	PagePermissionLoader    *dataloader.Loader[int, *Permissions[int]]
-	SectionPermissionLoader *dataloader.Loader[int, *Permissions[int]]
+// BatchLoader contains loader and additional functions to retrieve data easily
+type BatchLoader[K comparable, V any] struct {
+	*dataloader.Loader[K, V]
 }
 
-// FilteredLoaders contains loaders that will be filtered by permissions.
-type FilteredLoaders struct {
-	EpisodeFilterLoader     *dataloader.Loader[int, *int]
-	EpisodesLoader          *dataloader.Loader[int, []*int]
-	SeasonFilterLoader      *dataloader.Loader[int, *int]
-	SeasonsLoader           *dataloader.Loader[int, []*int]
-	ShowFilterLoader        *dataloader.Loader[int, *int]
-	SectionsLoader          *dataloader.Loader[int, []*int]
-	CollectionItemsLoader   *dataloader.Loader[int, []*CollectionItem]
-	CollectionItemIDsLoader *dataloader.Loader[int, []int]
+// Get retrieves a specific entry from the loader
+func (bl *BatchLoader[K, V]) Get(ctx context.Context, key K) (V, error) {
+	return GetByID(ctx, bl.Loader, key)
 }
 
-// ProfileLoaders contains loaders per profile
-type ProfileLoaders struct {
-	ProgressLoader *dataloader.Loader[int, *Progress]
+// GetMany retrieves the specified entries from the loader
+func (bl *BatchLoader[K, V]) GetMany(ctx context.Context, keys []K) ([]V, error) {
+	return GetMany(ctx, bl.Loader, keys)
 }
 
-func getOptions[K comparable, V any](opts ...any) []dataloader.Option[K, V] {
+func getOptions[K comparable, V any](opts ...Option) []dataloader.Option[K, V] {
 	var options []dataloader.Option[K, V]
 
 	memoryCacheAdded := false
@@ -76,11 +43,11 @@ func getOptions[K comparable, V any](opts ...any) []dataloader.Option[K, V] {
 	return options
 }
 
-// NewListBatchLoader returns a configured batch loader for Lists
-func NewListBatchLoader[K comparable, V any](
+// NewListLoader returns a configured batch loader for Lists
+func NewListLoader[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	getKey func(item V) K,
-	opts ...any,
+	opts ...Option,
 ) *dataloader.Loader[K, []*V] {
 	batchLoadLists := func(ctx context.Context, keys []K) []*dataloader.Result[[]*V] {
 		var results []*dataloader.Result[[]*V]
@@ -121,10 +88,16 @@ func NewListBatchLoader[K comparable, V any](
 	return dataloader.NewBatchedLoader(batchLoadLists, options...)
 }
 
-// NewRelationBatchLoader returns a configured batch loader for Lists
-func NewRelationBatchLoader[K comparable, R comparable](
+// Relation contains a simple id to relation struct
+type Relation[k comparable, kr comparable] interface {
+	GetKey() k
+	GetRelationID() kr
+}
+
+// NewRelationLoader returns a configured batch loader for Lists
+func NewRelationLoader[K comparable, R comparable](
 	factory func(ctx context.Context, ids []R) ([]Relation[K, R], error),
-	opts ...any,
+	opts ...Option,
 ) *dataloader.Loader[R, []*K] {
 	batchLoadLists := func(ctx context.Context, keys []R) []*dataloader.Result[[]*K] {
 		var results []*dataloader.Result[[]*K]
@@ -165,10 +138,16 @@ func NewRelationBatchLoader[K comparable, R comparable](
 	return dataloader.NewBatchedLoader(batchLoadLists, options...)
 }
 
-// NewConversionBatchLoader returns a configured batch loader for Lists
-func NewConversionBatchLoader[o comparable, rt comparable](
+// Conversion contains the original and converted value
+type Conversion[o comparable, r comparable] interface {
+	GetOriginal() o
+	GetResult() r
+}
+
+// NewConversionLoader returns a configured batch loader for Lists
+func NewConversionLoader[o comparable, rt comparable](
 	factory func(ctx context.Context, ids []o) ([]Conversion[o, rt], error),
-	opts ...any,
+	opts ...Option,
 ) *dataloader.Loader[o, *rt] {
 	batchLoadLists := func(ctx context.Context, keys []o) []*dataloader.Result[*rt] {
 		var results []*dataloader.Result[*rt]
@@ -204,28 +183,76 @@ func NewConversionBatchLoader[o comparable, rt comparable](
 	return dataloader.NewBatchedLoader(batchLoadLists, options...)
 }
 
-// NewBatchLoader returns a configured batch loader for items
-func NewBatchLoader[K comparable, V HasKey[K]](
+// HasKey interface for items with keys
+type HasKey[k comparable] interface {
+	GetKey() k
+}
+
+type keyFunc[K comparable, V any] func(V) K
+
+func (kf keyFunc[K, V]) isOption() {
+
+}
+
+// WithKeyFunc specifies that the key should be retrieved with this function.
+func WithKeyFunc[K comparable, V any](getKey func(V) K) Option {
+	return keyFunc[K, V](getKey)
+}
+
+// Option is the interface for all options
+type Option interface {
+	isOption()
+}
+
+// New creates a new batch loader
+func New[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
-	opts ...any,
+	opts ...Option,
+) *BatchLoader[K, *V] {
+	var getKey func(V) K
+	for _, opt := range opts {
+		switch t := opt.(type) {
+		case keyFunc[K, V]:
+			getKey = t
+		}
+	}
+	if getKey == nil {
+		var i V
+		if _, ok := any(i).(HasKey[K]); !ok {
+			panic("Couldn't determine key for item")
+		}
+		getKey = func(i V) K {
+			return any(i).(HasKey[K]).GetKey()
+		}
+	}
+	loader := NewCustomLoader(factory, getKey, opts...)
+	return &BatchLoader[K, *V]{
+		loader,
+	}
+}
+
+// NewLoader returns a configured batch loader for items
+func NewLoader[K comparable, V HasKey[K]](
+	factory func(ctx context.Context, ids []K) ([]V, error),
+	opts ...Option,
 ) *dataloader.Loader[K, *V] {
-	return NewCustomBatchLoader(factory, func(i V) K {
+	return NewCustomLoader(factory, func(i V) K {
 		return i.GetKey()
 	}, opts...)
 }
 
 // NewFilterLoader is just for filtering a list of keys or checking if user has access to a specific id
-func NewFilterLoader[K comparable](factory func(ctx context.Context, keys []K) ([]K, error), opts ...any) *dataloader.Loader[K, *K] {
-	return NewCustomBatchLoader(factory, func(key K) K {
+func NewFilterLoader[K comparable](factory func(ctx context.Context, keys []K) ([]K, error), opts ...Option) *dataloader.Loader[K, *K] {
+	return NewCustomLoader(factory, func(key K) K {
 		return key
 	}, opts...)
 }
 
-// NewCustomBatchLoader returns a configured batch loader for items
-func NewCustomBatchLoader[K comparable, V any](
+// NewCustomLoader returns a configured batch loader for items
+func NewCustomLoader[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	getKey func(V) K,
-	opts ...any,
+	opts ...Option,
 ) *dataloader.Loader[K, *V] {
 	batchLoadItems := func(ctx context.Context, keys []K) []*dataloader.Result[*V] {
 		var results []*dataloader.Result[*V]
@@ -262,34 +289,24 @@ func NewCustomBatchLoader[K comparable, V any](
 	return dataloader.NewBatchedLoader(batchLoadItems, options...)
 }
 
-type memoryCache struct {
-	expiration time.Duration
-}
-
-// WithMemoryCache defines how long a key should live in the cache
-func WithMemoryCache(expiration time.Duration) any {
-	return memoryCache{
-		expiration: expiration,
-	}
-}
-
-// GetFromLoaderByID returns the object from the loader
-func GetFromLoaderByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], id k) (*t, error) {
+// GetByID returns the object from the loader
+func GetByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, t], id k) (t, error) {
 	ctx, span := otel.Tracer("loader").Start(ctx, "single")
 	defer span.End()
 	thunk := loader.Load(ctx, id)
 	result, err := thunk()
 	if err != nil {
-		return nil, err
+		var empty t
+		return empty, err
 	}
 
 	return result, nil
 }
 
-// GetFromLoaderForKey retrieves file assets currently associated with the specified asset
+// GetForKey retrieves file assets currently associated with the specified asset
 //
 // It uses the dataloader to efficiently load data from DB or cache (as available)
-func GetFromLoaderForKey[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, []*t], key k) ([]*t, error) {
+func GetForKey[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, []t], key k) ([]t, error) {
 	ctx, span := otel.Tracer("loader").Start(ctx, "keyed")
 	defer span.End()
 	thunk := loader.Load(ctx, key)
@@ -301,8 +318,8 @@ func GetFromLoaderForKey[k comparable, t any](ctx context.Context, loader *datal
 	return result, nil
 }
 
-// GetManyFromLoader retrieves multiple items from specified loader
-func GetManyFromLoader[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], ids []k) ([]*t, error) {
+// GetMany retrieves multiple items from specified loader
+func GetMany[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, t], ids []k) ([]t, error) {
 	ctx, span := otel.Tracer("loader").Start(ctx, "multiple")
 	defer span.End()
 	thunk := loader.LoadMany(ctx, ids)
@@ -311,7 +328,7 @@ func GetManyFromLoader[k comparable, t any](ctx context.Context, loader *dataloa
 		return nil, errs[0]
 	}
 
-	var items []*t
+	var items []t
 	for _, i := range result {
 		items = append(items, i)
 	}

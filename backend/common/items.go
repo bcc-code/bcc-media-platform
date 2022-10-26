@@ -13,11 +13,6 @@ const (
 	//StreamServiceMediapackage = "mediapackage"
 )
 
-// HasKey interface for items with keys
-type HasKey[k comparable] interface {
-	GetKey() k
-}
-
 // ItemType is what type of item current struct is
 type ItemType string
 
@@ -29,18 +24,6 @@ var (
 	TypePage    = ItemType("page")
 	TypeSection = ItemType("section")
 )
-
-// Relation contains a simple id to relation struct
-type Relation[k comparable, kr comparable] interface {
-	GetKey() k
-	GetRelationID() kr
-}
-
-// Conversion contains the original and converted value
-type Conversion[o comparable, r comparable] interface {
-	GetOriginal() o
-	GetResult() r
-}
 
 // Show is the definition of the Show object
 type Show struct {

@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/admin/model"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
@@ -36,7 +37,7 @@ func (r *previewResolver) getItemsForFilter(ctx context.Context, col string, fil
 
 	switch col {
 	case "shows":
-		shows, err := common.GetManyFromLoader(ctx, r.Loaders.ShowLoader, ids)
+		shows, err := batchloaders.GetMany(ctx, r.Loaders.ShowLoader, ids)
 		items = lo.Map(shows, func(s *common.Show, _ int) *model.CollectionItem {
 			return &model.CollectionItem{
 				ID:    strconv.Itoa(s.ID),
@@ -47,7 +48,7 @@ func (r *previewResolver) getItemsForFilter(ctx context.Context, col string, fil
 			return nil, err
 		}
 	case "seasons":
-		shows, err := common.GetManyFromLoader(ctx, r.Loaders.SeasonLoader, ids)
+		shows, err := batchloaders.GetMany(ctx, r.Loaders.SeasonLoader, ids)
 		items = lo.Map(shows, func(s *common.Season, _ int) *model.CollectionItem {
 			return &model.CollectionItem{
 				ID:    strconv.Itoa(s.ID),
@@ -58,7 +59,7 @@ func (r *previewResolver) getItemsForFilter(ctx context.Context, col string, fil
 			return nil, err
 		}
 	case "episodes":
-		shows, err := common.GetManyFromLoader(ctx, r.Loaders.EpisodeLoader, ids)
+		shows, err := batchloaders.GetMany(ctx, r.Loaders.EpisodeLoader, ids)
 		items = lo.Map(shows, func(s *common.Episode, _ int) *model.CollectionItem {
 			return &model.CollectionItem{
 				ID:    strconv.Itoa(s.ID),

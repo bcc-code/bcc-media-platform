@@ -3,6 +3,7 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
 	"time"
@@ -69,18 +70,18 @@ func (row getSectionIDsForPagesRow) GetRelationID() int {
 }
 
 // GetSectionIDsForPages returns a list of episodes specified by seasons
-func (q *Queries) GetSectionIDsForPages(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
+func (q *Queries) GetSectionIDsForPages(ctx context.Context, ids []int) ([]batchloaders.Relation[int, int], error) {
 	rows, err := q.getSectionIDsForPages(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getSectionIDsForPagesRow, _ int) common.Relation[int, int] {
+	return lo.Map(rows, func(i getSectionIDsForPagesRow, _ int) batchloaders.Relation[int, int] {
 		return i
 	}), nil
 }
 
 // GetSectionIDsForPagesWithRoles returns a list of episodes specified by seasons
-func (rq *RoleQueries) GetSectionIDsForPagesWithRoles(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
+func (rq *RoleQueries) GetSectionIDsForPagesWithRoles(ctx context.Context, ids []int) ([]batchloaders.Relation[int, int], error) {
 	rows, err := rq.queries.getSectionIDsForPagesWithRoles(ctx, getSectionIDsForPagesWithRolesParams{
 		Column1: intToInt32(ids),
 		Column2: rq.roles,
@@ -88,7 +89,7 @@ func (rq *RoleQueries) GetSectionIDsForPagesWithRoles(ctx context.Context, ids [
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getSectionIDsForPagesWithRolesRow, _ int) common.Relation[int, int] {
+	return lo.Map(rows, func(i getSectionIDsForPagesWithRolesRow, _ int) batchloaders.Relation[int, int] {
 		return getSectionIDsForPagesRow(i)
 	}), nil
 }

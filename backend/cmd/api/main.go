@@ -9,6 +9,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	graphadmin "github.com/bcc-code/brunstadtv/backend/graph/admin"
 	graphadmingenerated "github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
@@ -61,13 +62,13 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 	rq := queries.RoleQueries(roles)
 
 	loaders := &common.FilteredLoaders{
-		ShowFilterLoader:    common.NewFilterLoader(rq.GetShowIDsWithRoles),
-		SeasonFilterLoader:  common.NewFilterLoader(rq.GetSeasonIDsWithRoles),
-		EpisodeFilterLoader: common.NewFilterLoader(rq.GetEpisodeIDsWithRoles),
-		SeasonsLoader:       common.NewRelationBatchLoader(rq.GetSeasonIDsForShowsWithRoles),
-		SectionsLoader:      common.NewRelationBatchLoader(rq.GetSectionIDsForPagesWithRoles),
-		EpisodesLoader:      common.NewRelationBatchLoader(rq.GetEpisodeIDsForSeasonsWithRoles),
-		CollectionItemsLoader: common.NewListBatchLoader(rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
+		ShowFilterLoader:    batchloaders.NewFilterLoader(rq.GetShowIDsWithRoles),
+		SeasonFilterLoader:  batchloaders.NewFilterLoader(rq.GetSeasonIDsWithRoles),
+		EpisodeFilterLoader: batchloaders.NewFilterLoader(rq.GetEpisodeIDsWithRoles),
+		SeasonsLoader:       batchloaders.NewRelationLoader(rq.GetSeasonIDsForShowsWithRoles),
+		SectionsLoader:      batchloaders.NewRelationLoader(rq.GetSectionIDsForPagesWithRoles),
+		EpisodesLoader:      batchloaders.NewRelationLoader(rq.GetEpisodeIDsForSeasonsWithRoles),
+		CollectionItemsLoader: batchloaders.NewListLoader(rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
 			return i.CollectionID
 		}),
 		CollectionItemIDsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader, roles),
@@ -101,7 +102,7 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 
 	profileQueries := queries.ProfileQueries(profileID)
 	loaders := &common.ProfileLoaders{
-		ProgressLoader: common.NewBatchLoader(profileQueries.GetProgressForEpisodes, common.WithMemoryCache(time.Second*5)),
+		ProgressLoader: batchloaders.New(profileQueries.GetProgressForEpisodes, batchloaders.WithMemoryCache(time.Second*5)),
 	}
 
 	profilesLoaderCache.Set(profileID, loaders, cache.WithExpiration(time.Minute*5))
@@ -247,40 +248,40 @@ func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code st
 }
 
 func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
-	collectionLoader := common.NewBatchLoader(queries.GetCollections)
+	collectionLoader := batchloaders.New(queries.GetCollections).Loader
 
 	return &common.BatchLoaders{
 		// App
-		ApplicationLoader:           common.NewBatchLoader(queries.GetApplications),
-		ApplicationIDFromCodeLoader: common.NewConversionBatchLoader(queries.GetApplicationIDsForCodes),
+		ApplicationLoader:           batchloaders.NewLoader(queries.GetApplications),
+		ApplicationIDFromCodeLoader: batchloaders.NewConversionLoader[string, int](queries.GetApplicationIDsForCodes),
 		// Item
-		PageLoader:           common.NewBatchLoader(queries.GetPages),
-		PageIDFromCodeLoader: common.NewConversionBatchLoader(queries.GetPageIDsForCodes),
-		SectionLoader:        common.NewBatchLoader(queries.GetSections),
-		ShowLoader:           common.NewBatchLoader(queries.GetShows),
-		SeasonLoader:         common.NewBatchLoader(queries.GetSeasons),
-		EpisodeLoader:        common.NewBatchLoader(queries.GetEpisodes),
-		LinkLoader:           common.NewBatchLoader(queries.GetLinks),
-		EventLoader:          common.NewBatchLoader(queries.GetEvents),
-		CalendarEntryLoader:  common.NewBatchLoader(queries.GetCalendarEntries),
+		PageLoader:           batchloaders.New(queries.GetPages).Loader,
+		PageIDFromCodeLoader: batchloaders.NewConversionLoader[string, int](queries.GetPageIDsForCodes),
+		SectionLoader:        batchloaders.New(queries.GetSections).Loader,
+		ShowLoader:           batchloaders.New(queries.GetShows).Loader,
+		SeasonLoader:         batchloaders.New(queries.GetSeasons).Loader,
+		EpisodeLoader:        batchloaders.New(queries.GetEpisodes).Loader,
+		LinkLoader:           batchloaders.New(queries.GetLinks).Loader,
+		EventLoader:          batchloaders.New(queries.GetEvents).Loader,
+		CalendarEntryLoader:  batchloaders.New(queries.GetCalendarEntries).Loader,
 		FilesLoader:          asset.NewBatchFilesLoader(*queries),
 		StreamsLoader:        asset.NewBatchStreamsLoader(*queries),
 		CollectionLoader:     collectionLoader,
 		CollectionItemLoader: collection.NewItemListBatchLoader(*queries),
 		// Relations
-		SectionsLoader: common.NewRelationBatchLoader(queries.GetSectionIDsForPages),
+		SectionsLoader: batchloaders.NewRelationLoader(queries.GetSectionIDsForPages),
 		// Permissions
 		ShowPermissionLoader:    show.NewPermissionLoader(*queries),
 		SeasonPermissionLoader:  season.NewPermissionLoader(*queries),
 		EpisodePermissionLoader: episode.NewPermissionLoader(*queries),
 		PagePermissionLoader:    page.NewPermissionLoader(*queries),
 		SectionPermissionLoader: section.NewPermissionLoader(*queries),
-		FAQCategoryLoader:       common.NewBatchLoader(queries.GetFAQCategories),
-		QuestionLoader:          common.NewBatchLoader(queries.GetQuestions),
-		QuestionsLoader:         common.NewRelationBatchLoader(queries.GetQuestionIDsForCategories),
-		MessageGroupLoader:      common.NewBatchLoader(queries.GetMessageGroups),
+		FAQCategoryLoader:       batchloaders.NewLoader(queries.GetFAQCategories),
+		QuestionLoader:          batchloaders.NewLoader(queries.GetQuestions),
+		QuestionsLoader:         batchloaders.NewRelationLoader(queries.GetQuestionIDsForCategories),
+		MessageGroupLoader:      batchloaders.NewLoader(queries.GetMessageGroups),
 		// User Data
-		ProfilesLoader: common.NewListBatchLoader(queries.GetProfilesForUserIDs, func(i common.Profile) string {
+		ProfilesLoader: batchloaders.NewListLoader(queries.GetProfilesForUserIDs, func(i common.Profile) string {
 			return i.UserID
 		}),
 	}

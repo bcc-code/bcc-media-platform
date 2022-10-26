@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"time"
 
 	"github.com/graph-gophers/dataloader/v7"
@@ -26,7 +27,7 @@ func ValidateAccess[k comparable](ctx context.Context, permissionLoader *dataloa
 	}
 	rs := GetRolesFromCtx(ginCtx)
 
-	perms, err := common.GetFromLoaderByID(ctx, permissionLoader, id)
+	perms, err := batchloaders.GetByID(ctx, permissionLoader, id)
 	if err != nil {
 		return err
 	}
