@@ -40,12 +40,16 @@ func (c *loaderCache[K, V]) Clear() {
 	c.cache = cache.New[K, dataloader.Thunk[V]]()
 }
 
+func (mc memoryCache) isOption() {
+
+}
+
 type memoryCache struct {
 	expiration time.Duration
 }
 
 // WithMemoryCache defines how long a key should live in the cache
-func WithMemoryCache(expiration time.Duration) any {
+func WithMemoryCache(expiration time.Duration) Option {
 	return memoryCache{
 		expiration: expiration,
 	}

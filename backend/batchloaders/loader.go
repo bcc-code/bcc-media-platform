@@ -22,7 +22,7 @@ func (bl *BatchLoader[K, V]) GetMany(ctx context.Context, keys []K) ([]V, error)
 	return GetMany(ctx, bl.Loader, keys)
 }
 
-func getOptions[K comparable, V any](opts ...any) []dataloader.Option[K, V] {
+func getOptions[K comparable, V any](opts ...Option) []dataloader.Option[K, V] {
 	var options []dataloader.Option[K, V]
 
 	memoryCacheAdded := false
@@ -47,7 +47,7 @@ func getOptions[K comparable, V any](opts ...any) []dataloader.Option[K, V] {
 func NewListLoader[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	getKey func(item V) K,
-	opts ...any,
+	opts ...Option,
 ) *dataloader.Loader[K, []*V] {
 	batchLoadLists := func(ctx context.Context, keys []K) []*dataloader.Result[[]*V] {
 		var results []*dataloader.Result[[]*V]
@@ -97,7 +97,7 @@ type Relation[k comparable, kr comparable] interface {
 // NewRelationLoader returns a configured batch loader for Lists
 func NewRelationLoader[K comparable, R comparable](
 	factory func(ctx context.Context, ids []R) ([]Relation[K, R], error),
-	opts ...any,
+	opts ...Option,
 ) *dataloader.Loader[R, []*K] {
 	batchLoadLists := func(ctx context.Context, keys []R) []*dataloader.Result[[]*K] {
 		var results []*dataloader.Result[[]*K]
@@ -147,7 +147,7 @@ type Conversion[o comparable, r comparable] interface {
 // NewConversionLoader returns a configured batch loader for Lists
 func NewConversionLoader[o comparable, rt comparable](
 	factory func(ctx context.Context, ids []o) ([]Conversion[o, rt], error),
-	opts ...any,
+	opts ...Option,
 ) *dataloader.Loader[o, *rt] {
 	batchLoadLists := func(ctx context.Context, keys []o) []*dataloader.Result[*rt] {
 		var results []*dataloader.Result[*rt]
@@ -190,10 +190,19 @@ type HasKey[k comparable] interface {
 
 type keyFunc[K comparable, V any] func(V) K
 
+func (kf keyFunc[K, V]) isOption() {
+
+}
+
+// Option is the interface for all options
+type Option interface {
+	isOption()
+}
+
 // New creates a new batch loader
 func New[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
-	opts ...any,
+	opts ...Option,
 ) *BatchLoader[K, *V] {
 	var getKey func(V) K
 	for _, opt := range opts {
@@ -220,7 +229,7 @@ func New[K comparable, V any](
 // NewLoader returns a configured batch loader for items
 func NewLoader[K comparable, V HasKey[K]](
 	factory func(ctx context.Context, ids []K) ([]V, error),
-	opts ...any,
+	opts ...Option,
 ) *dataloader.Loader[K, *V] {
 	return NewCustomLoader(factory, func(i V) K {
 		return i.GetKey()
@@ -228,7 +237,7 @@ func NewLoader[K comparable, V HasKey[K]](
 }
 
 // NewFilterLoader is just for filtering a list of keys or checking if user has access to a specific id
-func NewFilterLoader[K comparable](factory func(ctx context.Context, keys []K) ([]K, error), opts ...any) *dataloader.Loader[K, *K] {
+func NewFilterLoader[K comparable](factory func(ctx context.Context, keys []K) ([]K, error), opts ...Option) *dataloader.Loader[K, *K] {
 	return NewCustomLoader(factory, func(key K) K {
 		return key
 	}, opts...)
@@ -238,7 +247,7 @@ func NewFilterLoader[K comparable](factory func(ctx context.Context, keys []K) (
 func NewCustomLoader[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	getKey func(V) K,
-	opts ...any,
+	opts ...Option,
 ) *dataloader.Loader[K, *V] {
 	batchLoadItems := func(ctx context.Context, keys []K) []*dataloader.Result[*V] {
 		var results []*dataloader.Result[*V]
