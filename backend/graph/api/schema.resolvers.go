@@ -48,6 +48,44 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 	}, nil
 }
 
+// SetEpisodeProgress is the resolver for the episodeProgress field.
+func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int) (*model.Episode, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	p := user.GetProfileFromCtx(ginCtx)
+	if p == nil {
+		return nil, ErrProfileNotSet
+	}
+	e, err := r.QueryRoot().Episode(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	episodeID := utils.AsInt(e.ID)
+	q := r.Queries.ProfileQueries(p.ID)
+	var episodeProgress *common.Progress
+	if progress == nil {
+		err = q.ClearProgress(ctx, episodeID)
+	} else {
+		dur := e.Duration
+		if duration != nil {
+			dur = *duration
+		}
+		pr := common.Progress{
+			EpisodeID: episodeID,
+			Progress:  *progress,
+			Duration:  dur,
+		}
+		err = q.SaveProgress(ctx, pr)
+		episodeProgress = &pr
+	}
+	pl := r.ProfileLoaders(ctx).ProgressLoader
+	pl.Clear(ctx, episodeID)
+	pl.Prime(ctx, episodeID, episodeProgress)
+	return e, err
+}
+
 // Application is the resolver for the application field.
 func (r *queryRootResolver) Application(ctx context.Context) (*model.Application, error) {
 	ginCtx, err := utils.GinCtx(ctx)

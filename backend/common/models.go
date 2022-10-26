@@ -75,3 +75,16 @@ type Notification struct {
 	Description LocaleString           `json:"description"`
 	Images      LocaleMap[null.String] `json:"images"`
 }
+
+// Progress contains basic data for progress
+type Progress struct {
+	EpisodeID int
+	Progress  int
+	Duration  int
+	Watched   bool
+}
+
+// GetKey returns the key for this item
+func (i Progress) GetKey() int {
+	return i.EpisodeID
+}

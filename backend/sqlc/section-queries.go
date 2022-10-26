@@ -80,10 +80,10 @@ func (q *Queries) GetSectionIDsForPages(ctx context.Context, ids []int) ([]commo
 }
 
 // GetSectionIDsForPagesWithRoles returns a list of episodes specified by seasons
-func (q *Queries) GetSectionIDsForPagesWithRoles(ctx context.Context, ids []int, roles []string) ([]common.Relation[int, int], error) {
-	rows, err := q.getSectionIDsForPagesWithRoles(ctx, getSectionIDsForPagesWithRolesParams{
+func (rq *RoleQueries) GetSectionIDsForPagesWithRoles(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
+	rows, err := rq.queries.getSectionIDsForPagesWithRoles(ctx, getSectionIDsForPagesWithRolesParams{
 		Column1: intToInt32(ids),
-		Column2: roles,
+		Column2: rq.roles,
 	})
 	if err != nil {
 		return nil, err

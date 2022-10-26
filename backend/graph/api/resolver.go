@@ -35,6 +35,7 @@ type Resolver struct {
 	Queries         *sqlc.Queries
 	Loaders         *common.BatchLoaders
 	FilteredLoaders func(ctx context.Context) *common.FilteredLoaders
+	ProfileLoaders  func(ctx context.Context) *common.ProfileLoaders
 	SearchService   *search.Service
 	URLSigner       *signing.Signer
 	APIConfig       apiConfig
@@ -48,7 +49,8 @@ type apiConfig interface {
 
 // ErrItemNotFound for not found items
 var (
-	ErrItemNotFound = merry.Sentinel("item not found")
+	ErrItemNotFound  = merry.Sentinel("item not found")
+	ErrProfileNotSet = merry.Sentinel("profile not set", merry.WithUserMessage("must be logged in for this function"))
 )
 
 var requestLocks = map[string]*sync.Mutex{}

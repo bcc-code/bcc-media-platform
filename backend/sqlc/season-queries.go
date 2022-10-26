@@ -81,10 +81,10 @@ func (q *Queries) GetSeasonIDsForShows(ctx context.Context, ids []int) ([]common
 }
 
 // GetSeasonIDsForShowsWithRoles returns episodeIDs for season filtered by roles
-func (q *Queries) GetSeasonIDsForShowsWithRoles(ctx context.Context, ids []int, roles []string) ([]common.Relation[int, int], error) {
-	rows, err := q.getSeasonIDsForShowsWithRoles(ctx, getSeasonIDsForShowsWithRolesParams{
+func (rq *RoleQueries) GetSeasonIDsForShowsWithRoles(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
+	rows, err := rq.queries.getSeasonIDsForShowsWithRoles(ctx, getSeasonIDsForShowsWithRolesParams{
 		Column1: intToInt32(ids),
-		Column2: roles,
+		Column2: rq.roles,
 	})
 	if err != nil {
 		return nil, err
@@ -92,6 +92,18 @@ func (q *Queries) GetSeasonIDsForShowsWithRoles(ctx context.Context, ids []int, 
 	return lo.Map(rows, func(i getSeasonIDsForShowsWithRolesRow, _ int) common.Relation[int, int] {
 		return getSeasonIDsForShowsRow(i)
 	}), nil
+}
+
+// GetSeasonIDsWithRoles returns episodeIDs for season filtered by roles
+func (rq *RoleQueries) GetSeasonIDsWithRoles(ctx context.Context, ids []int) ([]int, error) {
+	rows, err := rq.queries.getSeasonIDsWithRoles(ctx, getSeasonIDsWithRolesParams{
+		Column1: intToInt32(ids),
+		Column2: rq.roles,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return int32ToInt(rows), nil
 }
 
 // GetPermissionsForSeasons returns permissions for specified episodes

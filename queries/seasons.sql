@@ -88,6 +88,19 @@ WHERE se.show_id = ANY ($1::int[])
     )
 ORDER BY se.season_number;
 
+-- name: getSeasonIDsWithRoles :many
+SELECT se.id
+FROM seasons se
+         LEFT JOIN season_availability access ON access.id = se.id
+         LEFT JOIN season_roles roles ON roles.id = se.id
+WHERE se.id = ANY ($1::int[])
+  AND access.published
+  AND access.available_to > now()
+  AND (
+        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+        (roles.roles_earlyaccess && $2::varchar[])
+    );
+
 -- name: getPermissionsForSeasons :many
 SELECT se.id,
        access.published::bool             AS published,
