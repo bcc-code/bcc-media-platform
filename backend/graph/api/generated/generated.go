@@ -291,8 +291,8 @@ type ComplexityRoot struct {
 	}
 
 	MutationRoot struct {
-		EpisodeProgress    func(childComplexity int, id string, progress *int, duration *int) int
 		SetDevicePushToken func(childComplexity int, token string) int
+		SetEpisodeProgress func(childComplexity int, id string, progress *int, duration *int) int
 	}
 
 	Page struct {
@@ -582,7 +582,7 @@ type MessageSectionResolver interface {
 }
 type MutationRootResolver interface {
 	SetDevicePushToken(ctx context.Context, token string) (*model.Device, error)
-	EpisodeProgress(ctx context.Context, id string, progress *int, duration *int) (*model.Episode, error)
+	SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int) (*model.Episode, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -1652,18 +1652,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MessageStyle.Text(childComplexity), true
 
-	case "MutationRoot.episodeProgress":
-		if e.complexity.MutationRoot.EpisodeProgress == nil {
-			break
-		}
-
-		args, err := ec.field_MutationRoot_episodeProgress_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.MutationRoot.EpisodeProgress(childComplexity, args["id"].(string), args["progress"].(*int), args["duration"].(*int)), true
-
 	case "MutationRoot.setDevicePushToken":
 		if e.complexity.MutationRoot.SetDevicePushToken == nil {
 			break
@@ -1675,6 +1663,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MutationRoot.SetDevicePushToken(childComplexity, args["token"].(string)), true
+
+	case "MutationRoot.setEpisodeProgress":
+		if e.complexity.MutationRoot.SetEpisodeProgress == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_setEpisodeProgress_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.SetEpisodeProgress(childComplexity, args["id"].(string), args["progress"].(*int), args["duration"].(*int)), true
 
 	case "Page.code":
 		if e.complexity.Page.Code == nil {
@@ -3434,7 +3434,7 @@ type QueryRoot{
 
 type MutationRoot {
   setDevicePushToken(token: String!): Device
-  episodeProgress(id: ID!, progress: Int, duration: Int): Episode!
+  setEpisodeProgress(id: ID!, progress: Int, duration: Int): Episode!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -3804,7 +3804,22 @@ func (ec *executionContext) field_LabelSection_items_args(ctx context.Context, r
 	return args, nil
 }
 
-func (ec *executionContext) field_MutationRoot_episodeProgress_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_MutationRoot_setDevicePushToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["token"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["token"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_setEpisodeProgress_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -3834,21 +3849,6 @@ func (ec *executionContext) field_MutationRoot_episodeProgress_args(ctx context.
 		}
 	}
 	args["duration"] = arg2
-	return args, nil
-}
-
-func (ec *executionContext) field_MutationRoot_setDevicePushToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["token"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["token"] = arg0
 	return args, nil
 }
 
@@ -10588,8 +10588,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setDevicePushToken(ctx con
 	return fc, nil
 }
 
-func (ec *executionContext) _MutationRoot_episodeProgress(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MutationRoot_episodeProgress(ctx, field)
+func (ec *executionContext) _MutationRoot_setEpisodeProgress(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_setEpisodeProgress(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10602,7 +10602,7 @@ func (ec *executionContext) _MutationRoot_episodeProgress(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MutationRoot().EpisodeProgress(rctx, fc.Args["id"].(string), fc.Args["progress"].(*int), fc.Args["duration"].(*int))
+		return ec.resolvers.MutationRoot().SetEpisodeProgress(rctx, fc.Args["id"].(string), fc.Args["progress"].(*int), fc.Args["duration"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10619,7 +10619,7 @@ func (ec *executionContext) _MutationRoot_episodeProgress(ctx context.Context, f
 	return ec.marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MutationRoot_episodeProgress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MutationRoot",
 		Field:      field,
@@ -10678,7 +10678,7 @@ func (ec *executionContext) fieldContext_MutationRoot_episodeProgress(ctx contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_MutationRoot_episodeProgress_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_MutationRoot_setEpisodeProgress_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -22054,10 +22054,10 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 				return ec._MutationRoot_setDevicePushToken(ctx, field)
 			})
 
-		case "episodeProgress":
+		case "setEpisodeProgress":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._MutationRoot_episodeProgress(ctx, field)
+				return ec._MutationRoot_setEpisodeProgress(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {

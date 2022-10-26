@@ -48,8 +48,8 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 	}, nil
 }
 
-// EpisodeProgress is the resolver for the episodeProgress field.
-func (r *mutationRootResolver) EpisodeProgress(ctx context.Context, id string, progress *int, duration *int) (*model.Episode, error) {
+// SetEpisodeProgress is the resolver for the episodeProgress field.
+func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int) (*model.Episode, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err

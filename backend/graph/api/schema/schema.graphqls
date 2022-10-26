@@ -90,5 +90,5 @@ type QueryRoot{
 
 type MutationRoot {
   setDevicePushToken(token: String!): Device
-  episodeProgress(id: ID!, progress: Int, duration: Int): Episode!
+  setEpisodeProgress(id: ID!, progress: Int, duration: Int): Episode!
 }
