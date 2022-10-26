@@ -2,7 +2,7 @@
     <section>
         <div
             class="flex flex-col gap-8"
-            v-if="data?.page?.sections.items.length"
+            v-if="data?.page.sections.items.length"
         >
             <Section
                 v-for="section in data?.page?.sections.items"
@@ -10,8 +10,7 @@
             >
             </Section>
         </div>
-        <div v-if="fetching">FETCHING</div>
-        <div v-else-if="!data?.page.sections.items.length">
+        <div v-else-if="!fetching">
             Uh oh. Missing content
         </div>
         <div v-if="error">{{ error.message }}</div>

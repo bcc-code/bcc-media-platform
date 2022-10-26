@@ -23,7 +23,8 @@ const newString = computed(() => {
         case "Season":
             return new Date(props.item.item.episodes.items[0].publishDate).getTime() > date.getTime() ? t("common.newEpisodes") : ""
         case "Show":
-            const episode = props.item.item.seasons.items[0].episodes.items[0]
+            const episode = props.item.item.seasons.items[0]?.episodes.items[0]
+            if (!episode) break
             return new Date(episode.publishDate).getTime() > date.getTime() ? t("common.newEpisodes") : ""
     }
 })

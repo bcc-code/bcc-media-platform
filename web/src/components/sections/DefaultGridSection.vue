@@ -4,38 +4,12 @@
         <div class="grid grid-cols-2">
             <div v-for="i in item.items.items" class="relative">
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
-                <div class="flex flex-col cursor-pointer mx-2 mt-2">
+                <div class="flex flex-col cursor-pointer mx-2 mt-2" @click="goToSectionItem(i)">
                     <img
                         :src="i.image ?? ''"
                         class="rounded-md top-0 h-full w-full object-cover mb-1"
                     />
-                    <div v-if="i.item?.__typename === 'Episode'">
-                        <h3 class="text-sm text-primary w-full" v-if="i.item.season">
-                            {{ i.item.season?.show.title
-                            }}<span class="ml-1 text-gray"
-                                >S{{ i.item.season?.number }}:E{{
-                                    i.item.episodeNumber
-                                }}</span
-                            >
-                        </h3>
-                        <SectionTitle>{{i.title}}</SectionTitle>
-                    </div>
-                    <div v-else-if="i.item?.__typename === 'Season'">
-                        <h3 class="text-sm text-primary w-full">
-                            {{ i.item.show.title
-                            }}<span class="ml-1 text-gray"
-                                >S{{ i.item.seasonNumber }}</span
-                            >
-                        </h3>
-                        <SectionTitle>{{i.title}}</SectionTitle>
-                    </div>
-                    <div v-else-if="i.item?.__typename === 'Show'">
-                        <SectionTitle>{{i.title}}</SectionTitle>
-                        <p class="text-gray">
-                            {{ t("section.item.season", i.item.seasonCount) }} -
-                            {{ t("section.item.episode", i.item.episodeCount) }}
-                        </p>
-                    </div>
+                    <SectionItemTitle :i="i"></SectionItemTitle>
                 </div>
             </div>
         </div>
@@ -48,6 +22,8 @@ import { computed } from "vue"
 import SectionTitle from "./SectionTitle.vue"
 import { useI18n } from "vue-i18n"
 import NewPill from "./NewPill.vue";
+import { goToSectionItem } from "@/utils/items";
+import SectionItemTitle from "./SectionItemTitle.vue";
 
 const { t } = useI18n()
 
