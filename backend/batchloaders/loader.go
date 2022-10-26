@@ -194,6 +194,11 @@ func (kf keyFunc[K, V]) isOption() {
 
 }
 
+// WithKeyFunc specifies that the key should be retrieved with this function.
+func WithKeyFunc[K comparable, V any](getKey func(V) K) Option {
+	return keyFunc[K, V](getKey)
+}
+
 // Option is the interface for all options
 type Option interface {
 	isOption()
