@@ -34,9 +34,9 @@ import (
 // It contains references to all external services and config
 type Resolver struct {
 	Queries         *sqlc.Queries
-	Loaders         *batchloaders.BatchLoaders
-	FilteredLoaders func(ctx context.Context) *batchloaders.FilteredLoaders
-	ProfileLoaders  func(ctx context.Context) *batchloaders.ProfileLoaders
+	Loaders         *common.BatchLoaders
+	FilteredLoaders func(ctx context.Context) *common.FilteredLoaders
+	ProfileLoaders  func(ctx context.Context) *common.ProfileLoaders
 	SearchService   *search.Service
 	URLSigner       *signing.Signer
 	APIConfig       apiConfig

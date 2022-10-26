@@ -18,7 +18,7 @@ import (
 type Resolver struct {
 	DB      *sql.DB
 	Queries *sqlc.Queries
-	Loaders *batchloaders.BatchLoaders
+	Loaders *common.BatchLoaders
 }
 
 func (r *previewResolver) getItemsForFilter(ctx context.Context, col string, filter common.Filter) ([]*model.CollectionItem, error) {

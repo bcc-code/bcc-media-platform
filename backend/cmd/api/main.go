@@ -48,9 +48,9 @@ import (
 
 var generalCache = cache.New[string, any]()
 
-var rolesLoaderCache = cache.New[string, *batchloaders.FilteredLoaders]()
+var rolesLoaderCache = cache.New[string, *common.FilteredLoaders]()
 
-func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dataloader.Loader[int, *common.Collection], roles []string) *batchloaders.FilteredLoaders {
+func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dataloader.Loader[int, *common.Collection], roles []string) *common.FilteredLoaders {
 	sort.Strings(roles)
 
 	key := strings.Join(roles, "-")
@@ -61,7 +61,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 
 	rq := queries.RoleQueries(roles)
 
-	loaders := &batchloaders.FilteredLoaders{
+	loaders := &common.FilteredLoaders{
 		ShowFilterLoader:    batchloaders.NewFilterLoader(rq.GetShowIDsWithRoles),
 		SeasonFilterLoader:  batchloaders.NewFilterLoader(rq.GetSeasonIDsWithRoles),
 		EpisodeFilterLoader: batchloaders.NewFilterLoader(rq.GetEpisodeIDsWithRoles),
@@ -79,8 +79,8 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 	return loaders
 }
 
-func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *dataloader.Loader[int, *common.Collection]) func(ctx context.Context) *batchloaders.FilteredLoaders {
-	return func(ctx context.Context) *batchloaders.FilteredLoaders {
+func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *dataloader.Loader[int, *common.Collection]) func(ctx context.Context) *common.FilteredLoaders {
+	return func(ctx context.Context) *common.FilteredLoaders {
 		ginCtx, err := utils.GinCtx(ctx)
 		var roles []string
 		if err != nil {
@@ -93,15 +93,15 @@ func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *
 	}
 }
 
-var profilesLoaderCache = cache.New[uuid.UUID, *batchloaders.ProfileLoaders]()
+var profilesLoaderCache = cache.New[uuid.UUID, *common.ProfileLoaders]()
 
-func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *batchloaders.ProfileLoaders {
+func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.ProfileLoaders {
 	if loaders, ok := profilesLoaderCache.Get(profileID); ok {
 		return loaders
 	}
 
 	profileQueries := queries.ProfileQueries(profileID)
-	loaders := &batchloaders.ProfileLoaders{
+	loaders := &common.ProfileLoaders{
 		ProgressLoader: batchloaders.NewBatchLoader(profileQueries.GetProgressForEpisodes, batchloaders.WithMemoryCache(time.Second*5)),
 	}
 
@@ -110,8 +110,8 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *batchload
 	return loaders
 }
 
-func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *batchloaders.ProfileLoaders {
-	return func(ctx context.Context) *batchloaders.ProfileLoaders {
+func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *common.ProfileLoaders {
+	return func(ctx context.Context) *common.ProfileLoaders {
 		ginCtx, err := utils.GinCtx(ctx)
 		if err != nil {
 			return nil
@@ -125,7 +125,7 @@ func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *batc
 }
 
 // Defining the Graphql handler
-func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *batchloaders.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
+func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
 
 	resolver := graphapi.Resolver{
 		Queries:         queries,
@@ -149,7 +149,7 @@ func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *batchloaders.Bat
 	}
 }
 
-func publicGraphqlHandler(loaders *batchloaders.BatchLoaders) gin.HandlerFunc {
+func publicGraphqlHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
 	resolver := graphpub.Resolver{
 		Loaders: &graphpub.Loaders{
 			EpisodeLoader: loaders.EpisodeLoader,
@@ -170,7 +170,7 @@ func publicGraphqlHandler(loaders *batchloaders.BatchLoaders) gin.HandlerFunc {
 	}
 }
 
-func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *batchloaders.BatchLoaders) gin.HandlerFunc {
+func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders) gin.HandlerFunc {
 
 	resolver := graphadmin.Resolver{
 		DB:      db,
@@ -247,10 +247,10 @@ func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code st
 	}
 }
 
-func initBatchLoaders(queries *sqlc.Queries) *batchloaders.BatchLoaders {
+func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 	collectionLoader := batchloaders.NewBatchLoader(queries.GetCollections)
 
-	return &batchloaders.BatchLoaders{
+	return &common.BatchLoaders{
 		// App
 		ApplicationLoader:           batchloaders.NewBatchLoader(queries.GetApplications),
 		ApplicationIDFromCodeLoader: batchloaders.NewConversionBatchLoader(queries.GetApplicationIDsForCodes),

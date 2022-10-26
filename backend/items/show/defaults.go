@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func getEpisodeIDFromSeason(ctx context.Context, loaders *batchloaders.FilteredLoaders, sID *int, first bool) (*int, error) {
+func getEpisodeIDFromSeason(ctx context.Context, loaders *common.FilteredLoaders, sID *int, first bool) (*int, error) {
 	if sID == nil {
 		return nil, nil
 	}
@@ -22,7 +22,7 @@ func getEpisodeIDFromSeason(ctx context.Context, loaders *batchloaders.FilteredL
 }
 
 // DefaultEpisodeID returns the default episode for the show
-func DefaultEpisodeID(ctx context.Context, loaders *batchloaders.FilteredLoaders, show *common.Show) (*int, error) {
+func DefaultEpisodeID(ctx context.Context, loaders *common.FilteredLoaders, show *common.Show) (*int, error) {
 	// TODO: this should respect continue watching as well, or previously shown episodes
 	sIDs, err := batchloaders.GetFromLoaderForKey(ctx, loaders.SeasonsLoader, show.ID)
 	if err != nil || len(sIDs) == 0 {

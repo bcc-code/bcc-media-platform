@@ -86,7 +86,7 @@ func collectionToType(collection string) common.ItemType {
 }
 
 // GetCollectionEntries returns entries for the specified collection
-func GetCollectionEntries(ctx context.Context, loaders *batchloaders.BatchLoaders, filteredLoaders *batchloaders.FilteredLoaders, collectionId int) ([]Entry, error) {
+func GetCollectionEntries(ctx context.Context, loaders *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, collectionId int) ([]Entry, error) {
 	col, err := batchloaders.GetFromLoaderByID(ctx, loaders.CollectionLoader, collectionId)
 	if err != nil {
 		return nil, err

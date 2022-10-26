@@ -8,54 +8,6 @@ import (
 	"time"
 )
 
-// BatchLoaders contains loaders for the different items
-type BatchLoaders struct {
-	ApplicationLoader           *dataloader.Loader[int, *common.Application]
-	ApplicationIDFromCodeLoader *dataloader.Loader[string, *int]
-	PageLoader                  *dataloader.Loader[int, *common.Page]
-	PageIDFromCodeLoader        *dataloader.Loader[string, *int]
-	SectionLoader               *dataloader.Loader[int, *common.Section]
-	SectionsLoader              *dataloader.Loader[int, []*int]
-	CollectionLoader            *dataloader.Loader[int, *common.Collection]
-	CollectionItemLoader        *dataloader.Loader[int, []*common.CollectionItem]
-	ShowLoader                  *dataloader.Loader[int, *common.Show]
-	SeasonLoader                *dataloader.Loader[int, *common.Season]
-	EpisodeLoader               *dataloader.Loader[int, *common.Episode]
-	LinkLoader                  *dataloader.Loader[int, *common.Link]
-	FilesLoader                 *dataloader.Loader[int, []*common.File]
-	StreamsLoader               *dataloader.Loader[int, []*common.Stream]
-	EventLoader                 *dataloader.Loader[int, *common.Event]
-	CalendarEntryLoader         *dataloader.Loader[int, *common.CalendarEntry]
-	FAQCategoryLoader           *dataloader.Loader[int, *common.FAQCategory]
-	QuestionLoader              *dataloader.Loader[int, *common.Question]
-	QuestionsLoader             *dataloader.Loader[int, []*int]
-	ProfilesLoader              *dataloader.Loader[string, []*common.Profile]
-	MessageGroupLoader          *dataloader.Loader[int, *common.MessageGroup]
-	// Permissions
-	ShowPermissionLoader    *dataloader.Loader[int, *common.Permissions[int]]
-	SeasonPermissionLoader  *dataloader.Loader[int, *common.Permissions[int]]
-	EpisodePermissionLoader *dataloader.Loader[int, *common.Permissions[int]]
-	PagePermissionLoader    *dataloader.Loader[int, *common.Permissions[int]]
-	SectionPermissionLoader *dataloader.Loader[int, *common.Permissions[int]]
-}
-
-// FilteredLoaders contains loaders that will be filtered by permissions.
-type FilteredLoaders struct {
-	EpisodeFilterLoader     *dataloader.Loader[int, *int]
-	EpisodesLoader          *dataloader.Loader[int, []*int]
-	SeasonFilterLoader      *dataloader.Loader[int, *int]
-	SeasonsLoader           *dataloader.Loader[int, []*int]
-	ShowFilterLoader        *dataloader.Loader[int, *int]
-	SectionsLoader          *dataloader.Loader[int, []*int]
-	CollectionItemsLoader   *dataloader.Loader[int, []*common.CollectionItem]
-	CollectionItemIDsLoader *dataloader.Loader[int, []int]
-}
-
-// ProfileLoaders contains loaders per profile
-type ProfileLoaders struct {
-	ProgressLoader *dataloader.Loader[int, *common.Progress]
-}
-
 func getOptions[K comparable, V any](opts ...any) []dataloader.Option[K, V] {
 	var options []dataloader.Option[K, V]
 

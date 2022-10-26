@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-func preloadLoaders(ctx context.Context, loaders *batchloaders.BatchLoaders, entries []collection.Entry) {
+func preloadLoaders(ctx context.Context, loaders *common.BatchLoaders, entries []collection.Entry) {
 	for _, e := range entries {
 		switch e.Type {
 		case "show":
@@ -27,7 +27,7 @@ func preloadLoaders(ctx context.Context, loaders *batchloaders.BatchLoaders, ent
 	}
 }
 
-func sectionCollectionEntryResolver(ctx context.Context, loaders *batchloaders.BatchLoaders, filteredLoaders *batchloaders.FilteredLoaders, section *common.Section, first *int, offset *int) (*utils.PaginationResult[*model.SectionItem], error) {
+func sectionCollectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, section *common.Section, first *int, offset *int) (*utils.PaginationResult[*model.SectionItem], error) {
 	if !section.CollectionID.Valid {
 		return &utils.PaginationResult[*model.SectionItem]{}, nil
 	}
@@ -89,7 +89,7 @@ func sectionCollectionEntryResolver(ctx context.Context, loaders *batchloaders.B
 	}, nil
 }
 
-func collectionEntryResolver(ctx context.Context, loaders *batchloaders.BatchLoaders, filteredLoaders *batchloaders.FilteredLoaders, collectionId int, first *int, offset *int) (*utils.PaginationResult[model.CollectionItem], error) {
+func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, collectionId int, first *int, offset *int) (*utils.PaginationResult[model.CollectionItem], error) {
 	entries, err := collection.GetCollectionEntries(ctx, loaders, filteredLoaders, collectionId)
 	if err != nil {
 		return nil, err
