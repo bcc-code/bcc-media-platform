@@ -55,8 +55,8 @@ blocks:
           - sem-version go 1.19
     dependencies: []
   - name: Build
-    run:
-      when: change_in('/backend/')
+#    run:
+#      when: change_in('/backend/')
     task:
       prologue:
         commands:
