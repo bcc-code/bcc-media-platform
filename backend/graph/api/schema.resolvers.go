@@ -5,19 +5,20 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"strconv"
 	"time"
 
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
+	null "gopkg.in/guregu/null.v4"
 )
 
 // SetDevicePushToken is the resolver for the setDevicePushToken field.
@@ -73,8 +74,17 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 		if duration != nil {
 			dur = *duration
 		}
+		var showID null.Int
+		if e.Season != nil {
+			s, err := r.QueryRoot().Season(ctx, e.Season.ID)
+			if err != nil {
+				return nil, err
+			}
+			showID.SetValid(int64(utils.AsInt(s.Show.ID)))
+		}
 		pr := common.Progress{
 			EpisodeID: episodeID,
+			ShowID:    showID,
 			Progress:  *progress,
 			Duration:  dur,
 		}

@@ -1019,11 +1019,12 @@ type UsersProfile struct {
 }
 
 type UsersProgress struct {
-	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
-	EpisodeID int32     `db:"episode_id" json:"episodeID"`
-	Progress  int32     `db:"progress" json:"progress"`
-	Duration  int32     `db:"duration" json:"duration"`
-	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
+	ProfileID uuid.UUID   `db:"profile_id" json:"profileID"`
+	EpisodeID int32       `db:"episode_id" json:"episodeID"`
+	Progress  int32       `db:"progress" json:"progress"`
+	Duration  int32       `db:"duration" json:"duration"`
+	UpdatedAt time.Time   `db:"updated_at" json:"updatedAt"`
+	ShowID    null_v4.Int `db:"show_id" json:"showID"`
 }
 
 type Webconfig struct {
