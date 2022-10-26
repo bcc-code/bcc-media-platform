@@ -9,6 +9,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	graphadmin "github.com/bcc-code/brunstadtv/backend/graph/admin"
 	graphadmingenerated "github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
@@ -47,9 +48,9 @@ import (
 
 var generalCache = cache.New[string, any]()
 
-var rolesLoaderCache = cache.New[string, *common.FilteredLoaders]()
+var rolesLoaderCache = cache.New[string, *batchloaders.FilteredLoaders]()
 
-func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dataloader.Loader[int, *common.Collection], roles []string) *common.FilteredLoaders {
+func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dataloader.Loader[int, *common.Collection], roles []string) *batchloaders.FilteredLoaders {
 	sort.Strings(roles)
 
 	key := strings.Join(roles, "-")
@@ -60,14 +61,14 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 
 	rq := queries.RoleQueries(roles)
 
-	loaders := &common.FilteredLoaders{
-		ShowFilterLoader:    common.NewFilterLoader(rq.GetShowIDsWithRoles),
-		SeasonFilterLoader:  common.NewFilterLoader(rq.GetSeasonIDsWithRoles),
-		EpisodeFilterLoader: common.NewFilterLoader(rq.GetEpisodeIDsWithRoles),
-		SeasonsLoader:       common.NewRelationBatchLoader(rq.GetSeasonIDsForShowsWithRoles),
-		SectionsLoader:      common.NewRelationBatchLoader(rq.GetSectionIDsForPagesWithRoles),
-		EpisodesLoader:      common.NewRelationBatchLoader(rq.GetEpisodeIDsForSeasonsWithRoles),
-		CollectionItemsLoader: common.NewListBatchLoader(rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
+	loaders := &batchloaders.FilteredLoaders{
+		ShowFilterLoader:    batchloaders.NewFilterLoader(rq.GetShowIDsWithRoles),
+		SeasonFilterLoader:  batchloaders.NewFilterLoader(rq.GetSeasonIDsWithRoles),
+		EpisodeFilterLoader: batchloaders.NewFilterLoader(rq.GetEpisodeIDsWithRoles),
+		SeasonsLoader:       batchloaders.NewRelationBatchLoader(rq.GetSeasonIDsForShowsWithRoles),
+		SectionsLoader:      batchloaders.NewRelationBatchLoader(rq.GetSectionIDsForPagesWithRoles),
+		EpisodesLoader:      batchloaders.NewRelationBatchLoader(rq.GetEpisodeIDsForSeasonsWithRoles),
+		CollectionItemsLoader: batchloaders.NewListBatchLoader(rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
 			return i.CollectionID
 		}),
 		CollectionItemIDsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader, roles),
@@ -78,8 +79,8 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 	return loaders
 }
 
-func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *dataloader.Loader[int, *common.Collection]) func(ctx context.Context) *common.FilteredLoaders {
-	return func(ctx context.Context) *common.FilteredLoaders {
+func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *dataloader.Loader[int, *common.Collection]) func(ctx context.Context) *batchloaders.FilteredLoaders {
+	return func(ctx context.Context) *batchloaders.FilteredLoaders {
 		ginCtx, err := utils.GinCtx(ctx)
 		var roles []string
 		if err != nil {
@@ -92,16 +93,16 @@ func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *
 	}
 }
 
-var profilesLoaderCache = cache.New[uuid.UUID, *common.ProfileLoaders]()
+var profilesLoaderCache = cache.New[uuid.UUID, *batchloaders.ProfileLoaders]()
 
-func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.ProfileLoaders {
+func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *batchloaders.ProfileLoaders {
 	if loaders, ok := profilesLoaderCache.Get(profileID); ok {
 		return loaders
 	}
 
 	profileQueries := queries.ProfileQueries(profileID)
-	loaders := &common.ProfileLoaders{
-		ProgressLoader: common.NewBatchLoader(profileQueries.GetProgressForEpisodes, common.WithMemoryCache(time.Second*5)),
+	loaders := &batchloaders.ProfileLoaders{
+		ProgressLoader: batchloaders.NewBatchLoader(profileQueries.GetProgressForEpisodes, batchloaders.WithMemoryCache(time.Second*5)),
 	}
 
 	profilesLoaderCache.Set(profileID, loaders, cache.WithExpiration(time.Minute*5))
@@ -109,8 +110,8 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 	return loaders
 }
 
-func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *common.ProfileLoaders {
-	return func(ctx context.Context) *common.ProfileLoaders {
+func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *batchloaders.ProfileLoaders {
+	return func(ctx context.Context) *batchloaders.ProfileLoaders {
 		ginCtx, err := utils.GinCtx(ctx)
 		if err != nil {
 			return nil
@@ -124,7 +125,7 @@ func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *comm
 }
 
 // Defining the Graphql handler
-func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
+func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *batchloaders.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) gin.HandlerFunc {
 
 	resolver := graphapi.Resolver{
 		Queries:         queries,
@@ -148,7 +149,7 @@ func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoad
 	}
 }
 
-func publicGraphqlHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
+func publicGraphqlHandler(loaders *batchloaders.BatchLoaders) gin.HandlerFunc {
 	resolver := graphpub.Resolver{
 		Loaders: &graphpub.Loaders{
 			EpisodeLoader: loaders.EpisodeLoader,
@@ -169,7 +170,7 @@ func publicGraphqlHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
 	}
 }
 
-func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders) gin.HandlerFunc {
+func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *batchloaders.BatchLoaders) gin.HandlerFunc {
 
 	resolver := graphadmin.Resolver{
 		DB:      db,
@@ -246,41 +247,41 @@ func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code st
 	}
 }
 
-func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
-	collectionLoader := common.NewBatchLoader(queries.GetCollections)
+func initBatchLoaders(queries *sqlc.Queries) *batchloaders.BatchLoaders {
+	collectionLoader := batchloaders.NewBatchLoader(queries.GetCollections)
 
-	return &common.BatchLoaders{
+	return &batchloaders.BatchLoaders{
 		// App
-		ApplicationLoader:           common.NewBatchLoader(queries.GetApplications),
-		ApplicationIDFromCodeLoader: common.NewConversionBatchLoader(queries.GetApplicationIDsForCodes),
+		ApplicationLoader:           batchloaders.NewBatchLoader(queries.GetApplications),
+		ApplicationIDFromCodeLoader: batchloaders.NewConversionBatchLoader(queries.GetApplicationIDsForCodes),
 		// Item
-		PageLoader:           common.NewBatchLoader(queries.GetPages),
-		PageIDFromCodeLoader: common.NewConversionBatchLoader(queries.GetPageIDsForCodes),
-		SectionLoader:        common.NewBatchLoader(queries.GetSections),
-		ShowLoader:           common.NewBatchLoader(queries.GetShows),
-		SeasonLoader:         common.NewBatchLoader(queries.GetSeasons),
-		EpisodeLoader:        common.NewBatchLoader(queries.GetEpisodes),
-		LinkLoader:           common.NewBatchLoader(queries.GetLinks),
-		EventLoader:          common.NewBatchLoader(queries.GetEvents),
-		CalendarEntryLoader:  common.NewBatchLoader(queries.GetCalendarEntries),
+		PageLoader:           batchloaders.NewBatchLoader(queries.GetPages),
+		PageIDFromCodeLoader: batchloaders.NewConversionBatchLoader(queries.GetPageIDsForCodes),
+		SectionLoader:        batchloaders.NewBatchLoader(queries.GetSections),
+		ShowLoader:           batchloaders.NewBatchLoader(queries.GetShows),
+		SeasonLoader:         batchloaders.NewBatchLoader(queries.GetSeasons),
+		EpisodeLoader:        batchloaders.NewBatchLoader(queries.GetEpisodes),
+		LinkLoader:           batchloaders.NewBatchLoader(queries.GetLinks),
+		EventLoader:          batchloaders.NewBatchLoader(queries.GetEvents),
+		CalendarEntryLoader:  batchloaders.NewBatchLoader(queries.GetCalendarEntries),
 		FilesLoader:          asset.NewBatchFilesLoader(*queries),
 		StreamsLoader:        asset.NewBatchStreamsLoader(*queries),
 		CollectionLoader:     collectionLoader,
 		CollectionItemLoader: collection.NewItemListBatchLoader(*queries),
 		// Relations
-		SectionsLoader: common.NewRelationBatchLoader(queries.GetSectionIDsForPages),
+		SectionsLoader: batchloaders.NewRelationBatchLoader(queries.GetSectionIDsForPages),
 		// Permissions
 		ShowPermissionLoader:    show.NewPermissionLoader(*queries),
 		SeasonPermissionLoader:  season.NewPermissionLoader(*queries),
 		EpisodePermissionLoader: episode.NewPermissionLoader(*queries),
 		PagePermissionLoader:    page.NewPermissionLoader(*queries),
 		SectionPermissionLoader: section.NewPermissionLoader(*queries),
-		FAQCategoryLoader:       common.NewBatchLoader(queries.GetFAQCategories),
-		QuestionLoader:          common.NewBatchLoader(queries.GetQuestions),
-		QuestionsLoader:         common.NewRelationBatchLoader(queries.GetQuestionIDsForCategories),
-		MessageGroupLoader:      common.NewBatchLoader(queries.GetMessageGroups),
+		FAQCategoryLoader:       batchloaders.NewBatchLoader(queries.GetFAQCategories),
+		QuestionLoader:          batchloaders.NewBatchLoader(queries.GetQuestions),
+		QuestionsLoader:         batchloaders.NewRelationBatchLoader(queries.GetQuestionIDsForCategories),
+		MessageGroupLoader:      batchloaders.NewBatchLoader(queries.GetMessageGroups),
 		// User Data
-		ProfilesLoader: common.NewListBatchLoader(queries.GetProfilesForUserIDs, func(i common.Profile) string {
+		ProfilesLoader: batchloaders.NewListBatchLoader(queries.GetProfilesForUserIDs, func(i common.Profile) string {
 			return i.UserID
 		}),
 	}

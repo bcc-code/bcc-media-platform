@@ -2,6 +2,7 @@ package search
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"strconv"
 	"strings"
 
@@ -117,7 +118,7 @@ func (service *Service) indexShow(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	p, err := common.GetFromLoaderByID(ctx, service.loaders.ShowPermissionLoader, id)
+	p, err := batchloaders.GetFromLoaderByID(ctx, service.loaders.ShowPermissionLoader, id)
 	if err != nil {
 		return err
 	}
@@ -141,7 +142,7 @@ func (service *Service) indexSeason(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	p, err := common.GetFromLoaderByID(ctx, service.loaders.SeasonPermissionLoader, id)
+	p, err := batchloaders.GetFromLoaderByID(ctx, service.loaders.SeasonPermissionLoader, id)
 	if err != nil {
 		return err
 	}
@@ -165,7 +166,7 @@ func (service *Service) indexEpisode(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	p, err := common.GetFromLoaderByID(ctx, service.loaders.EpisodePermissionLoader, id)
+	p, err := batchloaders.GetFromLoaderByID(ctx, service.loaders.EpisodePermissionLoader, id)
 	if err != nil {
 		return err
 	}
@@ -217,7 +218,7 @@ func indexCollection[k comparable, t indexable[k]](
 			return err
 		}
 
-		perm, err := common.GetFromLoaderByID(ctx, permissionLoader, i.GetKey())
+		perm, err := batchloaders.GetFromLoaderByID(ctx, permissionLoader, i.GetKey())
 		if err != nil {
 			return err
 		}

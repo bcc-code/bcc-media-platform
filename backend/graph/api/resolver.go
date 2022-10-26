@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"gopkg.in/guregu/null.v4"
@@ -33,9 +34,9 @@ import (
 // It contains references to all external services and config
 type Resolver struct {
 	Queries         *sqlc.Queries
-	Loaders         *common.BatchLoaders
-	FilteredLoaders func(ctx context.Context) *common.FilteredLoaders
-	ProfileLoaders  func(ctx context.Context) *common.ProfileLoaders
+	Loaders         *batchloaders.BatchLoaders
+	FilteredLoaders func(ctx context.Context) *batchloaders.FilteredLoaders
+	ProfileLoaders  func(ctx context.Context) *batchloaders.ProfileLoaders
 	SearchService   *search.Service
 	URLSigner       *signing.Signer
 	APIConfig       apiConfig
@@ -169,7 +170,7 @@ type itemLoaders[k comparable, t any] struct {
 func resolverFor[k comparable, t any, r any](ctx context.Context, loaders *itemLoaders[k, t], id k, converter func(context.Context, *t) r) (res r, err error) {
 	ctx, span := otel.Tracer("resolver").Start(ctx, "item")
 	defer span.End()
-	obj, err := common.GetFromLoaderByID(ctx, loaders.Item, id)
+	obj, err := batchloaders.GetFromLoaderByID(ctx, loaders.Item, id)
 	if err != nil {
 		return res, err
 	}
@@ -200,7 +201,7 @@ func resolverForIntID[t any, r any](ctx context.Context, loaders *itemLoaders[in
 func itemsResolverFor[k comparable, kr comparable, t any, r any](ctx context.Context, loaders *itemLoaders[k, t], listLoader *dataloader.Loader[kr, []*k], id kr, converter func(context.Context, *t) r) ([]r, error) {
 	ctx, span := otel.Tracer("resolver").Start(ctx, "items")
 	defer span.End()
-	itemIds, err := common.GetFromLoaderForKey(ctx, listLoader, id)
+	itemIds, err := batchloaders.GetFromLoaderForKey(ctx, listLoader, id)
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +215,7 @@ func itemsResolverFor[k comparable, kr comparable, t any, r any](ctx context.Con
 		return *i
 	})
 
-	items, err := common.GetManyFromLoader(ctx, loaders.Item, ids)
+	items, err := batchloaders.GetManyFromLoader(ctx, loaders.Item, ids)
 
 	return utils.MapWithCtx(ctx, items, converter), err
 }
@@ -298,7 +299,7 @@ func resolveMessageSection(ctx context.Context, r *messageSectionResolver, s *co
 		}
 	}
 
-	group, err := common.GetFromLoaderByID(ctx, r.Loaders.MessageGroupLoader, int(s.MessageID.Int64))
+	group, err := batchloaders.GetFromLoaderByID(ctx, r.Loaders.MessageGroupLoader, int(s.MessageID.Int64))
 	if err != nil {
 		return nil, err
 	}

@@ -5,9 +5,9 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"strconv"
 
-	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -56,7 +56,7 @@ func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSectio
 
 // Messages is the resolver for the messages field.
 func (r *messageSectionResolver) Messages(ctx context.Context, obj *model.MessageSection) ([]*model.Message, error) {
-	s, err := common.GetFromLoaderByID(ctx, r.Loaders.SectionLoader, utils.AsInt(obj.ID))
+	s, err := batchloaders.GetFromLoaderByID(ctx, r.Loaders.SectionLoader, utils.AsInt(obj.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (r *messageSectionResolver) Messages(ctx context.Context, obj *model.Messag
 
 // Image is the resolver for the image field.
 func (r *pageResolver) Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error) {
-	e, err := common.GetFromLoaderByID(ctx, r.Loaders.PageLoader, utils.AsInt(obj.ID))
+	e, err := batchloaders.GetFromLoaderByID(ctx, r.Loaders.PageLoader, utils.AsInt(obj.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -79,14 +79,14 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 		return nil, err
 	}
 
-	itemIDs, err := common.GetFromLoaderForKey(ctx, r.FilteredLoaders(ctx).SectionsLoader, int(intID))
+	itemIDs, err := batchloaders.GetFromLoaderForKey(ctx, r.FilteredLoaders(ctx).SectionsLoader, int(intID))
 	if err != nil {
 		return nil, err
 	}
 
 	page := utils.Paginate(itemIDs, first, offset, nil)
 
-	sections, err := common.GetManyFromLoader(ctx, r.Loaders.SectionLoader, utils.PointerIntArrayToIntArray(page.Items))
+	sections, err := batchloaders.GetManyFromLoader(ctx, r.Loaders.SectionLoader, utils.PointerIntArrayToIntArray(page.Items))
 	if err != nil {
 		return nil, err
 	}

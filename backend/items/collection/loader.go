@@ -3,6 +3,7 @@ package collection
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"strings"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -14,7 +15,7 @@ import (
 
 // NewItemListBatchLoader returns a configured batch loader for collection-items
 func NewItemListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*common.CollectionItem] {
-	return common.NewListBatchLoader(queries.GetItemsForCollections, func(row common.CollectionItem) int {
+	return batchloaders.NewListBatchLoader(queries.GetItemsForCollections, func(row common.CollectionItem) int {
 		return row.CollectionID
 	})
 }
@@ -85,15 +86,15 @@ func collectionToType(collection string) common.ItemType {
 }
 
 // GetCollectionEntries returns entries for the specified collection
-func GetCollectionEntries(ctx context.Context, loaders *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, collectionId int) ([]Entry, error) {
-	col, err := common.GetFromLoaderByID(ctx, loaders.CollectionLoader, collectionId)
+func GetCollectionEntries(ctx context.Context, loaders *batchloaders.BatchLoaders, filteredLoaders *batchloaders.FilteredLoaders, collectionId int) ([]Entry, error) {
+	col, err := batchloaders.GetFromLoaderByID(ctx, loaders.CollectionLoader, collectionId)
 	if err != nil {
 		return nil, err
 	}
 
 	switch col.Type {
 	case "select":
-		items, err := common.GetFromLoaderForKey(ctx, filteredLoaders.CollectionItemsLoader, col.ID)
+		items, err := batchloaders.GetFromLoaderForKey(ctx, filteredLoaders.CollectionItemsLoader, col.ID)
 		if err != nil {
 			return nil, err
 		}

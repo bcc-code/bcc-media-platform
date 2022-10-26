@@ -1,4 +1,4 @@
-package common
+package batchloaders
 
 import (
 	"context"
@@ -38,4 +38,15 @@ func (c *loaderCache[K, V]) Delete(ctx context.Context, key K) bool {
 // Clear clears the entire cache
 func (c *loaderCache[K, V]) Clear() {
 	c.cache = cache.New[K, dataloader.Thunk[V]]()
+}
+
+type memoryCache struct {
+	expiration time.Duration
+}
+
+// WithMemoryCache defines how long a key should live in the cache
+func WithMemoryCache(expiration time.Duration) any {
+	return memoryCache{
+		expiration: expiration,
+	}
 }
