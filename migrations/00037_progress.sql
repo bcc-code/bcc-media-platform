@@ -1,4 +1,4 @@
-    -- +goose Up
+-- +goose Up
 /***********************************************************/
 /*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/
 /***    CREATED ON: 2022-10-24T06:38:19.657Z             ***/
