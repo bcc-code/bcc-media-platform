@@ -5,7 +5,7 @@
     >
         <EpisodeViewer
             class="drop-shadow-xl"
-            :episode-id="(route.params.episodeId as string)"
+            :episode="episode"
         ></EpisodeViewer>
         <div class="flex mt-5">
             <div class="flex gap-4" v-if="episode.season">

@@ -147,6 +147,7 @@ export type Episode = {
   legacyProgramID?: Maybe<Scalars['ID']>;
   number?: Maybe<Scalars['Int']>;
   productionDate?: Maybe<Scalars['String']>;
+  progress?: Maybe<Scalars['Int']>;
   publishDate: Scalars['String'];
   season?: Maybe<Season>;
   streams: Array<Stream>;
@@ -378,11 +379,19 @@ export type MessageStyle = {
 
 export type MutationRoot = {
   setDevicePushToken?: Maybe<Device>;
+  setEpisodeProgress: Episode;
 };
 
 
 export type MutationRootSetDevicePushTokenArgs = {
   token: Scalars['String'];
+};
+
+
+export type MutationRootSetEpisodeProgressArgs = {
+  duration?: InputMaybe<Scalars['Int']>;
+  id: Scalars['ID'];
+  progress?: InputMaybe<Scalars['Int']>;
 };
 
 export type Page = {
@@ -775,7 +784,16 @@ export type GetEpisodeQueryVariables = Exact<{
 }>;
 
 
-export type GetEpisodeQuery = { episode: { id: string, title: string, description: string, imageUrl?: string | null, number?: number | null, season?: { id: string, title: string, imageUrl?: string | null, number: number, episodes: { total: number, items: Array<{ id: string, number?: number | null, title: string }> }, show: { id: string, title: string } } | null } };
+export type GetEpisodeQuery = { episode: { id: string, title: string, description: string, imageUrl?: string | null, number?: number | null, progress?: number | null, duration: number, season?: { id: string, title: string, imageUrl?: string | null, number: number, episodes: { total: number, items: Array<{ id: string, number?: number | null, title: string }> }, show: { id: string, title: string } } | null } };
+
+export type UpdateEpisodeProgressMutationVariables = Exact<{
+  episodeId: Scalars['ID'];
+  progress?: InputMaybe<Scalars['Int']>;
+  duration?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type UpdateEpisodeProgressMutation = { setEpisodeProgress: { progress?: number | null } };
 
 export type SectionItemFragment = { id: string, image?: string | null, title: string, sort: number, item?: { __typename: 'Episode', productionDate?: string | null, publishDate: string, episodeNumber?: number | null, season?: { number: number, show: { title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', code: string } | { __typename: 'Season', seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: string }> } } | { __typename: 'Show', episodeCount: number, seasonCount: number, defaultEpisode?: { id: string } | null, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: string }> } }> } } | null };
 
@@ -992,6 +1010,8 @@ export const GetEpisodeDocument = gql`
     description
     imageUrl
     number
+    progress
+    duration
     season {
       id
       title
@@ -1016,6 +1036,17 @@ export const GetEpisodeDocument = gql`
 
 export function useGetEpisodeQuery(options: Omit<Urql.UseQueryArgs<never, GetEpisodeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetEpisodeQuery>({ query: GetEpisodeDocument, ...options });
+};
+export const UpdateEpisodeProgressDocument = gql`
+    mutation updateEpisodeProgress($episodeId: ID!, $progress: Int, $duration: Int) {
+  setEpisodeProgress(id: $episodeId, progress: $progress, duration: $duration) {
+    progress
+  }
+}
+    `;
+
+export function useUpdateEpisodeProgressMutation() {
+  return Urql.useMutation<UpdateEpisodeProgressMutation, UpdateEpisodeProgressMutationVariables>(UpdateEpisodeProgressDocument);
 };
 export const GetPageDocument = gql`
     query getPage($code: String!) {
