@@ -16,5 +16,9 @@
             "episode": "0 episodes | 1 episode | {count} episodes",
             "season": "0 seasons | 1 season | {count} seasons"
         }
+    },
+    "common": {
+        "new": "New",
+        "newEpisodes": "New episodes"
     }
 }

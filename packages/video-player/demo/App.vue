@@ -16,7 +16,7 @@ const factory = new PlayerFactory({
 
 onMounted(async () => {
     await factory.create("btv-video", {
-        episodeId: "1582"
+        episodeId: "794"
     })
 })
 

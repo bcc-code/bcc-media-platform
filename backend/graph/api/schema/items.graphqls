@@ -51,6 +51,7 @@ type Episode {
     id: ID!
     legacyID: ID
     legacyProgramID: ID
+    publishDate: String!
     ageRating: String!
     title: String!
     description: String!

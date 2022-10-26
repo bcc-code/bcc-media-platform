@@ -10,6 +10,15 @@ export const goToEpisode = (episodeId: string) => {
     })
 }
 
+export const goToPage = (code: string) => {
+    router.push({
+        name: "page",
+        params: {
+            pageId: code,
+        }
+    })
+}
+
 export const goToSectionItem = (item: SectionItemFragment) => {
     switch (item.item?.__typename) {
         case "Episode":
@@ -18,6 +27,9 @@ export const goToSectionItem = (item: SectionItemFragment) => {
         case "Show":
             if (item.item.defaultEpisode)
                 goToEpisode(item.item.defaultEpisode.id)
+            break
+        case "Page":
+            goToPage(item.item.code)
             break
     }
 }

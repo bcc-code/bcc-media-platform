@@ -58,7 +58,17 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			if !size.IsValid() {
 				size = GridSectionSizeHalf
 			}
-			return &GridSection{
+			return &DefaultGridSection{
+				ID:    id,
+				Title: title,
+				Size:  size,
+			}
+		case "poster_grid":
+			size := GridSectionSize(s.Size)
+			if !size.IsValid() {
+				size = GridSectionSizeHalf
+			}
+			return &PosterGridSection{
 				ID:    id,
 				Title: title,
 				Size:  size,

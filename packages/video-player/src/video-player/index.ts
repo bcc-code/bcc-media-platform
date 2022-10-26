@@ -170,7 +170,7 @@ function setSubtitleTrackToLanguage(player: VideoJsPlayer, language?: string) {
 
 function setupVideoJs(videoElId: Element, options: Options) {
     const player = videojs(videoElId, options.videojs)
-    player.src(options.src.src ?? "")
+    player.src(options.src as any)
 
     if (options.subtitles) {
         for (var x = 0; x < options.subtitles.length; x++) {

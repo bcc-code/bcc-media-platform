@@ -60,7 +60,21 @@ type DefaultSection implements Section & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type GridSection implements Section & ItemSection {
+interface GridSection implements Section & ItemSection {
+    id: ID!
+    title: String
+    size: GridSectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type DefaultGridSection implements Section & ItemSection & GridSection {
+    id: ID!
+    title: String
+    size: GridSectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type PosterGridSection implements Section & ItemSection & GridSection {
     id: ID!
     title: String
     size: GridSectionSize!

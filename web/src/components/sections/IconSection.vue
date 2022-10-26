@@ -4,15 +4,16 @@
         <div class="flex">
             <div v-for="i in item.items.items">
                 <div
-                    class="bg-slate-800 aspect-square rounded-xl border-2 border-slate-700 p-4 h-24"
+                    class="bg-slate-800 aspect-square rounded-xl border-2 border-slate-700 p-4 h-24 cursor-pointer"
+                    @click="goToSectionItem(i)"
                 >
                     <img :src="i.image + '?h=400'" />
                 </div>
-                <div class="text-center mx-auto">
+                <label class="text-center mx-auto">
                     <h1>
                         {{ i.title }}
                     </h1>
-                </div>
+                </label>
             </div>
         </div>
     </section>
@@ -21,6 +22,7 @@
 import { Section } from "./types"
 
 import SectionTitle from "./SectionTitle.vue"
+import { goToSectionItem } from "@/utils/items";
 
 defineProps<{
     item: Section & { __typename: "IconSection" }

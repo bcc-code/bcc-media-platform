@@ -63,6 +63,7 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 	episode := &Episode{
 		Chapters:         []*Chapter{}, // Currently not supported
 		ID:               strconv.Itoa(e.ID),
+		PublishDate:      e.PublishDate.Format(time.RFC3339),
 		LegacyID:         legacyID,
 		LegacyProgramID:  legacyProgramID,
 		ProductionDate:   productionDate,

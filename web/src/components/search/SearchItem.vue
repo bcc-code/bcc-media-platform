@@ -23,7 +23,7 @@
 </template>
 <script lang="ts" setup>
 import { SearchQuery, useGetDefaultEpisodeIdQuery } from "@/graph/generated"
-import { goToEpisode } from "@/utils/items";
+import { goToEpisode } from "@/utils/items"
 
 const props = defineProps<{
     item: SearchQuery["search"]["result"][0]
@@ -60,9 +60,8 @@ switch (props.item.__typename) {
         const { data, resume, then } = useGetDefaultEpisodeIdQuery({
             pause: true,
             variables: {
-
                 showId: props.item.id,
-            }
+            },
         })
         onclick = () => {
             then(() => {
@@ -72,7 +71,7 @@ switch (props.item.__typename) {
             })
             resume()
         }
-        break;
+        break
     case "EpisodeSearchItem":
         onclick = () => {
             goToEpisode(props.item.id)
