@@ -872,21 +872,24 @@ type SeasonsUsergroup struct {
 }
 
 type Section struct {
-	CollectionID null_v4.Int    `db:"collection_id" json:"collectionID"`
-	DateCreated  time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated  time.Time      `db:"date_updated" json:"dateUpdated"`
-	ID           int32          `db:"id" json:"id"`
-	Status       string         `db:"status" json:"status"`
-	UserCreated  uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated  uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	PageID       null_v4.Int    `db:"page_id" json:"pageID"`
-	Sort         null_v4.Int    `db:"sort" json:"sort"`
-	Style        null_v4.String `db:"style" json:"style"`
-	Size         null_v4.String `db:"size" json:"size"`
-	GridSize     null_v4.String `db:"grid_size" json:"gridSize"`
-	Type         null_v4.String `db:"type" json:"type"`
-	ShowTitle    sql.NullBool   `db:"show_title" json:"showTitle"`
-	MessageID    null_v4.Int    `db:"message_id" json:"messageID"`
+	CollectionID        null_v4.Int    `db:"collection_id" json:"collectionID"`
+	DateCreated         time.Time      `db:"date_created" json:"dateCreated"`
+	DateUpdated         time.Time      `db:"date_updated" json:"dateUpdated"`
+	ID                  int32          `db:"id" json:"id"`
+	Status              string         `db:"status" json:"status"`
+	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	PageID              null_v4.Int    `db:"page_id" json:"pageID"`
+	Sort                null_v4.Int    `db:"sort" json:"sort"`
+	Style               null_v4.String `db:"style" json:"style"`
+	Size                null_v4.String `db:"size" json:"size"`
+	GridSize            null_v4.String `db:"grid_size" json:"gridSize"`
+	Type                null_v4.String `db:"type" json:"type"`
+	ShowTitle           sql.NullBool   `db:"show_title" json:"showTitle"`
+	MessageID           null_v4.Int    `db:"message_id" json:"messageID"`
+	EmbedSize           null_v4.String `db:"embed_size" json:"embedSize"`
+	NeedsAuthentication sql.NullBool   `db:"needs_authentication" json:"needsAuthentication"`
+	EmbedUrl            null_v4.String `db:"embed_url" json:"embedUrl"`
 }
 
 type SectionsTranslation struct {

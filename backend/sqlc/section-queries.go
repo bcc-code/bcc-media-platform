@@ -8,6 +8,7 @@ import (
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
 )
 
 func mapToSections(items []getSectionsRow) []common.Section {
@@ -34,19 +35,26 @@ func mapToSections(items []getSectionsRow) []common.Section {
 		} else {
 			size = s.Size.ValueOrZero()
 		}
+		var needsAuth null.Bool
+		if s.NeedsAuthentication.Valid {
+			needsAuth.SetValid(s.NeedsAuthentication.Bool)
+		}
 
 		return common.Section{
-			ID:           int(s.ID),
-			Sort:         int(s.Sort.ValueOrZero()),
-			PageID:       int(s.PageID),
-			ShowTitle:    s.ShowTitle.Bool,
-			Title:        title,
-			Description:  description,
-			Type:         t,
-			CollectionID: s.CollectionID,
-			MessageID:    s.MessageID,
-			Style:        style,
-			Size:         size,
+			ID:                  int(s.ID),
+			Sort:                int(s.Sort.ValueOrZero()),
+			PageID:              int(s.PageID),
+			ShowTitle:           s.ShowTitle.Bool,
+			Title:               title,
+			Description:         description,
+			Type:                t,
+			CollectionID:        s.CollectionID,
+			MessageID:           s.MessageID,
+			Style:               style,
+			Size:                size,
+			EmbedUrl:            s.EmbedUrl,
+			NeedsAuthentication: needsAuth,
+			EmbedSize:           s.EmbedSize,
 		}
 	})
 }
