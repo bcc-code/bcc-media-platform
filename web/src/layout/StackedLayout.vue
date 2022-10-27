@@ -2,7 +2,11 @@
     <div v-if="!loading">
         <Navbar></Navbar>
         <div class="p-4">
-            <router-view :key="route.fullPath"> </router-view>
+            <router-view v-slot="{ Component }">
+                <transition name="slide-fade" mode="out-in">
+                    <component :key="$route.fullPath" :is="Component" />
+                </transition>
+            </router-view>
         </div>
         <div class="text-red-500" v-if="errors">
             <p v-for="(error, i) in errors">

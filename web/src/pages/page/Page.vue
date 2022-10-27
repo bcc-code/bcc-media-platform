@@ -1,17 +1,47 @@
 <template>
     <section>
-        <div
-            class="flex flex-col gap-8"
-            v-if="data?.page.sections.items.length"
-        >
-            <Section
-                v-for="section in data?.page?.sections.items"
-                :section="section"
+        <transition name="slide-fade">
+            <div
+                class="flex flex-col gap-8"
+                v-if="data?.page.sections.items.length"
             >
-            </Section>
-        </div>
-        <div v-else-if="!fetching">Uh oh. Missing content</div>
-        <div v-if="error">{{ error.message }}</div>
+                <Section
+                    v-for="section in data?.page?.sections.items"
+                    :section="section"
+                >
+                </Section>
+            </div>
+            <div v-else-if="!fetching">Uh oh. Missing content</div>
+            <div v-else-if="error">{{ error.message }}</div>
+            <div v-else class="flex flex-col gap-4 mt-10">
+                <div class="space-y-5 rounded-2xl bg-white/5 p-4">
+                    <div class="h-24 rounded-lg bg-rose-100/10"></div>
+                    <div class="space-y-3">
+                        <div class="h-3 w-3/5 rounded-lg bg-rose-100/10"></div>
+                        <div class="h-3 w-4/5 rounded-lg bg-rose-100/20"></div>
+                        <div class="h-3 w-2/5 rounded-lg bg-rose-100/20"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-5 rounded-2xl bg-white/5 p-4">
+                    <div class="h-24 rounded-lg bg-rose-100/10"></div>
+                    <div class="space-y-3">
+                        <div class="h-3 w-4/5 rounded-lg bg-rose-100/20"></div>
+                        <div class="h-3 w-3/5 rounded-lg bg-rose-100/10"></div>
+                        <div class="h-3 w-2/5 rounded-lg bg-rose-100/20"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-5 rounded-2xl bg-white/5 p-4">
+                    <div class="h-24 rounded-lg bg-rose-100/10"></div>
+                    <div class="space-y-3">
+                        <div class="h-3 w-2/5 rounded-lg bg-rose-100/20"></div>
+                        <div class="h-3 w-3/5 rounded-lg bg-rose-100/10"></div>
+                        <div class="h-3 w-4/5 rounded-lg bg-rose-100/20"></div>
+                    </div>
+                </div>
+            </div>
+        </transition>
     </section>
 </template>
 <script lang="ts" setup>
