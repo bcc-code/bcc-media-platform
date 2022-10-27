@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
@@ -40,6 +41,23 @@ type Resolver struct {
 	SearchService   *search.Service
 	URLSigner       *signing.Signer
 	APIConfig       apiConfig
+	S3Client        *s3.Client
+}
+
+func (r *Resolver) GetQueries() *sqlc.Queries {
+	return r.Queries
+}
+
+func (r *Resolver) GetLoaders() *common.BatchLoaders {
+	return r.Loaders
+}
+
+func (r *Resolver) GetFilteredLoaders(ctx context.Context) *common.FilteredLoaders {
+	return r.FilteredLoaders(ctx)
+}
+
+func (r *Resolver) GetS3Client() *s3.Client {
+	return r.S3Client
 }
 
 type apiConfig interface {

@@ -10,12 +10,13 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	cache "github.com/Code-Hex/go-generics-cache"
+	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/asset"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/export"
 	graphadmin "github.com/bcc-code/brunstadtv/backend/graph/admin"
 	graphadmingenerated "github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
 	graphapi "github.com/bcc-code/brunstadtv/backend/graph/api"
@@ -127,7 +128,15 @@ func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *comm
 }
 
 // Defining the Graphql handler
-func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders, searchService *search.Service, urlSigner *signing.Signer, config envConfig) (gin.HandlerFunc, graphapi.Resolver) {
+func graphqlHandler(
+	db *sql.DB,
+	queries *sqlc.Queries,
+	loaders *common.BatchLoaders,
+	searchService *search.Service,
+	urlSigner *signing.Signer,
+	config envConfig,
+	s3client *s3.Client,
+) gin.HandlerFunc {
 
 	resolver := graphapi.Resolver{
 		Queries:         queries,
@@ -136,7 +145,9 @@ func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoad
 		ProfileLoaders:  profileLoaderFactory(queries),
 		SearchService:   searchService,
 		APIConfig:       config.CDNConfig,
+		AWSConfig:       config.AWS,
 		URLSigner:       urlSigner,
+		S3Client:        s3client,
 	}
 
 	tracer := &graphTracer{}
@@ -148,7 +159,7 @@ func graphqlHandler(db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoad
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
-	}, resolver
+	}
 }
 
 func publicGraphqlHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
@@ -350,6 +361,14 @@ func main() {
 		return token
 	})
 
+	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
+	if err != nil {
+		log.L.Panic().Err(err).Msg("Failed to configure AWS SDK")
+	}
+	awsConfig.Region = config.AWS.Region
+
+	s3Client := s3.NewFromConfig(awsConfig)
+
 	log.L.Debug().Msg("Set up HTTP server")
 	r := gin.Default()
 	r.Use(utils.GinContextToContextMiddleware())
@@ -368,7 +387,8 @@ func main() {
 	r.Use(applications.RoleMiddleware())
 
 	searchService := search.New(db, config.Algolia)
-	gqlHandler, apiResolvers := graphqlHandler(db, queries, loaders, searchService, urlSigner, config)
+
+	gqlHandler := graphqlHandler(db, queries, loaders, searchService, urlSigner, config, s3Client)
 	r.POST("/query", gqlHandler)
 
 	r.GET("/", playgroundHandler())
@@ -378,9 +398,6 @@ func main() {
 	r.POST("/public", publicGraphqlHandler(loaders))
 
 	r.GET("/versionz", version.GinHandler)
-
-	// TODO: Remove. This is only for local dev!
-	r.GET("/export", export.NewHandler(apiResolvers, queries))
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 

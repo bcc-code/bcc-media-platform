@@ -5,9 +5,9 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"strconv"
 
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/items/show"

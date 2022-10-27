@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/bcc-code/brunstadtv/backend/utils"
 	"os"
 	"strings"
+
+	"github.com/bcc-code/brunstadtv/backend/utils"
 
 	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/search"
@@ -25,6 +26,7 @@ type envConfig struct {
 	CDNConfig cdnConfig
 	Secrets   serviceSecrets
 	Redis     redisConfig
+	AWS       awsConfig
 }
 
 type cdnConfig struct {
@@ -35,6 +37,11 @@ type cdnConfig struct {
 	AWSSigningKeyPath string
 	AWSSigningKeyID   string
 	AzureSigningKey   string
+}
+
+type awsConfig struct {
+	TempBucket string // Things put here are autoremoved
+	Region     string
 }
 
 type redisConfig struct {
@@ -74,6 +81,10 @@ func (c cdnConfig) GetAzureSigningKey() string {
 	return c.AzureSigningKey
 }
 
+func (a awsConfig) GetTempStorageBucket() string {
+	return a.TempBucket
+}
+
 func getEnvConfig() envConfig {
 	aud := lo.Map(strings.Split(os.Getenv("AUTH0_AUDIENCES"), ","),
 		func(s string, _ int) string {
@@ -93,6 +104,10 @@ func getEnvConfig() envConfig {
 			ClientSecret: os.Getenv("AUTH0_CLIENT_SECRET"),
 			Domain:       os.Getenv("AUTH0_DOMAIN"),
 			Audiences:    aud,
+		},
+		AWS: awsConfig{
+			TempBucket: os.Getenv("AWS_TEMP_BUCKET"),
+			Region:     os.Getenv("AWS_DEFAULT_REGION"),
 		},
 		Port: os.Getenv("PORT"),
 		Algolia: search.Config{

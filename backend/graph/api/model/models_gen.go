@@ -204,6 +204,11 @@ type Event struct {
 	Image string `json:"image"`
 }
 
+type Export struct {
+	DbVersion string `json:"dbVersion"`
+	URL       string `json:"url"`
+}
+
 type Faq struct {
 	Categories *FAQCategoryPagination `json:"categories"`
 	Category   *FAQCategory           `json:"category"`

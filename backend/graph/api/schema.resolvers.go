@@ -5,14 +5,15 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"strconv"
 	"time"
 
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/export"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
@@ -110,6 +111,14 @@ func (r *queryRootResolver) Application(ctx context.Context) (*model.Application
 		Code:          app.Code,
 		Page:          page,
 		ClientVersion: app.ClientVersion,
+	}, nil
+}
+
+// Export is the resolver for the export field.
+func (r *queryRootResolver) Export(ctx context.Context, groups []string) (*model.Export, error) {
+
+	return &model.Export{
+		DbVersion: export.SQLiteExportDBVersion,
 	}, nil
 }
 
