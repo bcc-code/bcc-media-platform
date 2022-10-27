@@ -8,10 +8,17 @@
                     class="flex flex-col cursor-pointer mx-2 mt-2"
                     @click="goToSectionItem(i)"
                 >
-                    <img
-                        :src="i.image ?? ''"
-                        class="rounded-md top-0 h-full w-full object-cover mb-1"
-                    />
+                    <div class="relative mb-1">
+                        <img
+                            :id="i.id"
+                            :src="
+                                i.image +
+                                `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
+                            "
+                            class="rounded-md top-0 w-full object-cover aspect-video"
+                        />
+                        <ProgressBar class="absolute bottom-0 w-full" v-if="i.item?.__typename === 'Episode'" :item="i.item" />
+                    </div>
                     <SectionItemTitle :i="i"></SectionItemTitle>
                 </div>
             </div>
@@ -27,6 +34,8 @@ import { useI18n } from "vue-i18n"
 import NewPill from "./NewPill.vue"
 import { goToSectionItem } from "@/utils/items"
 import SectionItemTitle from "./SectionItemTitle.vue"
+import { percentageWidth, secondsToTime } from "@/utils/time"
+import ProgressBar from "../episodes/ProgressBar.vue"
 
 const { t } = useI18n()
 

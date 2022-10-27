@@ -861,6 +861,8 @@ export type SectionItemFragment = {
               __typename: "Episode"
               productionDate?: string | null
               publishDate: string
+              progress?: number | null
+              duration: number
               episodeNumber?: number | null
               season?: { number: number; show: { title: string } } | null
           }
@@ -901,6 +903,8 @@ type ItemSection_DefaultGridSection_Fragment = {
                       __typename: "Episode"
                       productionDate?: string | null
                       publishDate: string
+                      progress?: number | null
+                      duration: number
                       episodeNumber?: number | null
                       season?: {
                           number: number
@@ -947,6 +951,8 @@ type ItemSection_DefaultSection_Fragment = {
                       __typename: "Episode"
                       productionDate?: string | null
                       publishDate: string
+                      progress?: number | null
+                      duration: number
                       episodeNumber?: number | null
                       season?: {
                           number: number
@@ -993,6 +999,8 @@ type ItemSection_FeaturedSection_Fragment = {
                       __typename: "Episode"
                       productionDate?: string | null
                       publishDate: string
+                      progress?: number | null
+                      duration: number
                       episodeNumber?: number | null
                       season?: {
                           number: number
@@ -1037,6 +1045,8 @@ type ItemSection_IconSection_Fragment = {
                       __typename: "Episode"
                       productionDate?: string | null
                       publishDate: string
+                      progress?: number | null
+                      duration: number
                       episodeNumber?: number | null
                       season?: {
                           number: number
@@ -1081,6 +1091,8 @@ type ItemSection_LabelSection_Fragment = {
                       __typename: "Episode"
                       productionDate?: string | null
                       publishDate: string
+                      progress?: number | null
+                      duration: number
                       episodeNumber?: number | null
                       season?: {
                           number: number
@@ -1126,6 +1138,8 @@ type ItemSection_PosterGridSection_Fragment = {
                       __typename: "Episode"
                       productionDate?: string | null
                       publishDate: string
+                      progress?: number | null
+                      duration: number
                       episodeNumber?: number | null
                       season?: {
                           number: number
@@ -1171,6 +1185,8 @@ type ItemSection_PosterSection_Fragment = {
                       __typename: "Episode"
                       productionDate?: string | null
                       publishDate: string
+                      progress?: number | null
+                      duration: number
                       episodeNumber?: number | null
                       season?: {
                           number: number
@@ -1240,6 +1256,8 @@ export type GetPageQuery = {
                                         __typename: "Episode"
                                         productionDate?: string | null
                                         publishDate: string
+                                        progress?: number | null
+                                        duration: number
                                         episodeNumber?: number | null
                                         season?: {
                                             number: number
@@ -1294,6 +1312,8 @@ export type GetPageQuery = {
                                         __typename: "Episode"
                                         productionDate?: string | null
                                         publishDate: string
+                                        progress?: number | null
+                                        duration: number
                                         episodeNumber?: number | null
                                         season?: {
                                             number: number
@@ -1348,6 +1368,8 @@ export type GetPageQuery = {
                                         __typename: "Episode"
                                         productionDate?: string | null
                                         publishDate: string
+                                        progress?: number | null
+                                        duration: number
                                         episodeNumber?: number | null
                                         season?: {
                                             number: number
@@ -1400,6 +1422,8 @@ export type GetPageQuery = {
                                         __typename: "Episode"
                                         productionDate?: string | null
                                         publishDate: string
+                                        progress?: number | null
+                                        duration: number
                                         episodeNumber?: number | null
                                         season?: {
                                             number: number
@@ -1452,6 +1476,8 @@ export type GetPageQuery = {
                                         __typename: "Episode"
                                         productionDate?: string | null
                                         publishDate: string
+                                        progress?: number | null
+                                        duration: number
                                         episodeNumber?: number | null
                                         season?: {
                                             number: number
@@ -1510,6 +1536,8 @@ export type GetPageQuery = {
                                         __typename: "Episode"
                                         productionDate?: string | null
                                         publishDate: string
+                                        progress?: number | null
+                                        duration: number
                                         episodeNumber?: number | null
                                         season?: {
                                             number: number
@@ -1563,6 +1591,8 @@ export type GetPageQuery = {
                                         __typename: "Episode"
                                         productionDate?: string | null
                                         publishDate: string
+                                        progress?: number | null
+                                        duration: number
                                         episodeNumber?: number | null
                                         season?: {
                                             number: number
@@ -1664,6 +1694,8 @@ export const SectionItemFragmentDoc = gql`
                 episodeNumber: number
                 productionDate
                 publishDate
+                progress
+                duration
                 season {
                     number
                     show {

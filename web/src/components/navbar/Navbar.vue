@@ -12,7 +12,7 @@
                             alt="Your Company"
                         /> -->
                         <img
-                            @click="$router.push({name: 'front-page'})"
+                            @click="$router.push({ name: 'front-page' })"
                             class="hidden h-8 w-auto lg:block cursor-pointer"
                             src="/logo.svg"
                             alt="Your Company"

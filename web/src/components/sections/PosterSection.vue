@@ -15,13 +15,16 @@
                 <div
                     class="flex flex-col aspect-[9/16] rounded rounded-md mx-2 mt-1"
                 >
-                    <img
-                        :src="
-                            i.image +
-                            `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
-                        "
-                        class="rounded-md top-0 h-full w-full object-cover mb-1"
-                    />
+                    <div class="relative">
+                        <img
+                            :src="
+                                i.image +
+                                `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
+                            "
+                            class="rounded-md top-0 h-full w-full object-cover mb-1"
+                        />
+                        <ProgressBar class="absolute bottom-0 w-full" v-if="i.item?.__typename === 'Episode'" :item="i.item" />
+                    </div>
                     <SectionItemTitle :i="i"></SectionItemTitle>
                 </div>
             </SwiperSlide>
@@ -41,6 +44,8 @@ import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import { computed } from "vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
+import { percentageWidth, secondsToTime } from "@/utils/time"
+import ProgressBar from "../episodes/ProgressBar.vue"
 
 const { t } = useI18n()
 

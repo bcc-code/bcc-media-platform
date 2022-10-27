@@ -2,21 +2,23 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <Swiper :breakpoints="breakpoints(item.size)" :modules="modules">
-            <SwiperSlide
-                v-for="i in item.items.items"
-                class="relative"
-            >
+            <SwiperSlide v-for="i in item.items.items" class="relative">
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
-                <div class="flex flex-col cursor-pointer mx-2 mt-2"
-                    @click="goToSectionItem(i)">
-                    <img
-                        :id="i.id"
-                        :src="
-                            i.image +
-                            `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
-                        "
-                        class="rounded-md top-0 w-full object-cover mb-1 aspect-video"
-                    />
+                <div
+                    class="flex flex-col cursor-pointer mx-2 mt-2"
+                    @click="goToSectionItem(i)"
+                >
+                    <div class="relative mb-1">
+                        <img
+                            :id="i.id"
+                            :src="
+                                i.image +
+                                `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
+                            "
+                            class="rounded-md top-0 w-full object-cover aspect-video"
+                        />
+                        <ProgressBar class="absolute bottom-0 w-full" v-if="i.item?.__typename === 'Episode'" :item="i.item" />
+                    </div>
                     <SectionItemTitle :for="i.id" :i="i"></SectionItemTitle>
                 </div>
             </SwiperSlide>
@@ -36,6 +38,8 @@ import { useI18n } from "vue-i18n"
 import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
+import { percentageWidth, secondsToTime } from "@/utils/time"
+import ProgressBar from "../episodes/ProgressBar.vue"
 
 const { t } = useI18n()
 

@@ -3,15 +3,15 @@
         class="max-w-screen-2xl mx-auto px-10 rounded rounded-2xl"
         v-if="episode"
     >
-            <div class="relative aspect-video w-full">
-                <div class="h-full w-full bg-secondary rounded rounded-xl opacity-10 absolute">
-
-                </div>
-                <EpisodeViewer
-                    class="drop-shadow-xl overflow-hidden"
-                    :episode="episode"
-                ></EpisodeViewer>
-            </div>
+        <div class="relative aspect-video w-full">
+            <div
+                class="h-full w-full bg-secondary rounded rounded-xl opacity-10 absolute"
+            ></div>
+            <EpisodeViewer
+                class="drop-shadow-xl overflow-hidden"
+                :episode="episode"
+            ></EpisodeViewer>
+        </div>
         <div class="flex mt-5">
             <div class="flex gap-4" v-if="episode.season">
                 <div class="max-w-sm rounded rounded-lg bg-slate-800">
@@ -27,7 +27,12 @@
                     />
                     <div class="p-4">
                         <h1 class="text-primary text-xl">
-                            {{ t('section.item.episode', episode.season.episodes.total) }}
+                            {{
+                                t(
+                                    "section.item.episode",
+                                    episode.season.episodes.total
+                                )
+                            }}
                         </h1>
                         <hr class="border-primary" />
                         <p
@@ -65,7 +70,7 @@ import { useGetEpisodeQuery } from "@/graph/generated"
 import { computed } from "vue"
 import { useRoute } from "vue-router"
 import EpisodeViewer from "@/components/EpisodeViewer.vue"
-import { useI18n } from "vue-i18n";
+import { useI18n } from "vue-i18n"
 
 const route = useRoute()
 

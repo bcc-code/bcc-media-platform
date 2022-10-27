@@ -15,29 +15,49 @@
             <div v-else-if="error">{{ error.message }}</div>
             <div v-else class="flex flex-col gap-4 overflow-hidden">
                 <div class="flex overflow-hidden gap-4">
-                    <div class="space-y-5 rounded-2xl bg-white/5 p-4" v-for="i in 6">
-                        <div class="w-64 aspect-video rounded-lg bg-rose-100/10"></div>
+                    <div
+                        class="space-y-5 rounded-2xl bg-white/5 p-4"
+                        v-for="i in 6"
+                    >
+                        <div
+                            class="w-64 aspect-video rounded-lg bg-rose-100/10"
+                        ></div>
                         <div class="h-3 w-3/5 rounded-lg bg-rose-100/10"></div>
                         <div class="h-3 w-2/5 rounded-lg bg-rose-100/20"></div>
                     </div>
                 </div>
 
                 <div class="flex overflow-hidden gap-4">
-                    <div class="space-y-5 rounded-2xl bg-white/5 p-4" v-for="i in 6">
-                        <div class="w-48 aspect-[9/16] rounded-lg bg-rose-100/10"></div>
+                    <div
+                        class="space-y-5 rounded-2xl bg-white/5 p-4"
+                        v-for="i in 6"
+                    >
+                        <div
+                            class="w-48 aspect-[9/16] rounded-lg bg-rose-100/10"
+                        ></div>
                         <div class="h-3 w-3/5 rounded-lg bg-rose-100/10"></div>
                         <div class="h-3 w-2/5 rounded-lg bg-rose-100/20"></div>
                     </div>
                 </div>
 
-
                 <div class="flex overflow-hidden gap-4">
-                    <div class="space-y-5 rounded-2xl bg-white/5 p-4" v-for="i in 4">
-                        <div class="h-64 aspect-video rounded-lg bg-rose-100/10"></div>
+                    <div
+                        class="space-y-5 rounded-2xl bg-white/5 p-4"
+                        v-for="i in 4"
+                    >
+                        <div
+                            class="h-64 aspect-video rounded-lg bg-rose-100/10"
+                        ></div>
                         <div class="space-y-3">
-                            <div class="h-3 w-2/5 rounded-lg bg-rose-100/20"></div>
-                            <div class="h-3 w-3/5 rounded-lg bg-rose-100/10"></div>
-                            <div class="h-3 w-4/5 rounded-lg bg-rose-100/20"></div>
+                            <div
+                                class="h-3 w-2/5 rounded-lg bg-rose-100/20"
+                            ></div>
+                            <div
+                                class="h-3 w-3/5 rounded-lg bg-rose-100/10"
+                            ></div>
+                            <div
+                                class="h-3 w-4/5 rounded-lg bg-rose-100/20"
+                            ></div>
                         </div>
                     </div>
                 </div>
