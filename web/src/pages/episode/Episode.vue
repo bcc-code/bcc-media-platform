@@ -27,7 +27,7 @@
                     />
                     <div class="p-4">
                         <h1 class="text-primary text-xl">
-                             ({{ episode.season.episodes.total }})
+                            {{ t('section.item.episode', episode.season.episodes.total) }}
                         </h1>
                         <hr class="border-primary" />
                         <p
@@ -65,8 +65,11 @@ import { useGetEpisodeQuery } from "@/graph/generated"
 import { computed } from "vue"
 import { useRoute } from "vue-router"
 import EpisodeViewer from "@/components/EpisodeViewer.vue"
+import { useI18n } from "vue-i18n";
 
 const route = useRoute()
+
+const { t } = useI18n()
 
 const { data, error } = useGetEpisodeQuery({
     variables: {

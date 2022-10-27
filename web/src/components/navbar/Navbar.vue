@@ -379,7 +379,7 @@ const navigation: {
     {
         name: "page.live",
         to: {
-            name: "front-page",
+            name: "live",
         },
         icon: LiveIcon,
     },
