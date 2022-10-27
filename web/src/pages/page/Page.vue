@@ -10,9 +10,7 @@
             >
             </Section>
         </div>
-        <div v-else-if="!fetching">
-            Uh oh. Missing content
-        </div>
+        <div v-else-if="!fetching">Uh oh. Missing content</div>
         <div v-if="error">{{ error.message }}</div>
     </section>
 </template>

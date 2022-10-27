@@ -28,8 +28,16 @@ query getEpisode($episodeId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {
     }
 }
 
-mutation updateEpisodeProgress($episodeId: ID!, $progress: Int, $duration: Int) {
-    setEpisodeProgress(id: $episodeId, progress: $progress, duration: $duration) {
+mutation updateEpisodeProgress(
+    $episodeId: ID!
+    $progress: Int
+    $duration: Int
+) {
+    setEpisodeProgress(
+        id: $episodeId
+        progress: $progress
+        duration: $duration
+    ) {
         progress
     }
 }

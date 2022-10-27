@@ -10,7 +10,10 @@
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div class="flex flex-col cursor-pointer mx-2 mt-2">
                     <img
-                        :src="i.image + `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`"
+                        :src="
+                            i.image +
+                            `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
+                        "
                         class="rounded-md top-0 h-full w-full object-cover mb-1"
                     />
                     <SectionItemTitle :i="i"></SectionItemTitle>

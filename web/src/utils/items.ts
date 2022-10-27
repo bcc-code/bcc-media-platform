@@ -15,7 +15,7 @@ export const goToPage = (code: string) => {
         name: "page",
         params: {
             pageId: code,
-        }
+        },
     })
 }
 

@@ -22,7 +22,7 @@
 import { Section } from "./types"
 
 import SectionTitle from "./SectionTitle.vue"
-import { goToSectionItem } from "@/utils/items";
+import { goToSectionItem } from "@/utils/items"
 
 defineProps<{
     item: Section & { __typename: "IconSection" }
