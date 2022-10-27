@@ -34,14 +34,10 @@ import { Swiper, SwiperSlide } from "swiper/vue"
 import { computed } from "vue"
 import SectionTitle from "./SectionTitle.vue"
 import breakpoints from "./breakpoints"
-import { useI18n } from "vue-i18n"
 import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
-import { percentageWidth, secondsToTime } from "@/utils/time"
 import ProgressBar from "../episodes/ProgressBar.vue"
-
-const { t } = useI18n()
 
 const props = defineProps<{
     item: Section & { __typename: "DefaultSection" }

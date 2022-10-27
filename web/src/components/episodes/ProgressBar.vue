@@ -1,16 +1,16 @@
 <template>
     <span
-        class="p-2"
+        class="p-2 text-sm"
     >
         <div
-            v-if="item.progress"
-            class="flex bg-black bg-opacity-50 px-2 rounded rounded-full ml-auto mr-0"
+            v-if="item.progress || item.progress === 0"
+            class="flex bg-black bg-opacity-50 px-2 rounded"
         >
             <div
-                class="w-full bg-gray rounded-full h-1.5 bg-opacity-50 my-auto"
+                class="w-full bg-gray rounded h-1.5 bg-opacity-50 my-auto"
             >
                 <div
-                    class="bg-white h-1.5 rounded-full"
+                    class="bg-white h-1.5 rounded"
                     :style="
                         percentageWidth(
                             item.duration,

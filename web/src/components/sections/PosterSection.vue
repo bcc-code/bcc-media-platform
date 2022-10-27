@@ -35,7 +35,6 @@
 import { Section } from "./types"
 
 import { Navigation, Pagination } from "swiper"
-import { useI18n } from "vue-i18n"
 
 import { Swiper, SwiperSlide } from "swiper/vue"
 import SectionTitle from "./SectionTitle.vue"
@@ -44,10 +43,7 @@ import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import { computed } from "vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
-import { percentageWidth, secondsToTime } from "@/utils/time"
 import ProgressBar from "../episodes/ProgressBar.vue"
-
-const { t } = useI18n()
 
 const props = defineProps<{
     item: Section & { __typename: "PosterSection" }

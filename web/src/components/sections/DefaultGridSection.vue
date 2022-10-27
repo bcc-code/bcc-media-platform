@@ -2,7 +2,7 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="grid grid-cols-2">
-            <div v-for="i in item.items.items" class="relative">
+            <div v-for="i in item.items.items" class="relative mb-5">
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div
                     class="flex flex-col cursor-pointer mx-2 mt-2"
@@ -30,14 +30,10 @@ import { Section } from "./types"
 
 import { computed } from "vue"
 import SectionTitle from "./SectionTitle.vue"
-import { useI18n } from "vue-i18n"
 import NewPill from "./NewPill.vue"
 import { goToSectionItem } from "@/utils/items"
 import SectionItemTitle from "./SectionItemTitle.vue"
-import { percentageWidth, secondsToTime } from "@/utils/time"
 import ProgressBar from "../episodes/ProgressBar.vue"
-
-const { t } = useI18n()
 
 const props = defineProps<{
     item: Section & { __typename: "DefaultGridSection" }
