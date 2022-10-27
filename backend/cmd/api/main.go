@@ -39,7 +39,6 @@ import (
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v9"
 	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
 	_ "github.com/lib/pq"
@@ -311,56 +310,17 @@ func main() {
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
 
 	config := getEnvConfig()
+
 	log.L.Debug().Str("DBConnString", config.DB.ConnectionString).Msg("Connection to DB")
-	db, err := sql.Open("postgres", config.DB.ConnectionString)
-	if err != nil {
-		log.L.Panic().Err(err).Msg("Unable to connect to DB")
-		return
-	}
-
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     config.Redis.Address,
-		Password: config.Redis.Password,
-		Username: config.Redis.Username,
-		DB:       config.Redis.Database,
-	})
-
-	status := rdb.Ping(ctx)
-	if status.Err() != nil {
-		log.L.Panic().Err(status.Err()).Msg("Failed to ping redis database")
-		return
-	}
-
-	urlSigner, err := signing.NewSigner(config.CDNConfig)
-	if err != nil {
-		log.L.Panic().Err(err).Msg("Unable to create URL signers")
-		return
-	}
-
-	db.SetMaxIdleConns(2)
-	// TODO: What makes sense here? We should gather some metrics over time
-	db.SetMaxOpenConns(10)
-
-	err = db.PingContext(ctx)
-	if err != nil {
-		log.L.Panic().Err(err).Msg("Ping failed")
-		return
-	}
-
+	db := mustConnectToDB(ctx, config.DB)
+	rdb := mustCreateRedisClient(ctx, config.Redis)
+	urlSigner := signing.MustNewSigner(config.CDNConfig)
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
-
 	loaders := initBatchLoaders(queries)
-
 	authClient := auth0.New(config.Auth0)
-	membersClient := members.New(config.Members, func(ctx context.Context) string {
-		token, err := authClient.GetToken(ctx, config.Members.Domain)
-		if err != nil {
-			log.L.Panic().Err(err).Msg("Failed to retrieve token for members")
-		}
-		return token
-	})
 
+	membersClient := members.New(config.Members, authClient)
 	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Failed to configure AWS SDK")

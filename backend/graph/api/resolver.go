@@ -42,6 +42,7 @@ type Resolver struct {
 	URLSigner       *signing.Signer
 	APIConfig       apiConfig
 	S3Client        *s3.Client
+	AWSConfig       awsConfig
 }
 
 func (r *Resolver) GetQueries() *sqlc.Queries {
@@ -58,6 +59,10 @@ func (r *Resolver) GetFilteredLoaders(ctx context.Context) *common.FilteredLoade
 
 func (r *Resolver) GetS3Client() *s3.Client {
 	return r.S3Client
+}
+
+type awsConfig interface {
+	GetTempStorageBucket() string
 }
 
 type apiConfig interface {

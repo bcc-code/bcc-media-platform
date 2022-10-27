@@ -17,6 +17,7 @@ func (t *graphTracer) ExtensionName() string {
 // InterceptField intercepts
 func (t *graphTracer) InterceptField(ctx context.Context, next graphql.Resolver) (any, error) {
 	field := graphql.GetFieldContext(ctx)
+
 	fieldName := field.Field.Name
 	if fieldName == "" {
 		fieldName = "unknown"

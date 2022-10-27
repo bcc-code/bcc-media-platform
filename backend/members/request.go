@@ -4,13 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/ansel1/merry/v2"
 	"io"
 	"net/http"
+
+	"github.com/ansel1/merry/v2"
 )
 
 func sendRequest[t any](ctx context.Context, client *Client, req *http.Request) (*result[t], error) {
-	req.Header.Set("Authorization", "Bearer "+client.tokenFactory(ctx))
+	token, err := client.tokenProvider.GetToken(ctx, client.domain)
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("unable to retrieve members token"))
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
