@@ -8,7 +8,7 @@
 
                 </div>
                 <EpisodeViewer
-                    class="drop-shadow-xl rounded rounded-xl overflow-hidden"
+                    class="drop-shadow-xl overflow-hidden"
                     :episode="episode"
                 ></EpisodeViewer>
             </div>

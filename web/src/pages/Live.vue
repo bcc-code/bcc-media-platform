@@ -1,7 +1,8 @@
 <template>
     <div>
-        live
-        <Player></Player>
+        <div class="aspect-video w-full">
+            <Player></Player>
+        </div>
     </div>
 </template>
 <script lang="ts" setup>
