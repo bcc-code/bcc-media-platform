@@ -7,7 +7,7 @@
                     class="bg-slate-800 aspect-square rounded-xl border-2 border-slate-700 p-4 h-24 cursor-pointer"
                     @click="goToSectionItem(i)"
                 >
-                    <img :src="i.image + '?h=400'" />
+                    <img :src="i.image + '?h=400&w=400&fit=crop'" />
                 </div>
                 <label class="text-center mx-auto">
                     <h1>
@@ -22,7 +22,7 @@
 import { Section } from "./types"
 
 import SectionTitle from "./SectionTitle.vue"
-import { goToSectionItem } from "@/utils/items";
+import { goToSectionItem } from "@/utils/items"
 
 defineProps<{
     item: Section & { __typename: "IconSection" }

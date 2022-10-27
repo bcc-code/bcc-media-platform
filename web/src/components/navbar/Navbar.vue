@@ -12,7 +12,8 @@
                             alt="Your Company"
                         /> -->
                         <img
-                            class="hidden h-8 w-auto lg:block"
+                            @click="$router.push({ name: 'front-page' })"
+                            class="hidden h-8 w-auto lg:block cursor-pointer"
                             src="/logo.svg"
                             alt="Your Company"
                         />
@@ -378,7 +379,7 @@ const navigation: {
     {
         name: "page.live",
         to: {
-            name: "front-page",
+            name: "live",
         },
         icon: LiveIcon,
     },

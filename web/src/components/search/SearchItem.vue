@@ -1,24 +1,21 @@
 <template>
     <div
-        class="flex relative aspect-video bg-cover bg-center bg-no-repeat rounded rounded-2xl cursor-pointer"
+        class="relative aspect-video rounded rounded-xl overflow-hidden cursor-pointer"
         @click="onclick"
-        :style="{
-            'background-image':
-                'linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url(\'' +
-                item.image +
-                '\')',
-        }"
     >
-        <div
-            v-if="adminOn"
-            class="absolute text-primary right-0 bg-black p-2 rounded cursor-pointer m-2"
-            @click="open"
-        >
-            EDIT
+        <img class="absolute" :src="item.image + '?w=800&h=450&fit=crop&crop=faces'" />
+        <div class="absolute h-full relative bg-gradient-to-t from-black via-transparent to-transparent">
+            <div
+                v-if="adminOn"
+                class="absolute text-primary right-0 bg-black p-2 rounded cursor-pointer m-2"
+                @click="open"
+            >
+                EDIT
+            </div>
+            <h1 class="absolute bottom-0 text-lg p-2 text-primary font-semibold mt-auto">
+                {{ item.title }}
+            </h1>
         </div>
-        <h1 class="text-lg p-2 text-primary font-semibold mt-auto">
-            {{ item.title }}
-        </h1>
     </div>
 </template>
 <script lang="ts" setup>

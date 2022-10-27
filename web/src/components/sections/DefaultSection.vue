@@ -2,18 +2,24 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <Swiper :breakpoints="breakpoints(item.size)" :modules="modules">
-            <SwiperSlide
-                v-for="i in item.items.items"
-                class="relative"
-                @click="goToSectionItem(i)"
-            >
+            <SwiperSlide v-for="i in item.items.items" class="relative">
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
-                <div class="flex flex-col cursor-pointer mx-2 mt-2">
-                    <img
-                        :src="i.image + `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`"
-                        class="rounded-md top-0 h-full w-full object-cover mb-1"
-                    />
-                    <SectionItemTitle :i="i"></SectionItemTitle>
+                <div
+                    class="flex flex-col cursor-pointer mx-2 mt-2"
+                    @click="goToSectionItem(i)"
+                >
+                    <div class="relative mb-1">
+                        <img
+                            :id="i.id"
+                            :src="
+                                i.image +
+                                `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
+                            "
+                            class="rounded-md top-0 w-full object-cover aspect-video"
+                        />
+                        <ProgressBar class="absolute bottom-0 w-full" v-if="i.item?.__typename === 'Episode'" :item="i.item" />
+                    </div>
+                    <SectionItemTitle :for="i.id" :i="i"></SectionItemTitle>
                 </div>
             </SwiperSlide>
         </Swiper>
@@ -28,12 +34,10 @@ import { Swiper, SwiperSlide } from "swiper/vue"
 import { computed } from "vue"
 import SectionTitle from "./SectionTitle.vue"
 import breakpoints from "./breakpoints"
-import { useI18n } from "vue-i18n"
 import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
-
-const { t } = useI18n()
+import ProgressBar from "../episodes/ProgressBar.vue"
 
 const props = defineProps<{
     item: Section & { __typename: "DefaultSection" }

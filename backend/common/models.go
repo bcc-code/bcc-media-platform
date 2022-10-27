@@ -79,6 +79,7 @@ type Notification struct {
 // Progress contains basic data for progress
 type Progress struct {
 	EpisodeID int
+	ShowID    null.Int
 	Progress  int
 	Duration  int
 	Watched   bool

@@ -5,6 +5,8 @@ query getEpisode($episodeId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {
         description
         imageUrl
         number
+        progress
+        duration
         season {
             id
             title
@@ -23,5 +25,19 @@ query getEpisode($episodeId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {
                 title
             }
         }
+    }
+}
+
+mutation updateEpisodeProgress(
+    $episodeId: ID!
+    $progress: Int
+    $duration: Int
+) {
+    setEpisodeProgress(
+        id: $episodeId
+        progress: $progress
+        duration: $duration
+    ) {
+        progress
     }
 }

@@ -9,6 +9,8 @@ fragment SectionItem on SectionItem {
             episodeNumber: number
             productionDate
             publishDate
+            progress
+            duration
             season {
                 number
                 show {

@@ -12,11 +12,19 @@
                 @click="goToSectionItem(i)"
             >
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
-                <div class="flex flex-col aspect-[9/16] rounded rounded-md mx-2 mt-1">
-                    <img
-                        :src="i.image + `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`"
-                        class="rounded-md top-0 h-full w-full object-cover mb-1"
-                    />
+                <div
+                    class="flex flex-col aspect-[9/16] rounded rounded-md mx-2 mt-1"
+                >
+                    <div class="relative">
+                        <img
+                            :src="
+                                i.image +
+                                `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
+                            "
+                            class="rounded-md top-0 h-full w-full object-cover mb-1"
+                        />
+                        <ProgressBar class="absolute bottom-0 w-full" v-if="i.item?.__typename === 'Episode'" :item="i.item" />
+                    </div>
                     <SectionItemTitle :i="i"></SectionItemTitle>
                 </div>
             </SwiperSlide>
@@ -27,7 +35,6 @@
 import { Section } from "./types"
 
 import { Navigation, Pagination } from "swiper"
-import { useI18n } from "vue-i18n"
 
 import { Swiper, SwiperSlide } from "swiper/vue"
 import SectionTitle from "./SectionTitle.vue"
@@ -36,8 +43,7 @@ import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import { computed } from "vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
-
-const { t } = useI18n()
+import ProgressBar from "../episodes/ProgressBar.vue"
 
 const props = defineProps<{
     item: Section & { __typename: "PosterSection" }

@@ -28,10 +28,11 @@ func (pq *ProfileQueries) GetProgressForEpisodes(ctx context.Context, episodeIDs
 // SaveProgress stores the progress
 func (pq *ProfileQueries) SaveProgress(ctx context.Context, progress common.Progress) error {
 	return pq.queries.saveProgress(ctx, saveProgressParams{
-		Column1: pq.profileID,
-		Column2: int32(progress.EpisodeID),
-		Column3: int32(progress.Progress),
-		Column4: int32(progress.Duration),
+		ProfileID: pq.profileID,
+		EpisodeID: int32(progress.EpisodeID),
+		Progress:  int32(progress.Progress),
+		Duration:  int32(progress.Duration),
+		ShowID:    progress.ShowID,
 	})
 }
 
