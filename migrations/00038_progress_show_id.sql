@@ -20,3 +20,7 @@ COMMENT ON CONSTRAINT "progress_show_id_fk" ON "users"."progress" IS NULL;
 
 --- END ALTER TABLE "users"."progress" ---
 -- +goose Down
+
+ALTER TABLE IF EXISTS "users"."progress" DROP CONSTRAINT "progress_episode_id_fk";
+
+ALTER TABLE IF EXISTS "users"."progress" DROP CONSTRAINT "progress_show_id_fk";

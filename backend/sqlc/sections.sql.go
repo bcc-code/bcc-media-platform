@@ -226,6 +226,9 @@ SELECT s.id,
        s.status::text = 'published'::text AS published,
        s.collection_id,
        s.message_id,
+       s.embed_url,
+       s.embed_size,
+       s.needs_authentication,
        t.title,
        t.description
 FROM sections s
@@ -237,19 +240,22 @@ WHERE s.id = ANY ($1::int[])
 `
 
 type getSectionsRow struct {
-	ID           int32                 `db:"id" json:"id"`
-	PageID       int32                 `db:"page_id" json:"pageID"`
-	Type         null_v4.String        `db:"type" json:"type"`
-	Style        null_v4.String        `db:"style" json:"style"`
-	Size         null_v4.String        `db:"size" json:"size"`
-	GridSize     null_v4.String        `db:"grid_size" json:"gridSize"`
-	ShowTitle    sql.NullBool          `db:"show_title" json:"showTitle"`
-	Sort         null_v4.Int           `db:"sort" json:"sort"`
-	Published    bool                  `db:"published" json:"published"`
-	CollectionID null_v4.Int           `db:"collection_id" json:"collectionID"`
-	MessageID    null_v4.Int           `db:"message_id" json:"messageID"`
-	Title        pqtype.NullRawMessage `db:"title" json:"title"`
-	Description  pqtype.NullRawMessage `db:"description" json:"description"`
+	ID                  int32                 `db:"id" json:"id"`
+	PageID              int32                 `db:"page_id" json:"pageID"`
+	Type                null_v4.String        `db:"type" json:"type"`
+	Style               null_v4.String        `db:"style" json:"style"`
+	Size                null_v4.String        `db:"size" json:"size"`
+	GridSize            null_v4.String        `db:"grid_size" json:"gridSize"`
+	ShowTitle           sql.NullBool          `db:"show_title" json:"showTitle"`
+	Sort                null_v4.Int           `db:"sort" json:"sort"`
+	Published           bool                  `db:"published" json:"published"`
+	CollectionID        null_v4.Int           `db:"collection_id" json:"collectionID"`
+	MessageID           null_v4.Int           `db:"message_id" json:"messageID"`
+	EmbedUrl            null_v4.String        `db:"embed_url" json:"embedUrl"`
+	EmbedSize           null_v4.String        `db:"embed_size" json:"embedSize"`
+	NeedsAuthentication sql.NullBool          `db:"needs_authentication" json:"needsAuthentication"`
+	Title               pqtype.NullRawMessage `db:"title" json:"title"`
+	Description         pqtype.NullRawMessage `db:"description" json:"description"`
 }
 
 func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSectionsRow, error) {
@@ -273,6 +279,9 @@ func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSecti
 			&i.Published,
 			&i.CollectionID,
 			&i.MessageID,
+			&i.EmbedUrl,
+			&i.EmbedSize,
+			&i.NeedsAuthentication,
 			&i.Title,
 			&i.Description,
 		); err != nil {

@@ -15,6 +15,9 @@ SELECT s.id,
        s.status::text = 'published'::text AS published,
        s.collection_id,
        s.message_id,
+       s.embed_url,
+       s.embed_size,
+       s.needs_authentication,
        t.title,
        t.description
 FROM sections s
