@@ -126,8 +126,26 @@ func (r *queryRootResolver) Application(ctx context.Context) (*model.Application
 
 // Export is the resolver for the export field.
 func (r *queryRootResolver) Export(ctx context.Context, groups []string) (*model.Export, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	profile := user.GetProfileFromCtx(ginCtx)
+	if profile == nil {
+		return nil, merry.New(
+			"Not authorized",
+			merry.WithUserMessage("you are not authorized for this query"),
+		)
+	}
+
+	url, err := export.DoExport(ctx, r, r.AWSConfig.GetTempStorageBucket())
+	if err != nil {
+		return nil, err
+	}
 
 	return &model.Export{
+		URL:       url,
 		DbVersion: export.SQLiteExportDBVersion,
 	}, nil
 }

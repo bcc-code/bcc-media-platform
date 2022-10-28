@@ -8,6 +8,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
+	"github.com/gin-gonic/gin"
 	"gopkg.in/guregu/null.v4"
 	"strconv"
 	"sync"
@@ -18,7 +19,6 @@ import (
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/signing"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
@@ -31,6 +31,13 @@ import (
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
+type searchProvider interface {
+	Search(ctx *gin.Context, query common.SearchQuery) (searchResult common.SearchResult, err error)
+	Reindex(ctx context.Context) error
+	DeleteModel(_ context.Context, collection string, id int) error
+	IndexModel(ctx context.Context, collection string, id int) (err error)
+}
+
 // Resolver is the main struct for the GQL implementation
 // It contains references to all external services and config
 type Resolver struct {
@@ -38,10 +45,11 @@ type Resolver struct {
 	Loaders         *common.BatchLoaders
 	FilteredLoaders func(ctx context.Context) *common.FilteredLoaders
 	ProfileLoaders  func(ctx context.Context) *common.ProfileLoaders
-	SearchService   *search.Service
+	SearchService   searchProvider
 	URLSigner       *signing.Signer
-	APIConfig       apiConfig
 	S3Client        *s3.Client
+	APIConfig       apiConfig
+	AWSConfig       awsConfig
 }
 
 func (r *Resolver) GetQueries() *sqlc.Queries {
@@ -58,6 +66,10 @@ func (r *Resolver) GetFilteredLoaders(ctx context.Context) *common.FilteredLoade
 
 func (r *Resolver) GetS3Client() *s3.Client {
 	return r.S3Client
+}
+
+type awsConfig interface {
+	GetTempStorageBucket() string
 }
 
 type apiConfig interface {
