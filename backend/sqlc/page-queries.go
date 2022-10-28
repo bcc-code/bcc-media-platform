@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
+	"time"
+
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
-	"time"
 )
 
 func (q *Queries) mapToPages(pages []getPagesRow) []common.Page {
@@ -42,6 +43,7 @@ func (q *Queries) ListPages(ctx context.Context) ([]common.Page, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return q.mapToPages(lo.Map(pages, func(p listPagesRow, _ int) getPagesRow {
 		return getPagesRow(p)
 	})), nil

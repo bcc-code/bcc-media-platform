@@ -85,3 +85,12 @@ FROM shows sh
          LEFT JOIN show_availability access ON access.id = sh.id
          LEFT JOIN show_roles roles ON roles.id = sh.id
 WHERE sh.id = ANY ($1::int[]);
+
+-- name: listAllPermittedShowIDs :many
+SELECT sh.id
+FROM shows sh
+         LEFT JOIN show_availability access ON access.id = sh.id
+         LEFT JOIN show_roles roles ON roles.id = sh.id
+WHERE access.available_from < NOW()
+  AND access.available_to > NOW()
+  AND roles.roles && ($1::character varying[]);

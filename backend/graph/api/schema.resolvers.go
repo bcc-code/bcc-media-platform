@@ -13,6 +13,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/export"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
@@ -120,6 +121,32 @@ func (r *queryRootResolver) Application(ctx context.Context) (*model.Application
 		Code:          app.Code,
 		Page:          page,
 		ClientVersion: app.ClientVersion,
+	}, nil
+}
+
+// Export is the resolver for the export field.
+func (r *queryRootResolver) Export(ctx context.Context, groups []string) (*model.Export, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	profile := user.GetProfileFromCtx(ginCtx)
+	if profile == nil {
+		return nil, merry.New(
+			"Not authorized",
+			merry.WithUserMessage("you are not authorized for this query"),
+		)
+	}
+
+	url, err := export.DoExport(ctx, r, r.AWSConfig.GetTempStorageBucket())
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Export{
+		URL:       url,
+		DbVersion: export.SQLiteExportDBVersion,
 	}, nil
 }
 

@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
+	"time"
+
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
-	"time"
 )
 
 func mapToSections(items []getSectionsRow) []common.Section {

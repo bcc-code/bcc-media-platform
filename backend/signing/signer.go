@@ -27,6 +27,15 @@ type Config interface {
 	GetAzureSigningKey() string
 }
 
+func MustNewSigner(config Config) *Signer {
+	s, err := NewSigner(config)
+	if err != nil {
+		log.L.Panic().Err(err).Send()
+	}
+
+	return s
+}
+
 // NewSigner with all secret material configured
 func NewSigner(config Config) (*Signer, error) {
 	// Set up urlSigner for CDN urls access
@@ -82,11 +91,11 @@ func (s Signer) SignAzureURL(url *url.URL, encryptionKeyID string) (string, erro
 }
 
 // SignCloudfrontURL takes the path and the domain and returns a string with the following properties:
-// * HTTPS
-// * Unchanged path
-// * QueryParameter "EncodedPolicy" with a url encoded string representing full signature parameters,
-//   needed for signed urls. The URL specified in the canned policy is truncated to the first 2 folders
-//   after the /out/v1/ part
+//   - HTTPS
+//   - Unchanged path
+//   - QueryParameter "EncodedPolicy" with a url encoded string representing full signature parameters,
+//     needed for signed urls. The URL specified in the canned policy is truncated to the first 2 folders
+//     after the /out/v1/ part
 //
 // For example: https://CLOUDFLARE-CDN.com/out/v1/2da6f0ab51344ff4a1048741da66d6df/1b5a8f5803a4459eb1bb430f8a79e524/2e0c61ef235f4945813fc7490745c8ff/index.m3u8?EncodedPolicy=<URL ENCODED POLICY>
 func (s Signer) SignCloudfrontURL(path string, domain string) (string, error) {
