@@ -1,7 +1,6 @@
 package search
 
 import (
-	"database/sql"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -58,12 +57,12 @@ type Service struct {
 }
 
 // New creates a new instance of the search service
-func New(db *sql.DB, config Config) *Service {
+func New(queries *sqlc.Queries, config Config) *Service {
 	service := Service{
 		algoliaClient: search.NewClient(config.AppID, config.APIKey),
 	}
 	service.index = service.algoliaClient.InitIndex(indexName)
-	service.queries = sqlc.New(db)
+	service.queries = queries
 
 	service.loaders = loaders{
 		ShowLoader:    show.NewBatchLoader(*service.queries),

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/brunstadtv/backend/graph/gqltracer"
 	"sort"
 	"strings"
 	"time"
@@ -48,9 +49,10 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
+// App global caches
 var generalCache = cache.New[string, any]()
-
 var rolesLoaderCache = cache.New[string, *common.FilteredLoaders]()
+var profilesLoaderCache = cache.New[uuid.UUID, *common.ProfileLoaders]()
 
 func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dataloader.Loader[int, *common.Collection], roles []string) *common.FilteredLoaders {
 	sort.Strings(roles)
@@ -95,8 +97,6 @@ func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *
 	}
 }
 
-var profilesLoaderCache = cache.New[uuid.UUID, *common.ProfileLoaders]()
-
 func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.ProfileLoaders {
 	if loaders, ok := profilesLoaderCache.Get(profileID); ok {
 		return loaders
@@ -133,23 +133,23 @@ func graphqlHandler(
 	loaders *common.BatchLoaders,
 	searchService *search.Service,
 	urlSigner *signing.Signer,
-	config envConfig,
+	awsConfig awsConfig,
+	cdnConfig cdnConfig,
 	s3client *s3.Client,
 ) gin.HandlerFunc {
-
 	resolver := graphapi.Resolver{
 		Queries:         queries,
 		Loaders:         loaders,
 		FilteredLoaders: filteredLoaderFactory(db, queries, loaders.CollectionLoader),
 		ProfileLoaders:  profileLoaderFactory(queries),
 		SearchService:   searchService,
-		APIConfig:       config.CDNConfig,
-		AWSConfig:       config.AWS,
+		APIConfig:       cdnConfig,
+		AWSConfig:       awsConfig,
 		URLSigner:       urlSigner,
 		S3Client:        s3client,
 	}
 
-	tracer := &graphTracer{}
+	tracer := &gqltracer.GraphTracer{}
 
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
@@ -170,7 +170,7 @@ func publicGraphqlHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
 		},
 	}
 
-	tracer := &graphTracer{}
+	tracer := &gqltracer.GraphTracer{}
 
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
@@ -301,17 +301,14 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 
 func main() {
 	ctx := context.Background()
-
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
-	log.L.Debug().Msg("Setting up tracing!")
 
-	// Here you can get a tracedHttpClient if useful anywhere
+	log.L.Debug().Msg("Setting up tracing!")
 	utils.MustSetupTracing()
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
 
 	config := getEnvConfig()
 
-	log.L.Debug().Str("DBConnString", config.DB.ConnectionString).Msg("Connection to DB")
 	db := mustConnectToDB(ctx, config.DB)
 	rdb := mustCreateRedisClient(ctx, config.Redis)
 	urlSigner := signing.MustNewSigner(config.CDNConfig)
@@ -319,8 +316,9 @@ func main() {
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
 	loaders := initBatchLoaders(queries)
 	authClient := auth0.New(config.Auth0)
-
 	membersClient := members.New(config.Members, authClient)
+	searchService := search.New(queries, config.Algolia)
+
 	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Failed to configure AWS SDK")
@@ -328,9 +326,20 @@ func main() {
 	awsConfig.Region = config.AWS.Region
 
 	s3Client := s3.NewFromConfig(awsConfig)
+	gqlHandler := graphqlHandler(
+		db,
+		queries,
+		loaders,
+		searchService,
+		urlSigner,
+		config.AWS,
+		config.CDNConfig,
+		s3Client,
+	)
 
 	log.L.Debug().Msg("Set up HTTP server")
 	r := gin.Default()
+
 	r.Use(utils.GinContextToContextMiddleware())
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
@@ -338,25 +347,18 @@ func main() {
 		AllowHeaders:     []string{"content-type", "authorization", "accept-language"},
 		AllowCredentials: true,
 	}))
-	r.Use(otelgin.Middleware("api")) // Open
+
+	r.Use(otelgin.Middleware("api"))
 	r.Use(authClient.ValidateToken())
 	r.Use(user.NewUserMiddleware(queries, membersClient))
 	r.Use(user.NewProfileMiddleware(queries, rdb))
-
 	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
 	r.Use(applications.RoleMiddleware())
 
-	searchService := search.New(db, config.Algolia)
-
-	gqlHandler := graphqlHandler(db, queries, loaders, searchService, urlSigner, config, s3Client)
 	r.POST("/query", gqlHandler)
-
 	r.GET("/", playgroundHandler())
-
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, loaders))
-
 	r.POST("/public", publicGraphqlHandler(loaders))
-
 	r.GET("/versionz", version.GinHandler)
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)

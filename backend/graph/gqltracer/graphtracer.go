@@ -1,4 +1,4 @@
-package main
+package gqltracer
 
 import (
 	"context"
@@ -6,16 +6,16 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
-type graphTracer struct {
+type GraphTracer struct {
 }
 
 // ExtensionName name of extension
-func (t *graphTracer) ExtensionName() string {
+func (t *GraphTracer) ExtensionName() string {
 	return "GraphTracer"
 }
 
 // InterceptField intercepts
-func (t *graphTracer) InterceptField(ctx context.Context, next graphql.Resolver) (any, error) {
+func (t *GraphTracer) InterceptField(ctx context.Context, next graphql.Resolver) (any, error) {
 	field := graphql.GetFieldContext(ctx)
 
 	fieldName := field.Field.Name
@@ -28,7 +28,7 @@ func (t *graphTracer) InterceptField(ctx context.Context, next graphql.Resolver)
 }
 
 // InterceptOperation intercepts
-func (t *graphTracer) InterceptOperation(ctx context.Context, next graphql.OperationHandler) graphql.ResponseHandler {
+func (t *GraphTracer) InterceptOperation(ctx context.Context, next graphql.OperationHandler) graphql.ResponseHandler {
 	op := graphql.GetOperationContext(ctx)
 	opName := op.OperationName
 	if opName == "" {
@@ -40,6 +40,6 @@ func (t *graphTracer) InterceptOperation(ctx context.Context, next graphql.Opera
 }
 
 // Validate is unnecessary in our case
-func (t *graphTracer) Validate(_ graphql.ExecutableSchema) error {
+func (t *GraphTracer) Validate(_ graphql.ExecutableSchema) error {
 	return nil
 }
