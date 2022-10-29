@@ -1,3 +1,4 @@
+[![Build Status](https://bccmedia.semaphoreci.com/badges/brunstadtv/branches/develop.svg?style=shields&key=ca08f58c-7627-45e3-ab5e-3bfae64cc963)](https://bccmedia.semaphoreci.com/projects/brunstadtv)
 
 # BrunstadTV
 
