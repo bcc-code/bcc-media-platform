@@ -80,7 +80,7 @@ func main() {
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.ImageCDNDomain)
 
-	searchService := search.New(db, config.Algolia)
+	searchService := search.New(queries, config.Algolia)
 	directusEventHandler := directus.NewEventHandler()
 	crowdinClient := crowdin.New(config.Crowdin, directus.NewHandler(directusClient), queries)
 
