@@ -767,7 +767,9 @@ type WebSection struct {
 	Authentication bool           `json:"authentication"`
 }
 
-func (WebSection) IsSection() {}
+func (WebSection) IsSection()             {}
+func (this WebSection) GetID() string     { return this.ID }
+func (this WebSection) GetTitle() *string { return this.Title }
 
 type GridSectionSize string
 

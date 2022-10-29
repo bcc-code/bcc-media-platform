@@ -5,10 +5,10 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"strconv"
 
 	merry "github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/graph/public/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
 	"github.com/bcc-code/brunstadtv/backend/version"
