@@ -23,7 +23,7 @@ import (
 )
 
 // SetDevicePushToken is the resolver for the setDevicePushToken field.
-func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token string) (*model.Device, error) {
+func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token string, languages []string) (*model.Device, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -40,6 +40,7 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 		ProfileID: profile.ID,
 		Name:      "default",
 		UpdatedAt: time.Now(),
+		Languages: languages,
 	}
 	err = r.Queries.SaveDevice(ginCtx, d)
 	if err != nil {

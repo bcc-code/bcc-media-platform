@@ -298,7 +298,7 @@ type ComplexityRoot struct {
 	}
 
 	MutationRoot struct {
-		SetDevicePushToken func(childComplexity int, token string) int
+		SetDevicePushToken func(childComplexity int, token string, languages []string) int
 		SetEpisodeProgress func(childComplexity int, id string, progress *int, duration *int) int
 	}
 
@@ -604,7 +604,7 @@ type MessageSectionResolver interface {
 	Messages(ctx context.Context, obj *model.MessageSection) ([]*model.Message, error)
 }
 type MutationRootResolver interface {
-	SetDevicePushToken(ctx context.Context, token string) (*model.Device, error)
+	SetDevicePushToken(ctx context.Context, token string, languages []string) (*model.Device, error)
 	SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int) (*model.Episode, error)
 }
 type PageResolver interface {
@@ -1710,7 +1710,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.MutationRoot.SetDevicePushToken(childComplexity, args["token"].(string)), true
+		return e.complexity.MutationRoot.SetDevicePushToken(childComplexity, args["token"].(string), args["languages"].([]string)), true
 
 	case "MutationRoot.setEpisodeProgress":
 		if e.complexity.MutationRoot.SetEpisodeProgress == nil {
@@ -3601,7 +3601,7 @@ type QueryRoot{
 }
 
 type MutationRoot {
-  setDevicePushToken(token: String!): Device
+  setDevicePushToken(token: String!, languages: [String!]!): Device
   setEpisodeProgress(id: ID!, progress: Int, duration: Int): Episode!
 }
 `, BuiltIn: false},
@@ -3984,6 +3984,15 @@ func (ec *executionContext) field_MutationRoot_setDevicePushToken_args(ctx conte
 		}
 	}
 	args["token"] = arg0
+	var arg1 []string
+	if tmp, ok := rawArgs["languages"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("languages"))
+		arg1, err = ec.unmarshalNString2ᚕstringᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["languages"] = arg1
 	return args, nil
 }
 
@@ -10889,7 +10898,7 @@ func (ec *executionContext) _MutationRoot_setDevicePushToken(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MutationRoot().SetDevicePushToken(rctx, fc.Args["token"].(string))
+		return ec.resolvers.MutationRoot().SetDevicePushToken(rctx, fc.Args["token"].(string), fc.Args["languages"].([]string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
