@@ -108,8 +108,9 @@ func (s *Service) SendNotificationToDevices(ctx context.Context, devices []commo
 	for _, d := range devices {
 		messages = append(messages, &messaging.Message{
 			Notification: &messaging.Notification{
-				Title: notification.Title.Get(d.Languages),
-				Body:  notification.Description.Get(d.Languages),
+				Title:    notification.Title.Get(d.Languages),
+				Body:     notification.Description.Get(d.Languages),
+				ImageURL: notification.Images.GetValueOrNil(d.Languages).ValueOrZero(),
 			},
 			Token: d.Token,
 		})
