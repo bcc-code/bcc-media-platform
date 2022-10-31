@@ -35,6 +35,16 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 			merry.WithUserMessage("device must be connected to a profile, which is not supported by anonymous accounts"),
 		)
 	}
+
+	for i := 0; i < len(languages); i++ {
+		if len(languages[i]) != 2 {
+			return nil, merry.New("invalid language", merry.WithUserMessage("Probably invalid language code"))
+		}
+		if i > 4 {
+			return nil, merry.New("too many languages", merry.WithUserMessage("Language array too large. Max 5 entries"))
+		}
+	}
+
 	d := common.Device{
 		Token:     token,
 		ProfileID: profile.ID,
