@@ -58,7 +58,9 @@ export async function createEpisodeTranslation(p: episodes.components["schemas"]
     let oldLang = languages.find(l => l.CultureCode == languageCode)
     await upsertLS(oldKnex, episode.legacy_title_id, oldLang, p.title)
     await upsertLS(oldKnex, episode.legacy_description_id, oldLang, p.description)
-    await upsertLS(oldKnex, episode.legacy_extra_description_id, oldLang, p.extra_description)
+    if (episode.legacy_extra_description_id) {
+        await upsertLS(oldKnex, episode.legacy_extra_description_id, oldLang, p.extra_description)
+    }
 
     return p
 }

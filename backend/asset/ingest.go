@@ -143,10 +143,12 @@ func GetLanguagesFromVideoElement(videoElement smil.Video) []directus.AssetStrea
 
 	for i := range systemLanguages {
 		langCode := utils.LegacyLanguageCodeTo639_1(systemLanguages[i])
-		languages = append(languages, directus.AssetStreamLanguage{
-			AssetStreamID: "+", // Directus requirement
-			LanguagesCode: directus.LanguagesCode{Code: langCode},
-		})
+		if langCode != "" {
+			languages = append(languages, directus.AssetStreamLanguage{
+				AssetStreamID: "+", // Directus requirement
+				LanguagesCode: directus.LanguagesCode{Code: langCode},
+			})
+		}
 	}
 
 	return languages
