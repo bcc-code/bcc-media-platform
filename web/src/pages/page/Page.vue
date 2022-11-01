@@ -1,5 +1,5 @@
 <template>
-    <section>
+    <section class="p-5">
         <transition name="slide-fade">
             <div
                 class="flex flex-col gap-8"
