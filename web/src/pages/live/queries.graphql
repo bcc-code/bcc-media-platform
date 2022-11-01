@@ -1,0 +1,30 @@
+query getLiveCalendarRange($start: Date!, $end: Date!) {
+    calendar {
+        period(from: $start, to: $end) {
+            events {
+                title
+            }
+            activeDays
+        }
+    }
+}
+
+query getLiveCalendarDay($day: Date!) {
+    calendar {
+        day(day: $day) {
+            entries {
+                id
+                title
+                description
+                end
+                start
+            }
+            events {
+                id
+                title
+                start
+                end
+            }
+        }
+    }
+}
