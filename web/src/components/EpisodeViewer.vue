@@ -8,6 +8,7 @@ import { Player } from "bccm-video-player"
 import playerFactory from "@/services/player"
 import { useUpdateEpisodeProgressMutation } from "@/graph/generated"
 import { useAuth0 } from "@auth0/auth0-vue"
+import { setProgress } from "@/utils/episodes"
 
 const { isAuthenticated } = useAuth0()
 
@@ -63,6 +64,7 @@ const load = async () => {
                         duration: props.episode.duration,
                         progress: progress,
                     })
+                    setProgress(episodeId, progress)
                 }
             })
         }

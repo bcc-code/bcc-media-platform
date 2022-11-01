@@ -46,15 +46,25 @@
                 </div>
             </div>
             <div>
-                <div class="m-2">
+                <div class="flex gap-2 p-2 font-semibold">
                     <button
-                        class="opacity-50 uppercase border-gray border px-2 rounded-xl"
+                        class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
+                        :class="[
+                            view === 'episodes'
+                                ? 'opacity-100 border-opacity-40 '
+                                : 'opacity-50 bg-opacity-0 border-opacity-0',
+                        ]"
                         @click="view = 'episodes'"
                     >
                         {{ t("episode.episodes") }}
                     </button>
                     <button
-                        class="opacity-50 uppercase border-gray border px-2 rounded-xl"
+                        class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
+                        :class="[
+                            view === 'details'
+                                ? 'opacity-100 border-opacity-40'
+                                : 'opacity-50 bg-opacity-0 border-opacity-0',
+                        ]"
                         @click="view = 'details'"
                     >
                         {{ t("episode.details") }}
@@ -69,38 +79,122 @@
                         ></EpisodeDetails>
                         <div
                             v-else-if="view === 'episodes'"
-                            class="lg:grid grid-cols-2"
+                            class="flex flex-col"
                         >
-                            <div
-                                v-for="e in episode.season?.episodes.items"
-                                class="flex p-2 gap-2 cursor-pointer border-l-8 border-red hover:bg-red hover:bg-opacity-10 hover:border-opacity-100 transition duration-200"
-                                :class="[
-                                    e.id === episode.id
-                                        ? 'border-l-8 bg-red bg-opacity-20 hover:bg-opacity-20'
-                                        : 'border-opacity-0',
-                                ]"
-                                @click="
-                                    $router.push({
-                                        name: 'episode-page',
-                                        params: { episodeId: e.id },
-                                    })
-                                "
+                            <Listbox
+                                as="div"
+                                v-model="seasonId"
+                                class="mb-2 font-medium"
                             >
-                                <img
-                                    class="w-1/3 aspect-video object-contain"
-                                    v-if="e.image"
-                                    :src="e.image"
-                                />
-                                <div>
-                                    <h3 class="text-md text-primary">
-                                        {{ t("episode.episode") }}
-                                        {{ e.number }}
-                                    </h3>
-                                    <h1 class="text-md lg:text-lg">
-                                        {{ e.title }}
-                                    </h1>
-                                    <AgeRating>{{ e.ageRating }}</AgeRating>
+                                <div class="relative mt-1">
+                                    <ListboxButton
+                                        class="relative w-full border-0 cursor-default rounded-md border py-2 pl-3 pr-10 text-left shadow-sm sm:text-sm"
+                                    >
+                                        <span class="flex items-center">
+                                            <span
+                                                class="block truncate uppercase"
+                                                >{{
+                                                    seasonQuery.data.value
+                                                        ?.season.title
+                                                }}</span
+                                            >
+                                            <ChevronDown
+                                                class="text-gray-400 stroke-white"
+                                                aria-hidden="true"
+                                            />
+                                        </span>
+                                    </ListboxButton>
+
+                                    <transition
+                                        leave-active-class="transition ease-in duration-100"
+                                        leave-from-class="opacity-100"
+                                        leave-to-class="opacity-0"
+                                    >
+                                        <ListboxOptions
+                                            class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-slate-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                                        >
+                                            <ListboxOption
+                                                as="template"
+                                                v-for="s in episode.season?.show
+                                                    .seasons.items"
+                                                :key="s.id"
+                                                :value="s.id"
+                                                v-slot="{ active, selected }"
+                                            >
+                                                <li
+                                                    :class="[
+                                                        active
+                                                            ? 'text-white bg-primary'
+                                                            : 'opacity-80',
+                                                        'relative cursor-default select-none bg-opacity-20 py-2 pl-3 pr-9',
+                                                    ]"
+                                                >
+                                                    <div
+                                                        class="flex items-center"
+                                                    >
+                                                        <span
+                                                            :class="[
+                                                                selected
+                                                                    ? 'font-semibold'
+                                                                    : 'font-normal',
+                                                                'ml-3 block truncate uppercase',
+                                                            ]"
+                                                            >{{ s.title }}</span
+                                                        >
+                                                    </div>
+                                                </li>
+                                            </ListboxOption>
+                                        </ListboxOptions>
+                                    </transition>
                                 </div>
+                            </Listbox>
+                            <div class="lg:grid grid-cols-2">
+                                <transition-group
+                                    name="slide-fade"
+                                    mode="out-in"
+                                >
+                                    <div
+                                        v-for="e in seasonQuery.data.value
+                                            ?.season.episodes.items"
+                                        class="flex p-2 gap-2 cursor-pointer border-l-8 border-red hover:bg-red hover:bg-opacity-10 hover:border-opacity-100 transition duration-200"
+                                        :class="[
+                                            e.id === episode.id
+                                                ? 'border-l-8 bg-red bg-opacity-20 hover:bg-opacity-20'
+                                                : 'border-opacity-0',
+                                        ]"
+                                        @click="
+                                            $router.push({
+                                                name: 'episode-page',
+                                                params: { episodeId: e.id },
+                                            })
+                                        "
+                                    >
+                                        <WithProgressBar
+                                            :item="e"
+                                            class="w-1/3 aspect-video"
+                                        >
+                                            <img
+                                                class="object-contain"
+                                                v-if="e.image"
+                                                :src="e.image"
+                                            />
+                                        </WithProgressBar>
+                                        <div>
+                                            <h3
+                                                class="text-sm lg:text-md text-primary"
+                                            >
+                                                {{ t("episode.episode") }}
+                                                {{ e.number }}
+                                            </h3>
+                                            <h1 class="text-md lg:text-lg">
+                                                {{ e.title }}
+                                            </h1>
+                                            <AgeRating>{{
+                                                e.ageRating
+                                            }}</AgeRating>
+                                        </div>
+                                    </div>
+                                </transition-group>
                             </div>
                         </div>
                     </transition>
@@ -111,13 +205,24 @@
     </section>
 </template>
 <script lang="ts" setup>
-import { useGetEpisodeQuery } from "@/graph/generated"
+import {
+    useGetEpisodeQuery,
+    useGetSeasonOnEpisodePageQuery,
+} from "@/graph/generated"
 import { computed, ref, watch } from "vue"
 import { useRoute } from "vue-router"
 import EpisodeViewer from "@/components/EpisodeViewer.vue"
 import { useI18n } from "vue-i18n"
 import EpisodeDetails from "@/components/episodes/EpisodeDetails.vue"
 import AgeRating from "@/components/episodes/AgeRating.vue"
+import {
+    Listbox,
+    ListboxButton,
+    ListboxOption,
+    ListboxOptions,
+} from "@headlessui/vue"
+import { ChevronDown } from "@/components/icons"
+import WithProgressBar from "@/components/episodes/WithProgressBar.vue"
 
 const route = useRoute()
 
@@ -125,7 +230,7 @@ const { t } = useI18n()
 
 const episodeId = ref(route.params.episodeId as string)
 
-const { data, error } = useGetEpisodeQuery({
+const { data, error, then } = useGetEpisodeQuery({
     variables: {
         episodeId,
     },
@@ -134,6 +239,30 @@ const { data, error } = useGetEpisodeQuery({
 const episode = computed(() => {
     return data.value?.episode ?? null
 })
+
+const seasonId = ref("")
+
+then(() => {
+    seasonId.value = data.value?.episode.season?.id ?? ""
+})
+
+const seasonQuery = useGetSeasonOnEpisodePageQuery({
+    pause: true,
+    variables: {
+        seasonId,
+    },
+})
+
+watch(
+    () => seasonId.value,
+    () => {
+        if (seasonId.value) {
+            seasonQuery.resume()
+        } else {
+            seasonQuery.pause()
+        }
+    }
+)
 
 watch(
     () => route.params.episodeId,

@@ -841,10 +841,72 @@ export type GetCalendarPeriodQuery = {
     } | null
 }
 
-export type GetEpisodeQueryVariables = Exact<{
-    episodeId: Scalars["ID"]
+export type SeasonFragment = {
+    id: string
+    title: string
+    image?: string | null
+    number: number
+    episodes: {
+        total: number
+        items: Array<{
+            id: string
+            number?: number | null
+            title: string
+            image?: string | null
+            progress?: number | null
+            duration: number
+            description: string
+            ageRating: string
+        }>
+    }
+    show: {
+        id: string
+        title: string
+        description: string
+        type: ShowType
+        image?: string | null
+    }
+}
+
+export type SeasonFragmentVariables = Exact<{ [key: string]: never }>
+
+export type GetSeasonOnEpisodePageQueryVariables = Exact<{
+    seasonId: Scalars["ID"]
     firstEpisodes?: InputMaybe<Scalars["Int"]>
     offsetEpisodes?: InputMaybe<Scalars["Int"]>
+}>
+
+export type GetSeasonOnEpisodePageQuery = {
+    season: {
+        id: string
+        title: string
+        image?: string | null
+        number: number
+        episodes: {
+            total: number
+            items: Array<{
+                id: string
+                number?: number | null
+                title: string
+                image?: string | null
+                progress?: number | null
+                duration: number
+                description: string
+                ageRating: string
+            }>
+        }
+        show: {
+            id: string
+            title: string
+            description: string
+            type: ShowType
+            image?: string | null
+        }
+    }
+}
+
+export type GetEpisodeQueryVariables = Exact<{
+    episodeId: Scalars["ID"]
 }>
 
 export type GetEpisodeQuery = {
@@ -864,25 +926,14 @@ export type GetEpisodeQuery = {
         season?: {
             id: string
             title: string
-            image?: string | null
             number: number
-            episodes: {
-                total: number
-                items: Array<{
-                    id: string
-                    number?: number | null
-                    title: string
-                    image?: string | null
-                    description: string
-                    ageRating: string
-                }>
-            }
+            description: string
             show: {
-                id: string
                 title: string
                 description: string
-                type: ShowType
-                image?: string | null
+                seasons: {
+                    items: Array<{ id: string; title: string; number: number }>
+                }
             }
         } | null
     }
@@ -1807,6 +1858,34 @@ export type GetDefaultEpisodeIdQuery = {
     show: { defaultEpisode?: { id: string } | null }
 }
 
+export const SeasonFragmentDoc = gql`
+    fragment Season on Season {
+        id
+        title
+        image(style: default)
+        number
+        episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
+            total
+            items {
+                id
+                number
+                title
+                image
+                progress
+                duration
+                description
+                ageRating
+            }
+        }
+        show {
+            id
+            title
+            description
+            type
+            image(style: default)
+        }
+    }
+`
 export const SectionItemFragmentDoc = gql`
     fragment SectionItem on SectionItem {
         id
@@ -1992,12 +2071,32 @@ export function useGetCalendarPeriodQuery(
         ...options,
     })
 }
-export const GetEpisodeDocument = gql`
-    query getEpisode(
-        $episodeId: ID!
+export const GetSeasonOnEpisodePageDocument = gql`
+    query getSeasonOnEpisodePage(
+        $seasonId: ID!
         $firstEpisodes: Int
         $offsetEpisodes: Int
     ) {
+        season(id: $seasonId) {
+            ...Season
+        }
+    }
+    ${SeasonFragmentDoc}
+`
+
+export function useGetSeasonOnEpisodePageQuery(
+    options: Omit<
+        Urql.UseQueryArgs<never, GetSeasonOnEpisodePageQueryVariables>,
+        "query"
+    > = {}
+) {
+    return Urql.useQuery<GetSeasonOnEpisodePageQuery>({
+        query: GetSeasonOnEpisodePageDocument,
+        ...options,
+    })
+}
+export const GetEpisodeDocument = gql`
+    query getEpisode($episodeId: ID!) {
         episode(id: $episodeId) {
             id
             title
@@ -2014,25 +2113,18 @@ export const GetEpisodeDocument = gql`
             season {
                 id
                 title
-                image(style: default)
                 number
-                episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
-                    total
-                    items {
-                        id
-                        number
-                        title
-                        image
-                        description
-                        ageRating
-                    }
-                }
+                description
                 show {
-                    id
                     title
                     description
-                    type
-                    image(style: default)
+                    seasons {
+                        items {
+                            id
+                            title
+                            number
+                        }
+                    }
                 }
             }
         }

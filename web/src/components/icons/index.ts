@@ -5,6 +5,7 @@ import LiveIcon from "./Live.vue"
 import CalendarIcon from "./Calendar.vue"
 import FeedIcon from "./Feed.vue"
 import SettingsIcon from "./Settings.vue"
+import ChevronDown from "./ChevronDown.vue"
 
 export {
     ProfileIcon,
@@ -14,4 +15,5 @@ export {
     CalendarIcon,
     FeedIcon,
     SettingsIcon,
+    ChevronDown,
 }

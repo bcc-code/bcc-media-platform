@@ -1,4 +1,41 @@
-query getEpisode($episodeId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {
+fragment Season on Season {
+    id
+    title
+    image(style: default)
+    number
+    episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
+        total
+        items {
+            id
+            number
+            title
+            image
+            progress
+            duration
+            description
+            ageRating
+        }
+    }
+    show {
+        id
+        title
+        description
+        type
+        image(style: default)
+    }
+}
+
+query getSeasonOnEpisodePage(
+    $seasonId: ID!
+    $firstEpisodes: Int
+    $offsetEpisodes: Int
+) {
+    season(id: $seasonId) {
+        ...Season
+    }
+}
+
+query getEpisode($episodeId: ID!) {
     episode(id: $episodeId) {
         id
         title
@@ -15,25 +52,18 @@ query getEpisode($episodeId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {
         season {
             id
             title
-            image(style: default)
             number
-            episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
-                total
-                items {
-                    id
-                    number
-                    title
-                    image
-                    description
-                    ageRating
-                }
-            }
+            description
             show {
-                id
                 title
                 description
-                type
-                image(style: default)
+                seasons {
+                    items {
+                        id
+                        title
+                        number
+                    }
+                }
             }
         }
     }
