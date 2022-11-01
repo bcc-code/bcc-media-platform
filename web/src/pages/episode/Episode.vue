@@ -168,6 +168,7 @@
                                                 params: { episodeId: e.id },
                                             })
                                         "
+                                        :key="e.id"
                                     >
                                         <WithProgressBar
                                             :item="e"
@@ -230,10 +231,19 @@ const { t } = useI18n()
 
 const episodeId = ref(route.params.episodeId as string)
 
-const { data, error, then } = useGetEpisodeQuery({
+const { data, error, then, resume, pause } = useGetEpisodeQuery({
+    pause: !episodeId.value,
     variables: {
         episodeId,
     },
+})
+
+watch(() => episodeId.value, () => {
+    if (episodeId.value) {
+        resume()
+    } else {
+        pause()
+    }
 })
 
 const episode = computed(() => {

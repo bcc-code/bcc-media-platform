@@ -61,19 +61,19 @@ let onclick = () => {}
 
 switch (props.item.__typename) {
     case "ShowSearchItem":
-        const { data, resume, then } = useGetDefaultEpisodeIdQuery({
+        const { data, executeQuery } = useGetDefaultEpisodeIdQuery({
             pause: true,
             variables: {
                 showId: props.item.id,
             },
         })
+
         onclick = () => {
-            then(() => {
+            executeQuery().then(() => {
                 if (data.value?.show.defaultEpisode) {
                     goToEpisode(data.value.show.defaultEpisode.id)
                 }
             })
-            resume()
         }
         break
     case "EpisodeSearchItem":
