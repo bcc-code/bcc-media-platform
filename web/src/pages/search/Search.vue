@@ -23,15 +23,14 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { computed, onMounted, ref } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import ShowSearchQuery from "@/components/search/ShowSearchQuery.vue"
 import EpisodeSearchQuery from "@/components/search/EpisodeSearchQuery.vue"
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router"
 
 const queryString = ref("")
 
 let timeout = null as NodeJS.Timeout | null
-
 
 const query = computed({
     get() {
@@ -60,13 +59,21 @@ const query = computed({
 const queryVariable = ref("")
 
 const route = useRoute()
+const router = useRouter()
 
 onMounted(() => {
     const q = route.query.q
-    if (q && typeof(q) === "string") {
+    if (q && typeof q === "string") {
         query.value = q
     }
 })
+
+watch(
+    () => query.value,
+    () => {
+        router.replace({ query: { q: query.value } })
+    }
+)
 
 const pause = ref(true)
 </script>

@@ -238,13 +238,16 @@ const { data, error, then, resume, pause } = useGetEpisodeQuery({
     },
 })
 
-watch(() => episodeId.value, () => {
-    if (episodeId.value) {
-        resume()
-    } else {
-        pause()
+watch(
+    () => episodeId.value,
+    () => {
+        if (episodeId.value) {
+            resume()
+        } else {
+            pause()
+        }
     }
-})
+)
 
 const episode = computed(() => {
     return data.value?.episode ?? null
