@@ -4,9 +4,15 @@ enum ImageStyle {
     default
 }
 
+enum ShowType {
+    event
+    series
+}
+
 type Show {
     id: ID!
     legacyID: ID
+    type: ShowType!
     title: String!
     description: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
@@ -52,6 +58,8 @@ type Episode {
     legacyID: ID
     legacyProgramID: ID
     publishDate: String!
+    availableFrom: String!
+    availableTo: String!
     ageRating: String!
     title: String!
     description: String!

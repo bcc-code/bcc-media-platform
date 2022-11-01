@@ -20,5 +20,15 @@
     "common": {
         "new": "New",
         "newEpisodes": "New episodes"
+    },
+    "episode": {
+        "details": "Details",
+        "episode": "Episode",
+        "episodes": "Episodes",
+        "seriesDescription": "Series Description",
+        "releaseDate": "Release Date",
+        "availableFrom": "Available From",
+        "availableTo": "Available To",
+        "rating": "Rating"
     }
 }

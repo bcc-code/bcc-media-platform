@@ -15,9 +15,14 @@
                                 i.image +
                                 `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
                             "
+                            loading="lazy"
                             class="rounded-md top-0 w-full object-cover aspect-video"
                         />
-                        <ProgressBar class="absolute bottom-0 w-full" v-if="i.item?.__typename === 'Episode'" :item="i.item" />
+                        <ProgressBar
+                            class="absolute bottom-0 w-full"
+                            v-if="i.item?.__typename === 'Episode'"
+                            :item="i.item"
+                        />
                     </div>
                     <SectionItemTitle :i="i"></SectionItemTitle>
                 </div>
@@ -42,8 +47,8 @@ const props = defineProps<{
 const imageSize = computed(() => {
     return {
         half: {
-            height: 225,
-            width: 400,
+            height: 450,
+            width: 800,
         },
     }[props.item.gridSize]
 })

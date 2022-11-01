@@ -7,6 +7,7 @@ module.exports = {
                 primary: {
                     DEFAULT: "#6eb0e6",
                     hover: "#6dafe5",
+                    light: "#1D2838",
                 },
                 background: {
                     DEFAULT: "#0d1623",

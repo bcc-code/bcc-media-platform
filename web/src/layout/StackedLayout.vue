@@ -1,10 +1,10 @@
 <template>
     <div v-if="!loading">
         <Navbar></Navbar>
-        <div class="p-4">
+        <div>
             <router-view v-slot="{ Component }">
                 <transition name="slide-fade" mode="out-in">
-                    <component :key="$route.fullPath" :is="Component" />
+                    <component :key="$route.name" :is="Component" />
                 </transition>
             </router-view>
         </div>

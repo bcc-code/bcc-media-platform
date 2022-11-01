@@ -39,6 +39,7 @@ func ShowFrom(ctx context.Context, s *common.Show) *Show {
 	return &Show{
 		ID:          strconv.Itoa(s.ID),
 		LegacyID:    legacyID,
+		Type:        ShowType(s.Type),
 		Title:       s.Title.Get(languages),
 		Description: s.Description.Get(languages),
 		ImageURL:    image,

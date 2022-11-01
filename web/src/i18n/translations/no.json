@@ -20,5 +20,15 @@
     "common": {
         "new": "Ny",
         "newEpisodes": "Nye episoder"
+    },
+    "episode": {
+        "details": "Detaljer",
+        "episode": "Episode",
+        "episodes": "Episoder",
+        "seriesDescription": "Serie beskrivelse",
+        "releaseDate": "Utgivelsesdato",
+        "availableFrom": "Tilgjengelig fra",
+        "availableTo": "Tilgjengelig til",
+        "rating": "Vurdering*"
     }
 }

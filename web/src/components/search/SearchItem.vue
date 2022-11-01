@@ -3,8 +3,13 @@
         class="relative aspect-video rounded rounded-xl overflow-hidden cursor-pointer"
         @click="onclick"
     >
-        <img class="absolute" :src="item.image + '?w=800&h=450&fit=crop&crop=faces'" />
-        <div class="absolute h-full relative bg-gradient-to-t from-black via-transparent to-transparent">
+        <img
+            class="absolute"
+            :src="item.image + '?w=800&h=450&fit=crop&crop=faces'"
+        />
+        <div
+            class="absolute h-full relative bg-gradient-to-t from-black via-transparent to-transparent"
+        >
             <div
                 v-if="adminOn"
                 class="absolute text-primary right-0 bg-black p-2 rounded cursor-pointer m-2"
@@ -12,7 +17,9 @@
             >
                 EDIT
             </div>
-            <h1 class="absolute bottom-0 text-lg p-2 text-primary font-semibold mt-auto">
+            <h1
+                class="absolute bottom-0 text-lg p-2 text-primary font-semibold mt-auto"
+            >
                 {{ item.title }}
             </h1>
         </div>

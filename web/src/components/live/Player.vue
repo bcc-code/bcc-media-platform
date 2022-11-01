@@ -6,7 +6,6 @@ import Auth from "@/services/auth"
 import { createPlayer } from "bccm-video-player"
 import "bccm-video-player/css"
 import { onUnmounted } from "vue"
-
 ;(async () => {
     const player = await createPlayer("live-video-player", {
         src: {

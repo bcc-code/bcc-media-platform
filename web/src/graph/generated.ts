@@ -137,6 +137,8 @@ export type Device = {
 export type Episode = {
     ageRating: Scalars["String"]
     audioLanguages: Array<Language>
+    availableFrom: Scalars["String"]
+    availableTo: Scalars["String"]
     chapters: Array<Chapter>
     description: Scalars["String"]
     duration: Scalars["Int"]
@@ -215,6 +217,11 @@ export type Event = {
     image: Scalars["String"]
     start: Scalars["String"]
     title: Scalars["String"]
+}
+
+export type Export = {
+    dbVersion: Scalars["String"]
+    url: Scalars["String"]
 }
 
 export type Faq = {
@@ -461,6 +468,7 @@ export type QueryRoot = {
     config: Config
     episode: Episode
     event?: Maybe<Event>
+    export: Export
     faq: Faq
     me: User
     page: Page
@@ -482,6 +490,10 @@ export type QueryRootEpisodeArgs = {
 
 export type QueryRootEventArgs = {
     id: Scalars["ID"]
+}
+
+export type QueryRootExportArgs = {
+    groups?: InputMaybe<Array<Scalars["String"]>>
 }
 
 export type QueryRootPageArgs = {
@@ -660,6 +672,7 @@ export type Show = {
     seasonCount: Scalars["Int"]
     seasons: SeasonPagination
     title: Scalars["String"]
+    type: ShowType
 }
 
 export type ShowImageArgs = {
@@ -703,6 +716,11 @@ export type ShowSearchItem = SearchResultItem & {
     url: Scalars["String"]
 }
 
+export enum ShowType {
+    Event = "event",
+    Series = "series",
+}
+
 export type SimpleCalendarEntry = CalendarEntry & {
     description: Scalars["String"]
     end: Scalars["Date"]
@@ -734,6 +752,21 @@ export type User = {
     id?: Maybe<Scalars["ID"]>
     roles: Array<Scalars["String"]>
     settings: Settings
+}
+
+export type WebSection = Section & {
+    authentication: Scalars["Boolean"]
+    id: Scalars["ID"]
+    size: WebSectionSize
+    title?: Maybe<Scalars["String"]>
+    url: Scalars["String"]
+}
+
+export enum WebSectionSize {
+    R1_1 = "r1_1",
+    R4_3 = "r4_3",
+    R9_16 = "r9_16",
+    R16_9 = "r16_9",
 }
 
 export type GetSeasonQueryVariables = Exact<{
@@ -819,14 +852,19 @@ export type GetEpisodeQuery = {
         id: string
         title: string
         description: string
-        imageUrl?: string | null
+        image?: string | null
         number?: number | null
         progress?: number | null
+        ageRating: string
+        productionDate?: string | null
+        availableFrom: string
+        availableTo: string
+        publishDate: string
         duration: number
         season?: {
             id: string
             title: string
-            imageUrl?: string | null
+            image?: string | null
             number: number
             episodes: {
                 total: number
@@ -834,9 +872,18 @@ export type GetEpisodeQuery = {
                     id: string
                     number?: number | null
                     title: string
+                    image?: string | null
+                    description: string
+                    ageRating: string
                 }>
             }
-            show: { id: string; title: string }
+            show: {
+                id: string
+                title: string
+                description: string
+                type: ShowType
+                image?: string | null
+            }
         } | null
     }
 }
@@ -859,6 +906,7 @@ export type SectionItemFragment = {
     item?:
         | {
               __typename: "Episode"
+              id: string
               productionDate?: string | null
               publishDate: string
               progress?: number | null
@@ -867,15 +915,17 @@ export type SectionItemFragment = {
               season?: { number: number; show: { title: string } } | null
           }
         | { __typename: "Link" }
-        | { __typename: "Page"; code: string }
+        | { __typename: "Page"; id: string; code: string }
         | {
               __typename: "Season"
+              id: string
               seasonNumber: number
               show: { title: string }
               episodes: { items: Array<{ publishDate: string }> }
           }
         | {
               __typename: "Show"
+              id: string
               episodeCount: number
               seasonCount: number
               defaultEpisode?: { id: string } | null
@@ -901,6 +951,7 @@ type ItemSection_DefaultGridSection_Fragment = {
             item?:
                 | {
                       __typename: "Episode"
+                      id: string
                       productionDate?: string | null
                       publishDate: string
                       progress?: number | null
@@ -912,15 +963,17 @@ type ItemSection_DefaultGridSection_Fragment = {
                       } | null
                   }
                 | { __typename: "Link" }
-                | { __typename: "Page"; code: string }
+                | { __typename: "Page"; id: string; code: string }
                 | {
                       __typename: "Season"
+                      id: string
                       seasonNumber: number
                       show: { title: string }
                       episodes: { items: Array<{ publishDate: string }> }
                   }
                 | {
                       __typename: "Show"
+                      id: string
                       episodeCount: number
                       seasonCount: number
                       defaultEpisode?: { id: string } | null
@@ -949,6 +1002,7 @@ type ItemSection_DefaultSection_Fragment = {
             item?:
                 | {
                       __typename: "Episode"
+                      id: string
                       productionDate?: string | null
                       publishDate: string
                       progress?: number | null
@@ -960,15 +1014,17 @@ type ItemSection_DefaultSection_Fragment = {
                       } | null
                   }
                 | { __typename: "Link" }
-                | { __typename: "Page"; code: string }
+                | { __typename: "Page"; id: string; code: string }
                 | {
                       __typename: "Season"
+                      id: string
                       seasonNumber: number
                       show: { title: string }
                       episodes: { items: Array<{ publishDate: string }> }
                   }
                 | {
                       __typename: "Show"
+                      id: string
                       episodeCount: number
                       seasonCount: number
                       defaultEpisode?: { id: string } | null
@@ -997,6 +1053,7 @@ type ItemSection_FeaturedSection_Fragment = {
             item?:
                 | {
                       __typename: "Episode"
+                      id: string
                       productionDate?: string | null
                       publishDate: string
                       progress?: number | null
@@ -1008,15 +1065,17 @@ type ItemSection_FeaturedSection_Fragment = {
                       } | null
                   }
                 | { __typename: "Link" }
-                | { __typename: "Page"; code: string }
+                | { __typename: "Page"; id: string; code: string }
                 | {
                       __typename: "Season"
+                      id: string
                       seasonNumber: number
                       show: { title: string }
                       episodes: { items: Array<{ publishDate: string }> }
                   }
                 | {
                       __typename: "Show"
+                      id: string
                       episodeCount: number
                       seasonCount: number
                       defaultEpisode?: { id: string } | null
@@ -1043,6 +1102,7 @@ type ItemSection_IconSection_Fragment = {
             item?:
                 | {
                       __typename: "Episode"
+                      id: string
                       productionDate?: string | null
                       publishDate: string
                       progress?: number | null
@@ -1054,15 +1114,17 @@ type ItemSection_IconSection_Fragment = {
                       } | null
                   }
                 | { __typename: "Link" }
-                | { __typename: "Page"; code: string }
+                | { __typename: "Page"; id: string; code: string }
                 | {
                       __typename: "Season"
+                      id: string
                       seasonNumber: number
                       show: { title: string }
                       episodes: { items: Array<{ publishDate: string }> }
                   }
                 | {
                       __typename: "Show"
+                      id: string
                       episodeCount: number
                       seasonCount: number
                       defaultEpisode?: { id: string } | null
@@ -1089,6 +1151,7 @@ type ItemSection_LabelSection_Fragment = {
             item?:
                 | {
                       __typename: "Episode"
+                      id: string
                       productionDate?: string | null
                       publishDate: string
                       progress?: number | null
@@ -1100,15 +1163,17 @@ type ItemSection_LabelSection_Fragment = {
                       } | null
                   }
                 | { __typename: "Link" }
-                | { __typename: "Page"; code: string }
+                | { __typename: "Page"; id: string; code: string }
                 | {
                       __typename: "Season"
+                      id: string
                       seasonNumber: number
                       show: { title: string }
                       episodes: { items: Array<{ publishDate: string }> }
                   }
                 | {
                       __typename: "Show"
+                      id: string
                       episodeCount: number
                       seasonCount: number
                       defaultEpisode?: { id: string } | null
@@ -1136,6 +1201,7 @@ type ItemSection_PosterGridSection_Fragment = {
             item?:
                 | {
                       __typename: "Episode"
+                      id: string
                       productionDate?: string | null
                       publishDate: string
                       progress?: number | null
@@ -1147,15 +1213,17 @@ type ItemSection_PosterGridSection_Fragment = {
                       } | null
                   }
                 | { __typename: "Link" }
-                | { __typename: "Page"; code: string }
+                | { __typename: "Page"; id: string; code: string }
                 | {
                       __typename: "Season"
+                      id: string
                       seasonNumber: number
                       show: { title: string }
                       episodes: { items: Array<{ publishDate: string }> }
                   }
                 | {
                       __typename: "Show"
+                      id: string
                       episodeCount: number
                       seasonCount: number
                       defaultEpisode?: { id: string } | null
@@ -1183,6 +1251,7 @@ type ItemSection_PosterSection_Fragment = {
             item?:
                 | {
                       __typename: "Episode"
+                      id: string
                       productionDate?: string | null
                       publishDate: string
                       progress?: number | null
@@ -1194,15 +1263,17 @@ type ItemSection_PosterSection_Fragment = {
                       } | null
                   }
                 | { __typename: "Link" }
-                | { __typename: "Page"; code: string }
+                | { __typename: "Page"; id: string; code: string }
                 | {
                       __typename: "Season"
+                      id: string
                       seasonNumber: number
                       show: { title: string }
                       episodes: { items: Array<{ publishDate: string }> }
                   }
                 | {
                       __typename: "Show"
+                      id: string
                       episodeCount: number
                       seasonCount: number
                       defaultEpisode?: { id: string } | null
@@ -1254,6 +1325,7 @@ export type GetPageQuery = {
                               item?:
                                   | {
                                         __typename: "Episode"
+                                        id: string
                                         productionDate?: string | null
                                         publishDate: string
                                         progress?: number | null
@@ -1265,9 +1337,14 @@ export type GetPageQuery = {
                                         } | null
                                     }
                                   | { __typename: "Link" }
-                                  | { __typename: "Page"; code: string }
+                                  | {
+                                        __typename: "Page"
+                                        id: string
+                                        code: string
+                                    }
                                   | {
                                         __typename: "Season"
+                                        id: string
                                         seasonNumber: number
                                         show: { title: string }
                                         episodes: {
@@ -1278,6 +1355,7 @@ export type GetPageQuery = {
                                     }
                                   | {
                                         __typename: "Show"
+                                        id: string
                                         episodeCount: number
                                         seasonCount: number
                                         defaultEpisode?: { id: string } | null
@@ -1310,6 +1388,7 @@ export type GetPageQuery = {
                               item?:
                                   | {
                                         __typename: "Episode"
+                                        id: string
                                         productionDate?: string | null
                                         publishDate: string
                                         progress?: number | null
@@ -1321,9 +1400,14 @@ export type GetPageQuery = {
                                         } | null
                                     }
                                   | { __typename: "Link" }
-                                  | { __typename: "Page"; code: string }
+                                  | {
+                                        __typename: "Page"
+                                        id: string
+                                        code: string
+                                    }
                                   | {
                                         __typename: "Season"
+                                        id: string
                                         seasonNumber: number
                                         show: { title: string }
                                         episodes: {
@@ -1334,6 +1418,7 @@ export type GetPageQuery = {
                                     }
                                   | {
                                         __typename: "Show"
+                                        id: string
                                         episodeCount: number
                                         seasonCount: number
                                         defaultEpisode?: { id: string } | null
@@ -1366,6 +1451,7 @@ export type GetPageQuery = {
                               item?:
                                   | {
                                         __typename: "Episode"
+                                        id: string
                                         productionDate?: string | null
                                         publishDate: string
                                         progress?: number | null
@@ -1377,9 +1463,14 @@ export type GetPageQuery = {
                                         } | null
                                     }
                                   | { __typename: "Link" }
-                                  | { __typename: "Page"; code: string }
+                                  | {
+                                        __typename: "Page"
+                                        id: string
+                                        code: string
+                                    }
                                   | {
                                         __typename: "Season"
+                                        id: string
                                         seasonNumber: number
                                         show: { title: string }
                                         episodes: {
@@ -1390,6 +1481,7 @@ export type GetPageQuery = {
                                     }
                                   | {
                                         __typename: "Show"
+                                        id: string
                                         episodeCount: number
                                         seasonCount: number
                                         defaultEpisode?: { id: string } | null
@@ -1420,6 +1512,7 @@ export type GetPageQuery = {
                               item?:
                                   | {
                                         __typename: "Episode"
+                                        id: string
                                         productionDate?: string | null
                                         publishDate: string
                                         progress?: number | null
@@ -1431,9 +1524,14 @@ export type GetPageQuery = {
                                         } | null
                                     }
                                   | { __typename: "Link" }
-                                  | { __typename: "Page"; code: string }
+                                  | {
+                                        __typename: "Page"
+                                        id: string
+                                        code: string
+                                    }
                                   | {
                                         __typename: "Season"
+                                        id: string
                                         seasonNumber: number
                                         show: { title: string }
                                         episodes: {
@@ -1444,6 +1542,7 @@ export type GetPageQuery = {
                                     }
                                   | {
                                         __typename: "Show"
+                                        id: string
                                         episodeCount: number
                                         seasonCount: number
                                         defaultEpisode?: { id: string } | null
@@ -1474,6 +1573,7 @@ export type GetPageQuery = {
                               item?:
                                   | {
                                         __typename: "Episode"
+                                        id: string
                                         productionDate?: string | null
                                         publishDate: string
                                         progress?: number | null
@@ -1485,9 +1585,14 @@ export type GetPageQuery = {
                                         } | null
                                     }
                                   | { __typename: "Link" }
-                                  | { __typename: "Page"; code: string }
+                                  | {
+                                        __typename: "Page"
+                                        id: string
+                                        code: string
+                                    }
                                   | {
                                         __typename: "Season"
+                                        id: string
                                         seasonNumber: number
                                         show: { title: string }
                                         episodes: {
@@ -1498,6 +1603,7 @@ export type GetPageQuery = {
                                     }
                                   | {
                                         __typename: "Show"
+                                        id: string
                                         episodeCount: number
                                         seasonCount: number
                                         defaultEpisode?: { id: string } | null
@@ -1534,6 +1640,7 @@ export type GetPageQuery = {
                               item?:
                                   | {
                                         __typename: "Episode"
+                                        id: string
                                         productionDate?: string | null
                                         publishDate: string
                                         progress?: number | null
@@ -1545,9 +1652,14 @@ export type GetPageQuery = {
                                         } | null
                                     }
                                   | { __typename: "Link" }
-                                  | { __typename: "Page"; code: string }
+                                  | {
+                                        __typename: "Page"
+                                        id: string
+                                        code: string
+                                    }
                                   | {
                                         __typename: "Season"
+                                        id: string
                                         seasonNumber: number
                                         show: { title: string }
                                         episodes: {
@@ -1558,6 +1670,7 @@ export type GetPageQuery = {
                                     }
                                   | {
                                         __typename: "Show"
+                                        id: string
                                         episodeCount: number
                                         seasonCount: number
                                         defaultEpisode?: { id: string } | null
@@ -1589,6 +1702,7 @@ export type GetPageQuery = {
                               item?:
                                   | {
                                         __typename: "Episode"
+                                        id: string
                                         productionDate?: string | null
                                         publishDate: string
                                         progress?: number | null
@@ -1600,9 +1714,14 @@ export type GetPageQuery = {
                                         } | null
                                     }
                                   | { __typename: "Link" }
-                                  | { __typename: "Page"; code: string }
+                                  | {
+                                        __typename: "Page"
+                                        id: string
+                                        code: string
+                                    }
                                   | {
                                         __typename: "Season"
+                                        id: string
                                         seasonNumber: number
                                         show: { title: string }
                                         episodes: {
@@ -1613,6 +1732,7 @@ export type GetPageQuery = {
                                     }
                                   | {
                                         __typename: "Show"
+                                        id: string
                                         episodeCount: number
                                         seasonCount: number
                                         defaultEpisode?: { id: string } | null
@@ -1629,6 +1749,11 @@ export type GetPageQuery = {
                                   | null
                           }>
                       }
+                  }
+                | {
+                      __typename: "WebSection"
+                      id: string
+                      title?: string | null
                   }
             >
         }
@@ -1691,6 +1816,7 @@ export const SectionItemFragmentDoc = gql`
         item {
             __typename
             ... on Episode {
+                id
                 episodeNumber: number
                 productionDate
                 publishDate
@@ -1704,6 +1830,7 @@ export const SectionItemFragmentDoc = gql`
                 }
             }
             ... on Season {
+                id
                 seasonNumber: number
                 show {
                     title
@@ -1715,6 +1842,7 @@ export const SectionItemFragmentDoc = gql`
                 }
             }
             ... on Show {
+                id
                 episodeCount
                 seasonCount
                 defaultEpisode {
@@ -1731,6 +1859,7 @@ export const SectionItemFragmentDoc = gql`
                 }
             }
             ... on Page {
+                id
                 code
             }
         }
@@ -1873,14 +2002,19 @@ export const GetEpisodeDocument = gql`
             id
             title
             description
-            imageUrl
+            image(style: default)
             number
             progress
+            ageRating
+            productionDate
+            availableFrom
+            availableTo
+            publishDate
             duration
             season {
                 id
                 title
-                imageUrl
+                image(style: default)
                 number
                 episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
                     total
@@ -1888,11 +2022,17 @@ export const GetEpisodeDocument = gql`
                         id
                         number
                         title
+                        image
+                        description
+                        ageRating
                     }
                 }
                 show {
                     id
                     title
+                    description
+                    type
+                    image(style: default)
                 }
             }
         }

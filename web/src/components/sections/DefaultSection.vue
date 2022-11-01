@@ -15,9 +15,14 @@
                                 i.image +
                                 `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
                             "
+                            loading="lazy"
                             class="rounded-md top-0 w-full object-cover aspect-video"
                         />
-                        <ProgressBar class="absolute bottom-0 w-full" v-if="i.item?.__typename === 'Episode'" :item="i.item" />
+                        <ProgressBar
+                            class="absolute bottom-0 w-full"
+                            v-if="i.item?.__typename === 'Episode'"
+                            :item="i.item"
+                        />
                     </div>
                     <SectionItemTitle :for="i.id" :i="i"></SectionItemTitle>
                 </div>

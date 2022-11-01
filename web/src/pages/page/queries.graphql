@@ -6,6 +6,7 @@ fragment SectionItem on SectionItem {
     item {
         __typename
         ... on Episode {
+            id
             episodeNumber: number
             productionDate
             publishDate
@@ -19,6 +20,7 @@ fragment SectionItem on SectionItem {
             }
         }
         ... on Season {
+            id
             seasonNumber: number
             show {
                 title
@@ -30,6 +32,7 @@ fragment SectionItem on SectionItem {
             }
         }
         ... on Show {
+            id
             episodeCount
             seasonCount
             defaultEpisode {
@@ -46,6 +49,7 @@ fragment SectionItem on SectionItem {
             }
         }
         ... on Page {
+            id
             code
         }
     }

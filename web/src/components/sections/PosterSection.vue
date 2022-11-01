@@ -13,7 +13,7 @@
             >
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div
-                    class="flex flex-col aspect-[9/16] rounded rounded-md mx-2 mt-1"
+                    class="flex flex-col aspect-[9/16] rounded rounded-md mx-2 mt-1 cursor-pointer"
                 >
                     <div class="relative">
                         <img
@@ -22,8 +22,13 @@
                                 `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
                             "
                             class="rounded-md top-0 h-full w-full object-cover mb-1"
+                            loading="lazy"
                         />
-                        <ProgressBar class="absolute bottom-0 w-full" v-if="i.item?.__typename === 'Episode'" :item="i.item" />
+                        <ProgressBar
+                            class="absolute bottom-0 w-full"
+                            v-if="i.item?.__typename === 'Episode'"
+                            :item="i.item"
+                        />
                     </div>
                     <SectionItemTitle :i="i"></SectionItemTitle>
                 </div>

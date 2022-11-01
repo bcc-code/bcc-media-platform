@@ -81,6 +81,8 @@ type Episode struct {
 	SeasonID           null.Int     `json:"seasonId"`
 	PublishDateInTitle bool         `json:"publishDateInTitle"`
 	PublishDate        time.Time    `json:"publishDate"`
+	AvailableFrom      time.Time    `json:"availableFrom"`
+	AvailableTo        time.Time    `json:"availableTo"`
 	Number             null.Int     `json:"number"`
 	Duration           int          `json:"duration"`
 	AgeRating          string       `json:"ageRating"`

@@ -24,12 +24,7 @@ export class Auth {
     }
 
     public static async getToken() {
-        // const { getAccessTokenSilently, isAuthenticated } = useAuth0()
-        const { getAccessTokenSilently, isAuthenticated, isLoading } =
-            useAuth0()
-        while (isLoading.value) {
-            await new Promise((r) => setTimeout(r, 50))
-        }
+        const { getAccessTokenSilently, isAuthenticated } = useAuth0()
         if (isAuthenticated.value) {
             return await getAccessTokenSilently()
         }
@@ -39,6 +34,11 @@ export class Auth {
     public static isAuthenticated() {
         const { isAuthenticated } = useAuth0()
         return isAuthenticated
+    }
+
+    public static user() {
+        const { user } = useAuth0()
+        return user
     }
 }
 

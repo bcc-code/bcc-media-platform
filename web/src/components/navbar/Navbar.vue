@@ -97,7 +97,13 @@
                                     :class="open ? '' : 'text-opacity-90'"
                                     class="flex rounded-md text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
                                 >
+                                    <img
+                                        class="w-8 rounded rounded-full overflow-hidden stroke-primary"
+                                        v-if="authenticated && user.picture"
+                                        :src="user.picture"
+                                    />
                                     <ProfileIcon
+                                        v-else
                                         class="w-8 stroke-primary"
                                     ></ProfileIcon>
                                 </MenuButton>
@@ -165,6 +171,27 @@
                                 </MenuItems>
                             </transition>
                         </Menu>
+                        <!-- <button
+                            @click="
+                                authenticated
+                                    ? signOut()
+                                    : signIn()
+                            "
+                            :class="[
+                                'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
+                            ]"
+                        >
+                            <p class="my-auto text-base">
+                                {{
+                                    t(
+                                        "buttons." +
+                                            (authenticated
+                                                ? "logout"
+                                                : "login")
+                                    )
+                                }}
+                            </p>
+                        </button> -->
                     </div>
                 </div>
                 <div class="flex lg:hidden">
@@ -243,7 +270,13 @@
                                     :class="open ? '' : 'text-opacity-90'"
                                     class="flex rounded-md text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
                                 >
+                                    <img
+                                        class="w-8 rounded rounded-full overflow-hidden stroke-primary"
+                                        v-if="authenticated && user.picture"
+                                        :src="user.picture"
+                                    />
                                     <ProfileIcon
+                                        v-else
                                         class="w-8 stroke-primary"
                                     ></ProfileIcon>
                                 </MenuButton>
@@ -356,6 +389,7 @@ const { t } = useI18n()
 const authenticated = Auth.isAuthenticated()
 const signIn = Auth.signIn
 const signOut = Auth.signOut
+const user = Auth.user()
 
 const navigation: {
     name: string

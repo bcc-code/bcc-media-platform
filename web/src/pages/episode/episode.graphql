@@ -3,14 +3,19 @@ query getEpisode($episodeId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {
         id
         title
         description
-        imageUrl
+        image(style: default)
         number
         progress
+        ageRating
+        productionDate
+        availableFrom
+        availableTo
+        publishDate
         duration
         season {
             id
             title
-            imageUrl
+            image(style: default)
             number
             episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
                 total
@@ -18,11 +23,17 @@ query getEpisode($episodeId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {
                     id
                     number
                     title
+                    image
+                    description
+                    ageRating
                 }
             }
             show {
                 id
                 title
+                description
+                type
+                image(style: default)
             }
         }
     }

@@ -35,6 +35,8 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			ExtraDescription:   extraDescription,
 			PublishDateInTitle: e.PublishDateInTitle,
 			PublishDate:        e.PublishDate,
+			AvailableFrom:      e.AvailableFrom,
+			AvailableTo:        e.AvailableTo,
 			Number:             e.EpisodeNumber,
 			SeasonID:           e.SeasonID,
 			AssetID:            e.AssetID,

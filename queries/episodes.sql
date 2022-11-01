@@ -21,6 +21,8 @@ SELECT e.id,
        e.asset_id,
        e.episode_number,
        e.publish_date,
+       ea.available_from::timestamp without time zone              AS available_from,
+       ea.available_to::timestamp without time zone                AS available_to,
        COALESCE(e.publish_date_in_title, sh.type = 'event', false) AS publish_date_in_title,
        fs.filename_disk                                            as image_file_name,
        e.season_id,
@@ -39,7 +41,8 @@ FROM episodes e
          LEFT JOIN assets ON e.asset_id = assets.id
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
-         LEFT JOIN directus_files fs ON fs.id = COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id);
+         LEFT JOIN directus_files fs ON fs.id = COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id)
+         LEFT JOIN episode_availability ea on e.id = ea.id;
 
 -- name: getEpisodes :many
 WITH ts AS (SELECT episodes_id,
@@ -64,6 +67,8 @@ SELECT e.id,
        e.asset_id,
        e.episode_number,
        e.publish_date,
+       ea.available_from::timestamp without time zone              AS available_from,
+       ea.available_to::timestamp without time zone                AS available_to,
        COALESCE(e.publish_date_in_title, sh.type = 'event', false) AS publish_date_in_title,
        fs.filename_disk                                            as image_file_name,
        e.season_id,
@@ -83,6 +88,7 @@ FROM episodes e
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
          LEFT JOIN directus_files fs ON fs.id = COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id)
+         LEFT JOIN episode_availability ea on e.id = ea.id
 WHERE e.id = ANY ($1::int[])
 ORDER BY e.episode_number;
 

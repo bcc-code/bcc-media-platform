@@ -1,42 +1,35 @@
 <template>
-    <span
-        class="p-2 text-sm"
-    >
+    <span class="p-2 text-sm">
         <div
-            v-if="item.progress || item.progress === 0"
+            v-if="progress || progress === 0"
             class="flex bg-black bg-opacity-50 px-2 rounded"
         >
-            <div
-                class="w-full bg-gray rounded h-1.5 bg-opacity-50 my-auto"
-            >
+            <div class="w-full bg-gray rounded h-1.5 bg-opacity-50 my-auto">
                 <div
                     class="bg-white h-1.5 rounded"
-                    :style="
-                        percentageWidth(
-                            item.duration,
-                            item.progress
-                        )
-                    "
+                    :style="percentageWidth(item.duration, progress)"
                 ></div>
             </div>
-            <span class="ml-2">{{
-                secondsToTime(item.duration)
-            }}</span>
+            <span class="ml-2">{{ secondsToTime(item.duration) }}</span>
         </div>
         <div
             v-else
             class="flex bg-black bg-opacity-60 px-2 rounded ml-auto mr-0 float-right"
         >
-            <span>{{
-                secondsToTime(item.duration)
-            }}</span>
+            <span>{{ secondsToTime(item.duration) }}</span>
         </div>
     </span>
 </template>
 <script lang="ts" setup>
-import { percentageWidth, secondsToTime } from '@/utils/time';
+import { getProgress } from "@/utils/episodes"
+import { percentageWidth, secondsToTime } from "@/utils/time"
+import { computed } from "vue"
 
-defineProps<{
-    item: {progress?: number | null, duration: number}
+const props = defineProps<{
+    item: { id: string; progress?: number | null; duration: number }
 }>()
+
+const progress = computed(() => {
+    return getProgress(props.item)
+})
 </script>

@@ -165,6 +165,8 @@ SELECT e.id,
        e.asset_id,
        e.episode_number,
        e.publish_date,
+       ea.available_from::timestamp without time zone              AS available_from,
+       ea.available_to::timestamp without time zone                AS available_to,
        COALESCE(e.publish_date_in_title, sh.type = 'event', false) AS publish_date_in_title,
        fs.filename_disk                                            as image_file_name,
        e.season_id,
@@ -184,6 +186,7 @@ FROM episodes e
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
          LEFT JOIN directus_files fs ON fs.id = COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id)
+         LEFT JOIN episode_availability ea on e.id = ea.id
 WHERE e.id = ANY ($1::int[])
 ORDER BY e.episode_number
 `
@@ -195,6 +198,8 @@ type getEpisodesRow struct {
 	AssetID            null_v4.Int           `db:"asset_id" json:"assetID"`
 	EpisodeNumber      null_v4.Int           `db:"episode_number" json:"episodeNumber"`
 	PublishDate        time.Time             `db:"publish_date" json:"publishDate"`
+	AvailableFrom      time.Time             `db:"available_from" json:"availableFrom"`
+	AvailableTo        time.Time             `db:"available_to" json:"availableTo"`
 	PublishDateInTitle bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
 	ImageFileName      null_v4.String        `db:"image_file_name" json:"imageFileName"`
 	SeasonID           null_v4.Int           `db:"season_id" json:"seasonID"`
@@ -224,6 +229,8 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.AssetID,
 			&i.EpisodeNumber,
 			&i.PublishDate,
+			&i.AvailableFrom,
+			&i.AvailableTo,
 			&i.PublishDateInTitle,
 			&i.ImageFileName,
 			&i.SeasonID,
@@ -327,6 +334,8 @@ SELECT e.id,
        e.asset_id,
        e.episode_number,
        e.publish_date,
+       ea.available_from::timestamp without time zone              AS available_from,
+       ea.available_to::timestamp without time zone                AS available_to,
        COALESCE(e.publish_date_in_title, sh.type = 'event', false) AS publish_date_in_title,
        fs.filename_disk                                            as image_file_name,
        e.season_id,
@@ -346,6 +355,7 @@ FROM episodes e
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
          LEFT JOIN directus_files fs ON fs.id = COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id)
+         LEFT JOIN episode_availability ea on e.id = ea.id
 `
 
 type listEpisodesRow struct {
@@ -355,6 +365,8 @@ type listEpisodesRow struct {
 	AssetID            null_v4.Int           `db:"asset_id" json:"assetID"`
 	EpisodeNumber      null_v4.Int           `db:"episode_number" json:"episodeNumber"`
 	PublishDate        time.Time             `db:"publish_date" json:"publishDate"`
+	AvailableFrom      time.Time             `db:"available_from" json:"availableFrom"`
+	AvailableTo        time.Time             `db:"available_to" json:"availableTo"`
 	PublishDateInTitle bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
 	ImageFileName      null_v4.String        `db:"image_file_name" json:"imageFileName"`
 	SeasonID           null_v4.Int           `db:"season_id" json:"seasonID"`
@@ -384,6 +396,8 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 			&i.AssetID,
 			&i.EpisodeNumber,
 			&i.PublishDate,
+			&i.AvailableFrom,
+			&i.AvailableTo,
 			&i.PublishDateInTitle,
 			&i.ImageFileName,
 			&i.SeasonID,

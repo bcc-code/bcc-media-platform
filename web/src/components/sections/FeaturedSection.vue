@@ -1,7 +1,12 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <Swiper :breakpoints="options" :modules="modules" :navigation="true">
+        <Swiper
+            :breakpoints="options"
+            :modules="modules"
+            :navigation="true"
+            class="featured-section overflow-hidden rounded-xl"
+        >
             <SwiperSlide
                 v-for="i in item.items.items"
                 class="h-full aspect-[4/3] md:aspect-video"
@@ -12,6 +17,7 @@
                         v-if="i.image"
                         :src="i.image + '?h=1080'"
                         class="rounded rounded-xl h-full object-cover"
+                        loading="lazy"
                     />
                     <div
                         class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent p- pt-8"

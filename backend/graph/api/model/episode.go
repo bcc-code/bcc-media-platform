@@ -67,6 +67,8 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		LegacyID:         legacyID,
 		LegacyProgramID:  legacyProgramID,
 		ProductionDate:   productionDate,
+		AvailableFrom:    e.AvailableFrom.Format(time.RFC3339),
+		AvailableTo:      e.AvailableTo.Format(time.RFC3339),
 		Title:            e.Title.Get(languages),
 		Description:      e.Description.Get(languages),
 		ExtraDescription: extraDescription,
