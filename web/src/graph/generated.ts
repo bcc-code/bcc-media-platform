@@ -949,6 +949,64 @@ export type UpdateEpisodeProgressMutation = {
     setEpisodeProgress: { progress?: number | null }
 }
 
+export type GetLiveCalendarRangeQueryVariables = Exact<{
+    start: Scalars["Date"]
+    end: Scalars["Date"]
+}>
+
+export type GetLiveCalendarRangeQuery = {
+    calendar?: {
+        period: { activeDays: Array<any>; events: Array<{ title: string }> }
+    } | null
+}
+
+export type GetLiveCalendarDayQueryVariables = Exact<{
+    day: Scalars["Date"]
+}>
+
+export type GetLiveCalendarDayQuery = {
+    calendar?: {
+        day: {
+            entries: Array<
+                | {
+                      id: string
+                      title: string
+                      description: string
+                      end: any
+                      start: any
+                  }
+                | {
+                      id: string
+                      title: string
+                      description: string
+                      end: any
+                      start: any
+                  }
+                | {
+                      id: string
+                      title: string
+                      description: string
+                      end: any
+                      start: any
+                  }
+                | {
+                      id: string
+                      title: string
+                      description: string
+                      end: any
+                      start: any
+                  }
+            >
+            events: Array<{
+                id: string
+                title: string
+                start: string
+                end: string
+            }>
+        }
+    } | null
+}
+
 export type SectionItemFragment = {
     id: string
     image?: string | null
@@ -2163,6 +2221,63 @@ export function useUpdateEpisodeProgressMutation() {
         UpdateEpisodeProgressMutation,
         UpdateEpisodeProgressMutationVariables
     >(UpdateEpisodeProgressDocument)
+}
+export const GetLiveCalendarRangeDocument = gql`
+    query getLiveCalendarRange($start: Date!, $end: Date!) {
+        calendar {
+            period(from: $start, to: $end) {
+                events {
+                    title
+                }
+                activeDays
+            }
+        }
+    }
+`
+
+export function useGetLiveCalendarRangeQuery(
+    options: Omit<
+        Urql.UseQueryArgs<never, GetLiveCalendarRangeQueryVariables>,
+        "query"
+    > = {}
+) {
+    return Urql.useQuery<GetLiveCalendarRangeQuery>({
+        query: GetLiveCalendarRangeDocument,
+        ...options,
+    })
+}
+export const GetLiveCalendarDayDocument = gql`
+    query getLiveCalendarDay($day: Date!) {
+        calendar {
+            day(day: $day) {
+                entries {
+                    id
+                    title
+                    description
+                    end
+                    start
+                }
+                events {
+                    id
+                    title
+                    start
+                    end
+                }
+            }
+        }
+    }
+`
+
+export function useGetLiveCalendarDayQuery(
+    options: Omit<
+        Urql.UseQueryArgs<never, GetLiveCalendarDayQueryVariables>,
+        "query"
+    > = {}
+) {
+    return Urql.useQuery<GetLiveCalendarDayQuery>({
+        query: GetLiveCalendarDayDocument,
+        ...options,
+    })
 }
 export const GetPageDocument = gql`
     query getPage($code: String!) {

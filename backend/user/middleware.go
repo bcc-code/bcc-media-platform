@@ -222,7 +222,7 @@ func getProfilesFromDatabase(ctx context.Context, queries *sqlc.Queries, user *c
 		return nil, err
 	}
 
-	if len(profiles) != 0 {
+	if len(profiles) > 0 {
 		return profiles, nil
 	}
 
@@ -243,7 +243,7 @@ func getProfilesFromDatabase(ctx context.Context, queries *sqlc.Queries, user *c
 
 func getProfiles(ctx *gin.Context, queries *sqlc.Queries, redisClient *redis.Client, rs *redsync.Redsync, user *common.User) ([]common.Profile, error) {
 	key := "profiles:" + user.PersonID
-	if p, ok := profileCache.Get(key); ok {
+	if p, ok := profileCache.Get(key); ok && len(p) > 0 {
 		return p, nil
 	}
 
@@ -251,7 +251,7 @@ func getProfiles(ctx *gin.Context, queries *sqlc.Queries, redisClient *redis.Cli
 	lock.Lock()
 	defer lock.Unlock()
 
-	if p, ok := profileCache.Get(user.PersonID); ok {
+	if p, ok := profileCache.Get(user.PersonID); ok && len(p) > 0 {
 		return p, nil
 	}
 

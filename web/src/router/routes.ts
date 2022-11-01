@@ -48,7 +48,7 @@ export default [
             {
                 name: "live",
                 path: "/live",
-                component: () => import("@/pages/Live.vue"),
+                component: () => import("@/pages/live/Live.vue"),
             },
         ],
     },
