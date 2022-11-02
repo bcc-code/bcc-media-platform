@@ -923,6 +923,7 @@ type Show struct {
 	UserCreated             uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated             uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 	DefaultEpisodeBehaviour null_v4.String `db:"default_episode_behaviour" json:"defaultEpisodeBehaviour"`
+	PublishDateInTitle      sql.NullBool   `db:"publish_date_in_title" json:"publishDateInTitle"`
 }
 
 type ShowAvailability struct {
