@@ -13,35 +13,8 @@ import (
 	"github.com/lib/pq"
 )
 
-const listDeviceTokens = `-- name: ListDeviceTokens :many
-SELECT token FROM users.devices
-`
-
-func (q *Queries) ListDeviceTokens(ctx context.Context) ([]string, error) {
-	rows, err := q.db.QueryContext(ctx, listDeviceTokens)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []string
-	for rows.Next() {
-		var token string
-		if err := rows.Scan(&token); err != nil {
-			return nil, err
-		}
-		items = append(items, token)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getDevicesForProfiles = `-- name: getDevicesForProfiles :many
-SELECT token, profile_id, updated_at, name FROM users.devices WHERE profile_id = ANY($1::uuid[])
+SELECT token, profile_id, updated_at, name, languages FROM users.devices WHERE profile_id = ANY($1::uuid[])
 `
 
 func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUID) ([]UsersDevice, error) {
@@ -58,6 +31,40 @@ func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUI
 			&i.ProfileID,
 			&i.UpdatedAt,
 			&i.Name,
+			pq.Array(&i.Languages),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listDevices = `-- name: listDevices :many
+SELECT token, profile_id, updated_at, name, languages FROM users.devices
+`
+
+func (q *Queries) listDevices(ctx context.Context) ([]UsersDevice, error) {
+	rows, err := q.db.QueryContext(ctx, listDevices)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UsersDevice
+	for rows.Next() {
+		var i UsersDevice
+		if err := rows.Scan(
+			&i.Token,
+			&i.ProfileID,
+			&i.UpdatedAt,
+			&i.Name,
+			pq.Array(&i.Languages),
 		); err != nil {
 			return nil, err
 		}
@@ -73,24 +80,26 @@ func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUI
 }
 
 const setDeviceToken = `-- name: setDeviceToken :exec
-INSERT INTO users.devices (token, profile_id, updated_at, name)
-VALUES ($1::varchar, $2::uuid, $3::timestamp, $4::varchar)
+INSERT INTO users.devices (token, languages, profile_id, updated_at, name)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (token, profile_id) DO UPDATE SET updated_at = EXCLUDED.updated_at, name = EXCLUDED.name
 `
 
 type setDeviceTokenParams struct {
-	Column1 string    `db:"column_1" json:"column1"`
-	Column2 uuid.UUID `db:"column_2" json:"column2"`
-	Column3 time.Time `db:"column_3" json:"column3"`
-	Column4 string    `db:"column_4" json:"column4"`
+	Token     string    `db:"token" json:"token"`
+	Languages []string  `db:"languages" json:"languages"`
+	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
+	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
+	Name      string    `db:"name" json:"name"`
 }
 
 func (q *Queries) setDeviceToken(ctx context.Context, arg setDeviceTokenParams) error {
 	_, err := q.db.ExecContext(ctx, setDeviceToken,
-		arg.Column1,
-		arg.Column2,
-		arg.Column3,
-		arg.Column4,
+		arg.Token,
+		pq.Array(arg.Languages),
+		arg.ProfileID,
+		arg.UpdatedAt,
+		arg.Name,
 	)
 	return err
 }

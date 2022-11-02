@@ -102,15 +102,17 @@ func (s *Service) pushMessage(ctx context.Context, message *messaging.Message) e
 }
 
 // SendNotificationToDevices sends a push notification to the specified tokens
-func (s *Service) SendNotificationToDevices(ctx context.Context, deviceTokens []string, notification common.Notification) error {
+func (s *Service) SendNotificationToDevices(ctx context.Context, devices []common.Device, notification common.Notification) error {
 	var messages []*messaging.Message
 
-	data := notificationToPayload(notification)
-
-	for _, t := range deviceTokens {
+	for _, d := range devices {
 		messages = append(messages, &messaging.Message{
-			Data:  data,
-			Token: t,
+			Notification: &messaging.Notification{
+				Title:    notification.Title.Get(d.Languages),
+				Body:     notification.Description.Get(d.Languages),
+				ImageURL: notification.Images.GetValueOrNil(d.Languages).ValueOrZero(),
+			},
+			Token: d.Token,
 		})
 	}
 
@@ -126,12 +128,12 @@ func (s *Service) SendNotificationToTopic(ctx context.Context, topic string, not
 }
 
 func (s *Service) pushNotification(ctx context.Context, notification common.Notification) {
-	tokens, err := s.queries.ListDeviceTokens(ctx)
+	devices, err := s.queries.ListDevices(ctx)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Error occurred trying to fetch device tokens")
 		return
 	}
-	err = s.SendNotificationToDevices(ctx, tokens, notification)
+	err = s.SendNotificationToDevices(ctx, devices, notification)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Error occurred pushing notifications")
 	}

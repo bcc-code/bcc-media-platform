@@ -1013,6 +1013,7 @@ type UsersDevice struct {
 	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
 	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
 	Name      string    `db:"name" json:"name"`
+	Languages []string  `db:"languages" json:"languages"`
 }
 
 type UsersProfile struct {

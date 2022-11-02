@@ -16,4 +16,5 @@ type Device struct {
 	ProfileID uuid.UUID
 	UpdatedAt time.Time
 	Name      string
+	Languages []string
 }
