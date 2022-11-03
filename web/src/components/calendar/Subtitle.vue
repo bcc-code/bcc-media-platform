@@ -4,7 +4,9 @@
         v-if="item.__typename === 'EpisodeCalendarEntry' && item.episode"
     >
         {{
-            !item.episode.season || item.episode.productionDate ? new Date(item.episode.publishDate).toLocaleDateString() : item.episode.season.show.title
+            !item.episode.season || item.episode.productionDate
+                ? new Date(item.episode.publishDate).toLocaleDateString()
+                : item.episode.season.show.title
         }}
         <span class="text-gray text-md" v-if="item.episode.season"
             >S{{ item.episode?.season?.number }}:E{{

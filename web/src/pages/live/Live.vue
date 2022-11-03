@@ -5,9 +5,9 @@
         </div>
         <div>
             <div class="flex stroke-gray text-gray p-4">
-                <ChevronLeft></ChevronLeft>
+                <ChevronLeft @click="incrementWeek(-1)"></ChevronLeft>
                 <p class="w-full text-center">This week</p>
-                <ChevronRight></ChevronRight>
+                <ChevronRight @click="incrementWeek(1)"></ChevronRight>
             </div>
             <div class="grid grid-cols-7">
                 <div
@@ -46,34 +46,8 @@
                     </div>
                 </div>
             </div>
-            <div class="flex flex-col lg:grid grid-cols-3 p-4">
-                <div
-                    v-for="entry in dayQuery.data.value?.calendar?.day.entries"
-                    class="flex gap-4 border-l-4 p-2 pl-4"
-                    :class="[
-                        isNow(entry)
-                            ? 'border-red bg-red bg-opacity-10'
-                            : 'border-opacity-0',
-                    ]"
-                >
-                    <div>
-                        <h1 class="text-lg lg:text-xl">
-                            {{
-                                isNow(entry)
-                                    ? t("live.now")
-                                    : startTime(entry.start)
-                            }}
-                        </h1>
-                        <p class="text-md lg:text-lg text-gray">
-                            {{ duration(entry) }}
-                        </p>
-                    </div>
-                    <div>
-                        <h1 class="text-lg lg:text-xl">{{ entry.title }}</h1>
-                        <Subtitle :item="entry"></Subtitle>
-                    </div>
-                </div>
-            </div>
+            <hr class="opacity-10 m-4" />
+            <DayQuery :day="selectedDay"></DayQuery>
         </div>
     </section>
 </template>
@@ -82,27 +56,27 @@ import { ChevronLeft, ChevronRight } from "@/components/icons"
 import Player from "@/components/live/Player.vue"
 import { getWeek } from "@/utils/date"
 import { computed, ref } from "vue"
-import {
-    useGetLiveCalendarRangeQuery,
-    useGetLiveCalendarDayQuery,
-} from "@/graph/generated"
-import { useI18n } from "vue-i18n"
-import Subtitle from "@/components/live/Subtitle.vue"
-
-const { t } = useI18n()
+import { useGetLiveCalendarRangeQuery } from "@/graph/generated"
+import DayQuery from "@/components/calendar/DayQuery.vue"
 
 const now = new Date()
 
-const week = getWeek(now)
+const week = ref(getWeek(now))
+
+const incrementWeek = (increment: number) => {
+    const s = start.value
+    s.setDate(s.getDate() + 7 * increment)
+    week.value = getWeek(s)
+}
 
 const selected = ref(now.getDay())
 
 const start = computed(() => {
-    return week[0]
+    return week.value[0]
 })
 
 const end = computed(() => {
-    return week[6]
+    return week.value[6]
 })
 
 const { data } = useGetLiveCalendarRangeQuery({
@@ -113,50 +87,6 @@ const { data } = useGetLiveCalendarRangeQuery({
 })
 
 const selectedDay = computed(() => {
-    return week.find((i) => i.getDay() === selected.value) as Date
+    return week.value.find((i) => i.getDay() === selected.value) as Date
 })
-
-const dayQuery = useGetLiveCalendarDayQuery({
-    variables: {
-        day: selectedDay,
-    },
-})
-
-const isNow = (entry: { start: string; end: string }) => {
-    return new Date(entry.start) < now && new Date(entry.end) > now
-}
-
-const duration = (entry: { start: string; end: string }) => {
-    const start = new Date(entry.start)
-    const end = new Date(entry.end)
-    const diff = Math.floor((end.getTime() - start.getTime()) / 1000)
-
-    let str = ""
-    const days = Math.floor(diff / 3600 / 24)
-    if (days) {
-        str += days + "d "
-    }
-
-    const hours = Math.floor((diff % (3600 * 24)) / 3600)
-    if (hours) {
-        str += hours + "h "
-    }
-
-    const minutes = Math.floor((diff % 3600) / 60)
-    if (minutes) {
-        str += minutes + "m "
-    }
-
-    return str
-}
-
-const startTime = (timestamp: string) => {
-    const date = new Date(timestamp)
-
-    return (
-        date.getHours().toString().padStart(2, "0") +
-        ":" +
-        date.getMinutes().toString().padStart(2, "0")
-    )
-}
 </script>
