@@ -12,12 +12,18 @@ import (
 
 // Show is the resolver for the show field.
 func (r *episodeSearchItemResolver) Show(ctx context.Context, obj *model.EpisodeSearchItem) (*model.Show, error) {
-	return r.QueryRoot().Show(ctx, obj.Show.ID)
+	if obj.Show != nil {
+		return r.QueryRoot().Show(ctx, obj.Show.ID)
+	}
+	return nil, nil
 }
 
 // Season is the resolver for the season field.
 func (r *episodeSearchItemResolver) Season(ctx context.Context, obj *model.EpisodeSearchItem) (*model.Season, error) {
-	return r.QueryRoot().Season(ctx, obj.Season.ID)
+	if obj.Season != nil {
+		return r.QueryRoot().Season(ctx, obj.Season.ID)
+	}
+	return nil, nil
 }
 
 // Show is the resolver for the show field.
