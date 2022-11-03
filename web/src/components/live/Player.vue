@@ -10,7 +10,7 @@ import { onUnmounted, ref } from "vue"
 
 const err = ref(null as string | null)
 
-let player: Player | null = null
+let player: Player | null = null
 
 ;(async () => {
     const res = await fetch(
@@ -35,7 +35,6 @@ let player: Player | null = null
             src: url,
         },
     })
-
 })()
 
 onUnmounted(() => player?.dispose())

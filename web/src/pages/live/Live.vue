@@ -46,7 +46,7 @@
                     </div>
                 </div>
             </div>
-            <div class="columns-3 p-4">
+            <div class="flex flex-col lg:grid grid-cols-3 p-4">
                 <div
                     v-for="entry in dayQuery.data.value?.calendar?.day.entries"
                     class="flex gap-4 border-l-4 p-2 pl-4"
@@ -57,12 +57,20 @@
                     ]"
                 >
                     <div>
-                        <h1 class="text-lg lg:text-xl">{{ isNow(entry) ? t("live.now") : startTime(entry.start) }}</h1>
-                        <p class="text-sm lg:text-lg text-gray">{{ duration(entry) }}</p>
+                        <h1 class="text-lg lg:text-xl">
+                            {{
+                                isNow(entry)
+                                    ? t("live.now")
+                                    : startTime(entry.start)
+                            }}
+                        </h1>
+                        <p class="text-md lg:text-lg text-gray">
+                            {{ duration(entry) }}
+                        </p>
                     </div>
                     <div>
                         <h1 class="text-lg lg:text-xl">{{ entry.title }}</h1>
-                        <p class="text-sm text-primary">{{}}</p>
+                        <Subtitle :item="entry"></Subtitle>
                     </div>
                 </div>
             </div>
@@ -79,6 +87,7 @@ import {
     useGetLiveCalendarDayQuery,
 } from "@/graph/generated"
 import { useI18n } from "vue-i18n"
+import Subtitle from "@/components/live/Subtitle.vue"
 
 const { t } = useI18n()
 

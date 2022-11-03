@@ -578,6 +578,8 @@ type EpisodeResolver interface {
 }
 type EpisodeCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Event, error)
+	Title(ctx context.Context, obj *model.EpisodeCalendarEntry) (string, error)
+	Description(ctx context.Context, obj *model.EpisodeCalendarEntry) (string, error)
 
 	Episode(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Episode, error)
 }
@@ -650,6 +652,8 @@ type SeasonResolver interface {
 }
 type SeasonCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.SeasonCalendarEntry) (*model.Event, error)
+	Title(ctx context.Context, obj *model.SeasonCalendarEntry) (string, error)
+	Description(ctx context.Context, obj *model.SeasonCalendarEntry) (string, error)
 
 	Season(ctx context.Context, obj *model.SeasonCalendarEntry) (*model.Season, error)
 }
@@ -666,6 +670,8 @@ type ShowResolver interface {
 }
 type ShowCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.ShowCalendarEntry) (*model.Event, error)
+	Title(ctx context.Context, obj *model.ShowCalendarEntry) (string, error)
+	Description(ctx context.Context, obj *model.ShowCalendarEntry) (string, error)
 
 	Show(ctx context.Context, obj *model.ShowCalendarEntry) (*model.Show, error)
 }
@@ -3087,8 +3093,8 @@ type SimpleCalendarEntry implements CalendarEntry {
 type EpisodeCalendarEntry implements CalendarEntry {
     id: ID!
     event: Event @goField(forceResolver: true)
-    title: String!
-    description: String!
+    title: String! @goField(forceResolver: true)
+    description: String! @goField(forceResolver: true)
     start: Date!
     end: Date!
     episode: Episode @goField(forceResolver: true)
@@ -3097,8 +3103,8 @@ type EpisodeCalendarEntry implements CalendarEntry {
 type SeasonCalendarEntry implements CalendarEntry {
     id: ID!
     event: Event @goField(forceResolver: true)
-    title: String!
-    description: String!
+    title: String! @goField(forceResolver: true)
+    description: String! @goField(forceResolver: true)
     start: Date!
     end: Date!
     season: Season @goField(forceResolver: true)
@@ -3107,8 +3113,8 @@ type SeasonCalendarEntry implements CalendarEntry {
 type ShowCalendarEntry implements CalendarEntry {
     id: ID!
     event: Event @goField(forceResolver: true)
-    title: String!
-    description: String!
+    title: String! @goField(forceResolver: true)
+    description: String! @goField(forceResolver: true)
     start: Date!
     end: Date!
     show: Show @goField(forceResolver: true)
@@ -7124,7 +7130,7 @@ func (ec *executionContext) _EpisodeCalendarEntry_title(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
+		return ec.resolvers.EpisodeCalendarEntry().Title(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7145,8 +7151,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_title(ctx context.
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeCalendarEntry",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -7168,7 +7174,7 @@ func (ec *executionContext) _EpisodeCalendarEntry_description(ctx context.Contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
+		return ec.resolvers.EpisodeCalendarEntry().Description(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7189,8 +7195,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_description(ctx co
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeCalendarEntry",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -14558,7 +14564,7 @@ func (ec *executionContext) _SeasonCalendarEntry_title(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
+		return ec.resolvers.SeasonCalendarEntry().Title(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14579,8 +14585,8 @@ func (ec *executionContext) fieldContext_SeasonCalendarEntry_title(ctx context.C
 	fc = &graphql.FieldContext{
 		Object:     "SeasonCalendarEntry",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -14602,7 +14608,7 @@ func (ec *executionContext) _SeasonCalendarEntry_description(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
+		return ec.resolvers.SeasonCalendarEntry().Description(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14623,8 +14629,8 @@ func (ec *executionContext) fieldContext_SeasonCalendarEntry_description(ctx con
 	fc = &graphql.FieldContext{
 		Object:     "SeasonCalendarEntry",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -17284,7 +17290,7 @@ func (ec *executionContext) _ShowCalendarEntry_title(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
+		return ec.resolvers.ShowCalendarEntry().Title(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17305,8 +17311,8 @@ func (ec *executionContext) fieldContext_ShowCalendarEntry_title(ctx context.Con
 	fc = &graphql.FieldContext{
 		Object:     "ShowCalendarEntry",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -17328,7 +17334,7 @@ func (ec *executionContext) _ShowCalendarEntry_description(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
+		return ec.resolvers.ShowCalendarEntry().Description(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17349,8 +17355,8 @@ func (ec *executionContext) fieldContext_ShowCalendarEntry_description(ctx conte
 	fc = &graphql.FieldContext{
 		Object:     "ShowCalendarEntry",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -22135,19 +22141,45 @@ func (ec *executionContext) _EpisodeCalendarEntry(ctx context.Context, sel ast.S
 
 			})
 		case "title":
+			field := field
 
-			out.Values[i] = ec._EpisodeCalendarEntry_title(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._EpisodeCalendarEntry_title(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "description":
+			field := field
 
-			out.Values[i] = ec._EpisodeCalendarEntry_description(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._EpisodeCalendarEntry_description(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "start":
 
 			out.Values[i] = ec._EpisodeCalendarEntry_start(ctx, field, obj)
@@ -24239,19 +24271,45 @@ func (ec *executionContext) _SeasonCalendarEntry(ctx context.Context, sel ast.Se
 
 			})
 		case "title":
+			field := field
 
-			out.Values[i] = ec._SeasonCalendarEntry_title(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SeasonCalendarEntry_title(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "description":
+			field := field
 
-			out.Values[i] = ec._SeasonCalendarEntry_description(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SeasonCalendarEntry_description(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "start":
 
 			out.Values[i] = ec._SeasonCalendarEntry_start(ctx, field, obj)
@@ -24896,19 +24954,45 @@ func (ec *executionContext) _ShowCalendarEntry(ctx context.Context, sel ast.Sele
 
 			})
 		case "title":
+			field := field
 
-			out.Values[i] = ec._ShowCalendarEntry_title(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ShowCalendarEntry_title(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "description":
+			field := field
 
-			out.Values[i] = ec._ShowCalendarEntry_description(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ShowCalendarEntry_description(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "start":
 
 			out.Values[i] = ec._ShowCalendarEntry_start(ctx, field, obj)
