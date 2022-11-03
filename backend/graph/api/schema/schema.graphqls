@@ -91,6 +91,8 @@ type QueryRoot{
 
   profiles: [Profile!]!
   profile: Profile!
+
+  analytics: Analytics!
 }
 
 type MutationRoot {

@@ -43,6 +43,10 @@ type SectionItemType interface {
 	IsSectionItemType()
 }
 
+type Analytics struct {
+	AnonymousID string `json:"anonymousId"`
+}
+
 type Application struct {
 	ID            string `json:"id"`
 	Code          string `json:"code"`

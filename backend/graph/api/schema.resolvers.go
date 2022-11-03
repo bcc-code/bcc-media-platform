@@ -311,6 +311,11 @@ func (r *queryRootResolver) Profile(ctx context.Context) (*model.Profile, error)
 	}, nil
 }
 
+// Analytics is the resolver for the analytics field.
+func (r *queryRootResolver) Analytics(ctx context.Context) (*model.Analytics, error) {
+	return &model.Analytics{}, nil
+}
+
 // MutationRoot returns generated.MutationRootResolver implementation.
 func (r *Resolver) MutationRoot() generated.MutationRootResolver { return &mutationRootResolver{r} }
 
