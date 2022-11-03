@@ -82,7 +82,7 @@ func (q *Queries) listDevices(ctx context.Context) ([]UsersDevice, error) {
 const setDeviceToken = `-- name: setDeviceToken :exec
 INSERT INTO users.devices (token, languages, profile_id, updated_at, name)
 VALUES ($1, $2, $3, $4, $5)
-ON CONFLICT (token, profile_id) DO UPDATE SET updated_at = EXCLUDED.updated_at, name = EXCLUDED.name
+ON CONFLICT (token, profile_id) DO UPDATE SET updated_at = EXCLUDED.updated_at, name = EXCLUDED.name, languages = EXCLUDED.languages
 `
 
 type setDeviceTokenParams struct {
