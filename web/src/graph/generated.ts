@@ -930,6 +930,7 @@ export type GetEpisodeQuery = {
             description: string
             show: {
                 title: string
+                type: ShowType
                 description: string
                 seasons: {
                     items: Array<{ id: string; title: string; number: number }>
@@ -2175,6 +2176,7 @@ export const GetEpisodeDocument = gql`
                 description
                 show {
                     title
+                    type
                     description
                     seasons {
                         items {

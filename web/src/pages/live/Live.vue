@@ -45,11 +45,24 @@
                         ></div>
                     </div>
                 </div>
-                <div>
-                    <div v-for="entry in dayQuery.data.value?.calendar?.day.entries">
-                        <h1>{{entry.title}}</h1>
-                        <p>{{entry.start}}</p>
-                        <p>{{entry.end}}</p>
+            </div>
+            <div class="columns-3 p-4">
+                <div
+                    v-for="entry in dayQuery.data.value?.calendar?.day.entries"
+                    class="flex gap-4 border-l-4 p-2 pl-4"
+                    :class="[
+                        isNow(entry)
+                            ? 'border-red bg-red bg-opacity-10'
+                            : 'border-opacity-0',
+                    ]"
+                >
+                    <div>
+                        <h1 class="text-lg lg:text-xl">{{ isNow(entry) ? t("live.now") : startTime(entry.start) }}</h1>
+                        <p class="text-sm lg:text-lg text-gray">{{ duration(entry) }}</p>
+                    </div>
+                    <div>
+                        <h1 class="text-lg lg:text-xl">{{ entry.title }}</h1>
+                        <p class="text-sm text-primary">{{}}</p>
                     </div>
                 </div>
             </div>
@@ -65,6 +78,9 @@ import {
     useGetLiveCalendarRangeQuery,
     useGetLiveCalendarDayQuery,
 } from "@/graph/generated"
+import { useI18n } from "vue-i18n"
+
+const { t } = useI18n()
 
 const now = new Date()
 
@@ -96,4 +112,42 @@ const dayQuery = useGetLiveCalendarDayQuery({
         day: selectedDay,
     },
 })
+
+const isNow = (entry: { start: string; end: string }) => {
+    return new Date(entry.start) < now && new Date(entry.end) > now
+}
+
+const duration = (entry: { start: string; end: string }) => {
+    const start = new Date(entry.start)
+    const end = new Date(entry.end)
+    const diff = Math.floor((end.getTime() - start.getTime()) / 1000)
+
+    let str = ""
+    const days = Math.floor(diff / 3600 / 24)
+    if (days) {
+        str += days + "d "
+    }
+
+    const hours = Math.floor((diff % (3600 * 24)) / 3600)
+    if (hours) {
+        str += hours + "h "
+    }
+
+    const minutes = Math.floor((diff % 3600) / 60)
+    if (minutes) {
+        str += minutes + "m "
+    }
+
+    return str
+}
+
+const startTime = (timestamp: string) => {
+    const date = new Date(timestamp)
+
+    return (
+        date.getHours().toString().padStart(2, "0") +
+        ":" +
+        date.getMinutes().toString().padStart(2, "0")
+    )
+}
 </script>

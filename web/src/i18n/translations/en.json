@@ -29,6 +29,9 @@
         "releaseDate": "Release Date",
         "availableFrom": "Available From",
         "availableTo": "Available To",
-        "rating": "Rating"
+        "ageRating": "Rating"
+    },
+    "live": {
+        "now": "Now"
     }
 }

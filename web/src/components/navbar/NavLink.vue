@@ -3,9 +3,6 @@
         <component
             :is="icon"
             class="w-8 m-auto"
-            :class="{
-                'stroke-primary': isExactActive,
-            }"
             :selected="isExactActive"
         ></component>
         <h1 class="my-auto text-center">
