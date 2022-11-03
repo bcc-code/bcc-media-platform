@@ -299,7 +299,6 @@ func GetByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader
 		var empty t
 		return empty, err
 	}
-
 	return result, nil
 }
 

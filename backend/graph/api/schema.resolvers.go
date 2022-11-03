@@ -311,6 +311,27 @@ func (r *queryRootResolver) Profile(ctx context.Context) (*model.Profile, error)
 	}, nil
 }
 
+// LegacyIDLookup is the resolver for the legacyIDLookup field.
+func (r *queryRootResolver) LegacyIDLookup(ctx context.Context, options *model.LegacyIDLookupOptions) (*model.LegacyIDLookup, error) {
+	var id *int
+	var err error
+	if options.EpisodeID != nil {
+		id, err = batchloaders.GetByID(ctx, r.Loaders.EpisodeIDFromLegacyIDLoader, *options.EpisodeID)
+	}
+	if options.ProgramID != nil {
+		id, err = batchloaders.GetByID(ctx, r.Loaders.EpisodeIDFromLegacyProgramIDLoader, *options.ProgramID)
+	}
+	if err != nil {
+		return nil, err
+	}
+	if id == nil {
+		return nil, ErrItemNotFound
+	}
+	return &model.LegacyIDLookup{
+		ID: strconv.Itoa(*id),
+	}, nil
+}
+
 // MutationRoot returns generated.MutationRootResolver implementation.
 func (r *Resolver) MutationRoot() generated.MutationRootResolver { return &mutationRootResolver{r} }
 

@@ -276,6 +276,10 @@ type ComplexityRoot struct {
 		Title func(childComplexity int) int
 	}
 
+	LegacyIDLookup struct {
+		ID func(childComplexity int) int
+	}
+
 	Link struct {
 		ID  func(childComplexity int) int
 		URL func(childComplexity int) int
@@ -343,22 +347,23 @@ type ComplexityRoot struct {
 	}
 
 	QueryRoot struct {
-		Application func(childComplexity int) int
-		Calendar    func(childComplexity int) int
-		Collection  func(childComplexity int, id string) int
-		Config      func(childComplexity int) int
-		Episode     func(childComplexity int, id string) int
-		Event       func(childComplexity int, id string) int
-		Export      func(childComplexity int, groups []string) int
-		Faq         func(childComplexity int) int
-		Me          func(childComplexity int) int
-		Page        func(childComplexity int, id *string, code *string) int
-		Profile     func(childComplexity int) int
-		Profiles    func(childComplexity int) int
-		Search      func(childComplexity int, queryString string, first *int, offset *int, typeArg *string, minScore *int) int
-		Season      func(childComplexity int, id string) int
-		Section     func(childComplexity int, id string, timestamp *string) int
-		Show        func(childComplexity int, id string) int
+		Application    func(childComplexity int) int
+		Calendar       func(childComplexity int) int
+		Collection     func(childComplexity int, id string) int
+		Config         func(childComplexity int) int
+		Episode        func(childComplexity int, id string) int
+		Event          func(childComplexity int, id string) int
+		Export         func(childComplexity int, groups []string) int
+		Faq            func(childComplexity int) int
+		LegacyIDLookup func(childComplexity int, options *model.LegacyIDLookupOptions) int
+		Me             func(childComplexity int) int
+		Page           func(childComplexity int, id *string, code *string) int
+		Profile        func(childComplexity int) int
+		Profiles       func(childComplexity int) int
+		Search         func(childComplexity int, queryString string, first *int, offset *int, typeArg *string, minScore *int) int
+		Season         func(childComplexity int, id string) int
+		Section        func(childComplexity int, id string, timestamp *string) int
+		Show           func(childComplexity int, id string) int
 	}
 
 	Question struct {
@@ -638,6 +643,7 @@ type QueryRootResolver interface {
 	Config(ctx context.Context) (*model.Config, error)
 	Profiles(ctx context.Context) ([]*model.Profile, error)
 	Profile(ctx context.Context) (*model.Profile, error)
+	LegacyIDLookup(ctx context.Context, options *model.LegacyIDLookupOptions) (*model.LegacyIDLookup, error)
 }
 type QuestionResolver interface {
 	Category(ctx context.Context, obj *model.Question) (*model.FAQCategory, error)
@@ -1640,6 +1646,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LabelSection.Title(childComplexity), true
 
+	case "LegacyIDLookup.id":
+		if e.complexity.LegacyIDLookup.ID == nil {
+			break
+		}
+
+		return e.complexity.LegacyIDLookup.ID(childComplexity), true
+
 	case "Link.id":
 		if e.complexity.Link.ID == nil {
 			break
@@ -1997,6 +2010,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.QueryRoot.Faq(childComplexity), true
+
+	case "QueryRoot.legacyIDLookup":
+		if e.complexity.QueryRoot.LegacyIDLookup == nil {
+			break
+		}
+
+		args, err := ec.field_QueryRoot_legacyIDLookup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.LegacyIDLookup(childComplexity, args["options"].(*model.LegacyIDLookupOptions)), true
 
 	case "QueryRoot.me":
 		if e.complexity.QueryRoot.Me == nil {
@@ -2981,7 +3006,9 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputLegacyIDLookupOptions,
+	)
 	first := true
 
 	switch rc.Operation.Operation {
@@ -3577,6 +3604,15 @@ type User {
   roles: [String!]!
 }
 
+input LegacyIDLookupOptions {
+  episodeID: Int
+  programID: Int
+}
+
+type LegacyIDLookup {
+  id: ID!
+}
+
 type QueryRoot{
   application: Application!
   export(
@@ -3630,6 +3666,8 @@ type QueryRoot{
 
   profiles: [Profile!]!
   profile: Profile!
+
+  legacyIDLookup(options: LegacyIDLookupOptions): LegacyIDLookup!
 }
 
 type MutationRoot {
@@ -4220,6 +4258,21 @@ func (ec *executionContext) field_QueryRoot_export_args(ctx context.Context, raw
 		}
 	}
 	args["groups"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_QueryRoot_legacyIDLookup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.LegacyIDLookupOptions
+	if tmp, ok := rawArgs["options"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("options"))
+		arg0, err = ec.unmarshalOLegacyIDLookupOptions2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLegacyIDLookupOptions(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["options"] = arg0
 	return args, nil
 }
 
@@ -10524,6 +10577,50 @@ func (ec *executionContext) fieldContext_LabelSection_items(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _LegacyIDLookup_id(ctx context.Context, field graphql.CollectedField, obj *model.LegacyIDLookup) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LegacyIDLookup_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LegacyIDLookup_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LegacyIDLookup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Link_id(ctx context.Context, field graphql.CollectedField, obj *model.Link) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Link_id(ctx, field)
 	if err != nil {
@@ -13273,6 +13370,65 @@ func (ec *executionContext) fieldContext_QueryRoot_profile(ctx context.Context, 
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Profile", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_legacyIDLookup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_legacyIDLookup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().LegacyIDLookup(rctx, fc.Args["options"].(*model.LegacyIDLookupOptions))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.LegacyIDLookup)
+	fc.Result = res
+	return ec.marshalNLegacyIDLookup2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLegacyIDLookup(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_legacyIDLookup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_LegacyIDLookup_id(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LegacyIDLookup", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_legacyIDLookup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -20975,6 +21131,42 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputLegacyIDLookupOptions(ctx context.Context, obj interface{}) (model.LegacyIDLookupOptions, error) {
+	var it model.LegacyIDLookupOptions
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"episodeID", "programID"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "episodeID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("episodeID"))
+			it.EpisodeID, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "programID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("programID"))
+			it.ProgramID, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -23003,6 +23195,34 @@ func (ec *executionContext) _LabelSection(ctx context.Context, sel ast.Selection
 	return out
 }
 
+var legacyIDLookupImplementors = []string{"LegacyIDLookup"}
+
+func (ec *executionContext) _LegacyIDLookup(ctx context.Context, sel ast.SelectionSet, obj *model.LegacyIDLookup) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, legacyIDLookupImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LegacyIDLookup")
+		case "id":
+
+			out.Values[i] = ec._LegacyIDLookup_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var linkImplementors = []string{"Link", "SectionItemType"}
 
 func (ec *executionContext) _Link(ctx context.Context, sel ast.SelectionSet, obj *model.Link) graphql.Marshaler {
@@ -23887,6 +24107,29 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._QueryRoot_profile(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "legacyIDLookup":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_legacyIDLookup(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -26380,6 +26623,20 @@ func (ec *executionContext) marshalNLanguage2ᚕgithubᚗcomᚋbccᚑcodeᚋbrun
 	return ret
 }
 
+func (ec *executionContext) marshalNLegacyIDLookup2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLegacyIDLookup(ctx context.Context, sel ast.SelectionSet, v model.LegacyIDLookup) graphql.Marshaler {
+	return ec._LegacyIDLookup(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNLegacyIDLookup2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLegacyIDLookup(ctx context.Context, sel ast.SelectionSet, v *model.LegacyIDLookup) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._LegacyIDLookup(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNMessage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v *model.Message) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -27368,6 +27625,14 @@ func (ec *executionContext) marshalOLanguage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrun
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) unmarshalOLegacyIDLookupOptions2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLegacyIDLookupOptions(ctx context.Context, v interface{}) (*model.LegacyIDLookupOptions, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputLegacyIDLookupOptions(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOMessage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐMessageᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Message) graphql.Marshaler {

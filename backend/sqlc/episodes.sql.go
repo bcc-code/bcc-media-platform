@@ -15,6 +15,74 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getEpisodeIDsForLegacyIDs = `-- name: getEpisodeIDsForLegacyIDs :many
+SELECT e.id, e.legacy_id as legacy_id
+FROM episodes e
+WHERE e.legacy_id = ANY ($1::int[])
+`
+
+type getEpisodeIDsForLegacyIDsRow struct {
+	ID       int32       `db:"id" json:"id"`
+	LegacyID null_v4.Int `db:"legacy_id" json:"legacyID"`
+}
+
+func (q *Queries) getEpisodeIDsForLegacyIDs(ctx context.Context, dollar_1 []int32) ([]getEpisodeIDsForLegacyIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeIDsForLegacyIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getEpisodeIDsForLegacyIDsRow
+	for rows.Next() {
+		var i getEpisodeIDsForLegacyIDsRow
+		if err := rows.Scan(&i.ID, &i.LegacyID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getEpisodeIDsForLegacyProgramIDs = `-- name: getEpisodeIDsForLegacyProgramIDs :many
+SELECT e.id, e.legacy_program_id as legacy_id
+FROM episodes e
+WHERE e.legacy_program_id = ANY ($1::int[])
+`
+
+type getEpisodeIDsForLegacyProgramIDsRow struct {
+	ID       int32       `db:"id" json:"id"`
+	LegacyID null_v4.Int `db:"legacy_id" json:"legacyID"`
+}
+
+func (q *Queries) getEpisodeIDsForLegacyProgramIDs(ctx context.Context, dollar_1 []int32) ([]getEpisodeIDsForLegacyProgramIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeIDsForLegacyProgramIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getEpisodeIDsForLegacyProgramIDsRow
+	for rows.Next() {
+		var i getEpisodeIDsForLegacyProgramIDsRow
+		if err := rows.Scan(&i.ID, &i.LegacyID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getEpisodeIDsForSeasons = `-- name: getEpisodeIDsForSeasons :many
 SELECT e.id,
        e.season_id
