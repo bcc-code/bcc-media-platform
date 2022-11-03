@@ -1,7 +1,7 @@
 <template>
     <div class="flex" v-if="fetching"><h1 class="text-gray mx-auto text-xl">Loading</h1></div>
     <div
-        class="flex flex-col lg:grid grid-cols-3 px-4"
+        class="lg:grid grid-cols-3 px-4"
         v-else-if="data?.calendar?.day.entries.length"
     >
         <div
@@ -34,7 +34,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { useGetLiveCalendarDayQuery } from "@/graph/generated"
+import { useGetCalendarDayQuery } from "@/graph/generated"
 import { ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import Subtitle from "./Subtitle.vue"
@@ -56,7 +56,7 @@ watch(
     }
 )
 
-const { data, fetching } = useGetLiveCalendarDayQuery({
+const { data, fetching } = useGetCalendarDayQuery({
     variables: {
         day: selectedDay,
     },

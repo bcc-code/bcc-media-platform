@@ -16,9 +16,9 @@
     </p>
 </template>
 <script lang="ts" setup>
-import { GetLiveCalendarDayQuery } from "@/graph/generated"
+import { GetCalendarDayQuery } from "@/graph/generated"
 
 defineProps<{
-    item: NonNullable<GetLiveCalendarDayQuery["calendar"]>["day"]["entries"][0]
+    item: NonNullable<GetCalendarDayQuery["calendar"]>["day"]["entries"][0]
 }>()
 </script>

@@ -7,3 +7,18 @@ export const getWeek = (initial: Date) => {
     }
     return week
 }
+
+export const getMonth = (initial: Date) => {
+    const weeks: Date[][] = []
+    initial.getMonth()
+
+    const date = new Date(initial)
+
+    date.setDate(1)
+    while (date.getMonth() === initial.getMonth()) {
+        weeks.push(getWeek(date))
+        date.setDate(date.getDate() + 7)
+    }
+    return weeks
+}
+
