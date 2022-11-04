@@ -48,24 +48,25 @@
             <div>
                 <div class="flex gap-2 p-2 font-semibold">
                     <button
+                        v-if="seasonId"
                         class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
                         :class="[
-                            view === 'episodes'
+                            effectiveView === 'episodes'
                                 ? 'opacity-100 border-opacity-40 '
                                 : 'opacity-50 bg-opacity-0 border-opacity-0',
                         ]"
-                        @click="view = 'episodes'"
+                        @click="effectiveView = 'episodes'"
                     >
                         {{ t("episode.episodes") }}
                     </button>
                     <button
                         class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
                         :class="[
-                            view === 'details'
+                            effectiveView === 'details'
                                 ? 'opacity-100 border-opacity-40'
                                 : 'opacity-50 bg-opacity-0 border-opacity-0',
                         ]"
-                        @click="view = 'details'"
+                        @click="effectiveView = 'details'"
                     >
                         {{ t("episode.details") }}
                     </button>
@@ -74,11 +75,11 @@
                 <div>
                     <transition name="slide-fade" mode="out-in">
                         <EpisodeDetails
-                            v-if="view === 'details'"
+                            v-if="effectiveView === 'details'"
                             :episode="episode"
                         ></EpisodeDetails>
                         <div
-                            v-else-if="view === 'episodes'"
+                            v-else-if="effectiveView === 'episodes'"
                             class="flex flex-col"
                         >
                             <Listbox
@@ -263,6 +264,7 @@ const seasonQuery = useGetSeasonOnEpisodePageQuery({
     pause: true,
     variables: {
         seasonId,
+        firstEpisodes: 50,
     },
 })
 
@@ -284,5 +286,18 @@ watch(
     }
 )
 
-const view = ref("episodes" as "episodes" | "details")
+const view = ref(null as "episodes" | "details" | null)
+
+const effectiveView = computed({
+    get() {
+        return view.value ?? (!episode.value?.season ? "details" : "episodes")
+    },
+    set(v) {
+        view.value = v
+    },
+})
+
+const event = computed(() => {
+    return episode.value?.season?.show.type === "event"
+})
 </script>

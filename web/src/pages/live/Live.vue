@@ -5,9 +5,9 @@
         </div>
         <div>
             <div class="flex stroke-gray text-gray p-4">
-                <ChevronLeft></ChevronLeft>
+                <ChevronLeft @click="incrementWeek(-1)"></ChevronLeft>
                 <p class="w-full text-center">This week</p>
-                <ChevronRight></ChevronRight>
+                <ChevronRight @click="incrementWeek(1)"></ChevronRight>
             </div>
             <div class="grid grid-cols-7">
                 <div
@@ -45,14 +45,9 @@
                         ></div>
                     </div>
                 </div>
-                <div>
-                    <div v-for="entry in dayQuery.data.value?.calendar?.day.entries">
-                        <h1>{{entry.title}}</h1>
-                        <p>{{entry.start}}</p>
-                        <p>{{entry.end}}</p>
-                    </div>
-                </div>
             </div>
+            <hr class="opacity-10 m-4" />
+            <DayQuery :day="selectedDay"></DayQuery>
         </div>
     </section>
 </template>
@@ -61,23 +56,27 @@ import { ChevronLeft, ChevronRight } from "@/components/icons"
 import Player from "@/components/live/Player.vue"
 import { getWeek } from "@/utils/date"
 import { computed, ref } from "vue"
-import {
-    useGetLiveCalendarRangeQuery,
-    useGetLiveCalendarDayQuery,
-} from "@/graph/generated"
+import { useGetLiveCalendarRangeQuery } from "@/graph/generated"
+import DayQuery from "@/components/calendar/DayQuery.vue"
 
 const now = new Date()
 
-const week = getWeek(now)
+const week = ref(getWeek(now))
+
+const incrementWeek = (increment: number) => {
+    const s = start.value
+    s.setDate(s.getDate() + 7 * increment)
+    week.value = getWeek(s)
+}
 
 const selected = ref(now.getDay())
 
 const start = computed(() => {
-    return week[0]
+    return week.value[0]
 })
 
 const end = computed(() => {
-    return week[6]
+    return week.value[6]
 })
 
 const { data } = useGetLiveCalendarRangeQuery({
@@ -88,12 +87,6 @@ const { data } = useGetLiveCalendarRangeQuery({
 })
 
 const selectedDay = computed(() => {
-    return week.find((i) => i.getDay() === selected.value) as Date
-})
-
-const dayQuery = useGetLiveCalendarDayQuery({
-    variables: {
-        day: selectedDay,
-    },
+    return week.value.find((i) => i.getDay() === selected.value) as Date
 })
 </script>

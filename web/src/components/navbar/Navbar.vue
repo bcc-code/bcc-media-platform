@@ -383,6 +383,7 @@ import {
     SearchIcon,
     SettingsIcon,
 } from "../icons"
+import { computed } from "vue"
 
 const { t } = useI18n()
 
@@ -391,45 +392,57 @@ const signIn = Auth.signIn
 const signOut = Auth.signOut
 const user = Auth.user()
 
-const navigation: {
-    name: string
-    to: RouteLocationRaw
-    icon?: any
-}[] = [
-    {
-        name: "page.home",
-        to: {
-            name: "front-page",
+const navigation = computed(() => {
+    const n: {
+        name: string
+        to: RouteLocationRaw
+        icon?: any
+    }[] = [
+        {
+            name: "page.home",
+            to: {
+                name: "front-page",
+            },
+            icon: HomeIcon,
         },
-        icon: HomeIcon,
-    },
-    {
-        name: "page.search",
-        to: {
-            name: "search",
+        {
+            name: "page.search",
+            to: {
+                name: "search",
+            },
+            icon: SearchIcon,
         },
-        icon: SearchIcon,
-    },
-    {
-        name: "page.live",
-        to: {
-            name: "live",
-        },
-        icon: LiveIcon,
-    },
-    {
-        name: "page.calendar",
-        to: {
-            name: "calendar",
-        },
-        icon: CalendarIcon,
-    },
-    {
-        name: "page.faq",
-        to: {
-            name: "front-page",
-        },
-        icon: FeedIcon,
-    },
-]
+    ]
+
+    if (authenticated.value) {
+        n.push({
+            name: "page.live",
+            to: {
+                name: "live",
+            },
+            icon: LiveIcon,
+        })
+    }
+
+    n.push(
+        ...[
+            {
+                name: "page.calendar",
+                to: {
+                    name: "calendar",
+                },
+                icon: CalendarIcon,
+            },
+            {
+                name: "page.faq",
+                to: {
+                    name: "front-page",
+                },
+                icon: FeedIcon,
+            },
+        ]
+    )
+
+    return n
+})
 </script>

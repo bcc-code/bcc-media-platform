@@ -22,8 +22,15 @@ func CalendarEntryFrom(ctx context.Context, i *common.CalendarEntry) CalendarEnt
 			ID: strconv.Itoa(int(i.EventID.Int64)),
 		}
 	}
-	title := i.Title.Get(languages)
-	description := i.Description.Get(languages)
+	var title string
+	var description string
+
+	if v := i.Title.GetValueOrNil(languages); v != nil {
+		title = *v
+	}
+	if v := i.Description.GetValueOrNil(languages); v != nil {
+		description = *v
+	}
 	start := i.Start.Format(time.RFC3339)
 	end := i.End.Format(time.RFC3339)
 

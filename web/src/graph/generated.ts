@@ -386,6 +386,7 @@ export type MutationRoot = {
 }
 
 export type MutationRootSetDevicePushTokenArgs = {
+    languages: Array<Scalars["String"]>
     token: Scalars["String"]
 }
 
@@ -769,6 +770,83 @@ export enum WebSectionSize {
     R16_9 = "r16_9",
 }
 
+export type GetCalendarDayQueryVariables = Exact<{
+    day: Scalars["Date"]
+}>
+
+export type GetCalendarDayQuery = {
+    calendar?: {
+        day: {
+            entries: Array<
+                | {
+                      __typename: "EpisodeCalendarEntry"
+                      id: string
+                      title: string
+                      description: string
+                      end: any
+                      start: any
+                      episode?: {
+                          id: string
+                          title: string
+                          number?: number | null
+                          publishDate: string
+                          productionDate?: string | null
+                          season?: {
+                              number: number
+                              show: {
+                                  id: string
+                                  type: ShowType
+                                  title: string
+                              }
+                          } | null
+                      } | null
+                  }
+                | {
+                      __typename: "SeasonCalendarEntry"
+                      id: string
+                      title: string
+                      description: string
+                      end: any
+                      start: any
+                      season?: {
+                          id: string
+                          number: number
+                          title: string
+                          show: { id: string; type: ShowType; title: string }
+                      } | null
+                  }
+                | {
+                      __typename: "ShowCalendarEntry"
+                      id: string
+                      title: string
+                      description: string
+                      end: any
+                      start: any
+                      show?: {
+                          id: string
+                          type: ShowType
+                          title: string
+                      } | null
+                  }
+                | {
+                      __typename: "SimpleCalendarEntry"
+                      id: string
+                      title: string
+                      description: string
+                      end: any
+                      start: any
+                  }
+            >
+            events: Array<{
+                id: string
+                title: string
+                start: string
+                end: string
+            }>
+        }
+    } | null
+}
+
 export type GetSeasonQueryVariables = Exact<{
     id: Scalars["ID"]
 }>
@@ -930,6 +1008,7 @@ export type GetEpisodeQuery = {
             description: string
             show: {
                 title: string
+                type: ShowType
                 description: string
                 seasons: {
                     items: Array<{ id: string; title: string; number: number }>
@@ -957,53 +1036,6 @@ export type GetLiveCalendarRangeQueryVariables = Exact<{
 export type GetLiveCalendarRangeQuery = {
     calendar?: {
         period: { activeDays: Array<any>; events: Array<{ title: string }> }
-    } | null
-}
-
-export type GetLiveCalendarDayQueryVariables = Exact<{
-    day: Scalars["Date"]
-}>
-
-export type GetLiveCalendarDayQuery = {
-    calendar?: {
-        day: {
-            entries: Array<
-                | {
-                      id: string
-                      title: string
-                      description: string
-                      end: any
-                      start: any
-                  }
-                | {
-                      id: string
-                      title: string
-                      description: string
-                      end: any
-                      start: any
-                  }
-                | {
-                      id: string
-                      title: string
-                      description: string
-                      end: any
-                      start: any
-                  }
-                | {
-                      id: string
-                      title: string
-                      description: string
-                      end: any
-                      start: any
-                  }
-            >
-            events: Array<{
-                id: string
-                title: string
-                start: string
-                end: string
-            }>
-        }
     } | null
 }
 
@@ -2034,6 +2066,76 @@ export const ItemSectionFragmentDoc = gql`
     }
     ${SectionItemFragmentDoc}
 `
+export const GetCalendarDayDocument = gql`
+    query getCalendarDay($day: Date!) {
+        calendar {
+            day(day: $day) {
+                entries {
+                    __typename
+                    id
+                    title
+                    description
+                    end
+                    start
+                    ... on EpisodeCalendarEntry {
+                        episode {
+                            id
+                            title
+                            number
+                            publishDate
+                            productionDate
+                            season {
+                                number
+                                show {
+                                    id
+                                    type
+                                    title
+                                }
+                            }
+                        }
+                    }
+                    ... on SeasonCalendarEntry {
+                        season {
+                            id
+                            number
+                            title
+                            show {
+                                id
+                                type
+                                title
+                            }
+                        }
+                    }
+                    ... on ShowCalendarEntry {
+                        show {
+                            id
+                            type
+                            title
+                        }
+                    }
+                }
+                events {
+                    id
+                    title
+                    start
+                    end
+                }
+            }
+        }
+    }
+`
+
+export function useGetCalendarDayQuery(
+    options: Omit<
+        Urql.UseQueryArgs<never, GetCalendarDayQueryVariables>,
+        "query"
+    > = {}
+) {
+    return Urql.useQuery<GetCalendarDayQuery>({
+        query: GetCalendarDayDocument,
+        ...options,
+    })
+}
 export const GetSeasonDocument = gql`
     query getSeason($id: ID!) {
         season(id: $id) {
@@ -2175,6 +2277,7 @@ export const GetEpisodeDocument = gql`
                 description
                 show {
                     title
+                    type
                     description
                     seasons {
                         items {
@@ -2243,39 +2346,6 @@ export function useGetLiveCalendarRangeQuery(
 ) {
     return Urql.useQuery<GetLiveCalendarRangeQuery>({
         query: GetLiveCalendarRangeDocument,
-        ...options,
-    })
-}
-export const GetLiveCalendarDayDocument = gql`
-    query getLiveCalendarDay($day: Date!) {
-        calendar {
-            day(day: $day) {
-                entries {
-                    id
-                    title
-                    description
-                    end
-                    start
-                }
-                events {
-                    id
-                    title
-                    start
-                    end
-                }
-            }
-        }
-    }
-`
-
-export function useGetLiveCalendarDayQuery(
-    options: Omit<
-        Urql.UseQueryArgs<never, GetLiveCalendarDayQueryVariables>,
-        "query"
-    > = {}
-) {
-    return Urql.useQuery<GetLiveCalendarDayQuery>({
-        query: GetLiveCalendarDayDocument,
         ...options,
     })
 }

@@ -29,6 +29,12 @@
         "releaseDate": "Utgivelsesdato",
         "availableFrom": "Tilgjengelig fra",
         "availableTo": "Tilgjengelig til",
-        "rating": "Vurdering*"
+        "ageRating": "Vurdering*"
+    },
+    "live": {
+        "now": "Nå"
+    },
+    "calendar": {
+        "noScheduledEvents": "Ingen oppførte eventer"
     }
 }
