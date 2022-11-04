@@ -33,5 +33,8 @@
     },
     "live": {
         "now": "Now"
+    },
+    "calendar": {
+        "noScheduledEvents": "No scheduled events"
     }
 }

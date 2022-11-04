@@ -13,7 +13,7 @@
                 <div
                     v-for="day in week"
                     class="text-center cursor-pointer hover:bg-gray hover:bg-opacity-10 rounded-full"
-                    @click="selected = day.getDay()"
+                    @click="selected = day"
                 >
                     <span class="align-middle text-gray">
                         {{ day.toDateString().substring(0, 1) }}
@@ -21,9 +21,13 @@
                     <div
                         class="h-8 aspect-square mx-auto rounded-full font-bold"
                         :class="[
-                            day.getDay() === now.getDay() ? 'text-red' : '',
-                            day.getDay() === selected
-                                ? 'outline outline-white outline-2 bg-gray bg-opacity-20'
+                            day.toLocaleDateString() ===
+                            now.toLocaleDateString()
+                                ? 'text-red'
+                                : '',
+                            day.toLocaleDateString() ===
+                            selected.toLocaleDateString()
+                                ? 'outline outline-white outl ine-2 bg-gray bg-opacity-20'
                                 : 'outline-none',
                         ]"
                     >
@@ -47,7 +51,7 @@
                 </div>
             </div>
             <hr class="opacity-10 m-4" />
-            <DayQuery :day="selectedDay"></DayQuery>
+            <DayQuery :day="selected"></DayQuery>
         </div>
     </section>
 </template>
@@ -69,7 +73,7 @@ const incrementWeek = (increment: number) => {
     week.value = getWeek(s)
 }
 
-const selected = ref(now.getDay())
+const selected = ref(now)
 
 const start = computed(() => {
     return week.value[0]
@@ -84,9 +88,5 @@ const { data } = useGetLiveCalendarRangeQuery({
         start,
         end,
     },
-})
-
-const selectedDay = computed(() => {
-    return week.value.find((i) => i.getDay() === selected.value) as Date
 })
 </script>
