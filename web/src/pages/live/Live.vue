@@ -4,10 +4,10 @@
             <Player></Player>
         </div>
         <div>
-            <div class="flex stroke-gray text-gray p-4">
-                <ChevronLeft @click="incrementWeek(-1)"></ChevronLeft>
-                <p class="w-full text-center">This week</p>
-                <ChevronRight @click="incrementWeek(1)"></ChevronRight>
+            <div class="flex stroke-gray text-gray p-4 max-w-lg mx-auto">
+                <ChevronLeft class="h-12 w-12" @click="incrementWeek(-1)"></ChevronLeft>
+                <p class="w-full text-center text-lg my-auto uppercase">{{ week.some(i => i.toLocaleDateString() === now.toLocaleDateString()) ? t('calendar.thisWeek') : ''}}</p>
+                <ChevronRight class="h-12 w-12" @click="incrementWeek(1)"></ChevronRight>
             </div>
             <div class="grid grid-cols-7">
                 <div
@@ -62,6 +62,9 @@ import { getWeek } from "@/utils/date"
 import { computed, ref } from "vue"
 import { useGetLiveCalendarRangeQuery } from "@/graph/generated"
 import DayQuery from "@/components/calendar/DayQuery.vue"
+import { useI18n } from "vue-i18n"
+
+const { t } = useI18n()
 
 const now = new Date()
 

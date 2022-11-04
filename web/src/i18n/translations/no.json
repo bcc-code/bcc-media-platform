@@ -35,6 +35,7 @@
         "now": "Nå"
     },
     "calendar": {
-        "noScheduledEvents": "Ingen oppførte eventer"
+        "noScheduledEvents": "Ingen oppførte eventer",
+        "thisWeek": "Denne uken"
     }
 }

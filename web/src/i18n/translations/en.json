@@ -35,6 +35,7 @@
         "now": "Now"
     },
     "calendar": {
-        "noScheduledEvents": "No scheduled events"
+        "noScheduledEvents": "No scheduled events",
+        "thisWeek": "This week"
     }
 }

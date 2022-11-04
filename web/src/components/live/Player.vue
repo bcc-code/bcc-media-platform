@@ -34,6 +34,10 @@ let player: Player | null = null
         src: {
             src: url,
         },
+        autoplay: true,
+        videojs: {
+            autoplay: true,
+        }
     })
 })()
 
