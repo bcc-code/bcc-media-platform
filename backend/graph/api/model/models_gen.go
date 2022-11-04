@@ -280,6 +280,15 @@ type LabelSection struct {
 func (LabelSection) IsSection()     {}
 func (LabelSection) IsItemSection() {}
 
+type LegacyIDLookup struct {
+	ID string `json:"id"`
+}
+
+type LegacyIDLookupOptions struct {
+	EpisodeID *int `json:"episodeID"`
+	ProgramID *int `json:"programID"`
+}
+
 type Link struct {
 	ID  string `json:"id"`
 	URL string `json:"url"`
