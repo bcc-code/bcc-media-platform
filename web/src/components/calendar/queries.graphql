@@ -1,4 +1,3 @@
-
 query getCalendarDay($day: Date!) {
     calendar {
         day(day: $day) {

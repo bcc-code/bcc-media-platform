@@ -1,5 +1,7 @@
 <template>
-    <div class="flex" v-if="fetching"><h1 class="text-gray mx-auto text-xl">Loading</h1></div>
+    <div class="flex" v-if="fetching">
+        <h1 class="text-gray mx-auto text-xl">Loading</h1>
+    </div>
     <div
         class="lg:grid grid-cols-3 px-4"
         v-else-if="data?.calendar?.day.entries.length"

@@ -1,20 +1,36 @@
 <template>
     <section>
-        <div>
-            <div v-for="week in weeks" class="grid grid-cols-7">
+        <div class="">
+            <div class="max-w-lg mx-auto flex mb-4 stroke-white">
+                <ChevronLeft class="w-16 h-16 cursor-pointer rounded-full hover:bg-gray hover:bg-opacity-10" @click="incrementMonth(-1)"></ChevronLeft>
+                <p class="w-full text-center text-xl my-auto font-semibold">{{month.toLocaleString('default', { month: "long" })}}</p>
+                <ChevronRight class="w-16 h-16 cursor-pointer rounded-full hover:bg-gray hover:bg-opacity-10" @click="incrementMonth(1)"></ChevronRight>
+            </div>
+            <div class="grid grid-cols-7 mb-4">
                 <div
-                    v-for="day in week"
+                    v-for="day in weeks[0]"
                     class="text-center cursor-pointer hover:bg-gray hover:bg-opacity-10 rounded-full"
-                    @click="selected = day.getDay()"
                 >
                     <span class="align-middle text-gray">
                         {{ day.toDateString().substring(0, 1) }}
                     </span>
+                </div>
+            </div>
+            <div v-for="(week, i) in weeks" class="grid grid-cols-7 mb-4">
+                <div
+                    v-for="day in week"
+                    class="text-center cursor-pointer hover:bg-gray hover:bg-opacity-10"
+                    @click="setDay(day)"
+                >
                     <div
                         class="h-8 aspect-square mx-auto rounded-full font-bold"
                         :class="[
-                            day.getDate() === now.getDate() ? 'text-red' : '',
-                            day.getDate() === selected
+                            day.getTime() === now.getTime()
+                                ? 'text-red'
+                                : day.getMonth() === month.getMonth()
+                                ? ''
+                                : 'text-gray',
+                            day.getTime() === selected.getTime()
                                 ? 'outline outline-white outline-2 bg-gray bg-opacity-20'
                                 : 'outline-none',
                         ]"
@@ -29,6 +45,8 @@
                             :class="[
                                 data?.calendar?.period.activeDays.some(
                                     (d) =>
+                                        new Date(d).getMonth() ===
+                                            day.getMonth() &&
                                         new Date(d).getDate() === day.getDate()
                                 )
                                     ? 'bg-gray'
@@ -38,6 +56,9 @@
                     </div>
                 </div>
             </div>
+            <DayQuery :day="selected">
+
+            </DayQuery>
         </div>
     </section>
 </template>
@@ -45,12 +66,23 @@
 import { getMonth } from "@/utils/date"
 import { computed, ref } from "vue"
 import { useGetLiveCalendarRangeQuery } from "@/graph/generated"
+import { ChevronLeft, ChevronRight } from "@/components/icons";
+import DayQuery from "@/components/calendar/DayQuery.vue";
 
 const now = new Date()
 
 const weeks = ref(getMonth(now))
 
-const selected = ref(now.getDay())
+const month = ref(now)
+
+const selected = ref(now)
+
+const incrementMonth = (increment: number) => {
+    const date = new Date(month.value)
+    date.setMonth(date.getMonth() + increment)
+    month.value = date
+    weeks.value = getMonth(date)
+}
 
 const start = computed(() => {
     return weeks.value[0][0]
@@ -66,4 +98,10 @@ const { data } = useGetLiveCalendarRangeQuery({
         end,
     },
 })
+
+const setDay = (day: Date) => {
+    selected.value = day
+    month.value = day
+    weeks.value = getMonth(day)
+}
 </script>
