@@ -1,47 +1,121 @@
 <template>
     <section>
-        <div>
-            <input class="bg-secondary" type="date" v-model="from" />
-            <input class="bg-secondary" type="date" v-model="to" />
-        </div>
-        <div v-if="calendar">
-            {{ calendar.period }}
-            <div v-for="d in calendar.period.activeDays">{{ d }}</div>
+        <div class="">
+            <div class="max-w-lg mx-auto flex mb-4 stroke-white">
+                <ChevronLeft
+                    class="w-16 h-16 cursor-pointer rounded-full hover:bg-gray hover:bg-opacity-10"
+                    @click="incrementMonth(-1)"
+                ></ChevronLeft>
+                <p
+                    class="w-full text-center text-xl my-auto font-medium uppercase"
+                >
+                    {{ month.toLocaleString([current.code, "en"], { month: "long" }) }}
+                    {{ month.getFullYear() }}
+                </p>
+                <ChevronRight
+                    class="w-16 h-16 cursor-pointer rounded-full hover:bg-gray hover:bg-opacity-10"
+                    @click="incrementMonth(1)"
+                ></ChevronRight>
+            </div>
+            <div class="p-4 flex flex-col max-w-lg mx-auto">
+                <div class="flex mb-4 w-full">
+                    <div
+                        v-for="day in weeks[0]"
+                        class="text-center cursor-pointer hover:bg-gray hover:bg-opacity-10 rounded-full w-full"
+                    >
+                        <span class="align-middle text-gray">
+                            {{ day.toDateString().substring(0, 1) }}
+                        </span>
+                    </div>
+                </div>
+                <div v-for="week in weeks" class="flex mx-auto w-full">
+                    <div
+                        v-for="day in week"
+                        class="text-center cursor-pointer hover:bg-gray hover:bg-opacity-10 w-full align-middle"
+                        @click="setDay(day)"
+                    >
+                        <div
+                            class="h-8 aspect-square mx-auto rounded-full font-bold"
+                            :class="[
+                                day.getTime() === now.getTime()
+                                    ? 'text-red'
+                                    : day.getMonth() === month.getMonth()
+                                    ? ''
+                                    : 'text-gray',
+                                day.getTime() === selected.getTime()
+                                    ? 'outline outline-white outline-2 bg-gray bg-opacity-20'
+                                    : 'outline-none',
+                            ]"
+                        >
+                            <span class="align-middle leading-8">{{
+                                day.getDate()
+                            }}</span>
+                        </div>
+                        <div class="flex p-2">
+                            <div
+                                class="h-2 w-2 rounded-full mx-auto"
+                                :class="[
+                                    data?.calendar?.period.activeDays.some(
+                                        (d) =>
+                                            new Date(d).getMonth() ===
+                                                day.getMonth() &&
+                                            new Date(d).getDate() ===
+                                                day.getDate()
+                                    )
+                                        ? 'bg-gray'
+                                        : 'bg-none',
+                                ]"
+                            ></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <DayQuery :day="selected"> </DayQuery>
         </div>
     </section>
 </template>
 <script lang="ts" setup>
-import { useGetCalendarPeriodQuery } from "@/graph/generated"
+import { getMonth } from "@/utils/date"
 import { computed, ref } from "vue"
+import { useGetLiveCalendarRangeQuery } from "@/graph/generated"
+import { ChevronLeft, ChevronRight } from "@/components/icons"
+import DayQuery from "@/components/calendar/DayQuery.vue"
+import { current } from "@/services/language"
 
-const date = new Date()
+const now = new Date()
 
-const dateToString = (date: Date) => {
-    return `${date.getFullYear()}-${(date.getMonth() + 1)
-        .toString()
-        .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`
+const weeks = ref(getMonth(now))
+
+const month = ref(now)
+
+const selected = ref(now)
+
+const incrementMonth = (increment: number) => {
+    const date = new Date(month.value)
+    date.setMonth(date.getMonth() + increment)
+    month.value = date
+    weeks.value = getMonth(date)
 }
 
-const from = ref(dateToString(date))
-date.setDate(date.getDate() + 7)
-const to = ref(dateToString(date))
-
-const fromString = computed(() => {
-    return new Date(from.value).toISOString()
+const start = computed(() => {
+    return weeks.value[0][0]
 })
 
-const toString = computed(() => {
-    return new Date(to.value).toISOString()
+const end = computed(() => {
+    return weeks.value[weeks.value.length - 1][6]
 })
 
-const { data } = useGetCalendarPeriodQuery({
+const { data } = useGetLiveCalendarRangeQuery({
     variables: {
-        from: fromString,
-        to: toString,
+        start,
+        end,
     },
 })
 
-const calendar = computed(() => {
-    return data.value?.calendar ?? null
-})
+const setDay = (day: Date) => {
+    selected.value = day
+    month.value = day
+    weeks.value = getMonth(day)
+}
 </script>

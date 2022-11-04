@@ -130,3 +130,35 @@ func (q *Queries) GetPermissionsForEpisodes(ctx context.Context, ids []int) ([]c
 		}
 	}), nil
 }
+
+// GetOriginal returns the requested string
+func (row getEpisodeIDsForLegacyIDsRow) GetOriginal() int {
+	return int(row.LegacyID.Int64)
+}
+
+// GetResult returns the id from the query
+func (row getEpisodeIDsForLegacyIDsRow) GetResult() int {
+	return int(row.ID)
+}
+
+// GetEpisodeIDsForLegacyIDs returns ids for the requested codes
+func (q *Queries) GetEpisodeIDsForLegacyIDs(ctx context.Context, ids []int) ([]batchloaders.Conversion[int, int], error) {
+	rows, err := q.getEpisodeIDsForLegacyIDs(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getEpisodeIDsForLegacyIDsRow, _ int) batchloaders.Conversion[int, int] {
+		return i
+	}), nil
+}
+
+// GetEpisodeIDsForLegacyProgramIDs returns ids for the requested codes
+func (q *Queries) GetEpisodeIDsForLegacyProgramIDs(ctx context.Context, ids []int) ([]batchloaders.Conversion[int, int], error) {
+	rows, err := q.getEpisodeIDsForLegacyProgramIDs(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getEpisodeIDsForLegacyProgramIDsRow, _ int) batchloaders.Conversion[int, int] {
+		return getEpisodeIDsForLegacyIDsRow(i)
+	}), nil
+}

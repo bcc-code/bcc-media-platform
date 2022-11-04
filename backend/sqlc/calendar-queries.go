@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
 	"time"
 )
 
@@ -63,6 +64,16 @@ func mapToCalendarEntries(items []getCalendarEntriesRow) []common.CalendarEntry 
 		_ = json.Unmarshal(i.Title.RawMessage, &title)
 		_ = json.Unmarshal(i.Description.RawMessage, &description)
 
+		var itemID null.Int
+		switch i.LinkType.ValueOrZero() {
+		case "episode":
+			itemID = i.EpisodeID
+		case "show":
+			itemID = i.ShowID
+		case "season":
+			itemID = i.SeasonID
+		}
+
 		return common.CalendarEntry{
 			ID:          int(i.ID),
 			EventID:     i.EventID,
@@ -70,6 +81,8 @@ func mapToCalendarEntries(items []getCalendarEntriesRow) []common.CalendarEntry 
 			Description: description,
 			Start:       i.Start,
 			End:         i.End,
+			Type:        i.LinkType,
+			ItemID:      itemID,
 		}
 	})
 }

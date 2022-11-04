@@ -60,6 +60,30 @@ func (r *episodeCalendarEntryResolver) Event(ctx context.Context, obj *model.Epi
 	return r.QueryRoot().Event(ctx, obj.Event.ID)
 }
 
+// Title is the resolver for the title field.
+func (r *episodeCalendarEntryResolver) Title(ctx context.Context, obj *model.EpisodeCalendarEntry) (string, error) {
+	if obj.Title != "" {
+		return obj.Title, nil
+	}
+	e, err := r.QueryRoot().Episode(ctx, obj.Episode.ID)
+	if err != nil {
+		return "", nil
+	}
+	return e.Title, nil
+}
+
+// Description is the resolver for the description field.
+func (r *episodeCalendarEntryResolver) Description(ctx context.Context, obj *model.EpisodeCalendarEntry) (string, error) {
+	if obj.Description != "" {
+		return obj.Description, nil
+	}
+	e, err := r.QueryRoot().Episode(ctx, obj.Episode.ID)
+	if err != nil {
+		return "", nil
+	}
+	return e.Description, nil
+}
+
 // Episode is the resolver for the episode field.
 func (r *episodeCalendarEntryResolver) Episode(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Episode, error) {
 	return r.QueryRoot().Episode(ctx, obj.Episode.ID)
@@ -73,6 +97,30 @@ func (r *seasonCalendarEntryResolver) Event(ctx context.Context, obj *model.Seas
 	return r.QueryRoot().Event(ctx, obj.Event.ID)
 }
 
+// Title is the resolver for the title field.
+func (r *seasonCalendarEntryResolver) Title(ctx context.Context, obj *model.SeasonCalendarEntry) (string, error) {
+	if obj.Title != "" {
+		return obj.Title, nil
+	}
+	s, err := r.QueryRoot().Season(ctx, obj.Season.ID)
+	if err != nil {
+		return "", nil
+	}
+	return s.Title, nil
+}
+
+// Description is the resolver for the description field.
+func (r *seasonCalendarEntryResolver) Description(ctx context.Context, obj *model.SeasonCalendarEntry) (string, error) {
+	if obj.Description != "" {
+		return obj.Description, nil
+	}
+	s, err := r.QueryRoot().Season(ctx, obj.Season.ID)
+	if err != nil {
+		return "", nil
+	}
+	return s.Description, nil
+}
+
 // Season is the resolver for the season field.
 func (r *seasonCalendarEntryResolver) Season(ctx context.Context, obj *model.SeasonCalendarEntry) (*model.Season, error) {
 	return r.QueryRoot().Season(ctx, obj.Season.ID)
@@ -84,6 +132,30 @@ func (r *showCalendarEntryResolver) Event(ctx context.Context, obj *model.ShowCa
 		return nil, nil
 	}
 	return r.QueryRoot().Event(ctx, obj.Event.ID)
+}
+
+// Title is the resolver for the title field.
+func (r *showCalendarEntryResolver) Title(ctx context.Context, obj *model.ShowCalendarEntry) (string, error) {
+	if obj.Title != "" {
+		return obj.Title, nil
+	}
+	s, err := r.QueryRoot().Show(ctx, obj.Show.ID)
+	if err != nil {
+		return "", nil
+	}
+	return s.Title, nil
+}
+
+// Description is the resolver for the description field.
+func (r *showCalendarEntryResolver) Description(ctx context.Context, obj *model.ShowCalendarEntry) (string, error) {
+	if obj.Description != "" {
+		return obj.Description, nil
+	}
+	s, err := r.QueryRoot().Show(ctx, obj.Show.ID)
+	if err != nil {
+		return "", nil
+	}
+	return s.Description, nil
 }
 
 // Show is the resolver for the show field.

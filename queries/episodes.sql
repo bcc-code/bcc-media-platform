@@ -127,6 +127,16 @@ WHERE e.id = ANY ($1::int[])
         (roles.roles_earlyaccess && $2::varchar[])
     );
 
+-- name: getEpisodeIDsForLegacyProgramIDs :many
+SELECT e.id, e.legacy_program_id as legacy_id
+FROM episodes e
+WHERE e.legacy_program_id = ANY ($1::int[]);
+
+-- name: getEpisodeIDsForLegacyIDs :many
+SELECT e.id, e.legacy_id as legacy_id
+FROM episodes e
+WHERE e.legacy_id = ANY ($1::int[]);
+
 -- name: getPermissionsForEpisodes :many
 SELECT e.id,
        access.published::bool             AS published,

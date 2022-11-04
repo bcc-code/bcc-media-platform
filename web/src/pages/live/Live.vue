@@ -4,16 +4,16 @@
             <Player></Player>
         </div>
         <div>
-            <div class="flex stroke-gray text-gray p-4">
-                <ChevronLeft></ChevronLeft>
-                <p class="w-full text-center">This week</p>
-                <ChevronRight></ChevronRight>
+            <div class="flex stroke-gray text-gray p-4 max-w-lg mx-auto">
+                <ChevronLeft class="h-12 w-12" @click="incrementWeek(-1)"></ChevronLeft>
+                <p class="w-full text-center text-lg my-auto uppercase">{{ week.some(i => i.toLocaleDateString() === now.toLocaleDateString()) ? t('calendar.thisWeek') : ''}}</p>
+                <ChevronRight class="h-12 w-12" @click="incrementWeek(1)"></ChevronRight>
             </div>
             <div class="grid grid-cols-7">
                 <div
                     v-for="day in week"
                     class="text-center cursor-pointer hover:bg-gray hover:bg-opacity-10 rounded-full"
-                    @click="selected = day.getDay()"
+                    @click="selected = day"
                 >
                     <span class="align-middle text-gray">
                         {{ day.toDateString().substring(0, 1) }}
@@ -21,9 +21,13 @@
                     <div
                         class="h-8 aspect-square mx-auto rounded-full font-bold"
                         :class="[
-                            day.getDay() === now.getDay() ? 'text-red' : '',
-                            day.getDay() === selected
-                                ? 'outline outline-white outline-2 bg-gray bg-opacity-20'
+                            day.toLocaleDateString() ===
+                            now.toLocaleDateString()
+                                ? 'text-red'
+                                : '',
+                            day.toLocaleDateString() ===
+                            selected.toLocaleDateString()
+                                ? 'outline outline-white outl ine-2 bg-gray bg-opacity-20'
                                 : 'outline-none',
                         ]"
                     >
@@ -45,14 +49,9 @@
                         ></div>
                     </div>
                 </div>
-                <div>
-                    <div v-for="entry in dayQuery.data.value?.calendar?.day.entries">
-                        <h1>{{entry.title}}</h1>
-                        <p>{{entry.start}}</p>
-                        <p>{{entry.end}}</p>
-                    </div>
-                </div>
             </div>
+            <hr class="opacity-10 m-4" />
+            <DayQuery :day="selected"></DayQuery>
         </div>
     </section>
 </template>
@@ -61,39 +60,36 @@ import { ChevronLeft, ChevronRight } from "@/components/icons"
 import Player from "@/components/live/Player.vue"
 import { getWeek } from "@/utils/date"
 import { computed, ref } from "vue"
-import {
-    useGetLiveCalendarRangeQuery,
-    useGetLiveCalendarDayQuery,
-} from "@/graph/generated"
+import { useGetLiveCalendarRangeQuery } from "@/graph/generated"
+import DayQuery from "@/components/calendar/DayQuery.vue"
+import { useI18n } from "vue-i18n"
+
+const { t } = useI18n()
 
 const now = new Date()
 
-const week = getWeek(now)
+const week = ref(getWeek(now))
 
-const selected = ref(now.getDay())
+const incrementWeek = (increment: number) => {
+    const s = start.value
+    s.setDate(s.getDate() + 7 * increment)
+    week.value = getWeek(s)
+}
+
+const selected = ref(now)
 
 const start = computed(() => {
-    return week[0]
+    return week.value[0]
 })
 
 const end = computed(() => {
-    return week[6]
+    return week.value[6]
 })
 
 const { data } = useGetLiveCalendarRangeQuery({
     variables: {
         start,
         end,
-    },
-})
-
-const selectedDay = computed(() => {
-    return week.find((i) => i.getDay() === selected.value) as Date
-})
-
-const dayQuery = useGetLiveCalendarDayQuery({
-    variables: {
-        day: selectedDay,
     },
 })
 </script>

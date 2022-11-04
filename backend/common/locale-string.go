@@ -41,6 +41,16 @@ func (localeString LocaleString) GetValueOrNil(languages []string) *string {
 	return nil
 }
 
+// Any returns true if there's any valid value in the map
+func (localeString LocaleString) Any() bool {
+	for _, v := range localeString {
+		if v.Valid && v.String != "" {
+			return true
+		}
+	}
+	return false
+}
+
 // AsJSON returns the values as a JSON string
 //
 // For example:

@@ -8,23 +8,3 @@ query getLiveCalendarRange($start: Date!, $end: Date!) {
         }
     }
 }
-
-query getLiveCalendarDay($day: Date!) {
-    calendar {
-        day(day: $day) {
-            entries {
-                id
-                title
-                description
-                end
-                start
-            }
-            events {
-                id
-                title
-                start
-                end
-            }
-        }
-    }
-}

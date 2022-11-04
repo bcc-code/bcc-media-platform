@@ -29,6 +29,13 @@
         "releaseDate": "Release Date",
         "availableFrom": "Available From",
         "availableTo": "Available To",
-        "rating": "Rating"
+        "ageRating": "Rating"
+    },
+    "live": {
+        "now": "Now"
+    },
+    "calendar": {
+        "noScheduledEvents": "No scheduled events",
+        "thisWeek": "This week"
     }
 }
