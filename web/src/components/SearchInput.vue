@@ -7,18 +7,24 @@
             v-model="value"
             type="text"
             :disabled="disabled"
-            class="pl-10 w-full bg-slate-800 rounded-full pr-16 p-2 my-auto text-md"
+            class="pl-10 w-full bg-slate-800 rounded-full pr-20 p-2 my-auto text-md"
             :class="[disabled ? 'text-gray' : '']"
             :placeholder="t('page.search')"
             @keydown.enter="emit('keydown.enter')"
         />
-        <p v-if="value" class="absolute flex right-2 px-2 inset-y-2 cursor-pointer text-sm opacity-50 bg-slate-700 rounded-full" @click="value = ''"><span class="my-auto">Cancel</span></p>
-    </div>    
+        <p
+            v-if="value"
+            class="absolute flex right-2 ml-10 px-2 inset-y-2 cursor-pointer text-xs opacity-50 bg-slate-700 rounded-full"
+            @click="value = ''"
+        >
+            <span class="my-auto uppercase">{{t("search.cancel")}}</span>
+        </p>
+    </div>
 </template>
 <script lang="ts" setup>
-import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { SearchIcon } from './icons';
+import { computed } from "vue"
+import { useI18n } from "vue-i18n"
+import { SearchIcon } from "./icons"
 
 const { t } = useI18n()
 
@@ -34,10 +40,10 @@ const emit = defineEmits<{
 
 const value = computed({
     get() {
-        return props.modelValue;
+        return props.modelValue
     },
-    set(v)  {
+    set(v) {
         emit("update:modelValue", v)
-    }
+    },
 })
 </script>

@@ -25,7 +25,7 @@ import { computed, onMounted, ref, watch } from "vue"
 import ShowSearchQuery from "@/components/search/ShowSearchQuery.vue"
 import EpisodeSearchQuery from "@/components/search/EpisodeSearchQuery.vue"
 import { useRoute, useRouter } from "vue-router"
-import SearchInput from "@/components/SearchInput.vue";
+import SearchInput from "@/components/SearchInput.vue"
 
 const queryString = ref("")
 

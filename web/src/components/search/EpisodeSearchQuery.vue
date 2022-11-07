@@ -9,7 +9,11 @@
             {{ t("search.episodes") }}
         </h1>
         <div class="grid lg:grid-cols-4 gap-4">
-            <div class="flex lg:hidden" v-for="i in data?.search.result" :key="i.id">
+            <div
+                class="flex lg:hidden"
+                v-for="i in data?.search.result"
+                :key="i.id"
+            >
                 <div
                     v-if="i.__typename === 'EpisodeSearchItem'"
                     class="cursor-pointer flex"
@@ -35,11 +39,19 @@
                                 {{ i.seasonTitle }}
                             </p>
                         </div>
-                        <h1 :class="i.title.length > 20 ? 'text-md' : 'text-lg'">{{ i.title }}</h1>
+                        <h1
+                            :class="i.title.length > 20 ? 'text-md' : 'text-lg'"
+                        >
+                            {{ i.title }}
+                        </h1>
                     </div>
                 </div>
             </div>
-            <div class="lg:flex hidden" v-for="i in data?.search.result" :key="i.id">
+            <div
+                class="lg:flex hidden"
+                v-for="i in data?.search.result"
+                :key="i.id"
+            >
                 <div
                     v-if="i.__typename === 'EpisodeSearchItem'"
                     class="cursor-pointer"

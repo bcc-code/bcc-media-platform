@@ -8,7 +8,7 @@ import {
 import { authExchange } from "@urql/exchange-auth"
 import { makeOperation } from "@urql/vue"
 import Auth from "../services/auth"
-import settings from "@/services/settings"
+import { current } from "@/services/language"
 
 type AuthState = {
     token: string
@@ -22,7 +22,7 @@ export default createClient({
             input,
             Object.assign(init ?? {}, {
                 headers: Object.assign(init?.headers ?? {}, {
-                    "Accept-Language": settings.locale,
+                    "Accept-Language": current.value.code
                 }),
             })
         )

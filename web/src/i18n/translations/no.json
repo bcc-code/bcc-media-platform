@@ -40,6 +40,7 @@
     },
     "search": {
         "programs": "Programmer",
-        "episodes": "Episoder"
+        "episodes": "Episoder",
+        "cancel": "Avbryt"
     }
 }
