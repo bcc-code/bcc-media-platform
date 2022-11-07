@@ -109,11 +109,14 @@
                                         "
                                         :key="e.id"
                                     >
-                                        <WithProgressBar class="w-1/3" :item="e">
+                                        <WithProgressBar
+                                            class="w-1/3"
+                                            :item="e"
+                                        >
                                             <img
                                                 v-if="e.image"
                                                 :src="e.image"
-                                            />  
+                                            />
                                         </WithProgressBar>
                                         <div class="w-2/3">
                                             <h3

@@ -13,7 +13,7 @@
             :space-between="10"
             :slides-per-group="1"
             :modules="modules"
-            :breakpoints="breakpoints"
+            :breakpoints="breakpoints('medium')"
             navigation
         >
             <SwiperSlide v-for="i in result">
@@ -30,7 +30,7 @@
                         />
                     </div>
                     <div class="mt-1">
-                        <h1 class="text-lg lg:text-xl">{{ i.title }}</h1>
+                        <h1 class="text-md lg:text-xl">{{ i.title }}</h1>
                     </div>
                 </div>
             </SwiperSlide>
@@ -42,10 +42,9 @@ import { useGetDefaultEpisodeIdQuery, useSearchQuery } from "@/graph/generated"
 import { computed, nextTick, ref, watch } from "vue"
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { Navigation } from "swiper"
-import SearchItem from "./SearchItem.vue"
 import { useI18n } from "vue-i18n"
-import SectionItemTitle from "../sections/SectionItemTitle.vue"
 import { goToEpisode } from "@/utils/items"
+import breakpoints from "../sections/breakpoints"
 
 const { t } = useI18n()
 
@@ -106,31 +105,5 @@ const onclick = async (id: string) => {
             goToEpisode(getDefaultId.value.show.defaultEpisode.id)
         }
     })
-}
-
-const breakpoints = {
-    // when window width is >= 320px
-    320: {
-        slidesPerView: 2,
-        spaceBetween: 10,
-        slidesPerGroup: 2,
-    },
-    // when window width is >= 480px
-    480: {
-        slidesPerView: 3,
-        spaceBetween: 15,
-        slidesPerGroup: 3,
-    },
-    // when window width is >= 640px
-    640: {
-        slidesPerView: 4,
-        spaceBetween: 20,
-        slidesPerGroup: 4,
-    },
-    1200: {
-        slidesPerView: 4,
-        spaceBetween: 20,
-        slidesPerGroup: 8,
-    },
 }
 </script>

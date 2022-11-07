@@ -1,25 +1,23 @@
 <template>
-    <section class="px-4">
-        <div class="flex">
-            <div class="text-xl w-full">
-                <input
-                    v-model="query"
-                    class="bg-slate-800 p-2 px-4 w-full lg:w-96 rounded-full"
-                    type="text"
-                    placeholder="Search..."
-                />
-            </div>
+    <section class="px-4 mt-2">
+        <div class="flex w-full text-xl">
+            <SearchInput class="mx-auto lg:w-96" v-model="query"></SearchInput>
         </div>
-        <ShowSearchQuery
-            class="mt-2 mb-8"
-            :query="queryVariable"
-            :pause="pause"
-        ></ShowSearchQuery>
-        <EpisodeSearchQuery
-            class="mb-2"
-            :query="queryVariable"
-            :pause="pause"
-        ></EpisodeSearchQuery>
+        <div v-if="query">
+            <ShowSearchQuery
+                class="mt-2 mb-8"
+                :query="queryVariable"
+                :pause="pause"
+            ></ShowSearchQuery>
+            <EpisodeSearchQuery
+                class="mb-2"
+                :query="queryVariable"
+                :pause="pause"
+            ></EpisodeSearchQuery>
+        </div>
+        <div v-else>
+            <h1 class="text-xl font-bold">kategorier og sånt</h1>
+        </div>
     </section>
 </template>
 <script lang="ts" setup>
@@ -27,6 +25,7 @@ import { computed, onMounted, ref, watch } from "vue"
 import ShowSearchQuery from "@/components/search/ShowSearchQuery.vue"
 import EpisodeSearchQuery from "@/components/search/EpisodeSearchQuery.vue"
 import { useRoute, useRouter } from "vue-router"
+import SearchInput from "@/components/SearchInput.vue";
 
 const queryString = ref("")
 

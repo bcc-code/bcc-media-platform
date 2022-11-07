@@ -11,7 +11,7 @@
                             alt="BrunstadTV"
                         />
                     </div>
-                    <div class="hidden lg:flex lg:ml-6 my-auto space-x-4">
+                    <div class="hidden lg:flex ml-6 my-auto space-x-4">
                         <NavLink
                             v-for="item in navigation"
                             :icon="item.icon"
@@ -19,23 +19,11 @@
                         >
                             {{ t(item.name) }}</NavLink
                         >
-                        <div class="relative">
-                            <input
-                                type="text"
-                                :disabled="$route.name === 'search'"
-                                class="w-full bg-slate-800 rounded-full px-4 p-2 my-auto text-sm"
-                                :class="[
-                                    $route.name === 'search' ? 'text-gray' : '',
-                                ]"
-                                :placeholder="t('page.search')"
-                                @keydown.enter="e => $router.push({name: 'search', query: {q: (e.target as HTMLInputElement).value}})"
-                            />
-                            <SearchIcon
-                                class="absolute pointer-events-none right-0 inset-y-0 my-auto mr-2"
-                            ></SearchIcon>
-                        </div>
+                        <SearchInput 
+                            :disabled="$route.name === 'search'"
+                         v-model="searchText" @keydown.enter="search()"></SearchInput>
                     </div>
-                    <div class="hidden lg:flex lg:ml-6">
+                    <div class="hidden lg:flex ml-2">
                         <Menu as="div" class="relative my-auto">
                             <MenuButton
                                 :class="open ? '' : 'text-opacity-90'"
@@ -371,7 +359,7 @@
     </Disclosure>
 </template>
 <script lang="ts" setup>
-import type { RouteLocationRaw } from "vue-router"
+import { RouteLocationRaw, useRouter } from "vue-router"
 import NavLink from "./NavLink.vue"
 import {
     Disclosure,
@@ -392,14 +380,29 @@ import {
     SearchIcon,
     SettingsIcon,
 } from "../icons"
-import { computed } from "vue"
+import { computed, ref } from "vue"
+import SearchInput from "../SearchInput.vue"
 
 const { t } = useI18n()
+
+const router = useRouter()
 
 const authenticated = Auth.isAuthenticated()
 const signIn = Auth.signIn
 const signOut = Auth.signOut
 const user = Auth.user()
+
+const searchText = ref("")
+
+const search = () => {
+    router.push({
+        name: "search",
+        query: {
+            q: searchText.value,
+        },
+    })
+    searchText.value = ""
+}
 
 const navigation = computed(() => {
     const n: {
