@@ -1,5 +1,9 @@
 <template>
-    <img :src="'/icons/tabbar/Feed/' + (!selected ? 'Default.svg' : 'Selected.svg')">
+    <img
+        :src="
+            '/icons/tabbar/Feed/' + (!selected ? 'Default.svg' : 'Selected.svg')
+        "
+    />
 </template>
 <script lang="ts" setup>
 defineProps<{

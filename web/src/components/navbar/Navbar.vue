@@ -30,7 +30,9 @@
                                 :placeholder="t('page.search')"
                                 @keydown.enter="e => $router.push({name: 'search', query: {q: (e.target as HTMLInputElement).value}})"
                             />
-                            <SearchIcon class="absolute pointer-events-none right-0 inset-y-0 my-auto mr-2"></SearchIcon>
+                            <SearchIcon
+                                class="absolute pointer-events-none right-0 inset-y-0 my-auto mr-2"
+                            ></SearchIcon>
                         </div>
                     </div>
                     <div class="hidden lg:flex lg:ml-6">
@@ -360,10 +362,7 @@
                     >
                         {{ t(item.name) }}
                     </NavLink>
-                    <NavLink
-                        :icon="SearchIcon"
-                        :to="{name: 'search'}"
-                    >
+                    <NavLink :icon="SearchIcon" :to="{ name: 'search' }">
                         {{ t("page.search") }}</NavLink
                     >
                 </div>
