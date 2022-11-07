@@ -37,7 +37,7 @@ let player: Player | null = null
         autoplay: true,
         videojs: {
             autoplay: true,
-        }
+        },
     })
 })()
 

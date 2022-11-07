@@ -37,5 +37,9 @@
     "calendar": {
         "noScheduledEvents": "Ingen oppførte eventer",
         "thisWeek": "Denne uken"
+    },
+    "search": {
+        "programs": "Programmer",
+        "episodes": "Episoder"
     }
 }

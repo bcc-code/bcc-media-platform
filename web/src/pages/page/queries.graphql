@@ -13,8 +13,12 @@ fragment SectionItem on SectionItem {
             progress
             duration
             season {
+                id
+                title
                 number
                 show {
+                    id
+                    type
                     title
                 }
             }

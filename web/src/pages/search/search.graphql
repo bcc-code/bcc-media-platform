@@ -9,6 +9,10 @@ query search($query: String!, $type: String, $minScore: Int) {
             title
             description
             image
+            ... on EpisodeSearchItem {
+                seasonTitle
+                showTitle
+            }
         }
     }
 }

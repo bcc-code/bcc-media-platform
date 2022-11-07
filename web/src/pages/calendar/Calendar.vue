@@ -9,7 +9,11 @@
                 <p
                     class="w-full text-center text-xl my-auto font-medium uppercase"
                 >
-                    {{ month.toLocaleString([current.code, "en"], { month: "long" }) }}
+                    {{
+                        month.toLocaleString([current.code, "en"], {
+                            month: "long",
+                        })
+                    }}
                     {{ month.getFullYear() }}
                 </p>
                 <ChevronRight

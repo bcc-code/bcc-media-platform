@@ -1,12 +1,12 @@
 <template>
     <div>
         <h1
-            class="text-xl font-semibold text-primary mb-2"
+            class="text-2xl font-medium mb-2"
             :class="{
                 hidden: result.length === 0,
             }"
         >
-            Shows
+            {{ t("search.programs") }}
         </h1>
         <Swiper
             :slides-per-view="1"
@@ -16,18 +16,38 @@
             :breakpoints="breakpoints"
             navigation
         >
-            <SwiperSlide v-for="item in result">
-                <SearchItem :item="item"> </SearchItem>
+            <SwiperSlide v-for="i in result">
+                <div class="cursor-pointer" @click="onclick(i.id)">
+                    <div class="relative mb-1">
+                        <img
+                            :id="i.id"
+                            :src="
+                                i.image +
+                                `?h=${225}&w=${450}&fit=crop&crop=faces`
+                            "
+                            loading="lazy"
+                            class="rounded-md top-0 w-full object-cover aspect-video"
+                        />
+                    </div>
+                    <div class="mt-1">
+                        <h1 class="text-lg lg:text-xl">{{ i.title }}</h1>
+                    </div>
+                </div>
             </SwiperSlide>
         </Swiper>
     </div>
 </template>
 <script lang="ts" setup>
-import { useSearchQuery } from "@/graph/generated"
-import { computed, ref, watch } from "vue"
+import { useGetDefaultEpisodeIdQuery, useSearchQuery } from "@/graph/generated"
+import { computed, nextTick, ref, watch } from "vue"
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { Navigation } from "swiper"
 import SearchItem from "./SearchItem.vue"
+import { useI18n } from "vue-i18n"
+import SectionItemTitle from "../sections/SectionItemTitle.vue"
+import { goToEpisode } from "@/utils/items"
+
+const { t } = useI18n()
 
 const props = defineProps<{
     query: string
@@ -67,6 +87,26 @@ const result = computed(() => {
 })
 
 const modules = [Navigation]
+
+const showId = ref("")
+
+const { data: getDefaultId, executeQuery } = useGetDefaultEpisodeIdQuery({
+    pause: true,
+    variables: {
+        showId,
+    },
+})
+
+const onclick = async (id: string) => {
+    showId.value = id
+    await nextTick()
+
+    executeQuery().then(() => {
+        if (getDefaultId.value?.show.defaultEpisode) {
+            goToEpisode(getDefaultId.value.show.defaultEpisode.id)
+        }
+    })
+}
 
 const breakpoints = {
     // when window width is >= 320px

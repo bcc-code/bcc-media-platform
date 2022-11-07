@@ -5,9 +5,25 @@
         </div>
         <div>
             <div class="flex stroke-gray text-gray p-4 max-w-lg mx-auto">
-                <ChevronLeft class="h-12 w-12" @click="incrementWeek(-1)"></ChevronLeft>
-                <p class="w-full text-center text-lg my-auto uppercase">{{ week.some(i => i.toLocaleDateString() === now.toLocaleDateString()) ? t('calendar.thisWeek') : ''}}</p>
-                <ChevronRight class="h-12 w-12" @click="incrementWeek(1)"></ChevronRight>
+                <ChevronLeft
+                    class="h-12 w-12"
+                    @click="incrementWeek(-1)"
+                ></ChevronLeft>
+                <p class="w-full text-center text-lg my-auto uppercase">
+                    {{
+                        week.some(
+                            (i) =>
+                                i.toLocaleDateString() ===
+                                now.toLocaleDateString()
+                        )
+                            ? t("calendar.thisWeek")
+                            : ""
+                    }}
+                </p>
+                <ChevronRight
+                    class="h-12 w-12"
+                    @click="incrementWeek(1)"
+                ></ChevronRight>
             </div>
             <div class="grid grid-cols-7">
                 <div

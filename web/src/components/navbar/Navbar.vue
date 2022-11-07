@@ -1,24 +1,17 @@
 <template>
     <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
-        <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-            <div class="lg:flex p-4 items-center justify-between">
-                <div
-                    class="flex mx-auto items-center sm:items-stretch sm:justify-start"
-                >
+        <div class="mx-auto px-2 lg:px-8">
+            <div class="lg:flex py-4">
+                <div class="flex mx-auto">
                     <div class="flex flex-shrink-0 my-auto">
-                        <!-- <img
-                            class="block h-8 w-auto lg:hidden"
-                            src="/logo.svg"
-                            alt="Your Company"
-                        /> -->
                         <img
                             @click="$router.push({ name: 'front-page' })"
                             class="hidden h-8 w-auto lg:block cursor-pointer"
                             src="/logo.svg"
-                            alt="Your Company"
+                            alt="BrunstadTV"
                         />
                     </div>
-                    <div class="hidden lg:ml-6 lg:flex my-auto space-x-4">
+                    <div class="hidden lg:flex lg:ml-6 my-auto space-x-4">
                         <NavLink
                             v-for="item in navigation"
                             :icon="item.icon"
@@ -26,8 +19,21 @@
                         >
                             {{ t(item.name) }}</NavLink
                         >
+                        <div class="relative">
+                            <input
+                                type="text"
+                                :disabled="$route.name === 'search'"
+                                class="w-full bg-slate-800 rounded-full px-4 p-2 my-auto text-sm"
+                                :class="[
+                                    $route.name === 'search' ? 'text-gray' : '',
+                                ]"
+                                :placeholder="t('page.search')"
+                                @keydown.enter="e => $router.push({name: 'search', query: {q: (e.target as HTMLInputElement).value}})"
+                            />
+                            <SearchIcon class="absolute pointer-events-none right-0 inset-y-0 my-auto mr-2"></SearchIcon>
+                        </div>
                     </div>
-                    <div class="hidden lg:ml-6 lg:flex">
+                    <div class="hidden lg:flex lg:ml-6">
                         <Menu as="div" class="relative my-auto">
                             <MenuButton
                                 :class="open ? '' : 'text-opacity-90'"
@@ -194,13 +200,13 @@
                         </button> -->
                     </div>
                 </div>
-                <div class="flex lg:hidden">
+                <div class="flex lg:hidden mx-4">
                     <img
-                        class="h-8 w-auto mx-auto mb-4"
+                        class="h-8 w-auto mb-4"
                         src="/logo.svg"
                         alt="Your Company"
                     />
-                    <div class="ml-auto fixed right-4 flex">
+                    <div class="ml-auto right-4 flex">
                         <Menu as="div" class="relative my-auto">
                             <MenuButton
                                 :class="open ? '' : 'text-opacity-90'"
@@ -346,16 +352,20 @@
                         </Menu>
                     </div>
                 </div>
-                <div class="flex lg:hidden">
-                    <div class="mx-auto flex space-x-4">
-                        <NavLink
-                            v-for="item in navigation"
-                            :to="item.to"
-                            :icon="item.icon"
-                        >
-                            {{ t(item.name) }}
-                        </NavLink>
-                    </div>
+                <div class="flex lg:hidden justify-between mx-4">
+                    <NavLink
+                        v-for="item in navigation"
+                        :to="item.to"
+                        :icon="item.icon"
+                    >
+                        {{ t(item.name) }}
+                    </NavLink>
+                    <NavLink
+                        :icon="SearchIcon"
+                        :to="{name: 'search'}"
+                    >
+                        {{ t("page.search") }}</NavLink
+                    >
                 </div>
             </div>
         </div>
@@ -405,13 +415,13 @@ const navigation = computed(() => {
             },
             icon: HomeIcon,
         },
-        {
-            name: "page.search",
-            to: {
-                name: "search",
-            },
-            icon: SearchIcon,
-        },
+        // {
+        //     name: "page.search",
+        //     to: {
+        //         name: "search",
+        //     },
+        //     icon: SearchIcon,
+        // },
     ]
 
     if (authenticated.value) {

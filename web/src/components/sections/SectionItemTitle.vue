@@ -1,12 +1,12 @@
 <template>
     <div v-if="i.item?.__typename === 'Episode'" class="mt-1">
-        <h3 class="text-sm text-primary w-full" v-if="i.item.season">
-            {{ i.item.season?.show.title
-            }}<span class="ml-1 text-gray"
-                >S{{ i.item.season?.number }}:E{{ i.item.episodeNumber }}</span
-            >
-        </h3>
-        <h1 class="text-lg lg:text-xl">{{ i.title }}</h1>
+        <EpisodeTitle
+            :episode="{
+                ...i.item,
+                title: i.title,
+                number: i.item.episodeNumber,
+            }"
+        ></EpisodeTitle>
     </div>
     <div v-else-if="i.item?.__typename === 'Season'" class="mt-1">
         <h3 class="text-sm text-primary w-full">
@@ -25,6 +25,7 @@
 </template>
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n"
+import EpisodeTitle from "../episodes/EpisodeTitle.vue"
 import { Section } from "./types"
 
 const { t } = useI18n()
