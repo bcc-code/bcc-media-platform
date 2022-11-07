@@ -45,6 +45,11 @@ func (service *Service) episodeToSearchItem(ctx context.Context, episode common.
 		legacyID = &v
 	}
 
+	if episode.LegacyProgramID.Valid {
+		v := int(episode.LegacyProgramID.Int64)
+		legacyID = &v
+	}
+
 	var image *string
 	if episode.Image.Valid {
 		image = &episode.Image.String
