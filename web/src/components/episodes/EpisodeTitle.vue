@@ -1,7 +1,10 @@
 <template>
     <div class="flex flex-col">
         <div class="flex">
-            <h3 class="text-sm truncate text-primary" v-if="episode.season?.show">
+            <h3
+                class="text-sm truncate text-primary"
+                v-if="episode.season?.show"
+            >
                 {{ episode.season.show.title }}
             </h3>
             <p class="text-sm text-gray ml-auto" v-if="episode.productionDate">
@@ -11,7 +14,7 @@
                 S{{ episode.season.number }}:E{{ episode.number }}
             </p>
         </div>
-        <h1 class="text-md lg:text-lg">{{ episode.title }}</h1>
+        <h1 class="text-md lg:text-lg line-clamp-2">{{ episode.title }}</h1>
     </div>
 </template>
 <script lang="ts" setup>

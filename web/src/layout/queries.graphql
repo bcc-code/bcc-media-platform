@@ -1,22 +1,22 @@
 query getCalendarStatus($day: Date!) {
     calendar {
-      day(day: $day) {
-        entries {
-            start
-            end
+        day(day: $day) {
+            entries {
+                start
+                end
+            }
         }
-      }
     }
 }
 
 query application {
     application {
-      code
-      page {
         code
-      }
-      searchPage {
-        code
-      }
+        page {
+            code
+        }
+        searchPage {
+            code
+        }
     }
 }

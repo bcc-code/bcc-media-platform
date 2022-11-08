@@ -29,8 +29,14 @@ import ShowSearchQuery from "@/components/search/ShowSearchQuery.vue"
 import EpisodeSearchQuery from "@/components/search/EpisodeSearchQuery.vue"
 import { useRoute, useRouter } from "vue-router"
 import { useSearch } from "@/utils/search"
-import Page from "../page/Page.vue"
+import Page from "@/components/page/Page.vue"
 import { useApplicationQuery } from "@/graph/generated"
+import { useTitle } from "@/utils/title"
+import { useI18n } from "vue-i18n"
+
+const { setTitle } = useTitle()
+
+const { t } = useI18n()
 
 const { data } = useApplicationQuery()
 
@@ -72,6 +78,7 @@ onMounted(() => {
         query.value = q
         queryVariable.value = q
     }
+    setTitle(t("page.search"))
 })
 
 watch(

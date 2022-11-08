@@ -120,12 +120,12 @@
                                         </WithProgressBar>
                                         <div class="w-2/3">
                                             <h3
-                                                class="text-sm lg:text-md text-primary"
+                                                class="text-sm lg:text-md text-primary line-clamp-1"
                                             >
                                                 {{ t("episode.episode") }}
                                                 {{ e.number }}
                                             </h3>
-                                            <h1 class="text-md lg:text-lg">
+                                            <h1 class="text-md lg:text-lg line-clamp-2">
                                                 {{ e.title }}
                                             </h1>
                                             <AgeRating>{{
@@ -148,22 +148,15 @@ import {
     useGetEpisodeQuery,
     useGetSeasonOnEpisodePageQuery,
 } from "@/graph/generated"
-import { computed, ref, watch } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import { useRoute } from "vue-router"
 import EpisodeViewer from "@/components/EpisodeViewer.vue"
 import { useI18n } from "vue-i18n"
 import EpisodeDetails from "@/components/episodes/EpisodeDetails.vue"
 import AgeRating from "@/components/episodes/AgeRating.vue"
-import {
-    Listbox,
-    ListboxButton,
-    ListboxOption,
-    ListboxOptions,
-} from "@headlessui/vue"
-import { ChevronDown } from "@/components/icons"
 import WithProgressBar from "@/components/episodes/WithProgressBar.vue"
 import SeasonSelector from "@/components/SeasonSelector.vue"
-import ProgressBar from "@/components/episodes/ProgressBar.vue"
+import { useTitle } from "@/utils/title"
 
 const route = useRoute()
 
@@ -226,6 +219,20 @@ watch(
     }
 )
 
+const { setTitle } = useTitle()
+
+onMounted(() => {
+    if (episode.value?.title) {
+        setTitle(episode.value.title)
+    }
+})
+
+watch(() => episode.value?.title, () => {
+    if (episode.value?.title) {
+        setTitle(episode.value.title)
+    }
+})
+
 const view = ref(null as "episodes" | "details" | null)
 
 const effectiveView = computed({
@@ -235,9 +242,5 @@ const effectiveView = computed({
     set(v) {
         view.value = v
     },
-})
-
-const event = computed(() => {
-    return episode.value?.season?.show.type === "event"
 })
 </script>

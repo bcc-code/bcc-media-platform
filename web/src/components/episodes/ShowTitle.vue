@@ -1,7 +1,10 @@
 <template>
     <div class="flex flex-col">
         <div class="flex">
-            <h3 class="text-sm truncate text-primary" v-if="episode.season?.show">
+            <h3
+                class="text-sm truncate text-primary"
+                v-if="episode.season?.show"
+            >
                 {{ episode.season.show.title }}
             </h3>
             <p class="text-sm text-gray ml-auto" v-if="episode.productionDate">

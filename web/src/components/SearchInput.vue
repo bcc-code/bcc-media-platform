@@ -15,7 +15,7 @@
         <p
             v-if="value"
             class="absolute flex right-2 ml-10 px-2 inset-y-2 cursor-pointer text-xs opacity-50 bg-slate-700 rounded-full"
-            @click="value = ''"
+            @click="cancel"
         >
             <span class="my-auto uppercase">{{ t("search.cancel") }}</span>
         </p>
@@ -24,6 +24,7 @@
 <script lang="ts" setup>
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
+import { useRouter } from "vue-router";
 import { SearchIcon } from "./icons"
 
 const { t } = useI18n()
@@ -46,4 +47,12 @@ const value = computed({
         emit("update:modelValue", v)
     },
 })
+
+const router = useRouter()
+
+const cancel = () => {
+    value.value = ""
+    if (router.currentRoute.value.name === "search")
+        router.back()
+}
 </script>

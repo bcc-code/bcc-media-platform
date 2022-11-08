@@ -2,7 +2,9 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="grid grid-cols-2">
-            <div v-for="i in item.items.items" class="relative mb-5"
+            <div
+                v-for="i in item.items.items"
+                class="relative mb-5"
                 @click="goToSectionItem(i)"
             >
                 <div

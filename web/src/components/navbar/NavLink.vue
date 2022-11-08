@@ -14,7 +14,10 @@
                     class="w-8 h-8 m-auto"
                     :selected="isExactActive"
                 ></component>
-                <div v-if="ping" class="absolute animate-pulse top-1 rounded-full right-0 w-2 h-2 bg-red-hover"></div>
+                <div
+                    v-if="ping"
+                    class="absolute animate-pulse top-1 rounded-full right-0 w-2 h-2 bg-red-hover"
+                ></div>
             </div>
             <h1 class="my-auto text-center">
                 <slot></slot>

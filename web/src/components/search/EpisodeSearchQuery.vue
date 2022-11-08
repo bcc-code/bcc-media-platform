@@ -89,7 +89,6 @@ import { useSearchQuery } from "@/graph/generated"
 import { goToEpisode } from "@/utils/items"
 import { computed, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
-import EpisodeTitle from "../episodes/EpisodeTitle.vue"
 
 const { t } = useI18n()
 

@@ -8,6 +8,7 @@ specifiers:
   '@graphql-codegen/typescript-vue-urql': ^2.3.5
   '@headlessui/vue': ^1.7.3
   '@heroicons/vue': ^2.0.12
+  '@tailwindcss/line-clamp': ^0.4.2
   '@types/node': ^18.11.5
   '@urql/exchange-auth': ^1.0.0
   '@urql/vue': ^1.0.2
@@ -36,6 +37,7 @@ dependencies:
   '@auth0/auth0-vue': 1.0.2_vue-router@4.1.6
   '@headlessui/vue': 1.7.3_vue@3.2.41
   '@heroicons/vue': 2.0.12_vue@3.2.41
+  '@tailwindcss/line-clamp': 0.4.2_tailwindcss@3.2.1
   '@urql/exchange-auth': 1.0.0_graphql@16.6.0
   '@urql/vue': 1.0.2_graphql@16.6.0+vue@3.2.41
   bccm-video-player: 1.2.4
@@ -1347,6 +1349,14 @@ packages:
       tslib: 2.4.0
       webcrypto-core: 1.7.5
     dev: true
+
+  /@tailwindcss/line-clamp/0.4.2_tailwindcss@3.2.1:
+    resolution: {integrity: sha512-HFzAQuqYCjyy/SX9sLGB1lroPzmcnWv1FHkIpmypte10hptf4oPUfucryMKovZh2u0uiS9U5Ty3GghWfEJGwVw==}
+    peerDependencies:
+      tailwindcss: '>=2.0.0 || >=3.0.0 || >=3.0.0-alpha.1'
+    dependencies:
+      tailwindcss: 3.2.1_ts-node@10.9.1
+    dev: false
 
   /@tootallnate/once/2.0.0:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}

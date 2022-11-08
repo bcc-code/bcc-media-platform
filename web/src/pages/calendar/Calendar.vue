@@ -81,11 +81,13 @@
 </template>
 <script lang="ts" setup>
 import { getMonth } from "@/utils/date"
-import { computed, ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { useGetLiveCalendarRangeQuery } from "@/graph/generated"
 import { ChevronLeft, ChevronRight } from "@/components/icons"
 import DayQuery from "@/components/calendar/DayQuery.vue"
 import { current } from "@/services/language"
+import { useTitle } from "@/utils/title"
+import { useI18n } from "vue-i18n"
 
 const now = new Date()
 
@@ -122,4 +124,11 @@ const setDay = (day: Date) => {
     month.value = day
     weeks.value = getMonth(day)
 }
+
+const { setTitle } = useTitle()
+const { t } = useI18n()
+
+onMounted(() => {
+    setTitle(t("page.calendar"))
+})
 </script>

@@ -11,10 +11,7 @@
                     <div class="relative mb-1">
                         <img
                             :id="i.id"
-                            :src="
-                                i.image +
-                                `?h=225&w=400&fit=crop&crop=faces`
-                            "
+                            :src="i.image + `?h=225&w=400&fit=crop&crop=faces`"
                             loading="lazy"
                             class="rounded-md top-0 w-full object-cover aspect-video"
                         />

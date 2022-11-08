@@ -75,10 +75,11 @@
 import { ChevronLeft, ChevronRight } from "@/components/icons"
 import Player from "@/components/live/Player.vue"
 import { getWeek } from "@/utils/date"
-import { computed, ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { useGetLiveCalendarRangeQuery } from "@/graph/generated"
 import DayQuery from "@/components/calendar/DayQuery.vue"
 import { useI18n } from "vue-i18n"
+import { useTitle } from "@/utils/title"
 
 const { t } = useI18n()
 
@@ -107,5 +108,11 @@ const { data } = useGetLiveCalendarRangeQuery({
         start,
         end,
     },
+})
+
+const { setTitle } = useTitle()
+
+onMounted(() => {
+    setTitle(t("page.live"))
 })
 </script>
