@@ -8,6 +8,10 @@
             v-if="section.__typename === 'FeaturedSection'"
             :item="section"
         ></FeaturedSection>
+        <ListSection
+            v-if="section.__typename === 'ListSection'"
+            :item="section"
+        ></ListSection>
         <DefaultSection
             v-if="section.__typename === 'DefaultSection'"
             :item="section"
@@ -28,6 +32,10 @@
             v-if="section.__typename === 'IconSection'"
             :item="section"
         ></IconSection>
+        <IconGridSection
+            v-if="section.__typename === 'IconGridSection'"
+            :item="section"
+        ></IconGridSection>
     </div>
 </template>
 <script lang="ts" setup>
@@ -39,6 +47,8 @@ import DefaultGridSection from "./DefaultGridSection.vue"
 import PosterGridSection from "./PosterGridSection.vue"
 import LabelSection from "./LabelSection.vue"
 import IconSection from "./IconSection.vue"
+import IconGridSection from "./IconGridSection.vue"
+import ListSection from "./ListSection.vue"
 
 defineProps<{
     section: Section
