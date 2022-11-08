@@ -895,8 +895,8 @@ type Section struct {
 
 type SectionsTranslation struct {
 	ID            int32          `db:"id" json:"id"`
-	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
-	SectionsID    null_v4.Int    `db:"sections_id" json:"sectionsID"`
+	LanguagesCode string         `db:"languages_code" json:"languagesCode"`
+	SectionsID    int32          `db:"sections_id" json:"sectionsID"`
 	Title         null_v4.String `db:"title" json:"title"`
 	Description   null_v4.String `db:"description" json:"description"`
 }
