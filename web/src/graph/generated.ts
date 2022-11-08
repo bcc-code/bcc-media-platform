@@ -860,6 +860,11 @@ export type GetCalendarStatusQueryVariables = Exact<{
 
 export type GetCalendarStatusQuery = { calendar?: { day: { entries: Array<{ start: any, end: any } | { start: any, end: any } | { start: any, end: any } | { start: any, end: any }> } } | null };
 
+export type ApplicationQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ApplicationQuery = { application: { code: string, page?: { code: string } | null, searchPage?: { code: string } | null } };
+
 export type GetCalendarPeriodQueryVariables = Exact<{
   from: Scalars['Date'];
   to: Scalars['Date'];
@@ -1213,6 +1218,23 @@ export const GetCalendarStatusDocument = gql`
 
 export function useGetCalendarStatusQuery(options: Omit<Urql.UseQueryArgs<never, GetCalendarStatusQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetCalendarStatusQuery>({ query: GetCalendarStatusDocument, ...options });
+};
+export const ApplicationDocument = gql`
+    query application {
+  application {
+    code
+    page {
+      code
+    }
+    searchPage {
+      code
+    }
+  }
+}
+    `;
+
+export function useApplicationQuery(options: Omit<Urql.UseQueryArgs<never, ApplicationQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<ApplicationQuery>({ query: ApplicationDocument, ...options });
 };
 export const GetCalendarPeriodDocument = gql`
     query getCalendarPeriod($from: Date!, $to: Date!) {

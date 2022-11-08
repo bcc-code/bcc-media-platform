@@ -15,8 +15,11 @@
                 :pause="pause"
             ></EpisodeSearchQuery>
         </div>
+        <div v-else-if="data?.application.searchPage?.code">
+            <Page :page-id="data?.application.searchPage?.code"></Page>
+        </div>
         <div v-else>
-            <h1 class="text-xl font-bold">kategorier og sånt</h1>
+            <div>Search page is not configured</div>
         </div>
     </section>
 </template>
@@ -26,6 +29,10 @@ import ShowSearchQuery from "@/components/search/ShowSearchQuery.vue"
 import EpisodeSearchQuery from "@/components/search/EpisodeSearchQuery.vue"
 import { useRoute, useRouter } from "vue-router"
 import { useSearch } from "@/utils/search"
+import Page from "../page/Page.vue"
+import { useApplicationQuery } from "@/graph/generated"
+
+const { data } = useApplicationQuery()
 
 const queryString = ref("")
 

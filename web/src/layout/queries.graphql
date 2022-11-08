@@ -8,3 +8,15 @@ query getCalendarStatus($day: Date!) {
       }
     }
 }
+
+query application {
+    application {
+      code
+      page {
+        code
+      }
+      searchPage {
+        code
+      }
+    }
+}
