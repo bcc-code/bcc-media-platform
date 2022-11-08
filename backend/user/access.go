@@ -35,9 +35,13 @@ func ValidateAccess[k comparable](ctx context.Context, permissionLoader *dataloa
 	roles := perms.Roles
 	availability := perms.Availability
 
-	if len(lo.Intersect(rs, roles.EarlyAccess)) == 0 && (!availability.Published ||
+	if len(lo.Intersect(rs, roles.EarlyAccess)) > 0 && availability.Published {
+		return nil
+	}
+
+	if !availability.Published ||
 		availability.From.After(time.Now()) ||
-		availability.To.Before(time.Now())) {
+		availability.To.Before(time.Now()) {
 		return merry.Wrap(ErrItemNotPublished)
 	}
 
