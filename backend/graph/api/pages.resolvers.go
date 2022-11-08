@@ -45,12 +45,22 @@ func (r *featuredSectionResolver) Items(ctx context.Context, obj *model.Featured
 }
 
 // Items is the resolver for the items field.
+func (r *iconGridSectionResolver) Items(ctx context.Context, obj *model.IconGridSection, first *int, offset *int) (*model.SectionItemPagination, error) {
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+}
+
+// Items is the resolver for the items field.
 func (r *iconSectionResolver) Items(ctx context.Context, obj *model.IconSection, first *int, offset *int) (*model.SectionItemPagination, error) {
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 }
 
 // Items is the resolver for the items field.
 func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int) (*model.SectionItemPagination, error) {
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+}
+
+// Items is the resolver for the items field.
+func (r *listSectionResolver) Items(ctx context.Context, obj *model.ListSection, first *int, offset *int) (*model.SectionItemPagination, error) {
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 }
 
@@ -126,11 +136,19 @@ func (r *Resolver) FeaturedSection() generated.FeaturedSectionResolver {
 	return &featuredSectionResolver{r}
 }
 
+// IconGridSection returns generated.IconGridSectionResolver implementation.
+func (r *Resolver) IconGridSection() generated.IconGridSectionResolver {
+	return &iconGridSectionResolver{r}
+}
+
 // IconSection returns generated.IconSectionResolver implementation.
 func (r *Resolver) IconSection() generated.IconSectionResolver { return &iconSectionResolver{r} }
 
 // LabelSection returns generated.LabelSectionResolver implementation.
 func (r *Resolver) LabelSection() generated.LabelSectionResolver { return &labelSectionResolver{r} }
+
+// ListSection returns generated.ListSectionResolver implementation.
+func (r *Resolver) ListSection() generated.ListSectionResolver { return &listSectionResolver{r} }
 
 // MessageSection returns generated.MessageSectionResolver implementation.
 func (r *Resolver) MessageSection() generated.MessageSectionResolver {
@@ -152,8 +170,10 @@ type collectionResolver struct{ *Resolver }
 type defaultGridSectionResolver struct{ *Resolver }
 type defaultSectionResolver struct{ *Resolver }
 type featuredSectionResolver struct{ *Resolver }
+type iconGridSectionResolver struct{ *Resolver }
 type iconSectionResolver struct{ *Resolver }
 type labelSectionResolver struct{ *Resolver }
+type listSectionResolver struct{ *Resolver }
 type messageSectionResolver struct{ *Resolver }
 type pageResolver struct{ *Resolver }
 type posterGridSectionResolver struct{ *Resolver }

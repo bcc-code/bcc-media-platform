@@ -257,6 +257,17 @@ type GlobalConfig struct {
 	NpawEnabled bool `json:"npawEnabled"`
 }
 
+type IconGridSection struct {
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Size  GridSectionSize        `json:"size"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (IconGridSection) IsSection()     {}
+func (IconGridSection) IsItemSection() {}
+func (IconGridSection) IsGridSection() {}
+
 type IconSection struct {
 	ID    string                 `json:"id"`
 	Title *string                `json:"title"`
@@ -295,6 +306,16 @@ type Link struct {
 }
 
 func (Link) IsSectionItemType() {}
+
+type ListSection struct {
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Size  SectionSize            `json:"size"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (ListSection) IsSection()     {}
+func (ListSection) IsItemSection() {}
 
 type Message struct {
 	Title   string        `json:"title"`
