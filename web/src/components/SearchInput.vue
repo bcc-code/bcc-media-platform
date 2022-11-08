@@ -17,7 +17,7 @@
             class="absolute flex right-2 ml-10 px-2 inset-y-2 cursor-pointer text-xs opacity-50 bg-slate-700 rounded-full"
             @click="value = ''"
         >
-            <span class="my-auto uppercase">{{t("search.cancel")}}</span>
+            <span class="my-auto uppercase">{{ t("search.cancel") }}</span>
         </p>
     </div>
 </template>

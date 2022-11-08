@@ -2,18 +2,21 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="flex gap-4">
-            <div v-for="i in item.items.items" class="overflow-hidden">
+            <div
+                v-for="i in item.items.items"
+                class="overflow-hidden w-20"
+                @click="goToSectionItem(i)"
+            >
                 <div
-                    class="aspect-square bg-slate-800 rounded-2xl border-2 border-slate-700 p-4 cursor-pointer"
-                    @click="goToSectionItem(i)"
+                    class="aspect-square bg-slate-800 rounded-2xl border-2 border-slate-700 p-2 cursor-pointer"
                 >
                     <img
                         :src="i.image + '?h=150&w=150&fit=crop'"
                         loading="lazy"
-                        class="object-cover m-auto"
+                        class="object-cover m-auto rounded-lg"
                     />
                 </div>
-                <div class="w-40 mx-auto">
+                <div class="mx-auto">
                     <p class="w-full text-center break-normal ellipsis text-lg">
                         {{ i.title }}
                     </p>

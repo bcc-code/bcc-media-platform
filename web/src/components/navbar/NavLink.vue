@@ -4,7 +4,10 @@
         class="rounded-full my-auto"
         v-slot="{ isExactActive }"
     >
-        <div class="lg:flex gap-1 transition rounded-full lg:hover:bg-slate-800 px-2" :class="[isExactActive ? 'lg:bg-slate-800 lg:bg-opacity-50' : '']">
+        <div
+            class="lg:flex gap-1 transition rounded-full lg:hover:bg-slate-800 px-2 py-1"
+            :class="[isExactActive ? 'lg:bg-slate-800 lg:bg-opacity-50' : '']"
+        >
             <component
                 :is="icon"
                 class="w-8 h-8 m-auto"

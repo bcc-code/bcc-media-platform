@@ -20,9 +20,12 @@
                             {{ t(item.name) }}</NavLink
                         >
                         <SearchInput
-                            :disabled="$route.name === 'search'"
-                            v-model="searchText"
-                            @keydown.enter="search()"
+                            v-model="query"
+                            @keydown="
+                                $route.name !== 'search'
+                                    ? $router.push({ name: 'search' })
+                                    : null
+                            "
                         ></SearchInput>
                     </div>
                     <div class="hidden lg:flex ml-2">
@@ -323,7 +326,7 @@
                         </Menu>
                     </div>
                 </div>
-                <div class="flex lg:hidden justify-between mx-4">
+                <div class="flex lg:hidden justify-between mx-8">
                     <NavLink
                         v-for="item in navigation"
                         :to="item.to"
@@ -354,7 +357,6 @@ import { useI18n } from "vue-i18n"
 import { current, setLanguage, languages } from "@/services/language"
 import {
     CalendarIcon,
-    FeedIcon,
     HomeIcon,
     LiveIcon,
     ProfileIcon,
@@ -363,8 +365,11 @@ import {
 } from "../icons"
 import { computed, ref } from "vue"
 import SearchInput from "../SearchInput.vue"
+import { useSearch } from "@/utils/search"
 
 const { t } = useI18n()
+
+const { query } = useSearch()
 
 const router = useRouter()
 
@@ -426,13 +431,13 @@ const navigation = computed(() => {
                 },
                 icon: CalendarIcon,
             },
-            {
-                name: "page.faq",
-                to: {
-                    name: "front-page",
-                },
-                icon: FeedIcon,
-            },
+            // {
+            //     name: "page.faq",
+            //     to: {
+            //         name: "front-page",
+            //     },
+            //     icon: FeedIcon,
+            // },
         ]
     )
 

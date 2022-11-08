@@ -22,7 +22,7 @@ export default createClient({
             input,
             Object.assign(init ?? {}, {
                 headers: Object.assign(init?.headers ?? {}, {
-                    "Accept-Language": current.value.code
+                    "Accept-Language": current.value.code,
                 }),
             })
         )

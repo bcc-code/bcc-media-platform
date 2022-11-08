@@ -1,8 +1,8 @@
 <template>
     <section class="px-4 mt-2">
-        <div class="flex w-full text-xl">
+        <!-- <div class="flex w-full text-xl">
             <SearchInput class="mx-auto lg:w-96" v-model="query"></SearchInput>
-        </div>
+        </div> -->
         <div v-if="query">
             <ShowSearchQuery
                 class="mt-2 mb-8"
@@ -21,28 +21,27 @@
     </section>
 </template>
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from "vue"
+import { onMounted, ref, watch } from "vue"
 import ShowSearchQuery from "@/components/search/ShowSearchQuery.vue"
 import EpisodeSearchQuery from "@/components/search/EpisodeSearchQuery.vue"
 import { useRoute, useRouter } from "vue-router"
-import SearchInput from "@/components/SearchInput.vue"
+import { useSearch } from "@/utils/search"
 
 const queryString = ref("")
 
+const { query } = useSearch()
+
 let timeout = null as NodeJS.Timeout | null
 
-const query = computed({
-    get() {
-        return queryString.value
-    },
-    set(v) {
+watch(
+    () => query.value,
+    () => {
+        const v = query.value
+
         queryString.value = v
 
         if (v && pause.value) {
             pause.value = false
-        }
-        if (!v) {
-            pause.value = true
         }
 
         // Delay the query itself, in case you add more characters to the string
@@ -52,8 +51,8 @@ const query = computed({
         timeout = setTimeout(() => {
             queryVariable.value = v
         }, 100)
-    },
-})
+    }
+)
 
 const queryVariable = ref("")
 
@@ -64,6 +63,7 @@ onMounted(() => {
     const q = route.query.q
     if (q && typeof q === "string") {
         query.value = q
+        queryVariable.value = q
     }
 })
 
@@ -74,5 +74,5 @@ watch(
     }
 )
 
-const pause = ref(true)
+const pause = ref(false)
 </script>
