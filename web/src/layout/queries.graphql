@@ -1,0 +1,10 @@
+query getCalendarStatus($day: Date!) {
+    calendar {
+      day(day: $day) {
+        entries {
+            start
+            end
+        }
+      }
+    }
+}

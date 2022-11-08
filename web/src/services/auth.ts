@@ -42,4 +42,15 @@ export class Auth {
     }
 }
 
+export const useAuth = () => {
+    return {
+        signIn: Auth.signIn,
+        signOut: Auth.signOut,
+        loading: Auth.loading(),
+        getToken: Auth.getToken,
+        authenticated: Auth.isAuthenticated(),
+        user: Auth.user(),
+    }
+}
+
 export default Auth

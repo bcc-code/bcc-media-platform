@@ -12,13 +12,15 @@
                         />
                     </div>
                     <div class="hidden lg:flex ml-6 my-auto space-x-2">
-                        <NavLink
-                            v-for="item in navigation"
-                            :icon="item.icon"
-                            :to="item.to"
-                        >
-                            {{ t(item.name) }}</NavLink
-                        >
+                        <div v-for="item in navigation" class="relative">
+                            <NavLink
+                                :icon="item.icon"
+                                :to="item.to"
+                                :ping="item.ping"
+                            >
+                                {{ t(item.name) }}</NavLink
+                            >
+                        </div>
                         <SearchInput
                             v-model="query"
                             @keydown="
@@ -343,7 +345,7 @@
     </Disclosure>
 </template>
 <script lang="ts" setup>
-import { RouteLocationRaw, useRouter } from "vue-router"
+import { RouteLocationRaw } from "vue-router"
 import NavLink from "./NavLink.vue"
 import {
     Disclosure,
@@ -352,7 +354,7 @@ import {
     MenuItems,
     MenuItem,
 } from "@headlessui/vue"
-import Auth from "@/services/auth"
+import { useAuth } from "@/services/auth"
 import { useI18n } from "vue-i18n"
 import { current, setLanguage, languages } from "@/services/language"
 import {
@@ -363,38 +365,23 @@ import {
     SearchIcon,
     SettingsIcon,
 } from "../icons"
-import { computed, ref } from "vue"
+import { computed, ComputedRef, Ref } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
+import { useGetCalendarStatusQuery } from "@/graph/generated"
 
 const { t } = useI18n()
 
 const { query } = useSearch()
 
-const router = useRouter()
-
-const authenticated = Auth.isAuthenticated()
-const signIn = Auth.signIn
-const signOut = Auth.signOut
-const user = Auth.user()
-
-const searchText = ref("")
-
-const search = () => {
-    router.push({
-        name: "search",
-        query: {
-            q: searchText.value,
-        },
-    })
-    searchText.value = ""
-}
+const { authenticated, signOut, signIn, user } = useAuth()
 
 const navigation = computed(() => {
     const n: {
         name: string
         to: RouteLocationRaw
         icon?: any
+        ping?: boolean
     }[] = [
         {
             name: "page.home",
@@ -403,13 +390,6 @@ const navigation = computed(() => {
             },
             icon: HomeIcon,
         },
-        // {
-        //     name: "page.search",
-        //     to: {
-        //         name: "search",
-        //     },
-        //     icon: SearchIcon,
-        // },
     ]
 
     if (authenticated.value) {
@@ -419,6 +399,7 @@ const navigation = computed(() => {
                 name: "live",
             },
             icon: LiveIcon,
+            ping: isLive.value,
         })
     }
 
@@ -431,16 +412,20 @@ const navigation = computed(() => {
                 },
                 icon: CalendarIcon,
             },
-            // {
-            //     name: "page.faq",
-            //     to: {
-            //         name: "front-page",
-            //     },
-            //     icon: FeedIcon,
-            // },
         ]
     )
 
     return n
+})
+
+const { data } = useGetCalendarStatusQuery({
+    variables: {
+        day: new Date(),
+    }
+})
+
+const isLive = computed(() => {
+    const now = new Date()
+    return data.value?.calendar?.day.entries.some(i => new Date(i.start) < now && new Date(i.end) > now) === true
 })
 </script>
