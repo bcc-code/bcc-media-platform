@@ -30,3 +30,6 @@ migrate.down:
 
 migrate.status:
 	cd ./migrations && goose postgres "postgres://btv:btv123@localhost:5432/btv?sslmode=disable" status
+
+sync.staging:
+	cd ./scripts/staging-sync/ && ./copy.sh
