@@ -333,6 +333,7 @@
                         v-for="item in navigation"
                         :to="item.to"
                         :icon="item.icon"
+                        :ping="item.ping"
                     >
                         {{ t(item.name) }}
                     </NavLink>

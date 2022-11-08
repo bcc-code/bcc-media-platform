@@ -4,7 +4,7 @@
         <div class="flex gap-4">
             <div
                 v-for="i in item.items.items"
-                class="overflow-hidden w-20"
+                class="overflow-clip w-20"
                 @click="goToSectionItem(i)"
             >
                 <div
@@ -17,7 +17,7 @@
                     />
                 </div>
                 <div class="mx-auto">
-                    <p class="w-full text-center break-normal ellipsis text-lg">
+                    <p class="w-full text-center text-ellipsis text-lg">
                         {{ i.title }}
                     </p>
                 </div>
