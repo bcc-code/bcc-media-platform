@@ -292,6 +292,7 @@ type Application struct {
 	Code          string
 	ClientVersion string
 	DefaultPageID null.Int
+	SearchPageID  null.Int
 	Roles         []string
 }
 

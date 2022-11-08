@@ -43,6 +43,16 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				Title: title,
 				Size:  size,
 			}
+		case "list":
+			size := SectionSize(s.Size)
+			if !size.IsValid() {
+				size = SectionSizeMedium
+			}
+			return &ListSection{
+				ID:    id,
+				Title: title,
+				Size:  size,
+			}
 		case "posters":
 			size := SectionSize(s.Size)
 			if !size.IsValid() {
@@ -69,6 +79,16 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = GridSectionSizeHalf
 			}
 			return &PosterGridSection{
+				ID:    id,
+				Title: title,
+				Size:  size,
+			}
+		case "icon_grid":
+			size := GridSectionSize(s.Size)
+			if !size.IsValid() {
+				size = GridSectionSizeHalf
+			}
+			return &IconGridSection{
 				ID:    id,
 				Title: title,
 				Size:  size,

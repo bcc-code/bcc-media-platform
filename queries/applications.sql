@@ -9,6 +9,7 @@ SELECT a.id::int                          AS id,
        a.client_version,
        a.status = 'published'             AS published,
        a.page_id                          AS default_page_id,
+       a.search_page_id                   AS search_page_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
          LEFT JOIN roles r ON a.id = r.applications_id
@@ -26,6 +27,7 @@ SELECT a.id::int                          AS id,
        a.client_version,
        a.status = 'published'             AS published,
        a.page_id                          AS default_page_id,
+       a.search_page_id                   AS search_page_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
          LEFT JOIN roles r ON a.id = r.applications_id

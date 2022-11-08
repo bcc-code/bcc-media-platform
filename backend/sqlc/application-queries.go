@@ -17,6 +17,7 @@ func mapToApplications(applications []getApplicationsRow) []common.Application {
 			Roles:         p.Roles,
 			ClientVersion: p.ClientVersion.ValueOrZero(),
 			DefaultPageID: p.DefaultPageID,
+			SearchPageID:  p.SearchPageID,
 		}
 	})
 }
