@@ -48,6 +48,7 @@ type Application struct {
 	Code          string `json:"code"`
 	ClientVersion string `json:"clientVersion"`
 	Page          *Page  `json:"page"`
+	SearchPage    *Page  `json:"searchPage"`
 }
 
 type Calendar struct {

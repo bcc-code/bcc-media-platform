@@ -47,6 +47,7 @@ type Application struct {
 	ClientVersion null_v4.String `db:"client_version" json:"clientVersion"`
 	PageID        null_v4.Int    `db:"page_id" json:"pageID"`
 	Default       bool           `db:"default" json:"default"`
+	SearchPageID  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
 }
 
 type ApplicationsUsergroup struct {

@@ -126,11 +126,18 @@ func (r *queryRootResolver) Application(ctx context.Context) (*model.Application
 			ID: strconv.Itoa(int(app.DefaultPageID.Int64)),
 		}
 	}
+	var searchPage *model.Page
+	if app.SearchPageID.Valid {
+		searchPage = &model.Page{
+			ID: strconv.Itoa(int(app.SearchPageID.Int64)),
+		}
+	}
 
 	return &model.Application{
 		ID:            strconv.Itoa(app.ID),
 		Code:          app.Code,
 		Page:          page,
+		SearchPage:    searchPage,
 		ClientVersion: app.ClientVersion,
 	}, nil
 }

@@ -76,6 +76,7 @@ type ComplexityRoot struct {
 		Code          func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Page          func(childComplexity int) int
+		SearchPage    func(childComplexity int) int
 	}
 
 	Calendar struct {
@@ -570,6 +571,7 @@ type ComplexityRoot struct {
 
 type ApplicationResolver interface {
 	Page(ctx context.Context, obj *model.Application) (*model.Page, error)
+	SearchPage(ctx context.Context, obj *model.Application) (*model.Page, error)
 }
 type CalendarResolver interface {
 	Period(ctx context.Context, obj *model.Calendar, from string, to string) (*model.CalendarPeriod, error)
@@ -749,6 +751,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Application.Page(childComplexity), true
+
+	case "Application.searchPage":
+		if e.complexity.Application.SearchPage == nil {
+			break
+		}
+
+		return e.complexity.Application.SearchPage(childComplexity), true
 
 	case "Calendar.day":
 		if e.complexity.Calendar.Day == nil {
@@ -3167,6 +3176,7 @@ var sources = []*ast.Source{
     code: String!
     clientVersion: String!
     page: Page @goField(forceResolver: true)
+    searchPage: Page @goField(forceResolver: true)
 }
 `, BuiltIn: false},
 	{Name: "../schema/calendar.graphqls", Input: `type CalendarPeriod {
@@ -4856,6 +4866,63 @@ func (ec *executionContext) _Application_page(ctx context.Context, field graphql
 }
 
 func (ec *executionContext) fieldContext_Application_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Page_id(ctx, field)
+			case "code":
+				return ec.fieldContext_Page_code(ctx, field)
+			case "title":
+				return ec.fieldContext_Page_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Page_description(ctx, field)
+			case "image":
+				return ec.fieldContext_Page_image(ctx, field)
+			case "images":
+				return ec.fieldContext_Page_images(ctx, field)
+			case "sections":
+				return ec.fieldContext_Page_sections(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Application_searchPage(ctx context.Context, field graphql.CollectedField, obj *model.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_searchPage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Application().SearchPage(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Page)
+	fc.Result = res
+	return ec.marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_searchPage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -12966,6 +13033,8 @@ func (ec *executionContext) fieldContext_QueryRoot_application(ctx context.Conte
 				return ec.fieldContext_Application_clientVersion(ctx, field)
 			case "page":
 				return ec.fieldContext_Application_page(ctx, field)
+			case "searchPage":
+				return ec.fieldContext_Application_searchPage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -22172,6 +22241,23 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._Application_page(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "searchPage":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Application_searchPage(ctx, field, obj)
 				return res
 			}
 

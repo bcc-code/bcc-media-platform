@@ -57,6 +57,7 @@ SELECT a.id::int                          AS id,
        a.client_version,
        a.status = 'published'             AS published,
        a.page_id                          AS default_page_id,
+       a.search_page_id                   AS search_page_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
          LEFT JOIN roles r ON a.id = r.applications_id
@@ -71,6 +72,7 @@ type getApplicationsRow struct {
 	ClientVersion null_v4.String `db:"client_version" json:"clientVersion"`
 	Published     bool           `db:"published" json:"published"`
 	DefaultPageID null_v4.Int    `db:"default_page_id" json:"defaultPageID"`
+	SearchPageID  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
 	Roles         []string       `db:"roles" json:"roles"`
 }
 
@@ -90,6 +92,7 @@ func (q *Queries) getApplications(ctx context.Context, dollar_1 []int32) ([]getA
 			&i.ClientVersion,
 			&i.Published,
 			&i.DefaultPageID,
+			&i.SearchPageID,
 			pq.Array(&i.Roles),
 		); err != nil {
 			return nil, err
@@ -116,6 +119,7 @@ SELECT a.id::int                          AS id,
        a.client_version,
        a.status = 'published'             AS published,
        a.page_id                          AS default_page_id,
+       a.search_page_id                   AS search_page_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
          LEFT JOIN roles r ON a.id = r.applications_id
@@ -129,6 +133,7 @@ type listApplicationsRow struct {
 	ClientVersion null_v4.String `db:"client_version" json:"clientVersion"`
 	Published     bool           `db:"published" json:"published"`
 	DefaultPageID null_v4.Int    `db:"default_page_id" json:"defaultPageID"`
+	SearchPageID  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
 	Roles         []string       `db:"roles" json:"roles"`
 }
 
@@ -148,6 +153,7 @@ func (q *Queries) listApplications(ctx context.Context) ([]listApplicationsRow, 
 			&i.ClientVersion,
 			&i.Published,
 			&i.DefaultPageID,
+			&i.SearchPageID,
 			pq.Array(&i.Roles),
 		); err != nil {
 			return nil, err
