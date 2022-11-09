@@ -117,7 +117,9 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, collec
 		q = addPermissionFilter(q, collection, roles)
 	}
 
-	q = q.OrderBy(orderByString)
+	if orderByString != "" {
+		q = q.OrderBy(orderByString)
+	}
 
 	if ctx.Value("preview") == true {
 		queryString, _, err := q.ToSql()
@@ -126,6 +128,12 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, collec
 		}
 		log.L.Debug().Str("query", queryString).Msg("Querying database for previewing filter")
 	}
+
+	queryString, _, err := q.ToSql()
+	if err != nil {
+		return nil, err
+	}
+	log.L.Debug().Str("query", queryString).Msg("Querying database for previewing filter")
 
 	rows, err := q.RunWith(db).Query()
 	if err != nil {
