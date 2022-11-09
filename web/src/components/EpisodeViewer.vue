@@ -17,7 +17,7 @@ const props = defineProps<{
         id: string
         duration: number
         progress?: number | null
-    },
+    }
     autoPlay?: boolean
 }>()
 
@@ -49,9 +49,9 @@ const load = async () => {
             episodeId: episodeId,
             overrides: {
                 videojs: {
-                    autoplay: props.autoPlay
-                }
-            }
+                    autoplay: props.autoPlay,
+                },
+            },
         })
         let lastProgress = props.episode.progress
         player.value.currentTime(lastProgress)

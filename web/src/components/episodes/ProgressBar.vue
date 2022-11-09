@@ -4,14 +4,18 @@
             v-if="progress || progress === 0"
             class="flex bg-black bg-opacity-50 px-2 rounded"
         >
-            <div class="w-full bg-gray rounded h-1 md:h-1.5 bg-opacity-50 my-auto">
+            <div
+                class="w-full bg-gray rounded h-1 md:h-1.5 bg-opacity-50 my-auto"
+            >
                 <div
                     class="bg-white h-1 md:h-1.5 rounded"
                     :style="percentageWidth(item.duration, progress)"
                 ></div>
             </div>
             <div>
-                <span class="ml-2 my-auto">{{ secondsToTime(item.duration) }}</span>
+                <span class="ml-2 my-auto">{{
+                    secondsToTime(item.duration)
+                }}</span>
             </div>
         </div>
         <div

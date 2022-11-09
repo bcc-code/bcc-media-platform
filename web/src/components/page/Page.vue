@@ -1,5 +1,5 @@
 <template>
-    <section class="mx-4">
+    <section class="px-4 overflow-x-hidden">
         <transition name="slide-fade">
             <div
                 class="flex flex-col gap-8"
@@ -13,8 +13,8 @@
             </div>
             <div v-else-if="!fetching">Uh oh. Missing content</div>
             <div v-else-if="error">{{ error.message }}</div>
-            <div v-else class="flex flex-col gap-4 overflow-hidden">
-                <div class="flex overflow-hidden gap-4">
+            <div v-else class="flex flex-col gap-4">
+                <div class="flex gap-4">
                     <div
                         class="space-y-5 rounded-2xl bg-white/5 p-4"
                         v-for="i in 6"
@@ -27,7 +27,7 @@
                     </div>
                 </div>
 
-                <div class="flex overflow-hidden gap-4">
+                <div class="flex gap-4">
                     <div
                         class="space-y-5 rounded-2xl bg-white/5 p-4"
                         v-for="i in 6"
@@ -40,7 +40,7 @@
                     </div>
                 </div>
 
-                <div class="flex overflow-hidden gap-4">
+                <div class="flex gap-4">
                     <div
                         class="space-y-5 rounded-2xl bg-white/5 p-4"
                         v-for="i in 4"

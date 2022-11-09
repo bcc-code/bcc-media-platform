@@ -13,15 +13,16 @@
             >
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div
-                    class="flex flex-col aspect-[9/16] rounded rounded-md mt-1 cursor-pointer"
+                    class="flex flex-col rounded rounded-md mt-1 cursor-pointer"
                 >
-                    <div class="relative">
+                    <div
+                        class="relative w-full aspect-[9/16] mb-1 rounded-md overflow-hidden"
+                    >
                         <img
                             :src="
                                 i.image +
                                 `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
                             "
-                            class="rounded-md top-0 h-full w-full object-cover mb-1"
                             loading="lazy"
                         />
                         <ProgressBar

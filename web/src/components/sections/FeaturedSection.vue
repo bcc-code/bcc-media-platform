@@ -13,9 +13,11 @@
                 @click="goToSectionItem(i)"
             >
                 <div class="relative h-full">
-                    <img
+                    <Image
                         v-if="i.image"
-                        :src="i.image + '?h=1080'"
+                        :src="i.image"
+                        size-source="width"
+                        :ratio="9/16"
                         class="rounded rounded-xl h-full object-cover"
                         loading="lazy"
                     />
@@ -54,6 +56,7 @@ import { computed } from "vue"
 import SectionTitle from "./SectionTitle.vue"
 import Play from "../icons/Play.vue"
 import { goToSectionItem } from "@/utils/items"
+import Image from "../Image.vue"
 
 const props = defineProps<{
     item: Section & { __typename: "FeaturedSection" }

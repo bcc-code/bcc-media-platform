@@ -20,17 +20,18 @@
                 </h1>
                 <div class="flex">
                     <h1 class="my-auto flex">
-                        <AgeRating
-                            v-if="episode.ageRating"
-                            >{{ episode.ageRating }}</AgeRating
-                        >
+                        <AgeRating v-if="episode.ageRating">{{
+                            episode.ageRating
+                        }}</AgeRating>
                         <span v-if="episode.season" class="text-primary ml-1">{{
                             episode.season.show.title
                         }}</span>
                         <span
                             v-if="episode.productionDate"
                             class="text-gray ml-1"
-                            >{{ new Date(episode.productionDate).toDateString() }}</span
+                            >{{
+                                new Date(episode.productionDate).toDateString()
+                            }}</span
                         >
                         <span v-else-if="episode.season" class="text-gray ml-1"
                             >S{{ episode.season.number }}:E{{
@@ -99,9 +100,7 @@
                                                 ? 'border-l-8 bg-red bg-opacity-20 hover:bg-opacity-20'
                                                 : 'border-opacity-0',
                                         ]"
-                                        @click="
-                                            episodeId = e.id
-                                        "
+                                        @click="episodeId = e.id"
                                         :key="e.id"
                                     >
                                         <WithProgressBar
@@ -111,7 +110,12 @@
                                         >
                                             <img
                                                 v-if="e.image"
-                                                :src="e.image + `?w=${imageWidth}&h=${imageWidth / 16 * 9}&fit=crop&crop=faces`"
+                                                :src="
+                                                    e.image +
+                                                    `?w=${imageWidth}&h=${
+                                                        (imageWidth / 16) * 9
+                                                    }&fit=crop&crop=faces`
+                                                "
                                             />
                                         </WithProgressBar>
                                         <div class="w-2/3">
@@ -173,7 +177,7 @@ const episodeId = computed({
     },
     set(v) {
         emit("update:episodeId", v)
-    }
+    },
 })
 
 const { data, error, then } = useGetEpisodeQuery({
@@ -230,6 +234,8 @@ const effectiveView = computed({
 const episodeImage = ref(null as HTMLDivElement[] | null)
 
 const imageWidth = computed(() => {
-    return getImageSize((episodeImage.value?.[0].getBoundingClientRect().width ?? 100) * 2)
+    return getImageSize(
+        (episodeImage.value?.[0].getBoundingClientRect().width ?? 100) * 2
+    )
 })
 </script>

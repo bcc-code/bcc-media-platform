@@ -8,16 +8,10 @@
                     class="flex flex-col cursor-pointer mt-2"
                     @click="goToSectionItem(i)"
                 >
-                    <div class="relative mb-1">
-                        <img
-                            :id="i.id"
-                            :src="
-                                i.image +
-                                `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
-                            "
-                            loading="lazy"
-                            class="rounded-md top-0 w-full object-cover aspect-video"
-                        />
+                    <div
+                        class="relative mb-1 rounded-md top-0 w-full object-cover aspect-video overflow-hidden"
+                    >
+                        <Image :src="i.image" size-source="width" :ratio="9/16" />
                         <ProgressBar
                             class="absolute bottom-0 w-full"
                             v-if="i.item?.__typename === 'Episode'"
@@ -43,6 +37,7 @@ import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
 import ProgressBar from "../episodes/ProgressBar.vue"
+import Image from "../Image.vue"
 
 const props = defineProps<{
     item: Section & { __typename: "DefaultSection" }

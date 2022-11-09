@@ -12,7 +12,14 @@
                     <div class="relative mb-1">
                         <img
                             :id="i.id"
-                            :src="loadImage ? i.image + `?h=${imageSize / 16 * 9}&w=${imageSize}&fit=crop&crop=faces` : ''"
+                            :src="
+                                loadImage
+                                    ? i.image +
+                                      `?h=${
+                                          (imageSize / 16) * 9
+                                      }&w=${imageSize}&fit=crop&crop=faces`
+                                    : ''
+                            "
                             loading="lazy"
                             class="rounded-md top-0 w-full object-cover aspect-video"
                         />

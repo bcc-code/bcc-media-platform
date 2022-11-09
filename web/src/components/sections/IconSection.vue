@@ -12,8 +12,10 @@
                     class="aspect-square bg-slate-800 rounded-2xl border-2 border-slate-700 p-2 cursor-pointer"
                 >
                     <img
-                        :src="i.image + `?h=${imageSize}&w=${imageSize}&fit=crop`"
-                        loading="lazy"
+                        v-if="imageSize"
+                        :src="
+                            i.image + `?h=${imageSize}&w=${imageSize}&fit=crop`
+                        "
                         class="object-cover m-auto rounded-lg"
                     />
                 </div>
@@ -31,8 +33,8 @@ import { Section } from "./types"
 
 import SectionTitle from "./SectionTitle.vue"
 import { goToSectionItem } from "@/utils/items"
-import { onMounted, ref } from "vue";
-import { getImageSize } from "@/utils/images";
+import { onMounted, ref } from "vue"
+import { getImageSize } from "@/utils/images"
 
 defineProps<{
     item: Section & { __typename: "IconSection" }

@@ -1,42 +1,40 @@
 <template>
-    <div>
-        <PosterSection
-            v-if="section.__typename === 'PosterSection'"
-            :item="section"
-        ></PosterSection>
-        <FeaturedSection
-            v-if="section.__typename === 'FeaturedSection'"
-            :item="section"
-        ></FeaturedSection>
-        <ListSection
-            v-if="section.__typename === 'ListSection'"
-            :item="section"
-        ></ListSection>
-        <DefaultSection
-            v-if="section.__typename === 'DefaultSection'"
-            :item="section"
-        ></DefaultSection>
-        <DefaultGridSection
-            v-if="section.__typename === 'DefaultGridSection'"
-            :item="section"
-        ></DefaultGridSection>
-        <PosterGridSection
-            v-if="section.__typename === 'PosterGridSection'"
-            :item="section"
-        ></PosterGridSection>
-        <LabelSection
-            v-if="section.__typename === 'LabelSection'"
-            :item="section"
-        ></LabelSection>
-        <IconSection
-            v-if="section.__typename === 'IconSection'"
-            :item="section"
-        ></IconSection>
-        <IconGridSection
-            v-if="section.__typename === 'IconGridSection'"
-            :item="section"
-        ></IconGridSection>
-    </div>
+    <PosterSection
+        v-if="section.__typename === 'PosterSection'"
+        :item="section"
+    ></PosterSection>
+    <FeaturedSection
+        v-else-if="section.__typename === 'FeaturedSection'"
+        :item="section"
+    ></FeaturedSection>
+    <ListSection
+        v-else-if="section.__typename === 'ListSection'"
+        :item="section"
+    ></ListSection>
+    <DefaultSection
+        v-else-if="section.__typename === 'DefaultSection'"
+        :item="section"
+    ></DefaultSection>
+    <DefaultGridSection
+        v-else-if="section.__typename === 'DefaultGridSection'"
+        :item="section"
+    ></DefaultGridSection>
+    <PosterGridSection
+        v-else-if="section.__typename === 'PosterGridSection'"
+        :item="section"
+    ></PosterGridSection>
+    <LabelSection
+        v-else-if="section.__typename === 'LabelSection'"
+        :item="section"
+    ></LabelSection>
+    <IconSection
+        v-else-if="section.__typename === 'IconSection'"
+        :item="section"
+    ></IconSection>
+    <IconGridSection
+        v-else-if="section.__typename === 'IconGridSection'"
+        :item="section"
+    ></IconGridSection>
 </template>
 <script lang="ts" setup>
 import { Section } from "./types"
