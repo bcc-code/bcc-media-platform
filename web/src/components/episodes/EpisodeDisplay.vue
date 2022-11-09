@@ -108,14 +108,11 @@
                                             :item="e"
                                             ref="episodeImage"
                                         >
-                                            <img
+                                            <Image
                                                 v-if="e.image"
-                                                :src="
-                                                    e.image +
-                                                    `?w=${imageWidth}&h=${
-                                                        (imageWidth / 16) * 9
-                                                    }&fit=crop&crop=faces`
-                                                "
+                                                :src="e.image"
+                                                size-source="width"
+                                                :ratio="9/16"
                                             />
                                         </WithProgressBar>
                                         <div class="w-2/3">
@@ -159,6 +156,7 @@ import WithProgressBar from "@/components/episodes/WithProgressBar.vue"
 import SeasonSelector from "@/components/SeasonSelector.vue"
 import { useTitle } from "@/utils/title"
 import { getImageSize } from "@/utils/images"
+import Image from "../Image.vue"
 
 const { t } = useI18n()
 
@@ -229,13 +227,5 @@ const effectiveView = computed({
     set(v) {
         view.value = v
     },
-})
-
-const episodeImage = ref(null as HTMLDivElement[] | null)
-
-const imageWidth = computed(() => {
-    return getImageSize(
-        (episodeImage.value?.[0].getBoundingClientRect().width ?? 100) * 2
-    )
 })
 </script>
