@@ -9,20 +9,8 @@
                     @click="goToSectionItem(i)"
                     ref="sectionItem"
                 >
-                    <div class="relative mb-1">
-                        <img
-                            :id="i.id"
-                            :src="
-                                loadImage
-                                    ? i.image +
-                                      `?h=${
-                                          (imageSize / 16) * 9
-                                      }&w=${imageSize}&fit=crop&crop=faces`
-                                    : ''
-                            "
-                            loading="lazy"
-                            class="rounded-md top-0 w-full object-cover aspect-video"
-                        />
+                    <div class="relative mb-1 rounded-md top-0 w-full aspect-video">
+                        <Image :src="i.image" size-source="width" :ratio="9/16"/>
                         <ProgressBar
                             class="absolute bottom-0 w-full"
                             v-if="i.item?.__typename === 'Episode'"
@@ -44,6 +32,7 @@ import SectionItemTitle from "./SectionItemTitle.vue"
 import ProgressBar from "../episodes/ProgressBar.vue"
 import { onMounted, ref } from "vue"
 import { getImageSize } from "@/utils/images"
+import Image from "../Image.vue"
 
 defineProps<{
     item: Section & { __typename: "ListSection" }

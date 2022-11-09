@@ -11,13 +11,7 @@
                 <div
                     class="aspect-square bg-slate-800 rounded-2xl border-2 border-slate-700 p-4 cursor-pointer"
                 >
-                    <img
-                        :src="
-                            i.image + `?h=${imageSize}&w=${imageSize}&fit=crop`
-                        "
-                        loading="lazy"
-                        class="object-cover m-auto rounded-lg"
-                    />
+                    <Image :src="i.image" size-source="width"/>
                 </div>
                 <div class="mx-auto">
                     <p
@@ -37,6 +31,7 @@ import SectionTitle from "./SectionTitle.vue"
 import { goToSectionItem } from "@/utils/items"
 import { onMounted, ref } from "vue"
 import { getImageSize } from "@/utils/images"
+import Image from "../Image.vue"
 
 defineProps<{
     item: Section & { __typename: "IconGridSection" }

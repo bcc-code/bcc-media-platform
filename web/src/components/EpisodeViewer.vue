@@ -44,7 +44,6 @@ const load = async () => {
     if (current.value !== episodeId) {
         current.value = episodeId
         player.value?.dispose()
-        console.log("AUTOPLAY " + props.autoPlay)
         player.value = await playerFactory.create("video-player", {
             episodeId: episodeId,
             overrides: {

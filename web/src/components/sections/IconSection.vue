@@ -11,13 +11,7 @@
                 <div
                     class="aspect-square bg-slate-800 rounded-2xl border-2 border-slate-700 p-2 cursor-pointer"
                 >
-                    <img
-                        v-if="imageSize"
-                        :src="
-                            i.image + `?h=${imageSize}&w=${imageSize}&fit=crop`
-                        "
-                        class="object-cover m-auto rounded-lg"
-                    />
+                    <Image :src="i.image" size-source="width"/>
                 </div>
                 <div class="mx-auto">
                     <p class="w-full text-center text-lg line-clamp-2">
@@ -35,6 +29,7 @@ import SectionTitle from "./SectionTitle.vue"
 import { goToSectionItem } from "@/utils/items"
 import { onMounted, ref } from "vue"
 import { getImageSize } from "@/utils/images"
+import Image from "../Image.vue"
 
 defineProps<{
     item: Section & { __typename: "IconSection" }

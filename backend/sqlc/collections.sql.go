@@ -79,6 +79,7 @@ WHERE ci.collection_id = ANY ($1::int[])
         AND sha.available_to > now()
         AND shr.roles && $2::varchar[] AND sha.available_from < now()
     ))
+ORDER BY ci.sort
 `
 
 type getCollectionItemsForCollectionsWithRolesParams struct {

@@ -19,7 +19,6 @@
                         size-source="width"
                         :ratio="9/16"
                         class="rounded rounded-xl h-full object-cover"
-                        loading="lazy"
                     />
                     <div
                         class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent p- pt-8"

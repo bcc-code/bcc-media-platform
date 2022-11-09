@@ -9,14 +9,10 @@
             >
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div
-                    class="flex flex-col aspect-[9/16] rounded rounded-md mx-2 mt-1"
+                    class="flex flex-col rounded rounded-md mx-2 mt-1"
                 >
-                    <div class="relative">
-                        <img
-                            :src="i.image + '?w=900&h=1600&fit=crop&crop=faces'"
-                            class="rounded-md top-0 h-full w-full object-cover mb-1"
-                            loading="lazy"
-                        />
+                    <div class="relative aspect-[9/16] rounded-md object-cover mb-1">
+                        <Image :src="i.image" size-source="height" :ratio="9/16" />
                         <ProgressBar
                             class="absolute bottom-0 w-full"
                             v-if="i.item?.__typename === 'Episode'"
@@ -37,8 +33,9 @@ import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
 import ProgressBar from "../episodes/ProgressBar.vue"
+import Image from "../Image.vue"
 
 defineProps<{
-    item: Section & { __typename: "PosterGridSection" }
+    item: Section & { __typename: "PosterGridSection" | "PosterSection" }
 }>()
 </script>

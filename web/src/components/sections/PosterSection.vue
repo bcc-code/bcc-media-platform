@@ -18,13 +18,7 @@
                     <div
                         class="relative w-full aspect-[9/16] mb-1 rounded-md overflow-hidden"
                     >
-                        <img
-                            :src="
-                                i.image +
-                                `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
-                            "
-                            loading="lazy"
-                        />
+                        <Image :src="i.image" size-source="height" :ratio="9/16" />
                         <ProgressBar
                             class="absolute bottom-0 w-full"
                             v-if="i.item?.__typename === 'Episode'"
@@ -50,6 +44,7 @@ import NewPill from "./NewPill.vue"
 import { computed } from "vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
 import ProgressBar from "../episodes/ProgressBar.vue"
+import Image from "../Image.vue"
 
 const props = defineProps<{
     item: Section & { __typename: "PosterSection" }

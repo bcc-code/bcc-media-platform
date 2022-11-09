@@ -29,7 +29,7 @@ const parentDimensions = computed(() => {
 const effectiveSrc = computed(() => {
     return (
         props.src +
-        `?w=${effectiveWidth.value}&h=${effectiveHeight.value}&fit=crop&crop=faces,entropy`
+        `?w=${effectiveWidth.value}&h=${effectiveHeight.value}&fit=crop&crop=faces`
     )
 })
 
