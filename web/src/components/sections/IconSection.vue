@@ -17,7 +17,7 @@
                     />
                 </div>
                 <div class="mx-auto">
-                    <p class="w-full text-center text-ellipsis text-lg">
+                    <p class="w-full text-center text-lg line-clamp-2">
                         {{ i.title }}
                     </p>
                 </div>

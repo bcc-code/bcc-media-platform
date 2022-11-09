@@ -13,7 +13,7 @@
             >
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div
-                    class="flex flex-col aspect-[9/16] rounded rounded-md mx-2 mt-1 cursor-pointer"
+                    class="flex flex-col aspect-[9/16] rounded rounded-md mt-1 cursor-pointer"
                 >
                     <div class="relative">
                         <img

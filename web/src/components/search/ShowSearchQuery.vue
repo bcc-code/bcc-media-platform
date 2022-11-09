@@ -17,7 +17,11 @@
             navigation
         >
             <SwiperSlide v-for="i in result">
-                <div class="cursor-pointer" @click="onclick(i.id)">
+                <div
+                    class="cursor-pointer mx-2"
+                    @click="onclick(i.id)"
+                    :class="[loading[i.id] ? 'opacity-50' : '']"
+                >
                     <div class="relative mb-1">
                         <img
                             :id="i.id"
@@ -96,14 +100,21 @@ const { data: getDefaultId, executeQuery } = useGetDefaultEpisodeIdQuery({
     },
 })
 
+const loading = ref(
+    {} as {
+        [key: string]: boolean | undefined
+    }
+)
+
 const onclick = async (id: string) => {
     showId.value = id
+    loading.value[id] = true
     await nextTick()
 
-    executeQuery().then(() => {
-        if (getDefaultId.value?.show.defaultEpisode) {
-            goToEpisode(getDefaultId.value.show.defaultEpisode.id)
-        }
-    })
+    await executeQuery()
+
+    if (getDefaultId.value?.show.defaultEpisode) {
+        goToEpisode(getDefaultId.value.show.defaultEpisode.id)
+    }
 }
 </script>

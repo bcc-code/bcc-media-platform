@@ -125,7 +125,9 @@
                                                 {{ t("episode.episode") }}
                                                 {{ e.number }}
                                             </h3>
-                                            <h1 class="text-md lg:text-lg line-clamp-2">
+                                            <h1
+                                                class="text-md lg:text-lg line-clamp-2"
+                                            >
                                                 {{ e.title }}
                                             </h1>
                                             <AgeRating>{{
@@ -227,11 +229,14 @@ onMounted(() => {
     }
 })
 
-watch(() => episode.value?.title, () => {
-    if (episode.value?.title) {
-        setTitle(episode.value.title)
+watch(
+    () => episode.value?.title,
+    () => {
+        if (episode.value?.title) {
+            setTitle(episode.value.title)
+        }
     }
-})
+)
 
 const view = ref(null as "episodes" | "details" | null)
 

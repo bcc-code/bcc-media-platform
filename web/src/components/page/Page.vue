@@ -1,5 +1,5 @@
 <template>
-    <section class="p-5">
+    <section class="mx-4">
         <transition name="slide-fade">
             <div
                 class="flex flex-col gap-8"
@@ -68,7 +68,7 @@
 <script lang="ts" setup>
 import { useGetPageQuery } from "@/graph/generated"
 import Section from "@/components/sections/Section.vue"
-import { onMounted, watch } from "vue";
+import { onMounted, watch } from "vue"
 
 const props = defineProps<{
     pageId: string
@@ -84,12 +84,15 @@ const { data, error, fetching } = useGetPageQuery({
     },
 })
 
-watch(() => data.value?.page.title, () => {
-    const title = data.value?.page.title
-    if (title) {
-        emit("title", title)
+watch(
+    () => data.value?.page.title,
+    () => {
+        const title = data.value?.page.title
+        if (title) {
+            emit("title", title)
+        }
     }
-})
+)
 
 onMounted(() => {
     const title = data.value?.page.title

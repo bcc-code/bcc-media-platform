@@ -5,7 +5,7 @@
             <SwiperSlide v-for="i in item.items.items" class="relative">
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div
-                    class="flex flex-col cursor-pointer mx-2 mt-2"
+                    class="flex flex-col cursor-pointer mt-2"
                     @click="goToSectionItem(i)"
                 >
                     <div class="relative mb-1">

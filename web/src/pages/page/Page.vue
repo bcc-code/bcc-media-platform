@@ -1,10 +1,14 @@
 <template>
-    <PageComponent v-if="!fetching" :page-id="props.pageId" @title="updateTitle"></PageComponent>
+    <PageComponent
+        v-if="!fetching"
+        :page-id="props.pageId"
+        @title="updateTitle"
+    ></PageComponent>
 </template>
 <script lang="ts" setup>
 import PageComponent from "@/components/page/Page.vue"
-import { useApplicationQuery } from "@/graph/generated";
-import { useTitle } from "@/utils/title";
+import { useApplicationQuery } from "@/graph/generated"
+import { useTitle } from "@/utils/title"
 
 const props = defineProps<{
     pageId: string

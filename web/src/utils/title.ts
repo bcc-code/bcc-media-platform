@@ -8,6 +8,6 @@ const setTitle = (title: string) => {
 
 export const useTitle = () => {
     return {
-        setTitle
+        setTitle,
     }
 }

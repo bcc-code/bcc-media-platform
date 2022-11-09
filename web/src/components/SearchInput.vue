@@ -24,7 +24,7 @@
 <script lang="ts" setup>
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
-import { useRouter } from "vue-router";
+import { useRouter } from "vue-router"
 import { SearchIcon } from "./icons"
 
 const { t } = useI18n()
@@ -52,7 +52,6 @@ const router = useRouter()
 
 const cancel = () => {
     value.value = ""
-    if (router.currentRoute.value.name === "search")
-        router.back()
+    if (router.currentRoute.value.name === "search") router.back()
 }
 </script>

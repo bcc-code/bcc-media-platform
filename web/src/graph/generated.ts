@@ -889,225 +889,6 @@ export type GetCalendarDayQuery = {
     } | null
 }
 
-export type GetSeasonQueryVariables = Exact<{
-    id: Scalars["ID"]
-}>
-
-export type GetSeasonQuery = {
-    season: {
-        title: string
-        description: string
-        imageUrl?: string | null
-        number: number
-        show: { title: string }
-        episodes: {
-            total: number
-            items: Array<{
-                title: string
-                description: string
-                imageUrl?: string | null
-                number?: number | null
-            }>
-        }
-    }
-}
-
-export type GetShowQueryVariables = Exact<{
-    id: Scalars["ID"]
-}>
-
-export type GetShowQuery = {
-    show: {
-        title: string
-        description: string
-        imageUrl?: string | null
-        seasons: {
-            total: number
-            items: Array<{
-                title: string
-                description: string
-                imageUrl?: string | null
-                number: number
-                episodes: {
-                    total: number
-                    items: Array<{
-                        title: string
-                        imageUrl?: string | null
-                        number?: number | null
-                        description: string
-                    }>
-                }
-            }>
-        }
-    }
-}
-
-export type GetCalendarStatusQueryVariables = Exact<{
-    day: Scalars["Date"]
-}>
-
-export type GetCalendarStatusQuery = {
-    calendar?: {
-        day: {
-            entries: Array<
-                | { start: any; end: any }
-                | { start: any; end: any }
-                | { start: any; end: any }
-                | { start: any; end: any }
-            >
-        }
-    } | null
-}
-
-export type ApplicationQueryVariables = Exact<{ [key: string]: never }>
-
-export type ApplicationQuery = {
-    application: {
-        code: string
-        page?: { code: string } | null
-        searchPage?: { code: string } | null
-    }
-}
-
-export type GetCalendarPeriodQueryVariables = Exact<{
-    from: Scalars["Date"]
-    to: Scalars["Date"]
-}>
-
-export type GetCalendarPeriodQuery = {
-    calendar?: {
-        period: {
-            activeDays: Array<any>
-            events: Array<{
-                id: string
-                start: string
-                end: string
-                title: string
-            }>
-        }
-    } | null
-}
-
-export type SeasonFragment = {
-    id: string
-    title: string
-    image?: string | null
-    number: number
-    episodes: {
-        total: number
-        items: Array<{
-            id: string
-            number?: number | null
-            title: string
-            image?: string | null
-            progress?: number | null
-            duration: number
-            description: string
-            ageRating: string
-        }>
-    }
-    show: {
-        id: string
-        title: string
-        description: string
-        type: ShowType
-        image?: string | null
-    }
-}
-
-export type SeasonFragmentVariables = Exact<{ [key: string]: never }>
-
-export type GetSeasonOnEpisodePageQueryVariables = Exact<{
-    seasonId: Scalars["ID"]
-    firstEpisodes?: InputMaybe<Scalars["Int"]>
-    offsetEpisodes?: InputMaybe<Scalars["Int"]>
-}>
-
-export type GetSeasonOnEpisodePageQuery = {
-    season: {
-        id: string
-        title: string
-        image?: string | null
-        number: number
-        episodes: {
-            total: number
-            items: Array<{
-                id: string
-                number?: number | null
-                title: string
-                image?: string | null
-                progress?: number | null
-                duration: number
-                description: string
-                ageRating: string
-            }>
-        }
-        show: {
-            id: string
-            title: string
-            description: string
-            type: ShowType
-            image?: string | null
-        }
-    }
-}
-
-export type GetEpisodeQueryVariables = Exact<{
-    episodeId: Scalars["ID"]
-}>
-
-export type GetEpisodeQuery = {
-    episode: {
-        id: string
-        title: string
-        description: string
-        image?: string | null
-        number?: number | null
-        progress?: number | null
-        ageRating: string
-        productionDate?: string | null
-        availableFrom: string
-        availableTo: string
-        publishDate: string
-        duration: number
-        season?: {
-            id: string
-            title: string
-            number: number
-            description: string
-            show: {
-                title: string
-                type: ShowType
-                description: string
-                seasons: {
-                    items: Array<{ id: string; title: string; number: number }>
-                }
-            }
-        } | null
-    }
-}
-
-export type UpdateEpisodeProgressMutationVariables = Exact<{
-    episodeId: Scalars["ID"]
-    progress?: InputMaybe<Scalars["Int"]>
-    duration?: InputMaybe<Scalars["Int"]>
-}>
-
-export type UpdateEpisodeProgressMutation = {
-    setEpisodeProgress: { progress?: number | null }
-}
-
-export type GetLiveCalendarRangeQueryVariables = Exact<{
-    start: Scalars["Date"]
-    end: Scalars["Date"]
-}>
-
-export type GetLiveCalendarRangeQuery = {
-    calendar?: {
-        period: { activeDays: Array<any>; events: Array<{ title: string }> }
-    } | null
-}
-
 export type SectionItemFragment = {
     id: string
     image?: string | null
@@ -2271,6 +2052,227 @@ export type GetPageQuery = {
     }
 }
 
+export type GetSeasonQueryVariables = Exact<{
+    id: Scalars["ID"]
+}>
+
+export type GetSeasonQuery = {
+    season: {
+        title: string
+        description: string
+        imageUrl?: string | null
+        number: number
+        show: { title: string }
+        episodes: {
+            total: number
+            items: Array<{
+                title: string
+                description: string
+                imageUrl?: string | null
+                number?: number | null
+            }>
+        }
+    }
+}
+
+export type GetShowQueryVariables = Exact<{
+    id: Scalars["ID"]
+}>
+
+export type GetShowQuery = {
+    show: {
+        title: string
+        description: string
+        imageUrl?: string | null
+        seasons: {
+            total: number
+            items: Array<{
+                title: string
+                description: string
+                imageUrl?: string | null
+                number: number
+                episodes: {
+                    total: number
+                    items: Array<{
+                        title: string
+                        imageUrl?: string | null
+                        number?: number | null
+                        description: string
+                    }>
+                }
+            }>
+        }
+    }
+}
+
+export type GetCalendarStatusQueryVariables = Exact<{
+    day: Scalars["Date"]
+}>
+
+export type GetCalendarStatusQuery = {
+    calendar?: {
+        day: {
+            entries: Array<
+                | { start: any; end: any }
+                | { start: any; end: any }
+                | { start: any; end: any }
+                | { start: any; end: any }
+            >
+        }
+    } | null
+}
+
+export type ApplicationQueryVariables = Exact<{ [key: string]: never }>
+
+export type ApplicationQuery = {
+    application: {
+        code: string
+        page?: { code: string } | null
+        searchPage?: { code: string } | null
+    }
+}
+
+export type GetCalendarPeriodQueryVariables = Exact<{
+    from: Scalars["Date"]
+    to: Scalars["Date"]
+}>
+
+export type GetCalendarPeriodQuery = {
+    calendar?: {
+        period: {
+            activeDays: Array<any>
+            events: Array<{
+                id: string
+                start: string
+                end: string
+                title: string
+            }>
+        }
+    } | null
+}
+
+export type SeasonFragment = {
+    id: string
+    title: string
+    image?: string | null
+    number: number
+    episodes: {
+        total: number
+        items: Array<{
+            id: string
+            publishDate: string
+            number?: number | null
+            title: string
+            image?: string | null
+            progress?: number | null
+            duration: number
+            description: string
+            ageRating: string
+        }>
+    }
+    show: {
+        id: string
+        title: string
+        description: string
+        type: ShowType
+        image?: string | null
+    }
+}
+
+export type SeasonFragmentVariables = Exact<{ [key: string]: never }>
+
+export type GetSeasonOnEpisodePageQueryVariables = Exact<{
+    seasonId: Scalars["ID"]
+    firstEpisodes?: InputMaybe<Scalars["Int"]>
+    offsetEpisodes?: InputMaybe<Scalars["Int"]>
+}>
+
+export type GetSeasonOnEpisodePageQuery = {
+    season: {
+        id: string
+        title: string
+        image?: string | null
+        number: number
+        episodes: {
+            total: number
+            items: Array<{
+                id: string
+                publishDate: string
+                number?: number | null
+                title: string
+                image?: string | null
+                progress?: number | null
+                duration: number
+                description: string
+                ageRating: string
+            }>
+        }
+        show: {
+            id: string
+            title: string
+            description: string
+            type: ShowType
+            image?: string | null
+        }
+    }
+}
+
+export type GetEpisodeQueryVariables = Exact<{
+    episodeId: Scalars["ID"]
+}>
+
+export type GetEpisodeQuery = {
+    episode: {
+        id: string
+        title: string
+        description: string
+        image?: string | null
+        number?: number | null
+        progress?: number | null
+        ageRating: string
+        productionDate?: string | null
+        availableFrom: string
+        availableTo: string
+        publishDate: string
+        duration: number
+        season?: {
+            id: string
+            title: string
+            number: number
+            description: string
+            show: {
+                title: string
+                type: ShowType
+                description: string
+                seasons: {
+                    items: Array<{ id: string; title: string; number: number }>
+                }
+            }
+        } | null
+    }
+}
+
+export type UpdateEpisodeProgressMutationVariables = Exact<{
+    episodeId: Scalars["ID"]
+    progress?: InputMaybe<Scalars["Int"]>
+    duration?: InputMaybe<Scalars["Int"]>
+}>
+
+export type UpdateEpisodeProgressMutation = {
+    setEpisodeProgress: { progress?: number | null }
+}
+
+export type GetLiveCalendarRangeQueryVariables = Exact<{
+    start: Scalars["Date"]
+    end: Scalars["Date"]
+}>
+
+export type GetLiveCalendarRangeQuery = {
+    calendar?: {
+        period: { activeDays: Array<any>; events: Array<{ title: string }> }
+    } | null
+}
+
 export type SearchQueryVariables = Exact<{
     query: Scalars["String"]
     type?: InputMaybe<Scalars["String"]>
@@ -2320,34 +2322,6 @@ export type GetDefaultEpisodeIdQuery = {
     show: { defaultEpisode: { id: string } }
 }
 
-export const SeasonFragmentDoc = gql`
-    fragment Season on Season {
-        id
-        title
-        image(style: default)
-        number
-        episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
-            total
-            items {
-                id
-                number
-                title
-                image
-                progress
-                duration
-                description
-                ageRating
-            }
-        }
-        show {
-            id
-            title
-            description
-            type
-            image(style: default)
-        }
-    }
-`
 export const SectionItemFragmentDoc = gql`
     fragment SectionItem on SectionItem {
         id
@@ -2442,6 +2416,35 @@ export const ItemSectionFragmentDoc = gql`
     }
     ${SectionItemFragmentDoc}
 `
+export const SeasonFragmentDoc = gql`
+    fragment Season on Season {
+        id
+        title
+        image(style: default)
+        number
+        episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
+            total
+            items {
+                id
+                publishDate
+                number
+                title
+                image
+                progress
+                duration
+                description
+                ageRating
+            }
+        }
+        show {
+            id
+            title
+            description
+            type
+            image(style: default)
+        }
+    }
+`
 export const GetCalendarDayDocument = gql`
     query getCalendarDay($day: Date!) {
         calendar {
@@ -2511,6 +2514,29 @@ export function useGetCalendarDayQuery(
         query: GetCalendarDayDocument,
         ...options,
     })
+}
+export const GetPageDocument = gql`
+    query getPage($code: String!) {
+        page(code: $code) {
+            id
+            title
+            sections {
+                items {
+                    __typename
+                    id
+                    title
+                    ...ItemSection
+                }
+            }
+        }
+    }
+    ${ItemSectionFragmentDoc}
+`
+
+export function useGetPageQuery(
+    options: Omit<Urql.UseQueryArgs<never, GetPageQueryVariables>, "query"> = {}
+) {
+    return Urql.useQuery<GetPageQuery>({ query: GetPageDocument, ...options })
 }
 export const GetSeasonDocument = gql`
     query getSeason($id: ID!) {
@@ -2773,29 +2799,6 @@ export function useGetLiveCalendarRangeQuery(
         query: GetLiveCalendarRangeDocument,
         ...options,
     })
-}
-export const GetPageDocument = gql`
-    query getPage($code: String!) {
-        page(code: $code) {
-            id
-            title
-            sections {
-                items {
-                    __typename
-                    id
-                    title
-                    ...ItemSection
-                }
-            }
-        }
-    }
-    ${ItemSectionFragmentDoc}
-`
-
-export function useGetPageQuery(
-    options: Omit<Urql.UseQueryArgs<never, GetPageQueryVariables>, "query"> = {}
-) {
-    return Urql.useQuery<GetPageQuery>({ query: GetPageDocument, ...options })
 }
 export const SearchDocument = gql`
     query search($query: String!, $type: String, $minScore: Int) {

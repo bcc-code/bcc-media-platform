@@ -1,5 +1,5 @@
 <template>
-    <section class="px-4 mt-2">
+    <section>
         <!-- <div class="flex w-full text-xl">
             <SearchInput class="mx-auto lg:w-96" v-model="query"></SearchInput>
         </div> -->
