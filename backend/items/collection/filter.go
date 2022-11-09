@@ -91,7 +91,7 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, collec
 
 	var orderByString string
 	if f.SortBy != "" {
-		orderByString = pq.QuoteIdentifier(f.SortBy)
+		orderByString = "t." + pq.QuoteIdentifier(f.SortBy)
 	}
 	if orderByString != "" && f.SortByDirection != "" {
 		switch f.SortByDirection {
@@ -120,7 +120,7 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, collec
 	q = q.OrderBy(orderByString)
 
 	if ctx.Value("preview") == true {
-		queryString, _, err := q.OrderBy(orderByString).ToSql()
+		queryString, _, err := q.ToSql()
 		if err != nil {
 			return nil, err
 		}
