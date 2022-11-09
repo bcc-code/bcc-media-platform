@@ -1,5 +1,5 @@
 <template>
-    <section class="font-medium">
+    <section class="font-medium max-w-screen-2xl">
         <div class="aspect-video w-full">
             <Player></Player>
         </div>

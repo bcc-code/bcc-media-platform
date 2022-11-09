@@ -6,10 +6,10 @@
         </div>
         <div class="flex flex-col gap-1">
             <h1 class="text-lg font-semibold">{{ t("episode.rating") }}</h1>
-            <p>
-                <span
-                    class="border text-sm border-gray rounded-md mr-1 px-2 bg-slate-800"
-                    >{{ episode.ageRating }}</span
+            <p class="flex">
+                <AgeRating
+                    v-if="episode.ageRating"
+                    >{{ episode.ageRating }}</AgeRating
                 >{{ new Date(episode.publishDate).getFullYear() }}
             </p>
         </div>
@@ -19,6 +19,7 @@
 import { GetEpisodeQuery } from "@/graph/generated"
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
+import AgeRating from "./AgeRating.vue";
 
 const { t } = useI18n()
 

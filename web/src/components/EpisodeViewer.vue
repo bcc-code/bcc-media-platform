@@ -17,7 +17,8 @@ const props = defineProps<{
         id: string
         duration: number
         progress?: number | null
-    }
+    },
+    autoPlay?: boolean
 }>()
 
 const player = ref(null as Player | null)
@@ -43,8 +44,14 @@ const load = async () => {
     if (current.value !== episodeId) {
         current.value = episodeId
         player.value?.dispose()
+        console.log("AUTOPLAY " + props.autoPlay)
         player.value = await playerFactory.create("video-player", {
             episodeId: episodeId,
+            overrides: {
+                videojs: {
+                    autoplay: props.autoPlay
+                }
+            }
         })
         let lastProgress = props.episode.progress
         player.value.currentTime(lastProgress)
