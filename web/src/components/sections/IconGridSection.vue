@@ -36,11 +36,11 @@ import { goToSectionItem } from "@/utils/items"
 import { onMounted, ref } from "vue";
 import { getImageSize } from "@/utils/images";
 
-const sectionItem = ref(null as HTMLDivElement[] | null)
-
 defineProps<{
     item: Section & { __typename: "IconGridSection" }
 }>()
+
+const sectionItem = ref(null as HTMLDivElement[] | null)
 
 const imageSize = ref(0)
 

@@ -6,12 +6,13 @@
                 v-for="i in item.items.items"
                 class="overflow-clip w-20"
                 @click="goToSectionItem(i)"
+                ref="sectionItem"
             >
                 <div
                     class="aspect-square bg-slate-800 rounded-2xl border-2 border-slate-700 p-2 cursor-pointer"
                 >
                     <img
-                        :src="i.image + '?h=150&w=150&fit=crop'"
+                        :src="i.image + `?h=${imageSize}&w=${imageSize}&fit=crop`"
                         loading="lazy"
                         class="object-cover m-auto rounded-lg"
                     />
@@ -30,8 +31,20 @@ import { Section } from "./types"
 
 import SectionTitle from "./SectionTitle.vue"
 import { goToSectionItem } from "@/utils/items"
+import { onMounted, ref } from "vue";
+import { getImageSize } from "@/utils/images";
 
 defineProps<{
     item: Section & { __typename: "IconSection" }
 }>()
+
+const sectionItem = ref(null as HTMLDivElement[] | null)
+
+const imageSize = ref(0)
+
+onMounted(() => {
+    const div = sectionItem.value?.[0]
+
+    imageSize.value = getImageSize(div?.getBoundingClientRect().width ?? 100)
+})
 </script>
