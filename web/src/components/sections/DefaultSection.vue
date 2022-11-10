@@ -4,14 +4,15 @@
         <Slide :item="item" v-slot="{ item: i }">
             <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
             <div
-                class="flex flex-col cursor-pointer mt-2 hover:opacity-90 transition"
+                class="flex flex-col cursor-pointer mt-2"
                 @click="goToSectionItem(i)"
             >
                 <div
-                    class="relative mb-1 rounded-md w-full aspect-video overflow-hidden transition"
+                    class="relative mb-1 rounded-md w-full aspect-video overflow-hidden hover:opacity-90 transition"
                 >
                     <Image
                         :src="i.image"
+                        class="rounded-md"
                         loading="lazy"
                         size-source="width"
                         :ratio="9 / 16"
