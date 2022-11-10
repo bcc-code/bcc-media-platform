@@ -11,7 +11,7 @@
                 <div
                     class="aspect-square bg-slate-800 rounded-2xl border-2 border-slate-700 p-4 cursor-pointer"
                 >
-                    <Image :src="i.image" size-source="width"/>
+                    <Image :src="i.image" size-source="width" />
                 </div>
                 <div class="mx-auto">
                     <p

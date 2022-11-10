@@ -112,7 +112,7 @@
                                                 v-if="e.image"
                                                 :src="e.image"
                                                 size-source="width"
-                                                :ratio="9/16"
+                                                :ratio="9 / 16"
                                             />
                                         </WithProgressBar>
                                         <div class="w-2/3">

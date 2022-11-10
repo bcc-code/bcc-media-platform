@@ -5,11 +5,17 @@
             <div v-for="i in item.items.items" class="relative mb-5">
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div
-                    class="flex flex-col cursor-pointer mx-2 mt-2"
+                    class="flex flex-col cursor-pointer mx-2 mt-2 hover:opacity-90 transition"
                     @click="goToSectionItem(i)"
                 >
-                    <div class="relative mb-1 rounded-md top-0 w-full object-cover aspect-video overflow-hidden">
-                        <Image :src="i.image" size-source="width" :ratio="9/16" />
+                    <div
+                        class="relative mb-1 rounded-md top-0 w-full object-cover aspect-video overflow-hidden"
+                    >
+                        <Image
+                            :src="i.image"
+                            size-source="width"
+                            :ratio="9 / 16"
+                        />
                         <ProgressBar
                             class="absolute bottom-0 w-full"
                             v-if="i.item?.__typename === 'Episode'"

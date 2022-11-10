@@ -1,67 +1,53 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <Swiper
-            :breakpoints="options"
-            :modules="modules"
-            :navigation="true"
-            class="featured-section overflow-hidden rounded-xl"
-        >
-            <SwiperSlide
-                v-for="i in item.items.items"
-                class="h-full aspect-[4/3] md:aspect-video"
-                @click="goToSectionItem(i)"
-            >
-                <div class="relative h-full">
-                    <Image
-                        v-if="i.image"
-                        :src="i.image"
-                        size-source="width"
-                        :ratio="9/16"
-                        class="rounded rounded-xl h-full object-cover"
-                    />
-                    <div
-                        class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent p- pt-8"
+        <Slider :item="item" v-slot="{ item: i }" :breakpoints="options">
+            <div class="relative h-full cursor-pointer" @click="goToSectionItem(i)">
+                <Image
+                    v-if="i.image"
+                    :src="i.image"
+                    size-source="width"
+                    :ratio="9 / 16"
+                    class="rounded rounded-xl h-full object-cover"
+                />
+                <div
+                    class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent p- pt-8"
+                >
+                    <h1 class="text-2xl font-bold">
+                        {{ i.title }}
+                    </h1>
+                    <p
+                        v-if="(i as any).description"
+                        class="opacity-80 truncate px-8"
                     >
-                        <h1 class="text-2xl font-bold">
-                            {{ i.title }}
-                        </h1>
-                        <p
-                            v-if="i.description"
-                            class="opacity-80 truncate px-8"
-                        >
-                            {{ i.description }}
-                        </p>
-                    </div>
+                        {{ (i as any).description }}
+                    </p>
                 </div>
-                <div class="text-center mt-2">
-                    <button
-                        class="bg-slate-800 px-4 py-1 rounded-full font-bold text-lg flex mx-auto"
-                    >
-                        <Play></Play><span class="ml-1">Watch now</span>
-                    </button>
-                </div>
-            </SwiperSlide>
-        </Swiper>
+            </div>
+            <div class="text-center mt-2">
+                <button
+                    class="bg-slate-800 px-4 py-1 rounded-full font-bold text-lg flex mx-auto hover:scale-105"
+                    @click="goToSectionItem(i)"
+                >
+                    <Play></Play><span class="ml-1">Watch now</span>
+                </button>
+            </div>
+        </Slider>
     </section>
 </template>
 <script lang="ts" setup>
 import { Section } from "./types"
 
-import { Navigation, Pagination, SwiperOptions } from "swiper"
-
-import { Swiper, SwiperSlide } from "swiper/vue"
 import { computed } from "vue"
 import SectionTitle from "./SectionTitle.vue"
 import Play from "../icons/Play.vue"
-import { goToSectionItem } from "@/utils/items"
 import Image from "../Image.vue"
+import Slider from "./Slider.vue"
+import { goToSectionItem } from "@/utils/items"
 
 const props = defineProps<{
     item: Section & { __typename: "FeaturedSection" }
 }>()
-
-const modules = [Navigation, Pagination]
 
 const options = computed(() => {
     switch (props.item.size) {
@@ -79,8 +65,6 @@ const options = computed(() => {
                     slidesPerView: 4,
                     spaceBetween: 4,
                 },
-            } as {
-                [key: number]: SwiperOptions
             }
         case "medium":
             return {
@@ -96,8 +80,6 @@ const options = computed(() => {
                     slidesPerView: 2,
                     spaceBetween: 4,
                 },
-            } as {
-                [key: number]: SwiperOptions
             }
     }
 })

@@ -1,46 +1,44 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <Swiper :breakpoints="breakpoints(item.size)" :modules="modules" :lazy="true">
-            <SwiperSlide v-for="i in item.items.items" class="relative">
-                <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
+        <Slide :item="item" v-slot="{ item: i }">
+            <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
+            <div
+                class="flex flex-col cursor-pointer mt-2 hover:opacity-90 transition"
+                @click="goToSectionItem(i)"
+            >
                 <div
-                    class="flex flex-col cursor-pointer mt-2"
-                    @click="goToSectionItem(i)"
+                    class="relative mb-1 rounded-md top-0 w-full object-cover aspect-video overflow-hidden transition"
                 >
-                    <div
-                        class="relative mb-1 rounded-md top-0 w-full object-cover aspect-video overflow-hidden"
-                    >
-                        <Image :src="i.image" loading="lazy" size-source="width" :ratio="9/16" />
-                        <ProgressBar
-                            class="absolute bottom-0 w-full"
-                            v-if="i.item?.__typename === 'Episode'"
-                            :item="i.item"
-                        />
-                    </div>
-                    <SectionItemTitle :for="i.id" :i="i"></SectionItemTitle>
+                    <Image
+                        :src="i.image"
+                        loading="lazy"
+                        size-source="width"
+                        :ratio="9 / 16"
+                    />
+                    <ProgressBar
+                        class="absolute bottom-0 w-full"
+                        v-if="i.item?.__typename === 'Episode'"
+                        :item="i.item"
+                    />
                 </div>
-            </SwiperSlide>
-        </Swiper>
+                <SectionItemTitle :for="i.id" :i="i"></SectionItemTitle>
+            </div>
+        </Slide>
     </section>
 </template>
 <script lang="ts" setup>
 import { Section } from "./types"
 
-import { Navigation, Pagination, Lazy } from "swiper"
-
-import { Swiper, SwiperSlide } from "swiper/vue"
 import SectionTitle from "./SectionTitle.vue"
-import breakpoints from "./breakpoints"
 import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
 import ProgressBar from "../episodes/ProgressBar.vue"
 import Image from "../Image.vue"
+import Slide from "./Slider.vue"
 
-const props = defineProps<{
+defineProps<{
     item: Section & { __typename: "DefaultSection" }
 }>()
-
-const modules = [Navigation, Pagination, Lazy]
 </script>

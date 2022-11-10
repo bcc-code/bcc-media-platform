@@ -1,8 +1,13 @@
 <template>
-    <img ref="image" :src="effectiveSrc" :height="effectiveHeight" :width="effectiveWidth" />
+    <img
+        ref="image"
+        :src="effectiveSrc"
+        :height="effectiveHeight"
+        :width="effectiveWidth"
+    />
 </template>
 <script lang="ts" setup>
-import { getImageSize } from "@/utils/images";
+import { getImageSize } from "@/utils/images"
 import { computed, ref } from "vue"
 
 const props = defineProps<{
@@ -16,7 +21,7 @@ const image = ref(null as HTMLImageElement | null)
 const parentDimensions = computed(() => {
     const dimensions = {
         height: 100,
-        width: 100
+        width: 100,
     }
     const rect = image.value?.parentElement?.getBoundingClientRect()
     if (rect) {
@@ -34,10 +39,14 @@ const effectiveSrc = computed(() => {
 })
 
 const effectiveWidth = computed(() => {
-    return props.sizeSource === "height" ? getImageSize(parentDimensions.value.height) * (props.ratio ?? 1) : getImageSize(parentDimensions.value.width)
+    return props.sizeSource === "height"
+        ? getImageSize(parentDimensions.value.height) * (props.ratio ?? 1)
+        : getImageSize(parentDimensions.value.width)
 })
 
 const effectiveHeight = computed(() => {
-    return props.sizeSource === "height" ? getImageSize(parentDimensions.value.height) : getImageSize(parentDimensions.value.width) * (props.ratio ?? 1)
+    return props.sizeSource === "height"
+        ? getImageSize(parentDimensions.value.height)
+        : getImageSize(parentDimensions.value.width) * (props.ratio ?? 1)
 })
 </script>

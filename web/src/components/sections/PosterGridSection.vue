@@ -8,11 +8,15 @@
                 @click="goToSectionItem(i)"
             >
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
-                <div
-                    class="flex flex-col rounded rounded-md mx-2 mt-1"
-                >
-                    <div class="relative aspect-[9/16] rounded-md object-cover mb-1">
-                        <Image :src="i.image" size-source="height" :ratio="9/16" />
+                <div class="flex flex-col rounded rounded-md mx-2 mt-1 hover:opacity-90 transition">
+                    <div
+                        class="relative aspect-[9/16] rounded-md object-cover mb-1"
+                    >
+                        <Image
+                            :src="i.image"
+                            size-source="height"
+                            :ratio="9 / 16"
+                        />
                         <ProgressBar
                             class="absolute bottom-0 w-full"
                             v-if="i.item?.__typename === 'Episode'"

@@ -11,11 +11,11 @@ export default (size: "small" | "medium") => {
                     spaceBetween,
                 },
                 1280: {
-                    slidesPerView: 6,
+                    slidesPerView: 6.5,
                     spaceBetween,
                 },
                 1920: {
-                    slidesPerView: 9,
+                    slidesPerView: 9.5,
                     spaceBetween,
                 },
             } as {
@@ -28,11 +28,11 @@ export default (size: "small" | "medium") => {
                     spaceBetween,
                 },
                 1280: {
-                    slidesPerView: 4,
+                    slidesPerView: 4.33,
                     spaceBetween,
                 },
                 1920: {
-                    slidesPerView: 6,
+                    slidesPerView: 6.5,
                     spaceBetween,
                 },
             } as {
@@ -45,11 +45,11 @@ export default (size: "small" | "medium") => {
                     spaceBetween,
                 },
                 1280: {
-                    slidesPerView: 4,
+                    slidesPerView: 4.5,
                     spaceBetween,
                 },
                 1920: {
-                    slidesPerView: 6,
+                    slidesPerView: 6.5,
                     spaceBetween,
                 },
             } as {
