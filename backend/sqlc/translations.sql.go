@@ -23,7 +23,7 @@ WITH episodes AS (SELECT e.id
 SELECT et.id, episodes_id as parent_id, languages_code, title, description, extra_description
 FROM episodes_translations et
          JOIN episodes e ON e.id = et.episodes_id
-WHERE et.languages_code = ANY($1::varchar[])
+WHERE et.languages_code = ANY ($1::varchar[])
 `
 
 type ListEpisodeTranslationsRow struct {
@@ -74,7 +74,7 @@ WITH seasons AS (SELECT s.id
 SELECT et.id, seasons_id as parent_id, languages_code, title, description
 FROM seasons_translations et
          JOIN seasons e ON e.id = et.seasons_id
-WHERE et.languages_code = ANY($1::varchar[])
+WHERE et.languages_code = ANY ($1::varchar[])
 `
 
 type ListSeasonTranslationsRow struct {
@@ -116,12 +116,13 @@ func (q *Queries) ListSeasonTranslations(ctx context.Context, dollar_1 []string)
 
 const listSectionTranslations = `-- name: ListSectionTranslations :many
 WITH sections AS (SELECT s.id
-               FROM sections s
-               WHERE s.status = 'published')
+                  FROM sections s
+                  WHERE s.status = 'published'
+                    AND s.show_title = true)
 SELECT st.id, sections_id as parent_id, languages_code, title, description
 FROM sections_translations st
          JOIN sections e ON e.id = st.sections_id
-WHERE st.languages_code = ANY($1::varchar[])
+WHERE st.languages_code = ANY ($1::varchar[])
 `
 
 type ListSectionTranslationsRow struct {
@@ -168,7 +169,7 @@ WITH shows AS (SELECT s.id
 SELECT et.id, shows_id as parent_id, languages_code, title, description
 FROM shows_translations et
          JOIN shows e ON e.id = et.shows_id
-WHERE et.languages_code = ANY($1::varchar[])
+WHERE et.languages_code = ANY ($1::varchar[])
 `
 
 type ListShowTranslationsRow struct {
