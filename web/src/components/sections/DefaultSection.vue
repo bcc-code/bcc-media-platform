@@ -8,7 +8,7 @@
                 @click="goToSectionItem(i)"
             >
                 <div
-                    class="relative mb-1 rounded-md top-0 w-full object-cover aspect-video overflow-hidden transition"
+                    class="relative mb-1 rounded-md w-full aspect-video overflow-hidden transition"
                 >
                     <Image
                         :src="i.image"

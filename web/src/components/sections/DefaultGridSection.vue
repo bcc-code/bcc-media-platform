@@ -9,7 +9,7 @@
                     @click="goToSectionItem(i)"
                 >
                     <div
-                        class="relative mb-1 rounded-md top-0 w-full object-cover aspect-video overflow-hidden"
+                        class="relative mb-1 rounded-md w-full aspect-video overflow-hidden"
                     >
                         <Image
                             :src="i.image"
