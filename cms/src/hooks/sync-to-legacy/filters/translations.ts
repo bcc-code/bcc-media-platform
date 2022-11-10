@@ -138,7 +138,7 @@ export async function updateEpisodeTranslation(p: episodes.components["schemas"]
     if (p.hasOwnProperty('description')) {
         await upsertLS(oldKnex, episode.legacy_description_id, oldLang, p.description)
     }
-    if (p.hasOwnProperty('extra_description')) {
+    if (p.hasOwnProperty('extra_description') && episode.legacy_extra_description_id) {
         await upsertLS(oldKnex, episode.legacy_extra_description_id, oldLang, p.extra_description)
     }
 
