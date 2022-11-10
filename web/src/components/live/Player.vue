@@ -7,7 +7,7 @@ import Auth from "@/services/auth"
 import { createPlayer, Player } from "bccm-video-player"
 import "bccm-video-player/css"
 import { onMounted, onUnmounted, ref } from "vue"
-import { useRoute } from "vue-router";
+import { useRoute } from "vue-router"
 
 const err = ref(null as string | null)
 

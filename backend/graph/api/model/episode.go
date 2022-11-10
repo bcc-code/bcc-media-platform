@@ -60,9 +60,17 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		productionDate = &ds
 	}
 
+	var episodeType EpisodeType
+	if e.Type == "episode" {
+		episodeType = EpisodeTypeEpisode
+	} else {
+		episodeType = EpisodeTypeStandalone
+	}
+
 	episode := &Episode{
 		Chapters:         []*Chapter{}, // Currently not supported
 		ID:               strconv.Itoa(e.ID),
+		Type:             episodeType,
 		PublishDate:      e.PublishDate.Format(time.RFC3339),
 		LegacyID:         legacyID,
 		LegacyProgramID:  legacyProgramID,

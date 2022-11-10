@@ -24,13 +24,15 @@ body {
     --swiper-navigation-color: #6eb0e6;
 }
 
-.swiper-button-next, .swiper-button-prev {
+.swiper-button-next,
+.swiper-button-prev {
     background-color: rgba(0, 0, 0, 0.2);
     border-radius: 100%;
     height: 55px !important;
     width: 55px !important;
 }
 
-.swiper-button-next:hover, .swiper-button-prev:hover {
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
     background-color: rgba(0, 0, 0, 0.5);
 }
