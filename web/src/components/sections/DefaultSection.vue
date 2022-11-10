@@ -1,7 +1,7 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <Swiper :breakpoints="breakpoints(item.size)" :modules="modules">
+        <Swiper :breakpoints="breakpoints(item.size)" :modules="modules" :lazy="true">
             <SwiperSlide v-for="i in item.items.items" class="relative">
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div
@@ -11,7 +11,7 @@
                     <div
                         class="relative mb-1 rounded-md top-0 w-full object-cover aspect-video overflow-hidden"
                     >
-                        <Image :src="i.image" size-source="width" :ratio="9/16" />
+                        <Image :src="i.image" loading="lazy" size-source="width" :ratio="9/16" />
                         <ProgressBar
                             class="absolute bottom-0 w-full"
                             v-if="i.item?.__typename === 'Episode'"
@@ -27,10 +27,9 @@
 <script lang="ts" setup>
 import { Section } from "./types"
 
-import { Navigation, Pagination } from "swiper"
+import { Navigation, Pagination, Lazy } from "swiper"
 
 import { Swiper, SwiperSlide } from "swiper/vue"
-import { computed } from "vue"
 import SectionTitle from "./SectionTitle.vue"
 import breakpoints from "./breakpoints"
 import { goToSectionItem } from "@/utils/items"
@@ -43,18 +42,5 @@ const props = defineProps<{
     item: Section & { __typename: "DefaultSection" }
 }>()
 
-const modules = [Navigation, Pagination]
-
-const imageSize = computed(() => {
-    return {
-        small: {
-            height: 225,
-            width: 400,
-        },
-        medium: {
-            height: 225,
-            width: 400,
-        },
-    }[props.item.size]
-})
+const modules = [Navigation, Pagination, Lazy]
 </script>

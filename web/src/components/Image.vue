@@ -1,5 +1,5 @@
 <template>
-    <img ref="image" :src="effectiveSrc" loading="lazy" />
+    <img ref="image" :src="effectiveSrc" :height="effectiveHeight" :width="effectiveWidth" />
 </template>
 <script lang="ts" setup>
 import { getImageSize } from "@/utils/images";
