@@ -3699,7 +3699,7 @@ type SectionItem {
     title: String!
     description: String!
     image: String
-    item: SectionItemType
+    item: SectionItemType!
 }
 
 type SectionItemPagination implements Pagination {
@@ -17048,11 +17048,14 @@ func (ec *executionContext) _SectionItem_item(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(model.SectionItemType)
 	fc.Result = res
-	return ec.marshalOSectionItemType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionItemType(ctx, field.Selections, res)
+	return ec.marshalNSectionItemType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionItemType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SectionItem_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -25863,6 +25866,9 @@ func (ec *executionContext) _SectionItem(ctx context.Context, sel ast.SelectionS
 
 			out.Values[i] = ec._SectionItem_item(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -28149,6 +28155,16 @@ func (ec *executionContext) marshalNSectionItemPagination2ᚖgithubᚗcomᚋbcc�
 	return ec._SectionItemPagination(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNSectionItemType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionItemType(ctx context.Context, sel ast.SelectionSet, v model.SectionItemType) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SectionItemType(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNSectionPagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionPagination(ctx context.Context, sel ast.SelectionSet, v model.SectionPagination) graphql.Marshaler {
 	return ec._SectionPagination(ctx, sel, &v)
 }
@@ -28808,13 +28824,6 @@ func (ec *executionContext) marshalOSectionItemPagination2ᚖgithubᚗcomᚋbcc�
 		return graphql.Null
 	}
 	return ec._SectionItemPagination(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOSectionItemType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionItemType(ctx context.Context, sel ast.SelectionSet, v model.SectionItemType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._SectionItemType(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v *model.Show) graphql.Marshaler {

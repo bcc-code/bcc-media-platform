@@ -149,7 +149,7 @@ type SectionItem {
     title: String!
     description: String!
     image: String
-    item: SectionItemType
+    item: SectionItemType!
 }
 
 type SectionItemPagination implements Pagination {

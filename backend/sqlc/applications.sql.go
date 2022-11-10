@@ -58,6 +58,7 @@ SELECT a.id::int                          AS id,
        a.status = 'published'             AS published,
        a.page_id                          AS default_page_id,
        a.search_page_id                   AS search_page_id,
+       a.standalone_related_collection_id AS standalone_related_collection_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
          LEFT JOIN roles r ON a.id = r.applications_id
@@ -66,14 +67,15 @@ WHERE a.id = ANY ($1::int[])
 `
 
 type getApplicationsRow struct {
-	ID            int32          `db:"id" json:"id"`
-	Code          string         `db:"code" json:"code"`
-	Default       bool           `db:"default" json:"default"`
-	ClientVersion null_v4.String `db:"client_version" json:"clientVersion"`
-	Published     bool           `db:"published" json:"published"`
-	DefaultPageID null_v4.Int    `db:"default_page_id" json:"defaultPageID"`
-	SearchPageID  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
-	Roles         []string       `db:"roles" json:"roles"`
+	ID                            int32          `db:"id" json:"id"`
+	Code                          string         `db:"code" json:"code"`
+	Default                       bool           `db:"default" json:"default"`
+	ClientVersion                 null_v4.String `db:"client_version" json:"clientVersion"`
+	Published                     bool           `db:"published" json:"published"`
+	DefaultPageID                 null_v4.Int    `db:"default_page_id" json:"defaultPageID"`
+	SearchPageID                  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
+	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionID"`
+	Roles                         []string       `db:"roles" json:"roles"`
 }
 
 func (q *Queries) getApplications(ctx context.Context, dollar_1 []int32) ([]getApplicationsRow, error) {
@@ -93,6 +95,7 @@ func (q *Queries) getApplications(ctx context.Context, dollar_1 []int32) ([]getA
 			&i.Published,
 			&i.DefaultPageID,
 			&i.SearchPageID,
+			&i.StandaloneRelatedCollectionID,
 			pq.Array(&i.Roles),
 		); err != nil {
 			return nil, err
@@ -120,6 +123,7 @@ SELECT a.id::int                          AS id,
        a.status = 'published'             AS published,
        a.page_id                          AS default_page_id,
        a.search_page_id                   AS search_page_id,
+       a.standalone_related_collection_id AS standalone_related_collection_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
          LEFT JOIN roles r ON a.id = r.applications_id
@@ -127,14 +131,15 @@ WHERE a.status = 'published'
 `
 
 type listApplicationsRow struct {
-	ID            int32          `db:"id" json:"id"`
-	Code          string         `db:"code" json:"code"`
-	Default       bool           `db:"default" json:"default"`
-	ClientVersion null_v4.String `db:"client_version" json:"clientVersion"`
-	Published     bool           `db:"published" json:"published"`
-	DefaultPageID null_v4.Int    `db:"default_page_id" json:"defaultPageID"`
-	SearchPageID  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
-	Roles         []string       `db:"roles" json:"roles"`
+	ID                            int32          `db:"id" json:"id"`
+	Code                          string         `db:"code" json:"code"`
+	Default                       bool           `db:"default" json:"default"`
+	ClientVersion                 null_v4.String `db:"client_version" json:"clientVersion"`
+	Published                     bool           `db:"published" json:"published"`
+	DefaultPageID                 null_v4.Int    `db:"default_page_id" json:"defaultPageID"`
+	SearchPageID                  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
+	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionID"`
+	Roles                         []string       `db:"roles" json:"roles"`
 }
 
 func (q *Queries) listApplications(ctx context.Context) ([]listApplicationsRow, error) {
@@ -154,6 +159,7 @@ func (q *Queries) listApplications(ctx context.Context) ([]listApplicationsRow, 
 			&i.Published,
 			&i.DefaultPageID,
 			&i.SearchPageID,
+			&i.StandaloneRelatedCollectionID,
 			pq.Array(&i.Roles),
 		); err != nil {
 			return nil, err

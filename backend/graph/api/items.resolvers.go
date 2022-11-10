@@ -5,18 +5,18 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/samber/lo"
-	"gopkg.in/guregu/null.v4"
+	"github.com/bcc-code/brunstadtv/backend/applications"
 	"strconv"
 	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/items/show"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/samber/lo"
 )
 
 // AvailableFrom is the resolver for the availableFrom field.
@@ -118,9 +118,17 @@ func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*in
 
 // RelatedItems is the resolver for the relatedItems field.
 func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error) {
-	if obj.Season == nil {
+	if obj.Type == model.EpisodeTypeStandalone {
+		ginCtx, err := utils.GinCtx(ctx)
+		if err != nil {
+			return nil, err
+		}
+		app, err := applications.GetFromCtx(ginCtx)
+		if err != nil || !app.RelatedCollectionID.Valid {
+			return nil, err
+		}
 		page, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), &common.Section{
-			CollectionID: null.IntFrom(3),
+			CollectionID: app.RelatedCollectionID,
 			Style:        "default",
 		}, first, offset)
 		if err != nil {
