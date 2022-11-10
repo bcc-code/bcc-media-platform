@@ -13,6 +13,8 @@ ALTER TABLE IF EXISTS "public"."sections_translations"
 
 ALTER TABLE IF EXISTS "public"."sections_translations" DROP CONSTRAINT IF EXISTS "sections_translations_sections_id_foreign";
 
+DELETE FROM "public"."sections_translations" WHERE "sections_id" IS NULL;
+
 ALTER TABLE IF EXISTS "public"."sections_translations"
 	ALTER COLUMN "sections_id" SET NOT NULL;
 
