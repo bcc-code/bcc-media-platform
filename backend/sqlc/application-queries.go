@@ -11,13 +11,14 @@ func mapToApplications(applications []getApplicationsRow) []common.Application {
 	return lo.Map(applications, func(p getApplicationsRow, _ int) common.Application {
 
 		return common.Application{
-			ID:            int(p.ID),
-			Default:       p.Default,
-			Code:          p.Code,
-			Roles:         p.Roles,
-			ClientVersion: p.ClientVersion.ValueOrZero(),
-			DefaultPageID: p.DefaultPageID,
-			SearchPageID:  p.SearchPageID,
+			ID:                  int(p.ID),
+			Default:             p.Default,
+			Code:                p.Code,
+			Roles:               p.Roles,
+			ClientVersion:       p.ClientVersion.ValueOrZero(),
+			DefaultPageID:       p.DefaultPageID,
+			SearchPageID:        p.SearchPageID,
+			RelatedCollectionID: p.StandaloneRelatedCollectionID,
 		}
 	})
 }

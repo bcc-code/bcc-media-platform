@@ -2,7 +2,10 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <Slider :item="item" v-slot="{ item: i }" :breakpoints="options">
-            <div class="relative h-full cursor-pointer" @click="goToSectionItem(i)">
+            <div
+                class="relative h-full cursor-pointer"
+                @click="goToSectionItem(i)"
+            >
                 <Image
                     v-if="i.image"
                     :src="i.image"

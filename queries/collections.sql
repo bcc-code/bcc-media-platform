@@ -27,11 +27,7 @@ WHERE ci.collection_id = ANY ($1::int[])
         AND ea.available_to > now()
         AND er.roles && $2::varchar[] AND ea.available_from < now()
     ))
-  AND (ci.season_id IS NULL OR (
-        sa.published
-        AND sa.available_to > now()
-        AND sr.roles && $2::varchar[] AND sa.available_from < now()
-    ))
+  AND ci.season_id IS NULL
   AND (ci.show_id IS NULL OR (
         sha.published
         AND sha.available_to > now()

@@ -117,29 +117,31 @@ type Device struct {
 }
 
 type Episode struct {
-	ID                string     `json:"id"`
-	LegacyID          *string    `json:"legacyID"`
-	LegacyProgramID   *string    `json:"legacyProgramID"`
-	PublishDate       string     `json:"publishDate"`
-	AvailableFrom     string     `json:"availableFrom"`
-	AvailableTo       string     `json:"availableTo"`
-	AgeRating         string     `json:"ageRating"`
-	Title             string     `json:"title"`
-	Description       string     `json:"description"`
-	ExtraDescription  string     `json:"extraDescription"`
-	Image             *string    `json:"image"`
-	ImageURL          *string    `json:"imageUrl"`
-	ProductionDate    *string    `json:"productionDate"`
-	Streams           []*Stream  `json:"streams"`
-	Files             []*File    `json:"files"`
-	Chapters          []*Chapter `json:"chapters"`
-	Season            *Season    `json:"season"`
-	Duration          int        `json:"duration"`
-	Progress          *int       `json:"progress"`
-	AudioLanguages    []Language `json:"audioLanguages"`
-	SubtitleLanguages []Language `json:"subtitleLanguages"`
-	Images            []*Image   `json:"images"`
-	Number            *int       `json:"number"`
+	ID                string                 `json:"id"`
+	Type              EpisodeType            `json:"type"`
+	LegacyID          *string                `json:"legacyID"`
+	LegacyProgramID   *string                `json:"legacyProgramID"`
+	PublishDate       string                 `json:"publishDate"`
+	AvailableFrom     string                 `json:"availableFrom"`
+	AvailableTo       string                 `json:"availableTo"`
+	AgeRating         string                 `json:"ageRating"`
+	Title             string                 `json:"title"`
+	Description       string                 `json:"description"`
+	ExtraDescription  string                 `json:"extraDescription"`
+	Image             *string                `json:"image"`
+	ImageURL          *string                `json:"imageUrl"`
+	ProductionDate    *string                `json:"productionDate"`
+	Streams           []*Stream              `json:"streams"`
+	Files             []*File                `json:"files"`
+	Chapters          []*Chapter             `json:"chapters"`
+	Season            *Season                `json:"season"`
+	Duration          int                    `json:"duration"`
+	Progress          *int                   `json:"progress"`
+	AudioLanguages    []Language             `json:"audioLanguages"`
+	SubtitleLanguages []Language             `json:"subtitleLanguages"`
+	RelatedItems      *SectionItemPagination `json:"relatedItems"`
+	Images            []*Image               `json:"images"`
+	Number            *int                   `json:"number"`
 }
 
 func (Episode) IsSectionItemType() {}
@@ -599,6 +601,47 @@ type WebSection struct {
 }
 
 func (WebSection) IsSection() {}
+
+type EpisodeType string
+
+const (
+	EpisodeTypeEpisode    EpisodeType = "episode"
+	EpisodeTypeStandalone EpisodeType = "standalone"
+)
+
+var AllEpisodeType = []EpisodeType{
+	EpisodeTypeEpisode,
+	EpisodeTypeStandalone,
+}
+
+func (e EpisodeType) IsValid() bool {
+	switch e {
+	case EpisodeTypeEpisode, EpisodeTypeStandalone:
+		return true
+	}
+	return false
+}
+
+func (e EpisodeType) String() string {
+	return string(e)
+}
+
+func (e *EpisodeType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = EpisodeType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid EpisodeType", str)
+	}
+	return nil
+}
+
+func (e EpisodeType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
 
 type GridSectionSize string
 

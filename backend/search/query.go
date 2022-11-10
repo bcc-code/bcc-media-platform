@@ -159,6 +159,8 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 
 		item.LegacyID = hit.LegacyID
 
+		item.Duration = hit.Duration
+
 		searchResult.ResultCount++
 		searchResult.Result = append(searchResult.Result, item)
 	}

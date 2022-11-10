@@ -1,5 +1,9 @@
 <template>
-    <div class="bg-primary-light overflow-hidden" :class="[!loaded ? 'border-1 border border-slate-700 opacity-50' : '']"  ref="container">
+    <div
+        class="bg-primary-light overflow-hidden"
+        :class="[!loaded ? 'border-1 border border-slate-700 opacity-50' : '']"
+        ref="container"
+    >
         <img
             ref="image"
             class="object-cover transition"

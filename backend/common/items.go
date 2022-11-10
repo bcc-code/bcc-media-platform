@@ -287,13 +287,14 @@ func (i Question) GetKey() int {
 
 // Application contains data for
 type Application struct {
-	ID            int
-	Default       bool
-	Code          string
-	ClientVersion string
-	DefaultPageID null.Int
-	SearchPageID  null.Int
-	Roles         []string
+	ID                  int
+	Default             bool
+	Code                string
+	ClientVersion       string
+	DefaultPageID       null.Int
+	SearchPageID        null.Int
+	RelatedCollectionID null.Int
+	Roles               []string
 }
 
 // GetKey returns the key for this item

@@ -155,10 +155,12 @@ type ComplexityRoot struct {
 		ProductionDate    func(childComplexity int) int
 		Progress          func(childComplexity int) int
 		PublishDate       func(childComplexity int) int
+		RelatedItems      func(childComplexity int, first *int, offset *int) int
 		Season            func(childComplexity int) int
 		Streams           func(childComplexity int) int
 		SubtitleLanguages func(childComplexity int) int
 		Title             func(childComplexity int) int
+		Type              func(childComplexity int) int
 	}
 
 	EpisodeCalendarEntry struct {
@@ -590,6 +592,8 @@ type DefaultSectionResolver interface {
 	Items(ctx context.Context, obj *model.DefaultSection, first *int, offset *int) (*model.SectionItemPagination, error)
 }
 type EpisodeResolver interface {
+	AvailableFrom(ctx context.Context, obj *model.Episode) (string, error)
+
 	Image(ctx context.Context, obj *model.Episode, style *model.ImageStyle) (*string, error)
 
 	Streams(ctx context.Context, obj *model.Episode) ([]*model.Stream, error)
@@ -598,6 +602,8 @@ type EpisodeResolver interface {
 	Season(ctx context.Context, obj *model.Episode) (*model.Season, error)
 
 	Progress(ctx context.Context, obj *model.Episode) (*int, error)
+
+	RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error)
 }
 type EpisodeCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Event, error)
@@ -1109,6 +1115,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Episode.PublishDate(childComplexity), true
 
+	case "Episode.relatedItems":
+		if e.complexity.Episode.RelatedItems == nil {
+			break
+		}
+
+		args, err := ec.field_Episode_relatedItems_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Episode.RelatedItems(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+
 	case "Episode.season":
 		if e.complexity.Episode.Season == nil {
 			break
@@ -1136,6 +1154,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.Title(childComplexity), true
+
+	case "Episode.type":
+		if e.complexity.Episode.Type == nil {
+			break
+		}
+
+		return e.complexity.Episode.Type(childComplexity), true
 
 	case "EpisodeCalendarEntry.description":
 		if e.complexity.EpisodeCalendarEntry.Description == nil {
@@ -3436,13 +3461,19 @@ type SeasonPagination implements Pagination {
     items: [Season!]!
 }
 
+enum EpisodeType {
+    episode
+    standalone
+}
+
 type Episode {
     id: ID!
+    type: EpisodeType!
     legacyID: ID
     legacyProgramID: ID
-    publishDate: String!
-    availableFrom: String!
-    availableTo: String!
+    publishDate: Date!
+    availableFrom: Date! @goField(forceResolver: true)
+    availableTo: Date!
     ageRating: String!
     title: String!
     description: String!
@@ -3458,6 +3489,7 @@ type Episode {
     progress: Int @goField(forceResolver: true)
     audioLanguages: [Language!]!
     subtitleLanguages: [Language!]!
+    relatedItems(first: Int, offset: Int): SectionItemPagination @goField(forceResolver: true)
     images: [Image!]!
     number: Int
 }
@@ -3667,7 +3699,7 @@ type SectionItem {
     title: String!
     description: String!
     image: String
-    item: SectionItemType
+    item: SectionItemType!
 }
 
 type SectionItemPagination implements Pagination {
@@ -4007,6 +4039,30 @@ func (ec *executionContext) field_Episode_image_args(ctx context.Context, rawArg
 		}
 	}
 	args["style"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Episode_relatedItems_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
 	return args, nil
 }
 
@@ -6268,6 +6324,50 @@ func (ec *executionContext) fieldContext_Episode_id(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_type(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.EpisodeType)
+	fc.Result = res
+	return ec.marshalNEpisodeType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type EpisodeType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_legacyID(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_legacyID(ctx, field)
 	if err != nil {
@@ -6378,7 +6478,7 @@ func (ec *executionContext) _Episode_publishDate(ctx context.Context, field grap
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_publishDate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6388,7 +6488,7 @@ func (ec *executionContext) fieldContext_Episode_publishDate(ctx context.Context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6408,7 +6508,7 @@ func (ec *executionContext) _Episode_availableFrom(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AvailableFrom, nil
+		return ec.resolvers.Episode().AvailableFrom(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6422,17 +6522,17 @@ func (ec *executionContext) _Episode_availableFrom(ctx context.Context, field gr
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_availableFrom(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6466,7 +6566,7 @@ func (ec *executionContext) _Episode_availableTo(ctx context.Context, field grap
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_availableTo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6476,7 +6576,7 @@ func (ec *executionContext) fieldContext_Episode_availableTo(ctx context.Context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7198,6 +7298,68 @@ func (ec *executionContext) fieldContext_Episode_subtitleLanguages(ctx context.C
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_relatedItems(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_relatedItems(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Episode().RelatedItems(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.SectionItemPagination)
+	fc.Result = res
+	return ec.marshalOSectionItemPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionItemPagination(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_relatedItems(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "first":
+				return ec.fieldContext_SectionItemPagination_first(ctx, field)
+			case "offset":
+				return ec.fieldContext_SectionItemPagination_offset(ctx, field)
+			case "total":
+				return ec.fieldContext_SectionItemPagination_total(ctx, field)
+			case "items":
+				return ec.fieldContext_SectionItemPagination_items(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SectionItemPagination", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Episode_relatedItems_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_images(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_images(ctx, field)
 	if err != nil {
@@ -7600,6 +7762,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
@@ -7640,6 +7804,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "relatedItems":
+				return ec.fieldContext_Episode_relatedItems(ctx, field)
 			case "images":
 				return ec.fieldContext_Episode_images(ctx, field)
 			case "number":
@@ -7915,6 +8081,8 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
@@ -7955,6 +8123,8 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "relatedItems":
+				return ec.fieldContext_Episode_relatedItems(ctx, field)
 			case "images":
 				return ec.fieldContext_Episode_images(ctx, field)
 			case "number":
@@ -8139,6 +8309,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
@@ -8179,6 +8351,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "relatedItems":
+				return ec.fieldContext_Episode_relatedItems(ctx, field)
 			case "images":
 				return ec.fieldContext_Episode_images(ctx, field)
 			case "number":
@@ -11825,6 +11999,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
@@ -11865,6 +12041,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "relatedItems":
+				return ec.fieldContext_Episode_relatedItems(ctx, field)
 			case "images":
 				return ec.fieldContext_Episode_images(ctx, field)
 			case "number":
@@ -13430,6 +13608,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
@@ -13470,6 +13650,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "relatedItems":
+				return ec.fieldContext_Episode_relatedItems(ctx, field)
 			case "images":
 				return ec.fieldContext_Episode_images(ctx, field)
 			case "number":
@@ -16866,11 +17048,14 @@ func (ec *executionContext) _SectionItem_item(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(model.SectionItemType)
 	fc.Result = res
-	return ec.marshalOSectionItemType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionItemType(ctx, field.Selections, res)
+	return ec.marshalNSectionItemType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionItemType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SectionItem_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17894,6 +18079,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
@@ -17934,6 +18121,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "relatedItems":
+				return ec.fieldContext_Episode_relatedItems(ctx, field)
 			case "images":
 				return ec.fieldContext_Episode_images(ctx, field)
 			case "number":
@@ -22754,6 +22943,13 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "type":
+
+			out.Values[i] = ec._Episode_type(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "legacyID":
 
 			out.Values[i] = ec._Episode_legacyID(ctx, field, obj)
@@ -22770,12 +22966,25 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "availableFrom":
+			field := field
 
-			out.Values[i] = ec._Episode_availableFrom(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_availableFrom(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "availableTo":
 
 			out.Values[i] = ec._Episode_availableTo(ctx, field, obj)
@@ -22938,6 +23147,23 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "relatedItems":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_relatedItems(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "images":
 
 			out.Values[i] = ec._Episode_images(ctx, field, obj)
@@ -25640,6 +25866,9 @@ func (ec *executionContext) _SectionItem(ctx context.Context, sel ast.SelectionS
 
 			out.Values[i] = ec._SectionItem_item(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -27117,6 +27346,16 @@ func (ec *executionContext) marshalNEpisodePagination2ᚖgithubᚗcomᚋbccᚑco
 	return ec._EpisodePagination(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNEpisodeType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeType(ctx context.Context, v interface{}) (model.EpisodeType, error) {
+	var res model.EpisodeType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNEpisodeType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeType(ctx context.Context, sel ast.SelectionSet, v model.EpisodeType) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNEvent2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEventᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Event) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -27916,6 +28155,16 @@ func (ec *executionContext) marshalNSectionItemPagination2ᚖgithubᚗcomᚋbcc�
 	return ec._SectionItemPagination(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNSectionItemType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionItemType(ctx context.Context, sel ast.SelectionSet, v model.SectionItemType) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SectionItemType(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNSectionPagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionPagination(ctx context.Context, sel ast.SelectionSet, v model.SectionPagination) graphql.Marshaler {
 	return ec._SectionPagination(ctx, sel, &v)
 }
@@ -28570,11 +28819,11 @@ func (ec *executionContext) marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunst
 	return ec._Season(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOSectionItemType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionItemType(ctx context.Context, sel ast.SelectionSet, v model.SectionItemType) graphql.Marshaler {
+func (ec *executionContext) marshalOSectionItemPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionItemPagination(ctx context.Context, sel ast.SelectionSet, v *model.SectionItemPagination) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._SectionItemType(ctx, sel, v)
+	return ec._SectionItemPagination(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v *model.Show) graphql.Marshaler {
