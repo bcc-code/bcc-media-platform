@@ -30,3 +30,12 @@ SELECT et.id, shows_id as parent_id, languages_code, title, description
 FROM shows_translations et
          JOIN shows e ON e.id = et.shows_id
 WHERE et.languages_code = ANY($1::varchar[]);
+
+-- name: ListSectionTranslations :many
+WITH sections AS (SELECT s.id
+               FROM sections s
+               WHERE s.status = 'published')
+SELECT st.id, sections_id as parent_id, languages_code, title, description
+FROM sections_translations st
+         JOIN sections e ON e.id = st.sections_id
+WHERE st.languages_code = ANY($1::varchar[]);
