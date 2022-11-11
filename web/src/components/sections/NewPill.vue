@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-red rounded rounded-xl text-sm px-2 py-0.5" v-if="newString">
+    <div class="bg-red rounded rounded-xl text-sm px-2 z-10" v-if="newString">
         {{ newString }}
     </div>
 </template>
@@ -23,10 +23,13 @@ const newString = computed(() => {
     date.setDate(date.getDate() - NEW_DAYS_THRESHOLD)
     switch (props.item.item?.__typename) {
         case "Episode":
-            return new Date(props.item.item.publishDate).getTime() >
+            if (!!props.item.item.progress) {
+                return ""
+            }
+            return (new Date(props.item.item.publishDate).getTime() >
                 date.getTime()
                 ? t("common.new")
-                : ""
+                : "")
         case "Season":
             return new Date(
                 props.item.item.episodes.items[0].publishDate

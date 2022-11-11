@@ -2,7 +2,7 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <Slide :item="item" v-slot="{ item: i }">
-            <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
+            <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
             <div
                 class="flex flex-col cursor-pointer mt-2"
                 @click="goToSectionItem(i)"

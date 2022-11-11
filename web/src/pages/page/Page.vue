@@ -1,5 +1,6 @@
 <template>
     <PageComponent
+        class="mb-16"
         v-if="!fetching"
         :page-id="props.pageId"
         @title="updateTitle"
