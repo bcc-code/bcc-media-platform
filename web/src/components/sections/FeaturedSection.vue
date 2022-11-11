@@ -21,7 +21,7 @@
                     </h1>
                     <p
                         v-if="(i as any).description"
-                        class="opacity-80 truncate px-8"
+                        class="opacity-80 line-clamp-2 px-8 lg:px-16"
                     >
                         {{ (i as any).description }}
                     </p>

@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-red rounded rounded-xl text-sm px-2 z-10" v-if="newString">
+    <div class="bg-red rounded rounded-xl text-sm px-2 z-10 font-medium" v-if="newString">
         {{ newString }}
     </div>
 </template>

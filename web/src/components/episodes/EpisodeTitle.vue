@@ -2,15 +2,15 @@
     <div class="flex flex-col">
         <div class="flex">
             <h3
-                class="text-sm truncate text-primary"
+                class="text-sm truncate text-primary mr-1"
                 v-if="episode.season?.show"
             >
                 {{ episode.season.show.title }}
             </h3>
-            <p class="text-sm text-gray ml-auto" v-if="episode.productionDate">
+            <p class="text-sm text-gray" v-if="episode.productionDate">
                 {{ new Date(episode.productionDate).toLocaleDateString() }}
             </p>
-            <p class="text-sm text-gray ml-auto" v-else-if="episode.season">
+            <p class="text-sm text-gray" v-else-if="episode.season">
                 S{{ episode.season.number }}:E{{ episode.number }}
             </p>
         </div>
