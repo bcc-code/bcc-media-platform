@@ -1,5 +1,5 @@
 <template>
-    <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
+    <Disclosure as="nav" v-slot="{ open }">
         <div class="mx-auto px-2 lg:px-8">
             <div class="lg:flex py-4">
                 <div class="flex mx-auto">

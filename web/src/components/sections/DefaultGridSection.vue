@@ -3,7 +3,7 @@
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="grid grid-cols-2">
             <div v-for="i in item.items.items" class="relative mb-5">
-                <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
+                <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
                 <div
                     class="flex flex-col cursor-pointer mx-2 mt-2 hover:opacity-90 transition"
                     @click="goToSectionItem(i)"

@@ -7,7 +7,7 @@
                 class="relative"
                 @click="goToSectionItem(i)"
             >
-                <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
+                <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
                 <div
                     class="flex flex-col rounded rounded-md mx-2 mt-1 hover:opacity-90 transition"
                 >
