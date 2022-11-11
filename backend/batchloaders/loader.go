@@ -29,15 +29,15 @@ func getOptions[K comparable, V any](opts ...Option) []dataloader.Option[K, V] {
 
 	for _, opt := range opts {
 		switch t := opt.(type) {
-		case memoryCache:
-			options = append(options, dataloader.WithCache[K, V](newMemoryLoaderCache[K, V](t.expiration)))
+		case MemoryCache:
+			options = append(options, dataloader.WithCache[K, V](NewMemoryLoaderCache[K, V](t.expiration)))
 			memoryCacheAdded = true
 		}
 	}
 
 	// We want a TTL for everything.
 	if !memoryCacheAdded {
-		options = append(options, dataloader.WithCache[K, V](newMemoryLoaderCache[K, V](time.Minute*5)))
+		options = append(options, dataloader.WithCache[K, V](NewMemoryLoaderCache[K, V](time.Minute*5)))
 	}
 
 	return options

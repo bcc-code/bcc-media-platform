@@ -7,50 +7,53 @@ import (
 	"time"
 )
 
-type loaderCache[K comparable, V any] struct {
+// LoaderCache is a cache for batchloaders
+type LoaderCache[K comparable, V any] struct {
 	expiration time.Duration
 	cache      *cache.Cache[K, dataloader.Thunk[V]]
 }
 
-func newMemoryLoaderCache[K comparable, V any](expiration time.Duration) *loaderCache[K, V] {
-	return &loaderCache[K, V]{
+// NewMemoryLoaderCache returns a new memory cache
+func NewMemoryLoaderCache[K comparable, V any](expiration time.Duration) *LoaderCache[K, V] {
+	return &LoaderCache[K, V]{
 		expiration: expiration,
 		cache:      cache.New[K, dataloader.Thunk[V]](),
 	}
 }
 
 // Get retrieves an entry from the cache
-func (c *loaderCache[K, V]) Get(ctx context.Context, key K) (dataloader.Thunk[V], bool) {
+func (c *LoaderCache[K, V]) Get(ctx context.Context, key K) (dataloader.Thunk[V], bool) {
 	return c.cache.Get(key)
 }
 
 // Set sets the specified key to value
-func (c *loaderCache[K, V]) Set(ctx context.Context, key K, val dataloader.Thunk[V]) {
+func (c *LoaderCache[K, V]) Set(ctx context.Context, key K, val dataloader.Thunk[V]) {
 	c.cache.Set(key, val, cache.WithExpiration(c.expiration))
 }
 
 // Delete deletes the specified key
-func (c *loaderCache[K, V]) Delete(ctx context.Context, key K) bool {
+func (c *LoaderCache[K, V]) Delete(ctx context.Context, key K) bool {
 	c.cache.Delete(key)
 	return true
 }
 
 // Clear clears the entire cache
-func (c *loaderCache[K, V]) Clear() {
+func (c *LoaderCache[K, V]) Clear() {
 	c.cache = cache.New[K, dataloader.Thunk[V]]()
 }
 
-func (mc memoryCache) isOption() {
+func (mc MemoryCache) isOption() {
 
 }
 
-type memoryCache struct {
+// MemoryCache is a simple memory cache
+type MemoryCache struct {
 	expiration time.Duration
 }
 
 // WithMemoryCache defines how long a key should live in the cache
 func WithMemoryCache(expiration time.Duration) Option {
-	return memoryCache{
+	return MemoryCache{
 		expiration: expiration,
 	}
 }

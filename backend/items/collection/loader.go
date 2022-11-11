@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"strings"
+	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -65,7 +66,8 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 
 		return results
 	}
-	return dataloader.NewBatchedLoader(batchLoader)
+
+	return dataloader.NewBatchedLoader(batchLoader, dataloader.WithCache[int, []int](batchloaders.NewMemoryLoaderCache[int, []int](time.Minute*5)))
 }
 
 // Entry contains the ID and collection of a CollectionItem
