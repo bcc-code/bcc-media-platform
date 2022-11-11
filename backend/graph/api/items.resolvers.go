@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/applications"
 	"strconv"
 	"time"
@@ -259,8 +260,11 @@ func (r *showResolver) DefaultEpisode(ctx context.Context, obj *model.Show) (*mo
 	}
 	ls := r.FilteredLoaders(ctx)
 	eID, err := show.DefaultEpisodeID(ctx, ls, s)
-	if err != nil || eID == nil {
+	if err != nil {
 		return nil, err
+	}
+	if eID == nil {
+		return nil, merry.New("invalid default episode")
 	}
 	return r.QueryRoot().Episode(ctx, strconv.Itoa(*eID))
 }
