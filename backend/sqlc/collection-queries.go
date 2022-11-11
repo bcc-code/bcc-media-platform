@@ -36,15 +36,6 @@ func mapToCollections(collections []Collection) []common.Collection {
 	})
 }
 
-// ListCollections returns a list of collections
-func (q *Queries) ListCollections(ctx context.Context) ([]common.Collection, error) {
-	collections, err := q.listCollections(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return mapToCollections(collections), nil
-}
-
 // GetCollections returns collections
 func (q *Queries) GetCollections(ctx context.Context, ids []int) ([]common.Collection, error) {
 	collections, err := q.getCollections(ctx, intToInt32(ids))

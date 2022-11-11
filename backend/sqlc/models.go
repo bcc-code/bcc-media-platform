@@ -191,6 +191,14 @@ type Collection struct {
 	ShowsQueryFilter    pqtype.NullRawMessage `db:"shows_query_filter" json:"showsQueryFilter"`
 }
 
+type CollectionsEntry struct {
+	ID            int32          `db:"id" json:"id"`
+	CollectionsID int32          `db:"collections_id" json:"collectionsID"`
+	Item          null_v4.String `db:"item" json:"item"`
+	Collection    null_v4.String `db:"collection" json:"collection"`
+	Sort          null_v4.Int    `db:"sort" json:"sort"`
+}
+
 type CollectionsItem struct {
 	CollectionID null_v4.Int    `db:"collection_id" json:"collectionID"`
 	DateCreated  null_v4.Time   `db:"date_created" json:"dateCreated"`
@@ -540,6 +548,7 @@ type Episode struct {
 	UserCreated              uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated              uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	PublishDateInTitle       sql.NullBool          `db:"publish_date_in_title" json:"publishDateInTitle"`
+	Label                    null_v4.String        `db:"label" json:"label"`
 }
 
 type EpisodeAvailability struct {
@@ -807,6 +816,7 @@ type Page struct {
 	SeasonID    null_v4.Int    `db:"season_id" json:"seasonID"`
 	ShowID      null_v4.Int    `db:"show_id" json:"showID"`
 	Type        null_v4.String `db:"type" json:"type"`
+	Label       null_v4.String `db:"label" json:"label"`
 }
 
 type PagesTranslation struct {
@@ -834,6 +844,7 @@ type Season struct {
 	Status              string         `db:"status" json:"status"`
 	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	Label               null_v4.String `db:"label" json:"label"`
 }
 
 type SeasonAvailability struct {
@@ -926,6 +937,7 @@ type Show struct {
 	UserUpdated             uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 	DefaultEpisodeBehaviour null_v4.String `db:"default_episode_behaviour" json:"defaultEpisodeBehaviour"`
 	PublishDateInTitle      sql.NullBool   `db:"publish_date_in_title" json:"publishDateInTitle"`
+	Label                   null_v4.String `db:"label" json:"label"`
 }
 
 type ShowAvailability struct {
