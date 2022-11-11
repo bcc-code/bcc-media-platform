@@ -7,6 +7,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"strconv"
 )
 
@@ -50,11 +51,19 @@ func sectionCollectionEntryResolver(ctx context.Context, loaders *common.BatchLo
 			if err != nil {
 				return nil, err
 			}
+			if i == nil {
+				log.L.Debug().Int("id", e.ID).Str("type", string(e.Type)).Msg("Item with id not found")
+				continue
+			}
 			item = model.PageSectionItemFrom(ctx, i, e.Sort, section.Style)
 		case "show":
 			i, err := batchloaders.GetByID(ctx, loaders.ShowLoader, e.ID)
 			if err != nil {
 				return nil, err
+			}
+			if i == nil {
+				log.L.Debug().Int("id", e.ID).Str("type", string(e.Type)).Msg("Item with id not found")
+				continue
 			}
 			item = model.ShowSectionItemFrom(ctx, i, e.Sort, section.Style)
 		case "season":
@@ -62,17 +71,29 @@ func sectionCollectionEntryResolver(ctx context.Context, loaders *common.BatchLo
 			if err != nil {
 				return nil, err
 			}
+			if i == nil {
+				log.L.Debug().Int("id", e.ID).Str("type", string(e.Type)).Msg("Item with id not found")
+				continue
+			}
 			item = model.SeasonSectionItemFrom(ctx, i, e.Sort, section.Style)
 		case "episode":
 			i, err := batchloaders.GetByID(ctx, loaders.EpisodeLoader, e.ID)
 			if err != nil {
 				return nil, err
 			}
+			if i == nil {
+				log.L.Debug().Int("id", e.ID).Str("type", string(e.Type)).Msg("Item with id not found")
+				continue
+			}
 			item = model.EpisodeSectionItemFrom(ctx, i, e.Sort, section.Style)
 		case "link":
 			i, err := batchloaders.GetByID(ctx, loaders.LinkLoader, e.ID)
 			if err != nil {
 				return nil, err
+			}
+			if i == nil {
+				log.L.Debug().Int("id", e.ID).Str("type", string(e.Type)).Msg("Item with id not found")
+				continue
 			}
 			item = model.LinkSectionItemFrom(ctx, i, e.Sort, section.Style)
 		}
