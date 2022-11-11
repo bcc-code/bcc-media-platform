@@ -10,6 +10,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/jsonlogic"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lib/pq"
+	"github.com/samber/lo"
 	"strings"
 )
 
@@ -27,6 +28,7 @@ func itemIdsFromRows(rows *sql.Rows) []int {
 }
 
 func parseJoins(query squirrel.SelectBuilder, collection string, joins []string) squirrel.SelectBuilder {
+	joins = lo.Uniq(joins)
 	for _, join := range joins {
 		switch join {
 		case "show":
