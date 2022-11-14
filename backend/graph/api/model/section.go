@@ -113,11 +113,11 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 		var size float64
 		switch s.EmbedSize.ValueOrZero() {
 		case "16:9":
-			size = 16 / 9
+			size = 16.0 / 9.0
 		case "4:3":
-			size = 4 / 3
+			size = 4.0 / 3.0
 		case "9:16":
-			size = 9 / 16
+			size = 9.0 / 16.0
 		case "1:1":
 			size = 1
 		}

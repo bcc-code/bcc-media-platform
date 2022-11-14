@@ -44,7 +44,7 @@ export const fieldTypes: {
 	}
 ]
 
-export type Field = ({column: string, title: string} & ({
+export type Field = ({column: string, title: string, supportedOperators: string[]} & ({
 	type: "array",
 	of: string
 } | {
@@ -52,7 +52,7 @@ export type Field = ({column: string, title: string} & ({
 	options?: {
 		title: string,
 		value: string
-	}[]
+	}[],
 } | {
 	type: "number" | "datetime-local"
 }))
@@ -97,31 +97,37 @@ export const fields: Field[] = [
 				value: "shows"
 			}
 		],
+		supportedOperators: ["==", "!="]
 	},
 	{
 		column: "id",
 		title: "ID",
-		type: "number"
+		type: "number",
+		supportedOperators: ["==", "!=", "<", ">", "<=", "=>", "in"]
 	},
 	{
 		column: "season_id",
 		title: "Season ID",
-		type: "number"
+		type: "number",
+		supportedOperators: ["==", "!=", "<", ">", "<=", "=>", "in"]
 	},
 	{
 		column: "show_id",
 		title: "Show ID",
-		type: "number"
+		type: "number",
+		supportedOperators: ["==", "!=", "<", ">", "<=", "=>", "in"]
 	},
 	{
 		column: "agerating_code",
 		title: "Age Rating",
-		type: "string"
+		type: "string",
+		supportedOperators: ["==", "!=", "<", ">", "<=", "=>", "in"]
 	},
 	{
 		column: "type",
 		title: "Type",
-		type: "string"
+		type: "string",
+		supportedOperators: ["==", "!=", "<", ">", "<=", "=>", "in"]
 	},
 	{
 		column: "publish_date",

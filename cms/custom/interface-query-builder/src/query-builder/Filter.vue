@@ -13,8 +13,8 @@
                 <div v-if="field">
                     <h3>Operator</h3>
                     <v-select
-                        v-model="selectedOperator"
-                        @change="update"
+                        :modelValue="selectedOperator"
+                        @update:modelValue="(v) => {selectedOperator = v; update()}"
                         :items="filterOperators"
                     />
                     <!-- <select
@@ -29,23 +29,23 @@
                     <h3>Value</h3>
                     <v-select
                         v-if="field.type === 'string' && field.options"
-                        v-model="selectedValue"
+                        :modelValue="selectedValue"
+                        @update:modelValue="(v) => {selectedValue = v; update()}"
                         :items="field.options"
                         item-text="title"
                         item-value="value"
-                        @change="update"
                     />
                     <v-input
                         v-else-if="selectedOperator != 'in' && selectedOperator != 'is'"
                         :type="field.type"
-                        v-model="selectedValue"
-                        @change="update"
+                        :modelValue="selectedValue"
+                        @update:modelValue="(v) => {selectedValue = v; update()}"
                     />
                     <v-input
                         v-else
                         type="text"
-                        v-model="selectedValue"
-                        @change="update"
+                        :modelValue="selectedValue"
+                        @update:modelValue="(v) => {selectedValue = v; update()}"
                     ></v-input>
                 </div>
             </div>
