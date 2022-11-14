@@ -10,7 +10,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/jsonlogic"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lib/pq"
-	"github.com/samber/lo"
 	"strings"
 )
 

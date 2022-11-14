@@ -71,16 +71,16 @@ func NewCollectionItemLoader(db *sql.DB, collectionLoader *dataloader.Loader[int
 
 // Entry contains the ID and collection of a CollectionItem
 type Entry struct {
-	ID   int
-	Type common.ItemType
-	Sort int
+	ID         int
+	Collection common.ItemCollection
+	Sort       int
 }
 
-func collectionToType(collection string) common.ItemType {
+func collectionToType(collection string) common.ItemCollection {
 	switch collection {
 	// !!! Watch out for which collections you enter here, as this will only work for simple plurals
 	case "episodes", "pages", "shows", "seasons":
-		return common.ItemType(strings.TrimSuffix(collection, "s"))
+		return common.ItemCollection(strings.TrimSuffix(collection, "s"))
 	default:
 		return "unknown"
 	}
@@ -101,9 +101,9 @@ func GetCollectionEntries(ctx context.Context, loaders *common.BatchLoaders, fil
 		}
 		return lo.Map(items, func(i *common.CollectionItem, _ int) Entry {
 			return Entry{
-				ID:   i.ItemID,
-				Type: i.Type,
-				Sort: i.Sort,
+				ID:         i.ItemID,
+				Collection: i.Type,
+				Sort:       i.Sort,
 			}
 		}), nil
 	case "query":
@@ -113,9 +113,9 @@ func GetCollectionEntries(ctx context.Context, loaders *common.BatchLoaders, fil
 		}
 		return lo.Map(itemIds, func(id common.Identifier, index int) Entry {
 			return Entry{
-				ID:   id.ID,
-				Type: collectionToType(id.Collection),
-				Sort: index,
+				ID:         id.ID,
+				Collection: common.ItemCollection(id.Collection),
+				Sort:       index,
 			}
 		}), nil
 	}
