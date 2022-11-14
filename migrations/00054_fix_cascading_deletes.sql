@@ -36,8 +36,6 @@ ALTER TABLE IF EXISTS "public"."collections_entries"
 
 ALTER TABLE IF EXISTS "public"."collections_entries" ADD CONSTRAINT "collections_entries_collections_id_foreign" FOREIGN KEY (collections_id) REFERENCES collections(id) ON DELETE SET NULL;
 
-COMMENT ON CONSTRAINT "collections_entries_collections_id_foreign" ON "public"."collections_entries" IS NULL;
-
 --- END ALTER TABLE "public"."collections_entries" ---
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---

@@ -3,7 +3,7 @@
         <v-button style="margin-bottom:10px" :loading="loading" @click="reload">Preview</v-button>
         <div>
             <div v-for="i in items">
-                <span>{{i.type}}</span>
+                <span>{{i.collection}}</span>
                 <span style="margin:4px">|</span>
                 <span>{{i.id}}</span>
                 <span style="margin:4px">|</span>

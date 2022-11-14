@@ -50,10 +50,6 @@ COMMENT ON COLUMN "public"."collections_entries"."collection"  IS NULL;
 
 COMMENT ON COLUMN "public"."collections_entries"."sort"  IS NULL;
 
-COMMENT ON CONSTRAINT "collections_entries_pkey" ON "public"."collections_entries" IS NULL;
-
-COMMENT ON CONSTRAINT "collections_entries_collections_id_foreign" ON "public"."collections_entries" IS NULL;
-
 COMMENT ON TABLE "public"."collections_entries"  IS NULL;
 
 --- END CREATE TABLE "public"."collections_entries" ---
@@ -191,6 +187,60 @@ INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field"
 INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field", "one_collection", "one_field", "one_collection_field", "one_allowed_collections", "junction_field", "sort_field", "one_deselect_action")  VALUES (215, 'collections_entries', 'collections_id', 'collections', 'entries', NULL, NULL, 'item', 'sort', 'nullify');
 
 --- END SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
+
+--- DATA MIGRATIONS
+
+INSERT INTO collections_entries (collections_id, collection, item, sort)
+SELECT
+    ci.collection_id,
+    'episodes',
+    ci.episode_id,
+    ci.sort
+FROM collections_items ci
+WHERE ci.episode_id IS NOT NULL AND ci.collection_id IS NOT NULL;
+
+INSERT INTO collections_entries (collections_id, collection, item, sort)
+SELECT
+    ci.collection_id,
+    'seasons',
+    ci.season_id,
+    ci.sort
+FROM collections_items ci
+WHERE ci.season_id IS NOT NULL AND ci.collection_id IS NOT NULL;
+
+INSERT INTO collections_entries (collections_id, collection, item, sort)
+SELECT
+    ci.collection_id,
+    'shows',
+    ci.show_id,
+    ci.sort
+FROM collections_items ci
+WHERE ci.show_id IS NOT NULL AND ci.collection_id IS NOT NULL;
+
+UPDATE episodes t
+SET label = (SELECT title
+             FROM episodes_translations ts
+             WHERE ts.episodes_id = t.id
+               AND ts.languages_code = 'no'
+               AND ts.title IS NOT NULL
+             LIMIT 1);
+
+UPDATE seasons t
+SET label = (SELECT title
+             FROM seasons_translations ts
+             WHERE ts.seasons_id = t.id
+               AND ts.languages_code = 'no'
+               AND ts.title IS NOT NULL
+             LIMIT 1);
+
+UPDATE shows t
+SET label = (SELECT title
+             FROM shows_translations ts
+             WHERE ts.shows_id = t.id
+               AND ts.languages_code = 'no'
+               AND ts.title IS NOT NULL
+             LIMIT 1);
+
 -- +goose Down
 /***********************************************************/
 /*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/

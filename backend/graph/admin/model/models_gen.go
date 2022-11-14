@@ -2,9 +2,16 @@
 
 package model
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type CollectionItem struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
+	Collection Collection `json:"collection"`
+	ID         string     `json:"id"`
+	Title      string     `json:"title"`
 }
 
 type Preview struct {
@@ -19,4 +26,47 @@ type PreviewAsset struct {
 
 type PreviewCollection struct {
 	Items []*CollectionItem `json:"items"`
+}
+
+type Collection string
+
+const (
+	CollectionShows    Collection = "shows"
+	CollectionSeasons  Collection = "seasons"
+	CollectionEpisodes Collection = "episodes"
+)
+
+var AllCollection = []Collection{
+	CollectionShows,
+	CollectionSeasons,
+	CollectionEpisodes,
+}
+
+func (e Collection) IsValid() bool {
+	switch e {
+	case CollectionShows, CollectionSeasons, CollectionEpisodes:
+		return true
+	}
+	return false
+}
+
+func (e Collection) String() string {
+	return string(e)
+}
+
+func (e *Collection) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Collection(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Collection", str)
+	}
+	return nil
+}
+
+func (e Collection) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

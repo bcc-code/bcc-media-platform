@@ -15,14 +15,14 @@ import (
 )
 
 // Collection is the resolver for the collection field.
-func (r *previewResolver) Collection(ctx context.Context, obj *model.Preview, collection string, filter string) (*model.PreviewCollection, error) {
+func (r *previewResolver) Collection(ctx context.Context, obj *model.Preview, filter string) (*model.PreviewCollection, error) {
 	ctx = context.WithValue(ctx, "preview", true)
 
 	var f common.Filter
 
 	_ = json.Unmarshal([]byte(filter), &f)
 
-	items, err := r.getItemsForFilter(ctx, collection, f)
+	items, err := r.getItemsForFilter(ctx, f)
 	if err != nil {
 		return nil, err
 	}

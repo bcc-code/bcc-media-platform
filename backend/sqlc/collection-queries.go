@@ -14,24 +14,14 @@ func mapToCollections(collections []Collection) []common.Collection {
 
 		switch e.FilterType.ValueOrZero() {
 		case "query":
-			switch e.Collection.ValueOrZero() {
-			case "pages":
-				_ = json.Unmarshal(e.PagesQueryFilter.RawMessage, &filter)
-			case "shows":
-				_ = json.Unmarshal(e.ShowsQueryFilter.RawMessage, &filter)
-			case "seasons":
-				_ = json.Unmarshal(e.SeasonsQueryFilter.RawMessage, &filter)
-			case "episodes":
-				_ = json.Unmarshal(e.EpisodesQueryFilter.RawMessage, &filter)
-			}
+			_ = json.Unmarshal(e.QueryFilter.RawMessage, &filter)
 		}
 
 		return common.Collection{
-			ID:         int(e.ID),
-			Collection: e.Collection,
-			Type:       e.FilterType.ValueOrZero(),
-			Filter:     filter,
-			Name:       e.Name.ValueOrZero(),
+			ID:     int(e.ID),
+			Type:   e.FilterType.ValueOrZero(),
+			Filter: filter,
+			Name:   e.Name.ValueOrZero(),
 		}
 	})
 }

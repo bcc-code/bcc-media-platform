@@ -15,8 +15,8 @@
             <select v-model="sortBy" @change="handleChange">
                 <option
                     v-for="field in fields"
-                    :value="field.name"
-                >{{snakeToPascal(field.name)}}
+                    :value="field.column"
+                >{{field.title}}
                 </option>
             </select>
             <h3>Direction</h3>
@@ -38,19 +38,17 @@
 
 <script lang="ts" setup>
 import { v4 as uuid } from "uuid";
-import { snakeToPascal, Field as TField, Root } from ".";
+import { Root, fields } from ".";
 import Group from "./Group.vue";
 import { ref } from "vue";
 
 const props = defineProps<{
     value: Root | null;
-    fieldFactory: () => Promise<TField[]>
 }>()
 const emit = defineEmits<{
 	(e: "update:value", value: Root | null),
 }>()
 
-const fields = ref(await props.fieldFactory() as TField[]);
 const group = ref(props.value?.filter ?? null);
 const sortBy = ref(props.value?.sortBy ?? null);
 const sortByDirection = ref(props.value?.sortByDirection ?? null)

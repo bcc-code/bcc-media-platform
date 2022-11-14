@@ -121,7 +121,7 @@ func (q *Queries) getCollectionItemsForCollectionsWithRoles(ctx context.Context,
 }
 
 const getCollections = `-- name: getCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter
+SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, filter_type, name, query_filter
 FROM collections c
 WHERE c.id = ANY ($1::int[])
 `
@@ -143,12 +143,9 @@ func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 			&i.UserCreated,
 			&i.UserUpdated,
 			&i.Collection,
-			&i.EpisodesQueryFilter,
 			&i.FilterType,
 			&i.Name,
-			&i.PagesQueryFilter,
-			&i.SeasonsQueryFilter,
-			&i.ShowsQueryFilter,
+			&i.QueryFilter,
 		); err != nil {
 			return nil, err
 		}
@@ -164,7 +161,7 @@ func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 }
 
 const listCollections = `-- name: listCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter
+SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, filter_type, name, query_filter
 FROM collections
 `
 
@@ -185,12 +182,9 @@ func (q *Queries) listCollections(ctx context.Context) ([]Collection, error) {
 			&i.UserCreated,
 			&i.UserUpdated,
 			&i.Collection,
-			&i.EpisodesQueryFilter,
 			&i.FilterType,
 			&i.Name,
-			&i.PagesQueryFilter,
-			&i.SeasonsQueryFilter,
-			&i.ShowsQueryFilter,
+			&i.QueryFilter,
 		); err != nil {
 			return nil, err
 		}

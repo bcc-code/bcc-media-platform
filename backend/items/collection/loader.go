@@ -21,10 +21,10 @@ func NewItemListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*com
 	})
 }
 
-// NewCollectionItemIdsLoader returns a new loader for getting ItemIds for Collection
-func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[int, *common.Collection], roles []string) *dataloader.Loader[int, []int] {
-	batchLoader := func(ctx context.Context, keys []int) []*dataloader.Result[[]int] {
-		var results []*dataloader.Result[[]int]
+// NewCollectionItemLoader returns a new loader for getting ItemIds for Collection
+func NewCollectionItemLoader(db *sql.DB, collectionLoader *dataloader.Loader[int, *common.Collection], roles []string) *dataloader.Loader[int, []common.Identifier] {
+	batchLoader := func(ctx context.Context, keys []int) []*dataloader.Result[[]common.Identifier] {
+		var results []*dataloader.Result[[]common.Identifier]
 		var err error
 
 		res, errs := collectionLoader.LoadMany(ctx, keys)()
@@ -32,7 +32,7 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 			err = errs[0]
 		}
 
-		resMap := map[int][]int{}
+		resMap := map[int][]common.Identifier{}
 		if err == nil {
 			for _, r := range res {
 				switch r.Type {
@@ -41,10 +41,9 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 						resMap[r.ID] = nil
 						continue
 					}
-					resMap[r.ID], err = GetItemIDsForFilter(ctx, db, roles, r.Collection.ValueOrZero(), *r.Filter)
+					resMap[r.ID], err = GetItemIDsForFilter(ctx, db, roles, *r.Filter)
 					if err != nil {
 						log.L.Error().Err(err).
-							Str("collection", r.Collection.ValueOrZero()).
 							Msg("Failed to select itemIds from collection")
 						continue
 					}
@@ -53,7 +52,7 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 		}
 
 		for _, key := range keys {
-			r := &dataloader.Result[[]int]{
+			r := &dataloader.Result[[]common.Identifier]{
 				Error: err,
 			}
 
@@ -67,7 +66,7 @@ func NewCollectionItemIdsLoader(db *sql.DB, collectionLoader *dataloader.Loader[
 		return results
 	}
 
-	return dataloader.NewBatchedLoader(batchLoader, dataloader.WithCache[int, []int](batchloaders.NewMemoryLoaderCache[int, []int](time.Minute*5)))
+	return dataloader.NewBatchedLoader(batchLoader, dataloader.WithCache[int, []common.Identifier](batchloaders.NewMemoryLoaderCache[int, []common.Identifier](time.Minute*5)))
 }
 
 // Entry contains the ID and collection of a CollectionItem
@@ -112,10 +111,10 @@ func GetCollectionEntries(ctx context.Context, loaders *common.BatchLoaders, fil
 		if err != nil {
 			return nil, err
 		}
-		return lo.Map(itemIds, func(id int, index int) Entry {
+		return lo.Map(itemIds, func(id common.Identifier, index int) Entry {
 			return Entry{
-				ID:   id,
-				Type: collectionToType(col.Collection.ValueOrZero()),
+				ID:   id.ID,
+				Type: collectionToType(id.Collection),
 				Sort: index,
 			}
 		}), nil
