@@ -75,7 +75,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 		CollectionItemsLoader: batchloaders.NewListLoader(rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
 			return i.CollectionID
 		}),
-		CollectionItemIDsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader, roles),
+		CollectionItemIDsLoader: collection.NewCollectionItemLoader(db, collectionLoader, roles),
 	}
 
 	rolesLoaderCache.Set(key, loaders)

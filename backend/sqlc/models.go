@@ -176,19 +176,24 @@ type Category struct {
 }
 
 type Collection struct {
-	DateCreated         time.Time             `db:"date_created" json:"dateCreated"`
-	DateUpdated         time.Time             `db:"date_updated" json:"dateUpdated"`
-	ID                  int32                 `db:"id" json:"id"`
-	Sort                null_v4.Int           `db:"sort" json:"sort"`
-	UserCreated         uuid.NullUUID         `db:"user_created" json:"userCreated"`
-	UserUpdated         uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
-	Collection          null_v4.String        `db:"collection" json:"collection"`
-	EpisodesQueryFilter pqtype.NullRawMessage `db:"episodes_query_filter" json:"episodesQueryFilter"`
-	FilterType          null_v4.String        `db:"filter_type" json:"filterType"`
-	Name                null_v4.String        `db:"name" json:"name"`
-	PagesQueryFilter    pqtype.NullRawMessage `db:"pages_query_filter" json:"pagesQueryFilter"`
-	SeasonsQueryFilter  pqtype.NullRawMessage `db:"seasons_query_filter" json:"seasonsQueryFilter"`
-	ShowsQueryFilter    pqtype.NullRawMessage `db:"shows_query_filter" json:"showsQueryFilter"`
+	DateCreated time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated time.Time             `db:"date_updated" json:"dateUpdated"`
+	ID          int32                 `db:"id" json:"id"`
+	Sort        null_v4.Int           `db:"sort" json:"sort"`
+	UserCreated uuid.NullUUID         `db:"user_created" json:"userCreated"`
+	UserUpdated uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	Collection  null_v4.String        `db:"collection" json:"collection"`
+	FilterType  null_v4.String        `db:"filter_type" json:"filterType"`
+	Name        null_v4.String        `db:"name" json:"name"`
+	QueryFilter pqtype.NullRawMessage `db:"query_filter" json:"queryFilter"`
+}
+
+type CollectionsEntry struct {
+	ID            int32          `db:"id" json:"id"`
+	CollectionsID int32          `db:"collections_id" json:"collectionsID"`
+	Item          null_v4.String `db:"item" json:"item"`
+	Collection    null_v4.String `db:"collection" json:"collection"`
+	Sort          null_v4.Int    `db:"sort" json:"sort"`
 }
 
 type CollectionsItem struct {
@@ -540,6 +545,7 @@ type Episode struct {
 	UserCreated              uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated              uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	PublishDateInTitle       sql.NullBool          `db:"publish_date_in_title" json:"publishDateInTitle"`
+	Label                    null_v4.String        `db:"label" json:"label"`
 }
 
 type EpisodeAvailability struct {
@@ -658,6 +664,21 @@ type FaqsUsergroup struct {
 	FaqsID         null_v4.Int    `db:"faqs_id" json:"faqsID"`
 	ID             int32          `db:"id" json:"id"`
 	UsergroupsCode null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
+}
+
+type FilterDataset struct {
+	Collection    string      `db:"collection" json:"collection"`
+	ID            int32       `db:"id" json:"id"`
+	SeasonID      null_v4.Int `db:"season_id" json:"seasonID"`
+	ShowID        null_v4.Int `db:"show_id" json:"showID"`
+	AgeratingCode string      `db:"agerating_code" json:"ageratingCode"`
+	Type          string      `db:"type" json:"type"`
+	PublishDate   time.Time   `db:"publish_date" json:"publishDate"`
+	Published     interface{} `db:"published" json:"published"`
+	AvailableFrom interface{} `db:"available_from" json:"availableFrom"`
+	AvailableTo   interface{} `db:"available_to" json:"availableTo"`
+	Roles         interface{} `db:"roles" json:"roles"`
+	Tags          interface{} `db:"tags" json:"tags"`
 }
 
 type Globalconfig struct {
@@ -807,6 +828,7 @@ type Page struct {
 	SeasonID    null_v4.Int    `db:"season_id" json:"seasonID"`
 	ShowID      null_v4.Int    `db:"show_id" json:"showID"`
 	Type        null_v4.String `db:"type" json:"type"`
+	Label       null_v4.String `db:"label" json:"label"`
 }
 
 type PagesTranslation struct {
@@ -834,6 +856,7 @@ type Season struct {
 	Status              string         `db:"status" json:"status"`
 	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	Label               null_v4.String `db:"label" json:"label"`
 }
 
 type SeasonAvailability struct {
@@ -926,6 +949,7 @@ type Show struct {
 	UserUpdated             uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 	DefaultEpisodeBehaviour null_v4.String `db:"default_episode_behaviour" json:"defaultEpisodeBehaviour"`
 	PublishDateInTitle      sql.NullBool   `db:"publish_date_in_title" json:"publishDateInTitle"`
+	Label                   null_v4.String `db:"label" json:"label"`
 }
 
 type ShowAvailability struct {

@@ -47,7 +47,7 @@ type FilteredLoaders struct {
 	ShowFilterLoader        *dataloader.Loader[int, *int]
 	SectionsLoader          *dataloader.Loader[int, []*int]
 	CollectionItemsLoader   *dataloader.Loader[int, []*CollectionItem]
-	CollectionItemIDsLoader *dataloader.Loader[int, []int]
+	CollectionItemIDsLoader *dataloader.Loader[int, []Identifier]
 }
 
 // ProfileLoaders contains loaders per profile

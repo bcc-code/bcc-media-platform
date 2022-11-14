@@ -13,16 +13,16 @@ const (
 	//StreamServiceMediapackage = "mediapackage"
 )
 
-// ItemType is what type of item current struct is
-type ItemType string
+// ItemCollection is what type of item current struct is
+type ItemCollection string
 
 // Types of items
 var (
-	TypeShow    = ItemType("show")
-	TypeSeason  = ItemType("season")
-	TypeEpisode = ItemType("episode")
-	TypePage    = ItemType("page")
-	TypeSection = ItemType("section")
+	TypeShow    = ItemCollection("shows")
+	TypeSeason  = ItemCollection("seasons")
+	TypeEpisode = ItemCollection("episodes")
+	TypePage    = ItemCollection("pages")
+	TypeSection = ItemCollection("sections")
 )
 
 // Show is the definition of the Show object
@@ -185,11 +185,10 @@ func (i Section) GetKey() int {
 
 // Collection is the definition of the Collection object
 type Collection struct {
-	ID         int         `json:"id"`
-	Name       string      `json:"name"`
-	Type       string      `json:"type"`
-	Collection null.String `json:"collection"`
-	Filter     *Filter     `json:"filter"`
+	ID     int     `json:"id"`
+	Name   string  `json:"name"`
+	Type   string  `json:"type"`
+	Filter *Filter `json:"filter"`
 }
 
 // GetKey returns the key for this item
@@ -207,11 +206,11 @@ type Filter struct {
 
 // CollectionItem is the definition of the CollectionItem object
 type CollectionItem struct {
-	ID           int      `json:"id"`
-	Sort         int      `json:"sort"`
-	CollectionID int      `json:"collectionId"`
-	Type         ItemType `json:"type"`
-	ItemID       int      `json:"itemId"`
+	ID           int            `json:"id"`
+	Sort         int            `json:"sort"`
+	CollectionID int            `json:"collectionId"`
+	Type         ItemCollection `json:"type"`
+	ItemID       int            `json:"itemId"`
 }
 
 // GetKey returns the key for this item
