@@ -565,9 +565,9 @@ type ComplexityRoot struct {
 	WebSection struct {
 		Authentication func(childComplexity int) int
 		ID             func(childComplexity int) int
-		Size           func(childComplexity int) int
 		Title          func(childComplexity int) int
 		URL            func(childComplexity int) int
+		WidthRatio     func(childComplexity int) int
 	}
 }
 
@@ -3106,13 +3106,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WebSection.ID(childComplexity), true
 
-	case "WebSection.size":
-		if e.complexity.WebSection.Size == nil {
-			break
-		}
-
-		return e.complexity.WebSection.Size(childComplexity), true
-
 	case "WebSection.title":
 		if e.complexity.WebSection.Title == nil {
 			break
@@ -3126,6 +3119,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.WebSection.URL(childComplexity), true
+
+	case "WebSection.widthRatio":
+		if e.complexity.WebSection.WidthRatio == nil {
+			break
+		}
+
+		return e.complexity.WebSection.WidthRatio(childComplexity), true
 
 	}
 	return 0, false
@@ -3663,18 +3663,11 @@ type MessageSection implements Section {
     messages: [Message!] @goField(forceResolver: true)
 }
 
-enum WebSectionSize {
-    r16_9
-    r4_3
-    r9_16
-    r1_1
-}
-
 type WebSection implements Section {
     id: ID!
     title: String
     url: String!
-    size: WebSectionSize!
+    widthRatio: Float!
     authentication: Boolean!
 }
 
@@ -20075,8 +20068,8 @@ func (ec *executionContext) fieldContext_WebSection_url(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _WebSection_size(ctx context.Context, field graphql.CollectedField, obj *model.WebSection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WebSection_size(ctx, field)
+func (ec *executionContext) _WebSection_widthRatio(ctx context.Context, field graphql.CollectedField, obj *model.WebSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WebSection_widthRatio(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -20089,7 +20082,7 @@ func (ec *executionContext) _WebSection_size(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Size, nil
+		return obj.WidthRatio, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20101,19 +20094,19 @@ func (ec *executionContext) _WebSection_size(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.WebSectionSize)
+	res := resTmp.(float64)
 	fc.Result = res
-	return ec.marshalNWebSectionSize2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐWebSectionSize(ctx, field.Selections, res)
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WebSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WebSection_widthRatio(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WebSection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type WebSectionSize does not have child fields")
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -26637,9 +26630,9 @@ func (ec *executionContext) _WebSection(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "size":
+		case "widthRatio":
 
-			out.Values[i] = ec._WebSection_size(ctx, field, obj)
+			out.Values[i] = ec._WebSection_widthRatio(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -27550,6 +27543,21 @@ func (ec *executionContext) marshalNFile2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstad
 	return ec._File(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	res := graphql.MarshalFloatContext(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return graphql.WrapContextMarshaler(ctx, res)
+}
+
 func (ec *executionContext) marshalNGlobalConfig2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐGlobalConfig(ctx context.Context, sel ast.SelectionSet, v model.GlobalConfig) graphql.Marshaler {
 	return ec._GlobalConfig(ctx, sel, &v)
 }
@@ -28346,16 +28354,6 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstad
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNWebSectionSize2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐWebSectionSize(ctx context.Context, v interface{}) (model.WebSectionSize, error) {
-	var res model.WebSectionSize
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNWebSectionSize2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐWebSectionSize(ctx context.Context, sel ast.SelectionSet, v model.WebSectionSize) graphql.Marshaler {
-	return v
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

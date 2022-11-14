@@ -593,11 +593,11 @@ type User struct {
 }
 
 type WebSection struct {
-	ID             string         `json:"id"`
-	Title          *string        `json:"title"`
-	URL            string         `json:"url"`
-	Size           WebSectionSize `json:"size"`
-	Authentication bool           `json:"authentication"`
+	ID             string  `json:"id"`
+	Title          *string `json:"title"`
+	URL            string  `json:"url"`
+	WidthRatio     float64 `json:"widthRatio"`
+	Authentication bool    `json:"authentication"`
 }
 
 func (WebSection) IsSection() {}
@@ -890,50 +890,5 @@ func (e *StreamType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e StreamType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type WebSectionSize string
-
-const (
-	WebSectionSizeR16_9 WebSectionSize = "r16_9"
-	WebSectionSizeR4_3  WebSectionSize = "r4_3"
-	WebSectionSizeR9_16 WebSectionSize = "r9_16"
-	WebSectionSizeR1_1  WebSectionSize = "r1_1"
-)
-
-var AllWebSectionSize = []WebSectionSize{
-	WebSectionSizeR16_9,
-	WebSectionSizeR4_3,
-	WebSectionSizeR9_16,
-	WebSectionSizeR1_1,
-}
-
-func (e WebSectionSize) IsValid() bool {
-	switch e {
-	case WebSectionSizeR16_9, WebSectionSizeR4_3, WebSectionSizeR9_16, WebSectionSizeR1_1:
-		return true
-	}
-	return false
-}
-
-func (e WebSectionSize) String() string {
-	return string(e)
-}
-
-func (e *WebSectionSize) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = WebSectionSize(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid WebSectionSize", str)
-	}
-	return nil
-}
-
-func (e WebSectionSize) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

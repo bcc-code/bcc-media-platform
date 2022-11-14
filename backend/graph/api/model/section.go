@@ -110,22 +110,22 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			Title: title,
 		}
 	case "embed_web":
-		var size WebSectionSize
+		var size float64
 		switch s.EmbedSize.ValueOrZero() {
 		case "16:9":
-			size = WebSectionSizeR16_9
+			size = 16 / 9
 		case "4:3":
-			size = WebSectionSizeR4_3
+			size = 4 / 3
 		case "9:16":
-			size = WebSectionSizeR9_16
+			size = 9 / 16
 		case "1:1":
-			size = WebSectionSizeR1_1
+			size = 1
 		}
 
 		return &WebSection{
 			ID:             id,
 			Title:          title,
-			Size:           size,
+			WidthRatio:     size,
 			URL:            s.EmbedUrl.ValueOrZero(),
 			Authentication: s.NeedsAuthentication.ValueOrZero(),
 		}
