@@ -133,27 +133,32 @@ export const fields: Field[] = [
 		column: "publish_date",
 		title: "Publish Date",
 		type: "datetime-local",
+		supportedOperators: ["==", "!=", "<", ">", "<=", "=>"]
 	},
 	{
 		column: "available_from",
 		title: "Available From",
-		type: "datetime-local"
+		type: "datetime-local",
+		supportedOperators: ["==", "!=", "<", ">", "<=", "=>"]
 	},
 	{
 		column: "available_to",
 		title: "Available To",
-		type: "datetime-local"
+		type: "datetime-local",
+		supportedOperators: ["==", "!=", "<", ">", "<=", "=>"]
 	},
 	{
 		column: "roles",
 		title: "Roles",
 		type: "array",
 		of: "string",
+		supportedOperators: ["is"]
 	},
 	{
 		column: "tags",
 		title: "Tags",
 		type: "array",
-		of: "string"
+		of: "string",
+		supportedOperators: ["is"]
 	}
 ]
