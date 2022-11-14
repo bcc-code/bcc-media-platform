@@ -12,23 +12,25 @@
         <hr class="separator"/>
         <h1>Sort by</h1>
 		<div class="sort-by">
-            <select v-model="sortBy" @change="handleChange">
-                <option
-                    v-for="field in fields"
-                    :value="field.column"
-                >{{field.title}}
-                </option>
-            </select>
+            <v-select 
+                v-model="sortBy"
+                @change="handleChange"
+                :items="fields"
+                item-text="title"
+                item-value="column"
+            />
             <h3>Direction</h3>
-			<select v-model="sortByDirection" @change="handleChange">
-                <option value="asc">Ascending</option>
-                <option value="desc">Descending</option>
-			</select>
+            <v-select 
+                v-model="sortByDirection"
+                :items="[{title: 'Ascending', column: 'asc'}, {title: 'Descending', column: 'desc'}]"
+                item-text="title"
+                item-value="column"
+            />
 		</div>
         <hr class="separator" />
         <h1>Limit</h1>
         <div class="limit">
-            <input v-model="limit" @change="handleChange" type="number" />
+            <v-input v-model="limit" @change="handleChange" type="number" />
         </div>
 	</div>
 	<div v-else>
@@ -40,7 +42,7 @@
 import { v4 as uuid } from "uuid";
 import { Root, fields } from ".";
 import Group from "./Group.vue";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 const props = defineProps<{
     value: Root | null;
@@ -53,6 +55,8 @@ const group = ref(props.value?.filter ?? null);
 const sortBy = ref(props.value?.sortBy ?? null);
 const sortByDirection = ref(props.value?.sortByDirection ?? null)
 const limit = ref(props.value?.limit ?? null);
+
+watch(() => [sortBy.value, sortByDirection.value], handleChange)
 
 function handleChange(): void {
     emit('update:value', {
