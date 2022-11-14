@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 
 	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/guregu/null.v4"
 )
 
@@ -21,10 +20,10 @@ func (localeString LocaleString) Get(languages []string) string {
 		}
 	}
 
-	log.L.Warn().
-		Strs("languages", languages).
-		Str("localeString", spew.Sdump(localeString)).
-		Msg("Failed to find any localeString for specified languages")
+	//log.L.Warn().
+	//	Strs("languages", languages).
+	//	Str("localeString", spew.Sdump(localeString)).
+	//	Msg("Failed to find any localeString for specified languages")
 
 	return ""
 }
