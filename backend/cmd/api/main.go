@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"database/sql"
-	"github.com/bcc-code/brunstadtv/backend/graph/gqltracer"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/bcc-code/brunstadtv/backend/graph/gqltracer"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -305,11 +306,11 @@ func main() {
 	ctx := context.Background()
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 
-	log.L.Debug().Msg("Setting up tracing!")
-	utils.MustSetupTracing()
-	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
-
 	config := getEnvConfig()
+
+	log.L.Debug().Msg("Setting up tracing!")
+	utils.MustSetupTracing("BTV-API", config.Uptrace.DSN)
+	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
 
 	db := mustConnectToDB(ctx, config.DB)
 	rdb := mustCreateRedisClient(ctx, config.Redis)
