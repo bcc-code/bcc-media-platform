@@ -1,8 +1,9 @@
 <template>
     <PageComponent
         class="mb-16"
+        :key="page"
         v-if="!fetching"
-        :page-id="props.pageId"
+        :page-id="page"
         @title="updateTitle"
     ></PageComponent>
 </template>
@@ -10,10 +11,17 @@
 import PageComponent from "@/components/page/Page.vue"
 import { useApplicationQuery } from "@/graph/generated"
 import { useTitle } from "@/utils/title"
+import { ref, watch } from "vue";
 
 const props = defineProps<{
     pageId: string
 }>()
+
+const page = ref(props.pageId)
+
+watch(() => props.pageId, () => {
+    page.value = props.pageId
+})
 
 const { data, fetching } = useApplicationQuery()
 
