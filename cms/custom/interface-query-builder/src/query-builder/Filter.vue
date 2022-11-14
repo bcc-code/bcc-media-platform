@@ -84,6 +84,9 @@ const filterOperators = computed(() => {
 
 function update() {
     const filter = Object.assign({}, props.value);
+    if (field.value && field.value?.supportedOperators.includes(selectedOperator.value) !== true) {
+        selectedOperator.value = field.value?.supportedOperators[0];
+    }
     if (selectedOperator.value !== operator.value) {
         filter[selectedOperator.value] = filter[operator.value]
         delete filter[operator.value];
