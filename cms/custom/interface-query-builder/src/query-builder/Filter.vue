@@ -79,7 +79,7 @@ const field = computed(() => {
 })
 
 const filterOperators = computed(() => {
-    return field.value?.type === "array" ? operatorTypes.filter(i => ["is"].includes(i)) : operatorTypes.filter(i => !["is"].includes(i))
+    return field.value?.supportedOperators
 })
 
 function update() {

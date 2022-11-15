@@ -152,13 +152,13 @@ export const fields: Field[] = [
 		title: "Roles",
 		type: "array",
 		of: "string",
-		supportedOperators: ["is"]
+		supportedOperators: ["is", "!is"]
 	},
 	{
 		column: "tags",
 		title: "Tags",
 		type: "array",
 		of: "string",
-		supportedOperators: ["is"]
+		supportedOperators: ["is", "!is"]
 	}
 ]

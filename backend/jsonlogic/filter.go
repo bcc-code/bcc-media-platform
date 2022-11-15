@@ -55,6 +55,8 @@ func toSquirrelQuery(operator string, property string, value any) (squirrel.Sqli
 		}, nil
 	case "is", "@>":
 		return squirrel.Expr(fmt.Sprintf("%s @> %s", property, arrayToSql(value))), nil
+	case "!is":
+		return squirrel.Expr(fmt.Sprintf("NOT (%s @> %s)", property, arrayToSql(value))), nil
 	}
 	return squirrel.Eq{
 		"1": "0",
@@ -115,7 +117,7 @@ func (q *Query) getSQLStringFromFilter(filter map[string]any) squirrel.Sqlizer {
 				}
 			}
 			return filters
-		case "==", "!=", ">", "<", ">=", "<=", "in", "is":
+		case "==", "!=", ">", "<", ">=", "<=", "in", "is", "!is":
 			var part squirrel.Sqlizer
 			switch t := values.(type) {
 			case []any:
