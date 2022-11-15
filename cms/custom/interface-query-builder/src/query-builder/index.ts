@@ -30,7 +30,8 @@ export const filterOperators = [
     ">",
     ">=",
     "in",
-    "is"
+    "is",
+    "!is"
 ]
 
 export const isFilter = (item: Filter | Group) => {
