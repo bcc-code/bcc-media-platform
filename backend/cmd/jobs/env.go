@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"github.com/bcc-code/brunstadtv/backend/search"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
 	"os"
 	"strconv"
@@ -41,6 +42,7 @@ type envConfig struct {
 	Crowdin           crowdin.Config
 	Firebase          firebase
 	ImageCDNDomain    string
+	Tracing           utils.TracingConfig
 }
 
 func getEnvConfig() envConfig {
@@ -84,6 +86,11 @@ func getEnvConfig() envConfig {
 		},
 		Firebase: firebase{
 			ProjectID: os.Getenv("FIREBASE_PROJECT_ID"),
+		},
+		Tracing: utils.TracingConfig{
+			UptraceDSN:        os.Getenv("UPTRACE_DSN"),
+			SamplingFrequency: os.Getenv("TRACE_SAMPLING_FREQUENCY"),
+			TracePrettyPrint:  os.Getenv("TRACE_PRETTY"),
 		},
 	}
 }
