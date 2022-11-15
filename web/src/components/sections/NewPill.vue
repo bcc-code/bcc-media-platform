@@ -31,11 +31,12 @@ const newString = computed(() => {
                 ? t("common.new")
                 : "")
         case "Season":
-            return new Date(
-                props.item.item.episodes.items[0].publishDate
+            const d = props.item.item.episodes.items[0]?.publishDate
+            return d ? new Date(
+                d
             ).getTime() > date.getTime()
                 ? t("common.newEpisodes")
-                : ""
+                : "" : ""
         case "Show":
             const episode = props.item.item.seasons.items[0]?.episodes.items[0]
             if (!episode) break
