@@ -109,7 +109,7 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 			}
 		}
 
-		if float64(episodeProgress.Progress)/float64(episodeProgress.Duration) > 0.8 {
+		if episodeProgress.Duration > 0 && float64(episodeProgress.Progress)/float64(episodeProgress.Duration) > 0.8 {
 			if !episodeProgress.WatchedAt.Valid || episodeProgress.WatchedAt.Time.After(time.Now().Add(time.Hour*-12)) {
 				episodeProgress.Watched++
 				episodeProgress.WatchedAt = null.TimeFrom(time.Now())
