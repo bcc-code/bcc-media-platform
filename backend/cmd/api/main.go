@@ -309,7 +309,7 @@ func main() {
 	config := getEnvConfig()
 
 	log.L.Debug().Msg("Setting up tracing!")
-	utils.MustSetupTracing("BTV-API", config.Uptrace.DSN)
+	utils.MustSetupTracing("BTV-API", config.Tracing)
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
 
 	db := mustConnectToDB(ctx, config.DB)
