@@ -54,29 +54,27 @@ func sectionCollectionEntryResolver(
 		return nil, err
 	}
 
-	if col.AdvancedType.Valid {
-		switch col.AdvancedType.String {
-		case "continue_watching":
-			ginCtx, err := utils.GinCtx(ctx)
-			if err != nil {
-				break
-			}
-			profile := user.GetProfileFromCtx(ginCtx)
-			ids, err := loaders.EpisodeProgressLoader.Get(ctx, profile.ID)
-			if err != nil {
-				return nil, err
-			}
-			var newEntries []collection.Entry
-			for _, id := range utils.PointerIntArrayToIntArray(ids) {
-				entry, found := lo.Find(entries, func(e collection.Entry) bool {
-					return e.Collection == "episodes" && e.ID == id
-				})
-				if found {
-					newEntries = append(newEntries, entry)
-				}
-			}
-			entries = newEntries
+	switch col.AdvancedType.String {
+	case "continue_watching":
+		ginCtx, err := utils.GinCtx(ctx)
+		if err != nil {
+			break
 		}
+		profile := user.GetProfileFromCtx(ginCtx)
+		ids, err := loaders.EpisodeProgressLoader.Get(ctx, profile.ID)
+		if err != nil {
+			return nil, err
+		}
+		var newEntries []collection.Entry
+		for _, id := range utils.PointerIntArrayToIntArray(ids) {
+			entry, found := lo.Find(entries, func(e collection.Entry) bool {
+				return e.Collection == "episodes" && e.ID == id
+			})
+			if found {
+				newEntries = append(newEntries, entry)
+			}
+		}
+		entries = newEntries
 	}
 
 	pagination := utils.Paginate(entries, first, offset, nil)
