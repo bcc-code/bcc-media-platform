@@ -25,8 +25,7 @@ type TracingConfig struct {
 //   - TRACE_SAMPLING_FREQUENCY - A number between 0.0 and 1.0 that determines how often requests should be traced.
 //     1.0 means every request. Default is 0.1, 10% of requests
 func MustSetupTracing(serviceName string, config TracingConfig) {
-	samplingFrequencyString := config.SamplingFrequency
-	frequency, err := strconv.ParseFloat(samplingFrequencyString, 32)
+	frequency, err := strconv.ParseFloat(config.SamplingFrequency, 32)
 	if err != nil {
 		log.L.Warn().Err(err).Msg("Error getting samplingFrequencyString, setting to 0.1")
 		frequency = 0.1
