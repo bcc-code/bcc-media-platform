@@ -18,10 +18,11 @@ func mapToCollections(collections []Collection) []common.Collection {
 		}
 
 		return common.Collection{
-			ID:     int(e.ID),
-			Type:   e.FilterType.ValueOrZero(),
-			Filter: filter,
-			Name:   e.Name.ValueOrZero(),
+			ID:           int(e.ID),
+			Type:         e.FilterType.ValueOrZero(),
+			AdvancedType: e.AdvancedType,
+			Filter:       filter,
+			Name:         e.Name.ValueOrZero(),
 		}
 	})
 }

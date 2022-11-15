@@ -6,8 +6,10 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
+	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/samber/lo"
 	"strconv"
 )
 
@@ -28,14 +30,51 @@ func preloadLoaders(ctx context.Context, loaders *common.BatchLoaders, entries [
 	}
 }
 
-func sectionCollectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, section *common.Section, first *int, offset *int) (*utils.PaginationResult[*model.SectionItem], error) {
+func sectionCollectionEntryResolver(
+	ctx context.Context,
+	loaders *common.BatchLoaders,
+	filteredLoaders *common.FilteredLoaders,
+	section *common.Section,
+	first *int,
+	offset *int,
+) (*utils.PaginationResult[*model.SectionItem], error) {
 	if !section.CollectionID.Valid {
 		return &utils.PaginationResult[*model.SectionItem]{}, nil
 	}
 
-	entries, err := collection.GetCollectionEntries(ctx, loaders, filteredLoaders, int(section.CollectionID.ValueOrZero()))
+	collectionId := int(section.CollectionID.ValueOrZero())
+
+	col, err := batchloaders.GetByID(ctx, loaders.CollectionLoader, collectionId)
 	if err != nil {
 		return nil, err
+	}
+
+	entries, err := collection.GetCollectionEntries(ctx, loaders, filteredLoaders, collectionId)
+	if err != nil {
+		return nil, err
+	}
+
+	switch col.AdvancedType.String {
+	case "continue_watching":
+		ginCtx, err := utils.GinCtx(ctx)
+		if err != nil {
+			break
+		}
+		profile := user.GetProfileFromCtx(ginCtx)
+		ids, err := loaders.EpisodeProgressLoader.Get(ctx, profile.ID)
+		if err != nil {
+			return nil, err
+		}
+		var newEntries []collection.Entry
+		for _, id := range utils.PointerIntArrayToIntArray(ids) {
+			entry, found := lo.Find(entries, func(e collection.Entry) bool {
+				return e.Collection == "episodes" && e.ID == id
+			})
+			if found {
+				newEntries = append(newEntries, entry)
+			}
+		}
+		entries = newEntries
 	}
 
 	pagination := utils.Paginate(entries, first, offset, nil)

@@ -20,3 +20,10 @@ SET progress   = 0,
     updated_at = NOW()
 WHERE p.profile_id = $1
   AND p.episode_id = $2;
+
+-- name: getEpisodeIDsWithProgress :many
+SELECT p.episode_id, p.profile_id
+FROM "users"."progress" p
+WHERE p.profile_id = ANY ($1::uuid[])
+  AND COALESCE((p.progress::float / COALESCE(NULLIF(p.duration, 0), 1)) > 0.8, false) != true
+ORDER BY p.updated_at DESC;

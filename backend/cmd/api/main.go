@@ -283,6 +283,9 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		StreamsLoader:                      asset.NewBatchStreamsLoader(*queries),
 		CollectionLoader:                   collectionLoader,
 		CollectionItemLoader:               collection.NewItemListBatchLoader(*queries),
+		EpisodeProgressLoader: &batchloaders.BatchLoader[uuid.UUID, []*int]{
+			Loader: batchloaders.NewRelationLoader(queries.GetEpisodeIDsWithProgress),
+		},
 		// Relations
 		SectionsLoader: batchloaders.NewRelationLoader(queries.GetSectionIDsForPages),
 		// Permissions

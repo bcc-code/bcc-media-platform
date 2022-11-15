@@ -2,6 +2,7 @@ package common
 
 import (
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
+	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
 )
 
@@ -30,6 +31,7 @@ type BatchLoaders struct {
 	QuestionsLoader                    *dataloader.Loader[int, []*int]
 	ProfilesLoader                     *dataloader.Loader[string, []*Profile]
 	MessageGroupLoader                 *dataloader.Loader[int, *MessageGroup]
+	EpisodeProgressLoader              *batchloaders.BatchLoader[uuid.UUID, []*int]
 	// Permissions
 	ShowPermissionLoader    *dataloader.Loader[int, *Permissions[int]]
 	SeasonPermissionLoader  *dataloader.Loader[int, *Permissions[int]]

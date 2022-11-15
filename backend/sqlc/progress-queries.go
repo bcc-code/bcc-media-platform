@@ -2,7 +2,9 @@ package sqlc
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
 )
@@ -25,6 +27,20 @@ func (pq *ProfileQueries) GetProgressForEpisodes(ctx context.Context, episodeIDs
 			ShowID:    row.ShowID,
 			WatchedAt: row.WatchedAt,
 			Watched:   int(row.Watched.ValueOrZero()),
+		}
+	}), nil
+}
+
+// GetEpisodeIDsWithProgress returns episodeIDs ordered by date progressed.
+func (q *Queries) GetEpisodeIDsWithProgress(ctx context.Context, profileIDs []uuid.UUID) ([]batchloaders.Relation[int, uuid.UUID], error) {
+	rows, err := q.getEpisodeIDsWithProgress(ctx, profileIDs)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getEpisodeIDsWithProgressRow, _ int) batchloaders.Relation[int, uuid.UUID] {
+		return batchloaders.RelationItem[int, uuid.UUID]{
+			Key:        int(i.EpisodeID),
+			RelationID: i.ProfileID,
 		}
 	}), nil
 }
