@@ -13,10 +13,6 @@ import (
 	"github.com/samber/lo"
 )
 
-type postgres struct {
-	ConnectionString string
-}
-
 type envConfig struct {
 	Members   members.Config
 	DB        postgres
@@ -27,6 +23,11 @@ type envConfig struct {
 	Secrets   serviceSecrets
 	Redis     redisConfig
 	AWS       awsConfig
+	Tracing   utils.TracingConfig
+}
+
+type postgres struct {
+	ConnectionString string
 }
 
 type cdnConfig struct {
@@ -131,6 +132,11 @@ func getEnvConfig() envConfig {
 			Username: os.Getenv("REDIS_USERNAME"),
 			Password: os.Getenv("REDIS_PASSWORD"),
 			Database: utils.AsInt(os.Getenv("REDIS_DATABASE")),
+		},
+		Tracing: utils.TracingConfig{
+			UptraceDSN:        os.Getenv("UPTRACE_DSN"),
+			SamplingFrequency: os.Getenv("TRACE_SAMPLING_FREQUENCY"),
+			TracePrettyPrint:  os.Getenv("TRACE_PRETTY"),
 		},
 	}
 }
