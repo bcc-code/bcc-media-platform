@@ -31,26 +31,31 @@ func (q *Queries) deleteProgress(ctx context.Context, arg deleteProgressParams) 
 }
 
 const getEpisodeIDsWithProgress = `-- name: getEpisodeIDsWithProgress :many
-SELECT p.episode_id
+SELECT p.episode_id, p.profile_id
 FROM "users"."progress" p
-WHERE p.profile_id = $1
+WHERE p.profile_id = ANY ($1::uuid[])
   AND COALESCE((p.progress::float / NULLIF(p.duration, 0)) > 0.8, false) != true
 ORDER BY p.updated_at DESC
 `
 
-func (q *Queries) getEpisodeIDsWithProgress(ctx context.Context, profileID uuid.UUID) ([]int32, error) {
-	rows, err := q.db.QueryContext(ctx, getEpisodeIDsWithProgress, profileID)
+type getEpisodeIDsWithProgressRow struct {
+	EpisodeID int32     `db:"episode_id" json:"episodeID"`
+	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
+}
+
+func (q *Queries) getEpisodeIDsWithProgress(ctx context.Context, dollar_1 []uuid.UUID) ([]getEpisodeIDsWithProgressRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeIDsWithProgress, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []int32
+	var items []getEpisodeIDsWithProgressRow
 	for rows.Next() {
-		var episode_id int32
-		if err := rows.Scan(&episode_id); err != nil {
+		var i getEpisodeIDsWithProgressRow
+		if err := rows.Scan(&i.EpisodeID, &i.ProfileID); err != nil {
 			return nil, err
 		}
-		items = append(items, episode_id)
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

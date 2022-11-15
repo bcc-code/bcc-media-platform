@@ -6,6 +6,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
+	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
@@ -33,7 +34,6 @@ func sectionCollectionEntryResolver(
 	ctx context.Context,
 	loaders *common.BatchLoaders,
 	filteredLoaders *common.FilteredLoaders,
-	profileLoaders *common.ProfileLoaders,
 	section *common.Section,
 	first *int,
 	offset *int,
@@ -57,12 +57,17 @@ func sectionCollectionEntryResolver(
 	if col.AdvancedType.Valid {
 		switch col.AdvancedType.String {
 		case "continue_watching":
-			ids, err := profileLoaders.EpisodeProgressLoader(ctx)
+			ginCtx, err := utils.GinCtx(ctx)
+			if err != nil {
+				break
+			}
+			profile := user.GetProfileFromCtx(ginCtx)
+			ids, err := loaders.EpisodeProgressLoader.Get(ctx, profile.ID)
 			if err != nil {
 				return nil, err
 			}
 			var newEntries []collection.Entry
-			for _, id := range ids {
+			for _, id := range utils.PointerIntArrayToIntArray(ids) {
 				entry, found := lo.Find(entries, func(e collection.Entry) bool {
 					return e.Collection == "episodes" && e.ID == id
 				})
@@ -212,7 +217,7 @@ func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, 
 		return nil, err
 	}
 
-	pagination, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), r.ProfileLoaders(ctx), section, first, offset)
+	pagination, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), section, first, offset)
 	if err != nil {
 		return nil, err
 	}

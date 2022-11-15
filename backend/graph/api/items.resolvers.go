@@ -128,7 +128,7 @@ func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, 
 		if err != nil || !app.RelatedCollectionID.Valid {
 			return nil, err
 		}
-		page, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), r.ProfileLoaders(ctx), &common.Section{
+		page, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), &common.Section{
 			CollectionID: app.RelatedCollectionID,
 			Style:        "default",
 		}, first, offset)

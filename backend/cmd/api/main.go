@@ -106,25 +106,6 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 	profileQueries := queries.ProfileQueries(profileID)
 	loaders := &common.ProfileLoaders{
 		ProgressLoader: batchloaders.New(profileQueries.GetProgressForEpisodes, batchloaders.WithMemoryCache(time.Second*5)),
-		EpisodeProgressLoader: func(ctx context.Context) ([]int, error) {
-			key := "PROGRESS:" + profileID.String()
-			if ps, ok := generalCache.Get(key); ok {
-				return ps.([]int), nil
-			}
-			lock := utils.Lock(key)
-			lock.Lock()
-			defer lock.Unlock()
-			if ps, ok := generalCache.Get(key); ok {
-				return ps.([]int), nil
-			}
-			ps, err := queries.ProfileQueries(profileID).GetEpisodeIDsWithProgress(ctx)
-			if err != nil {
-				return nil, err
-			}
-			// TODO: Perhaps remove from cache when progress is actually updated, but this should probably be enough for now.
-			generalCache.Set(key, ps, cache.WithExpiration(time.Second*20))
-			return ps, nil
-		},
 	}
 
 	profilesLoaderCache.Set(profileID, loaders, cache.WithExpiration(time.Minute*5))
@@ -302,6 +283,9 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		StreamsLoader:                      asset.NewBatchStreamsLoader(*queries),
 		CollectionLoader:                   collectionLoader,
 		CollectionItemLoader:               collection.NewItemListBatchLoader(*queries),
+		EpisodeProgressLoader: &batchloaders.BatchLoader[uuid.UUID, []*int]{
+			Loader: batchloaders.NewRelationLoader(queries.GetEpisodeIDsWithProgress),
+		},
 		// Relations
 		SectionsLoader: batchloaders.NewRelationLoader(queries.GetSectionIDsForPages),
 		// Permissions
