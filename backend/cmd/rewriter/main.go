@@ -215,9 +215,9 @@ func main() {
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 	log.L.Debug().Msg("Setting up tracing!")
 
-	utils.MustSetupTracing()
-
 	config := getEnvConfig()
+
+	utils.MustSetupTracing("BTV-REWRITER", config.Tracing)
 
 	rw := &rewriter{
 		apiEndpoint: config.APIEndpoint,
