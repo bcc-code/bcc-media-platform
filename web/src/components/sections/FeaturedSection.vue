@@ -3,11 +3,10 @@
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <Slider :item="item" v-slot="{ item: i }" :breakpoints="options">
             <div
-                class="relative h-full cursor-pointer"
+                class="relative h-full cursor-pointer aspect-video"
                 @click="goToSectionItem(i)"
             >
                 <Image
-                    v-if="i.image"
                     :src="i.image"
                     size-source="width"
                     :ratio="9 / 16"
