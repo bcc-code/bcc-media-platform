@@ -81,7 +81,7 @@ export type DataSetRow = {
 export const fields: Field[] = [
 	{
 		column: "collection",
-		title: "Collection",
+		title: "Table Name",
 		type: "string",
 		options: [
 			{
