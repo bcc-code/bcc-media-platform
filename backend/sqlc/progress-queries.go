@@ -25,6 +25,15 @@ func (pq *ProfileQueries) GetProgressForEpisodes(ctx context.Context, episodeIDs
 	}), nil
 }
 
+// GetEpisodeIDsWithProgress returns episodeIDs ordered by date progressed.
+func (pq *ProfileQueries) GetEpisodeIDsWithProgress(ctx context.Context) ([]int, error) {
+	ids, err := pq.queries.getEpisodeIDsWithProgress(ctx, pq.profileID)
+	if err != nil {
+		return nil, err
+	}
+	return int32ToInt(ids), nil
+}
+
 // SaveProgress stores the progress
 func (pq *ProfileQueries) SaveProgress(ctx context.Context, progress common.Progress) error {
 	return pq.queries.saveProgress(ctx, saveProgressParams{

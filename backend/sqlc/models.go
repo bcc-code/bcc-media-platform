@@ -176,16 +176,16 @@ type Category struct {
 }
 
 type Collection struct {
-	DateCreated time.Time             `db:"date_created" json:"dateCreated"`
-	DateUpdated time.Time             `db:"date_updated" json:"dateUpdated"`
-	ID          int32                 `db:"id" json:"id"`
-	Sort        null_v4.Int           `db:"sort" json:"sort"`
-	UserCreated uuid.NullUUID         `db:"user_created" json:"userCreated"`
-	UserUpdated uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
-	Collection  null_v4.String        `db:"collection" json:"collection"`
-	FilterType  null_v4.String        `db:"filter_type" json:"filterType"`
-	Name        null_v4.String        `db:"name" json:"name"`
-	QueryFilter pqtype.NullRawMessage `db:"query_filter" json:"queryFilter"`
+	DateCreated  time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated  time.Time             `db:"date_updated" json:"dateUpdated"`
+	ID           int32                 `db:"id" json:"id"`
+	Sort         null_v4.Int           `db:"sort" json:"sort"`
+	UserCreated  uuid.NullUUID         `db:"user_created" json:"userCreated"`
+	UserUpdated  uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	FilterType   null_v4.String        `db:"filter_type" json:"filterType"`
+	Name         null_v4.String        `db:"name" json:"name"`
+	QueryFilter  pqtype.NullRawMessage `db:"query_filter" json:"queryFilter"`
+	AdvancedType null_v4.String        `db:"advanced_type" json:"advancedType"`
 }
 
 type CollectionsEntry struct {
@@ -1050,12 +1050,14 @@ type UsersProfile struct {
 }
 
 type UsersProgress struct {
-	ProfileID uuid.UUID   `db:"profile_id" json:"profileID"`
-	EpisodeID int32       `db:"episode_id" json:"episodeID"`
-	Progress  int32       `db:"progress" json:"progress"`
-	Duration  int32       `db:"duration" json:"duration"`
-	UpdatedAt time.Time   `db:"updated_at" json:"updatedAt"`
-	ShowID    null_v4.Int `db:"show_id" json:"showID"`
+	ProfileID uuid.UUID    `db:"profile_id" json:"profileID"`
+	EpisodeID int32        `db:"episode_id" json:"episodeID"`
+	Progress  int32        `db:"progress" json:"progress"`
+	Duration  int32        `db:"duration" json:"duration"`
+	UpdatedAt time.Time    `db:"updated_at" json:"updatedAt"`
+	ShowID    null_v4.Int  `db:"show_id" json:"showID"`
+	Watched   null_v4.Int  `db:"watched" json:"watched"`
+	WatchedAt null_v4.Time `db:"watched_at" json:"watchedAt"`
 }
 
 type Webconfig struct {

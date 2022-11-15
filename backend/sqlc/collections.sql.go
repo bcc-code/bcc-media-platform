@@ -105,7 +105,7 @@ func (q *Queries) getCollectionEntriesForCollectionsWithRoles(ctx context.Contex
 }
 
 const getCollections = `-- name: getCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, filter_type, name, query_filter
+SELECT date_created, date_updated, id, sort, user_created, user_updated, filter_type, name, query_filter, advanced_type
 FROM collections c
 WHERE c.id = ANY ($1::int[])
 `
@@ -126,10 +126,10 @@ func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 			&i.Sort,
 			&i.UserCreated,
 			&i.UserUpdated,
-			&i.Collection,
 			&i.FilterType,
 			&i.Name,
 			&i.QueryFilter,
+			&i.AdvancedType,
 		); err != nil {
 			return nil, err
 		}
@@ -145,7 +145,7 @@ func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 }
 
 const listCollections = `-- name: listCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, filter_type, name, query_filter
+SELECT date_created, date_updated, id, sort, user_created, user_updated, filter_type, name, query_filter, advanced_type
 FROM collections
 `
 
@@ -165,10 +165,10 @@ func (q *Queries) listCollections(ctx context.Context) ([]Collection, error) {
 			&i.Sort,
 			&i.UserCreated,
 			&i.UserUpdated,
-			&i.Collection,
 			&i.FilterType,
 			&i.Name,
 			&i.QueryFilter,
+			&i.AdvancedType,
 		); err != nil {
 			return nil, err
 		}

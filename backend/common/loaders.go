@@ -1,6 +1,7 @@
 package common
 
 import (
+	"context"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/graph-gophers/dataloader/v7"
 )
@@ -52,5 +53,6 @@ type FilteredLoaders struct {
 
 // ProfileLoaders contains loaders per profile
 type ProfileLoaders struct {
-	ProgressLoader *batchloaders.BatchLoader[int, *Progress]
+	ProgressLoader        *batchloaders.BatchLoader[int, *Progress]
+	EpisodeProgressLoader func(ctx context.Context) ([]int, error)
 }

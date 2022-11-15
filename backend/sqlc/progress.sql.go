@@ -30,8 +30,43 @@ func (q *Queries) deleteProgress(ctx context.Context, arg deleteProgressParams) 
 	return err
 }
 
+const getEpisodeIDsWithProgress = `-- name: getEpisodeIDsWithProgress :many
+SELECT p.episode_id
+FROM "users"."progress" p
+WHERE p.profile_id = $1
+  AND COALESCE((p.progress::float / NULLIF(p.duration, 0)) > 0.8, false) != true
+ORDER BY p.updated_at DESC
+`
+
+func (q *Queries) getEpisodeIDsWithProgress(ctx context.Context, profileID uuid.UUID) ([]int32, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeIDsWithProgress, profileID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int32
+	for rows.Next() {
+		var episode_id int32
+		if err := rows.Scan(&episode_id); err != nil {
+			return nil, err
+		}
+		items = append(items, episode_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getProgressForProfile = `-- name: getProgressForProfile :many
-SELECT p.episode_id, p.show_id, p.progress, p.duration, COALESCE((p.progress::float / NULLIF(p.duration,0)) > 0.8, false)::bool AS watched
+SELECT p.episode_id,
+       p.show_id,
+       p.progress,
+       p.duration,
+       COALESCE((p.progress::float / NULLIF(p.duration, 0)) > 0.8, false)::bool AS watched
 FROM "users"."progress" p
 WHERE p.profile_id = $1::uuid
   AND p.episode_id = ANY ($2::int[])
