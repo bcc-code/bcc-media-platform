@@ -24,7 +24,7 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 	switch collection {
 	case "notifications":
 		id := uuid.MustParse(key)
-		lock, err := utils.RedisLock(h.locker, "notification")
+		lock, err := utils.RedisLock(h.locker, "notification-model-update")
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to retrieve redis lock")
 		} else {
