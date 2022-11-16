@@ -36,13 +36,6 @@ type cloudTasks struct {
 	QueueID string
 }
 
-type redisConfig struct {
-	Address  string
-	Username string
-	Password string
-	Database int
-}
-
 type envConfig struct {
 	AWS               awsConfig
 	Directus          directusConfig
@@ -56,7 +49,7 @@ type envConfig struct {
 	Tracing           utils.TracingConfig
 	CloudTasks        cloudTasks
 	APIUrl            string
-	Redis             redisConfig
+	Redis             utils.RedisConfig
 }
 
 func getEnvConfig() envConfig {
@@ -109,7 +102,7 @@ func getEnvConfig() envConfig {
 		CloudTasks: cloudTasks{
 			QueueID: os.Getenv("CLOUD_TASKS_QUEUE_ID"),
 		},
-		Redis: redisConfig{
+		Redis: utils.RedisConfig{
 			Address:  os.Getenv("REDIS_ADDRESS"),
 			Username: os.Getenv("REDIS_USERNAME"),
 			Password: os.Getenv("REDIS_PASSWORD"),

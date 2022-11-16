@@ -63,7 +63,7 @@ func main() {
 	mediaPackageVOD := mediapackagevod.NewFromConfig(awsConfig)
 
 	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key, debugDirectus)
-	rdb := mustCreateRedisClient(ctx, config.Redis)
+	rdb := utils.MustCreateRedisClient(ctx, config.Redis)
 
 	db, err := sql.Open("postgres", config.DB.ConnectionString)
 	if err != nil {
