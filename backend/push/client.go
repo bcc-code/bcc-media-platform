@@ -108,8 +108,19 @@ func (s *Service) pushMessage(ctx context.Context, message *messaging.Message) e
 func (s *Service) SendNotificationToDevices(ctx context.Context, devices []common.Device, notification common.Notification) error {
 	var messages []*messaging.Message
 
+	var data = map[string]string{}
+
+	if notification.Action.Valid {
+		data["action"] = notification.Action.String
+		switch notification.Action.String {
+		case "deep_link":
+			data["deep_link"] = notification.DeepLink.String
+		}
+	}
+
 	for _, d := range devices {
 		messages = append(messages, &messaging.Message{
+			Data: map[string]string{},
 			Notification: &messaging.Notification{
 				Title:    notification.Title.Get(d.Languages),
 				Body:     notification.Description.Get(d.Languages),
