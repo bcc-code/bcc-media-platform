@@ -370,6 +370,8 @@ ALTER TABLE IF EXISTS "public"."images" DROP COLUMN IF EXISTS "notificationtempl
 
 ALTER TABLE IF EXISTS "public"."images" DROP CONSTRAINT IF EXISTS "one_item";
 
+DELETE FROM "public"."images" WHERE show_id IS NULL AND season_id IS NULL and episode_id IS NULL AND page_id IS NULL and link_id IS NULL;
+
 ALTER TABLE IF EXISTS "public"."images" ADD CONSTRAINT "one_item" CHECK ((((show_id IS NOT NULL) AND (season_id IS NULL) AND (episode_id IS NULL) AND (page_id IS NULL) AND (link_id IS NULL)) OR ((season_id IS NOT NULL) AND (show_id IS NULL) AND (episode_id IS NULL) AND (page_id IS NULL) AND (link_id IS NULL)) OR ((episode_id IS NOT NULL) AND (show_id IS NULL) AND (season_id IS NULL) AND (page_id IS NULL) AND (link_id IS NULL)) OR ((episode_id IS NULL) AND (show_id IS NULL) AND (season_id IS NULL) AND (page_id IS NOT NULL) AND (link_id IS NULL)) OR ((episode_id IS NULL) AND (show_id IS NULL) AND (season_id IS NULL) AND (page_id IS NULL) AND (link_id IS NOT NULL))));
 
 COMMENT ON CONSTRAINT "one_item" ON "public"."images" IS NULL;
@@ -449,17 +451,17 @@ COMMENT ON TABLE "public"."notifications_translations"  IS NULL;
 
 --- END CREATE TABLE "public"."notifications_translations" ---
 
---- BEGIN DROP TABLE "public"."notificationtemplates" ---
-
-DROP TABLE IF EXISTS "public"."notificationtemplates";
-
---- END DROP TABLE "public"."notificationtemplates" ---
-
 --- BEGIN DROP TABLE "public"."notificationtemplates_translations" ---
 
 DROP TABLE IF EXISTS "public"."notificationtemplates_translations";
 
 --- END DROP TABLE "public"."notificationtemplates_translations" ---
+
+--- BEGIN DROP TABLE "public"."notificationtemplates" ---
+
+DROP TABLE IF EXISTS "public"."notificationtemplates";
+
+--- END DROP TABLE "public"."notificationtemplates" ---
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
 
@@ -485,9 +487,9 @@ INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "disp
 
 UPDATE "public"."directus_collections" SET "sort" = 18 WHERE "collection" = 'applications_usergroups';
 
-DELETE FROM "public"."directus_collections" WHERE "collection" = 'notificationtemplates';
-
 DELETE FROM "public"."directus_collections" WHERE "collection" = 'notificationtemplates_translations';
+
+DELETE FROM "public"."directus_collections" WHERE "collection" = 'notificationtemplates';
 
 --- END SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
 
