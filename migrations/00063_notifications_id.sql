@@ -36,7 +36,7 @@ ALTER TABLE IF EXISTS "public"."notifications"
 
 ALTER TABLE IF EXISTS "public"."notifications"
 	 --WARN: Change column data type can occure in a casting error, the suggested casting expression is the default one and may not fit your needs!,
-	ADD COLUMN "id" uuid;
+	ADD COLUMN "id" uuid NOT NULL UNIQUE;
 
 ALTER TABLE IF EXISTS "public"."notifications" ADD CONSTRAINT "notifications_pk" PRIMARY KEY (id);
 

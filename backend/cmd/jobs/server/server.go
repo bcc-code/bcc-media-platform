@@ -237,3 +237,8 @@ func (s server) ProcessAwsMessage(c *gin.Context) {
 		log.L.Warn().Str("message", string(jsonData)).Msg("Unable to process AWS SNS Message")
 	}
 }
+
+// ProcessScheduledTask processes the scheduled task.
+func (s server) ProcessScheduledTask(ctx *gin.Context) {
+	s.services.Scheduler.HandleRequest(ctx)
+}

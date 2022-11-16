@@ -23,4 +23,7 @@ FROM notifications n
          LEFT JOIN notificationtemplates t ON n.template_id = t.id
          LEFT JOIN ts ON ts.notificationtemplates_id = t.id
          LEFT JOIN images img ON img.item_id = t.id
-WHERE n.id = ANY ($1::int[]);
+WHERE n.id = ANY ($1::uuid[]);
+
+-- name: MarkAsSent :exec
+UPDATE notifications n SET sent = true WHERE id = $1;

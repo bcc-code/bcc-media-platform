@@ -29,14 +29,14 @@ export function handleEvent(eventName: string) {
 
         if (!collections.includes(event.collection)) { return }
         
-        const keys = [] as number[]
+        const keys = [] as string[]
 
         if (event.key) {
-            keys.push(event.key)
+            keys.push(event.key.toString())
         }
         
         if (event.keys) {
-            keys.push(...event.keys.map(i => Number(i)))
+            keys.push(...event.keys.map(i => i.toString()))
         }
 
         const topic = pubsub.topic(topicId)

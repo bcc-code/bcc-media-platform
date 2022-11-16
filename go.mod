@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	cloud.google.com/go/cloudtasks v1.8.0
-	cloud.google.com/go/pubsub v1.21.1
+	cloud.google.com/go/pubsub v1.26.0
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/99designs/gqlgen v0.17.9
 	github.com/Code-Hex/go-generics-cache v1.1.0

@@ -15,6 +15,15 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const markAsSent = `-- name: MarkAsSent :exec
+UPDATE notifications n SET sent = true WHERE id = $1
+`
+
+func (q *Queries) MarkAsSent(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, markAsSent, id)
+	return err
+}
+
 const getNotifications = `-- name: getNotifications :many
 WITH ts AS (SELECT ts.notificationtemplates_id,
                    json_object_agg(languages_code, title)       AS title,
@@ -40,7 +49,7 @@ FROM notifications n
          LEFT JOIN notificationtemplates t ON n.template_id = t.id
          LEFT JOIN ts ON ts.notificationtemplates_id = t.id
          LEFT JOIN images img ON img.item_id = t.id
-WHERE n.id = ANY ($1::int[])
+WHERE n.id = ANY ($1::uuid[])
 `
 
 type getNotificationsRow struct {
@@ -55,7 +64,7 @@ type getNotificationsRow struct {
 	Sent        sql.NullBool    `db:"sent" json:"sent"`
 }
 
-func (q *Queries) getNotifications(ctx context.Context, dollar_1 []int32) ([]getNotificationsRow, error) {
+func (q *Queries) getNotifications(ctx context.Context, dollar_1 []uuid.UUID) ([]getNotificationsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getNotifications, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err

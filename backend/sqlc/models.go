@@ -798,7 +798,6 @@ type MessagetemplatesTranslation struct {
 }
 
 type Notification struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
 	Status      string         `db:"status" json:"status"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
@@ -809,6 +808,7 @@ type Notification struct {
 	Sent        sql.NullBool   `db:"sent" json:"sent"`
 	Action      null_v4.String `db:"action" json:"action"`
 	DeepLink    null_v4.String `db:"deep_link" json:"deepLink"`
+	ID          uuid.UUID      `db:"id" json:"id"`
 }
 
 type Notificationtemplate struct {

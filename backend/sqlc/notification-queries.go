@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
 )
 
 // GetNotifications returns notifications from the database
-func (q *Queries) GetNotifications(ctx context.Context, ids []int) ([]common.Notification, error) {
-	ns, err := q.getNotifications(ctx, intToInt32(ids))
+func (q *Queries) GetNotifications(ctx context.Context, ids []uuid.UUID) ([]common.Notification, error) {
+	ns, err := q.getNotifications(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
