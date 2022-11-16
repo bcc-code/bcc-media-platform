@@ -53,7 +53,9 @@ const load = async () => {
             },
         })
         let lastProgress = props.episode.progress
-        player.value.currentTime(lastProgress)
+        if (!player.value.currentTime()) {
+            player.value.currentTime(lastProgress)
+        }
         if (isAuthenticated.value) {
             player.value.on("timeupdate", async () => {
                 const progress = Math.floor(player.value.currentTime())

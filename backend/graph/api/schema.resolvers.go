@@ -88,10 +88,6 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 			return nil, err
 		}
 		if episodeProgress == nil {
-			dur := e.Duration
-			if duration != nil {
-				dur = *duration
-			}
 			var showID null.Int
 			if e.Season != nil {
 				s, err := r.QueryRoot().Season(ctx, e.Season.ID)
@@ -103,11 +99,14 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 			episodeProgress = &common.Progress{
 				EpisodeID: episodeID,
 				ShowID:    showID,
-				Progress:  *progress,
-				Duration:  dur,
+				Duration:  e.Duration,
 				UpdatedAt: time.Now(),
 			}
 		}
+		if duration != nil {
+			episodeProgress.Duration = *duration
+		}
+		episodeProgress.Progress = *progress
 
 		if episodeProgress.Duration > 0 && float64(episodeProgress.Progress)/float64(episodeProgress.Duration) > 0.8 {
 			if !episodeProgress.WatchedAt.Valid || episodeProgress.WatchedAt.Time.After(time.Now().Add(time.Hour*-12)) {
