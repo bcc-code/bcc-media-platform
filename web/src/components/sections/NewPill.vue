@@ -1,5 +1,8 @@
 <template>
-    <div class="bg-red rounded rounded-xl text-sm px-2 z-10 font-medium" v-if="newString">
+    <div
+        class="bg-red rounded rounded-xl text-sm px-2 z-10 font-medium"
+        v-if="newString"
+    >
         {{ newString }}
     </div>
 </template>
@@ -26,17 +29,17 @@ const newString = computed(() => {
             if (!!props.item.item.progress) {
                 return ""
             }
-            return (new Date(props.item.item.publishDate).getTime() >
+            return new Date(props.item.item.publishDate).getTime() >
                 date.getTime()
                 ? t("common.new")
-                : "")
+                : ""
         case "Season":
             const d = props.item.item.episodes.items[0]?.publishDate
-            return d ? new Date(
-                d
-            ).getTime() > date.getTime()
-                ? t("common.newEpisodes")
-                : "" : ""
+            return d
+                ? new Date(d).getTime() > date.getTime()
+                    ? t("common.newEpisodes")
+                    : ""
+                : ""
         case "Show":
             const episode = props.item.item.seasons.items[0]?.episodes.items[0]
             if (!episode) break

@@ -35,6 +35,10 @@
         v-else-if="section.__typename === 'IconGridSection'"
         :item="section"
     ></IconGridSection>
+    <WebSection
+        v-else-if="section.__typename === 'WebSection'"
+        :item="section"
+    />
 </template>
 <script lang="ts" setup>
 import { Section } from "./types"
@@ -47,6 +51,7 @@ import LabelSection from "./LabelSection.vue"
 import IconSection from "./IconSection.vue"
 import IconGridSection from "./IconGridSection.vue"
 import ListSection from "./ListSection.vue"
+import WebSection from "./WebSection.vue"
 
 defineProps<{
     section: Section

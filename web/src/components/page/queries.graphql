@@ -99,6 +99,12 @@ query getPage($code: String!) {
                 id
                 title
                 ...ItemSection
+                ... on WebSection {
+                    title
+                    url
+                    widthRatio
+                    authentication
+                }
             }
         }
     }

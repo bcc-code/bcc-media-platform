@@ -11,7 +11,7 @@
 import PageComponent from "@/components/page/Page.vue"
 import { useApplicationQuery } from "@/graph/generated"
 import { useTitle } from "@/utils/title"
-import { ref, watch } from "vue";
+import { ref, watch } from "vue"
 
 const props = defineProps<{
     pageId: string
@@ -19,9 +19,12 @@ const props = defineProps<{
 
 const page = ref(props.pageId)
 
-watch(() => props.pageId, () => {
-    page.value = props.pageId
-})
+watch(
+    () => props.pageId,
+    () => {
+        page.value = props.pageId
+    }
+)
 
 const { data, fetching } = useApplicationQuery()
 
