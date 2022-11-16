@@ -74,6 +74,10 @@ type Notification struct {
 	Title       LocaleString           `json:"title"`
 	Description LocaleString           `json:"description"`
 	Images      LocaleMap[null.String] `json:"images"`
+	ScheduleAt  null.Time              `json:"scheduleAt"`
+	Sent        bool                   `json:"sent"`
+	DeepLink    null.String            `json:"deepLink"`
+	Action      null.String            `json:"action"`
 }
 
 // Progress contains basic data for progress

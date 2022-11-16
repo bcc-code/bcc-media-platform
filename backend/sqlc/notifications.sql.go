@@ -7,22 +7,39 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 
 	"github.com/lib/pq"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getNotifications = `-- name: getNotifications :many
-WITH ts AS (SELECT notifications_id,
+WITH ts AS (SELECT ts.notificationtemplates_id,
                    json_object_agg(languages_code, title)       AS title,
-                   json_object_agg(languages_code, description) AS description,
-                   json_object_agg(languages_code, image)       AS images
-            FROM notifications_translations
-            GROUP BY notifications_id)
-SELECT id, status, ts.title, ts.description, ts.images
-FROM notifications
-         JOIN ts ON ts.notifications_id = id
-WHERE id = ANY ($1::int[])
+                   json_object_agg(languages_code, description) AS description
+            FROM notificationtemplates_translations ts
+            GROUP BY ts.notificationtemplates_id),
+     imgs AS (SELECT notificationtemplate_id as item_id, style, language, filename_disk
+              FROM images img
+                       JOIN directus_files df on img.file = df.id),
+     images AS (SELECT item_id, json_agg(imgs) as json
+                FROM imgs
+                GROUP BY item_id)
+SELECT n.id,
+       n.status,
+       COALESCE(ts.title, '{}')       AS title,
+       COALESCE(ts.description, '{}') AS description,
+       COALESCE(img.json, '[]')       AS images,
+       n.action,
+       n.deep_link,
+       n.schedule_at,
+       n.sent
+FROM notifications n
+         LEFT JOIN notificationtemplates t ON n.template_id = t.id
+         LEFT JOIN ts ON ts.notificationtemplates_id = t.id
+         LEFT JOIN images img ON img.item_id = t.id
+WHERE n.id = ANY ($1::int[])
 `
 
 type getNotificationsRow struct {
@@ -31,6 +48,10 @@ type getNotificationsRow struct {
 	Title       json.RawMessage `db:"title" json:"title"`
 	Description json.RawMessage `db:"description" json:"description"`
 	Images      json.RawMessage `db:"images" json:"images"`
+	Action      null_v4.String  `db:"action" json:"action"`
+	DeepLink    null_v4.String  `db:"deep_link" json:"deepLink"`
+	ScheduleAt  null_v4.Time    `db:"schedule_at" json:"scheduleAt"`
+	Sent        sql.NullBool    `db:"sent" json:"sent"`
 }
 
 func (q *Queries) getNotifications(ctx context.Context, dollar_1 []int32) ([]getNotificationsRow, error) {
@@ -48,6 +69,10 @@ func (q *Queries) getNotifications(ctx context.Context, dollar_1 []int32) ([]get
 			&i.Title,
 			&i.Description,
 			&i.Images,
+			&i.Action,
+			&i.DeepLink,
+			&i.ScheduleAt,
+			&i.Sent,
 		); err != nil {
 			return nil, err
 		}

@@ -29,6 +29,10 @@ func (q *Queries) GetNotifications(ctx context.Context, ids []int) ([]common.Not
 			Title:       title,
 			Description: description,
 			Images:      images,
+			Sent:        n.Sent.Bool,
+			Action:      n.Action,
+			DeepLink:    n.DeepLink,
+			ScheduleAt:  n.ScheduleAt,
 		}
 	}), nil
 }
