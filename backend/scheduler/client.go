@@ -39,7 +39,7 @@ type QueuedItem struct {
 func (s *Service) Queue(ctx context.Context, collection string, id string, at time.Time) error {
 	client, _ := cloudtasks.NewClient(ctx)
 
-	taskName := s.queueID + "/tasks/notification-" + id
+	taskName := s.queueID + "/tasks/" + collection + "-" + id
 
 	task := &cloudtaskspb.CreateTaskRequest{
 		Parent: s.queueID,
