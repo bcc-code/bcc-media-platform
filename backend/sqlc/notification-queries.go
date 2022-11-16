@@ -24,7 +24,7 @@ func (q *Queries) GetNotifications(ctx context.Context, ids []int) ([]common.Not
 		_ = json.Unmarshal(n.Images, &images)
 
 		return common.Notification{
-			ID:          int(n.ID),
+			ID:          n.ID,
 			Status:      common.StatusFrom(n.Status),
 			Title:       title,
 			Description: description,

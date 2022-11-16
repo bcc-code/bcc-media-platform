@@ -798,7 +798,7 @@ type MessagetemplatesTranslation struct {
 }
 
 type Notification struct {
-	ID          int32          `db:"id" json:"id"`
+	ID          uuid.UUID      `db:"id" json:"id"`
 	Status      string         `db:"status" json:"status"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`

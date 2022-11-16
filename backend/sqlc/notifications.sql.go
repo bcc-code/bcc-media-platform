@@ -10,6 +10,7 @@ import (
 	"database/sql"
 	"encoding/json"
 
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
@@ -43,7 +44,7 @@ WHERE n.id = ANY ($1::int[])
 `
 
 type getNotificationsRow struct {
-	ID          int32           `db:"id" json:"id"`
+	ID          uuid.UUID       `db:"id" json:"id"`
 	Status      string          `db:"status" json:"status"`
 	Title       json.RawMessage `db:"title" json:"title"`
 	Description json.RawMessage `db:"description" json:"description"`

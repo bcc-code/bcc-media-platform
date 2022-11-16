@@ -1,6 +1,7 @@
 package common
 
 import (
+	"github.com/google/uuid"
 	"gopkg.in/guregu/null.v4"
 	"time"
 )
@@ -69,7 +70,7 @@ type GlobalConfig struct {
 
 // Notification contains notification data
 type Notification struct {
-	ID          int
+	ID          uuid.UUID
 	Status      Status
 	Title       LocaleString           `json:"title"`
 	Description LocaleString           `json:"description"`
