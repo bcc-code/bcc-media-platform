@@ -141,6 +141,7 @@
         </div>
         <div v-if="error" class="text-red">{{ error.message }}</div>
     </section>
+    <NotFound v-else :title="$t('episode.notFound')"></NotFound>
 </template>
 <script lang="ts" setup>
 import {
@@ -155,8 +156,8 @@ import AgeRating from "@/components/episodes/AgeRating.vue"
 import WithProgressBar from "@/components/episodes/WithProgressBar.vue"
 import SeasonSelector from "@/components/SeasonSelector.vue"
 import { useTitle } from "@/utils/title"
-import { getImageSize } from "@/utils/images"
 import Image from "../Image.vue"
+import NotFound from "../NotFound.vue"
 
 const { t } = useI18n()
 

@@ -1,0 +1,5 @@
+query getAnalyticsID {
+    analytics {
+        anonymousId
+    }
+}

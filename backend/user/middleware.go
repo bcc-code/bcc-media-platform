@@ -171,12 +171,8 @@ func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin
 }
 
 // GetFromCtx gets the user stored in the context by the middleware
-func GetFromCtx(ctx context.Context) *common.User {
-	ginCtx, _ := utils.GinCtx(ctx)
-	if ginCtx == nil {
-		return nil
-	}
-	u, ok := ginCtx.Get(CtxUser)
+func GetFromCtx(ctx *gin.Context) *common.User {
+	u, ok := ctx.Get(CtxUser)
 	if !ok {
 		return nil
 	}
@@ -314,12 +310,8 @@ func NewProfileMiddleware(queries *sqlc.Queries, client *redis.Client) func(*gin
 }
 
 // GetProfileFromCtx returns the current profile
-func GetProfileFromCtx(ctx context.Context) *common.Profile {
-	ginCtx, _ := utils.GinCtx(ctx)
-	if ginCtx == nil {
-		return nil
-	}
-	p, ok := ginCtx.Get(CtxProfile)
+func GetProfileFromCtx(ctx *gin.Context) *common.Profile {
+	p, ok := ctx.Get(CtxProfile)
 	if !ok {
 		return nil
 	}

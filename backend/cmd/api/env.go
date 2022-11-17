@@ -14,16 +14,17 @@ import (
 )
 
 type envConfig struct {
-	Members   members.Config
-	DB        postgres
-	Algolia   search.Config
-	Port      string
-	Auth0     auth0.Config
-	CDNConfig cdnConfig
-	Secrets   serviceSecrets
-	Redis     redisConfig
-	AWS       awsConfig
-	Tracing   utils.TracingConfig
+	Members       members.Config
+	DB            postgres
+	Algolia       search.Config
+	Port          string
+	Auth0         auth0.Config
+	CDNConfig     cdnConfig
+	Secrets       serviceSecrets
+	Redis         redisConfig
+	AWS           awsConfig
+	Tracing       utils.TracingConfig
+	AnalyticsSalt string
 }
 
 type postgres struct {
@@ -138,5 +139,6 @@ func getEnvConfig() envConfig {
 			SamplingFrequency: os.Getenv("TRACE_SAMPLING_FREQUENCY"),
 			TracePrettyPrint:  os.Getenv("TRACE_PRETTY"),
 		},
+		AnalyticsSalt: os.Getenv("ANALYTICS_SALT"),
 	}
 }
