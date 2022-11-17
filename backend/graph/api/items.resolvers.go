@@ -5,6 +5,8 @@ package graph
 
 import (
 	"context"
+	"github.com/99designs/gqlgen/graphql"
+	"gopkg.in/guregu/null.v4"
 	"strconv"
 	"time"
 
@@ -119,17 +121,46 @@ func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*in
 
 // RelatedItems is the resolver for the relatedItems field.
 func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error) {
-	if obj.Type == model.EpisodeTypeStandalone {
+	field := graphql.GetRootFieldContext(ctx)
+
+	var collectionId *int
+	if field.Field.Field.Name == "episode" {
+		args := field.Field.Field.Arguments
+
+		for _, arg := range args {
+			if arg.Name == "context" {
+				vars, _ := arg.Value.Value(nil)
+				values, ok := vars.(map[string]any)
+				if !ok {
+					break
+				}
+				stringId, ok := values["collectionId"]
+				if ok && stringId != nil {
+					colId, _ := strconv.ParseInt(stringId.(string), 10, 64)
+					intId := int(colId)
+					collectionId = &intId
+				}
+			}
+		}
+	}
+
+	if collectionId == nil && obj.Type == model.EpisodeTypeStandalone {
 		ginCtx, err := utils.GinCtx(ctx)
 		if err != nil {
 			return nil, err
 		}
 		app, err := applications.GetFromCtx(ginCtx)
-		if err != nil || !app.RelatedCollectionID.Valid {
+		if err != nil {
 			return nil, err
 		}
+		if app.RelatedCollectionID.Valid {
+			intID := int(app.RelatedCollectionID.Int64)
+			collectionId = &intID
+		}
+	}
+	if collectionId != nil {
 		page, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), &common.Section{
-			CollectionID: app.RelatedCollectionID,
+			CollectionID: null.IntFrom(int64(*collectionId)),
 			Style:        "default",
 		}, first, offset)
 		if err != nil {
@@ -266,7 +297,7 @@ func (r *showResolver) DefaultEpisode(ctx context.Context, obj *model.Show) (*mo
 	if eID == nil {
 		return nil, merry.New("invalid default episode")
 	}
-	return r.QueryRoot().Episode(ctx, strconv.Itoa(*eID))
+	return r.QueryRoot().Episode(ctx, strconv.Itoa(*eID), nil)
 }
 
 // Episode returns generated.EpisodeResolver implementation.

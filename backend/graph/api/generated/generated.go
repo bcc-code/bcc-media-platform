@@ -386,7 +386,7 @@ type ComplexityRoot struct {
 		Calendar       func(childComplexity int) int
 		Collection     func(childComplexity int, id string) int
 		Config         func(childComplexity int) int
-		Episode        func(childComplexity int, id string) int
+		Episode        func(childComplexity int, id string, context *model.EpisodeContext) int
 		Event          func(childComplexity int, id string) int
 		Export         func(childComplexity int, groups []string) int
 		Faq            func(childComplexity int) int
@@ -682,7 +682,7 @@ type QueryRootResolver interface {
 	Section(ctx context.Context, id string, timestamp *string) (model.Section, error)
 	Show(ctx context.Context, id string) (*model.Show, error)
 	Season(ctx context.Context, id string) (*model.Season, error)
-	Episode(ctx context.Context, id string) (*model.Episode, error)
+	Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error)
 	Collection(ctx context.Context, id string) (*model.Collection, error)
 	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
 	Calendar(ctx context.Context) (*model.Calendar, error)
@@ -2214,7 +2214,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.QueryRoot.Episode(childComplexity, args["id"].(string)), true
+		return e.complexity.QueryRoot.Episode(childComplexity, args["id"].(string), args["context"].(*model.EpisodeContext)), true
 
 	case "QueryRoot.event":
 		if e.complexity.QueryRoot.Event == nil {
@@ -3250,6 +3250,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputEpisodeContext,
 		ec.unmarshalInputLegacyIDLookupOptions,
 	)
 	first := true
@@ -3890,6 +3891,10 @@ type LegacyIDLookup {
   id: ID!
 }
 
+input EpisodeContext {
+  collectionId: String
+}
+
 type QueryRoot{
   application: Application!
   export(
@@ -3918,6 +3923,7 @@ type QueryRoot{
 
   episode(
     id: ID!
+    context: EpisodeContext
   ): Episode!
 
   collection(
@@ -4577,6 +4583,15 @@ func (ec *executionContext) field_QueryRoot_episode_args(ctx context.Context, ra
 		}
 	}
 	args["id"] = arg0
+	var arg1 *model.EpisodeContext
+	if tmp, ok := rawArgs["context"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("context"))
+		arg1, err = ec.unmarshalOEpisodeContext2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeContext(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["context"] = arg1
 	return args, nil
 }
 
@@ -14330,7 +14345,7 @@ func (ec *executionContext) _QueryRoot_episode(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Episode(rctx, fc.Args["id"].(string))
+		return ec.resolvers.QueryRoot().Episode(rctx, fc.Args["id"].(string), fc.Args["context"].(*model.EpisodeContext))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22734,6 +22749,34 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputEpisodeContext(ctx context.Context, obj interface{}) (model.EpisodeContext, error) {
+	var it model.EpisodeContext
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"collectionId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "collectionId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("collectionId"))
+			it.CollectionID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputLegacyIDLookupOptions(ctx context.Context, obj interface{}) (model.LegacyIDLookupOptions, error) {
 	var it model.LegacyIDLookupOptions
 	asMap := map[string]interface{}{}
@@ -29552,6 +29595,14 @@ func (ec *executionContext) marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbruns
 		return graphql.Null
 	}
 	return ec._Episode(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOEpisodeContext2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeContext(ctx context.Context, v interface{}) (*model.EpisodeContext, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputEpisodeContext(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx context.Context, sel ast.SelectionSet, v *model.Event) graphql.Marshaler {

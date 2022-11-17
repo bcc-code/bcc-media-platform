@@ -160,6 +160,10 @@ type EpisodeCalendarEntry struct {
 
 func (EpisodeCalendarEntry) IsCalendarEntry() {}
 
+type EpisodeContext struct {
+	CollectionID *string `json:"collectionId"`
+}
+
 type EpisodeItem struct {
 	ID       string   `json:"id"`
 	Sort     int      `json:"sort"`

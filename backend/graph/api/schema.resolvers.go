@@ -72,7 +72,7 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 	if p == nil {
 		return nil, ErrProfileNotSet
 	}
-	e, err := r.QueryRoot().Episode(ctx, id)
+	e, err := r.QueryRoot().Episode(ctx, id, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -231,7 +231,7 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 }
 
 // Episode is the resolver for the episode field.
-func (r *queryRootResolver) Episode(ctx context.Context, id string) (*model.Episode, error) {
+func (r *queryRootResolver) Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
 		Item:        r.Loaders.EpisodeLoader,
 		Permissions: r.Loaders.EpisodePermissionLoader,
