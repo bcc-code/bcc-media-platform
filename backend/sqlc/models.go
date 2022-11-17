@@ -929,6 +929,7 @@ type Section struct {
 	EmbedSize           null_v4.String `db:"embed_size" json:"embedSize"`
 	NeedsAuthentication sql.NullBool   `db:"needs_authentication" json:"needsAuthentication"`
 	EmbedUrl            null_v4.String `db:"embed_url" json:"embedUrl"`
+	SecondaryTitles     sql.NullBool   `db:"secondary_titles" json:"secondaryTitles"`
 }
 
 type SectionsTranslation struct {

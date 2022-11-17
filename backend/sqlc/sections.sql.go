@@ -229,10 +229,13 @@ SELECT s.id,
        s.embed_url,
        s.embed_size,
        s.needs_authentication,
+       c.advanced_type,
+       COALESCE(s.secondary_titles, true),
        t.title,
        t.description
 FROM sections s
          JOIN pages p ON s.page_id = p.id
+         LEFT JOIN collections c ON c.id = s.collection_id
          LEFT JOIN t ON s.id = t.sections_id
 WHERE s.id = ANY ($1::int[])
   AND s.status = 'published'
@@ -254,6 +257,8 @@ type getSectionsRow struct {
 	EmbedUrl            null_v4.String        `db:"embed_url" json:"embedUrl"`
 	EmbedSize           null_v4.String        `db:"embed_size" json:"embedSize"`
 	NeedsAuthentication sql.NullBool          `db:"needs_authentication" json:"needsAuthentication"`
+	AdvancedType        null_v4.String        `db:"advanced_type" json:"advancedType"`
+	SecondaryTitles     bool                  `db:"secondary_titles" json:"secondaryTitles"`
 	Title               pqtype.NullRawMessage `db:"title" json:"title"`
 	Description         pqtype.NullRawMessage `db:"description" json:"description"`
 }
@@ -282,6 +287,8 @@ func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSecti
 			&i.EmbedUrl,
 			&i.EmbedSize,
 			&i.NeedsAuthentication,
+			&i.AdvancedType,
+			&i.SecondaryTitles,
 			&i.Title,
 			&i.Description,
 		); err != nil {

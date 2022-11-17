@@ -61,6 +61,9 @@ func sectionCollectionEntryResolver(
 			break
 		}
 		profile := user.GetProfileFromCtx(ginCtx)
+		if profile == nil {
+			break
+		}
 		ids, err := loaders.EpisodeProgressLoader.Get(ctx, profile.ID)
 		if err != nil {
 			return nil, err

@@ -22,6 +22,11 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 
 	switch s.Type {
 	case "item":
+		metadata := &SectionMetadata{
+			SecondaryTitles:  s.Options.SecondaryTitles,
+			ContinueWatching: s.Options.ContinueWatching,
+		}
+
 		switch s.Style {
 		case "featured":
 			size := SectionSize(s.Size)
@@ -29,9 +34,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = SectionSizeMedium
 			}
 			return &FeaturedSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "default":
 			size := SectionSize(s.Size)
@@ -39,9 +45,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = SectionSizeMedium
 			}
 			return &DefaultSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "list":
 			size := SectionSize(s.Size)
@@ -49,9 +56,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = SectionSizeMedium
 			}
 			return &ListSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "posters":
 			size := SectionSize(s.Size)
@@ -59,9 +67,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = SectionSizeMedium
 			}
 			return &PosterSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "grid":
 			size := GridSectionSize(s.Size)
@@ -69,9 +78,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = GridSectionSizeHalf
 			}
 			return &DefaultGridSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "poster_grid":
 			size := GridSectionSize(s.Size)
@@ -79,9 +89,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = GridSectionSizeHalf
 			}
 			return &PosterGridSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "icon_grid":
 			size := GridSectionSize(s.Size)
@@ -89,19 +100,22 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = GridSectionSizeHalf
 			}
 			return &IconGridSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "icons":
 			return &IconSection{
-				ID:    id,
-				Title: title,
+				ID:       id,
+				Title:    title,
+				Metadata: metadata,
 			}
 		case "labels":
 			return &LabelSection{
-				ID:    id,
-				Title: title,
+				ID:       id,
+				Title:    title,
+				Metadata: metadata,
 			}
 		}
 	case "message":

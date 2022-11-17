@@ -91,10 +91,11 @@ type Config struct {
 }
 
 type DefaultGridSection struct {
-	ID    string                 `json:"id"`
-	Title *string                `json:"title"`
-	Size  GridSectionSize        `json:"size"`
-	Items *SectionItemPagination `json:"items"`
+	ID       string                 `json:"id"`
+	Metadata *SectionMetadata       `json:"metadata"`
+	Title    *string                `json:"title"`
+	Size     GridSectionSize        `json:"size"`
+	Items    *SectionItemPagination `json:"items"`
 }
 
 func (DefaultGridSection) IsSection()     {}
@@ -102,10 +103,11 @@ func (DefaultGridSection) IsItemSection() {}
 func (DefaultGridSection) IsGridSection() {}
 
 type DefaultSection struct {
-	ID    string                 `json:"id"`
-	Title *string                `json:"title"`
-	Size  SectionSize            `json:"size"`
-	Items *SectionItemPagination `json:"items"`
+	ID       string                 `json:"id"`
+	Metadata *SectionMetadata       `json:"metadata"`
+	Title    *string                `json:"title"`
+	Size     SectionSize            `json:"size"`
+	Items    *SectionItemPagination `json:"items"`
 }
 
 func (DefaultSection) IsSection()     {}
@@ -236,10 +238,11 @@ type FAQCategoryPagination struct {
 func (FAQCategoryPagination) IsPagination() {}
 
 type FeaturedSection struct {
-	ID    string                 `json:"id"`
-	Title *string                `json:"title"`
-	Size  SectionSize            `json:"size"`
-	Items *SectionItemPagination `json:"items"`
+	ID       string                 `json:"id"`
+	Metadata *SectionMetadata       `json:"metadata"`
+	Title    *string                `json:"title"`
+	Size     SectionSize            `json:"size"`
+	Items    *SectionItemPagination `json:"items"`
 }
 
 func (FeaturedSection) IsSection()     {}
@@ -261,10 +264,11 @@ type GlobalConfig struct {
 }
 
 type IconGridSection struct {
-	ID    string                 `json:"id"`
-	Title *string                `json:"title"`
-	Size  GridSectionSize        `json:"size"`
-	Items *SectionItemPagination `json:"items"`
+	ID       string                 `json:"id"`
+	Metadata *SectionMetadata       `json:"metadata"`
+	Title    *string                `json:"title"`
+	Size     GridSectionSize        `json:"size"`
+	Items    *SectionItemPagination `json:"items"`
 }
 
 func (IconGridSection) IsSection()     {}
@@ -272,9 +276,10 @@ func (IconGridSection) IsItemSection() {}
 func (IconGridSection) IsGridSection() {}
 
 type IconSection struct {
-	ID    string                 `json:"id"`
-	Title *string                `json:"title"`
-	Items *SectionItemPagination `json:"items"`
+	ID       string                 `json:"id"`
+	Metadata *SectionMetadata       `json:"metadata"`
+	Title    *string                `json:"title"`
+	Items    *SectionItemPagination `json:"items"`
 }
 
 func (IconSection) IsSection()     {}
@@ -286,9 +291,10 @@ type Image struct {
 }
 
 type LabelSection struct {
-	ID    string                 `json:"id"`
-	Title *string                `json:"title"`
-	Items *SectionItemPagination `json:"items"`
+	ID       string                 `json:"id"`
+	Metadata *SectionMetadata       `json:"metadata"`
+	Title    *string                `json:"title"`
+	Items    *SectionItemPagination `json:"items"`
 }
 
 func (LabelSection) IsSection()     {}
@@ -311,10 +317,11 @@ type Link struct {
 func (Link) IsSectionItemType() {}
 
 type ListSection struct {
-	ID    string                 `json:"id"`
-	Title *string                `json:"title"`
-	Size  SectionSize            `json:"size"`
-	Items *SectionItemPagination `json:"items"`
+	ID       string                 `json:"id"`
+	Metadata *SectionMetadata       `json:"metadata"`
+	Title    *string                `json:"title"`
+	Size     SectionSize            `json:"size"`
+	Items    *SectionItemPagination `json:"items"`
 }
 
 func (ListSection) IsSection()     {}
@@ -327,9 +334,10 @@ type Message struct {
 }
 
 type MessageSection struct {
-	ID       string     `json:"id"`
-	Title    *string    `json:"title"`
-	Messages []*Message `json:"messages"`
+	ID       string           `json:"id"`
+	Metadata *SectionMetadata `json:"metadata"`
+	Title    *string          `json:"title"`
+	Messages []*Message       `json:"messages"`
 }
 
 func (MessageSection) IsSection() {}
@@ -364,10 +372,11 @@ type PageItem struct {
 func (PageItem) IsCollectionItem() {}
 
 type PosterGridSection struct {
-	ID    string                 `json:"id"`
-	Title *string                `json:"title"`
-	Size  GridSectionSize        `json:"size"`
-	Items *SectionItemPagination `json:"items"`
+	ID       string                 `json:"id"`
+	Metadata *SectionMetadata       `json:"metadata"`
+	Title    *string                `json:"title"`
+	Size     GridSectionSize        `json:"size"`
+	Items    *SectionItemPagination `json:"items"`
 }
 
 func (PosterGridSection) IsSection()     {}
@@ -375,10 +384,11 @@ func (PosterGridSection) IsItemSection() {}
 func (PosterGridSection) IsGridSection() {}
 
 type PosterSection struct {
-	ID    string                 `json:"id"`
-	Title *string                `json:"title"`
-	Size  SectionSize            `json:"size"`
-	Items *SectionItemPagination `json:"items"`
+	ID       string                 `json:"id"`
+	Metadata *SectionMetadata       `json:"metadata"`
+	Title    *string                `json:"title"`
+	Size     SectionSize            `json:"size"`
+	Items    *SectionItemPagination `json:"items"`
 }
 
 func (PosterSection) IsSection()     {}
@@ -495,6 +505,11 @@ type SectionItemPagination struct {
 
 func (SectionItemPagination) IsPagination() {}
 
+type SectionMetadata struct {
+	ContinueWatching bool `json:"continueWatching"`
+	SecondaryTitles  bool `json:"secondaryTitles"`
+}
+
 type SectionPagination struct {
 	Total  int       `json:"total"`
 	First  int       `json:"first"`
@@ -593,11 +608,12 @@ type User struct {
 }
 
 type WebSection struct {
-	ID             string  `json:"id"`
-	Title          *string `json:"title"`
-	URL            string  `json:"url"`
-	WidthRatio     float64 `json:"widthRatio"`
-	Authentication bool    `json:"authentication"`
+	ID             string           `json:"id"`
+	Metadata       *SectionMetadata `json:"metadata"`
+	Title          *string          `json:"title"`
+	URL            string           `json:"url"`
+	WidthRatio     float64          `json:"widthRatio"`
+	Authentication bool             `json:"authentication"`
 }
 
 func (WebSection) IsSection() {}
