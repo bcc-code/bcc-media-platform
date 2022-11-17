@@ -232,6 +232,10 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 
 // Episode is the resolver for the episode field.
 func (r *queryRootResolver) Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error) {
+	if context != nil {
+		ginCtx, _ := utils.GinCtx(ctx)
+		ginCtx.Set("EpisodeContext", context)
+	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
 		Item:        r.Loaders.EpisodeLoader,
 		Permissions: r.Loaders.EpisodePermissionLoader,

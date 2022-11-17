@@ -5,8 +5,6 @@ package graph
 
 import (
 	"context"
-	"github.com/99designs/gqlgen/graphql"
-	"gopkg.in/guregu/null.v4"
 	"strconv"
 	"time"
 
@@ -20,6 +18,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
+	null "gopkg.in/guregu/null.v4"
 )
 
 // AvailableFrom is the resolver for the availableFrom field.
@@ -121,27 +120,14 @@ func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*in
 
 // RelatedItems is the resolver for the relatedItems field.
 func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error) {
-	field := graphql.GetRootFieldContext(ctx)
-
 	var collectionId *int
-	if field.Field.Field.Name == "episode" {
-		args := field.Field.Field.Arguments
 
-		for _, arg := range args {
-			if arg.Name == "context" {
-				vars, _ := arg.Value.Value(nil)
-				values, ok := vars.(map[string]any)
-				if !ok {
-					break
-				}
-				stringId, ok := values["collectionId"]
-				if ok && stringId != nil {
-					colId, _ := strconv.ParseInt(stringId.(string), 10, 64)
-					intId := int(colId)
-					collectionId = &intId
-				}
-			}
-		}
+	ginCtx, _ := utils.GinCtx(ctx)
+	episodeContext, ok := ginCtx.Value("EpisodeContext").(*model.EpisodeContext)
+	if ok && episodeContext != nil && episodeContext.CollectionID != nil {
+		colId, _ := strconv.ParseInt(*episodeContext.CollectionID, 10, 64)
+		intId := int(colId)
+		collectionId = &intId
 	}
 
 	if collectionId == nil && obj.Type == model.EpisodeTypeStandalone {
@@ -158,6 +144,7 @@ func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, 
 			collectionId = &intID
 		}
 	}
+
 	if collectionId != nil {
 		page, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), &common.Section{
 			CollectionID: null.IntFrom(int64(*collectionId)),

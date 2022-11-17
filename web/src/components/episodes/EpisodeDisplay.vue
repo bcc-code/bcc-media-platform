@@ -144,6 +144,7 @@
 </template>
 <script lang="ts" setup>
 import {
+EpisodeContext,
     useGetEpisodeQuery,
     useGetSeasonOnEpisodePageQuery,
 } from "@/graph/generated"
@@ -155,13 +156,13 @@ import AgeRating from "@/components/episodes/AgeRating.vue"
 import WithProgressBar from "@/components/episodes/WithProgressBar.vue"
 import SeasonSelector from "@/components/SeasonSelector.vue"
 import { useTitle } from "@/utils/title"
-import { getImageSize } from "@/utils/images"
 import Image from "../Image.vue"
 
 const { t } = useI18n()
 
 const props = defineProps<{
     episodeId: string
+    context?: EpisodeContext
     autoPlay?: boolean
 }>()
 
@@ -178,9 +179,16 @@ const episodeId = computed({
     },
 })
 
+const context = ref(props.context)
+
+watch(() => props.context, () => {
+    context.value = props.context
+})
+
 const { data, error, then } = useGetEpisodeQuery({
     variables: {
         episodeId,
+        context,
     },
 })
 
@@ -192,9 +200,13 @@ const seasonId = ref("")
 
 then(() => {
     seasonId.value = data.value?.episode.season?.id ?? ""
+    if (seasonId.value) {
+        seasonQuery.resume()
+    }
 })
 
 const seasonQuery = useGetSeasonOnEpisodePageQuery({
+    pause: !seasonId.value,
     variables: {
         seasonId,
         firstEpisodes: 50,
