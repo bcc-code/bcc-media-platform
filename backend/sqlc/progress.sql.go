@@ -127,6 +127,7 @@ INSERT INTO "users"."progress" (profile_id, episode_id, show_id, progress, durat
 VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
 ON CONFLICT (profile_id, episode_id) DO UPDATE SET progress   = EXCLUDED.progress,
                                                    show_id    = EXCLUDED.show_id,
+                                                   updated_at = NOW(),
                                                    watched    = EXCLUDED.watched,
                                                    watched_at = EXCLUDED.watched_at,
                                                    duration   = EXCLUDED.duration
