@@ -1,0 +1,20 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "KJ6LCYQ3A8.tv.brunstad.app",
+        "paths": [
+          "/",
+          "/live",
+          "/search",
+          "/series/*",
+          "/tvlogin/*",
+          "/program/*",
+          "/support",
+          "/r/*"
+        ]
+      }
+    ]
+  }
+}
