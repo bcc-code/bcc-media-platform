@@ -18,10 +18,13 @@ SELECT s.id,
        s.embed_url,
        s.embed_size,
        s.needs_authentication,
+       c.advanced_type,
+       COALESCE(s.secondary_titles, true),
        t.title,
        t.description
 FROM sections s
          JOIN pages p ON s.page_id = p.id
+         LEFT JOIN collections c ON c.id = s.collection_id
          LEFT JOIN t ON s.id = t.sections_id
 WHERE s.id = ANY ($1::int[])
   AND s.status = 'published'
