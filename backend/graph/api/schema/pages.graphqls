@@ -12,6 +12,11 @@ type Page{
     ): SectionPagination! @goField(forceResolver: true)
 }
 
+type SectionMetadata {
+    continueWatching: Boolean!
+    secondaryTitles: Boolean!
+}
+
 interface Section{
     id: ID!
     title: String
@@ -35,12 +40,14 @@ enum GridSectionSize {
 
 interface ItemSection implements Section {
     id: ID!
+    metadata: SectionMetadata
     title: String
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type PosterSection implements Section & ItemSection {
     id: ID!
+    metadata: SectionMetadata
     title: String
     size: SectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
@@ -48,6 +55,7 @@ type PosterSection implements Section & ItemSection {
 
 type FeaturedSection implements Section & ItemSection {
     id: ID!
+    metadata: SectionMetadata
     title: String
     size: SectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
@@ -55,6 +63,7 @@ type FeaturedSection implements Section & ItemSection {
 
 type DefaultSection implements Section & ItemSection {
     id: ID!
+    metadata: SectionMetadata
     title: String
     size: SectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
@@ -62,6 +71,7 @@ type DefaultSection implements Section & ItemSection {
 
 type ListSection implements Section & ItemSection {
     id: ID!
+    metadata: SectionMetadata
     title: String
     size: SectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
@@ -69,6 +79,7 @@ type ListSection implements Section & ItemSection {
 
 interface GridSection implements Section & ItemSection {
     id: ID!
+    metadata: SectionMetadata
     title: String
     size: GridSectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
@@ -76,6 +87,7 @@ interface GridSection implements Section & ItemSection {
 
 type DefaultGridSection implements Section & ItemSection & GridSection {
     id: ID!
+    metadata: SectionMetadata
     title: String
     size: GridSectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
@@ -83,6 +95,7 @@ type DefaultGridSection implements Section & ItemSection & GridSection {
 
 type PosterGridSection implements Section & ItemSection & GridSection {
     id: ID!
+    metadata: SectionMetadata
     title: String
     size: GridSectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
@@ -90,6 +103,7 @@ type PosterGridSection implements Section & ItemSection & GridSection {
 
 type IconGridSection implements Section & ItemSection & GridSection {
     id: ID!
+    metadata: SectionMetadata
     title: String
     size: GridSectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
@@ -97,24 +111,28 @@ type IconGridSection implements Section & ItemSection & GridSection {
 
 type IconSection implements Section & ItemSection {
     id: ID!
+    metadata: SectionMetadata
     title: String
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type LabelSection implements Section & ItemSection {
     id: ID!
+    metadata: SectionMetadata
     title: String
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type MessageSection implements Section {
     id: ID!
+    metadata: SectionMetadata
     title: String
     messages: [Message!] @goField(forceResolver: true)
 }
 
 type WebSection implements Section {
     id: ID!
+    metadata: SectionMetadata
     title: String
     url: String!
     widthRatio: Float!

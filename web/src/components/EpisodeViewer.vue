@@ -60,11 +60,12 @@ const load = async () => {
             player.value.on("timeupdate", async () => {
                 const progress = Math.floor(player.value.currentTime())
                 if (
+                    progress && (
                     lastProgress === null ||
                     lastProgress === undefined ||
                     (progress != lastProgress && progress % 15 === 0) ||
                     lastProgress - progress < -15 ||
-                    progress - lastProgress < -15
+                    progress - lastProgress < -15)
                 ) {
                     lastProgress = progress
                     await updateEpisodeProgress({
