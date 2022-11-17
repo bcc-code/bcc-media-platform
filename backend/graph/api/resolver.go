@@ -2,7 +2,12 @@ package graph
 
 import (
 	"context"
+	"crypto/rsa"
 	"fmt"
+	"strconv"
+	"sync"
+	"time"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
@@ -10,9 +15,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/guregu/null.v4"
-	"strconv"
-	"sync"
-	"time"
 
 	"go.opentelemetry.io/otel"
 
@@ -50,6 +52,7 @@ type Resolver struct {
 	S3Client        *s3.Client
 	APIConfig       apiConfig
 	AWSConfig       awsConfig
+	RedirectConfig  redirectConfig
 }
 
 func (r *Resolver) GetQueries() *sqlc.Queries {
@@ -76,6 +79,10 @@ type apiConfig interface {
 	GetVOD2Domain() string
 	GetFilesCDNDomain() string
 	GetLegacyVODDomain() string
+}
+
+type redirectConfig interface {
+	GetPrivateKey() *rsa.PrivateKey
 }
 
 // ErrItemNotFound for not found items

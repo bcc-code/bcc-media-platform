@@ -5,11 +5,8 @@ package graph
 
 import (
 	"context"
-	"crypto/x509"
 	"database/sql"
-	"encoding/pem"
 	"net/url"
-	"os"
 	"strconv"
 	"time"
 
@@ -211,9 +208,6 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
 	}
 
-	block, _ := pem.Decode([]byte(os.Getenv("REDIRECT_JWT_KEY")))
-	jwtkey, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
-
 	// Build a JWT!
 	tok, err := jwt.NewBuilder().
 		Claim(`person_id`, profile.UserID).
@@ -226,7 +220,7 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 	}
 
 	// Sign a JWT!
-	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.RS256, jwtkey))
+	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.RS256, r.RedirectConfig.GetPrivateKey()))
 	if err != nil {
 		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. TOKEN-SIGN-ERROR"))
 	}
