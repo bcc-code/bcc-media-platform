@@ -9,7 +9,6 @@ import (
 
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"github.com/davecgh/go-spew/spew"
 
 	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/search"
@@ -108,8 +107,7 @@ func getEnvConfig() envConfig {
 	)
 
 	// Parse the RSA Private KEY. The key should be in the pem format as delivered by Terraform
-	block, rest := pem.Decode([]byte(os.Getenv("REDIRECT_JWT_KEY"))) // _ is not err in this case
-	spew.Dump(block, rest)
+	block, _ := pem.Decode([]byte(os.Getenv("REDIRECT_JWT_KEY")))
 	if block == nil {
 		panic(merry.New("Unable to parse PEM key, likely not set (REDIRECT_JWT_KEY)"))
 	}
