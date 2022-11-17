@@ -5,6 +5,11 @@ package graph
 
 import (
 	"context"
+	"crypto/x509"
+	"database/sql"
+	"encoding/pem"
+	"net/url"
+	"os"
 	"strconv"
 	"time"
 
@@ -18,6 +23,8 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/lestrrat-go/jwx/jwa"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/samber/lo"
 	null "gopkg.in/guregu/null.v4"
 )
@@ -179,6 +186,62 @@ func (r *queryRootResolver) Export(ctx context.Context, groups []string) (*model
 	return &model.Export{
 		URL:       url,
 		DbVersion: export.SQLiteExportDBVersion,
+	}, nil
+}
+
+// Redirect is the resolver for the redirect field.
+func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.RedirectLink, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	profile := user.GetProfileFromCtx(ginCtx)
+	if profile == nil {
+		return nil, merry.New(
+			"Not authorized",
+			merry.WithUserMessage("you are not authorized for this query"),
+		)
+	}
+
+	redir, err := r.Queries.GetRedirectByCode(ctx, id)
+	if err == sql.ErrNoRows {
+		return nil, merry.New("no rows", merry.WithUserMessage("Code not found"))
+	} else if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
+	}
+
+	block, _ := pem.Decode([]byte(os.Getenv("REDIRECT_JWT_KEY")))
+	jwtkey, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+
+	// Build a JWT!
+	tok, err := jwt.NewBuilder().
+		Claim(`person_id`, profile.UserID).
+		Issuer(`https://brunstad.tv/r/`).
+		IssuedAt(time.Now()).
+		Expiration(time.Now().Add(30 * time.Second)).
+		Build()
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. TOKEN-ERROR"))
+	}
+
+	// Sign a JWT!
+	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.RS256, jwtkey))
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. TOKEN-SIGN-ERROR"))
+	}
+
+	// Add JWT to url
+	url, err := url.Parse(redir.TargetUrl)
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. URL-PARSE"))
+	}
+	q := url.Query()
+	q.Add("token", string(signed))
+	url.RawQuery = q.Encode()
+
+	return &model.RedirectLink{
+		URL: url.String(),
 	}, nil
 }
 

@@ -47,6 +47,15 @@ type LegacyIDLookup {
   id: ID!
 }
 
+type RedirectLink {
+  url: String!
+}
+
+type RedirectParam {
+  key: String!
+  value: String!
+}
+
 type QueryRoot{
   application: Application!
   export(
@@ -54,6 +63,8 @@ type QueryRoot{
     # NOT IMPLEMENTED YET!
     groups: [String!]
   ): Export!
+
+  redirect(id: String!): RedirectLink!
 
   page(
     id: ID
