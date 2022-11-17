@@ -33,10 +33,10 @@ func main() {
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 	log.L.Debug().Msg("Setting up tracing!")
 
-	utils.MustSetupTracing()
-	ctx, span := otel.Tracer("jobs/core").Start(ctx, "init")
-
 	config := getEnvConfig()
+
+	utils.MustSetupTracing("BTV-WORKER", config.Tracing)
+	ctx, span := otel.Tracer("jobs/core").Start(ctx, "init")
 
 	serverConfig := server.ConfigData{
 		IngestBucket:          config.AWS.IngestBucket,

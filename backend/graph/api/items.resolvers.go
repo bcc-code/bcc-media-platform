@@ -6,13 +6,36 @@ package graph
 import (
 	"context"
 	"strconv"
+	"time"
 
+	merry "github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/items/show"
+	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/samber/lo"
 )
+
+// AvailableFrom is the resolver for the availableFrom field.
+func (r *episodeResolver) AvailableFrom(ctx context.Context, obj *model.Episode) (string, error) {
+	perms, err := batchloaders.GetByID(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return "", err
+	}
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return "", err
+	}
+	roles := user.GetRolesFromCtx(ginCtx)
+	if len(lo.Intersect(roles, perms.Roles.EarlyAccess)) == 0 {
+		return perms.Availability.From.Format(time.RFC3339), nil
+	}
+	return "1800-01-01T00:00:00Z", nil
+}
 
 // Image is the resolver for the image field.
 func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *model.ImageStyle) (*string, error) {
@@ -25,6 +48,11 @@ func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *
 
 // Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*model.Stream, error) {
+	err := user.ValidateAccessWithFrom(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+
 	intID, _ := strconv.ParseInt(obj.ID, 10, 32)
 	streams, err := batchloaders.GetForKey(ctx, r.Resolver.Loaders.StreamsLoader, int(intID))
 	if err != nil {
@@ -46,6 +74,11 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 
 // Files is the resolver for the files field.
 func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode) ([]*model.File, error) {
+	err := user.ValidateAccessWithFrom(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+
 	intID, err := strconv.ParseInt(obj.ID, 10, 32)
 	if err != nil {
 		return nil, err
@@ -82,6 +115,34 @@ func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*in
 		return nil, err
 	}
 	return &progress.Progress, nil
+}
+
+// RelatedItems is the resolver for the relatedItems field.
+func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error) {
+	if obj.Type == model.EpisodeTypeStandalone {
+		ginCtx, err := utils.GinCtx(ctx)
+		if err != nil {
+			return nil, err
+		}
+		app, err := applications.GetFromCtx(ginCtx)
+		if err != nil || !app.RelatedCollectionID.Valid {
+			return nil, err
+		}
+		page, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), &common.Section{
+			CollectionID: app.RelatedCollectionID,
+			Style:        "default",
+		}, first, offset)
+		if err != nil {
+			return nil, err
+		}
+		return &model.SectionItemPagination{
+			Total:  page.Total,
+			First:  page.First,
+			Offset: page.Offset,
+			Items:  page.Items,
+		}, nil
+	}
+	return nil, nil
 }
 
 // Image is the resolver for the image field.
@@ -199,8 +260,11 @@ func (r *showResolver) DefaultEpisode(ctx context.Context, obj *model.Show) (*mo
 	}
 	ls := r.FilteredLoaders(ctx)
 	eID, err := show.DefaultEpisodeID(ctx, ls, s)
-	if err != nil || eID == nil {
+	if err != nil {
 		return nil, err
+	}
+	if eID == nil {
+		return nil, merry.New("invalid default episode")
 	}
 	return r.QueryRoot().Episode(ctx, strconv.Itoa(*eID))
 }

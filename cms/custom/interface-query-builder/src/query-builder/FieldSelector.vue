@@ -1,28 +1,30 @@
 <template>
-    <select 
-        v-model="selectedValue" 
-        @change="$emit('update:value', selectedValue)"
-        placeholder="Property..."
-    >
-        <option 
-            v-for="prop in fields" 
-            :key="prop.name" 
-            :value="prop.name"
-        >{{ snakeToPascal(prop.name) }}</option>
-    </select>
+    <v-select
+        v-model="selectedValue"
+        :items="fields"
+        item-text="title"
+        item-value="column"
+    ></v-select>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { Field, snakeToPascal } from '.';
+import { computed } from 'vue';
+import { Field } from '.';
 
 const props = defineProps<{
     fields: Field[];
     value: string | null;
 }>();
 
-const selectedValue = ref(props.value)
+const selectedValue = computed({
+    get() {
+        return props.value
+    },
+    set(v) {
+        emit("update:value", v)
+    }
+})
 
-defineEmits<{
+const emit = defineEmits<{
     (e: "update:value", v: string | null)
 }>()
 </script>

@@ -18,6 +18,14 @@ func (r *applicationResolver) Page(ctx context.Context, obj *gqlmodel.Applicatio
 	return nil, nil
 }
 
+// SearchPage is the resolver for the searchPage field.
+func (r *applicationResolver) SearchPage(ctx context.Context, obj *gqlmodel.Application) (*gqlmodel.Page, error) {
+	if obj.SearchPage != nil {
+		return r.QueryRoot().Page(ctx, &obj.SearchPage.ID, nil)
+	}
+	return nil, nil
+}
+
 // Application returns generated.ApplicationResolver implementation.
 func (r *Resolver) Application() generated.ApplicationResolver { return &applicationResolver{r} }
 

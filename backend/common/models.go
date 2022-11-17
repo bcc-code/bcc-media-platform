@@ -82,7 +82,15 @@ type Progress struct {
 	ShowID    null.Int
 	Progress  int
 	Duration  int
-	Watched   bool
+	Watched   int
+	WatchedAt null.Time
+	UpdatedAt time.Time
+}
+
+// Identifier contains basic data for identifying an item in a list
+type Identifier struct {
+	Collection string
+	ID         int
 }
 
 // GetKey returns the key for this item

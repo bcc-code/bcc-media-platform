@@ -15,8 +15,11 @@ func Lock(key string) *sync.Mutex {
 	if !ok {
 		mapLock.Lock()
 		defer mapLock.Unlock()
-		lock = &sync.Mutex{}
-		locks[key] = lock
+		lock, ok = locks[key]
+		if !ok {
+			lock = &sync.Mutex{}
+			locks[key] = lock
+		}
 	}
 	return lock
 }

@@ -11,35 +11,27 @@ import (
 	"github.com/lib/pq"
 )
 
-const getCollectionItemsForCollections = `-- name: getCollectionItemsForCollections :many
-SELECT collection_id, date_created, date_updated, episode_id, id, page_id, season_id, show_id, sort, type, user_created, user_updated, link_id
-FROM collections_items ci
-WHERE ci.collection_id = ANY ($1::int[])
+const getCollectionEntriesForCollections = `-- name: getCollectionEntriesForCollections :many
+SELECT id, collections_id, item, collection, sort
+FROM collections_entries ci
+WHERE ci.collections_id = ANY ($1::int[])
 `
 
-func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1 []int32) ([]CollectionsItem, error) {
-	rows, err := q.db.QueryContext(ctx, getCollectionItemsForCollections, pq.Array(dollar_1))
+func (q *Queries) getCollectionEntriesForCollections(ctx context.Context, dollar_1 []int32) ([]CollectionsEntry, error) {
+	rows, err := q.db.QueryContext(ctx, getCollectionEntriesForCollections, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []CollectionsItem
+	var items []CollectionsEntry
 	for rows.Next() {
-		var i CollectionsItem
+		var i CollectionsEntry
 		if err := rows.Scan(
-			&i.CollectionID,
-			&i.DateCreated,
-			&i.DateUpdated,
-			&i.EpisodeID,
 			&i.ID,
-			&i.PageID,
-			&i.SeasonID,
-			&i.ShowID,
+			&i.CollectionsID,
+			&i.Item,
+			&i.Collection,
 			&i.Sort,
-			&i.Type,
-			&i.UserCreated,
-			&i.UserUpdated,
-			&i.LinkID,
 		); err != nil {
 			return nil, err
 		}
@@ -54,61 +46,50 @@ func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1
 	return items, nil
 }
 
-const getCollectionItemsForCollectionsWithRoles = `-- name: getCollectionItemsForCollectionsWithRoles :many
-SELECT ci.collection_id, ci.date_created, ci.date_updated, ci.episode_id, ci.id, ci.page_id, ci.season_id, ci.show_id, ci.sort, ci.type, ci.user_created, ci.user_updated, ci.link_id
-FROM collections_items ci
-         LEFT JOIN episode_roles er ON er.id = ci.episode_id
-         LEFT JOIN episode_availability ea ON ea.id = ci.episode_id
-         LEFT JOIN season_roles sr ON sr.id = ci.season_id
-         LEFT JOIN season_availability sa ON sa.id = ci.season_id
-         LEFT JOIN show_roles shr ON shr.id = ci.show_id
-         LEFT JOIN show_availability sha ON sha.id = ci.show_id
-WHERE ci.collection_id = ANY ($1::int[])
-  AND (ci.episode_id IS NULL OR (
+const getCollectionEntriesForCollectionsWithRoles = `-- name: getCollectionEntriesForCollectionsWithRoles :many
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+         LEFT JOIN episode_roles er ON ce.collection = 'episodes' AND er.id::varchar = ce.item
+         LEFT JOIN episode_availability ea ON ce.collection = 'episodes' AND ea.id::varchar = ce.item
+         LEFT JOIN season_roles sr ON ce.collection = 'seasons' AND sr.id::varchar = ce.item
+         LEFT JOIN season_availability sa ON ce.collection = 'seasons' AND sa.id::varchar = ce.item
+         LEFT JOIN show_roles shr ON ce.collection = 'shows' AND shr.id::varchar = ce.item
+         LEFT JOIN show_availability sha ON ce.collection = 'shows' AND sha.id::varchar = ce.item
+WHERE ce.collections_id = ANY ($1::int[])
+    AND(ce.collection != 'episodes' OR (
         ea.published
         AND ea.available_to > now()
         AND er.roles && $2::varchar[] AND ea.available_from < now()
     ))
-  AND (ci.season_id IS NULL OR (
-        sa.published
-        AND sa.available_to > now()
-        AND sr.roles && $2::varchar[] AND sa.available_from < now()
-    ))
-  AND (ci.show_id IS NULL OR (
+  AND ce.collection != 'seasons'
+  AND (ce.collection != 'shows' OR (
         sha.published
         AND sha.available_to > now()
         AND shr.roles && $2::varchar[] AND sha.available_from < now()
     ))
+ORDER BY ce.sort
 `
 
-type getCollectionItemsForCollectionsWithRolesParams struct {
+type getCollectionEntriesForCollectionsWithRolesParams struct {
 	Column1 []int32  `db:"column_1" json:"column1"`
 	Column2 []string `db:"column_2" json:"column2"`
 }
 
-func (q *Queries) getCollectionItemsForCollectionsWithRoles(ctx context.Context, arg getCollectionItemsForCollectionsWithRolesParams) ([]CollectionsItem, error) {
-	rows, err := q.db.QueryContext(ctx, getCollectionItemsForCollectionsWithRoles, pq.Array(arg.Column1), pq.Array(arg.Column2))
+func (q *Queries) getCollectionEntriesForCollectionsWithRoles(ctx context.Context, arg getCollectionEntriesForCollectionsWithRolesParams) ([]CollectionsEntry, error) {
+	rows, err := q.db.QueryContext(ctx, getCollectionEntriesForCollectionsWithRoles, pq.Array(arg.Column1), pq.Array(arg.Column2))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []CollectionsItem
+	var items []CollectionsEntry
 	for rows.Next() {
-		var i CollectionsItem
+		var i CollectionsEntry
 		if err := rows.Scan(
-			&i.CollectionID,
-			&i.DateCreated,
-			&i.DateUpdated,
-			&i.EpisodeID,
 			&i.ID,
-			&i.PageID,
-			&i.SeasonID,
-			&i.ShowID,
+			&i.CollectionsID,
+			&i.Item,
+			&i.Collection,
 			&i.Sort,
-			&i.Type,
-			&i.UserCreated,
-			&i.UserUpdated,
-			&i.LinkID,
 		); err != nil {
 			return nil, err
 		}
@@ -124,7 +105,7 @@ func (q *Queries) getCollectionItemsForCollectionsWithRoles(ctx context.Context,
 }
 
 const getCollections = `-- name: getCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter
+SELECT date_created, date_updated, id, sort, user_created, user_updated, filter_type, name, query_filter, advanced_type
 FROM collections c
 WHERE c.id = ANY ($1::int[])
 `
@@ -145,13 +126,10 @@ func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 			&i.Sort,
 			&i.UserCreated,
 			&i.UserUpdated,
-			&i.Collection,
-			&i.EpisodesQueryFilter,
 			&i.FilterType,
 			&i.Name,
-			&i.PagesQueryFilter,
-			&i.SeasonsQueryFilter,
-			&i.ShowsQueryFilter,
+			&i.QueryFilter,
+			&i.AdvancedType,
 		); err != nil {
 			return nil, err
 		}
@@ -167,7 +145,7 @@ func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 }
 
 const listCollections = `-- name: listCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter
+SELECT date_created, date_updated, id, sort, user_created, user_updated, filter_type, name, query_filter, advanced_type
 FROM collections
 `
 
@@ -187,13 +165,10 @@ func (q *Queries) listCollections(ctx context.Context) ([]Collection, error) {
 			&i.Sort,
 			&i.UserCreated,
 			&i.UserUpdated,
-			&i.Collection,
-			&i.EpisodesQueryFilter,
 			&i.FilterType,
 			&i.Name,
-			&i.PagesQueryFilter,
-			&i.SeasonsQueryFilter,
-			&i.ShowsQueryFilter,
+			&i.QueryFilter,
+			&i.AdvancedType,
 		); err != nil {
 			return nil, err
 		}

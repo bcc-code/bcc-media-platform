@@ -1,71 +1,43 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <Swiper
-            :slides-per-view="4"
-            :breakpoints="breakpoints(item.size)"
-            :modules="modules"
-        >
-            <SwiperSlide
-                v-for="i in item.items.items"
-                class="relative"
+        <Slide :item="item" v-slot="{ item: i }">
+            <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
+            <div
+                class="flex flex-col rounded rounded-md mt-1 cursor-pointer hover:opacity-90 transition"
                 @click="goToSectionItem(i)"
             >
-                <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div
-                    class="flex flex-col aspect-[9/16] rounded rounded-md mx-2 mt-1 cursor-pointer"
+                    class="relative w-full aspect-[9/16] mb-1 rounded-md overflow-hidden"
                 >
-                    <div class="relative">
-                        <img
-                            :src="
-                                i.image +
-                                `?h=${imageSize.height}&w=${imageSize.width}&fit=crop&crop=faces`
-                            "
-                            class="rounded-md top-0 h-full w-full object-cover mb-1"
-                            loading="lazy"
-                        />
-                        <ProgressBar
-                            class="absolute bottom-0 w-full"
-                            v-if="i.item?.__typename === 'Episode'"
-                            :item="i.item"
-                        />
-                    </div>
-                    <SectionItemTitle :i="i"></SectionItemTitle>
+                    <Image
+                        :src="i.image"
+                        size-source="height"
+                        :ratio="9 / 16"
+                    />
+                    <ProgressBar
+                        class="absolute bottom-0 w-full"
+                        v-if="i.item?.__typename === 'Episode'"
+                        :item="i.item"
+                    />
                 </div>
-            </SwiperSlide>
-        </Swiper>
+                <SectionItemTitle :i="i"></SectionItemTitle>
+            </div>
+        </Slide>
     </section>
 </template>
 <script lang="ts" setup>
 import { Section } from "./types"
 
-import { Navigation, Pagination } from "swiper"
-
-import { Swiper, SwiperSlide } from "swiper/vue"
 import SectionTitle from "./SectionTitle.vue"
-import breakpoints from "./breakpoints"
 import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
-import { computed } from "vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
 import ProgressBar from "../episodes/ProgressBar.vue"
+import Image from "../Image.vue"
+import Slide from "./Slider.vue"
 
-const props = defineProps<{
+defineProps<{
     item: Section & { __typename: "PosterSection" }
 }>()
-
-const modules = [Navigation, Pagination]
-
-const imageSize = computed(() => {
-    return {
-        small: {
-            height: 800,
-            width: 450,
-        },
-        medium: {
-            height: 800,
-            width: 450,
-        },
-    }[props.item.size]
-})
 </script>

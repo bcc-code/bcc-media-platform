@@ -13,21 +13,21 @@ import (
 	"github.com/samber/lo"
 )
 
-type postgres struct {
-	ConnectionString string
+type envConfig struct {
+	Members   members.Config
+	DB        postgres
+	Algolia   search.Config
+	Port      string
+	Auth0     auth0.Config
+	CDNConfig cdnConfig
+	Secrets   serviceSecrets
+	Redis     redisConfig
+	AWS       awsConfig
+	Tracing   utils.TracingConfig
 }
 
-type envConfig struct {
-	Members       members.Config
-	DB            postgres
-	Algolia       search.Config
-	Port          string
-	Auth0         auth0.Config
-	CDNConfig     cdnConfig
-	Secrets       serviceSecrets
-	Redis         redisConfig
-	AWS           awsConfig
-	AnalyticsSalt string
+type postgres struct {
+	ConnectionString string
 }
 
 type cdnConfig struct {
@@ -133,6 +133,10 @@ func getEnvConfig() envConfig {
 			Password: os.Getenv("REDIS_PASSWORD"),
 			Database: utils.AsInt(os.Getenv("REDIS_DATABASE")),
 		},
-		AnalyticsSalt: os.Getenv("ANALYTICS_SALT"),
+		Tracing: utils.TracingConfig{
+			UptraceDSN:        os.Getenv("UPTRACE_DSN"),
+			SamplingFrequency: os.Getenv("TRACE_SAMPLING_FREQUENCY"),
+			TracePrettyPrint:  os.Getenv("TRACE_PRETTY"),
+		},
 	}
 }

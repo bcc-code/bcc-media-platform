@@ -38,15 +38,15 @@ const endpointConfig: EndpointConfig = {
                 return
             }
             const filter = req.body.filter;
-            const collection = req.body.collection;
 
             try {
 
-                const body = `query($collection: String!, $filter: String!) {
+                const body = `query($filter: String!) {
     preview {
-        collection(collection: $collection, filter: $filter) {
+        collection(filter: $filter) {
             items {
                 id
+                collection
                 title
             }
         }
@@ -54,7 +54,6 @@ const endpointConfig: EndpointConfig = {
 }`
 
                 const result = await postQuery(body, {
-                    "collection": collection,
                     "filter": JSON.stringify(filter)
                 })
 

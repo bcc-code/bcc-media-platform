@@ -1,33 +1,56 @@
 <template>
     <div>
         <h1
-            class="text-xl font-semibold text-primary mb-2"
+            class="text-2xl font-medium mb-2"
             :class="{
                 hidden: result.length === 0,
             }"
         >
-            Shows
+            {{ t("search.programs") }}
         </h1>
         <Swiper
             :slides-per-view="1"
             :space-between="10"
             :slides-per-group="1"
             :modules="modules"
-            :breakpoints="breakpoints"
+            :breakpoints="breakpoints('medium')"
             navigation
         >
-            <SwiperSlide v-for="item in result">
-                <SearchItem :item="item"> </SearchItem>
+            <SwiperSlide v-for="i in result">
+                <div
+                    class="cursor-pointer mx-2"
+                    @click="onclick(i.id)"
+                    :class="[loading[i.id] ? 'opacity-50' : '']"
+                >
+                    <div class="relative mb-1">
+                        <img
+                            :id="i.id"
+                            :src="
+                                i.image +
+                                `?h=${225}&w=${450}&fit=crop&crop=faces`
+                            "
+                            loading="lazy"
+                            class="rounded-md top-0 w-full object-cover aspect-video"
+                        />
+                    </div>
+                    <div class="mt-1">
+                        <h1 class="text-md lg:text-xl">{{ i.title }}</h1>
+                    </div>
+                </div>
             </SwiperSlide>
         </Swiper>
     </div>
 </template>
 <script lang="ts" setup>
-import { useSearchQuery } from "@/graph/generated"
-import { computed, ref, watch } from "vue"
+import { useGetDefaultEpisodeIdQuery, useSearchQuery } from "@/graph/generated"
+import { computed, nextTick, ref, watch } from "vue"
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { Navigation } from "swiper"
-import SearchItem from "./SearchItem.vue"
+import { useI18n } from "vue-i18n"
+import { goToEpisode } from "@/utils/items"
+import breakpoints from "../sections/breakpoints"
+
+const { t } = useI18n()
 
 const props = defineProps<{
     query: string
@@ -68,29 +91,30 @@ const result = computed(() => {
 
 const modules = [Navigation]
 
-const breakpoints = {
-    // when window width is >= 320px
-    320: {
-        slidesPerView: 2,
-        spaceBetween: 10,
-        slidesPerGroup: 2,
+const showId = ref("")
+
+const { data: getDefaultId, executeQuery } = useGetDefaultEpisodeIdQuery({
+    pause: true,
+    variables: {
+        showId,
     },
-    // when window width is >= 480px
-    480: {
-        slidesPerView: 3,
-        spaceBetween: 15,
-        slidesPerGroup: 3,
-    },
-    // when window width is >= 640px
-    640: {
-        slidesPerView: 4,
-        spaceBetween: 20,
-        slidesPerGroup: 4,
-    },
-    1200: {
-        slidesPerView: 4,
-        spaceBetween: 20,
-        slidesPerGroup: 8,
-    },
+})
+
+const loading = ref(
+    {} as {
+        [key: string]: boolean | undefined
+    }
+)
+
+const onclick = async (id: string) => {
+    showId.value = id
+    loading.value[id] = true
+    await nextTick()
+
+    await executeQuery()
+
+    if (getDefaultId.value?.show.defaultEpisode) {
+        goToEpisode(getDefaultId.value.show.defaultEpisode.id)
+    }
 }
 </script>

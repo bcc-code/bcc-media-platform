@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"database/sql"
-	"github.com/bcc-code/brunstadtv/backend/analytics"
-	"github.com/bcc-code/brunstadtv/backend/graph/gqltracer"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/bcc-code/brunstadtv/backend/graph/gqltracer"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -76,7 +76,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 		CollectionItemsLoader: batchloaders.NewListLoader(rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
 			return i.CollectionID
 		}),
-		CollectionItemIDsLoader: collection.NewCollectionItemIdsLoader(db, collectionLoader, roles),
+		CollectionItemIDsLoader: collection.NewCollectionItemLoader(db, collectionLoader, roles),
 	}
 
 	rolesLoaderCache.Set(key, loaders)
@@ -137,7 +137,6 @@ func graphqlHandler(
 	awsConfig awsConfig,
 	cdnConfig cdnConfig,
 	s3client *s3.Client,
-	analyticsIDSalt string,
 ) gin.HandlerFunc {
 	resolver := graphapi.Resolver{
 		Queries:         queries,
@@ -149,15 +148,6 @@ func graphqlHandler(
 		AWSConfig:       awsConfig,
 		URLSigner:       urlSigner,
 		S3Client:        s3client,
-		AnalyticsIDFactory: func(ctx context.Context) string {
-			p := user.GetProfileFromCtx(ctx)
-
-			if p == nil {
-				return "anonymous"
-			}
-
-			return analytics.GenerateID(p.ID, analyticsIDSalt)
-		},
 	}
 
 	tracer := &gqltracer.GraphTracer{}
@@ -293,6 +283,9 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		StreamsLoader:                      asset.NewBatchStreamsLoader(*queries),
 		CollectionLoader:                   collectionLoader,
 		CollectionItemLoader:               collection.NewItemListBatchLoader(*queries),
+		EpisodeProgressLoader: &batchloaders.BatchLoader[uuid.UUID, []*int]{
+			Loader: batchloaders.NewRelationLoader(queries.GetEpisodeIDsWithProgress),
+		},
 		// Relations
 		SectionsLoader: batchloaders.NewRelationLoader(queries.GetSectionIDsForPages),
 		// Permissions
@@ -316,11 +309,11 @@ func main() {
 	ctx := context.Background()
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 
-	log.L.Debug().Msg("Setting up tracing!")
-	utils.MustSetupTracing()
-	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
-
 	config := getEnvConfig()
+
+	log.L.Debug().Msg("Setting up tracing!")
+	utils.MustSetupTracing("BTV-API", config.Tracing)
+	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
 
 	db := mustConnectToDB(ctx, config.DB)
 	rdb := mustCreateRedisClient(ctx, config.Redis)
@@ -348,7 +341,6 @@ func main() {
 		config.AWS,
 		config.CDNConfig,
 		s3Client,
-		config.AnalyticsSalt,
 	)
 
 	log.L.Debug().Msg("Set up HTTP server")

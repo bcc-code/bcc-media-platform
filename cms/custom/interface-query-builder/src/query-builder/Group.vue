@@ -1,11 +1,13 @@
 <template>
     <div class="group">
-        <div style="display: inline-block">
+        <div style="width: 100%;">
             <div>
                 <h3>Match Operator</h3>
-                <select v-model="selectedOperator" @change="update" style="text-transform: uppercase;">
-                    <option v-for="op in groupOperators">{{ op }}</option>
-                </select>
+                <v-select
+                    v-model="selectedOperator"
+                    :items="groupOperators"
+                    @change="update"
+                />
             </div>
             <div>
                 <h3>Add child</h3>
@@ -13,12 +15,12 @@
                 <v-button @click="addFilter()">+filter</v-button>
             </div>
             <div class="children">
-                <div v-for="(v, i) in children">
+                <div v-for="(v, i) in children" style="width:100%">
                     <Group
                         v-if="isGroup(v)"
-                        :value="(v as TGroup)" 
-                        :fields="fields" 
-                        @update:value="c => handleChildUpdate(i, c)" 
+                        :value="(v as TGroup)"
+                        :fields="fields"
+                        @update:value="c => handleChildUpdate(i, c)"
                         @delete="handleChildDelete(i)"
                     />
                     <Filter
@@ -35,25 +37,24 @@
                 </div>
             </div>
         </div>
-        <div style="display: inline-block; float: right">
+        <div>
             <v-button @click="$emit('delete')">Delete</v-button>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import { snakeToPascal, Field, Filter as TFilter, Group as TGroup, isGroup, isFilter } from '.';
+import { Field, Filter as TFilter, Group as TGroup, isGroup, isFilter } from '.';
 import Filter from './Filter.vue';
 
 const props = defineProps<{ value: TGroup, fields: Field[] }>();
-const emit = defineEmits<{ 
-    (e: "update:value", value: TGroup), 
+const emit = defineEmits<{
+    (e: "update:value", value: TGroup),
     (e: "delete"),
     (e: "change")
 }>();
 
 const groupOperators = ["and", "or"];
-const filterOperators = ["==", "!=", "<", "<=", ">", ">="];
 
 const operator = computed(() => (Object.keys(props.value).filter(i => i !== "id")[0]));
 const children = computed(() => {
@@ -112,6 +113,8 @@ function handleChildDelete(index: number) {
 .group {
     margin-top: 10px;
     padding: 10px;
+    width: 100%;
+    display: flex;
     border-style: solid;
     border-color: #31363d;
     border-width: 2px;
@@ -120,5 +123,6 @@ function handleChildDelete(index: number) {
 
 .children {
     margin-left: 20px;
+    width:100%;
 }
 </style>

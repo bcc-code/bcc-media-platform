@@ -39,15 +39,22 @@ func DefaultEpisodeID(ctx context.Context, loaders *common.FilteredLoaders, show
 	} else {
 		defaultEpisode = *show.DefaultEpisode
 	}
+	var eId *int
 	switch defaultEpisode {
 	case "first-of-first":
-		return getEpisodeIDFromSeason(ctx, loaders, sIDs[0], true)
+		eId, err = getEpisodeIDFromSeason(ctx, loaders, sIDs[0], true)
 	case "first-of-last":
 		sID, _ := lo.Last(sIDs)
-		return getEpisodeIDFromSeason(ctx, loaders, sID, true)
+		eId, err = getEpisodeIDFromSeason(ctx, loaders, sID, true)
 	case "last-of-last":
 		sID, _ := lo.Last(sIDs)
-		return getEpisodeIDFromSeason(ctx, loaders, sID, false)
+		eId, err = getEpisodeIDFromSeason(ctx, loaders, sID, false)
 	}
-	return nil, nil
+	if err != nil {
+		return nil, err
+	}
+	for i := 0; i < len(sIDs) && eId == nil && err == nil; i++ {
+		eId, err = getEpisodeIDFromSeason(ctx, loaders, sIDs[i], true)
+	}
+	return eId, err
 }

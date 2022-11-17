@@ -83,9 +83,14 @@ func gqlEpisodeFromSearchResultItem(i common.SearchResultItem) model.EpisodeSear
 	}
 
 	var legacyID *string
+	var legacyProgramID *string
 	if i.LegacyID != nil {
 		str := strconv.Itoa(*i.LegacyID)
-		legacyID = &str
+		if i.SeasonID != nil {
+			legacyID = &str
+		} else {
+			legacyProgramID = &str
+		}
 	}
 
 	var duration = 0
@@ -99,23 +104,24 @@ func gqlEpisodeFromSearchResultItem(i common.SearchResultItem) model.EpisodeSear
 	}
 
 	return model.EpisodeSearchItem{
-		ID:          strconv.Itoa(i.ID),
-		LegacyID:    legacyID,
-		Collection:  i.Collection,
-		Title:       i.Title,
-		Description: i.Description,
-		Header:      i.Header,
-		Image:       i.Image,
-		Highlight:   i.Highlight,
-		URL:         i.Url,
-		Show:        show,
-		ShowID:      showID,
-		ShowTitle:   i.Show,
-		Season:      season,
-		SeasonID:    seasonID,
-		SeasonTitle: i.Season,
-		Duration:    duration,
-		AgeRating:   ageRating,
+		ID:              strconv.Itoa(i.ID),
+		LegacyID:        legacyID,
+		LegacyProgramID: legacyProgramID,
+		Collection:      i.Collection,
+		Title:           i.Title,
+		Description:     i.Description,
+		Header:          i.Header,
+		Image:           i.Image,
+		Highlight:       i.Highlight,
+		URL:             i.Url,
+		Show:            show,
+		ShowID:          showID,
+		ShowTitle:       i.Show,
+		Season:          season,
+		SeasonID:        seasonID,
+		SeasonTitle:     i.Season,
+		Duration:        duration,
+		AgeRating:       ageRating,
 	}
 }
 

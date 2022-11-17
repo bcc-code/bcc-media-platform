@@ -1,49 +1,60 @@
 <template>
-    <div>
-        <div class="flex">
-            <div class="text-xl">
-                <input
-                    v-model="query"
-                    class="bg-slate-800 p-2 w-96"
-                    type="text"
-                    placeholder="Search..."
-                />
-            </div>
+    <section>
+        <!-- <div class="flex w-full text-xl">
+            <SearchInput class="mx-auto lg:w-96" v-model="query"></SearchInput>
+        </div> -->
+        <div v-if="query">
+            <ShowSearchQuery
+                class="mt-2 mb-8"
+                :query="queryVariable"
+                :pause="pause"
+            ></ShowSearchQuery>
+            <EpisodeSearchQuery
+                class="mb-2"
+                :query="queryVariable"
+                :pause="pause"
+            ></EpisodeSearchQuery>
         </div>
-        <ShowSearchQuery
-            class="mt-2 mb-2"
-            :query="queryVariable"
-            :pause="pause"
-        ></ShowSearchQuery>
-        <EpisodeSearchQuery
-            class="mb-2"
-            :query="queryVariable"
-            :pause="pause"
-        ></EpisodeSearchQuery>
-    </div>
+        <div v-else-if="data?.application.searchPage?.code">
+            <Page :page-id="data?.application.searchPage?.code"></Page>
+        </div>
+        <div v-else>
+            <div>Search page is not configured</div>
+        </div>
+    </section>
 </template>
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from "vue"
+import { onMounted, ref, watch } from "vue"
 import ShowSearchQuery from "@/components/search/ShowSearchQuery.vue"
 import EpisodeSearchQuery from "@/components/search/EpisodeSearchQuery.vue"
 import { useRoute, useRouter } from "vue-router"
+import { useSearch } from "@/utils/search"
+import Page from "@/components/page/Page.vue"
+import { useApplicationQuery } from "@/graph/generated"
+import { useTitle } from "@/utils/title"
+import { useI18n } from "vue-i18n"
+
+const { setTitle } = useTitle()
+
+const { t } = useI18n()
+
+const { data } = useApplicationQuery()
 
 const queryString = ref("")
 
+const { query } = useSearch()
+
 let timeout = null as NodeJS.Timeout | null
 
-const query = computed({
-    get() {
-        return queryString.value
-    },
-    set(v) {
+watch(
+    () => query.value,
+    () => {
+        const v = query.value
+
         queryString.value = v
 
         if (v && pause.value) {
             pause.value = false
-        }
-        if (!v) {
-            pause.value = true
         }
 
         // Delay the query itself, in case you add more characters to the string
@@ -53,8 +64,8 @@ const query = computed({
         timeout = setTimeout(() => {
             queryVariable.value = v
         }, 100)
-    },
-})
+    }
+)
 
 const queryVariable = ref("")
 
@@ -65,7 +76,9 @@ onMounted(() => {
     const q = route.query.q
     if (q && typeof q === "string") {
         query.value = q
+        queryVariable.value = q
     }
+    setTitle(t("page.search"))
 })
 
 watch(
@@ -75,5 +88,5 @@ watch(
     }
 )
 
-const pause = ref(true)
+const pause = ref(false)
 </script>

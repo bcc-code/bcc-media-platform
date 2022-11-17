@@ -6,13 +6,18 @@
 import Auth from "@/services/auth"
 import { createPlayer, Player } from "bccm-video-player"
 import "bccm-video-player/css"
-import { onUnmounted, ref } from "vue"
+import { onMounted, onUnmounted, ref } from "vue"
+import { useRoute } from "vue-router"
 
 const err = ref(null as string | null)
 
 let player: Player | null = null
 
-;(async () => {
+const route = useRoute()
+
+onMounted(async () => {
+    const fullPath = route.fullPath
+
     const res = await fetch(
         "https://livestreamfunctions.brunstad.tv/api/urls/live",
         {
@@ -27,6 +32,11 @@ let player: Player | null = null
     if (!res) {
         return
     }
+    if (fullPath != route.fullPath) {
+        console.log("Route has changed, canceling create player")
+        return
+    }
+
     const body = await res.json()
     const url = body.url
 
@@ -37,9 +47,9 @@ let player: Player | null = null
         autoplay: true,
         videojs: {
             autoplay: true,
-        }
+        },
     })
-})()
+})
 
 onUnmounted(() => player?.dispose())
 </script>

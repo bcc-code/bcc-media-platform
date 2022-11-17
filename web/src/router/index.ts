@@ -1,3 +1,4 @@
+import { useTitle } from "@/utils/title"
 import { createRouter, createWebHistory } from "vue-router"
 import routes from "./routes"
 
@@ -6,12 +7,10 @@ const router = createRouter({
     routes: routes,
 })
 
-router.beforeEach(async (to) => {})
+const { setTitle } = useTitle()
 
-router.afterEach((to, from) => {
-    const toDepth = to.path.split("/").length
-    const fromDepth = from.path.split("/").length
-    to.meta.transitionName = toDepth < fromDepth ? "slide-right" : "slide-left"
+router.beforeEach((to, from) => {
+    setTitle("")
 })
 
 export default router

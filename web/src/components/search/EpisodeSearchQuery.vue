@@ -1,26 +1,96 @@
 <template>
     <div>
         <h1
-            class="text-xl font-semibold text-primary mb-2"
+            class="text-2xl font-medium mb-2"
             :class="{
                 hidden: result.length === 0,
             }"
         >
-            Episodes
+            {{ t("search.episodes") }}
         </h1>
-        <div class="grid grid-cols-4 gap-4">
-            <SearchItem
-                v-for="r in result"
-                :item="r"
-                :key="r.__typename + r.id"
-            ></SearchItem>
+        <div class="grid lg:grid-cols-4">
+            <div
+                class="flex lg:hidden"
+                v-for="i in data?.search.result"
+                :key="i.id"
+            >
+                <div
+                    v-if="i.__typename === 'EpisodeSearchItem'"
+                    class="cursor-pointer flex"
+                    @click="goToEpisode(i.id)"
+                >
+                    <div class="relative mb-1 w-1/2 pr-2 py-2">
+                        <img
+                            :id="i.id"
+                            :src="
+                                i.image +
+                                `?h=${225}&w=${450}&fit=crop&crop=faces`
+                            "
+                            loading="lazy"
+                            class="rounded-md top-0 w-full object-cover aspect-video"
+                        />
+                    </div>
+                    <div class="mt-1 w-1/2 flex flex-col">
+                        <div class="flex" v-if="i.showTitle && i.seasonTitle">
+                            <h3 class="text-sm text-primary mr-1 truncate">
+                                {{ i.showTitle }}
+                            </h3>
+                            <p class="text-gray text-sm ml-auto truncate">
+                                {{ i.seasonTitle }}
+                            </p>
+                        </div>
+                        <h1
+                            :class="i.title.length > 20 ? 'text-md' : 'text-lg'"
+                        >
+                            {{ i.title }}
+                        </h1>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="lg:flex hidden mx-2 mb-4"
+                v-for="i in data?.search.result"
+                :key="i.id"
+            >
+                <div
+                    v-if="i.__typename === 'EpisodeSearchItem'"
+                    class="cursor-pointer"
+                    @click="goToEpisode(i.id)"
+                >
+                    <div class="relative mb-1">
+                        <img
+                            :id="i.id"
+                            :src="
+                                i.image +
+                                `?h=${225}&w=${450}&fit=crop&crop=faces`
+                            "
+                            loading="lazy"
+                            class="rounded-md top-0 w-full object-cover aspect-video"
+                        />
+                    </div>
+                    <div class="mt-1 flex flex-col">
+                        <div class="flex" v-if="i.showTitle && i.seasonTitle">
+                            <h3 class="text-sm text-primary">
+                                {{ i.showTitle }}
+                            </h3>
+                            <p class="text-gray text-sm ml-1">
+                                {{ i.seasonTitle }}
+                            </p>
+                        </div>
+                        <h1 class="text-lg">{{ i.title }}</h1>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
 import { useSearchQuery } from "@/graph/generated"
+import { goToEpisode } from "@/utils/items"
 import { computed, ref, watch } from "vue"
-import SearchItem from "./SearchItem.vue"
+import { useI18n } from "vue-i18n"
+
+const { t } = useI18n()
 
 const props = defineProps<{
     query: string

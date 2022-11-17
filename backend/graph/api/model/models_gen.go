@@ -52,6 +52,7 @@ type Application struct {
 	Code          string `json:"code"`
 	ClientVersion string `json:"clientVersion"`
 	Page          *Page  `json:"page"`
+	SearchPage    *Page  `json:"searchPage"`
 }
 
 type Calendar struct {
@@ -120,29 +121,31 @@ type Device struct {
 }
 
 type Episode struct {
-	ID                string     `json:"id"`
-	LegacyID          *string    `json:"legacyID"`
-	LegacyProgramID   *string    `json:"legacyProgramID"`
-	PublishDate       string     `json:"publishDate"`
-	AvailableFrom     string     `json:"availableFrom"`
-	AvailableTo       string     `json:"availableTo"`
-	AgeRating         string     `json:"ageRating"`
-	Title             string     `json:"title"`
-	Description       string     `json:"description"`
-	ExtraDescription  string     `json:"extraDescription"`
-	Image             *string    `json:"image"`
-	ImageURL          *string    `json:"imageUrl"`
-	ProductionDate    *string    `json:"productionDate"`
-	Streams           []*Stream  `json:"streams"`
-	Files             []*File    `json:"files"`
-	Chapters          []*Chapter `json:"chapters"`
-	Season            *Season    `json:"season"`
-	Duration          int        `json:"duration"`
-	Progress          *int       `json:"progress"`
-	AudioLanguages    []Language `json:"audioLanguages"`
-	SubtitleLanguages []Language `json:"subtitleLanguages"`
-	Images            []*Image   `json:"images"`
-	Number            *int       `json:"number"`
+	ID                string                 `json:"id"`
+	Type              EpisodeType            `json:"type"`
+	LegacyID          *string                `json:"legacyID"`
+	LegacyProgramID   *string                `json:"legacyProgramID"`
+	PublishDate       string                 `json:"publishDate"`
+	AvailableFrom     string                 `json:"availableFrom"`
+	AvailableTo       string                 `json:"availableTo"`
+	AgeRating         string                 `json:"ageRating"`
+	Title             string                 `json:"title"`
+	Description       string                 `json:"description"`
+	ExtraDescription  string                 `json:"extraDescription"`
+	Image             *string                `json:"image"`
+	ImageURL          *string                `json:"imageUrl"`
+	ProductionDate    *string                `json:"productionDate"`
+	Streams           []*Stream              `json:"streams"`
+	Files             []*File                `json:"files"`
+	Chapters          []*Chapter             `json:"chapters"`
+	Season            *Season                `json:"season"`
+	Duration          int                    `json:"duration"`
+	Progress          *int                   `json:"progress"`
+	AudioLanguages    []Language             `json:"audioLanguages"`
+	SubtitleLanguages []Language             `json:"subtitleLanguages"`
+	RelatedItems      *SectionItemPagination `json:"relatedItems"`
+	Images            []*Image               `json:"images"`
+	Number            *int                   `json:"number"`
 }
 
 func (Episode) IsSectionItemType() {}
@@ -261,6 +264,17 @@ type GlobalConfig struct {
 	NpawEnabled bool `json:"npawEnabled"`
 }
 
+type IconGridSection struct {
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Size  GridSectionSize        `json:"size"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (IconGridSection) IsSection()     {}
+func (IconGridSection) IsItemSection() {}
+func (IconGridSection) IsGridSection() {}
+
 type IconSection struct {
 	ID    string                 `json:"id"`
 	Title *string                `json:"title"`
@@ -299,6 +313,16 @@ type Link struct {
 }
 
 func (Link) IsSectionItemType() {}
+
+type ListSection struct {
+	ID    string                 `json:"id"`
+	Title *string                `json:"title"`
+	Size  SectionSize            `json:"size"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (ListSection) IsSection()     {}
+func (ListSection) IsItemSection() {}
 
 type Message struct {
 	Title   string        `json:"title"`
@@ -573,14 +597,55 @@ type User struct {
 }
 
 type WebSection struct {
-	ID             string         `json:"id"`
-	Title          *string        `json:"title"`
-	URL            string         `json:"url"`
-	Size           WebSectionSize `json:"size"`
-	Authentication bool           `json:"authentication"`
+	ID             string  `json:"id"`
+	Title          *string `json:"title"`
+	URL            string  `json:"url"`
+	WidthRatio     float64 `json:"widthRatio"`
+	Authentication bool    `json:"authentication"`
 }
 
 func (WebSection) IsSection() {}
+
+type EpisodeType string
+
+const (
+	EpisodeTypeEpisode    EpisodeType = "episode"
+	EpisodeTypeStandalone EpisodeType = "standalone"
+)
+
+var AllEpisodeType = []EpisodeType{
+	EpisodeTypeEpisode,
+	EpisodeTypeStandalone,
+}
+
+func (e EpisodeType) IsValid() bool {
+	switch e {
+	case EpisodeTypeEpisode, EpisodeTypeStandalone:
+		return true
+	}
+	return false
+}
+
+func (e EpisodeType) String() string {
+	return string(e)
+}
+
+func (e *EpisodeType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = EpisodeType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid EpisodeType", str)
+	}
+	return nil
+}
+
+func (e EpisodeType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
 
 type GridSectionSize string
 
@@ -829,50 +894,5 @@ func (e *StreamType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e StreamType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type WebSectionSize string
-
-const (
-	WebSectionSizeR16_9 WebSectionSize = "r16_9"
-	WebSectionSizeR4_3  WebSectionSize = "r4_3"
-	WebSectionSizeR9_16 WebSectionSize = "r9_16"
-	WebSectionSizeR1_1  WebSectionSize = "r1_1"
-)
-
-var AllWebSectionSize = []WebSectionSize{
-	WebSectionSizeR16_9,
-	WebSectionSizeR4_3,
-	WebSectionSizeR9_16,
-	WebSectionSizeR1_1,
-}
-
-func (e WebSectionSize) IsValid() bool {
-	switch e {
-	case WebSectionSizeR16_9, WebSectionSizeR4_3, WebSectionSizeR9_16, WebSectionSizeR1_1:
-		return true
-	}
-	return false
-}
-
-func (e WebSectionSize) String() string {
-	return string(e)
-}
-
-func (e *WebSectionSize) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = WebSectionSize(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid WebSectionSize", str)
-	}
-	return nil
-}
-
-func (e WebSectionSize) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

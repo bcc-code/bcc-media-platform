@@ -79,33 +79,47 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 	episodeID := utils.AsInt(e.ID)
 	q := r.Queries.ProfileQueries(p.ID)
 	var episodeProgress *common.Progress
+	pl := r.ProfileLoaders(ctx).ProgressLoader
 	if progress == nil {
 		err = q.ClearProgress(ctx, episodeID)
 	} else {
-		dur := e.Duration
-		if duration != nil {
-			dur = *duration
+		episodeProgress, err = pl.Get(ctx, utils.AsInt(e.ID))
+		if err != nil {
+			return nil, err
 		}
-		var showID null.Int
-		if e.Season != nil {
-			s, err := r.QueryRoot().Season(ctx, e.Season.ID)
-			if err != nil {
-				return nil, err
+		if episodeProgress == nil {
+			var showID null.Int
+			if e.Season != nil {
+				s, err := r.QueryRoot().Season(ctx, e.Season.ID)
+				if err != nil {
+					return nil, err
+				}
+				showID.SetValid(int64(utils.AsInt(s.Show.ID)))
 			}
-			showID.SetValid(int64(utils.AsInt(s.Show.ID)))
+			episodeProgress = &common.Progress{
+				EpisodeID: episodeID,
+				ShowID:    showID,
+				Duration:  e.Duration,
+				UpdatedAt: time.Now(),
+			}
 		}
-		pr := common.Progress{
-			EpisodeID: episodeID,
-			ShowID:    showID,
-			Progress:  *progress,
-			Duration:  dur,
+		if duration != nil {
+			episodeProgress.Duration = *duration
 		}
-		err = q.SaveProgress(ctx, pr)
-		episodeProgress = &pr
+		episodeProgress.Progress = *progress
+
+		if episodeProgress.Duration > 0 && float64(episodeProgress.Progress)/float64(episodeProgress.Duration) > 0.8 {
+			if !episodeProgress.WatchedAt.Valid || episodeProgress.WatchedAt.Time.After(time.Now().Add(time.Hour*-12)) {
+				episodeProgress.Watched++
+				episodeProgress.WatchedAt = null.TimeFrom(time.Now())
+			}
+		}
+
+		err = q.SaveProgress(ctx, *episodeProgress)
 	}
-	pl := r.ProfileLoaders(ctx).ProgressLoader
 	pl.Clear(ctx, episodeID)
 	pl.Prime(ctx, episodeID, episodeProgress)
+	r.Loaders.EpisodeProgressLoader.Clear(ctx, p.ID)
 	return e, err
 }
 
@@ -126,11 +140,18 @@ func (r *queryRootResolver) Application(ctx context.Context) (*model.Application
 			ID: strconv.Itoa(int(app.DefaultPageID.Int64)),
 		}
 	}
+	var searchPage *model.Page
+	if app.SearchPageID.Valid {
+		searchPage = &model.Page{
+			ID: strconv.Itoa(int(app.SearchPageID.Int64)),
+		}
+	}
 
 	return &model.Application{
 		ID:            strconv.Itoa(app.ID),
 		Code:          app.Code,
 		Page:          page,
+		SearchPage:    searchPage,
 		ClientVersion: app.ClientVersion,
 	}, nil
 }

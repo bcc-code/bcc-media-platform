@@ -43,6 +43,16 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				Title: title,
 				Size:  size,
 			}
+		case "list":
+			size := SectionSize(s.Size)
+			if !size.IsValid() {
+				size = SectionSizeMedium
+			}
+			return &ListSection{
+				ID:    id,
+				Title: title,
+				Size:  size,
+			}
 		case "posters":
 			size := SectionSize(s.Size)
 			if !size.IsValid() {
@@ -73,6 +83,16 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				Title: title,
 				Size:  size,
 			}
+		case "icon_grid":
+			size := GridSectionSize(s.Size)
+			if !size.IsValid() {
+				size = GridSectionSizeHalf
+			}
+			return &IconGridSection{
+				ID:    id,
+				Title: title,
+				Size:  size,
+			}
 		case "icons":
 			return &IconSection{
 				ID:    id,
@@ -90,22 +110,22 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			Title: title,
 		}
 	case "embed_web":
-		var size WebSectionSize
+		var size float64
 		switch s.EmbedSize.ValueOrZero() {
 		case "16:9":
-			size = WebSectionSizeR16_9
+			size = 16.0 / 9.0
 		case "4:3":
-			size = WebSectionSizeR4_3
+			size = 4.0 / 3.0
 		case "9:16":
-			size = WebSectionSizeR9_16
+			size = 9.0 / 16.0
 		case "1:1":
-			size = WebSectionSizeR1_1
+			size = 1
 		}
 
 		return &WebSection{
 			ID:             id,
 			Title:          title,
-			Size:           size,
+			WidthRatio:     size,
 			URL:            s.EmbedUrl.ValueOrZero(),
 			Authentication: s.NeedsAuthentication.ValueOrZero(),
 		}

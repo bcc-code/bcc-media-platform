@@ -2,7 +2,7 @@ directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITI
     | FIELD_DEFINITION
 
 type Preview {
-    collection(collection: String!, filter: String!): PreviewCollection! @goField(forceResolver: true)
+    collection(filter: String!): PreviewCollection! @goField(forceResolver: true)
     asset(id: ID!): PreviewAsset! @goField(forceResolver: true)
 }
 
@@ -15,7 +15,14 @@ type PreviewAsset {
     type: String!
 }
 
+enum Collection {
+    shows,
+    seasons,
+    episodes,
+}
+
 type CollectionItem {
+    collection: Collection!
     id: ID!
     title: String!
 }

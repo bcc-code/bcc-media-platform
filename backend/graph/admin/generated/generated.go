@@ -45,13 +45,14 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	CollectionItem struct {
-		ID    func(childComplexity int) int
-		Title func(childComplexity int) int
+		Collection func(childComplexity int) int
+		ID         func(childComplexity int) int
+		Title      func(childComplexity int) int
 	}
 
 	Preview struct {
 		Asset      func(childComplexity int, id string) int
-		Collection func(childComplexity int, collection string, filter string) int
+		Collection func(childComplexity int, filter string) int
 	}
 
 	PreviewAsset struct {
@@ -69,7 +70,7 @@ type ComplexityRoot struct {
 }
 
 type PreviewResolver interface {
-	Collection(ctx context.Context, obj *model.Preview, collection string, filter string) (*model.PreviewCollection, error)
+	Collection(ctx context.Context, obj *model.Preview, filter string) (*model.PreviewCollection, error)
 	Asset(ctx context.Context, obj *model.Preview, id string) (*model.PreviewAsset, error)
 }
 type QueryRootResolver interface {
@@ -90,6 +91,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "CollectionItem.collection":
+		if e.complexity.CollectionItem.Collection == nil {
+			break
+		}
+
+		return e.complexity.CollectionItem.Collection(childComplexity), true
 
 	case "CollectionItem.id":
 		if e.complexity.CollectionItem.ID == nil {
@@ -127,7 +135,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Preview.Collection(childComplexity, args["collection"].(string), args["filter"].(string)), true
+		return e.complexity.Preview.Collection(childComplexity, args["filter"].(string)), true
 
 	case "PreviewAsset.type":
 		if e.complexity.PreviewAsset.Type == nil {
@@ -213,7 +221,7 @@ var sources = []*ast.Source{
     | FIELD_DEFINITION
 
 type Preview {
-    collection(collection: String!, filter: String!): PreviewCollection! @goField(forceResolver: true)
+    collection(filter: String!): PreviewCollection! @goField(forceResolver: true)
     asset(id: ID!): PreviewAsset! @goField(forceResolver: true)
 }
 
@@ -226,7 +234,14 @@ type PreviewAsset {
     type: String!
 }
 
+enum Collection {
+    shows,
+    seasons,
+    episodes,
+}
+
 type CollectionItem {
+    collection: Collection!
     id: ID!
     title: String!
 }
@@ -237,7 +252,8 @@ schema{
 
 type QueryRoot {
     preview: Preview!
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -264,23 +280,14 @@ func (ec *executionContext) field_Preview_collection_args(ctx context.Context, r
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["collection"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("collection"))
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["collection"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["filter"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["filter"] = arg1
+	args["filter"] = arg0
 	return args, nil
 }
 
@@ -336,6 +343,50 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _CollectionItem_collection(ctx context.Context, field graphql.CollectedField, obj *model.CollectionItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CollectionItem_collection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Collection, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Collection)
+	fc.Result = res
+	return ec.marshalNCollection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐCollection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CollectionItem_collection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CollectionItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Collection does not have child fields")
+		},
+	}
+	return fc, nil
+}
 
 func (ec *executionContext) _CollectionItem_id(ctx context.Context, field graphql.CollectedField, obj *model.CollectionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CollectionItem_id(ctx, field)
@@ -439,7 +490,7 @@ func (ec *executionContext) _Preview_collection(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Preview().Collection(rctx, obj, fc.Args["collection"].(string), fc.Args["filter"].(string))
+		return ec.resolvers.Preview().Collection(rctx, obj, fc.Args["filter"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -672,6 +723,8 @@ func (ec *executionContext) fieldContext_PreviewCollection_items(ctx context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "collection":
+				return ec.fieldContext_CollectionItem_collection(ctx, field)
 			case "id":
 				return ec.fieldContext_CollectionItem_id(ctx, field)
 			case "title":
@@ -2653,6 +2706,13 @@ func (ec *executionContext) _CollectionItem(ctx context.Context, sel ast.Selecti
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CollectionItem")
+		case "collection":
+
+			out.Values[i] = ec._CollectionItem_collection(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "id":
 
 			out.Values[i] = ec._CollectionItem_id(ctx, field, obj)
@@ -3198,6 +3258,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNCollection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐCollection(ctx context.Context, v interface{}) (model.Collection, error) {
+	var res model.Collection
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCollection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐCollection(ctx context.Context, sel ast.SelectionSet, v model.Collection) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNCollectionItem2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐCollectionItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.CollectionItem) graphql.Marshaler {

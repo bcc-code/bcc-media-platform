@@ -1,10 +1,5 @@
 package common
 
-import (
-	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/davecgh/go-spew/spew"
-)
-
 // DefaultLanguages is the order of languages if none is defined by the user
 var DefaultLanguages = []string{"en", "no"}
 
@@ -20,10 +15,10 @@ func (localeMap LocaleMap[T]) Get(languages []string) T {
 		}
 	}
 
-	log.L.Warn().
-		Strs("languages", languages).
-		Str("localeMap", spew.Sdump(localeMap)).
-		Msg("Failed to find any localeString for specified languages")
+	//log.L.Warn().
+	//	Strs("languages", languages).
+	//	Str("localeMap", spew.Sdump(localeMap)).
+	//	Msg("Failed to find any localeString for specified languages")
 
 	var r T
 	return r

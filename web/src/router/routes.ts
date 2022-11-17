@@ -24,16 +24,7 @@ export default [
                 name: "episode-page",
                 path: "episode/:episodeId",
                 component: () => import("@/pages/episode/Episode.vue"),
-            },
-            {
-                name: "season-page",
-                path: "season/:seasonId",
-                component: () => import("@/pages/Season.vue"),
-            },
-            {
-                name: "show-page",
-                path: "show/:showId",
-                component: () => import("@/pages/Show.vue"),
+                props: true,
             },
             {
                 name: "calendar",
