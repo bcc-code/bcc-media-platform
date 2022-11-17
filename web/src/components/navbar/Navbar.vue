@@ -153,7 +153,7 @@
                                                 </p>
                                             </button>
                                         </MenuItem>
-                                        <MenuItem v-slot="{ active }">
+                                        <MenuItem v-slot="{ active }"  @click="emits('profileSettingHandler')">
                                             <button
                                                 :class="[
                                                     active
@@ -305,7 +305,7 @@
                                                 </p>
                                             </button>
                                         </MenuItem>
-                                        <MenuItem v-slot="{ active }">
+                                        <MenuItem v-slot="{ active }" @click="emits('profileSettingHandler')">
                                             <button
                                                 :class="[
                                                     active
@@ -371,11 +371,14 @@ import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
 import { useGetCalendarStatusQuery } from "@/graph/generated"
 
+
 const { t } = useI18n()
 
 const { query } = useSearch()
 
 const { authenticated, signOut, signIn, user } = useAuth()
+
+const emits = defineEmits(['profileSettingHandler'])
 
 const navigation = computed(() => {
     const n: {

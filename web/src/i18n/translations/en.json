@@ -42,5 +42,14 @@
         "programs": "Programs",
         "episodes": "Episodes",
         "cancel": "Cancel"
+    },
+    "settings": {
+        "clickMe": "clickMeg",
+        "categories": {
+            "audioLanguage": "Audio Language",
+            "subtitleLanguage": "Subtitle Language"
+            
+        },
+        "profileSetting": "Profile Setting"
     }
 }

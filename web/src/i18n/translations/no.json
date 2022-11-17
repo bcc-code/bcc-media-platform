@@ -42,5 +42,14 @@
         "programs": "Programmer",
         "episodes": "Episoder",
         "cancel": "Avbryt"
+    },
+    "settings": {
+        "clickMe": "clickMeg",
+        "categories": {
+            "audioLanguage": "Lydspråk",
+            "subtitleLanguage": "Undertekstspråk"
+            
+        },
+        "profileSetting": "Profilinnstilling"
     }
 }
