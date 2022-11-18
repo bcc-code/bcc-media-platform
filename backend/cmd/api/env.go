@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bcc-code/brunstadtv/backend/email"
 	"os"
 	"strings"
 
@@ -24,6 +25,7 @@ type envConfig struct {
 	Redis     redisConfig
 	AWS       awsConfig
 	Tracing   utils.TracingConfig
+	Email     email.Config
 }
 
 type postgres struct {
@@ -137,6 +139,9 @@ func getEnvConfig() envConfig {
 			UptraceDSN:        os.Getenv("UPTRACE_DSN"),
 			SamplingFrequency: os.Getenv("TRACE_SAMPLING_FREQUENCY"),
 			TracePrettyPrint:  os.Getenv("TRACE_PRETTY"),
+		},
+		Email: email.Config{
+			ApiKey: os.Getenv("SENDGRID_API_KEY"),
 		},
 	}
 }
