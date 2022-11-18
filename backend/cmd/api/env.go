@@ -59,6 +59,7 @@ type serviceSecrets struct {
 
 type redirectConfig struct {
 	JWTPrivateKey *rsa.PrivateKey
+	KeyID         string
 }
 
 func (r redirectConfig) GetPrivateKey() *rsa.PrivateKey {
@@ -163,6 +164,7 @@ func getEnvConfig() envConfig {
 		},
 		Redirect: redirectConfig{
 			JWTPrivateKey: jwtkey,
+			KeyID:         os.Getenv("REDIRECT_JWT_KEY_ID"),
 		},
 	}
 }

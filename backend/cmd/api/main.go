@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"database/sql"
+	"net/http"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/email"
+	"github.com/lestrrat-go/jwx/v2/jwa"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/gqltracer"
 
@@ -310,6 +313,19 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 	}
 }
 
+func jwksHandler(config redirectConfig) gin.HandlerFunc {
+	pub, _ := jwk.PublicKeyOf(config.JWTPrivateKey)
+	pub.Set(jwk.AlgorithmKey, jwa.RS256)
+	pub.Set(jwk.KeyUsageKey, jwk.ForSignature)
+	pub.Set(jwk.KeyIDKey, config.KeyID)
+	jwks := jwk.NewSet()
+	jwks.AddKey(pub)
+
+	return func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, jwks)
+	}
+}
+
 func main() {
 	ctx := context.Background()
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
@@ -369,6 +385,7 @@ func main() {
 
 	r.POST("/query", gqlHandler)
 	r.GET("/", playgroundHandler())
+	r.GET("/.well-known/jwks.json", jwksHandler(config.Redirect))
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, loaders))
 	r.POST("/public", publicGraphqlHandler(loaders))
 	r.GET("/versionz", version.GinHandler)
