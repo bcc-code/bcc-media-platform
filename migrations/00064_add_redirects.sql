@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS "public"."redirects" (
 ALTER TABLE IF EXISTS "public"."redirects" OWNER TO builder;
 
 GRANT SELECT ON TABLE "public"."redirects" TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT, INSERT, UPDATE, DELETE ON TABLE "public"."redirects" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT INSERT, UPDATE, DELETE ON TABLE "public"."redirects" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."redirects"."id"  IS NULL;
 COMMENT ON COLUMN "public"."redirects"."status"  IS NULL;
