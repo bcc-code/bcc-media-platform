@@ -39,16 +39,17 @@ type searchProvider interface {
 // Resolver is the main struct for the GQL implementation
 // It contains references to all external services and config
 type Resolver struct {
-	Queries         *sqlc.Queries
-	Loaders         *common.BatchLoaders
-	FilteredLoaders func(ctx context.Context) *common.FilteredLoaders
-	ProfileLoaders  func(ctx context.Context) *common.ProfileLoaders
-	SearchService   searchProvider
+	Queries            *sqlc.Queries
+	Loaders            *common.BatchLoaders
+	FilteredLoaders    func(ctx context.Context) *common.FilteredLoaders
+	ProfileLoaders     func(ctx context.Context) *common.ProfileLoaders
+	SearchService      searchProvider
 	EmailService    *email.Service
-	URLSigner       *signing.Signer
-	S3Client        *s3.Client
-	APIConfig       apiConfig
-	AWSConfig       awsConfig
+	URLSigner          *signing.Signer
+	S3Client           *s3.Client
+	APIConfig          apiConfig
+	AWSConfig          awsConfig
+	AnalyticsIDFactory func(ctx context.Context) string
 }
 
 func (r *Resolver) GetQueries() *sqlc.Queries {

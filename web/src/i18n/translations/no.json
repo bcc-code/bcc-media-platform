@@ -9,13 +9,18 @@
         "search": "Søk",
         "live": "Live",
         "calendar": "Kalender",
-        "faq": "FAQ"
+        "faq": "FAQ",
+        "notFound": "Side ikke funnet"
     },
     "section": {
         "item": {
             "episode": "0 episoder | 1 episode | {count} episoder",
             "season": "0 sesonger | 1 sesong | {count} sesonger"
         }
+    },
+    "notFound": {
+        "title": "Ikke funnet",
+        "description": "Kanskje du ikke er logget inn, eller mangler noen tilganger."
     },
     "common": {
         "new": "Ny",
@@ -29,7 +34,8 @@
         "releaseDate": "Utgivelsesdato",
         "availableFrom": "Tilgjengelig fra",
         "availableTo": "Tilgjengelig til",
-        "ageRating": "Vurdering*"
+        "ageRating": "Vurdering*",
+        "notFound": "Episoden er ikke funnet"
     },
     "live": {
         "now": "Nå"

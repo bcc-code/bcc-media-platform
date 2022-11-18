@@ -11,7 +11,7 @@
                 >
                 </Section>
             </div>
-            <div v-else-if="!fetching">Uh oh. Missing content</div>
+            <div v-else-if="!fetching"><NotFound :title="$t('page.notFound')"></NotFound></div>
             <div v-else-if="error">{{ error.message }}</div>
             <div v-else class="flex flex-col gap-4">
                 <div class="flex gap-4">
@@ -69,6 +69,7 @@
 import { useGetPageQuery } from "@/graph/generated"
 import Section from "@/components/sections/Section.vue"
 import { onMounted, watch } from "vue"
+import NotFound from "../NotFound.vue";
 
 const props = defineProps<{
     pageId: string

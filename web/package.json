@@ -26,6 +26,7 @@
         "bccm-video-player": "^1.2.4",
         "graphql": "^16.6.0",
         "graphql-tag": "^2.12.6",
+        "rudder-sdk-js": "^2.18.1",
         "swiper": "^8.4.4",
         "vue": "^3.2.41",
         "vue-i18n": "^9.2.2",

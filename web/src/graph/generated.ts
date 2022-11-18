@@ -17,6 +17,10 @@ export type Scalars = {
   Date: any;
 };
 
+export type Analytics = {
+  anonymousId: Scalars['String'];
+};
+
 export type Application = {
   clientVersion: Scalars['String'];
   code: Scalars['String'];
@@ -859,6 +863,7 @@ export enum StreamType {
 }
 
 export type User = {
+  analytics: Analytics;
   anonymous: Scalars['Boolean'];
   audience?: Maybe<Scalars['String']>;
   bccMember: Scalars['Boolean'];
@@ -883,6 +888,11 @@ export type GetCalendarDayQueryVariables = Exact<{
 
 
 export type GetCalendarDayQuery = { calendar?: { day: { entries: Array<{ __typename: 'EpisodeCalendarEntry', id: string, title: string, description: string, end: any, start: any, episode?: { id: string, title: string, number?: number | null, publishDate: any, productionDate?: string | null, season?: { number: number, show: { id: string, type: ShowType, title: string } } | null } | null } | { __typename: 'SeasonCalendarEntry', id: string, title: string, description: string, end: any, start: any, season?: { id: string, number: number, title: string, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'ShowCalendarEntry', id: string, title: string, description: string, end: any, start: any, show?: { id: string, type: ShowType, title: string } | null } | { __typename: 'SimpleCalendarEntry', id: string, title: string, description: string, end: any, start: any }>, events: Array<{ id: string, title: string, start: string, end: string }> } } | null };
+
+export type GetAnalyticsIdQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAnalyticsIdQuery = { me: { analytics: { anonymousId: string } } };
 
 export type GetSeasonOnEpisodePageQueryVariables = Exact<{
   seasonId: Scalars['ID'];
@@ -1160,6 +1170,19 @@ export const GetCalendarDayDocument = gql`
 
 export function useGetCalendarDayQuery(options: Omit<Urql.UseQueryArgs<never, GetCalendarDayQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetCalendarDayQuery>({ query: GetCalendarDayDocument, ...options });
+};
+export const GetAnalyticsIdDocument = gql`
+    query getAnalyticsID {
+  me {
+    analytics {
+      anonymousId
+    }
+  }
+}
+    `;
+
+export function useGetAnalyticsIdQuery(options: Omit<Urql.UseQueryArgs<never, GetAnalyticsIdQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetAnalyticsIdQuery>({ query: GetAnalyticsIdDocument, ...options });
 };
 export const GetSeasonOnEpisodePageDocument = gql`
     query getSeasonOnEpisodePage($seasonId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {

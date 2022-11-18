@@ -15,17 +15,18 @@ import (
 )
 
 type envConfig struct {
-	Members   members.Config
-	DB        postgres
-	Algolia   search.Config
-	Port      string
-	Auth0     auth0.Config
-	CDNConfig cdnConfig
-	Secrets   serviceSecrets
-	Redis     utils.RedisConfig
-	AWS       awsConfig
-	Tracing   utils.TracingConfig
-	Email     email.Config
+	Members       members.Config
+	DB            postgres
+	Algolia       search.Config
+	Port          string
+	Auth0         auth0.Config
+	CDNConfig     cdnConfig
+	Secrets       serviceSecrets
+	Redis         utils.RedisConfig
+	AWS           awsConfig
+	Tracing       utils.TracingConfig
+	AnalyticsSalt string
+	Email         email.Config
 }
 
 type postgres struct {
@@ -136,5 +137,6 @@ func getEnvConfig() envConfig {
 		Email: email.Config{
 			ApiKey: os.Getenv("SENDGRID_API_KEY"),
 		},
+		AnalyticsSalt: os.Getenv("ANALYTICS_SALT"),
 	}
 }

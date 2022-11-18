@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/bcc-code/brunstadtv/backend/email"
+	"github.com/bcc-code/brunstadtv/backend/analytics"
 	"sort"
 	"strings"
 	"time"
@@ -139,6 +140,7 @@ func graphqlHandler(
 	awsConfig awsConfig,
 	cdnConfig cdnConfig,
 	s3client *s3.Client,
+	analyticsSalt string,
 ) gin.HandlerFunc {
 	resolver := graphapi.Resolver{
 		Queries:         queries,
@@ -151,6 +153,15 @@ func graphqlHandler(
 		AWSConfig:       awsConfig,
 		URLSigner:       urlSigner,
 		S3Client:        s3client,
+		AnalyticsIDFactory: func(ctx context.Context) string {
+			ginCtx, err := utils.GinCtx(ctx)
+			p := user.GetProfileFromCtx(ginCtx)
+			if err != nil || p == nil {
+				return "anonymous"
+			}
+
+			return analytics.GenerateID(p.ID, analyticsSalt)
+		},
 	}
 
 	tracer := &gqltracer.GraphTracer{}
@@ -346,6 +357,7 @@ func main() {
 		config.AWS,
 		config.CDNConfig,
 		s3Client,
+		config.AnalyticsSalt,
 	)
 
 	log.L.Debug().Msg("Set up HTTP server")
