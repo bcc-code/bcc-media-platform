@@ -108,6 +108,7 @@ export type ConfigGlobalArgs = {
 export type DefaultGridSection = GridSection & ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: GridSectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -121,6 +122,7 @@ export type DefaultGridSectionItemsArgs = {
 export type DefaultSection = ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: SectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -142,6 +144,7 @@ export type Episode = {
   availableFrom: Scalars['Date'];
   availableTo: Scalars['Date'];
   chapters: Array<Chapter>;
+  context?: Maybe<SectionItemPagination>;
   description: Scalars['String'];
   duration: Scalars['Int'];
   extraDescription: Scalars['String'];
@@ -165,6 +168,12 @@ export type Episode = {
 };
 
 
+export type EpisodeContextArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+};
+
+
 export type EpisodeImageArgs = {
   style?: InputMaybe<ImageStyle>;
 };
@@ -183,6 +192,10 @@ export type EpisodeCalendarEntry = CalendarEntry & {
   id: Scalars['ID'];
   start: Scalars['Date'];
   title: Scalars['String'];
+};
+
+export type EpisodeContext = {
+  collectionId?: InputMaybe<Scalars['String']>;
 };
 
 export type EpisodeItem = CollectionItem & {
@@ -284,6 +297,7 @@ export type FaqCategoryPagination = Pagination & {
 export type FeaturedSection = ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: SectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -312,6 +326,7 @@ export type GlobalConfig = {
 export type GridSection = {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: GridSectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -329,6 +344,7 @@ export enum GridSectionSize {
 export type IconGridSection = GridSection & ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: GridSectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -342,6 +358,7 @@ export type IconGridSectionItemsArgs = {
 export type IconSection = ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   title?: Maybe<Scalars['String']>;
 };
 
@@ -365,6 +382,7 @@ export enum ImageStyle {
 export type ItemSection = {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   title?: Maybe<Scalars['String']>;
 };
 
@@ -374,9 +392,16 @@ export type ItemSectionItemsArgs = {
   offset?: InputMaybe<Scalars['Int']>;
 };
 
+export type ItemSectionMetadata = {
+  collectionId: Scalars['ID'];
+  continueWatching: Scalars['Boolean'];
+  secondaryTitles: Scalars['Boolean'];
+};
+
 export type LabelSection = ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   title?: Maybe<Scalars['String']>;
 };
 
@@ -409,6 +434,7 @@ export type Link = {
 export type ListSection = ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: SectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -428,6 +454,7 @@ export type Message = {
 export type MessageSection = Section & {
   id: Scalars['ID'];
   messages?: Maybe<Array<Message>>;
+  metadata?: Maybe<ItemSectionMetadata>;
   title?: Maybe<Scalars['String']>;
 };
 
@@ -438,8 +465,16 @@ export type MessageStyle = {
 };
 
 export type MutationRoot = {
+  sendSupportEmail: Scalars['Boolean'];
   setDevicePushToken?: Maybe<Device>;
   setEpisodeProgress: Episode;
+};
+
+
+export type MutationRootSendSupportEmailArgs = {
+  content: Scalars['String'];
+  html: Scalars['String'];
+  title: Scalars['String'];
 };
 
 
@@ -494,6 +529,7 @@ export type Pagination = {
 export type PosterGridSection = GridSection & ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: GridSectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -507,6 +543,7 @@ export type PosterGridSectionItemsArgs = {
 export type PosterSection = ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: SectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -550,6 +587,7 @@ export type QueryRootCollectionArgs = {
 
 
 export type QueryRootEpisodeArgs = {
+  context?: InputMaybe<EpisodeContext>;
   id: Scalars['ID'];
 };
 
@@ -838,6 +876,7 @@ export type User = {
 export type WebSection = Section & {
   authentication: Scalars['Boolean'];
   id: Scalars['ID'];
+  metadata?: Maybe<ItemSectionMetadata>;
   title?: Maybe<Scalars['String']>;
   url: Scalars['String'];
   widthRatio: Scalars['Float'];
@@ -850,28 +889,59 @@ export type GetCalendarDayQueryVariables = Exact<{
 
 export type GetCalendarDayQuery = { calendar?: { day: { entries: Array<{ __typename: 'EpisodeCalendarEntry', id: string, title: string, description: string, end: any, start: any, episode?: { id: string, title: string, number?: number | null, publishDate: any, productionDate?: string | null, season?: { number: number, show: { id: string, type: ShowType, title: string } } | null } | null } | { __typename: 'SeasonCalendarEntry', id: string, title: string, description: string, end: any, start: any, season?: { id: string, number: number, title: string, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'ShowCalendarEntry', id: string, title: string, description: string, end: any, start: any, show?: { id: string, type: ShowType, title: string } | null } | { __typename: 'SimpleCalendarEntry', id: string, title: string, description: string, end: any, start: any }>, events: Array<{ id: string, title: string, start: string, end: string }> } } | null };
 
+export type GetAnalyticsIdQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAnalyticsIdQuery = { analytics: { anonymousId: string } };
+
+export type GetSeasonOnEpisodePageQueryVariables = Exact<{
+  seasonId: Scalars['ID'];
+  firstEpisodes?: InputMaybe<Scalars['Int']>;
+  offsetEpisodes?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type GetSeasonOnEpisodePageQuery = { season: { id: string, title: string, image?: string | null, number: number, episodes: { total: number, items: Array<{ id: string, publishDate: any, number?: number | null, title: string, image?: string | null, progress?: number | null, duration: number, description: string, ageRating: string }> }, show: { id: string, title: string, description: string, type: ShowType, image?: string | null } } };
+
+export type GetEpisodeQueryVariables = Exact<{
+  episodeId: Scalars['ID'];
+  context?: InputMaybe<EpisodeContext>;
+}>;
+
+
+export type GetEpisodeQuery = { episode: { id: string, title: string, description: string, image?: string | null, number?: number | null, progress?: number | null, ageRating: string, productionDate?: string | null, availableFrom: any, availableTo: any, publishDate: any, duration: number, context?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } | null, relatedItems?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } | null, season?: { id: string, title: string, number: number, description: string, show: { title: string, type: ShowType, description: string, seasons: { items: Array<{ id: string, title: string, number: number }> } } } | null } };
+
+export type UpdateEpisodeProgressMutationVariables = Exact<{
+  episodeId: Scalars['ID'];
+  progress?: InputMaybe<Scalars['Int']>;
+  duration?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type UpdateEpisodeProgressMutation = { setEpisodeProgress: { progress?: number | null } };
+
 export type SectionItemFragment = { id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } };
 
 
 export type SectionItemFragmentVariables = Exact<{ [key: string]: never; }>;
 
-type ItemSection_DefaultGridSection_Fragment = { gridSize: GridSectionSize, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
+type ItemSection_DefaultGridSection_Fragment = { gridSize: GridSectionSize, metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
 
-type ItemSection_DefaultSection_Fragment = { size: SectionSize, items: { items: Array<{ description: string, id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
+type ItemSection_DefaultSection_Fragment = { size: SectionSize, items: { items: Array<{ description: string, id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> }, metadata?: { collectionId: string } | null };
 
-type ItemSection_FeaturedSection_Fragment = { size: SectionSize, items: { items: Array<{ description: string, id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
+type ItemSection_FeaturedSection_Fragment = { size: SectionSize, items: { items: Array<{ description: string, id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> }, metadata?: { collectionId: string } | null };
 
-type ItemSection_IconGridSection_Fragment = { gridSize: GridSectionSize, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
+type ItemSection_IconGridSection_Fragment = { gridSize: GridSectionSize, metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
 
-type ItemSection_IconSection_Fragment = { items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
+type ItemSection_IconSection_Fragment = { metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
 
-type ItemSection_LabelSection_Fragment = { items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
+type ItemSection_LabelSection_Fragment = { metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
 
-type ItemSection_ListSection_Fragment = { items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
+type ItemSection_ListSection_Fragment = { metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
 
-type ItemSection_PosterGridSection_Fragment = { gridSize: GridSectionSize, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
+type ItemSection_PosterGridSection_Fragment = { gridSize: GridSectionSize, metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
 
-type ItemSection_PosterSection_Fragment = { size: SectionSize, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
+type ItemSection_PosterSection_Fragment = { size: SectionSize, metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } };
 
 export type ItemSectionFragment = ItemSection_DefaultGridSection_Fragment | ItemSection_DefaultSection_Fragment | ItemSection_FeaturedSection_Fragment | ItemSection_IconGridSection_Fragment | ItemSection_IconSection_Fragment | ItemSection_LabelSection_Fragment | ItemSection_ListSection_Fragment | ItemSection_PosterGridSection_Fragment | ItemSection_PosterSection_Fragment;
 
@@ -883,12 +953,7 @@ export type GetPageQueryVariables = Exact<{
 }>;
 
 
-export type GetPageQuery = { page: { id: string, title: string, sections: { items: Array<{ __typename: 'DefaultGridSection', id: string, title?: string | null, gridSize: GridSectionSize, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'DefaultSection', id: string, title?: string | null, size: SectionSize, items: { items: Array<{ description: string, id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'FeaturedSection', id: string, title?: string | null, size: SectionSize, items: { items: Array<{ description: string, id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'IconGridSection', id: string, title?: string | null, gridSize: GridSectionSize, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'IconSection', id: string, title?: string | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'LabelSection', id: string, title?: string | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'ListSection', id: string, title?: string | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'MessageSection', id: string, title?: string | null } | { __typename: 'PosterGridSection', id: string, title?: string | null, gridSize: GridSectionSize, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'PosterSection', id: string, title?: string | null, size: SectionSize, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'WebSection', title?: string | null, url: string, widthRatio: number, authentication: boolean, id: string }> } } };
-
-export type GetAnalyticsIdQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetAnalyticsIdQuery = { analytics: { anonymousId: string } };
+export type GetPageQuery = { page: { id: string, title: string, sections: { items: Array<{ __typename: 'DefaultGridSection', id: string, title?: string | null, gridSize: GridSectionSize, metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'DefaultSection', id: string, title?: string | null, size: SectionSize, items: { items: Array<{ description: string, id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> }, metadata?: { collectionId: string } | null } | { __typename: 'FeaturedSection', id: string, title?: string | null, size: SectionSize, items: { items: Array<{ description: string, id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> }, metadata?: { collectionId: string } | null } | { __typename: 'IconGridSection', id: string, title?: string | null, gridSize: GridSectionSize, metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'IconSection', id: string, title?: string | null, metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'LabelSection', id: string, title?: string | null, metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'ListSection', id: string, title?: string | null, metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'MessageSection', id: string, title?: string | null } | { __typename: 'PosterGridSection', id: string, title?: string | null, gridSize: GridSectionSize, metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'PosterSection', id: string, title?: string | null, size: SectionSize, metadata?: { collectionId: string } | null, items: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate?: string | null, publishDate: any, progress?: number | null, duration: number, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'WebSection', title?: string | null, url: string, widthRatio: number, authentication: boolean, id: string }> } } };
 
 export type GetSeasonQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -923,36 +988,6 @@ export type GetCalendarPeriodQueryVariables = Exact<{
 
 
 export type GetCalendarPeriodQuery = { calendar?: { period: { activeDays: Array<any>, events: Array<{ id: string, start: string, end: string, title: string }> } } | null };
-
-export type SeasonFragment = { id: string, title: string, image?: string | null, number: number, episodes: { total: number, items: Array<{ id: string, publishDate: any, number?: number | null, title: string, image?: string | null, progress?: number | null, duration: number, description: string, ageRating: string }> }, show: { id: string, title: string, description: string, type: ShowType, image?: string | null } };
-
-
-export type SeasonFragmentVariables = Exact<{ [key: string]: never; }>;
-
-export type GetSeasonOnEpisodePageQueryVariables = Exact<{
-  seasonId: Scalars['ID'];
-  firstEpisodes?: InputMaybe<Scalars['Int']>;
-  offsetEpisodes?: InputMaybe<Scalars['Int']>;
-}>;
-
-
-export type GetSeasonOnEpisodePageQuery = { season: { id: string, title: string, image?: string | null, number: number, episodes: { total: number, items: Array<{ id: string, publishDate: any, number?: number | null, title: string, image?: string | null, progress?: number | null, duration: number, description: string, ageRating: string }> }, show: { id: string, title: string, description: string, type: ShowType, image?: string | null } } };
-
-export type GetEpisodeQueryVariables = Exact<{
-  episodeId: Scalars['ID'];
-}>;
-
-
-export type GetEpisodeQuery = { episode: { id: string, title: string, description: string, image?: string | null, number?: number | null, progress?: number | null, ageRating: string, productionDate?: string | null, availableFrom: any, availableTo: any, publishDate: any, duration: number, relatedItems?: { items: Array<{ title: string, description: string }> } | null, season?: { id: string, title: string, number: number, description: string, show: { title: string, type: ShowType, description: string, seasons: { items: Array<{ id: string, title: string, number: number }> } } } | null } };
-
-export type UpdateEpisodeProgressMutationVariables = Exact<{
-  episodeId: Scalars['ID'];
-  progress?: InputMaybe<Scalars['Int']>;
-  duration?: InputMaybe<Scalars['Int']>;
-}>;
-
-
-export type UpdateEpisodeProgressMutation = { setEpisodeProgress: { progress?: number | null } };
 
 export type GetLiveCalendarRangeQueryVariables = Exact<{
   start: Scalars['Date'];
@@ -1042,6 +1077,9 @@ export const SectionItemFragmentDoc = gql`
     `;
 export const ItemSectionFragmentDoc = gql`
     fragment ItemSection on ItemSection {
+  metadata {
+    collectionId
+  }
   items {
     items {
       ...SectionItem
@@ -1071,35 +1109,6 @@ export const ItemSectionFragmentDoc = gql`
   }
 }
     ${SectionItemFragmentDoc}`;
-export const SeasonFragmentDoc = gql`
-    fragment Season on Season {
-  id
-  title
-  image(style: default)
-  number
-  episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
-    total
-    items {
-      id
-      publishDate
-      number
-      title
-      image
-      progress
-      duration
-      description
-      ageRating
-    }
-  }
-  show {
-    id
-    title
-    description
-    type
-    image(style: default)
-  }
-}
-    `;
 export const GetCalendarDayDocument = gql`
     query getCalendarDay($day: Date!) {
   calendar {
@@ -1162,6 +1171,113 @@ export const GetCalendarDayDocument = gql`
 export function useGetCalendarDayQuery(options: Omit<Urql.UseQueryArgs<never, GetCalendarDayQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetCalendarDayQuery>({ query: GetCalendarDayDocument, ...options });
 };
+export const GetAnalyticsIdDocument = gql`
+    query getAnalyticsID {
+  analytics {
+    anonymousId
+  }
+}
+    `;
+
+export function useGetAnalyticsIdQuery(options: Omit<Urql.UseQueryArgs<never, GetAnalyticsIdQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetAnalyticsIdQuery>({ query: GetAnalyticsIdDocument, ...options });
+};
+export const GetSeasonOnEpisodePageDocument = gql`
+    query getSeasonOnEpisodePage($seasonId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {
+  season(id: $seasonId) {
+    id
+    title
+    image(style: default)
+    number
+    episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
+      total
+      items {
+        id
+        publishDate
+        number
+        title
+        image
+        progress
+        duration
+        description
+        ageRating
+      }
+    }
+    show {
+      id
+      title
+      description
+      type
+      image(style: default)
+    }
+  }
+}
+    `;
+
+export function useGetSeasonOnEpisodePageQuery(options: Omit<Urql.UseQueryArgs<never, GetSeasonOnEpisodePageQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetSeasonOnEpisodePageQuery>({ query: GetSeasonOnEpisodePageDocument, ...options });
+};
+export const GetEpisodeDocument = gql`
+    query getEpisode($episodeId: ID!, $context: EpisodeContext) {
+  episode(id: $episodeId, context: $context) {
+    id
+    title
+    description
+    image(style: default)
+    number
+    progress
+    ageRating
+    productionDate
+    availableFrom
+    availableTo
+    publishDate
+    duration
+    context {
+      items {
+        ...SectionItem
+      }
+    }
+    relatedItems {
+      items {
+        ...SectionItem
+      }
+    }
+    season {
+      id
+      title
+      number
+      description
+      show {
+        title
+        type
+        description
+        seasons {
+          items {
+            id
+            title
+            number
+          }
+        }
+      }
+    }
+  }
+}
+    ${SectionItemFragmentDoc}`;
+
+export function useGetEpisodeQuery(options: Omit<Urql.UseQueryArgs<never, GetEpisodeQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetEpisodeQuery>({ query: GetEpisodeDocument, ...options });
+};
+export const UpdateEpisodeProgressDocument = gql`
+    mutation updateEpisodeProgress($episodeId: ID!, $progress: Int, $duration: Int) {
+  setEpisodeProgress(id: $episodeId, progress: $progress, duration: $duration) {
+    progress
+  }
+}
+    `;
+
+export function useUpdateEpisodeProgressMutation() {
+  return Urql.useMutation<UpdateEpisodeProgressMutation, UpdateEpisodeProgressMutationVariables>(UpdateEpisodeProgressDocument);
+};
 export const GetPageDocument = gql`
     query getPage($code: String!) {
   page(code: $code) {
@@ -1187,17 +1303,6 @@ export const GetPageDocument = gql`
 
 export function useGetPageQuery(options: Omit<Urql.UseQueryArgs<never, GetPageQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetPageQuery>({ query: GetPageDocument, ...options });
-};
-export const GetAnalyticsIdDocument = gql`
-    query getAnalyticsID {
-  analytics {
-    anonymousId
-  }
-}
-    `;
-
-export function useGetAnalyticsIdQuery(options: Omit<Urql.UseQueryArgs<never, GetAnalyticsIdQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetAnalyticsIdQuery>({ query: GetAnalyticsIdDocument, ...options });
 };
 export const GetSeasonDocument = gql`
     query getSeason($id: ID!) {
@@ -1308,74 +1413,6 @@ export const GetCalendarPeriodDocument = gql`
 
 export function useGetCalendarPeriodQuery(options: Omit<Urql.UseQueryArgs<never, GetCalendarPeriodQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetCalendarPeriodQuery>({ query: GetCalendarPeriodDocument, ...options });
-};
-export const GetSeasonOnEpisodePageDocument = gql`
-    query getSeasonOnEpisodePage($seasonId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {
-  season(id: $seasonId) {
-    ...Season
-  }
-}
-    ${SeasonFragmentDoc}`;
-
-export function useGetSeasonOnEpisodePageQuery(options: Omit<Urql.UseQueryArgs<never, GetSeasonOnEpisodePageQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetSeasonOnEpisodePageQuery>({ query: GetSeasonOnEpisodePageDocument, ...options });
-};
-export const GetEpisodeDocument = gql`
-    query getEpisode($episodeId: ID!) {
-  episode(id: $episodeId) {
-    id
-    title
-    description
-    image(style: default)
-    number
-    progress
-    ageRating
-    productionDate
-    availableFrom
-    availableTo
-    publishDate
-    duration
-    relatedItems {
-      items {
-        title
-        description
-      }
-    }
-    season {
-      id
-      title
-      number
-      description
-      show {
-        title
-        type
-        description
-        seasons {
-          items {
-            id
-            title
-            number
-          }
-        }
-      }
-    }
-  }
-}
-    `;
-
-export function useGetEpisodeQuery(options: Omit<Urql.UseQueryArgs<never, GetEpisodeQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetEpisodeQuery>({ query: GetEpisodeDocument, ...options });
-};
-export const UpdateEpisodeProgressDocument = gql`
-    mutation updateEpisodeProgress($episodeId: ID!, $progress: Int, $duration: Int) {
-  setEpisodeProgress(id: $episodeId, progress: $progress, duration: $duration) {
-    progress
-  }
-}
-    `;
-
-export function useUpdateEpisodeProgressMutation() {
-  return Urql.useMutation<UpdateEpisodeProgressMutation, UpdateEpisodeProgressMutationVariables>(UpdateEpisodeProgressDocument);
 };
 export const GetLiveCalendarRangeDocument = gql`
     query getLiveCalendarRange($start: Date!, $end: Date!) {
