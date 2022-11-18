@@ -47,6 +47,10 @@ type LegacyIDLookup {
   id: ID!
 }
 
+input EpisodeContext {
+  collectionId: String
+}
+
 type QueryRoot{
   application: Application!
   export(
@@ -75,6 +79,7 @@ type QueryRoot{
 
   episode(
     id: ID!
+    context: EpisodeContext
   ): Episode!
 
   collection(

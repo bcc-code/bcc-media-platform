@@ -36,8 +36,8 @@ query getSeasonOnEpisodePage(
     }
 }
 
-query getEpisode($episodeId: ID!) {
-    episode(id: $episodeId) {
+query getEpisode($episodeId: ID!, $context: EpisodeContext) {
+    episode(id: $episodeId, context: $context) {
         id
         title
         description
