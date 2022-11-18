@@ -1,0 +1,14 @@
+[
+    {
+        "relation": [
+            "delegate_permission/common.handle_all_urls"
+        ],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "tv.brunstad.app",
+            "sha256_cert_fingerprints": [
+                "3E:35:25:8F:41:DB:D4:9E:65:09:58:C9:3B:ED:E6:03:73:17:3C:18:75:C1:A9:B2:D0:CA:BD:A6:74:EE:C6:8F"
+            ]
+        }
+    }
+]
