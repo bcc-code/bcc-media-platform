@@ -798,18 +798,18 @@ type MessagetemplatesTranslation struct {
 }
 
 type Notification struct {
+	ID            uuid.UUID      `db:"id" json:"id"`
 	Status        string         `db:"status" json:"status"`
 	UserCreated   uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	DateCreated   null_v4.Time   `db:"date_created" json:"dateCreated"`
 	UserUpdated   uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 	DateUpdated   null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	TemplateID    uuid.NullUUID  `db:"template_id" json:"templateID"`
 	ScheduleAt    null_v4.Time   `db:"schedule_at" json:"scheduleAt"`
-	Action        null_v4.String `db:"action" json:"action"`
-	DeepLink      null_v4.String `db:"deep_link" json:"deepLink"`
-	ID            uuid.UUID      `db:"id" json:"id"`
 	SendStarted   null_v4.Time   `db:"send_started" json:"sendStarted"`
 	SendCompleted null_v4.Time   `db:"send_completed" json:"sendCompleted"`
+	Action        null_v4.String `db:"action" json:"action"`
+	DeepLink      null_v4.String `db:"deep_link" json:"deepLink"`
+	TemplateID    uuid.NullUUID  `db:"template_id" json:"templateID"`
 }
 
 type Notificationtemplate struct {

@@ -39,10 +39,13 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 			return err
 		}
 		for _, n := range ns {
+			log.L.Debug().Str("notification", n.ID.String()).Msg("Processing notification update")
 			if n.Status != common.StatusPublished || n.SendStarted.Valid {
+				log.L.Debug().Msg("Skipping push of notification as it's not published or already sent.")
 				continue
 			}
 			if n.ScheduleAt.Valid && n.ScheduleAt.Time.After(time.Now()) {
+				log.L.Debug().Msg("Scheduling notification.")
 				err = h.scheduler.Queue(ctx, "notifications", key, n.ScheduleAt.Time)
 				if err != nil {
 					return err
@@ -50,6 +53,7 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 				continue
 			}
 
+			log.L.Debug().Msg("Marking notification as send started.")
 			err = h.queries.NotificationMarkSendStarted(ctx, id)
 			if err != nil {
 				return err
