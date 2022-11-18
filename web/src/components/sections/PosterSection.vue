@@ -1,11 +1,11 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <Slide :item="item" v-slot="{ item: i }">
+        <Slider :item="item" v-slot="{ item: i }">
             <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
             <div
                 class="flex flex-col rounded rounded-md mt-1 cursor-pointer hover:opacity-90 transition"
-                @click="goToSectionItem(i)"
+                @click="goToSectionItem(i, item.metadata?.collectionId)"
             >
                 <div
                     class="relative w-full aspect-[9/16] mb-1 rounded-md overflow-hidden"
@@ -23,7 +23,7 @@
                 </div>
                 <SectionItemTitle :i="i"></SectionItemTitle>
             </div>
-        </Slide>
+        </Slider>
     </section>
 </template>
 <script lang="ts" setup>
@@ -35,7 +35,7 @@ import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
 import ProgressBar from "../episodes/ProgressBar.vue"
 import Image from "../Image.vue"
-import Slide from "./Slider.vue"
+import Slider from "./Slider.vue"
 
 defineProps<{
     item: Section & { __typename: "PosterSection" }

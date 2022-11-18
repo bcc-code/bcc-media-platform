@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/brunstadtv/backend/email"
 	"github.com/bcc-code/brunstadtv/backend/analytics"
 	"sort"
 	"strings"
@@ -134,6 +135,7 @@ func graphqlHandler(
 	queries *sqlc.Queries,
 	loaders *common.BatchLoaders,
 	searchService *search.Service,
+	emailService *email.Service,
 	urlSigner *signing.Signer,
 	awsConfig awsConfig,
 	cdnConfig cdnConfig,
@@ -146,6 +148,7 @@ func graphqlHandler(
 		FilteredLoaders: filteredLoaderFactory(db, queries, loaders.CollectionLoader),
 		ProfileLoaders:  profileLoaderFactory(queries),
 		SearchService:   searchService,
+		EmailService:    emailService,
 		APIConfig:       cdnConfig,
 		AWSConfig:       awsConfig,
 		URLSigner:       urlSigner,
@@ -327,7 +330,7 @@ func main() {
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
 
 	db := mustConnectToDB(ctx, config.DB)
-	rdb := mustCreateRedisClient(ctx, config.Redis)
+	rdb := utils.MustCreateRedisClient(ctx, config.Redis)
 	urlSigner := signing.MustNewSigner(config.CDNConfig)
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
@@ -335,6 +338,7 @@ func main() {
 	authClient := auth0.New(config.Auth0)
 	membersClient := members.New(config.Members, authClient)
 	searchService := search.New(queries, config.Algolia)
+	emailService := email.New(config.Email)
 
 	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
 	if err != nil {
@@ -348,6 +352,7 @@ func main() {
 		queries,
 		loaders,
 		searchService,
+		emailService,
 		urlSigner,
 		config.AWS,
 		config.CDNConfig,

@@ -1,5 +1,5 @@
 <template>
-    <div id="video-player"></div>
+    <div class="transition bg-slate-800" :class="[loaded ? 'opacity-100' : 'opacity-0']" id="video-player" ref="video-player"></div>
 </template>
 <script lang="ts" setup>
 import { addError } from "@/utils/error"
@@ -48,9 +48,12 @@ const updateEpisodeProgress = async (episode: {
     })
 }
 
+const loaded = ref(false)
+
 const load = async () => {
     const episodeId = props.episode.id
     if (current.value !== episodeId) {
+        loaded.value = false;
         current.value = episodeId
         if (!data.value) {
             await executeQuery()
@@ -86,11 +89,12 @@ const load = async () => {
             player.value.on("timeupdate", async () => {
                 const progress = Math.floor(player.value.currentTime())
                 if (
+                    progress && (
                     lastProgress === null ||
                     lastProgress === undefined ||
                     (progress != lastProgress && progress % 15 === 0) ||
                     lastProgress - progress < -15 ||
-                    progress - lastProgress < -15
+                    progress - lastProgress < -15)
                 ) {
                     lastProgress = progress
                     await updateEpisodeProgress({
@@ -105,6 +109,7 @@ const load = async () => {
         if (player.value === null) {
             addError("No available VOD for this episode")
         }
+        loaded.value = true;
     }
 }
 

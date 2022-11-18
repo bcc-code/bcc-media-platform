@@ -6,6 +6,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
+	"github.com/bcc-code/brunstadtv/backend/email"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/gin-gonic/gin"
@@ -33,9 +34,6 @@ import (
 
 type searchProvider interface {
 	Search(ctx *gin.Context, query common.SearchQuery) (searchResult common.SearchResult, err error)
-	Reindex(ctx context.Context) error
-	DeleteModel(_ context.Context, collection string, id int) error
-	IndexModel(ctx context.Context, collection string, id int) (err error)
 }
 
 // Resolver is the main struct for the GQL implementation
@@ -46,6 +44,7 @@ type Resolver struct {
 	FilteredLoaders    func(ctx context.Context) *common.FilteredLoaders
 	ProfileLoaders     func(ctx context.Context) *common.ProfileLoaders
 	SearchService      searchProvider
+	EmailService    *email.Service
 	URLSigner          *signing.Signer
 	S3Client           *s3.Client
 	APIConfig          apiConfig

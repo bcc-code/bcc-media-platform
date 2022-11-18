@@ -18,6 +18,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
+	null "gopkg.in/guregu/null.v4"
 )
 
 // AvailableFrom is the resolver for the availableFrom field.
@@ -117,19 +118,57 @@ func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*in
 	return &progress.Progress, nil
 }
 
+// Context is the resolver for the context field.
+func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error) {
+	var collectionId *int
+
+	ginCtx, _ := utils.GinCtx(ctx)
+	episodeContext, ok := ginCtx.Value("EpisodeContext").(*model.EpisodeContext)
+	if ok && episodeContext != nil && episodeContext.CollectionID != nil {
+		colId, _ := strconv.ParseInt(*episodeContext.CollectionID, 10, 64)
+		intId := int(colId)
+		collectionId = &intId
+	}
+
+	if collectionId != nil {
+		page, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), &common.Section{
+			CollectionID: null.IntFrom(int64(*collectionId)),
+			Style:        "default",
+		}, first, offset)
+		if err != nil {
+			return nil, err
+		}
+		return &model.SectionItemPagination{
+			Total:  page.Total,
+			First:  page.First,
+			Offset: page.Offset,
+			Items:  page.Items,
+		}, nil
+	}
+	return nil, nil
+}
+
 // RelatedItems is the resolver for the relatedItems field.
 func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error) {
+	var collectionId *int
 	if obj.Type == model.EpisodeTypeStandalone {
 		ginCtx, err := utils.GinCtx(ctx)
 		if err != nil {
 			return nil, err
 		}
 		app, err := applications.GetFromCtx(ginCtx)
-		if err != nil || !app.RelatedCollectionID.Valid {
+		if err != nil {
 			return nil, err
 		}
+		if app.RelatedCollectionID.Valid {
+			intID := int(app.RelatedCollectionID.Int64)
+			collectionId = &intID
+		}
+	}
+
+	if collectionId != nil {
 		page, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), &common.Section{
-			CollectionID: app.RelatedCollectionID,
+			CollectionID: null.IntFrom(int64(*collectionId)),
 			Style:        "default",
 		}, first, offset)
 		if err != nil {
@@ -266,7 +305,7 @@ func (r *showResolver) DefaultEpisode(ctx context.Context, obj *model.Show) (*mo
 	if eID == nil {
 		return nil, merry.New("invalid default episode")
 	}
-	return r.QueryRoot().Episode(ctx, strconv.Itoa(*eID))
+	return r.QueryRoot().Episode(ctx, strconv.Itoa(*eID), nil)
 }
 
 // Episode returns generated.EpisodeResolver implementation.

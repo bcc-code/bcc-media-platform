@@ -162,20 +162,27 @@ func (i Link) GetKey() int {
 
 // Section is the definition of the Section object
 type Section struct {
-	ID                  int          `json:"id"`
-	Sort                int          `json:"sort"`
-	PageID              int          `json:"pageId"`
-	Type                string       `json:"type"`
-	ShowTitle           bool         `json:"showTitle"`
-	Title               LocaleString `json:"title"`
-	Description         LocaleString `json:"description"`
-	Style               string       `json:"style"`
-	Size                string       `json:"size"`
-	CollectionID        null.Int     `json:"collectionId"`
-	MessageID           null.Int     `json:"messageId"`
-	EmbedUrl            null.String  `json:"embedUrl"`
-	EmbedSize           null.String  `json:"embedSize"`
-	NeedsAuthentication null.Bool    `json:"needsAuthentication"`
+	ID                  int            `json:"id"`
+	Sort                int            `json:"sort"`
+	PageID              int            `json:"pageId"`
+	Type                string         `json:"type"`
+	ShowTitle           bool           `json:"showTitle"`
+	Title               LocaleString   `json:"title"`
+	Description         LocaleString   `json:"description"`
+	Style               string         `json:"style"`
+	Size                string         `json:"size"`
+	CollectionID        null.Int       `json:"collectionId"`
+	MessageID           null.Int       `json:"messageId"`
+	EmbedUrl            null.String    `json:"embedUrl"`
+	EmbedSize           null.String    `json:"embedSize"`
+	NeedsAuthentication null.Bool      `json:"needsAuthentication"`
+	Options             SectionOptions `json:"options"`
+}
+
+// SectionOptions contains options for this section
+type SectionOptions struct {
+	SecondaryTitles  bool
+	ContinueWatching bool
 }
 
 // GetKey returns the key for this item

@@ -30,8 +30,9 @@ func NewService(ctx context.Context, firebaseProjectID string, queries *sqlc.Que
 }
 
 // HandleModelUpdate handles updates
-func (s *Service) HandleModelUpdate(ctx context.Context, collection string, id int) error {
-	realItems, err := s.getEventItems(ctx, collection, id)
+func (s *Service) HandleModelUpdate(ctx context.Context, collection string, key string) error {
+	id, _ := strconv.ParseInt(key, 10, 64)
+	realItems, err := s.getEventItems(ctx, collection, int(id))
 	if err != nil {
 		return err
 	}
