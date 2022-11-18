@@ -368,11 +368,6 @@ func (r *queryRootResolver) Profile(ctx context.Context) (*model.Profile, error)
 	}, nil
 }
 
-// Analytics is the resolver for the analytics field.
-func (r *queryRootResolver) Analytics(ctx context.Context) (*model.Analytics, error) {
-	return &model.Analytics{}, nil
-}
-
 // LegacyIDLookup is the resolver for the legacyIDLookup field.
 func (r *queryRootResolver) LegacyIDLookup(ctx context.Context, options *model.LegacyIDLookupOptions) (*model.LegacyIDLookup, error) {
 	var id *int

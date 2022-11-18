@@ -36,6 +36,7 @@ type User {
   email: String
   settings: Settings!
   roles: [String!]!
+  analytics: Analytics!
 }
 
 input LegacyIDLookupOptions {
@@ -105,8 +106,6 @@ type QueryRoot{
 
   profiles: [Profile!]!
   profile: Profile!
-
-  analytics: Analytics!
 
   legacyIDLookup(options: LegacyIDLookupOptions): LegacyIDLookup!
 }

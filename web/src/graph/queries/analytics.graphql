@@ -1,5 +1,7 @@
 query getAnalyticsID {
-    analytics {
-        anonymousId
+    me {
+        analytics {
+            anonymousId
+        }
     }
 }

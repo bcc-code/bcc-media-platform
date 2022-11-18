@@ -71,7 +71,7 @@ const load = async () => {
                     accountCode: import.meta.env.VITE_NPAW_ACCOUNT_CODE,
                     tracking: {
                         isLive: false,
-                        userId: data.value?.analytics.anonymousId,
+                        userId: data.value?.me.analytics.anonymousId,
                         metadata: {
                             contentId: episodeId,
                             title: props.episode.title,

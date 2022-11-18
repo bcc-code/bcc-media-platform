@@ -389,7 +389,6 @@ type ComplexityRoot struct {
 	}
 
 	QueryRoot struct {
-		Analytics      func(childComplexity int) int
 		Application    func(childComplexity int) int
 		Calendar       func(childComplexity int) int
 		Collection     func(childComplexity int, id string) int
@@ -577,6 +576,7 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
+		Analytics func(childComplexity int) int
 		Anonymous func(childComplexity int) int
 		Audience  func(childComplexity int) int
 		BccMember func(childComplexity int) int
@@ -705,7 +705,6 @@ type QueryRootResolver interface {
 	Config(ctx context.Context) (*model.Config, error)
 	Profiles(ctx context.Context) ([]*model.Profile, error)
 	Profile(ctx context.Context) (*model.Profile, error)
-	Analytics(ctx context.Context) (*model.Analytics, error)
 	LegacyIDLookup(ctx context.Context, options *model.LegacyIDLookupOptions) (*model.LegacyIDLookup, error)
 }
 type QuestionResolver interface {
@@ -2216,13 +2215,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Profile.Name(childComplexity), true
 
-	case "QueryRoot.analytics":
-		if e.complexity.QueryRoot.Analytics == nil {
-			break
-		}
-
-		return e.complexity.QueryRoot.Analytics(childComplexity), true
-
 	case "QueryRoot.application":
 		if e.complexity.QueryRoot.Application == nil {
 			break
@@ -3203,6 +3195,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Stream.URL(childComplexity), true
 
+	case "User.analytics":
+		if e.complexity.User.Analytics == nil {
+			break
+		}
+
+		return e.complexity.User.Analytics(childComplexity), true
+
 	case "User.anonymous":
 		if e.complexity.User.Anonymous == nil {
 			break
@@ -3937,6 +3936,7 @@ type User {
   email: String
   settings: Settings!
   roles: [String!]!
+  analytics: Analytics!
 }
 
 input LegacyIDLookupOptions {
@@ -4006,8 +4006,6 @@ type QueryRoot{
 
   profiles: [Profile!]!
   profile: Profile!
-
-  analytics: Analytics!
 
   legacyIDLookup(options: LegacyIDLookupOptions): LegacyIDLookup!
 }
@@ -15067,6 +15065,8 @@ func (ec *executionContext) fieldContext_QueryRoot_me(ctx context.Context, field
 				return ec.fieldContext_User_settings(ctx, field)
 			case "roles":
 				return ec.fieldContext_User_roles(ctx, field)
+			case "analytics":
+				return ec.fieldContext_User_analytics(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -15217,54 +15217,6 @@ func (ec *executionContext) fieldContext_QueryRoot_profile(ctx context.Context, 
 				return ec.fieldContext_Profile_name(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Profile", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _QueryRoot_analytics(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_QueryRoot_analytics(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Analytics(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Analytics)
-	fc.Result = res
-	return ec.marshalNAnalytics2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAnalytics(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_QueryRoot_analytics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "QueryRoot",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "anonymousId":
-				return ec.fieldContext_Analytics_anonymousId(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Analytics", field.Name)
 		},
 	}
 	return fc, nil
@@ -21049,6 +21001,54 @@ func (ec *executionContext) fieldContext_User_roles(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _User_analytics(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_analytics(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Analytics, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Analytics)
+	fc.Result = res
+	return ec.marshalNAnalytics2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAnalytics(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_analytics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "anonymousId":
+				return ec.fieldContext_Analytics_anonymousId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Analytics", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _WebSection_id(ctx context.Context, field graphql.CollectedField, obj *model.WebSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WebSection_id(ctx, field)
 	if err != nil {
@@ -26487,29 +26487,6 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "analytics":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._QueryRoot_analytics(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
 		case "legacyIDLookup":
 			field := field
 
@@ -27950,6 +27927,13 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "analytics":
+
+			out.Values[i] = ec._User_analytics(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -28335,10 +28319,6 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
-
-func (ec *executionContext) marshalNAnalytics2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAnalytics(ctx context.Context, sel ast.SelectionSet, v model.Analytics) graphql.Marshaler {
-	return ec._Analytics(ctx, sel, &v)
-}
 
 func (ec *executionContext) marshalNAnalytics2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAnalytics(ctx context.Context, sel ast.SelectionSet, v *model.Analytics) graphql.Marshaler {
 	if v == nil {

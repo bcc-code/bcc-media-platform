@@ -844,13 +844,14 @@ type Stream struct {
 }
 
 type User struct {
-	ID        *string   `json:"id"`
-	Anonymous bool      `json:"anonymous"`
-	BccMember bool      `json:"bccMember"`
-	Audience  *string   `json:"audience"`
-	Email     *string   `json:"email"`
-	Settings  *Settings `json:"settings"`
-	Roles     []string  `json:"roles"`
+	ID        *string    `json:"id"`
+	Anonymous bool       `json:"anonymous"`
+	BccMember bool       `json:"bccMember"`
+	Audience  *string    `json:"audience"`
+	Email     *string    `json:"email"`
+	Settings  *Settings  `json:"settings"`
+	Roles     []string   `json:"roles"`
+	Analytics *Analytics `json:"analytics"`
 }
 
 type WebSection struct {

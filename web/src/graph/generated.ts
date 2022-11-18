@@ -560,7 +560,6 @@ export type Profile = {
 };
 
 export type QueryRoot = {
-  analytics: Analytics;
   application: Application;
   calendar?: Maybe<Calendar>;
   collection: Collection;
@@ -864,6 +863,7 @@ export enum StreamType {
 }
 
 export type User = {
+  analytics: Analytics;
   anonymous: Scalars['Boolean'];
   audience?: Maybe<Scalars['String']>;
   bccMember: Scalars['Boolean'];
@@ -892,7 +892,7 @@ export type GetCalendarDayQuery = { calendar?: { day: { entries: Array<{ __typen
 export type GetAnalyticsIdQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAnalyticsIdQuery = { analytics: { anonymousId: string } };
+export type GetAnalyticsIdQuery = { me: { analytics: { anonymousId: string } } };
 
 export type GetSeasonOnEpisodePageQueryVariables = Exact<{
   seasonId: Scalars['ID'];
@@ -1173,8 +1173,10 @@ export function useGetCalendarDayQuery(options: Omit<Urql.UseQueryArgs<never, Ge
 };
 export const GetAnalyticsIdDocument = gql`
     query getAnalyticsID {
-  analytics {
-    anonymousId
+  me {
+    analytics {
+      anonymousId
+    }
   }
 }
     `;
