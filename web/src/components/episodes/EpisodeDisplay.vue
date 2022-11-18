@@ -47,6 +47,18 @@
             <div>
                 <div class="flex gap-2 p-2 font-semibold">
                     <button
+                        v-if="episode.context"
+                        class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
+                        :class="[
+                            effectiveView === 'context'
+                                ? 'opacity-100 border-opacity-40 '
+                                : 'opacity-50 bg-opacity-0 border-opacity-0',
+                        ]"
+                        @click="effectiveView = 'context'"
+                    >
+                        {{ t("episode.context") }}
+                    </button>
+                    <button
                         v-if="seasonId"
                         class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
                         :class="[
@@ -77,6 +89,9 @@
                             v-if="effectiveView === 'details'"
                             :episode="episode"
                         ></EpisodeDetails>
+                        <div v-else-if="effectiveView === 'context'">
+                            <ItemList :items="episode.context?.items ?? []" :current-id="episode.id"></ItemList>
+                        </div>
                         <div
                             v-else-if="effectiveView === 'episodes'"
                             class="flex flex-col"
@@ -144,6 +159,7 @@
 </template>
 <script lang="ts" setup>
 import {
+EpisodeContext,
     useGetEpisodeQuery,
     useGetSeasonOnEpisodePageQuery,
 } from "@/graph/generated"
@@ -155,13 +171,14 @@ import AgeRating from "@/components/episodes/AgeRating.vue"
 import WithProgressBar from "@/components/episodes/WithProgressBar.vue"
 import SeasonSelector from "@/components/SeasonSelector.vue"
 import { useTitle } from "@/utils/title"
-import { getImageSize } from "@/utils/images"
 import Image from "../Image.vue"
+import ItemList from "../sections/ItemList.vue"
 
 const { t } = useI18n()
 
 const props = defineProps<{
     episodeId: string
+    context?: EpisodeContext
     autoPlay?: boolean
 }>()
 
@@ -178,9 +195,16 @@ const episodeId = computed({
     },
 })
 
+const context = ref(props.context)
+
+watch(() => props.context, () => {
+    context.value = props.context
+})
+
 const { data, error, then } = useGetEpisodeQuery({
     variables: {
         episodeId,
+        context,
     },
 })
 
@@ -192,9 +216,13 @@ const seasonId = ref("")
 
 then(() => {
     seasonId.value = data.value?.episode.season?.id ?? ""
+    if (seasonId.value) {
+        seasonQuery.resume()
+    }
 })
 
 const seasonQuery = useGetSeasonOnEpisodePageQuery({
+    pause: !seasonId.value,
     variables: {
         seasonId,
         firstEpisodes: 50,
@@ -218,11 +246,48 @@ watch(
     }
 )
 
-const view = ref(null as "episodes" | "details" | null)
+const view = ref(null as "episodes" | "details" | "context" | null)
+
+const validateView = () => {
+    const v = view.value
+    switch (v) {
+        case "context":
+            if (episode.value?.context) {
+                return "context"
+            }
+            break;
+        case "episodes":
+            if (episode.value?.season) {
+                return "episodes"
+            }
+            break;
+        default: 
+            return "details"
+    }
+}
 
 const effectiveView = computed({
     get() {
-        return view.value ?? (!episode.value?.season ? "details" : "episodes")
+        const v = view.value
+        switch (v) {
+            case "context":
+                if (episode.value?.context) {
+                    return "context"
+                }
+                break;
+            case "episodes":
+                if (episode.value?.season) {
+                    return "episodes"
+                }
+                break;
+            case "details": 
+                return "details"
+        }
+
+        if (episode.value?.context) {
+            return "context";
+        }
+        return view.value = (!episode.value?.season ? "details" : "episodes")
     },
     set(v) {
         view.value = v

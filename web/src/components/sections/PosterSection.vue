@@ -5,7 +5,7 @@
             <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
             <div
                 class="flex flex-col rounded rounded-md mt-1 cursor-pointer hover:opacity-90 transition"
-                @click="goToSectionItem(i)"
+                @click="goToSectionItem(i, item.metadata?.collectionId)"
             >
                 <div
                     class="relative w-full aspect-[9/16] mb-1 rounded-md overflow-hidden"

@@ -6,6 +6,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
+	"github.com/bcc-code/brunstadtv/backend/email"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/gin-gonic/gin"
@@ -43,6 +44,7 @@ type Resolver struct {
 	FilteredLoaders func(ctx context.Context) *common.FilteredLoaders
 	ProfileLoaders  func(ctx context.Context) *common.ProfileLoaders
 	SearchService   searchProvider
+	EmailService    *email.Service
 	URLSigner       *signing.Signer
 	S3Client        *s3.Client
 	APIConfig       apiConfig

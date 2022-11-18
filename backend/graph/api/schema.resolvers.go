@@ -13,6 +13,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/email"
 	"github.com/bcc-code/brunstadtv/backend/export"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
@@ -72,7 +73,7 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 	if p == nil {
 		return nil, ErrProfileNotSet
 	}
-	e, err := r.QueryRoot().Episode(ctx, id)
+	e, err := r.QueryRoot().Episode(ctx, id, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -121,6 +122,37 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 	pl.Prime(ctx, episodeID, episodeProgress)
 	r.Loaders.EpisodeProgressLoader.Clear(ctx, p.ID)
 	return e, err
+}
+
+// SendSupportEmail is the resolver for the sendSupportEmail field.
+func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title string, content string, html string) (bool, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return false, err
+	}
+	u := user.GetFromCtx(ginCtx)
+
+	if u.Anonymous {
+		return false, merry.New("User cannot be anonymous")
+	}
+
+	err = r.EmailService.SendEmail(ctx, email.SendOptions{
+		From: email.Recipient{
+			Name:  u.DisplayName,
+			Email: u.Email,
+		},
+		To: email.Recipient{
+			Name:  "Support",
+			Email: "support@brunstad.tv",
+		},
+		Title:       title,
+		Content:     content,
+		HTMLContent: html,
+	})
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // Application is the resolver for the application field.
@@ -231,7 +263,11 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 }
 
 // Episode is the resolver for the episode field.
-func (r *queryRootResolver) Episode(ctx context.Context, id string) (*model.Episode, error) {
+func (r *queryRootResolver) Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error) {
+	if context != nil {
+		ginCtx, _ := utils.GinCtx(ctx)
+		ginCtx.Set("EpisodeContext", context)
+	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
 		Item:        r.Loaders.EpisodeLoader,
 		Permissions: r.Loaders.EpisodePermissionLoader,
