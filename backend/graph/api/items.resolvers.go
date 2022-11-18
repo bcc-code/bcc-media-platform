@@ -118,8 +118,8 @@ func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*in
 	return &progress.Progress, nil
 }
 
-// RelatedItems is the resolver for the relatedItems field.
-func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error) {
+// Context is the resolver for the context field.
+func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error) {
 	var collectionId *int
 
 	ginCtx, _ := utils.GinCtx(ctx)
@@ -130,7 +130,28 @@ func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, 
 		collectionId = &intId
 	}
 
-	if collectionId == nil && obj.Type == model.EpisodeTypeStandalone {
+	if collectionId != nil {
+		page, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), &common.Section{
+			CollectionID: null.IntFrom(int64(*collectionId)),
+			Style:        "default",
+		}, first, offset)
+		if err != nil {
+			return nil, err
+		}
+		return &model.SectionItemPagination{
+			Total:  page.Total,
+			First:  page.First,
+			Offset: page.Offset,
+			Items:  page.Items,
+		}, nil
+	}
+	return nil, nil
+}
+
+// RelatedItems is the resolver for the relatedItems field.
+func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error) {
+	var collectionId *int
+	if obj.Type == model.EpisodeTypeStandalone {
 		ginCtx, err := utils.GinCtx(ctx)
 		if err != nil {
 			return nil, err

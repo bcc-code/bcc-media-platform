@@ -195,6 +195,7 @@ type Episode struct {
 	Progress          *int                   `json:"progress"`
 	AudioLanguages    []Language             `json:"audioLanguages"`
 	SubtitleLanguages []Language             `json:"subtitleLanguages"`
+	Context           *SectionItemPagination `json:"context"`
 	RelatedItems      *SectionItemPagination `json:"relatedItems"`
 	Images            []*Image               `json:"images"`
 	Number            *int                   `json:"number"`
