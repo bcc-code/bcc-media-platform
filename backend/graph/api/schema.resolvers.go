@@ -248,8 +248,8 @@ func (r *queryRootResolver) Redirect(ctx context.Context, code string) (*model.R
 
 	// Build a JWT!
 	tok, err := jwt.NewBuilder().
-		Claim(`person_id`, profile.UserID).
-		Issuer(`https://brunstad.tv/r/`).
+		Claim("person_id", profile.UserID).
+		Issuer("https://api.brunstad.tv/").
 		IssuedAt(time.Now()).
 		Expiration(time.Now().Add(30 * time.Second)).
 		Build()
