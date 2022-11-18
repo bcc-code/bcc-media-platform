@@ -21,6 +21,52 @@ COMMENT ON SEQUENCE "public"."notificationtemplates_translations_id_seq1" IS NUL
 
 --- END CREATE SEQUENCE "public"."notificationtemplates_translations_id_seq1" ---
 
+--- BEGIN CREATE TABLE "public"."notificationtemplates" ---
+
+CREATE TABLE IF NOT EXISTS "public"."notificationtemplates"
+(
+    "id"           uuid         NOT NULL,
+    "user_created" uuid         NULL,
+    "date_created" timestamptz  NULL,
+    "user_updated" uuid         NULL,
+    "date_updated" timestamptz  NULL,
+    "label"        varchar(255) NULL,
+    CONSTRAINT "notificationtemplates_pkey" PRIMARY KEY (id),
+    CONSTRAINT "notificationtemplates_user_created_foreign" FOREIGN KEY (user_created) REFERENCES directus_users (id),
+    CONSTRAINT "notificationtemplates_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users (id)
+);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE "public"."notificationtemplates" TO directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+
+COMMENT ON COLUMN "public"."notificationtemplates"."id" IS NULL;
+
+
+COMMENT ON COLUMN "public"."notificationtemplates"."user_created" IS NULL;
+
+
+COMMENT ON COLUMN "public"."notificationtemplates"."date_created" IS NULL;
+
+
+COMMENT ON COLUMN "public"."notificationtemplates"."user_updated" IS NULL;
+
+
+COMMENT ON COLUMN "public"."notificationtemplates"."date_updated" IS NULL;
+
+
+COMMENT ON COLUMN "public"."notificationtemplates"."label" IS NULL;
+
+COMMENT ON CONSTRAINT "notificationtemplates_pkey" ON "public"."notificationtemplates" IS NULL;
+
+
+COMMENT ON CONSTRAINT "notificationtemplates_user_created_foreign" ON "public"."notificationtemplates" IS NULL;
+
+
+COMMENT ON CONSTRAINT "notificationtemplates_user_updated_foreign" ON "public"."notificationtemplates" IS NULL;
+
+COMMENT ON TABLE "public"."notificationtemplates" IS NULL;
+
+--- END CREATE TABLE "public"."notificationtemplates" ---
+
 --- BEGIN CREATE TABLE "public"."notifications" ---
 
 CREATE TABLE IF NOT EXISTS "public"."notifications"
@@ -95,52 +141,6 @@ COMMENT ON TABLE "public"."notifications" IS NULL;
 
 --- END CREATE TABLE "public"."notifications" ---
 
---- BEGIN CREATE TABLE "public"."notificationtemplates" ---
-
-CREATE TABLE IF NOT EXISTS "public"."notificationtemplates"
-(
-    "id"           uuid         NOT NULL,
-    "user_created" uuid         NULL,
-    "date_created" timestamptz  NULL,
-    "user_updated" uuid         NULL,
-    "date_updated" timestamptz  NULL,
-    "label"        varchar(255) NULL,
-    CONSTRAINT "notificationtemplates_pkey" PRIMARY KEY (id),
-    CONSTRAINT "notificationtemplates_user_created_foreign" FOREIGN KEY (user_created) REFERENCES directus_users (id),
-    CONSTRAINT "notificationtemplates_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users (id)
-);
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE "public"."notificationtemplates" TO directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-
-COMMENT ON COLUMN "public"."notificationtemplates"."id" IS NULL;
-
-
-COMMENT ON COLUMN "public"."notificationtemplates"."user_created" IS NULL;
-
-
-COMMENT ON COLUMN "public"."notificationtemplates"."date_created" IS NULL;
-
-
-COMMENT ON COLUMN "public"."notificationtemplates"."user_updated" IS NULL;
-
-
-COMMENT ON COLUMN "public"."notificationtemplates"."date_updated" IS NULL;
-
-
-COMMENT ON COLUMN "public"."notificationtemplates"."label" IS NULL;
-
-COMMENT ON CONSTRAINT "notificationtemplates_pkey" ON "public"."notificationtemplates" IS NULL;
-
-
-COMMENT ON CONSTRAINT "notificationtemplates_user_created_foreign" ON "public"."notificationtemplates" IS NULL;
-
-
-COMMENT ON CONSTRAINT "notificationtemplates_user_updated_foreign" ON "public"."notificationtemplates" IS NULL;
-
-COMMENT ON TABLE "public"."notificationtemplates" IS NULL;
-
---- END CREATE TABLE "public"."notificationtemplates" ---
-
 --- BEGIN CREATE TABLE "public"."notificationtemplates_translations" ---
 
 CREATE TABLE IF NOT EXISTS "public"."notificationtemplates_translations"
@@ -207,6 +207,13 @@ INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "disp
                                              "translations", "archive_field", "archive_app_filter", "archive_value",
                                              "unarchive_value", "sort_field", "accountability", "color",
                                              "item_duplication_fields", "sort", "group", "collapse")
+VALUES ('notifications', 'add_alert', NULL, NULL, false, false, NULL, 'status', true, 'archived', 'draft', NULL, 'all',
+        '#E35169', NULL, 6, NULL, 'open');
+
+INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "display_template", "hidden", "singleton",
+                                             "translations", "archive_field", "archive_app_filter", "archive_value",
+                                             "unarchive_value", "sort_field", "accountability", "color",
+                                             "item_duplication_fields", "sort", "group", "collapse")
 VALUES ('notificationtemplates', NULL, NULL, NULL, false, false, NULL, NULL, true, NULL, NULL, NULL, 'all', NULL, NULL,
         1, 'notifications', 'open');
 
@@ -216,13 +223,6 @@ INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "disp
                                              "item_duplication_fields", "sort", "group", "collapse")
 VALUES ('notificationtemplates_translations', 'import_export', NULL, NULL, true, false, NULL, NULL, true, NULL, NULL,
         NULL, 'all', NULL, NULL, 1, 'notificationtemplates', 'open');
-
-INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "display_template", "hidden", "singleton",
-                                             "translations", "archive_field", "archive_app_filter", "archive_value",
-                                             "unarchive_value", "sort_field", "accountability", "color",
-                                             "item_duplication_fields", "sort", "group", "collapse")
-VALUES ('notifications', 'add_alert', NULL, NULL, false, false, NULL, 'status', true, 'archived', 'draft', NULL, 'all',
-        '#E35169', NULL, 6, NULL, 'open');
 
 --- END SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
 
