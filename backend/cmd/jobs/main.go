@@ -87,7 +87,7 @@ func main() {
 	directusEventHandler := directus.NewEventHandler()
 	crowdinClient := crowdin.New(config.Crowdin, directus.NewHandler(directusClient), queries)
 
-	sr := scheduler.New(config.APIUrl+"/api/tasks", config.CloudTasks.QueueID)
+	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.CloudTasks.QueueID)
 
 	pushService, err := push.NewService(ctx, config.Firebase.ProjectID, queries)
 	if err != nil {

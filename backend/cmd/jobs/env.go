@@ -48,7 +48,7 @@ type envConfig struct {
 	ImageCDNDomain    string
 	Tracing           utils.TracingConfig
 	CloudTasks        cloudTasks
-	APIUrl            string
+	ServiceUrl        string
 	Redis             utils.RedisConfig
 }
 
@@ -108,6 +108,6 @@ func getEnvConfig() envConfig {
 			Password: os.Getenv("REDIS_PASSWORD"),
 			Database: utils.AsInt(os.Getenv("REDIS_DATABASE")),
 		},
-		APIUrl: os.Getenv("API_URL"),
+		ServiceUrl: os.Getenv("SERVICE_URL"),
 	}
 }
