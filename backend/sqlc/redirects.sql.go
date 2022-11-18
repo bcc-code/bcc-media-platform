@@ -7,24 +7,75 @@ package sqlc
 
 import (
 	"context"
+
+	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
-const getRedirectByCode = `-- name: GetRedirectByCode :one
-SELECT id, status, user_created, date_created, user_updated, date_updated, target_url, code FROM redirects WHERE status = 'published' AND code = $1
+const getRedirectIDsForCodes = `-- name: getRedirectIDsForCodes :many
+SELECT id, code FROM redirects WHERE status = 'published' AND code = ANY ($1::varchar[])
 `
 
-func (q *Queries) GetRedirectByCode(ctx context.Context, code string) (Redirect, error) {
-	row := q.db.QueryRowContext(ctx, getRedirectByCode, code)
-	var i Redirect
-	err := row.Scan(
-		&i.ID,
-		&i.Status,
-		&i.UserCreated,
-		&i.DateCreated,
-		&i.UserUpdated,
-		&i.DateUpdated,
-		&i.TargetUrl,
-		&i.Code,
-	)
-	return i, err
+type getRedirectIDsForCodesRow struct {
+	ID   uuid.UUID `db:"id" json:"id"`
+	Code string    `db:"code" json:"code"`
+}
+
+func (q *Queries) getRedirectIDsForCodes(ctx context.Context, dollar_1 []string) ([]getRedirectIDsForCodesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getRedirectIDsForCodes, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getRedirectIDsForCodesRow
+	for rows.Next() {
+		var i getRedirectIDsForCodesRow
+		if err := rows.Scan(&i.ID, &i.Code); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRedirects = `-- name: getRedirects :many
+SELECT id, status, user_created, date_created, user_updated, date_updated, target_url, code FROM redirects WHERE status = 'published' AND id = ANY ($1::uuid[])
+`
+
+func (q *Queries) getRedirects(ctx context.Context, dollar_1 []uuid.UUID) ([]Redirect, error) {
+	rows, err := q.db.QueryContext(ctx, getRedirects, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Redirect
+	for rows.Next() {
+		var i Redirect
+		if err := rows.Scan(
+			&i.ID,
+			&i.Status,
+			&i.UserCreated,
+			&i.DateCreated,
+			&i.UserUpdated,
+			&i.DateUpdated,
+			&i.TargetUrl,
+			&i.Code,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

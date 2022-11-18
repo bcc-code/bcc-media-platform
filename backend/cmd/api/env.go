@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/bcc-code/brunstadtv/backend/email"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"os"
 	"strings"
+
+	"github.com/bcc-code/brunstadtv/backend/email"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -166,7 +167,7 @@ func getEnvConfig() envConfig {
 		},
 		Email: email.Config{
 			ApiKey: os.Getenv("SENDGRID_API_KEY"),
-		}
+		},
 		Redirect: redirectConfig{
 			JWTPrivateKey: jwtkey,
 		},

@@ -1,8 +1,10 @@
 package common
 
 import (
-	"gopkg.in/guregu/null.v4"
 	"time"
+
+	"github.com/google/uuid"
+	"gopkg.in/guregu/null.v4"
 )
 
 // SearchQuery used as body in the POST request to the API
@@ -96,4 +98,14 @@ type Identifier struct {
 // GetKey returns the key for this item
 func (i Progress) GetKey() int {
 	return i.EpisodeID
+}
+
+type Redirect struct {
+	ID        uuid.UUID
+	Code      string
+	TargetURL string
+}
+
+func (r Redirect) GetKey() uuid.UUID {
+	return r.ID
 }

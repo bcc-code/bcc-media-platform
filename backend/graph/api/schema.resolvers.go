@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"database/sql"
 	"net/url"
 	"strconv"
 	"time"
@@ -21,7 +20,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"github.com/lestrrat-go/jwx/jwa"
+	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/samber/lo"
 	null "gopkg.in/guregu/null.v4"
@@ -219,7 +218,7 @@ func (r *queryRootResolver) Export(ctx context.Context, groups []string) (*model
 }
 
 // Redirect is the resolver for the redirect field.
-func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.RedirectLink, error) {
+func (r *queryRootResolver) Redirect(ctx context.Context, code string) (*model.RedirectLink, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -233,10 +232,17 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 		)
 	}
 
-	redir, err := r.Queries.GetRedirectByCode(ctx, id)
-	if err == sql.ErrNoRows {
+	redirID, err := batchloaders.GetByID(ctx, r.Loaders.RedirectIDFromCodeLoader, code)
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
+	}
+
+	if redirID == nil {
 		return nil, merry.New("no rows", merry.WithUserMessage("Code not found"))
-	} else if err != nil {
+	}
+
+	redir, err := batchloaders.GetByID(ctx, r.Loaders.RedirectLoader, *redirID)
+	if err != nil {
 		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
 	}
 
@@ -258,7 +264,7 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 	}
 
 	// Add JWT to url
-	url, err := url.Parse(redir.TargetUrl)
+	url, err := url.Parse(redir.TargetURL)
 	if err != nil {
 		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. URL-PARSE"))
 	}

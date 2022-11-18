@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"database/sql"
-	"github.com/bcc-code/brunstadtv/backend/email"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/bcc-code/brunstadtv/backend/email"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/gqltracer"
 
@@ -136,8 +137,7 @@ func graphqlHandler(
 	searchService *search.Service,
 	emailService *email.Service,
 	urlSigner *signing.Signer,
-	awsConfig awsConfig,
-	cdnConfig cdnConfig,
+	config envConfig,
 	s3client *s3.Client,
 ) gin.HandlerFunc {
 	resolver := graphapi.Resolver{
@@ -147,10 +147,11 @@ func graphqlHandler(
 		ProfileLoaders:  profileLoaderFactory(queries),
 		SearchService:   searchService,
 		EmailService:    emailService,
-		APIConfig:       cdnConfig,
-		AWSConfig:       awsConfig,
 		URLSigner:       urlSigner,
 		S3Client:        s3client,
+		APIConfig:       config.CDNConfig,
+		AWSConfig:       config.AWS,
+		RedirectConfig:  config.Redirect,
 	}
 
 	tracer := &gqltracer.GraphTracer{}
@@ -264,12 +265,13 @@ func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code st
 }
 
 func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
-	collectionLoader := batchloaders.New(queries.GetCollections).Loader
-
 	return &common.BatchLoaders{
 		// App
 		ApplicationLoader:           batchloaders.NewLoader(queries.GetApplications),
 		ApplicationIDFromCodeLoader: batchloaders.NewConversionLoader(queries.GetApplicationIDsForCodes),
+		//Redirect
+		RedirectLoader:           batchloaders.NewLoader(queries.GetRedirects),
+		RedirectIDFromCodeLoader: batchloaders.NewConversionLoader(queries.GetRedirectIDsForCodes),
 		// Item
 		PageLoader:                         batchloaders.New(queries.GetPages).Loader,
 		PageIDFromCodeLoader:               batchloaders.NewConversionLoader(queries.GetPageIDsForCodes),
@@ -284,7 +286,7 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		CalendarEntryLoader:                batchloaders.New(queries.GetCalendarEntries).Loader,
 		FilesLoader:                        asset.NewBatchFilesLoader(*queries),
 		StreamsLoader:                      asset.NewBatchStreamsLoader(*queries),
-		CollectionLoader:                   collectionLoader,
+		CollectionLoader:                   batchloaders.New(queries.GetCollections).Loader,
 		CollectionItemLoader:               collection.NewItemListBatchLoader(*queries),
 		EpisodeProgressLoader: &batchloaders.BatchLoader[uuid.UUID, []*int]{
 			Loader: batchloaders.NewRelationLoader(queries.GetEpisodeIDsWithProgress),
@@ -343,8 +345,7 @@ func main() {
 		searchService,
 		emailService,
 		urlSigner,
-		config.AWS,
-		config.CDNConfig,
+		config,
 		s3Client,
 	)
 
