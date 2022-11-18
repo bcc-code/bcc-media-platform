@@ -47,6 +47,10 @@ type LegacyIDLookup {
   id: ID!
 }
 
+input EpisodeContext {
+  collectionId: String
+}
+
 type RedirectLink {
   url: String!
 }
@@ -86,6 +90,7 @@ type QueryRoot{
 
   episode(
     id: ID!
+    context: EpisodeContext
   ): Episode!
 
   collection(
@@ -118,4 +123,6 @@ type QueryRoot{
 type MutationRoot {
   setDevicePushToken(token: String!, languages: [String!]!): Device
   setEpisodeProgress(id: ID!, progress: Int, duration: Int): Episode!
+
+  sendSupportEmail(title: String!, content: String!, html: String!): Boolean!
 }

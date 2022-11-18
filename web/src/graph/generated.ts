@@ -104,6 +104,7 @@ export type ConfigGlobalArgs = {
 export type DefaultGridSection = GridSection & ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: GridSectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -117,6 +118,7 @@ export type DefaultGridSectionItemsArgs = {
 export type DefaultSection = ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: SectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -179,6 +181,10 @@ export type EpisodeCalendarEntry = CalendarEntry & {
   id: Scalars['ID'];
   start: Scalars['Date'];
   title: Scalars['String'];
+};
+
+export type EpisodeContext = {
+  collectionId?: InputMaybe<Scalars['String']>;
 };
 
 export type EpisodeItem = CollectionItem & {
@@ -280,6 +286,7 @@ export type FaqCategoryPagination = Pagination & {
 export type FeaturedSection = ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: SectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -308,6 +315,7 @@ export type GlobalConfig = {
 export type GridSection = {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: GridSectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -325,6 +333,7 @@ export enum GridSectionSize {
 export type IconGridSection = GridSection & ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: GridSectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -338,6 +347,7 @@ export type IconGridSectionItemsArgs = {
 export type IconSection = ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   title?: Maybe<Scalars['String']>;
 };
 
@@ -361,6 +371,7 @@ export enum ImageStyle {
 export type ItemSection = {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   title?: Maybe<Scalars['String']>;
 };
 
@@ -370,9 +381,16 @@ export type ItemSectionItemsArgs = {
   offset?: InputMaybe<Scalars['Int']>;
 };
 
+export type ItemSectionMetadata = {
+  collectionId: Scalars['ID'];
+  continueWatching: Scalars['Boolean'];
+  secondaryTitles: Scalars['Boolean'];
+};
+
 export type LabelSection = ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   title?: Maybe<Scalars['String']>;
 };
 
@@ -405,6 +423,7 @@ export type Link = {
 export type ListSection = ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: SectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -424,6 +443,7 @@ export type Message = {
 export type MessageSection = Section & {
   id: Scalars['ID'];
   messages?: Maybe<Array<Message>>;
+  metadata?: Maybe<ItemSectionMetadata>;
   title?: Maybe<Scalars['String']>;
 };
 
@@ -490,6 +510,7 @@ export type Pagination = {
 export type PosterGridSection = GridSection & ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: GridSectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -503,6 +524,7 @@ export type PosterGridSectionItemsArgs = {
 export type PosterSection = ItemSection & Section & {
   id: Scalars['ID'];
   items: SectionItemPagination;
+  metadata?: Maybe<ItemSectionMetadata>;
   size: SectionSize;
   title?: Maybe<Scalars['String']>;
 };
@@ -545,6 +567,7 @@ export type QueryRootCollectionArgs = {
 
 
 export type QueryRootEpisodeArgs = {
+  context?: InputMaybe<EpisodeContext>;
   id: Scalars['ID'];
 };
 
@@ -833,6 +856,7 @@ export type User = {
 export type WebSection = Section & {
   authentication: Scalars['Boolean'];
   id: Scalars['ID'];
+  metadata?: Maybe<ItemSectionMetadata>;
   title?: Maybe<Scalars['String']>;
   url: Scalars['String'];
   widthRatio: Scalars['Float'];
@@ -930,6 +954,7 @@ export type GetSeasonOnEpisodePageQuery = { season: { id: string, title: string,
 
 export type GetEpisodeQueryVariables = Exact<{
   episodeId: Scalars['ID'];
+  context?: InputMaybe<EpisodeContext>;
 }>;
 
 
@@ -1300,8 +1325,8 @@ export function useGetSeasonOnEpisodePageQuery(options: Omit<Urql.UseQueryArgs<n
   return Urql.useQuery<GetSeasonOnEpisodePageQuery>({ query: GetSeasonOnEpisodePageDocument, ...options });
 };
 export const GetEpisodeDocument = gql`
-    query getEpisode($episodeId: ID!) {
-  episode(id: $episodeId) {
+    query getEpisode($episodeId: ID!, $context: EpisodeContext) {
+  episode(id: $episodeId, context: $context) {
     id
     title
     description

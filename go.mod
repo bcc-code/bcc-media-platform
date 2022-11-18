@@ -33,11 +33,13 @@ require (
 	github.com/lestrrat-go/jwx v1.2.11
 	github.com/lestrrat-go/jwx/v2 v2.0.6
 	github.com/lib/pq v1.10.6
+	github.com/microcosm-cc/bluemonday v1.0.21
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pressly/goose/v3 v3.7.0
 	github.com/robbiet480/go.sns v0.0.0-20221010181423-5d7c717f43d9
 	github.com/rs/zerolog v1.26.1
 	github.com/samber/lo v1.21.0
+	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/stretchr/testify v1.8.0
 	github.com/tabbed/pqtype v0.1.1
 	github.com/uptrace/uptrace-go v1.9.0
@@ -48,7 +50,7 @@ require (
 	go.opentelemetry.io/otel v1.11.1
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.9.0
 	go.opentelemetry.io/otel/sdk v1.11.1
-	golang.org/x/net v0.0.0-20220812174116-3211cb980234
+	golang.org/x/net v0.0.0-20221002022538-bcab6841153b
 	gopkg.in/guregu/null.v4 v4.0.0
 )
 
@@ -75,6 +77,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.11.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.6 // indirect
 	github.com/aws/smithy-go v1.11.2 // indirect
+	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
@@ -91,6 +94,7 @@ require (
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.1.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
+	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.1 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
@@ -113,6 +117,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
+	github.com/sendgrid/rest v2.6.9+incompatible // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect

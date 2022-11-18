@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bcc-code/brunstadtv/backend/email"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
@@ -28,6 +29,7 @@ type envConfig struct {
 	Redis     redisConfig
 	AWS       awsConfig
 	Tracing   utils.TracingConfig
+	Email     email.Config
 	Redirect  redirectConfig
 }
 
@@ -162,6 +164,9 @@ func getEnvConfig() envConfig {
 			SamplingFrequency: os.Getenv("TRACE_SAMPLING_FREQUENCY"),
 			TracePrettyPrint:  os.Getenv("TRACE_PRETTY"),
 		},
+		Email: email.Config{
+			ApiKey: os.Getenv("SENDGRID_API_KEY"),
+		}
 		Redirect: redirectConfig{
 			JWTPrivateKey: jwtkey,
 		},

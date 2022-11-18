@@ -195,6 +195,7 @@ type Episode struct {
 	Progress          *int                   `json:"progress"`
 	AudioLanguages    []Language             `json:"audioLanguages"`
 	SubtitleLanguages []Language             `json:"subtitleLanguages"`
+	Context           *SectionItemPagination `json:"context"`
 	RelatedItems      *SectionItemPagination `json:"relatedItems"`
 	Images            []*Image               `json:"images"`
 	Number            *int                   `json:"number"`
@@ -219,6 +220,10 @@ func (this EpisodeCalendarEntry) GetTitle() string       { return this.Title }
 func (this EpisodeCalendarEntry) GetDescription() string { return this.Description }
 func (this EpisodeCalendarEntry) GetStart() string       { return this.Start }
 func (this EpisodeCalendarEntry) GetEnd() string         { return this.End }
+
+type EpisodeContext struct {
+	CollectionID *string `json:"collectionId"`
+}
 
 type EpisodeItem struct {
 	ID       string   `json:"id"`
