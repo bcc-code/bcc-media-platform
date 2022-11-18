@@ -23,7 +23,10 @@ type modelHandler struct {
 func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string, key string) error {
 	switch collection {
 	case "notifications":
-		id := uuid.MustParse(key)
+		id, err := uuid.Parse(key)
+		if err != nil {
+			return err
+		}
 		lock, err := utils.RedisLock(h.locker, "notification-model-update")
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to retrieve redis lock")
@@ -36,7 +39,7 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 			return err
 		}
 		for _, n := range ns {
-			if n.Status != common.StatusPublished || n.Sent {
+			if n.Status != common.StatusPublished || n.SendStarted.Valid {
 				continue
 			}
 			if n.ScheduleAt.Valid && n.ScheduleAt.Time.After(time.Now()) {
@@ -47,11 +50,15 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 				continue
 			}
 
-			err = h.queries.MarkAsSent(ctx, id)
+			err = h.queries.NotificationMarkSendStarted(ctx, id)
 			if err != nil {
 				return err
 			}
 			err = h.push.PushNotificationToEveryone(ctx, n)
+			if err != nil {
+				return err
+			}
+			err = h.queries.NotificationMarkSendCompleted(ctx, id)
 			if err != nil {
 				return err
 			}

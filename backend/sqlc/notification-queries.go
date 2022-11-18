@@ -25,15 +25,16 @@ func (q *Queries) GetNotifications(ctx context.Context, ids []uuid.UUID) ([]comm
 		_ = json.Unmarshal(n.Images, &images)
 
 		return common.Notification{
-			ID:          n.ID,
-			Status:      common.StatusFrom(n.Status),
-			Title:       title,
-			Description: description,
-			Images:      images,
-			Sent:        n.Sent.Bool,
-			Action:      n.Action,
-			DeepLink:    n.DeepLink,
-			ScheduleAt:  n.ScheduleAt,
+			ID:            n.ID,
+			Status:        common.StatusFrom(n.Status),
+			Title:         title,
+			Description:   description,
+			Images:        images,
+			SendStarted:   n.SendStarted,
+			SendCompleted: n.SendCompleted,
+			Action:        n.Action,
+			DeepLink:      n.DeepLink,
+			ScheduleAt:    n.ScheduleAt,
 		}
 	}), nil
 }

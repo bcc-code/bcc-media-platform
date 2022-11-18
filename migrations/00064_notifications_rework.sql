@@ -76,10 +76,6 @@ ALTER TABLE IF EXISTS "public"."notifications" ADD COLUMN IF NOT EXISTS "schedul
 
 COMMENT ON COLUMN "public"."notifications"."schedule_at"  IS NULL;
 
-ALTER TABLE IF EXISTS "public"."notifications" ADD COLUMN IF NOT EXISTS "sent" bool NULL  ;
-
-COMMENT ON COLUMN "public"."notifications"."sent"  IS NULL;
-
 ALTER TABLE IF EXISTS "public"."notifications" ADD COLUMN IF NOT EXISTS "action" varchar(255) NULL  ;
 
 COMMENT ON COLUMN "public"."notifications"."action"  IS NULL;
@@ -219,8 +215,6 @@ DELETE FROM "public"."directus_collections" WHERE "collection" = 'notifications_
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (717, 'notificationtemplates', 'images', 'o2m', 'list-o2m', NULL, 'related-values', NULL, false, false, 8, 'full', NULL, NULL, NULL, false, NULL, NULL, NULL);
 
 UPDATE "public"."directus_fields" SET "hidden" = true WHERE "id" = 641;
-
-INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (729, 'notifications', 'sent', 'cast-boolean', 'boolean', NULL, 'boolean', NULL, false, true, 8, 'full', NULL, NULL, NULL, false, NULL, NULL, NULL);
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (718, 'images', 'notificationtemplate_id', NULL, 'select-dropdown-m2o', NULL, NULL, NULL, false, true, 6, 'full', NULL, NULL, NULL, false, 'link', NULL, NULL);
 
@@ -386,7 +380,9 @@ ALTER TABLE IF EXISTS "public"."notifications" DROP COLUMN IF EXISTS "template_i
 
 ALTER TABLE IF EXISTS "public"."notifications" DROP COLUMN IF EXISTS "schedule_at" CASCADE; --WARN: Drop column can occure in data loss!
 
-ALTER TABLE IF EXISTS "public"."notifications" DROP COLUMN IF EXISTS "sent" CASCADE; --WARN: Drop column can occure in data loss!
+ALTER TABLE IF EXISTS "public"."notifications" DROP COLUMN IF EXISTS "send_started" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."notifications" DROP COLUMN IF EXISTS "send_completed" CASCADE; --WARN: Drop column can occure in data loss!
 
 ALTER TABLE IF EXISTS "public"."notifications" DROP COLUMN IF EXISTS "action" CASCADE; --WARN: Drop column can occure in data loss!
 

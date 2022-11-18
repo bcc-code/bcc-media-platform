@@ -18,12 +18,16 @@ SELECT n.id,
        n.action,
        n.deep_link,
        n.schedule_at,
-       n.sent
+       n.send_started,
+       n.send_completed
 FROM notifications n
          LEFT JOIN notificationtemplates t ON n.template_id = t.id
          LEFT JOIN ts ON ts.notificationtemplates_id = t.id
          LEFT JOIN images img ON img.item_id = t.id
 WHERE n.id = ANY ($1::uuid[]);
 
--- name: MarkAsSent :exec
-UPDATE notifications n SET sent = true WHERE id = $1;
+-- name: NotificationMarkSendStarted :exec
+UPDATE notifications n SET send_started = NOW() WHERE id = $1;
+
+-- name: NotificationMarkSendCompleted :exec
+UPDATE notifications n SET send_completed = NOW() WHERE id = $1;
