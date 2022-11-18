@@ -60,6 +60,10 @@ fragment SectionItem on SectionItem {
 }
 
 fragment ItemSection on ItemSection {
+    metadata {
+        collectionId
+    }
+
     items {
         items {
             ...SectionItem

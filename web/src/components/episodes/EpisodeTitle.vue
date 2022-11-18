@@ -7,12 +7,12 @@
             >
                 {{ episode.season.show.title }}
             </h3>
-            <p class="text-sm text-gray" v-if="episode.productionDate">
+            <!-- <p class="text-sm text-gray" v-if="episode.productionDate">
                 {{ new Date(episode.productionDate).toLocaleDateString() }}
-            </p>
-            <p class="text-sm text-gray" v-else-if="episode.season">
+            </p> -->
+            <!-- <p class="text-sm text-gray" v-else-if="episode.season">
                 S{{ episode.season.number }}:E{{ episode.number }}
-            </p>
+            </p> -->
         </div>
         <h1 class="text-md lg:text-lg line-clamp-2">{{ episode.title }}</h1>
     </div>

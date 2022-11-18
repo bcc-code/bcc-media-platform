@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"github.com/bcc-code/brunstadtv/backend/directus"
+	"github.com/bcc-code/brunstadtv/backend/scheduler"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/go-resty/resty/v2"
@@ -21,6 +22,7 @@ type ExternalServices struct {
 	Database             *sql.DB
 	Queries              *sqlc.Queries
 	CrowdinClient        *crowdin.Client
+	Scheduler            *scheduler.Service
 }
 
 // GetS3Client as stored in the struct
@@ -56,4 +58,9 @@ func (e ExternalServices) GetCrowdinClient() *crowdin.Client {
 // GetQueries as stored in the struct
 func (e ExternalServices) GetQueries() *sqlc.Queries {
 	return e.Queries
+}
+
+// GetScheduler as stored in the struct
+func (e ExternalServices) GetScheduler() *scheduler.Service {
+	return e.Scheduler
 }

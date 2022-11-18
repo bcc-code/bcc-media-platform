@@ -7,7 +7,7 @@
             <div
                 v-for="i in item.items.items"
                 class="bg-slate-800 px-3 py-0.5 border border-1 border-slate-700 rounded rounded-full cursor-pointer"
-                @click="goToSectionItem(i)"
+                @click="goToSectionItem(i, item.metadata?.collectionId)"
             >
                 <p class="text-lg">{{ i.title }}</p>
             </div>

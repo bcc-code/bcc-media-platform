@@ -71,11 +71,16 @@ type GlobalConfig struct {
 
 // Notification contains notification data
 type Notification struct {
-	ID          int
-	Status      Status
-	Title       LocaleString           `json:"title"`
-	Description LocaleString           `json:"description"`
-	Images      LocaleMap[null.String] `json:"images"`
+	ID            uuid.UUID
+	Status        Status
+	Title         LocaleString           `json:"title"`
+	Description   LocaleString           `json:"description"`
+	Images        LocaleMap[null.String] `json:"images"`
+	ScheduleAt    null.Time              `json:"scheduleAt"`
+	SendStarted   null.Time              `json:"sendStarted"`
+	SendCompleted null.Time              `json:"sendCompleted"`
+	DeepLink      null.String            `json:"deepLink"`
+	Action        null.String            `json:"action"`
 }
 
 // Progress contains basic data for progress

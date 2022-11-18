@@ -27,7 +27,7 @@ type envConfig struct {
 	Auth0     auth0.Config
 	CDNConfig cdnConfig
 	Secrets   serviceSecrets
-	Redis     redisConfig
+	Redis     utils.RedisConfig
 	AWS       awsConfig
 	Tracing   utils.TracingConfig
 	Email     email.Config
@@ -51,13 +51,6 @@ type cdnConfig struct {
 type awsConfig struct {
 	TempBucket string // Things put here are autoremoved
 	Region     string
-}
-
-type redisConfig struct {
-	Address  string
-	Username string
-	Password string
-	Database int
 }
 
 type serviceSecrets struct {
@@ -154,7 +147,7 @@ func getEnvConfig() envConfig {
 		Secrets: serviceSecrets{
 			Directus: os.Getenv("SERVICE_SECRET_DIRECTUS"),
 		},
-		Redis: redisConfig{
+		Redis: utils.RedisConfig{
 			Address:  os.Getenv("REDIS_ADDRESS"),
 			Username: os.Getenv("REDIS_USERNAME"),
 			Password: os.Getenv("REDIS_PASSWORD"),

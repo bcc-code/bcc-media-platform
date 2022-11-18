@@ -321,7 +321,7 @@ func main() {
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
 
 	db := mustConnectToDB(ctx, config.DB)
-	rdb := mustCreateRedisClient(ctx, config.Redis)
+	rdb := utils.MustCreateRedisClient(ctx, config.Redis)
 	urlSigner := signing.MustNewSigner(config.CDNConfig)
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)

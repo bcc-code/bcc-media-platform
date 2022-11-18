@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"context"
@@ -7,11 +7,20 @@ import (
 	"github.com/go-redis/redis/v9"
 )
 
-func mustCreateRedisClient(ctx context.Context, config redisConfig) *redis.Client {
+// RedisConfig contains configuration of the redis client
+type RedisConfig struct {
+	Address  string
+	Username string
+	Password string
+	Database int
+}
+
+// MustCreateRedisClient throws a panic if redis is not reachable
+func MustCreateRedisClient(ctx context.Context, config RedisConfig) *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     config.Address,
-		Password: config.Password,
 		Username: config.Username,
+		Password: config.Password,
 		DB:       config.Database,
 	})
 
