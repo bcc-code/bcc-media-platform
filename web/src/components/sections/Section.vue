@@ -4,35 +4,35 @@
         :item="section"
     ></PosterSection>
     <FeaturedSection
-        v-if="section.__typename === 'FeaturedSection'"
+        v-else-if="section.__typename === 'FeaturedSection'"
         :item="section"
     ></FeaturedSection>
     <ListSection
-        v-if="section.__typename === 'ListSection'"
+        v-else-if="section.__typename === 'ListSection'"
         :item="section"
     ></ListSection>
     <DefaultSection
-        v-if="section.__typename === 'DefaultSection'"
-        :item="section" 
+        v-else-if="section.__typename === 'DefaultSection'"
+        :item="section"
     ></DefaultSection>
     <DefaultGridSection
-        v-if="section.__typename === 'DefaultGridSection'"
+        v-else-if="section.__typename === 'DefaultGridSection'"
         :item="section"
     ></DefaultGridSection>
     <PosterGridSection
-        v-if="section.__typename === 'PosterGridSection'"
+        v-else-if="section.__typename === 'PosterGridSection'"
         :item="section"
     ></PosterGridSection>
     <LabelSection
-        v-if="section.__typename === 'LabelSection'"
+        v-else-if="section.__typename === 'LabelSection'"
         :item="section"
     ></LabelSection>
     <IconSection
-        v-if="section.__typename === 'IconSection'"
+        v-else-if="section.__typename === 'IconSection'"
         :item="section"
     ></IconSection>
     <IconGridSection
-        v-if="section.__typename === 'IconGridSection'"
+        v-else-if="section.__typename === 'IconGridSection'"
         :item="section"
     ></IconGridSection>
     <WebSection
