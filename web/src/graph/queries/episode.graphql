@@ -1,38 +1,34 @@
-fragment Season on Season {
-    id
-    title
-    image(style: default)
-    number
-    episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
-        total
-        items {
-            id
-            publishDate
-            number
-            title
-            image
-            progress
-            duration
-            description
-            ageRating
-        }
-    }
-    show {
-        id
-        title
-        description
-        type
-        image(style: default)
-    }
-}
-
 query getSeasonOnEpisodePage(
     $seasonId: ID!
     $firstEpisodes: Int
     $offsetEpisodes: Int
 ) {
     season(id: $seasonId) {
-        ...Season
+        id
+        title
+        image(style: default)
+        number
+        episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
+            total
+            items {
+                id
+                publishDate
+                number
+                title
+                image
+                progress
+                duration
+                description
+                ageRating
+            }
+        }
+        show {
+            id
+            title
+            description
+            type
+            image(style: default)
+        }
     }
 }
 
@@ -50,10 +46,14 @@ query getEpisode($episodeId: ID!, $context: EpisodeContext) {
         availableTo
         publishDate
         duration
+        context {
+            items {
+                ...SectionItem
+            }
+        }
         relatedItems {
             items {
-                title
-                description
+                ...SectionItem
             }
         }
         season {

@@ -5,7 +5,7 @@
             <div
                 v-for="i in item.items.items"
                 class="relative"
-                @click="goToSectionItem(i)"
+                @click="goToSectionItem(i, item.metadata?.collectionId)"
             >
                 <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
                 <div

@@ -8,7 +8,6 @@
 </template>
 <script lang="ts" setup>
 import EpisodeDisplay from "@/components/episodes/EpisodeDisplay.vue"
-import { EpisodeContext } from "@/graph/generated";
 import { ref, watch } from "vue"
 import { useRouter } from "vue-router"
 
