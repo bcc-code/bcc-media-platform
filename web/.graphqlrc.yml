@@ -1,4 +1,4 @@
-schema: "http://localhost:8077/query"
+schema: "https://api.brunstad.tv/query"
 documents: "src/**/*.{graphql,js,ts,jsx,tsx}"
 extensions:
     languageService:
