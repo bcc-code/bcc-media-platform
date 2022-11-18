@@ -25,10 +25,13 @@ func NewService(ctx context.Context, firebaseProjectID string, queries *sqlc.Que
 	if err != nil {
 		return nil, err
 	}
-	return &Service{
+
+	service := &Service{
 		app,
 		queries,
-	}, nil
+	}
+
+	return service, nil
 }
 
 func notificationToPayload(notification common.Notification) map[string]string {
@@ -105,8 +108,19 @@ func (s *Service) pushMessage(ctx context.Context, message *messaging.Message) e
 func (s *Service) SendNotificationToDevices(ctx context.Context, devices []common.Device, notification common.Notification) error {
 	var messages []*messaging.Message
 
+	var data = map[string]string{}
+
+	if notification.Action.Valid {
+		data["action"] = notification.Action.String
+		switch notification.Action.String {
+		case "deep_link":
+			data["deep_link"] = notification.DeepLink.String
+		}
+	}
+
 	for _, d := range devices {
 		messages = append(messages, &messaging.Message{
+			Data: map[string]string{},
 			Notification: &messaging.Notification{
 				Title:    notification.Title.Get(d.Languages),
 				Body:     notification.Description.Get(d.Languages),
@@ -127,33 +141,11 @@ func (s *Service) SendNotificationToTopic(ctx context.Context, topic string, not
 	})
 }
 
-func (s *Service) pushNotification(ctx context.Context, notification common.Notification) {
+// PushNotificationToEveryone pushes a notification to every registered device
+func (s *Service) PushNotificationToEveryone(ctx context.Context, notification common.Notification) error {
 	devices, err := s.queries.ListDevices(ctx)
 	if err != nil {
-		log.L.Error().Err(err).Msg("Error occurred trying to fetch device tokens")
-		return
+		return err
 	}
-	err = s.SendNotificationToDevices(ctx, devices, notification)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Error occurred pushing notifications")
-	}
-}
-
-// HandleModelUpdate handles model updates
-func (s *Service) HandleModelUpdate(ctx context.Context, collection string, key int) error {
-	switch collection {
-	case "notifications":
-		ns, err := s.queries.GetNotifications(ctx, []int{key})
-		if err != nil {
-			return err
-		}
-		for _, n := range ns {
-			if n.Status != common.StatusPublished {
-				continue
-			}
-			s.pushNotification(ctx, n)
-		}
-	}
-
-	return nil
+	return s.SendNotificationToDevices(ctx, devices, notification)
 }

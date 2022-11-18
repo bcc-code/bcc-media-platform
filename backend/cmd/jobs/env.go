@@ -32,6 +32,10 @@ type firebase struct {
 	ProjectID string
 }
 
+type cloudTasks struct {
+	QueueID string
+}
+
 type envConfig struct {
 	AWS               awsConfig
 	Directus          directusConfig
@@ -43,6 +47,9 @@ type envConfig struct {
 	Firebase          firebase
 	ImageCDNDomain    string
 	Tracing           utils.TracingConfig
+	CloudTasks        cloudTasks
+	APIUrl            string
+	Redis             utils.RedisConfig
 }
 
 func getEnvConfig() envConfig {
@@ -92,5 +99,15 @@ func getEnvConfig() envConfig {
 			SamplingFrequency: os.Getenv("TRACE_SAMPLING_FREQUENCY"),
 			TracePrettyPrint:  os.Getenv("TRACE_PRETTY"),
 		},
+		CloudTasks: cloudTasks{
+			QueueID: os.Getenv("CLOUD_TASKS_QUEUE_ID"),
+		},
+		Redis: utils.RedisConfig{
+			Address:  os.Getenv("REDIS_ADDRESS"),
+			Username: os.Getenv("REDIS_USERNAME"),
+			Password: os.Getenv("REDIS_PASSWORD"),
+			Database: utils.AsInt(os.Getenv("REDIS_DATABASE")),
+		},
+		APIUrl: os.Getenv("API_URL"),
 	}
 }

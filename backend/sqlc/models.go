@@ -697,19 +697,20 @@ type GooseDbVersion struct {
 }
 
 type Image struct {
-	ID          int32         `db:"id" json:"id"`
-	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
-	ShowID      null_v4.Int   `db:"show_id" json:"showID"`
-	SeasonID    null_v4.Int   `db:"season_id" json:"seasonID"`
-	EpisodeID   null_v4.Int   `db:"episode_id" json:"episodeID"`
-	Style       string        `db:"style" json:"style"`
-	File        uuid.NullUUID `db:"file" json:"file"`
-	Language    string        `db:"language" json:"language"`
-	PageID      null_v4.Int   `db:"page_id" json:"pageID"`
-	LinkID      null_v4.Int   `db:"link_id" json:"linkID"`
+	ID                     int32         `db:"id" json:"id"`
+	UserCreated            uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated            null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated            uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated            null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	ShowID                 null_v4.Int   `db:"show_id" json:"showID"`
+	SeasonID               null_v4.Int   `db:"season_id" json:"seasonID"`
+	EpisodeID              null_v4.Int   `db:"episode_id" json:"episodeID"`
+	Style                  string        `db:"style" json:"style"`
+	File                   uuid.NullUUID `db:"file" json:"file"`
+	Language               string        `db:"language" json:"language"`
+	PageID                 null_v4.Int   `db:"page_id" json:"pageID"`
+	LinkID                 null_v4.Int   `db:"link_id" json:"linkID"`
+	NotificationtemplateID uuid.NullUUID `db:"notificationtemplate_id" json:"notificationtemplateID"`
 }
 
 type Language struct {
@@ -797,21 +798,35 @@ type MessagetemplatesTranslation struct {
 }
 
 type Notification struct {
-	ID          int32         `db:"id" json:"id"`
-	Status      string        `db:"status" json:"status"`
-	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	Status        string         `db:"status" json:"status"`
+	UserCreated   uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated   null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated   uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated   null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	TemplateID    uuid.NullUUID  `db:"template_id" json:"templateID"`
+	ScheduleAt    null_v4.Time   `db:"schedule_at" json:"scheduleAt"`
+	Action        null_v4.String `db:"action" json:"action"`
+	DeepLink      null_v4.String `db:"deep_link" json:"deepLink"`
+	ID            uuid.UUID      `db:"id" json:"id"`
+	SendStarted   null_v4.Time   `db:"send_started" json:"sendStarted"`
+	SendCompleted null_v4.Time   `db:"send_completed" json:"sendCompleted"`
 }
 
-type NotificationsTranslation struct {
-	ID              int32          `db:"id" json:"id"`
-	NotificationsID null_v4.Int    `db:"notifications_id" json:"notificationsID"`
-	LanguagesCode   null_v4.String `db:"languages_code" json:"languagesCode"`
-	Title           string         `db:"title" json:"title"`
-	Description     null_v4.String `db:"description" json:"description"`
-	Image           uuid.NullUUID  `db:"image" json:"image"`
+type Notificationtemplate struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Label       null_v4.String `db:"label" json:"label"`
+}
+
+type NotificationtemplatesTranslation struct {
+	ID                      int32          `db:"id" json:"id"`
+	NotificationtemplatesID uuid.NullUUID  `db:"notificationtemplates_id" json:"notificationtemplatesID"`
+	LanguagesCode           null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title                   null_v4.String `db:"title" json:"title"`
+	Description             null_v4.String `db:"description" json:"description"`
 }
 
 type Page struct {

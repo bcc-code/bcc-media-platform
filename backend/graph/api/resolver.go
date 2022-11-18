@@ -34,9 +34,6 @@ import (
 
 type searchProvider interface {
 	Search(ctx *gin.Context, query common.SearchQuery) (searchResult common.SearchResult, err error)
-	Reindex(ctx context.Context) error
-	DeleteModel(_ context.Context, collection string, id int) error
-	IndexModel(ctx context.Context, collection string, id int) (err error)
 }
 
 // Resolver is the main struct for the GQL implementation

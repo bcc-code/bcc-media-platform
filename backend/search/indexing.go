@@ -253,31 +253,33 @@ var supportedCollections = []string{
 }
 
 // DeleteModel from index by collection and id
-func (service *Service) DeleteModel(_ context.Context, collection string, id int) error {
-
+func (service *Service) DeleteModel(_ context.Context, collection string, key string) error {
 	if !lo.Contains(supportedCollections, collection) {
 		// no reason to send a request if the collection isn't supported
 		return nil
 	}
-	_, err := service.index.DeleteObject(collection + "-" + strconv.Itoa(id))
+	_, err := service.index.DeleteObject(collection + "-" + key)
 	return err
 }
 
 // IndexModel by collection and id
-func (service *Service) IndexModel(ctx context.Context, collection string, id int) (err error) {
+func (service *Service) IndexModel(ctx context.Context, collection string, key string) (err error) {
 	// Clearing the loaders of cached instances
 	// and indexing to the search engine
-	log.L.Debug().Str("collection", collection).Int("id", id).Msg("Indexing item")
+	log.L.Debug().Str("collection", collection).Str("key", key).Msg("Indexing item")
 	switch collection {
 	case "shows":
-		service.loaders.ShowLoader.Clear(ctx, id)
-		return service.indexShow(ctx, id)
+		id, _ := strconv.ParseInt(key, 10, 64)
+		service.loaders.ShowLoader.Clear(ctx, int(id))
+		return service.indexShow(ctx, int(id))
 	case "seasons":
-		service.loaders.SeasonLoader.Clear(ctx, id)
-		return service.indexSeason(ctx, id)
+		id, _ := strconv.ParseInt(key, 10, 64)
+		service.loaders.SeasonLoader.Clear(ctx, int(id))
+		return service.indexSeason(ctx, int(id))
 	case "episodes":
-		service.loaders.EpisodeLoader.Clear(ctx, id)
-		return service.indexEpisode(ctx, id)
+		id, _ := strconv.ParseInt(key, 10, 64)
+		service.loaders.EpisodeLoader.Clear(ctx, int(id))
+		return service.indexEpisode(ctx, int(id))
 	}
 	// no reason to return errors, as we know quite well what is supported
 	return nil
