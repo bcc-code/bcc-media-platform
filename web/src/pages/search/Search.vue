@@ -1,8 +1,8 @@
 <template>
     <section>
-        <!-- <div class="flex w-full text-xl">
+        <div class="flex lg:hidden w-full text-xl mb-4">
             <SearchInput class="mx-auto lg:w-96" v-model="query"></SearchInput>
-        </div> -->
+        </div>
         <div v-if="query">
             <ShowSearchQuery
                 class="mt-2 mb-8"
@@ -33,6 +33,7 @@ import Page from "@/components/page/Page.vue"
 import { useApplicationQuery } from "@/graph/generated"
 import { useTitle } from "@/utils/title"
 import { useI18n } from "vue-i18n"
+import SearchInput from "@/components/SearchInput.vue"
 
 const { setTitle } = useTitle()
 
