@@ -44,7 +44,6 @@
         "cancel": "Cancel"
     },
     "settings": {
-        "clickMe": "clickMeg",
         "categories": {
             "audioLanguage": "Audio Language",
             "subtitleLanguage": "Subtitle Language"

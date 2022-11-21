@@ -1,13 +1,11 @@
 <template>
-    <!-- <Navbar v-if="!loading"></Navbar> -->
+    <Navbar v-if="!loading"></Navbar>
     <div v-if="!loading">
-        <Navbar @profileSettingHandler="profileToggle"></Navbar>
         <router-view v-slot="{ Component }">
             <transition name="slide-fade" mode="out-in">
                 <component :key="$route.name" :is="Component" />
             </transition>
         </router-view>
-        <SettingContent :show="profileSettingIsShow" @closeDialog="profileToggle" />
         <div class="text-red-500" v-if="errors">
             <p v-for="(error, i) in errors">
                 {{ error.title }}
@@ -30,18 +28,8 @@ import Loader from "../components/Loader.vue"
 import { provideClient } from "@urql/vue"
 import client from "@/graph/client"
 import { init } from "@/services/language"
-import { ref } from "vue"
-import SettingContent from '@/pages/setting/SettingContent.vue'
 
 provideClient(client)
-
-const profileSettingIsShow = ref(false);
-
-function profileToggle() {
-    console.log('profileToggle')
-    profileSettingIsShow.value = !profileSettingIsShow.value;
-    // profileSettingIsShow = !profileSettingIsShow
-}
 
 const loading = Auth.loading()
 

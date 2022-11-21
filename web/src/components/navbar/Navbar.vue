@@ -153,7 +153,10 @@
                                                 </p>
                                             </button>
                                         </MenuItem>
-                                        <MenuItem v-slot="{ active }"  @click="emits('profileSettingHandler')">
+                                        <MenuItem
+                                            v-slot="{ active }"
+                                            @click="settingsToggle"
+                                        >
                                             <button
                                                 :class="[
                                                     active
@@ -305,7 +308,10 @@
                                                 </p>
                                             </button>
                                         </MenuItem>
-                                        <MenuItem v-slot="{ active }" @click="emits('profileSettingHandler')">
+                                        <MenuItem
+                                            v-slot="{ active }"
+                                            @click="settingsToggle"
+                                        >
                                             <button
                                                 :class="[
                                                     active
@@ -344,6 +350,10 @@
             </div>
         </div>
     </Disclosure>
+    <SettingContent
+        :show="profileSettingIsShow"
+        @closeDialog="settingsToggle"
+    />
 </template>
 <script lang="ts" setup>
 import { RouteLocationRaw } from "vue-router"
@@ -366,11 +376,11 @@ import {
     SearchIcon,
     SettingsIcon,
 } from "../icons"
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
 import { useGetCalendarStatusQuery } from "@/graph/generated"
-
+import SettingContent from "@/pages/setting/SettingContent.vue"
 
 const { t } = useI18n()
 
@@ -378,7 +388,7 @@ const { query } = useSearch()
 
 const { authenticated, signOut, signIn, user } = useAuth()
 
-const emits = defineEmits(['profileSettingHandler'])
+const profileSettingIsShow = ref(false)
 
 const navigation = computed(() => {
     const n: {
@@ -436,4 +446,6 @@ const isLive = computed(() => {
         ) === true
     )
 })
+const settingsToggle = () => profileSettingIsShow.value = !profileSettingIsShow.value;
+
 </script>
