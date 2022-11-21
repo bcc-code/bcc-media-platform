@@ -165,10 +165,6 @@ ALTER TABLE IF EXISTS "public"."images" ADD COLUMN IF NOT EXISTS "notificationte
 
 COMMENT ON COLUMN "public"."images"."notificationtemplate_id"  IS NULL;
 
-ALTER TABLE IF EXISTS "public"."images" ADD CONSTRAINT "images_notificationtemplate_id_foreign" FOREIGN KEY (notificationtemplate_id) REFERENCES notificationtemplates(id) ON DELETE CASCADE;
-
-COMMENT ON CONSTRAINT "images_notificationtemplate_id_foreign" ON "public"."images" IS NULL;
-
 ALTER TABLE IF EXISTS "public"."images" ADD CONSTRAINT "one_item" CHECK (((((((
 CASE
     WHEN (show_id IS NULL) THEN 0
@@ -199,26 +195,76 @@ COMMENT ON CONSTRAINT "one_item" ON "public"."images" IS NULL;
 
 --- END ALTER TABLE "public"."images" ---
 
---- BEGIN CREATE TABLE "public"."notifications" ---
+--- BEGIN CREATE TABLE "public"."notificationtemplates" ---
 
-CREATE TABLE IF NOT EXISTS "public"."notifications" (
-	"status" varchar(255) NOT NULL DEFAULT 'draft'::character varying ,
+CREATE TABLE IF NOT EXISTS "public"."notificationtemplates" (
+	"id" uuid NOT NULL  ,
 	"user_created" uuid NULL  ,
 	"date_created" timestamptz NULL  ,
 	"user_updated" uuid NULL  ,
 	"date_updated" timestamptz NULL  ,
-	"template_id" uuid NULL  ,
-	"schedule_at" timestamp NULL  ,
-	"action" varchar(255) NULL  ,
-	"deep_link" varchar(255) NULL  ,
-	"id" uuid NOT NULL  ,
-	"send_started" timestamp NULL  ,
-	"send_completed" timestamp NULL  ,
-	CONSTRAINT "notifications_id_key" UNIQUE (id) ,
-	CONSTRAINT "notifications_pk" PRIMARY KEY (id) ,
-	CONSTRAINT "notifications_user_created_foreign" FOREIGN KEY (user_created) REFERENCES directus_users(id) ,
-	CONSTRAINT "notifications_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id) ,
-	CONSTRAINT "notifications_template_id_foreign" FOREIGN KEY (template_id) REFERENCES notificationtemplates(id)
+	"label" varchar(255) NULL  ,
+	CONSTRAINT "notificationtemplates_pkey" PRIMARY KEY (id) ,
+	CONSTRAINT "notificationtemplates_user_created_foreign" FOREIGN KEY (user_created) REFERENCES directus_users(id) ,
+	CONSTRAINT "notificationtemplates_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id)
+);
+
+GRANT SELECT ON TABLE "public"."notificationtemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT INSERT ON TABLE "public"."notificationtemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON TABLE "public"."notificationtemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT DELETE ON TABLE "public"."notificationtemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+
+COMMENT ON COLUMN "public"."notificationtemplates"."id"  IS NULL;
+
+
+COMMENT ON COLUMN "public"."notificationtemplates"."user_created"  IS NULL;
+
+
+COMMENT ON COLUMN "public"."notificationtemplates"."date_created"  IS NULL;
+
+
+COMMENT ON COLUMN "public"."notificationtemplates"."user_updated"  IS NULL;
+
+
+COMMENT ON COLUMN "public"."notificationtemplates"."date_updated"  IS NULL;
+
+
+COMMENT ON COLUMN "public"."notificationtemplates"."label"  IS NULL;
+
+COMMENT ON CONSTRAINT "notificationtemplates_pkey" ON "public"."notificationtemplates" IS NULL;
+
+
+COMMENT ON CONSTRAINT "notificationtemplates_user_created_foreign" ON "public"."notificationtemplates" IS NULL;
+
+
+COMMENT ON CONSTRAINT "notificationtemplates_user_updated_foreign" ON "public"."notificationtemplates" IS NULL;
+
+COMMENT ON TABLE "public"."notificationtemplates"  IS NULL;
+
+--- END CREATE TABLE "public"."notificationtemplates" ---
+
+--- BEGIN CREATE TABLE "public"."notifications" ---
+
+DROP TABLE IF EXISTS "public"."notifications";
+
+CREATE TABLE IF NOT EXISTS "public"."notifications" (
+                                "status" varchar(255) NOT NULL DEFAULT 'draft'::character varying ,
+                                "user_created" uuid NULL  ,
+                                "date_created" timestamptz NULL  ,
+                                "user_updated" uuid NULL  ,
+                                "date_updated" timestamptz NULL  ,
+                                "template_id" uuid NULL  ,
+                                "schedule_at" timestamp NULL  ,
+                                "action" varchar(255) NULL  ,
+                                "deep_link" varchar(255) NULL  ,
+                                "id" uuid NOT NULL  ,
+                                "send_started" timestamp NULL  ,
+                                "send_completed" timestamp NULL  ,
+                                CONSTRAINT "notifications_id_key" UNIQUE (id) ,
+                                CONSTRAINT "notifications_pk" PRIMARY KEY (id) ,
+                                CONSTRAINT "notifications_user_created_foreign" FOREIGN KEY (user_created) REFERENCES directus_users(id) ,
+                                CONSTRAINT "notifications_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id) ,
+                                CONSTRAINT "notifications_template_id_foreign" FOREIGN KEY (template_id) REFERENCES notificationtemplates(id)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS notifications_id_key ON public.notifications USING btree (id);
@@ -271,8 +317,6 @@ COMMENT ON COLUMN "public"."notifications"."send_started"  IS NULL;
 
 COMMENT ON COLUMN "public"."notifications"."send_completed"  IS NULL;
 
-COMMENT ON CONSTRAINT "notifications_id_key" ON "public"."notifications" IS NULL;
-
 
 COMMENT ON CONSTRAINT "notifications_pk" ON "public"."notifications" IS NULL;
 
@@ -293,54 +337,6 @@ COMMENT ON INDEX "public"."notifications_id_uindex"  IS NULL;
 COMMENT ON TABLE "public"."notifications"  IS NULL;
 
 --- END CREATE TABLE "public"."notifications" ---
-
---- BEGIN CREATE TABLE "public"."notificationtemplates" ---
-
-CREATE TABLE IF NOT EXISTS "public"."notificationtemplates" (
-	"id" uuid NOT NULL  ,
-	"user_created" uuid NULL  ,
-	"date_created" timestamptz NULL  ,
-	"user_updated" uuid NULL  ,
-	"date_updated" timestamptz NULL  ,
-	"label" varchar(255) NULL  ,
-	CONSTRAINT "notificationtemplates_pkey" PRIMARY KEY (id) ,
-	CONSTRAINT "notificationtemplates_user_created_foreign" FOREIGN KEY (user_created) REFERENCES directus_users(id) ,
-	CONSTRAINT "notificationtemplates_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id)
-);
-
-GRANT SELECT ON TABLE "public"."notificationtemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."notificationtemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."notificationtemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."notificationtemplates" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-
-COMMENT ON COLUMN "public"."notificationtemplates"."id"  IS NULL;
-
-
-COMMENT ON COLUMN "public"."notificationtemplates"."user_created"  IS NULL;
-
-
-COMMENT ON COLUMN "public"."notificationtemplates"."date_created"  IS NULL;
-
-
-COMMENT ON COLUMN "public"."notificationtemplates"."user_updated"  IS NULL;
-
-
-COMMENT ON COLUMN "public"."notificationtemplates"."date_updated"  IS NULL;
-
-
-COMMENT ON COLUMN "public"."notificationtemplates"."label"  IS NULL;
-
-COMMENT ON CONSTRAINT "notificationtemplates_pkey" ON "public"."notificationtemplates" IS NULL;
-
-
-COMMENT ON CONSTRAINT "notificationtemplates_user_created_foreign" ON "public"."notificationtemplates" IS NULL;
-
-
-COMMENT ON CONSTRAINT "notificationtemplates_user_updated_foreign" ON "public"."notificationtemplates" IS NULL;
-
-COMMENT ON TABLE "public"."notificationtemplates"  IS NULL;
-
---- END CREATE TABLE "public"."notificationtemplates" ---
 
 --- BEGIN CREATE TABLE "public"."notificationtemplates_translations" ---
 
@@ -385,6 +381,10 @@ COMMENT ON CONSTRAINT "notificationtemplates_translations_notific__402aa733_fore
 COMMENT ON TABLE "public"."notificationtemplates_translations"  IS NULL;
 
 --- END CREATE TABLE "public"."notificationtemplates_translations" ---
+
+ALTER TABLE IF EXISTS "public"."images" ADD CONSTRAINT "images_notificationtemplate_id_foreign" FOREIGN KEY (notificationtemplate_id) REFERENCES notificationtemplates(id) ON DELETE CASCADE;
+
+COMMENT ON CONSTRAINT "images_notificationtemplate_id_foreign" ON "public"."images" IS NULL;
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
 

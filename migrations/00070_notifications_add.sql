@@ -564,17 +564,17 @@ DROP TABLE IF EXISTS "public"."notifications";
 
 --- END DROP TABLE "public"."notifications" ---
 
---- BEGIN DROP TABLE "public"."notificationtemplates" ---
-
-DROP TABLE IF EXISTS "public"."notificationtemplates";
-
---- END DROP TABLE "public"."notificationtemplates" ---
-
 --- BEGIN DROP TABLE "public"."notificationtemplates_translations" ---
 
 DROP TABLE IF EXISTS "public"."notificationtemplates_translations";
 
 --- END DROP TABLE "public"."notificationtemplates_translations" ---
+
+--- BEGIN DROP TABLE "public"."notificationtemplates" ---
+
+DROP TABLE IF EXISTS "public"."notificationtemplates";
+
+--- END DROP TABLE "public"."notificationtemplates" ---
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
 
@@ -584,11 +584,11 @@ WHERE "collection" = 'messages';
 
 DELETE
 FROM "public"."directus_collections"
-WHERE "collection" = 'notificationtemplates';
+WHERE "collection" = 'notificationtemplates_translations';
 
 DELETE
 FROM "public"."directus_collections"
-WHERE "collection" = 'notificationtemplates_translations';
+WHERE "collection" = 'notificationtemplates';
 
 DELETE
 FROM "public"."directus_collections"
