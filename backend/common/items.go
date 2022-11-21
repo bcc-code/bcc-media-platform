@@ -183,6 +183,7 @@ type Section struct {
 type SectionOptions struct {
 	SecondaryTitles  bool
 	ContinueWatching bool
+	UseContext       bool
 }
 
 // GetKey returns the key for this item

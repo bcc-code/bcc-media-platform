@@ -28,13 +28,6 @@ type AgeratingsTranslation struct {
 	LanguagesCode  string         `db:"languages_code" json:"languagesCode"`
 }
 
-type Appconfig struct {
-	AppVersion  string    `db:"app_version" json:"appVersion"`
-	DateUpdated time.Time `db:"date_updated" json:"dateUpdated"`
-	ID          int32     `db:"id" json:"id"`
-	UserUpdated uuid.UUID `db:"user_updated" json:"userUpdated"`
-}
-
 type Application struct {
 	ID                            int32          `db:"id" json:"id"`
 	Status                        string         `db:"status" json:"status"`
@@ -142,6 +135,7 @@ type Calendarentry struct {
 	Status        string         `db:"status" json:"status"`
 	UserCreated   uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated   uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	IsReplay      sql.NullBool   `db:"is_replay" json:"isReplay"`
 }
 
 type Calendarevent struct {
@@ -923,25 +917,27 @@ type SeasonsUsergroup struct {
 }
 
 type Section struct {
-	CollectionID        null_v4.Int    `db:"collection_id" json:"collectionID"`
-	DateCreated         time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated         time.Time      `db:"date_updated" json:"dateUpdated"`
-	ID                  int32          `db:"id" json:"id"`
-	Status              string         `db:"status" json:"status"`
-	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	PageID              null_v4.Int    `db:"page_id" json:"pageID"`
-	Sort                null_v4.Int    `db:"sort" json:"sort"`
-	Style               null_v4.String `db:"style" json:"style"`
-	Size                null_v4.String `db:"size" json:"size"`
-	GridSize            null_v4.String `db:"grid_size" json:"gridSize"`
-	Type                null_v4.String `db:"type" json:"type"`
-	ShowTitle           sql.NullBool   `db:"show_title" json:"showTitle"`
-	MessageID           null_v4.Int    `db:"message_id" json:"messageID"`
-	EmbedSize           null_v4.String `db:"embed_size" json:"embedSize"`
-	NeedsAuthentication sql.NullBool   `db:"needs_authentication" json:"needsAuthentication"`
-	EmbedUrl            null_v4.String `db:"embed_url" json:"embedUrl"`
-	SecondaryTitles     sql.NullBool   `db:"secondary_titles" json:"secondaryTitles"`
+	CollectionID        null_v4.Int     `db:"collection_id" json:"collectionID"`
+	DateCreated         time.Time       `db:"date_created" json:"dateCreated"`
+	DateUpdated         time.Time       `db:"date_updated" json:"dateUpdated"`
+	ID                  int32           `db:"id" json:"id"`
+	Status              string          `db:"status" json:"status"`
+	UserCreated         uuid.NullUUID   `db:"user_created" json:"userCreated"`
+	UserUpdated         uuid.NullUUID   `db:"user_updated" json:"userUpdated"`
+	PageID              null_v4.Int     `db:"page_id" json:"pageID"`
+	Sort                null_v4.Int     `db:"sort" json:"sort"`
+	Style               null_v4.String  `db:"style" json:"style"`
+	Size                null_v4.String  `db:"size" json:"size"`
+	GridSize            null_v4.String  `db:"grid_size" json:"gridSize"`
+	Type                null_v4.String  `db:"type" json:"type"`
+	ShowTitle           sql.NullBool    `db:"show_title" json:"showTitle"`
+	MessageID           null_v4.Int     `db:"message_id" json:"messageID"`
+	NeedsAuthentication sql.NullBool    `db:"needs_authentication" json:"needsAuthentication"`
+	EmbedUrl            null_v4.String  `db:"embed_url" json:"embedUrl"`
+	SecondaryTitles     sql.NullBool    `db:"secondary_titles" json:"secondaryTitles"`
+	UseSectionContext   sql.NullBool    `db:"use_section_context" json:"useSectionContext"`
+	EmbedAspectRatio    sql.NullFloat64 `db:"embed_aspect_ratio" json:"embedAspectRatio"`
+	EmbedHeight         null_v4.Int     `db:"embed_height" json:"embedHeight"`
 }
 
 type SectionsTranslation struct {
@@ -1085,10 +1081,4 @@ type UsersProgress struct {
 	ShowID    null_v4.Int  `db:"show_id" json:"showID"`
 	Watched   null_v4.Int  `db:"watched" json:"watched"`
 	WatchedAt null_v4.Time `db:"watched_at" json:"watchedAt"`
-}
-
-type Webconfig struct {
-	DateUpdated time.Time `db:"date_updated" json:"dateUpdated"`
-	ID          int32     `db:"id" json:"id"`
-	UserUpdated uuid.UUID `db:"user_updated" json:"userUpdated"`
 }
