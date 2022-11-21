@@ -46,13 +46,13 @@ type Resolver struct {
 	FilteredLoaders    func(ctx context.Context) *common.FilteredLoaders
 	ProfileLoaders     func(ctx context.Context) *common.ProfileLoaders
 	SearchService      searchProvider
-	EmailService    *email.Service
+	EmailService       *email.Service
 	URLSigner          *signing.Signer
 	S3Client           *s3.Client
 	APIConfig          apiConfig
 	AWSConfig          awsConfig
 	AnalyticsIDFactory func(ctx context.Context) string
-	RedirectConfig  redirectConfig
+	RedirectConfig     redirectConfig
 }
 
 func (r *Resolver) GetQueries() *sqlc.Queries {
@@ -287,7 +287,7 @@ func messageStyleFromString(styleString string) *model.MessageStyle {
 		style.Text = "#ffffff"
 		style.Border = "#8c2b24"
 	case "info":
-		style.Background = "#133747"
+		style.Background = "#6EB0E6"
 		style.Border = "#1f5770"
 		style.Text = "#ffffff"
 	case "warning":
