@@ -156,7 +156,7 @@
         </div>
         <div v-if="error" class="text-red">{{ error.message }}</div>
     </section>
-    <NotFound v-else :title="$t('episode.notFound')"></NotFound>
+    <NotFound v-else-if="!fetching" :title="$t('episode.notFound')"></NotFound>
 </template>
 <script lang="ts" setup>
 import {
@@ -203,7 +203,7 @@ watch(() => props.context, () => {
     context.value = props.context
 })
 
-const { data, error, then } = useGetEpisodeQuery({
+const { data, fetching, error, then } = useGetEpisodeQuery({
     variables: {
         episodeId,
         context,
