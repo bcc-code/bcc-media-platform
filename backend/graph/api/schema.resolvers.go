@@ -379,6 +379,7 @@ func (r *queryRootResolver) Me(ctx context.Context) (*model.User, error) {
 		Anonymous: usr.IsAnonymous(),
 		BccMember: usr.IsActiveBCC(),
 		Roles:     usr.Roles,
+		Analytics: &model.Analytics{},
 	}
 
 	if pid := gc.GetString(auth0.CtxUserID); pid != "" {
