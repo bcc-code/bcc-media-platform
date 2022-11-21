@@ -17,7 +17,7 @@ const { then, error } = useGetRedirectUrlQuery({
 then(result => {
     const url = result.data.value?.redirect.url
     if (url) {
-        window.open(url);
+        window.location.replace(url);
     }
 })
 </script>

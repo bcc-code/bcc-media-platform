@@ -1,6 +1,7 @@
 <template>
-    <div>
-        <Execute v-if="authenticated" :code="code"></Execute>
+    <div v-if="!loading" class="flex h-screen w-screen">
+        <Execute class="h-full w-full" v-if="authenticated" :code="code"></Execute>
+        <button v-else @click="signIn" class="mx-auto my-auto">{{$t("buttons.login")}}</button>
     </div>
 </template>
 <script lang="ts" setup>
@@ -12,5 +13,5 @@ provideClient(client)
 
 defineProps<{code: string}>();
 
-const { authenticated } = useAuth();
+const { authenticated, loading, signIn } = useAuth();
 </script>
