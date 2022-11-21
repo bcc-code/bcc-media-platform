@@ -43,4 +43,12 @@ export default [
             },
         ],
     },
+    {
+        name: "not-found",
+        path: "/:pathMatch(.*)*",
+        component: () => import("@/components/NotFound.vue"),
+        props: {
+            title: "Page not found"
+        }
+    }
 ] as RouteRecordRaw[]

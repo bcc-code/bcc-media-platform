@@ -20,17 +20,18 @@ import (
 )
 
 type envConfig struct {
-	Members   members.Config
-	DB        postgres
-	Algolia   search.Config
-	Port      string
-	Auth0     auth0.Config
-	CDNConfig cdnConfig
-	Secrets   serviceSecrets
-	Redis     utils.RedisConfig
-	AWS       awsConfig
-	Tracing   utils.TracingConfig
-	Email     email.Config
+	Members       members.Config
+	DB            postgres
+	Algolia       search.Config
+	Port          string
+	Auth0         auth0.Config
+	CDNConfig     cdnConfig
+	Secrets       serviceSecrets
+	Redis         utils.RedisConfig
+	AWS           awsConfig
+	Tracing       utils.TracingConfig
+	AnalyticsSalt string
+	Email         email.Config
 	Redirect  redirectConfig
 }
 
@@ -166,5 +167,6 @@ func getEnvConfig() envConfig {
 			JWTPrivateKey: jwtkey,
 			KeyID:         os.Getenv("REDIRECT_JWT_KEY_ID"),
 		},
+		AnalyticsSalt: os.Getenv("ANALYTICS_SALT"),
 	}
 }

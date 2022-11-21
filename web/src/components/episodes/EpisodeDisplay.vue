@@ -156,6 +156,7 @@
         </div>
         <div v-if="error" class="text-red">{{ error.message }}</div>
     </section>
+    <NotFound v-else :title="$t('episode.notFound')"></NotFound>
 </template>
 <script lang="ts" setup>
 import {
@@ -173,6 +174,7 @@ import SeasonSelector from "@/components/SeasonSelector.vue"
 import { useTitle } from "@/utils/title"
 import Image from "../Image.vue"
 import ItemList from "../sections/ItemList.vue"
+import NotFound from "../NotFound.vue"
 
 const { t } = useI18n()
 
@@ -261,7 +263,7 @@ const validateView = () => {
                 return "episodes"
             }
             break;
-        default: 
+        default:
             return "details"
     }
 }
@@ -280,7 +282,7 @@ const effectiveView = computed({
                     return "episodes"
                 }
                 break;
-            case "details": 
+            case "details":
                 return "details"
         }
 
