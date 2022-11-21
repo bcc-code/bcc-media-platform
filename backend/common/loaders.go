@@ -10,6 +10,8 @@ import (
 type BatchLoaders struct {
 	ApplicationLoader                  *dataloader.Loader[int, *Application]
 	ApplicationIDFromCodeLoader        *dataloader.Loader[string, *int]
+	RedirectLoader                     *dataloader.Loader[uuid.UUID, *Redirect]
+	RedirectIDFromCodeLoader           *dataloader.Loader[string, *uuid.UUID]
 	PageLoader                         *dataloader.Loader[int, *Page]
 	PageIDFromCodeLoader               *dataloader.Loader[string, *int]
 	SectionLoader                      *dataloader.Loader[int, *Section]
@@ -31,6 +33,7 @@ type BatchLoaders struct {
 	QuestionsLoader                    *dataloader.Loader[int, []*int]
 	ProfilesLoader                     *dataloader.Loader[string, []*Profile]
 	MessageGroupLoader                 *dataloader.Loader[int, *MessageGroup]
+	RedirectFromCodeLoader             *dataloader.Loader[string, *Redirect]
 	EpisodeProgressLoader              *batchloaders.BatchLoader[uuid.UUID, []*int]
 	// Permissions
 	ShowPermissionLoader    *dataloader.Loader[int, *Permissions[int]]

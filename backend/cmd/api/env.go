@@ -1,10 +1,15 @@
 package main
 
 import (
-	"github.com/bcc-code/brunstadtv/backend/email"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"os"
 	"strings"
 
+	"github.com/bcc-code/brunstadtv/backend/email"
+
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 
 	"github.com/bcc-code/brunstadtv/backend/members"
@@ -27,6 +32,7 @@ type envConfig struct {
 	Tracing       utils.TracingConfig
 	AnalyticsSalt string
 	Email         email.Config
+	Redirect  redirectConfig
 }
 
 type postgres struct {
@@ -50,6 +56,15 @@ type awsConfig struct {
 
 type serviceSecrets struct {
 	Directus string
+}
+
+type redirectConfig struct {
+	JWTPrivateKey *rsa.PrivateKey
+	KeyID         string
+}
+
+func (r redirectConfig) GetPrivateKey() *rsa.PrivateKey {
+	return r.JWTPrivateKey
 }
 
 // GetVOD2Domain returns the configured VOD2Domain
@@ -88,6 +103,17 @@ func getEnvConfig() envConfig {
 			return strings.TrimSpace(s)
 		},
 	)
+
+	// Parse the RSA Private KEY. The key should be in the pem format as delivered by Terraform
+	block, _ := pem.Decode([]byte(os.Getenv("REDIRECT_JWT_KEY")))
+	if block == nil {
+		panic(merry.New("Unable to parse PEM key, likely not set (REDIRECT_JWT_KEY)"))
+	}
+
+	jwtkey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		panic(merry.Wrap(err, merry.WithMessage("Unable to parse JWT private key (REDIRECT_JWT_KEY)")))
+	}
 
 	return envConfig{
 		Members: members.Config{
@@ -136,6 +162,10 @@ func getEnvConfig() envConfig {
 		},
 		Email: email.Config{
 			ApiKey: os.Getenv("SENDGRID_API_KEY"),
+		},
+		Redirect: redirectConfig{
+			JWTPrivateKey: jwtkey,
+			KeyID:         os.Getenv("REDIRECT_JWT_KEY_ID"),
 		},
 		AnalyticsSalt: os.Getenv("ANALYTICS_SALT"),
 	}
