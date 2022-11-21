@@ -120,7 +120,7 @@ func (s *Service) SendNotificationToDevices(ctx context.Context, devices []commo
 
 	for _, d := range devices {
 		messages = append(messages, &messaging.Message{
-			Data: map[string]string{},
+			Data: data,
 			Notification: &messaging.Notification{
 				Title:    notification.Title.Get(d.Languages),
 				Body:     notification.Description.Get(d.Languages),
@@ -131,14 +131,6 @@ func (s *Service) SendNotificationToDevices(ctx context.Context, devices []commo
 	}
 
 	return s.pushMessages(ctx, messages)
-}
-
-// SendNotificationToTopic sends a notification to devices subscribed to a topic
-func (s *Service) SendNotificationToTopic(ctx context.Context, topic string, notification common.Notification) error {
-	return s.pushMessage(ctx, &messaging.Message{
-		Data:  notificationToPayload(notification),
-		Topic: topic,
-	})
 }
 
 // PushNotificationToEveryone pushes a notification to every registered device
