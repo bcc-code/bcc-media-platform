@@ -1,5 +1,5 @@
 -- name: getProgressForProfile :many
-SELECT p.episode_id, p.show_id, p.progress, p.duration, p.watched, p.updated_at, p.watched_at
+SELECT p.episode_id, p.show_id, p.progress, p.duration, p.watched, p.updated_at, p.watched_at, p.context
 FROM "users"."progress" p
 WHERE p.profile_id = $1::uuid
   AND p.episode_id = ANY ($2::int[])

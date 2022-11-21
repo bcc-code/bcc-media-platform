@@ -26,6 +26,7 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			SecondaryTitles:  s.Options.SecondaryTitles,
 			ContinueWatching: s.Options.ContinueWatching,
 			CollectionID:     strconv.Itoa(int(s.CollectionID.Int64)),
+			UseContext:       s.Options.UseContext,
 		}
 
 		switch s.Style {

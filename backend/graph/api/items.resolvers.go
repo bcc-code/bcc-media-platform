@@ -123,10 +123,18 @@ func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode, first
 	var collectionId *int
 
 	ginCtx, _ := utils.GinCtx(ctx)
-	episodeContext, ok := ginCtx.Value("EpisodeContext").(*model.EpisodeContext)
-	if ok && episodeContext != nil && episodeContext.CollectionID != nil {
-		colId, _ := strconv.ParseInt(*episodeContext.CollectionID, 10, 64)
-		intId := int(colId)
+	episodeContext, ok := ginCtx.Value("EpisodeContext").(common.EpisodeContext)
+
+	if !ok {
+		p, err := r.ProfileLoaders(ctx).ProgressLoader.Get(ctx, utils.AsInt(obj.ID))
+		if err != nil {
+			return nil, err
+		}
+		episodeContext = p.Context
+	}
+
+	if episodeContext.CollectionID.Valid {
+		intId := int(episodeContext.CollectionID.Int64)
 		collectionId = &intId
 	}
 

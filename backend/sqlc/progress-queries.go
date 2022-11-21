@@ -2,10 +2,12 @@ package sqlc
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/tabbed/pqtype"
 	"gopkg.in/guregu/null.v4"
 )
 
@@ -19,6 +21,10 @@ func (pq *ProfileQueries) GetProgressForEpisodes(ctx context.Context, episodeIDs
 		return nil, err
 	}
 	return lo.Map(progress, func(row getProgressForProfileRow, _ int) common.Progress {
+		var episodeContext common.EpisodeContext
+
+		_ = json.Unmarshal(row.Context.RawMessage, &episodeContext)
+
 		return common.Progress{
 			EpisodeID: int(row.EpisodeID),
 			Progress:  int(row.Progress),
@@ -27,6 +33,7 @@ func (pq *ProfileQueries) GetProgressForEpisodes(ctx context.Context, episodeIDs
 			ShowID:    row.ShowID,
 			WatchedAt: row.WatchedAt,
 			Watched:   int(row.Watched.ValueOrZero()),
+			Context:   episodeContext,
 		}
 	}), nil
 }
@@ -47,6 +54,8 @@ func (q *Queries) GetEpisodeIDsWithProgress(ctx context.Context, profileIDs []uu
 
 // SaveProgress stores the progress
 func (pq *ProfileQueries) SaveProgress(ctx context.Context, progress common.Progress) error {
+	episodeContext, _ := json.Marshal(progress.Context)
+
 	return pq.queries.saveProgress(ctx, saveProgressParams{
 		ProfileID: pq.profileID,
 		EpisodeID: int32(progress.EpisodeID),
@@ -55,6 +64,9 @@ func (pq *ProfileQueries) SaveProgress(ctx context.Context, progress common.Prog
 		ShowID:    progress.ShowID,
 		WatchedAt: progress.WatchedAt,
 		Watched:   null.IntFrom(int64(progress.Watched)),
+		Context: pqtype.NullRawMessage{
+			RawMessage: episodeContext,
+		},
 	})
 }
 

@@ -338,8 +338,11 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 // Episode is the resolver for the episode field.
 func (r *queryRootResolver) Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error) {
 	if context != nil {
+		eCtx := common.EpisodeContext{
+			CollectionID: utils.AsNullInt(context.CollectionID),
+		}
 		ginCtx, _ := utils.GinCtx(ctx)
-		ginCtx.Set("EpisodeContext", context)
+		ginCtx.Set("EpisodeContext", eCtx)
 	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
 		Item:        r.Loaders.EpisodeLoader,
