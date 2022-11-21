@@ -89,26 +89,21 @@ blocks:
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}"'
             - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:$SEMAPHORE_GIT_BRANCH'
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}" > jobs.txt'
-            - artifact push workflow jobs.txt
+        - name: Rewriter
+          commands:
+            - scripts/gen-version.sh
+            - cp version.json ./backend
+            - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/rewriter
+            - cd ./backend
+            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:$SEMAPHORE_GIT_BRANCH .'
+            - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_SHA:0:7}"'
+            - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:$SEMAPHORE_GIT_BRANCH'
+            - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_SHA:0:7}" > rewriter.txt'
+            - artifact push workflow rewriter.txt
       secrets:
         - name: GoogleSemaphoreServiceAccount
     dependencies:
       - Test
-  - name: Generate Deploy File
-    dependencies:
-      - Build
-      - Build CMS
-      - Build Migrations
-    task:
-      jobs:
-        - name: Generate
-          commands:
-            - checkout
-            - ./scripts/generate-cloud-build.sh
-      agent:
-        machine:
-          type: e1-standard-2
-          os_image: ubuntu2004
   - name: Build Migrations
     dependencies: []
     task:
@@ -130,6 +125,21 @@ blocks:
         commands:
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
           - gcloud auth configure-docker -q europe-west4-docker.pkg.dev
+      agent:
+        machine:
+          type: e1-standard-2
+          os_image: ubuntu2004
+  - name: Generate Deploy File
+    dependencies:
+      - Build
+      - Build CMS
+      - Build Migrations
+    task:
+      jobs:
+        - name: Generate
+          commands:
+            - checkout
+            - ./scripts/generate-cloud-build.sh
       agent:
         machine:
           type: e1-standard-2

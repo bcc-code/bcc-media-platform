@@ -12,7 +12,7 @@ if [ -f "run-deploy.yaml" ]; then
 	gcloud builds submit \
 		--project="btv-platform-${ENV}-2" \
 		--no-source \
-		--substitutions=_API_SERVICE=api-${ENV},_JOBS_SERVICE=background-worker-${ENV},_CMS_SERVICE=directus-${ENV} \
+		--substitutions=_API_SERVICE=api-${ENV},_JOBS_SERVICE=background-worker-${ENV},_CMS_SERVICE=directus-${ENV},_REWRITER_SERVICE=rewriter-${ENV} \
 		--config=run-deploy.yaml
 fi
 
@@ -28,6 +28,6 @@ if [ -f "run-route.yaml" ]; then
 	gcloud builds submit \
 		--project="btv-platform-${ENV}-2" \
 		--no-source \
-		--substitutions=_API_SERVICE=api-${ENV},_JOBS_SERVICE=background-worker-${ENV},_CMS_SERVICE=directus-${ENV} \
+		--substitutions=_API_SERVICE=api-${ENV},_JOBS_SERVICE=background-worker-${ENV},_CMS_SERVICE=directus-${ENV},_REWRITER_SERVICE=rewriter-${ENV} \
 		--config=run-route.yaml
 fi
