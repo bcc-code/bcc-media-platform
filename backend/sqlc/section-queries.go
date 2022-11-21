@@ -64,6 +64,7 @@ func mapToSections(items []getSectionsRow) []common.Section {
 			Options: common.SectionOptions{
 				SecondaryTitles:  s.SecondaryTitles,
 				ContinueWatching: s.AdvancedType.String == "continue_watching",
+				UseContext:       s.UseContext.Bool,
 			},
 		}
 	})

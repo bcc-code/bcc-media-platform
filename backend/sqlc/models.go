@@ -935,7 +935,7 @@ type Section struct {
 	NeedsAuthentication sql.NullBool    `db:"needs_authentication" json:"needsAuthentication"`
 	EmbedUrl            null_v4.String  `db:"embed_url" json:"embedUrl"`
 	SecondaryTitles     sql.NullBool    `db:"secondary_titles" json:"secondaryTitles"`
-	UseSectionContext   sql.NullBool    `db:"use_section_context" json:"useSectionContext"`
+	UseContext          sql.NullBool    `db:"use_context" json:"useContext"`
 	EmbedAspectRatio    sql.NullFloat64 `db:"embed_aspect_ratio" json:"embedAspectRatio"`
 	EmbedHeight         null_v4.Int     `db:"embed_height" json:"embedHeight"`
 }
@@ -1073,12 +1073,13 @@ type UsersProfile struct {
 }
 
 type UsersProgress struct {
-	ProfileID uuid.UUID    `db:"profile_id" json:"profileID"`
-	EpisodeID int32        `db:"episode_id" json:"episodeID"`
-	Progress  int32        `db:"progress" json:"progress"`
-	Duration  int32        `db:"duration" json:"duration"`
-	UpdatedAt time.Time    `db:"updated_at" json:"updatedAt"`
-	ShowID    null_v4.Int  `db:"show_id" json:"showID"`
-	Watched   null_v4.Int  `db:"watched" json:"watched"`
-	WatchedAt null_v4.Time `db:"watched_at" json:"watchedAt"`
+	ProfileID uuid.UUID             `db:"profile_id" json:"profileID"`
+	EpisodeID int32                 `db:"episode_id" json:"episodeID"`
+	Progress  int32                 `db:"progress" json:"progress"`
+	Duration  int32                 `db:"duration" json:"duration"`
+	UpdatedAt time.Time             `db:"updated_at" json:"updatedAt"`
+	ShowID    null_v4.Int           `db:"show_id" json:"showID"`
+	Watched   null_v4.Int           `db:"watched" json:"watched"`
+	WatchedAt null_v4.Time          `db:"watched_at" json:"watchedAt"`
+	Context   pqtype.NullRawMessage `db:"context" json:"context"`
 }

@@ -67,7 +67,7 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 }
 
 // SetEpisodeProgress is the resolver for the episodeProgress field.
-func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int) (*model.Episode, error) {
+func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int, context *model.EpisodeContext) (*model.Episode, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -111,6 +111,16 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 			episodeProgress.Duration = *duration
 		}
 		episodeProgress.Progress = *progress
+
+		if context != nil {
+			var col null.Int
+			if context.CollectionID != nil {
+				col.SetValid(int64(utils.AsInt(*context.CollectionID)))
+			}
+			episodeProgress.Context.CollectionID = col
+		} else {
+			episodeProgress.Context = common.EpisodeContext{}
+		}
 
 		if episodeProgress.Duration > 0 && float64(episodeProgress.Progress)/float64(episodeProgress.Duration) > 0.8 {
 			if !episodeProgress.WatchedAt.Valid || episodeProgress.WatchedAt.Time.After(time.Now().Add(time.Hour*-12)) {
@@ -232,7 +242,7 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 		)
 	}
 
-	redirID, err := batchloaders.GetByID(ctx, r.Loaders.RedirectIDFromCodeLoader, code)
+	redirID, err := batchloaders.GetByID(ctx, r.Loaders.RedirectIDFromCodeLoader, id)
 	if err != nil {
 		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
 	}

@@ -1,14 +1,14 @@
 -- +goose Up
 /***********************************************************/
 /*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/
-/***    CREATED ON: 2022-11-21T12:24:26.194Z             ***/
+/***    CREATED ON: 2022-11-21T12:54:28.076Z             ***/
 /***********************************************************/
 
 --- BEGIN ALTER TABLE "public"."sections" ---
 
-ALTER TABLE IF EXISTS "public"."sections" ADD COLUMN IF NOT EXISTS "use_section_context" bool NULL  ;
+ALTER TABLE IF EXISTS "public"."sections" ADD COLUMN IF NOT EXISTS "use_context" bool NULL  ;
 
-COMMENT ON COLUMN "public"."sections"."use_section_context"  IS NULL;
+COMMENT ON COLUMN "public"."sections"."use_context"  IS NULL;
 
 ALTER TABLE IF EXISTS "public"."sections" ADD COLUMN IF NOT EXISTS "embed_aspect_ratio" float4 NULL  ;
 
@@ -21,6 +21,14 @@ COMMENT ON COLUMN "public"."sections"."embed_height"  IS NULL;
 ALTER TABLE IF EXISTS "public"."sections" DROP COLUMN IF EXISTS "embed_size" CASCADE; --WARN: Drop column can occure in data loss!
 
 --- END ALTER TABLE "public"."sections" ---
+
+--- BEGIN ALTER TABLE "users"."progress" ---
+
+ALTER TABLE IF EXISTS "users"."progress" ADD COLUMN IF NOT EXISTS "context" json NULL  ;
+
+COMMENT ON COLUMN "users"."progress"."context"  IS NULL;
+
+--- END ALTER TABLE "users"."progress" ---
 
 --- BEGIN ALTER TABLE "public"."calendarentries" ---
 
@@ -54,15 +62,15 @@ DELETE FROM "public"."directus_collections" WHERE "collection" = 'webconfig';
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (765, 'calendarentries', 'is_replay', 'cast-boolean', 'boolean', NULL, 'boolean', NULL, false, false, 6, 'full', NULL, NULL, NULL, false, 'link', NULL, NULL);
 
-UPDATE "public"."directus_fields" SET "width" = 'half' WHERE "id" = 734;
-
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (766, 'sections', 'embed_aspect_ratio', NULL, 'input', NULL, 'raw', NULL, false, false, 2, 'half', NULL, NULL, NULL, false, 'embed_config', NULL, NULL);
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (767, 'sections', 'embed_height', NULL, 'input', NULL, 'raw', NULL, false, false, 3, 'half', NULL, NULL, NULL, false, 'embed_config', NULL, NULL);
 
-UPDATE "public"."directus_fields" SET "sort" = 4 WHERE "id" = 687;
+INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (764, 'sections', 'use_context', 'cast-boolean', 'boolean', NULL, 'boolean', NULL, false, false, 2, 'half', NULL, 'Should items clicked on be opened in the section context?', NULL, false, 'options', NULL, NULL);
 
-INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (764, 'sections', 'use_section_context', 'cast-boolean', 'boolean', NULL, 'boolean', NULL, false, false, 2, 'half', NULL, 'Should items clicked on be opened in the section context?', NULL, false, 'options', NULL, NULL);
+UPDATE "public"."directus_fields" SET "width" = 'half' WHERE "id" = 734;
+
+UPDATE "public"."directus_fields" SET "sort" = 4 WHERE "id" = 687;
 
 DELETE FROM "public"."directus_fields" WHERE "id" = 469;
 
@@ -92,7 +100,7 @@ DELETE FROM "public"."directus_relations" WHERE "id" = 143;
 -- +goose Down
 /***********************************************************/
 /*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/
-/***    CREATED ON: 2022-11-21T12:24:27.607Z             ***/
+/***    CREATED ON: 2022-11-21T12:54:29.527Z             ***/
 /***********************************************************/
 
 --- BEGIN CREATE TABLE "public"."appconfig" ---
@@ -103,18 +111,9 @@ CREATE TABLE IF NOT EXISTS "public"."appconfig" (
 	"id" int4 NOT NULL DEFAULT nextval('appconfig_id_seq'::regclass) ,
 	"user_updated" uuid NOT NULL  ,
 	CONSTRAINT "appconfig_pkey" PRIMARY KEY (id) ,
-	CONSTRAINT "appconfig_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id) 
+	CONSTRAINT "appconfig_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id)
 );
 
-ALTER TABLE IF EXISTS "public"."appconfig" OWNER TO manager;
-
-GRANT SELECT ON TABLE "public"."appconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."appconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."appconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."appconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."appconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."appconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."appconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT SELECT ON TABLE "public"."appconfig" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."appconfig" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."appconfig" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -156,18 +155,9 @@ CREATE TABLE IF NOT EXISTS "public"."webconfig" (
 	"id" int4 NOT NULL DEFAULT nextval('webconfig_id_seq'::regclass) ,
 	"user_updated" uuid NOT NULL  ,
 	CONSTRAINT "webconfig_pkey" PRIMARY KEY (id) ,
-	CONSTRAINT "webconfig_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id) 
+	CONSTRAINT "webconfig_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id)
 );
 
-ALTER TABLE IF EXISTS "public"."webconfig" OWNER TO manager;
-
-GRANT SELECT ON TABLE "public"."webconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."webconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."webconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."webconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."webconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."webconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."webconfig" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT SELECT ON TABLE "public"."webconfig" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."webconfig" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."webconfig" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -199,13 +189,19 @@ ALTER TABLE IF EXISTS "public"."sections" ADD COLUMN IF NOT EXISTS "embed_size" 
 
 COMMENT ON COLUMN "public"."sections"."embed_size"  IS NULL;
 
-ALTER TABLE IF EXISTS "public"."sections" DROP COLUMN IF EXISTS "use_section_context" CASCADE; --WARN: Drop column can occure in data loss!
+ALTER TABLE IF EXISTS "public"."sections" DROP COLUMN IF EXISTS "use_context" CASCADE; --WARN: Drop column can occure in data loss!
 
 ALTER TABLE IF EXISTS "public"."sections" DROP COLUMN IF EXISTS "embed_aspect_ratio" CASCADE; --WARN: Drop column can occure in data loss!
 
 ALTER TABLE IF EXISTS "public"."sections" DROP COLUMN IF EXISTS "embed_height" CASCADE; --WARN: Drop column can occure in data loss!
 
 --- END ALTER TABLE "public"."sections" ---
+
+--- BEGIN ALTER TABLE "users"."progress" ---
+
+ALTER TABLE IF EXISTS "users"."progress" DROP COLUMN IF EXISTS "context" CASCADE; --WARN: Drop column can occure in data loss!
+
+--- END ALTER TABLE "users"."progress" ---
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
 

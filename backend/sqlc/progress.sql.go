@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"github.com/tabbed/pqtype"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
@@ -45,9 +46,9 @@ SELECT p.episode_id, p.profile_id
 FROM "users"."progress" p
          LEFT JOIN shows s ON p.show_id = s.show_id AND p.profile_id = s.profile_id
 WHERE p.profile_id = ANY ($1::uuid[])
-    AND (s IS NULL
+  AND (s IS NULL
     OR s.episode_id = p.episode_id)
-    AND COALESCE((p.progress::float / COALESCE(NULLIF(p.duration, 0), 1)) > 0.8, false) != true
+  AND COALESCE((p.progress::float / COALESCE(NULLIF(p.duration, 0), 1)) > 0.8, false) != true
 ORDER BY p.updated_at DESC
 `
 
@@ -134,24 +135,27 @@ func (q *Queries) getProgressForProfile(ctx context.Context, arg getProgressForP
 }
 
 const saveProgress = `-- name: saveProgress :exec
-INSERT INTO "users"."progress" (profile_id, episode_id, show_id, progress, duration, watched, watched_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+INSERT INTO "users"."progress" (profile_id, episode_id, show_id, progress, duration, watched, watched_at, updated_at,
+                                context)
+VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)
 ON CONFLICT (profile_id, episode_id) DO UPDATE SET progress   = EXCLUDED.progress,
                                                    show_id    = EXCLUDED.show_id,
                                                    updated_at = NOW(),
                                                    watched    = EXCLUDED.watched,
                                                    watched_at = EXCLUDED.watched_at,
-                                                   duration   = EXCLUDED.duration
+                                                   duration   = EXCLUDED.duration,
+                                                   context    = EXCLUDED.context
 `
 
 type saveProgressParams struct {
-	ProfileID uuid.UUID    `db:"profile_id" json:"profileID"`
-	EpisodeID int32        `db:"episode_id" json:"episodeID"`
-	ShowID    null_v4.Int  `db:"show_id" json:"showID"`
-	Progress  int32        `db:"progress" json:"progress"`
-	Duration  int32        `db:"duration" json:"duration"`
-	Watched   null_v4.Int  `db:"watched" json:"watched"`
-	WatchedAt null_v4.Time `db:"watched_at" json:"watchedAt"`
+	ProfileID uuid.UUID             `db:"profile_id" json:"profileID"`
+	EpisodeID int32                 `db:"episode_id" json:"episodeID"`
+	ShowID    null_v4.Int           `db:"show_id" json:"showID"`
+	Progress  int32                 `db:"progress" json:"progress"`
+	Duration  int32                 `db:"duration" json:"duration"`
+	Watched   null_v4.Int           `db:"watched" json:"watched"`
+	WatchedAt null_v4.Time          `db:"watched_at" json:"watchedAt"`
+	Context   pqtype.NullRawMessage `db:"context" json:"context"`
 }
 
 func (q *Queries) saveProgress(ctx context.Context, arg saveProgressParams) error {
@@ -163,6 +167,7 @@ func (q *Queries) saveProgress(ctx context.Context, arg saveProgressParams) erro
 		arg.Duration,
 		arg.Watched,
 		arg.WatchedAt,
+		arg.Context,
 	)
 	return err
 }
