@@ -854,6 +854,17 @@ type PagesTranslation struct {
 	Title         null_v4.String `db:"title" json:"title"`
 }
 
+type Redirect struct {
+	ID          uuid.UUID    `db:"id" json:"id"`
+	Status      string       `db:"status" json:"status"`
+	UserCreated uuid.UUID    `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.UUID    `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time `db:"date_updated" json:"dateUpdated"`
+	TargetUrl   string       `db:"target_url" json:"targetUrl"`
+	Code        string       `db:"code" json:"code"`
+}
+
 type Season struct {
 	AgeratingCode       null_v4.String `db:"agerating_code" json:"ageratingCode"`
 	AvailableFrom       null_v4.Time   `db:"available_from" json:"availableFrom"`

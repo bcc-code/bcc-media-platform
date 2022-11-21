@@ -593,6 +593,15 @@ func (this QuestionPagination) GetTotal() int  { return this.Total }
 func (this QuestionPagination) GetFirst() int  { return this.First }
 func (this QuestionPagination) GetOffset() int { return this.Offset }
 
+type RedirectLink struct {
+	URL string `json:"url"`
+}
+
+type RedirectParam struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
 type SearchResult struct {
 	Hits   int                `json:"hits"`
 	Page   int                `json:"page"`
