@@ -573,6 +573,7 @@ export type QueryRoot = {
   page: Page;
   profile: Profile;
   profiles: Array<Profile>;
+  redirect: RedirectLink;
   search: SearchResult;
   season: Season;
   section: Section;
@@ -612,6 +613,11 @@ export type QueryRootPageArgs = {
 };
 
 
+export type QueryRootRedirectArgs = {
+  id: Scalars['String'];
+};
+
+
 export type QueryRootSearchArgs = {
   first?: InputMaybe<Scalars['Int']>;
   minScore?: InputMaybe<Scalars['Int']>;
@@ -648,6 +654,15 @@ export type QuestionPagination = Pagination & {
   items: Array<Question>;
   offset: Scalars['Int'];
   total: Scalars['Int'];
+};
+
+export type RedirectLink = {
+  url: Scalars['String'];
+};
+
+export type RedirectParam = {
+  key: Scalars['String'];
+  value: Scalars['String'];
 };
 
 export type SearchResult = {
@@ -996,6 +1011,13 @@ export type GetLiveCalendarRangeQueryVariables = Exact<{
 
 
 export type GetLiveCalendarRangeQuery = { calendar?: { period: { activeDays: Array<any>, events: Array<{ title: string }> } } | null };
+
+export type GetRedirectUrlQueryVariables = Exact<{
+  code: Scalars['String'];
+}>;
+
+
+export type GetRedirectUrlQuery = { redirect: { url: string } };
 
 export type SearchQueryVariables = Exact<{
   query: Scalars['String'];
@@ -1431,6 +1453,17 @@ export const GetLiveCalendarRangeDocument = gql`
 
 export function useGetLiveCalendarRangeQuery(options: Omit<Urql.UseQueryArgs<never, GetLiveCalendarRangeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetLiveCalendarRangeQuery>({ query: GetLiveCalendarRangeDocument, ...options });
+};
+export const GetRedirectUrlDocument = gql`
+    query getRedirectUrl($code: String!) {
+  redirect(id: $code) {
+    url
+  }
+}
+    `;
+
+export function useGetRedirectUrlQuery(options: Omit<Urql.UseQueryArgs<never, GetRedirectUrlQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetRedirectUrlQuery>({ query: GetRedirectUrlDocument, ...options });
 };
 export const SearchDocument = gql`
     query search($query: String!, $type: String, $minScore: Int) {

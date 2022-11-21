@@ -50,5 +50,11 @@ export default [
         props: {
             title: "Page not found"
         }
+    },
+    {
+        name: "auth-redirect",
+        path: "/r/:code",
+        component: () => import("@/pages/redirect/Redirect.vue"),
+        props: true,
     }
 ] as RouteRecordRaw[]

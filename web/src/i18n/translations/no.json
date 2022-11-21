@@ -20,7 +20,8 @@
     },
     "notFound": {
         "title": "Ikke funnet",
-        "description": "Kanskje du ikke er logget inn, eller mangler noen tilganger."
+        "description": "Kanskje du ikke er logget inn, eller mangler noen tilganger.",
+        "returnHome": "Gå til hovedsiden"
     },
     "common": {
         "new": "Ny",

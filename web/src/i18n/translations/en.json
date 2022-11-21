@@ -20,7 +20,8 @@
     },
     "notFound": {
         "title": "Not found",
-        "description": "Perhaps you are not logged in or missing some permissions."
+        "description": "Perhaps you are not logged in or missing some permissions.",
+        "returnHome": "Go to home"
     },
     "common": {
         "new": "New",
