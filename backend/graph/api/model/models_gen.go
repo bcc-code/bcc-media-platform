@@ -416,6 +416,7 @@ type ItemSectionMetadata struct {
 	ContinueWatching bool   `json:"continueWatching"`
 	SecondaryTitles  bool   `json:"secondaryTitles"`
 	CollectionID     string `json:"collectionId"`
+	UseContext       bool   `json:"useContext"`
 }
 
 type LabelSection struct {
@@ -869,6 +870,8 @@ type WebSection struct {
 	Title          *string              `json:"title"`
 	URL            string               `json:"url"`
 	WidthRatio     float64              `json:"widthRatio"`
+	AspectRatio    *float64             `json:"aspectRatio"`
+	Height         *int                 `json:"height"`
 	Authentication bool                 `json:"authentication"`
 }
 

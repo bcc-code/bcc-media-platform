@@ -297,6 +297,7 @@ type ComplexityRoot struct {
 		CollectionID     func(childComplexity int) int
 		ContinueWatching func(childComplexity int) int
 		SecondaryTitles  func(childComplexity int) int
+		UseContext       func(childComplexity int) int
 	}
 
 	LabelSection struct {
@@ -597,7 +598,9 @@ type ComplexityRoot struct {
 	}
 
 	WebSection struct {
+		AspectRatio    func(childComplexity int) int
 		Authentication func(childComplexity int) int
+		Height         func(childComplexity int) int
 		ID             func(childComplexity int) int
 		Metadata       func(childComplexity int) int
 		Title          func(childComplexity int) int
@@ -1830,6 +1833,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ItemSectionMetadata.SecondaryTitles(childComplexity), true
+
+	case "ItemSectionMetadata.useContext":
+		if e.complexity.ItemSectionMetadata.UseContext == nil {
+			break
+		}
+
+		return e.complexity.ItemSectionMetadata.UseContext(childComplexity), true
 
 	case "LabelSection.id":
 		if e.complexity.LabelSection.ID == nil {
@@ -3295,12 +3305,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Settings(childComplexity), true
 
+	case "WebSection.aspectRatio":
+		if e.complexity.WebSection.AspectRatio == nil {
+			break
+		}
+
+		return e.complexity.WebSection.AspectRatio(childComplexity), true
+
 	case "WebSection.authentication":
 		if e.complexity.WebSection.Authentication == nil {
 			break
 		}
 
 		return e.complexity.WebSection.Authentication(childComplexity), true
+
+	case "WebSection.height":
+		if e.complexity.WebSection.Height == nil {
+			break
+		}
+
+		return e.complexity.WebSection.Height(childComplexity), true
 
 	case "WebSection.id":
 		if e.complexity.WebSection.ID == nil {
@@ -3782,6 +3806,7 @@ type ItemSectionMetadata {
     continueWatching: Boolean!
     secondaryTitles: Boolean!
     collectionId: ID!
+    useContext: Boolean!
 }
 
 interface Section{
@@ -3903,6 +3928,8 @@ type WebSection implements Section {
     title: String
     url: String!
     widthRatio: Float!
+    aspectRatio: Float
+    height: Int
     authentication: Boolean!
 }
 
@@ -6262,6 +6289,8 @@ func (ec *executionContext) fieldContext_DefaultGridSection_metadata(ctx context
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "useContext":
+				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -6505,6 +6534,8 @@ func (ec *executionContext) fieldContext_DefaultSection_metadata(ctx context.Con
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "useContext":
+				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -10626,6 +10657,8 @@ func (ec *executionContext) fieldContext_FeaturedSection_metadata(ctx context.Co
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "useContext":
+				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -11259,6 +11292,8 @@ func (ec *executionContext) fieldContext_IconGridSection_metadata(ctx context.Co
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "useContext":
+				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -11502,6 +11537,8 @@ func (ec *executionContext) fieldContext_IconSection_metadata(ctx context.Contex
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "useContext":
+				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -11835,6 +11872,50 @@ func (ec *executionContext) fieldContext_ItemSectionMetadata_collectionId(ctx co
 	return fc, nil
 }
 
+func (ec *executionContext) _ItemSectionMetadata_useContext(ctx context.Context, field graphql.CollectedField, obj *model.ItemSectionMetadata) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UseContext, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ItemSectionMetadata_useContext(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ItemSectionMetadata",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LabelSection_id(ctx context.Context, field graphql.CollectedField, obj *model.LabelSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LabelSection_id(ctx, field)
 	if err != nil {
@@ -11921,6 +12002,8 @@ func (ec *executionContext) fieldContext_LabelSection_metadata(ctx context.Conte
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "useContext":
+				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -12252,6 +12335,8 @@ func (ec *executionContext) fieldContext_ListSection_metadata(ctx context.Contex
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "useContext":
+				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -12635,6 +12720,8 @@ func (ec *executionContext) fieldContext_MessageSection_metadata(ctx context.Con
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "useContext":
+				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -13795,6 +13882,8 @@ func (ec *executionContext) fieldContext_PosterGridSection_metadata(ctx context.
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "useContext":
+				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -14038,6 +14127,8 @@ func (ec *executionContext) fieldContext_PosterSection_metadata(ctx context.Cont
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "useContext":
+				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -21396,6 +21487,8 @@ func (ec *executionContext) fieldContext_WebSection_metadata(ctx context.Context
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "useContext":
+				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -21527,6 +21620,88 @@ func (ec *executionContext) fieldContext_WebSection_widthRatio(ctx context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WebSection_aspectRatio(ctx context.Context, field graphql.CollectedField, obj *model.WebSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WebSection_aspectRatio(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AspectRatio, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WebSection_aspectRatio(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WebSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WebSection_height(ctx context.Context, field graphql.CollectedField, obj *model.WebSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WebSection_height(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Height, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WebSection_height(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WebSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -25672,6 +25847,13 @@ func (ec *executionContext) _ItemSectionMetadata(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "useContext":
+
+			out.Values[i] = ec._ItemSectionMetadata_useContext(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -28331,6 +28513,14 @@ func (ec *executionContext) _WebSection(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "aspectRatio":
+
+			out.Values[i] = ec._WebSection_aspectRatio(ctx, field, obj)
+
+		case "height":
+
+			out.Values[i] = ec._WebSection_height(ctx, field, obj)
+
 		case "authentication":
 
 			out.Values[i] = ec._WebSection_authentication(ctx, field, obj)
@@ -30401,6 +30591,22 @@ func (ec *executionContext) marshalOFAQCategoryPagination2ᚖgithubᚗcomᚋbcc�
 		return graphql.Null
 	}
 	return ec._FAQCategoryPagination(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalFloatContext(*v)
+	return graphql.WrapContextMarshaler(ctx, res)
 }
 
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

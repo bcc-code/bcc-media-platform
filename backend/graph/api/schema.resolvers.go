@@ -218,7 +218,7 @@ func (r *queryRootResolver) Export(ctx context.Context, groups []string) (*model
 }
 
 // Redirect is the resolver for the redirect field.
-func (r *queryRootResolver) Redirect(ctx context.Context, code string) (*model.RedirectLink, error) {
+func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.RedirectLink, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err

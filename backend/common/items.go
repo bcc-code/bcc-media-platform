@@ -174,7 +174,8 @@ type Section struct {
 	CollectionID        null.Int       `json:"collectionId"`
 	MessageID           null.Int       `json:"messageId"`
 	EmbedUrl            null.String    `json:"embedUrl"`
-	EmbedSize           null.String    `json:"embedSize"`
+	EmbedAspectRatio    null.Float     `json:"embedAspectRatio"`
+	EmbedHeight         null.Int       `json:"embedHeight"`
 	NeedsAuthentication null.Bool      `json:"needsAuthentication"`
 	Options             SectionOptions `json:"options"`
 }

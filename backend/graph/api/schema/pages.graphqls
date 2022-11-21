@@ -138,6 +138,8 @@ type WebSection implements Section {
     title: String
     url: String!
     widthRatio: Float!
+    aspectRatio: Float
+    height: Int
     authentication: Boolean!
 }
 
