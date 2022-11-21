@@ -4,10 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"net/http"
-	"github.com/bcc-code/brunstadtv/backend/analytics"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/bcc-code/brunstadtv/backend/analytics"
 
 	"github.com/bcc-code/brunstadtv/backend/email"
 	"github.com/lestrrat-go/jwx/v2/jwa"
@@ -156,7 +157,7 @@ func graphqlHandler(
 		S3Client:        s3client,
 		APIConfig:       config.CDNConfig,
 		AWSConfig:       config.AWS,
-		RedirectConfig:  co
+		RedirectConfig:  config.Redirect,
 		AnalyticsIDFactory: func(ctx context.Context) string {
 			ginCtx, err := utils.GinCtx(ctx)
 			p := user.GetProfileFromCtx(ginCtx)
