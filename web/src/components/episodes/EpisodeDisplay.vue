@@ -93,6 +93,7 @@
                             <ItemList
                                 :items="episode.context?.items ?? []"
                                 :current-id="episode.id"
+                                @set-current="i => setEpisode(i.id)"
                             ></ItemList>
                         </div>
                         <div
@@ -118,7 +119,7 @@
                                                 ? 'border-l-8 bg-red bg-opacity-20 hover:bg-opacity-20'
                                                 : 'border-opacity-0',
                                         ]"
-                                        @click="episodeId = e.id"
+                                        @click="setEpisode(e.id)"
                                         :key="e.id"
                                     >
                                         <WithProgressBar
@@ -159,15 +160,17 @@
         </div>
         <div v-if="error" class="text-red">{{ error.message }}</div>
     </section>
-    <NotFound v-else-if="!fetching" :title="$t('episode.notFound')"></NotFound>
+    <NotFound v-else-if="!loading" :title="$t('episode.notFound')"></NotFound>
 </template>
 <script lang="ts" setup>
 import {
     EpisodeContext,
+    GetEpisodeQuery,
+    GetSeasonOnEpisodePageQuery,
     useGetEpisodeQuery,
     useGetSeasonOnEpisodePageQuery,
 } from "@/graph/generated"
-import { computed, onMounted, ref, watch } from "vue"
+import { computed, nextTick, onMounted, ref, watch } from "vue"
 import EpisodeViewer from "@/components/EpisodeViewer.vue"
 import { useI18n } from "vue-i18n"
 import EpisodeDetails from "@/components/episodes/EpisodeDetails.vue"
@@ -179,8 +182,6 @@ import Image from "../Image.vue"
 import ItemList from "../sections/ItemList.vue"
 import NotFound from "../NotFound.vue"
 
-const { t } = useI18n()
-
 const props = defineProps<{
     episodeId: string
     context?: EpisodeContext
@@ -191,88 +192,67 @@ const emit = defineEmits<{
     (e: "update:episodeId", v: string): void
 }>()
 
-const episodeId = computed({
-    get() {
-        return props.episodeId
-    },
-    set(v) {
-        emit("update:episodeId", v)
-    },
-})
+const { t } = useI18n()
+const { setTitle } = useTitle()
+const episode = ref(null as NonNullable<GetEpisodeQuery["episode"]> | null)
+const season = ref(null as NonNullable<GetSeasonOnEpisodePageQuery["season"]> | null)
+
+const seasonId = ref("")
+const loading = ref(true)
 
 const context = ref(props.context)
 
-watch(
-    () => props.context,
-    () => {
-        context.value = props.context
-    }
-)
+const episodeId = ref(props.episodeId)
 
-const { data, fetching, error, then } = useGetEpisodeQuery({
+const setEpisode = (id: string) => {
+    episodeId.value = id
+    emit("update:episodeId", id)
+    nextTick().then(() => {
+        load()
+    })
+}
+
+const { error, executeQuery } = useGetEpisodeQuery({
+    pause: true,
     variables: {
         episodeId,
         context,
     },
 })
 
-const episode = computed(() => {
-    return data.value?.episode ?? null
-})
-
-const seasonId = ref("")
-
-then(() => {
-    seasonId.value = data.value?.episode.season?.id ?? ""
-    if (seasonId.value) {
-        seasonQuery.resume()
-    }
-})
-
 const seasonQuery = useGetSeasonOnEpisodePageQuery({
-    pause: !seasonId.value,
+    pause: true,
     variables: {
         seasonId,
         firstEpisodes: 50,
     },
 })
 
-const { setTitle } = useTitle()
+const load = async () => {
+    loading.value = true;
+    const r = await executeQuery()
+    if(r.data.value?.episode) {
+        episode.value = r.data.value.episode
 
-onMounted(() => {
-    if (episode.value?.title) {
         setTitle(episode.value.title)
-    }
-})
 
-watch(
-    () => episode.value?.title,
-    () => {
-        if (episode.value?.title) {
-            setTitle(episode.value.title)
+        if (!context.value) {
+            if (episode.value.season?.id) {
+                seasonId.value = episode.value.season.id
+
+                const sr = await seasonQuery.executeQuery()
+                seasonQuery.pause()
+                if (sr.data.value?.season) {
+                    season.value = sr.data.value.season
+                }
+            }
         }
     }
-)
-
-const view = ref(null as "episodes" | "details" | "context" | null)
-
-const validateView = () => {
-    const v = view.value
-    switch (v) {
-        case "context":
-            if (episode.value?.context) {
-                return "context"
-            }
-            break
-        case "episodes":
-            if (episode.value?.season) {
-                return "episodes"
-            }
-            break
-        default:
-            return "details"
-    }
+    loading.value = false;
 }
+
+load()
+const view = ref(null as "episodes" | "details" | "context" | null)
 
 const effectiveView = computed({
     get() {

@@ -11,7 +11,7 @@
                 <div
                     class="flex flex-col cursor-pointer hover:opacity-90 transition rounded-lg p-2"
                     :class="[currentId === i.id ? 'bg-slate-800' : '']"
-                    @click="goToSectionItem(i)"
+                    @click="$emit('setCurrent', i)"
                 >
                     <div
                         class="relative mb-1 rounded-md w-full aspect-video overflow-hidden"
@@ -35,7 +35,6 @@
 </template>
 <script lang="ts" setup>
 import { SectionItemFragment } from "@/graph/generated"
-import { goToSectionItem } from "@/utils/items"
 import ProgressBar from "../episodes/ProgressBar.vue"
 import Image from "../Image.vue"
 import NewPill from "./NewPill.vue"

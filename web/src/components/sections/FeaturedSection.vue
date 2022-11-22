@@ -31,7 +31,12 @@
                     class="bg-slate-800 px-4 py-1 rounded-full font-bold text-lg flex mx-auto hover:scale-105"
                     @click="goToSectionItem(i)"
                 >
-                    <Play></Play><span class="ml-1">Watch now</span>
+                    <div class="flex" v-if="['Episode', 'Show', 'Season'].includes(i.item.__typename)">
+                        <Play></Play><span class="ml-1">Watch now</span>
+                    </div>
+                    <div class="flex" v-else>
+                        <Play></Play><span class="ml-1">Explore</span>
+                    </div>
                 </button>
             </div>
         </Slider>
