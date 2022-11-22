@@ -1,5 +1,6 @@
 <template>
     <EpisodeDisplay
+        class="px-2 lg:px-4"
         :auto-play="autoPlay"
         :episode-id="episodeId"
         :context="context"

@@ -22,7 +22,7 @@
                 class="pointer-events-auto my-auto ml-2 rounded-full bg-background opacity-80 cursor-pointer hover:opacity-100"
             >
                 <img
-                    src="/icons/utility/Medium/Chevron Right/Tint.svg"
+                    src="/icons/utility/Medium/ChevronRight/Tint.svg"
                     class="h-16 w-16 rotate-180 stroke-white"
                 />
             </div>
@@ -31,7 +31,7 @@
                 class="pointer-events-auto my-auto mr-2 rounded-full bg-background opacity-80 cursor-pointer hover:opacity-100"
             >
                 <img
-                    src="/icons/utility/Medium/Chevron Right/Tint.svg"
+                    src="/icons/utility/Medium/ChevronRight/Tint.svg"
                     class="h-16 w-16 stroke-white"
                 />
             </div>
@@ -44,7 +44,6 @@ import { Navigation, Pagination, Lazy, SwiperOptions } from "swiper"
 import { Swiper, SwiperSlide } from "swiper/vue"
 import breakpoints from "./breakpoints"
 import { computed, ref } from "vue"
-import { ChevronLeft, ChevronRight } from "../icons"
 
 const next = ref(null)
 const prev = ref(null)
