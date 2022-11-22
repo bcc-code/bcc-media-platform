@@ -20,7 +20,7 @@
         >
             <div
                 ref="prev"
-                class="pointer-events-auto my-auto ml-2 rounded-full bg-background opacity-80 cursor-pointer hover:opacity-100"
+                class="pointer-events-auto my-auto ml-2 rounded-full bg-background opacity-80 cursor-pointer hover:opacity-100 transition"
             >
                 <img
                     src="/icons/utility/Medium/ChevronRight/Tint.svg"
@@ -29,7 +29,7 @@
             </div>
             <div
                 ref="next"
-                class="pointer-events-auto my-auto mr-2 rounded-full bg-background opacity-80 cursor-pointer hover:opacity-100"
+                class="pointer-events-auto my-auto mr-2 rounded-full bg-background opacity-80 cursor-pointer hover:opacity-100 transition"
             >
                 <img
                     src="/icons/utility/Medium/ChevronRight/Tint.svg"
