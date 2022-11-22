@@ -19,7 +19,7 @@ export default (size: "small" | "medium") => {
                 1920: {
                     slidesPerView: 9.5,
                     spaceBetween,
-                    slidesPerGroup: 9
+                    slidesPerGroup: 9,
                 },
             } as {
                 [key: number]: SwiperOptions

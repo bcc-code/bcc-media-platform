@@ -19,13 +19,19 @@ const router = useRouter()
 
 const autoPlay = ref(false)
 
-const getCollectionQueryParam = () => router.currentRoute.value.query.collection ? {collectionId: router.currentRoute.value.query.collection as string} : undefined
+const getCollectionQueryParam = () =>
+    router.currentRoute.value.query.collection
+        ? { collectionId: router.currentRoute.value.query.collection as string }
+        : undefined
 
 const context = ref(getCollectionQueryParam())
 
-watch(() => router.currentRoute.value.query, () => {
-    context.value = getCollectionQueryParam();
-})
+watch(
+    () => router.currentRoute.value.query,
+    () => {
+        context.value = getCollectionQueryParam()
+    }
+)
 
 const setEpisode = (id: string) => {
     autoPlay.value = true

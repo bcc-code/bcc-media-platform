@@ -56,10 +56,10 @@
                         ]"
                         @click="effectiveView = 'context'"
                     >
-                        {{ t("episode.context") }}
+                        {{ t("episode.videos") }}
                     </button>
                     <button
-                        v-if="seasonId"
+                        v-else-if="seasonId"
                         class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
                         :class="[
                             effectiveView === 'episodes'
@@ -90,7 +90,10 @@
                             :episode="episode"
                         ></EpisodeDetails>
                         <div v-else-if="effectiveView === 'context'">
-                            <ItemList :items="episode.context?.items ?? []" :current-id="episode.id"></ItemList>
+                            <ItemList
+                                :items="episode.context?.items ?? []"
+                                :current-id="episode.id"
+                            ></ItemList>
                         </div>
                         <div
                             v-else-if="effectiveView === 'episodes'"
@@ -160,7 +163,7 @@
 </template>
 <script lang="ts" setup>
 import {
-EpisodeContext,
+    EpisodeContext,
     useGetEpisodeQuery,
     useGetSeasonOnEpisodePageQuery,
 } from "@/graph/generated"
@@ -199,9 +202,12 @@ const episodeId = computed({
 
 const context = ref(props.context)
 
-watch(() => props.context, () => {
-    context.value = props.context
-})
+watch(
+    () => props.context,
+    () => {
+        context.value = props.context
+    }
+)
 
 const { data, fetching, error, then } = useGetEpisodeQuery({
     variables: {
@@ -257,12 +263,12 @@ const validateView = () => {
             if (episode.value?.context) {
                 return "context"
             }
-            break;
+            break
         case "episodes":
             if (episode.value?.season) {
                 return "episodes"
             }
-            break;
+            break
         default:
             return "details"
     }
@@ -276,20 +282,20 @@ const effectiveView = computed({
                 if (episode.value?.context) {
                     return "context"
                 }
-                break;
+                break
             case "episodes":
                 if (episode.value?.season) {
                     return "episodes"
                 }
-                break;
+                break
             case "details":
                 return "details"
         }
 
         if (episode.value?.context) {
-            return "context";
+            return "context"
         }
-        return view.value = (!episode.value?.season ? "details" : "episodes")
+        return (view.value = !episode.value?.season ? "details" : "episodes")
     },
     set(v) {
         view.value = v
