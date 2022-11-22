@@ -1,6 +1,7 @@
 <template>
     <div class="relative">
         <Swiper
+            style="overflow:visible;"
             :breakpoints="effectiveBreakpoints"
             :modules="modules"
             :lazy="true"
@@ -15,7 +16,7 @@
             </SwiperSlide>
         </Swiper>
         <div
-            class="absolute top-0 flex z-10 w-full h-full pointer-events-none justify-between"
+            class="absolute top-0 z-10 w-full h-full pointer-events-none justify-between hidden lg:flex"
         >
             <div
                 ref="prev"

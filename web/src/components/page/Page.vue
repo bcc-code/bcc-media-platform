@@ -1,8 +1,8 @@
 <template>
-    <section class="px-4 overflow-x-hidden">
+    <section class="overflow-x-hidden">
         <transition name="slide-fade">
             <div
-                class="flex flex-col gap-8"
+                class="px-4 flex flex-col gap-8"
                 v-if="data?.page.sections.items.length"
             >
                 <Section
@@ -15,7 +15,7 @@
                 <NotFound :title="$t('page.notFound')"></NotFound>
             </div>
             <div v-else-if="error">{{ error.message }}</div>
-            <div v-else class="flex flex-col gap-4">
+            <div v-else class="px-4 flex flex-col gap-4">
                 <div class="flex gap-4">
                     <div
                         class="space-y-5 rounded-2xl bg-white/5 p-4"
