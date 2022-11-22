@@ -116,6 +116,7 @@ type Chapter struct {
 
 type Collection struct {
 	ID    string                    `json:"id"`
+	Slug  *string                   `json:"slug"`
 	Items *CollectionItemPagination `json:"items"`
 }
 

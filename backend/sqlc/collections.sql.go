@@ -7,8 +7,11 @@ package sqlc
 
 import (
 	"context"
+	"time"
 
 	"github.com/lib/pq"
+	"github.com/tabbed/pqtype"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getCollectionEntriesForCollections = `-- name: getCollectionEntriesForCollections :many
@@ -56,7 +59,7 @@ FROM collections_entries ce
          LEFT JOIN show_roles shr ON ce.collection = 'shows' AND shr.id::varchar = ce.item
          LEFT JOIN show_availability sha ON ce.collection = 'shows' AND sha.id::varchar = ce.item
 WHERE ce.collections_id = ANY ($1::int[])
-    AND(ce.collection != 'episodes' OR (
+  AND (ce.collection != 'episodes' OR (
         ea.published
         AND ea.available_to > now()
         AND er.roles && $2::varchar[] AND ea.available_from < now()
@@ -104,33 +107,27 @@ func (q *Queries) getCollectionEntriesForCollectionsWithRoles(ctx context.Contex
 	return items, nil
 }
 
-const getCollections = `-- name: getCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, filter_type, name, query_filter, advanced_type
+const getCollectionIDsForCodes = `-- name: getCollectionIDsForCodes :many
+SELECT c.id, ct.slug
 FROM collections c
-WHERE c.id = ANY ($1::int[])
+         JOIN collections_translations ct ON c.id = ct.collections_id AND ct.slug = ANY ($1::varchar[])
 `
 
-func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Collection, error) {
-	rows, err := q.db.QueryContext(ctx, getCollections, pq.Array(dollar_1))
+type getCollectionIDsForCodesRow struct {
+	ID   int32          `db:"id" json:"id"`
+	Slug null_v4.String `db:"slug" json:"slug"`
+}
+
+func (q *Queries) getCollectionIDsForCodes(ctx context.Context, dollar_1 []string) ([]getCollectionIDsForCodesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCollectionIDsForCodes, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Collection
+	var items []getCollectionIDsForCodesRow
 	for rows.Next() {
-		var i Collection
-		if err := rows.Scan(
-			&i.DateCreated,
-			&i.DateUpdated,
-			&i.ID,
-			&i.Sort,
-			&i.UserCreated,
-			&i.UserUpdated,
-			&i.FilterType,
-			&i.Name,
-			&i.QueryFilter,
-			&i.AdvancedType,
-		); err != nil {
+		var i getCollectionIDsForCodesRow
+		if err := rows.Scan(&i.ID, &i.Slug); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -144,31 +141,54 @@ func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Colle
 	return items, nil
 }
 
-const listCollections = `-- name: listCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, filter_type, name, query_filter, advanced_type
-FROM collections
+const getCollections = `-- name: getCollections :many
+WITH ts AS (SELECT collections_id,
+                   json_object_agg(languages_code, title) AS title,
+                   json_object_agg(languages_code, slug)  AS slugs
+            FROM collections_translations
+            GROUP BY collections_id)
+SELECT c.id,
+       c.advanced_type,
+       c.date_created,
+       c.date_updated,
+       c.filter_type,
+       c.query_filter,
+       ts.title,
+       ts.slugs
+FROM collections c
+         LEFT JOIN ts ON ts.collections_id = c.id
+WHERE c.id = ANY ($1::int[])
 `
 
-func (q *Queries) listCollections(ctx context.Context) ([]Collection, error) {
-	rows, err := q.db.QueryContext(ctx, listCollections)
+type getCollectionsRow struct {
+	ID           int32                 `db:"id" json:"id"`
+	AdvancedType null_v4.String        `db:"advanced_type" json:"advancedType"`
+	DateCreated  time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated  time.Time             `db:"date_updated" json:"dateUpdated"`
+	FilterType   null_v4.String        `db:"filter_type" json:"filterType"`
+	QueryFilter  pqtype.NullRawMessage `db:"query_filter" json:"queryFilter"`
+	Title        pqtype.NullRawMessage `db:"title" json:"title"`
+	Slugs        pqtype.NullRawMessage `db:"slugs" json:"slugs"`
+}
+
+func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]getCollectionsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCollections, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Collection
+	var items []getCollectionsRow
 	for rows.Next() {
-		var i Collection
+		var i getCollectionsRow
 		if err := rows.Scan(
+			&i.ID,
+			&i.AdvancedType,
 			&i.DateCreated,
 			&i.DateUpdated,
-			&i.ID,
-			&i.Sort,
-			&i.UserCreated,
-			&i.UserUpdated,
 			&i.FilterType,
-			&i.Name,
 			&i.QueryFilter,
-			&i.AdvancedType,
+			&i.Title,
+			&i.Slugs,
 		); err != nil {
 			return nil, err
 		}

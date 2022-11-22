@@ -139,7 +139,8 @@ func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode) (mode
 	}
 
 	if collectionId != nil {
-		return r.QueryRoot().Collection(ctx, strconv.Itoa(*collectionId))
+		strID := strconv.Itoa(*collectionId)
+		return r.QueryRoot().Collection(ctx, &strID, nil)
 	}
 	if obj.Season != nil {
 		return r.QueryRoot().Season(ctx, obj.Season.ID)

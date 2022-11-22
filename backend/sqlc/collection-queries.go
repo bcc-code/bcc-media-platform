@@ -3,13 +3,19 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
 	"strconv"
 )
 
-func mapToCollections(collections []Collection) []common.Collection {
-	return lo.Map(collections, func(e Collection, _ int) common.Collection {
+func mapToCollections(collections []getCollectionsRow) []common.Collection {
+	return lo.Map(collections, func(e getCollectionsRow, _ int) common.Collection {
+		var title common.LocaleString
+		var slugs common.LocaleString
+		_ = json.Unmarshal(e.Title.RawMessage, &title)
+		_ = json.Unmarshal(e.Slugs.RawMessage, &slugs)
+
 		var filter *common.Filter
 
 		switch e.FilterType.ValueOrZero() {
@@ -22,7 +28,8 @@ func mapToCollections(collections []Collection) []common.Collection {
 			Type:         e.FilterType.ValueOrZero(),
 			AdvancedType: e.AdvancedType,
 			Filter:       filter,
-			Name:         e.Name.ValueOrZero(),
+			Title:        title,
+			Slugs:        slugs,
 		}
 	})
 }
@@ -68,4 +75,25 @@ func (rq *RoleQueries) GetItemsForCollectionsWithRoles(ctx context.Context, ids 
 		return nil, err
 	}
 	return mapToCollectionItems(items), nil
+}
+
+// GetOriginal returns the requested string
+func (row getCollectionIDsForCodesRow) GetOriginal() string {
+	return row.Slug.String
+}
+
+// GetResult returns the id from the query
+func (row getCollectionIDsForCodesRow) GetResult() int {
+	return int(row.ID)
+}
+
+// GetCollectionIDsForCodes returns ids for the requested codes
+func (q *Queries) GetCollectionIDsForCodes(ctx context.Context, codes []string) ([]batchloaders.Conversion[string, int], error) {
+	rows, err := q.getCollectionIDsForCodes(ctx, codes)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getCollectionIDsForCodesRow, _ int) batchloaders.Conversion[string, int] {
+		return i
+	}), nil
 }

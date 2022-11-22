@@ -108,6 +108,7 @@ type ComplexityRoot struct {
 	Collection struct {
 		ID    func(childComplexity int) int
 		Items func(childComplexity int, first *int, offset *int) int
+		Slug  func(childComplexity int) int
 	}
 
 	CollectionItemPagination struct {
@@ -392,7 +393,7 @@ type ComplexityRoot struct {
 	QueryRoot struct {
 		Application    func(childComplexity int) int
 		Calendar       func(childComplexity int) int
-		Collection     func(childComplexity int, id string) int
+		Collection     func(childComplexity int, id *string, slug *string) int
 		Config         func(childComplexity int) int
 		Episode        func(childComplexity int, id string, context *model.EpisodeContext) int
 		Event          func(childComplexity int, id string) int
@@ -710,7 +711,7 @@ type QueryRootResolver interface {
 	Show(ctx context.Context, id string) (*model.Show, error)
 	Season(ctx context.Context, id string) (*model.Season, error)
 	Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error)
-	Collection(ctx context.Context, id string) (*model.Collection, error)
+	Collection(ctx context.Context, id *string, slug *string) (*model.Collection, error)
 	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
 	Calendar(ctx context.Context) (*model.Calendar, error)
 	Event(ctx context.Context, id string) (*model.Event, error)
@@ -907,6 +908,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Collection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+
+	case "Collection.slug":
+		if e.complexity.Collection.Slug == nil {
+			break
+		}
+
+		return e.complexity.Collection.Slug(childComplexity), true
 
 	case "CollectionItemPagination.first":
 		if e.complexity.CollectionItemPagination.First == nil {
@@ -2255,7 +2263,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.QueryRoot.Collection(childComplexity, args["id"].(string)), true
+		return e.complexity.QueryRoot.Collection(childComplexity, args["id"].(*string), args["slug"].(*string)), true
 
 	case "QueryRoot.config":
 		if e.complexity.QueryRoot.Config == nil {
@@ -3932,6 +3940,7 @@ type WebSection implements Section {
 
 type Collection {
     id: ID!
+    slug: String
     items(
         first: Int,
         offset: Int,
@@ -4063,7 +4072,8 @@ type QueryRoot{
   ): Episode!
 
   collection(
-    id: ID!
+    id: ID
+    slug: String
   ): Collection!
 
   search(
@@ -4739,15 +4749,24 @@ func (ec *executionContext) field_QueryRoot___type_args(ctx context.Context, raw
 func (ec *executionContext) field_QueryRoot_collection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 *string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["id"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["slug"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["slug"] = arg1
 	return args, nil
 }
 
@@ -5881,6 +5900,47 @@ func (ec *executionContext) fieldContext_Collection_id(ctx context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Collection_slug(ctx context.Context, field graphql.CollectedField, obj *model.Collection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Collection_slug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Slug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Collection_slug(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Collection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -14920,7 +14980,7 @@ func (ec *executionContext) _QueryRoot_collection(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Collection(rctx, fc.Args["id"].(string))
+		return ec.resolvers.QueryRoot().Collection(rctx, fc.Args["id"].(*string), fc.Args["slug"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14947,6 +15007,8 @@ func (ec *executionContext) fieldContext_QueryRoot_collection(ctx context.Contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Collection_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Collection_slug(ctx, field)
 			case "items":
 				return ec.fieldContext_Collection_items(ctx, field)
 			}
@@ -24296,6 +24358,10 @@ func (ec *executionContext) _Collection(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "slug":
+
+			out.Values[i] = ec._Collection_slug(ctx, field, obj)
+
 		case "items":
 			field := field
 

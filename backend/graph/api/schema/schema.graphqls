@@ -95,7 +95,8 @@ type QueryRoot{
   ): Episode!
 
   collection(
-    id: ID!
+    id: ID
+    slug: String
   ): Collection!
 
   search(

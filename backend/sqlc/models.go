@@ -206,6 +206,14 @@ type CollectionsItem struct {
 	LinkID       null_v4.Int    `db:"link_id" json:"linkID"`
 }
 
+type CollectionsTranslation struct {
+	ID            int32          `db:"id" json:"id"`
+	CollectionsID null_v4.Int    `db:"collections_id" json:"collectionsID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Slug          null_v4.String `db:"slug" json:"slug"`
+	Title         null_v4.String `db:"title" json:"title"`
+}
+
 type DirectusActivity struct {
 	ID         int32          `db:"id" json:"id"`
 	Action     string         `db:"action" json:"action"`

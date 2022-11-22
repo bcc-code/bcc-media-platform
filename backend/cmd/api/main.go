@@ -303,6 +303,9 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		StreamsLoader:                      asset.NewBatchStreamsLoader(*queries),
 		CollectionLoader:                   batchloaders.New(queries.GetCollections).Loader,
 		CollectionItemLoader:               collection.NewItemListBatchLoader(*queries),
+		CollectionIDFromSlugLoader: &batchloaders.BatchLoader[string, *int]{
+			Loader: batchloaders.NewConversionLoader(queries.GetCollectionIDsForCodes),
+		},
 		EpisodeProgressLoader: &batchloaders.BatchLoader[uuid.UUID, []*int]{
 			Loader: batchloaders.NewRelationLoader(queries.GetEpisodeIDsWithProgress),
 		},

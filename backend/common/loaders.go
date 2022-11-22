@@ -14,6 +14,7 @@ type BatchLoaders struct {
 	RedirectIDFromCodeLoader           *dataloader.Loader[string, *uuid.UUID]
 	PageLoader                         *dataloader.Loader[int, *Page]
 	PageIDFromCodeLoader               *dataloader.Loader[string, *int]
+	CollectionIDFromSlugLoader         *batchloaders.BatchLoader[string, *int]
 	SectionLoader                      *dataloader.Loader[int, *Section]
 	SectionsLoader                     *dataloader.Loader[int, []*int]
 	CollectionLoader                   *dataloader.Loader[int, *Collection]

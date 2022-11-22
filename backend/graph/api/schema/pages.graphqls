@@ -145,6 +145,7 @@ type WebSection implements Section {
 
 type Collection {
     id: ID!
+    slug: String
     items(
         first: Int,
         offset: Int,
