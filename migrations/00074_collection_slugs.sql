@@ -7,18 +7,17 @@
 --- BEGIN CREATE SEQUENCE "public"."collections_translations_id_seq" ---
 
 
-CREATE SEQUENCE IF NOT EXISTS "public"."collections_translations_id_seq" 
-	INCREMENT BY 1 
+CREATE SEQUENCE IF NOT EXISTS "public"."collections_translations_id_seq"
+	INCREMENT BY 1
 	MINVALUE 1
 	MAXVALUE 2147483647
 	START WITH 1
 	CACHE 1
 	NO CYCLE;
 
-ALTER SEQUENCE "public"."collections_translations_id_seq" OWNER TO btv;
-GRANT SELECT ON SEQUENCE "public"."collections_translations_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT USAGE ON SEQUENCE "public"."collections_translations_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."collections_translations_id_seq" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+ALTER SEQUENCE "public"."collections_translations_id_seq" OWNER TO builder;
+
+GRANT SELECT, USAGE, UPDATE ON SEQUENCE "public"."collections_translations_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON SEQUENCE "public"."collections_translations_id_seq"  IS NULL;
 
@@ -35,20 +34,15 @@ CREATE TABLE IF NOT EXISTS "public"."collections_translations" (
 	CONSTRAINT "collections_translations_pkey" PRIMARY KEY (id) ,
 	CONSTRAINT "collections_translations_languages_code_foreign" FOREIGN KEY (languages_code) REFERENCES languages(code) ON DELETE SET NULL ,
 	CONSTRAINT "collections_translations_collections_id_foreign" FOREIGN KEY (collections_id) REFERENCES collections(id) ON DELETE SET NULL ,
-	CONSTRAINT "collections_translations_slug_unique" UNIQUE (slug) 
+	CONSTRAINT "collections_translations_slug_unique" UNIQUE (slug)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS collections_translations_slug_unique ON public.collections_translations USING btree (slug);
 
-ALTER TABLE IF EXISTS "public"."collections_translations" OWNER TO btv;
+ALTER TABLE IF EXISTS "public"."collections_translations" OWNER TO builder;
 
-GRANT SELECT ON TABLE "public"."collections_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."collections_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."collections_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."collections_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."collections_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."collections_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."collections_translations" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."collections_translations" TO api;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE "public"."collections_translations" TO directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."collections_translations"."id"  IS NULL;
 
@@ -141,6 +135,8 @@ UPDATE "public"."directus_fields" SET "sort" = 5 WHERE "id" = 85;
 
 UPDATE "public"."directus_fields" SET "sort" = 2 WHERE "id" = 703;
 
+UPDATE "public"."directus_fields" SET "translations" = '[{"language":"en-US","translation":"Label"}]' WHERE "id" = 389;
+
 --- END SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
@@ -157,6 +153,8 @@ INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field"
 /***********************************************************/
 
 --- BEGIN DROP TABLE "public"."collections_translations" ---
+
+UPDATE "public"."directus_fields" SET "translations" = NULL WHERE "id" = 389;
 
 DROP TABLE IF EXISTS "public"."collections_translations";
 

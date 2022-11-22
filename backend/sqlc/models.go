@@ -946,6 +946,7 @@ type Section struct {
 	UseContext          sql.NullBool    `db:"use_context" json:"useContext"`
 	EmbedAspectRatio    sql.NullFloat64 `db:"embed_aspect_ratio" json:"embedAspectRatio"`
 	EmbedHeight         null_v4.Int     `db:"embed_height" json:"embedHeight"`
+	PrependLiveElement  sql.NullBool    `db:"prepend_live_element" json:"prependLiveElement"`
 }
 
 type SectionsTranslation struct {
