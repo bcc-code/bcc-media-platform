@@ -39,5 +39,6 @@ FROM "users"."progress" p
 WHERE p.profile_id = ANY ($1::uuid[])
   AND (s IS NULL
     OR s.episode_id = p.episode_id)
+  AND p.progress > 10
   AND COALESCE((p.progress::float / COALESCE(NULLIF(p.duration, 0), 1)) > 0.8, false) != true
 ORDER BY p.updated_at DESC;

@@ -3,7 +3,7 @@
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <Slider :item="item" v-slot="{ item: i }" :breakpoints="options">
             <div
-                class="relative h-full cursor-pointer aspect-video"
+                class="relative h-full cursor-pointer aspect-video overflow-hidden"
                 @click="goToSectionItem(i, item.metadata?.collectionId)"
             >
                 <Image
@@ -13,7 +13,7 @@
                     class="rounded rounded-xl h-full object-cover"
                 />
                 <div
-                    class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent p- pt-8"
+                    class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent pt-8"
                 >
                     <h1 class="text-2xl font-bold">
                         {{ i.title }}
@@ -31,7 +31,12 @@
                     class="bg-slate-800 px-4 py-1 rounded-full font-bold text-lg flex mx-auto hover:scale-105"
                     @click="goToSectionItem(i)"
                 >
-                    <Play></Play><span class="ml-1">Watch now</span>
+                    <div class="flex" v-if="['Episode', 'Show', 'Season'].includes(i.item.__typename)">
+                        <Play></Play><span class="ml-1">Watch now</span>
+                    </div>
+                    <div class="flex" v-else>
+                        <Play></Play><span class="ml-1">Explore</span>
+                    </div>
                 </button>
             </div>
         </Slider>

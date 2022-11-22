@@ -4,20 +4,20 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { useGetRedirectUrlQuery } from '@/graph/generated';
+import { useGetRedirectUrlQuery } from "@/graph/generated"
 
-const props = defineProps<{code: string}>();
+const props = defineProps<{ code: string }>()
 
 const { then, error } = useGetRedirectUrlQuery({
     variables: {
-        code: props.code
-    }
+        code: props.code,
+    },
 })
 
-then(result => {
+then((result) => {
     const url = result.data.value?.redirect.url
     if (url) {
-        window.location.replace(url);
+        window.location.replace(url)
     }
 })
 </script>

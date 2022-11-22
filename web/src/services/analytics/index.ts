@@ -9,12 +9,15 @@ ready(() => {
     isLoading.value = false
 })
 
-load(import.meta.env.VITE_RUDDERSTACK_WRITE_KEY, import.meta.env.VITE_RUDDERSTACK_DATA_PLANE_URL)
+load(
+    import.meta.env.VITE_RUDDERSTACK_WRITE_KEY,
+    import.meta.env.VITE_RUDDERSTACK_DATA_PLANE_URL
+)
 
 export const event = <T extends keyof Events>(event: T, data: Events[T]) => {
     track(event, data)
 }
 
 export const initialize = (userId: string) => {
-    identify(userId, )
+    identify(userId)
 }
