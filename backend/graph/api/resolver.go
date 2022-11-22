@@ -34,6 +34,8 @@ import (
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
+const episodeContextKey = "EpisodeContext"
+
 type searchProvider interface {
 	Search(ctx *gin.Context, query common.SearchQuery) (searchResult common.SearchResult, err error)
 }

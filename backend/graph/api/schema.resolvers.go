@@ -342,7 +342,7 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 			CollectionID: utils.AsNullInt(context.CollectionID),
 		}
 		ginCtx, _ := utils.GinCtx(ctx)
-		ginCtx.Set("EpisodeContext", eCtx)
+		ginCtx.Set(episodeContextKey, eCtx)
 	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
 		Item:        r.Loaders.EpisodeLoader,
