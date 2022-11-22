@@ -27,6 +27,10 @@ type CollectionItem interface {
 	GetImages() []*Image
 }
 
+type EpisodeContextUnion interface {
+	IsEpisodeContextUnion()
+}
+
 type GridSection interface {
 	IsSection()
 	IsItemSection()
@@ -115,6 +119,8 @@ type Collection struct {
 	Items *CollectionItemPagination `json:"items"`
 }
 
+func (Collection) IsEpisodeContextUnion() {}
+
 type CollectionItemPagination struct {
 	Total  int              `json:"total"`
 	First  int              `json:"first"`
@@ -199,7 +205,7 @@ type Episode struct {
 	Progress          *int                   `json:"progress"`
 	AudioLanguages    []Language             `json:"audioLanguages"`
 	SubtitleLanguages []Language             `json:"subtitleLanguages"`
-	Context           *SectionItemPagination `json:"context"`
+	Context           EpisodeContextUnion    `json:"context"`
 	RelatedItems      *SectionItemPagination `json:"relatedItems"`
 	Images            []*Image               `json:"images"`
 	Number            *int                   `json:"number"`
@@ -622,6 +628,8 @@ type Season struct {
 	Show        *Show              `json:"show"`
 	Episodes    *EpisodePagination `json:"episodes"`
 }
+
+func (Season) IsEpisodeContextUnion() {}
 
 func (Season) IsSectionItemType() {}
 

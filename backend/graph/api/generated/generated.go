@@ -148,7 +148,7 @@ type ComplexityRoot struct {
 		AvailableFrom     func(childComplexity int) int
 		AvailableTo       func(childComplexity int) int
 		Chapters          func(childComplexity int) int
-		Context           func(childComplexity int, first *int, offset *int) int
+		Context           func(childComplexity int) int
 		Description       func(childComplexity int) int
 		Duration          func(childComplexity int) int
 		ExtraDescription  func(childComplexity int) int
@@ -644,7 +644,7 @@ type EpisodeResolver interface {
 
 	Progress(ctx context.Context, obj *model.Episode) (*int, error)
 
-	Context(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error)
+	Context(ctx context.Context, obj *model.Episode) (model.EpisodeContextUnion, error)
 	RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error)
 }
 type EpisodeCalendarEntryResolver interface {
@@ -1082,12 +1082,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Episode_context_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Episode.Context(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.Episode.Context(childComplexity), true
 
 	case "Episode.description":
 		if e.complexity.Episode.Description == nil {
@@ -3705,6 +3700,8 @@ enum EpisodeType {
     standalone
 }
 
+union EpisodeContextUnion = Season | Collection
+
 type Episode {
     id: ID!
     type: EpisodeType!
@@ -3728,7 +3725,7 @@ type Episode {
     progress: Int @goField(forceResolver: true)
     audioLanguages: [Language!]!
     subtitleLanguages: [Language!]!
-    context(first: Int, offset: Int): SectionItemPagination @goField(forceResolver: true)
+    context: EpisodeContextUnion @goField(forceResolver: true)
     relatedItems(first: Int, offset: Int): SectionItemPagination @goField(forceResolver: true)
     images: [Image!]!
     number: Int
@@ -4278,30 +4275,6 @@ func (ec *executionContext) field_DefaultGridSection_items_args(ctx context.Cont
 }
 
 func (ec *executionContext) field_DefaultSection_items_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *int
-	if tmp, ok := rawArgs["first"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["first"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["offset"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["offset"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Episode_context_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -7822,7 +7795,7 @@ func (ec *executionContext) _Episode_context(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Episode().Context(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Episode().Context(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7831,9 +7804,9 @@ func (ec *executionContext) _Episode_context(ctx context.Context, field graphql.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.SectionItemPagination)
+	res := resTmp.(model.EpisodeContextUnion)
 	fc.Result = res
-	return ec.marshalOSectionItemPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionItemPagination(ctx, field.Selections, res)
+	return ec.marshalOEpisodeContextUnion2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeContextUnion(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_context(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7843,29 +7816,8 @@ func (ec *executionContext) fieldContext_Episode_context(ctx context.Context, fi
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "first":
-				return ec.fieldContext_SectionItemPagination_first(ctx, field)
-			case "offset":
-				return ec.fieldContext_SectionItemPagination_offset(ctx, field)
-			case "total":
-				return ec.fieldContext_SectionItemPagination_total(ctx, field)
-			case "items":
-				return ec.fieldContext_SectionItemPagination_items(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type SectionItemPagination", field.Name)
+			return nil, errors.New("field of type EpisodeContextUnion does not have child fields")
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Episode_context_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
 	}
 	return fc, nil
 }
@@ -23675,6 +23627,29 @@ func (ec *executionContext) _CollectionItem(ctx context.Context, sel ast.Selecti
 	}
 }
 
+func (ec *executionContext) _EpisodeContextUnion(ctx context.Context, sel ast.SelectionSet, obj model.EpisodeContextUnion) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.Season:
+		return ec._Season(ctx, sel, &obj)
+	case *model.Season:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Season(ctx, sel, obj)
+	case model.Collection:
+		return ec._Collection(ctx, sel, &obj)
+	case *model.Collection:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Collection(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _GridSection(ctx context.Context, sel ast.SelectionSet, obj model.GridSection) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -24304,7 +24279,7 @@ func (ec *executionContext) _Chapter(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
-var collectionImplementors = []string{"Collection"}
+var collectionImplementors = []string{"Collection", "EpisodeContextUnion"}
 
 func (ec *executionContext) _Collection(ctx context.Context, sel ast.SelectionSet, obj *model.Collection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, collectionImplementors)
@@ -27224,7 +27199,7 @@ func (ec *executionContext) _SearchResult(ctx context.Context, sel ast.Selection
 	return out
 }
 
-var seasonImplementors = []string{"Season", "SectionItemType"}
+var seasonImplementors = []string{"Season", "EpisodeContextUnion", "SectionItemType"}
 
 func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, obj *model.Season) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, seasonImplementors)
@@ -30586,6 +30561,13 @@ func (ec *executionContext) unmarshalOEpisodeContext2ᚖgithubᚗcomᚋbccᚑcod
 	}
 	res, err := ec.unmarshalInputEpisodeContext(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOEpisodeContextUnion2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeContextUnion(ctx context.Context, sel ast.SelectionSet, v model.EpisodeContextUnion) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._EpisodeContextUnion(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx context.Context, sel ast.SelectionSet, v *model.Event) graphql.Marshaler {
