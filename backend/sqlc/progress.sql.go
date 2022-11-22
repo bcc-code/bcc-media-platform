@@ -45,9 +45,10 @@ SELECT p.episode_id, p.profile_id
 FROM "users"."progress" p
          LEFT JOIN shows s ON p.show_id = s.show_id AND p.profile_id = s.profile_id
 WHERE p.profile_id = ANY ($1::uuid[])
-    AND (s IS NULL
+  AND (s IS NULL
     OR s.episode_id = p.episode_id)
-    AND COALESCE((p.progress::float / COALESCE(NULLIF(p.duration, 0), 1)) > 0.8, false) != true
+  AND p.progress > 10
+  AND COALESCE((p.progress::float / COALESCE(NULLIF(p.duration, 0), 1)) > 0.8, false) != true
 ORDER BY p.updated_at DESC
 `
 
