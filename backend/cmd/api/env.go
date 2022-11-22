@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
@@ -32,7 +33,7 @@ type envConfig struct {
 	Tracing       utils.TracingConfig
 	AnalyticsSalt string
 	Email         email.Config
-	Redirect  redirectConfig
+	Redirect      redirectConfig
 }
 
 type postgres struct {
@@ -98,21 +99,29 @@ func (a awsConfig) GetTempStorageBucket() string {
 }
 
 func getEnvConfig() envConfig {
+	development := os.Getenv("ENVIRONMENT") == "development"
+
 	aud := lo.Map(strings.Split(os.Getenv("AUTH0_AUDIENCES"), ","),
 		func(s string, _ int) string {
 			return strings.TrimSpace(s)
 		},
 	)
 
-	// Parse the RSA Private KEY. The key should be in the pem format as delivered by Terraform
-	block, _ := pem.Decode([]byte(os.Getenv("REDIRECT_JWT_KEY")))
-	if block == nil {
-		panic(merry.New("Unable to parse PEM key, likely not set (REDIRECT_JWT_KEY)"))
-	}
+	var jwtkey *rsa.PrivateKey
+	if key := os.Getenv("REDIRECT_JWT_KEY"); !development || key != "" {
+		// Parse the RSA Private KEY. The key should be in the pem format as delivered by Terraform
+		block, _ := pem.Decode([]byte(key))
+		if block == nil {
+			panic(merry.New("Unable to parse PEM key, likely not set (REDIRECT_JWT_KEY)"))
+		}
 
-	jwtkey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-	if err != nil {
-		panic(merry.Wrap(err, merry.WithMessage("Unable to parse JWT private key (REDIRECT_JWT_KEY)")))
+		var err error
+		jwtkey, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			panic(merry.Wrap(err, merry.WithMessage("Unable to parse JWT private key (REDIRECT_JWT_KEY)")))
+		}
+	} else {
+		jwtkey, _ = rsa.GenerateKey(rand.Reader, 2048)
 	}
 
 	return envConfig{
