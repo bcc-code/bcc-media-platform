@@ -1,9 +1,10 @@
 package common
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"gopkg.in/guregu/null.v4"
-	"time"
 )
 
 // SearchQuery used as body in the POST request to the API
@@ -91,6 +92,12 @@ type Progress struct {
 	Watched   int
 	WatchedAt null.Time
 	UpdatedAt time.Time
+	Context   EpisodeContext
+}
+
+// EpisodeContext contains context for episode
+type EpisodeContext struct {
+	CollectionID null.Int
 }
 
 // Identifier contains basic data for identifying an item in a list
@@ -102,4 +109,14 @@ type Identifier struct {
 // GetKey returns the key for this item
 func (i Progress) GetKey() int {
 	return i.EpisodeID
+}
+
+type Redirect struct {
+	ID        uuid.UUID
+	Code      string
+	TargetURL string
+}
+
+func (r Redirect) GetKey() uuid.UUID {
+	return r.ID
 }

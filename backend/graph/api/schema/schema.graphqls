@@ -36,6 +36,7 @@ type User {
   email: String
   settings: Settings!
   roles: [String!]!
+  analytics: Analytics!
 }
 
 input LegacyIDLookupOptions {
@@ -51,6 +52,15 @@ input EpisodeContext {
   collectionId: String
 }
 
+type RedirectLink {
+  url: String!
+}
+
+type RedirectParam {
+  key: String!
+  value: String!
+}
+
 type QueryRoot{
   application: Application!
   export(
@@ -58,6 +68,8 @@ type QueryRoot{
     # NOT IMPLEMENTED YET!
     groups: [String!]
   ): Export!
+
+  redirect(id: String!): RedirectLink!
 
   page(
     id: ID
@@ -83,7 +95,8 @@ type QueryRoot{
   ): Episode!
 
   collection(
-    id: ID!
+    id: ID
+    slug: String
   ): Collection!
 
   search(
@@ -111,7 +124,7 @@ type QueryRoot{
 
 type MutationRoot {
   setDevicePushToken(token: String!, languages: [String!]!): Device
-  setEpisodeProgress(id: ID!, progress: Int, duration: Int): Episode!
+  setEpisodeProgress(id: ID!, progress: Int, duration: Int, context: EpisodeContext): Episode!
 
   sendSupportEmail(title: String!, content: String!, html: String!): Boolean!
 }

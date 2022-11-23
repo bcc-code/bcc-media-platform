@@ -9,7 +9,7 @@
                 ref="sectionItem"
             >
                 <div
-                    class="aspect-square bg-slate-800 rounded-2xl border-2 border-slate-700 p-2 cursor-pointer overflow-hidden"
+                    class="bg-slate-800 rounded-2xl border-2 border-slate-700 p-2 cursor-pointer overflow-hidden"
                 >
                     <Image
                         class="rounded-lg"

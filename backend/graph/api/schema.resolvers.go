@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -19,6 +20,8 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/lestrrat-go/jwx/v2/jwa"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/samber/lo"
 	null "gopkg.in/guregu/null.v4"
 )
@@ -64,7 +67,7 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 }
 
 // SetEpisodeProgress is the resolver for the episodeProgress field.
-func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int) (*model.Episode, error) {
+func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int, context *model.EpisodeContext) (*model.Episode, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -108,6 +111,16 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 			episodeProgress.Duration = *duration
 		}
 		episodeProgress.Progress = *progress
+
+		if context != nil {
+			var col null.Int
+			if context.CollectionID != nil {
+				col.SetValid(int64(utils.AsInt(*context.CollectionID)))
+			}
+			episodeProgress.Context.CollectionID = col
+		} else {
+			episodeProgress.Context = common.EpisodeContext{}
+		}
 
 		if episodeProgress.Duration > 0 && float64(episodeProgress.Progress)/float64(episodeProgress.Duration) > 0.8 {
 			if !episodeProgress.WatchedAt.Valid || episodeProgress.WatchedAt.Time.After(time.Now().Add(time.Hour*-12)) {
@@ -214,6 +227,66 @@ func (r *queryRootResolver) Export(ctx context.Context, groups []string) (*model
 	}, nil
 }
 
+// Redirect is the resolver for the redirect field.
+func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.RedirectLink, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	profile := user.GetProfileFromCtx(ginCtx)
+	if profile == nil {
+		return nil, merry.New(
+			"Not authorized",
+			merry.WithUserMessage("you are not authorized for this query"),
+		)
+	}
+
+	redirID, err := batchloaders.GetByID(ctx, r.Loaders.RedirectIDFromCodeLoader, id)
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
+	}
+
+	if redirID == nil {
+		return nil, merry.New("no rows", merry.WithUserMessage("Code not found"))
+	}
+
+	redir, err := batchloaders.GetByID(ctx, r.Loaders.RedirectLoader, *redirID)
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
+	}
+
+	// Build a JWT!
+	tok, err := jwt.NewBuilder().
+		Claim("person_id", profile.UserID).
+		Issuer("https://api.brunstad.tv/").
+		IssuedAt(time.Now()).
+		Expiration(time.Now().Add(30 * time.Second)).
+		Build()
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. TOKEN-ERROR"))
+	}
+
+	// Sign a JWT!
+	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.RS256, r.RedirectConfig.GetPrivateKey()))
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. TOKEN-SIGN-ERROR"))
+	}
+
+	// Add JWT to url
+	url, err := url.Parse(redir.TargetURL)
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. URL-PARSE"))
+	}
+	q := url.Query()
+	q.Add("token", string(signed))
+	url.RawQuery = q.Encode()
+
+	return &model.RedirectLink{
+		URL: url.String(),
+	}, nil
+}
+
 // Page is the resolver for the page field.
 func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) (*model.Page, error) {
 	if id != nil {
@@ -265,8 +338,11 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 // Episode is the resolver for the episode field.
 func (r *queryRootResolver) Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error) {
 	if context != nil {
+		eCtx := common.EpisodeContext{
+			CollectionID: utils.AsNullInt(context.CollectionID),
+		}
 		ginCtx, _ := utils.GinCtx(ctx)
-		ginCtx.Set("EpisodeContext", context)
+		ginCtx.Set(episodeContextKey, eCtx)
 	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
 		Item:        r.Loaders.EpisodeLoader,
@@ -275,10 +351,25 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 }
 
 // Collection is the resolver for the collection field.
-func (r *queryRootResolver) Collection(ctx context.Context, id string) (*model.Collection, error) {
+func (r *queryRootResolver) Collection(ctx context.Context, id *string, slug *string) (*model.Collection, error) {
+	var key string
+	if slug != nil {
+		intID, err := r.Loaders.CollectionIDFromSlugLoader.Get(ctx, *slug)
+		if err != nil {
+			return nil, err
+		}
+		if intID == nil {
+			return nil, merry.New("code invalid", merry.WithUserMessage("Invalid slug specified"))
+		}
+		key = strconv.Itoa(*intID)
+	} else if id != nil {
+		key = *id
+	} else {
+		return nil, merry.New("No options specified", merry.WithUserMessage("Specify either ID or slug"))
+	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Collection]{
 		Item: r.Loaders.CollectionLoader,
-	}, id, model.CollectionFrom)
+	}, key, model.CollectionFrom)
 }
 
 // Search is the resolver for the search field.
@@ -316,6 +407,7 @@ func (r *queryRootResolver) Me(ctx context.Context) (*model.User, error) {
 		Anonymous: usr.IsAnonymous(),
 		BccMember: usr.IsActiveBCC(),
 		Roles:     usr.Roles,
+		Analytics: &model.Analytics{},
 	}
 
 	if pid := gc.GetString(auth0.CtxUserID); pid != "" {

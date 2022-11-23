@@ -226,9 +226,9 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("episodes/:id", episodeHandler(rw))
-	r.GET("seasons/:id", seasonHandler(rw))
-	r.GET("shows/:id", showHandler(rw))
+	r.GET("episode/:id", episodeHandler(rw))
+	r.GET("season/:id", seasonHandler(rw))
+	r.GET("show/:id", showHandler(rw))
 
 	r.GET("/versionz", version.GinHandler)
 

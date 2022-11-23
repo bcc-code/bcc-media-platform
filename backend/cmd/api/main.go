@@ -3,10 +3,16 @@ package main
 import (
 	"context"
 	"database/sql"
-	"github.com/bcc-code/brunstadtv/backend/email"
+	"net/http"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/bcc-code/brunstadtv/backend/analytics"
+
+	"github.com/bcc-code/brunstadtv/backend/email"
+	"github.com/lestrrat-go/jwx/v2/jwa"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/gqltracer"
 
@@ -136,9 +142,9 @@ func graphqlHandler(
 	searchService *search.Service,
 	emailService *email.Service,
 	urlSigner *signing.Signer,
-	awsConfig awsConfig,
-	cdnConfig cdnConfig,
+	config envConfig,
 	s3client *s3.Client,
+	analyticsSalt string,
 ) gin.HandlerFunc {
 	resolver := graphapi.Resolver{
 		Queries:         queries,
@@ -147,10 +153,20 @@ func graphqlHandler(
 		ProfileLoaders:  profileLoaderFactory(queries),
 		SearchService:   searchService,
 		EmailService:    emailService,
-		APIConfig:       cdnConfig,
-		AWSConfig:       awsConfig,
 		URLSigner:       urlSigner,
 		S3Client:        s3client,
+		APIConfig:       config.CDNConfig,
+		AWSConfig:       config.AWS,
+		RedirectConfig:  config.Redirect,
+		AnalyticsIDFactory: func(ctx context.Context) string {
+			ginCtx, err := utils.GinCtx(ctx)
+			p := user.GetProfileFromCtx(ginCtx)
+			if err != nil || p == nil {
+				return "anonymous"
+			}
+
+			return analytics.GenerateID(p.ID, analyticsSalt)
+		},
 	}
 
 	tracer := &gqltracer.GraphTracer{}
@@ -264,12 +280,13 @@ func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code st
 }
 
 func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
-	collectionLoader := batchloaders.New(queries.GetCollections).Loader
-
 	return &common.BatchLoaders{
 		// App
 		ApplicationLoader:           batchloaders.NewLoader(queries.GetApplications),
 		ApplicationIDFromCodeLoader: batchloaders.NewConversionLoader(queries.GetApplicationIDsForCodes),
+		//Redirect
+		RedirectLoader:           batchloaders.NewLoader(queries.GetRedirects),
+		RedirectIDFromCodeLoader: batchloaders.NewConversionLoader(queries.GetRedirectIDsForCodes),
 		// Item
 		PageLoader:                         batchloaders.New(queries.GetPages).Loader,
 		PageIDFromCodeLoader:               batchloaders.NewConversionLoader(queries.GetPageIDsForCodes),
@@ -284,8 +301,11 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		CalendarEntryLoader:                batchloaders.New(queries.GetCalendarEntries).Loader,
 		FilesLoader:                        asset.NewBatchFilesLoader(*queries),
 		StreamsLoader:                      asset.NewBatchStreamsLoader(*queries),
-		CollectionLoader:                   collectionLoader,
+		CollectionLoader:                   batchloaders.New(queries.GetCollections).Loader,
 		CollectionItemLoader:               collection.NewItemListBatchLoader(*queries),
+		CollectionIDFromSlugLoader: &batchloaders.BatchLoader[string, *int]{
+			Loader: batchloaders.NewConversionLoader(queries.GetCollectionIDsForCodes),
+		},
 		EpisodeProgressLoader: &batchloaders.BatchLoader[uuid.UUID, []*int]{
 			Loader: batchloaders.NewRelationLoader(queries.GetEpisodeIDsWithProgress),
 		},
@@ -305,6 +325,19 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		ProfilesLoader: batchloaders.NewListLoader(queries.GetProfilesForUserIDs, func(i common.Profile) string {
 			return i.UserID
 		}),
+	}
+}
+
+func jwksHandler(config redirectConfig) gin.HandlerFunc {
+	pub, _ := jwk.PublicKeyOf(config.JWTPrivateKey)
+	pub.Set(jwk.AlgorithmKey, jwa.RS256)
+	pub.Set(jwk.KeyUsageKey, jwk.ForSignature)
+	pub.Set(jwk.KeyIDKey, config.KeyID)
+	jwks := jwk.NewSet()
+	jwks.AddKey(pub)
+
+	return func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, jwks)
 	}
 }
 
@@ -343,9 +376,9 @@ func main() {
 		searchService,
 		emailService,
 		urlSigner,
-		config.AWS,
-		config.CDNConfig,
+		config,
 		s3Client,
+		config.AnalyticsSalt,
 	)
 
 	log.L.Debug().Msg("Set up HTTP server")
@@ -368,6 +401,7 @@ func main() {
 
 	r.POST("/query", gqlHandler)
 	r.GET("/", playgroundHandler())
+	r.GET("/.well-known/jwks.json", jwksHandler(config.Redirect))
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, loaders))
 	r.POST("/public", publicGraphqlHandler(loaders))
 	r.GET("/versionz", version.GinHandler)

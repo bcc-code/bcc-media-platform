@@ -7,7 +7,11 @@ export const goToEpisode = (episodeId: string, collection?: string) => {
         params: {
             episodeId,
         },
-        query: router.currentRoute.value.query.collection ? router.currentRoute.value.query : (collection ? {collection} : undefined),
+        query: router.currentRoute.value.query.collection
+            ? router.currentRoute.value.query
+            : collection
+            ? { collection }
+            : undefined,
     })
 }
 
@@ -20,7 +24,10 @@ export const goToPage = (code: string) => {
     })
 }
 
-export const goToSectionItem = (item: SectionItemFragment, collection?: string) => {
+export const goToSectionItem = (
+    item: SectionItemFragment,
+    collection?: string
+) => {
     switch (item.item?.__typename) {
         case "Episode":
             goToEpisode(item.id, collection)

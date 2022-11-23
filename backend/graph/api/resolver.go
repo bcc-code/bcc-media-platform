@@ -2,7 +2,12 @@ package graph
 
 import (
 	"context"
+	"crypto/rsa"
 	"fmt"
+	"strconv"
+	"sync"
+	"time"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
@@ -11,9 +16,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/guregu/null.v4"
-	"strconv"
-	"sync"
-	"time"
 
 	"go.opentelemetry.io/otel"
 
@@ -32,6 +34,8 @@ import (
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
+const episodeContextKey = "EpisodeContext"
+
 type searchProvider interface {
 	Search(ctx *gin.Context, query common.SearchQuery) (searchResult common.SearchResult, err error)
 }
@@ -39,16 +43,18 @@ type searchProvider interface {
 // Resolver is the main struct for the GQL implementation
 // It contains references to all external services and config
 type Resolver struct {
-	Queries         *sqlc.Queries
-	Loaders         *common.BatchLoaders
-	FilteredLoaders func(ctx context.Context) *common.FilteredLoaders
-	ProfileLoaders  func(ctx context.Context) *common.ProfileLoaders
-	SearchService   searchProvider
-	EmailService    *email.Service
-	URLSigner       *signing.Signer
-	S3Client        *s3.Client
-	APIConfig       apiConfig
-	AWSConfig       awsConfig
+	Queries            *sqlc.Queries
+	Loaders            *common.BatchLoaders
+	FilteredLoaders    func(ctx context.Context) *common.FilteredLoaders
+	ProfileLoaders     func(ctx context.Context) *common.ProfileLoaders
+	SearchService      searchProvider
+	EmailService       *email.Service
+	URLSigner          *signing.Signer
+	S3Client           *s3.Client
+	APIConfig          apiConfig
+	AWSConfig          awsConfig
+	AnalyticsIDFactory func(ctx context.Context) string
+	RedirectConfig     redirectConfig
 }
 
 func (r *Resolver) GetQueries() *sqlc.Queries {
@@ -75,6 +81,10 @@ type apiConfig interface {
 	GetVOD2Domain() string
 	GetFilesCDNDomain() string
 	GetLegacyVODDomain() string
+}
+
+type redirectConfig interface {
+	GetPrivateKey() *rsa.PrivateKey
 }
 
 // ErrItemNotFound for not found items
@@ -279,7 +289,7 @@ func messageStyleFromString(styleString string) *model.MessageStyle {
 		style.Text = "#ffffff"
 		style.Border = "#8c2b24"
 	case "info":
-		style.Background = "#133747"
+		style.Background = "#6EB0E6"
 		style.Border = "#1f5770"
 		style.Text = "#ffffff"
 	case "warning":

@@ -174,15 +174,18 @@ type Section struct {
 	CollectionID        null.Int       `json:"collectionId"`
 	MessageID           null.Int       `json:"messageId"`
 	EmbedUrl            null.String    `json:"embedUrl"`
-	EmbedSize           null.String    `json:"embedSize"`
+	EmbedAspectRatio    null.Float     `json:"embedAspectRatio"`
+	EmbedHeight         null.Int       `json:"embedHeight"`
 	NeedsAuthentication null.Bool      `json:"needsAuthentication"`
 	Options             SectionOptions `json:"options"`
 }
 
 // SectionOptions contains options for this section
 type SectionOptions struct {
-	SecondaryTitles  bool
-	ContinueWatching bool
+	SecondaryTitles    bool
+	ContinueWatching   bool
+	UseContext         bool
+	PrependLiveElement bool
 }
 
 // GetKey returns the key for this item
@@ -192,11 +195,12 @@ func (i Section) GetKey() int {
 
 // Collection is the definition of the Collection object
 type Collection struct {
-	ID           int         `json:"id"`
-	Name         string      `json:"name"`
-	Type         string      `json:"type"`
-	AdvancedType null.String `json:"advancedType"`
-	Filter       *Filter     `json:"filter"`
+	ID           int          `json:"id"`
+	Slugs        LocaleString `json:"slugs"`
+	Title        LocaleString `json:"title"`
+	Type         string       `json:"type"`
+	AdvancedType null.String  `json:"advancedType"`
+	Filter       *Filter      `json:"filter"`
 }
 
 // GetKey returns the key for this item

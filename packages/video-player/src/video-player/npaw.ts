@@ -9,7 +9,7 @@ export type Options = {
         isLive: boolean,
         userId: string,
         metadata: {
-            contentId?: number,
+            contentId?: string,
             title?: string,
             episodeTitle?: string,
             seasonTitle?: string,

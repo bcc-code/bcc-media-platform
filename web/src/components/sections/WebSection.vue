@@ -1,15 +1,20 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <div class="w-full mx-auto max-w-xl">
-            <iframe ref="frame" class="w-full" :src="item.url" :height="effectiveHeight"></iframe>
+        <div class="w-full max-w-xl">
+            <iframe
+                ref="frame"
+                class="w-full"
+                :src="item.url"
+                :height="effectiveHeight"
+            ></iframe>
         </div>
     </section>
 </template>
 <script lang="ts" setup>
 import { Section } from "./types"
 import SectionTitle from "./SectionTitle.vue"
-import { computed, ref } from "vue";
+import { computed, ref } from "vue"
 
 const props = defineProps<{
     item: Section & { __typename: "WebSection" }

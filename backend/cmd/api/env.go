@@ -1,10 +1,16 @@
 package main
 
 import (
-	"github.com/bcc-code/brunstadtv/backend/email"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"os"
 	"strings"
 
+	"github.com/bcc-code/brunstadtv/backend/email"
+
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 
 	"github.com/bcc-code/brunstadtv/backend/members"
@@ -15,17 +21,19 @@ import (
 )
 
 type envConfig struct {
-	Members   members.Config
-	DB        postgres
-	Algolia   search.Config
-	Port      string
-	Auth0     auth0.Config
-	CDNConfig cdnConfig
-	Secrets   serviceSecrets
-	Redis     utils.RedisConfig
-	AWS       awsConfig
-	Tracing   utils.TracingConfig
-	Email     email.Config
+	Members       members.Config
+	DB            postgres
+	Algolia       search.Config
+	Port          string
+	Auth0         auth0.Config
+	CDNConfig     cdnConfig
+	Secrets       serviceSecrets
+	Redis         utils.RedisConfig
+	AWS           awsConfig
+	Tracing       utils.TracingConfig
+	AnalyticsSalt string
+	Email         email.Config
+	Redirect      redirectConfig
 }
 
 type postgres struct {
@@ -49,6 +57,15 @@ type awsConfig struct {
 
 type serviceSecrets struct {
 	Directus string
+}
+
+type redirectConfig struct {
+	JWTPrivateKey *rsa.PrivateKey
+	KeyID         string
+}
+
+func (r redirectConfig) GetPrivateKey() *rsa.PrivateKey {
+	return r.JWTPrivateKey
 }
 
 // GetVOD2Domain returns the configured VOD2Domain
@@ -82,11 +99,30 @@ func (a awsConfig) GetTempStorageBucket() string {
 }
 
 func getEnvConfig() envConfig {
+	development := os.Getenv("ENVIRONMENT") == "development"
+
 	aud := lo.Map(strings.Split(os.Getenv("AUTH0_AUDIENCES"), ","),
 		func(s string, _ int) string {
 			return strings.TrimSpace(s)
 		},
 	)
+
+	var jwtkey *rsa.PrivateKey
+	if key := os.Getenv("REDIRECT_JWT_KEY"); !development || key != "" {
+		// Parse the RSA Private KEY. The key should be in the pem format as delivered by Terraform
+		block, _ := pem.Decode([]byte(key))
+		if block == nil {
+			panic(merry.New("Unable to parse PEM key, likely not set (REDIRECT_JWT_KEY)"))
+		}
+
+		var err error
+		jwtkey, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			panic(merry.Wrap(err, merry.WithMessage("Unable to parse JWT private key (REDIRECT_JWT_KEY)")))
+		}
+	} else {
+		jwtkey, _ = rsa.GenerateKey(rand.Reader, 2048)
+	}
 
 	return envConfig{
 		Members: members.Config{
@@ -136,5 +172,10 @@ func getEnvConfig() envConfig {
 		Email: email.Config{
 			ApiKey: os.Getenv("SENDGRID_API_KEY"),
 		},
+		Redirect: redirectConfig{
+			JWTPrivateKey: jwtkey,
+			KeyID:         os.Getenv("REDIRECT_JWT_KEY_ID"),
+		},
+		AnalyticsSalt: os.Getenv("ANALYTICS_SALT"),
 	}
 }

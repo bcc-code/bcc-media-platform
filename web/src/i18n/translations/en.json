@@ -9,13 +9,19 @@
         "search": "Search",
         "live": "Live",
         "calendar": "Calendar",
-        "faq": "FAQ"
+        "faq": "FAQ",
+        "notFound": "Page not found"
     },
     "section": {
         "item": {
             "episode": "0 episodes | 1 episode | {count} episodes",
             "season": "0 seasons | 1 season | {count} seasons"
         }
+    },
+    "notFound": {
+        "title": "Not found",
+        "description": "Perhaps you are not logged in or missing some permissions.",
+        "returnHome": "Go to home"
     },
     "common": {
         "new": "New",
@@ -25,11 +31,13 @@
         "details": "Details",
         "episode": "Episode",
         "episodes": "Episodes",
+        "videos": "Videos",
         "seriesDescription": "Series Description",
         "releaseDate": "Release Date",
         "availableFrom": "Available From",
         "availableTo": "Available To",
-        "ageRating": "Rating"
+        "ageRating": "Rating",
+        "notFound": "Episode not found"
     },
     "live": {
         "now": "Now"

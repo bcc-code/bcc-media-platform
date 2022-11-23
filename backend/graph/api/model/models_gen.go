@@ -27,6 +27,10 @@ type CollectionItem interface {
 	GetImages() []*Image
 }
 
+type EpisodeContextUnion interface {
+	IsEpisodeContextUnion()
+}
+
 type GridSection interface {
 	IsSection()
 	IsItemSection()
@@ -77,6 +81,10 @@ type SectionItemType interface {
 	IsSectionItemType()
 }
 
+type Analytics struct {
+	AnonymousID string `json:"anonymousId"`
+}
+
 type Application struct {
 	ID            string `json:"id"`
 	Code          string `json:"code"`
@@ -108,6 +116,7 @@ type Chapter struct {
 
 type Collection struct {
 	ID    string                    `json:"id"`
+	Slug  *string                   `json:"slug"`
 	Items *CollectionItemPagination `json:"items"`
 }
 
@@ -126,6 +135,14 @@ func (this CollectionItemPagination) GetOffset() int { return this.Offset }
 type Config struct {
 	Global *GlobalConfig `json:"global"`
 }
+
+type ContextCollection struct {
+	ID    string                 `json:"id"`
+	Slug  *string                `json:"slug"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (ContextCollection) IsEpisodeContextUnion() {}
 
 type DefaultGridSection struct {
 	ID       string                 `json:"id"`
@@ -195,7 +212,7 @@ type Episode struct {
 	Progress          *int                   `json:"progress"`
 	AudioLanguages    []Language             `json:"audioLanguages"`
 	SubtitleLanguages []Language             `json:"subtitleLanguages"`
-	Context           *SectionItemPagination `json:"context"`
+	Context           EpisodeContextUnion    `json:"context"`
 	RelatedItems      *SectionItemPagination `json:"relatedItems"`
 	Images            []*Image               `json:"images"`
 	Number            *int                   `json:"number"`
@@ -409,9 +426,11 @@ type Image struct {
 }
 
 type ItemSectionMetadata struct {
-	ContinueWatching bool   `json:"continueWatching"`
-	SecondaryTitles  bool   `json:"secondaryTitles"`
-	CollectionID     string `json:"collectionId"`
+	ContinueWatching   bool   `json:"continueWatching"`
+	SecondaryTitles    bool   `json:"secondaryTitles"`
+	CollectionID       string `json:"collectionId"`
+	UseContext         bool   `json:"useContext"`
+	PrependLiveElement bool   `json:"prependLiveElement"`
 }
 
 type LabelSection struct {
@@ -589,6 +608,15 @@ func (this QuestionPagination) GetTotal() int  { return this.Total }
 func (this QuestionPagination) GetFirst() int  { return this.First }
 func (this QuestionPagination) GetOffset() int { return this.Offset }
 
+type RedirectLink struct {
+	URL string `json:"url"`
+}
+
+type RedirectParam struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
 type SearchResult struct {
 	Hits   int                `json:"hits"`
 	Page   int                `json:"page"`
@@ -608,6 +636,8 @@ type Season struct {
 	Show        *Show              `json:"show"`
 	Episodes    *EpisodePagination `json:"episodes"`
 }
+
+func (Season) IsEpisodeContextUnion() {}
 
 func (Season) IsSectionItemType() {}
 
@@ -840,13 +870,14 @@ type Stream struct {
 }
 
 type User struct {
-	ID        *string   `json:"id"`
-	Anonymous bool      `json:"anonymous"`
-	BccMember bool      `json:"bccMember"`
-	Audience  *string   `json:"audience"`
-	Email     *string   `json:"email"`
-	Settings  *Settings `json:"settings"`
-	Roles     []string  `json:"roles"`
+	ID        *string    `json:"id"`
+	Anonymous bool       `json:"anonymous"`
+	BccMember bool       `json:"bccMember"`
+	Audience  *string    `json:"audience"`
+	Email     *string    `json:"email"`
+	Settings  *Settings  `json:"settings"`
+	Roles     []string   `json:"roles"`
+	Analytics *Analytics `json:"analytics"`
 }
 
 type WebSection struct {
@@ -855,6 +886,8 @@ type WebSection struct {
 	Title          *string              `json:"title"`
 	URL            string               `json:"url"`
 	WidthRatio     float64              `json:"widthRatio"`
+	AspectRatio    *float64             `json:"aspectRatio"`
+	Height         *int                 `json:"height"`
 	Authentication bool                 `json:"authentication"`
 }
 
