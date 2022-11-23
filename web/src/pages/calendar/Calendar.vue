@@ -88,6 +88,7 @@ import DayQuery from "@/components/calendar/DayQuery.vue"
 import { current } from "@/services/language"
 import { useTitle } from "@/utils/title"
 import { useI18n } from "vue-i18n"
+import { analytics } from "@/services/analytics"
 
 const now = new Date()
 
@@ -130,5 +131,9 @@ const { t } = useI18n()
 
 onMounted(() => {
     setTitle(t("page.calendar"))
+    analytics.page({
+        id: "calendar",
+        title: t("page.calendar")
+    })
 })
 </script>

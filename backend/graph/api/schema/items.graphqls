@@ -58,7 +58,7 @@ enum EpisodeType {
     standalone
 }
 
-union EpisodeContextUnion = Season | Collection
+union EpisodeContextUnion = Season | ContextCollection
 
 type Episode {
     id: ID!

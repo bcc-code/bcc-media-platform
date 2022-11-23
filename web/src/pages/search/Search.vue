@@ -34,6 +34,7 @@ import { useApplicationQuery } from "@/graph/generated"
 import { useTitle } from "@/utils/title"
 import { useI18n } from "vue-i18n"
 import SearchInput from "@/components/SearchInput.vue"
+import { analytics } from "@/services/analytics"
 
 const { setTitle } = useTitle()
 
@@ -80,6 +81,10 @@ onMounted(() => {
         queryVariable.value = q
     }
     setTitle(t("page.search"))
+    analytics.page({
+        id: "search",
+        title: t("page.search")
+    })
 })
 
 watch(

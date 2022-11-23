@@ -10,6 +10,7 @@
 <script lang="ts" setup>
 import PageComponent from "@/components/page/Page.vue"
 import { useApplicationQuery } from "@/graph/generated"
+import { analytics } from "@/services/analytics";
 import { useTitle } from "@/utils/title"
 import { ref, watch } from "vue"
 
@@ -33,6 +34,10 @@ const { setTitle } = useTitle()
 const updateTitle = (title: string) => {
     const defaultPage = data.value?.application.page?.code
     if (props.pageId && defaultPage !== props.pageId) {
+        analytics.page({
+            id: "page",
+            title: title,
+        })
         setTitle(title)
     }
 }

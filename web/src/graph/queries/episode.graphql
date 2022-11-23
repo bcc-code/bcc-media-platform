@@ -47,8 +47,18 @@ query getEpisode($episodeId: ID!, $context: EpisodeContext) {
         publishDate
         duration
         context {
-            items {
-                ...SectionItem
+            __typename
+            ... on Season {
+                id
+            }
+            ... on ContextCollection {
+                id
+                slug
+                items {
+                    items {
+                        ...SectionItem
+                    }
+                }
             }
         }
         relatedItems {
