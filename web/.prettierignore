@@ -3,3 +3,4 @@ dist
 .vscode
 build
 pnpm-lock.yaml
+src/graph/generated.ts
