@@ -1,7 +1,7 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <div class="w-full mx-auto max-w-xl">
+        <div class="w-full max-w-xl">
             <iframe
                 ref="frame"
                 class="w-full"
