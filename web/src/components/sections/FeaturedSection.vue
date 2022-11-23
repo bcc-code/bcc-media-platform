@@ -3,25 +3,24 @@
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <Slider :item="item" v-slot="{ item: i }" :breakpoints="options">
             <div
-                class="relative h-full cursor-pointer"
-                @click="goToSectionItem(i)"
+                class="relative h-full cursor-pointer aspect-video overflow-hidden"
+                @click="goToSectionItem(i, item.metadata?.collectionId)"
             >
                 <Image
-                    v-if="i.image"
                     :src="i.image"
                     size-source="width"
                     :ratio="9 / 16"
                     class="rounded rounded-xl h-full object-cover"
                 />
                 <div
-                    class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent p- pt-8"
+                    class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent pt-8"
                 >
                     <h1 class="text-2xl font-bold">
                         {{ i.title }}
                     </h1>
                     <p
                         v-if="(i as any).description"
-                        class="opacity-80 truncate px-8"
+                        class="opacity-80 line-clamp-2 px-8 lg:px-16"
                     >
                         {{ (i as any).description }}
                     </p>
@@ -32,7 +31,19 @@
                     class="bg-slate-800 px-4 py-1 rounded-full font-bold text-lg flex mx-auto hover:scale-105"
                     @click="goToSectionItem(i)"
                 >
-                    <Play></Play><span class="ml-1">Watch now</span>
+                    <div
+                        class="flex"
+                        v-if="
+                            ['Episode', 'Show', 'Season'].includes(
+                                i.item.__typename
+                            )
+                        "
+                    >
+                        <Play></Play><span class="ml-1">Watch now</span>
+                    </div>
+                    <div class="flex" v-else>
+                        <Play></Play><span class="ml-1">Explore</span>
+                    </div>
                 </button>
             </div>
         </Slider>

@@ -1,5 +1,5 @@
 <template>
-    <section class="flex flex-col gap-4 p-4">
+    <section class="flex flex-col gap-4">
         <div v-for="d in details" class="flex flex-col gap-1">
             <h1 class="text-lg font-semibold">{{ d.title }}</h1>
             <p>{{ d.value }}</p>

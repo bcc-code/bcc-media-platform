@@ -7,39 +7,34 @@ package sqlc
 
 import (
 	"context"
+	"time"
 
 	"github.com/lib/pq"
+	"github.com/tabbed/pqtype"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const getCollectionItemsForCollections = `-- name: getCollectionItemsForCollections :many
-SELECT collection_id, date_created, date_updated, episode_id, id, page_id, season_id, show_id, sort, type, user_created, user_updated, link_id
-FROM collections_items ci
-WHERE ci.collection_id = ANY ($1::int[])
+const getCollectionEntriesForCollections = `-- name: getCollectionEntriesForCollections :many
+SELECT id, collections_id, item, collection, sort
+FROM collections_entries ci
+WHERE ci.collections_id = ANY ($1::int[])
 `
 
-func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1 []int32) ([]CollectionsItem, error) {
-	rows, err := q.db.QueryContext(ctx, getCollectionItemsForCollections, pq.Array(dollar_1))
+func (q *Queries) getCollectionEntriesForCollections(ctx context.Context, dollar_1 []int32) ([]CollectionsEntry, error) {
+	rows, err := q.db.QueryContext(ctx, getCollectionEntriesForCollections, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []CollectionsItem
+	var items []CollectionsEntry
 	for rows.Next() {
-		var i CollectionsItem
+		var i CollectionsEntry
 		if err := rows.Scan(
-			&i.CollectionID,
-			&i.DateCreated,
-			&i.DateUpdated,
-			&i.EpisodeID,
 			&i.ID,
-			&i.PageID,
-			&i.SeasonID,
-			&i.ShowID,
+			&i.CollectionsID,
+			&i.Item,
+			&i.Collection,
 			&i.Sort,
-			&i.Type,
-			&i.UserCreated,
-			&i.UserUpdated,
-			&i.LinkID,
 		); err != nil {
 			return nil, err
 		}
@@ -54,59 +49,85 @@ func (q *Queries) getCollectionItemsForCollections(ctx context.Context, dollar_1
 	return items, nil
 }
 
-const getCollectionItemsForCollectionsWithRoles = `-- name: getCollectionItemsForCollectionsWithRoles :many
-SELECT ci.collection_id, ci.date_created, ci.date_updated, ci.episode_id, ci.id, ci.page_id, ci.season_id, ci.show_id, ci.sort, ci.type, ci.user_created, ci.user_updated, ci.link_id
-FROM collections_items ci
-         LEFT JOIN episode_roles er ON er.id = ci.episode_id
-         LEFT JOIN episode_availability ea ON ea.id = ci.episode_id
-         LEFT JOIN season_roles sr ON sr.id = ci.season_id
-         LEFT JOIN season_availability sa ON sa.id = ci.season_id
-         LEFT JOIN show_roles shr ON shr.id = ci.show_id
-         LEFT JOIN show_availability sha ON sha.id = ci.show_id
-WHERE ci.collection_id = ANY ($1::int[])
-  AND (ci.episode_id IS NULL OR (
+const getCollectionEntriesForCollectionsWithRoles = `-- name: getCollectionEntriesForCollectionsWithRoles :many
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+         LEFT JOIN episode_roles er ON ce.collection = 'episodes' AND er.id::varchar = ce.item
+         LEFT JOIN episode_availability ea ON ce.collection = 'episodes' AND ea.id::varchar = ce.item
+         LEFT JOIN season_roles sr ON ce.collection = 'seasons' AND sr.id::varchar = ce.item
+         LEFT JOIN season_availability sa ON ce.collection = 'seasons' AND sa.id::varchar = ce.item
+         LEFT JOIN show_roles shr ON ce.collection = 'shows' AND shr.id::varchar = ce.item
+         LEFT JOIN show_availability sha ON ce.collection = 'shows' AND sha.id::varchar = ce.item
+WHERE ce.collections_id = ANY ($1::int[])
+  AND (ce.collection != 'episodes' OR (
         ea.published
         AND ea.available_to > now()
         AND er.roles && $2::varchar[] AND ea.available_from < now()
     ))
-  AND ci.season_id IS NULL
-  AND (ci.show_id IS NULL OR (
+  AND ce.collection != 'seasons'
+  AND (ce.collection != 'shows' OR (
         sha.published
         AND sha.available_to > now()
         AND shr.roles && $2::varchar[] AND sha.available_from < now()
     ))
-ORDER BY ci.sort
+ORDER BY ce.sort
 `
 
-type getCollectionItemsForCollectionsWithRolesParams struct {
+type getCollectionEntriesForCollectionsWithRolesParams struct {
 	Column1 []int32  `db:"column_1" json:"column1"`
 	Column2 []string `db:"column_2" json:"column2"`
 }
 
-func (q *Queries) getCollectionItemsForCollectionsWithRoles(ctx context.Context, arg getCollectionItemsForCollectionsWithRolesParams) ([]CollectionsItem, error) {
-	rows, err := q.db.QueryContext(ctx, getCollectionItemsForCollectionsWithRoles, pq.Array(arg.Column1), pq.Array(arg.Column2))
+func (q *Queries) getCollectionEntriesForCollectionsWithRoles(ctx context.Context, arg getCollectionEntriesForCollectionsWithRolesParams) ([]CollectionsEntry, error) {
+	rows, err := q.db.QueryContext(ctx, getCollectionEntriesForCollectionsWithRoles, pq.Array(arg.Column1), pq.Array(arg.Column2))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []CollectionsItem
+	var items []CollectionsEntry
 	for rows.Next() {
-		var i CollectionsItem
+		var i CollectionsEntry
 		if err := rows.Scan(
-			&i.CollectionID,
-			&i.DateCreated,
-			&i.DateUpdated,
-			&i.EpisodeID,
 			&i.ID,
-			&i.PageID,
-			&i.SeasonID,
-			&i.ShowID,
+			&i.CollectionsID,
+			&i.Item,
+			&i.Collection,
 			&i.Sort,
-			&i.Type,
-			&i.UserCreated,
-			&i.UserUpdated,
-			&i.LinkID,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getCollectionIDsForCodes = `-- name: getCollectionIDsForCodes :many
+SELECT c.id, ct.slug
+FROM collections c
+         JOIN collections_translations ct ON c.id = ct.collections_id AND ct.slug = ANY ($1::varchar[])
+`
+
+type getCollectionIDsForCodesRow struct {
+	ID   int32          `db:"id" json:"id"`
+	Slug null_v4.String `db:"slug" json:"slug"`
+}
+
+func (q *Queries) getCollectionIDsForCodes(ctx context.Context, dollar_1 []string) ([]getCollectionIDsForCodesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCollectionIDsForCodes, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getCollectionIDsForCodesRow
+	for rows.Next() {
+		var i getCollectionIDsForCodesRow
+		if err := rows.Scan(&i.ID, &i.Slug); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -121,76 +142,53 @@ func (q *Queries) getCollectionItemsForCollectionsWithRoles(ctx context.Context,
 }
 
 const getCollections = `-- name: getCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter
+WITH ts AS (SELECT collections_id,
+                   json_object_agg(languages_code, title) AS title,
+                   json_object_agg(languages_code, slug)  AS slugs
+            FROM collections_translations
+            GROUP BY collections_id)
+SELECT c.id,
+       c.advanced_type,
+       c.date_created,
+       c.date_updated,
+       c.filter_type,
+       c.query_filter,
+       ts.title,
+       ts.slugs
 FROM collections c
+         LEFT JOIN ts ON ts.collections_id = c.id
 WHERE c.id = ANY ($1::int[])
 `
 
-func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]Collection, error) {
+type getCollectionsRow struct {
+	ID           int32                 `db:"id" json:"id"`
+	AdvancedType null_v4.String        `db:"advanced_type" json:"advancedType"`
+	DateCreated  time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated  time.Time             `db:"date_updated" json:"dateUpdated"`
+	FilterType   null_v4.String        `db:"filter_type" json:"filterType"`
+	QueryFilter  pqtype.NullRawMessage `db:"query_filter" json:"queryFilter"`
+	Title        pqtype.NullRawMessage `db:"title" json:"title"`
+	Slugs        pqtype.NullRawMessage `db:"slugs" json:"slugs"`
+}
+
+func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]getCollectionsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getCollections, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Collection
+	var items []getCollectionsRow
 	for rows.Next() {
-		var i Collection
+		var i getCollectionsRow
 		if err := rows.Scan(
+			&i.ID,
+			&i.AdvancedType,
 			&i.DateCreated,
 			&i.DateUpdated,
-			&i.ID,
-			&i.Sort,
-			&i.UserCreated,
-			&i.UserUpdated,
-			&i.Collection,
-			&i.EpisodesQueryFilter,
 			&i.FilterType,
-			&i.Name,
-			&i.PagesQueryFilter,
-			&i.SeasonsQueryFilter,
-			&i.ShowsQueryFilter,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listCollections = `-- name: listCollections :many
-SELECT date_created, date_updated, id, sort, user_created, user_updated, collection, episodes_query_filter, filter_type, name, pages_query_filter, seasons_query_filter, shows_query_filter
-FROM collections
-`
-
-func (q *Queries) listCollections(ctx context.Context) ([]Collection, error) {
-	rows, err := q.db.QueryContext(ctx, listCollections)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Collection
-	for rows.Next() {
-		var i Collection
-		if err := rows.Scan(
-			&i.DateCreated,
-			&i.DateUpdated,
-			&i.ID,
-			&i.Sort,
-			&i.UserCreated,
-			&i.UserUpdated,
-			&i.Collection,
-			&i.EpisodesQueryFilter,
-			&i.FilterType,
-			&i.Name,
-			&i.PagesQueryFilter,
-			&i.SeasonsQueryFilter,
-			&i.ShowsQueryFilter,
+			&i.QueryFilter,
+			&i.Title,
+			&i.Slugs,
 		); err != nil {
 			return nil, err
 		}

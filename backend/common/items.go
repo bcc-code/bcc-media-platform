@@ -13,16 +13,16 @@ const (
 	//StreamServiceMediapackage = "mediapackage"
 )
 
-// ItemType is what type of item current struct is
-type ItemType string
+// ItemCollection is what type of item current struct is
+type ItemCollection string
 
 // Types of items
 var (
-	TypeShow    = ItemType("show")
-	TypeSeason  = ItemType("season")
-	TypeEpisode = ItemType("episode")
-	TypePage    = ItemType("page")
-	TypeSection = ItemType("section")
+	TypeShow    = ItemCollection("shows")
+	TypeSeason  = ItemCollection("seasons")
+	TypeEpisode = ItemCollection("episodes")
+	TypePage    = ItemCollection("pages")
+	TypeSection = ItemCollection("sections")
 )
 
 // Show is the definition of the Show object
@@ -162,20 +162,30 @@ func (i Link) GetKey() int {
 
 // Section is the definition of the Section object
 type Section struct {
-	ID                  int          `json:"id"`
-	Sort                int          `json:"sort"`
-	PageID              int          `json:"pageId"`
-	Type                string       `json:"type"`
-	ShowTitle           bool         `json:"showTitle"`
-	Title               LocaleString `json:"title"`
-	Description         LocaleString `json:"description"`
-	Style               string       `json:"style"`
-	Size                string       `json:"size"`
-	CollectionID        null.Int     `json:"collectionId"`
-	MessageID           null.Int     `json:"messageId"`
-	EmbedUrl            null.String  `json:"embedUrl"`
-	EmbedSize           null.String  `json:"embedSize"`
-	NeedsAuthentication null.Bool    `json:"needsAuthentication"`
+	ID                  int            `json:"id"`
+	Sort                int            `json:"sort"`
+	PageID              int            `json:"pageId"`
+	Type                string         `json:"type"`
+	ShowTitle           bool           `json:"showTitle"`
+	Title               LocaleString   `json:"title"`
+	Description         LocaleString   `json:"description"`
+	Style               string         `json:"style"`
+	Size                string         `json:"size"`
+	CollectionID        null.Int       `json:"collectionId"`
+	MessageID           null.Int       `json:"messageId"`
+	EmbedUrl            null.String    `json:"embedUrl"`
+	EmbedAspectRatio    null.Float     `json:"embedAspectRatio"`
+	EmbedHeight         null.Int       `json:"embedHeight"`
+	NeedsAuthentication null.Bool      `json:"needsAuthentication"`
+	Options             SectionOptions `json:"options"`
+}
+
+// SectionOptions contains options for this section
+type SectionOptions struct {
+	SecondaryTitles    bool
+	ContinueWatching   bool
+	UseContext         bool
+	PrependLiveElement bool
 }
 
 // GetKey returns the key for this item
@@ -185,11 +195,12 @@ func (i Section) GetKey() int {
 
 // Collection is the definition of the Collection object
 type Collection struct {
-	ID         int         `json:"id"`
-	Name       string      `json:"name"`
-	Type       string      `json:"type"`
-	Collection null.String `json:"collection"`
-	Filter     *Filter     `json:"filter"`
+	ID           int          `json:"id"`
+	Slugs        LocaleString `json:"slugs"`
+	Title        LocaleString `json:"title"`
+	Type         string       `json:"type"`
+	AdvancedType null.String  `json:"advancedType"`
+	Filter       *Filter      `json:"filter"`
 }
 
 // GetKey returns the key for this item
@@ -207,11 +218,11 @@ type Filter struct {
 
 // CollectionItem is the definition of the CollectionItem object
 type CollectionItem struct {
-	ID           int      `json:"id"`
-	Sort         int      `json:"sort"`
-	CollectionID int      `json:"collectionId"`
-	Type         ItemType `json:"type"`
-	ItemID       int      `json:"itemId"`
+	ID           int            `json:"id"`
+	Sort         int            `json:"sort"`
+	CollectionID int            `json:"collectionId"`
+	Type         ItemCollection `json:"type"`
+	ItemID       int            `json:"itemId"`
 }
 
 // GetKey returns the key for this item

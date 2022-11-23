@@ -1,8 +1,10 @@
 package common
 
 import (
-	"gopkg.in/guregu/null.v4"
 	"time"
+
+	"github.com/google/uuid"
+	"gopkg.in/guregu/null.v4"
 )
 
 // SearchQuery used as body in the POST request to the API
@@ -69,11 +71,16 @@ type GlobalConfig struct {
 
 // Notification contains notification data
 type Notification struct {
-	ID          int
-	Status      Status
-	Title       LocaleString           `json:"title"`
-	Description LocaleString           `json:"description"`
-	Images      LocaleMap[null.String] `json:"images"`
+	ID            uuid.UUID
+	Status        Status
+	Title         LocaleString           `json:"title"`
+	Description   LocaleString           `json:"description"`
+	Images        LocaleMap[null.String] `json:"images"`
+	ScheduleAt    null.Time              `json:"scheduleAt"`
+	SendStarted   null.Time              `json:"sendStarted"`
+	SendCompleted null.Time              `json:"sendCompleted"`
+	DeepLink      null.String            `json:"deepLink"`
+	Action        null.String            `json:"action"`
 }
 
 // Progress contains basic data for progress
@@ -82,10 +89,34 @@ type Progress struct {
 	ShowID    null.Int
 	Progress  int
 	Duration  int
-	Watched   bool
+	Watched   int
+	WatchedAt null.Time
+	UpdatedAt time.Time
+	Context   EpisodeContext
+}
+
+// EpisodeContext contains context for episode
+type EpisodeContext struct {
+	CollectionID null.Int
+}
+
+// Identifier contains basic data for identifying an item in a list
+type Identifier struct {
+	Collection string
+	ID         int
 }
 
 // GetKey returns the key for this item
 func (i Progress) GetKey() int {
 	return i.EpisodeID
+}
+
+type Redirect struct {
+	ID        uuid.UUID
+	Code      string
+	TargetURL string
+}
+
+func (r Redirect) GetKey() uuid.UUID {
+	return r.ID
 }

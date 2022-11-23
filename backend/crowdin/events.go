@@ -2,6 +2,7 @@ package crowdin
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -89,16 +90,18 @@ var supportedCollections = []string{
 }
 
 // HandleModelUpdate for triggering actions on object change
-func (client *Client) HandleModelUpdate(ctx context.Context, collection string, id int) error {
+func (client *Client) HandleModelUpdate(ctx context.Context, collection string, key string) error {
 	if !lo.Contains(supportedCollections, collection) {
 		return nil
 	}
 
-	if status, err := getStatusForItem(ctx, client.du, collection, id); err != nil || status != "published" {
+	id, _ := strconv.ParseInt(key, 10, 64)
+
+	if status, err := getStatusForItem(ctx, client.du, collection, int(id)); err != nil || status != "published" {
 		// Return error, else just ignore if not published
 		return err
 	}
-	translations, err := getTranslationsForItem(ctx, client.du, collection, id, "")
+	translations, err := getTranslationsForItem(ctx, client.du, collection, int(id), "")
 	if err != nil {
 		return err
 	}
@@ -109,12 +112,12 @@ func (client *Client) HandleModelUpdate(ctx context.Context, collection string, 
 }
 
 // HandleModelDelete for triggering actions to handle deletion events
-func (client *Client) HandleModelDelete(_ context.Context, collection string, id int) error {
+func (client *Client) HandleModelDelete(_ context.Context, collection string, id string) error {
 	if !lo.Contains(supportedCollections, collection) {
 		return nil
 	}
 
-	log.L.Debug().Str("collection", collection).Int("id", id).Msg("deleting translations - not implemented")
+	log.L.Debug().Str("collection", collection).Str("id", id).Msg("deleting translations - not implemented")
 	// TODO: implement deletion of translations
 	return nil
 }

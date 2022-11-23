@@ -26,7 +26,6 @@
     </ShowTitle>
 </template>
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n"
 import EpisodeTitle from "../episodes/EpisodeTitle.vue"
 import SeasonTitle from "../seasons/SeasonTitle.vue"
 import ShowTitle from "../shows/ShowTitle.vue"

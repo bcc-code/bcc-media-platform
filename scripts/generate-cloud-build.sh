@@ -37,6 +37,7 @@ function allow_loose {
 
 artifact pull workflow api.txt || true
 artifact pull workflow jobs.txt || true
+artifact pull workflow rewriter.txt || true
 artifact pull workflow cms.txt || true
 artifact pull workflow migrations.txt
 
@@ -45,7 +46,7 @@ echo "steps:" > $M
 migrations $(cat migrations.txt)
 artifact push workflow $M
 
-if [ ! -f "api.txt" ] && [ ! -f "jobs.txt" ] && [ ! -f "cms.txt" ]; then
+if [ ! -f "api.txt" ] && [ ! -f "jobs.txt" ] && [ ! -f "cms.txt" ] && [ ! -f "rewriter.txt" ]; then
 	# Nothing to do here, skip making workflows
 	exit 0
 fi
@@ -64,6 +65,11 @@ fi
 if [ -f "jobs.txt" ]; then
 	deploy JOBS jobs.txt
 	route JOBS jobs.txt
+fi
+
+if [ -f "rewriter.txt" ]; then
+	deploy REWRITER rewriter.txt
+	route REWRITER rewriter.txt
 fi
 
 if [ -f "cms.txt" ]; then

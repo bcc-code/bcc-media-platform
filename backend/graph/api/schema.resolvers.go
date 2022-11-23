@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -13,11 +14,14 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/email"
 	"github.com/bcc-code/brunstadtv/backend/export"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/lestrrat-go/jwx/v2/jwa"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/samber/lo"
 	null "gopkg.in/guregu/null.v4"
 )
@@ -63,7 +67,7 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 }
 
 // SetEpisodeProgress is the resolver for the episodeProgress field.
-func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int) (*model.Episode, error) {
+func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int, context *model.EpisodeContext) (*model.Episode, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -72,41 +76,96 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 	if p == nil {
 		return nil, ErrProfileNotSet
 	}
-	e, err := r.QueryRoot().Episode(ctx, id)
+	e, err := r.QueryRoot().Episode(ctx, id, nil)
 	if err != nil {
 		return nil, err
 	}
 	episodeID := utils.AsInt(e.ID)
 	q := r.Queries.ProfileQueries(p.ID)
 	var episodeProgress *common.Progress
+	pl := r.ProfileLoaders(ctx).ProgressLoader
 	if progress == nil {
 		err = q.ClearProgress(ctx, episodeID)
 	} else {
-		dur := e.Duration
-		if duration != nil {
-			dur = *duration
+		episodeProgress, err = pl.Get(ctx, utils.AsInt(e.ID))
+		if err != nil {
+			return nil, err
 		}
-		var showID null.Int
-		if e.Season != nil {
-			s, err := r.QueryRoot().Season(ctx, e.Season.ID)
-			if err != nil {
-				return nil, err
+		if episodeProgress == nil {
+			var showID null.Int
+			if e.Season != nil {
+				s, err := r.QueryRoot().Season(ctx, e.Season.ID)
+				if err != nil {
+					return nil, err
+				}
+				showID.SetValid(int64(utils.AsInt(s.Show.ID)))
 			}
-			showID.SetValid(int64(utils.AsInt(s.Show.ID)))
+			episodeProgress = &common.Progress{
+				EpisodeID: episodeID,
+				ShowID:    showID,
+				Duration:  e.Duration,
+				UpdatedAt: time.Now(),
+			}
 		}
-		pr := common.Progress{
-			EpisodeID: episodeID,
-			ShowID:    showID,
-			Progress:  *progress,
-			Duration:  dur,
+		if duration != nil {
+			episodeProgress.Duration = *duration
 		}
-		err = q.SaveProgress(ctx, pr)
-		episodeProgress = &pr
+		episodeProgress.Progress = *progress
+
+		if context != nil {
+			var col null.Int
+			if context.CollectionID != nil {
+				col.SetValid(int64(utils.AsInt(*context.CollectionID)))
+			}
+			episodeProgress.Context.CollectionID = col
+		} else {
+			episodeProgress.Context = common.EpisodeContext{}
+		}
+
+		if episodeProgress.Duration > 0 && float64(episodeProgress.Progress)/float64(episodeProgress.Duration) > 0.8 {
+			if !episodeProgress.WatchedAt.Valid || episodeProgress.WatchedAt.Time.After(time.Now().Add(time.Hour*-12)) {
+				episodeProgress.Watched++
+				episodeProgress.WatchedAt = null.TimeFrom(time.Now())
+			}
+		}
+
+		err = q.SaveProgress(ctx, *episodeProgress)
 	}
-	pl := r.ProfileLoaders(ctx).ProgressLoader
 	pl.Clear(ctx, episodeID)
 	pl.Prime(ctx, episodeID, episodeProgress)
+	r.Loaders.EpisodeProgressLoader.Clear(ctx, p.ID)
 	return e, err
+}
+
+// SendSupportEmail is the resolver for the sendSupportEmail field.
+func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title string, content string, html string) (bool, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return false, err
+	}
+	u := user.GetFromCtx(ginCtx)
+
+	if u.Anonymous {
+		return false, merry.New("User cannot be anonymous")
+	}
+
+	err = r.EmailService.SendEmail(ctx, email.SendOptions{
+		From: email.Recipient{
+			Name:  u.DisplayName,
+			Email: u.Email,
+		},
+		To: email.Recipient{
+			Name:  "Support",
+			Email: "support@brunstad.tv",
+		},
+		Title:       title,
+		Content:     content,
+		HTMLContent: html,
+	})
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // Application is the resolver for the application field.
@@ -168,6 +227,66 @@ func (r *queryRootResolver) Export(ctx context.Context, groups []string) (*model
 	}, nil
 }
 
+// Redirect is the resolver for the redirect field.
+func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.RedirectLink, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	profile := user.GetProfileFromCtx(ginCtx)
+	if profile == nil {
+		return nil, merry.New(
+			"Not authorized",
+			merry.WithUserMessage("you are not authorized for this query"),
+		)
+	}
+
+	redirID, err := batchloaders.GetByID(ctx, r.Loaders.RedirectIDFromCodeLoader, id)
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
+	}
+
+	if redirID == nil {
+		return nil, merry.New("no rows", merry.WithUserMessage("Code not found"))
+	}
+
+	redir, err := batchloaders.GetByID(ctx, r.Loaders.RedirectLoader, *redirID)
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
+	}
+
+	// Build a JWT!
+	tok, err := jwt.NewBuilder().
+		Claim("person_id", profile.UserID).
+		Issuer("https://api.brunstad.tv/").
+		IssuedAt(time.Now()).
+		Expiration(time.Now().Add(30 * time.Second)).
+		Build()
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. TOKEN-ERROR"))
+	}
+
+	// Sign a JWT!
+	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.RS256, r.RedirectConfig.GetPrivateKey()))
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. TOKEN-SIGN-ERROR"))
+	}
+
+	// Add JWT to url
+	url, err := url.Parse(redir.TargetURL)
+	if err != nil {
+		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. URL-PARSE"))
+	}
+	q := url.Query()
+	q.Add("token", string(signed))
+	url.RawQuery = q.Encode()
+
+	return &model.RedirectLink{
+		URL: url.String(),
+	}, nil
+}
+
 // Page is the resolver for the page field.
 func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) (*model.Page, error) {
 	if id != nil {
@@ -217,7 +336,14 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 }
 
 // Episode is the resolver for the episode field.
-func (r *queryRootResolver) Episode(ctx context.Context, id string) (*model.Episode, error) {
+func (r *queryRootResolver) Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error) {
+	if context != nil {
+		eCtx := common.EpisodeContext{
+			CollectionID: utils.AsNullInt(context.CollectionID),
+		}
+		ginCtx, _ := utils.GinCtx(ctx)
+		ginCtx.Set(episodeContextKey, eCtx)
+	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
 		Item:        r.Loaders.EpisodeLoader,
 		Permissions: r.Loaders.EpisodePermissionLoader,
@@ -225,10 +351,25 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*model.Epis
 }
 
 // Collection is the resolver for the collection field.
-func (r *queryRootResolver) Collection(ctx context.Context, id string) (*model.Collection, error) {
+func (r *queryRootResolver) Collection(ctx context.Context, id *string, slug *string) (*model.Collection, error) {
+	var key string
+	if slug != nil {
+		intID, err := r.Loaders.CollectionIDFromSlugLoader.Get(ctx, *slug)
+		if err != nil {
+			return nil, err
+		}
+		if intID == nil {
+			return nil, merry.New("code invalid", merry.WithUserMessage("Invalid slug specified"))
+		}
+		key = strconv.Itoa(*intID)
+	} else if id != nil {
+		key = *id
+	} else {
+		return nil, merry.New("No options specified", merry.WithUserMessage("Specify either ID or slug"))
+	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Collection]{
 		Item: r.Loaders.CollectionLoader,
-	}, id, model.CollectionFrom)
+	}, key, model.CollectionFrom)
 }
 
 // Search is the resolver for the search field.
@@ -266,6 +407,7 @@ func (r *queryRootResolver) Me(ctx context.Context) (*model.User, error) {
 		Anonymous: usr.IsAnonymous(),
 		BccMember: usr.IsActiveBCC(),
 		Roles:     usr.Roles,
+		Analytics: &model.Analytics{},
 	}
 
 	if pid := gc.GetString(auth0.CtxUserID); pid != "" {

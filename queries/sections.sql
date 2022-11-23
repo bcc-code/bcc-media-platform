@@ -16,12 +16,18 @@ SELECT s.id,
        s.collection_id,
        s.message_id,
        s.embed_url,
-       s.embed_size,
+       s.embed_aspect_ratio,
+       s.embed_height,
        s.needs_authentication,
+       s.use_context,
+       s.prepend_live_element,
+       c.advanced_type,
+       COALESCE(s.secondary_titles, true),
        t.title,
        t.description
 FROM sections s
          JOIN pages p ON s.page_id = p.id
+         LEFT JOIN collections c ON c.id = s.collection_id
          LEFT JOIN t ON s.id = t.sections_id
 WHERE s.id = ANY ($1::int[])
   AND s.status = 'published'

@@ -7,7 +7,7 @@ type Singleton = "globalconfig" | "appconfig" | "webconfig" | "maintenancemessag
 export type Collection = Translation | Object | Singleton
 
 export interface Event {
-    key: number;
+    key: number | string;
     keys: (number | string)[]
     payload: any;
     collection: Collection;

@@ -12,7 +12,7 @@ import (
 type Event struct {
 	Event      string `json:"event"`
 	Collection string `json:"collection"`
-	ID         int    `json:"id"`
+	ID         string `json:"id"`
 }
 
 const (
@@ -36,7 +36,7 @@ func NewEventHandler() *EventHandler {
 var itemsEvents = map[string][]EventHandlerFunc{}
 
 // EventHandlerFunc is a function that can process a directus event
-type EventHandlerFunc func(ctx context.Context, collection string, id int) error
+type EventHandlerFunc func(ctx context.Context, collection string, id string) error
 
 // On event, do this:
 func (handler *EventHandler) On(events []string, callback EventHandlerFunc) {
@@ -65,7 +65,7 @@ func (handler *EventHandler) ProcessCloudEvent(ctx context.Context, e cevent.Eve
 
 	errors := handler.Process(ctx, event)
 	if len(errors) > 0 {
-		log.L.Error().Errs("direcus handler errors", errors).Msg("Errors while processing Directus event")
+		log.L.Error().Errs("directus handler errors", errors).Msg("Errors while processing Directus event")
 		return merry.Wrap(ErrErrorDuringProcessing)
 	}
 
@@ -75,10 +75,10 @@ func (handler *EventHandler) ProcessCloudEvent(ctx context.Context, e cevent.Eve
 // Process Event
 func (handler *EventHandler) Process(ctx context.Context, event Event) []error {
 	log.L.Debug().Str("event", event.Event).Str("collection", event.Collection).Msg("Processing event")
-	errors := []error{}
+	var errors []error
 
 	var id = event.ID
-	if id == 0 {
+	if id == "" {
 		return errors
 	}
 

@@ -1,6 +1,6 @@
 <template>
     <div class="filter">
-        <div style="display: inline-block">
+        <div style="width: 100%;">
             <h1>FILTER</h1>
             <div class="flex">
                 <div>
@@ -10,46 +10,59 @@
                         :fields="fields"
                     ></FieldSelector>
                 </div>
-                <div>
+                <div v-if="field">
                     <h3>Operator</h3>
-                    <select 
+                    <v-select
+                        :modelValue="selectedOperator"
+                        @update:modelValue="(v) => {selectedOperator = v; update()}"
+                        :items="filterOperators"
+                    />
+                    <!-- <select
                         v-model="selectedOperator"
-                        @change="update" 
+                        @change="update"
                         style="text-transform: uppercase;"
                     >
                         <option v-for="op in filterOperators">{{ op }}</option>
-                    </select>
+                    </select> -->
                 </div>
-                <div>
+                <div v-if="field">
                     <h3>Value</h3>
-                    <v-input
-                        v-if="selectedOperator != 'in'"
-                        :type="fieldType" 
-                        v-model="selectedValue" 
-                        @change="update"
+                    <v-select
+                        v-if="field.type === 'string' && field.options"
+                        :modelValue="selectedValue"
+                        @update:modelValue="(v) => {selectedValue = v; update()}"
+                        :items="field.options"
+                        item-text="title"
+                        item-value="value"
                     />
-                    <v-input 
+                    <v-input
+                        v-else-if="selectedOperator != 'in' && selectedOperator != 'is'"
+                        :type="field.type"
+                        :modelValue="selectedValue"
+                        @update:modelValue="(v) => {selectedValue = v; update()}"
+                    />
+                    <v-input
                         v-else
                         type="text"
-                        v-model="selectedValue" 
-                        @change="update"
+                        :modelValue="selectedValue"
+                        @update:modelValue="(v) => {selectedValue = v; update()}"
                     ></v-input>
                 </div>
             </div>
         </div>
-        <div style="display: inline-block; float: right">
+        <div>
             <v-button @click="$emit('delete')">Delete</v-button>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import { Field, Filter as TFilter, filterOperators, Variable } from '.';
+import { Field, Filter as TFilter, filterOperators as operatorTypes, Variable } from '.';
 import FieldSelector from './FieldSelector.vue';
 
 const props = defineProps<{ value: TFilter, fields: Field[] }>();
-const emit = defineEmits<{ 
-    (e: "update:value", value: TFilter), 
+const emit = defineEmits<{
+    (e: "update:value", value: TFilter),
     (e: "delete"),
     (e: "change")
 }>();
@@ -60,13 +73,20 @@ const selectedOperator = ref(operator.value);
 const selectedProperty = ref((((props.value as TFilter)[operator.value][0] as Variable)?.var ?? null) as string | null)
 const selectedValue = ref(props.value[operator.value][1] as string | null);
 
-const fieldType = computed(() => {
-    const field = props.fields.find(f => f.name === selectedProperty.value);
-    return field?.type ?? "text";
+const field = computed(() => {
+    const field = props.fields.find(f => f.column === selectedProperty.value);
+    return field;
+})
+
+const filterOperators = computed(() => {
+    return field.value?.supportedOperators
 })
 
 function update() {
     const filter = Object.assign({}, props.value);
+    if (field.value && field.value?.supportedOperators.includes(selectedOperator.value) !== true) {
+        selectedOperator.value = field.value?.supportedOperators[0];
+    }
     if (selectedOperator.value !== operator.value) {
         filter[selectedOperator.value] = filter[operator.value]
         delete filter[operator.value];
@@ -89,6 +109,8 @@ function update() {
 .filter {
     margin-top: 10px;
     padding: 10px;
+    width: 100%;
+    display: flex;
     border-style: solid;
     border-color: #31363d;
     border-width: 2px;

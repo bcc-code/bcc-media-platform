@@ -29,15 +29,15 @@ func getOptions[K comparable, V any](opts ...Option) []dataloader.Option[K, V] {
 
 	for _, opt := range opts {
 		switch t := opt.(type) {
-		case memoryCache:
-			options = append(options, dataloader.WithCache[K, V](newMemoryLoaderCache[K, V](t.expiration)))
+		case MemoryCache:
+			options = append(options, dataloader.WithCache[K, V](NewMemoryLoaderCache[K, V](t.expiration)))
 			memoryCacheAdded = true
 		}
 	}
 
 	// We want a TTL for everything.
 	if !memoryCacheAdded {
-		options = append(options, dataloader.WithCache[K, V](newMemoryLoaderCache[K, V](time.Minute*5)))
+		options = append(options, dataloader.WithCache[K, V](NewMemoryLoaderCache[K, V](time.Minute*5)))
 	}
 
 	return options
@@ -86,6 +86,22 @@ func NewListLoader[K comparable, V any](
 	options := getOptions[K, []*V](opts...)
 
 	return dataloader.NewBatchedLoader(batchLoadLists, options...)
+}
+
+// RelationItem implements Relation
+type RelationItem[k comparable, kr comparable] struct {
+	Key        k
+	RelationID kr
+}
+
+// GetKey retrieves the key for the item
+func (r RelationItem[k, kr]) GetKey() k {
+	return r.Key
+}
+
+// GetRelationID returns the relation ID
+func (r RelationItem[k, kr]) GetRelationID() kr {
+	return r.RelationID
 }
 
 // Relation contains a simple id to relation struct

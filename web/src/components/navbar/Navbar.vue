@@ -366,7 +366,7 @@ import {
     SearchIcon,
     SettingsIcon,
 } from "../icons"
-import { computed, ComputedRef, Ref } from "vue"
+import { computed } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
 import { useGetCalendarStatusQuery } from "@/graph/generated"

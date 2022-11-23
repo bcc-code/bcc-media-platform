@@ -5,3 +5,4 @@ tmp
 dist
 .generated
 version.json
+key.local.rsa

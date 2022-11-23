@@ -22,6 +22,14 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 
 	switch s.Type {
 	case "item":
+		metadata := &ItemSectionMetadata{
+			SecondaryTitles:    s.Options.SecondaryTitles,
+			ContinueWatching:   s.Options.ContinueWatching,
+			CollectionID:       strconv.Itoa(int(s.CollectionID.Int64)),
+			UseContext:         s.Options.UseContext,
+			PrependLiveElement: s.Options.PrependLiveElement,
+		}
+
 		switch s.Style {
 		case "featured":
 			size := SectionSize(s.Size)
@@ -29,9 +37,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = SectionSizeMedium
 			}
 			return &FeaturedSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "default":
 			size := SectionSize(s.Size)
@@ -39,9 +48,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = SectionSizeMedium
 			}
 			return &DefaultSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "list":
 			size := SectionSize(s.Size)
@@ -49,9 +59,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = SectionSizeMedium
 			}
 			return &ListSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "posters":
 			size := SectionSize(s.Size)
@@ -59,9 +70,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = SectionSizeMedium
 			}
 			return &PosterSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "grid":
 			size := GridSectionSize(s.Size)
@@ -69,9 +81,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = GridSectionSizeHalf
 			}
 			return &DefaultGridSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "poster_grid":
 			size := GridSectionSize(s.Size)
@@ -79,9 +92,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = GridSectionSizeHalf
 			}
 			return &PosterGridSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "icon_grid":
 			size := GridSectionSize(s.Size)
@@ -89,19 +103,22 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = GridSectionSizeHalf
 			}
 			return &IconGridSection{
-				ID:    id,
-				Title: title,
-				Size:  size,
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
 			}
 		case "icons":
 			return &IconSection{
-				ID:    id,
-				Title: title,
+				ID:       id,
+				Title:    title,
+				Metadata: metadata,
 			}
 		case "labels":
 			return &LabelSection{
-				ID:    id,
-				Title: title,
+				ID:       id,
+				Title:    title,
+				Metadata: metadata,
 			}
 		}
 	case "message":
@@ -110,22 +127,23 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			Title: title,
 		}
 	case "embed_web":
-		var size WebSectionSize
-		switch s.EmbedSize.ValueOrZero() {
-		case "16:9":
-			size = WebSectionSizeR16_9
-		case "4:3":
-			size = WebSectionSizeR4_3
-		case "9:16":
-			size = WebSectionSizeR9_16
-		case "1:1":
-			size = WebSectionSizeR1_1
+		var height *int
+		if s.EmbedHeight.Valid {
+			val := int(s.EmbedHeight.ValueOrZero())
+			height = &val
+		}
+
+		var aspectRatio *float64
+		if s.EmbedAspectRatio.Valid {
+			aspectRatio = &s.EmbedAspectRatio.Float64
 		}
 
 		return &WebSection{
 			ID:             id,
 			Title:          title,
-			Size:           size,
+			WidthRatio:     s.EmbedAspectRatio.Float64,
+			Height:         height,
+			AspectRatio:    aspectRatio,
 			URL:            s.EmbedUrl.ValueOrZero(),
 			Authentication: s.NeedsAuthentication.ValueOrZero(),
 		}
