@@ -31,11 +31,12 @@
                         ></SearchInput>
                     </div>
                     <div class="hidden lg:flex ml-2">
-                        <Menu as="div" class="relative my-auto">
+                        <!-- <Menu as="div" class="relative my-auto">
                             <MenuButton
                                 :class="open ? '' : 'text-opacity-90'"
                                 class="flex hover:bg-slate-800 transition rounded-full text-base px-2 p-1 font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
                             >
+                            //icon
                                 <svg
                                     width="24"
                                     height="24"
@@ -53,8 +54,9 @@
                                 <p class="uppercase ml-1 my-auto">
                                     {{ current.code }}
                                 </p>
-                            </MenuButton>
-                            <transition
+                            </MenuButton> -->
+                            <LanguageDisplay :open="open"/>
+                            <!-- <transition
                                 enter-active-class="transition duration-200 ease-out"
                                 enter-from-class="translate-y-1 opacity-0"
                                 enter-to-class="translate-y-0 opacity-100"
@@ -92,8 +94,8 @@
                                         </MenuItem>
                                     </div>
                                 </MenuItems>
-                            </transition>
-                        </Menu>
+                            </transition> -->
+                        <!-- </Menu> -->
                         <Menu as="div" class="relative my-auto ml-2">
                             <div>
                                 <MenuButton
@@ -370,6 +372,7 @@ import { computed } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
 import { useGetCalendarStatusQuery } from "@/graph/generated"
+import LanguageDisplay from "../languages/LanguageDisplay.vue"
 
 const { t } = useI18n()
 
