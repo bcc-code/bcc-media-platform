@@ -170,6 +170,23 @@
                                                 </p>
                                             </button>
                                         </MenuItem>
+                                        <MenuItem v-slot="{ active }" @click="contactToggle">
+                                            <button
+                                                :class="[
+                                                    active
+                                                        ? 'bg-violet-500 text-white'
+                                                        : 'text-gray-900',
+                                                    'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
+                                                ]"
+                                            >
+                                                <SettingsIcon
+                                                    class="h-6"
+                                                ></SettingsIcon>
+                                                <p class="ml-2 text-base">
+                                                    Contact Support
+                                                </p>
+                                            </button>
+                                        </MenuItem>
                                     </div>
                                 </MenuItems>
                             </transition>
@@ -322,6 +339,23 @@
                                                 </p>
                                             </button>
                                         </MenuItem>
+                                        <MenuItem v-slot="{ active }" @click="contactToggle">
+                                            <button
+                                                :class="[
+                                                    active
+                                                        ? 'bg-violet-500 text-white'
+                                                        : 'text-gray-900',
+                                                    'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
+                                                ]"
+                                            >
+                                                <SettingsIcon
+                                                    class="h-6"
+                                                ></SettingsIcon>
+                                                <p class="ml-2 text-base">
+                                                    Contact Support
+                                                </p>
+                                            </button>
+                                        </MenuItem>
                                     </div>
                                 </MenuItems>
                             </transition>
@@ -344,6 +378,7 @@
             </div>
         </div>
     </Disclosure>
+    <ContactForm :show="isContactFormActive" @close-dialog="contactToggle"/>
 </template>
 <script lang="ts" setup>
 import { RouteLocationRaw } from "vue-router"
@@ -366,16 +401,19 @@ import {
     SearchIcon,
     SettingsIcon,
 } from "../icons"
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
 import { useGetCalendarStatusQuery } from "@/graph/generated"
+import ContactForm from "@/pages/setting/ContactForm.vue"
 
 const { t } = useI18n()
 
 const { query } = useSearch()
 
 const { authenticated, signOut, signIn, user } = useAuth()
+
+const isContactFormActive = ref(false)
 
 const navigation = computed(() => {
     const n: {
@@ -433,4 +471,6 @@ const isLive = computed(() => {
         ) === true
     )
 })
+
+const contactToggle = () => isContactFormActive.value = !isContactFormActive.value;
 </script>
