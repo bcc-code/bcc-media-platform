@@ -1,13 +1,12 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <div class="flex flex-col lg:grid lg:grid-cols-2">
-            <div v-for="i in item.items.items" class="relative">
+        <div class="flex flex-col lg:grid lg:grid-cols-2 max-h-screen overflow-y-scroll">
+            <div v-for="i in page.items" class="relative" :key="i.id + i.item.__typename">
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div
                     class="flex flex-col cursor-pointer mx-2 mt-2 hover:opacity-90"
                     @click="goToSectionItem(i, item.metadata?.collectionId)"
-                    ref="sectionItem"
                 >
                     <div
                         class="relative mb-1 rounded-md w-full aspect-video overflow-hidden transition"
@@ -36,24 +35,55 @@ import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
 import ProgressBar from "../episodes/ProgressBar.vue"
-import { onMounted, ref } from "vue"
-import { getImageSize } from "@/utils/images"
+import { computed, nextTick, onUnmounted, ref } from "vue"
 import Image from "../Image.vue"
+import { useGetSectionQuery } from "@/graph/generated"
 
-defineProps<{
+const props = defineProps<{
     item: Section & { __typename: "ListSection" }
+    paginate?: boolean
 }>()
 
-const sectionItem = ref(null as HTMLDivElement[] | null)
+const page = ref(props.item.items)
 
-const loadImage = ref(false)
+const first = ref(20);
+const offset = ref(0);
 
-const imageSize = ref(0)
+const sectionId = computed(() => props.item.id)
 
-onMounted(() => {
-    const div = sectionItem.value?.[0]
-
-    imageSize.value = getImageSize(div?.getBoundingClientRect().width ?? 100)
-    loadImage.value = true
+const sectionQuery = useGetSectionQuery({
+    pause: true,
+    variables: {
+        id: sectionId,
+        first,
+        offset,
+    }
 })
+
+if(props.paginate) {
+    document.body.onscroll = async () => {
+        let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
+
+        if (bottomOfWindow && (page.value.total > (page.value.offset + page.value.first)) && !sectionQuery.fetching.value) {
+            console.log(page.value)
+
+            offset.value += page.value.first
+
+            await nextTick()
+
+            const { data } = await sectionQuery.executeQuery()
+
+            if (data.value?.section.__typename === "ListSection") {
+                const p = data.value.section.items;
+                page.value.items.push(...p.items)
+                page.value.first = p.first
+                page.value.offset = p.offset
+            }
+
+            console.log(page.value);
+        }
+    }
+
+    onUnmounted(() => document.body.onscroll = null)
+}
 </script>

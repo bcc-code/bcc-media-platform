@@ -6,8 +6,9 @@
                 v-if="data?.page.sections.items.length"
             >
                 <Section
-                    v-for="section in data?.page?.sections.items"
+                    v-for="(section, i) in data?.page?.sections.items"
                     :section="section"
+                    :index="{ last: data.page.sections.total - 1, current: i }"
                 >
                 </Section>
             </div>

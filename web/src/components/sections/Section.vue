@@ -12,6 +12,7 @@
     <ListSection
         v-else-if="section.__typename === 'ListSection' && hasItems(section)"
         :item="section"
+        :paginate="index.last === index.current"
     ></ListSection>
     <DefaultSection
         v-else-if="section.__typename === 'DefaultSection' && hasItems(section)"
@@ -22,6 +23,7 @@
             section.__typename === 'DefaultGridSection' && hasItems(section)
         "
         :item="section"
+        :paginate="index.last === index.current"
     ></DefaultGridSection>
     <PosterGridSection
         v-else-if="
@@ -63,6 +65,10 @@ import WebSection from "./WebSection.vue"
 
 defineProps<{
     section: Section
+    index: {
+        last: number
+        current: number
+    }
 }>()
 
 const hasItems = (section: {
