@@ -34,10 +34,6 @@ const { setTitle } = useTitle()
 const updateTitle = (title: string) => {
     const defaultPage = data.value?.application.page?.code
     if (props.pageId && defaultPage !== props.pageId) {
-        analytics.page({
-            id: "page",
-            title: title,
-        })
         setTitle(title)
     }
 }
