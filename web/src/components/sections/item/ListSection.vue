@@ -1,15 +1,21 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <div class="grid grid-cols-2">
-            <div v-for="i in page.items" class="relative mb-5">
-                <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
+        <div
+            class="flex flex-col lg:grid lg:grid-cols-2 max-h-screen overflow-y-scroll"
+        >
+            <div
+                v-for="i in page.items"
+                class="relative"
+                :key="i.id + i.item.__typename"
+            >
+                <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div
-                    class="flex flex-col cursor-pointer mx-2 mt-2 hover:opacity-90 transition"
+                    class="flex flex-col cursor-pointer mx-2 mt-2 hover:opacity-90"
                     @click="goToSectionItem(i, item.metadata?.collectionId)"
                 >
                     <div
-                        class="relative mb-1 rounded-md w-full aspect-video overflow-hidden"
+                        class="relative mb-1 rounded-md w-full aspect-video overflow-hidden transition"
                     >
                         <Image
                             :src="i.image"
@@ -22,26 +28,25 @@
                             :item="i.item"
                         />
                     </div>
-                    <SectionItemTitle :i="i"></SectionItemTitle>
+                    <SectionItemTitle :for="i.id" :i="i"></SectionItemTitle>
                 </div>
             </div>
         </div>
     </section>
 </template>
 <script lang="ts" setup>
-import { Section } from "./types"
-
+import { Section } from "../types"
 import SectionTitle from "./SectionTitle.vue"
-import NewPill from "./NewPill.vue"
 import { goToSectionItem } from "@/utils/items"
+import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
-import ProgressBar from "../episodes/ProgressBar.vue"
-import Image from "../Image.vue"
+import ProgressBar from "@/components/episodes/ProgressBar.vue"
 import { computed, nextTick, onUnmounted, ref } from "vue"
+import Image from "@/components/Image.vue"
 import { useGetSectionQuery } from "@/graph/generated"
 
 const props = defineProps<{
-    item: Section & { __typename: "DefaultGridSection" }
+    item: Section & { __typename: "ListSection" }
     paginate?: boolean
 }>()
 
@@ -80,7 +85,7 @@ if (props.paginate) {
 
             const { data } = await sectionQuery.executeQuery()
 
-            if (data.value?.section.__typename === "DefaultGridSection") {
+            if (data.value?.section.__typename === "ListSection") {
                 const p = data.value.section.items
                 page.value.items.push(...p.items)
                 page.value.first = p.first

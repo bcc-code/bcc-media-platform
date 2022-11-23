@@ -40,7 +40,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { Section } from "./types"
+import { Section } from "../types"
 import { Navigation, Pagination, Lazy, SwiperOptions } from "swiper"
 import { Swiper, SwiperSlide } from "swiper/vue"
 import breakpoints from "./breakpoints"

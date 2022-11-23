@@ -16,7 +16,7 @@
 </template>
 <script lang="ts" setup>
 import { goToSectionItem } from "@/utils/items"
-import { Section } from "./types"
+import { Section } from "../types"
 
 defineProps<{
     item: Section & { __typename: "LabelSection" }

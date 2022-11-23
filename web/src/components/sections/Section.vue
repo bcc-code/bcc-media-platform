@@ -52,15 +52,15 @@
 </template>
 <script lang="ts" setup>
 import { Section } from "./types"
-import PosterSection from "./PosterSection.vue"
-import FeaturedSection from "./FeaturedSection.vue"
-import DefaultSection from "./DefaultSection.vue"
-import DefaultGridSection from "./DefaultGridSection.vue"
-import PosterGridSection from "./PosterGridSection.vue"
-import LabelSection from "./LabelSection.vue"
-import IconSection from "./IconSection.vue"
-import IconGridSection from "./IconGridSection.vue"
-import ListSection from "./ListSection.vue"
+import PosterSection from "./item/PosterSection.vue"
+import FeaturedSection from "./item/FeaturedSection.vue"
+import DefaultSection from "./item/DefaultSection.vue"
+import DefaultGridSection from "./item/DefaultGridSection.vue"
+import PosterGridSection from "./item/PosterGridSection.vue"
+import LabelSection from "./item/LabelSection.vue"
+import IconSection from "./item/IconSection.vue"
+import IconGridSection from "./item/IconGridSection.vue"
+import ListSection from "./item/ListSection.vue"
 import WebSection from "./WebSection.vue"
 
 defineProps<{

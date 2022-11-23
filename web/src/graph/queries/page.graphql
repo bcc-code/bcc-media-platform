@@ -2,7 +2,7 @@ query getPage($code: String!) {
     page(code: $code) {
         id
         title
-        sections {
+        sections(first: 40) {
             total
             items {
                 __typename
@@ -14,6 +14,18 @@ query getPage($code: String!) {
                     url
                     widthRatio
                     authentication
+                }
+                ... on MessageSection {
+                    title
+                    messages {
+                        title
+                        content
+                        style {
+                            text
+                            background
+                            border
+                        }
+                    }
                 }
             }
         }

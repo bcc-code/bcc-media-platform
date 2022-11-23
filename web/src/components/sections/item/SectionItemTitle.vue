@@ -26,10 +26,10 @@
     </ShowTitle>
 </template>
 <script lang="ts" setup>
-import EpisodeTitle from "../episodes/EpisodeTitle.vue"
-import SeasonTitle from "../seasons/SeasonTitle.vue"
-import ShowTitle from "../shows/ShowTitle.vue"
-import { Section } from "./types"
+import EpisodeTitle from "../../episodes/EpisodeTitle.vue"
+import SeasonTitle from "../../seasons/SeasonTitle.vue"
+import ShowTitle from "../../shows/ShowTitle.vue"
+import { Section } from "../types"
 
 defineProps<{
     i: (Section & {

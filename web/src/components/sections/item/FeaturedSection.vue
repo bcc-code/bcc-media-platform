@@ -50,12 +50,12 @@
     </section>
 </template>
 <script lang="ts" setup>
-import { Section } from "./types"
+import { Section } from "../types"
 
 import { computed } from "vue"
 import SectionTitle from "./SectionTitle.vue"
-import Play from "../icons/Play.vue"
-import Image from "../Image.vue"
+import Play from "@/components/icons/Play.vue"
+import Image from "@/components/Image.vue"
 import Slider from "./Slider.vue"
 import { goToSectionItem } from "@/utils/items"
 

@@ -5,13 +5,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"strings"
-
 	"github.com/Masterminds/squirrel"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/jsonlogic"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lib/pq"
+	"strings"
 )
 
 func itemIdsFromRows(rows *sql.Rows) []common.Identifier {
@@ -30,7 +29,7 @@ func itemIdsFromRows(rows *sql.Rows) []common.Identifier {
 	return ids
 }
 
-func addPermissionFilter(query squirrel.SelectBuilder, roles []string) squirrel.SelectBuilder {
+func addPermissionFilter(query squirrel.SelectBuilder) squirrel.SelectBuilder {
 	query = query.Where(squirrel.And{
 		squirrel.Eq{
 			"published": "true",
@@ -76,7 +75,7 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f comm
 	//q = parseJoins(q, collection, query.Joins)
 
 	if roles != nil {
-		q = addPermissionFilter(q, roles)
+		q = addPermissionFilter(q)
 	}
 
 	if orderByString != "" {
@@ -91,9 +90,9 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f comm
 		log.L.Debug().Str("query", queryString).Msg("Querying database for previewing filter")
 	}
 
-	queryString, _, _ := q.ToSql()
 	rows, err := q.RunWith(db).Query()
 	if err != nil {
+		queryString, _, _ := q.ToSql()
 		log.L.Debug().Str("query", queryString).Err(err).Msg("Error occurred when trying to run query")
 		return nil, err
 	}

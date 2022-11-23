@@ -4,7 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
-	"strings"
+	"github.com/samber/lo/parallel"
+	"sync"
 	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -27,29 +28,47 @@ func NewCollectionItemLoader(db *sql.DB, collectionLoader *dataloader.Loader[int
 		var results []*dataloader.Result[[]common.Identifier]
 		var err error
 
-		res, errs := collectionLoader.LoadMany(ctx, keys)()
+		collections, errs := collectionLoader.LoadMany(ctx, keys)()
 		if len(errs) > 0 {
 			err = errs[0]
 		}
 
-		resMap := map[int][]common.Identifier{}
+		var resMap = map[int][]common.Identifier{}
+		var lock = &sync.Mutex{}
 		if err == nil {
-			for _, r := range res {
-				switch r.Type {
-				case "query":
-					if r.Filter == nil {
-						resMap[r.ID] = nil
-						continue
-					}
-					resMap[r.ID], err = GetItemIDsForFilter(ctx, db, roles, *r.Filter)
+			parallel.ForEach(collections, func(i *common.Collection, _ int) {
+				var identifiers []common.Identifier
+				if i.Type == "query" || i.Filter != nil {
+					identifiers, err = GetItemIDsForFilter(ctx, db, roles, *i.Filter)
 					if err != nil {
 						log.L.Error().Err(err).
 							Msg("Failed to select itemIds from collection")
-						continue
 					}
 				}
-			}
+				lock.Lock()
+				resMap[i.ID] = identifiers
+				lock.Unlock()
+			})
 		}
+
+		//resMap := map[int][]common.Identifier{}
+		//if err == nil {
+		//	for _, r := range res {
+		//		switch r.Type {
+		//		case "query":
+		//			if r.Filter == nil {
+		//				resMap[r.ID] = nil
+		//				continue
+		//			}
+		//			resMap[r.ID], err = GetItemIDsForFilter(ctx, db, roles, *r.Filter)
+		//			if err != nil {
+		//				log.L.Error().Err(err).
+		//					Msg("Failed to select itemIds from collection")
+		//				continue
+		//			}
+		//		}
+		//	}
+		//}
 
 		for _, key := range keys {
 			r := &dataloader.Result[[]common.Identifier]{
@@ -74,16 +93,6 @@ type Entry struct {
 	ID         int
 	Collection common.ItemCollection
 	Sort       int
-}
-
-func collectionToType(collection string) common.ItemCollection {
-	switch collection {
-	// !!! Watch out for which collections you enter here, as this will only work for simple plurals
-	case "episodes", "pages", "shows", "seasons":
-		return common.ItemCollection(strings.TrimSuffix(collection, "s"))
-	default:
-		return "unknown"
-	}
 }
 
 // GetCollectionEntries returns entries for the specified collection

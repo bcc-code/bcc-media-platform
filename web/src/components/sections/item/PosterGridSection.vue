@@ -32,14 +32,14 @@
     </section>
 </template>
 <script lang="ts" setup>
-import { Section } from "./types"
+import { Section } from "../types"
 
 import SectionTitle from "./SectionTitle.vue"
 import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
-import ProgressBar from "../episodes/ProgressBar.vue"
-import Image from "../Image.vue"
+import ProgressBar from "@/components/episodes/ProgressBar.vue"
+import Image from "@/components/Image.vue"
 
 defineProps<{
     item: Section & { __typename: "PosterGridSection" | "PosterSection" }

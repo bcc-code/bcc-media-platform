@@ -9,7 +9,7 @@
 <script lang="ts" setup>
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
-import { Section } from "./types"
+import { Section } from "../types"
 
 const props = defineProps<{
     item: (Section & {

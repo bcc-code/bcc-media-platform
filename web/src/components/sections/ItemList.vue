@@ -37,8 +37,8 @@
 import { SectionItemFragment } from "@/graph/generated"
 import ProgressBar from "../episodes/ProgressBar.vue"
 import Image from "../Image.vue"
-import NewPill from "./NewPill.vue"
-import SectionItemTitle from "./SectionItemTitle.vue"
+import NewPill from "./item/NewPill.vue"
+import SectionItemTitle from "./item/SectionItemTitle.vue"
 
 defineProps<{
     items: SectionItemFragment[]
