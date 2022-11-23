@@ -5,12 +5,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/jsonlogic"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lib/pq"
-	"strings"
 )
 
 func itemIdsFromRows(rows *sql.Rows) []common.Identifier {
@@ -36,7 +37,6 @@ func addPermissionFilter(query squirrel.SelectBuilder, roles []string) squirrel.
 		},
 		squirrel.Expr("available_to > now()"),
 		squirrel.Expr("available_from < now()"),
-		squirrel.Expr("roles && ?", fmt.Sprintf("{%s}", strings.Join(roles, ","))),
 	})
 	return query
 }
@@ -65,7 +65,8 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f comm
 
 	query := jsonlogic.GetSQLQueryFromFilter(filterObject)
 
-	q := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("t.collection", "t.id").From("filter_dataset" + " t").Where(query.Filter)
+	from := fmt.Sprintf("filter_dataset({%s}) t", strings.Join(roles, ","))
+	q := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("t.collection", "t.id").From(from).Where(query.Filter)
 
 	if f.Limit != nil && *f.Limit > 0 {
 		limit := *f.Limit
