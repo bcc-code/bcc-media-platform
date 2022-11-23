@@ -93,7 +93,7 @@
                             <ItemList
                                 :items="episode.context?.items ?? []"
                                 :current-id="episode.id"
-                                @set-current="i => setEpisode(i.id)"
+                                @set-current="(i) => setEpisode(i.id)"
                             ></ItemList>
                         </div>
                         <div
@@ -195,7 +195,9 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const { setTitle } = useTitle()
 const episode = ref(null as NonNullable<GetEpisodeQuery["episode"]> | null)
-const season = ref(null as NonNullable<GetSeasonOnEpisodePageQuery["season"]> | null)
+const season = ref(
+    null as NonNullable<GetSeasonOnEpisodePageQuery["season"]> | null
+)
 
 const seasonId = ref("")
 const loading = ref(true)
@@ -229,9 +231,9 @@ const seasonQuery = useGetSeasonOnEpisodePageQuery({
 })
 
 const load = async () => {
-    loading.value = true;
+    loading.value = true
     const r = await executeQuery()
-    if(r.data.value?.episode) {
+    if (r.data.value?.episode) {
         episode.value = r.data.value.episode
 
         setTitle(episode.value.title)
@@ -248,7 +250,7 @@ const load = async () => {
             }
         }
     }
-    loading.value = false;
+    loading.value = false
 }
 
 load()

@@ -1,7 +1,7 @@
-import { useAuth0 } from "@auth0/auth0-vue"
-import { ready, load, track, identify } from "rudder-sdk-js"
+import { ready, load, track, identify, page as rpage } from "rudder-sdk-js"
 import { ref } from "vue"
-import { Events } from "./events"
+import { Events, IdentifyData, Page } from "./events"
+export * from "./events"
 
 const isLoading = ref(true)
 
@@ -15,9 +15,23 @@ load(
 )
 
 export const event = <T extends keyof Events>(event: T, data: Events[T]) => {
-    track(event, data)
+    if (data) {
+        track(event, data, undefined, undefined)
+    } else {
+        track(event)
+    }
 }
 
-export const initialize = (userId: string) => {
-    identify(userId)
+export const page = (data: {
+    id: Page
+    title: string
+    meta?: {
+        setting?: "webSettings"
+    }
+}) => {
+    rpage(data)
+}
+
+export const initialize = async (data: IdentifyData) => {
+    identify(data.id, data)
 }

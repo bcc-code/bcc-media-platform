@@ -1,7 +1,7 @@
 <template>
     <div class="relative">
         <Swiper
-            style="overflow:visible;"
+            style="overflow: visible"
             :breakpoints="effectiveBreakpoints"
             :modules="modules"
             :lazy="true"

@@ -1,34 +1,24 @@
-type Data = {}
+import { GetPageQuery, SectionItemFragment } from "@/graph/generated"
 
-type SectionData = {
+export type Page =
+    | "about"
+    | "calendar"
+    | "livestream"
+    | "login"
+    | "profileEdit"
+    | "profile"
+    | "search"
+    | "settings"
+    | "support"
+    | "faq"
+    | "episode"
+
+export type IdentifyData = {
     id: string
-} & (
-    | {
-          type: "message" | "embed_web"
-      }
-    | {
-          type: "item"
-          style:
-              | "default"
-              | "grid"
-              | "featured"
-              | "message"
-              | "poster"
-              | "poster_grid"
-              | "icon"
-              | "label"
-      }
-)
-
-type SectionElementData = {
-    id: string
-    position: number
-    type: "show" | "season" | "episode" | "page" | "link"
-    name: string
-
-    sectionId: string
-    sectionType: string
-    sectionName: string
+    ageGroup: string
+    country: string
+    churchId: string
+    gender: string
 }
 
 export type AgeGroup =
@@ -36,8 +26,8 @@ export type AgeGroup =
     | "< 10"
     | "10 - 12"
     | "13 - 18"
-    | "19 - 26"
-    | "27 - 36"
+    | "19 - 25"
+    | "26 - 36"
     | "37 - 50"
     | "51 - 64"
     | "65+"
@@ -49,8 +39,8 @@ export const getAgeGroup = (age?: number): AgeGroup => {
         "9": "< 10",
         "12": "10 - 12",
         "18": "13 - 18",
-        "26": "19 - 26",
-        "36": "27 - 36",
+        "25": "19 - 25",
+        "36": "26 - 36",
         "50": "37 - 50",
         "64": "51 - 64",
     }
@@ -66,12 +56,63 @@ export const getAgeGroup = (age?: number): AgeGroup => {
     return "UNKNOWN"
 }
 
+type ElementType = SectionItemFragment["item"]["__typename"]
+
+type d = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0
+type YYYY = `19${d}${d}` | `20${d}${d}`
+type oneToNine = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+type MM = `0${oneToNine}` | `1${0 | 1 | 2}`
+type DD = `${0}${oneToNine}` | `${1 | 2}${d}` | `3${0 | 1}`
+
 export type Events = {
-    calendar_opened: Data
-    calendarday_clicked: Data
-    search_performed: Data
-    searchitem_clicked: Data
-    section_viewed: SectionData
-    sectionelement_clicked: SectionElementData
-    sectionelement_viewed: SectionElementData
+    section_clicked: {
+        sectionId: string
+        sectionName: string
+        sectionPosition: string
+        sectionType: GetPageQuery["page"]["sections"]["items"][0]["__typename"]
+        elementPosition: string
+        elementType: ElementType
+        elementId: string
+        elementName: string
+        pageCode: Page
+    }
+    audioonly_clicked: {
+        audioOnly: boolean
+    }
+    calendarday_clicked: {
+        pageCode: Page
+        calendarView: "week" | "month"
+        calendarDate: `${YYYY}-${MM}-${DD}`
+    }
+    search_performed: {
+        searchText: string
+        /** in milliseconds */
+        searchLatency: number
+        searchResultCount: number
+    }
+    searchresult_clicked: {
+        searchText: string
+        elementPosition: string
+        elementType: ElementType
+        elementId: string
+    }
+    language_changed: {
+        pageCode: string
+        languageFrom: string
+        languageTo: string
+    }
+    application_opened: {
+        reason: string
+        coldStart: boolean
+    }
+    share_clicked: {
+        pageCode: Page
+        elementType: ElementType
+        elementId: string
+        position?: number
+    }
+    login: undefined
+    logout: undefined
+    airplay_started: undefined
+    chromecast_started: undefined
 }

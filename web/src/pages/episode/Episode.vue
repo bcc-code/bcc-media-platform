@@ -36,6 +36,9 @@ watch(
 
 const setEpisode = (id: string) => {
     autoPlay.value = true
-    router.push({ params: { episodeId: id }, query: router.currentRoute.value.query })
+    router.push({
+        params: { episodeId: id },
+        query: router.currentRoute.value.query,
+    })
 }
 </script>
