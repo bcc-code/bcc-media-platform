@@ -27,6 +27,10 @@ type CollectionItem interface {
 	GetImages() []*Image
 }
 
+type EpisodeContextUnion interface {
+	IsEpisodeContextUnion()
+}
+
 type GridSection interface {
 	IsSection()
 	IsItemSection()
@@ -112,8 +116,11 @@ type Chapter struct {
 
 type Collection struct {
 	ID    string                    `json:"id"`
+	Slug  *string                   `json:"slug"`
 	Items *CollectionItemPagination `json:"items"`
 }
+
+func (Collection) IsEpisodeContextUnion() {}
 
 type CollectionItemPagination struct {
 	Total  int              `json:"total"`
@@ -199,7 +206,7 @@ type Episode struct {
 	Progress          *int                   `json:"progress"`
 	AudioLanguages    []Language             `json:"audioLanguages"`
 	SubtitleLanguages []Language             `json:"subtitleLanguages"`
-	Context           *SectionItemPagination `json:"context"`
+	Context           EpisodeContextUnion    `json:"context"`
 	RelatedItems      *SectionItemPagination `json:"relatedItems"`
 	Images            []*Image               `json:"images"`
 	Number            *int                   `json:"number"`
@@ -416,6 +423,7 @@ type ItemSectionMetadata struct {
 	ContinueWatching bool   `json:"continueWatching"`
 	SecondaryTitles  bool   `json:"secondaryTitles"`
 	CollectionID     string `json:"collectionId"`
+	UseContext       bool   `json:"useContext"`
 }
 
 type LabelSection struct {
@@ -621,6 +629,8 @@ type Season struct {
 	Show        *Show              `json:"show"`
 	Episodes    *EpisodePagination `json:"episodes"`
 }
+
+func (Season) IsEpisodeContextUnion() {}
 
 func (Season) IsSectionItemType() {}
 
@@ -869,6 +879,8 @@ type WebSection struct {
 	Title          *string              `json:"title"`
 	URL            string               `json:"url"`
 	WidthRatio     float64              `json:"widthRatio"`
+	AspectRatio    *float64             `json:"aspectRatio"`
+	Height         *int                 `json:"height"`
 	Authentication bool                 `json:"authentication"`
 }
 

@@ -122,32 +122,33 @@ func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*in
 }
 
 // Context is the resolver for the context field.
-func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error) {
+func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode) (model.EpisodeContextUnion, error) {
 	var collectionId *int
 
 	ginCtx, _ := utils.GinCtx(ctx)
-	episodeContext, ok := ginCtx.Value("EpisodeContext").(*model.EpisodeContext)
-	if ok && episodeContext != nil && episodeContext.CollectionID != nil {
-		colId, _ := strconv.ParseInt(*episodeContext.CollectionID, 10, 64)
-		intId := int(colId)
+	episodeContext, ok := ginCtx.Value(episodeContextKey).(common.EpisodeContext)
+
+	if !ok {
+		progress, err := r.ProfileLoaders(ctx).ProgressLoader.Get(ctx, utils.AsInt(obj.ID))
+		if err != nil {
+			return nil, err
+		}
+		episodeContext = progress.Context
+	}
+
+	if episodeContext.CollectionID.Valid {
+		intId := int(episodeContext.CollectionID.Int64)
 		collectionId = &intId
 	}
 
 	if collectionId != nil {
-		page, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), &common.Section{
-			CollectionID: null.IntFrom(int64(*collectionId)),
-			Style:        "default",
-		}, first, offset)
-		if err != nil {
-			return nil, err
-		}
-		return &model.SectionItemPagination{
-			Total:  page.Total,
-			First:  page.First,
-			Offset: page.Offset,
-			Items:  page.Items,
-		}, nil
+		strID := strconv.Itoa(*collectionId)
+		return r.QueryRoot().Collection(ctx, &strID, nil)
 	}
+	if obj.Season != nil {
+		return r.QueryRoot().Season(ctx, obj.Season.ID)
+	}
+
 	return nil, nil
 }
 

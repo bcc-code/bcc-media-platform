@@ -92,6 +92,12 @@ type Progress struct {
 	Watched   int
 	WatchedAt null.Time
 	UpdatedAt time.Time
+	Context   EpisodeContext
+}
+
+// EpisodeContext contains context for episode
+type EpisodeContext struct {
+	CollectionID null.Int
 }
 
 // Identifier contains basic data for identifying an item in a list

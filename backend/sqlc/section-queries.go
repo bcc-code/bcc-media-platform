@@ -40,6 +40,11 @@ func mapToSections(items []getSectionsRow) []common.Section {
 			needsAuth.SetValid(s.NeedsAuthentication.Bool)
 		}
 
+		var aspectRatio null.Float
+		if s.EmbedAspectRatio.Valid {
+			aspectRatio.SetValid(s.EmbedAspectRatio.Float64)
+		}
+
 		return common.Section{
 			ID:                  int(s.ID),
 			Sort:                int(s.Sort.ValueOrZero()),
@@ -54,10 +59,12 @@ func mapToSections(items []getSectionsRow) []common.Section {
 			Size:                size,
 			EmbedUrl:            s.EmbedUrl,
 			NeedsAuthentication: needsAuth,
-			EmbedSize:           s.EmbedSize,
+			EmbedAspectRatio:    aspectRatio,
+			EmbedHeight:         s.EmbedHeight,
 			Options: common.SectionOptions{
 				SecondaryTitles:  s.SecondaryTitles,
 				ContinueWatching: s.AdvancedType.String == "continue_watching",
+				UseContext:       s.UseContext.Bool,
 			},
 		}
 	})

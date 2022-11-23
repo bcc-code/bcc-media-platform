@@ -26,6 +26,7 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			SecondaryTitles:  s.Options.SecondaryTitles,
 			ContinueWatching: s.Options.ContinueWatching,
 			CollectionID:     strconv.Itoa(int(s.CollectionID.Int64)),
+			UseContext:       s.Options.UseContext,
 		}
 
 		switch s.Style {
@@ -125,22 +126,23 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			Title: title,
 		}
 	case "embed_web":
-		var size float64
-		switch s.EmbedSize.ValueOrZero() {
-		case "16:9":
-			size = 16.0 / 9.0
-		case "4:3":
-			size = 4.0 / 3.0
-		case "9:16":
-			size = 9.0 / 16.0
-		case "1:1":
-			size = 1
+		var height *int
+		if s.EmbedHeight.Valid {
+			val := int(s.EmbedHeight.ValueOrZero())
+			height = &val
+		}
+
+		var aspectRatio *float64
+		if s.EmbedAspectRatio.Valid {
+			aspectRatio = &s.EmbedAspectRatio.Float64
 		}
 
 		return &WebSection{
 			ID:             id,
 			Title:          title,
-			WidthRatio:     size,
+			WidthRatio:     s.EmbedAspectRatio.Float64,
+			Height:         height,
+			AspectRatio:    aspectRatio,
 			URL:            s.EmbedUrl.ValueOrZero(),
 			Authentication: s.NeedsAuthentication.ValueOrZero(),
 		}

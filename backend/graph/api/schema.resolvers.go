@@ -67,7 +67,7 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 }
 
 // SetEpisodeProgress is the resolver for the episodeProgress field.
-func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int) (*model.Episode, error) {
+func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int, context *model.EpisodeContext) (*model.Episode, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -111,6 +111,16 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 			episodeProgress.Duration = *duration
 		}
 		episodeProgress.Progress = *progress
+
+		if context != nil {
+			var col null.Int
+			if context.CollectionID != nil {
+				col.SetValid(int64(utils.AsInt(*context.CollectionID)))
+			}
+			episodeProgress.Context.CollectionID = col
+		} else {
+			episodeProgress.Context = common.EpisodeContext{}
+		}
 
 		if episodeProgress.Duration > 0 && float64(episodeProgress.Progress)/float64(episodeProgress.Duration) > 0.8 {
 			if !episodeProgress.WatchedAt.Valid || episodeProgress.WatchedAt.Time.After(time.Now().Add(time.Hour*-12)) {
@@ -218,7 +228,7 @@ func (r *queryRootResolver) Export(ctx context.Context, groups []string) (*model
 }
 
 // Redirect is the resolver for the redirect field.
-func (r *queryRootResolver) Redirect(ctx context.Context, code string) (*model.RedirectLink, error) {
+func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.RedirectLink, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -232,7 +242,7 @@ func (r *queryRootResolver) Redirect(ctx context.Context, code string) (*model.R
 		)
 	}
 
-	redirID, err := batchloaders.GetByID(ctx, r.Loaders.RedirectIDFromCodeLoader, code)
+	redirID, err := batchloaders.GetByID(ctx, r.Loaders.RedirectIDFromCodeLoader, id)
 	if err != nil {
 		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
 	}
@@ -328,8 +338,11 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 // Episode is the resolver for the episode field.
 func (r *queryRootResolver) Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error) {
 	if context != nil {
+		eCtx := common.EpisodeContext{
+			CollectionID: utils.AsNullInt(context.CollectionID),
+		}
 		ginCtx, _ := utils.GinCtx(ctx)
-		ginCtx.Set("EpisodeContext", context)
+		ginCtx.Set(episodeContextKey, eCtx)
 	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
 		Item:        r.Loaders.EpisodeLoader,
@@ -338,10 +351,25 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 }
 
 // Collection is the resolver for the collection field.
-func (r *queryRootResolver) Collection(ctx context.Context, id string) (*model.Collection, error) {
+func (r *queryRootResolver) Collection(ctx context.Context, id *string, slug *string) (*model.Collection, error) {
+	var key string
+	if slug != nil {
+		intID, err := r.Loaders.CollectionIDFromSlugLoader.Get(ctx, *slug)
+		if err != nil {
+			return nil, err
+		}
+		if intID == nil {
+			return nil, merry.New("code invalid", merry.WithUserMessage("Invalid slug specified"))
+		}
+		key = strconv.Itoa(*intID)
+	} else if id != nil {
+		key = *id
+	} else {
+		return nil, merry.New("No options specified", merry.WithUserMessage("Specify either ID or slug"))
+	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Collection]{
 		Item: r.Loaders.CollectionLoader,
-	}, id, model.CollectionFrom)
+	}, key, model.CollectionFrom)
 }
 
 // Search is the resolver for the search field.

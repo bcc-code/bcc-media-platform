@@ -16,6 +16,7 @@ type ItemSectionMetadata {
     continueWatching: Boolean!
     secondaryTitles: Boolean!
     collectionId: ID!
+    useContext: Boolean!
 }
 
 interface Section{
@@ -137,11 +138,14 @@ type WebSection implements Section {
     title: String
     url: String!
     widthRatio: Float!
+    aspectRatio: Float
+    height: Int
     authentication: Boolean!
 }
 
 type Collection {
     id: ID!
+    slug: String
     items(
         first: Int,
         offset: Int,

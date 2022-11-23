@@ -317,8 +317,9 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 		entryIDsJSON, _ := json.Marshal(entryIDs)
 
 		err = liteQueries.InsertCollection(ctx, sqlexport.InsertCollectionParams{
-			ID:              int64(c.ID),
-			Name:            c.Name,
+			ID: int64(c.ID),
+			// TODO: maybe remove name?
+			Name:            c.Title.Get([]string{"no"}),
 			Type:            c.Type,
 			CollectionItems: string(entryIDsJSON),
 		})

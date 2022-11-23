@@ -227,8 +227,10 @@ SELECT s.id,
        s.collection_id,
        s.message_id,
        s.embed_url,
-       s.embed_size,
+       s.embed_aspect_ratio,
+       s.embed_height,
        s.needs_authentication,
+       s.use_context,
        c.advanced_type,
        COALESCE(s.secondary_titles, true),
        t.title,
@@ -255,8 +257,10 @@ type getSectionsRow struct {
 	CollectionID        null_v4.Int           `db:"collection_id" json:"collectionID"`
 	MessageID           null_v4.Int           `db:"message_id" json:"messageID"`
 	EmbedUrl            null_v4.String        `db:"embed_url" json:"embedUrl"`
-	EmbedSize           null_v4.String        `db:"embed_size" json:"embedSize"`
+	EmbedAspectRatio    sql.NullFloat64       `db:"embed_aspect_ratio" json:"embedAspectRatio"`
+	EmbedHeight         null_v4.Int           `db:"embed_height" json:"embedHeight"`
 	NeedsAuthentication sql.NullBool          `db:"needs_authentication" json:"needsAuthentication"`
+	UseContext          sql.NullBool          `db:"use_context" json:"useContext"`
 	AdvancedType        null_v4.String        `db:"advanced_type" json:"advancedType"`
 	SecondaryTitles     bool                  `db:"secondary_titles" json:"secondaryTitles"`
 	Title               pqtype.NullRawMessage `db:"title" json:"title"`
@@ -285,8 +289,10 @@ func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSecti
 			&i.CollectionID,
 			&i.MessageID,
 			&i.EmbedUrl,
-			&i.EmbedSize,
+			&i.EmbedAspectRatio,
+			&i.EmbedHeight,
 			&i.NeedsAuthentication,
+			&i.UseContext,
 			&i.AdvancedType,
 			&i.SecondaryTitles,
 			&i.Title,
