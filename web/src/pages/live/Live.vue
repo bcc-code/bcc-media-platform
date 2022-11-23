@@ -117,7 +117,7 @@ onMounted(() => {
     setTitle(t("page.live"))
     analytics.page({
         id: "livestream",
-        title: t("page.live")
+        title: t("page.live"),
     })
 })
 </script>

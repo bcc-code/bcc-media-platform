@@ -133,7 +133,7 @@ onMounted(() => {
     setTitle(t("page.calendar"))
     analytics.page({
         id: "calendar",
-        title: t("page.calendar")
+        title: t("page.calendar"),
     })
 })
 </script>

@@ -47,8 +47,8 @@ const props = defineProps<{
 
 const page = ref(props.item.items)
 
-const first = ref(20);
-const offset = ref(0);
+const first = ref(20)
+const offset = ref(0)
 
 const sectionId = computed(() => props.item.id)
 
@@ -58,14 +58,20 @@ const sectionQuery = useGetSectionQuery({
         id: sectionId,
         first,
         offset,
-    }
+    },
 })
 
-if(props.paginate) {
+if (props.paginate) {
     document.body.onscroll = async () => {
-        let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
+        let bottomOfWindow =
+            document.documentElement.scrollTop + window.innerHeight ===
+            document.documentElement.offsetHeight
 
-        if (bottomOfWindow && (page.value.total > (page.value.offset + page.value.first)) && !sectionQuery.fetching.value) {
+        if (
+            bottomOfWindow &&
+            page.value.total > page.value.offset + page.value.first &&
+            !sectionQuery.fetching.value
+        ) {
             console.log(page.value)
 
             offset.value += page.value.first
@@ -75,16 +81,16 @@ if(props.paginate) {
             const { data } = await sectionQuery.executeQuery()
 
             if (data.value?.section.__typename === "DefaultGridSection") {
-                const p = data.value.section.items;
+                const p = data.value.section.items
                 page.value.items.push(...p.items)
                 page.value.first = p.first
                 page.value.offset = p.offset
             }
 
-            console.log(page.value);
+            console.log(page.value)
         }
     }
 
-    onUnmounted(() => document.body.onscroll = null)
+    onUnmounted(() => (document.body.onscroll = null))
 }
 </script>

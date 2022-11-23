@@ -91,7 +91,12 @@
                         ></EpisodeDetails>
                         <div v-else-if="effectiveView === 'context'">
                             <ItemList
-                                :items="episode.context?.__typename === 'ContextCollection' ? episode.context.items?.items ?? [] : []"
+                                :items="
+                                    episode.context?.__typename ===
+                                    'ContextCollection'
+                                        ? episode.context.items?.items ?? []
+                                        : []
+                                "
                                 :current-id="episode.id"
                                 @set-current="(i) => setEpisode(i.id)"
                             ></ItemList>

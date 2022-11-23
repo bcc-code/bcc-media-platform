@@ -83,7 +83,7 @@ onMounted(() => {
     setTitle(t("page.search"))
     analytics.page({
         id: "search",
-        title: t("page.search")
+        title: t("page.search"),
     })
 })
 
