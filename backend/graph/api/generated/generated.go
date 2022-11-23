@@ -295,10 +295,11 @@ type ComplexityRoot struct {
 	}
 
 	ItemSectionMetadata struct {
-		CollectionID     func(childComplexity int) int
-		ContinueWatching func(childComplexity int) int
-		SecondaryTitles  func(childComplexity int) int
-		UseContext       func(childComplexity int) int
+		CollectionID       func(childComplexity int) int
+		ContinueWatching   func(childComplexity int) int
+		PrependLiveElement func(childComplexity int) int
+		SecondaryTitles    func(childComplexity int) int
+		UseContext         func(childComplexity int) int
 	}
 
 	LabelSection struct {
@@ -1829,6 +1830,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ItemSectionMetadata.ContinueWatching(childComplexity), true
+
+	case "ItemSectionMetadata.prependLiveElement":
+		if e.complexity.ItemSectionMetadata.PrependLiveElement == nil {
+			break
+		}
+
+		return e.complexity.ItemSectionMetadata.PrependLiveElement(childComplexity), true
 
 	case "ItemSectionMetadata.secondaryTitles":
 		if e.complexity.ItemSectionMetadata.SecondaryTitles == nil {
@@ -3812,6 +3820,7 @@ type ItemSectionMetadata {
     secondaryTitles: Boolean!
     collectionId: ID!
     useContext: Boolean!
+    prependLiveElement: Boolean!
 }
 
 interface Section{
@@ -6333,6 +6342,8 @@ func (ec *executionContext) fieldContext_DefaultGridSection_metadata(ctx context
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
+			case "prependLiveElement":
+				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -6578,6 +6589,8 @@ func (ec *executionContext) fieldContext_DefaultSection_metadata(ctx context.Con
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
+			case "prependLiveElement":
+				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -10680,6 +10693,8 @@ func (ec *executionContext) fieldContext_FeaturedSection_metadata(ctx context.Co
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
+			case "prependLiveElement":
+				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -11315,6 +11330,8 @@ func (ec *executionContext) fieldContext_IconGridSection_metadata(ctx context.Co
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
+			case "prependLiveElement":
+				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -11560,6 +11577,8 @@ func (ec *executionContext) fieldContext_IconSection_metadata(ctx context.Contex
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
+			case "prependLiveElement":
+				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -11937,6 +11956,50 @@ func (ec *executionContext) fieldContext_ItemSectionMetadata_useContext(ctx cont
 	return fc, nil
 }
 
+func (ec *executionContext) _ItemSectionMetadata_prependLiveElement(ctx context.Context, field graphql.CollectedField, obj *model.ItemSectionMetadata) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PrependLiveElement, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ItemSectionMetadata_prependLiveElement(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ItemSectionMetadata",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LabelSection_id(ctx context.Context, field graphql.CollectedField, obj *model.LabelSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LabelSection_id(ctx, field)
 	if err != nil {
@@ -12025,6 +12088,8 @@ func (ec *executionContext) fieldContext_LabelSection_metadata(ctx context.Conte
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
+			case "prependLiveElement":
+				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -12358,6 +12423,8 @@ func (ec *executionContext) fieldContext_ListSection_metadata(ctx context.Contex
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
+			case "prependLiveElement":
+				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -12743,6 +12810,8 @@ func (ec *executionContext) fieldContext_MessageSection_metadata(ctx context.Con
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
+			case "prependLiveElement":
+				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -13905,6 +13974,8 @@ func (ec *executionContext) fieldContext_PosterGridSection_metadata(ctx context.
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
+			case "prependLiveElement":
+				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -14150,6 +14221,8 @@ func (ec *executionContext) fieldContext_PosterSection_metadata(ctx context.Cont
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
+			case "prependLiveElement":
+				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -21512,6 +21585,8 @@ func (ec *executionContext) fieldContext_WebSection_metadata(ctx context.Context
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
+			case "prependLiveElement":
+				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -25900,6 +25975,13 @@ func (ec *executionContext) _ItemSectionMetadata(ctx context.Context, sel ast.Se
 		case "useContext":
 
 			out.Values[i] = ec._ItemSectionMetadata_useContext(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "prependLiveElement":
+
+			out.Values[i] = ec._ItemSectionMetadata_prependLiveElement(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

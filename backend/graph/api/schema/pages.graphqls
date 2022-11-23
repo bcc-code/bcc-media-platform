@@ -17,6 +17,7 @@ type ItemSectionMetadata {
     secondaryTitles: Boolean!
     collectionId: ID!
     useContext: Boolean!
+    prependLiveElement: Boolean!
 }
 
 interface Section{

@@ -420,10 +420,11 @@ type Image struct {
 }
 
 type ItemSectionMetadata struct {
-	ContinueWatching bool   `json:"continueWatching"`
-	SecondaryTitles  bool   `json:"secondaryTitles"`
-	CollectionID     string `json:"collectionId"`
-	UseContext       bool   `json:"useContext"`
+	ContinueWatching   bool   `json:"continueWatching"`
+	SecondaryTitles    bool   `json:"secondaryTitles"`
+	CollectionID       string `json:"collectionId"`
+	UseContext         bool   `json:"useContext"`
+	PrependLiveElement bool   `json:"prependLiveElement"`
 }
 
 type LabelSection struct {

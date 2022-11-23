@@ -23,10 +23,11 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 	switch s.Type {
 	case "item":
 		metadata := &ItemSectionMetadata{
-			SecondaryTitles:  s.Options.SecondaryTitles,
-			ContinueWatching: s.Options.ContinueWatching,
-			CollectionID:     strconv.Itoa(int(s.CollectionID.Int64)),
-			UseContext:       s.Options.UseContext,
+			SecondaryTitles:    s.Options.SecondaryTitles,
+			ContinueWatching:   s.Options.ContinueWatching,
+			CollectionID:       strconv.Itoa(int(s.CollectionID.Int64)),
+			UseContext:         s.Options.UseContext,
+			PrependLiveElement: s.Options.PrependLiveElement,
 		}
 
 		switch s.Style {

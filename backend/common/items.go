@@ -182,9 +182,10 @@ type Section struct {
 
 // SectionOptions contains options for this section
 type SectionOptions struct {
-	SecondaryTitles  bool
-	ContinueWatching bool
-	UseContext       bool
+	SecondaryTitles    bool
+	ContinueWatching   bool
+	UseContext         bool
+	PrependLiveElement bool
 }
 
 // GetKey returns the key for this item

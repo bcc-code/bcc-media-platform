@@ -62,9 +62,10 @@ func mapToSections(items []getSectionsRow) []common.Section {
 			EmbedAspectRatio:    aspectRatio,
 			EmbedHeight:         s.EmbedHeight,
 			Options: common.SectionOptions{
-				SecondaryTitles:  s.SecondaryTitles,
-				ContinueWatching: s.AdvancedType.String == "continue_watching",
-				UseContext:       s.UseContext.Bool,
+				SecondaryTitles:    s.SecondaryTitles,
+				ContinueWatching:   s.AdvancedType.String == "continue_watching",
+				UseContext:         s.UseContext.Bool,
+				PrependLiveElement: s.PrependLiveElement.Bool,
 			},
 		}
 	})

@@ -231,6 +231,7 @@ SELECT s.id,
        s.embed_height,
        s.needs_authentication,
        s.use_context,
+       s.prepend_live_element,
        c.advanced_type,
        COALESCE(s.secondary_titles, true),
        t.title,
@@ -261,6 +262,7 @@ type getSectionsRow struct {
 	EmbedHeight         null_v4.Int           `db:"embed_height" json:"embedHeight"`
 	NeedsAuthentication sql.NullBool          `db:"needs_authentication" json:"needsAuthentication"`
 	UseContext          sql.NullBool          `db:"use_context" json:"useContext"`
+	PrependLiveElement  sql.NullBool          `db:"prepend_live_element" json:"prependLiveElement"`
 	AdvancedType        null_v4.String        `db:"advanced_type" json:"advancedType"`
 	SecondaryTitles     bool                  `db:"secondary_titles" json:"secondaryTitles"`
 	Title               pqtype.NullRawMessage `db:"title" json:"title"`
@@ -293,6 +295,7 @@ func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSecti
 			&i.EmbedHeight,
 			&i.NeedsAuthentication,
 			&i.UseContext,
+			&i.PrependLiveElement,
 			&i.AdvancedType,
 			&i.SecondaryTitles,
 			&i.Title,
