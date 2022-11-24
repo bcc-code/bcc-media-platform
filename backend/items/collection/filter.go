@@ -42,7 +42,7 @@ func addPermissionFilter(query squirrel.SelectBuilder, roles []string) squirrel.
 }
 
 // GetItemIDsForFilter returns an array of ids for the collection
-func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f common.Filter) ([]common.Identifier, error) {
+func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f common.Filter, noLimit bool) ([]common.Identifier, error) {
 	if f.Filter == nil {
 		return nil, nil
 	}
@@ -68,11 +68,13 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f comm
 	from := fmt.Sprintf("filter_dataset('{%s}') t", strings.Join(roles, ","))
 	q := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("t.collection", "t.id").From(from).Where(query.Filter)
 
-	if f.Limit != nil && *f.Limit > 0 {
-		limit := *f.Limit
-		q = q.Limit(uint64(limit))
-	} else {
-		q = q.Limit(20)
+	if !noLimit {
+		if f.Limit != nil && *f.Limit > 0 {
+			limit := *f.Limit
+			q = q.Limit(uint64(limit))
+		} else {
+			q = q.Limit(20)
+		}
 	}
 
 	//q = parseJoins(q, collection, query.Joins)

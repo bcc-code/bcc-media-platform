@@ -945,6 +945,7 @@ export type UpdateEpisodeProgressMutationVariables = Exact<{
   episodeId: Scalars['ID'];
   progress?: InputMaybe<Scalars['Int']>;
   duration?: InputMaybe<Scalars['Int']>;
+  context: EpisodeContext;
 }>;
 
 
@@ -1330,8 +1331,13 @@ export function useGetEpisodeQuery(options: Omit<Urql.UseQueryArgs<never, GetEpi
   return Urql.useQuery<GetEpisodeQuery>({ query: GetEpisodeDocument, ...options });
 };
 export const UpdateEpisodeProgressDocument = gql`
-    mutation updateEpisodeProgress($episodeId: ID!, $progress: Int, $duration: Int) {
-  setEpisodeProgress(id: $episodeId, progress: $progress, duration: $duration) {
+    mutation updateEpisodeProgress($episodeId: ID!, $progress: Int, $duration: Int, $context: EpisodeContext!) {
+  setEpisodeProgress(
+    id: $episodeId
+    progress: $progress
+    duration: $duration
+    context: $context
+  ) {
     progress
   }
 }

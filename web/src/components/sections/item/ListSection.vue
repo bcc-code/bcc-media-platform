@@ -2,7 +2,7 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div
-            class="flex flex-col lg:grid lg:grid-cols-2 max-h-screen overflow-y-scroll"
+            class="flex flex-col lg:grid lg:grid-cols-2 overflow-y-scroll"
         >
             <div
                 v-for="i in page.items"

@@ -8,6 +8,7 @@
                 class="h-full w-full bg-secondary rounded rounded-xl opacity-10 absolute"
             ></div>
             <EpisodeViewer
+                :context="context"
                 :auto-play="autoPlay"
                 class="drop-shadow-xl overflow-hidden"
                 :episode="episode"
@@ -149,7 +150,7 @@ import { episodesToListItems, toListItems } from "@/utils/lists"
 
 const props = defineProps<{
     episodeId: string
-    context?: EpisodeContext
+    context: EpisodeContext
     autoPlay?: boolean
 }>()
 
@@ -199,33 +200,35 @@ const seasonEpisodes = computed(() => {
     return episodesToListItems(seasonQuery.data.value?.season.episodes.items ?? [])
 })
 
-watch(() => seasonId.value, async () => {
+const loadSeason = async () => {
+    season.value = null
     if (seasonId.value) {
-        await seasonQuery.executeQuery()
-        seasonQuery.pause();
-        console.log(seasonQuery.data.value?.season.episodes)
+        const r = await seasonQuery.executeQuery();
+        season.value = r.data.value?.season ?? null
+        if (season.value) {
+            console.log(season.value)
+        }
     }
-})
+}
+
+watch(() => seasonId.value, loadSeason)
 
 const load = async () => {
     loading.value = true
+    season.value = null
     const r = await executeQuery()
     if (r.data.value?.episode) {
         episode.value = r.data.value.episode
 
         setTitle(episode.value.title)
 
-        if (!context.value) {
+        if (!context.value?.collectionId) {
             if (episode.value.season?.id) {
                 seasonId.value = episode.value.season.id
-
-                const sr = await seasonQuery.executeQuery()
-                seasonQuery.pause();
-                if (sr.data.value?.season) {
-                    season.value = sr.data.value.season
-                }
+                await nextTick()
             }
         }
+        await loadSeason()
     }
     loading.value = false
 }

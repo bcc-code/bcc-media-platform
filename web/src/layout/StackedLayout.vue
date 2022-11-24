@@ -13,7 +13,7 @@
             <span @click="removeError(i)" class="cursor-pointer">X</span>
         </p>
     </div>
-    <div v-else class="flex h-screen">
+    <div v-else class="flex">
         <div class="m-auto">
             <Loader></Loader>
         </div>

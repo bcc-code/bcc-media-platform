@@ -22,7 +22,7 @@ type Resolver struct {
 }
 
 func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.Filter) ([]*model.CollectionItem, error) {
-	ids, err := collection.GetItemIDsForFilter(ctx, r.DB, nil, filter)
+	ids, err := collection.GetItemIDsForFilter(ctx, r.DB, nil, filter, false)
 	if err != nil {
 		return nil, err
 	}

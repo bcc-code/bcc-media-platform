@@ -24,7 +24,7 @@ const autoPlay = ref(false)
 const getCollectionQueryParam = () =>
     router.currentRoute.value.query.collection
         ? { collectionId: router.currentRoute.value.query.collection as string }
-        : undefined
+        : {}
 
 const context = ref(getCollectionQueryParam())
 

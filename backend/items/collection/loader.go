@@ -39,7 +39,7 @@ func NewCollectionItemLoader(db *sql.DB, collectionLoader *dataloader.Loader[int
 			parallel.ForEach(collections, func(i *common.Collection, _ int) {
 				var identifiers []common.Identifier
 				if i.Type == "query" || i.Filter != nil {
-					identifiers, err = GetItemIDsForFilter(ctx, db, roles, *i.Filter)
+					identifiers, err = GetItemIDsForFilter(ctx, db, roles, *i.Filter, i.AdvancedType.String == "continue_watching")
 					if err != nil {
 						log.L.Error().Err(err).
 							Msg("Failed to select itemIds from collection")
