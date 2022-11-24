@@ -1,7 +1,7 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <div class="w-full max-w-xl">
+        <div class="w-full">
             <iframe
                 ref="frame"
                 class="w-full"
@@ -23,11 +23,14 @@ const props = defineProps<{
 const frame = ref(null as HTMLIFrameElement | null)
 
 const effectiveHeight = computed(() => {
+    if (props.item.height) {
+        return props.item.height
+    }
     if (!frame.value) {
         return 0
     }
     const rect = frame.value.getBoundingClientRect()
 
-    return rect.width / props.item.widthRatio
+    return rect.width / (props.item.aspectRatio ?? 1)
 })
 </script>

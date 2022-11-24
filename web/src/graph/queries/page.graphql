@@ -12,7 +12,8 @@ query getPage($code: String!) {
                 ... on WebSection {
                     title
                     url
-                    widthRatio
+                    height
+                    aspectRatio
                     authentication
                 }
                 ... on MessageSection {

@@ -1,13 +1,19 @@
 <template>
     <section>
-        <SectionTitle v-if="item.title">{{item.title}}</SectionTitle>
-        <div class="w-full max-w-2xl">
-            <div v-for="m in item.messages" class="rounded-lg border" :style="{
-                'background-color': m.style.background,
-                'border-color': m.style.border,
-                'color': m.style.text,
-            }">
-                <h1 class="p-3 pb-2 text-xl font-semibold" v-if="m.title">{{m.title}}</h1>
+        <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
+        <div class="flex flex-wrap w-full gap-4">
+            <div
+                v-for="m in item.messages"
+                class="rounded-lg border w-full lg:max-w-2xl"
+                :style="{
+                    'background-color': m.style.background,
+                    'border-color': m.style.border,
+                    color: m.style.text,
+                }"
+            >
+                <h1 class="p-3 pb-2 text-xl font-semibold" v-if="m.title">
+                    {{ m.title }}
+                </h1>
                 <hr v-if="m.title && m.content" />
                 <p class="p-3 pt-2 text-lg" v-html="convert(m.content)"></p>
             </div>
@@ -15,14 +21,14 @@
     </section>
 </template>
 <script lang="ts" setup>
-import SectionTitle from "./item/SectionTitle.vue";
+import SectionTitle from "./item/SectionTitle.vue"
 import { Section } from "./types"
 import { Converter } from "showdown"
 
 const convert = (content: string) => {
     const converter = new Converter({
         strikethrough: true,
-    });
+    })
     return converter.makeHtml(content)
 }
 

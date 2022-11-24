@@ -78,9 +78,7 @@
             </div>
         </section>
         <section>
-            <h1
-                class="bg-gray opacity-50 mb-4 h-5 rounded-full w-60"
-            ></h1>
+            <h1 class="bg-gray opacity-50 mb-4 h-5 rounded-full w-60"></h1>
             <div class="relative">
                 <Swiper
                     style="overflow: visible"
@@ -123,7 +121,6 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { Swiper, SwiperSlide } from 'swiper/vue';
-import Image from '../Image.vue';
-
+import { Swiper, SwiperSlide } from "swiper/vue"
+import Image from "../Image.vue"
 </script>
