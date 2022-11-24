@@ -1,4 +1,8 @@
-import { GetSeasonOnEpisodePageQuery, GetSeasonQuery, SectionItemFragment } from "@/graph/generated"
+import {
+    GetSeasonOnEpisodePageQuery,
+    GetSeasonQuery,
+    SectionItemFragment,
+} from "@/graph/generated"
 
 export type ListItem = {
     id: string

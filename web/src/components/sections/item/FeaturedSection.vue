@@ -31,7 +31,9 @@
                         {{ (i as any).description }}
                     </p>
                 </div>
-                <div class="hidden lg:block absolute w-full bottom-0 left-0 p-20 bg-gradient-to-t from-background to-transparent">
+                <div
+                    class="hidden lg:block absolute w-full bottom-0 left-0 p-20 bg-gradient-to-t from-background to-transparent"
+                >
                     <h1 class="text-3xl font-bold">
                         {{ i.title }}
                     </h1>
