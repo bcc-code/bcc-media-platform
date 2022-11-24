@@ -1,7 +1,11 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <Slider :item="item" v-slot="{ item: i }">
+        <Slider
+            :item="item"
+            v-slot="{ item: i }"
+            @load-more="$emit('loadMore')"
+        >
             <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
             <div
                 class="flex flex-col cursor-pointer mt-2"
@@ -41,5 +45,9 @@ import Slider from "./Slider.vue"
 
 defineProps<{
     item: Section & { __typename: "DefaultSection" }
+}>()
+
+defineEmits<{
+    (e: "loadMore"): void
 }>()
 </script>

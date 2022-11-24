@@ -2,13 +2,14 @@
     <section class="overflow-x-hidden">
         <transition name="slide-fade">
             <div
-                class="px-4 flex flex-col gap-8"
+                class="px-4 lg:px-20 flex flex-col gap-8"
                 v-if="page && page.sections.items.length"
             >
                 <Section
                     v-for="(section, i) in page.sections.items"
                     :section="section"
                     :index="{ last: page.sections.total - 1, current: i }"
+                    @load-more="appendItems(section)"
                 >
                 </Section>
             </div>
@@ -16,13 +17,15 @@
                 <NotFound :title="$t('page.notFound')"></NotFound>
             </div>
             <div v-else-if="error">{{ error.message }}</div>
-            <SkeletonSections v-else></SkeletonSections>
+            <SkeletonSections class="px-4 lg:px-20" v-else></SkeletonSections>
         </transition>
     </section>
 </template>
 <script lang="ts" setup>
 import {
     GetPageQuery,
+    GetSectionQuery,
+    ItemSectionFragment,
     useGetPageQuery,
     useGetSectionQuery,
 } from "@/graph/generated"
@@ -73,6 +76,38 @@ const sectionQuery = useGetSectionQuery({
 
 const oldScroll = document.body.onscroll
 
+const appendItems = async (section: GetSectionQuery["section"]) => {
+    switch (section.__typename) {
+        case "DefaultGridSection":
+        case "ListSection":
+        case "IconGridSection":
+        case "PosterGridSection":
+        case "DefaultSection":
+        case "FeaturedSection":
+        case "PosterSection":
+            if (
+                section.items.total >
+                section.items.offset + section.items.first
+            ) {
+                first.value = section.items.first
+                offset.value = section.items.offset + first.value
+                sectionId.value = section.id
+                await nextTick()
+                const result = await sectionQuery.executeQuery()
+                if (
+                    result.data.value?.section.__typename === section.__typename
+                ) {
+                    section.items.items.push(
+                        ...result.data.value.section.items.items
+                    )
+                    section.items.first = result.data.value.section.items.first
+                    section.items.offset =
+                        result.data.value.section.items.offset
+                }
+            }
+    }
+}
+
 onMounted(() => {
     document.body.onscroll = async () => {
         const bottomOfWindow =
@@ -90,28 +125,7 @@ onMounted(() => {
                         case "ListSection":
                         case "IconGridSection":
                         case "PosterGridSection":
-                            if (
-                                lastSection.items.total >
-                                lastSection.items.offset +
-                                    lastSection.items.first
-                            ) {
-                                offset.value += first.value
-                                sectionId.value = lastSection.id
-                                await nextTick()
-                                const result = await sectionQuery.executeQuery()
-                                if (
-                                    result.data.value?.section.__typename ===
-                                    lastSection.__typename
-                                ) {
-                                    lastSection.items.items.push(
-                                        ...result.data.value.section.items.items
-                                    )
-                                    lastSection.items.first =
-                                        result.data.value.section.items.first
-                                    lastSection.items.offset =
-                                        result.data.value.section.items.offset
-                                }
-                            }
+                            await appendItems(lastSection)
                     }
                 }
             }

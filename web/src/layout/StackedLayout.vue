@@ -1,5 +1,5 @@
 <template>
-    <Navbar v-if="!loading"></Navbar>
+    <Navbar class="lg:px-20" v-if="!loading"></Navbar>
     <div v-if="!loading">
         <router-view v-slot="{ Component }">
             <transition name="slide-fade" mode="out-in">

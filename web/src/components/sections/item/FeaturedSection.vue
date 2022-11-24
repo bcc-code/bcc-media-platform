@@ -39,10 +39,11 @@
                             )
                         "
                     >
-                        <Play></Play><span class="ml-1">Watch now</span>
+                        <Play></Play
+                        ><span class="ml-1">{{ $t("page.watchNow") }}</span>
                     </div>
                     <div class="flex" v-else>
-                        <Play></Play><span class="ml-1">Explore</span>
+                        {{ $t("page.explore") }}
                     </div>
                 </button>
             </div>

@@ -12,6 +12,7 @@ fragment SectionItem on SectionItem {
             publishDate
             progress
             duration
+            ageRating
             season {
                 id
                 title
@@ -99,6 +100,7 @@ fragment ItemSection on ItemSection {
 query getSection($id: ID!, $first: Int!, $offset: Int!) {
     section(id: $id) {
         __typename
+        id
         ... on ItemSection {
             items(first: $first, offset: $offset) {
                 total

@@ -17,6 +17,7 @@
     <DefaultSection
         v-else-if="section.__typename === 'DefaultSection' && hasItems(section)"
         :item="section"
+        @load-more="$emit('loadMore')"
     ></DefaultSection>
     <DefaultGridSection
         v-else-if="
@@ -74,6 +75,10 @@ defineProps<{
         last: number
         current: number
     }
+}>()
+
+defineEmits<{
+    (e: "loadMore"): void
 }>()
 
 const hasItems = (section: {

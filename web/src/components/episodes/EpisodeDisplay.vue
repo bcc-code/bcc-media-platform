@@ -40,12 +40,12 @@
                         >
                     </h1>
                 </div>
-                <div class="text-white mt-2 opacity-70 text-lg">
+                <div class="text-white mt-2 opacity-70 text-md lg:text-lg">
                     {{ episode.description }}
                 </div>
             </div>
-            <div>
-                <div class="flex gap-2 p-2 font-semibold">
+            <div class="flex flex-col gap-2 mt-4">
+                <div class="flex gap-4 p-2 font-semibold">
                     <button
                         v-if="episode.context"
                         class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
@@ -92,10 +92,12 @@
                         <div v-else-if="effectiveView === 'context'">
                             <ItemList
                                 :items="
-                                    episode.context?.__typename ===
-                                    'ContextCollection'
-                                        ? episode.context.items?.items ?? []
-                                        : []
+                                    toListItems(
+                                        episode.context?.__typename ===
+                                            'ContextCollection'
+                                            ? episode.context.items?.items ?? []
+                                            : []
+                                    )
                                 "
                                 :current-id="episode.id"
                                 @set-current="(i) => setEpisode(i.id)"
@@ -110,54 +112,15 @@
                                 :items="episode.season?.show.seasons.items"
                                 v-model:value="seasonId"
                             ></SeasonSelector>
-                            <div class="lg:grid grid-cols-2">
-                                <TransitionGroup
-                                    name="slide-fade"
-                                    mode="out-in"
-                                >
-                                    <div
-                                        v-for="e in seasonQuery.data.value
-                                            ?.season.episodes.items"
-                                        class="flex p-2 gap-2 cursor-pointer border-l-8 border-red hover:bg-red hover:bg-opacity-10 hover:border-opacity-100 transition duration-200"
-                                        :class="[
-                                            e.id === episode.id
-                                                ? 'border-l-8 bg-red bg-opacity-20 hover:bg-opacity-20'
-                                                : 'border-opacity-0',
-                                        ]"
-                                        @click="setEpisode(e.id)"
-                                        :key="e.id"
-                                    >
-                                        <WithProgressBar
-                                            class="w-1/3 aspect-video text-xs"
-                                            :item="e"
-                                            ref="episodeImage"
-                                        >
-                                            <Image
-                                                v-if="e.image"
-                                                :src="e.image"
-                                                size-source="width"
-                                                :ratio="9 / 16"
-                                            />
-                                        </WithProgressBar>
-                                        <div class="w-2/3">
-                                            <h3
-                                                class="text-sm lg:text-md text-primary line-clamp-1 text-xs"
-                                            >
-                                                {{ t("episode.episode") }}
-                                                {{ e.number }}
-                                            </h3>
-                                            <h1
-                                                class="text-sm lg:text-lg line-clamp-2"
-                                            >
-                                                {{ e.title }}
-                                            </h1>
-                                            <AgeRating>{{
-                                                e.ageRating
-                                            }}</AgeRating>
-                                        </div>
-                                    </div>
-                                </TransitionGroup>
-                            </div>
+                            <ItemList
+                                :items="
+                                    episodesToListItems(
+                                        season?.episodes.items ?? []
+                                    )
+                                "
+                                :current-id="episode.id"
+                                @set-current="(i) => setEpisode(i.id)"
+                            ></ItemList>
                         </div>
                     </Transition>
                 </div>
@@ -186,6 +149,7 @@ import { useTitle } from "@/utils/title"
 import Image from "../Image.vue"
 import ItemList from "../sections/ItemList.vue"
 import NotFound from "../NotFound.vue"
+import { episodesToListItems, toListItems } from "@/utils/lists"
 
 const props = defineProps<{
     episodeId: string

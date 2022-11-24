@@ -1,6 +1,7 @@
 <template>
     <div class="relative">
         <Swiper
+            ref="swiperEl"
             style="overflow: visible"
             :breakpoints="effectiveBreakpoints"
             :modules="modules"
@@ -10,6 +11,7 @@
                 prevEl: prev,
                 nextEl: next,
             }"
+            @swiper="onswipe"
         >
             <SwiperSlide v-for="i in item.items.items" class="relative">
                 <slot :item="i"></slot>
@@ -41,10 +43,12 @@
 </template>
 <script lang="ts" setup>
 import { Section } from "../types"
-import { Navigation, Pagination, Lazy, SwiperOptions } from "swiper"
+import TSwiper, { Navigation, Pagination, Lazy, SwiperOptions } from "swiper"
 import { Swiper, SwiperSlide } from "swiper/vue"
 import breakpoints from "./breakpoints"
-import { computed, ref } from "vue"
+import { computed, onMounted, ref } from "vue"
+
+const swiperEl = ref(null as HTMLDivElement | null)
 
 const next = ref(null)
 const prev = ref(null)
@@ -58,9 +62,21 @@ const props = defineProps<{
     }
 }>()
 
+const emit = defineEmits<{
+    (e: "loadMore"): void
+}>()
+
 const effectiveBreakpoints = computed(() => {
     return props.breakpoints ?? breakpoints(props.item.size)
 })
 
 const modules = [Navigation, Pagination, Lazy]
+
+const onswipe = (swiper: TSwiper) => {
+    swiper.on("progress", () => {
+        if (swiper.progress > 0.9) {
+            emit("loadMore")
+        }
+    })
+}
 </script>

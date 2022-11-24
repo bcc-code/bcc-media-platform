@@ -10,7 +10,9 @@
         "live": "Live",
         "calendar": "Calendar",
         "faq": "FAQ",
-        "notFound": "Page not found"
+        "notFound": "Page not found",
+        "explore": "Explore",
+        "watchNow": "Watch now"
     },
     "section": {
         "item": {

@@ -71,6 +71,8 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f comm
 	if f.Limit != nil && *f.Limit > 0 {
 		limit := *f.Limit
 		q = q.Limit(uint64(limit))
+	} else {
+		q = q.Limit(20)
 	}
 
 	//q = parseJoins(q, collection, query.Joins)

@@ -1,5 +1,5 @@
 <template>
-    <div class="px-4 flex flex-col gap-16 overflow-hidden h-full">
+    <div class="flex flex-col gap-16 overflow-hidden h-full">
         <section>
             <div class="relative">
                 <Swiper
