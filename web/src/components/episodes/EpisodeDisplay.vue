@@ -1,6 +1,6 @@
 <template>
     <section
-        class="max-w-screen-2xl mx-auto rounded rounded-2xl"
+        class="max-w-screen-2xl mx-auto lg:px-20 rounded rounded-2xl"
         v-if="episode"
     >
         <div class="relative aspect-video w-full">
@@ -19,7 +19,7 @@
                     {{ episode.title }}
                 </h1>
                 <div class="flex">
-                    <h1 class="my-auto flex">
+                    <h1 class="my-auto flex gap-1">
                         <AgeRating v-if="episode.ageRating">{{
                             episode.ageRating
                         }}</AgeRating>
@@ -33,11 +33,11 @@
                                 new Date(episode.productionDate).toDateString()
                             }}</span
                         >
-                        <span v-else-if="episode.season" class="text-gray ml-1"
+                        <!-- <span v-else-if="episode.season" class="text-gray ml-1"
                             >S{{ episode.season.number }}:E{{
                                 episode.number
                             }}</span
-                        >
+                        > -->
                     </h1>
                 </div>
                 <div class="text-white mt-2 opacity-70 text-md lg:text-lg">
@@ -143,10 +143,8 @@ import EpisodeViewer from "@/components/EpisodeViewer.vue"
 import { useI18n } from "vue-i18n"
 import EpisodeDetails from "@/components/episodes/EpisodeDetails.vue"
 import AgeRating from "@/components/episodes/AgeRating.vue"
-import WithProgressBar from "@/components/episodes/WithProgressBar.vue"
 import SeasonSelector from "@/components/SeasonSelector.vue"
 import { useTitle } from "@/utils/title"
-import Image from "../Image.vue"
 import ItemList from "../sections/ItemList.vue"
 import NotFound from "../NotFound.vue"
 import { episodesToListItems, toListItems } from "@/utils/lists"

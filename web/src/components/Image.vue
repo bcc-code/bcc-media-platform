@@ -6,7 +6,7 @@
     >
         <img
             ref="image"
-            class="object-cover transition"
+            class="object-cover w-full transition"
             :class="[!loaded ? 'opacity-0' : 'opacity-100']"
             :src="effectiveSrc"
             :height="effectiveHeight"
