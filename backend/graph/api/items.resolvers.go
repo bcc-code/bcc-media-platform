@@ -133,7 +133,9 @@ func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode) (mode
 		if err != nil {
 			return nil, err
 		}
-		episodeContext = progress.Context
+		if progress != nil {
+			episodeContext = progress.Context
+		}
 	}
 
 	if episodeContext.CollectionID.Valid {

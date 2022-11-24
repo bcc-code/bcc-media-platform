@@ -1,6 +1,6 @@
 <template>
     <section
-        class="max-w-screen-2xl mx-auto lg:px-20 rounded rounded-2xl"
+        class="max-w-screen-2xl mx-auto rounded rounded-2xl"
         v-if="episode"
     >
         <div class="relative aspect-video w-full">
@@ -138,7 +138,7 @@ import {
     useGetEpisodeQuery,
     useGetSeasonOnEpisodePageQuery,
 } from "@/graph/generated"
-import { computed, nextTick, onMounted, ref, watch } from "vue"
+import { computed, nextTick, ref } from "vue"
 import EpisodeViewer from "@/components/EpisodeViewer.vue"
 import { useI18n } from "vue-i18n"
 import EpisodeDetails from "@/components/episodes/EpisodeDetails.vue"
@@ -228,7 +228,7 @@ const effectiveView = computed({
         const v = view.value
         switch (v) {
             case "context":
-                if (episode.value?.context) {
+                if (episode.value?.context?.__typename === 'ContextCollection') {
                     return "context"
                 }
                 break
@@ -241,7 +241,7 @@ const effectiveView = computed({
                 return "details"
         }
 
-        if (episode.value?.context) {
+        if (episode.value?.context?.__typename === 'ContextCollection') {
             return "context"
         }
         return (view.value = !episode.value?.season ? "details" : "episodes")

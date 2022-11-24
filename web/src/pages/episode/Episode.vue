@@ -1,11 +1,12 @@
 <template>
-    <EpisodeDisplay
-        class="px-2 lg:px-4"
-        :auto-play="autoPlay"
-        :episode-id="episodeId"
-        :context="context"
-        @update:episode-id="setEpisode"
-    ></EpisodeDisplay>
+    <div class="px-2 lg:px-20">
+        <EpisodeDisplay
+            :auto-play="autoPlay"
+            :episode-id="episodeId"
+            :context="context"
+            @update:episode-id="setEpisode"
+        ></EpisodeDisplay>
+    </div>
 </template>
 <script lang="ts" setup>
 import EpisodeDisplay from "@/components/episodes/EpisodeDisplay.vue"
