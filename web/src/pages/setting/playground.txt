@@ -1,0 +1,19 @@
+# default Scalar type {
+#   Int
+#   Float
+#   String
+#   Boolean
+#   ID
+# }
+
+# mutation setContactForm(
+#   $title: String!
+#   $content: String!
+#   $html: String!
+# ) {
+#   sendSupportEmail(
+#     title: $title
+#     content: $content
+#     html: $html
+#   )
+# }
