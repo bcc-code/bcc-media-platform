@@ -1,26 +1,32 @@
 <template>
     <section>
-        <div class="w-full max-w-xl">
-
+        <SectionTitle v-if="item.title">{{item.title}}</SectionTitle>
+        <div class="w-full max-w-2xl">
+            <div v-for="m in item.messages" class="rounded-lg border" :style="{
+                'background-color': m.style.background,
+                'border-color': m.style.border,
+                'color': m.style.text,
+            }">
+                <h1 class="p-3 pb-2 text-xl font-semibold" v-if="m.title">{{m.title}}</h1>
+                <hr v-if="m.title && m.content" />
+                <p class="p-3 pt-2 text-lg" v-html="convert(m.content)"></p>
+            </div>
         </div>
     </section>
 </template>
 <script lang="ts" setup>
+import SectionTitle from "./item/SectionTitle.vue";
 import { Section } from "./types"
-import { computed, ref } from "vue"
+import { Converter } from "showdown"
 
-const props = defineProps<{
-    item: Section & { __typename: "WebSection" }
+const convert = (content: string) => {
+    const converter = new Converter({
+        strikethrough: true,
+    });
+    return converter.makeHtml(content)
+}
+
+defineProps<{
+    item: Section & { __typename: "MessageSection" }
 }>()
-
-const frame = ref(null as HTMLIFrameElement | null)
-
-const effectiveHeight = computed(() => {
-    if (!frame.value) {
-        return 0
-    }
-    const rect = frame.value.getBoundingClientRect()
-
-    return rect.width / props.item.widthRatio
-})
 </script>

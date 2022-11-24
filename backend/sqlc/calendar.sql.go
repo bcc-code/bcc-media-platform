@@ -33,7 +33,7 @@ SELECT e.id,
 FROM calendarentries e
          LEFT JOIN t ON e.id = t.calendarentries_id
 WHERE e.status = 'published'
-AND e.id = ANY($1::int[])
+  AND e.id = ANY ($1::int[])
 `
 
 type getCalendarEntriesRow struct {
@@ -102,7 +102,7 @@ SELECT e.id,
 FROM calendarentries e
          LEFT JOIN t ON e.id = t.calendarentries_id
 WHERE e.status = 'published'
-  AND e.event_id = ANY($1::int[])
+  AND e.event_id = ANY ($1::int[])
 `
 
 type getCalendarEntriesForEventsRow struct {
@@ -156,8 +156,9 @@ const getCalendarEntryIDsForPeriod = `-- name: getCalendarEntryIDsForPeriod :man
 SELECT e.id
 FROM calendarentries e
 WHERE e.status = 'published'
-  AND ((e.start >= $1::timestamptz AND e.start <= $2::timestamptz) OR
-       (e.end >= $1::timestamptz AND e.end <= $2::timestamptz))
+  AND ((e.start >= $1::timestamptz AND e.start <= $2::timestamptz)
+    OR (e.end >= $1::timestamptz AND e.end <= $2::timestamptz)
+    OR (e.start <= $1::timestamptz AND e.end >= $2::timestamptz))
 ORDER BY e.start
 `
 
@@ -228,7 +229,7 @@ func (q *Queries) getEventIDsForPeriod(ctx context.Context, arg getEventIDsForPe
 
 const getEvents = `-- name: getEvents :many
 WITH t AS (SELECT ts.events_id,
-                  json_object_agg(ts.languages_code, ts.title)       AS title
+                  json_object_agg(ts.languages_code, ts.title) AS title
            FROM events_translations ts
            GROUP BY ts.events_id)
 SELECT e.id,
@@ -238,7 +239,7 @@ SELECT e.id,
 FROM events e
          LEFT JOIN t ON e.id = t.events_id
 WHERE e.status = 'published'
-  AND e.id = ANY($1::int[])
+  AND e.id = ANY ($1::int[])
 `
 
 type getEventsRow struct {
@@ -346,7 +347,7 @@ func (q *Queries) listCalendarEntries(ctx context.Context) ([]listCalendarEntrie
 
 const listEvents = `-- name: listEvents :many
 WITH t AS (SELECT ts.events_id,
-                  json_object_agg(ts.languages_code, ts.title)       AS title
+                  json_object_agg(ts.languages_code, ts.title) AS title
            FROM events_translations ts
            GROUP BY ts.events_id)
 SELECT e.id,

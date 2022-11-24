@@ -75,8 +75,6 @@ onMounted(() => {
             document.documentElement.scrollTop + (window.innerHeight + (window.innerHeight / 2)) >=
             document.documentElement.offsetHeight
 
-        console.log("IS BOTTOM", bottomOfWindow)
-
         if (bottomOfWindow && !sectionQuery.fetching.value) {
             const sections = page.value?.sections.items;
             if (sections) {
