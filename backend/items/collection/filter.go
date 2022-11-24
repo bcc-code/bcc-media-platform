@@ -29,11 +29,12 @@ func itemIdsFromRows(rows *sql.Rows) []common.Identifier {
 	return ids
 }
 
-func addPermissionFilter(query squirrel.SelectBuilder) squirrel.SelectBuilder {
+func addPermissionFilter(query squirrel.SelectBuilder, roles []string) squirrel.SelectBuilder {
 	query = query.Where(squirrel.And{
 		squirrel.Eq{
 			"published": "true",
 		},
+		squirrel.Expr(fmt.Sprintf("roles && '{%s}'", strings.Join(roles, ","))),
 		squirrel.Expr("available_to > now()"),
 		squirrel.Expr("available_from < now()"),
 	})
@@ -75,7 +76,7 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f comm
 	//q = parseJoins(q, collection, query.Joins)
 
 	if roles != nil {
-		q = addPermissionFilter(q)
+		q = addPermissionFilter(q, roles)
 	}
 
 	if orderByString != "" {
@@ -89,6 +90,9 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f comm
 		}
 		log.L.Debug().Str("query", queryString).Msg("Querying database for previewing filter")
 	}
+
+	queryStr, _, _ := q.ToSql()
+	log.L.Debug().Str("query", queryStr).Msg("oi")
 
 	rows, err := q.RunWith(db).Query()
 	if err != nil {
