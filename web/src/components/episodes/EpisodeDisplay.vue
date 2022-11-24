@@ -47,7 +47,7 @@
             <div class="flex flex-col gap-2 mt-4">
                 <div class="flex gap-4 p-2 font-semibold">
                     <button
-                        v-if="episode.context"
+                        v-if="episode.context?.__typename === 'ContextCollection'"
                         class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
                         :class="[
                             effectiveView === 'context'
