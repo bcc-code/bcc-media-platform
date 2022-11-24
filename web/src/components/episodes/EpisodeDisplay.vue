@@ -114,9 +114,7 @@
                             ></SeasonSelector>
                             <ItemList
                                 :items="
-                                    episodesToListItems(
-                                        season?.episodes.items ?? []
-                                    )
+                                    seasonEpisodes
                                 "
                                 :current-id="episode.id"
                                 @set-current="(i) => setEpisode(i.id)"
@@ -138,7 +136,7 @@ import {
     useGetEpisodeQuery,
     useGetSeasonOnEpisodePageQuery,
 } from "@/graph/generated"
-import { computed, nextTick, ref } from "vue"
+import { computed, nextTick, ref, watch } from "vue"
 import EpisodeViewer from "@/components/EpisodeViewer.vue"
 import { useI18n } from "vue-i18n"
 import EpisodeDetails from "@/components/episodes/EpisodeDetails.vue"
@@ -197,6 +195,18 @@ const seasonQuery = useGetSeasonOnEpisodePageQuery({
     },
 })
 
+const seasonEpisodes = computed(() => {
+    return episodesToListItems(seasonQuery.data.value?.season.episodes.items ?? [])
+})
+
+watch(() => seasonId.value, async () => {
+    if (seasonId.value) {
+        await seasonQuery.executeQuery()
+        seasonQuery.pause();
+        console.log(seasonQuery.data.value?.season.episodes)
+    }
+})
+
 const load = async () => {
     loading.value = true
     const r = await executeQuery()
@@ -210,7 +220,7 @@ const load = async () => {
                 seasonId.value = episode.value.season.id
 
                 const sr = await seasonQuery.executeQuery()
-                seasonQuery.pause()
+                seasonQuery.pause();
                 if (sr.data.value?.season) {
                     season.value = sr.data.value.season
                 }
