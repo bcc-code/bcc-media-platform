@@ -5,7 +5,7 @@
             <div
                 v-for="i in item.items.items"
                 class="overflow-clip w-20 hover:opacity-90 transition"
-                @click="goToSectionItem(i, item.metadata?.collectionId)"
+                @click="goToSectionItem(i, item.metadata)"
                 ref="sectionItem"
             >
                 <div

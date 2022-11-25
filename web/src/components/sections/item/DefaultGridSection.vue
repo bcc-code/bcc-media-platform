@@ -6,7 +6,7 @@
                 <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
                 <div
                     class="flex flex-col cursor-pointer mx-2 mt-2 hover:opacity-90 transition"
-                    @click="goToSectionItem(i, item.metadata?.collectionId)"
+                    @click="goToSectionItem(i, item.metadata)"
                 >
                     <div
                         class="relative mb-1 rounded-md w-full aspect-video overflow-hidden"
@@ -22,7 +22,12 @@
                             :item="i.item"
                         />
                     </div>
-                    <SectionItemTitle :i="i"></SectionItemTitle>
+                    <SectionItemTitle
+                        :secondary-titles="
+                            item.metadata?.secondaryTitles === true
+                        "
+                        :i="i"
+                    ></SectionItemTitle>
                 </div>
             </div>
         </div>

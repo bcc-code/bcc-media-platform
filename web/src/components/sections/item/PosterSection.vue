@@ -5,7 +5,7 @@
             <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
             <div
                 class="flex flex-col rounded rounded-md mt-1 cursor-pointer hover:opacity-90 transition"
-                @click="goToSectionItem(i, item.metadata?.collectionId)"
+                @click="goToSectionItem(i, item.metadata)"
             >
                 <div
                     class="relative w-full aspect-[9/16] mb-1 rounded-md overflow-hidden"
@@ -21,7 +21,10 @@
                         :item="i.item"
                     />
                 </div>
-                <SectionItemTitle :i="i"></SectionItemTitle>
+                <SectionItemTitle
+                    :secondary-titles="item.metadata?.secondaryTitles === true"
+                    :i="i"
+                ></SectionItemTitle>
             </div>
         </Slider>
     </section>

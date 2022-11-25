@@ -27,6 +27,12 @@ export default [
                 props: true,
             },
             {
+                name: "episode-collection-page",
+                path: "episode/:collection/:episodeId",
+                component: () => import("@/pages/episode/Episode.vue"),
+                props: true,
+            },
+            {
                 name: "calendar",
                 path: "/calendar",
                 component: () => import("@/pages/calendar/Calendar.vue"),

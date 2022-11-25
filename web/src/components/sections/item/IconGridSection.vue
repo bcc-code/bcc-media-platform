@@ -5,7 +5,7 @@
             <div
                 v-for="i in item.items.items"
                 class="relative mb-5 m-2 lg:m-10"
-                @click="goToSectionItem(i, item.metadata?.collectionId)"
+                @click="goToSectionItem(i, item.metadata)"
             >
                 <div
                     class="aspect-square bg-slate-800 rounded-2xl border-2 border-slate-700 p-4 cursor-pointer"

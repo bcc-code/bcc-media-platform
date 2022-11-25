@@ -1,9 +1,11 @@
-query getPage($code: String!) {
+query getPage($code: String!, $first: Int, $offset: Int) {
     page(code: $code) {
         id
         title
-        sections(first: 40) {
+        sections(first: $first, offset: $offset) {
             total
+            offset
+            first
             items {
                 __typename
                 id

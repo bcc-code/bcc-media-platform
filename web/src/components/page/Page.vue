@@ -2,16 +2,30 @@
     <section class="overflow-x-hidden">
         <transition name="slide-fade">
             <div
-                class="px-4 lg:px-20 flex flex-col gap-8"
+                class="px-4 lg:px-20 flex flex-col gap-8 relative"
                 v-if="page && page.sections.items.length"
             >
-                <Section
-                    v-for="(section, i) in page.sections.items"
-                    :section="section"
-                    :index="{ last: page.sections.total - 1, current: i }"
-                    @load-more="appendItems(section)"
+                <TransitionGroup
+                    name="slide-fade"
                 >
-                </Section>
+                    <Section
+                        v-for="(section, i) in page.sections.items"
+                        :key="section.id"
+                        :section="section"
+                        :index="{ last: page.sections.total - 1, current: i }"
+                        @load-more="appendItems(section)"
+                    >
+                    </Section>
+                </TransitionGroup>
+                <div
+                    v-if="
+                        page.sections.total >
+                        page.sections.offset + page.sections.first
+                    "
+                    class="absolute bottom-0 left-0 w-full h-80 bg-gradient-to-t from-background to-transparent z-10 transition flex"
+                >
+                    <Loader v-if="fetching" class="mx-auto my-auto"></Loader>
+                </div>
             </div>
             <div v-else-if="!fetching">
                 <NotFound :title="$t('page.notFound')"></NotFound>
@@ -25,14 +39,14 @@
 import {
     GetPageQuery,
     GetSectionQuery,
-    ItemSectionFragment,
     useGetPageQuery,
     useGetSectionQuery,
 } from "@/graph/generated"
 import Section from "@/components/sections/Section.vue"
-import { computed, nextTick, onMounted, onUnmounted, ref } from "vue"
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue"
 import NotFound from "../NotFound.vue"
 import SkeletonSections from "./SkeletonSections.vue"
+import Loader from "../Loader.vue"
 
 const props = defineProps<{
     pageId: string
@@ -42,10 +56,15 @@ const emit = defineEmits<{
     (e: "title", v: string): void
 }>()
 
+const pageFirst = ref(10)
+const pageOffset = ref(0)
+
 const { error, fetching, executeQuery } = useGetPageQuery({
     pause: true,
     variables: {
         code: computed(() => props.pageId),
+        offset: pageOffset,
+        first: pageFirst,
     },
 })
 
@@ -59,6 +78,8 @@ const load = async () => {
             emit("title", page.value.title)
         }
     }
+    await nextTick()
+    loadMore()
 }
 
 const sectionId = ref("")
@@ -108,14 +129,29 @@ const appendItems = async (section: GetSectionQuery["section"]) => {
     }
 }
 
-onMounted(() => {
-    document.body.onscroll = async () => {
-        const bottomOfWindow =
-            document.documentElement.scrollTop +
-                (window.innerHeight + window.innerHeight / 2) >=
-            document.documentElement.offsetHeight
+const loadMore = async () => {
+    const bottomOfWindow =
+        document.documentElement.scrollTop +
+            (window.innerHeight + window.innerHeight / 2) >=
+        document.documentElement.offsetHeight
 
-        if (bottomOfWindow && !sectionQuery.fetching.value) {
+    if (bottomOfWindow) {
+        console.log("is bottom")
+        if (
+            page.value &&
+            page.value.sections.total >
+                page.value.sections.offset + page.value.sections.first
+        ) {
+            pageOffset.value =
+                page.value.sections.offset + page.value.sections.first
+            await nextTick()
+            const r = await executeQuery()
+            if (r.data.value) {
+                page.value.sections.items.push(...r.data.value.page.sections.items)
+                page.value.sections.offset = r.data.value.page.sections.offset
+                page.value.sections.first = r.data.value.page.sections.first
+            }
+        } else if (!sectionQuery.fetching.value) {
             const sections = page.value?.sections.items
             if (sections) {
                 const lastSection = sections[sections.length - 1]
@@ -131,6 +167,10 @@ onMounted(() => {
             }
         }
     }
+}
+
+onMounted(() => {
+    document.body.onscroll = loadMore
 })
 
 onUnmounted(() => {

@@ -27,7 +27,11 @@
                         :item="i.item"
                     />
                 </div>
-                <SectionItemTitle :for="i.id" :i="i"></SectionItemTitle>
+                <SectionItemTitle
+                    :secondary-titles="item.metadata?.secondaryTitles === true"
+                    :for="i.id"
+                    :i="i"
+                ></SectionItemTitle>
             </div>
         </Slider>
     </section>

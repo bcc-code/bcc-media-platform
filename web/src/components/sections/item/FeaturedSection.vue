@@ -4,7 +4,7 @@
         <Slider :item="item" v-slot="{ item: i }" :breakpoints="options">
             <div
                 class="relative h-full cursor-pointer aspect-video lg:aspect-[11/5] overflow-hidden"
-                @click="goToSectionItem(i, item.metadata?.collectionId)"
+                @click="goToSectionItem(i, item.metadata)"
             >
                 <Image
                     :src="i.image"

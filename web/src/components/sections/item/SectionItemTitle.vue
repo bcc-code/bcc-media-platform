@@ -2,6 +2,7 @@
     <EpisodeTitle
         v-if="i.item?.__typename === 'Episode'"
         class="mt-1"
+        :secondary-titles="secondaryTitles ?? true"
         :episode="{
             ...i.item,
             title: i.title,
@@ -32,6 +33,7 @@ import ShowTitle from "../../shows/ShowTitle.vue"
 import { Section } from "../types"
 
 defineProps<{
+    secondaryTitles?: boolean
     i: (Section & {
         __typename:
             | "DefaultSection"

@@ -1,9 +1,7 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <div
-            class="flex flex-col lg:grid lg:grid-cols-2 overflow-y-scroll"
-        >
+        <div class="flex flex-col lg:grid lg:grid-cols-2 overflow-y-scroll">
             <div
                 v-for="i in page.items"
                 class="relative"
@@ -12,7 +10,7 @@
                 <NewPill class="absolute top-0 right-0" :item="i"></NewPill>
                 <div
                     class="flex flex-col cursor-pointer mx-2 mt-2 hover:opacity-90"
-                    @click="goToSectionItem(i, item.metadata?.collectionId)"
+                    @click="goToSectionItem(i, item.metadata)"
                 >
                     <div
                         class="relative mb-1 rounded-md w-full aspect-video overflow-hidden transition"
@@ -28,7 +26,13 @@
                             :item="i.item"
                         />
                     </div>
-                    <SectionItemTitle :for="i.id" :i="i"></SectionItemTitle>
+                    <SectionItemTitle
+                        :secondary-titles="
+                            item.metadata?.secondaryTitles === true
+                        "
+                        :for="i.id"
+                        :i="i"
+                    ></SectionItemTitle>
                 </div>
             </div>
         </div>

@@ -6,14 +6,25 @@ import { useAuth0 } from "@/services/auth0"
 // }
 
 export class Auth {
+    public static shouldSignIn() {
+        const { isAuthenticated } = useAuth0()
+        if (isAuthenticated.value) {
+            return false
+        }
+        return localStorage.getItem("wasLoggedIn") === "true"
+    }
+
     public static async signIn() {
         const { loginWithRedirect } = useAuth0()
-        return await loginWithRedirect()
+
+        await loginWithRedirect()
     }
 
     public static async signOut() {
         const { logout } = useAuth0()
+        localStorage.clear()
         return await logout({
+            localOnly: true,
             returnTo: window.location.origin,
         })
     }
@@ -50,6 +61,7 @@ export const useAuth = () => {
         getToken: Auth.getToken,
         authenticated: Auth.isAuthenticated(),
         user: Auth.user(),
+        shouldSignIn: Auth.shouldSignIn,
     }
 }
 

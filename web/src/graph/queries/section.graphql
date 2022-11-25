@@ -63,6 +63,10 @@ fragment SectionItem on SectionItem {
 fragment ItemSection on ItemSection {
     metadata {
         collectionId
+        continueWatching
+        useContext
+        prependLiveElement
+        secondaryTitles
     }
 
     items {
@@ -102,6 +106,13 @@ query getSection($id: ID!, $first: Int!, $offset: Int!) {
         __typename
         id
         ... on ItemSection {
+            metadata {
+                collectionId
+                continueWatching
+                useContext
+                prependLiveElement
+                secondaryTitles
+            }
             items(first: $first, offset: $offset) {
                 total
                 first

@@ -10,30 +10,21 @@
 </template>
 <script lang="ts" setup>
 import EpisodeDisplay from "@/components/episodes/EpisodeDisplay.vue"
-import { ref, watch } from "vue"
+import { computed, ref } from "vue"
 import { useRouter } from "vue-router"
 
-defineProps<{
+const props = defineProps<{
     episodeId: string
+    collection?: string
 }>()
 
 const router = useRouter()
 
 const autoPlay = ref(false)
 
-const getCollectionQueryParam = () =>
-    router.currentRoute.value.query.collection
-        ? { collectionId: router.currentRoute.value.query.collection as string }
-        : {}
-
-const context = ref(getCollectionQueryParam())
-
-watch(
-    () => router.currentRoute.value.query,
-    () => {
-        context.value = getCollectionQueryParam()
-    }
-)
+const context = computed(() => ({
+    collectionId: props.collection,
+}))
 
 const setEpisode = (id: string) => {
     autoPlay.value = true

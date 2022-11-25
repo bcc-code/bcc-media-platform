@@ -5,7 +5,7 @@
             <div
                 v-for="i in item.items.items"
                 class="relative"
-                @click="goToSectionItem(i, item.metadata?.collectionId)"
+                @click="goToSectionItem(i, item.metadata)"
             >
                 <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
                 <div
@@ -25,7 +25,12 @@
                             :item="i.item"
                         />
                     </div>
-                    <SectionItemTitle :i="i"></SectionItemTitle>
+                    <SectionItemTitle
+                        :secondary-titles="
+                            item.metadata?.secondaryTitles === true
+                        "
+                        :i="i"
+                    ></SectionItemTitle>
                 </div>
             </div>
         </div>

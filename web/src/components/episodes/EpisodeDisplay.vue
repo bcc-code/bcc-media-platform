@@ -48,7 +48,9 @@
             <div class="flex flex-col gap-2 mt-4">
                 <div class="flex gap-4 p-2 font-semibold">
                     <button
-                        v-if="episode.context?.__typename === 'ContextCollection'"
+                        v-if="
+                            episode.context?.__typename === 'ContextCollection'
+                        "
                         class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
                         :class="[
                             effectiveView === 'context'
@@ -114,9 +116,7 @@
                                 v-model:value="seasonId"
                             ></SeasonSelector>
                             <ItemList
-                                :items="
-                                    seasonEpisodes
-                                "
+                                :items="seasonEpisodes"
                                 :current-id="episode.id"
                                 @set-current="(i) => setEpisode(i.id)"
                             ></ItemList>
@@ -197,17 +197,16 @@ const seasonQuery = useGetSeasonOnEpisodePageQuery({
 })
 
 const seasonEpisodes = computed(() => {
-    return episodesToListItems(seasonQuery.data.value?.season.episodes.items ?? [])
+    return episodesToListItems(
+        seasonQuery.data.value?.season.episodes.items ?? []
+    )
 })
 
 const loadSeason = async () => {
     season.value = null
     if (seasonId.value) {
-        const r = await seasonQuery.executeQuery();
+        const r = await seasonQuery.executeQuery()
         season.value = r.data.value?.season ?? null
-        if (season.value) {
-            console.log(season.value)
-        }
     }
 }
 
@@ -241,7 +240,9 @@ const effectiveView = computed({
         const v = view.value
         switch (v) {
             case "context":
-                if (episode.value?.context?.__typename === 'ContextCollection') {
+                if (
+                    episode.value?.context?.__typename === "ContextCollection"
+                ) {
                     return "context"
                 }
                 break
@@ -254,7 +255,7 @@ const effectiveView = computed({
                 return "details"
         }
 
-        if (episode.value?.context?.__typename === 'ContextCollection') {
+        if (episode.value?.context?.__typename === "ContextCollection") {
             return "context"
         }
         return (view.value = !episode.value?.season ? "details" : "episodes")
