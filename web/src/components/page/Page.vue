@@ -5,9 +5,7 @@
                 class="px-4 lg:px-20 flex flex-col gap-8 relative"
                 v-if="page && page.sections.items.length"
             >
-                <TransitionGroup
-                    name="slide-fade"
-                >
+                <TransitionGroup name="slide-fade">
                     <Section
                         v-for="(section, i) in page.sections.items"
                         :key="section.id"
@@ -147,7 +145,9 @@ const loadMore = async () => {
             await nextTick()
             const r = await executeQuery()
             if (r.data.value) {
-                page.value.sections.items.push(...r.data.value.page.sections.items)
+                page.value.sections.items.push(
+                    ...r.data.value.page.sections.items
+                )
                 page.value.sections.offset = r.data.value.page.sections.offset
                 page.value.sections.first = r.data.value.page.sections.first
             }

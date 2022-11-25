@@ -9,7 +9,7 @@
             <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
             <div
                 class="flex flex-col cursor-pointer mt-2"
-                @click="goToSectionItem(i, item.metadata?.collectionId)"
+                @click="goToSectionItem(i, item.metadata)"
             >
                 <div
                     class="relative mb-1 rounded-md w-full aspect-video overflow-hidden hover:opacity-90 transition"
