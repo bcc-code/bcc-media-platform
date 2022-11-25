@@ -95,9 +95,6 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f comm
 		log.L.Debug().Str("query", queryString).Msg("Querying database for previewing filter")
 	}
 
-	queryStr, _, _ := q.ToSql()
-	log.L.Debug().Str("query", queryStr).Msg("oi")
-
 	rows, err := q.RunWith(db).Query()
 	if err != nil {
 		queryString, _, _ := q.ToSql()
