@@ -172,6 +172,3 @@ promotions:
       when: branch = 'master' AND result = 'passed'
   - name: Deploy to PROD
     pipeline_file: deploy-prod.yml
-    auto_promote:
-      # TODO: Remove when launching project
-      when: branch = 'master' AND result = 'passed'
