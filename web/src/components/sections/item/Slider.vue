@@ -89,7 +89,7 @@ const onswipe = (swiper: TSwiper) => {
     swiper.on("progress", () => {
         const bp = effectiveBreakpoints.value[swiper.currentBreakpoint];
         // Check when the slide should be updated with new items.
-        const pg = 1 - ((bp.slidesPerView as any ?? 1) / props.item.items.items.length)
+        const pg = 1 - (((bp.slidesPerView as any ?? 1) + 1) / props.item.items.items.length)
         if (swiper.progress > pg) {
             emit("loadMore")
         }
