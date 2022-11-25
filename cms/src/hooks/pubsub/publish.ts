@@ -13,12 +13,14 @@ export function handleEvent(eventName: string) {
     const handler: ActionHandler = async (event: Event) => {
         console.log("Executing hook for event: " + JSON.stringify(event))
         const collections = [
-            "shows", 
-            "seasons", 
-            "episodes", 
-            "shows_translations", 
-            "seasons_translations", 
+            "shows",
+            "seasons",
+            "episodes",
+            "sections",
+            "shows_translations",
+            "seasons_translations",
             "episodes_translations",
+            "sections_translations",
             "globalconfig",
             "appconfig",
             "webconfig",
@@ -28,13 +30,13 @@ export function handleEvent(eventName: string) {
         ] as Collection[]
 
         if (!collections.includes(event.collection)) { return }
-        
+
         const keys = [] as string[]
 
         if (event.key) {
             keys.push(event.key.toString())
         }
-        
+
         if (event.keys) {
             keys.push(...event.keys.map(i => i.toString()))
         }
@@ -52,7 +54,7 @@ export function handleEvent(eventName: string) {
                     id: key,
                }
             })
-    
+
             console.log("Pushing event: " + JSON.stringify(e))
             await topic.publishMessage({
                 data: Buffer.from(JSON.stringify(e))

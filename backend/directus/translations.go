@@ -35,6 +35,12 @@ type ShowsTranslation struct {
 	ShowsID int `json:"shows_id"`
 }
 
+// SectionsTranslation extends Translation
+type SectionsTranslation struct {
+	Translation
+	SectionsID int `json:"sections_id"`
+}
+
 type update struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
@@ -82,6 +88,11 @@ func (SeasonsTranslation) TypeName() string {
 // TypeName shows_translations
 func (ShowsTranslation) TypeName() string {
 	return "shows_translations"
+}
+
+// TypeName shows_translations
+func (SectionsTranslation) TypeName() string {
+	return "sections_translations"
 }
 
 // GetSourceLanguage retrieves the configured language for this translation
