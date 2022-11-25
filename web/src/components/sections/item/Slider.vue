@@ -55,7 +55,7 @@ import { Section } from "../types"
 import TSwiper, { Navigation, Pagination, Lazy, SwiperOptions } from "swiper"
 import { Swiper, SwiperSlide } from "swiper/vue"
 import breakpoints from "./breakpoints"
-import { computed, onMounted, ref } from "vue"
+import { computed, ref } from "vue"
 
 const swiperEl = ref(null as HTMLDivElement | null)
 

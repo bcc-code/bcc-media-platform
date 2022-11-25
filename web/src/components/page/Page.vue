@@ -134,22 +134,24 @@ const loadMore = async () => {
         document.documentElement.offsetHeight
 
     if (bottomOfWindow) {
-        console.log("is bottom")
         if (
             page.value &&
             page.value.sections.total >
                 page.value.sections.offset + page.value.sections.first
         ) {
-            pageOffset.value =
-                page.value.sections.offset + page.value.sections.first
-            await nextTick()
-            const r = await executeQuery()
-            if (r.data.value) {
-                page.value.sections.items.push(
-                    ...r.data.value.page.sections.items
-                )
-                page.value.sections.offset = r.data.value.page.sections.offset
-                page.value.sections.first = r.data.value.page.sections.first
+            if (!fetching.value) {
+                pageOffset.value =
+                    page.value.sections.offset + page.value.sections.first
+                await nextTick()
+                const r = await executeQuery()
+                if (r.data.value) {
+                    page.value.sections.items.push(
+                        ...r.data.value.page.sections.items
+                    )
+                    page.value.sections.offset =
+                        r.data.value.page.sections.offset
+                    page.value.sections.first = r.data.value.page.sections.first
+                }
             }
         } else if (!sectionQuery.fetching.value) {
             const sections = page.value?.sections.items
