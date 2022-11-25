@@ -957,7 +957,7 @@ export type GetLiveCalendarRangeQueryVariables = Exact<{
 }>;
 
 
-export type GetLiveCalendarRangeQuery = { calendar?: { period: { activeDays: Array<any>, events: Array<{ title: string }> } } | null };
+export type GetLiveCalendarRangeQuery = { calendar?: { period: { activeDays: Array<any>, events: Array<{ title: string, start: string, end: string }> } } | null };
 
 export type GetPageQueryVariables = Exact<{
   code: Scalars['String'];
@@ -1358,6 +1358,8 @@ export const GetLiveCalendarRangeDocument = gql`
     period(from: $start, to: $end) {
       events {
         title
+        start
+        end
       }
       activeDays
     }

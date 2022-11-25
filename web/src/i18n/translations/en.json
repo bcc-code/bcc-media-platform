@@ -46,7 +46,8 @@
     },
     "calendar": {
         "noScheduledEvents": "No scheduled events",
-        "thisWeek": "This week"
+        "thisWeek": "This week",
+        "timeTableIsLocalTime": "Timetable is in your local time."
     },
     "search": {
         "programs": "Programs",

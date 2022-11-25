@@ -3,6 +3,8 @@ query getLiveCalendarRange($start: Date!, $end: Date!) {
         period(from: $start, to: $end) {
             events {
                 title
+                start
+                end
             }
             activeDays
         }

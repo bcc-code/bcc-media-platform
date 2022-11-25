@@ -46,7 +46,8 @@
     },
     "calendar": {
         "noScheduledEvents": "Ingen oppførte eventer",
-        "thisWeek": "Denne uken"
+        "thisWeek": "Denne uken",
+        "timeTableIsLocalTime": "Kalenderen er i din lokale tidssone."
     },
     "search": {
         "programs": "Programmer",
