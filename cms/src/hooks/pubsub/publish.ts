@@ -16,6 +16,7 @@ export function handleEvent(eventName: string) {
             "shows",
             "seasons",
             "episodes",
+            "sections",
             "shows_translations",
             "seasons_translations",
             "episodes_translations",
