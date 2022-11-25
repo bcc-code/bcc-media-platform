@@ -1,4 +1,4 @@
-query getPage($code: String!, $first: Int, $offset: Int) {
+query getPage($code: String!, $first: Int, $offset: Int, $sectionFirst: Int, $sectionOffset: Int) {
     page(code: $code) {
         id
         title
@@ -32,5 +32,46 @@ query getPage($code: String!, $first: Int, $offset: Int) {
                 }
             }
         }
+    }
+}
+
+fragment ItemSection on ItemSection {
+    metadata {
+        collectionId
+        continueWatching
+        useContext
+        prependLiveElement
+        secondaryTitles
+    }
+
+    items(first: $sectionFirst, offset: $sectionOffset) {
+        total
+        first
+        offset
+        items {
+            ...SectionItem
+        }
+    }
+    ... on DefaultSection {
+        size
+        items(first: $sectionFirst, offset: $sectionOffset) {
+            items {
+                description
+            }
+        }
+    }
+    ... on FeaturedSection {
+        size
+        items(first: $sectionFirst, offset: $sectionOffset) {
+            items {
+                description
+            }
+        }
+    }
+    ... on GridSection {
+        gridSize: size
+    }
+    ... on PosterSection {
+        size
     }
 }

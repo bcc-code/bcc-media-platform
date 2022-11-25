@@ -60,47 +60,6 @@ fragment SectionItem on SectionItem {
     }
 }
 
-fragment ItemSection on ItemSection {
-    metadata {
-        collectionId
-        continueWatching
-        useContext
-        prependLiveElement
-        secondaryTitles
-    }
-
-    items(first: $first, offset: $offset) {
-        total
-        first
-        offset
-        items {
-            ...SectionItem
-        }
-    }
-    ... on DefaultSection {
-        size
-        items(first: $first, offset: $offset) {
-            items {
-                description
-            }
-        }
-    }
-    ... on FeaturedSection {
-        size
-        items(first: $first, offset: $offset) {
-            items {
-                description
-            }
-        }
-    }
-    ... on GridSection {
-        gridSize: size
-    }
-    ... on PosterSection {
-        size
-    }
-}
-
 query getSection($id: ID!, $first: Int!, $offset: Int!) {
     section(id: $id) {
         __typename

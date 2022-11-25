@@ -24,6 +24,7 @@
                 >
                     <Loader v-if="fetching" class="mx-auto my-auto"></Loader>
                 </div>
+                <div v-else class="h-40"></div>
             </div>
             <div v-else-if="!fetching">
                 <NotFound :title="$t('page.notFound')"></NotFound>
@@ -63,6 +64,8 @@ const { error, fetching, executeQuery } = useGetPageQuery({
         code: computed(() => props.pageId),
         offset: pageOffset,
         first: pageFirst,
+        sectionFirst: 10,
+        sectionOffset: 0,
     },
 })
 
