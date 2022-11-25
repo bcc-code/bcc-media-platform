@@ -69,7 +69,7 @@ fragment ItemSection on ItemSection {
         secondaryTitles
     }
 
-    items {
+    items(first: $first, offset: $offset) {
         total
         first
         offset
@@ -79,7 +79,7 @@ fragment ItemSection on ItemSection {
     }
     ... on DefaultSection {
         size
-        items {
+        items(first: $first, offset: $offset) {
             items {
                 description
             }
@@ -87,7 +87,7 @@ fragment ItemSection on ItemSection {
     }
     ... on FeaturedSection {
         size
-        items {
+        items(first: $first, offset: $offset) {
             items {
                 description
             }

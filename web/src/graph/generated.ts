@@ -1134,7 +1134,7 @@ export const ItemSectionFragmentDoc = gql`
     prependLiveElement
     secondaryTitles
   }
-  items {
+  items(first: $first, offset: $offset) {
     total
     first
     offset
@@ -1144,7 +1144,7 @@ export const ItemSectionFragmentDoc = gql`
   }
   ... on DefaultSection {
     size
-    items {
+    items(first: $first, offset: $offset) {
       items {
         description
       }
@@ -1152,7 +1152,7 @@ export const ItemSectionFragmentDoc = gql`
   }
   ... on FeaturedSection {
     size
-    items {
+    items(first: $first, offset: $offset) {
       items {
         description
       }

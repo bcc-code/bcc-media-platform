@@ -81,7 +81,7 @@ const load = async () => {
 }
 
 const sectionId = ref("")
-const first = ref(20)
+const first = ref(10)
 const offset = ref(0)
 
 const sectionQuery = useGetSectionQuery({
