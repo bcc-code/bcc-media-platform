@@ -1,103 +1,11 @@
-fragment SectionItem on SectionItem {
-    id
-    image
-    title
-    sort
-    item {
-        __typename
-        ... on Episode {
-            id
-            episodeNumber: number
-            productionDate
-            publishDate
-            progress
-            duration
-            season {
-                id
-                title
-                number
-                show {
-                    id
-                    type
-                    title
-                }
-            }
-        }
-        ... on Season {
-            id
-            seasonNumber: number
-            show {
-                title
-            }
-            episodes(first: 1, dir: "desc") {
-                items {
-                    publishDate
-                }
-            }
-        }
-        ... on Show {
-            id
-            episodeCount
-            seasonCount
-            defaultEpisode {
-                id
-            }
-            seasons(first: 1, dir: "desc") {
-                items {
-                    episodes(first: 1, dir: "desc") {
-                        items {
-                            publishDate
-                        }
-                    }
-                }
-            }
-        }
-        ... on Page {
-            id
-            code
-        }
-    }
-}
-
-fragment ItemSection on ItemSection {
-    metadata {
-        collectionId
-    }
-
-    items {
-        items {
-            ...SectionItem
-        }
-    }
-    ... on DefaultSection {
-        size
-        items {
-            items {
-                description
-            }
-        }
-    }
-    ... on FeaturedSection {
-        size
-        items {
-            items {
-                description
-            }
-        }
-    }
-    ... on GridSection {
-        gridSize: size
-    }
-    ... on PosterSection {
-        size
-    }
-}
-
-query getPage($code: String!) {
+query getPage($code: String!, $first: Int, $offset: Int) {
     page(code: $code) {
         id
         title
-        sections {
+        sections(first: $first, offset: $offset) {
+            total
+            offset
+            first
             items {
                 __typename
                 id
@@ -106,8 +14,21 @@ query getPage($code: String!) {
                 ... on WebSection {
                     title
                     url
-                    widthRatio
+                    height
+                    aspectRatio
                     authentication
+                }
+                ... on MessageSection {
+                    title
+                    messages {
+                        title
+                        content
+                        style {
+                            text
+                            background
+                            border
+                        }
+                    }
                 }
             }
         }

@@ -153,6 +153,15 @@ type Collection {
     ): CollectionItemPagination @goField(forceResolver: true)
 }
 
+type ContextCollection {
+    id: ID!
+    slug: String
+    items(
+        first: Int,
+        offset: Int,
+    ): SectionItemPagination @goField(forceResolver: true)
+}
+
 type Link {
     id: ID!
     url: String!

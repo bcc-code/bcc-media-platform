@@ -1,59 +1,91 @@
 <template>
     <PosterSection
-        v-if="section.__typename === 'PosterSection'"
+        v-if="section.__typename === 'PosterSection' && hasItems(section)"
         :item="section"
     ></PosterSection>
     <FeaturedSection
-        v-else-if="section.__typename === 'FeaturedSection'"
+        v-else-if="
+            section.__typename === 'FeaturedSection' && hasItems(section)
+        "
         :item="section"
     ></FeaturedSection>
     <ListSection
-        v-else-if="section.__typename === 'ListSection'"
+        v-else-if="section.__typename === 'ListSection' && hasItems(section)"
         :item="section"
+        :paginate="index.last === index.current"
     ></ListSection>
     <DefaultSection
-        v-else-if="section.__typename === 'DefaultSection'"
+        v-else-if="section.__typename === 'DefaultSection' && hasItems(section)"
         :item="section"
+        @load-more="$emit('loadMore')"
     ></DefaultSection>
     <DefaultGridSection
-        v-else-if="section.__typename === 'DefaultGridSection'"
+        v-else-if="
+            section.__typename === 'DefaultGridSection' && hasItems(section)
+        "
         :item="section"
+        :paginate="index.last === index.current"
     ></DefaultGridSection>
     <PosterGridSection
-        v-else-if="section.__typename === 'PosterGridSection'"
+        v-else-if="
+            section.__typename === 'PosterGridSection' && hasItems(section)
+        "
         :item="section"
     ></PosterGridSection>
     <LabelSection
-        v-else-if="section.__typename === 'LabelSection'"
+        v-else-if="section.__typename === 'LabelSection' && hasItems(section)"
         :item="section"
     ></LabelSection>
     <IconSection
-        v-else-if="section.__typename === 'IconSection'"
+        v-else-if="section.__typename === 'IconSection' && hasItems(section)"
         :item="section"
     ></IconSection>
     <IconGridSection
-        v-else-if="section.__typename === 'IconGridSection'"
+        v-else-if="
+            section.__typename === 'IconGridSection' && hasItems(section)
+        "
         :item="section"
     ></IconGridSection>
     <WebSection
         v-else-if="section.__typename === 'WebSection'"
         :item="section"
     />
+    <MessageSection
+        v-else-if="section.__typename === 'MessageSection'"
+        :item="section"
+    ></MessageSection>
 </template>
 <script lang="ts" setup>
 import { Section } from "./types"
-import PosterSection from "./PosterSection.vue"
-import FeaturedSection from "./FeaturedSection.vue"
-import DefaultSection from "./DefaultSection.vue"
-import DefaultGridSection from "./DefaultGridSection.vue"
-import PosterGridSection from "./PosterGridSection.vue"
-import LabelSection from "./LabelSection.vue"
-import IconSection from "./IconSection.vue"
-import IconGridSection from "./IconGridSection.vue"
-import ListSection from "./ListSection.vue"
+import PosterSection from "./item/PosterSection.vue"
+import FeaturedSection from "./item/FeaturedSection.vue"
+import DefaultSection from "./item/DefaultSection.vue"
+import DefaultGridSection from "./item/DefaultGridSection.vue"
+import PosterGridSection from "./item/PosterGridSection.vue"
+import LabelSection from "./item/LabelSection.vue"
+import IconSection from "./item/IconSection.vue"
+import IconGridSection from "./item/IconGridSection.vue"
+import ListSection from "./item/ListSection.vue"
 import WebSection from "./WebSection.vue"
+import MessageSection from "./MessageSection.vue"
 
 defineProps<{
     section: Section
+    index: {
+        last: number
+        current: number
+    }
 }>()
+
+defineEmits<{
+    (e: "loadMore"): void
+}>()
+
+const hasItems = (section: {
+    items: {
+        items: any[]
+    }
+}) => {
+    return section.items.items.length > 0
+}
 </script>

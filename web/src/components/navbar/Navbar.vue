@@ -2,7 +2,7 @@
     <Disclosure as="nav" v-slot="{ open }">
         <div class="mx-auto px-2 lg:px-8">
             <div class="lg:flex py-4">
-                <div class="flex mx-auto">
+                <div class="flex justify-between w-full">
                     <div class="flex flex-shrink-0 my-auto">
                         <img
                             @click="$router.push({ name: 'front-page' })"
@@ -11,7 +11,7 @@
                             alt="BrunstadTV"
                         />
                     </div>
-                    <div class="hidden lg:flex ml-6 my-auto space-x-2">
+                    <div class="hidden lg:flex my-auto space-x-2">
                         <div v-for="item in navigation" class="relative">
                             <NavLink
                                 :icon="item.icon"

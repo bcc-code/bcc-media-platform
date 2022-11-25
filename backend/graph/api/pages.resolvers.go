@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
@@ -22,6 +23,24 @@ func (r *collectionResolver) Items(ctx context.Context, obj *model.Collection, f
 	}
 
 	return &model.CollectionItemPagination{
+		Total:  pagination.Total,
+		First:  pagination.First,
+		Offset: pagination.Offset,
+		Items:  pagination.Items,
+	}, nil
+}
+
+// Items is the resolver for the items field.
+func (r *contextCollectionResolver) Items(ctx context.Context, obj *model.ContextCollection, first *int, offset *int) (*model.SectionItemPagination, error) {
+	pagination, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), &common.Section{
+		Style:        "default",
+		CollectionID: utils.AsNullInt(&obj.ID),
+	}, first, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.SectionItemPagination{
 		Total:  pagination.Total,
 		First:  pagination.First,
 		Offset: pagination.Offset,
@@ -121,6 +140,11 @@ func (r *posterSectionResolver) Items(ctx context.Context, obj *model.PosterSect
 // Collection returns generated.CollectionResolver implementation.
 func (r *Resolver) Collection() generated.CollectionResolver { return &collectionResolver{r} }
 
+// ContextCollection returns generated.ContextCollectionResolver implementation.
+func (r *Resolver) ContextCollection() generated.ContextCollectionResolver {
+	return &contextCollectionResolver{r}
+}
+
 // DefaultGridSection returns generated.DefaultGridSectionResolver implementation.
 func (r *Resolver) DefaultGridSection() generated.DefaultGridSectionResolver {
 	return &defaultGridSectionResolver{r}
@@ -167,6 +191,7 @@ func (r *Resolver) PosterGridSection() generated.PosterGridSectionResolver {
 func (r *Resolver) PosterSection() generated.PosterSectionResolver { return &posterSectionResolver{r} }
 
 type collectionResolver struct{ *Resolver }
+type contextCollectionResolver struct{ *Resolver }
 type defaultGridSectionResolver struct{ *Resolver }
 type defaultSectionResolver struct{ *Resolver }
 type featuredSectionResolver struct{ *Resolver }

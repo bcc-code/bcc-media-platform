@@ -120,8 +120,6 @@ type Collection struct {
 	Items *CollectionItemPagination `json:"items"`
 }
 
-func (Collection) IsEpisodeContextUnion() {}
-
 type CollectionItemPagination struct {
 	Total  int              `json:"total"`
 	First  int              `json:"first"`
@@ -137,6 +135,14 @@ func (this CollectionItemPagination) GetOffset() int { return this.Offset }
 type Config struct {
 	Global *GlobalConfig `json:"global"`
 }
+
+type ContextCollection struct {
+	ID    string                 `json:"id"`
+	Slug  *string                `json:"slug"`
+	Items *SectionItemPagination `json:"items"`
+}
+
+func (ContextCollection) IsEpisodeContextUnion() {}
 
 type DefaultGridSection struct {
 	ID       string                 `json:"id"`

@@ -5,7 +5,7 @@
             <div
                 v-for="i in item.items.items"
                 class="relative"
-                @click="goToSectionItem(i, item.metadata?.collectionId)"
+                @click="goToSectionItem(i, item.metadata)"
             >
                 <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
                 <div
@@ -25,21 +25,26 @@
                             :item="i.item"
                         />
                     </div>
-                    <SectionItemTitle :i="i"></SectionItemTitle>
+                    <SectionItemTitle
+                        :secondary-titles="
+                            item.metadata?.secondaryTitles === true
+                        "
+                        :i="i"
+                    ></SectionItemTitle>
                 </div>
             </div>
         </div>
     </section>
 </template>
 <script lang="ts" setup>
-import { Section } from "./types"
+import { Section } from "../types"
 
 import SectionTitle from "./SectionTitle.vue"
 import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
-import ProgressBar from "../episodes/ProgressBar.vue"
-import Image from "../Image.vue"
+import ProgressBar from "@/components/episodes/ProgressBar.vue"
+import Image from "@/components/Image.vue"
 
 defineProps<{
     item: Section & { __typename: "PosterGridSection" | "PosterSection" }

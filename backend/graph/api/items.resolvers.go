@@ -133,7 +133,9 @@ func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode) (mode
 		if err != nil {
 			return nil, err
 		}
-		episodeContext = progress.Context
+		if progress != nil {
+			episodeContext = progress.Context
+		}
 	}
 
 	if episodeContext.CollectionID.Valid {
@@ -142,8 +144,17 @@ func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode) (mode
 	}
 
 	if collectionId != nil {
+		col, err := batchloaders.GetByID(ctx, r.Loaders.CollectionLoader, *collectionId)
+		if err != nil {
+			return nil, err
+		}
+		languages := user.GetLanguagesFromCtx(ginCtx)
+
 		strID := strconv.Itoa(*collectionId)
-		return r.QueryRoot().Collection(ctx, &strID, nil)
+		return &model.ContextCollection{
+			ID:   strID,
+			Slug: col.Slugs.GetValueOrNil(languages),
+		}, nil
 	}
 	if obj.Season != nil {
 		return r.QueryRoot().Season(ctx, obj.Season.ID)

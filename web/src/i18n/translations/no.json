@@ -10,7 +10,9 @@
         "live": "Live",
         "calendar": "Kalender",
         "faq": "FAQ",
-        "notFound": "Side ikke funnet"
+        "notFound": "Side ikke funnet",
+        "explore": "Utforsk",
+        "watchNow": "Se nå"
     },
     "section": {
         "item": {

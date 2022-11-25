@@ -1,0 +1,126 @@
+fragment SectionItem on SectionItem {
+    id
+    image
+    title
+    sort
+    item {
+        __typename
+        ... on Episode {
+            id
+            episodeNumber: number
+            productionDate
+            publishDate
+            progress
+            duration
+            ageRating
+            season {
+                id
+                title
+                number
+                show {
+                    id
+                    type
+                    title
+                }
+            }
+        }
+        ... on Season {
+            id
+            seasonNumber: number
+            show {
+                title
+            }
+            episodes(first: 1, dir: "desc") {
+                items {
+                    publishDate
+                }
+            }
+        }
+        ... on Show {
+            id
+            episodeCount
+            seasonCount
+            defaultEpisode {
+                id
+            }
+            seasons(first: 1, dir: "desc") {
+                items {
+                    episodes(first: 1, dir: "desc") {
+                        items {
+                            publishDate
+                        }
+                    }
+                }
+            }
+        }
+        ... on Page {
+            id
+            code
+        }
+    }
+}
+
+fragment ItemSection on ItemSection {
+    metadata {
+        collectionId
+        continueWatching
+        useContext
+        prependLiveElement
+        secondaryTitles
+    }
+
+    items {
+        total
+        first
+        offset
+        items {
+            ...SectionItem
+        }
+    }
+    ... on DefaultSection {
+        size
+        items {
+            items {
+                description
+            }
+        }
+    }
+    ... on FeaturedSection {
+        size
+        items {
+            items {
+                description
+            }
+        }
+    }
+    ... on GridSection {
+        gridSize: size
+    }
+    ... on PosterSection {
+        size
+    }
+}
+
+query getSection($id: ID!, $first: Int!, $offset: Int!) {
+    section(id: $id) {
+        __typename
+        id
+        ... on ItemSection {
+            metadata {
+                collectionId
+                continueWatching
+                useContext
+                prependLiveElement
+                secondaryTitles
+            }
+            items(first: $first, offset: $offset) {
+                total
+                first
+                offset
+                items {
+                    ...SectionItem
+                }
+            }
+        }
+    }
+}

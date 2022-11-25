@@ -9,7 +9,7 @@
             :disabled="disabled"
             class="pl-10 w-full bg-slate-800 rounded-full pr-20 p-2 my-auto text-md"
             :class="[disabled ? 'text-gray' : '']"
-            :placeholder="t('page.search')"
+            :placeholder="$t('page.search')"
             @keydown.enter="emit('keydown.enter')"
         />
         <p
@@ -17,17 +17,16 @@
             class="absolute flex right-2 ml-10 px-2 inset-y-2 cursor-pointer text-xs opacity-50 bg-slate-700 rounded-full"
             @click="cancel"
         >
-            <span class="my-auto uppercase">{{ t("search.cancel") }}</span>
+            <span class="my-auto uppercase">{{ $t("search.cancel") }}</span>
         </p>
     </div>
 </template>
 <script lang="ts" setup>
 import { computed } from "vue"
-import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import { SearchIcon } from "./icons"
 
-const { t } = useI18n()
+const router = useRouter()
 
 const props = defineProps<{
     modelValue: any
@@ -45,10 +44,11 @@ const value = computed({
     },
     set(v) {
         emit("update:modelValue", v)
+        if (router.currentRoute.value.name === "search" && !v) {
+            router.back()
+        }
     },
 })
-
-const router = useRouter()
 
 const cancel = () => {
     value.value = ""

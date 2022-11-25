@@ -1,18 +1,24 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <Slider :item="item" v-slot="{ item: i }">
+        <Slider
+            :item="item"
+            v-slot="{ item: i }"
+            @load-more="$emit('loadMore')"
+        >
             <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
             <div
-                class="flex flex-col rounded rounded-md mt-1 cursor-pointer hover:opacity-90 transition"
-                @click="goToSectionItem(i, item.metadata?.collectionId)"
+                class="flex flex-col cursor-pointer mt-2"
+                @click="goToSectionItem(i, item.metadata)"
             >
                 <div
-                    class="relative w-full aspect-[9/16] mb-1 rounded-md overflow-hidden"
+                    class="relative mb-1 rounded-md w-full aspect-video overflow-hidden hover:opacity-90 transition"
                 >
                     <Image
                         :src="i.image"
-                        size-source="height"
+                        class="rounded-md"
+                        loading="lazy"
+                        size-source="width"
                         :ratio="9 / 16"
                     />
                     <ProgressBar
@@ -21,23 +27,31 @@
                         :item="i.item"
                     />
                 </div>
-                <SectionItemTitle :i="i"></SectionItemTitle>
+                <SectionItemTitle
+                    :secondary-titles="item.metadata?.secondaryTitles === true"
+                    :for="i.id"
+                    :i="i"
+                ></SectionItemTitle>
             </div>
         </Slider>
     </section>
 </template>
 <script lang="ts" setup>
-import { Section } from "./types"
+import { Section } from "../types"
 
 import SectionTitle from "./SectionTitle.vue"
 import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
-import ProgressBar from "../episodes/ProgressBar.vue"
-import Image from "../Image.vue"
+import ProgressBar from "@/components/episodes/ProgressBar.vue"
+import Image from "@/components/Image.vue"
 import Slider from "./Slider.vue"
 
 defineProps<{
-    item: Section & { __typename: "PosterSection" }
+    item: Section & { __typename: "DefaultSection" }
+}>()
+
+defineEmits<{
+    (e: "loadMore"): void
 }>()
 </script>

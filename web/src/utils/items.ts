@@ -1,18 +1,29 @@
 import { SectionItemFragment } from "@/graph/generated"
 import router from "@/router"
 
-export const goToEpisode = (episodeId: string, collection?: string) => {
-    router.push({
-        name: "episode-page",
-        params: {
-            episodeId,
-        },
-        query: router.currentRoute.value.query.collection
-            ? router.currentRoute.value.query
-            : collection
-            ? { collection }
-            : undefined,
-    })
+export const goToEpisode = (
+    episodeId: string,
+    options?: {
+        useContext: boolean
+        collectionId: string
+    } | null
+) => {
+    if (options?.useContext) {
+        router.push({
+            name: "episode-collection-page",
+            params: {
+                episodeId,
+                collection: options.collectionId,
+            },
+        })
+    } else {
+        router.push({
+            name: "episode-page",
+            params: {
+                episodeId,
+            },
+        })
+    }
 }
 
 export const goToPage = (code: string) => {
@@ -26,11 +37,14 @@ export const goToPage = (code: string) => {
 
 export const goToSectionItem = (
     item: SectionItemFragment,
-    collection?: string
+    options?: {
+        useContext: boolean
+        collectionId: string
+    } | null
 ) => {
     switch (item.item?.__typename) {
         case "Episode":
-            goToEpisode(item.id, collection)
+            goToEpisode(item.id, options)
             break
         case "Show":
             if (item.item.defaultEpisode)

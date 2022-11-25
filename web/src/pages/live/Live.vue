@@ -80,6 +80,7 @@ import { useGetLiveCalendarRangeQuery } from "@/graph/generated"
 import DayQuery from "@/components/calendar/DayQuery.vue"
 import { useI18n } from "vue-i18n"
 import { useTitle } from "@/utils/title"
+import { analytics } from "@/services/analytics"
 
 const { t } = useI18n()
 
@@ -114,5 +115,9 @@ const { setTitle } = useTitle()
 
 onMounted(() => {
     setTitle(t("page.live"))
+    analytics.page({
+        id: "livestream",
+        title: t("page.live"),
+    })
 })
 </script>

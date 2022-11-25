@@ -8,6 +8,7 @@ const plugin = createAuth0({
     redirect_uri: location.origin,
     scope: "church birthDate gender",
     cacheLocation: "localstorage",
+    useRefreshTokens: true,
 })
 
 export default plugin
