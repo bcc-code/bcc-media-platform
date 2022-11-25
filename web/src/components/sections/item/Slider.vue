@@ -17,8 +17,10 @@
             }"
             @swiper="onswipe"
         >
-            <SwiperSlide v-for="i in item.items.items" class="relative">
+            <SwiperSlide v-for="i, index in item.items.items" class="relative">
                 <slot :item="i"></slot>
+                <div class="absolute right-0 top-0 h-full flex bg-gradient-to-l from-background to-transparent w-40" v-if="index === item.items.items.length - 1 && (item.items.total > (item.items.offset + item.items.first))">
+                </div>
             </SwiperSlide>
         </Swiper>
         <div
@@ -85,7 +87,10 @@ const modules = [Navigation, Pagination, Lazy]
 
 const onswipe = (swiper: TSwiper) => {
     swiper.on("progress", () => {
-        if (swiper.progress > 0.9) {
+        const bp = effectiveBreakpoints.value[swiper.currentBreakpoint];
+        // Check when the slide should be updated with new items.
+        const pg = 1 - ((bp.slidesPerView as any ?? 1) / props.item.items.items.length)
+        if (swiper.progress > pg) {
             emit("loadMore")
         }
     })
