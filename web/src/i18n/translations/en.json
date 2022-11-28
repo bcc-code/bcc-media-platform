@@ -5,6 +5,9 @@
         "logout": "Logout",
         "stayLoggedOut": "Stay logged out"
     },
+    "dashboard": {
+        "loggedOut": "You were logged out"
+    },
     "page": {
         "home": "Home",
         "search": "Search",

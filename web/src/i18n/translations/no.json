@@ -5,6 +5,9 @@
         "logout": "Logg ut",
         "stayLoggedOut": "Forbli logget ut"
     },
+    "dashboard": {
+        "loggedOut": "Du ble logget ut"
+    },
     "page": {
         "home": "Hjem",
         "search": "Søk",

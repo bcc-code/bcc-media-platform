@@ -1,5 +1,4 @@
 import { useAuth0 } from "@/services/auth0"
-import { useRouter } from "vue-router"
 
 // type Token = {
 //     expiresAt: string
@@ -20,7 +19,20 @@ export class Auth {
             if (query.get("error") === "login_required") {
                 return true
             } else {
-                Auth.signIn(true)
+                const triedLoggingIn = localStorage.getItem("triedLoggingIn") 
+                
+                let shouldLogIn = true
+
+                if (triedLoggingIn) {
+                    const date = new Date(triedLoggingIn)
+                    const now = new Date()
+                    now.setSeconds(now.getSeconds() - 20)
+                    shouldLogIn = date.getTime() < now.getTime()
+                }
+                if (shouldLogIn) {
+                    localStorage.setItem("triedLoggingIn", new Date().toISOString())
+                    Auth.signIn(true)
+                }
             }
         }
         return false
@@ -28,7 +40,8 @@ export class Auth {
 
     public static cancelSignIn() {
         localStorage.removeItem("wasLoggedIn")
-        location.reload()
+        localStorage.removeItem("triedLoggingIn")
+        location.replace("/")
     }
 
     public static async signIn(silent?: boolean) {
@@ -74,10 +87,10 @@ export class Auth {
     public static getClaims() {
         const { idTokenClaims } = useAuth0()
         return {
-            gender: idTokenClaims.value.gender,
-            birthDate: idTokenClaims.value.birthdate,
-            churchId: idTokenClaims.value[CHURCH_ID_CLAIM] as number,
-            country: idTokenClaims.value[COUNTRY_CODE_CLAIM] as string,
+            gender: idTokenClaims.value?.gender,
+            birthDate: idTokenClaims.value?.birthdate,
+            churchId: idTokenClaims.value?.[CHURCH_ID_CLAIM] as number,
+            country: idTokenClaims.value?.[COUNTRY_CODE_CLAIM] as string,
         }
     }
 }
