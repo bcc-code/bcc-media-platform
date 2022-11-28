@@ -1,9 +1,13 @@
 import { useAuth0 } from "@/services/auth0"
+import { useRouter } from "vue-router"
 
 // type Token = {
 //     expiresAt: string
 //     token: string
 // }
+
+const COUNTRY_CODE_CLAIM = "https://login.bcc.no/claims/CountryIso2Code"
+const CHURCH_ID_CLAIM = "https://login.bcc.no/claims/churchId"
 
 export class Auth {
     public static shouldSignIn() {
@@ -11,18 +15,28 @@ export class Auth {
         if (isAuthenticated.value) {
             return false
         }
-        return localStorage.getItem("wasLoggedIn") === "true"
+        if (localStorage.getItem("wasLoggedIn") === "true") {
+            const query = new URLSearchParams(location.search)
+            if (query.get("error") === "login_required") {
+                return true
+            } else {
+                Auth.signIn(true)
+            }
+        }
+        return false
     }
 
     public static cancelSignIn() {
         localStorage.removeItem("wasLoggedIn")
+        location.reload()
     }
 
-    public static async signIn() {
+    public static async signIn(silent?: boolean) {
         const { loginWithRedirect } = useAuth0()
 
-        localStorage.setItem("wasLoggedIn", "true")
-        await loginWithRedirect()
+        await loginWithRedirect({
+            prompt: silent ? "none" : undefined
+        })
     }
 
     public static async signOut() {
@@ -56,6 +70,16 @@ export class Auth {
         const { user } = useAuth0()
         return user
     }
+
+    public static getClaims() {
+        const { idTokenClaims } = useAuth0()
+        return {
+            gender: idTokenClaims.value.gender,
+            birthDate: idTokenClaims.value.birthdate,
+            churchId: idTokenClaims.value[CHURCH_ID_CLAIM] as number,
+            country: idTokenClaims.value[COUNTRY_CODE_CLAIM] as string,
+        }
+    }
 }
 
 export const useAuth = () => {
@@ -68,6 +92,7 @@ export const useAuth = () => {
         user: Auth.user(),
         shouldSignIn: Auth.shouldSignIn,
         cancelSignIn: Auth.cancelSignIn,
+        getClaims: Auth.getClaims
     }
 }
 

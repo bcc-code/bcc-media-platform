@@ -3,6 +3,9 @@ import { ref } from "vue"
 import { AgeGroup, Events, IdentifyData, Page } from "./events"
 export * from "./events"
 
+import { useGetAnalyticsIdQuery } from "@/graph/generated"
+import { useAuth } from "../auth"
+
 const isLoading = ref(true)
 
 ready(() => {
@@ -43,7 +46,9 @@ class Analytics {
 
     public setUser(user: IdentifyData) {
         this.initialized = true
-        identify(user.id, user)
+        const data = Object.assign({}, user) as any
+        delete data["id"]
+        identify(user.id, data)
     }
 
     public track<T extends keyof Events>(event: T, data: Events[T]) {
@@ -60,6 +65,52 @@ class Analytics {
     }) {
         if (!this.initialized) return
         rpage(data)
+    }
+
+    public async initialize() {
+        const { loading, authenticated, getClaims } = useAuth()
+
+        while (loading.value) {
+            await new Promise(r => setTimeout(r, 100))
+        }
+
+        const analyticsQuery = useGetAnalyticsIdQuery({
+            pause: true
+        })
+    
+        let analyticsId: string | null = null;
+        if (authenticated.value) {
+            const result = await analyticsQuery.executeQuery();
+            if (result.data.value?.me.analytics.anonymousId) {
+                analyticsId = result.data.value.me.analytics.anonymousId
+            }
+        }
+        if (!analyticsId)
+            analyticsId = "anonymous"
+        
+        const claims = getClaims();
+    
+        let ageGroup: AgeGroup = "UNKNOWN"
+    
+        const now = new Date();
+        const birthDate = claims.birthDate
+        if (birthDate) {
+            const date = new Date(birthDate)
+            
+            const diff = now.getTime() - date.getTime();
+    
+            const diffDate = new Date(diff)
+    
+            ageGroup = getAgeGroup(diffDate.getFullYear() - 1970)
+        }
+    
+        this.setUser({
+            ageGroup,
+            churchId: claims.churchId?.toString() ?? "0",
+            country: claims.country ?? "unknown",
+            gender: claims.gender ?? "unknown",
+            id: analyticsId
+        })
     }
 }
 

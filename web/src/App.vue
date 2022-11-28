@@ -1,4 +1,8 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { provideClient } from "@urql/vue"
+import client from "@/graph/client"
+provideClient(client)
+</script>
 
 <template>
     <router-view></router-view>
