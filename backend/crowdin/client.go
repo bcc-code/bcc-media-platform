@@ -186,6 +186,18 @@ func toDSItems(collection string, translations []simpleTranslation) []directus.D
 				ShowsID: t.ParentID,
 			}
 		})
+	case "sections":
+		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			return directus.SectionsTranslation{
+				Translation: directus.Translation{
+					ID:            t.ID,
+					LanguagesCode: t.Language,
+					Title:         t.Title,
+					Description:   t.Description,
+				},
+				SectionsID: t.ParentID,
+			}
+		})
 	default:
 		return nil
 	}
@@ -509,6 +521,24 @@ func (client *Client) syncShows(ctx context.Context, d *directus.Handler, projec
 	})
 }
 
+func (client *Client) syncSections(ctx context.Context, d *directus.Handler, project Project, directoryId int) error {
+	return client.syncCollection(ctx, d, project, directoryId, "sections", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		ts, err := client.q.ListSectionTranslations(ctx, []string{language})
+		if err != nil {
+			return nil, err
+		}
+		return lo.Map(ts, func(t sqlc.ListSectionTranslationsRow, _ int) simpleTranslation {
+			return simpleTranslation{
+				ID:          int(t.ID),
+				Description: t.Description.ValueOrZero(),
+				Title:       t.Title.ValueOrZero(),
+				Language:    t.LanguagesCode,
+				ParentID:    int(t.ParentID),
+			}
+		}), nil
+	})
+}
+
 var projectCache = cache.New[int, Project]()
 
 func (client *Client) getProject(projectId int) (i Project, err error) {
@@ -549,6 +579,7 @@ func (client *Client) Sync(ctx context.Context, d *directus.Handler) error {
 		if err != nil {
 			return err
 		}
+		err = client.syncSections(ctx, d, project, directory.ID)
 	}
 	log.L.Debug().Msg("Translation sync: Done")
 	return nil

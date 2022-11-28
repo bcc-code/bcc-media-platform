@@ -2,150 +2,53 @@
     <section class="overflow-x-hidden">
         <transition name="slide-fade">
             <div
-                class="px-4 flex flex-col gap-8"
-                v-if="data?.page.sections.items.length"
+                class="px-4 lg:px-20 flex flex-col gap-8 relative"
+                v-if="page && page.sections.items.length"
             >
-                <Section
-                    v-for="(section, i) in data?.page?.sections.items"
-                    :section="section"
-                    :index="{ last: data.page.sections.total - 1, current: i }"
+                <TransitionGroup name="slide-fade">
+                    <Section
+                        v-for="(section, i) in page.sections.items"
+                        :key="section.id"
+                        :section="section"
+                        :index="{ last: page.sections.total - 1, current: i }"
+                        @load-more="appendItems(section)"
+                        @click-item="(index) => clickItem(i, index)"
+                    >
+                    </Section>
+                </TransitionGroup>
+                <div
+                    v-if="
+                        page.sections.total >
+                        page.sections.offset + page.sections.first
+                    "
+                    class="absolute bottom-0 left-0 w-full h-80 bg-gradient-to-t from-background to-transparent z-10 transition flex"
                 >
-                </Section>
+                    <Loader v-if="fetching" class="mx-auto my-auto"></Loader>
+                </div>
+                <div v-else class="h-40"></div>
             </div>
             <div v-else-if="!fetching">
                 <NotFound :title="$t('page.notFound')"></NotFound>
             </div>
             <div v-else-if="error">{{ error.message }}</div>
-            <div v-else class="px-4 flex flex-col gap-16 overflow-hidden">
-                <section>
-                    <div class="relative">
-                        <Swiper
-                            style="overflow: visible"
-                            :breakpoints="{
-                                400: {
-                                    slidesPerView: 1,
-                                    spaceBetween: 4,
-                                },
-                                1280: {
-                                    slidesPerView: 1.5,
-                                    spaceBetween: 4,
-                                },
-                                1920: {
-                                    slidesPerView: 2,
-                                    spaceBetween: 4,
-                                },
-                            }"
-                        >
-                            <SwiperSlide v-for="i in 3" class="relative">
-                                <div
-                                    class="relative h-full cursor-pointer aspect-video overflow-hidden"
-                                >
-                                    <Image
-                                        :src="undefined"
-                                        size-source="width"
-                                        :ratio="9 / 16"
-                                        class="rounded rounded-xl h-full object-cover"
-                                    />
-                                    <div
-                                        class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent pt-8"
-                                    ></div>
-                                </div>
-                            </SwiperSlide>
-                        </Swiper>
-                    </div>
-                </section>
-                <section>
-                    <div class="relative">
-                        <Swiper
-                            style="overflow: visible"
-                            :breakpoints="{
-                                0: {
-                                    slidesPerView: 1.5,
-                                    spaceBetween: 10,
-                                    slidesPerGroup: 1,
-                                },
-                                1280: {
-                                    slidesPerView: 4.33,
-                                    spaceBetween: 10,
-                                    slidesPerGroup: 4,
-                                },
-                                1920: {
-                                    slidesPerView: 6,
-                                    spaceBetween: 10,
-                                    slidesPerGroup: 6,
-                                },
-                            }"
-                        >
-                            <SwiperSlide v-for="i in 6" class="relative">
-                                <div class="flex flex-col cursor-pointer mt-2">
-                                    <div
-                                        class="relative mb-1 rounded-md w-full aspect-video overflow-hidden hover:opacity-90 transition"
-                                    >
-                                        <Image
-                                            :src="undefined"
-                                            class="rounded-md"
-                                            loading="lazy"
-                                            size-source="width"
-                                            :ratio="9 / 16"
-                                        />
-                                    </div>
-                                </div>
-                            </SwiperSlide>
-                        </Swiper>
-                    </div>
-                </section>
-                <section>
-                    <h1 class="bg-gray opacity-50 mb-4 h-5 rounded-full w-60"></h1>
-                    <div class="relative">
-                        <Swiper
-                            style="overflow: visible"
-                            :breakpoints="{
-                                0: {
-                                    slidesPerView: 1.5,
-                                    spaceBetween: 10,
-                                    slidesPerGroup: 1,
-                                },
-                                1280: {
-                                    slidesPerView: 4.33,
-                                    spaceBetween: 10,
-                                    slidesPerGroup: 4,
-                                },
-                                1920: {
-                                    slidesPerView: 6,
-                                    spaceBetween: 10,
-                                    slidesPerGroup: 6,
-                                },
-                            }"
-                        >
-                            <SwiperSlide v-for="i in 6" class="relative"
-                                ><div
-                                    class="flex flex-col rounded rounded-md mt-1 cursor-pointer hover:opacity-90 transition"
-                                >
-                                    <div
-                                        class="relative w-full aspect-[9/16] mb-1 rounded-md overflow-hidden"
-                                    >
-                                        <Image
-                                            :src="undefined"
-                                            size-source="height"
-                                            :ratio="9 / 16"
-                                        />
-                                    </div>
-                                </div>
-                            </SwiperSlide>
-                        </Swiper>
-                    </div>
-                </section>
-            </div>
+            <SkeletonSections class="px-4 lg:px-20" v-else></SkeletonSections>
         </transition>
     </section>
 </template>
 <script lang="ts" setup>
-import { useGetPageQuery } from "@/graph/generated"
+import {
+    GetPageQuery,
+    GetSectionQuery,
+    useGetPageQuery,
+    useGetSectionQuery,
+    Section as TSection,
+} from "@/graph/generated"
 import Section from "@/components/sections/Section.vue"
-import { onMounted, watch } from "vue"
-import { Swiper, SwiperSlide } from "swiper/vue"
-import Image from "../Image.vue"
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue"
 import NotFound from "../NotFound.vue"
+import SkeletonSections from "./SkeletonSections.vue"
+import Loader from "../Loader.vue"
+import { goToSectionItem } from "@/utils/items"
 
 const props = defineProps<{
     pageId: string
@@ -155,26 +58,173 @@ const emit = defineEmits<{
     (e: "title", v: string): void
 }>()
 
-const { data, error, fetching } = useGetPageQuery({
+const pageFirst = ref(10)
+const pageOffset = ref(0)
+
+const { error, fetching, executeQuery } = useGetPageQuery({
+    pause: true,
     variables: {
-        code: props.pageId,
+        code: computed(() => props.pageId),
+        offset: pageOffset,
+        first: pageFirst,
+        sectionFirst: 10,
+        sectionOffset: 0,
     },
 })
 
-watch(
-    () => data.value?.page.title,
-    () => {
-        const title = data.value?.page.title
-        if (title) {
-            emit("title", title)
+const page = ref(null as GetPageQuery["page"] | null)
+
+const load = async () => {
+    const result = await executeQuery()
+    if (result.data.value?.page) {
+        page.value = result.data.value.page
+        if (page.value.title) {
+            emit("title", page.value.title)
         }
     }
-)
+    await nextTick()
+    loadMore()
+}
+
+const sectionId = ref("")
+const first = ref(10)
+const offset = ref(0)
+
+const sectionQuery = useGetSectionQuery({
+    pause: true,
+    variables: {
+        id: sectionId,
+        first,
+        offset,
+    },
+})
+
+const appendItems = async (section: GetSectionQuery["section"]) => {
+    switch (section.__typename) {
+        case "DefaultGridSection":
+        case "ListSection":
+        case "IconGridSection":
+        case "PosterGridSection":
+        case "DefaultSection":
+        case "FeaturedSection":
+        case "PosterSection":
+            if (
+                section.items.total >
+                section.items.offset + section.items.first
+            ) {
+                first.value = section.items.first
+                offset.value = section.items.offset + first.value
+                sectionId.value = section.id
+                await nextTick()
+                const result = await sectionQuery.executeQuery()
+                if (
+                    result.data.value?.section.__typename === section.__typename
+                ) {
+                    section.items.items.push(
+                        ...result.data.value.section.items.items
+                    )
+                    section.items.first = result.data.value.section.items.first
+                    section.items.offset =
+                        result.data.value.section.items.offset
+                }
+            }
+    }
+}
+
+const loadMore = async () => {
+    const bottomOfWindow =
+        document.documentElement.scrollTop +
+            (window.innerHeight + window.innerHeight / 2) >=
+        document.documentElement.offsetHeight
+
+    if (bottomOfWindow) {
+        if (
+            page.value &&
+            page.value.sections.total >
+                page.value.sections.offset + page.value.sections.first
+        ) {
+            if (!fetching.value) {
+                pageOffset.value =
+                    page.value.sections.offset + page.value.sections.first
+                await nextTick()
+                const r = await executeQuery()
+                if (r.data.value) {
+                    page.value.sections.items.push(
+                        ...r.data.value.page.sections.items
+                    )
+                    page.value.sections.offset =
+                        r.data.value.page.sections.offset
+                    page.value.sections.first = r.data.value.page.sections.first
+                }
+            }
+        } else if (!sectionQuery.fetching.value) {
+            const sections = page.value?.sections.items
+            if (sections) {
+                const lastSection = sections[sections.length - 1]
+                if (lastSection) {
+                    switch (lastSection.__typename) {
+                        case "DefaultGridSection":
+                        case "ListSection":
+                        case "IconGridSection":
+                        case "PosterGridSection":
+                            await appendItems(lastSection)
+                    }
+                }
+            }
+        }
+    }
+}
+
+const clickItem = (sectionIndex: number, itemIndex: number) => {
+    if (!page.value) {
+        return
+    }
+
+    for (let i = 0; i < page.value.sections.items.length; i++) {
+        if (sectionIndex === i) {
+            const section = page.value.sections.items[i]
+            switch (section.__typename) {
+                case "DefaultGridSection":
+                case "DefaultSection":
+                case "FeaturedSection":
+                case "IconGridSection":
+                case "IconSection":
+                case "LabelSection":
+                case "ListSection":
+                case "PosterGridSection":
+                case "PosterSection":
+                    for (let i = 0; i < section.items.items.length; i++) {
+                        if (i === itemIndex) {
+                            goToSectionItem(
+                                {
+                                    index: i,
+                                    item: section.items.items[i],
+                                },
+                                {
+                                    ...section,
+                                    index: sectionIndex,
+                                },
+                                page.value.code
+                            )
+                        }
+                    }
+            }
+        }
+    }
+}
+
+const oldScroll = document.body.onscroll
+const oldTouchMove = document.body.ontouchmove
 
 onMounted(() => {
-    const title = data.value?.page.title
-    if (title) {
-        emit("title", title)
-    }
+    document.body.onscroll = loadMore
+    document.body.ontouchmove = loadMore
 })
+
+onUnmounted(() => {
+    document.body.onscroll = oldScroll
+    document.body.ontouchmove = oldTouchMove
+})
+
+load()
 </script>

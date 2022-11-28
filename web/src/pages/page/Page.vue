@@ -1,6 +1,5 @@
 <template>
     <PageComponent
-        class="mb-16"
         :key="page"
         v-if="!fetching"
         :page-id="page"
@@ -10,7 +9,6 @@
 <script lang="ts" setup>
 import PageComponent from "@/components/page/Page.vue"
 import { useApplicationQuery } from "@/graph/generated"
-import { analytics } from "@/services/analytics"
 import { useTitle } from "@/utils/title"
 import { ref, watch } from "vue"
 

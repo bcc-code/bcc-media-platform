@@ -5,15 +5,61 @@ import { useAuth0 } from "@/services/auth0"
 //     token: string
 // }
 
+const COUNTRY_CODE_CLAIM = "https://login.bcc.no/claims/CountryIso2Code"
+const CHURCH_ID_CLAIM = "https://login.bcc.no/claims/churchId"
+
 export class Auth {
-    public static async signIn() {
+    public static shouldSignIn() {
+        const { isAuthenticated } = useAuth0()
+        if (isAuthenticated.value) {
+            return false
+        }
+        if (localStorage.getItem("wasLoggedIn") === "true") {
+            const query = new URLSearchParams(location.search)
+            if (query.get("error") === "login_required") {
+                return true
+            } else {
+                const triedLoggingIn = localStorage.getItem("triedLoggingIn")
+
+                let shouldLogIn = true
+
+                if (triedLoggingIn) {
+                    const date = new Date(triedLoggingIn)
+                    const now = new Date()
+                    now.setSeconds(now.getSeconds() - 20)
+                    shouldLogIn = date.getTime() < now.getTime()
+                }
+                if (shouldLogIn) {
+                    localStorage.setItem(
+                        "triedLoggingIn",
+                        new Date().toISOString()
+                    )
+                    Auth.signIn(true)
+                }
+            }
+        }
+        return false
+    }
+
+    public static cancelSignIn() {
+        localStorage.removeItem("wasLoggedIn")
+        localStorage.removeItem("triedLoggingIn")
+        location.replace("/")
+    }
+
+    public static async signIn(silent?: boolean) {
         const { loginWithRedirect } = useAuth0()
-        return await loginWithRedirect()
+
+        await loginWithRedirect({
+            prompt: silent ? "none" : undefined,
+        })
     }
 
     public static async signOut() {
         const { logout } = useAuth0()
+        localStorage.clear()
         return await logout({
+            localOnly: true,
             returnTo: window.location.origin,
         })
     }
@@ -40,6 +86,16 @@ export class Auth {
         const { user } = useAuth0()
         return user
     }
+
+    public static getClaims() {
+        const { idTokenClaims } = useAuth0()
+        return {
+            gender: idTokenClaims.value?.gender,
+            birthDate: idTokenClaims.value?.birthdate,
+            churchId: idTokenClaims.value?.[CHURCH_ID_CLAIM] as number,
+            country: idTokenClaims.value?.[COUNTRY_CODE_CLAIM] as string,
+        }
+    }
 }
 
 export const useAuth = () => {
@@ -50,6 +106,9 @@ export const useAuth = () => {
         getToken: Auth.getToken,
         authenticated: Auth.isAuthenticated(),
         user: Auth.user(),
+        shouldSignIn: Auth.shouldSignIn,
+        cancelSignIn: Auth.cancelSignIn,
+        getClaims: Auth.getClaims,
     }
 }
 

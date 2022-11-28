@@ -2,21 +2,18 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="grid grid-cols-2">
-            <div
-                v-for="i in item.items.items"
-                class="relative"
-                @click="goToSectionItem(i, item.metadata?.collectionId)"
-            >
+            <div v-for="(i, index) in item.items.items" class="relative mb-5">
                 <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
                 <div
-                    class="flex flex-col rounded rounded-md mx-2 mt-1 hover:opacity-90 transition"
+                    class="flex flex-col cursor-pointer mx-2 mt-2 hover:opacity-90 transition"
+                    @click="$emit('clickItem', index)"
                 >
                     <div
-                        class="relative aspect-[9/16] rounded-md object-cover mb-1"
+                        class="relative mb-1 rounded-md w-full aspect-video overflow-hidden"
                     >
                         <Image
                             :src="i.image"
-                            size-source="height"
+                            size-source="width"
                             :ratio="9 / 16"
                         />
                         <ProgressBar
@@ -25,23 +22,32 @@
                             :item="i.item"
                         />
                     </div>
-                    <SectionItemTitle :i="i"></SectionItemTitle>
+                    <SectionItemTitle
+                        :secondary-titles="
+                            item.metadata?.secondaryTitles === true
+                        "
+                        :i="i"
+                    ></SectionItemTitle>
                 </div>
             </div>
         </div>
     </section>
 </template>
 <script lang="ts" setup>
-import { Section } from "./types"
+import { Section } from "../types"
 
 import SectionTitle from "./SectionTitle.vue"
-import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
-import ProgressBar from "../episodes/ProgressBar.vue"
-import Image from "../Image.vue"
+import ProgressBar from "@/components/episodes/ProgressBar.vue"
+import Image from "@/components/Image.vue"
 
 defineProps<{
-    item: Section & { __typename: "PosterGridSection" | "PosterSection" }
+    position: number
+    item: Section & { __typename: "DefaultGridSection" }
+}>()
+
+defineEmits<{
+    (event: "clickItem", index: number): void
 }>()
 </script>

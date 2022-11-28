@@ -5,7 +5,7 @@
             v-if="authenticated"
             :code="code"
         ></Execute>
-        <button v-else @click="signIn" class="mx-auto my-auto">
+        <button v-else @click="signIn()" class="mx-auto my-auto">
             {{ $t("buttons.login") }}
         </button>
     </div>

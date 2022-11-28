@@ -1,9 +1,18 @@
-query getPage($code: String!) {
+query getPage(
+    $code: String!
+    $first: Int
+    $offset: Int
+    $sectionFirst: Int
+    $sectionOffset: Int
+) {
     page(code: $code) {
         id
         title
-        sections {
+        code
+        sections(first: $first, offset: $offset) {
             total
+            offset
+            first
             items {
                 __typename
                 id
@@ -12,10 +21,64 @@ query getPage($code: String!) {
                 ... on WebSection {
                     title
                     url
-                    widthRatio
+                    height
+                    aspectRatio
                     authentication
+                }
+                ... on MessageSection {
+                    title
+                    messages {
+                        title
+                        content
+                        style {
+                            text
+                            background
+                            border
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+fragment ItemSection on ItemSection {
+    metadata {
+        collectionId
+        continueWatching
+        useContext
+        prependLiveElement
+        secondaryTitles
+    }
+
+    items(first: $sectionFirst, offset: $sectionOffset) {
+        total
+        first
+        offset
+        items {
+            ...SectionItem
+        }
+    }
+    ... on DefaultSection {
+        size
+        items(first: $sectionFirst, offset: $sectionOffset) {
+            items {
+                description
+            }
+        }
+    }
+    ... on FeaturedSection {
+        size
+        items(first: $sectionFirst, offset: $sectionOffset) {
+            items {
+                description
+            }
+        }
+    }
+    ... on GridSection {
+        gridSize: size
+    }
+    ... on PosterSection {
+        size
     }
 }

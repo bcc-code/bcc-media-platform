@@ -115,7 +115,7 @@ func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*in
 	if err != nil || progress == nil {
 		return nil, err
 	}
-	if progress.Progress < 10 || (float64(progress.Progress)/float64(progress.Duration)) > 0.8 {
+	if progress.Progress <= 10 || (float64(progress.Progress)/float64(progress.Duration)) > 0.8 {
 		return nil, nil
 	}
 	return &progress.Progress, nil
@@ -133,7 +133,9 @@ func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode) (mode
 		if err != nil {
 			return nil, err
 		}
-		episodeContext = progress.Context
+		if progress != nil {
+			episodeContext = progress.Context
+		}
 	}
 
 	if episodeContext.CollectionID.Valid {

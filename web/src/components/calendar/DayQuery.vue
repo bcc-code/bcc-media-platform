@@ -2,46 +2,52 @@
     <div class="flex" v-if="fetching">
         <h1 class="text-gray mx-auto text-xl">Loading</h1>
     </div>
-    <div
-        class="lg:grid grid-cols-3 px-4"
-        v-else-if="data?.calendar?.day.entries.length"
-    >
-        <div
-            v-for="entry in data.calendar.day.entries"
-            class="flex gap-4 p-2 pl-4"
-            :class="[
-                isNow(entry)
-                    ? 'border-red border-l-4 bg-red bg-opacity-10'
-                    : '',
-            ]"
-        >
-            <div>
-                <h1 class="text-lg lg:text-xl">
-                    {{ isNow(entry) ? t("live.now") : startTime(entry.start) }}
-                </h1>
-                <p class="text-md lg:text-lg text-gray">
-                    {{ duration(entry) }}
-                </p>
-            </div>
-            <div>
-                <h1 class="text-lg lg:text-xl">{{ entry.title }}</h1>
-                <Subtitle :item="entry"></Subtitle>
+    <div v-else-if="data?.calendar?.day.entries.length">
+        <div class="lg:grid grid-cols-2 px-4">
+            <div
+                v-for="entry in data.calendar.day.entries"
+                class="flex gap-4 p-2 pl-4"
+                :class="[
+                    isNow(entry)
+                        ? 'border-red border-l-4 bg-red bg-opacity-10'
+                        : '',
+                ]"
+            >
+                <div>
+                    <h1 class="text-lg lg:text-xl font-semibold">
+                        {{
+                            isNow(entry)
+                                ? $t("live.now")
+                                : startTime(entry.start)
+                        }}
+                    </h1>
+                    <p class="text-md lg:text-lg text-gray">
+                        {{ duration(entry) }}
+                    </p>
+                </div>
+                <div>
+                    <h1 class="text-lg lg:text-xl font-semibold">
+                        {{ entry.title }}
+                    </h1>
+                    <p class="text-md lg:text-lg text-primary">
+                        {{ entry.description }}
+                    </p>
+                </div>
             </div>
         </div>
+        <p class="text-gray text-center">
+            {{ $t("calendar.timeTableIsLocalTime") }}
+        </p>
     </div>
     <div v-else class="flex p-4">
         <h1 class="text-xl mx-auto text-gray">
-            {{ t("calendar.noScheduledEvents") }}
+            {{ $t("calendar.noScheduledEvents") }}
         </h1>
     </div>
 </template>
 <script lang="ts" setup>
 import { useGetCalendarDayQuery } from "@/graph/generated"
 import { ref, watch } from "vue"
-import { useI18n } from "vue-i18n"
-import Subtitle from "./Subtitle.vue"
-
-const { t } = useI18n()
 
 const now = new Date()
 

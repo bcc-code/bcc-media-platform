@@ -48,7 +48,7 @@ import { Swiper, SwiperSlide } from "swiper/vue"
 import { Navigation } from "swiper"
 import { useI18n } from "vue-i18n"
 import { goToEpisode } from "@/utils/items"
-import breakpoints from "../sections/breakpoints"
+import breakpoints from "../sections/item/breakpoints"
 
 const { t } = useI18n()
 

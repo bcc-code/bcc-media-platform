@@ -12,6 +12,8 @@ fragment SectionItem on SectionItem {
             publishDate
             progress
             duration
+            ageRating
+            description
             season {
                 id
                 title
@@ -59,47 +61,18 @@ fragment SectionItem on SectionItem {
     }
 }
 
-fragment ItemSection on ItemSection {
-    metadata {
-        collectionId
-    }
-
-    items {
-        total
-        first
-        offset
-        items {
-            ...SectionItem
-        }
-    }
-    ... on DefaultSection {
-        size
-        items {
-            items {
-                description
-            }
-        }
-    }
-    ... on FeaturedSection {
-        size
-        items {
-            items {
-                description
-            }
-        }
-    }
-    ... on GridSection {
-        gridSize: size
-    }
-    ... on PosterSection {
-        size
-    }
-}
-
 query getSection($id: ID!, $first: Int!, $offset: Int!) {
     section(id: $id) {
         __typename
+        id
         ... on ItemSection {
+            metadata {
+                collectionId
+                continueWatching
+                useContext
+                prependLiveElement
+                secondaryTitles
+            }
             items(first: $first, offset: $offset) {
                 total
                 first

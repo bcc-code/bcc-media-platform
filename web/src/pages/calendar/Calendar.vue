@@ -35,11 +35,27 @@
                 <div v-for="week in weeks" class="flex mx-auto w-full">
                     <div
                         v-for="day in week"
-                        class="text-center cursor-pointer hover:bg-gray hover:bg-opacity-10 w-full align-middle"
+                        class="relative text-center cursor-pointer hover:bg-gray hover:bg-opacity-10 w-full align-middle"
                         @click="setDay(day)"
                     >
+                        <div class="w-full absolute top-0 z-0">
+                            <div
+                                class="bg-opacity-20 h-8 z-0"
+                                :class="[
+                                    startEvent(day) && endEvent(day)
+                                        ? 'rounded-full mx-4'
+                                        : startEvent(day)
+                                        ? 'bg-gray ml-4 rounded-l-full'
+                                        : inEvent(day)
+                                        ? 'bg-gray'
+                                        : endEvent(day)
+                                        ? 'bg-gray mr-4 rounded-r-full'
+                                        : '',
+                                ]"
+                            ></div>
+                        </div>
                         <div
-                            class="h-8 aspect-square mx-auto rounded-full font-bold"
+                            class="h-8 aspect-square mx-auto rounded-full font-bold z-10"
                             :class="[
                                 day.getTime() === now.getTime()
                                     ? 'text-red'
@@ -75,7 +91,8 @@
                 </div>
             </div>
 
-            <DayQuery :day="selected"> </DayQuery>
+            <DayQuery class="max-w-screen-lg mx-auto" :day="selected">
+            </DayQuery>
         </div>
     </section>
 </template>
@@ -124,6 +141,53 @@ const setDay = (day: Date) => {
     selected.value = day
     month.value = day
     weeks.value = getMonth(day)
+}
+
+const startEvent = (day: Date) => {
+    const events = data.value?.calendar?.period.events ?? []
+    for (const e of events) {
+        const date = new Date(e.start)
+        if (
+            date.getFullYear() === day.getFullYear() &&
+            date.getMonth() === day.getMonth() &&
+            date.getDate() === day.getDate()
+        ) {
+            return true
+        }
+    }
+    return false
+}
+const endEvent = (day: Date) => {
+    const events = data.value?.calendar?.period.events ?? []
+    for (const e of events) {
+        const date = new Date(e.end)
+        if (
+            date.getFullYear() === day.getFullYear() &&
+            date.getMonth() === day.getMonth() &&
+            date.getDate() === day.getDate()
+        ) {
+            return true
+        }
+    }
+    return false
+}
+const inEvent = (day: Date) => {
+    const events = data.value?.calendar?.period.events ?? []
+    for (const e of events) {
+        const start = new Date(e.start)
+        const end = new Date(e.end)
+        if (
+            start.getFullYear() <= day.getFullYear() &&
+            start.getMonth() <= day.getMonth() &&
+            start.getDate() < day.getDate() &&
+            end.getFullYear() >= day.getFullYear() &&
+            end.getMonth() >= day.getMonth() &&
+            end.getDate() > day.getDate()
+        ) {
+            return true
+        }
+    }
+    return false
 }
 
 const { setTitle } = useTitle()

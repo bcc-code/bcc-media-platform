@@ -6,8 +6,9 @@ const plugin = createAuth0({
     client_id: auth0.clientId,
     audience: auth0.audience,
     redirect_uri: location.origin,
-    scope: "church birthDate gender",
+    scope: "church profile country",
     cacheLocation: "localstorage",
+    useRefreshTokens: true,
 })
 
 export default plugin

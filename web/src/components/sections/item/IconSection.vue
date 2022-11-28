@@ -3,9 +3,9 @@
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="flex gap-4">
             <div
-                v-for="i in item.items.items"
+                v-for="(i, index) in item.items.items"
                 class="overflow-clip w-20 hover:opacity-90 transition"
-                @click="goToSectionItem(i, item.metadata?.collectionId)"
+                @click="$emit('clickItem', index)"
                 ref="sectionItem"
             >
                 <div
@@ -27,16 +27,20 @@
     </section>
 </template>
 <script lang="ts" setup>
-import { Section } from "./types"
+import { Section } from "../types"
 
 import SectionTitle from "./SectionTitle.vue"
-import { goToSectionItem } from "@/utils/items"
 import { onMounted, ref } from "vue"
 import { getImageSize } from "@/utils/images"
-import Image from "../Image.vue"
+import Image from "@/components/Image.vue"
 
 defineProps<{
+    position: number
     item: Section & { __typename: "IconSection" }
+}>()
+
+defineEmits<{
+    (event: "clickItem", index: number): void
 }>()
 
 const sectionItem = ref(null as HTMLDivElement[] | null)

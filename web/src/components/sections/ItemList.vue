@@ -1,51 +1,67 @@
 <template>
     <section>
-        <div class="grid grid-cols-2 lg:grid-cols-4 mt-2">
-            <div
-                v-for="i in items.filter(
-                    (i) => i.item.__typename === 'Episode'
-                )"
-                class="relative mb-5"
-            >
-                <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
+        <div class="w-full lg:w-1/2">
+            <TransitionGroup name="slide-fade" mode="out-in">
                 <div
-                    class="flex flex-col cursor-pointer hover:opacity-90 transition rounded-lg p-2"
-                    :class="[currentId === i.id ? 'bg-slate-800' : '']"
+                    v-for="i in items.filter((i) => i.type === 'Episode')"
+                    class="flex p-2 gap-2 cursor-pointer border-l-4 border-red hover:bg-red hover:bg-opacity-10 hover:border-opacity-100 transition duration-200"
+                    :class="[
+                        i.id === currentId
+                            ? 'bg-red bg-opacity-20 hover:bg-opacity-20'
+                            : 'border-opacity-0',
+                    ]"
                     @click="$emit('setCurrent', i)"
+                    :key="i.id"
                 >
-                    <div
-                        class="relative mb-1 rounded-md w-full aspect-video overflow-hidden"
+                    <WithProgressBar
+                        v-if="i.duration"
+                        class="w-1/3 aspect-video text-xs rounded-lg overflow-hidden"
+                        :item="{
+                            duration: i.duration,
+                            progress: i.progress,
+                            id: i.id,
+                        }"
                     >
                         <Image
+                            v-if="i.image"
                             :src="i.image"
                             size-source="width"
                             :ratio="9 / 16"
                         />
-                        <ProgressBar
-                            class="absolute bottom-0 w-full"
-                            v-if="i?.item.__typename === 'Episode'"
-                            :item="i.item"
-                        />
+                    </WithProgressBar>
+                    <div class="w-2/3">
+                        <h1 class="text-sm font-light lg:text-lg line-clamp-2">
+                            <span v-if="viewEpisodeNumber && i.number"
+                                >{{ i.number }}. </span
+                            >{{ i.title }}
+                        </h1>
+                        <AgeRating v-if="i.ageRating">{{
+                            i.ageRating
+                        }}</AgeRating>
+                        <div
+                            class="hidden lg:flex line-clamp-2 text-sm opacity-70"
+                        >
+                            {{ i.description }}
+                        </div>
                     </div>
-                    <SectionItemTitle :i="i"></SectionItemTitle>
                 </div>
-            </div>
+            </TransitionGroup>
         </div>
     </section>
 </template>
 <script lang="ts" setup>
-import { SectionItemFragment } from "@/graph/generated"
-import ProgressBar from "../episodes/ProgressBar.vue"
 import Image from "../Image.vue"
-import NewPill from "./NewPill.vue"
-import SectionItemTitle from "./SectionItemTitle.vue"
+import WithProgressBar from "@/components/episodes/WithProgressBar.vue"
+import AgeRating from "../episodes/AgeRating.vue"
+import { ListItem } from "@/utils/lists"
 
 defineProps<{
-    items: SectionItemFragment[]
+    items: ListItem[]
     currentId: string
+    viewEpisodeNumber?: boolean
 }>()
 
 defineEmits<{
-    (e: "setCurrent", i: SectionItemFragment): void
+    (e: "setCurrent", i: ListItem): void
 }>()
 </script>

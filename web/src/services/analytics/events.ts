@@ -1,6 +1,8 @@
 import { GetPageQuery, SectionItemFragment } from "@/graph/generated"
 
-export type Page =
+type StringWithAutocomplete<T> = T | (string & {})
+
+export type Page = StringWithAutocomplete<
     | "about"
     | "calendar"
     | "livestream"
@@ -12,6 +14,7 @@ export type Page =
     | "support"
     | "faq"
     | "episode"
+>
 
 export type IdentifyData = {
     id: string

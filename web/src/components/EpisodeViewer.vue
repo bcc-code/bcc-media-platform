@@ -12,6 +12,7 @@ import { onMounted, onUnmounted, onUpdated, ref } from "vue"
 import { Player } from "bccm-video-player"
 import playerFactory from "@/services/player"
 import {
+    EpisodeContext,
     useGetAnalyticsIdQuery,
     useUpdateEpisodeProgressMutation,
 } from "@/graph/generated"
@@ -23,6 +24,7 @@ const { isAuthenticated } = useAuth0()
 const { data, executeQuery } = useGetAnalyticsIdQuery()
 
 const props = defineProps<{
+    context: EpisodeContext
     episode: {
         id: string
         title: string
@@ -53,6 +55,7 @@ const updateEpisodeProgress = async (episode: {
         episodeId: episode.id,
         progress: episode.progress,
         duration: episode.duration,
+        context: props.context,
     })
 }
 
