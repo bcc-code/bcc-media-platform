@@ -87,7 +87,11 @@ const modules = [Navigation, Pagination, Lazy]
 
 const onswipe = (swiper: TSwiper) => {
     swiper.on("progress", () => {
-        const bp = effectiveBreakpoints.value[swiper.currentBreakpoint];
+        const bp = swiper.currentBreakpoint != 'max' ? Object.values(effectiveBreakpoints.value)[0] : effectiveBreakpoints.value[swiper.currentBreakpoint];
+        if (!bp) {
+            console.log(effectiveBreakpoints.value, swiper.currentBreakpoint)
+            return
+        }
         // Check when the slide should be updated with new items.
         const pg = 1 - (((bp.slidesPerView as any ?? 1) + 1) / props.item.items.items.length)
         if (swiper.progress > pg) {

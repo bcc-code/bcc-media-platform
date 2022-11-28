@@ -96,8 +96,6 @@ const sectionQuery = useGetSectionQuery({
     },
 })
 
-const oldScroll = document.body.onscroll
-
 const appendItems = async (section: GetSectionQuery["section"]) => {
     switch (section.__typename) {
         case "DefaultGridSection":
@@ -135,7 +133,7 @@ const loadMore = async () => {
         document.documentElement.scrollTop +
             (window.innerHeight + window.innerHeight / 2) >=
         document.documentElement.offsetHeight
-
+    
     if (bottomOfWindow) {
         if (
             page.value &&
@@ -174,12 +172,17 @@ const loadMore = async () => {
     }
 }
 
+const oldScroll = document.body.onscroll
+const oldTouchMove = document.body.ontouchmove
+
 onMounted(() => {
     document.body.onscroll = loadMore
+    document.body.ontouchmove = loadMore
 })
 
 onUnmounted(() => {
     document.body.onscroll = oldScroll
+    document.body.ontouchmove = oldTouchMove
 })
 
 load()
