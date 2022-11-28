@@ -2,11 +2,11 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="grid grid-cols-2">
-            <div v-for="i in page.items" class="relative mb-5">
+            <div v-for="(i, index) in item.items.items" class="relative mb-5">
                 <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
                 <div
                     class="flex flex-col cursor-pointer mx-2 mt-2 hover:opacity-90 transition"
-                    @click="goToSectionItem(i, item.metadata)"
+                    @click="$emit('clickItem', index)"
                 >
                     <div
                         class="relative mb-1 rounded-md w-full aspect-video overflow-hidden"
@@ -38,15 +38,16 @@ import { Section } from "../types"
 
 import SectionTitle from "./SectionTitle.vue"
 import NewPill from "./NewPill.vue"
-import { goToSectionItem } from "@/utils/items"
 import SectionItemTitle from "./SectionItemTitle.vue"
 import ProgressBar from "@/components/episodes/ProgressBar.vue"
 import Image from "@/components/Image.vue"
-import { ref } from "vue"
 
-const props = defineProps<{
+defineProps<{
+    position: number
     item: Section & { __typename: "DefaultGridSection" }
 }>()
 
-const page = ref(props.item.items)
+defineEmits<{
+    (event: "clickItem", index: number): void
+}>()
 </script>

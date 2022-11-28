@@ -8,7 +8,9 @@
                 {{ episode.season.show.title }}
             </h3>
         </div>
-        <h1 class="text-sm md:text-md lg:text-lg line-clamp-2">{{ episode.title }}</h1>
+        <h1 class="text-sm md:text-md lg:text-lg line-clamp-2">
+            {{ episode.title }}
+        </h1>
     </div>
 </template>
 <script lang="ts" setup>

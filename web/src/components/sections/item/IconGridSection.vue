@@ -3,9 +3,9 @@
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="grid grid-cols-2">
             <div
-                v-for="i in item.items.items"
+                v-for="(i, index) in item.items.items"
                 class="relative mb-5 m-2 lg:m-10"
-                @click="goToSectionItem(i, item.metadata)"
+                @click="$emit('clickItem', index)"
             >
                 <div
                     class="aspect-square bg-slate-800 rounded-2xl border-2 border-slate-700 p-4 cursor-pointer"
@@ -27,10 +27,14 @@
 import { Section } from "../types"
 
 import SectionTitle from "./SectionTitle.vue"
-import { goToSectionItem } from "@/utils/items"
 import Image from "@/components/Image.vue"
 
 defineProps<{
+    position: number
     item: Section & { __typename: "IconGridSection" }
+}>()
+
+defineEmits<{
+    (event: "clickItem", index: number): void
 }>()
 </script>

@@ -8,6 +8,7 @@ query getPage(
     page(code: $code) {
         id
         title
+        code
         sections(first: $first, offset: $offset) {
             total
             offset

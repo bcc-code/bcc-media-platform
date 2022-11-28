@@ -1,22 +1,9 @@
 <template>
-    <PosterSection
-        v-if="section.__typename === 'PosterSection' && hasItems(section)"
-        :item="section"
-    ></PosterSection>
-    <FeaturedSection
-        v-else-if="
-            section.__typename === 'FeaturedSection' && hasItems(section)
-        "
-        :item="section"
-    ></FeaturedSection>
-    <ListSection
-        v-else-if="section.__typename === 'ListSection' && hasItems(section)"
-        :item="section"
-        :paginate="index.last === index.current"
-    ></ListSection>
     <DefaultSection
-        v-else-if="section.__typename === 'DefaultSection' && hasItems(section)"
+        v-if="section.__typename === 'DefaultSection' && hasItems(section)"
         :item="section"
+        :position="index.current"
+        @click-item="(i) => $emit('clickItem', i)"
         @load-more="$emit('loadMore')"
     ></DefaultSection>
     <DefaultGridSection
@@ -25,27 +12,60 @@
         "
         :item="section"
         :paginate="index.last === index.current"
+        :position="index.current"
+        @click-item="(i) => $emit('clickItem', i)"
     ></DefaultGridSection>
+    <PosterSection
+        v-else-if="section.__typename === 'PosterSection' && hasItems(section)"
+        :item="section"
+        :position="index.current"
+        @click-item="(i) => $emit('clickItem', i)"
+        @load-more="$emit('loadMore')"
+    ></PosterSection>
     <PosterGridSection
         v-else-if="
             section.__typename === 'PosterGridSection' && hasItems(section)
         "
         :item="section"
+        :position="index.current"
+        @click-item="(i) => $emit('clickItem', i)"
     ></PosterGridSection>
-    <LabelSection
-        v-else-if="section.__typename === 'LabelSection' && hasItems(section)"
+    <FeaturedSection
+        v-else-if="
+            section.__typename === 'FeaturedSection' && hasItems(section)
+        "
         :item="section"
-    ></LabelSection>
+        :position="index.current"
+        @click-item="(i) => $emit('clickItem', i)"
+        @load-more="$emit('loadMore')"
+    ></FeaturedSection>
     <IconSection
         v-else-if="section.__typename === 'IconSection' && hasItems(section)"
         :item="section"
+        :position="index.current"
+        @click-item="(i) => $emit('clickItem', i)"
     ></IconSection>
     <IconGridSection
         v-else-if="
             section.__typename === 'IconGridSection' && hasItems(section)
         "
         :item="section"
+        :position="index.current"
+        @click-item="(i) => $emit('clickItem', i)"
     ></IconGridSection>
+    <LabelSection
+        v-else-if="section.__typename === 'LabelSection' && hasItems(section)"
+        :item="section"
+        :position="index.current"
+        @click-item="(i) => $emit('clickItem', i)"
+    ></LabelSection>
+    <ListSection
+        v-else-if="section.__typename === 'ListSection' && hasItems(section)"
+        :item="section"
+        :paginate="index.last === index.current"
+        :position="index.current"
+        @click-item="(i) => $emit('clickItem', i)"
+    ></ListSection>
     <WebSection
         v-else-if="section.__typename === 'WebSection'"
         :item="section"
@@ -79,6 +99,7 @@ defineProps<{
 
 defineEmits<{
     (e: "loadMore"): void
+    (e: "clickItem", index: number): void
 }>()
 
 const hasItems = (section: {

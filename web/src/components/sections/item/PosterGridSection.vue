@@ -3,9 +3,9 @@
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="grid grid-cols-2">
             <div
-                v-for="i in item.items.items"
+                v-for="(i, index) in item.items.items"
                 class="relative"
-                @click="goToSectionItem(i, item.metadata)"
+                @click="$emit('clickItem', index)"
             >
                 <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
                 <div
@@ -40,13 +40,17 @@
 import { Section } from "../types"
 
 import SectionTitle from "./SectionTitle.vue"
-import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
 import ProgressBar from "@/components/episodes/ProgressBar.vue"
 import Image from "@/components/Image.vue"
 
 defineProps<{
+    position: number
     item: Section & { __typename: "PosterGridSection" | "PosterSection" }
+}>()
+
+defineEmits<{
+    (event: "clickItem", index: number): void
 }>()
 </script>

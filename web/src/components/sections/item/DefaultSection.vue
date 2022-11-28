@@ -3,13 +3,13 @@
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <Slider
             :item="item"
-            v-slot="{ item: i }"
+            v-slot="{ item: i, index }"
             @load-more="$emit('loadMore')"
         >
             <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
             <div
                 class="flex flex-col cursor-pointer mt-2"
-                @click="goToSectionItem(i, item.metadata)"
+                @click="$emit('clickItem', index)"
             >
                 <div
                     class="relative mb-1 rounded-md w-full aspect-video overflow-hidden hover:opacity-90 transition"
@@ -40,7 +40,6 @@
 import { Section } from "../types"
 
 import SectionTitle from "./SectionTitle.vue"
-import { goToSectionItem } from "@/utils/items"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
 import ProgressBar from "@/components/episodes/ProgressBar.vue"
@@ -48,10 +47,12 @@ import Image from "@/components/Image.vue"
 import Slider from "./Slider.vue"
 
 defineProps<{
+    position: number
     item: Section & { __typename: "DefaultSection" }
 }>()
 
 defineEmits<{
-    (e: "loadMore"): void
+    (event: "loadMore"): void
+    (event: "clickItem", index: number): void
 }>()
 </script>

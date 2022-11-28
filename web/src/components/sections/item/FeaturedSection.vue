@@ -1,10 +1,15 @@
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <Slider :item="item" v-slot="{ item: i }" :breakpoints="options">
+        <Slider
+            :item="item"
+            v-slot="{ item: i, index }"
+            :breakpoints="options"
+            @load-more="$emit('loadMore')"
+        >
             <div
                 class="relative h-full cursor-pointer aspect-video lg:aspect-[11/5] overflow-hidden"
-                @click="goToSectionItem(i, item.metadata)"
+                @click="$emit('clickItem', index)"
             >
                 <Image
                     :src="i.image"
@@ -45,7 +50,7 @@
                     </p>
                     <button
                         class="bg-slate-800 px-4 py-2 rounded-full font-bold text-lg hover:scale-105 mt-4"
-                        @click="goToSectionItem(i)"
+                        @click="$emit('clickItem', index)"
                     >
                         <div
                             class="flex"
@@ -67,7 +72,7 @@
             <div class="lg:hidden text-center mt-2">
                 <button
                     class="bg-slate-800 px-4 py-1 rounded-full font-bold text-lg flex mx-auto hover:scale-105"
-                    @click="goToSectionItem(i)"
+                    @click="$emit('clickItem', index)"
                 >
                     <div
                         class="flex"
@@ -96,10 +101,15 @@ import SectionTitle from "./SectionTitle.vue"
 import Play from "@/components/icons/Play.vue"
 import Image from "@/components/Image.vue"
 import Slider from "./Slider.vue"
-import { goToSectionItem } from "@/utils/items"
 
 const props = defineProps<{
+    position: number
     item: Section & { __typename: "FeaturedSection" }
+}>()
+
+defineEmits<{
+    (event: "loadMore"): void
+    (event: "clickItem", index: number): void
 }>()
 
 const options = computed(() => {

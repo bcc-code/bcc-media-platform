@@ -19,8 +19,8 @@ export class Auth {
             if (query.get("error") === "login_required") {
                 return true
             } else {
-                const triedLoggingIn = localStorage.getItem("triedLoggingIn") 
-                
+                const triedLoggingIn = localStorage.getItem("triedLoggingIn")
+
                 let shouldLogIn = true
 
                 if (triedLoggingIn) {
@@ -30,7 +30,10 @@ export class Auth {
                     shouldLogIn = date.getTime() < now.getTime()
                 }
                 if (shouldLogIn) {
-                    localStorage.setItem("triedLoggingIn", new Date().toISOString())
+                    localStorage.setItem(
+                        "triedLoggingIn",
+                        new Date().toISOString()
+                    )
                     Auth.signIn(true)
                 }
             }
@@ -48,7 +51,7 @@ export class Auth {
         const { loginWithRedirect } = useAuth0()
 
         await loginWithRedirect({
-            prompt: silent ? "none" : undefined
+            prompt: silent ? "none" : undefined,
         })
     }
 
@@ -105,7 +108,7 @@ export const useAuth = () => {
         user: Auth.user(),
         shouldSignIn: Auth.shouldSignIn,
         cancelSignIn: Auth.cancelSignIn,
-        getClaims: Auth.getClaims
+        getClaims: Auth.getClaims,
     }
 }
 

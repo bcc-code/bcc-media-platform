@@ -21,7 +21,7 @@
                 v-for="(i, index) in item.items.items"
                 class="relative"
             >
-                <slot :item="i"></slot>
+                <slot :item="i" :index="index"></slot>
                 <div
                     class="absolute right-0 top-0 h-full flex bg-gradient-to-l from-background to-transparent w-40"
                     v-if="

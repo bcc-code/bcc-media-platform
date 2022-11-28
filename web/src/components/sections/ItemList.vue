@@ -38,8 +38,10 @@
                         <AgeRating v-if="i.ageRating">{{
                             i.ageRating
                         }}</AgeRating>
-                        <div class="hidden lg:flex line-clamp-2 text-sm opacity-70">
-                            {{i.description}}
+                        <div
+                            class="hidden lg:flex line-clamp-2 text-sm opacity-70"
+                        >
+                            {{ i.description }}
                         </div>
                     </div>
                 </div>

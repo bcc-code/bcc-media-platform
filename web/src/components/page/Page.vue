@@ -12,6 +12,7 @@
                         :section="section"
                         :index="{ last: page.sections.total - 1, current: i }"
                         @load-more="appendItems(section)"
+                        @click-item="(index) => clickItem(i, index)"
                     >
                     </Section>
                 </TransitionGroup>
@@ -40,12 +41,14 @@ import {
     GetSectionQuery,
     useGetPageQuery,
     useGetSectionQuery,
+    Section as TSection,
 } from "@/graph/generated"
 import Section from "@/components/sections/Section.vue"
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue"
 import NotFound from "../NotFound.vue"
 import SkeletonSections from "./SkeletonSections.vue"
 import Loader from "../Loader.vue"
+import { goToSectionItem } from "@/utils/items"
 
 const props = defineProps<{
     pageId: string
@@ -69,7 +72,7 @@ const { error, fetching, executeQuery } = useGetPageQuery({
     },
 })
 
-const page = ref(null as NonNullable<GetPageQuery["page"]> | null)
+const page = ref(null as GetPageQuery["page"] | null)
 
 const load = async () => {
     const result = await executeQuery()
@@ -167,6 +170,44 @@ const loadMore = async () => {
                             await appendItems(lastSection)
                     }
                 }
+            }
+        }
+    }
+}
+
+const clickItem = (sectionIndex: number, itemIndex: number) => {
+    if (!page.value) {
+        return
+    }
+
+    for (let i = 0; i < page.value.sections.items.length; i++) {
+        if (sectionIndex === i) {
+            const section = page.value.sections.items[i]
+            switch (section.__typename) {
+                case "DefaultGridSection":
+                case "DefaultSection":
+                case "FeaturedSection":
+                case "IconGridSection":
+                case "IconSection":
+                case "LabelSection":
+                case "ListSection":
+                case "PosterGridSection":
+                case "PosterSection":
+                    for (let i = 0; i < section.items.items.length; i++) {
+                        if (i === itemIndex) {
+                            goToSectionItem(
+                                {
+                                    index: i,
+                                    item: section.items.items[i],
+                                },
+                                {
+                                    ...section,
+                                    index: sectionIndex,
+                                },
+                                page.value.code
+                            )
+                        }
+                    }
             }
         }
     }
