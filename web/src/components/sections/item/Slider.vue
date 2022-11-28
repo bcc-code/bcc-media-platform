@@ -96,12 +96,13 @@ const modules = [Navigation, Pagination, Lazy]
 const onswipe = (swiper: TSwiper) => {
     swiper.on("progress", () => {
         const bp =
-            swiper.currentBreakpoint != "max"
+            swiper.currentBreakpoint == "max"
                 ? Object.values(effectiveBreakpoints.value)[0]
                 : effectiveBreakpoints.value[swiper.currentBreakpoint]
         if (!bp) {
-            console.log(effectiveBreakpoints.value, swiper.currentBreakpoint)
-            return
+            if (swiper.progress > 0.5) {
+                emit("loadMore")
+            }
         }
         // Check when the slide should be updated with new items.
         const pg =

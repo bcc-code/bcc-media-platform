@@ -43,10 +43,28 @@ import Loader from "../components/Loader.vue"
 import { init } from "@/services/language"
 import { onMounted } from "vue"
 import { analytics } from "@/services/analytics"
+import { useGetAnalyticsIdQuery } from "@/graph/generated"
 
-const { loading, shouldSignIn, signIn, cancelSignIn } = useAuth()
+const { loading, authenticated, shouldSignIn, signIn, cancelSignIn } = useAuth()
 
-onMounted(() => analytics.initialize())
+const analyticsQuery = useGetAnalyticsIdQuery({
+    pause: true
+})
+
+onMounted(() => analytics.initialize(async () => {
+    while (loading.value) {
+        await new Promise(r => setTimeout(r, 100))
+    }
+
+    let analyticsId: string | null = null;
+    if (authenticated.value) {
+        const result = await analyticsQuery.executeQuery();
+        if (result.data.value?.me.analytics.anonymousId) {
+            analyticsId = result.data.value.me.analytics.anonymousId
+        }
+    }
+    return analyticsId
+}))
 
 init()
 </script>

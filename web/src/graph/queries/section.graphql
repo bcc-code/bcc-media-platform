@@ -13,6 +13,7 @@ fragment SectionItem on SectionItem {
             progress
             duration
             ageRating
+            description
             season {
                 id
                 title

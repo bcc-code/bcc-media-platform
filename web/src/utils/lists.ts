@@ -13,6 +13,7 @@ export type ListItem = {
     number?: number | null
     duration?: number | null
     ageRating?: string | null
+    description?: string | null
 }
 
 export const toListItem = (fragment: SectionItemFragment): ListItem => {
@@ -28,6 +29,7 @@ export const toListItem = (fragment: SectionItemFragment): ListItem => {
             item.progress = fragment.item.progress
             item.ageRating = fragment.item.ageRating
             item.duration = fragment.item.duration
+            item.description = fragment.item.description
     }
     return item
 }
@@ -50,6 +52,7 @@ export const episodesToListItems = (
                 duration: i.duration,
                 number: i.number,
                 progress: i.progress,
+                description: i.description,
             } as ListItem)
     )
 

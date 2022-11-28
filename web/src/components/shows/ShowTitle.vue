@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1 class="text-lg lg:text-xl line-clamp-2">{{ show.title }}</h1>
+        <h1 class="text-sm md:text-md lg:text-lg line-clamp-2">{{ show.title }}</h1>
         <p class="text-gray line-clamp-1">
             {{ t("section.item.season", show.seasonCount) }} -
             {{ t("section.item.episode", show.episodeCount) }}

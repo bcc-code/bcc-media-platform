@@ -67,24 +67,10 @@ class Analytics {
         rpage(data)
     }
 
-    public async initialize() {
-        const { loading, authenticated, getClaims } = useAuth()
-
-        while (loading.value) {
-            await new Promise(r => setTimeout(r, 100))
-        }
-
-        const analyticsQuery = useGetAnalyticsIdQuery({
-            pause: true
-        })
+    public async initialize(idFactory: () => Promise<string | null>) {
+        const { getClaims } = useAuth()
     
-        let analyticsId: string | null = null;
-        if (authenticated.value) {
-            const result = await analyticsQuery.executeQuery();
-            if (result.data.value?.me.analytics.anonymousId) {
-                analyticsId = result.data.value.me.analytics.anonymousId
-            }
-        }
+        let analyticsId = await idFactory()
         if (!analyticsId)
             analyticsId = "anonymous"
         
