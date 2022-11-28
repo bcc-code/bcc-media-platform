@@ -35,7 +35,9 @@
                 </div>
             </div>
         </div>
-        <p class="text-gray text-center">{{$t("calendar.timeTableIsLocalTime")}}</p>
+        <p class="text-gray text-center">
+            {{ $t("calendar.timeTableIsLocalTime") }}
+        </p>
     </div>
     <div v-else class="flex p-4">
         <h1 class="text-xl mx-auto text-gray">

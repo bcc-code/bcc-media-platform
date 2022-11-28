@@ -133,7 +133,7 @@ const loadMore = async () => {
         document.documentElement.scrollTop +
             (window.innerHeight + window.innerHeight / 2) >=
         document.documentElement.offsetHeight
-    
+
     if (bottomOfWindow) {
         if (
             page.value &&

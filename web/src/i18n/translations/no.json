@@ -2,7 +2,8 @@
     "buttons": {
         "save": "Lagre",
         "login": "Logg inn",
-        "logout": "Logg ut"
+        "logout": "Logg ut",
+        "stayLoggedOut": "Forbli logget ut"
     },
     "page": {
         "home": "Hjem",

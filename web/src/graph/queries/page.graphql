@@ -1,4 +1,10 @@
-query getPage($code: String!, $first: Int, $offset: Int, $sectionFirst: Int, $sectionOffset: Int) {
+query getPage(
+    $code: String!
+    $first: Int
+    $offset: Int
+    $sectionFirst: Int
+    $sectionOffset: Int
+) {
     page(code: $code) {
         id
         title

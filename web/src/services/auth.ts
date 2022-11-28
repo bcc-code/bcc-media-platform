@@ -14,9 +14,14 @@ export class Auth {
         return localStorage.getItem("wasLoggedIn") === "true"
     }
 
+    public static cancelSignIn() {
+        localStorage.removeItem("wasLoggedIn")
+    }
+
     public static async signIn() {
         const { loginWithRedirect } = useAuth0()
 
+        localStorage.setItem("wasLoggedIn", "true")
         await loginWithRedirect()
     }
 
@@ -62,6 +67,7 @@ export const useAuth = () => {
         authenticated: Auth.isAuthenticated(),
         user: Auth.user(),
         shouldSignIn: Auth.shouldSignIn,
+        cancelSignIn: Auth.cancelSignIn,
     }
 }
 
