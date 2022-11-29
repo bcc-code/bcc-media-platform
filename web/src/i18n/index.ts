@@ -26,7 +26,7 @@ export function setLanguage(i18n: I18n, locale: Locale): void {
 const getResourceMessages = (r: any) => r.default || r
 
 export async function loadLocaleMessages(i18n: I18n, locale: Locale) {
-    const messages = await import(`@/translations/${locale === "en" ? "default" : locale}.json`).then(
+    const messages = await import(`@/translations/${locale}.json`).then(
         getResourceMessages
     )
 
