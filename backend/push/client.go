@@ -124,7 +124,7 @@ func (s *Service) SendNotificationToDevices(ctx context.Context, devices []commo
 			Notification: &messaging.Notification{
 				Title:    notification.Title.Get(d.Languages),
 				Body:     notification.Description.Get(d.Languages),
-				ImageURL: notification.Images.GetValueOrNil(d.Languages).ValueOrZero(),
+				ImageURL: notification.Images.Get(d.Languages).ValueOrZero(),
 			},
 			Token: d.Token,
 		})

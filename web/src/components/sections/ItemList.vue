@@ -10,7 +10,7 @@
                             ? 'bg-red bg-opacity-20 hover:bg-opacity-20'
                             : 'border-opacity-0',
                     ]"
-                    @click="$emit('setCurrent', i)"
+                    @click="$emit('itemClick', i)"
                     :key="i.id"
                 >
                     <WithProgressBar
@@ -62,6 +62,6 @@ defineProps<{
 }>()
 
 defineEmits<{
-    (e: "setCurrent", i: ListItem): void
+    (e: "itemClick", i: ListItem): void
 }>()
 </script>

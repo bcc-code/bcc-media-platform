@@ -84,6 +84,7 @@ class Analytics {
         title: string
         meta?: {
             setting?: "webSettings"
+            episodeId?: string
         }
     }) {
         if (!this.initialized) return
