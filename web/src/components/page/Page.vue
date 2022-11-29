@@ -203,6 +203,10 @@ const clickItem = (sectionIndex: number, itemIndex: number) => {
                                 {
                                     ...section,
                                     index: sectionIndex,
+                                    options: {
+                                        useContext: section.metadata?.useContext === true,
+                                        collectionId: section.metadata?.collectionId ?? "",
+                                    }
                                 },
                                 page.value.code
                             )
