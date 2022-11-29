@@ -89,6 +89,7 @@ blocks:
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}"'
             - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:$SEMAPHORE_GIT_BRANCH'
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}" > jobs.txt'
+            - artifact push workflow jobs.txt
         - name: Rewriter
           commands:
             - scripts/gen-version.sh

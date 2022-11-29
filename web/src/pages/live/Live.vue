@@ -29,7 +29,7 @@
                 <div
                     v-for="day in week"
                     class="text-center cursor-pointer hover:bg-gray hover:bg-opacity-10 rounded-full"
-                    @click="selected = day"
+                    @click="setDay(day)"
                 >
                     <span class="align-middle text-gray">
                         {{ day.toDateString().substring(0, 1) }}
@@ -95,6 +95,16 @@ const incrementWeek = (increment: number) => {
 }
 
 const selected = ref(now)
+
+const setDay = (day: Date) => {
+    selected.value = day
+
+    analytics.track("calendarday_clicked", {
+        calendarView: "week",
+        calendarDate: day.toISOString(),
+        pageCode: "livestream"
+    })
+}
 
 const start = computed(() => {
     return week.value[0]
