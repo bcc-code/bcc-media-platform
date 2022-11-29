@@ -8,11 +8,13 @@
                 class="mt-2 mb-8"
                 :query="queryVariable"
                 :pause="pause"
+                @item-click=""
             ></ShowSearchQuery>
             <EpisodeSearchQuery
                 class="mb-2"
                 :query="queryVariable"
                 :pause="pause"
+                @item-click="(i, e) => clickEpisode(i, e.id)"
             ></EpisodeSearchQuery>
         </div>
         <div v-else-if="data?.application.searchPage?.code">
@@ -31,20 +33,28 @@ import { useRoute, useRouter } from "vue-router"
 import { useSearch } from "@/utils/search"
 import Page from "@/components/page/Page.vue"
 import { useApplicationQuery } from "@/graph/generated"
-import { useTitle } from "@/utils/title"
+import { setTitle } from "@/utils/title"
 import { useI18n } from "vue-i18n"
 import SearchInput from "@/components/SearchInput.vue"
 import { analytics } from "@/services/analytics"
-
-const { setTitle } = useTitle()
+import { goToEpisode } from "@/utils/items"
 
 const { t } = useI18n()
-
 const { data } = useApplicationQuery()
-
 const queryString = ref("")
-
 const { query } = useSearch()
+
+const clickEpisode = (index: number, id: string) => {
+    analytics.track("searchresult_clicked", {
+        group: "episodes",
+        elementId: id,
+        elementPosition: index.toString(),
+        elementType: "Episode",
+        searchText: queryVariable.value,
+    })
+
+    goToEpisode(id)
+}
 
 let timeout = null as NodeJS.Timeout | null
 

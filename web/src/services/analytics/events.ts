@@ -68,6 +68,7 @@ export type Events = {
         elementPosition: string
         elementType: ElementType
         elementId: string
+        group: "shows" | "episodes"
     }
     language_changed: {
         pageCode: string

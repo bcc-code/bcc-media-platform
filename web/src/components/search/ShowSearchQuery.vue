@@ -16,10 +16,10 @@
             :breakpoints="breakpoints('medium')"
             navigation
         >
-            <SwiperSlide v-for="i in result">
+            <SwiperSlide v-for="i, index in result">
                 <div
                     class="cursor-pointer mx-2"
-                    @click="onclick(i.id)"
+                    @click="onclick(index, i.id)"
                     :class="[loading[i.id] ? 'opacity-50' : '']"
                 >
                     <div class="relative mb-1">
@@ -49,6 +49,7 @@ import { Navigation } from "swiper"
 import { useI18n } from "vue-i18n"
 import { goToEpisode } from "@/utils/items"
 import breakpoints from "../sections/item/breakpoints"
+import { analytics } from "@/services/analytics"
 
 const { t } = useI18n()
 
@@ -106,7 +107,15 @@ const loading = ref(
     }
 )
 
-const onclick = async (id: string) => {
+const onclick = async (index: number, id: string) => {
+    analytics.track("searchresult_clicked", {
+        elementId: id,
+        elementType: "Show",
+        group: "shows",
+        elementPosition: index.toString(),
+        searchText: queryString.value
+    })
+
     showId.value = id
     loading.value[id] = true
     await nextTick()

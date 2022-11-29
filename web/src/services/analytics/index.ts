@@ -12,8 +12,6 @@ const getRevision = async () => {
         const result = await fetch(config.api.url + "/versionz");
         const rev = await result.json();
 
-        console.log(rev)
-
         if (rev["build_sha"]) {
             return rev
         }
@@ -73,7 +71,7 @@ class Analytics {
 
         track(
             event,
-            { ...data, appLanguage: current.value, releaseVersion: this.revision ?? "unknown" },
+            { ...data, appLanguage: current.value.code, releaseVersion: this.revision ?? "unknown" },
             undefined,
             undefined
         )

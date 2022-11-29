@@ -11,13 +11,13 @@
         <div class="grid lg:grid-cols-4">
             <div
                 class="flex lg:hidden"
-                v-for="i in data?.search.result"
+                v-for="i, index in data?.search.result"
                 :key="i.id"
             >
                 <div
                     v-if="i.__typename === 'EpisodeSearchItem'"
                     class="cursor-pointer flex"
-                    @click="goToEpisode(i.id)"
+                    @click="$emit('itemClick', index, i)"
                 >
                     <div class="relative mb-1 w-1/2 pr-2 py-2">
                         <img
@@ -49,13 +49,13 @@
             </div>
             <div
                 class="lg:flex hidden mx-2 mb-4"
-                v-for="i in data?.search.result"
+                v-for="i, index in data?.search.result"
                 :key="i.id"
             >
                 <div
                     v-if="i.__typename === 'EpisodeSearchItem'"
                     class="cursor-pointer"
-                    @click="goToEpisode(i.id)"
+                    @click="$emit('itemClick', index, i)"
                 >
                     <div class="relative mb-1">
                         <img
@@ -85,8 +85,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { useSearchQuery } from "@/graph/generated"
-import { goToEpisode } from "@/utils/items"
+import { SearchQuery, useSearchQuery } from "@/graph/generated"
 import { computed, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 
@@ -95,6 +94,10 @@ const { t } = useI18n()
 const props = defineProps<{
     query: string
     pause: boolean
+}>()
+
+defineEmits<{
+    (e: "itemClick", index: number, episode: SearchQuery["search"]["result"][0] & {__typename: "EpisodeSearchItem"}): void
 }>()
 
 const queryString = ref(props.query)
