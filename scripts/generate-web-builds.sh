@@ -3,6 +3,7 @@
 cd ./web
 
 pnpm i
+pnpm revision
 
 pnpm build:dev
 mv build build-dev
