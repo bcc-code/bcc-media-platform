@@ -1,6 +1,6 @@
 import { SwiperOptions } from "swiper"
 
-const spaceBetween = 10
+const spaceBetween = 20
 
 export default (size: "small" | "medium") => {
     switch (size) {
