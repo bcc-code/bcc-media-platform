@@ -5,16 +5,21 @@ export * from "./events"
 
 import { useAuth } from "../auth"
 import { current } from "../language"
-
-const revision = ref(null as string | null)
+import config from "@/config"
 
 const getRevision = async () => {
-    if (revision.value) {
-        return revision.value
-    }
-    const result = await fetch("/revision")
+    try {
+        const result = await fetch(config.api.url + "/versionz");
+        const rev = await result.json();
 
-    return revision.value = await result.text()
+        console.log(rev)
+
+        if (rev["build_sha"]) {
+            return rev
+        }
+    } catch {
+    }
+    return "unknown | debug"
 }
 
 const isLoading = ref(true)

@@ -4,6 +4,6 @@ import "bccm-video-player/css"
 import Auth from "./auth"
 
 export default new PlayerFactory({
-    endpoint: config.api.url,
+    endpoint: config.api.url + "/query",
     tokenFactory: Auth.getToken,
 })
