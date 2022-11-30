@@ -249,7 +249,10 @@ func exportSections(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 	for _, s := range sections {
 
 		allowedPageIDs[s.PageID] = nil
-		neededCollectionIDs[int(s.CollectionID.ValueOrZero())] = nil
+
+		if s.CollectionID.Valid {
+			neededCollectionIDs[int(s.CollectionID.ValueOrZero())] = nil
+		}
 
 		err := liteQueries.InsertSection(ctx, sqlexport.InsertSectionParams{
 			ID:           int64(s.ID),
@@ -308,6 +311,9 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 	}
 
 	for _, c := range collections {
+		if c == nil {
+			continue
+		}
 		entries, err := collection.GetCollectionEntries(ctx, q.GetLoaders(), filteredLoaders, c.ID)
 		if err != nil {
 			return merry.Wrap(err)
