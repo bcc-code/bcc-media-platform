@@ -548,6 +548,7 @@ type Episode struct {
 	UserUpdated              uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	PublishDateInTitle       sql.NullBool          `db:"publish_date_in_title" json:"publishDateInTitle"`
 	Label                    null_v4.String        `db:"label" json:"label"`
+	ProductionDate           null_v4.Time          `db:"production_date" json:"productionDate"`
 }
 
 type EpisodeAvailability struct {

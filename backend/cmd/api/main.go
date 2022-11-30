@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/brunstadtv/backend/ratelimit"
 	"net/http"
 	"sort"
 	"strings"
@@ -398,6 +399,7 @@ func main() {
 	r.Use(user.NewProfileMiddleware(queries, rdb))
 	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
 	r.Use(applications.RoleMiddleware())
+	r.Use(ratelimit.Middleware())
 
 	r.POST("/query", gqlHandler)
 	r.GET("/", playgroundHandler())
