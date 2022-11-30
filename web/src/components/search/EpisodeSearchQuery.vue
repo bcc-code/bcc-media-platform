@@ -8,7 +8,7 @@
         >
             {{ t("search.episodes") }}
         </h1>
-        <div class="grid lg:grid-cols-4">
+        <div class="grid lg:grid-cols-4 gap-4">
             <div
                 class="flex lg:hidden"
                 v-for="i, index in data?.search.result"
@@ -48,7 +48,7 @@
                 </div>
             </div>
             <div
-                class="lg:flex hidden mx-2 mb-4"
+                class="lg:flex hidden mb-4"
                 v-for="i, index in data?.search.result"
                 :key="i.id"
             >
@@ -73,9 +73,9 @@
                             <h3 class="text-sm text-primary">
                                 {{ i.showTitle }}
                             </h3>
-                            <p class="text-gray text-sm ml-1">
+                            <!-- <p class="text-gray text-sm ml-1">
                                 {{ i.seasonTitle }}
-                            </p>
+                            </p> -->
                         </div>
                         <h1 class="text-lg">{{ i.title }}</h1>
                     </div>

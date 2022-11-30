@@ -8,7 +8,7 @@ export default (size: "small" | "medium") => {
             return {
                 0: {
                     slidesPerView: 2.5,
-                    spaceBetween,
+                    spaceBetween: 10,
                     slidesPerGroup: 2,
                 },
                 1280: {
@@ -28,7 +28,7 @@ export default (size: "small" | "medium") => {
             return {
                 0: {
                     slidesPerView: 1.5,
-                    spaceBetween,
+                    spaceBetween: 10,
                     slidesPerGroup: 1,
                 },
                 1280: {
@@ -48,7 +48,7 @@ export default (size: "small" | "medium") => {
             return {
                 0: {
                     slidesPerView: 1.5,
-                    spaceBetween,
+                    spaceBetween: 10,
                     slidesPerGroup: 1,
                 },
                 1280: {
