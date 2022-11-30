@@ -28,7 +28,7 @@
                             episode.season.show.title
                         }}</span>
                         <span
-                            v-if="episode.productionDate"
+                            v-if="episode.productionDateInTitle"
                             class="text-gray ml-1"
                             >{{
                                 new Date(episode.productionDate).toDateString()

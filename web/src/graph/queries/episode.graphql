@@ -1,3 +1,10 @@
+fragment SimpleEpisode on Episode {
+    id
+    title
+    image
+    publishDate
+}
+
 query getSeasonOnEpisodePage(
     $seasonId: ID!
     $firstEpisodes: Int
@@ -34,17 +41,15 @@ query getSeasonOnEpisodePage(
 
 query getEpisode($episodeId: ID!, $context: EpisodeContext) {
     episode(id: $episodeId, context: $context) {
-        id
-        title
+        ...SimpleEpisode
         description
-        image(style: default)
         number
         progress
         ageRating
         productionDate
+        productionDateInTitle
         availableFrom
         availableTo
-        publishDate
         duration
         context {
             __typename
