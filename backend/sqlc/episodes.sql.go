@@ -233,6 +233,7 @@ SELECT e.id,
        e.asset_id,
        e.episode_number,
        e.publish_date,
+       e.production_date,
        ea.available_from::timestamp without time zone              AS available_from,
        ea.available_to::timestamp without time zone                AS available_to,
        COALESCE(e.publish_date_in_title, sh.publish_date_in_title, sh.type = 'event', false) AS publish_date_in_title,
@@ -266,6 +267,7 @@ type getEpisodesRow struct {
 	AssetID            null_v4.Int           `db:"asset_id" json:"assetID"`
 	EpisodeNumber      null_v4.Int           `db:"episode_number" json:"episodeNumber"`
 	PublishDate        time.Time             `db:"publish_date" json:"publishDate"`
+	ProductionDate     time.Time             `db:"production_date" json:"productionDate"`
 	AvailableFrom      time.Time             `db:"available_from" json:"availableFrom"`
 	AvailableTo        time.Time             `db:"available_to" json:"availableTo"`
 	PublishDateInTitle bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
@@ -297,6 +299,7 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.AssetID,
 			&i.EpisodeNumber,
 			&i.PublishDate,
+			&i.ProductionDate,
 			&i.AvailableFrom,
 			&i.AvailableTo,
 			&i.PublishDateInTitle,
@@ -402,6 +405,7 @@ SELECT e.id,
        e.asset_id,
        e.episode_number,
        e.publish_date,
+       e.production_date,
        ea.available_from::timestamp without time zone              AS available_from,
        ea.available_to::timestamp without time zone                AS available_to,
        COALESCE(e.publish_date_in_title, sh.publish_date_in_title, sh.type = 'event', false) AS publish_date_in_title,
@@ -433,6 +437,7 @@ type listEpisodesRow struct {
 	AssetID            null_v4.Int           `db:"asset_id" json:"assetID"`
 	EpisodeNumber      null_v4.Int           `db:"episode_number" json:"episodeNumber"`
 	PublishDate        time.Time             `db:"publish_date" json:"publishDate"`
+	ProductionDate     time.Time             `db:"production_date" json:"productionDate"`
 	AvailableFrom      time.Time             `db:"available_from" json:"availableFrom"`
 	AvailableTo        time.Time             `db:"available_to" json:"availableTo"`
 	PublishDateInTitle bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
@@ -464,6 +469,7 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 			&i.AssetID,
 			&i.EpisodeNumber,
 			&i.PublishDate,
+			&i.ProductionDate,
 			&i.AvailableFrom,
 			&i.AvailableTo,
 			&i.PublishDateInTitle,
