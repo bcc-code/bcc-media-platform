@@ -1,0 +1,26 @@
+query search($query: String!, $type: String, $minScore: Int) {
+    search(queryString: $query, type: $type, minScore: $minScore) {
+        hits
+        page
+        result {
+            __typename
+            id
+            header
+            title
+            description
+            image
+            ... on EpisodeSearchItem {
+                seasonTitle
+                showTitle
+            }
+        }
+    }
+}
+
+query getDefaultEpisodeId($showId: ID!) {
+    show(id: $showId) {
+        defaultEpisode {
+            id
+        }
+    }
+}
