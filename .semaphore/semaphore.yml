@@ -128,7 +128,7 @@ blocks:
           os_image: ubuntu2004
   - name: Generate Deploy File
     dependencies:
-      - Build
+      - Build Backend
       - Build CMS
       - Build Migrations
     task:
