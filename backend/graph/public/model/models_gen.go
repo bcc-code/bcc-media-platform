@@ -3,28 +3,26 @@
 package model
 
 type Episode struct {
-	ID          string  `json:"id"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Image       *string `json:"image"`
-	Number      *int    `json:"number"`
-	Season      *Season `json:"season"`
+	ID     string  `json:"id"`
+	Index  bool    `json:"index"`
+	Title  string  `json:"title"`
+	Image  *string `json:"image"`
+	Number *int    `json:"number"`
+	Season *Season `json:"season"`
 }
 
 type Season struct {
-	ID          string  `json:"id"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Image       *string `json:"image"`
-	Number      int     `json:"number"`
-	Show        *Show   `json:"show"`
+	ID     string  `json:"id"`
+	Title  string  `json:"title"`
+	Image  *string `json:"image"`
+	Number int     `json:"number"`
+	Show   *Show   `json:"show"`
 }
 
 type Show struct {
-	ID          string  `json:"id"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Image       *string `json:"image"`
+	ID    string  `json:"id"`
+	Title string  `json:"title"`
+	Image *string `json:"image"`
 }
 
 type Version struct {

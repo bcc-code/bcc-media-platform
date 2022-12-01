@@ -549,6 +549,8 @@ type Episode struct {
 	PublishDateInTitle       sql.NullBool          `db:"publish_date_in_title" json:"publishDateInTitle"`
 	Label                    null_v4.String        `db:"label" json:"label"`
 	ProductionDate           time.Time             `db:"production_date" json:"productionDate"`
+	PublicTitle              null_v4.String        `db:"public_title" json:"publicTitle"`
+	PreventPublicIndexing    sql.NullBool          `db:"prevent_public_indexing" json:"preventPublicIndexing"`
 }
 
 type EpisodeAvailability struct {
@@ -886,6 +888,7 @@ type Season struct {
 	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 	Label               null_v4.String `db:"label" json:"label"`
+	PublicTitle         null_v4.String `db:"public_title" json:"publicTitle"`
 }
 
 type SeasonAvailability struct {
@@ -983,6 +986,7 @@ type Show struct {
 	DefaultEpisodeBehaviour null_v4.String `db:"default_episode_behaviour" json:"defaultEpisodeBehaviour"`
 	PublishDateInTitle      sql.NullBool   `db:"publish_date_in_title" json:"publishDateInTitle"`
 	Label                   null_v4.String `db:"label" json:"label"`
+	PublicTitle             null_v4.String `db:"public_title" json:"publicTitle"`
 }
 
 type ShowAvailability struct {

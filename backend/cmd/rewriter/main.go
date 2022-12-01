@@ -43,6 +43,7 @@ func (rw *rewriter) getDefaultHtmlString() (string, error) {
 }
 
 type meta struct {
+	PreventIndex  bool
 	Title         string
 	Description   string
 	OGTitle       string
@@ -78,6 +79,12 @@ func addMetaTags(n *html.Node, meta meta) {
 		}
 	}
 	if n.Type == html.ElementNode && n.Data == "head" {
+		if meta.PreventIndex {
+			addMetaProperty(n, map[string]string{
+				"name":    "robots",
+				"content": "noindex",
+			})
+		}
 		addMetaProperty(n, map[string]string{
 			"name":    "description",
 			"content": meta.Description,
@@ -130,37 +137,11 @@ func metaForEpisode(res *episode) meta {
 	e := res.Episode
 
 	options := meta{
-		Title:       e.Title,
-		Description: e.Description,
-	}
-	if e.Image != nil {
-		options.OGImage = *e.Image
+		Title:        e.Title,
+		Description:  e.Season.Show.Title,
+		PreventIndex: !e.Index,
 	}
 
-	return options
-}
-
-func metaForSeason(res *season) meta {
-	e := res.Season
-
-	options := meta{
-		Title:       e.Title,
-		Description: e.Description,
-	}
-	if e.Image != nil {
-		options.OGImage = *e.Image
-	}
-
-	return options
-}
-
-func metaForShow(res *show) meta {
-	e := res.Show
-
-	options := meta{
-		Title:       e.Title,
-		Description: e.Description,
-	}
 	if e.Image != nil {
 		options.OGImage = *e.Image
 	}
@@ -198,14 +179,6 @@ func episodeHandler(rw *rewriter) gin.HandlerFunc {
 	return metaHandler(rw, getEpisode, metaForEpisode)
 }
 
-func seasonHandler(rw *rewriter) gin.HandlerFunc {
-	return metaHandler(rw, getSeason, metaForSeason)
-}
-
-func showHandler(rw *rewriter) gin.HandlerFunc {
-	return metaHandler(rw, getShow, metaForShow)
-}
-
 type rewriter struct {
 	webEndpoint string
 	apiEndpoint string
@@ -227,8 +200,6 @@ func main() {
 	r := gin.Default()
 
 	r.GET("episode/:id", episodeHandler(rw))
-	r.GET("season/:id", seasonHandler(rw))
-	r.GET("show/:id", showHandler(rw))
 
 	r.GET("/versionz", version.GinHandler)
 

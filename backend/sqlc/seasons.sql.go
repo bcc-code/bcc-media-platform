@@ -217,6 +217,7 @@ SELECT s.id,
        s.season_number,
        fs.filename_disk                as image_file_name,
        s.show_id,
+       s.public_title,
        COALESCE(s.agerating_code, 'A') as agerating,
        tags.tags::int[]                AS tag_ids,
        COALESCE(img.json, '[]')        as images,
@@ -237,6 +238,7 @@ type getSeasonsRow struct {
 	SeasonNumber  int32           `db:"season_number" json:"seasonNumber"`
 	ImageFileName null_v4.String  `db:"image_file_name" json:"imageFileName"`
 	ShowID        int32           `db:"show_id" json:"showID"`
+	PublicTitle   null_v4.String  `db:"public_title" json:"publicTitle"`
 	Agerating     string          `db:"agerating" json:"agerating"`
 	TagIds        []int32         `db:"tag_ids" json:"tagIds"`
 	Images        json.RawMessage `db:"images" json:"images"`
@@ -259,6 +261,7 @@ func (q *Queries) getSeasons(ctx context.Context, dollar_1 []int32) ([]getSeason
 			&i.SeasonNumber,
 			&i.ImageFileName,
 			&i.ShowID,
+			&i.PublicTitle,
 			&i.Agerating,
 			pq.Array(&i.TagIds),
 			&i.Images,
@@ -300,6 +303,7 @@ SELECT s.id,
        s.season_number,
        fs.filename_disk                as image_file_name,
        s.show_id,
+       s.public_title,
        COALESCE(s.agerating_code, 'A') as agerating,
        tags.tags::int[]                AS tag_ids,
        COALESCE(img.json, '[]')        as images,
@@ -319,6 +323,7 @@ type listSeasonsRow struct {
 	SeasonNumber  int32           `db:"season_number" json:"seasonNumber"`
 	ImageFileName null_v4.String  `db:"image_file_name" json:"imageFileName"`
 	ShowID        int32           `db:"show_id" json:"showID"`
+	PublicTitle   null_v4.String  `db:"public_title" json:"publicTitle"`
 	Agerating     string          `db:"agerating" json:"agerating"`
 	TagIds        []int32         `db:"tag_ids" json:"tagIds"`
 	Images        json.RawMessage `db:"images" json:"images"`
@@ -341,6 +346,7 @@ func (q *Queries) listSeasons(ctx context.Context) ([]listSeasonsRow, error) {
 			&i.SeasonNumber,
 			&i.ImageFileName,
 			&i.ShowID,
+			&i.PublicTitle,
 			&i.Agerating,
 			pq.Array(&i.TagIds),
 			&i.Images,
