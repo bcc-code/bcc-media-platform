@@ -9,13 +9,14 @@ SELECT e.id,
        e.link_type,
        e.start,
        e.end,
-       ep.id AS episode_id,
+       ea.id AS episode_id,
        se.id AS season_id,
        sh.id AS show_id,
        t.title,
        t.description
 FROM calendarentries e
-         LEFT JOIN episodes ep ON ep.id = e.episode_id AND ep.status = 'published'
+         LEFT JOIN episode_roles er ON er.id = e.episode_id AND er.roles && $1::varchar[]
+         LEFT JOIN episode_availability ea ON ea.id = er.id AND ea.published
          LEFT JOIN seasons se ON se.id = e.season_id AND se.status = 'published'
          LEFT JOIN shows sh ON sh.id = e.show_id AND sh.status = 'published'
          LEFT JOIN t ON e.id = t.calendarentries_id
@@ -32,13 +33,14 @@ SELECT e.id,
        e.link_type,
        e.start,
        e.end,
-       ep.id AS episode_id,
+       ea.id AS episode_id,
        se.id AS season_id,
        sh.id AS show_id,
        t.title,
        t.description
 FROM calendarentries e
-         LEFT JOIN episodes ep ON ep.id = e.episode_id AND ep.status = 'published'
+         LEFT JOIN episode_roles er ON er.id = e.episode_id AND er.roles && $2::varchar[]
+         LEFT JOIN episode_availability ea ON ea.id = er.id AND ea.published
          LEFT JOIN seasons se ON se.id = e.season_id AND se.status = 'published'
          LEFT JOIN shows sh ON sh.id = e.show_id AND sh.status = 'published'
          LEFT JOIN t ON e.id = t.calendarentries_id
@@ -56,13 +58,14 @@ SELECT e.id,
        e.link_type,
        e.start,
        e.end,
-       ep.id AS episode_id,
+       ea.id AS episode_id,
        se.id AS season_id,
        sh.id AS show_id,
        t.title,
        t.description
 FROM calendarentries e
-         LEFT JOIN episodes ep ON ep.id = e.episode_id AND ep.status = 'published'
+         LEFT JOIN episode_roles er ON er.id = e.episode_id AND er.roles && $2::varchar[]
+         LEFT JOIN episode_availability ea ON ea.id = er.id AND ea.published
          LEFT JOIN seasons se ON se.id = e.season_id AND se.status = 'published'
          LEFT JOIN shows sh ON sh.id = e.show_id AND sh.status = 'published'
          LEFT JOIN t ON e.id = t.calendarentries_id
