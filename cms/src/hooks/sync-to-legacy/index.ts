@@ -1,4 +1,4 @@
-import { defineHook } from '@directus/extensions-sdk';
+import { HookConfig } from '@directus/shared/types';
 import { createEpisodeTranslation, createSeasonTranslation, createShowTranslation, updateEpisodeTranslation, updateSeasonTranslation, updateShowTranslation } from './filters/translations';
 import { createShow, deleteShow, updateShow } from './filters/shows';
 import { createEpisode, deleteEpisode, updateEpisodes } from './filters/episodes';
@@ -10,8 +10,7 @@ import { createAsset, deleteAsset, updateAsset } from './filters/assets';
 import { createAssetstream, deleteAssetstream, updateAssetstream } from './filters/assetstreams';
 import { createEpisodeTag, deleteEpisodeTag, updateTag } from './filters/tags';
 
-
-export default defineHook(({ filter }, { }) => {
+const hooks: HookConfig = ({ filter }) => {
 	if (process.env.LEGACY_SYNC === "off") {
 		return
 	}
@@ -66,6 +65,6 @@ export default defineHook(({ filter }, { }) => {
 			case "episodes_tags": return deleteEpisodeTag(p, m, c);
 		}
 	})
+}
 
-});
-
+export default hooks

@@ -1,7 +1,7 @@
 import { PubSub } from "@google-cloud/pubsub"
 import { Collection, Event } from "."
 import { CloudEvent } from "cloudevents"
-import { ActionHandler } from "@directus/shared/src/types"
+import { ActionHandler } from "@directus/shared/types"
 import { v4 as uuid } from "uuid"
 
 const projectId = process.env.PUBSUB_PROJECT_ID
