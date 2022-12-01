@@ -22,9 +22,12 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { computed } from "vue"
+import { useSearch } from "@/utils/search";
+import { computed, nextTick } from "vue"
 import { useRouter } from "vue-router"
 import { SearchIcon } from "./icons"
+
+const { oldPath } = useSearch()
 
 const router = useRouter()
 
@@ -44,14 +47,28 @@ const value = computed({
     },
     set(v) {
         emit("update:modelValue", v)
-        if (router.currentRoute.value.name === "search" && !v) {
-            router.back()
-        }
+        nextTick().then(() => {
+
+            if (router.currentRoute.value.name === "search" && !v && oldPath.value) {
+                router.push(oldPath.value).then(r => {
+                    console.log(r)
+                })
+                console.log(oldPath.value)
+            } else if (router.currentRoute.value.name !== "search" && v) {
+                oldPath.value = router.currentRoute.value
+
+                router.replace({
+                    name: "search",
+                })
+            }
+            })
     },
 })
 
 const cancel = () => {
     value.value = ""
-    if (router.currentRoute.value.name === "search") router.back()
+    if (router.currentRoute.value.name === "search" && oldPath.value) {
+        router.replace(oldPath.value)
+    }
 }
 </script>

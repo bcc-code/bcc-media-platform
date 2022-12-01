@@ -17,11 +17,8 @@
                 @item-click="(i, e) => clickEpisode(i, e.id)"
             ></EpisodeSearchQuery>
         </div>
-        <div v-else-if="data?.application.searchPage?.code">
-            <Page :page-id="data?.application.searchPage?.code"></Page>
-        </div>
-        <div v-else>
-            <div>Search page is not configured</div>
+        <div v-else class="w-full text-center">
+            <p class="text-lg text-gray">{{$t("search.emptyQuery")}}</p>
         </div>
     </section>
 </template>
@@ -31,7 +28,6 @@ import ShowSearchQuery from "@/components/search/ShowSearchQuery.vue"
 import EpisodeSearchQuery from "@/components/search/EpisodeSearchQuery.vue"
 import { useRoute, useRouter } from "vue-router"
 import { useSearch } from "@/utils/search"
-import Page from "@/components/page/Page.vue"
 import { useApplicationQuery } from "@/graph/generated"
 import { setTitle } from "@/utils/title"
 import { useI18n } from "vue-i18n"

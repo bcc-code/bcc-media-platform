@@ -23,11 +23,6 @@
                         </div>
                         <SearchInput
                             v-model="query"
-                            @keydown="
-                                $route.name !== 'search'
-                                    ? $router.push({ name: 'search' })
-                                    : null
-                            "
                         ></SearchInput>
                     </div>
                     <div class="hidden lg:flex ml-2">

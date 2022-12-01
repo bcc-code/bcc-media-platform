@@ -4,7 +4,7 @@
         <div class="flex gap-4">
             <div
                 v-for="(i, index) in item.items.items"
-                class="overflow-clip w-20 hover:opacity-90 transition"
+                class="overflow-clip w-20 lg:w-40 hover:opacity-90 transition"
                 @click="$emit('clickItem', index)"
                 ref="sectionItem"
             >
