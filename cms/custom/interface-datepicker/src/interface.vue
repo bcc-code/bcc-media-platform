@@ -25,10 +25,11 @@ const props = withDefaults(defineProps<{
 
 const date = computed({
 	get() {
-		return props.value ? props.value : null
+		console.log(props.value)
+		return props.value ? new Date(props.value).toUTCString() : null
 	},
 	set(v) {
-		emit("input", v ? v : null)
+		emit("input", v ? new Date(new Date(v).toUTCString()).toISOString() : null)
 	}
 })
 
