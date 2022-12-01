@@ -109,7 +109,7 @@ const onclick = async (index: number, id: string) => {
         elementId: id,
         elementType: "Show",
         group: "shows",
-        elementPosition: index.toString(),
+        elementPosition: index,
         searchText: queryString.value
     })
 
