@@ -33,8 +33,6 @@ blocks:
       when: change_in('/cms/')
     dependencies: []
   - name: Test
-#    run:
-#      when: change_in(['/backend/', '/migrations/'])
     task:
       jobs:
         - name: go test
@@ -55,8 +53,6 @@ blocks:
           - sem-version go 1.19
     dependencies: []
   - name: Build Backend
-#    run:
-#      when: change_in(['/backend/', '/migrations/'])
     task:
       prologue:
         commands:
