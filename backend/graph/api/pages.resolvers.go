@@ -12,7 +12,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	null "gopkg.in/guregu/null.v4"
 )
 
 // Items is the resolver for the items field.
@@ -98,7 +97,7 @@ func (r *pageResolver) Image(ctx context.Context, obj *model.Page, style *model.
 	if err != nil {
 		return nil, err
 	}
-	return imageOrFallback(ctx, e.Images, null.String{}, style), nil
+	return imageOrFallback(ctx, e.Images, style), nil
 }
 
 // Sections is the resolver for the sections field.

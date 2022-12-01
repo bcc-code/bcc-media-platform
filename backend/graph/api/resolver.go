@@ -15,8 +15,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/gin-gonic/gin"
-	"gopkg.in/guregu/null.v4"
-
 	"go.opentelemetry.io/otel"
 
 	cache "github.com/Code-Hex/go-generics-cache"
@@ -267,16 +265,33 @@ func itemsResolverForIntID[t any, r any](ctx context.Context, loaders *itemLoade
 	return itemsResolverFor(ctx, loaders, listLoader, int(intID), converter)
 }
 
-func imageOrFallback(ctx context.Context, images common.Images, fallback null.String, style *model.ImageStyle) *string {
+func imageOrFallback(ctx context.Context, images common.Images, style *model.ImageStyle, fallbacks ...common.Images) *string {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 	s := "default"
 	if style != nil && style.IsValid() {
 		s = style.String()
 	}
-	img := images.GetDefault(languages, s)
-	if img == nil && s != "icon" && fallback.Valid {
-		img = &fallback.String
+	img := images.GetStrict(languages, s)
+	if img == nil {
+		for _, fb := range fallbacks {
+			img = fb.GetStrict(languages, s)
+			if img != nil {
+				break
+			}
+		}
+	}
+	if img == nil && s != "default" {
+		s = "default"
+		img = images.GetStrict(languages, s)
+	}
+	if img == nil {
+		for _, fb := range fallbacks {
+			img = fb.GetStrict(languages, s)
+			if img != nil {
+				break
+			}
+		}
 	}
 	return img
 }
