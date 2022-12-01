@@ -34,7 +34,7 @@ blocks:
     dependencies: []
   - name: Test
 #    run:
-#      when: change_in('/backend/')
+#      when: change_in(['/backend/', '/migrations/'])
     task:
       jobs:
         - name: go test
@@ -54,9 +54,9 @@ blocks:
         commands:
           - sem-version go 1.19
     dependencies: []
-  - name: Build
+  - name: Build Backend
 #    run:
-#      when: change_in('/backend/')
+#      when: change_in(['/backend/', '/migrations/'])
     task:
       prologue:
         commands:
@@ -145,11 +145,11 @@ blocks:
         machine:
           type: e1-standard-2
           os_image: ubuntu2004
-  - name: Web
+  - name: Build Web
     dependencies: []
     task:
       jobs:
-        - name: build
+        - name: Build
           commands:
             - sem-version node 16
             - checkout

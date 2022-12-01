@@ -48,7 +48,7 @@ const clickEpisode = (index: number, id: string) => {
     analytics.track("searchresult_clicked", {
         group: "episodes",
         elementId: id,
-        elementPosition: index.toString(),
+        elementPosition: index,
         elementType: "Episode",
         searchText: queryVariable.value,
     })
