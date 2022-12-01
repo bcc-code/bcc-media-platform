@@ -46,12 +46,12 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Episode struct {
-		Description func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Image       func(childComplexity int) int
-		Number      func(childComplexity int) int
-		Season      func(childComplexity int) int
-		Title       func(childComplexity int) int
+		ID     func(childComplexity int) int
+		Image  func(childComplexity int) int
+		Index  func(childComplexity int) int
+		Number func(childComplexity int) int
+		Season func(childComplexity int) int
+		Title  func(childComplexity int) int
 	}
 
 	QueryRoot struct {
@@ -62,19 +62,17 @@ type ComplexityRoot struct {
 	}
 
 	Season struct {
-		Description func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Image       func(childComplexity int) int
-		Number      func(childComplexity int) int
-		Show        func(childComplexity int) int
-		Title       func(childComplexity int) int
+		ID     func(childComplexity int) int
+		Image  func(childComplexity int) int
+		Number func(childComplexity int) int
+		Show   func(childComplexity int) int
+		Title  func(childComplexity int) int
 	}
 
 	Show struct {
-		Description func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Image       func(childComplexity int) int
-		Title       func(childComplexity int) int
+		ID    func(childComplexity int) int
+		Image func(childComplexity int) int
+		Title func(childComplexity int) int
 	}
 
 	Version struct {
@@ -110,13 +108,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Episode.description":
-		if e.complexity.Episode.Description == nil {
-			break
-		}
-
-		return e.complexity.Episode.Description(childComplexity), true
-
 	case "Episode.id":
 		if e.complexity.Episode.ID == nil {
 			break
@@ -130,6 +121,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.Image(childComplexity), true
+
+	case "Episode.index":
+		if e.complexity.Episode.Index == nil {
+			break
+		}
+
+		return e.complexity.Episode.Index(childComplexity), true
 
 	case "Episode.number":
 		if e.complexity.Episode.Number == nil {
@@ -195,13 +193,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QueryRoot.Version(childComplexity), true
 
-	case "Season.description":
-		if e.complexity.Season.Description == nil {
-			break
-		}
-
-		return e.complexity.Season.Description(childComplexity), true
-
 	case "Season.id":
 		if e.complexity.Season.ID == nil {
 			break
@@ -236,13 +227,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Season.Title(childComplexity), true
-
-	case "Show.description":
-		if e.complexity.Show.Description == nil {
-			break
-		}
-
-		return e.complexity.Show.Description(childComplexity), true
 
 	case "Show.id":
 		if e.complexity.Show.ID == nil {
@@ -327,8 +311,8 @@ var sources = []*ast.Source{
 	{Name: "../schema/schema.episodes.graphqls", Input: `
 type Episode {
     id: ID!
+    index: Boolean!
     title: String!
-    description: String!
     image: String
     number: Int
     season: Season @goField(forceResolver: true)
@@ -356,7 +340,6 @@ type Version {
 type Season {
     id: ID!
     title: String!
-    description: String!
     image: String
     number: Int!
     show: Show @goField(forceResolver: true)
@@ -366,7 +349,6 @@ type Season {
 type Show {
     id: ID!
     title: String!
-    description: String!
     image: String
 }
 `, BuiltIn: false},
@@ -519,6 +501,50 @@ func (ec *executionContext) fieldContext_Episode_id(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_index(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_index(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Index, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_index(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_title(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_title(ctx, field)
 	if err != nil {
@@ -551,50 +577,6 @@ func (ec *executionContext) _Episode_title(ctx context.Context, field graphql.Co
 }
 
 func (ec *executionContext) fieldContext_Episode_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Episode",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Episode_description(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Episode_description(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Episode_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -729,8 +711,6 @@ func (ec *executionContext) fieldContext_Episode_season(ctx context.Context, fie
 				return ec.fieldContext_Season_id(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Season_description(ctx, field)
 			case "image":
 				return ec.fieldContext_Season_image(ctx, field)
 			case "number":
@@ -785,10 +765,10 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "index":
+				return ec.fieldContext_Episode_index(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Episode_description(ctx, field)
 			case "image":
 				return ec.fieldContext_Episode_image(ctx, field)
 			case "number":
@@ -856,8 +836,6 @@ func (ec *executionContext) fieldContext_QueryRoot_season(ctx context.Context, f
 				return ec.fieldContext_Season_id(ctx, field)
 			case "title":
 				return ec.fieldContext_Season_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Season_description(ctx, field)
 			case "image":
 				return ec.fieldContext_Season_image(ctx, field)
 			case "number":
@@ -925,8 +903,6 @@ func (ec *executionContext) fieldContext_QueryRoot_show(ctx context.Context, fie
 				return ec.fieldContext_Show_id(ctx, field)
 			case "title":
 				return ec.fieldContext_Show_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Show_description(ctx, field)
 			case "image":
 				return ec.fieldContext_Show_image(ctx, field)
 			}
@@ -1212,50 +1188,6 @@ func (ec *executionContext) fieldContext_Season_title(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Season_description(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Season_description(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Season_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Season",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Season_image(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Season_image(ctx, field)
 	if err != nil {
@@ -1381,8 +1313,6 @@ func (ec *executionContext) fieldContext_Season_show(ctx context.Context, field 
 				return ec.fieldContext_Show_id(ctx, field)
 			case "title":
 				return ec.fieldContext_Show_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Show_description(ctx, field)
 			case "image":
 				return ec.fieldContext_Show_image(ctx, field)
 			}
@@ -1468,50 +1398,6 @@ func (ec *executionContext) _Show_title(ctx context.Context, field graphql.Colle
 }
 
 func (ec *executionContext) fieldContext_Show_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Show",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Show_description(ctx context.Context, field graphql.CollectedField, obj *model.Show) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Show_description(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Show_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
@@ -3407,16 +3293,16 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "title":
+		case "index":
 
-			out.Values[i] = ec._Episode_title(ctx, field, obj)
+			out.Values[i] = ec._Episode_index(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "description":
+		case "title":
 
-			out.Values[i] = ec._Episode_description(ctx, field, obj)
+			out.Values[i] = ec._Episode_title(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -3615,13 +3501,6 @@ func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "description":
-
-			out.Values[i] = ec._Season_description(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
 		case "image":
 
 			out.Values[i] = ec._Season_image(ctx, field, obj)
@@ -3681,13 +3560,6 @@ func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj
 		case "title":
 
 			out.Values[i] = ec._Show_title(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "description":
-
-			out.Values[i] = ec._Show_description(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

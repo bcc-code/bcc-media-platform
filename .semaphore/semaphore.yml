@@ -30,7 +30,7 @@ blocks:
       secrets:
         - name: GoogleSemaphoreServiceAccount
     run:
-      when: change_in('/cms/')
+      when: change_in(['/cms/', '/migrations/'])
     dependencies: []
   - name: Test
 #    run:

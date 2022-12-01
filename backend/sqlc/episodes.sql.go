@@ -234,19 +234,21 @@ SELECT e.id,
        e.episode_number,
        e.publish_date,
        e.production_date,
-       ea.available_from::timestamp without time zone              AS available_from,
-       ea.available_to::timestamp without time zone                AS available_to,
+       e.public_title,
+       COALESCE(e.prevent_public_indexing, false)                                            as prevent_public_indexing,
+       ea.available_from::timestamp without time zone                                        AS available_from,
+       ea.available_to::timestamp without time zone                                          AS available_to,
        COALESCE(e.publish_date_in_title, sh.publish_date_in_title, sh.type = 'event', false) AS publish_date_in_title,
-       fs.filename_disk                                            as image_file_name,
+       fs.filename_disk                                                                      as image_file_name,
        e.season_id,
        e.type,
-       COALESCE(img.json, '[]')                                    as images,
+       COALESCE(img.json, '[]')                                                              as images,
        ts.title,
        ts.description,
        ts.extra_description,
-       tags.tags::int[]                                            AS tag_ids,
-       assets.duration                                             as duration,
-       COALESCE(e.agerating_code, s.agerating_code, 'A')           as agerating
+       tags.tags::int[]                                                                      AS tag_ids,
+       assets.duration                                                                       as duration,
+       COALESCE(e.agerating_code, s.agerating_code, 'A')                                     as agerating
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
@@ -261,26 +263,28 @@ ORDER BY e.episode_number
 `
 
 type getEpisodesRow struct {
-	ID                 int32                 `db:"id" json:"id"`
-	LegacyID           null_v4.Int           `db:"legacy_id" json:"legacyID"`
-	LegacyProgramID    null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
-	AssetID            null_v4.Int           `db:"asset_id" json:"assetID"`
-	EpisodeNumber      null_v4.Int           `db:"episode_number" json:"episodeNumber"`
-	PublishDate        time.Time             `db:"publish_date" json:"publishDate"`
-	ProductionDate     time.Time             `db:"production_date" json:"productionDate"`
-	AvailableFrom      time.Time             `db:"available_from" json:"availableFrom"`
-	AvailableTo        time.Time             `db:"available_to" json:"availableTo"`
-	PublishDateInTitle bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
-	ImageFileName      null_v4.String        `db:"image_file_name" json:"imageFileName"`
-	SeasonID           null_v4.Int           `db:"season_id" json:"seasonID"`
-	Type               string                `db:"type" json:"type"`
-	Images             json.RawMessage       `db:"images" json:"images"`
-	Title              pqtype.NullRawMessage `db:"title" json:"title"`
-	Description        pqtype.NullRawMessage `db:"description" json:"description"`
-	ExtraDescription   pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
-	TagIds             []int32               `db:"tag_ids" json:"tagIds"`
-	Duration           null_v4.Int           `db:"duration" json:"duration"`
-	Agerating          string                `db:"agerating" json:"agerating"`
+	ID                    int32                 `db:"id" json:"id"`
+	LegacyID              null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	LegacyProgramID       null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
+	AssetID               null_v4.Int           `db:"asset_id" json:"assetID"`
+	EpisodeNumber         null_v4.Int           `db:"episode_number" json:"episodeNumber"`
+	PublishDate           time.Time             `db:"publish_date" json:"publishDate"`
+	ProductionDate        time.Time             `db:"production_date" json:"productionDate"`
+	PublicTitle           null_v4.String        `db:"public_title" json:"publicTitle"`
+	PreventPublicIndexing bool                  `db:"prevent_public_indexing" json:"preventPublicIndexing"`
+	AvailableFrom         time.Time             `db:"available_from" json:"availableFrom"`
+	AvailableTo           time.Time             `db:"available_to" json:"availableTo"`
+	PublishDateInTitle    bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
+	ImageFileName         null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	SeasonID              null_v4.Int           `db:"season_id" json:"seasonID"`
+	Type                  string                `db:"type" json:"type"`
+	Images                json.RawMessage       `db:"images" json:"images"`
+	Title                 pqtype.NullRawMessage `db:"title" json:"title"`
+	Description           pqtype.NullRawMessage `db:"description" json:"description"`
+	ExtraDescription      pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
+	TagIds                []int32               `db:"tag_ids" json:"tagIds"`
+	Duration              null_v4.Int           `db:"duration" json:"duration"`
+	Agerating             string                `db:"agerating" json:"agerating"`
 }
 
 func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpisodesRow, error) {
@@ -300,6 +304,8 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.EpisodeNumber,
 			&i.PublishDate,
 			&i.ProductionDate,
+			&i.PublicTitle,
+			&i.PreventPublicIndexing,
 			&i.AvailableFrom,
 			&i.AvailableTo,
 			&i.PublishDateInTitle,
@@ -406,19 +412,21 @@ SELECT e.id,
        e.episode_number,
        e.publish_date,
        e.production_date,
-       ea.available_from::timestamp without time zone              AS available_from,
-       ea.available_to::timestamp without time zone                AS available_to,
+       e.public_title,
+       COALESCE(e.prevent_public_indexing, false)                                            as prevent_public_indexing,
+       ea.available_from::timestamp without time zone                                        AS available_from,
+       ea.available_to::timestamp without time zone                                          AS available_to,
        COALESCE(e.publish_date_in_title, sh.publish_date_in_title, sh.type = 'event', false) AS publish_date_in_title,
-       fs.filename_disk                                            as image_file_name,
+       fs.filename_disk                                                                      as image_file_name,
        e.season_id,
        e.type,
-       COALESCE(img.json, '[]')                                    as images,
+       COALESCE(img.json, '[]')                                                              as images,
        ts.title,
        ts.description,
        ts.extra_description,
-       tags.tags::int[]                                            AS tag_ids,
-       assets.duration                                             as duration,
-       COALESCE(e.agerating_code, s.agerating_code, 'A')           as agerating
+       tags.tags::int[]                                                                      AS tag_ids,
+       assets.duration                                                                       as duration,
+       COALESCE(e.agerating_code, s.agerating_code, 'A')                                     as agerating
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
@@ -431,26 +439,28 @@ FROM episodes e
 `
 
 type listEpisodesRow struct {
-	ID                 int32                 `db:"id" json:"id"`
-	LegacyID           null_v4.Int           `db:"legacy_id" json:"legacyID"`
-	LegacyProgramID    null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
-	AssetID            null_v4.Int           `db:"asset_id" json:"assetID"`
-	EpisodeNumber      null_v4.Int           `db:"episode_number" json:"episodeNumber"`
-	PublishDate        time.Time             `db:"publish_date" json:"publishDate"`
-	ProductionDate     time.Time             `db:"production_date" json:"productionDate"`
-	AvailableFrom      time.Time             `db:"available_from" json:"availableFrom"`
-	AvailableTo        time.Time             `db:"available_to" json:"availableTo"`
-	PublishDateInTitle bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
-	ImageFileName      null_v4.String        `db:"image_file_name" json:"imageFileName"`
-	SeasonID           null_v4.Int           `db:"season_id" json:"seasonID"`
-	Type               string                `db:"type" json:"type"`
-	Images             json.RawMessage       `db:"images" json:"images"`
-	Title              pqtype.NullRawMessage `db:"title" json:"title"`
-	Description        pqtype.NullRawMessage `db:"description" json:"description"`
-	ExtraDescription   pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
-	TagIds             []int32               `db:"tag_ids" json:"tagIds"`
-	Duration           null_v4.Int           `db:"duration" json:"duration"`
-	Agerating          string                `db:"agerating" json:"agerating"`
+	ID                    int32                 `db:"id" json:"id"`
+	LegacyID              null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	LegacyProgramID       null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
+	AssetID               null_v4.Int           `db:"asset_id" json:"assetID"`
+	EpisodeNumber         null_v4.Int           `db:"episode_number" json:"episodeNumber"`
+	PublishDate           time.Time             `db:"publish_date" json:"publishDate"`
+	ProductionDate        time.Time             `db:"production_date" json:"productionDate"`
+	PublicTitle           null_v4.String        `db:"public_title" json:"publicTitle"`
+	PreventPublicIndexing bool                  `db:"prevent_public_indexing" json:"preventPublicIndexing"`
+	AvailableFrom         time.Time             `db:"available_from" json:"availableFrom"`
+	AvailableTo           time.Time             `db:"available_to" json:"availableTo"`
+	PublishDateInTitle    bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
+	ImageFileName         null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	SeasonID              null_v4.Int           `db:"season_id" json:"seasonID"`
+	Type                  string                `db:"type" json:"type"`
+	Images                json.RawMessage       `db:"images" json:"images"`
+	Title                 pqtype.NullRawMessage `db:"title" json:"title"`
+	Description           pqtype.NullRawMessage `db:"description" json:"description"`
+	ExtraDescription      pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
+	TagIds                []int32               `db:"tag_ids" json:"tagIds"`
+	Duration              null_v4.Int           `db:"duration" json:"duration"`
+	Agerating             string                `db:"agerating" json:"agerating"`
 }
 
 func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
@@ -470,6 +480,8 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 			&i.EpisodeNumber,
 			&i.PublishDate,
 			&i.ProductionDate,
+			&i.PublicTitle,
+			&i.PreventPublicIndexing,
 			&i.AvailableFrom,
 			&i.AvailableTo,
 			&i.PublishDateInTitle,

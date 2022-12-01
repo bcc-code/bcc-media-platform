@@ -1,8 +1,8 @@
 
 type Episode {
     id: ID!
+    index: Boolean!
     title: String!
-    description: String!
     image: String
     number: Int
     season: Season @goField(forceResolver: true)

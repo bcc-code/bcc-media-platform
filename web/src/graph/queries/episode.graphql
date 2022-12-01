@@ -3,6 +3,7 @@ fragment SimpleEpisode on Episode {
     title
     image
     publishDate
+    duration
 }
 
 query getSeasonOnEpisodePage(
@@ -18,13 +19,9 @@ query getSeasonOnEpisodePage(
         episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
             total
             items {
-                id
-                publishDate
+                ...SimpleEpisode
                 number
-                title
-                image
                 progress
-                duration
                 description
                 ageRating
             }
@@ -50,7 +47,6 @@ query getEpisode($episodeId: ID!, $context: EpisodeContext) {
         productionDateInTitle
         availableFrom
         availableTo
-        duration
         context {
             __typename
             ... on Season {

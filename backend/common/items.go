@@ -31,6 +31,7 @@ type Show struct {
 	Type           string       `json:"type"`
 	TagIDs         []int        `json:"tagIds"`
 	LegacyID       null.Int     `json:"legacyId"`
+	PublicTitle    null.String  `json:"publicTitle"`
 	Title          LocaleString `json:"title"`
 	Description    LocaleString `json:"description"`
 	Image          null.String  `json:"image"`
@@ -55,6 +56,7 @@ type Season struct {
 	TagIDs      []int        `json:"tagIds"`
 	Number      int          `json:"number"`
 	AgeRating   string       `json:"ageRating"`
+	PublicTitle null.String  `json:"publicTitle"`
 	Title       LocaleString `json:"title"`
 	Description LocaleString `json:"description"`
 	ShowID      int          `json:"showId"`
@@ -74,26 +76,28 @@ func (i Season) GetTagIDs() []int {
 
 // Episode is the definition of the Episode object
 type Episode struct {
-	ID                 int          `json:"id"`
-	Type               string       `json:"type"`
-	LegacyID           null.Int     `json:"legacyId"`
-	LegacyProgramID    null.Int     `json:"legacyProgramId"`
-	SeasonID           null.Int     `json:"seasonId"`
-	PublishDateInTitle bool         `json:"publishDateInTitle"`
-	PublishDate        time.Time    `json:"publishDate"`
-	ProductionDate     time.Time    `json:"productionDate"`
-	AvailableFrom      time.Time    `json:"availableFrom"`
-	AvailableTo        time.Time    `json:"availableTo"`
-	Number             null.Int     `json:"number"`
-	Duration           int          `json:"duration"`
-	AgeRating          string       `json:"ageRating"`
-	AssetID            null.Int     `json:"assetId"`
-	Image              null.String  `json:"image"`
-	Images             Images       `json:"images"`
-	TagIDs             []int        `json:"tagIds"`
-	Title              LocaleString `json:"title"`
-	Description        LocaleString `json:"description"`
-	ExtraDescription   LocaleString `json:"extraDescription"`
+	ID                    int          `json:"id"`
+	Type                  string       `json:"type"`
+	PreventPublicIndexing bool         `json:"preventPublicIndexing"`
+	LegacyID              null.Int     `json:"legacyId"`
+	LegacyProgramID       null.Int     `json:"legacyProgramId"`
+	SeasonID              null.Int     `json:"seasonId"`
+	PublishDateInTitle    bool         `json:"publishDateInTitle"`
+	PublishDate           time.Time    `json:"publishDate"`
+	ProductionDate        time.Time    `json:"productionDate"`
+	AvailableFrom         time.Time    `json:"availableFrom"`
+	AvailableTo           time.Time    `json:"availableTo"`
+	Number                null.Int     `json:"number"`
+	Duration              int          `json:"duration"`
+	AgeRating             string       `json:"ageRating"`
+	AssetID               null.Int     `json:"assetId"`
+	Image                 null.String  `json:"image"`
+	Images                Images       `json:"images"`
+	TagIDs                []int        `json:"tagIds"`
+	PublicTitle           null.String  `json:"publicTitle"`
+	Title                 LocaleString `json:"title"`
+	Description           LocaleString `json:"description"`
+	ExtraDescription      LocaleString `json:"extraDescription"`
 }
 
 // GetKey returns the key for this item
