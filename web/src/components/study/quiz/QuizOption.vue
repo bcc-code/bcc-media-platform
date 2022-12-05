@@ -28,9 +28,9 @@ const props = defineProps<{
 
 const borderClass = computed(() => {
     if (props.correct) {
-        return 'border-green-600'
+        return 'border-green'
     } else if (props.wrong) {
-        return 'border-pink-600'
+        return 'border-red'
     }
     return 'border-transparent';
 })

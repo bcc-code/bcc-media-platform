@@ -10,25 +10,9 @@
             </div>
             <p class="w-full text-lg leading-normal text-gray-300">Question 1 / 3</p>
         </div>
-        <div class="p-4 flex flex-col space-y-8 items-start justify-start w-full">
-            <p class="w-full text-2xl font-extrabold leading-7 text-white">How would you do this, that, and something
-                else?</p>
-            <div class="flex flex-col space-y-2 items-start justify-start w-full">
-                <QuizOption letter="A" text="Option number 1" @click="() => selectAnswer('A')"
-                    :selected="selectedAnswer == 'A'" :wrong="(selectedAnswer == 'A' && 'A' != correctAnswer)"
-                    :correct="(selectedAnswer == 'A' && 'A' == correctAnswer)" />
-                <QuizOption letter="B" text="Option number 2" @click="() => selectAnswer('B')"
-                    :selected="selectedAnswer == 'B'" :wrong="(selectedAnswer == 'B' && 'B' != correctAnswer)"
-                    :correct="(selectedAnswer == 'B' && 'B' == correctAnswer)" />
-                <QuizOption letter="C" text="Option 3 with two sentences and a long description"
-                    @click="() => selectAnswer('C')" :wrong="(selectedAnswer == 'C' && 'C' != correctAnswer)"
-                    :selected="selectedAnswer == 'C'" :correct="(selectedAnswer == 'C' && 'C' == correctAnswer)" />
-                <QuizOption letter="D" text="Option 4 with two sentences and a long description"
-                    :selected="selectedAnswer == 'D'" @click="() => selectAnswer('D')"
-                    :wrong="(selectedAnswer == 'D' && 'D' != correctAnswer)"
-                    :correct="(selectedAnswer == 'D' && 'D' == correctAnswer)" />
-            </div>
-        </div>
+        <QuizQuestion v-model:is-done="isCurrentStepDone">
+
+        </QuizQuestion>
         <div class="flex-1"></div>
         <div class="flex flex-col space-y-4 items-center justify-end w-80 h-24">
             <div class="inline-flex space-x-2 items-start justify-start w-full">
@@ -37,7 +21,7 @@
                     <p class="flex-1 text-lg font-bold leading-normal text-center text-gray-500">Back</p>
                 </div>
                 <div
-                    class="flex items-center justify-center flex-1 h-full px-5 py-3 border rounded-full border-indigo-200 border-opacity-10">
+                    :class="'flex items-center justify-center flex-1 h-full px-5 py-3 border rounded-full border-indigo-200 border-opacity-10 transition-colors ease-in-out duration-200 ' + (isCurrentStepDone ? 'bg-primary' : '')">
                     <p class="flex-1 text-lg font-bold leading-normal text-center text-gray-500">Next</p>
                 </div>
             </div>
@@ -51,14 +35,14 @@
 import { ChevronLeft, ChevronRight } from "@/components/icons"
 import Player from "@/components/live/Player.vue"
 import { getWeek } from "@/utils/date"
-import { computed, onMounted, Ref, ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { useGetLiveCalendarRangeQuery } from "@/graph/generated"
 import DayQuery from "@/components/calendar/DayQuery.vue"
 import { useI18n } from "vue-i18n"
 import { useTitle } from "@/utils/title"
 import { analytics } from "@/services/analytics"
 import router from "@/router"
-import QuizOption from "@/components/study/quiz/QuizOption.vue"
+import QuizQuestion from "@/components/study/quiz/QuizQuestion.vue"
 
 const { t } = useI18n()
 
@@ -72,20 +56,12 @@ onMounted(() => {
     })
 })
 
-let correctAnswer = 'C';
-var selectedAnswer: Ref<String> = ref('');
-
-function selectAnswer(answer: String) {
-    selectedAnswer.value = answer;
-    console.log(selectedAnswer)
-    if (answer == correctAnswer) {
-
-    }
-}
+const isCurrentStepDone = ref(false);
 
 if (!!router.currentRoute.value.query["bg"]) {
     document.body.style.setProperty("--tw-bg-opacity", "1");
 }
+
 </script>
 
 <style>
