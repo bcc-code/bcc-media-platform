@@ -7,40 +7,33 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const getStudies = `-- name: getStudies :many
-WITH ts AS (SELECT studytopics_id,
-                   json_object_agg(languages_code, title) as title
-            FROM studytopics_translations
-            GROUP BY studytopics_id)
-SELECT s.id,
-       ts.title
-FROM studytopics s
-         LEFT JOIN ts ON ts.studytopics_id = s.id
-WHERE s.status = 'published'
-  AND s.id = ANY ($1::uuid[])
+const getLessons = `-- name: getLessons :many
+SELECT l.id, l.topic_id FROM lessons l WHERE l.status = 'published' AND l.id = ANY($1::uuid[])
 `
 
-type getStudiesRow struct {
-	ID    uuid.UUID             `db:"id" json:"id"`
-	Title pqtype.NullRawMessage `db:"title" json:"title"`
+type getLessonsRow struct {
+	ID      uuid.UUID `db:"id" json:"id"`
+	TopicID uuid.UUID `db:"topic_id" json:"topicID"`
 }
 
-func (q *Queries) getStudies(ctx context.Context, dollar_1 []uuid.UUID) ([]getStudiesRow, error) {
-	rows, err := q.db.QueryContext(ctx, getStudies, pq.Array(dollar_1))
+func (q *Queries) getLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getLessonsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getLessons, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []getStudiesRow
+	var items []getLessonsRow
 	for rows.Next() {
-		var i getStudiesRow
-		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+		var i getLessonsRow
+		if err := rows.Scan(&i.ID, &i.TopicID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -56,25 +49,84 @@ func (q *Queries) getStudies(ctx context.Context, dollar_1 []uuid.UUID) ([]getSt
 
 const getTasks = `-- name: getTasks :many
 SELECT
-    t.id
+    t.id,
+    t.type,
+    t.question_type,
+    t.lesson_id,
+    t.alternatives_multiselect
 FROM tasks t
 WHERE t.status = 'published'
   AND t.id = ANY ($1::uuid[])
 `
 
-func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]uuid.UUID, error) {
+type getTasksRow struct {
+	ID                      uuid.UUID      `db:"id" json:"id"`
+	Type                    string         `db:"type" json:"type"`
+	QuestionType            null_v4.String `db:"question_type" json:"questionType"`
+	LessonID                uuid.UUID      `db:"lesson_id" json:"lessonID"`
+	AlternativesMultiselect sql.NullBool   `db:"alternatives_multiselect" json:"alternativesMultiselect"`
+}
+
+func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getTasksRow, error) {
 	rows, err := q.db.QueryContext(ctx, getTasks, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []uuid.UUID
+	var items []getTasksRow
 	for rows.Next() {
-		var id uuid.UUID
-		if err := rows.Scan(&id); err != nil {
+		var i getTasksRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Type,
+			&i.QuestionType,
+			&i.LessonID,
+			&i.AlternativesMultiselect,
+		); err != nil {
 			return nil, err
 		}
-		items = append(items, id)
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTopics = `-- name: getTopics :many
+WITH ts AS (SELECT studytopics_id,
+                   json_object_agg(languages_code, title) as title
+            FROM studytopics_translations
+            GROUP BY studytopics_id)
+SELECT s.id,
+       ts.title
+FROM studytopics s
+         LEFT JOIN ts ON ts.studytopics_id = s.id
+WHERE s.status = 'published'
+  AND s.id = ANY ($1::uuid[])
+`
+
+type getTopicsRow struct {
+	ID    uuid.UUID             `db:"id" json:"id"`
+	Title pqtype.NullRawMessage `db:"title" json:"title"`
+}
+
+func (q *Queries) getTopics(ctx context.Context, dollar_1 []uuid.UUID) ([]getTopicsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getTopics, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getTopicsRow
+	for rows.Next() {
+		var i getTopicsRow
+		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

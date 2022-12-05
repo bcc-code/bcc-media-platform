@@ -28,8 +28,9 @@ type Topic struct {
 
 // Lesson is a lesson within a topic
 type Lesson struct {
-	ID    uuid.UUID
-	Title common.LocaleString
+	ID      uuid.UUID
+	TopicID uuid.UUID
+	Title   common.LocaleString
 }
 
 // Task is the struct for Tasks
