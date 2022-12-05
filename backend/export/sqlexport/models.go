@@ -81,3 +81,12 @@ type Show struct {
 	Image          sql.NullString `db:"image" json:"image"`
 	DefaultEpisode sql.NullString `db:"default_episode" json:"defaultEpisode"`
 }
+
+type Stream struct {
+	ID                int64  `db:"id" json:"id"`
+	EpisodeID         int64  `db:"episode_id" json:"episodeID"`
+	Url               string `db:"url" json:"url"`
+	AudioLanguages    string `db:"audio_languages" json:"audioLanguages"`
+	SubtitleLanguages string `db:"subtitle_languages" json:"subtitleLanguages"`
+	Type              string `db:"type" json:"type"`
+}
