@@ -20,7 +20,7 @@
                     class="flex items-center justify-center flex-1 h-full px-5 py-3 border rounded-full border-indigo-200 border-opacity-10">
                     <p class="flex-1 text-lg font-bold leading-normal text-center text-gray-500">Back</p>
                 </div>
-                <div
+                <div @click="nextStep()"
                     :class="'flex items-center justify-center flex-1 h-full px-5 py-3 border rounded-full border-indigo-200 border-opacity-10 transition-colors ease-in-out duration-200 ' + (isCurrentStepDone ? 'bg-primary' : '')">
                     <p class="flex-1 text-lg font-bold leading-normal text-center text-gray-500">Next</p>
                 </div>
@@ -43,6 +43,7 @@ import { useTitle } from "@/utils/title"
 import { analytics } from "@/services/analytics"
 import router from "@/router"
 import QuizQuestion from "@/components/study/quiz/QuizQuestion.vue"
+import { flutterRouter, flutterStudy } from "@/utils/flutter"
 
 const { t } = useI18n()
 
@@ -60,6 +61,11 @@ const isCurrentStepDone = ref(false);
 
 if (!!router.currentRoute.value.query["bg"]) {
     document.body.style.setProperty("--tw-bg-opacity", "1");
+}
+
+function nextStep() {
+    console.log(`flutterStudy ${flutterStudy}`);
+    flutterStudy?.tasksCompleted();
 }
 
 </script>
