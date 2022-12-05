@@ -725,6 +725,33 @@ type Language struct {
 	Name              null_v4.String `db:"name" json:"name"`
 }
 
+type Lesson struct {
+	ID          uuid.UUID     `db:"id" json:"id"`
+	Status      string        `db:"status" json:"status"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	Title       string        `db:"title" json:"title"`
+	TopicID     uuid.UUID     `db:"topic_id" json:"topicID"`
+	Sort        null_v4.Int   `db:"sort" json:"sort"`
+}
+
+type LessonsRelation struct {
+	ID         int32          `db:"id" json:"id"`
+	LessonsID  uuid.NullUUID  `db:"lessons_id" json:"lessonsID"`
+	Item       null_v4.String `db:"item" json:"item"`
+	Sort       null_v4.Int    `db:"sort" json:"sort"`
+	Collection null_v4.String `db:"collection" json:"collection"`
+}
+
+type LessonsTranslation struct {
+	ID            int32          `db:"id" json:"id"`
+	LessonsID     uuid.NullUUID  `db:"lessons_id" json:"lessonsID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+}
+
 type Link struct {
 	ID          int32         `db:"id" json:"id"`
 	Status      string        `db:"status" json:"status"`
@@ -857,6 +884,13 @@ type PagesTranslation struct {
 	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
 	PagesID       null_v4.Int    `db:"pages_id" json:"pagesID"`
 	Title         null_v4.String `db:"title" json:"title"`
+}
+
+type Questionalternative struct {
+	ID     uuid.UUID      `db:"id" json:"id"`
+	TaskID uuid.NullUUID  `db:"task_id" json:"taskID"`
+	Sort   null_v4.Int    `db:"sort" json:"sort"`
+	Title  null_v4.String `db:"title" json:"title"`
 }
 
 type Redirect struct {
@@ -1028,6 +1062,23 @@ type ShowsUsergroup struct {
 	UsergroupsCode string `db:"usergroups_code" json:"usergroupsCode"`
 }
 
+type Studytopic struct {
+	ID          uuid.UUID     `db:"id" json:"id"`
+	Status      string        `db:"status" json:"status"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	Title       string        `db:"title" json:"title"`
+}
+
+type StudytopicsTranslation struct {
+	ID            int32          `db:"id" json:"id"`
+	StudytopicsID uuid.NullUUID  `db:"studytopics_id" json:"studytopicsID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+}
+
 type Tag struct {
 	Code        null_v4.String `db:"code" json:"code"`
 	DateCreated time.Time      `db:"date_created" json:"dateCreated"`
@@ -1043,6 +1094,28 @@ type TagsTranslation struct {
 	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
 	Name          null_v4.String `db:"name" json:"name"`
 	TagsID        null_v4.Int    `db:"tags_id" json:"tagsID"`
+}
+
+type Task struct {
+	ID                      uuid.UUID      `db:"id" json:"id"`
+	Status                  string         `db:"status" json:"status"`
+	UserCreated             uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated             null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated             uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated             null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Type                    string         `db:"type" json:"type"`
+	QuestionType            null_v4.String `db:"question_type" json:"questionType"`
+	Sort                    null_v4.Int    `db:"sort" json:"sort"`
+	LessonID                uuid.UUID      `db:"lesson_id" json:"lessonID"`
+	Title                   null_v4.String `db:"title" json:"title"`
+	AlternativesMultiselect sql.NullBool   `db:"alternatives_multiselect" json:"alternativesMultiselect"`
+}
+
+type TasksTranslation struct {
+	ID            int32          `db:"id" json:"id"`
+	TasksID       uuid.NullUUID  `db:"tasks_id" json:"tasksID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
 }
 
 type Tvguideentry struct {

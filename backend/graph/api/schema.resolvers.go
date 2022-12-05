@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -375,6 +376,11 @@ func (r *queryRootResolver) Collection(ctx context.Context, id *string, slug *st
 // Search is the resolver for the search field.
 func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error) {
 	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)
+}
+
+// Study is the resolver for the study field.
+func (r *queryRootResolver) Study(ctx context.Context, id string) (*model.Study, error) {
+	panic(fmt.Errorf("not implemented: Study - study"))
 }
 
 // Calendar is the resolver for the calendar field.

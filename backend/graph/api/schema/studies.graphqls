@@ -1,0 +1,26 @@
+type Study {
+    id: ID!
+    title: String!
+    tasks: [Task!]! @goField(forceResolver: true)
+}
+
+interface Task {
+    id: ID!
+    title: String!
+}
+
+type AlternativesTask implements Task {
+    id: ID!
+    title: String!
+    alternatives: [Alternative!]!
+}
+
+type Alternative {
+    id: ID!
+    title: String!
+}
+
+type TextTask implements Task {
+    id: ID!
+    title: String!
+}

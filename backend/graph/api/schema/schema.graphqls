@@ -107,6 +107,8 @@ type QueryRoot{
     minScore: Int
   ): SearchResult!
 
+  study(id: ID!): Study!
+
   calendar: Calendar
   event(id: ID!): Event
 

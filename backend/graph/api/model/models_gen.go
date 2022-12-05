@@ -81,6 +81,27 @@ type SectionItemType interface {
 	IsSectionItemType()
 }
 
+type Task interface {
+	IsTask()
+	GetID() string
+	GetTitle() string
+}
+
+type Alternative struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+}
+
+type AlternativesTask struct {
+	ID           string         `json:"id"`
+	Title        string         `json:"title"`
+	Alternatives []*Alternative `json:"alternatives"`
+}
+
+func (AlternativesTask) IsTask()               {}
+func (this AlternativesTask) GetID() string    { return this.ID }
+func (this AlternativesTask) GetTitle() string { return this.Title }
+
 type Analytics struct {
 	AnonymousID string `json:"anonymousId"`
 }
@@ -869,6 +890,21 @@ type Stream struct {
 	SubtitleLanguages []Language `json:"subtitleLanguages"`
 	Type              StreamType `json:"type"`
 }
+
+type Study struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	Tasks []Task `json:"tasks"`
+}
+
+type TextTask struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+}
+
+func (TextTask) IsTask()               {}
+func (this TextTask) GetID() string    { return this.ID }
+func (this TextTask) GetTitle() string { return this.Title }
 
 type User struct {
 	ID        *string    `json:"id"`
