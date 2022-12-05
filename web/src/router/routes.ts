@@ -50,6 +50,11 @@ export default [
         ],
     },
     {
+        name: "study",
+        path: "/study",
+        component: () => import("@/pages/study/Embed.vue"),
+    },
+    {
         name: "not-found",
         path: "/:pathMatch(.*)*",
         component: () => import("@/components/NotFound.vue"),
