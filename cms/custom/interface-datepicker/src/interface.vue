@@ -23,13 +23,21 @@ const props = withDefaults(defineProps<{
 	value: string | null
 }>(), {value: null})
 
+const toNoLocaleDate = (date: Date) => {
+	const d = new Date(date.toUTCString())
+
+	return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}-${d.getDate().toString().padStart(2, "0")}T${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}:00`
+}
+
 const date = computed({
 	get() {
-		console.log(props.value)
-		return props.value ? new Date(props.value).toUTCString() : null
+		return props.value ? toNoLocaleDate(new Date(props.value)) : null
 	},
 	set(v) {
-		emit("input", v ? new Date(new Date(v).toUTCString()).toISOString() : null)
+		if (v) {
+			v = toNoLocaleDate(new Date(v))
+		}
+		emit("input", v ? v : null)
 	}
 })
 
