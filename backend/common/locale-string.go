@@ -50,6 +50,11 @@ func (localeString LocaleString) Any() bool {
 	return false
 }
 
+func (localeString LocaleString) Has(key string) bool {
+	_, ok := localeString[key]
+	return ok
+}
+
 // AsJSON returns the values as a JSON string
 //
 // For example:

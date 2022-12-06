@@ -114,7 +114,7 @@ type Relation[k comparable, kr comparable] interface {
 func NewRelationLoader[K comparable, R comparable](
 	factory func(ctx context.Context, ids []R) ([]Relation[K, R], error),
 	opts ...Option,
-) *dataloader.Loader[R, []*K] {
+) *BatchLoader[R, []*K] {
 	batchLoadLists := func(ctx context.Context, keys []R) []*dataloader.Result[[]*K] {
 		var results []*dataloader.Result[[]*K]
 
@@ -151,7 +151,7 @@ func NewRelationLoader[K comparable, R comparable](
 
 	options := getOptions[R, []*K](opts...)
 
-	return dataloader.NewBatchedLoader(batchLoadLists, options...)
+	return &BatchLoader[R, []*K]{dataloader.NewBatchedLoader(batchLoadLists, options...)}
 }
 
 // Conversion contains the original and converted value

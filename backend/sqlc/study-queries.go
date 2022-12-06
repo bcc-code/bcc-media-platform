@@ -5,21 +5,26 @@ import (
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/studies"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
 )
 
 // GetTopics returns studies
-func (q *Queries) GetTopics(ctx context.Context, ids []uuid.UUID) ([]studies.Topic, error) {
+func (q *Queries) GetTopics(ctx context.Context, ids []uuid.UUID) ([]common.StudyTopic, error) {
 	topics, err := q.getTopics(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(topics, func(t getTopicsRow, _ int) studies.Topic {
-		var title common.LocaleString
+	return lo.Map(topics, func(t getTopicsRow, _ int) common.StudyTopic {
+		var title = common.LocaleString{}
 		_ = json.Unmarshal(t.Title.RawMessage, &title)
-		return studies.Topic{
+
+		if t.OriginalTitle != "" {
+			title["no"] = null.StringFrom(t.OriginalTitle)
+		}
+
+		return common.StudyTopic{
 			ID:    t.ID,
 			Title: title,
 		}
@@ -27,29 +32,79 @@ func (q *Queries) GetTopics(ctx context.Context, ids []uuid.UUID) ([]studies.Top
 }
 
 // GetLessons returns lessons by ids
-func (q *Queries) GetLessons(ctx context.Context, ids []uuid.UUID) ([]studies.Lesson, error) {
+func (q *Queries) GetLessons(ctx context.Context, ids []uuid.UUID) ([]common.Lesson, error) {
 	lessons, err := q.getLessons(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(lessons, func(l getLessonsRow, _ int) studies.Lesson {
-		return studies.Lesson{
+	return lo.Map(lessons, func(l getLessonsRow, _ int) common.Lesson {
+		var title = common.LocaleString{}
+		_ = json.Unmarshal(l.Title.RawMessage, &title)
+
+		if l.OriginalTitle != "" {
+			title["no"] = null.StringFrom(l.OriginalTitle)
+		}
+
+		return common.Lesson{
 			ID:      l.ID,
 			TopicID: l.TopicID,
+			Title:   title,
 		}
 	}), nil
 }
 
 // GetTasks returns tasks by ids
-func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]studies.Task, error) {
+func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task, error) {
 	tasks, err := q.getTasks(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(tasks, func(l getTasksRow, _ int) studies.Task {
-		return studies.Task{
-			ID:       l.ID,
-			LessonID: l.LessonID,
+	return lo.Map(tasks, func(l getTasksRow, _ int) common.Task {
+		var title = common.LocaleString{}
+		_ = json.Unmarshal(l.Title.RawMessage, &title)
+
+		if l.OriginalTitle.Valid {
+			title["no"] = l.OriginalTitle
+		}
+
+		var alternatives []common.QuestionAlternative
+		_ = json.Unmarshal(l.Alternatives.RawMessage, &alternatives)
+
+		var multiSelect null.Bool
+		if l.AlternativesMultiselect.Valid {
+			multiSelect.SetValid(l.AlternativesMultiselect.Bool)
+		}
+
+		return common.Task{
+			ID:           l.ID,
+			LessonID:     l.LessonID,
+			Title:        title,
+			QuestionType: l.QuestionType.String,
+			Alternatives: alternatives,
+			Type:         l.Type,
+			MultiSelect:  multiSelect,
+		}
+	}), nil
+}
+
+// GetQuestionAlternatives returns alternatives for the specified questions
+func (q *Queries) GetQuestionAlternatives(ctx context.Context, ids []uuid.UUID) ([]common.QuestionAlternative, error) {
+	alts, err := q.getQuestionAlternatives(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(alts, func(alt getQuestionAlternativesRow, _ int) common.QuestionAlternative {
+		var title = common.LocaleString{}
+		_ = json.Unmarshal(alt.Title.RawMessage, &title)
+
+		if alt.OriginalTitle.Valid {
+			title["no"] = alt.OriginalTitle
+		}
+
+		return common.QuestionAlternative{
+			Title:  title,
+			TaskID: alt.TaskID.UUID,
+			ID:     alt.ID,
 		}
 	}), nil
 }

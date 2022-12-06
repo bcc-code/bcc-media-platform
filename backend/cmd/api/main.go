@@ -78,9 +78,9 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 		ShowFilterLoader:    batchloaders.NewFilterLoader(rq.GetShowIDsWithRoles),
 		SeasonFilterLoader:  batchloaders.NewFilterLoader(rq.GetSeasonIDsWithRoles),
 		EpisodeFilterLoader: batchloaders.NewFilterLoader(rq.GetEpisodeIDsWithRoles),
-		SeasonsLoader:       batchloaders.NewRelationLoader(rq.GetSeasonIDsForShowsWithRoles),
-		SectionsLoader:      batchloaders.NewRelationLoader(rq.GetSectionIDsForPagesWithRoles),
-		EpisodesLoader:      batchloaders.NewRelationLoader(rq.GetEpisodeIDsForSeasonsWithRoles),
+		SeasonsLoader:       batchloaders.NewRelationLoader(rq.GetSeasonIDsForShowsWithRoles).Loader,
+		SectionsLoader:      batchloaders.NewRelationLoader(rq.GetSectionIDsForPagesWithRoles).Loader,
+		EpisodesLoader:      batchloaders.NewRelationLoader(rq.GetEpisodeIDsForSeasonsWithRoles).Loader,
 		CollectionItemsLoader: batchloaders.NewListLoader(rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
 			return i.CollectionID
 		}),
@@ -89,6 +89,8 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 		StudyTopicFilterLoader:  &batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]{batchloaders.NewFilterLoader(rq.GetTopicIDsWithRoles)},
 		StudyLessonFilterLoader: &batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]{batchloaders.NewFilterLoader(rq.GetLessonIDsWithRoles)},
 		StudyTaskFilterLoader:   &batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]{batchloaders.NewFilterLoader(rq.GetTaskIDsWithRoles)},
+		StudyLessonsLoader:      batchloaders.NewRelationLoader(rq.GetLessonIDsForTopics),
+		StudyTasksLoader:        batchloaders.NewRelationLoader(rq.GetTaskIDsForLessons),
 	}
 
 	rolesLoaderCache.Set(key, loaders)
@@ -310,11 +312,9 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		CollectionIDFromSlugLoader: &batchloaders.BatchLoader[string, *int]{
 			Loader: batchloaders.NewConversionLoader(queries.GetCollectionIDsForCodes),
 		},
-		EpisodeProgressLoader: &batchloaders.BatchLoader[uuid.UUID, []*int]{
-			Loader: batchloaders.NewRelationLoader(queries.GetEpisodeIDsWithProgress),
-		},
+		EpisodeProgressLoader: batchloaders.NewRelationLoader(queries.GetEpisodeIDsWithProgress),
 		// Relations
-		SectionsLoader: batchloaders.NewRelationLoader(queries.GetSectionIDsForPages),
+		SectionsLoader: batchloaders.NewRelationLoader(queries.GetSectionIDsForPages).Loader,
 		// Permissions
 		ShowPermissionLoader:    show.NewPermissionLoader(*queries),
 		SeasonPermissionLoader:  season.NewPermissionLoader(*queries),
@@ -323,25 +323,31 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		SectionPermissionLoader: section.NewPermissionLoader(*queries),
 		FAQCategoryLoader:       batchloaders.NewLoader(queries.GetFAQCategories),
 		QuestionLoader:          batchloaders.NewLoader(queries.GetQuestions),
-		QuestionsLoader:         batchloaders.NewRelationLoader(queries.GetQuestionIDsForCategories),
+		QuestionsLoader:         batchloaders.NewRelationLoader(queries.GetQuestionIDsForCategories).Loader,
 		MessageGroupLoader:      batchloaders.NewLoader(queries.GetMessageGroups),
 		// User Data
 		ProfilesLoader: batchloaders.NewListLoader(queries.GetProfilesForUserIDs, func(i common.Profile) string {
 			return i.UserID
 		}),
+		StudyTopicLoader:  batchloaders.New(queries.GetTopics),
+		StudyLessonLoader: batchloaders.New(queries.GetLessons),
+		StudyTaskLoader:   batchloaders.New(queries.GetTasks),
+		StudyQuestionAlternativesLoader: &batchloaders.BatchLoader[uuid.UUID, []*common.QuestionAlternative]{batchloaders.NewListLoader(queries.GetQuestionAlternatives, func(alt common.QuestionAlternative) uuid.UUID {
+			return alt.TaskID
+		})},
 	}
 }
 
 func jwksHandler(config redirectConfig) gin.HandlerFunc {
 	pub, _ := jwk.PublicKeyOf(config.JWTPrivateKey)
-	pub.Set(jwk.AlgorithmKey, jwa.RS256)
-	pub.Set(jwk.KeyUsageKey, jwk.ForSignature)
-	pub.Set(jwk.KeyIDKey, config.KeyID)
-	jwks := jwk.NewSet()
-	jwks.AddKey(pub)
+	_ = pub.Set(jwk.AlgorithmKey, jwa.RS256)
+	_ = pub.Set(jwk.KeyUsageKey, jwk.ForSignature)
+	_ = pub.Set(jwk.KeyIDKey, config.KeyID)
+	keySet := jwk.NewSet()
+	_ = keySet.AddKey(pub)
 
 	return func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, jwks)
+		ctx.JSON(http.StatusOK, keySet)
 	}
 }
 

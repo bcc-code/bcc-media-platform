@@ -16,15 +16,25 @@ import (
 )
 
 const getLessons = `-- name: getLessons :many
-SELECT l.id, l.topic_id
+WITH ts AS (SELECT lessons_id,
+                   json_object_agg(languages_code, title) as title
+            FROM lessons_translations
+            GROUP BY lessons_id)
+SELECT l.id,
+       l.topic_id,
+       l.title as original_title,
+       ts.title
 FROM lessons l
+         LEFT JOIN ts ON ts.lessons_id = l.id
 WHERE l.status = 'published'
   AND l.id = ANY ($1::uuid[])
 `
 
 type getLessonsRow struct {
-	ID      uuid.UUID `db:"id" json:"id"`
-	TopicID uuid.UUID `db:"topic_id" json:"topicID"`
+	ID            uuid.UUID             `db:"id" json:"id"`
+	TopicID       uuid.UUID             `db:"topic_id" json:"topicID"`
+	OriginalTitle string                `db:"original_title" json:"originalTitle"`
+	Title         pqtype.NullRawMessage `db:"title" json:"title"`
 }
 
 func (q *Queries) getLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getLessonsRow, error) {
@@ -36,7 +46,12 @@ func (q *Queries) getLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getLe
 	var items []getLessonsRow
 	for rows.Next() {
 		var i getLessonsRow
-		if err := rows.Scan(&i.ID, &i.TopicID); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.TopicID,
+			&i.OriginalTitle,
+			&i.Title,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -85,23 +100,87 @@ func (q *Queries) getLessonsForTopics(ctx context.Context, dollar_1 []uuid.UUID)
 	return items, nil
 }
 
+const getQuestionAlternatives = `-- name: getQuestionAlternatives :many
+WITH ts AS (SELECT questionalternatives_id, json_object_agg(languages_code, title) AS title
+            FROM questionalternatives_translations
+            GROUP BY questionalternatives_id)
+SELECT qa.id, qa.title as original_title, qa.task_id, ts.title
+FROM questionalternatives qa
+         LEFT JOIN ts ON ts.questionalternatives_id = qa.id
+WHERE qa.task_id = ANY ($1::uuid[])
+`
+
+type getQuestionAlternativesRow struct {
+	ID            uuid.UUID             `db:"id" json:"id"`
+	OriginalTitle null_v4.String        `db:"original_title" json:"originalTitle"`
+	TaskID        uuid.NullUUID         `db:"task_id" json:"taskID"`
+	Title         pqtype.NullRawMessage `db:"title" json:"title"`
+}
+
+func (q *Queries) getQuestionAlternatives(ctx context.Context, dollar_1 []uuid.UUID) ([]getQuestionAlternativesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getQuestionAlternatives, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getQuestionAlternativesRow
+	for rows.Next() {
+		var i getQuestionAlternativesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.OriginalTitle,
+			&i.TaskID,
+			&i.Title,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTasks = `-- name: getTasks :many
+WITH altTs AS (SELECT q.task_id,
+                      qat.questionalternatives_id,
+                      json_object_agg(languages_code, qat.title) as title
+               FROM questionalternatives_translations qat
+                        JOIN questionalternatives q ON q.id = qat.questionalternatives_id
+               GROUP BY q.task_id, qat.questionalternatives_id),
+     alts AS (SELECT task_id, json_agg(altTs) as alternatives FROM altTs GROUP BY task_id),
+     ts AS (SELECT tasks_id,
+                   json_object_agg(languages_code, title) as title
+            FROM tasks_translations
+            GROUP BY tasks_id)
 SELECT t.id,
+       t.title as original_title,
        t.type,
        t.question_type,
        t.lesson_id,
-       t.alternatives_multiselect
+       t.alternatives_multiselect,
+       alts.alternatives,
+       ts.title
 FROM tasks t
+         LEFT JOIN alts ON alts.task_id = t.id
+         LEFT JOIN ts ON ts.tasks_id = t.id
 WHERE t.status = 'published'
   AND t.id = ANY ($1::uuid[])
 `
 
 type getTasksRow struct {
-	ID                      uuid.UUID      `db:"id" json:"id"`
-	Type                    string         `db:"type" json:"type"`
-	QuestionType            null_v4.String `db:"question_type" json:"questionType"`
-	LessonID                uuid.UUID      `db:"lesson_id" json:"lessonID"`
-	AlternativesMultiselect sql.NullBool   `db:"alternatives_multiselect" json:"alternativesMultiselect"`
+	ID                      uuid.UUID             `db:"id" json:"id"`
+	OriginalTitle           null_v4.String        `db:"original_title" json:"originalTitle"`
+	Type                    string                `db:"type" json:"type"`
+	QuestionType            null_v4.String        `db:"question_type" json:"questionType"`
+	LessonID                uuid.UUID             `db:"lesson_id" json:"lessonID"`
+	AlternativesMultiselect sql.NullBool          `db:"alternatives_multiselect" json:"alternativesMultiselect"`
+	Alternatives            pqtype.NullRawMessage `db:"alternatives" json:"alternatives"`
+	Title                   pqtype.NullRawMessage `db:"title" json:"title"`
 }
 
 func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getTasksRow, error) {
@@ -115,10 +194,13 @@ func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getTask
 		var i getTasksRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.OriginalTitle,
 			&i.Type,
 			&i.QuestionType,
 			&i.LessonID,
 			&i.AlternativesMultiselect,
+			&i.Alternatives,
+			&i.Title,
 		); err != nil {
 			return nil, err
 		}
@@ -174,6 +256,7 @@ WITH ts AS (SELECT studytopics_id,
             FROM studytopics_translations
             GROUP BY studytopics_id)
 SELECT s.id,
+       s.title as original_title,
        ts.title
 FROM studytopics s
          LEFT JOIN ts ON ts.studytopics_id = s.id
@@ -182,8 +265,9 @@ WHERE s.status = 'published'
 `
 
 type getTopicsRow struct {
-	ID    uuid.UUID             `db:"id" json:"id"`
-	Title pqtype.NullRawMessage `db:"title" json:"title"`
+	ID            uuid.UUID             `db:"id" json:"id"`
+	OriginalTitle string                `db:"original_title" json:"originalTitle"`
+	Title         pqtype.NullRawMessage `db:"title" json:"title"`
 }
 
 func (q *Queries) getTopics(ctx context.Context, dollar_1 []uuid.UUID) ([]getTopicsRow, error) {
@@ -195,7 +279,7 @@ func (q *Queries) getTopics(ctx context.Context, dollar_1 []uuid.UUID) ([]getTop
 	var items []getTopicsRow
 	for rows.Next() {
 		var i getTopicsRow
-		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+		if err := rows.Scan(&i.ID, &i.OriginalTitle, &i.Title); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

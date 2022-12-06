@@ -483,6 +483,7 @@ type LegacyIDLookupOptions struct {
 
 type Lesson struct {
 	ID    string          `json:"id"`
+	Title string          `json:"title"`
 	Tasks *TaskPagination `json:"tasks"`
 }
 

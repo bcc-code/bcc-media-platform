@@ -5,20 +5,76 @@ package graph
 
 import (
 	"context"
-	"fmt"
-
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/user"
+	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/samber/lo"
 )
+
+// Alternatives is the resolver for the alternatives field.
+func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.AlternativesTask) ([]*model.Alternative, error) {
+	alts, err := r.Loaders.StudyQuestionAlternativesLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	return lo.Map(alts, func(alt *common.QuestionAlternative, _ int) *model.Alternative {
+		return &model.Alternative{
+			ID:    alt.ID.String(),
+			Title: alt.Title.Get(languages),
+		}
+	}), nil
+}
 
 // Tasks is the resolver for the tasks field.
 func (r *lessonResolver) Tasks(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.TaskPagination, error) {
-	panic(fmt.Errorf("not implemented: Tasks - tasks"))
+	ids, err := r.FilteredLoaders(ctx).StudyTasksLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	page := utils.Paginate(ids, first, offset, nil)
+
+	tasks, err := r.Loaders.StudyTaskLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.TaskPagination{
+		Total:  page.Total,
+		First:  page.First,
+		Offset: page.Offset,
+		Items:  utils.MapWithCtx(ctx, tasks, model.TaskFrom),
+	}, nil
 }
 
 // Lessons is the resolver for the lessons field.
 func (r *studyTopicResolver) Lessons(ctx context.Context, obj *model.StudyTopic, first *int, offset *int) (*model.LessonPagination, error) {
-	panic(fmt.Errorf("not implemented: Lessons - lessons"))
+	ids, err := r.FilteredLoaders(ctx).StudyLessonsLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	page := utils.Paginate(ids, first, offset, nil)
+
+	lessons, err := r.Loaders.StudyLessonLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.LessonPagination{
+		Total:  page.Total,
+		First:  page.First,
+		Offset: page.Offset,
+		Items:  utils.MapWithCtx(ctx, lessons, model.LessonFrom),
+	}, nil
+}
+
+// AlternativesTask returns generated.AlternativesTaskResolver implementation.
+func (r *Resolver) AlternativesTask() generated.AlternativesTaskResolver {
+	return &alternativesTaskResolver{r}
 }
 
 // Lesson returns generated.LessonResolver implementation.
@@ -27,18 +83,6 @@ func (r *Resolver) Lesson() generated.LessonResolver { return &lessonResolver{r}
 // StudyTopic returns generated.StudyTopicResolver implementation.
 func (r *Resolver) StudyTopic() generated.StudyTopicResolver { return &studyTopicResolver{r} }
 
+type alternativesTaskResolver struct{ *Resolver }
 type lessonResolver struct{ *Resolver }
 type studyTopicResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *studyResolver) Tasks(ctx context.Context, obj *model.Study) ([]model.Task, error) {
-	panic(fmt.Errorf("not implemented: Tasks - tasks"))
-}
-func (r *Resolver) Study() generated.StudyResolver { return &studyResolver{r} }
-
-type studyResolver struct{ *Resolver }

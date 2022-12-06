@@ -893,6 +893,13 @@ type Questionalternative struct {
 	Title  null_v4.String `db:"title" json:"title"`
 }
 
+type QuestionalternativesTranslation struct {
+	ID                     int32          `db:"id" json:"id"`
+	QuestionalternativesID uuid.NullUUID  `db:"questionalternatives_id" json:"questionalternativesID"`
+	LanguagesCode          string         `db:"languages_code" json:"languagesCode"`
+	Title                  null_v4.String `db:"title" json:"title"`
+}
+
 type Redirect struct {
 	ID          uuid.UUID    `db:"id" json:"id"`
 	Status      string       `db:"status" json:"status"`

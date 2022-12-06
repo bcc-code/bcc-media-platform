@@ -9,7 +9,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/samber/lo"
 )
 
 type signatureProvider interface {
@@ -25,9 +24,9 @@ type cdnConfig interface {
 
 // FileFrom converts Assetfile rows to the GQL equvivalents
 func FileFrom(ctx context.Context, signer signatureProvider, cdnDomain string, file *common.File) *File {
-	var subLang *Language
+	var subLang *string
 	if file.SubtitleLanguage.Valid {
-		l := Language(file.SubtitleLanguage.String)
+		l := file.SubtitleLanguage.String
 		subLang = &l
 	}
 
@@ -48,7 +47,7 @@ func FileFrom(ctx context.Context, signer signatureProvider, cdnDomain string, f
 		ID:               strconv.Itoa(file.ID),
 		URL:              signed,
 		FileName:         path.Base(file.Path),
-		AudioLanguage:    Language(file.AudioLanguage.String),
+		AudioLanguage:    file.AudioLanguage.String,
 		SubtitleLanguage: subLang,
 		MimeType:         file.MimeType,
 	}
@@ -87,8 +86,8 @@ func StreamFrom(ctx context.Context, signer signatureProvider, cdn cdnConfig, st
 	return &Stream{
 		ID:                strconv.Itoa(stream.ID),
 		URL:               signedURL,
-		AudioLanguages:    lo.Map(stream.AudioLanguages, func(s string, _ int) Language { return Language(s) }),
-		SubtitleLanguages: lo.Map(stream.SubtitleLanguages, func(s string, _ int) Language { return Language(s) }),
+		AudioLanguages:    stream.AudioLanguages,
+		SubtitleLanguages: stream.SubtitleLanguages,
 		Type:              StreamType(stream.Type),
 	}, nil
 }

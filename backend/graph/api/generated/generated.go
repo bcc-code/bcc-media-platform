@@ -36,6 +36,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	AlternativesTask() AlternativesTaskResolver
 	Analytics() AnalyticsResolver
 	Application() ApplicationResolver
 	Calendar() CalendarResolver
@@ -337,6 +338,7 @@ type ComplexityRoot struct {
 	Lesson struct {
 		ID    func(childComplexity int) int
 		Tasks func(childComplexity int, first *int, offset *int) int
+		Title func(childComplexity int) int
 	}
 
 	LessonPagination struct {
@@ -663,6 +665,9 @@ type ComplexityRoot struct {
 	}
 }
 
+type AlternativesTaskResolver interface {
+	Alternatives(ctx context.Context, obj *model.AlternativesTask) ([]*model.Alternative, error)
+}
 type AnalyticsResolver interface {
 	AnonymousID(ctx context.Context, obj *model.Analytics) (string, error)
 }
@@ -2040,6 +2045,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Lesson.Tasks(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+
+	case "Lesson.title":
+		if e.complexity.Lesson.Title == nil {
+			break
+		}
+
+		return e.complexity.Lesson.Title(childComplexity), true
 
 	case "LessonPagination.first":
 		if e.complexity.LessonPagination.First == nil {
@@ -4456,6 +4468,7 @@ type SearchResult {
 
 type Lesson {
     id: ID!
+    title: String!
     tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
 }
 
@@ -4481,7 +4494,7 @@ type TaskPagination implements Pagination {
 type AlternativesTask implements Task {
     id: ID!
     title: String!
-    alternatives: [Alternative!]!
+    alternatives: [Alternative!]! @goField(forceResolver: true)
 }
 
 type Alternative {
@@ -5713,7 +5726,7 @@ func (ec *executionContext) _AlternativesTask_alternatives(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Alternatives, nil
+		return ec.resolvers.AlternativesTask().Alternatives(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5734,8 +5747,8 @@ func (ec *executionContext) fieldContext_AlternativesTask_alternatives(ctx conte
 	fc = &graphql.FieldContext{
 		Object:     "AlternativesTask",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -13114,6 +13127,50 @@ func (ec *executionContext) fieldContext_Lesson_id(ctx context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Lesson_title(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Lesson_tasks(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Lesson_tasks(ctx, field)
 	if err != nil {
@@ -13352,6 +13409,8 @@ func (ec *executionContext) fieldContext_LessonPagination_items(ctx context.Cont
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Lesson_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Lesson_title(ctx, field)
 			case "tasks":
 				return ec.fieldContext_Lesson_tasks(ctx, field)
 			}
@@ -25813,22 +25872,35 @@ func (ec *executionContext) _AlternativesTask(ctx context.Context, sel ast.Selec
 			out.Values[i] = ec._AlternativesTask_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 
 			out.Values[i] = ec._AlternativesTask_title(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "alternatives":
+			field := field
 
-			out.Values[i] = ec._AlternativesTask_alternatives(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AlternativesTask_alternatives(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -27867,6 +27939,13 @@ func (ec *executionContext) _Lesson(ctx context.Context, sel ast.SelectionSet, o
 		case "id":
 
 			out.Values[i] = ec._Lesson_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "title":
+
+			out.Values[i] = ec._Lesson_title(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)

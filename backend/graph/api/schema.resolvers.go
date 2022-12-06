@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -21,6 +20,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/samber/lo"
@@ -380,7 +380,20 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 
 // StudyTopic is the resolver for the studyTopic field.
 func (r *queryRootResolver) StudyTopic(ctx context.Context, id string) (*model.StudyTopic, error) {
-	panic(fmt.Errorf("not implemented: StudyTopic - studyTopic"))
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+	return resolverFor(ctx, &itemLoaders[uuid.UUID, common.StudyTopic]{
+		Item: r.Loaders.StudyTopicLoader.Loader,
+	}, uid, func(ctx context.Context, topic *common.StudyTopic) *model.StudyTopic {
+		return &model.StudyTopic{
+			ID:    topic.ID.String(),
+			Title: topic.Title.Get(languages),
+		}
+	})
 }
 
 // Calendar is the resolver for the calendar field.
@@ -495,13 +508,3 @@ func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootRe
 
 type mutationRootResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *queryRootResolver) Study(ctx context.Context, id string) (*model.Study, error) {
-	panic(fmt.Errorf("not implemented: Study - study"))
-}

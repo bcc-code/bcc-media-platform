@@ -6,6 +6,7 @@ type StudyTopic {
 
 type Lesson {
     id: ID!
+    title: String!
     tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
 }
 
@@ -31,7 +32,7 @@ type TaskPagination implements Pagination {
 type AlternativesTask implements Task {
     id: ID!
     title: String!
-    alternatives: [Alternative!]!
+    alternatives: [Alternative!]! @goField(forceResolver: true)
 }
 
 type Alternative {
