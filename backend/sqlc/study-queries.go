@@ -3,6 +3,7 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/studies"
 	"github.com/google/uuid"
@@ -51,4 +52,59 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]studies.Task
 			LessonID: l.LessonID,
 		}
 	}), nil
+}
+
+type relation[K comparable, KR comparable] struct {
+	ID       K
+	ParentID KR
+}
+
+// GetKey returns key
+func (r relation[K, KR]) GetKey() K {
+	return r.ID
+}
+
+// GetRelationID returns the related id
+func (r relation[K, KR]) GetRelationID() KR {
+	return r.ParentID
+}
+
+// GetTaskIDsForLessons retrieves related ids
+func (rq *RoleQueries) GetTaskIDsForLessons(ctx context.Context, ids []uuid.UUID) ([]batchloaders.Relation[uuid.UUID, uuid.UUID], error) {
+	rows, err := rq.queries.getTasksForLessons(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(r getTasksForLessonsRow, _ int) batchloaders.Relation[uuid.UUID, uuid.UUID] {
+		return relation[uuid.UUID, uuid.UUID](r)
+	}), nil
+}
+
+// GetLessonIDsForTopics retrieves related ids
+func (rq *RoleQueries) GetLessonIDsForTopics(ctx context.Context, ids []uuid.UUID) ([]batchloaders.Relation[uuid.UUID, uuid.UUID], error) {
+	rows, err := rq.queries.getLessonsForTopics(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(r getLessonsForTopicsRow, _ int) batchloaders.Relation[uuid.UUID, uuid.UUID] {
+		return relation[uuid.UUID, uuid.UUID](r)
+	}), nil
+}
+
+// GetTaskIDsWithRoles filters the specified IDs with roles
+func (rq *RoleQueries) GetTaskIDsWithRoles(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
+	// TODO: implement filtering
+	return ids, nil
+}
+
+// GetTopicIDsWithRoles filters the specified IDs with roles
+func (rq *RoleQueries) GetTopicIDsWithRoles(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
+	// TODO: implement filtering
+	return ids, nil
+}
+
+// GetLessonIDsWithRoles filters the specified IDs with roles
+func (rq *RoleQueries) GetLessonIDsWithRoles(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
+	// TODO: implement filtering
+	return ids, nil
 }

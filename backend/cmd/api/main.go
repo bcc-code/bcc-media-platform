@@ -86,6 +86,9 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 		}),
 		CollectionItemIDsLoader: collection.NewCollectionItemLoader(db, collectionLoader, roles),
 		CalendarEntryLoader:     batchloaders.New(rq.GetCalendarEntries),
+		StudyTopicFilterLoader:  &batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]{batchloaders.NewFilterLoader(rq.GetTopicIDsWithRoles)},
+		StudyLessonFilterLoader: &batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]{batchloaders.NewFilterLoader(rq.GetLessonIDsWithRoles)},
+		StudyTaskFilterLoader:   &batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]{batchloaders.NewFilterLoader(rq.GetTaskIDsWithRoles)},
 	}
 
 	rolesLoaderCache.Set(key, loaders)

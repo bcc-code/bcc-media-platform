@@ -378,9 +378,9 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)
 }
 
-// Study is the resolver for the study field.
-func (r *queryRootResolver) Study(ctx context.Context, id string) (*model.Study, error) {
-	panic(fmt.Errorf("not implemented: Study - study"))
+// StudyTopic is the resolver for the studyTopic field.
+func (r *queryRootResolver) StudyTopic(ctx context.Context, id string) (*model.StudyTopic, error) {
+	panic(fmt.Errorf("not implemented: StudyTopic - studyTopic"))
 }
 
 // Calendar is the resolver for the calendar field.
@@ -495,3 +495,13 @@ func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootRe
 
 type mutationRootResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *queryRootResolver) Study(ctx context.Context, id string) (*model.Study, error) {
+	panic(fmt.Errorf("not implemented: Study - study"))
+}

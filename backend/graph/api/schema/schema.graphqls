@@ -12,12 +12,7 @@ interface Pagination {
   offset: Int!
 }
 
-
-enum Language{
-  en
-  no
-  de
-}
+scalar Language
 
 scalar Cursor
 scalar Date
@@ -107,7 +102,7 @@ type QueryRoot{
     minScore: Int
   ): SearchResult!
 
-  study(id: ID!): Study!
+  studyTopic(id: ID!): StudyTopic!
 
   calendar: Calendar
   event(id: ID!): Event

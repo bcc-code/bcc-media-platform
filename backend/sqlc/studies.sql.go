@@ -16,7 +16,10 @@ import (
 )
 
 const getLessons = `-- name: getLessons :many
-SELECT l.id, l.topic_id FROM lessons l WHERE l.status = 'published' AND l.id = ANY($1::uuid[])
+SELECT l.id, l.topic_id
+FROM lessons l
+WHERE l.status = 'published'
+  AND l.id = ANY ($1::uuid[])
 `
 
 type getLessonsRow struct {
@@ -47,13 +50,47 @@ func (q *Queries) getLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getLe
 	return items, nil
 }
 
+const getLessonsForTopics = `-- name: getLessonsForTopics :many
+SELECT l.id, l.topic_id AS parent_id
+FROM lessons l
+WHERE l.status = 'published'
+  AND l.topic_id = ANY ($1::uuid[])
+`
+
+type getLessonsForTopicsRow struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getLessonsForTopics(ctx context.Context, dollar_1 []uuid.UUID) ([]getLessonsForTopicsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getLessonsForTopics, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getLessonsForTopicsRow
+	for rows.Next() {
+		var i getLessonsForTopicsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTasks = `-- name: getTasks :many
-SELECT
-    t.id,
-    t.type,
-    t.question_type,
-    t.lesson_id,
-    t.alternatives_multiselect
+SELECT t.id,
+       t.type,
+       t.question_type,
+       t.lesson_id,
+       t.alternatives_multiselect
 FROM tasks t
 WHERE t.status = 'published'
   AND t.id = ANY ($1::uuid[])
@@ -83,6 +120,41 @@ func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getTask
 			&i.LessonID,
 			&i.AlternativesMultiselect,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTasksForLessons = `-- name: getTasksForLessons :many
+SELECT t.id, t.lesson_id AS parent_id
+FROM tasks t
+WHERE t.status = 'published'
+  AND t.lesson_id = ANY ($1::uuid[])
+`
+
+type getTasksForLessonsRow struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getTasksForLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getTasksForLessonsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getTasksForLessons, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getTasksForLessonsRow
+	for rows.Next() {
+		var i getTasksForLessonsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

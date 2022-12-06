@@ -1,12 +1,31 @@
-type Study {
+type StudyTopic {
     id: ID!
     title: String!
-    tasks: [Task!]! @goField(forceResolver: true)
+    lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
+}
+
+type Lesson {
+    id: ID!
+    tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
+}
+
+type LessonPagination implements Pagination {
+    offset: Int!
+    first: Int!
+    total: Int!
+    items: [Lesson!]!
 }
 
 interface Task {
     id: ID!
     title: String!
+}
+
+type TaskPagination implements Pagination {
+    offset: Int!
+    first: Int!
+    total: Int!
+    items: [Task!]!
 }
 
 type AlternativesTask implements Task {

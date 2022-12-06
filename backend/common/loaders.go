@@ -2,6 +2,7 @@ package common
 
 import (
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
+	"github.com/bcc-code/brunstadtv/backend/studies"
 	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
 )
@@ -19,6 +20,9 @@ type BatchLoaders struct {
 	SectionsLoader                     *dataloader.Loader[int, []*int]
 	CollectionLoader                   *dataloader.Loader[int, *Collection]
 	CollectionItemLoader               *dataloader.Loader[int, []*CollectionItem]
+	StudyTopicLoader                   *batchloaders.BatchLoader[uuid.UUID, *studies.Topic]
+	StudyLessonLoader                  *batchloaders.BatchLoader[uuid.UUID, *studies.Lesson]
+	StudyTaskLoader                    *batchloaders.BatchLoader[uuid.UUID, *studies.Task]
 	ShowLoader                         *dataloader.Loader[int, *Show]
 	SeasonLoader                       *dataloader.Loader[int, *Season]
 	EpisodeLoader                      *dataloader.Loader[int, *Episode]
@@ -54,6 +58,11 @@ type FilteredLoaders struct {
 	CollectionItemsLoader   *dataloader.Loader[int, []*CollectionItem]
 	CollectionItemIDsLoader *dataloader.Loader[int, []Identifier]
 	CalendarEntryLoader     *batchloaders.BatchLoader[int, *CalendarEntry]
+	StudyTopicFilterLoader  *batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]
+	StudyLessonsLoader      *batchloaders.BatchLoader[uuid.UUID, []*int]
+	StudyLessonFilterLoader *batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]
+	StudyTasksLoader        *batchloaders.BatchLoader[uuid.UUID, []*int]
+	StudyTaskFilterLoader   *batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]
 }
 
 // ProfileLoaders contains loaders per profile
