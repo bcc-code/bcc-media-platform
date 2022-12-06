@@ -87,6 +87,8 @@ func main() {
 	directusEventHandler := directus.NewEventHandler()
 	crowdinClient := crowdin.New(config.Crowdin, directus.NewHandler(directusClient), queries)
 
+	crowdinClient.RetrieveAllTranslations()
+
 	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.CloudTasks.QueueID)
 
 	pushService, err := push.NewService(ctx, config.Firebase.ProjectID, queries)
@@ -157,4 +159,5 @@ func main() {
 		log.L.Error().Err(err).Msg("Couldn't start server")
 		return
 	}
+
 }

@@ -2,7 +2,7 @@ package crowdin
 
 // Object is the base of all responses in Crowdin
 type Object[T any] struct {
-	Data T
+	Data T `json:"data"`
 }
 
 // Pagination contains simple pagination data

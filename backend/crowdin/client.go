@@ -236,12 +236,11 @@ func (client *Client) getDirectoryForProject(project Project) (d Directory, err 
 	return *directory, nil
 }
 
-func (client *Client) getFileForCollection(project Project, directoryId int, collection string) (file File, err error) {
+func (client *Client) getFileForCollection(project Project, directoryId int, collection string) (file File, found bool, err error) {
 	files, err := client.getFiles(project.ID, directoryId)
 	if err != nil {
 		return
 	}
-	found := false
 	if len(files) > 0 {
 		for _, f := range files {
 			if f.Title == collection {
@@ -290,8 +289,11 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 	if err != nil {
 		return err
 	}
-	file, err := client.getFileForCollection(project, directoryId, collection)
+	file, found, err := client.getFileForCollection(project, directoryId, collection)
 	if err != nil {
+		return err
+	}
+	if !found {
 		log.L.Debug().Msg("Creating file")
 		_, err := client.createFile(project.ID, directoryId, collection, convertTsToStrings(sourceTranslations, collection))
 		if err != nil {
@@ -614,7 +616,7 @@ func (client *Client) SaveTranslations(objects []TranslationSource) error {
 			collection := o.GetCollection()
 			fileId, ok := fileIdByCollection[collection]
 			if !ok {
-				file, err := client.getFileForCollection(project, directory.ID, collection)
+				file, _, err := client.getFileForCollection(project, directory.ID, collection)
 				if err != nil {
 					return err
 				}
