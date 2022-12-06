@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"github.com/99designs/gqlgen/graphql"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
@@ -136,6 +137,29 @@ func (r *posterSectionResolver) Items(ctx context.Context, obj *model.PosterSect
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 }
 
+// Image is the resolver for the image field.
+func (r *sectionItemResolver) Image(ctx context.Context, obj *model.SectionItem) (*string, error) {
+	fieldCtx := graphql.GetFieldContext(ctx)
+	style := model.ImageStyleDefault
+	if fieldCtx.Parent != nil && fieldCtx.Parent.Parent != nil && fieldCtx.Parent.Parent.Parent != nil {
+		switch fieldCtx.Parent.Parent.Parent.Object {
+		case "IconSection", "IconGridSection":
+			style = "icon"
+		case "PosterSection", "PosterGridSection":
+			style = model.ImageStylePoster
+		case "FeaturedSection":
+			style = model.ImageStyleFeatured
+		}
+	}
+	switch t := obj.Item.(type) {
+	case *model.Episode:
+		return r.Episode().Image(ctx, t, &style)
+	case *model.Season:
+		return r.Season().Image(ctx, t, &style)
+	}
+	return obj.Image, nil
+}
+
 // Collection returns generated.CollectionResolver implementation.
 func (r *Resolver) Collection() generated.CollectionResolver { return &collectionResolver{r} }
 
@@ -189,6 +213,9 @@ func (r *Resolver) PosterGridSection() generated.PosterGridSectionResolver {
 // PosterSection returns generated.PosterSectionResolver implementation.
 func (r *Resolver) PosterSection() generated.PosterSectionResolver { return &posterSectionResolver{r} }
 
+// SectionItem returns generated.SectionItemResolver implementation.
+func (r *Resolver) SectionItem() generated.SectionItemResolver { return &sectionItemResolver{r} }
+
 type collectionResolver struct{ *Resolver }
 type contextCollectionResolver struct{ *Resolver }
 type defaultGridSectionResolver struct{ *Resolver }
@@ -202,3 +229,4 @@ type messageSectionResolver struct{ *Resolver }
 type pageResolver struct{ *Resolver }
 type posterGridSectionResolver struct{ *Resolver }
 type posterSectionResolver struct{ *Resolver }
+type sectionItemResolver struct{ *Resolver }

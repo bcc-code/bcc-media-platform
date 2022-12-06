@@ -64,6 +64,7 @@ type ResolverRoot interface {
 	Season() SeasonResolver
 	SeasonCalendarEntry() SeasonCalendarEntryResolver
 	SeasonSearchItem() SeasonSearchItemResolver
+	SectionItem() SectionItemResolver
 	Show() ShowResolver
 	ShowCalendarEntry() ShowCalendarEntryResolver
 	SimpleCalendarEntry() SimpleCalendarEntryResolver
@@ -752,6 +753,9 @@ type SeasonCalendarEntryResolver interface {
 }
 type SeasonSearchItemResolver interface {
 	Show(ctx context.Context, obj *model.SeasonSearchItem) (*model.Show, error)
+}
+type SectionItemResolver interface {
+	Image(ctx context.Context, obj *model.SectionItem) (*string, error)
 }
 type ShowResolver interface {
 	Image(ctx context.Context, obj *model.Show, style *model.ImageStyle) (*string, error)
@@ -4022,7 +4026,7 @@ type SectionItem {
     sort: Int!
     title: String!
     description: String!
-    image: String
+    image: String @goField(forceResolver: true)
     item: SectionItemType!
 }
 
@@ -18783,7 +18787,7 @@ func (ec *executionContext) _SectionItem_image(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Image, nil
+		return ec.resolvers.SectionItem().Image(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18801,8 +18805,8 @@ func (ec *executionContext) fieldContext_SectionItem_image(ctx context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "SectionItem",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -28168,39 +28172,52 @@ func (ec *executionContext) _SectionItem(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._SectionItem_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "sort":
 
 			out.Values[i] = ec._SectionItem_sort(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 
 			out.Values[i] = ec._SectionItem_title(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "description":
 
 			out.Values[i] = ec._SectionItem_description(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "image":
+			field := field
 
-			out.Values[i] = ec._SectionItem_image(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SectionItem_image(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "item":
 
 			out.Values[i] = ec._SectionItem_item(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
