@@ -156,6 +156,8 @@ func (r *sectionItemResolver) Image(ctx context.Context, obj *model.SectionItem)
 		return r.Episode().Image(ctx, t, &style)
 	case *model.Season:
 		return r.Season().Image(ctx, t, &style)
+	case *model.Show:
+		return r.Show().Image(ctx, t, &style)
 	}
 	return obj.Image, nil
 }
