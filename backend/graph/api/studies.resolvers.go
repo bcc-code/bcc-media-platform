@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
@@ -14,6 +13,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
+
+// Completed is the resolver for the completed field.
+func (r *alternativesTaskResolver) Completed(ctx context.Context, obj *model.AlternativesTask) (bool, error) {
+	id, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return false, err
+	}
+	return id != nil, nil
+}
 
 // Alternatives is the resolver for the alternatives field.
 func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.AlternativesTask) ([]*model.Alternative, error) {
@@ -121,6 +129,15 @@ func (r *studyTopicResolver) Progress(ctx context.Context, obj *model.StudyTopic
 	}, nil
 }
 
+// Completed is the resolver for the completed field.
+func (r *textTaskResolver) Completed(ctx context.Context, obj *model.TextTask) (bool, error) {
+	id, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return false, err
+	}
+	return id != nil, nil
+}
+
 // AlternativesTask returns generated.AlternativesTaskResolver implementation.
 func (r *Resolver) AlternativesTask() generated.AlternativesTaskResolver {
 	return &alternativesTaskResolver{r}
@@ -132,6 +149,10 @@ func (r *Resolver) Lesson() generated.LessonResolver { return &lessonResolver{r}
 // StudyTopic returns generated.StudyTopicResolver implementation.
 func (r *Resolver) StudyTopic() generated.StudyTopicResolver { return &studyTopicResolver{r} }
 
+// TextTask returns generated.TextTaskResolver implementation.
+func (r *Resolver) TextTask() generated.TextTaskResolver { return &textTaskResolver{r} }
+
 type alternativesTaskResolver struct{ *Resolver }
 type lessonResolver struct{ *Resolver }
 type studyTopicResolver struct{ *Resolver }
+type textTaskResolver struct{ *Resolver }

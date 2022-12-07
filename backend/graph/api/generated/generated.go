@@ -70,6 +70,7 @@ type ResolverRoot interface {
 	ShowCalendarEntry() ShowCalendarEntryResolver
 	SimpleCalendarEntry() SimpleCalendarEntryResolver
 	StudyTopic() StudyTopicResolver
+	TextTask() TextTaskResolver
 }
 
 type DirectiveRoot struct {
@@ -680,6 +681,7 @@ type ComplexityRoot struct {
 }
 
 type AlternativesTaskResolver interface {
+	Completed(ctx context.Context, obj *model.AlternativesTask) (bool, error)
 	Alternatives(ctx context.Context, obj *model.AlternativesTask) ([]*model.Alternative, error)
 }
 type AnalyticsResolver interface {
@@ -845,6 +847,9 @@ type SimpleCalendarEntryResolver interface {
 type StudyTopicResolver interface {
 	Lessons(ctx context.Context, obj *model.StudyTopic, first *int, offset *int) (*model.LessonPagination, error)
 	Progress(ctx context.Context, obj *model.StudyTopic) (*model.TasksProgress, error)
+}
+type TextTaskResolver interface {
+	Completed(ctx context.Context, obj *model.TextTask) (bool, error)
 }
 
 type executableSchema struct {
@@ -4600,7 +4605,7 @@ type LessonPagination implements Pagination {
 interface Task {
     id: ID!
     title: String!
-    completed: Boolean! @goField(forceResolver: true)
+    completed: Boolean!
 }
 
 type TasksProgress {
@@ -4618,7 +4623,7 @@ type TaskPagination implements Pagination {
 type AlternativesTask implements Task {
     id: ID!
     title: String!
-    completed: Boolean!
+    completed: Boolean! @goField(forceResolver: true)
     alternatives: [Alternative!]! @goField(forceResolver: true)
 }
 
@@ -4632,7 +4637,7 @@ type Alternative {
 type TextTask implements Task {
     id: ID!
     title: String!
-    completed: Boolean!
+    completed: Boolean! @goField(forceResolver: true)
 }
 
 scalar TaskAnswer
@@ -6007,7 +6012,7 @@ func (ec *executionContext) _AlternativesTask_completed(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Completed, nil
+		return ec.resolvers.AlternativesTask().Completed(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6028,8 +6033,8 @@ func (ec *executionContext) fieldContext_AlternativesTask_completed(ctx context.
 	fc = &graphql.FieldContext{
 		Object:     "AlternativesTask",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
 		},
@@ -23503,7 +23508,7 @@ func (ec *executionContext) _TextTask_completed(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Completed, nil
+		return ec.resolvers.TextTask().Completed(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23524,8 +23529,8 @@ func (ec *executionContext) fieldContext_TextTask_completed(ctx context.Context,
 	fc = &graphql.FieldContext{
 		Object:     "TextTask",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
 		},
@@ -26626,12 +26631,25 @@ func (ec *executionContext) _AlternativesTask(ctx context.Context, sel ast.Selec
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "completed":
+			field := field
 
-			out.Values[i] = ec._AlternativesTask_completed(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AlternativesTask_completed(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "alternatives":
 			field := field
 
@@ -31482,22 +31500,35 @@ func (ec *executionContext) _TextTask(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = ec._TextTask_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 
 			out.Values[i] = ec._TextTask_title(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "completed":
+			field := field
 
-			out.Values[i] = ec._TextTask_completed(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TextTask_completed(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
