@@ -1,51 +1,3 @@
-<script lang="ts" setup>
-import { VButton } from "@/components";
-import { useSetSupportEmailMutation } from "@/graph/generated"
-import {
-    Dialog,
-    DialogPanel,
-    DialogTitle,
-    DialogDescription,
-    TransitionChild,
-    TransitionRoot,
-} from "@headlessui/vue"
-import { ref } from "vue"
-
-const { fetching, executeMutation } = useSetSupportEmailMutation()
-
-defineProps<{ show: boolean }>()
-
-const emit = defineEmits<{
-    (e: "closeDialog"): void
-}>()
-
-const title = ref("")
-const content = ref("")
-
-const submit = async (e: MouseEvent) => {
-    e.preventDefault()
-    const isValid = triggerValidation()
-    if (!isValid) {
-        return
-    }
-    await executeMutation({
-        title: title.value,
-        content: content.value,
-        html: "<div><h1>" + title + "</h1><p>" + content + "</p></div>",
-    })
-    closePanel()
-}
-
-const triggerValidation = () => title.value && content.value
-
-const closePanel = () => {
-    title.value = ""
-    content.value = ""
-    emit("closeDialog")
-}
-
-</script>
-
 <template>
     <TransitionRoot
         as="template"
@@ -140,3 +92,48 @@ const closePanel = () => {
         </Dialog>
     </TransitionRoot>
 </template>
+<script lang="ts" setup>
+import { VButton } from "@/components";
+import { useSetSupportEmailMutation } from "@/graph/generated"
+import {
+    Dialog,
+    DialogPanel,
+    DialogTitle,
+    DialogDescription,
+    TransitionChild,
+    TransitionRoot,
+} from "@headlessui/vue"
+import { ref } from "vue"
+
+const { fetching, executeMutation } = useSetSupportEmailMutation()
+
+defineProps<{ show: boolean }>()
+
+const emit = defineEmits<{
+    (e: "update:show", v: boolean): void
+}>()
+
+const title = ref("")
+const content = ref("")
+
+const submit = async (e: MouseEvent) => {
+    const isValid = validateForm()
+    if (!isValid) {
+        return
+    }
+    await executeMutation({
+        title: title.value,
+        content: content.value,
+        html: "<div><h1>" + title + "</h1><p>" + content + "</p></div>",
+    })
+    closePanel()
+}
+
+const validateForm = () => title.value && content.value
+
+const closePanel = () => {
+    title.value = ""
+    content.value = ""
+    emit("update:show", false)
+}
+</script>

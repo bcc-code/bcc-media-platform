@@ -149,7 +149,7 @@
                                                 </p>
                                             </button>
                                         </MenuItem>
-                                        <MenuItem v-slot="{ active }">
+                                        <!-- <MenuItem v-slot="{ active }">
                                             <button
                                                 :class="[
                                                     active
@@ -162,13 +162,14 @@
                                                     class="h-6"
                                                 ></SettingsIcon>
                                                 <p class="ml-2 text-base">
-                                                    Settings
+                                                    {{$t("settings")}}
                                                 </p>
                                             </button>
-                                        </MenuItem>
+                                        </MenuItem> -->
                                         <MenuItem
                                             v-slot="{ active }"
-                                            @click="contactToggle"
+                                            @click="(showContactForm = true)"
+                                            v-if="authenticated"
                                         >
                                             <button
                                                 :class="[
@@ -178,9 +179,9 @@
                                                     'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
                                                 ]"
                                             >
-                                                <SettingsIcon
+                                                <QuestionIcon
                                                     class="h-6"
-                                                ></SettingsIcon>
+                                                ></QuestionIcon>
                                                 <p class="ml-2 text-base">
                                                     {{$t("support.contact")}}
                                                 </p>
@@ -321,7 +322,7 @@
                                                 </p>
                                             </button>
                                         </MenuItem>
-                                        <MenuItem v-slot="{ active }">
+                                        <!-- <MenuItem v-slot="{ active }">
                                             <button
                                                 :class="[
                                                     active
@@ -337,10 +338,11 @@
                                                     Settings
                                                 </p>
                                             </button>
-                                        </MenuItem>
+                                        </MenuItem> -->
                                         <MenuItem
                                             v-slot="{ active }"
-                                            @click="contactToggle"
+                                            v-if="authenticated"
+                                            @click="(showContactForm = true)"
                                         >
                                             <button
                                                 :class="[
@@ -350,9 +352,9 @@
                                                     'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
                                                 ]"
                                             >
-                                                <SettingsIcon
+                                                <QuestionIcon
                                                     class="h-6"
-                                                ></SettingsIcon>
+                                                ></QuestionIcon>
                                                 <p class="ml-2 text-base">
                                                     {{$t("support.contact")}}
                                                 </p>
@@ -379,7 +381,7 @@
                 </div>
             </div>
         </div>
-        <ContactForm :show="isContactFormActive" @close-dialog="contactToggle" />
+        <ContactForm v-model:show="showContactForm" />
     </Disclosure>
 </template>
 <script lang="ts" setup>
@@ -399,6 +401,7 @@ import {
     HomeIcon,
     LiveIcon,
     ProfileIcon,
+    QuestionIcon,
     SearchIcon,
     SettingsIcon,
 } from "../icons"
@@ -406,7 +409,7 @@ import { computed, onMounted, ref } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
 import { useGetCalendarStatusQuery } from "@/graph/generated"
-import ContactForm from "@/pages/setting/ContactForm.vue"
+import ContactForm from "@/components/support/ContactForm.vue"
 
 const loading = ref(true)
 
@@ -418,7 +421,7 @@ onMounted(() => {
     setTimeout(() => (loading.value = false), 100)
 })
 
-const isContactFormActive = ref(false)
+const showContactForm = ref(false)
 
 const navigation = computed(() => {
     const n: {
@@ -476,7 +479,4 @@ const isLive = computed(() => {
         ) === true
     )
 })
-
-const contactToggle = () =>
-    (isContactFormActive.value = !isContactFormActive.value)
 </script>
