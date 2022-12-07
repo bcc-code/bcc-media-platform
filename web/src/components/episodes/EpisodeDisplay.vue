@@ -157,9 +157,7 @@ const emit = defineEmits<{
 }>()
 
 const episode = ref(null as GetEpisodeQuery["episode"] | null)
-const season = ref(
-    null as GetSeasonOnEpisodePageQuery["season"] | null
-)
+const season = ref(null as GetSeasonOnEpisodePageQuery["season"] | null)
 
 const seasonId = ref("")
 const loading = ref(true)
@@ -170,11 +168,13 @@ const episodeId = ref(props.initialEpisodeId)
 
 const setEpisode = (id: string) => {
     episodeId.value = id
-    nextTick().then(load).then(() => {
-        if (episode.value) {
-            emit("episode", episode.value)
-        }
-    })
+    nextTick()
+        .then(load)
+        .then(() => {
+            if (episode.value) {
+                emit("episode", episode.value)
+            }
+        })
 }
 
 const { error, executeQuery } = useGetEpisodeQuery({

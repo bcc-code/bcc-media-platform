@@ -11,7 +11,7 @@
         <div class="grid lg:grid-cols-4 gap-4">
             <div
                 class="flex lg:hidden"
-                v-for="i, index in data?.search.result"
+                v-for="(i, index) in data?.search.result"
                 :key="i.id"
             >
                 <div
@@ -49,7 +49,7 @@
             </div>
             <div
                 class="lg:flex hidden mb-4"
-                v-for="i, index in data?.search.result"
+                v-for="(i, index) in data?.search.result"
                 :key="i.id"
             >
                 <div
@@ -97,7 +97,13 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-    (e: "itemClick", index: number, episode: SearchQuery["search"]["result"][0] & {__typename: "EpisodeSearchItem"}): void
+    (
+        e: "itemClick",
+        index: number,
+        episode: SearchQuery["search"]["result"][0] & {
+            __typename: "EpisodeSearchItem"
+        }
+    ): void
 }>()
 
 const queryString = ref(props.query)

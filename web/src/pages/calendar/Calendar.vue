@@ -145,7 +145,7 @@ const setDay = (day: Date) => {
     analytics.track("calendarday_clicked", {
         calendarView: "month",
         calendarDate: day.toISOString(),
-        pageCode: "calendar"
+        pageCode: "calendar",
     })
 }
 
