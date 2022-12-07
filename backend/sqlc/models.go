@@ -1177,3 +1177,10 @@ type UsersProgress struct {
 	WatchedAt null_v4.Time          `db:"watched_at" json:"watchedAt"`
 	Context   pqtype.NullRawMessage `db:"context" json:"context"`
 }
+
+type UsersTaskanswer struct {
+	ProfileID uuid.UUID      `db:"profile_id" json:"profileID"`
+	TaskID    uuid.UUID      `db:"task_id" json:"taskID"`
+	Answer    null_v4.String `db:"answer" json:"answer"`
+	UpdatedAt null_v4.Time   `db:"updated_at" json:"updatedAt"`
+}

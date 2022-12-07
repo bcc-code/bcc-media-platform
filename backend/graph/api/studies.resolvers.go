@@ -5,6 +5,8 @@ package graph
 
 import (
 	"context"
+	"fmt"
+
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
@@ -51,6 +53,11 @@ func (r *lessonResolver) Tasks(ctx context.Context, obj *model.Lesson, first *in
 	}, nil
 }
 
+// Progress is the resolver for the progress field.
+func (r *lessonResolver) Progress(ctx context.Context, obj *model.Lesson) (*model.LessonProgress, error) {
+	panic(fmt.Errorf("not implemented: Progress - progress"))
+}
+
 // Lessons is the resolver for the lessons field.
 func (r *studyTopicResolver) Lessons(ctx context.Context, obj *model.StudyTopic, first *int, offset *int) (*model.LessonPagination, error) {
 	ids, err := r.FilteredLoaders(ctx).StudyLessonsLoader.Get(ctx, utils.AsUuid(obj.ID))
@@ -70,6 +77,11 @@ func (r *studyTopicResolver) Lessons(ctx context.Context, obj *model.StudyTopic,
 		Offset: page.Offset,
 		Items:  utils.MapWithCtx(ctx, lessons, model.LessonFrom),
 	}, nil
+}
+
+// Progress is the resolver for the progress field.
+func (r *studyTopicResolver) Progress(ctx context.Context, obj *model.StudyTopic) (*model.StudyTopicProgress, error) {
+	panic(fmt.Errorf("not implemented: Progress - progress"))
 }
 
 // AlternativesTask returns generated.AlternativesTaskResolver implementation.

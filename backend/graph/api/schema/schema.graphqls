@@ -124,4 +124,6 @@ type MutationRoot {
   setEpisodeProgress(id: ID!, progress: Int, duration: Int, context: EpisodeContext): Episode!
 
   sendSupportEmail(title: String!, content: String!, html: String!): Boolean!
+
+  completeTask(id: ID!, answer: TaskAnswer): Task!
 }

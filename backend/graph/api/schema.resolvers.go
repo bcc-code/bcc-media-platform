@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -167,6 +168,11 @@ func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title strin
 		return false, err
 	}
 	return true, nil
+}
+
+// CompleteTask is the resolver for the completeTask field.
+func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, answer *string) (model.Task, error) {
+	panic(fmt.Errorf("not implemented: CompleteTask - completeTask"))
 }
 
 // Application is the resolver for the application field.

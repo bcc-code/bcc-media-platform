@@ -85,22 +85,26 @@ type Task interface {
 	IsTask()
 	GetID() string
 	GetTitle() string
+	GetCompleted() bool
 }
 
 type Alternative struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
+	ID        string `json:"id"`
+	Title     string `json:"title"`
+	Completed bool   `json:"completed"`
 }
 
 type AlternativesTask struct {
 	ID           string         `json:"id"`
 	Title        string         `json:"title"`
+	Completed    bool           `json:"completed"`
 	Alternatives []*Alternative `json:"alternatives"`
 }
 
-func (AlternativesTask) IsTask()               {}
-func (this AlternativesTask) GetID() string    { return this.ID }
-func (this AlternativesTask) GetTitle() string { return this.Title }
+func (AlternativesTask) IsTask()                 {}
+func (this AlternativesTask) GetID() string      { return this.ID }
+func (this AlternativesTask) GetTitle() string   { return this.Title }
+func (this AlternativesTask) GetCompleted() bool { return this.Completed }
 
 type Analytics struct {
 	AnonymousID string `json:"anonymousId"`
@@ -482,9 +486,10 @@ type LegacyIDLookupOptions struct {
 }
 
 type Lesson struct {
-	ID    string          `json:"id"`
-	Title string          `json:"title"`
-	Tasks *TaskPagination `json:"tasks"`
+	ID       string          `json:"id"`
+	Title    string          `json:"title"`
+	Tasks    *TaskPagination `json:"tasks"`
+	Progress *LessonProgress `json:"progress"`
 }
 
 type LessonPagination struct {
@@ -498,6 +503,11 @@ func (LessonPagination) IsPagination()       {}
 func (this LessonPagination) GetTotal() int  { return this.Total }
 func (this LessonPagination) GetFirst() int  { return this.First }
 func (this LessonPagination) GetOffset() int { return this.Offset }
+
+type LessonProgress struct {
+	Total     int `json:"total"`
+	Completed int `json:"completed"`
+}
 
 type Link struct {
 	ID  string `json:"id"`
@@ -910,9 +920,15 @@ type Stream struct {
 }
 
 type StudyTopic struct {
-	ID      string            `json:"id"`
-	Title   string            `json:"title"`
-	Lessons *LessonPagination `json:"lessons"`
+	ID       string              `json:"id"`
+	Title    string              `json:"title"`
+	Lessons  *LessonPagination   `json:"lessons"`
+	Progress *StudyTopicProgress `json:"progress"`
+}
+
+type StudyTopicProgress struct {
+	Total     int `json:"total"`
+	Completed int `json:"completed"`
 }
 
 type TaskPagination struct {
@@ -928,13 +944,15 @@ func (this TaskPagination) GetFirst() int  { return this.First }
 func (this TaskPagination) GetOffset() int { return this.Offset }
 
 type TextTask struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
+	ID        string `json:"id"`
+	Title     string `json:"title"`
+	Completed bool   `json:"completed"`
 }
 
-func (TextTask) IsTask()               {}
-func (this TextTask) GetID() string    { return this.ID }
-func (this TextTask) GetTitle() string { return this.Title }
+func (TextTask) IsTask()                 {}
+func (this TextTask) GetID() string      { return this.ID }
+func (this TextTask) GetTitle() string   { return this.Title }
+func (this TextTask) GetCompleted() bool { return this.Completed }
 
 type User struct {
 	ID        *string    `json:"id"`

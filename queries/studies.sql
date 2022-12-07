@@ -71,3 +71,13 @@ SELECT t.id, t.lesson_id AS parent_id
 FROM tasks t
 WHERE t.status = 'published'
   AND t.lesson_id = ANY ($1::uuid[]);
+
+-- name: getTaskAnswers :many
+SELECT ta.task_id, ta.answer, ta.updated_at
+FROM "users"."taskanswers" ta
+WHERE ta.profile_id = $1
+  AND ta.task_id = ANY ($2::uuid[]);
+
+-- name: SetTaskAnswer :exec
+INSERT INTO "users"."taskanswers" (profile_id, task_id, answer, updated_at)
+VALUES ($1, $2, $3, $4);

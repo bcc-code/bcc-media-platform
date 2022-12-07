@@ -15,6 +15,28 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const setTaskAnswer = `-- name: SetTaskAnswer :exec
+INSERT INTO "users"."taskanswers" (profile_id, task_id, answer, updated_at)
+VALUES ($1, $2, $3, $4)
+`
+
+type SetTaskAnswerParams struct {
+	ProfileID uuid.UUID      `db:"profile_id" json:"profileID"`
+	TaskID    uuid.UUID      `db:"task_id" json:"taskID"`
+	Answer    null_v4.String `db:"answer" json:"answer"`
+	UpdatedAt null_v4.Time   `db:"updated_at" json:"updatedAt"`
+}
+
+func (q *Queries) SetTaskAnswer(ctx context.Context, arg SetTaskAnswerParams) error {
+	_, err := q.db.ExecContext(ctx, setTaskAnswer,
+		arg.ProfileID,
+		arg.TaskID,
+		arg.Answer,
+		arg.UpdatedAt,
+	)
+	return err
+}
+
 const getLessons = `-- name: getLessons :many
 WITH ts AS (SELECT lessons_id,
                    json_object_agg(languages_code, title) as title
@@ -132,6 +154,47 @@ func (q *Queries) getQuestionAlternatives(ctx context.Context, dollar_1 []uuid.U
 			&i.TaskID,
 			&i.Title,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTaskAnswers = `-- name: getTaskAnswers :many
+SELECT ta.task_id, ta.answer, ta.updated_at
+FROM "users"."taskanswers" ta
+WHERE ta.profile_id = $1
+  AND ta.task_id = ANY ($2::uuid[])
+`
+
+type getTaskAnswersParams struct {
+	ProfileID uuid.UUID   `db:"profile_id" json:"profileID"`
+	Column2   []uuid.UUID `db:"column_2" json:"column2"`
+}
+
+type getTaskAnswersRow struct {
+	TaskID    uuid.UUID      `db:"task_id" json:"taskID"`
+	Answer    null_v4.String `db:"answer" json:"answer"`
+	UpdatedAt null_v4.Time   `db:"updated_at" json:"updatedAt"`
+}
+
+func (q *Queries) getTaskAnswers(ctx context.Context, arg getTaskAnswersParams) ([]getTaskAnswersRow, error) {
+	rows, err := q.db.QueryContext(ctx, getTaskAnswers, arg.ProfileID, pq.Array(arg.Column2))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getTaskAnswersRow
+	for rows.Next() {
+		var i getTaskAnswersRow
+		if err := rows.Scan(&i.TaskID, &i.Answer, &i.UpdatedAt); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
