@@ -925,6 +925,15 @@ export type GetAnalyticsIdQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetAnalyticsIdQuery = { me: { analytics: { anonymousId: string } } };
 
+export type SendSupportEmailMutationVariables = Exact<{
+  title: Scalars['String'];
+  content: Scalars['String'];
+  html: Scalars['String'];
+}>;
+
+
+export type SendSupportEmailMutation = { sendSupportEmail: boolean };
+
 export type SimpleEpisodeFragment = { id: string, title: string, image?: string | null, publishDate: any, duration: number };
 
 
@@ -1055,15 +1064,6 @@ export type GetCalendarPeriodQueryVariables = Exact<{
 
 
 export type GetCalendarPeriodQuery = { calendar?: { period: { activeDays: Array<any>, events: Array<{ id: string, start: string, end: string, title: string }> } } | null };
-
-export type SetSupportEmailMutationVariables = Exact<{
-  title: Scalars['String'];
-  content: Scalars['String'];
-  html: Scalars['String'];
-}>;
-
-
-export type SetSupportEmailMutation = { sendSupportEmail: boolean };
 
 export const SimpleEpisodeFragmentDoc = gql`
     fragment SimpleEpisode on Episode {
@@ -1253,6 +1253,15 @@ export const GetAnalyticsIdDocument = gql`
 
 export function useGetAnalyticsIdQuery(options: Omit<Urql.UseQueryArgs<never, GetAnalyticsIdQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetAnalyticsIdQuery>({ query: GetAnalyticsIdDocument, ...options });
+};
+export const SendSupportEmailDocument = gql`
+    mutation sendSupportEmail($title: String!, $content: String!, $html: String!) {
+  sendSupportEmail(title: $title, content: $content, html: $html)
+}
+    `;
+
+export function useSendSupportEmailMutation() {
+  return Urql.useMutation<SendSupportEmailMutation, SendSupportEmailMutationVariables>(SendSupportEmailDocument);
 };
 export const GetSeasonOnEpisodePageDocument = gql`
     query getSeasonOnEpisodePage($seasonId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {
@@ -1548,13 +1557,4 @@ export const GetCalendarPeriodDocument = gql`
 
 export function useGetCalendarPeriodQuery(options: Omit<Urql.UseQueryArgs<never, GetCalendarPeriodQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetCalendarPeriodQuery>({ query: GetCalendarPeriodDocument, ...options });
-};
-export const SetSupportEmailDocument = gql`
-    mutation setSupportEmail($title: String!, $content: String!, $html: String!) {
-  sendSupportEmail(title: $title, content: $content, html: $html)
-}
-    `;
-
-export function useSetSupportEmailMutation() {
-  return Urql.useMutation<SetSupportEmailMutation, SetSupportEmailMutationVariables>(SetSupportEmailDocument);
 };

@@ -103,7 +103,7 @@
 </template>
 <script lang="ts" setup>
 import { VButton } from "@/components";
-import { useSetSupportEmailMutation } from "@/graph/generated"
+import { useSendSupportEmailMutation } from "@/graph/generated"
 import { getRevision } from "@/services/revision";
 import {
     Dialog,
@@ -115,7 +115,7 @@ import {
 } from "@headlessui/vue"
 import { ref } from "vue"
 
-const { fetching, executeMutation } = useSetSupportEmailMutation()
+const { fetching, executeMutation } = useSendSupportEmailMutation()
 
 defineProps<{ show: boolean }>()
 
