@@ -182,7 +182,7 @@
                                                     class="h-6"
                                                 ></SettingsIcon>
                                                 <p class="ml-2 text-base">
-                                                    Contact Support
+                                                    {{$t("support.contact")}}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -354,7 +354,7 @@
                                                     class="h-6"
                                                 ></SettingsIcon>
                                                 <p class="ml-2 text-base">
-                                                    Contact Support
+                                                    {{$t("support.contact")}}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -379,8 +379,8 @@
                 </div>
             </div>
         </div>
+        <ContactForm :show="isContactFormActive" @close-dialog="contactToggle" />
     </Disclosure>
-    <ContactForm :show="isContactFormActive" @close-dialog="contactToggle" />
 </template>
 <script lang="ts" setup>
 import { RouteLocationRaw } from "vue-router"

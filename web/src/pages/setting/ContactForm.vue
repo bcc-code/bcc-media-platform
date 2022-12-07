@@ -121,17 +121,16 @@ const closePanel = () => {
                                 </div>
                             </section>
                             <div class="flex gap-2 ml-auto">
-
                                 <VButton color="secondary" @click="closePanel">
                                     {{$t("buttons.cancel")}}
                                 </VButton>
                                 <VButton
-                                    v-if="!fetching"
+                                    :disabled="fetching"
                                     type="submit"
                                     color="green"
                                     @click="submit"
                                 >
-                                    Submit
+                                    {{$t("buttons.submit")}}
                                 </VButton>
                             </div>
                         </DialogDescription>
