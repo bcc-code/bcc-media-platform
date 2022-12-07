@@ -15,6 +15,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/signing"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/google/uuid"
@@ -51,13 +53,20 @@ import (
 //   - NOTE: Changing column types is a major change, because of static langs
 //
 // * Major change: Everything else
-const SQLiteExportDBVersion = "v0.0.1-beta"
+const SQLiteExportDBVersion = "v0.0.2"
+
+type CDNConfig interface {
+	GetLegacyVODDomain() string
+	GetVOD2Domain() string
+}
 
 type serviceProvider interface {
 	GetQueries() *sqlc.Queries
 	GetLoaders() *common.BatchLoaders
 	GetFilteredLoaders(ctx context.Context) *common.FilteredLoaders
 	GetS3Client() *s3.Client
+	GetURLSigner() *signing.Signer
+	GetCDNConfig() CDNConfig
 }
 
 // Embed the migrations into the binary
@@ -205,7 +214,45 @@ func exportEpisodes(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 			log.L.Debug().Err(err).Msg("Err while inserting season")
 		}
 	}
-	return seasonIDs, err
+	return episodeIDs, err
+}
+
+func exportStreams(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, episodeIDs []int) error {
+	l := q.GetLoaders().StreamsLoader
+	streams, err := batchloaders.GetMany(ctx, l, episodeIDs)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	streamsFlat := lo.Flatten(streams)
+
+	for _, s := range streamsFlat {
+		if s == nil {
+			continue
+		}
+
+		ss, err := model.StreamFrom(ctx, q.GetURLSigner(), q.GetCDNConfig(), s)
+		if err != nil {
+			log.L.Debug().Err(err).Msg("Err while singing stream url")
+		}
+
+		audios, _ := json.Marshal(s.AudioLanguages)
+		subs, _ := json.Marshal(s.SubtitleLanguages)
+		err = liteQueries.InsertStream(ctx, sqlexport.InsertStreamParams{
+			ID:                int64(s.ID),
+			EpisodeID:         int64(s.EpisodeID),
+			AudioLanguages:    string(audios),
+			SubtitleLanguages: string(subs),
+			Type:              s.Type,
+			Url:               ss.URL,
+		})
+
+		if err != nil {
+			log.L.Debug().Err(err).Msg("Err while inserting stream")
+		}
+	}
+
+	return nil
 }
 
 func exportCurrentApplication(ctx *gin.Context, liteQueries *sqlexport.Queries) error {
@@ -249,7 +296,10 @@ func exportSections(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 	for _, s := range sections {
 
 		allowedPageIDs[s.PageID] = nil
-		neededCollectionIDs[int(s.CollectionID.ValueOrZero())] = nil
+
+		if s.CollectionID.Valid {
+			neededCollectionIDs[int(s.CollectionID.ValueOrZero())] = nil
+		}
 
 		err := liteQueries.InsertSection(ctx, sqlexport.InsertSectionParams{
 			ID:           int64(s.ID),
@@ -308,6 +358,9 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 	}
 
 	for _, c := range collections {
+		if c == nil {
+			continue
+		}
 		entries, err := collection.GetCollectionEntries(ctx, q.GetLoaders(), filteredLoaders, c.ID)
 		if err != nil {
 			return merry.Wrap(err)
@@ -365,7 +418,12 @@ func DoExport(ctx context.Context, q serviceProvider, bucketName string) (string
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
-	_, err = exportEpisodes(ctx, q, liteQueries, seasonIDs)
+	episodeIDs, err := exportEpisodes(ctx, q, liteQueries, seasonIDs)
+	if err != nil {
+		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	}
+
+	err = exportStreams(ctx, q, liteQueries, episodeIDs)
 	if err != nil {
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}

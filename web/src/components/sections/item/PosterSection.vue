@@ -12,12 +12,12 @@
                 @click="$emit('clickItem', index)"
             >
                 <div
-                    class="relative w-full aspect-[9/16] mb-1 rounded-md overflow-hidden"
+                    class="relative w-full aspect-[240/357] mb-1 rounded-md overflow-hidden"
                 >
                     <Image
                         :src="i.image"
                         size-source="height"
-                        :ratio="9 / 16"
+                        :ratio="240 / 357"
                     />
                     <ProgressBar
                         class="absolute bottom-0 w-full"

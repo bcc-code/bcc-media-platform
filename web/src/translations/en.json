@@ -56,6 +56,7 @@
     "search": {
         "programs": "Programs",
         "episodes": "Episodes",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "emptyQuery": "Search query is empty."
     }
 }

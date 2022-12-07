@@ -11,10 +11,10 @@ queue:
   name: DEV Deploy Queue
   scope: project
 blocks:
-  - name: Deploy
+  - name: Backend
     task:
       jobs:
-        - name: build
+        - name: deploy
           commands:
             - checkout
             - ./scripts/deploy.sh dev

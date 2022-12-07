@@ -44,7 +44,21 @@ func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *
 	if err != nil {
 		return nil, err
 	}
-	return imageOrFallback(ctx, e.Images, e.Image, style), nil
+	var fallbacks []common.Images
+	if obj.Season != nil {
+		s, err := batchloaders.GetByID(ctx, r.Loaders.SeasonLoader, utils.AsInt(obj.Season.ID))
+		if err != nil {
+			return nil, err
+		}
+		fallbacks = append(fallbacks, s.Images)
+		sh, err := batchloaders.GetByID(ctx, r.Loaders.ShowLoader, s.ShowID)
+		if err != nil {
+			return nil, err
+		}
+		fallbacks = append(fallbacks, sh.Images)
+	}
+
+	return imageOrFallback(ctx, e.Images, style, fallbacks...), nil
 }
 
 // Streams is the resolver for the streams field.
@@ -205,7 +219,12 @@ func (r *seasonResolver) Image(ctx context.Context, obj *model.Season, style *mo
 	if err != nil {
 		return nil, err
 	}
-	return imageOrFallback(ctx, e.Images, e.Image, style), nil
+	sh, err := batchloaders.GetByID(ctx, r.Loaders.ShowLoader, e.ShowID)
+	if err != nil {
+		return nil, err
+	}
+
+	return imageOrFallback(ctx, e.Images, style, sh.Images), nil
 }
 
 // Show is the resolver for the show field.
@@ -246,7 +265,7 @@ func (r *showResolver) Image(ctx context.Context, obj *model.Show, style *model.
 	if err != nil {
 		return nil, err
 	}
-	return imageOrFallback(ctx, e.Images, e.Image, style), nil
+	return imageOrFallback(ctx, e.Images, style), nil
 }
 
 // EpisodeCount is the resolver for the episodeCount field.

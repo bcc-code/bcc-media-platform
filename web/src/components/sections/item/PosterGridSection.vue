@@ -12,12 +12,12 @@
                     class="flex flex-col rounded rounded-md mx-2 mt-1 hover:opacity-90 transition"
                 >
                     <div
-                        class="relative aspect-[9/16] rounded-md object-cover mb-1"
+                        class="relative aspect-[240/357] rounded-md object-cover mb-1"
                     >
                         <Image
                             :src="i.image"
                             size-source="height"
-                            :ratio="9 / 16"
+                            :ratio="240 / 357"
                         />
                         <ProgressBar
                             class="absolute bottom-0 w-full"

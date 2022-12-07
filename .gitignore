@@ -6,3 +6,4 @@ dist
 .generated
 version.json
 key.local.rsa
+web/public/revision

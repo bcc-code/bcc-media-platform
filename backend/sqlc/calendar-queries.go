@@ -88,8 +88,11 @@ func mapToCalendarEntries(items []getCalendarEntriesRow) []common.CalendarEntry 
 }
 
 // GetCalendarEntries returns the specified entries
-func (q *Queries) GetCalendarEntries(ctx context.Context, ids []int) ([]common.CalendarEntry, error) {
-	items, err := q.getCalendarEntries(ctx, intToInt32(ids))
+func (rq *RoleQueries) GetCalendarEntries(ctx context.Context, ids []int) ([]common.CalendarEntry, error) {
+	items, err := rq.queries.getCalendarEntries(ctx, getCalendarEntriesParams{
+		Column1: intToInt32(ids),
+		Column2: rq.roles,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -97,8 +100,8 @@ func (q *Queries) GetCalendarEntries(ctx context.Context, ids []int) ([]common.C
 }
 
 // ListCalendarEntries returns all entries
-func (q *Queries) ListCalendarEntries(ctx context.Context) ([]common.CalendarEntry, error) {
-	items, err := q.listCalendarEntries(ctx)
+func (rq *RoleQueries) ListCalendarEntries(ctx context.Context) ([]common.CalendarEntry, error) {
+	items, err := rq.queries.listCalendarEntries(ctx, rq.roles)
 	if err != nil {
 		return nil, err
 	}

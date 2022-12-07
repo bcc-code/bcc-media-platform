@@ -1,6 +1,6 @@
 <template>
     <Disclosure as="nav" v-slot="{ open }">
-        <div class="mx-auto px-2 lg:px-8">
+        <div class="mx-auto px-2 lg:px-8 transition duration-200" :class="[loading ? 'opacity-0' : 'opacity-100']">
             <div class="lg:flex py-4">
                 <div class="flex justify-between w-full">
                     <div class="flex flex-shrink-0 my-auto">
@@ -18,16 +18,11 @@
                                 :to="item.to"
                                 :ping="item.ping"
                             >
-                                {{ t(item.name) }}</NavLink
+                                {{ $t(item.name) }}</NavLink
                             >
                         </div>
                         <SearchInput
                             v-model="query"
-                            @keydown="
-                                $route.name !== 'search'
-                                    ? $router.push({ name: 'search' })
-                                    : null
-                            "
                         ></SearchInput>
                     </div>
                     <div class="hidden lg:flex ml-2">
@@ -143,7 +138,7 @@
 
                                                 <p class="ml-2 text-base">
                                                     {{
-                                                        t(
+                                                        $t(
                                                             "buttons." +
                                                                 (authenticated
                                                                     ? "logout"
@@ -312,7 +307,7 @@
 
                                                 <p class="ml-2 text-base">
                                                     {{
-                                                        t(
+                                                        $t(
                                                             "buttons." +
                                                                 (authenticated
                                                                     ? "logout"
@@ -369,10 +364,10 @@
                         :icon="item.icon"
                         :ping="item.ping"
                     >
-                        {{ t(item.name) }}
+                        {{ $t(item.name) }}
                     </NavLink>
                     <NavLink :icon="SearchIcon" :to="{ name: 'search' }">
-                        {{ t("page.search") }}</NavLink
+                        {{ $t("page.search") }}</NavLink
                     >
                 </div>
             </div>
@@ -391,7 +386,6 @@ import {
     MenuItem,
 } from "@headlessui/vue"
 import { useAuth } from "@/services/auth"
-import { useI18n } from "vue-i18n"
 import { current, setLanguage, languages } from "@/services/language"
 import {
     CalendarIcon,
@@ -401,17 +395,21 @@ import {
     SearchIcon,
     SettingsIcon,
 } from "../icons"
-import { computed, ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
 import { useGetCalendarStatusQuery } from "@/graph/generated"
 import ContactForm from "@/pages/setting/ContactForm.vue"
 
-const { t } = useI18n()
+const loading = ref(true)
 
 const { query } = useSearch()
 
 const { authenticated, signOut, signIn, user } = useAuth()
+
+onMounted(() => {
+    setTimeout(() => loading.value = false, 100)
+})
 
 const isContactFormActive = ref(false)
 

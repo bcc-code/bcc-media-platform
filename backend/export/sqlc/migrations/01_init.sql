@@ -73,3 +73,12 @@ CREATE TABLE collections (
 	type TEXT NOT NULL,
 	collection_items TEXT NOT NULL
 );
+
+CREATE TABLE streams (
+	id INTEGER NOT NULL PRIMARY KEY,
+	episode_id INTEGER NOT NULL,
+	url TEXT NOT NULL,
+	audio_languages TEXT NOT NULL,
+	subtitle_languages TEXT NOT NULL,
+	type TEXT NOT NULL
+);

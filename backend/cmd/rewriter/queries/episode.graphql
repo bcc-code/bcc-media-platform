@@ -1,7 +1,7 @@
 query getEpisode($id: ID!) {
     episode(id: $id) {
         title
-        description
+        index
         image
         number
         season {

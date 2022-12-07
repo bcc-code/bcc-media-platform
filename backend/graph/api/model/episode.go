@@ -54,12 +54,6 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		})
 	}
 
-	var productionDate *string
-	if e.PublishDateInTitle {
-		ds := e.PublishDate.Format(time.RFC3339)
-		productionDate = &ds
-	}
-
 	var episodeType EpisodeType
 	if e.Type == "episode" {
 		episodeType = EpisodeTypeEpisode
@@ -68,23 +62,24 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 	}
 
 	episode := &Episode{
-		Chapters:         []*Chapter{}, // Currently not supported
-		ID:               strconv.Itoa(e.ID),
-		Type:             episodeType,
-		PublishDate:      e.PublishDate.Format(time.RFC3339),
-		LegacyID:         legacyID,
-		LegacyProgramID:  legacyProgramID,
-		ProductionDate:   productionDate,
-		AvailableFrom:    e.AvailableFrom.Format(time.RFC3339),
-		AvailableTo:      e.AvailableTo.Format(time.RFC3339),
-		Title:            e.Title.Get(languages),
-		Description:      e.Description.Get(languages),
-		ExtraDescription: extraDescription,
-		Season:           season,
-		Duration:         e.Duration,
-		AgeRating:        e.AgeRating,
-		ImageURL:         image,
-		Images:           images,
+		Chapters:              []*Chapter{}, // Currently not supported
+		ID:                    strconv.Itoa(e.ID),
+		Type:                  episodeType,
+		PublishDate:           e.PublishDate.Format(time.RFC3339),
+		LegacyID:              legacyID,
+		LegacyProgramID:       legacyProgramID,
+		ProductionDate:        e.ProductionDate.Format(time.RFC3339),
+		ProductionDateInTitle: e.PublishDateInTitle,
+		AvailableFrom:         e.AvailableFrom.Format(time.RFC3339),
+		AvailableTo:           e.AvailableTo.Format(time.RFC3339),
+		Title:                 e.Title.Get(languages),
+		Description:           e.Description.Get(languages),
+		ExtraDescription:      extraDescription,
+		Season:                season,
+		Duration:              e.Duration,
+		AgeRating:             e.AgeRating,
+		ImageURL:              image,
+		Images:                images,
 	}
 
 	if e.Number.Valid {

@@ -28,7 +28,7 @@
                             episode.season.show.title
                         }}</span>
                         <span
-                            v-if="episode.productionDate"
+                            v-if="episode.productionDateInTitle"
                             class="text-gray ml-1"
                             >{{
                                 new Date(episode.productionDate).toDateString()
@@ -59,7 +59,7 @@
                         ]"
                         @click="effectiveView = 'context'"
                     >
-                        {{ t("episode.videos") }}
+                        {{ $t("episode.videos") }}
                     </button>
                     <button
                         v-else-if="seasonId"
@@ -71,7 +71,7 @@
                         ]"
                         @click="effectiveView = 'episodes'"
                     >
-                        {{ t("episode.episodes") }}
+                        {{ $t("episode.episodes") }}
                     </button>
                     <button
                         class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
@@ -82,7 +82,7 @@
                         ]"
                         @click="effectiveView = 'details'"
                     >
-                        {{ t("episode.details") }}
+                        {{ $t("episode.details") }}
                     </button>
                 </div>
                 <hr class="border-gray border-opacity-70" />
@@ -103,7 +103,7 @@
                                     )
                                 "
                                 :current-id="episode.id"
-                                @set-current="(i) => setEpisode(i.id)"
+                                @item-click="(i) => setEpisode(i.id)"
                             ></ItemList>
                         </div>
                         <div
@@ -113,12 +113,12 @@
                             <SeasonSelector
                                 v-if="episode.season"
                                 :items="episode.season?.show.seasons.items"
-                                v-model:value="seasonId"
+                                v-model="seasonId"
                             ></SeasonSelector>
                             <ItemList
                                 :items="seasonEpisodes"
                                 :current-id="episode.id"
-                                @set-current="(i) => setEpisode(i.id)"
+                                @item-click="(i) => setEpisode(i.id)"
                             ></ItemList>
                         </div>
                     </Transition>
@@ -139,30 +139,26 @@ import {
 } from "@/graph/generated"
 import { computed, nextTick, ref, watch } from "vue"
 import EpisodeViewer from "@/components/EpisodeViewer.vue"
-import { useI18n } from "vue-i18n"
 import EpisodeDetails from "@/components/episodes/EpisodeDetails.vue"
 import AgeRating from "@/components/episodes/AgeRating.vue"
 import SeasonSelector from "@/components/SeasonSelector.vue"
-import { useTitle } from "@/utils/title"
 import ItemList from "../sections/ItemList.vue"
 import NotFound from "../NotFound.vue"
 import { episodesToListItems, toListItems } from "@/utils/lists"
 
 const props = defineProps<{
-    episodeId: string
+    initialEpisodeId: string
     context: EpisodeContext
     autoPlay?: boolean
 }>()
 
 const emit = defineEmits<{
-    (e: "update:episodeId", v: string): void
+    (e: "episode", v: GetEpisodeQuery["episode"]): void
 }>()
 
-const { t } = useI18n()
-const { setTitle } = useTitle()
-const episode = ref(null as NonNullable<GetEpisodeQuery["episode"]> | null)
+const episode = ref(null as GetEpisodeQuery["episode"] | null)
 const season = ref(
-    null as NonNullable<GetSeasonOnEpisodePageQuery["season"]> | null
+    null as GetSeasonOnEpisodePageQuery["season"] | null
 )
 
 const seasonId = ref("")
@@ -170,13 +166,14 @@ const loading = ref(true)
 
 const context = ref(props.context)
 
-const episodeId = ref(props.episodeId)
+const episodeId = ref(props.initialEpisodeId)
 
 const setEpisode = (id: string) => {
     episodeId.value = id
-    emit("update:episodeId", id)
-    nextTick().then(() => {
-        load()
+    nextTick().then(load).then(() => {
+        if (episode.value) {
+            emit("episode", episode.value)
+        }
     })
 }
 
@@ -215,11 +212,10 @@ watch(() => seasonId.value, loadSeason)
 const load = async () => {
     loading.value = true
     season.value = null
+    seasonId.value = ""
     const r = await executeQuery()
     if (r.data.value?.episode) {
         episode.value = r.data.value.episode
-
-        setTitle(episode.value.title)
 
         if (!context.value?.collectionId) {
             if (episode.value.season?.id) {

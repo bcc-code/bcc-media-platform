@@ -66,6 +66,8 @@ type Episode {
     legacyID: ID
     legacyProgramID: ID
     publishDate: Date!
+    productionDate: Date!
+    productionDateInTitle: Boolean!
     availableFrom: Date! @goField(forceResolver: true)
     availableTo: Date!
     ageRating: String!
@@ -74,7 +76,6 @@ type Episode {
     extraDescription: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
     imageUrl: String
-    productionDate: String
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)
     chapters: [Chapter!]!

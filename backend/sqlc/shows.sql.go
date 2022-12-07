@@ -132,6 +132,7 @@ SELECT sh.id,
        sh.legacy_id,
        sh.type,
        fs.filename_disk            as image_file_name,
+       sh.public_title,
        tags.tags::int[]            AS tag_ids,
        COALESCE(images.json, '[]') as images,
        ts.title,
@@ -149,6 +150,7 @@ type getShowsRow struct {
 	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	Type          string                `db:"type" json:"type"`
 	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	PublicTitle   null_v4.String        `db:"public_title" json:"publicTitle"`
 	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
 	Images        json.RawMessage       `db:"images" json:"images"`
 	Title         pqtype.NullRawMessage `db:"title" json:"title"`
@@ -169,6 +171,7 @@ func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]getShowsRow
 			&i.LegacyID,
 			&i.Type,
 			&i.ImageFileName,
+			&i.PublicTitle,
 			pq.Array(&i.TagIds),
 			&i.Images,
 			&i.Title,
@@ -240,6 +243,7 @@ SELECT sh.id,
        sh.legacy_id,
        sh.type,
        fs.filename_disk            as image_file_name,
+       sh.public_title,
        tags.tags::int[]            AS tag_ids,
        COALESCE(images.json, '[]') as images,
        ts.title,
@@ -256,6 +260,7 @@ type listShowsRow struct {
 	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	Type          string                `db:"type" json:"type"`
 	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	PublicTitle   null_v4.String        `db:"public_title" json:"publicTitle"`
 	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
 	Images        json.RawMessage       `db:"images" json:"images"`
 	Title         pqtype.NullRawMessage `db:"title" json:"title"`
@@ -276,6 +281,7 @@ func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
 			&i.LegacyID,
 			&i.Type,
 			&i.ImageFileName,
+			&i.PublicTitle,
 			pq.Array(&i.TagIds),
 			&i.Images,
 			&i.Title,

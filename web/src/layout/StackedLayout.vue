@@ -1,5 +1,6 @@
 <template>
     <div
+        v-if="!tLoading"
         id="stacked-layout"
         :class="[
             !loading && shouldSignIn() ? 'overflow-hidden' : 'overflow-auto',
@@ -63,6 +64,7 @@ import { init } from "@/services/language"
 import { onMounted } from "vue"
 import { analytics } from "@/services/analytics"
 import { useGetAnalyticsIdQuery } from "@/graph/generated"
+import { loading as tLoading } from "@/i18n"
 
 const { loading, authenticated, shouldSignIn, signIn, cancelSignIn } = useAuth()
 

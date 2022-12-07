@@ -26,6 +26,7 @@ func (q *Queries) mapToSeasons(seasons []getSeasonsRow) []common.Season {
 		return common.Season{
 			ID:          int(e.ID),
 			LegacyID:    e.LegacyID,
+			PublicTitle: e.PublicTitle,
 			Title:       title,
 			Description: description,
 			Number:      int(e.SeasonNumber),

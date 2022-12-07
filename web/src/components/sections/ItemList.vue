@@ -10,7 +10,7 @@
                             ? 'bg-red bg-opacity-20 hover:bg-opacity-20'
                             : 'border-opacity-0',
                     ]"
-                    @click="$emit('setCurrent', i)"
+                    @click="$emit('itemClick', i)"
                     :key="i.id"
                 >
                     <WithProgressBar
@@ -29,7 +29,7 @@
                             :ratio="9 / 16"
                         />
                     </WithProgressBar>
-                    <div class="w-2/3">
+                    <div class="w-2/3 ml-4">
                         <h1 class="text-sm font-light lg:text-lg line-clamp-2">
                             <span v-if="viewEpisodeNumber && i.number"
                                 >{{ i.number }}. </span
@@ -39,7 +39,7 @@
                             i.ageRating
                         }}</AgeRating>
                         <div
-                            class="hidden lg:flex line-clamp-2 text-sm opacity-70"
+                            class="hidden lg:flex mt-1.5 line-clamp-2 text-sm opacity-70"
                         >
                             {{ i.description }}
                         </div>
@@ -62,6 +62,6 @@ defineProps<{
 }>()
 
 defineEmits<{
-    (e: "setCurrent", i: ListItem): void
+    (e: "itemClick", i: ListItem): void
 }>()
 </script>

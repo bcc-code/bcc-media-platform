@@ -42,7 +42,7 @@ func (r *calendarResolver) Day(ctx context.Context, obj *model.Calendar, day str
 	if err != nil {
 		return nil, err
 	}
-	entries, err := getForPeriod(ctx, r.Loaders.CalendarEntryLoader, r.Queries.GetCalendarEntriesForPeriod, midnight, nextMidnight)
+	entries, err := getForPeriod(ctx, r.FilteredLoaders(ctx).CalendarEntryLoader, r.Queries.GetCalendarEntriesForPeriod, midnight, nextMidnight)
 	if err != nil {
 		return nil, err
 	}

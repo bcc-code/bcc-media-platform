@@ -56,12 +56,12 @@ export const goToSectionItem = (
     analytics.track("section_clicked", {
         sectionId: section.id,
         sectionName: section.title ?? "HIDDEN",
-        sectionPosition: section.index.toString(),
+        sectionPosition: section.index,
         sectionType: section.__typename,
         elementId: item.item.id,
         elementName: item.item.title,
         elementType: item.item.item.__typename,
-        elementPosition: item.index.toString(),
+        elementPosition: item.index,
         pageCode,
     })
 

@@ -1,6 +1,5 @@
 import {
     GetSeasonOnEpisodePageQuery,
-    GetSeasonQuery,
     SectionItemFragment,
 } from "@/graph/generated"
 

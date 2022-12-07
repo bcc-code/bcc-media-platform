@@ -1,4 +1,4 @@
-const setTitle = (title: string) => {
+export const setTitle = (title: string) => {
     if (title) {
         document.title = "BrunstadTV - " + title
     } else {

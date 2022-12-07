@@ -385,7 +385,7 @@ func (r *queryRootResolver) Calendar(ctx context.Context) (*model.Calendar, erro
 // Event is the resolver for the event field.
 func (r *queryRootResolver) Event(ctx context.Context, id string) (*model.Event, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Event]{
-		Item: r.Loaders.EventLoader,
+		Item: r.Loaders.EventLoader.Loader,
 	}, id, model.EventFrom)
 }
 

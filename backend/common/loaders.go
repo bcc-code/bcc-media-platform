@@ -27,8 +27,7 @@ type BatchLoaders struct {
 	LinkLoader                         *dataloader.Loader[int, *Link]
 	FilesLoader                        *dataloader.Loader[int, []*File]
 	StreamsLoader                      *dataloader.Loader[int, []*Stream]
-	EventLoader                        *dataloader.Loader[int, *Event]
-	CalendarEntryLoader                *dataloader.Loader[int, *CalendarEntry]
+	EventLoader                        *batchloaders.BatchLoader[int, *Event]
 	FAQCategoryLoader                  *dataloader.Loader[int, *FAQCategory]
 	QuestionLoader                     *dataloader.Loader[int, *Question]
 	QuestionsLoader                    *dataloader.Loader[int, []*int]
@@ -54,6 +53,7 @@ type FilteredLoaders struct {
 	SectionsLoader          *dataloader.Loader[int, []*int]
 	CollectionItemsLoader   *dataloader.Loader[int, []*CollectionItem]
 	CollectionItemIDsLoader *dataloader.Loader[int, []Identifier]
+	CalendarEntryLoader     *batchloaders.BatchLoader[int, *CalendarEntry]
 }
 
 // ProfileLoaders contains loaders per profile

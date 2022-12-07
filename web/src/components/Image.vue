@@ -36,6 +36,7 @@ onMounted(() => {
     if (!i) {
         return
     }
+    i.onerror = () => {}
     i.onload = () => {
         loaded.value = true
     }
@@ -56,8 +57,8 @@ const parentDimensions = computed(() => {
 
 const effectiveSrc = computed(() => {
     return (
-        props.src +
-        `?w=${effectiveWidth.value}&h=${effectiveHeight.value}&fit=crop&crop=faces`
+        props.src ?
+        props.src + `?w=${effectiveWidth.value}&h=${effectiveHeight.value}&fit=crop&crop=faces` : "null"
     )
 })
 

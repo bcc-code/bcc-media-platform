@@ -9,6 +9,7 @@ import (
 
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/public/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
 	"github.com/bcc-code/brunstadtv/backend/version"
@@ -39,18 +40,18 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*model.Epis
 		num = &n
 	}
 
-	var image *string
-	if item.Image.Valid {
-		image = &item.Image.String
+	title := item.PublicTitle.String
+	if title == "" {
+		title = item.Title.Get(languages)
 	}
 
 	return &model.Episode{
-		ID:          strconv.Itoa(item.ID),
-		Title:       item.Title.Get(languages),
-		Description: item.Description.Get(languages),
-		Number:      num,
-		Season:      season,
-		Image:       image,
+		ID:     strconv.Itoa(item.ID),
+		Index:  !item.PreventPublicIndexing,
+		Title:  title,
+		Number: num,
+		Season: season,
+		Image:  item.Images.GetDefault(languages, common.ImageStyleDefault),
 	}, nil
 }
 
@@ -67,17 +68,16 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 
 	languages := []string{"en"}
 
-	var image *string
-	if item.Image.Valid {
-		image = &item.Image.String
+	title := item.PublicTitle.String
+	if title == "" {
+		title = item.Title.Get(languages)
 	}
 
 	return &model.Season{
-		ID:          strconv.Itoa(item.ID),
-		Title:       item.Title.Get(languages),
-		Description: item.Description.Get(languages),
-		Number:      item.Number,
-		Image:       image,
+		ID:     strconv.Itoa(item.ID),
+		Title:  title,
+		Number: item.Number,
+		Image:  item.Images.GetDefault(languages, common.ImageStyleDefault),
 		Show: &model.Show{
 			ID: strconv.Itoa(item.ShowID),
 		},
@@ -97,16 +97,15 @@ func (r *queryRootResolver) Show(ctx context.Context, id string) (*model.Show, e
 
 	languages := []string{"en"}
 
-	var image *string
-	if item.Image.Valid {
-		image = &item.Image.String
+	title := item.PublicTitle.String
+	if title == "" {
+		title = item.Title.Get(languages)
 	}
 
 	return &model.Show{
-		ID:          strconv.Itoa(item.ID),
-		Title:       item.Title.Get(languages),
-		Description: item.Description.Get(languages),
-		Image:       image,
+		ID:    strconv.Itoa(item.ID),
+		Title: title,
+		Image: item.Images.GetDefault(languages, common.ImageStyleDefault),
 	}, nil
 }
 

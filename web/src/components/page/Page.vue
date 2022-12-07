@@ -27,7 +27,7 @@
                 </div>
                 <div v-else class="h-40"></div>
             </div>
-            <div v-else-if="!fetching">
+            <div v-else-if="(!fetching && !loading)">
                 <NotFound :title="$t('page.notFound')"></NotFound>
             </div>
             <div v-else-if="error">{{ error.message }}</div>
@@ -41,7 +41,6 @@ import {
     GetSectionQuery,
     useGetPageQuery,
     useGetSectionQuery,
-    Section as TSection,
 } from "@/graph/generated"
 import Section from "@/components/sections/Section.vue"
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue"
@@ -73,8 +72,10 @@ const { error, fetching, executeQuery } = useGetPageQuery({
 })
 
 const page = ref(null as GetPageQuery["page"] | null)
+const loading = ref(false)
 
 const load = async () => {
+    loading.value = true;
     const result = await executeQuery()
     if (result.data.value?.page) {
         page.value = result.data.value.page
@@ -82,6 +83,7 @@ const load = async () => {
             emit("title", page.value.title)
         }
     }
+    loading.value = false
     await nextTick()
     loadMore()
 }
@@ -203,6 +205,10 @@ const clickItem = (sectionIndex: number, itemIndex: number) => {
                                 {
                                     ...section,
                                     index: sectionIndex,
+                                    options: {
+                                        useContext: section.metadata?.useContext === true,
+                                        collectionId: section.metadata?.collectionId ?? "",
+                                    }
                                 },
                                 page.value.code
                             )

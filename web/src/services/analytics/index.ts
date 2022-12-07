@@ -3,9 +3,22 @@ import { ref } from "vue"
 import { AgeGroup, Events, IdentifyData, Page } from "./events"
 export * from "./events"
 
-import { useGetAnalyticsIdQuery } from "@/graph/generated"
 import { useAuth } from "../auth"
 import { current } from "../language"
+import config from "@/config"
+
+const getRevision = async () => {
+    try {
+        const result = await fetch(config.api.url + "/versionz");
+        const rev = await result.json();
+
+        if (rev["build_sha"]) {
+            return rev
+        }
+    } catch {
+    }
+    return "unknown | debug"
+}
 
 const isLoading = ref(true)
 
@@ -44,6 +57,7 @@ export const getAgeGroup = (age?: number): AgeGroup => {
 
 class Analytics {
     private initialized = false
+    private revision: string | null = null
 
     public setUser(user: IdentifyData) {
         this.initialized = true
@@ -54,8 +68,13 @@ class Analytics {
 
     public track<T extends keyof Events>(event: T, data: Events[T]) {
         if (!this.initialized) return
-        //TODO: change release version
-        track(event, {...data, appLanguage: current.value, releaseVersion: "0.0.1"}, undefined, undefined)
+
+        track(
+            event,
+            { ...data, appLanguage: current.value.code, releaseVersion: this.revision ?? "unknown" },
+            undefined,
+            undefined
+        )
     }
 
     public page(page: {
@@ -63,6 +82,7 @@ class Analytics {
         title: string
         meta?: {
             setting?: "webSettings"
+            episodeId?: string
         }
     }) {
         if (!this.initialized) return
@@ -72,6 +92,7 @@ class Analytics {
     }
 
     public async initialize(idFactory: () => Promise<string | null>) {
+        this.revision = await getRevision()
         const { getClaims } = useAuth()
 
         let analyticsId = await idFactory()

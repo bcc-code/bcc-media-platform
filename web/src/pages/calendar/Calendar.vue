@@ -141,6 +141,12 @@ const setDay = (day: Date) => {
     selected.value = day
     month.value = day
     weeks.value = getMonth(day)
+
+    analytics.track("calendarday_clicked", {
+        calendarView: "month",
+        calendarDate: day.toISOString(),
+        pageCode: "calendar"
+    })
 }
 
 const startEvent = (day: Date) => {
