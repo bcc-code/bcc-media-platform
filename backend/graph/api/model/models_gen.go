@@ -91,6 +91,7 @@ type Task interface {
 type Alternative struct {
 	ID        string `json:"id"`
 	Title     string `json:"title"`
+	IsCorrect bool   `json:"isCorrect"`
 	Completed bool   `json:"completed"`
 }
 
@@ -489,7 +490,7 @@ type Lesson struct {
 	ID       string          `json:"id"`
 	Title    string          `json:"title"`
 	Tasks    *TaskPagination `json:"tasks"`
-	Progress *LessonProgress `json:"progress"`
+	Progress *TasksProgress  `json:"progress"`
 }
 
 type LessonPagination struct {
@@ -503,11 +504,6 @@ func (LessonPagination) IsPagination()       {}
 func (this LessonPagination) GetTotal() int  { return this.Total }
 func (this LessonPagination) GetFirst() int  { return this.First }
 func (this LessonPagination) GetOffset() int { return this.Offset }
-
-type LessonProgress struct {
-	Total     int `json:"total"`
-	Completed int `json:"completed"`
-}
 
 type Link struct {
 	ID  string `json:"id"`
@@ -920,15 +916,10 @@ type Stream struct {
 }
 
 type StudyTopic struct {
-	ID       string              `json:"id"`
-	Title    string              `json:"title"`
-	Lessons  *LessonPagination   `json:"lessons"`
-	Progress *StudyTopicProgress `json:"progress"`
-}
-
-type StudyTopicProgress struct {
-	Total     int `json:"total"`
-	Completed int `json:"completed"`
+	ID       string            `json:"id"`
+	Title    string            `json:"title"`
+	Lessons  *LessonPagination `json:"lessons"`
+	Progress *TasksProgress    `json:"progress"`
 }
 
 type TaskPagination struct {
@@ -942,6 +933,11 @@ func (TaskPagination) IsPagination()       {}
 func (this TaskPagination) GetTotal() int  { return this.Total }
 func (this TaskPagination) GetFirst() int  { return this.First }
 func (this TaskPagination) GetOffset() int { return this.Offset }
+
+type TasksProgress struct {
+	Total     int `json:"total"`
+	Completed int `json:"completed"`
+}
 
 type TextTask struct {
 	ID        string `json:"id"`

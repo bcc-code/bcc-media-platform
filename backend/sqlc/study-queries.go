@@ -67,9 +67,6 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 			title["no"] = l.OriginalTitle
 		}
 
-		var alternatives []common.QuestionAlternative
-		_ = json.Unmarshal(l.Alternatives.RawMessage, &alternatives)
-
 		var multiSelect null.Bool
 		if l.AlternativesMultiselect.Valid {
 			multiSelect.SetValid(l.AlternativesMultiselect.Bool)
@@ -80,7 +77,6 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 			LessonID:     l.LessonID,
 			Title:        title,
 			QuestionType: l.QuestionType.String,
-			Alternatives: alternatives,
 			Type:         l.Type,
 			MultiSelect:  multiSelect,
 		}
@@ -102,9 +98,10 @@ func (q *Queries) GetQuestionAlternatives(ctx context.Context, ids []uuid.UUID) 
 		}
 
 		return common.QuestionAlternative{
-			Title:  title,
-			TaskID: alt.TaskID.UUID,
-			ID:     alt.ID,
+			Title:     title,
+			TaskID:    alt.TaskID.UUID,
+			ID:        alt.ID,
+			IsCorrect: alt.IsCorrect,
 		}
 	}), nil
 }

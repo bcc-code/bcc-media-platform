@@ -887,10 +887,11 @@ type PagesTranslation struct {
 }
 
 type Questionalternative struct {
-	ID     uuid.UUID      `db:"id" json:"id"`
-	TaskID uuid.NullUUID  `db:"task_id" json:"taskID"`
-	Sort   null_v4.Int    `db:"sort" json:"sort"`
-	Title  null_v4.String `db:"title" json:"title"`
+	ID        uuid.UUID      `db:"id" json:"id"`
+	TaskID    uuid.NullUUID  `db:"task_id" json:"taskID"`
+	Sort      null_v4.Int    `db:"sort" json:"sort"`
+	Title     null_v4.String `db:"title" json:"title"`
+	IsCorrect bool           `db:"is_correct" json:"isCorrect"`
 }
 
 type QuestionalternativesTranslation struct {
@@ -1160,6 +1161,14 @@ type UsersDevice struct {
 	Languages []string  `db:"languages" json:"languages"`
 }
 
+type UsersMessage struct {
+	ID        string       `db:"id" json:"id"`
+	Message   string       `db:"message" json:"message"`
+	ItemID    uuid.UUID    `db:"item_id" json:"itemID"`
+	CreatedAt time.Time    `db:"created_at" json:"createdAt"`
+	UpdatedAt null_v4.Time `db:"updated_at" json:"updatedAt"`
+}
+
 type UsersProfile struct {
 	ID     uuid.UUID `db:"id" json:"id"`
 	UserID string    `db:"user_id" json:"userID"`
@@ -1179,8 +1188,7 @@ type UsersProgress struct {
 }
 
 type UsersTaskanswer struct {
-	ProfileID uuid.UUID      `db:"profile_id" json:"profileID"`
-	TaskID    uuid.UUID      `db:"task_id" json:"taskID"`
-	Answer    null_v4.String `db:"answer" json:"answer"`
-	UpdatedAt null_v4.Time   `db:"updated_at" json:"updatedAt"`
+	ProfileID uuid.UUID    `db:"profile_id" json:"profileID"`
+	TaskID    uuid.UUID    `db:"task_id" json:"taskID"`
+	UpdatedAt null_v4.Time `db:"updated_at" json:"updatedAt"`
 }

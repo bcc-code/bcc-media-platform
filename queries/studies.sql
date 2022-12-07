@@ -26,14 +26,7 @@ WHERE l.status = 'published'
   AND l.id = ANY ($1::uuid[]);
 
 -- name: getTasks :many
-WITH altTs AS (SELECT q.task_id,
-                      qat.questionalternatives_id,
-                      json_object_agg(languages_code, qat.title) as title
-               FROM questionalternatives_translations qat
-                        JOIN questionalternatives q ON q.id = qat.questionalternatives_id
-               GROUP BY q.task_id, qat.questionalternatives_id),
-     alts AS (SELECT task_id, json_agg(altTs) as alternatives FROM altTs GROUP BY task_id),
-     ts AS (SELECT tasks_id,
+WITH ts AS (SELECT tasks_id,
                    json_object_agg(languages_code, title) as title
             FROM tasks_translations
             GROUP BY tasks_id)
@@ -43,10 +36,8 @@ SELECT t.id,
        t.question_type,
        t.lesson_id,
        t.alternatives_multiselect,
-       alts.alternatives,
        ts.title
 FROM tasks t
-         LEFT JOIN alts ON alts.task_id = t.id
          LEFT JOIN ts ON ts.tasks_id = t.id
 WHERE t.status = 'published'
   AND t.id = ANY ($1::uuid[]);
@@ -55,7 +46,7 @@ WHERE t.status = 'published'
 WITH ts AS (SELECT questionalternatives_id, json_object_agg(languages_code, title) AS title
             FROM questionalternatives_translations
             GROUP BY questionalternatives_id)
-SELECT qa.id, qa.title as original_title, qa.task_id, ts.title
+SELECT qa.id, qa.title as original_title, qa.task_id, qa.is_correct, ts.title
 FROM questionalternatives qa
          LEFT JOIN ts ON ts.questionalternatives_id = qa.id
 WHERE qa.task_id = ANY ($1::uuid[]);
@@ -72,12 +63,19 @@ FROM tasks t
 WHERE t.status = 'published'
   AND t.lesson_id = ANY ($1::uuid[]);
 
--- name: getTaskAnswers :many
-SELECT ta.task_id, ta.answer, ta.updated_at
+-- name: GetAnsweredTasks :many
+SELECT ta.task_id
 FROM "users"."taskanswers" ta
 WHERE ta.profile_id = $1
   AND ta.task_id = ANY ($2::uuid[]);
 
--- name: SetTaskAnswer :exec
-INSERT INTO "users"."taskanswers" (profile_id, task_id, answer, updated_at)
-VALUES ($1, $2, $3, $4);
+-- name: SetTaskCompleted :exec
+INSERT INTO "users"."taskanswers" (profile_id, task_id, updated_at)
+VALUES ($1, $2, NOW())
+ON CONFLICT (profile_id, task_id) DO UPDATE SET updated_at = EXCLUDED.updated_at;
+
+-- name: SetMessage :exec
+INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at)
+VALUES ($1, $2, $3, NOW(), NOW())
+ON CONFLICT (id) DO UPDATE SET message    = EXCLUDED.message,
+                               updated_at = EXCLUDED.updated_at;

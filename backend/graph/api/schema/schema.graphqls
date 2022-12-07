@@ -125,5 +125,8 @@ type MutationRoot {
 
   sendSupportEmail(title: String!, content: String!, html: String!): Boolean!
 
-  completeTask(id: ID!, answer: TaskAnswer): Task!
+  completeTask(id: ID!): Boolean!
+
+  sendTaskMessage(taskId: ID!, message: String): ID!
+  updateTaskMessage(id: ID!, message: String!): ID!
 }

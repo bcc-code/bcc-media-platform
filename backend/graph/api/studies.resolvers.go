@@ -5,13 +5,13 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
@@ -54,8 +54,21 @@ func (r *lessonResolver) Tasks(ctx context.Context, obj *model.Lesson, first *in
 }
 
 // Progress is the resolver for the progress field.
-func (r *lessonResolver) Progress(ctx context.Context, obj *model.Lesson) (*model.LessonProgress, error) {
-	panic(fmt.Errorf("not implemented: Progress - progress"))
+func (r *lessonResolver) Progress(ctx context.Context, obj *model.Lesson) (*model.TasksProgress, error) {
+	ids, err := r.GetFilteredLoaders(ctx).StudyTasksLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	completed, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
+	if err != nil {
+		return nil, err
+	}
+	return &model.TasksProgress{
+		Total: len(ids),
+		Completed: len(lo.Filter(completed, func(i *uuid.UUID, _ int) bool {
+			return i != nil
+		})),
+	}, nil
 }
 
 // Lessons is the resolver for the lessons field.
@@ -80,8 +93,32 @@ func (r *studyTopicResolver) Lessons(ctx context.Context, obj *model.StudyTopic,
 }
 
 // Progress is the resolver for the progress field.
-func (r *studyTopicResolver) Progress(ctx context.Context, obj *model.StudyTopic) (*model.StudyTopicProgress, error) {
-	panic(fmt.Errorf("not implemented: Progress - progress"))
+func (r *studyTopicResolver) Progress(ctx context.Context, obj *model.StudyTopic) (*model.TasksProgress, error) {
+	ids, err := r.GetFilteredLoaders(ctx).StudyLessonsLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	taskIDGroups, err := r.GetFilteredLoaders(ctx).StudyTasksLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
+	if err != nil {
+		return nil, err
+	}
+	taskIDs := lo.Uniq(
+		utils.PointerArrayToArray(
+			lo.Reduce(taskIDGroups, func(r []*uuid.UUID, v []*uuid.UUID, _ int) []*uuid.UUID {
+				return append(r, v...)
+			}, []*uuid.UUID{}),
+		),
+	)
+	completedTaskIDs, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.GetMany(ctx, taskIDs)
+	if err != nil {
+		return nil, err
+	}
+	return &model.TasksProgress{
+		Total: len(taskIDs),
+		Completed: len(lo.Filter(completedTaskIDs, func(i *uuid.UUID, _ int) bool {
+			return i != nil
+		})),
+	}, nil
 }
 
 // AlternativesTask returns generated.AlternativesTaskResolver implementation.

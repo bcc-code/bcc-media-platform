@@ -2,19 +2,14 @@ type StudyTopic {
     id: ID!
     title: String!
     lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
-    progress: StudyTopicProgress! @goField(forceResolver: true)
-}
-
-type StudyTopicProgress {
-    total: Int!
-    completed: Int!
+    progress: TasksProgress! @goField(forceResolver: true)
 }
 
 type Lesson {
     id: ID!
     title: String!
     tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
-    progress: LessonProgress! @goField(forceResolver: true)
+    progress: TasksProgress! @goField(forceResolver: true)
 }
 
 type LessonPagination implements Pagination {
@@ -24,15 +19,15 @@ type LessonPagination implements Pagination {
     items: [Lesson!]!
 }
 
-type LessonProgress {
-    total: Int!
-    completed: Int!
-}
-
 interface Task {
     id: ID!
     title: String!
-    completed: Boolean!
+    completed: Boolean! @goField(forceResolver: true)
+}
+
+type TasksProgress {
+    total: Int!
+    completed: Int!
 }
 
 type TaskPagination implements Pagination {
@@ -52,6 +47,7 @@ type AlternativesTask implements Task {
 type Alternative {
     id: ID!
     title: String!
+    isCorrect: Boolean!
     completed: Boolean!
 }
 

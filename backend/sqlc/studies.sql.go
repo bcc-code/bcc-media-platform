@@ -15,25 +15,72 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const setTaskAnswer = `-- name: SetTaskAnswer :exec
-INSERT INTO "users"."taskanswers" (profile_id, task_id, answer, updated_at)
-VALUES ($1, $2, $3, $4)
+const getAnsweredTasks = `-- name: GetAnsweredTasks :many
+SELECT ta.task_id
+FROM "users"."taskanswers" ta
+WHERE ta.profile_id = $1
+  AND ta.task_id = ANY ($2::uuid[])
 `
 
-type SetTaskAnswerParams struct {
-	ProfileID uuid.UUID      `db:"profile_id" json:"profileID"`
-	TaskID    uuid.UUID      `db:"task_id" json:"taskID"`
-	Answer    null_v4.String `db:"answer" json:"answer"`
-	UpdatedAt null_v4.Time   `db:"updated_at" json:"updatedAt"`
+type GetAnsweredTasksParams struct {
+	ProfileID uuid.UUID   `db:"profile_id" json:"profileID"`
+	Column2   []uuid.UUID `db:"column_2" json:"column2"`
 }
 
-func (q *Queries) SetTaskAnswer(ctx context.Context, arg SetTaskAnswerParams) error {
-	_, err := q.db.ExecContext(ctx, setTaskAnswer,
-		arg.ProfileID,
-		arg.TaskID,
-		arg.Answer,
-		arg.UpdatedAt,
-	)
+func (q *Queries) GetAnsweredTasks(ctx context.Context, arg GetAnsweredTasksParams) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getAnsweredTasks, arg.ProfileID, pq.Array(arg.Column2))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var task_id uuid.UUID
+		if err := rows.Scan(&task_id); err != nil {
+			return nil, err
+		}
+		items = append(items, task_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const setMessage = `-- name: SetMessage :exec
+INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at)
+VALUES ($1, $2, $3, NOW(), NOW())
+ON CONFLICT (id) DO UPDATE SET message    = EXCLUDED.message,
+                               updated_at = EXCLUDED.updated_at
+`
+
+type SetMessageParams struct {
+	ID      string    `db:"id" json:"id"`
+	ItemID  uuid.UUID `db:"item_id" json:"itemID"`
+	Message string    `db:"message" json:"message"`
+}
+
+func (q *Queries) SetMessage(ctx context.Context, arg SetMessageParams) error {
+	_, err := q.db.ExecContext(ctx, setMessage, arg.ID, arg.ItemID, arg.Message)
+	return err
+}
+
+const setTaskCompleted = `-- name: SetTaskCompleted :exec
+INSERT INTO "users"."taskanswers" (profile_id, task_id, updated_at)
+VALUES ($1, $2, NOW())
+ON CONFLICT (profile_id, task_id) DO UPDATE SET updated_at = EXCLUDED.updated_at
+`
+
+type SetTaskCompletedParams struct {
+	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
+	TaskID    uuid.UUID `db:"task_id" json:"taskID"`
+}
+
+func (q *Queries) SetTaskCompleted(ctx context.Context, arg SetTaskCompletedParams) error {
+	_, err := q.db.ExecContext(ctx, setTaskCompleted, arg.ProfileID, arg.TaskID)
 	return err
 }
 
@@ -126,7 +173,7 @@ const getQuestionAlternatives = `-- name: getQuestionAlternatives :many
 WITH ts AS (SELECT questionalternatives_id, json_object_agg(languages_code, title) AS title
             FROM questionalternatives_translations
             GROUP BY questionalternatives_id)
-SELECT qa.id, qa.title as original_title, qa.task_id, ts.title
+SELECT qa.id, qa.title as original_title, qa.task_id, qa.is_correct, ts.title
 FROM questionalternatives qa
          LEFT JOIN ts ON ts.questionalternatives_id = qa.id
 WHERE qa.task_id = ANY ($1::uuid[])
@@ -136,6 +183,7 @@ type getQuestionAlternativesRow struct {
 	ID            uuid.UUID             `db:"id" json:"id"`
 	OriginalTitle null_v4.String        `db:"original_title" json:"originalTitle"`
 	TaskID        uuid.NullUUID         `db:"task_id" json:"taskID"`
+	IsCorrect     bool                  `db:"is_correct" json:"isCorrect"`
 	Title         pqtype.NullRawMessage `db:"title" json:"title"`
 }
 
@@ -152,6 +200,7 @@ func (q *Queries) getQuestionAlternatives(ctx context.Context, dollar_1 []uuid.U
 			&i.ID,
 			&i.OriginalTitle,
 			&i.TaskID,
+			&i.IsCorrect,
 			&i.Title,
 		); err != nil {
 			return nil, err
@@ -167,56 +216,8 @@ func (q *Queries) getQuestionAlternatives(ctx context.Context, dollar_1 []uuid.U
 	return items, nil
 }
 
-const getTaskAnswers = `-- name: getTaskAnswers :many
-SELECT ta.task_id, ta.answer, ta.updated_at
-FROM "users"."taskanswers" ta
-WHERE ta.profile_id = $1
-  AND ta.task_id = ANY ($2::uuid[])
-`
-
-type getTaskAnswersParams struct {
-	ProfileID uuid.UUID   `db:"profile_id" json:"profileID"`
-	Column2   []uuid.UUID `db:"column_2" json:"column2"`
-}
-
-type getTaskAnswersRow struct {
-	TaskID    uuid.UUID      `db:"task_id" json:"taskID"`
-	Answer    null_v4.String `db:"answer" json:"answer"`
-	UpdatedAt null_v4.Time   `db:"updated_at" json:"updatedAt"`
-}
-
-func (q *Queries) getTaskAnswers(ctx context.Context, arg getTaskAnswersParams) ([]getTaskAnswersRow, error) {
-	rows, err := q.db.QueryContext(ctx, getTaskAnswers, arg.ProfileID, pq.Array(arg.Column2))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []getTaskAnswersRow
-	for rows.Next() {
-		var i getTaskAnswersRow
-		if err := rows.Scan(&i.TaskID, &i.Answer, &i.UpdatedAt); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getTasks = `-- name: getTasks :many
-WITH altTs AS (SELECT q.task_id,
-                      qat.questionalternatives_id,
-                      json_object_agg(languages_code, qat.title) as title
-               FROM questionalternatives_translations qat
-                        JOIN questionalternatives q ON q.id = qat.questionalternatives_id
-               GROUP BY q.task_id, qat.questionalternatives_id),
-     alts AS (SELECT task_id, json_agg(altTs) as alternatives FROM altTs GROUP BY task_id),
-     ts AS (SELECT tasks_id,
+WITH ts AS (SELECT tasks_id,
                    json_object_agg(languages_code, title) as title
             FROM tasks_translations
             GROUP BY tasks_id)
@@ -226,10 +227,8 @@ SELECT t.id,
        t.question_type,
        t.lesson_id,
        t.alternatives_multiselect,
-       alts.alternatives,
        ts.title
 FROM tasks t
-         LEFT JOIN alts ON alts.task_id = t.id
          LEFT JOIN ts ON ts.tasks_id = t.id
 WHERE t.status = 'published'
   AND t.id = ANY ($1::uuid[])
@@ -242,7 +241,6 @@ type getTasksRow struct {
 	QuestionType            null_v4.String        `db:"question_type" json:"questionType"`
 	LessonID                uuid.UUID             `db:"lesson_id" json:"lessonID"`
 	AlternativesMultiselect sql.NullBool          `db:"alternatives_multiselect" json:"alternativesMultiselect"`
-	Alternatives            pqtype.NullRawMessage `db:"alternatives" json:"alternatives"`
 	Title                   pqtype.NullRawMessage `db:"title" json:"title"`
 }
 
@@ -262,7 +260,6 @@ func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getTask
 			&i.QuestionType,
 			&i.LessonID,
 			&i.AlternativesMultiselect,
-			&i.Alternatives,
 			&i.Title,
 		); err != nil {
 			return nil, err

@@ -60,9 +60,10 @@ func (i Task) GetKey() uuid.UUID {
 
 // QuestionAlternative is an alternative for a question
 type QuestionAlternative struct {
-	ID     uuid.UUID
-	TaskID uuid.UUID
-	Title  LocaleString
+	ID        uuid.UUID
+	TaskID    uuid.UUID
+	Title     LocaleString
+	IsCorrect bool
 }
 
 // GetKey returns the key for this item

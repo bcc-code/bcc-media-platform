@@ -79,6 +79,7 @@ type ComplexityRoot struct {
 	Alternative struct {
 		Completed func(childComplexity int) int
 		ID        func(childComplexity int) int
+		IsCorrect func(childComplexity int) int
 		Title     func(childComplexity int) int
 	}
 
@@ -351,11 +352,6 @@ type ComplexityRoot struct {
 		Total  func(childComplexity int) int
 	}
 
-	LessonProgress struct {
-		Completed func(childComplexity int) int
-		Total     func(childComplexity int) int
-	}
-
 	Link struct {
 		ID  func(childComplexity int) int
 		URL func(childComplexity int) int
@@ -389,10 +385,12 @@ type ComplexityRoot struct {
 	}
 
 	MutationRoot struct {
-		CompleteTask       func(childComplexity int, id string, answer *string) int
+		CompleteTask       func(childComplexity int, id string) int
 		SendSupportEmail   func(childComplexity int, title string, content string, html string) int
+		SendTaskMessage    func(childComplexity int, taskID string, message *string) int
 		SetDevicePushToken func(childComplexity int, token string, languages []string) int
 		SetEpisodeProgress func(childComplexity int, id string, progress *int, duration *int, context *model.EpisodeContext) int
+		UpdateTaskMessage  func(childComplexity int, id string, message string) int
 	}
 
 	Page struct {
@@ -640,16 +638,16 @@ type ComplexityRoot struct {
 		Title    func(childComplexity int) int
 	}
 
-	StudyTopicProgress struct {
-		Completed func(childComplexity int) int
-		Total     func(childComplexity int) int
-	}
-
 	TaskPagination struct {
 		First  func(childComplexity int) int
 		Items  func(childComplexity int) int
 		Offset func(childComplexity int) int
 		Total  func(childComplexity int) int
+	}
+
+	TasksProgress struct {
+		Completed func(childComplexity int) int
+		Total     func(childComplexity int) int
 	}
 
 	TextTask struct {
@@ -759,7 +757,7 @@ type LabelSectionResolver interface {
 }
 type LessonResolver interface {
 	Tasks(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.TaskPagination, error)
-	Progress(ctx context.Context, obj *model.Lesson) (*model.LessonProgress, error)
+	Progress(ctx context.Context, obj *model.Lesson) (*model.TasksProgress, error)
 }
 type ListSectionResolver interface {
 	Items(ctx context.Context, obj *model.ListSection, first *int, offset *int) (*model.SectionItemPagination, error)
@@ -771,7 +769,9 @@ type MutationRootResolver interface {
 	SetDevicePushToken(ctx context.Context, token string, languages []string) (*model.Device, error)
 	SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int, context *model.EpisodeContext) (*model.Episode, error)
 	SendSupportEmail(ctx context.Context, title string, content string, html string) (bool, error)
-	CompleteTask(ctx context.Context, id string, answer *string) (model.Task, error)
+	CompleteTask(ctx context.Context, id string) (bool, error)
+	SendTaskMessage(ctx context.Context, taskID string, message *string) (string, error)
+	UpdateTaskMessage(ctx context.Context, id string, message string) (string, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -844,7 +844,7 @@ type SimpleCalendarEntryResolver interface {
 }
 type StudyTopicResolver interface {
 	Lessons(ctx context.Context, obj *model.StudyTopic, first *int, offset *int) (*model.LessonPagination, error)
-	Progress(ctx context.Context, obj *model.StudyTopic) (*model.StudyTopicProgress, error)
+	Progress(ctx context.Context, obj *model.StudyTopic) (*model.TasksProgress, error)
 }
 
 type executableSchema struct {
@@ -875,6 +875,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Alternative.ID(childComplexity), true
+
+	case "Alternative.isCorrect":
+		if e.complexity.Alternative.IsCorrect == nil {
+			break
+		}
+
+		return e.complexity.Alternative.IsCorrect(childComplexity), true
 
 	case "Alternative.title":
 		if e.complexity.Alternative.Title == nil {
@@ -2121,20 +2128,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LessonPagination.Total(childComplexity), true
 
-	case "LessonProgress.completed":
-		if e.complexity.LessonProgress.Completed == nil {
-			break
-		}
-
-		return e.complexity.LessonProgress.Completed(childComplexity), true
-
-	case "LessonProgress.total":
-		if e.complexity.LessonProgress.Total == nil {
-			break
-		}
-
-		return e.complexity.LessonProgress.Total(childComplexity), true
-
 	case "Link.id":
 		if e.complexity.Link.ID == nil {
 			break
@@ -2269,7 +2262,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.MutationRoot.CompleteTask(childComplexity, args["id"].(string), args["answer"].(*string)), true
+		return e.complexity.MutationRoot.CompleteTask(childComplexity, args["id"].(string)), true
 
 	case "MutationRoot.sendSupportEmail":
 		if e.complexity.MutationRoot.SendSupportEmail == nil {
@@ -2282,6 +2275,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MutationRoot.SendSupportEmail(childComplexity, args["title"].(string), args["content"].(string), args["html"].(string)), true
+
+	case "MutationRoot.sendTaskMessage":
+		if e.complexity.MutationRoot.SendTaskMessage == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_sendTaskMessage_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.SendTaskMessage(childComplexity, args["taskId"].(string), args["message"].(*string)), true
 
 	case "MutationRoot.setDevicePushToken":
 		if e.complexity.MutationRoot.SetDevicePushToken == nil {
@@ -2306,6 +2311,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MutationRoot.SetEpisodeProgress(childComplexity, args["id"].(string), args["progress"].(*int), args["duration"].(*int), args["context"].(*model.EpisodeContext)), true
+
+	case "MutationRoot.updateTaskMessage":
+		if e.complexity.MutationRoot.UpdateTaskMessage == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_updateTaskMessage_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.UpdateTaskMessage(childComplexity, args["id"].(string), args["message"].(string)), true
 
 	case "Page.code":
 		if e.complexity.Page.Code == nil {
@@ -3560,20 +3577,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.StudyTopic.Title(childComplexity), true
 
-	case "StudyTopicProgress.completed":
-		if e.complexity.StudyTopicProgress.Completed == nil {
-			break
-		}
-
-		return e.complexity.StudyTopicProgress.Completed(childComplexity), true
-
-	case "StudyTopicProgress.total":
-		if e.complexity.StudyTopicProgress.Total == nil {
-			break
-		}
-
-		return e.complexity.StudyTopicProgress.Total(childComplexity), true
-
 	case "TaskPagination.first":
 		if e.complexity.TaskPagination.First == nil {
 			break
@@ -3601,6 +3604,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TaskPagination.Total(childComplexity), true
+
+	case "TasksProgress.completed":
+		if e.complexity.TasksProgress.Completed == nil {
+			break
+		}
+
+		return e.complexity.TasksProgress.Completed(childComplexity), true
+
+	case "TasksProgress.total":
+		if e.complexity.TasksProgress.Total == nil {
+			break
+		}
+
+		return e.complexity.TasksProgress.Total(childComplexity), true
 
 	case "TextTask.completed":
 		if e.complexity.TextTask.Completed == nil {
@@ -4484,7 +4501,10 @@ type MutationRoot {
 
   sendSupportEmail(title: String!, content: String!, html: String!): Boolean!
 
-  completeTask(id: ID!, answer: TaskAnswer): Task!
+  completeTask(id: ID!): Boolean!
+
+  sendTaskMessage(taskId: ID!, message: String): ID!
+  updateTaskMessage(id: ID!, message: String!): ID!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -4560,19 +4580,14 @@ type SearchResult {
     id: ID!
     title: String!
     lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
-    progress: StudyTopicProgress! @goField(forceResolver: true)
-}
-
-type StudyTopicProgress {
-    total: Int!
-    completed: Int!
+    progress: TasksProgress! @goField(forceResolver: true)
 }
 
 type Lesson {
     id: ID!
     title: String!
     tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
-    progress: LessonProgress! @goField(forceResolver: true)
+    progress: TasksProgress! @goField(forceResolver: true)
 }
 
 type LessonPagination implements Pagination {
@@ -4582,15 +4597,15 @@ type LessonPagination implements Pagination {
     items: [Lesson!]!
 }
 
-type LessonProgress {
-    total: Int!
-    completed: Int!
-}
-
 interface Task {
     id: ID!
     title: String!
-    completed: Boolean!
+    completed: Boolean! @goField(forceResolver: true)
+}
+
+type TasksProgress {
+    total: Int!
+    completed: Int!
 }
 
 type TaskPagination implements Pagination {
@@ -4610,6 +4625,7 @@ type AlternativesTask implements Task {
 type Alternative {
     id: ID!
     title: String!
+    isCorrect: Boolean!
     completed: Boolean!
 }
 
@@ -5051,15 +5067,6 @@ func (ec *executionContext) field_MutationRoot_completeTask_args(ctx context.Con
 		}
 	}
 	args["id"] = arg0
-	var arg1 *string
-	if tmp, ok := rawArgs["answer"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("answer"))
-		arg1, err = ec.unmarshalOTaskAnswer2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["answer"] = arg1
 	return args, nil
 }
 
@@ -5093,6 +5100,30 @@ func (ec *executionContext) field_MutationRoot_sendSupportEmail_args(ctx context
 		}
 	}
 	args["html"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_sendTaskMessage_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["taskId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("taskId"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["taskId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["message"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("message"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["message"] = arg1
 	return args, nil
 }
 
@@ -5159,6 +5190,30 @@ func (ec *executionContext) field_MutationRoot_setEpisodeProgress_args(ctx conte
 		}
 	}
 	args["context"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_updateTaskMessage_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["message"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("message"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["message"] = arg1
 	return args, nil
 }
 
@@ -5762,6 +5817,50 @@ func (ec *executionContext) fieldContext_Alternative_title(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Alternative_isCorrect(ctx context.Context, field graphql.CollectedField, obj *model.Alternative) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Alternative_isCorrect(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsCorrect, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Alternative_isCorrect(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Alternative",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Alternative_completed(ctx context.Context, field graphql.CollectedField, obj *model.Alternative) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Alternative_completed(ctx, field)
 	if err != nil {
@@ -5981,6 +6080,8 @@ func (ec *executionContext) fieldContext_AlternativesTask_alternatives(ctx conte
 				return ec.fieldContext_Alternative_id(ctx, field)
 			case "title":
 				return ec.fieldContext_Alternative_title(ctx, field)
+			case "isCorrect":
+				return ec.fieldContext_Alternative_isCorrect(ctx, field)
 			case "completed":
 				return ec.fieldContext_Alternative_completed(ctx, field)
 			}
@@ -13490,9 +13591,9 @@ func (ec *executionContext) _Lesson_progress(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.LessonProgress)
+	res := resTmp.(*model.TasksProgress)
 	fc.Result = res
-	return ec.marshalNLessonProgress2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLessonProgress(ctx, field.Selections, res)
+	return ec.marshalNTasksProgress2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐTasksProgress(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Lesson_progress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13504,11 +13605,11 @@ func (ec *executionContext) fieldContext_Lesson_progress(ctx context.Context, fi
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "total":
-				return ec.fieldContext_LessonProgress_total(ctx, field)
+				return ec.fieldContext_TasksProgress_total(ctx, field)
 			case "completed":
-				return ec.fieldContext_LessonProgress_completed(ctx, field)
+				return ec.fieldContext_TasksProgress_completed(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type LessonProgress", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TasksProgress", field.Name)
 		},
 	}
 	return fc, nil
@@ -13695,94 +13796,6 @@ func (ec *executionContext) fieldContext_LessonPagination_items(ctx context.Cont
 				return ec.fieldContext_Lesson_progress(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Lesson", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _LessonProgress_total(ctx context.Context, field graphql.CollectedField, obj *model.LessonProgress) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_LessonProgress_total(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Total, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_LessonProgress_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "LessonProgress",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _LessonProgress_completed(ctx context.Context, field graphql.CollectedField, obj *model.LessonProgress) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_LessonProgress_completed(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Completed, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_LessonProgress_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "LessonProgress",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -14820,7 +14833,7 @@ func (ec *executionContext) _MutationRoot_completeTask(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MutationRoot().CompleteTask(rctx, fc.Args["id"].(string), fc.Args["answer"].(*string))
+		return ec.resolvers.MutationRoot().CompleteTask(rctx, fc.Args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14832,9 +14845,9 @@ func (ec *executionContext) _MutationRoot_completeTask(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.Task)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalNTask2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐTask(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MutationRoot_completeTask(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14844,7 +14857,7 @@ func (ec *executionContext) fieldContext_MutationRoot_completeTask(ctx context.C
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	defer func() {
@@ -14855,6 +14868,116 @@ func (ec *executionContext) fieldContext_MutationRoot_completeTask(ctx context.C
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_MutationRoot_completeTask_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_sendTaskMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_sendTaskMessage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().SendTaskMessage(rctx, fc.Args["taskId"].(string), fc.Args["message"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_sendTaskMessage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_sendTaskMessage_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_updateTaskMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_updateTaskMessage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().UpdateTaskMessage(rctx, fc.Args["id"].(string), fc.Args["message"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_updateTaskMessage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_updateTaskMessage_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -22990,9 +23113,9 @@ func (ec *executionContext) _StudyTopic_progress(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.StudyTopicProgress)
+	res := resTmp.(*model.TasksProgress)
 	fc.Result = res
-	return ec.marshalNStudyTopicProgress2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStudyTopicProgress(ctx, field.Selections, res)
+	return ec.marshalNTasksProgress2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐTasksProgress(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_StudyTopic_progress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -23004,99 +23127,11 @@ func (ec *executionContext) fieldContext_StudyTopic_progress(ctx context.Context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "total":
-				return ec.fieldContext_StudyTopicProgress_total(ctx, field)
+				return ec.fieldContext_TasksProgress_total(ctx, field)
 			case "completed":
-				return ec.fieldContext_StudyTopicProgress_completed(ctx, field)
+				return ec.fieldContext_TasksProgress_completed(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type StudyTopicProgress", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _StudyTopicProgress_total(ctx context.Context, field graphql.CollectedField, obj *model.StudyTopicProgress) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_StudyTopicProgress_total(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Total, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_StudyTopicProgress_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "StudyTopicProgress",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _StudyTopicProgress_completed(ctx context.Context, field graphql.CollectedField, obj *model.StudyTopicProgress) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_StudyTopicProgress_completed(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Completed, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_StudyTopicProgress_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "StudyTopicProgress",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, fmt.Errorf("no field named %q was found under type TasksProgress", field.Name)
 		},
 	}
 	return fc, nil
@@ -23273,6 +23308,94 @@ func (ec *executionContext) fieldContext_TaskPagination_items(ctx context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TasksProgress_total(ctx context.Context, field graphql.CollectedField, obj *model.TasksProgress) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TasksProgress_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TasksProgress_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TasksProgress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TasksProgress_completed(ctx context.Context, field graphql.CollectedField, obj *model.TasksProgress) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TasksProgress_completed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Completed, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TasksProgress_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TasksProgress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -26453,6 +26576,13 @@ func (ec *executionContext) _Alternative(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "isCorrect":
+
+			out.Values[i] = ec._Alternative_isCorrect(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "completed":
 
 			out.Values[i] = ec._Alternative_completed(ctx, field, obj)
@@ -28671,41 +28801,6 @@ func (ec *executionContext) _LessonPagination(ctx context.Context, sel ast.Selec
 	return out
 }
 
-var lessonProgressImplementors = []string{"LessonProgress"}
-
-func (ec *executionContext) _LessonProgress(ctx context.Context, sel ast.SelectionSet, obj *model.LessonProgress) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, lessonProgressImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("LessonProgress")
-		case "total":
-
-			out.Values[i] = ec._LessonProgress_total(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "completed":
-
-			out.Values[i] = ec._LessonProgress_completed(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var linkImplementors = []string{"Link", "SectionItemType"}
 
 func (ec *executionContext) _Link(ctx context.Context, sel ast.SelectionSet, obj *model.Link) graphql.Marshaler {
@@ -28988,6 +29083,24 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._MutationRoot_completeTask(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "sendTaskMessage":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_sendTaskMessage(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateTaskMessage":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_updateTaskMessage(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -31270,41 +31383,6 @@ func (ec *executionContext) _StudyTopic(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var studyTopicProgressImplementors = []string{"StudyTopicProgress"}
-
-func (ec *executionContext) _StudyTopicProgress(ctx context.Context, sel ast.SelectionSet, obj *model.StudyTopicProgress) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, studyTopicProgressImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("StudyTopicProgress")
-		case "total":
-
-			out.Values[i] = ec._StudyTopicProgress_total(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "completed":
-
-			out.Values[i] = ec._StudyTopicProgress_completed(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var taskPaginationImplementors = []string{"TaskPagination", "Pagination"}
 
 func (ec *executionContext) _TaskPagination(ctx context.Context, sel ast.SelectionSet, obj *model.TaskPagination) graphql.Marshaler {
@@ -31339,6 +31417,41 @@ func (ec *executionContext) _TaskPagination(ctx context.Context, sel ast.Selecti
 		case "items":
 
 			out.Values[i] = ec._TaskPagination_items(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var tasksProgressImplementors = []string{"TasksProgress"}
+
+func (ec *executionContext) _TasksProgress(ctx context.Context, sel ast.SelectionSet, obj *model.TasksProgress) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tasksProgressImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TasksProgress")
+		case "total":
+
+			out.Values[i] = ec._TasksProgress_total(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "completed":
+
+			out.Values[i] = ec._TasksProgress_completed(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -32733,20 +32846,6 @@ func (ec *executionContext) marshalNLessonPagination2ᚖgithubᚗcomᚋbccᚑcod
 	return ec._LessonPagination(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNLessonProgress2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLessonProgress(ctx context.Context, sel ast.SelectionSet, v model.LessonProgress) graphql.Marshaler {
-	return ec._LessonProgress(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNLessonProgress2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLessonProgress(ctx context.Context, sel ast.SelectionSet, v *model.LessonProgress) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._LessonProgress(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNMessage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v *model.Message) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -33366,20 +33465,6 @@ func (ec *executionContext) marshalNStudyTopic2ᚖgithubᚗcomᚋbccᚑcodeᚋbr
 	return ec._StudyTopic(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNStudyTopicProgress2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStudyTopicProgress(ctx context.Context, sel ast.SelectionSet, v model.StudyTopicProgress) graphql.Marshaler {
-	return ec._StudyTopicProgress(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNStudyTopicProgress2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStudyTopicProgress(ctx context.Context, sel ast.SelectionSet, v *model.StudyTopicProgress) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._StudyTopicProgress(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNTask2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v model.Task) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -33446,6 +33531,20 @@ func (ec *executionContext) marshalNTaskPagination2ᚖgithubᚗcomᚋbccᚑcode�
 		return graphql.Null
 	}
 	return ec._TaskPagination(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTasksProgress2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐTasksProgress(ctx context.Context, sel ast.SelectionSet, v model.TasksProgress) graphql.Marshaler {
+	return ec._TasksProgress(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTasksProgress2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐTasksProgress(ctx context.Context, sel ast.SelectionSet, v *model.TasksProgress) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TasksProgress(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
@@ -34022,22 +34121,6 @@ func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v in
 }
 
 func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalString(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOTaskAnswer2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalString(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOTaskAnswer2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

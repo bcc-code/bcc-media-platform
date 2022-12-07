@@ -67,6 +67,10 @@ func (r *Resolver) GetFilteredLoaders(ctx context.Context) *common.FilteredLoade
 	return r.FilteredLoaders(ctx)
 }
 
+func (r *Resolver) GetProfileLoaders(ctx context.Context) *common.ProfileLoaders {
+	return r.ProfileLoaders(ctx)
+}
+
 func (r *Resolver) GetS3Client() *s3.Client {
 	return r.S3Client
 }
@@ -375,4 +379,16 @@ func resolveMessageSection(ctx context.Context, r *messageSectionResolver, s *co
 			Content: i.Content.Get(languages),
 		}
 	}), nil
+}
+
+func getProfile(ctx context.Context) (*common.Profile, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	p := user.GetProfileFromCtx(ginCtx)
+	if p == nil {
+		return nil, ErrProfileNotSet
+	}
+	return p, nil
 }
