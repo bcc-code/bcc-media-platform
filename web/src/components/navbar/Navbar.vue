@@ -1,6 +1,9 @@
 <template>
     <Disclosure as="nav" v-slot="{ open }">
-        <div class="mx-auto px-2 lg:px-8 transition duration-200" :class="[loading ? 'opacity-0' : 'opacity-100']">
+        <div
+            class="mx-auto px-2 lg:px-8 transition duration-200"
+            :class="[loading ? 'opacity-0' : 'opacity-100']"
+        >
             <div class="lg:flex py-4">
                 <div class="flex justify-between w-full">
                     <div class="flex flex-shrink-0 my-auto">
@@ -21,9 +24,7 @@
                                 {{ $t(item.name) }}</NavLink
                             >
                         </div>
-                        <SearchInput
-                            v-model="query"
-                        ></SearchInput>
+                        <SearchInput v-model="query"></SearchInput>
                     </div>
                     <div class="hidden lg:flex ml-2">
                         <Menu as="div" class="relative my-auto">
@@ -372,7 +373,7 @@ const { query } = useSearch()
 const { authenticated, signOut, signIn, user } = useAuth()
 
 onMounted(() => {
-    setTimeout(() => loading.value = false, 100)
+    setTimeout(() => (loading.value = false), 100)
 })
 
 const navigation = computed(() => {

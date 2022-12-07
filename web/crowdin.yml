@@ -5,10 +5,10 @@
 "api_token_env": "CROWDIN_TOKEN"
 
 files:
-  [
-    {
-      "source": "/src/translations/en.json",
-      "translation": "/src/translations/%two_letters_code%.json",
-      "dest": "/BrunstadTV-4.0/web.json",
-    },
-  ]
+    [
+        {
+            "source": "/src/translations/en.json",
+            "translation": "/src/translations/%two_letters_code%.json",
+            "dest": "/BrunstadTV-4.0/web.json",
+        },
+    ]

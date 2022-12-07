@@ -102,7 +102,7 @@ const setDay = (day: Date) => {
     analytics.track("calendarday_clicked", {
         calendarView: "week",
         calendarDate: day.toISOString(),
-        pageCode: "livestream"
+        pageCode: "livestream",
     })
 }
 

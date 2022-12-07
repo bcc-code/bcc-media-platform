@@ -18,7 +18,7 @@
             ></EpisodeSearchQuery>
         </div>
         <div v-else class="w-full text-center">
-            <p class="text-lg text-gray">{{$t("search.emptyQuery")}}</p>
+            <p class="text-lg text-gray">{{ $t("search.emptyQuery") }}</p>
         </div>
     </section>
 </template>
