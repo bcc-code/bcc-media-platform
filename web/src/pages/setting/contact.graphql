@@ -1,11 +1,3 @@
-mutation setSupportEmail(
-  $title: String!
-  $content: String!
-  $html: String!
-) {
-  sendSupportEmail(
-    title: $title
-    content: $content
-    html: $html
-  )
+mutation setSupportEmail($title: String!, $content: String!, $html: String!) {
+    sendSupportEmail(title: $title, content: $content, html: $html)
 }
