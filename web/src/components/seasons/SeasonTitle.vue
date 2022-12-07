@@ -4,7 +4,9 @@
             {{ season.show.title }}
             <!-- <span class="ml-1 text-gray">S{{ season.seasonNumber }}</span> -->
         </h3>
-        <h1 class="text-lg lg:text-xl line-clamp-2">{{ season.title }}</h1>
+        <h1 class="text-sm md:text-md lg:text-lg line-clamp-2">
+            {{ season.title }}
+        </h1>
     </div>
 </template>
 <script lang="ts" setup>

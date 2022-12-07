@@ -10,27 +10,23 @@
         </h1>
         <Swiper
             :slides-per-view="1"
-            :space-between="10"
+            :space-between="20"
             :slides-per-group="1"
             :modules="modules"
             :breakpoints="breakpoints('medium')"
             navigation
         >
-            <SwiperSlide v-for="i in result">
+            <SwiperSlide v-for="(i, index) in result">
                 <div
-                    class="cursor-pointer mx-2"
-                    @click="onclick(i.id)"
+                    class="cursor-pointer"
+                    @click="onclick(index, i.id)"
                     :class="[loading[i.id] ? 'opacity-50' : '']"
                 >
-                    <div class="relative mb-1">
-                        <img
-                            :id="i.id"
-                            :src="
-                                i.image +
-                                `?h=${225}&w=${450}&fit=crop&crop=faces`
-                            "
-                            loading="lazy"
-                            class="rounded-md top-0 w-full object-cover aspect-video"
+                    <div class="relative mb-1 rounded-lg overflow-hidden">
+                        <Image
+                            :src="i.image"
+                            :ratio="9 / 16"
+                            size-source="width"
                         />
                     </div>
                     <div class="mt-1">
@@ -48,7 +44,9 @@ import { Swiper, SwiperSlide } from "swiper/vue"
 import { Navigation } from "swiper"
 import { useI18n } from "vue-i18n"
 import { goToEpisode } from "@/utils/items"
-import breakpoints from "../sections/breakpoints"
+import breakpoints from "../sections/item/breakpoints"
+import { analytics } from "@/services/analytics"
+import Image from "../Image.vue"
 
 const { t } = useI18n()
 
@@ -106,7 +104,15 @@ const loading = ref(
     }
 )
 
-const onclick = async (id: string) => {
+const onclick = async (index: number, id: string) => {
+    analytics.track("searchresult_clicked", {
+        elementId: id,
+        elementType: "Show",
+        group: "shows",
+        elementPosition: index,
+        searchText: queryString.value,
+    })
+
     showId.value = id
     loading.value[id] = true
     await nextTick()

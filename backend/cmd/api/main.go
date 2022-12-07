@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/brunstadtv/backend/ratelimit"
 	"net/http"
 	"sort"
 	"strings"
@@ -84,6 +85,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 			return i.CollectionID
 		}),
 		CollectionItemIDsLoader: collection.NewCollectionItemLoader(db, collectionLoader, roles),
+		CalendarEntryLoader:     batchloaders.New(rq.GetCalendarEntries),
 	}
 
 	rolesLoaderCache.Set(key, loaders)
@@ -297,8 +299,7 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		EpisodeIDFromLegacyProgramIDLoader: batchloaders.NewConversionLoader(queries.GetEpisodeIDsForLegacyProgramIDs),
 		EpisodeIDFromLegacyIDLoader:        batchloaders.NewConversionLoader(queries.GetEpisodeIDsForLegacyIDs),
 		LinkLoader:                         batchloaders.New(queries.GetLinks).Loader,
-		EventLoader:                        batchloaders.New(queries.GetEvents).Loader,
-		CalendarEntryLoader:                batchloaders.New(queries.GetCalendarEntries).Loader,
+		EventLoader:                        batchloaders.New(queries.GetEvents),
 		FilesLoader:                        asset.NewBatchFilesLoader(*queries),
 		StreamsLoader:                      asset.NewBatchStreamsLoader(*queries),
 		CollectionLoader:                   batchloaders.New(queries.GetCollections).Loader,
@@ -398,6 +399,7 @@ func main() {
 	r.Use(user.NewProfileMiddleware(queries, rdb))
 	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
 	r.Use(applications.RoleMiddleware())
+	r.Use(ratelimit.Middleware())
 
 	r.POST("/query", gqlHandler)
 	r.GET("/", playgroundHandler())

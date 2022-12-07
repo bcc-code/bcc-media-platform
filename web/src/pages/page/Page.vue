@@ -1,6 +1,5 @@
 <template>
     <PageComponent
-        class="mb-16"
         :key="page"
         v-if="!fetching"
         :page-id="page"
@@ -36,5 +35,9 @@ const updateTitle = (title: string) => {
     if (props.pageId && defaultPage !== props.pageId) {
         setTitle(title)
     }
+    analytics.page({
+        id: page.value,
+        title,
+    })
 }
 </script>

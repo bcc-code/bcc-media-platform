@@ -27,6 +27,12 @@ export default [
                 props: true,
             },
             {
+                name: "episode-collection-page",
+                path: "episode/:collection/:episodeId",
+                component: () => import("@/pages/episode/Episode.vue"),
+                props: true,
+            },
+            {
                 name: "calendar",
                 path: "/calendar",
                 component: () => import("@/pages/calendar/Calendar.vue"),
@@ -42,6 +48,11 @@ export default [
                 component: () => import("@/pages/live/Live.vue"),
             },
         ],
+    },
+    {
+        name: "study",
+        path: "/study",
+        component: () => import("@/pages/study/Embed.vue"),
     },
     {
         name: "not-found",

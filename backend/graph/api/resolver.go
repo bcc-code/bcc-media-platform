@@ -12,11 +12,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/email"
+	"github.com/bcc-code/brunstadtv/backend/export"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/gin-gonic/gin"
-	"gopkg.in/guregu/null.v4"
-
 	"go.opentelemetry.io/otel"
 
 	cache "github.com/Code-Hex/go-generics-cache"
@@ -73,8 +72,21 @@ func (r *Resolver) GetS3Client() *s3.Client {
 	return r.S3Client
 }
 
+func (r *Resolver) GetURLSigner() *signing.Signer {
+	return r.URLSigner
+}
+
+func (r *Resolver) GetCDNConfig() export.CDNConfig {
+	return r.APIConfig
+}
+
 type awsConfig interface {
 	GetTempStorageBucket() string
+}
+
+type cdnConfig interface {
+	GetVOD2Domain() string
+	GetLegacyVODDomain() string
 }
 
 type apiConfig interface {
@@ -267,16 +279,33 @@ func itemsResolverForIntID[t any, r any](ctx context.Context, loaders *itemLoade
 	return itemsResolverFor(ctx, loaders, listLoader, int(intID), converter)
 }
 
-func imageOrFallback(ctx context.Context, images common.Images, fallback null.String, style *model.ImageStyle) *string {
+func imageOrFallback(ctx context.Context, images common.Images, style *model.ImageStyle, fallbacks ...common.Images) *string {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 	s := "default"
 	if style != nil && style.IsValid() {
 		s = style.String()
 	}
-	img := images.GetDefault(languages, s)
-	if img == nil && s != "icon" && fallback.Valid {
-		img = &fallback.String
+	img := images.GetStrict(languages, s)
+	if img == nil {
+		for _, fb := range fallbacks {
+			img = fb.GetStrict(languages, s)
+			if img != nil {
+				break
+			}
+		}
+	}
+	if img == nil && s != "default" {
+		s = "default"
+		img = images.GetStrict(languages, s)
+	}
+	if img == nil {
+		for _, fb := range fallbacks {
+			img = fb.GetStrict(languages, s)
+			if img != nil {
+				break
+			}
+		}
 	}
 	return img
 }

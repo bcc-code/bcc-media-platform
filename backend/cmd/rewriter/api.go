@@ -18,35 +18,38 @@ type response[T any] struct {
 
 type episode struct {
 	Episode struct {
-		Title       string
-		Description string
-		Image       *string
-		Number      *int
-		Season      struct {
+		Index  bool
+		Title  string
+		Image  *string
+		Number *int
+		Season struct {
 			Title string
+			Show  struct {
+				Title string
+			}
 		}
 	}
 }
 
-type season struct {
-	Season struct {
-		Title       string
-		Description string
-		Image       *string
-		Number      int
-		Show        struct {
-			Title string
-		}
-	}
-}
-
-type show struct {
-	Show struct {
-		Title       string
-		Description string
-		Image       *string
-	}
-}
+//type season struct {
+//	Season struct {
+//		Title       string
+//		Description string
+//		Image       *string
+//		Number      int
+//		Show        struct {
+//			Title string
+//		}
+//	}
+//}
+//
+//type show struct {
+//	Show struct {
+//		Title       string
+//		Description string
+//		Image       *string
+//	}
+//}
 
 var apiEndpoint = os.Getenv("API_ENDPOINT")
 
@@ -100,20 +103,20 @@ func getEpisode(id string) *episode {
 	})
 }
 
-//go:embed queries/season.graphql
-var seasonQuery string
-
-func getSeason(id string) *season {
-	return get[season](seasonQuery, map[string]any{
-		"id": id,
-	})
-}
-
-//go:embed queries/show.graphql
-var showQuery string
-
-func getShow(id string) *show {
-	return get[show](showQuery, map[string]any{
-		"id": id,
-	})
-}
+////go:embed queries/season.graphql
+//var seasonQuery string
+//
+//func getSeason(id string) *season {
+//	return get[season](seasonQuery, map[string]any{
+//		"id": id,
+//	})
+//}
+//
+////go:embed queries/show.graphql
+//var showQuery string
+//
+//func getShow(id string) *show {
+//	return get[show](showQuery, map[string]any{
+//		"id": id,
+//	})
+//}

@@ -11,12 +11,12 @@ queue:
   name: PROD Deploy Queue
   scope: project
 blocks:
-  - name: Deploy
+  - name: Backend
     run:
       when: branch = 'master'
     task:
       jobs:
-        - name: Deploy Backend
+        - name: deploy
           commands:
             - checkout
             - ./scripts/deploy.sh prod
@@ -30,7 +30,7 @@ blocks:
       when: branch = 'master'
     task:
       jobs:
-        - name: Deploy Web
+        - name: deploy
           commands:
             - checkout
             - ./scripts/deploy-web.sh prod

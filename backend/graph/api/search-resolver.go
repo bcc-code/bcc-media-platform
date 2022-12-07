@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/ratelimit"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"strconv"
 )
@@ -150,6 +151,12 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 	if err != nil {
 		return nil, err
 	}
+
+	err = ratelimit.Endpoint(ctx, "search", 50)
+	if err != nil {
+		return nil, err
+	}
+
 	searchResult, err := r.SearchService.Search(ginCtx, common.SearchQuery{
 		Query:    queryString,
 		Limit:    first,

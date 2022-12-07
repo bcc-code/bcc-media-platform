@@ -8,16 +8,16 @@
         >
             {{ t("search.episodes") }}
         </h1>
-        <div class="grid lg:grid-cols-4">
+        <div class="grid lg:grid-cols-4 gap-4">
             <div
                 class="flex lg:hidden"
-                v-for="i in data?.search.result"
+                v-for="(i, index) in data?.search.result"
                 :key="i.id"
             >
                 <div
                     v-if="i.__typename === 'EpisodeSearchItem'"
                     class="cursor-pointer flex"
-                    @click="goToEpisode(i.id)"
+                    @click="$emit('itemClick', index, i)"
                 >
                     <div class="relative mb-1 w-1/2 pr-2 py-2">
                         <img
@@ -48,14 +48,14 @@
                 </div>
             </div>
             <div
-                class="lg:flex hidden mx-2 mb-4"
-                v-for="i in data?.search.result"
+                class="lg:flex hidden mb-4"
+                v-for="(i, index) in data?.search.result"
                 :key="i.id"
             >
                 <div
                     v-if="i.__typename === 'EpisodeSearchItem'"
                     class="cursor-pointer"
-                    @click="goToEpisode(i.id)"
+                    @click="$emit('itemClick', index, i)"
                 >
                     <div class="relative mb-1">
                         <img
@@ -73,9 +73,9 @@
                             <h3 class="text-sm text-primary">
                                 {{ i.showTitle }}
                             </h3>
-                            <p class="text-gray text-sm ml-1">
+                            <!-- <p class="text-gray text-sm ml-1">
                                 {{ i.seasonTitle }}
-                            </p>
+                            </p> -->
                         </div>
                         <h1 class="text-lg">{{ i.title }}</h1>
                     </div>
@@ -85,8 +85,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { useSearchQuery } from "@/graph/generated"
-import { goToEpisode } from "@/utils/items"
+import { SearchQuery, useSearchQuery } from "@/graph/generated"
 import { computed, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 
@@ -95,6 +94,16 @@ const { t } = useI18n()
 const props = defineProps<{
     query: string
     pause: boolean
+}>()
+
+defineEmits<{
+    (
+        e: "itemClick",
+        index: number,
+        episode: SearchQuery["search"]["result"][0] & {
+            __typename: "EpisodeSearchItem"
+        }
+    ): void
 }>()
 
 const queryString = ref(props.query)

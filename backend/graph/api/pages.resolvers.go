@@ -5,14 +5,14 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/99designs/gqlgen/graphql"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	null "gopkg.in/guregu/null.v4"
 )
 
 // Items is the resolver for the items field.
@@ -98,7 +98,7 @@ func (r *pageResolver) Image(ctx context.Context, obj *model.Page, style *model.
 	if err != nil {
 		return nil, err
 	}
-	return imageOrFallback(ctx, e.Images, null.String{}, style), nil
+	return imageOrFallback(ctx, e.Images, style), nil
 }
 
 // Sections is the resolver for the sections field.
@@ -135,6 +135,31 @@ func (r *posterGridSectionResolver) Items(ctx context.Context, obj *model.Poster
 // Items is the resolver for the items field.
 func (r *posterSectionResolver) Items(ctx context.Context, obj *model.PosterSection, first *int, offset *int) (*model.SectionItemPagination, error) {
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+}
+
+// Image is the resolver for the image field.
+func (r *sectionItemResolver) Image(ctx context.Context, obj *model.SectionItem) (*string, error) {
+	fieldCtx := graphql.GetFieldContext(ctx)
+	style := model.ImageStyleDefault
+	if fieldCtx.Parent != nil && fieldCtx.Parent.Parent != nil && fieldCtx.Parent.Parent.Parent != nil {
+		switch fieldCtx.Parent.Parent.Parent.Object {
+		case "IconSection", "IconGridSection":
+			style = "icon"
+		case "PosterSection", "PosterGridSection":
+			style = model.ImageStylePoster
+		case "FeaturedSection":
+			style = model.ImageStyleFeatured
+		}
+	}
+	switch t := obj.Item.(type) {
+	case *model.Episode:
+		return r.Episode().Image(ctx, t, &style)
+	case *model.Season:
+		return r.Season().Image(ctx, t, &style)
+	case *model.Show:
+		return r.Show().Image(ctx, t, &style)
+	}
+	return obj.Image, nil
 }
 
 // Collection returns generated.CollectionResolver implementation.
@@ -190,6 +215,9 @@ func (r *Resolver) PosterGridSection() generated.PosterGridSectionResolver {
 // PosterSection returns generated.PosterSectionResolver implementation.
 func (r *Resolver) PosterSection() generated.PosterSectionResolver { return &posterSectionResolver{r} }
 
+// SectionItem returns generated.SectionItemResolver implementation.
+func (r *Resolver) SectionItem() generated.SectionItemResolver { return &sectionItemResolver{r} }
+
 type collectionResolver struct{ *Resolver }
 type contextCollectionResolver struct{ *Resolver }
 type defaultGridSectionResolver struct{ *Resolver }
@@ -203,3 +231,4 @@ type messageSectionResolver struct{ *Resolver }
 type pageResolver struct{ *Resolver }
 type posterGridSectionResolver struct{ *Resolver }
 type posterSectionResolver struct{ *Resolver }
+type sectionItemResolver struct{ *Resolver }

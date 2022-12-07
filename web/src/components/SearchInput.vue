@@ -9,7 +9,7 @@
             :disabled="disabled"
             class="pl-10 w-full bg-slate-800 rounded-full pr-20 p-2 my-auto text-md"
             :class="[disabled ? 'text-gray' : '']"
-            :placeholder="t('page.search')"
+            :placeholder="$t('page.search')"
             @keydown.enter="emit('keydown.enter')"
         />
         <p
@@ -17,17 +17,19 @@
             class="absolute flex right-2 ml-10 px-2 inset-y-2 cursor-pointer text-xs opacity-50 bg-slate-700 rounded-full"
             @click="cancel"
         >
-            <span class="my-auto uppercase">{{ t("search.cancel") }}</span>
+            <span class="my-auto uppercase">{{ $t("search.cancel") }}</span>
         </p>
     </div>
 </template>
 <script lang="ts" setup>
-import { computed } from "vue"
-import { useI18n } from "vue-i18n"
+import { useSearch } from "@/utils/search"
+import { computed, nextTick } from "vue"
 import { useRouter } from "vue-router"
 import { SearchIcon } from "./icons"
 
-const { t } = useI18n()
+const { oldPath } = useSearch()
+
+const router = useRouter()
 
 const props = defineProps<{
     modelValue: any
@@ -45,13 +47,31 @@ const value = computed({
     },
     set(v) {
         emit("update:modelValue", v)
+        nextTick().then(() => {
+            if (
+                router.currentRoute.value.name === "search" &&
+                !v &&
+                oldPath.value
+            ) {
+                router.push(oldPath.value).then((r) => {
+                    console.log(r)
+                })
+                console.log(oldPath.value)
+            } else if (router.currentRoute.value.name !== "search" && v) {
+                oldPath.value = router.currentRoute.value
+
+                router.replace({
+                    name: "search",
+                })
+            }
+        })
     },
 })
 
-const router = useRouter()
-
 const cancel = () => {
     value.value = ""
-    if (router.currentRoute.value.name === "search") router.back()
+    if (router.currentRoute.value.name === "search" && oldPath.value) {
+        router.replace(oldPath.value)
+    }
 }
 </script>

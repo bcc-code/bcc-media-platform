@@ -1,5 +1,5 @@
 <template>
-    <div class="px-4 flex flex-col gap-16 overflow-hidden h-full">
+    <div class="flex flex-col gap-16 overflow-hidden h-full">
         <section>
             <div class="relative">
                 <Swiper
@@ -10,24 +10,30 @@
                             spaceBetween: 4,
                         },
                         1280: {
-                            slidesPerView: 1.5,
+                            slidesPerView: 1,
                             spaceBetween: 4,
                         },
                         1920: {
-                            slidesPerView: 2,
+                            slidesPerView: 1,
                             spaceBetween: 4,
                         },
                     }"
                 >
                     <SwiperSlide v-for="i in 3" class="relative">
                         <div
-                            class="relative h-full cursor-pointer aspect-video overflow-hidden"
+                            class="relative h-full cursor-pointer aspect-video lg:aspect-[11/5] overflow-hidden"
                         >
                             <Image
                                 :src="undefined"
                                 size-source="width"
                                 :ratio="9 / 16"
-                                class="rounded rounded-xl h-full object-cover"
+                                class="lg:hidden rounded rounded-xl h-full object-cover"
+                            />
+                            <Image
+                                :src="undefined"
+                                size-source="width"
+                                :ratio="5 / 11"
+                                class="hidden lg:block rounded rounded-xl h-full object-cover"
                             />
                             <div
                                 class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent pt-8"

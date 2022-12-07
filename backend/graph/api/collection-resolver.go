@@ -68,6 +68,11 @@ func sectionCollectionEntryResolver(
 		if err != nil {
 			return nil, err
 		}
+
+		limit := 20
+		if col.Filter != nil && col.Filter.Limit != nil {
+			limit = *col.Filter.Limit
+		}
 		var newEntries []collection.Entry
 		for _, id := range utils.PointerIntArrayToIntArray(ids) {
 			entry, found := lo.Find(entries, func(e collection.Entry) bool {
@@ -75,6 +80,9 @@ func sectionCollectionEntryResolver(
 			})
 			if found {
 				newEntries = append(newEntries, entry)
+				if len(newEntries) >= limit {
+					break
+				}
 			}
 		}
 		entries = newEntries

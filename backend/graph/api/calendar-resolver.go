@@ -6,17 +6,16 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
 	"time"
 )
 
-func getForPeriod[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, *t], factory func(ctx context.Context, from time.Time, to time.Time) ([]k, error), from time.Time, to time.Time) ([]*t, error) {
+func getForPeriod[k comparable, t any](ctx context.Context, loader *batchloaders.BatchLoader[k, *t], factory func(ctx context.Context, from time.Time, to time.Time) ([]k, error), from time.Time, to time.Time) ([]*t, error) {
 	ids, err := factory(ctx, from, to)
 	if err != nil {
 		return nil, err
 	}
-	items, err := batchloaders.GetMany(ctx, loader, ids)
+	items, err := loader.GetMany(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +58,7 @@ func (r *calendarResolver) periodResolver(ctx context.Context, from time.Time, t
 	if err != nil {
 		return nil, err
 	}
-	entries, err := getForPeriod(ctx, r.Loaders.CalendarEntryLoader, r.Queries.GetCalendarEntriesForPeriod, from, to)
+	entries, err := getForPeriod(ctx, r.GetFilteredLoaders(ctx).CalendarEntryLoader, r.Queries.GetCalendarEntriesForPeriod, from, to)
 	if err != nil {
 		return nil, err
 	}

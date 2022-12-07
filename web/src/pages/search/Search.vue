@@ -1,5 +1,5 @@
 <template>
-    <section>
+    <section class="p-4 lg:p-20">
         <div class="flex lg:hidden w-full text-xl mb-4">
             <SearchInput class="mx-auto lg:w-96" v-model="query"></SearchInput>
         </div>
@@ -8,18 +8,17 @@
                 class="mt-2 mb-8"
                 :query="queryVariable"
                 :pause="pause"
+                @item-click=""
             ></ShowSearchQuery>
             <EpisodeSearchQuery
                 class="mb-2"
                 :query="queryVariable"
                 :pause="pause"
+                @item-click="(i, e) => clickEpisode(i, e.id)"
             ></EpisodeSearchQuery>
         </div>
-        <div v-else-if="data?.application.searchPage?.code">
-            <Page :page-id="data?.application.searchPage?.code"></Page>
-        </div>
-        <div v-else>
-            <div>Search page is not configured</div>
+        <div v-else class="w-full text-center">
+            <p class="text-lg text-gray">{{ $t("search.emptyQuery") }}</p>
         </div>
     </section>
 </template>
@@ -29,22 +28,29 @@ import ShowSearchQuery from "@/components/search/ShowSearchQuery.vue"
 import EpisodeSearchQuery from "@/components/search/EpisodeSearchQuery.vue"
 import { useRoute, useRouter } from "vue-router"
 import { useSearch } from "@/utils/search"
-import Page from "@/components/page/Page.vue"
 import { useApplicationQuery } from "@/graph/generated"
-import { useTitle } from "@/utils/title"
+import { setTitle } from "@/utils/title"
 import { useI18n } from "vue-i18n"
 import SearchInput from "@/components/SearchInput.vue"
 import { analytics } from "@/services/analytics"
-
-const { setTitle } = useTitle()
+import { goToEpisode } from "@/utils/items"
 
 const { t } = useI18n()
-
 const { data } = useApplicationQuery()
-
 const queryString = ref("")
-
 const { query } = useSearch()
+
+const clickEpisode = (index: number, id: string) => {
+    analytics.track("searchresult_clicked", {
+        group: "episodes",
+        elementId: id,
+        elementPosition: index,
+        elementType: "Episode",
+        searchText: queryVariable.value,
+    })
+
+    goToEpisode(id)
+}
 
 let timeout = null as NodeJS.Timeout | null
 

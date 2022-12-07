@@ -15,7 +15,7 @@ type AuthState = {
 }
 
 export default createClient({
-    url: config.api.url,
+    url: config.api.url + "/query",
     maskTypename: false,
     fetch(input, init) {
         return fetch(

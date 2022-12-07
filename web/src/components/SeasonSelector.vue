@@ -64,7 +64,7 @@ import { computed, ref } from "vue"
 import { ChevronDown } from "./icons"
 
 const props = defineProps<{
-    value: string
+    modelValue: string
     items: {
         id: string
         title: string
@@ -72,19 +72,19 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: "update:value", i: string): void
+    (e: "update:modelValue", i: string): void
 }>()
 
 const selectedItem = computed({
     get() {
-        return props.value
+        return props.modelValue
     },
     set(v) {
-        emit("update:value", v)
+        emit("update:modelValue", v)
     },
 })
 
 const selected = computed(() => {
-    return props.items.find((i) => i.id === props.value)
+    return props.items.find((i) => i.id === props.modelValue)
 })
 </script>

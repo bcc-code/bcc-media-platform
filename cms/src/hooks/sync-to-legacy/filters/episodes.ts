@@ -22,13 +22,19 @@ async function createOneEpisode(p, c) {
         image = (await c.database("directus_files").select("*").where("id", p.image_file_id))[0];
     }
 
+    let availableFrom = null
+    for (const date of [p.publish_date, p.available_from]) {
+        if (date && new Date(date).getTime() > new Date(availableFrom ?? 0).getTime()) {
+            availableFrom = date
+        }
+    }
 
     // update it in original
     let patch: Partial<EpisodeEntity> = {
         VideoId: asset?.legacy_id ?? 3022, // 3022 is placeholder. videoId isnt nullable in the legacy system, but it is in the new one
         Published: p.publish_date as unknown as Date ?? new Date(),
         AvailableTo: p.available_to as unknown as Date,
-        AvailableFrom: p.available_from as unknown as Date,
+        AvailableFrom: availableFrom as unknown as Date,
         Status: getStatusFromNew(p.status),
         LastUpdate: p.date_created as unknown as Date ?? new Date(),
         Visibility: 1,
@@ -130,11 +136,18 @@ async function updateOneEpisode(p, episodeKey, c) {
         return p;
     }
 
+    let availableFrom = null
+    for (const date of [p.publish_date, p.available_from]) {
+        if (date && new Date(date).getTime() > new Date(availableFrom ?? 0).getTime()) {
+            availableFrom = date
+        }
+    }
+
     // update it in original
     let patch: Partial<EpisodeEntity> = {
         Published: p.publish_date as unknown as Date,
         AvailableTo: p.available_to as unknown as Date,
-        AvailableFrom: p.available_from as unknown as Date,
+        AvailableFrom: availableFrom as unknown as Date,
         LastUpdate: new Date()
     }
 

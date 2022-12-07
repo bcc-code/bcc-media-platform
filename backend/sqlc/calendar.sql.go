@@ -25,16 +25,25 @@ SELECT e.id,
        e.link_type,
        e.start,
        e.end,
-       e.episode_id,
-       e.season_id,
-       e.show_id,
+       ea.id AS episode_id,
+       se.id AS season_id,
+       sh.id AS show_id,
        t.title,
        t.description
 FROM calendarentries e
+         LEFT JOIN episode_roles er ON er.id = e.episode_id AND er.roles && $2::varchar[]
+         LEFT JOIN episode_availability ea ON ea.id = er.id AND ea.published
+         LEFT JOIN seasons se ON se.id = e.season_id AND se.status = 'published'
+         LEFT JOIN shows sh ON sh.id = e.show_id AND sh.status = 'published'
          LEFT JOIN t ON e.id = t.calendarentries_id
 WHERE e.status = 'published'
-AND e.id = ANY($1::int[])
+  AND e.id = ANY ($1::int[])
 `
+
+type getCalendarEntriesParams struct {
+	Column1 []int32  `db:"column_1" json:"column1"`
+	Column2 []string `db:"column_2" json:"column2"`
+}
 
 type getCalendarEntriesRow struct {
 	ID          int32                 `db:"id" json:"id"`
@@ -49,8 +58,8 @@ type getCalendarEntriesRow struct {
 	Description pqtype.NullRawMessage `db:"description" json:"description"`
 }
 
-func (q *Queries) getCalendarEntries(ctx context.Context, dollar_1 []int32) ([]getCalendarEntriesRow, error) {
-	rows, err := q.db.QueryContext(ctx, getCalendarEntries, pq.Array(dollar_1))
+func (q *Queries) getCalendarEntries(ctx context.Context, arg getCalendarEntriesParams) ([]getCalendarEntriesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCalendarEntries, pq.Array(arg.Column1), pq.Array(arg.Column2))
 	if err != nil {
 		return nil, err
 	}
@@ -94,16 +103,25 @@ SELECT e.id,
        e.link_type,
        e.start,
        e.end,
-       e.episode_id,
-       e.season_id,
-       e.show_id,
+       ea.id AS episode_id,
+       se.id AS season_id,
+       sh.id AS show_id,
        t.title,
        t.description
 FROM calendarentries e
+         LEFT JOIN episode_roles er ON er.id = e.episode_id AND er.roles && $2::varchar[]
+         LEFT JOIN episode_availability ea ON ea.id = er.id AND ea.published
+         LEFT JOIN seasons se ON se.id = e.season_id AND se.status = 'published'
+         LEFT JOIN shows sh ON sh.id = e.show_id AND sh.status = 'published'
          LEFT JOIN t ON e.id = t.calendarentries_id
 WHERE e.status = 'published'
-  AND e.event_id = ANY($1::int[])
+  AND e.event_id = ANY ($1::int[])
 `
+
+type getCalendarEntriesForEventsParams struct {
+	Column1 []int32  `db:"column_1" json:"column1"`
+	Column2 []string `db:"column_2" json:"column2"`
+}
 
 type getCalendarEntriesForEventsRow struct {
 	ID          int32                 `db:"id" json:"id"`
@@ -118,8 +136,8 @@ type getCalendarEntriesForEventsRow struct {
 	Description pqtype.NullRawMessage `db:"description" json:"description"`
 }
 
-func (q *Queries) getCalendarEntriesForEvents(ctx context.Context, dollar_1 []int32) ([]getCalendarEntriesForEventsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getCalendarEntriesForEvents, pq.Array(dollar_1))
+func (q *Queries) getCalendarEntriesForEvents(ctx context.Context, arg getCalendarEntriesForEventsParams) ([]getCalendarEntriesForEventsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCalendarEntriesForEvents, pq.Array(arg.Column1), pq.Array(arg.Column2))
 	if err != nil {
 		return nil, err
 	}
@@ -156,8 +174,9 @@ const getCalendarEntryIDsForPeriod = `-- name: getCalendarEntryIDsForPeriod :man
 SELECT e.id
 FROM calendarentries e
 WHERE e.status = 'published'
-  AND ((e.start >= $1::timestamptz AND e.start <= $2::timestamptz) OR
-       (e.end >= $1::timestamptz AND e.end <= $2::timestamptz))
+  AND ((e.start >= $1::timestamptz AND e.start <= $2::timestamptz)
+    OR (e.end >= $1::timestamptz AND e.end <= $2::timestamptz)
+    OR (e.start <= $1::timestamptz AND e.end >= $2::timestamptz))
 ORDER BY e.start
 `
 
@@ -228,7 +247,7 @@ func (q *Queries) getEventIDsForPeriod(ctx context.Context, arg getEventIDsForPe
 
 const getEvents = `-- name: getEvents :many
 WITH t AS (SELECT ts.events_id,
-                  json_object_agg(ts.languages_code, ts.title)       AS title
+                  json_object_agg(ts.languages_code, ts.title) AS title
            FROM events_translations ts
            GROUP BY ts.events_id)
 SELECT e.id,
@@ -238,7 +257,7 @@ SELECT e.id,
 FROM events e
          LEFT JOIN t ON e.id = t.events_id
 WHERE e.status = 'published'
-  AND e.id = ANY($1::int[])
+  AND e.id = ANY ($1::int[])
 `
 
 type getEventsRow struct {
@@ -287,12 +306,16 @@ SELECT e.id,
        e.link_type,
        e.start,
        e.end,
-       e.episode_id,
-       e.season_id,
-       e.show_id,
+       ea.id AS episode_id,
+       se.id AS season_id,
+       sh.id AS show_id,
        t.title,
        t.description
 FROM calendarentries e
+         LEFT JOIN episode_roles er ON er.id = e.episode_id AND er.roles && $1::varchar[]
+         LEFT JOIN episode_availability ea ON ea.id = er.id AND ea.published
+         LEFT JOIN seasons se ON se.id = e.season_id AND se.status = 'published'
+         LEFT JOIN shows sh ON sh.id = e.show_id AND sh.status = 'published'
          LEFT JOIN t ON e.id = t.calendarentries_id
 WHERE e.status = 'published'
 `
@@ -310,8 +333,8 @@ type listCalendarEntriesRow struct {
 	Description pqtype.NullRawMessage `db:"description" json:"description"`
 }
 
-func (q *Queries) listCalendarEntries(ctx context.Context) ([]listCalendarEntriesRow, error) {
-	rows, err := q.db.QueryContext(ctx, listCalendarEntries)
+func (q *Queries) listCalendarEntries(ctx context.Context, dollar_1 []string) ([]listCalendarEntriesRow, error) {
+	rows, err := q.db.QueryContext(ctx, listCalendarEntries, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
@@ -346,7 +369,7 @@ func (q *Queries) listCalendarEntries(ctx context.Context) ([]listCalendarEntrie
 
 const listEvents = `-- name: listEvents :many
 WITH t AS (SELECT ts.events_id,
-                  json_object_agg(ts.languages_code, ts.title)       AS title
+                  json_object_agg(ts.languages_code, ts.title) AS title
            FROM events_translations ts
            GROUP BY ts.events_id)
 SELECT e.id,

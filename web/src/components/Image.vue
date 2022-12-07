@@ -6,7 +6,7 @@
     >
         <img
             ref="image"
-            class="object-cover transition"
+            class="object-cover w-full transition"
             :class="[!loaded ? 'opacity-0' : 'opacity-100']"
             :src="effectiveSrc"
             :height="effectiveHeight"
@@ -36,6 +36,7 @@ onMounted(() => {
     if (!i) {
         return
     }
+    i.onerror = () => {}
     i.onload = () => {
         loaded.value = true
     }
@@ -55,10 +56,10 @@ const parentDimensions = computed(() => {
 })
 
 const effectiveSrc = computed(() => {
-    return (
-        props.src +
-        `?w=${effectiveWidth.value}&h=${effectiveHeight.value}&fit=crop&crop=faces`
-    )
+    return props.src
+        ? props.src +
+              `?w=${effectiveWidth.value}&h=${effectiveHeight.value}&fit=crop&crop=faces`
+        : "null"
 })
 
 const effectiveWidth = computed(() => {

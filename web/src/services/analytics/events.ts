@@ -1,6 +1,8 @@
 import { GetPageQuery, SectionItemFragment } from "@/graph/generated"
 
-export type Page =
+type StringWithAutocomplete<T> = T | (string & {})
+
+export type Page = StringWithAutocomplete<
     | "about"
     | "calendar"
     | "livestream"
@@ -12,6 +14,7 @@ export type Page =
     | "support"
     | "faq"
     | "episode"
+>
 
 export type IdentifyData = {
     id: string
@@ -38,9 +41,9 @@ export type Events = {
     section_clicked: {
         sectionId: string
         sectionName: string
-        sectionPosition: string
+        sectionPosition: number
         sectionType: GetPageQuery["page"]["sections"]["items"][0]["__typename"]
-        elementPosition: string
+        elementPosition: number
         elementType: ElementType
         elementId: string
         elementName: string
@@ -62,9 +65,10 @@ export type Events = {
     }
     searchresult_clicked: {
         searchText: string
-        elementPosition: string
+        elementPosition: number
         elementType: ElementType
         elementId: string
+        group: "shows" | "episodes"
     }
     language_changed: {
         pageCode: string

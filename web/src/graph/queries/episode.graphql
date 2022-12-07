@@ -1,3 +1,11 @@
+fragment SimpleEpisode on Episode {
+    id
+    title
+    image
+    publishDate
+    duration
+}
+
 query getSeasonOnEpisodePage(
     $seasonId: ID!
     $firstEpisodes: Int
@@ -11,13 +19,9 @@ query getSeasonOnEpisodePage(
         episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
             total
             items {
-                id
-                publishDate
+                ...SimpleEpisode
                 number
-                title
-                image
                 progress
-                duration
                 description
                 ageRating
             }
@@ -34,18 +38,15 @@ query getSeasonOnEpisodePage(
 
 query getEpisode($episodeId: ID!, $context: EpisodeContext) {
     episode(id: $episodeId, context: $context) {
-        id
-        title
+        ...SimpleEpisode
         description
-        image(style: default)
         number
         progress
         ageRating
         productionDate
+        productionDateInTitle
         availableFrom
         availableTo
-        publishDate
-        duration
         context {
             __typename
             ... on Season {
@@ -91,11 +92,13 @@ mutation updateEpisodeProgress(
     $episodeId: ID!
     $progress: Int
     $duration: Int
+    $context: EpisodeContext!
 ) {
     setEpisodeProgress(
         id: $episodeId
         progress: $progress
         duration: $duration
+        context: $context
     ) {
         progress
     }

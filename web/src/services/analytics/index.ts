@@ -3,6 +3,22 @@ import { ref } from "vue"
 import { AgeGroup, Events, IdentifyData, Page } from "./events"
 export * from "./events"
 
+import { useAuth } from "../auth"
+import { current } from "../language"
+import config from "@/config"
+
+const getRevision = async () => {
+    try {
+        const result = await fetch(config.api.url + "/versionz")
+        const rev = await result.json()
+
+        if (rev["build_sha"]) {
+            return rev
+        }
+    } catch {}
+    return "unknown | debug"
+}
+
 const isLoading = ref(true)
 
 ready(() => {
@@ -40,26 +56,74 @@ export const getAgeGroup = (age?: number): AgeGroup => {
 
 class Analytics {
     private initialized = false
+    private revision: string | null = null
 
     public setUser(user: IdentifyData) {
         this.initialized = true
-        identify(user.id, user)
+        const data = Object.assign({}, user) as any
+        delete data["id"]
+        identify(user.id, data)
     }
 
     public track<T extends keyof Events>(event: T, data: Events[T]) {
         if (!this.initialized) return
-        track(event, data, undefined, undefined)
+
+        track(
+            event,
+            {
+                ...data,
+                appLanguage: current.value.code,
+                releaseVersion: this.revision ?? "unknown",
+            },
+            undefined,
+            undefined
+        )
     }
 
-    public page(data: {
+    public page(page: {
         id: Page
         title: string
         meta?: {
             setting?: "webSettings"
+            episodeId?: string
         }
     }) {
         if (!this.initialized) return
-        rpage(data)
+        const data = Object.assign({}, page) as any
+        delete data["id"]
+        rpage(page.id, data)
+    }
+
+    public async initialize(idFactory: () => Promise<string | null>) {
+        this.revision = await getRevision()
+        const { getClaims } = useAuth()
+
+        let analyticsId = await idFactory()
+        if (!analyticsId) analyticsId = "anonymous"
+
+        const claims = getClaims()
+
+        let ageGroup: AgeGroup = "UNKNOWN"
+
+        const now = new Date()
+        const birthDate = claims.birthDate
+        if (birthDate) {
+            const date = new Date(birthDate)
+
+            const diff = now.getTime() - date.getTime()
+
+            const diffDate = new Date(diff)
+
+            ageGroup = getAgeGroup(diffDate.getFullYear() - 1970)
+        }
+
+        this.setUser({
+            ageGroup,
+            churchId: claims.churchId?.toString() ?? "0",
+            country: claims.country ?? "unknown",
+            gender: claims.gender ?? "unknown",
+            id: analyticsId,
+        })
     }
 }
 
