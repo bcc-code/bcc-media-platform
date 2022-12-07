@@ -2,7 +2,7 @@
     <TransitionRoot
         as="template"
         :show="show"
-        enter="duration-300 ease-out"
+        enter="duration-100 ease-out"
         enter-from="opacity-0"
         enter-to="opacity-100"
         leave="duration-200 ease-in"
@@ -52,6 +52,7 @@
                                 v-model="title"
                                 id="title"
                                 type="text"
+                                maxlength="50"
                                 class="ellipsis border border-white rounded text-lg px-2 py-1 border-opacity-25 bg-primary bg-opacity-10"
                                 :placeholder="$t('support.subject')"
                             />
@@ -72,6 +73,14 @@
                                     ></textarea>
                                 </div>
                             </section>
+                            <div ref="technicalDetails">
+                                <table>
+                                    <tr v-for="[key, value] in Object.entries(technicalProperties)">
+                                        <td><strong>{{key}}</strong></td>
+                                        <td>{{value}}</td>
+                                    </tr>
+                                </table>
+                            </div>
                             <div class="flex gap-2 ml-auto">
                                 <VButton color="secondary" @click="closePanel">
                                     {{$t("buttons.cancel")}}
@@ -95,6 +104,7 @@
 <script lang="ts" setup>
 import { VButton } from "@/components";
 import { useSetSupportEmailMutation } from "@/graph/generated"
+import { getRevision } from "@/services/revision";
 import {
     Dialog,
     DialogPanel,
@@ -116,15 +126,28 @@ const emit = defineEmits<{
 const title = ref("")
 const content = ref("")
 
-const submit = async (e: MouseEvent) => {
+const technicalDetails = ref(null as HTMLDivElement | null)
+
+const technicalProperties = {
+    "Platform": navigator.platform,
+    "Version": "",
+    "Window Size": window.outerWidth + " x " + window.outerHeight
+}
+
+getRevision().then(r => technicalProperties.Version = r)
+
+const submit = async () => {
     const isValid = validateForm()
     if (!isValid) {
         return
     }
+
+    const html = "<div><h1>" + title.value + "</h1><p>" + content.value + "</p><br/>" + technicalDetails.value?.innerHTML +  "</div>"
+
     await executeMutation({
-        title: title.value,
+        title: "BTV Web - " + title.value,
         content: content.value,
-        html: "<div><h1>" + title + "</h1><p>" + content + "</p></div>",
+        html,
     })
     closePanel()
 }
