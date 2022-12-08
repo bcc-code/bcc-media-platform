@@ -25,6 +25,7 @@ module.exports = {
                     DEFAULT: "#202a39",
                     hover: "#192938",
                 },
+                // from figma:
                 "tint-1": "var(--color-tint-1)",
                 "tint-2": "var(--color-tint-2)",
                 "tint-3": "var(--color-tint-3)",

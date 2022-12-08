@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: "Barlow", sans-serif;
+}
+
+.slide-fade-enter-active {
+    transition: all 0.1s ease-out;
+}
+
+.slide-fade-leave-active {
+    transition: all 0.1s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+    transform: translateX(5px);
+    opacity: 0;
+}
+
+:root {
+    --swiper-navigation-color: #fefefe;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    background-color: rgba(29, 40, 56);
+    opacity: 0.8;
+    border-radius: 100%;
+    height: 55px !important;
+    width: 55px !important;
+    padding: 20px !important;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
