@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
@@ -81,6 +82,27 @@ func (r *lessonResolver) Progress(ctx context.Context, obj *model.Lesson) (*mode
 		Completed: len(lo.Filter(completed, func(i *uuid.UUID, _ int) bool {
 			return i != nil
 		})),
+	}, nil
+}
+
+// Episodes is the resolver for the episodes field.
+func (r *lessonResolver) Episodes(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.EpisodePagination, error) {
+	ids, err := r.GetFilteredLoaders(ctx).StudyLessonEpisodesLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	page := utils.Paginate(ids, first, offset, nil)
+
+	episodes, err := batchloaders.GetMany(ctx, r.Loaders.EpisodeLoader, utils.PointerArrayToArray(page.Items))
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.EpisodePagination{
+		Items:  utils.MapWithCtx(ctx, episodes, model.EpisodeFrom),
+		Total:  page.Total,
+		First:  page.First,
+		Offset: page.Offset,
 	}, nil
 }
 
