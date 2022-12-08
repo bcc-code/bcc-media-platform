@@ -5,6 +5,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"strconv"
 )
 
 // TaskFrom returns a task from studies.Task
@@ -28,6 +29,36 @@ func TaskFrom(ctx context.Context, task *common.Task) Task {
 				ID:    id,
 				Title: title,
 			}
+		}
+	case common.TaskTypeImage:
+		image := task.Images.Get(languages)
+		switch task.ImageType {
+		case common.ImageTaskTypeQuote:
+			return QuoteTask{
+				ID:    id,
+				Title: title,
+				Image: image,
+			}
+		case common.ImageTaskTypePoster:
+			return PosterTask{
+				ID:    id,
+				Title: title,
+				Image: image,
+			}
+		}
+	case common.TaskTypeLink:
+		return LinkTask{
+			ID:    id,
+			Title: title,
+			Link:  task.Link.String,
+		}
+	case common.TaskTypeVideo:
+		return VideoTask{
+			ID:    id,
+			Title: title,
+			Episode: &Episode{
+				ID: strconv.Itoa(int(task.EpisodeID.Int64)),
+			},
 		}
 	}
 

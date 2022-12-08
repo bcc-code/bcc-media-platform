@@ -64,6 +64,9 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 		var title = common.LocaleString{}
 		_ = json.Unmarshal(l.Title.RawMessage, &title)
 
+		var images = common.LocaleMap[string]{}
+		_ = json.Unmarshal(l.Images.RawMessage, &images)
+
 		if l.OriginalTitle.Valid {
 			title["no"] = l.OriginalTitle
 		}
@@ -78,6 +81,10 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 			LessonID:     l.LessonID,
 			Title:        title,
 			QuestionType: l.QuestionType.String,
+			ImageType:    l.ImageType.String,
+			Images:       images,
+			EpisodeID:    l.EpisodeID,
+			Link:         l.Link,
 			Type:         l.Type,
 			MultiSelect:  multiSelect,
 		}

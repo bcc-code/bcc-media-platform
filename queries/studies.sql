@@ -29,16 +29,25 @@ WHERE l.status = 'published'
 WITH ts AS (SELECT tasks_id,
                    json_object_agg(languages_code, title) as title
             FROM tasks_translations
-            GROUP BY tasks_id)
+            GROUP BY tasks_id),
+     images AS (SELECT img.task_id, json_object_agg(img.language, df.filename_disk) as images
+                FROM tasks_images img
+                         JOIN directus_files df ON df.id = img.image
+                GROUP BY img.task_id)
 SELECT t.id,
        t.title as original_title,
        t.type,
        t.question_type,
        t.lesson_id,
        t.alternatives_multiselect,
-       ts.title
+       t.image_type,
+       t.link,
+       t.episode_id,
+       ts.title,
+       images.images
 FROM tasks t
          LEFT JOIN ts ON ts.tasks_id = t.id
+         LEFT JOIN images ON images.task_id = t.id
 WHERE t.status = 'published'
   AND t.id = ANY ($1::uuid[]);
 

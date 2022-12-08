@@ -39,7 +39,7 @@ func ValidateAccess[k comparable](ctx context.Context, permissionLoader *dataloa
 		return nil
 	}
 
-	if !availability.Published ||
+	if !(availability.Published || availability.Unlisted) ||
 		availability.To.Before(time.Now()) {
 		return merry.Wrap(ErrItemNotPublished)
 	}

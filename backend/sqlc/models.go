@@ -1117,6 +1117,16 @@ type Task struct {
 	LessonID                uuid.UUID      `db:"lesson_id" json:"lessonID"`
 	Title                   null_v4.String `db:"title" json:"title"`
 	AlternativesMultiselect sql.NullBool   `db:"alternatives_multiselect" json:"alternativesMultiselect"`
+	EpisodeID               null_v4.Int    `db:"episode_id" json:"episodeID"`
+	Link                    null_v4.String `db:"link" json:"link"`
+	ImageType               null_v4.String `db:"image_type" json:"imageType"`
+}
+
+type TasksImage struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	Image    uuid.UUID `db:"image" json:"image"`
+	Language string    `db:"language" json:"language"`
+	TaskID   uuid.UUID `db:"task_id" json:"taskID"`
 }
 
 type TasksTranslation struct {

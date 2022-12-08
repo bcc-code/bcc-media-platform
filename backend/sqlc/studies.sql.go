@@ -310,16 +310,25 @@ const getTasks = `-- name: getTasks :many
 WITH ts AS (SELECT tasks_id,
                    json_object_agg(languages_code, title) as title
             FROM tasks_translations
-            GROUP BY tasks_id)
+            GROUP BY tasks_id),
+     images AS (SELECT img.task_id, json_object_agg(img.language, df.filename_disk) as images
+                FROM tasks_images img
+                         JOIN directus_files df ON df.id = img.image
+                GROUP BY img.task_id)
 SELECT t.id,
        t.title as original_title,
        t.type,
        t.question_type,
        t.lesson_id,
        t.alternatives_multiselect,
-       ts.title
+       t.image_type,
+       t.link,
+       t.episode_id,
+       ts.title,
+       images.images
 FROM tasks t
          LEFT JOIN ts ON ts.tasks_id = t.id
+         LEFT JOIN images ON images.task_id = t.id
 WHERE t.status = 'published'
   AND t.id = ANY ($1::uuid[])
 `
@@ -331,7 +340,11 @@ type getTasksRow struct {
 	QuestionType            null_v4.String        `db:"question_type" json:"questionType"`
 	LessonID                uuid.UUID             `db:"lesson_id" json:"lessonID"`
 	AlternativesMultiselect sql.NullBool          `db:"alternatives_multiselect" json:"alternativesMultiselect"`
+	ImageType               null_v4.String        `db:"image_type" json:"imageType"`
+	Link                    null_v4.String        `db:"link" json:"link"`
+	EpisodeID               null_v4.Int           `db:"episode_id" json:"episodeID"`
 	Title                   pqtype.NullRawMessage `db:"title" json:"title"`
+	Images                  pqtype.NullRawMessage `db:"images" json:"images"`
 }
 
 func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getTasksRow, error) {
@@ -350,7 +363,11 @@ func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getTask
 			&i.QuestionType,
 			&i.LessonID,
 			&i.AlternativesMultiselect,
+			&i.ImageType,
+			&i.Link,
+			&i.EpisodeID,
 			&i.Title,
+			&i.Images,
 		); err != nil {
 			return nil, err
 		}
