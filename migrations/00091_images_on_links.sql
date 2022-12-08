@@ -4,22 +4,6 @@
 /***    CREATED ON: 2022-12-08T14:46:21.105Z             ***/
 /***********************************************************/
 
---- BEGIN ALTER TABLE "public"."tasks_images" ---
-
-REVOKE SELECT ON TABLE "public"."tasks_images" FROM directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-REVOKE INSERT ON TABLE "public"."tasks_images" FROM directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-REVOKE UPDATE ON TABLE "public"."tasks_images" FROM directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-REVOKE DELETE ON TABLE "public"."tasks_images" FROM directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-REVOKE TRUNCATE ON TABLE "public"."tasks_images" FROM directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-REVOKE REFERENCES ON TABLE "public"."tasks_images" FROM directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-REVOKE TRIGGER ON TABLE "public"."tasks_images" FROM directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-
-REVOKE SELECT ON TABLE "public"."tasks_images" FROM api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-
-ALTER TABLE IF EXISTS "public"."tasks_images" OWNER TO btv;
-
---- END ALTER TABLE "public"."tasks_images" ---
-
 --- BEGIN ALTER TABLE "public"."tasks" ---
 
 ALTER TABLE IF EXISTS "public"."tasks" ADD COLUMN IF NOT EXISTS "secondary_title" varchar(255) NULL  ;
@@ -78,22 +62,6 @@ ALTER TABLE IF EXISTS "public"."tasks" DROP COLUMN IF EXISTS "secondary_title" C
 ALTER TABLE IF EXISTS "public"."tasks" DROP COLUMN IF EXISTS "description" CASCADE; --WARN: Drop column can occure in data loss!
 
 --- END ALTER TABLE "public"."tasks" ---
-
---- BEGIN ALTER TABLE "public"."tasks_images" ---
-
-GRANT SELECT ON TABLE "public"."tasks_images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."tasks_images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."tasks_images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."tasks_images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."tasks_images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."tasks_images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."tasks_images" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-
-GRANT SELECT ON TABLE "public"."tasks_images" TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-
-ALTER TABLE IF EXISTS "public"."tasks_images" OWNER TO builder;
-
---- END ALTER TABLE "public"."tasks_images" ---
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
 
