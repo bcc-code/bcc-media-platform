@@ -22,7 +22,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { useSearch } from "@/utils/search";
+import { useSearch } from "@/utils/search"
 import { computed, nextTick } from "vue"
 import { useRouter } from "vue-router"
 import { SearchIcon } from "./icons"
@@ -48,9 +48,12 @@ const value = computed({
     set(v) {
         emit("update:modelValue", v)
         nextTick().then(() => {
-
-            if (router.currentRoute.value.name === "search" && !v && oldPath.value) {
-                router.push(oldPath.value).then(r => {
+            if (
+                router.currentRoute.value.name === "search" &&
+                !v &&
+                oldPath.value
+            ) {
+                router.push(oldPath.value).then((r) => {
                     console.log(r)
                 })
                 console.log(oldPath.value)
@@ -61,7 +64,7 @@ const value = computed({
                     name: "search",
                 })
             }
-            })
+        })
     },
 })
 

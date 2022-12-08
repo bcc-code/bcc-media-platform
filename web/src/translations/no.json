@@ -3,7 +3,9 @@
         "save": "Lagre",
         "login": "Logg inn",
         "logout": "Logg ut",
-        "stayLoggedOut": "Forbli logget ut"
+        "stayLoggedOut": "Forbli logget ut",
+        "cancel": "Avbryt",
+        "submit": "Send inn"
     },
     "dashboard": {
         "loggedOut": "Du ble logget ut"

@@ -1,6 +1,9 @@
 <template>
     <Disclosure as="nav" v-slot="{ open }">
-        <div class="mx-auto px-2 lg:px-8 transition duration-200" :class="[loading ? 'opacity-0' : 'opacity-100']">
+        <div
+            class="mx-auto px-2 lg:px-8 transition duration-200"
+            :class="[loading ? 'opacity-0' : 'opacity-100']"
+        >
             <div class="lg:flex py-4">
                 <div class="flex justify-between w-full">
                     <div class="flex flex-shrink-0 my-auto">
@@ -21,9 +24,7 @@
                                 {{ $t(item.name) }}</NavLink
                             >
                         </div>
-                        <SearchInput
-                            v-model="query"
-                        ></SearchInput>
+                        <SearchInput v-model="query"></SearchInput>
                     </div>
                     <div class="hidden lg:flex ml-2">
                         <Menu as="div" class="relative my-auto">
@@ -148,7 +149,7 @@
                                                 </p>
                                             </button>
                                         </MenuItem>
-                                        <MenuItem v-slot="{ active }">
+                                        <!-- <MenuItem v-slot="{ active }">
                                             <button
                                                 :class="[
                                                     active
@@ -161,7 +162,28 @@
                                                     class="h-6"
                                                 ></SettingsIcon>
                                                 <p class="ml-2 text-base">
-                                                    Settings
+                                                    {{$t("settings")}}
+                                                </p>
+                                            </button>
+                                        </MenuItem> -->
+                                        <MenuItem
+                                            v-slot="{ active }"
+                                            @click="(showContactForm = true)"
+                                            v-if="authenticated"
+                                        >
+                                            <button
+                                                :class="[
+                                                    active
+                                                        ? 'bg-violet-500 text-white'
+                                                        : 'text-gray-900',
+                                                    'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
+                                                ]"
+                                            >
+                                                <QuestionIcon
+                                                    class="h-6"
+                                                ></QuestionIcon>
+                                                <p class="ml-2 text-base">
+                                                    {{$t("support.contact")}}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -300,7 +322,7 @@
                                                 </p>
                                             </button>
                                         </MenuItem>
-                                        <MenuItem v-slot="{ active }">
+                                        <!-- <MenuItem v-slot="{ active }">
                                             <button
                                                 :class="[
                                                     active
@@ -314,6 +336,27 @@
                                                 ></SettingsIcon>
                                                 <p class="ml-2 text-base">
                                                     Settings
+                                                </p>
+                                            </button>
+                                        </MenuItem> -->
+                                        <MenuItem
+                                            v-slot="{ active }"
+                                            v-if="authenticated"
+                                            @click="(showContactForm = true)"
+                                        >
+                                            <button
+                                                :class="[
+                                                    active
+                                                        ? 'bg-violet-500 text-white'
+                                                        : 'text-gray-900',
+                                                    'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
+                                                ]"
+                                            >
+                                                <QuestionIcon
+                                                    class="h-6"
+                                                ></QuestionIcon>
+                                                <p class="ml-2 text-base">
+                                                    {{$t("support.contact")}}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -338,6 +381,7 @@
                 </div>
             </div>
         </div>
+        <ContactForm v-model:show="showContactForm" />
     </Disclosure>
 </template>
 <script lang="ts" setup>
@@ -357,6 +401,7 @@ import {
     HomeIcon,
     LiveIcon,
     ProfileIcon,
+    QuestionIcon,
     SearchIcon,
     SettingsIcon,
 } from "../icons"
@@ -364,6 +409,7 @@ import { computed, onMounted, ref } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
 import { useGetCalendarStatusQuery } from "@/graph/generated"
+import ContactForm from "@/components/support/ContactForm.vue"
 
 const loading = ref(true)
 
@@ -372,8 +418,10 @@ const { query } = useSearch()
 const { authenticated, signOut, signIn, user } = useAuth()
 
 onMounted(() => {
-    setTimeout(() => loading.value = false, 100)
+    setTimeout(() => (loading.value = false), 100)
 })
+
+const showContactForm = ref(false)
 
 const navigation = computed(() => {
     const n: {

@@ -27,7 +27,7 @@
                 </div>
                 <div v-else class="h-40"></div>
             </div>
-            <div v-else-if="(!fetching && !loading)">
+            <div v-else-if="!fetching && !loading">
                 <NotFound :title="$t('page.notFound')"></NotFound>
             </div>
             <div v-else-if="error">{{ error.message }}</div>
@@ -75,7 +75,7 @@ const page = ref(null as GetPageQuery["page"] | null)
 const loading = ref(false)
 
 const load = async () => {
-    loading.value = true;
+    loading.value = true
     const result = await executeQuery()
     if (result.data.value?.page) {
         page.value = result.data.value.page
@@ -206,9 +206,13 @@ const clickItem = (sectionIndex: number, itemIndex: number) => {
                                     ...section,
                                     index: sectionIndex,
                                     options: {
-                                        useContext: section.metadata?.useContext === true,
-                                        collectionId: section.metadata?.collectionId ?? "",
-                                    }
+                                        useContext:
+                                            section.metadata?.useContext ===
+                                            true,
+                                        collectionId:
+                                            section.metadata?.collectionId ??
+                                            "",
+                                    },
                                 },
                                 page.value.code
                             )
