@@ -90,6 +90,17 @@ func GetAcceptedLanguagesFromCtx(ctx *gin.Context) []string {
 	return utils.ParseAcceptLanguage(accLang)
 }
 
+var ageGroups = map[int]string{
+	65: "65+",
+	51: "51 - 64",
+	37: "37 - 50",
+	26: "26 - 36",
+	19: "19 - 25",
+	13: "13 - 18",
+	10: "10 - 12",
+	0:  "0 - 9",
+}
+
 // NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
 func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin.Context) {
@@ -161,6 +172,21 @@ func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin
 			Email:       email,
 			Anonymous:   false,
 			ActiveBCC:   ctx.GetBool(auth0.CtxIsBCCMember),
+			AgeGroup:    "unknown",
+		}
+
+		// Set AgeGroup and avoid passing identifying information through the application
+		birthDate, err := time.Parse("2006-01-02", member.BirthDate)
+		if err != nil {
+			log.L.Error().Err(err).Msg("Error parsing birthday of user")
+		} else {
+			age := time.Now().Year() - birthDate.Year()
+			for minAge, group := range ageGroups {
+				if age > minAge {
+					u.AgeGroup = group
+					break
+				}
+			}
 		}
 
 		// Add the user to the cache

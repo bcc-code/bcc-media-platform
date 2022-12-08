@@ -46,29 +46,35 @@ func Middleware() gin.HandlerFunc {
 }
 
 // Endpoint protects a specific endpoint from public clients
-func Endpoint(ctx context.Context, endpoint string, rateLimit int) error {
+func Endpoint(ctx context.Context, endpoint string, rateLimit int, anonymousOnly bool) error {
 	ginCtx, _ := utils.GinCtx(ctx)
 
 	u := user.GetFromCtx(ginCtx)
 
-	if !u.Anonymous {
+	if anonymousOnly && !u.Anonymous {
 		return nil
 	}
 
-	forwardedFor := ginCtx.Request.Header.Get("X-Forwarded-For")
+	var key string
+	if u.Anonymous {
+		key = ginCtx.Request.Header.Get("X-Forwarded-For")
 
-	if forwardedFor == "" {
-		forwardedFor = ginCtx.ClientIP()
+		if key == "" {
+			key = ginCtx.ClientIP()
+		}
+	} else {
+		p := user.GetProfileFromCtx(ginCtx)
+		key = p.ID.String()
 	}
 
-	limit, _ := limitCache.Get(endpoint + ":" + forwardedFor)
+	limit, _ := limitCache.Get(endpoint + ":" + key)
 	if limit.Increment >= rateLimit {
-		return merry.New("Rate limit exceeded", merry.WithUserMessage("Too many requests"))
+		return merry.New("Rate limit exceeded", merry.WithUserMessage("Too many requests"), merry.WithHTTPCode(429))
 	}
 
 	limit.Increment++
 
-	limitCache.Set(forwardedFor, limit, cache.WithExpiration(time.Minute*5))
+	limitCache.Set(endpoint+":"+key, limit, cache.WithExpiration(time.Minute*5))
 
 	return nil
 }
