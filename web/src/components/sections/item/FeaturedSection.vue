@@ -37,7 +37,11 @@
                     </p>
                 </div>
                 <div
-                    class="hidden lg:block absolute w-full bottom-0 left-0 p-20 bg-gradient-to-t from-background to-transparent"
+                    class="hidden lg:block absolute w-full -bottom-1 left-0 bg-gradient-to-t from-background to-transparent"
+                    :class="{
+                        'p-20': props.item.size === 'medium',
+                        'p-10': props.item.size === 'small'
+                    }"
                 >
                     <h1 class="text-3xl font-bold">
                         {{ i.title }}
@@ -121,11 +125,11 @@ const options = computed(() => {
                     spaceBetween: 4,
                 },
                 1280: {
-                    slidesPerView: 3,
+                    slidesPerView: 2,
                     spaceBetween: 4,
                 },
                 1920: {
-                    slidesPerView: 4,
+                    slidesPerView: 2,
                     spaceBetween: 4,
                 },
             }

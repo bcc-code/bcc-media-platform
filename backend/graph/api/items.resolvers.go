@@ -213,6 +213,27 @@ func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, 
 	return nil, nil
 }
 
+// Lessons is the resolver for the lessons field.
+func (r *episodeResolver) Lessons(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.LessonPagination, error) {
+	ids, err := r.GetFilteredLoaders(ctx).EpisodeStudyLessonsLoader.Get(ctx, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	page := utils.Paginate(ids, first, offset, nil)
+
+	lessons, err := r.Loaders.StudyLessonLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.LessonPagination{
+		Items:  utils.MapWithCtx(ctx, lessons, model.LessonFrom),
+		Total:  page.Total,
+		First:  page.First,
+		Offset: page.Offset,
+	}, nil
+}
+
 // Image is the resolver for the image field.
 func (r *seasonResolver) Image(ctx context.Context, obj *model.Season, style *model.ImageStyle) (*string, error) {
 	e, err := batchloaders.GetByID(ctx, r.Loaders.SeasonLoader, utils.AsInt(obj.ID))

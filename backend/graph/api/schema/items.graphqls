@@ -16,7 +16,7 @@ type Show {
     title: String!
     description: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
-    imageUrl: String
+    imageUrl: String @deprecated(reason: "Replaced by the image field")
     images: [Image!]!
     episodeCount: Int! @goField(forceResolver: true)
     seasonCount: Int! @goField(forceResolver: true)
@@ -35,7 +35,7 @@ type Season {
     title: String!
     description: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
-    imageUrl: String
+    imageUrl: String @deprecated(reason: "Replaced by the image field")
     images: [Image!]!
     number: Int!
     show: Show! @goField(forceResolver: true)
@@ -75,7 +75,7 @@ type Episode {
     description: String!
     extraDescription: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
-    imageUrl: String
+    imageUrl: String @deprecated(reason: "Replaced by the image field")
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)
     chapters: [Chapter!]!
@@ -88,6 +88,7 @@ type Episode {
     relatedItems(first: Int, offset: Int): SectionItemPagination @goField(forceResolver: true)
     images: [Image!]!
     number: Int
+    lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
 }
 
 type EpisodePagination implements Pagination {

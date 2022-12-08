@@ -1,5 +1,7 @@
 import { createApp } from "vue"
-import "./index.css"
+import "./styles/index.css"
+import "./styles/barlow.css"
+import "./styles/design-system.css"
 import App from "./App.vue"
 import router from "./router"
 import auth0 from "@/services/auth0"

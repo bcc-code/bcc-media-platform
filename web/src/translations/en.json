@@ -45,7 +45,8 @@
         "availableFrom": "Available From",
         "availableTo": "Available To",
         "ageRating": "Rating",
-        "notFound": "Episode not found"
+        "notFound": "Episode not found",
+        "comingSoon": "Coming soon"
     },
     "live": {
         "now": "Now"

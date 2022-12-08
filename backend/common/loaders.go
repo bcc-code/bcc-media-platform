@@ -19,6 +19,10 @@ type BatchLoaders struct {
 	SectionsLoader                     *dataloader.Loader[int, []*int]
 	CollectionLoader                   *dataloader.Loader[int, *Collection]
 	CollectionItemLoader               *dataloader.Loader[int, []*CollectionItem]
+	StudyTopicLoader                   *batchloaders.BatchLoader[uuid.UUID, *StudyTopic]
+	StudyLessonLoader                  *batchloaders.BatchLoader[uuid.UUID, *Lesson]
+	StudyTaskLoader                    *batchloaders.BatchLoader[uuid.UUID, *Task]
+	StudyQuestionAlternativesLoader    *batchloaders.BatchLoader[uuid.UUID, []*QuestionAlternative]
 	ShowLoader                         *dataloader.Loader[int, *Show]
 	SeasonLoader                       *dataloader.Loader[int, *Season]
 	EpisodeLoader                      *dataloader.Loader[int, *Episode]
@@ -54,9 +58,19 @@ type FilteredLoaders struct {
 	CollectionItemsLoader   *dataloader.Loader[int, []*CollectionItem]
 	CollectionItemIDsLoader *dataloader.Loader[int, []Identifier]
 	CalendarEntryLoader     *batchloaders.BatchLoader[int, *CalendarEntry]
+	StudyTopicFilterLoader  *batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]
+	StudyLessonsLoader      *batchloaders.BatchLoader[uuid.UUID, []*uuid.UUID]
+	StudyLessonFilterLoader *batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]
+	StudyTasksLoader        *batchloaders.BatchLoader[uuid.UUID, []*uuid.UUID]
+	StudyTaskFilterLoader   *batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]
+
+	//Relations
+	StudyLessonEpisodesLoader *batchloaders.BatchLoader[uuid.UUID, []*int]
+	EpisodeStudyLessonsLoader *batchloaders.BatchLoader[int, []*uuid.UUID]
 }
 
 // ProfileLoaders contains loaders per profile
 type ProfileLoaders struct {
-	ProgressLoader *batchloaders.BatchLoader[int, *Progress]
+	ProgressLoader      *batchloaders.BatchLoader[int, *Progress]
+	TaskCompletedLoader *batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]
 }

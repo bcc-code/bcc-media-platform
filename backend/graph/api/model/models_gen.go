@@ -81,6 +81,31 @@ type SectionItemType interface {
 	IsSectionItemType()
 }
 
+type Task interface {
+	IsTask()
+	GetID() string
+	GetTitle() string
+	GetCompleted() bool
+}
+
+type Alternative struct {
+	ID        string `json:"id"`
+	Title     string `json:"title"`
+	IsCorrect bool   `json:"isCorrect"`
+}
+
+type AlternativesTask struct {
+	ID           string         `json:"id"`
+	Title        string         `json:"title"`
+	Completed    bool           `json:"completed"`
+	Alternatives []*Alternative `json:"alternatives"`
+}
+
+func (AlternativesTask) IsTask()                 {}
+func (this AlternativesTask) GetID() string      { return this.ID }
+func (this AlternativesTask) GetTitle() string   { return this.Title }
+func (this AlternativesTask) GetCompleted() bool { return this.Completed }
+
 type Analytics struct {
 	AnonymousID string `json:"anonymousId"`
 }
@@ -211,12 +236,13 @@ type Episode struct {
 	Season                *Season                `json:"season"`
 	Duration              int                    `json:"duration"`
 	Progress              *int                   `json:"progress"`
-	AudioLanguages        []Language             `json:"audioLanguages"`
-	SubtitleLanguages     []Language             `json:"subtitleLanguages"`
+	AudioLanguages        []string               `json:"audioLanguages"`
+	SubtitleLanguages     []string               `json:"subtitleLanguages"`
 	Context               EpisodeContextUnion    `json:"context"`
 	RelatedItems          *SectionItemPagination `json:"relatedItems"`
 	Images                []*Image               `json:"images"`
 	Number                *int                   `json:"number"`
+	Lessons               *LessonPagination      `json:"lessons"`
 }
 
 func (Episode) IsSectionItemType() {}
@@ -368,13 +394,13 @@ func (this FeaturedSection) GetMetadata() *ItemSectionMetadata { return this.Met
 func (this FeaturedSection) GetItems() *SectionItemPagination { return this.Items }
 
 type File struct {
-	ID               string    `json:"id"`
-	URL              string    `json:"url"`
-	AudioLanguage    Language  `json:"audioLanguage"`
-	SubtitleLanguage *Language `json:"subtitleLanguage"`
-	Size             *int      `json:"size"`
-	FileName         string    `json:"fileName"`
-	MimeType         string    `json:"mimeType"`
+	ID               string  `json:"id"`
+	URL              string  `json:"url"`
+	AudioLanguage    string  `json:"audioLanguage"`
+	SubtitleLanguage *string `json:"subtitleLanguage"`
+	Size             *int    `json:"size"`
+	FileName         string  `json:"fileName"`
+	MimeType         string  `json:"mimeType"`
 }
 
 type GlobalConfig struct {
@@ -459,6 +485,27 @@ type LegacyIDLookupOptions struct {
 	EpisodeID *int `json:"episodeID"`
 	ProgramID *int `json:"programID"`
 }
+
+type Lesson struct {
+	ID       string             `json:"id"`
+	Title    string             `json:"title"`
+	Tasks    *TaskPagination    `json:"tasks"`
+	Topic    *StudyTopic        `json:"topic"`
+	Progress *TasksProgress     `json:"progress"`
+	Episodes *EpisodePagination `json:"episodes"`
+}
+
+type LessonPagination struct {
+	Offset int       `json:"offset"`
+	First  int       `json:"first"`
+	Total  int       `json:"total"`
+	Items  []*Lesson `json:"items"`
+}
+
+func (LessonPagination) IsPagination()       {}
+func (this LessonPagination) GetTotal() int  { return this.Total }
+func (this LessonPagination) GetFirst() int  { return this.First }
+func (this LessonPagination) GetOffset() int { return this.Offset }
 
 type Link struct {
 	ID  string `json:"id"`
@@ -758,8 +805,8 @@ func (this SectionPagination) GetFirst() int  { return this.First }
 func (this SectionPagination) GetOffset() int { return this.Offset }
 
 type Settings struct {
-	AudioLanguages    []Language `json:"audioLanguages"`
-	SubtitleLanguages []Language `json:"subtitleLanguages"`
+	AudioLanguages    []string `json:"audioLanguages"`
+	SubtitleLanguages []string `json:"subtitleLanguages"`
 }
 
 type Show struct {
@@ -865,10 +912,45 @@ func (this SimpleCalendarEntry) GetEnd() string         { return this.End }
 type Stream struct {
 	ID                string     `json:"id"`
 	URL               string     `json:"url"`
-	AudioLanguages    []Language `json:"audioLanguages"`
-	SubtitleLanguages []Language `json:"subtitleLanguages"`
+	AudioLanguages    []string   `json:"audioLanguages"`
+	SubtitleLanguages []string   `json:"subtitleLanguages"`
 	Type              StreamType `json:"type"`
 }
+
+type StudyTopic struct {
+	ID       string            `json:"id"`
+	Title    string            `json:"title"`
+	Lessons  *LessonPagination `json:"lessons"`
+	Progress *TasksProgress    `json:"progress"`
+}
+
+type TaskPagination struct {
+	Offset int    `json:"offset"`
+	First  int    `json:"first"`
+	Total  int    `json:"total"`
+	Items  []Task `json:"items"`
+}
+
+func (TaskPagination) IsPagination()       {}
+func (this TaskPagination) GetTotal() int  { return this.Total }
+func (this TaskPagination) GetFirst() int  { return this.First }
+func (this TaskPagination) GetOffset() int { return this.Offset }
+
+type TasksProgress struct {
+	Total     int `json:"total"`
+	Completed int `json:"completed"`
+}
+
+type TextTask struct {
+	ID        string `json:"id"`
+	Title     string `json:"title"`
+	Completed bool   `json:"completed"`
+}
+
+func (TextTask) IsTask()                 {}
+func (this TextTask) GetID() string      { return this.ID }
+func (this TextTask) GetTitle() string   { return this.Title }
+func (this TextTask) GetCompleted() bool { return this.Completed }
 
 type User struct {
 	ID        *string    `json:"id"`
@@ -1016,49 +1098,6 @@ func (e *ImageStyle) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ImageStyle) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type Language string
-
-const (
-	LanguageEn Language = "en"
-	LanguageNo Language = "no"
-	LanguageDe Language = "de"
-)
-
-var AllLanguage = []Language{
-	LanguageEn,
-	LanguageNo,
-	LanguageDe,
-}
-
-func (e Language) IsValid() bool {
-	switch e {
-	case LanguageEn, LanguageNo, LanguageDe:
-		return true
-	}
-	return false
-}
-
-func (e Language) String() string {
-	return string(e)
-}
-
-func (e *Language) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = Language(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid Language", str)
-	}
-	return nil
-}
-
-func (e Language) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

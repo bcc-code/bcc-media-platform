@@ -1,6 +1,6 @@
 package common
 
-// User represents an acutal user in the system
+// User represents an actual user in the system
 type User struct {
 	DisplayName string
 	Roles       []string
@@ -8,6 +8,7 @@ type User struct {
 	PersonID    string
 	Anonymous   bool
 	ActiveBCC   bool
+	AgeGroup    string
 }
 
 // IsAnonymous user?

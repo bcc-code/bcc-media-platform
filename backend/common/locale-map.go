@@ -35,3 +35,9 @@ func (localeMap LocaleMap[T]) GetValueOrNil(languages []string) *T {
 
 	return nil
 }
+
+// Has returns true if the map has the specified key
+func (localeMap LocaleMap[T]) Has(key string) bool {
+	_, ok := localeMap[key]
+	return ok
+}
