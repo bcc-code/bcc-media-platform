@@ -25,8 +25,23 @@ module.exports = {
                     DEFAULT: "#202a39",
                     hover: "#192938",
                 },
+                // from figma:
+                "tint-1": "var(--color-tint-1)",
+                "tint-2": "var(--color-tint-2)",
+                "tint-3": "var(--color-tint-3)",
+                "on-tint": "var(--color-on-tint)",
+                "label-1": "var(--color-label-1)",
+                "label-2": "var(--color-label-2)",
+                "label-3": "var(--color-label-3)",
+                "label-4": "var(--color-label-4)",
+                "background-1": "var(--color-background-1)",
+                "background-2": "var(--color-background-2)",
+                "separator-on-light": "var(--color-separator-on-light)",
+                "light-1": "var(--color-light-1)",
+                "dark-transparent": "var(--color-dark-transparent)"
             },
         },
     },
     plugins: [require("@tailwindcss/line-clamp")],
+
 }

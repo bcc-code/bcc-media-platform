@@ -75,7 +75,7 @@ func addMetaProperty(node *html.Node, meta map[string]string) {
 func addMetaTags(n *html.Node, meta meta) {
 	if n.Type == html.ElementNode && n.Data == "title" && n.Parent.Data == "head" {
 		if n.FirstChild.Type == html.TextNode {
-			n.FirstChild.Data = "BrunstadTV - " + meta.Title
+			n.FirstChild.Data = meta.Title
 		}
 	}
 	if n.Type == html.ElementNode && n.Data == "head" {

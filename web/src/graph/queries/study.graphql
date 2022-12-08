@@ -1,0 +1,22 @@
+query getStudyLesson($id: ID!) {
+    studyLesson(id: $id) {
+        id
+        title
+        tasks {
+            items {
+                title
+                completed
+                ... on AlternativesTask {
+                    alternatives {
+                        title
+                        isCorrect
+                    }
+                }
+            }
+        }
+    }
+}
+
+mutation sendTaskMessage($taskId: ID!, $message: String!) {
+    sendTaskMessage(taskId: $taskId, message: $message)
+}

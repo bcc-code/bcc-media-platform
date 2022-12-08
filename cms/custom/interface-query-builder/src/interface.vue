@@ -43,6 +43,7 @@ const error = ref(null as string | null)
 
 const previewFactory = async () => {
 	const views = [] as Item[];
+	let count = 0;
 	error.value = null;
 	try {
 		const r = await api.post("/preview/collection", {
@@ -51,6 +52,7 @@ const previewFactory = async () => {
 		})
 		let total = 0;
 		for (const item of r.data) {
+			count++
 			if (total >= 50) {
 				continue;
 			}
@@ -64,6 +66,9 @@ const previewFactory = async () => {
 	} catch {
 		error.value = "Failed to fetch from api"
 	}
-	return views;
+	return {
+		count,
+		views
+	};
 }
 </script>
