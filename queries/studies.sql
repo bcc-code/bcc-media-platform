@@ -42,6 +42,28 @@ FROM tasks t
 WHERE t.status = 'published'
   AND t.id = ANY ($1::uuid[]);
 
+-- name: getLessonsForItemsInCollection :many
+SELECT rl.lessons_id AS id,
+       rl.item       AS parent_id
+FROM lessons_relations rl
+WHERE rl.collection = $1
+  AND rl.item = ANY ($2::varchar[]);
+
+-- name: getEpisodesForLessons :many
+SELECT rl.item       AS id,
+       rl.lessons_id AS parent_id
+FROM lessons_relations rl
+         JOIN episode_availability access ON access.id = rl.item::int
+         JOIN episode_roles roles ON roles.id = rl.item::int
+WHERE rl.collection = 'episodes'
+  AND access.published
+  AND access.available_to > now()
+  AND (
+        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+        (roles.roles_earlyaccess && $2::varchar[])
+    )
+  AND rl.lessons_id = ANY ($1::uuid[]);
+
 -- name: getQuestionAlternatives :many
 WITH ts AS (SELECT questionalternatives_id, json_object_agg(languages_code, title) AS title
             FROM questionalternatives_translations

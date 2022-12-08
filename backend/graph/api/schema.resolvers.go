@@ -461,6 +461,10 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 
 // StudyTopic is the resolver for the studyTopic field.
 func (r *queryRootResolver) StudyTopic(ctx context.Context, id string) (*model.StudyTopic, error) {
+	_, err := getProfile(ctx)
+	if err != nil {
+		return nil, err
+	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
@@ -479,6 +483,10 @@ func (r *queryRootResolver) StudyTopic(ctx context.Context, id string) (*model.S
 
 // StudyLesson is the resolver for the studyLesson field.
 func (r *queryRootResolver) StudyLesson(ctx context.Context, id string) (*model.Lesson, error) {
+	_, err := getProfile(ctx)
+	if err != nil {
+		return nil, err
+	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
