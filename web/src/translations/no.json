@@ -45,7 +45,8 @@
         "availableFrom": "Tilgjengelig fra",
         "availableTo": "Tilgjengelig til",
         "ageRating": "Vurdering*",
-        "notFound": "Episoden er ikke funnet"
+        "notFound": "Episoden er ikke funnet",
+        "comingSoon": "Kommer snart"
     },
     "live": {
         "now": "Nå"
