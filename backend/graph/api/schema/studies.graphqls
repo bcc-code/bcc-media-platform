@@ -48,7 +48,6 @@ type Alternative {
     id: ID!
     title: String!
     isCorrect: Boolean!
-    completed: Boolean!
 }
 
 type TextTask implements Task {

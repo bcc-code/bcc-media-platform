@@ -92,7 +92,6 @@ type Alternative struct {
 	ID        string `json:"id"`
 	Title     string `json:"title"`
 	IsCorrect bool   `json:"isCorrect"`
-	Completed bool   `json:"completed"`
 }
 
 type AlternativesTask struct {

@@ -78,7 +78,6 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Alternative struct {
-		Completed func(childComplexity int) int
 		ID        func(childComplexity int) int
 		IsCorrect func(childComplexity int) int
 		Title     func(childComplexity int) int
@@ -866,13 +865,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
-
-	case "Alternative.completed":
-		if e.complexity.Alternative.Completed == nil {
-			break
-		}
-
-		return e.complexity.Alternative.Completed(childComplexity), true
 
 	case "Alternative.id":
 		if e.complexity.Alternative.ID == nil {
@@ -4631,7 +4623,6 @@ type Alternative {
     id: ID!
     title: String!
     isCorrect: Boolean!
-    completed: Boolean!
 }
 
 type TextTask implements Task {
@@ -5866,50 +5857,6 @@ func (ec *executionContext) fieldContext_Alternative_isCorrect(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Alternative_completed(ctx context.Context, field graphql.CollectedField, obj *model.Alternative) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Alternative_completed(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Completed, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Alternative_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Alternative",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _AlternativesTask_id(ctx context.Context, field graphql.CollectedField, obj *model.AlternativesTask) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AlternativesTask_id(ctx, field)
 	if err != nil {
@@ -6087,8 +6034,6 @@ func (ec *executionContext) fieldContext_AlternativesTask_alternatives(ctx conte
 				return ec.fieldContext_Alternative_title(ctx, field)
 			case "isCorrect":
 				return ec.fieldContext_Alternative_isCorrect(ctx, field)
-			case "completed":
-				return ec.fieldContext_Alternative_completed(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Alternative", field.Name)
 		},
@@ -26584,13 +26529,6 @@ func (ec *executionContext) _Alternative(ctx context.Context, sel ast.SelectionS
 		case "isCorrect":
 
 			out.Values[i] = ec._Alternative_isCorrect(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "completed":
-
-			out.Values[i] = ec._Alternative_completed(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
