@@ -50,9 +50,17 @@ export default [
         ],
     },
     {
-        name: "study",
-        path: "/study",
-        component: () => import("@/pages/study/Embed.vue"),
+        name: "embed",
+        path: "/embed",
+        component: () => import("@/pages/embed/Embed.vue"),
+        children: [
+            {
+                name: "lesson",
+                path: "lesson/:lessonId/:subRoute?",
+                component: () => import("@/components/study/Lesson.vue"),
+                props: true
+            }
+        ]
     },
     {
         name: "not-found",
