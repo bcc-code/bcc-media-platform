@@ -1,4 +1,5 @@
-schema: "https://api.brunstad.tv/query"
+#schema: "https://api.brunstad.tv/query"
+schema: "../backend/graph/api/schema/*.graphqls"
 documents: "src/**/*.{graphql,js,ts,jsx,tsx}"
 extensions:
     languageService:
