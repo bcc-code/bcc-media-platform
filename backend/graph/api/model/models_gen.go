@@ -514,6 +514,21 @@ type Link struct {
 
 func (Link) IsSectionItemType() {}
 
+type LinkTask struct {
+	ID             string  `json:"id"`
+	Title          string  `json:"title"`
+	Completed      bool    `json:"completed"`
+	Link           string  `json:"link"`
+	Image          string  `json:"image"`
+	SecondaryTitle *string `json:"secondaryTitle"`
+	Description    *string `json:"description"`
+}
+
+func (LinkTask) IsTask()                 {}
+func (this LinkTask) GetID() string      { return this.ID }
+func (this LinkTask) GetTitle() string   { return this.Title }
+func (this LinkTask) GetCompleted() bool { return this.Completed }
+
 type ListSection struct {
 	ID       string                 `json:"id"`
 	Metadata *ItemSectionMetadata   `json:"metadata"`
@@ -632,6 +647,18 @@ func (this PosterSection) GetMetadata() *ItemSectionMetadata { return this.Metad
 
 func (this PosterSection) GetItems() *SectionItemPagination { return this.Items }
 
+type PosterTask struct {
+	ID        string `json:"id"`
+	Title     string `json:"title"`
+	Completed bool   `json:"completed"`
+	Image     string `json:"image"`
+}
+
+func (PosterTask) IsTask()                 {}
+func (this PosterTask) GetID() string      { return this.ID }
+func (this PosterTask) GetTitle() string   { return this.Title }
+func (this PosterTask) GetCompleted() bool { return this.Completed }
+
 type Profile struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -655,6 +682,18 @@ func (QuestionPagination) IsPagination()       {}
 func (this QuestionPagination) GetTotal() int  { return this.Total }
 func (this QuestionPagination) GetFirst() int  { return this.First }
 func (this QuestionPagination) GetOffset() int { return this.Offset }
+
+type QuoteTask struct {
+	ID        string `json:"id"`
+	Title     string `json:"title"`
+	Completed bool   `json:"completed"`
+	Image     string `json:"image"`
+}
+
+func (QuoteTask) IsTask()                 {}
+func (this QuoteTask) GetID() string      { return this.ID }
+func (this QuoteTask) GetTitle() string   { return this.Title }
+func (this QuoteTask) GetCompleted() bool { return this.Completed }
 
 type RedirectLink struct {
 	URL string `json:"url"`
@@ -962,6 +1001,20 @@ type User struct {
 	Roles     []string   `json:"roles"`
 	Analytics *Analytics `json:"analytics"`
 }
+
+type VideoTask struct {
+	ID             string   `json:"id"`
+	Title          string   `json:"title"`
+	Completed      bool     `json:"completed"`
+	Episode        *Episode `json:"episode"`
+	SecondaryTitle *string  `json:"secondaryTitle"`
+	Description    *string  `json:"description"`
+}
+
+func (VideoTask) IsTask()                 {}
+func (this VideoTask) GetID() string      { return this.ID }
+func (this VideoTask) GetTitle() string   { return this.Title }
+func (this VideoTask) GetCompleted() bool { return this.Completed }
 
 type WebSection struct {
 	ID             string               `json:"id"`
