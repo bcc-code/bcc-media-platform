@@ -54,6 +54,17 @@ func (q *Queries) GetLessons(ctx context.Context, ids []uuid.UUID) ([]common.Les
 	}), nil
 }
 
+func localeStringOrFallback(marshalled json.RawMessage, fallback null.String) common.LocaleString {
+	var localeString = common.LocaleString{}
+	_ = json.Unmarshal(marshalled, &localeString)
+
+	if fallback.Valid {
+		localeString["no"] = fallback
+	}
+
+	return localeString
+}
+
 // GetTasks returns tasks by ids
 func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task, error) {
 	tasks, err := q.getTasks(ctx, ids)
@@ -61,15 +72,12 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 		return nil, err
 	}
 	return lo.Map(tasks, func(l getTasksRow, _ int) common.Task {
-		var title = common.LocaleString{}
-		_ = json.Unmarshal(l.Title.RawMessage, &title)
+		title := localeStringOrFallback(l.Title.RawMessage, l.OriginalTitle)
+		secondaryTitle := localeStringOrFallback(l.SecondaryTitle.RawMessage, l.OriginalSecondaryTitle)
+		description := localeStringOrFallback(l.Description.RawMessage, l.OriginalDescription)
 
 		var images = common.LocaleMap[string]{}
 		_ = json.Unmarshal(l.Images.RawMessage, &images)
-
-		if l.OriginalTitle.Valid {
-			title["no"] = l.OriginalTitle
-		}
 
 		var multiSelect null.Bool
 		if l.AlternativesMultiselect.Valid {
@@ -77,16 +85,18 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 		}
 
 		return common.Task{
-			ID:           l.ID,
-			LessonID:     l.LessonID,
-			Title:        title,
-			QuestionType: l.QuestionType.String,
-			ImageType:    l.ImageType.String,
-			Images:       images,
-			EpisodeID:    l.EpisodeID,
-			Link:         l.Link,
-			Type:         l.Type,
-			MultiSelect:  multiSelect,
+			ID:             l.ID,
+			LessonID:       l.LessonID,
+			Title:          title,
+			SecondaryTitle: secondaryTitle,
+			Description:    description,
+			QuestionType:   l.QuestionType.String,
+			ImageType:      l.ImageType.String,
+			Images:         images,
+			EpisodeID:      l.EpisodeID,
+			Link:           l.Link,
+			Type:           l.Type,
+			MultiSelect:    multiSelect,
 		}
 	}), nil
 }

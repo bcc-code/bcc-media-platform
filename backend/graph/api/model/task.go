@@ -48,9 +48,12 @@ func TaskFrom(ctx context.Context, task *common.Task) Task {
 		}
 	case common.TaskTypeLink:
 		return LinkTask{
-			ID:    id,
-			Title: title,
-			Link:  task.Link.String,
+			ID:             id,
+			Title:          title,
+			Link:           task.Link.String,
+			Image:          task.Images.Get(languages),
+			SecondaryTitle: task.SecondaryTitle.GetValueOrNil(languages),
+			Description:    task.Description.GetValueOrNil(languages),
 		}
 	case common.TaskTypeVideo:
 		return VideoTask{
@@ -59,6 +62,8 @@ func TaskFrom(ctx context.Context, task *common.Task) Task {
 			Episode: &Episode{
 				ID: strconv.Itoa(int(task.EpisodeID.Int64)),
 			},
+			SecondaryTitle: task.SecondaryTitle.GetValueOrNil(languages),
+			Description:    task.Description.GetValueOrNil(languages),
 		}
 	}
 

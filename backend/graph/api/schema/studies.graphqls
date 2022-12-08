@@ -77,6 +77,8 @@ type VideoTask implements Task {
     title: String!
     completed: Boolean! @goField(forceResolver: true)
     episode: Episode! @goField(forceResolver: true)
+    secondaryTitle: String
+    description: String
 }
 
 type LinkTask implements Task {
@@ -84,4 +86,7 @@ type LinkTask implements Task {
     title: String!
     completed: Boolean! @goField(forceResolver: true)
     link: String!
+    image: String!
+    secondaryTitle: String
+    description: String
 }

@@ -27,7 +27,9 @@ WHERE l.status = 'published'
 
 -- name: getTasks :many
 WITH ts AS (SELECT tasks_id,
-                   json_object_agg(languages_code, title) as title
+                   json_object_agg(languages_code, title) as title,
+                   json_object_agg(languages_code, description) as description,
+                   json_object_agg(languages_code, secondary_title) as secondary_title
             FROM tasks_translations
             GROUP BY tasks_id),
      images AS (SELECT img.task_id, json_object_agg(img.language, df.filename_disk) as images
@@ -36,6 +38,8 @@ WITH ts AS (SELECT tasks_id,
                 GROUP BY img.task_id)
 SELECT t.id,
        t.title as original_title,
+       t.secondary_title as original_secondary_title,
+       t.description as original_description,
        t.type,
        t.question_type,
        t.lesson_id,
@@ -44,6 +48,8 @@ SELECT t.id,
        t.link,
        t.episode_id,
        ts.title,
+       ts.secondary_title,
+       ts.description,
        images.images
 FROM tasks t
          LEFT JOIN ts ON ts.tasks_id = t.id

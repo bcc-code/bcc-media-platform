@@ -366,10 +366,13 @@ type ComplexityRoot struct {
 	}
 
 	LinkTask struct {
-		Completed func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Link      func(childComplexity int) int
-		Title     func(childComplexity int) int
+		Completed      func(childComplexity int) int
+		Description    func(childComplexity int) int
+		ID             func(childComplexity int) int
+		Image          func(childComplexity int) int
+		Link           func(childComplexity int) int
+		SecondaryTitle func(childComplexity int) int
+		Title          func(childComplexity int) int
 	}
 
 	ListSection struct {
@@ -698,10 +701,12 @@ type ComplexityRoot struct {
 	}
 
 	VideoTask struct {
-		Completed func(childComplexity int) int
-		Episode   func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Title     func(childComplexity int) int
+		Completed      func(childComplexity int) int
+		Description    func(childComplexity int) int
+		Episode        func(childComplexity int) int
+		ID             func(childComplexity int) int
+		SecondaryTitle func(childComplexity int) int
+		Title          func(childComplexity int) int
 	}
 
 	WebSection struct {
@@ -2235,6 +2240,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LinkTask.Completed(childComplexity), true
 
+	case "LinkTask.description":
+		if e.complexity.LinkTask.Description == nil {
+			break
+		}
+
+		return e.complexity.LinkTask.Description(childComplexity), true
+
 	case "LinkTask.id":
 		if e.complexity.LinkTask.ID == nil {
 			break
@@ -2242,12 +2254,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LinkTask.ID(childComplexity), true
 
+	case "LinkTask.image":
+		if e.complexity.LinkTask.Image == nil {
+			break
+		}
+
+		return e.complexity.LinkTask.Image(childComplexity), true
+
 	case "LinkTask.link":
 		if e.complexity.LinkTask.Link == nil {
 			break
 		}
 
 		return e.complexity.LinkTask.Link(childComplexity), true
+
+	case "LinkTask.secondaryTitle":
+		if e.complexity.LinkTask.SecondaryTitle == nil {
+			break
+		}
+
+		return e.complexity.LinkTask.SecondaryTitle(childComplexity), true
 
 	case "LinkTask.title":
 		if e.complexity.LinkTask.Title == nil {
@@ -3885,6 +3911,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.VideoTask.Completed(childComplexity), true
 
+	case "VideoTask.description":
+		if e.complexity.VideoTask.Description == nil {
+			break
+		}
+
+		return e.complexity.VideoTask.Description(childComplexity), true
+
 	case "VideoTask.episode":
 		if e.complexity.VideoTask.Episode == nil {
 			break
@@ -3898,6 +3931,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.VideoTask.ID(childComplexity), true
+
+	case "VideoTask.secondaryTitle":
+		if e.complexity.VideoTask.SecondaryTitle == nil {
+			break
+		}
+
+		return e.complexity.VideoTask.SecondaryTitle(childComplexity), true
 
 	case "VideoTask.title":
 		if e.complexity.VideoTask.Title == nil {
@@ -4867,6 +4907,8 @@ type VideoTask implements Task {
     title: String!
     completed: Boolean! @goField(forceResolver: true)
     episode: Episode! @goField(forceResolver: true)
+    secondaryTitle: String
+    description: String
 }
 
 type LinkTask implements Task {
@@ -4874,6 +4916,9 @@ type LinkTask implements Task {
     title: String!
     completed: Boolean! @goField(forceResolver: true)
     link: String!
+    image: String!
+    secondaryTitle: String
+    description: String
 }
 `, BuiltIn: false},
 }
@@ -14503,6 +14548,132 @@ func (ec *executionContext) _LinkTask_link(ctx context.Context, field graphql.Co
 }
 
 func (ec *executionContext) fieldContext_LinkTask_link(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LinkTask",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LinkTask_image(ctx context.Context, field graphql.CollectedField, obj *model.LinkTask) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LinkTask_image(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Image, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LinkTask_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LinkTask",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LinkTask_secondaryTitle(ctx context.Context, field graphql.CollectedField, obj *model.LinkTask) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LinkTask_secondaryTitle(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SecondaryTitle, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LinkTask_secondaryTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LinkTask",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LinkTask_description(ctx context.Context, field graphql.CollectedField, obj *model.LinkTask) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LinkTask_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LinkTask_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LinkTask",
 		Field:      field,
@@ -25173,6 +25344,88 @@ func (ec *executionContext) fieldContext_VideoTask_episode(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _VideoTask_secondaryTitle(ctx context.Context, field graphql.CollectedField, obj *model.VideoTask) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VideoTask_secondaryTitle(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SecondaryTitle, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VideoTask_secondaryTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VideoTask",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VideoTask_description(ctx context.Context, field graphql.CollectedField, obj *model.VideoTask) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VideoTask_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VideoTask_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VideoTask",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _WebSection_id(ctx context.Context, field graphql.CollectedField, obj *model.WebSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WebSection_id(ctx, field)
 	if err != nil {
@@ -30268,6 +30521,21 @@ func (ec *executionContext) _LinkTask(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "image":
+
+			out.Values[i] = ec._LinkTask_image(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "secondaryTitle":
+
+			out.Values[i] = ec._LinkTask_secondaryTitle(ctx, field, obj)
+
+		case "description":
+
+			out.Values[i] = ec._LinkTask_description(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -33257,6 +33525,14 @@ func (ec *executionContext) _VideoTask(ctx context.Context, sel ast.SelectionSet
 				return innerFunc(ctx)
 
 			})
+		case "secondaryTitle":
+
+			out.Values[i] = ec._VideoTask_secondaryTitle(ctx, field, obj)
+
+		case "description":
+
+			out.Values[i] = ec._VideoTask_description(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

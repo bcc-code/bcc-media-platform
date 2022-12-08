@@ -515,10 +515,13 @@ type Link struct {
 func (Link) IsSectionItemType() {}
 
 type LinkTask struct {
-	ID        string `json:"id"`
-	Title     string `json:"title"`
-	Completed bool   `json:"completed"`
-	Link      string `json:"link"`
+	ID             string  `json:"id"`
+	Title          string  `json:"title"`
+	Completed      bool    `json:"completed"`
+	Link           string  `json:"link"`
+	Image          string  `json:"image"`
+	SecondaryTitle *string `json:"secondaryTitle"`
+	Description    *string `json:"description"`
 }
 
 func (LinkTask) IsTask()                 {}
@@ -1000,10 +1003,12 @@ type User struct {
 }
 
 type VideoTask struct {
-	ID        string   `json:"id"`
-	Title     string   `json:"title"`
-	Completed bool     `json:"completed"`
-	Episode   *Episode `json:"episode"`
+	ID             string   `json:"id"`
+	Title          string   `json:"title"`
+	Completed      bool     `json:"completed"`
+	Episode        *Episode `json:"episode"`
+	SecondaryTitle *string  `json:"secondaryTitle"`
+	Description    *string  `json:"description"`
 }
 
 func (VideoTask) IsTask()                 {}

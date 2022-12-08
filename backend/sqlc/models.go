@@ -1120,6 +1120,8 @@ type Task struct {
 	EpisodeID               null_v4.Int    `db:"episode_id" json:"episodeID"`
 	Link                    null_v4.String `db:"link" json:"link"`
 	ImageType               null_v4.String `db:"image_type" json:"imageType"`
+	SecondaryTitle          null_v4.String `db:"secondary_title" json:"secondaryTitle"`
+	Description             null_v4.String `db:"description" json:"description"`
 }
 
 type TasksImage struct {
@@ -1130,10 +1132,12 @@ type TasksImage struct {
 }
 
 type TasksTranslation struct {
-	ID            int32          `db:"id" json:"id"`
-	TasksID       uuid.NullUUID  `db:"tasks_id" json:"tasksID"`
-	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
-	Title         null_v4.String `db:"title" json:"title"`
+	ID             int32          `db:"id" json:"id"`
+	TasksID        uuid.NullUUID  `db:"tasks_id" json:"tasksID"`
+	LanguagesCode  null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title          null_v4.String `db:"title" json:"title"`
+	SecondaryTitle null_v4.String `db:"secondary_title" json:"secondaryTitle"`
+	Description    null_v4.String `db:"description" json:"description"`
 }
 
 type Tvguideentry struct {
