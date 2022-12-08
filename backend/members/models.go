@@ -8,6 +8,7 @@ type result[t any] struct {
 type Member struct {
 	PersonID    int
 	Age         int
+	BirthDate   string
 	Email       string
 	DisplayName string
 }

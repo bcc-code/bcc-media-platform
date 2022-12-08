@@ -18,8 +18,12 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/export"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/ratelimit"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/samber/lo"
@@ -166,6 +170,84 @@ func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title strin
 		return false, err
 	}
 	return true, nil
+}
+
+// CompleteTask is the resolver for the completeTask field.
+func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string) (bool, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return false, err
+	}
+	task, err := getTask(ctx, r.Resolver, id)
+	if err != nil {
+		return false, err
+	}
+	err = ratelimit.Endpoint(ctx, "tasks:complete:"+task.ID.String(), 5, false)
+	if err != nil {
+		return false, err
+	}
+	err = r.Queries.SetTaskCompleted(ctx, sqlc.SetTaskCompletedParams{
+		ProfileID: p.ID,
+		TaskID:    task.ID,
+	})
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+// SendTaskMessage is the resolver for the sendTaskMessage field.
+func (r *mutationRootResolver) SendTaskMessage(ctx context.Context, taskID string, message *string) (string, error) {
+	_, err := getProfile(ctx)
+	if err != nil {
+		return "", err
+	}
+	task, err := getTask(ctx, r.Resolver, taskID)
+	if err != nil {
+		return "", err
+	}
+	err = ratelimit.Endpoint(ctx, "tasks:messages:send"+task.ID.String(), 10, false)
+	if err != nil {
+		return "", err
+	}
+	id, err := utils.GenerateRandomSecureString(32)
+	if err != nil {
+		return "", err
+	}
+	var str string
+	if message != nil {
+		str = *message
+	}
+	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
+		ID:      id,
+		Message: str,
+		ItemID:  task.ID,
+	})
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to save string to database")
+		return "", merry.New("Failed to generate unique ID")
+	}
+	return id, nil
+}
+
+// UpdateTaskMessage is the resolver for the updateTaskMessage field.
+func (r *mutationRootResolver) UpdateTaskMessage(ctx context.Context, id string, message string) (string, error) {
+	_, err := getProfile(ctx)
+	if err != nil {
+		return "", err
+	}
+	err = ratelimit.Endpoint(ctx, "tasks:messages:update", 100, false)
+	if err != nil {
+		return "", err
+	}
+	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
+		ID:      id,
+		Message: message,
+	})
+	if err != nil {
+		return "", err
+	}
+	return id, err
 }
 
 // Application is the resolver for the application field.
@@ -375,6 +457,24 @@ func (r *queryRootResolver) Collection(ctx context.Context, id *string, slug *st
 // Search is the resolver for the search field.
 func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error) {
 	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)
+}
+
+// StudyTopic is the resolver for the studyTopic field.
+func (r *queryRootResolver) StudyTopic(ctx context.Context, id string) (*model.StudyTopic, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+	return resolverFor(ctx, &itemLoaders[uuid.UUID, common.StudyTopic]{
+		Item: r.Loaders.StudyTopicLoader.Loader,
+	}, uid, func(ctx context.Context, topic *common.StudyTopic) *model.StudyTopic {
+		return &model.StudyTopic{
+			ID:    topic.ID.String(),
+			Title: topic.Title.Get(languages),
+		}
+	})
 }
 
 // Calendar is the resolver for the calendar field.

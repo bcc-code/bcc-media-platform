@@ -114,7 +114,7 @@ type Relation[k comparable, kr comparable] interface {
 func NewRelationLoader[K comparable, R comparable](
 	factory func(ctx context.Context, ids []R) ([]Relation[K, R], error),
 	opts ...Option,
-) *dataloader.Loader[R, []*K] {
+) *BatchLoader[R, []*K] {
 	batchLoadLists := func(ctx context.Context, keys []R) []*dataloader.Result[[]*K] {
 		var results []*dataloader.Result[[]*K]
 
@@ -151,7 +151,7 @@ func NewRelationLoader[K comparable, R comparable](
 
 	options := getOptions[R, []*K](opts...)
 
-	return dataloader.NewBatchedLoader(batchLoadLists, options...)
+	return &BatchLoader[R, []*K]{dataloader.NewBatchedLoader(batchLoadLists, options...)}
 }
 
 // Conversion contains the original and converted value
@@ -241,24 +241,21 @@ func New[K comparable, V any](
 			return any(i).(HasKey[K]).GetKey()
 		}
 	}
-	loader := NewCustomLoader(factory, getKey, opts...)
-	return &BatchLoader[K, *V]{
-		loader,
-	}
+	return NewCustomLoader(factory, getKey, opts...)
 }
 
 // NewLoader returns a configured batch loader for items
 func NewLoader[K comparable, V HasKey[K]](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	opts ...Option,
-) *dataloader.Loader[K, *V] {
+) *BatchLoader[K, *V] {
 	return NewCustomLoader(factory, func(i V) K {
 		return i.GetKey()
 	}, opts...)
 }
 
 // NewFilterLoader is just for filtering a list of keys or checking if user has access to a specific id
-func NewFilterLoader[K comparable](factory func(ctx context.Context, keys []K) ([]K, error), opts ...Option) *dataloader.Loader[K, *K] {
+func NewFilterLoader[K comparable](factory func(ctx context.Context, keys []K) ([]K, error), opts ...Option) *BatchLoader[K, *K] {
 	return NewCustomLoader(factory, func(key K) K {
 		return key
 	}, opts...)
@@ -269,7 +266,7 @@ func NewCustomLoader[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	getKey func(V) K,
 	opts ...Option,
-) *dataloader.Loader[K, *V] {
+) *BatchLoader[K, *V] {
 	batchLoadItems := func(ctx context.Context, keys []K) []*dataloader.Result[*V] {
 		var results []*dataloader.Result[*V]
 
@@ -302,7 +299,7 @@ func NewCustomLoader[K comparable, V any](
 	options := getOptions[K, *V](opts...)
 
 	// Currently we do not want to cache at the GQL level
-	return dataloader.NewBatchedLoader(batchLoadItems, options...)
+	return &BatchLoader[K, *V]{dataloader.NewBatchedLoader(batchLoadItems, options...)}
 }
 
 // GetByID returns the object from the loader
