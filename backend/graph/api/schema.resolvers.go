@@ -477,6 +477,22 @@ func (r *queryRootResolver) StudyTopic(ctx context.Context, id string) (*model.S
 	})
 }
 
+// StudyLesson is the resolver for the studyLesson field.
+func (r *queryRootResolver) StudyLesson(ctx context.Context, id string) (*model.Lesson, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	lesson, err := r.Loaders.StudyLessonLoader.Get(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	if lesson == nil {
+		return nil, ErrItemNotFound
+	}
+	return model.LessonFrom(ctx, lesson), nil
+}
+
 // Calendar is the resolver for the calendar field.
 func (r *queryRootResolver) Calendar(ctx context.Context) (*model.Calendar, error) {
 	return &model.Calendar{}, nil

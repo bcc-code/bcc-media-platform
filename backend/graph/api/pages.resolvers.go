@@ -5,9 +5,9 @@ package graph
 
 import (
 	"context"
-	"github.com/99designs/gqlgen/graphql"
 	"strconv"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
