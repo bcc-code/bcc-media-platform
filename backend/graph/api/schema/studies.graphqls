@@ -11,6 +11,7 @@ type Lesson {
     tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
     topic: StudyTopic! @goField(forceResolver: true)
     progress: TasksProgress! @goField(forceResolver: true)
+    episodes(first: Int, offset: Int): EpisodePagination! @goField(forceResolver: true)
 }
 
 type LessonPagination implements Pagination {

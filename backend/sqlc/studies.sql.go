@@ -84,6 +84,55 @@ func (q *Queries) SetTaskCompleted(ctx context.Context, arg SetTaskCompletedPara
 	return err
 }
 
+const getEpisodesForLessons = `-- name: getEpisodesForLessons :many
+SELECT rl.item       AS id,
+       rl.lessons_id AS parent_id
+FROM lessons_relations rl
+         JOIN episode_availability access ON access.id = rl.item::int
+         JOIN episode_roles roles ON roles.id = rl.item::int
+WHERE rl.collection = 'episodes'
+  AND access.published
+  AND access.available_to > now()
+  AND (
+        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+        (roles.roles_earlyaccess && $2::varchar[])
+    )
+  AND rl.lessons_id = ANY ($1::uuid[])
+`
+
+type getEpisodesForLessonsParams struct {
+	Column1 []uuid.UUID `db:"column_1" json:"column1"`
+	Column2 []string    `db:"column_2" json:"column2"`
+}
+
+type getEpisodesForLessonsRow struct {
+	ID       null_v4.String `db:"id" json:"id"`
+	ParentID uuid.NullUUID  `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getEpisodesForLessons(ctx context.Context, arg getEpisodesForLessonsParams) ([]getEpisodesForLessonsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodesForLessons, pq.Array(arg.Column1), pq.Array(arg.Column2))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getEpisodesForLessonsRow
+	for rows.Next() {
+		var i getEpisodesForLessonsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getLessons = `-- name: getLessons :many
 WITH ts AS (SELECT lessons_id,
                    json_object_agg(languages_code, title) as title
@@ -121,6 +170,47 @@ func (q *Queries) getLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getLe
 			&i.OriginalTitle,
 			&i.Title,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLessonsForItemsInCollection = `-- name: getLessonsForItemsInCollection :many
+SELECT rl.lessons_id AS id,
+       rl.item       AS parent_id
+FROM lessons_relations rl
+WHERE rl.collection = $1
+  AND rl.item = ANY ($2::varchar[])
+`
+
+type getLessonsForItemsInCollectionParams struct {
+	Collection null_v4.String `db:"collection" json:"collection"`
+	Column2    []string       `db:"column_2" json:"column2"`
+}
+
+type getLessonsForItemsInCollectionRow struct {
+	ID       uuid.NullUUID  `db:"id" json:"id"`
+	ParentID null_v4.String `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getLessonsForItemsInCollection(ctx context.Context, arg getLessonsForItemsInCollectionParams) ([]getLessonsForItemsInCollectionRow, error) {
+	rows, err := q.db.QueryContext(ctx, getLessonsForItemsInCollection, arg.Collection, pq.Array(arg.Column2))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getLessonsForItemsInCollectionRow
+	for rows.Next() {
+		var i getLessonsForItemsInCollectionRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
