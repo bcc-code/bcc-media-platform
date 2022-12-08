@@ -1,8 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-
 /* Codegen with figma plugin: "CSSGen": https://www.figma.com/community/plugin/742750636238601912/CSSGen. */
 /* Best I could find, the tailwind ones were pretty bad. */
 
@@ -23,7 +18,7 @@
 }
 
 .text-style-headline-1 {
-    font-size: 34px;
+    font-size: 2.125rem;
     font-family: "Barlow";
     font-weight: 800;
     font-style: normal;
@@ -33,7 +28,7 @@
 }
 
 .text-style-headline-2 {
-    font-size: 28px;
+    font-size: 1.75rem;
     font-family: "Barlow";
     font-weight: 800;
     font-style: normal;
@@ -43,7 +38,7 @@
 }
 
 .text-style-title-1 {
-    font-size: 24px;
+    font-size: 1.5rem;
     font-family: "Barlow";
     font-weight: 800;
     font-style: normal;
@@ -53,7 +48,7 @@
 }
 
 .text-style-title-2 {
-    font-size: 20px;
+    font-size: 1.25rem;
     font-family: "Barlow";
     font-weight: 700;
     font-style: normal;
@@ -64,7 +59,7 @@
 }
 
 .text-style-title-3 {
-    font-size: 17px;
+    font-size: 1.062rem;
     font-family: "Barlow";
     font-weight: 700;
     font-style: normal;
@@ -74,7 +69,7 @@
 }
 
 .text-style-body-1 {
-    font-size: 19px;
+    font-size: 1.188rem;
     font-family: "Barlow";
     font-weight: 400;
     font-style: normal;
@@ -84,7 +79,7 @@
 }
 
 .text-style-body-2 {
-    font-size: 16px;
+    font-size: 1rem;
     font-family: "Barlow";
     font-weight: 500;
     font-style: normal;
@@ -94,7 +89,7 @@
 }
 
 .text-style-button-1 {
-    font-size: 18px;
+    font-size: 1.125rem;
     font-family: "Barlow";
     font-weight: 700;
     font-style: normal;
@@ -104,7 +99,7 @@
 }
 
 .text-style-button-2 {
-    font-size: 15px;
+    font-size: 0.938rem;
     font-family: "Barlow";
     font-weight: 700;
     font-style: normal;
@@ -114,7 +109,7 @@
 }
 
 .text-style-button-2-upper {
-    font-size: 15px;
+    font-size: 0.938rem;
     font-family: "Barlow";
     font-weight: 700;
     font-style: normal;
@@ -124,7 +119,7 @@
 }
 
 .text-style-caption-1 {
-    font-size: 14px;
+    font-size: 0.875rem;
     font-family: "Barlow";
     font-weight: 500;
     font-style: normal;
@@ -134,7 +129,7 @@
 }
 
 .text-style-caption-2 {
-    font-size: 12px;
+    font-size: 0.75rem;
     font-family: "Barlow";
     font-weight: 500;
     font-style: normal;
@@ -144,7 +139,7 @@
 }
 
 .text-style-caption-3 {
-    font-size: 11px;
+    font-size: 0.688rem;
     font-family: "Barlow";
     font-weight: 500;
     font-style: normal;
@@ -155,7 +150,7 @@
 }
 
 .text-style-overline {
-    font-size: 15px;
+    font-size: 0.938rem;
     font-family: "Barlow";
     font-weight: 600;
     font-style: normal;
@@ -163,41 +158,4 @@
     letter-spacing: 1px;
     text-decoration: none;
     text-transform: uppercase;
-}
-
-body {
-    font-family: "Barlow", sans-serif;
-}
-
-.slide-fade-enter-active {
-    transition: all 0.1s ease-out;
-}
-
-.slide-fade-leave-active {
-    transition: all 0.1s cubic-bezier(1, 0.5, 0.8, 1);
-}
-
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-    transform: translateX(5px);
-    opacity: 0;
-}
-
-:root {
-    --swiper-navigation-color: #fefefe;
-}
-
-.swiper-button-next,
-.swiper-button-prev {
-    background-color: rgba(29, 40, 56);
-    opacity: 0.8;
-    border-radius: 100%;
-    height: 55px !important;
-    width: 55px !important;
-    padding: 20px !important;
-}
-
-.swiper-button-next:hover,
-.swiper-button-prev:hover {
-    background-color: rgba(0, 0, 0, 0.7);
 }
