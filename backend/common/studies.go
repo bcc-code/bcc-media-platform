@@ -8,16 +8,25 @@ import (
 // StudyTaskType is the type of lesson
 type StudyTaskType = string
 
-// TaskTypes
-const (
-	TaskTypeQuestion             = StudyTaskType("question")
-	TaskTypePoster               = StudyTaskType("poster")
-	QuestionTaskTypeAlternatives = QuestionTaskType("alternatives")
-	QuestionTaskTypeText         = QuestionTaskType("text")
-)
-
 // QuestionTaskType "alternatives" "text"
 type QuestionTaskType = string
+
+// ImageTaskType "poster" "quote"
+type ImageTaskType = string
+
+// TaskTypes
+const (
+	TaskTypeQuestion = StudyTaskType("question")
+	TaskTypeImage    = StudyTaskType("image")
+	TaskTypeVideo    = StudyTaskType("video")
+	TaskTypeLink     = StudyTaskType("link")
+
+	QuestionTaskTypeAlternatives = QuestionTaskType("alternatives")
+	QuestionTaskTypeText         = QuestionTaskType("text")
+
+	ImageTaskTypePoster = ImageTaskType("poster")
+	ImageTaskTypeQuote  = ImageTaskType("quote")
+)
 
 // StudyTopic is a topic for studying something specific
 type StudyTopic struct {
@@ -44,13 +53,19 @@ func (i Lesson) GetKey() uuid.UUID {
 
 // Task is the struct for Tasks
 type Task struct {
-	ID           uuid.UUID
-	LessonID     uuid.UUID
-	Title        LocaleString
-	Type         StudyTaskType
-	QuestionType QuestionTaskType
-	MultiSelect  null.Bool
-	Alternatives []QuestionAlternative
+	ID             uuid.UUID
+	LessonID       uuid.UUID
+	Title          LocaleString
+	Type           StudyTaskType
+	QuestionType   QuestionTaskType
+	ImageType      ImageTaskType
+	Link           null.String
+	EpisodeID      null.Int
+	Images         LocaleMap[string]
+	MultiSelect    null.Bool
+	Alternatives   []QuestionAlternative
+	SecondaryTitle LocaleString
+	Description    LocaleString
 }
 
 // GetKey returns the key for this item
