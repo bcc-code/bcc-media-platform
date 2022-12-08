@@ -344,6 +344,7 @@ type ComplexityRoot struct {
 		Progress func(childComplexity int) int
 		Tasks    func(childComplexity int, first *int, offset *int) int
 		Title    func(childComplexity int) int
+		Topic    func(childComplexity int) int
 	}
 
 	LessonPagination struct {
@@ -453,6 +454,7 @@ type ComplexityRoot struct {
 		Season         func(childComplexity int, id string) int
 		Section        func(childComplexity int, id string, timestamp *string) int
 		Show           func(childComplexity int, id string) int
+		StudyLesson    func(childComplexity int, id string) int
 		StudyTopic     func(childComplexity int, id string) int
 	}
 
@@ -759,6 +761,7 @@ type LabelSectionResolver interface {
 }
 type LessonResolver interface {
 	Tasks(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.TaskPagination, error)
+	Topic(ctx context.Context, obj *model.Lesson) (*model.StudyTopic, error)
 	Progress(ctx context.Context, obj *model.Lesson) (*model.TasksProgress, error)
 }
 type ListSectionResolver interface {
@@ -798,6 +801,7 @@ type QueryRootResolver interface {
 	Collection(ctx context.Context, id *string, slug *string) (*model.Collection, error)
 	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
 	StudyTopic(ctx context.Context, id string) (*model.StudyTopic, error)
+	StudyLesson(ctx context.Context, id string) (*model.Lesson, error)
 	Calendar(ctx context.Context) (*model.Calendar, error)
 	Event(ctx context.Context, id string) (*model.Event, error)
 	Faq(ctx context.Context) (*model.Faq, error)
@@ -2101,6 +2105,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Lesson.Title(childComplexity), true
 
+	case "Lesson.topic":
+		if e.complexity.Lesson.Topic == nil {
+			break
+		}
+
+		return e.complexity.Lesson.Topic(childComplexity), true
+
 	case "LessonPagination.first":
 		if e.complexity.LessonPagination.First == nil {
 			break
@@ -2700,6 +2711,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.QueryRoot.Show(childComplexity, args["id"].(string)), true
+
+	case "QueryRoot.studyLesson":
+		if e.complexity.QueryRoot.StudyLesson == nil {
+			break
+		}
+
+		args, err := ec.field_QueryRoot_studyLesson_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.StudyLesson(childComplexity, args["id"].(string)), true
 
 	case "QueryRoot.studyTopic":
 		if e.complexity.QueryRoot.StudyTopic == nil {
@@ -4480,6 +4503,7 @@ type QueryRoot{
   ): SearchResult!
 
   studyTopic(id: ID!): StudyTopic!
+  studyLesson(id: ID!): Lesson!
 
   calendar: Calendar
   event(id: ID!): Event
@@ -4588,6 +4612,7 @@ type Lesson {
     id: ID!
     title: String!
     tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
+    topic: StudyTopic! @goField(forceResolver: true)
     progress: TasksProgress! @goField(forceResolver: true)
 }
 
@@ -5542,6 +5567,21 @@ func (ec *executionContext) field_QueryRoot_section_args(ctx context.Context, ra
 }
 
 func (ec *executionContext) field_QueryRoot_show_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_QueryRoot_studyLesson_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -13519,6 +13559,60 @@ func (ec *executionContext) fieldContext_Lesson_tasks(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Lesson_topic(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_topic(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Lesson().Topic(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.StudyTopic)
+	fc.Result = res
+	return ec.marshalNStudyTopic2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStudyTopic(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_topic(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_StudyTopic_id(ctx, field)
+			case "title":
+				return ec.fieldContext_StudyTopic_title(ctx, field)
+			case "lessons":
+				return ec.fieldContext_StudyTopic_lessons(ctx, field)
+			case "progress":
+				return ec.fieldContext_StudyTopic_progress(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type StudyTopic", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Lesson_progress(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Lesson_progress(ctx, field)
 	if err != nil {
@@ -13746,6 +13840,8 @@ func (ec *executionContext) fieldContext_LessonPagination_items(ctx context.Cont
 				return ec.fieldContext_Lesson_title(ctx, field)
 			case "tasks":
 				return ec.fieldContext_Lesson_tasks(ctx, field)
+			case "topic":
+				return ec.fieldContext_Lesson_topic(ctx, field)
 			case "progress":
 				return ec.fieldContext_Lesson_progress(ctx, field)
 			}
@@ -16901,6 +16997,73 @@ func (ec *executionContext) fieldContext_QueryRoot_studyTopic(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_QueryRoot_studyTopic_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_studyLesson(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_studyLesson(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().StudyLesson(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Lesson)
+	fc.Result = res
+	return ec.marshalNLesson2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLesson(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_studyLesson(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Lesson_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Lesson_title(ctx, field)
+			case "tasks":
+				return ec.fieldContext_Lesson_tasks(ctx, field)
+			case "topic":
+				return ec.fieldContext_Lesson_topic(ctx, field)
+			case "progress":
+				return ec.fieldContext_Lesson_progress(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Lesson", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_studyLesson_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -28681,6 +28844,26 @@ func (ec *executionContext) _Lesson(ctx context.Context, sel ast.SelectionSet, o
 				return innerFunc(ctx)
 
 			})
+		case "topic":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Lesson_topic(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "progress":
 			field := field
 
@@ -29647,6 +29830,29 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._QueryRoot_studyTopic(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "studyLesson":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_studyLesson(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -32762,6 +32968,10 @@ func (ec *executionContext) marshalNLegacyIDLookup2ᚖgithubᚗcomᚋbccᚑcode�
 		return graphql.Null
 	}
 	return ec._LegacyIDLookup(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNLesson2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLesson(ctx context.Context, sel ast.SelectionSet, v model.Lesson) graphql.Marshaler {
+	return ec._Lesson(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNLesson2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLessonᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Lesson) graphql.Marshaler {

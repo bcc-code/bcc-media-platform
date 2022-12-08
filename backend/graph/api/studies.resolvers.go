@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
@@ -60,6 +59,11 @@ func (r *lessonResolver) Tasks(ctx context.Context, obj *model.Lesson, first *in
 		Offset: page.Offset,
 		Items:  utils.MapWithCtx(ctx, tasks, model.TaskFrom),
 	}, nil
+}
+
+// Topic is the resolver for the topic field.
+func (r *lessonResolver) Topic(ctx context.Context, obj *model.Lesson) (*model.StudyTopic, error) {
+	return r.QueryRoot().StudyTopic(ctx, obj.Topic.ID)
 }
 
 // Progress is the resolver for the progress field.

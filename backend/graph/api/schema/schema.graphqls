@@ -103,6 +103,7 @@ type QueryRoot{
   ): SearchResult!
 
   studyTopic(id: ID!): StudyTopic!
+  studyLesson(id: ID!): Lesson!
 
   calendar: Calendar
   event(id: ID!): Event
