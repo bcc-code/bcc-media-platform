@@ -66,10 +66,12 @@ type ResolverRoot interface {
 	Season() SeasonResolver
 	SeasonCalendarEntry() SeasonCalendarEntryResolver
 	SeasonSearchItem() SeasonSearchItemResolver
+	SectionItem() SectionItemResolver
 	Show() ShowResolver
 	ShowCalendarEntry() ShowCalendarEntryResolver
 	SimpleCalendarEntry() SimpleCalendarEntryResolver
 	StudyTopic() StudyTopicResolver
+	TextTask() TextTaskResolver
 }
 
 type DirectiveRoot struct {
@@ -77,12 +79,14 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Alternative struct {
-		ID    func(childComplexity int) int
-		Title func(childComplexity int) int
+		ID        func(childComplexity int) int
+		IsCorrect func(childComplexity int) int
+		Title     func(childComplexity int) int
 	}
 
 	AlternativesTask struct {
 		Alternatives func(childComplexity int) int
+		Completed    func(childComplexity int) int
 		ID           func(childComplexity int) int
 		Title        func(childComplexity int) int
 	}
@@ -181,6 +185,7 @@ type ComplexityRoot struct {
 		Images                func(childComplexity int) int
 		LegacyID              func(childComplexity int) int
 		LegacyProgramID       func(childComplexity int) int
+		Lessons               func(childComplexity int, first *int, offset *int) int
 		Number                func(childComplexity int) int
 		ProductionDate        func(childComplexity int) int
 		ProductionDateInTitle func(childComplexity int) int
@@ -336,9 +341,12 @@ type ComplexityRoot struct {
 	}
 
 	Lesson struct {
-		ID    func(childComplexity int) int
-		Tasks func(childComplexity int, first *int, offset *int) int
-		Title func(childComplexity int) int
+		Episodes func(childComplexity int, first *int, offset *int) int
+		ID       func(childComplexity int) int
+		Progress func(childComplexity int) int
+		Tasks    func(childComplexity int, first *int, offset *int) int
+		Title    func(childComplexity int) int
+		Topic    func(childComplexity int) int
 	}
 
 	LessonPagination struct {
@@ -381,9 +389,12 @@ type ComplexityRoot struct {
 	}
 
 	MutationRoot struct {
+		CompleteTask       func(childComplexity int, id string) int
 		SendSupportEmail   func(childComplexity int, title string, content string, html string) int
+		SendTaskMessage    func(childComplexity int, taskID string, message *string) int
 		SetDevicePushToken func(childComplexity int, token string, languages []string) int
 		SetEpisodeProgress func(childComplexity int, id string, progress *int, duration *int, context *model.EpisodeContext) int
+		UpdateTaskMessage  func(childComplexity int, id string, message string) int
 	}
 
 	Page struct {
@@ -445,6 +456,7 @@ type ComplexityRoot struct {
 		Season         func(childComplexity int, id string) int
 		Section        func(childComplexity int, id string, timestamp *string) int
 		Show           func(childComplexity int, id string) int
+		StudyLesson    func(childComplexity int, id string) int
 		StudyTopic     func(childComplexity int, id string) int
 	}
 
@@ -625,9 +637,10 @@ type ComplexityRoot struct {
 	}
 
 	StudyTopic struct {
-		ID      func(childComplexity int) int
-		Lessons func(childComplexity int, first *int, offset *int) int
-		Title   func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Lessons  func(childComplexity int, first *int, offset *int) int
+		Progress func(childComplexity int) int
+		Title    func(childComplexity int) int
 	}
 
 	TaskPagination struct {
@@ -637,9 +650,15 @@ type ComplexityRoot struct {
 		Total  func(childComplexity int) int
 	}
 
+	TasksProgress struct {
+		Completed func(childComplexity int) int
+		Total     func(childComplexity int) int
+	}
+
 	TextTask struct {
-		ID    func(childComplexity int) int
-		Title func(childComplexity int) int
+		Completed func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Title     func(childComplexity int) int
 	}
 
 	User struct {
@@ -666,6 +685,7 @@ type ComplexityRoot struct {
 }
 
 type AlternativesTaskResolver interface {
+	Completed(ctx context.Context, obj *model.AlternativesTask) (bool, error)
 	Alternatives(ctx context.Context, obj *model.AlternativesTask) ([]*model.Alternative, error)
 }
 type AnalyticsResolver interface {
@@ -708,6 +728,8 @@ type EpisodeResolver interface {
 
 	Context(ctx context.Context, obj *model.Episode) (model.EpisodeContextUnion, error)
 	RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error)
+
+	Lessons(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.LessonPagination, error)
 }
 type EpisodeCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Event, error)
@@ -743,6 +765,9 @@ type LabelSectionResolver interface {
 }
 type LessonResolver interface {
 	Tasks(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.TaskPagination, error)
+	Topic(ctx context.Context, obj *model.Lesson) (*model.StudyTopic, error)
+	Progress(ctx context.Context, obj *model.Lesson) (*model.TasksProgress, error)
+	Episodes(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.EpisodePagination, error)
 }
 type ListSectionResolver interface {
 	Items(ctx context.Context, obj *model.ListSection, first *int, offset *int) (*model.SectionItemPagination, error)
@@ -754,6 +779,9 @@ type MutationRootResolver interface {
 	SetDevicePushToken(ctx context.Context, token string, languages []string) (*model.Device, error)
 	SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int, context *model.EpisodeContext) (*model.Episode, error)
 	SendSupportEmail(ctx context.Context, title string, content string, html string) (bool, error)
+	CompleteTask(ctx context.Context, id string) (bool, error)
+	SendTaskMessage(ctx context.Context, taskID string, message *string) (string, error)
+	UpdateTaskMessage(ctx context.Context, id string, message string) (string, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -778,6 +806,7 @@ type QueryRootResolver interface {
 	Collection(ctx context.Context, id *string, slug *string) (*model.Collection, error)
 	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
 	StudyTopic(ctx context.Context, id string) (*model.StudyTopic, error)
+	StudyLesson(ctx context.Context, id string) (*model.Lesson, error)
 	Calendar(ctx context.Context) (*model.Calendar, error)
 	Event(ctx context.Context, id string) (*model.Event, error)
 	Faq(ctx context.Context) (*model.Faq, error)
@@ -806,6 +835,9 @@ type SeasonCalendarEntryResolver interface {
 type SeasonSearchItemResolver interface {
 	Show(ctx context.Context, obj *model.SeasonSearchItem) (*model.Show, error)
 }
+type SectionItemResolver interface {
+	Image(ctx context.Context, obj *model.SectionItem) (*string, error)
+}
 type ShowResolver interface {
 	Image(ctx context.Context, obj *model.Show, style *model.ImageStyle) (*string, error)
 
@@ -826,6 +858,10 @@ type SimpleCalendarEntryResolver interface {
 }
 type StudyTopicResolver interface {
 	Lessons(ctx context.Context, obj *model.StudyTopic, first *int, offset *int) (*model.LessonPagination, error)
+	Progress(ctx context.Context, obj *model.StudyTopic) (*model.TasksProgress, error)
+}
+type TextTaskResolver interface {
+	Completed(ctx context.Context, obj *model.TextTask) (bool, error)
 }
 
 type executableSchema struct {
@@ -850,6 +886,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Alternative.ID(childComplexity), true
 
+	case "Alternative.isCorrect":
+		if e.complexity.Alternative.IsCorrect == nil {
+			break
+		}
+
+		return e.complexity.Alternative.IsCorrect(childComplexity), true
+
 	case "Alternative.title":
 		if e.complexity.Alternative.Title == nil {
 			break
@@ -863,6 +906,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AlternativesTask.Alternatives(childComplexity), true
+
+	case "AlternativesTask.completed":
+		if e.complexity.AlternativesTask.Completed == nil {
+			break
+		}
+
+		return e.complexity.AlternativesTask.Completed(childComplexity), true
 
 	case "AlternativesTask.id":
 		if e.complexity.AlternativesTask.ID == nil {
@@ -1295,6 +1345,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.LegacyProgramID(childComplexity), true
+
+	case "Episode.lessons":
+		if e.complexity.Episode.Lessons == nil {
+			break
+		}
+
+		args, err := ec.field_Episode_lessons_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Episode.Lessons(childComplexity, args["first"].(*int), args["offset"].(*int)), true
 
 	case "Episode.number":
 		if e.complexity.Episode.Number == nil {
@@ -2027,12 +2089,31 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LegacyIDLookup.ID(childComplexity), true
 
+	case "Lesson.episodes":
+		if e.complexity.Lesson.Episodes == nil {
+			break
+		}
+
+		args, err := ec.field_Lesson_episodes_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Lesson.Episodes(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+
 	case "Lesson.id":
 		if e.complexity.Lesson.ID == nil {
 			break
 		}
 
 		return e.complexity.Lesson.ID(childComplexity), true
+
+	case "Lesson.progress":
+		if e.complexity.Lesson.Progress == nil {
+			break
+		}
+
+		return e.complexity.Lesson.Progress(childComplexity), true
 
 	case "Lesson.tasks":
 		if e.complexity.Lesson.Tasks == nil {
@@ -2052,6 +2133,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Lesson.Title(childComplexity), true
+
+	case "Lesson.topic":
+		if e.complexity.Lesson.Topic == nil {
+			break
+		}
+
+		return e.complexity.Lesson.Topic(childComplexity), true
 
 	case "LessonPagination.first":
 		if e.complexity.LessonPagination.First == nil {
@@ -2205,6 +2293,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MessageStyle.Text(childComplexity), true
 
+	case "MutationRoot.completeTask":
+		if e.complexity.MutationRoot.CompleteTask == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_completeTask_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.CompleteTask(childComplexity, args["id"].(string)), true
+
 	case "MutationRoot.sendSupportEmail":
 		if e.complexity.MutationRoot.SendSupportEmail == nil {
 			break
@@ -2216,6 +2316,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MutationRoot.SendSupportEmail(childComplexity, args["title"].(string), args["content"].(string), args["html"].(string)), true
+
+	case "MutationRoot.sendTaskMessage":
+		if e.complexity.MutationRoot.SendTaskMessage == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_sendTaskMessage_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.SendTaskMessage(childComplexity, args["taskId"].(string), args["message"].(*string)), true
 
 	case "MutationRoot.setDevicePushToken":
 		if e.complexity.MutationRoot.SetDevicePushToken == nil {
@@ -2240,6 +2352,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MutationRoot.SetEpisodeProgress(childComplexity, args["id"].(string), args["progress"].(*int), args["duration"].(*int), args["context"].(*model.EpisodeContext)), true
+
+	case "MutationRoot.updateTaskMessage":
+		if e.complexity.MutationRoot.UpdateTaskMessage == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_updateTaskMessage_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.UpdateTaskMessage(childComplexity, args["id"].(string), args["message"].(string)), true
 
 	case "Page.code":
 		if e.complexity.Page.Code == nil {
@@ -2616,6 +2740,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.QueryRoot.Show(childComplexity, args["id"].(string)), true
+
+	case "QueryRoot.studyLesson":
+		if e.complexity.QueryRoot.StudyLesson == nil {
+			break
+		}
+
+		args, err := ec.field_QueryRoot_studyLesson_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.StudyLesson(childComplexity, args["id"].(string)), true
 
 	case "QueryRoot.studyTopic":
 		if e.complexity.QueryRoot.StudyTopic == nil {
@@ -3480,6 +3616,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.StudyTopic.Lessons(childComplexity, args["first"].(*int), args["offset"].(*int)), true
 
+	case "StudyTopic.progress":
+		if e.complexity.StudyTopic.Progress == nil {
+			break
+		}
+
+		return e.complexity.StudyTopic.Progress(childComplexity), true
+
 	case "StudyTopic.title":
 		if e.complexity.StudyTopic.Title == nil {
 			break
@@ -3514,6 +3657,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TaskPagination.Total(childComplexity), true
+
+	case "TasksProgress.completed":
+		if e.complexity.TasksProgress.Completed == nil {
+			break
+		}
+
+		return e.complexity.TasksProgress.Completed(childComplexity), true
+
+	case "TasksProgress.total":
+		if e.complexity.TasksProgress.Total == nil {
+			break
+		}
+
+		return e.complexity.TasksProgress.Total(childComplexity), true
+
+	case "TextTask.completed":
+		if e.complexity.TextTask.Completed == nil {
+			break
+		}
+
+		return e.complexity.TextTask.Completed(childComplexity), true
 
 	case "TextTask.id":
 		if e.complexity.TextTask.ID == nil {
@@ -3943,7 +4107,7 @@ type Show {
     title: String!
     description: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
-    imageUrl: String
+    imageUrl: String @deprecated(reason: "Replaced by the image field")
     images: [Image!]!
     episodeCount: Int! @goField(forceResolver: true)
     seasonCount: Int! @goField(forceResolver: true)
@@ -3962,7 +4126,7 @@ type Season {
     title: String!
     description: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
-    imageUrl: String
+    imageUrl: String @deprecated(reason: "Replaced by the image field")
     images: [Image!]!
     number: Int!
     show: Show! @goField(forceResolver: true)
@@ -4002,7 +4166,7 @@ type Episode {
     description: String!
     extraDescription: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
-    imageUrl: String
+    imageUrl: String @deprecated(reason: "Replaced by the image field")
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)
     chapters: [Chapter!]!
@@ -4015,6 +4179,7 @@ type Episode {
     relatedItems(first: Int, offset: Int): SectionItemPagination @goField(forceResolver: true)
     images: [Image!]!
     number: Int
+    lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
 }
 
 type EpisodePagination implements Pagination {
@@ -4247,7 +4412,7 @@ type SectionItem {
     sort: Int!
     title: String!
     description: String!
-    image: String
+    image: String @goField(forceResolver: true)
     item: SectionItemType!
 }
 
@@ -4368,6 +4533,7 @@ type QueryRoot{
   ): SearchResult!
 
   studyTopic(id: ID!): StudyTopic!
+  studyLesson(id: ID!): Lesson!
 
   calendar: Calendar
   event(id: ID!): Event
@@ -4389,6 +4555,11 @@ type MutationRoot {
   setEpisodeProgress(id: ID!, progress: Int, duration: Int, context: EpisodeContext): Episode!
 
   sendSupportEmail(title: String!, content: String!, html: String!): Boolean!
+
+  completeTask(id: ID!): Boolean!
+
+  sendTaskMessage(taskId: ID!, message: String): ID!
+  updateTaskMessage(id: ID!, message: String!): ID!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -4464,12 +4635,16 @@ type SearchResult {
     id: ID!
     title: String!
     lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
+    progress: TasksProgress! @goField(forceResolver: true)
 }
 
 type Lesson {
     id: ID!
     title: String!
     tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
+    topic: StudyTopic! @goField(forceResolver: true)
+    progress: TasksProgress! @goField(forceResolver: true)
+    episodes(first: Int, offset: Int): EpisodePagination! @goField(forceResolver: true)
 }
 
 type LessonPagination implements Pagination {
@@ -4482,6 +4657,12 @@ type LessonPagination implements Pagination {
 interface Task {
     id: ID!
     title: String!
+    completed: Boolean!
+}
+
+type TasksProgress {
+    total: Int!
+    completed: Int!
 }
 
 type TaskPagination implements Pagination {
@@ -4494,18 +4675,23 @@ type TaskPagination implements Pagination {
 type AlternativesTask implements Task {
     id: ID!
     title: String!
+    completed: Boolean! @goField(forceResolver: true)
     alternatives: [Alternative!]! @goField(forceResolver: true)
 }
 
 type Alternative {
     id: ID!
     title: String!
+    isCorrect: Boolean!
 }
 
 type TextTask implements Task {
     id: ID!
     title: String!
+    completed: Boolean! @goField(forceResolver: true)
 }
+
+scalar TaskAnswer
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -4676,6 +4862,30 @@ func (ec *executionContext) field_Episode_image_args(ctx context.Context, rawArg
 		}
 	}
 	args["style"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Episode_lessons_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
 	return args, nil
 }
 
@@ -4877,6 +5087,30 @@ func (ec *executionContext) field_LabelSection_items_args(ctx context.Context, r
 	return args, nil
 }
 
+func (ec *executionContext) field_Lesson_episodes_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Lesson_tasks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -4925,6 +5159,21 @@ func (ec *executionContext) field_ListSection_items_args(ctx context.Context, ra
 	return args, nil
 }
 
+func (ec *executionContext) field_MutationRoot_completeTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_MutationRoot_sendSupportEmail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -4955,6 +5204,30 @@ func (ec *executionContext) field_MutationRoot_sendSupportEmail_args(ctx context
 		}
 	}
 	args["html"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_sendTaskMessage_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["taskId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("taskId"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["taskId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["message"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("message"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["message"] = arg1
 	return args, nil
 }
 
@@ -5021,6 +5294,30 @@ func (ec *executionContext) field_MutationRoot_setEpisodeProgress_args(ctx conte
 		}
 	}
 	args["context"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_updateTaskMessage_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["message"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("message"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["message"] = arg1
 	return args, nil
 }
 
@@ -5363,6 +5660,21 @@ func (ec *executionContext) field_QueryRoot_show_args(ctx context.Context, rawAr
 	return args, nil
 }
 
+func (ec *executionContext) field_QueryRoot_studyLesson_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_QueryRoot_studyTopic_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -5624,6 +5936,50 @@ func (ec *executionContext) fieldContext_Alternative_title(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Alternative_isCorrect(ctx context.Context, field graphql.CollectedField, obj *model.Alternative) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Alternative_isCorrect(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsCorrect, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Alternative_isCorrect(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Alternative",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AlternativesTask_id(ctx context.Context, field graphql.CollectedField, obj *model.AlternativesTask) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AlternativesTask_id(ctx, field)
 	if err != nil {
@@ -5712,6 +6068,50 @@ func (ec *executionContext) fieldContext_AlternativesTask_title(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _AlternativesTask_completed(ctx context.Context, field graphql.CollectedField, obj *model.AlternativesTask) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AlternativesTask_completed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.AlternativesTask().Completed(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AlternativesTask_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AlternativesTask",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AlternativesTask_alternatives(ctx context.Context, field graphql.CollectedField, obj *model.AlternativesTask) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AlternativesTask_alternatives(ctx, field)
 	if err != nil {
@@ -5755,6 +6155,8 @@ func (ec *executionContext) fieldContext_AlternativesTask_alternatives(ctx conte
 				return ec.fieldContext_Alternative_id(ctx, field)
 			case "title":
 				return ec.fieldContext_Alternative_title(ctx, field)
+			case "isCorrect":
+				return ec.fieldContext_Alternative_isCorrect(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Alternative", field.Name)
 		},
@@ -8878,6 +9280,71 @@ func (ec *executionContext) fieldContext_Episode_number(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_lessons(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_lessons(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Episode().Lessons(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.LessonPagination)
+	fc.Result = res
+	return ec.marshalNLessonPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLessonPagination(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_lessons(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "offset":
+				return ec.fieldContext_LessonPagination_offset(ctx, field)
+			case "first":
+				return ec.fieldContext_LessonPagination_first(ctx, field)
+			case "total":
+				return ec.fieldContext_LessonPagination_total(ctx, field)
+			case "items":
+				return ec.fieldContext_LessonPagination_items(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LessonPagination", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Episode_lessons_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _EpisodeCalendarEntry_id(ctx context.Context, field graphql.CollectedField, obj *model.EpisodeCalendarEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_EpisodeCalendarEntry_id(ctx, field)
 	if err != nil {
@@ -9241,6 +9708,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_images(ctx, field)
 			case "number":
 				return ec.fieldContext_Episode_number(ctx, field)
+			case "lessons":
+				return ec.fieldContext_Episode_lessons(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -9564,6 +10033,8 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 				return ec.fieldContext_Episode_images(ctx, field)
 			case "number":
 				return ec.fieldContext_Episode_number(ctx, field)
+			case "lessons":
+				return ec.fieldContext_Episode_lessons(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -9796,6 +10267,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_images(ctx, field)
 			case "number":
 				return ec.fieldContext_Episode_number(ctx, field)
+			case "lessons":
+				return ec.fieldContext_Episode_lessons(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -13236,6 +13709,175 @@ func (ec *executionContext) fieldContext_Lesson_tasks(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Lesson_topic(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_topic(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Lesson().Topic(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.StudyTopic)
+	fc.Result = res
+	return ec.marshalNStudyTopic2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStudyTopic(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_topic(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_StudyTopic_id(ctx, field)
+			case "title":
+				return ec.fieldContext_StudyTopic_title(ctx, field)
+			case "lessons":
+				return ec.fieldContext_StudyTopic_lessons(ctx, field)
+			case "progress":
+				return ec.fieldContext_StudyTopic_progress(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type StudyTopic", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Lesson_progress(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_progress(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Lesson().Progress(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.TasksProgress)
+	fc.Result = res
+	return ec.marshalNTasksProgress2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐTasksProgress(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_progress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_TasksProgress_total(ctx, field)
+			case "completed":
+				return ec.fieldContext_TasksProgress_completed(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TasksProgress", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Lesson_episodes(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_episodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Lesson().Episodes(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.EpisodePagination)
+	fc.Result = res
+	return ec.marshalNEpisodePagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodePagination(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_episodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_EpisodePagination_total(ctx, field)
+			case "first":
+				return ec.fieldContext_EpisodePagination_first(ctx, field)
+			case "offset":
+				return ec.fieldContext_EpisodePagination_offset(ctx, field)
+			case "items":
+				return ec.fieldContext_EpisodePagination_items(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type EpisodePagination", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Lesson_episodes_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LessonPagination_offset(ctx context.Context, field graphql.CollectedField, obj *model.LessonPagination) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LessonPagination_offset(ctx, field)
 	if err != nil {
@@ -13413,6 +14055,12 @@ func (ec *executionContext) fieldContext_LessonPagination_items(ctx context.Cont
 				return ec.fieldContext_Lesson_title(ctx, field)
 			case "tasks":
 				return ec.fieldContext_Lesson_tasks(ctx, field)
+			case "topic":
+				return ec.fieldContext_Lesson_topic(ctx, field)
+			case "progress":
+				return ec.fieldContext_Lesson_progress(ctx, field)
+			case "episodes":
+				return ec.fieldContext_Lesson_episodes(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Lesson", field.Name)
 		},
@@ -14365,6 +15013,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_images(ctx, field)
 			case "number":
 				return ec.fieldContext_Episode_number(ctx, field)
+			case "lessons":
+				return ec.fieldContext_Episode_lessons(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -14432,6 +15082,171 @@ func (ec *executionContext) fieldContext_MutationRoot_sendSupportEmail(ctx conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_MutationRoot_sendSupportEmail_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_completeTask(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_completeTask(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().CompleteTask(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_completeTask(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_completeTask_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_sendTaskMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_sendTaskMessage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().SendTaskMessage(rctx, fc.Args["taskId"].(string), fc.Args["message"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_sendTaskMessage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_sendTaskMessage_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_updateTaskMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_updateTaskMessage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().UpdateTaskMessage(rctx, fc.Args["id"].(string), fc.Args["message"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_updateTaskMessage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_updateTaskMessage_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -16198,6 +17013,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_images(ctx, field)
 			case "number":
 				return ec.fieldContext_Episode_number(ctx, field)
+			case "lessons":
+				return ec.fieldContext_Episode_lessons(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -16387,6 +17204,8 @@ func (ec *executionContext) fieldContext_QueryRoot_studyTopic(ctx context.Contex
 				return ec.fieldContext_StudyTopic_title(ctx, field)
 			case "lessons":
 				return ec.fieldContext_StudyTopic_lessons(ctx, field)
+			case "progress":
+				return ec.fieldContext_StudyTopic_progress(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type StudyTopic", field.Name)
 		},
@@ -16399,6 +17218,75 @@ func (ec *executionContext) fieldContext_QueryRoot_studyTopic(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_QueryRoot_studyTopic_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_studyLesson(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_studyLesson(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().StudyLesson(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Lesson)
+	fc.Result = res
+	return ec.marshalNLesson2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLesson(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_studyLesson(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Lesson_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Lesson_title(ctx, field)
+			case "tasks":
+				return ec.fieldContext_Lesson_tasks(ctx, field)
+			case "topic":
+				return ec.fieldContext_Lesson_topic(ctx, field)
+			case "progress":
+				return ec.fieldContext_Lesson_progress(ctx, field)
+			case "episodes":
+				return ec.fieldContext_Lesson_episodes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Lesson", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_studyLesson_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -19741,7 +20629,7 @@ func (ec *executionContext) _SectionItem_image(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Image, nil
+		return ec.resolvers.SectionItem().Image(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19759,8 +20647,8 @@ func (ec *executionContext) fieldContext_SectionItem_image(ctx context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "SectionItem",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -20872,6 +21760,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 				return ec.fieldContext_Episode_images(ctx, field)
 			case "number":
 				return ec.fieldContext_Episode_number(ctx, field)
+			case "lessons":
+				return ec.fieldContext_Episode_lessons(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -22539,6 +23429,56 @@ func (ec *executionContext) fieldContext_StudyTopic_lessons(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _StudyTopic_progress(ctx context.Context, field graphql.CollectedField, obj *model.StudyTopic) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StudyTopic_progress(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.StudyTopic().Progress(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.TasksProgress)
+	fc.Result = res
+	return ec.marshalNTasksProgress2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐTasksProgress(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StudyTopic_progress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StudyTopic",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_TasksProgress_total(ctx, field)
+			case "completed":
+				return ec.fieldContext_TasksProgress_completed(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TasksProgress", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TaskPagination_offset(ctx context.Context, field graphql.CollectedField, obj *model.TaskPagination) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TaskPagination_offset(ctx, field)
 	if err != nil {
@@ -22715,6 +23655,94 @@ func (ec *executionContext) fieldContext_TaskPagination_items(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _TasksProgress_total(ctx context.Context, field graphql.CollectedField, obj *model.TasksProgress) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TasksProgress_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TasksProgress_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TasksProgress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TasksProgress_completed(ctx context.Context, field graphql.CollectedField, obj *model.TasksProgress) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TasksProgress_completed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Completed, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TasksProgress_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TasksProgress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TextTask_id(ctx context.Context, field graphql.CollectedField, obj *model.TextTask) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TextTask_id(ctx, field)
 	if err != nil {
@@ -22798,6 +23826,50 @@ func (ec *executionContext) fieldContext_TextTask_title(ctx context.Context, fie
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TextTask_completed(ctx context.Context, field graphql.CollectedField, obj *model.TextTask) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TextTask_completed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TextTask().Completed(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TextTask_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TextTask",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -25846,6 +26918,13 @@ func (ec *executionContext) _Alternative(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "isCorrect":
+
+			out.Values[i] = ec._Alternative_isCorrect(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -25881,6 +26960,26 @@ func (ec *executionContext) _AlternativesTask(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "completed":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AlternativesTask_completed(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "alternatives":
 			field := field
 
@@ -26827,6 +27926,26 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._Episode_number(ctx, field, obj)
 
+		case "lessons":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_lessons(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -27970,6 +29089,66 @@ func (ec *executionContext) _Lesson(ctx context.Context, sel ast.SelectionSet, o
 				return innerFunc(ctx)
 
 			})
+		case "topic":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Lesson_topic(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "progress":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Lesson_progress(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "episodes":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Lesson_episodes(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -28303,6 +29482,33 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._MutationRoot_sendSupportEmail(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "completeTask":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_completeTask(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "sendTaskMessage":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_sendTaskMessage(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateTaskMessage":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_updateTaskMessage(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -28889,6 +30095,29 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._QueryRoot_studyTopic(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "studyLesson":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_studyLesson(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -29797,39 +31026,52 @@ func (ec *executionContext) _SectionItem(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._SectionItem_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "sort":
 
 			out.Values[i] = ec._SectionItem_sort(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 
 			out.Values[i] = ec._SectionItem_title(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "description":
 
 			out.Values[i] = ec._SectionItem_description(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "image":
+			field := field
 
-			out.Values[i] = ec._SectionItem_image(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SectionItem_image(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "item":
 
 			out.Values[i] = ec._SectionItem_item(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -30554,6 +31796,26 @@ func (ec *executionContext) _StudyTopic(ctx context.Context, sel ast.SelectionSe
 				return innerFunc(ctx)
 
 			})
+		case "progress":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._StudyTopic_progress(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -30614,6 +31876,41 @@ func (ec *executionContext) _TaskPagination(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var tasksProgressImplementors = []string{"TasksProgress"}
+
+func (ec *executionContext) _TasksProgress(ctx context.Context, sel ast.SelectionSet, obj *model.TasksProgress) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tasksProgressImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TasksProgress")
+		case "total":
+
+			out.Values[i] = ec._TasksProgress_total(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "completed":
+
+			out.Values[i] = ec._TasksProgress_completed(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var textTaskImplementors = []string{"TextTask", "Task"}
 
 func (ec *executionContext) _TextTask(ctx context.Context, sel ast.SelectionSet, obj *model.TextTask) graphql.Marshaler {
@@ -30629,15 +31926,35 @@ func (ec *executionContext) _TextTask(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = ec._TextTask_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 
 			out.Values[i] = ec._TextTask_title(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
+		case "completed":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TextTask_completed(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -31918,6 +33235,10 @@ func (ec *executionContext) marshalNLegacyIDLookup2ᚖgithubᚗcomᚋbccᚑcode�
 	return ec._LegacyIDLookup(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNLesson2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLesson(ctx context.Context, sel ast.SelectionSet, v model.Lesson) graphql.Marshaler {
+	return ec._Lesson(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNLesson2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLessonᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Lesson) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -32671,6 +33992,20 @@ func (ec *executionContext) marshalNTaskPagination2ᚖgithubᚗcomᚋbccᚑcode�
 		return graphql.Null
 	}
 	return ec._TaskPagination(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTasksProgress2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐTasksProgress(ctx context.Context, sel ast.SelectionSet, v model.TasksProgress) graphql.Marshaler {
+	return ec._TasksProgress(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTasksProgress2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐTasksProgress(ctx context.Context, sel ast.SelectionSet, v *model.TasksProgress) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TasksProgress(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {

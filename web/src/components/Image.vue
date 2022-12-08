@@ -56,10 +56,10 @@ const parentDimensions = computed(() => {
 })
 
 const effectiveSrc = computed(() => {
-    return (
-        props.src ?
-        props.src + `?w=${effectiveWidth.value}&h=${effectiveHeight.value}&fit=crop&crop=faces` : "null"
-    )
+    return props.src
+        ? props.src +
+              `?w=${effectiveWidth.value}&h=${effectiveHeight.value}&fit=crop&crop=faces`
+        : "null"
 })
 
 const effectiveWidth = computed(() => {

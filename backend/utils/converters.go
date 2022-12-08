@@ -1,13 +1,18 @@
 package utils
 
 import (
+	"github.com/ansel1/merry/v2"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
 // AsUuid parses string as Uuid, and returns it or an empty uuid.
 func AsUuid(s string) uuid.UUID {
-	uid, _ := uuid.Parse(s)
+	uid, err := uuid.Parse(s)
+	if err != nil {
+		log.L.Error().Err(merry.Wrap(err)).Msg("Failed to parse UUID")
+	}
 	return uid
 }
 

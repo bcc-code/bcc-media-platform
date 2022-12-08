@@ -18,5 +18,8 @@ func LessonFrom(ctx context.Context, lesson *common.Lesson) *Lesson {
 	return &Lesson{
 		ID:    id,
 		Title: title,
+		Topic: &StudyTopic{
+			ID: lesson.TopicID.String(),
+		},
 	}
 }

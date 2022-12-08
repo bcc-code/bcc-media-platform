@@ -75,9 +75,9 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 	rq := queries.RoleQueries(roles)
 
 	loaders := &common.FilteredLoaders{
-		ShowFilterLoader:    batchloaders.NewFilterLoader(rq.GetShowIDsWithRoles),
-		SeasonFilterLoader:  batchloaders.NewFilterLoader(rq.GetSeasonIDsWithRoles),
-		EpisodeFilterLoader: batchloaders.NewFilterLoader(rq.GetEpisodeIDsWithRoles),
+		ShowFilterLoader:    batchloaders.NewFilterLoader(rq.GetShowIDsWithRoles).Loader,
+		SeasonFilterLoader:  batchloaders.NewFilterLoader(rq.GetSeasonIDsWithRoles).Loader,
+		EpisodeFilterLoader: batchloaders.NewFilterLoader(rq.GetEpisodeIDsWithRoles).Loader,
 		SeasonsLoader:       batchloaders.NewRelationLoader(rq.GetSeasonIDsForShowsWithRoles).Loader,
 		SectionsLoader:      batchloaders.NewRelationLoader(rq.GetSectionIDsForPagesWithRoles).Loader,
 		EpisodesLoader:      batchloaders.NewRelationLoader(rq.GetEpisodeIDsForSeasonsWithRoles).Loader,
@@ -86,11 +86,15 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 		}),
 		CollectionItemIDsLoader: collection.NewCollectionItemLoader(db, collectionLoader, roles),
 		CalendarEntryLoader:     batchloaders.New(rq.GetCalendarEntries),
-		StudyTopicFilterLoader:  &batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]{batchloaders.NewFilterLoader(rq.GetTopicIDsWithRoles)},
-		StudyLessonFilterLoader: &batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]{batchloaders.NewFilterLoader(rq.GetLessonIDsWithRoles)},
-		StudyTaskFilterLoader:   &batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]{batchloaders.NewFilterLoader(rq.GetTaskIDsWithRoles)},
+		StudyTopicFilterLoader:  batchloaders.NewFilterLoader(rq.GetTopicIDsWithRoles),
+		StudyLessonFilterLoader: batchloaders.NewFilterLoader(rq.GetLessonIDsWithRoles),
+		StudyTaskFilterLoader:   batchloaders.NewFilterLoader(rq.GetTaskIDsWithRoles),
 		StudyLessonsLoader:      batchloaders.NewRelationLoader(rq.GetLessonIDsForTopics),
 		StudyTasksLoader:        batchloaders.NewRelationLoader(rq.GetTaskIDsForLessons),
+
+		// Study Relations
+		StudyLessonEpisodesLoader: batchloaders.NewRelationLoader(rq.GetEpisodeIDsForLessons),
+		EpisodeStudyLessonsLoader: batchloaders.NewRelationLoader(rq.GetLessonIDsForEpisodes),
 	}
 
 	rolesLoaderCache.Set(key, loaders)
@@ -120,6 +124,12 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 	profileQueries := queries.ProfileQueries(profileID)
 	loaders := &common.ProfileLoaders{
 		ProgressLoader: batchloaders.New(profileQueries.GetProgressForEpisodes, batchloaders.WithMemoryCache(time.Second*5)),
+		TaskCompletedLoader: batchloaders.NewFilterLoader(func(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
+			return queries.GetAnsweredTasks(ctx, sqlc.GetAnsweredTasksParams{
+				ProfileID: profileID,
+				Column2:   ids,
+			})
+		}, batchloaders.WithMemoryCache(time.Second*5)),
 	}
 
 	profilesLoaderCache.Set(profileID, loaders, cache.WithExpiration(time.Minute*5))
@@ -289,10 +299,10 @@ func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code st
 func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 	return &common.BatchLoaders{
 		// App
-		ApplicationLoader:           batchloaders.NewLoader(queries.GetApplications),
+		ApplicationLoader:           batchloaders.New(queries.GetApplications).Loader,
 		ApplicationIDFromCodeLoader: batchloaders.NewConversionLoader(queries.GetApplicationIDsForCodes),
 		//Redirect
-		RedirectLoader:           batchloaders.NewLoader(queries.GetRedirects),
+		RedirectLoader:           batchloaders.New(queries.GetRedirects).Loader,
 		RedirectIDFromCodeLoader: batchloaders.NewConversionLoader(queries.GetRedirectIDsForCodes),
 		// Item
 		PageLoader:                         batchloaders.New(queries.GetPages).Loader,
@@ -321,10 +331,10 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		EpisodePermissionLoader: episode.NewPermissionLoader(*queries),
 		PagePermissionLoader:    page.NewPermissionLoader(*queries),
 		SectionPermissionLoader: section.NewPermissionLoader(*queries),
-		FAQCategoryLoader:       batchloaders.NewLoader(queries.GetFAQCategories),
-		QuestionLoader:          batchloaders.NewLoader(queries.GetQuestions),
+		FAQCategoryLoader:       batchloaders.NewLoader(queries.GetFAQCategories).Loader,
+		QuestionLoader:          batchloaders.NewLoader(queries.GetQuestions).Loader,
 		QuestionsLoader:         batchloaders.NewRelationLoader(queries.GetQuestionIDsForCategories).Loader,
-		MessageGroupLoader:      batchloaders.NewLoader(queries.GetMessageGroups),
+		MessageGroupLoader:      batchloaders.NewLoader(queries.GetMessageGroups).Loader,
 		// User Data
 		ProfilesLoader: batchloaders.NewListLoader(queries.GetProfilesForUserIDs, func(i common.Profile) string {
 			return i.UserID

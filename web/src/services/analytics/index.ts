@@ -9,14 +9,13 @@ import config from "@/config"
 
 const getRevision = async () => {
     try {
-        const result = await fetch(config.api.url + "/versionz");
-        const rev = await result.json();
+        const result = await fetch(config.api.url + "/versionz")
+        const rev = await result.json()
 
         if (rev["build_sha"]) {
             return rev
         }
-    } catch {
-    }
+    } catch {}
     return "unknown | debug"
 }
 
@@ -71,7 +70,11 @@ class Analytics {
 
         track(
             event,
-            { ...data, appLanguage: current.value.code, releaseVersion: this.revision ?? "unknown" },
+            {
+                ...data,
+                appLanguage: current.value.code,
+                releaseVersion: this.revision ?? "unknown",
+            },
             undefined,
             undefined
         )

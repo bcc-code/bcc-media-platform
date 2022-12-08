@@ -9,6 +9,7 @@ import ChevronDown from "./ChevronDown.vue"
 import ChevronLeft from "./ChevronLeft.vue"
 import ChevronRight from "./ChevronRight.vue"
 import ChevronUp from "./ChevronUp.vue"
+import QuestionIcon from "./Question.vue"
 
 export {
     ProfileIcon,
@@ -22,4 +23,5 @@ export {
     ChevronLeft,
     ChevronRight,
     ChevronUp,
+    QuestionIcon
 }

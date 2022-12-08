@@ -16,7 +16,7 @@
             :breakpoints="breakpoints('medium')"
             navigation
         >
-            <SwiperSlide v-for="i, index in result">
+            <SwiperSlide v-for="(i, index) in result">
                 <div
                     class="cursor-pointer"
                     @click="onclick(index, i.id)"
@@ -25,7 +25,7 @@
                     <div class="relative mb-1 rounded-lg overflow-hidden">
                         <Image
                             :src="i.image"
-                            :ratio="(9/16)"
+                            :ratio="9 / 16"
                             size-source="width"
                         />
                     </div>
@@ -110,7 +110,7 @@ const onclick = async (index: number, id: string) => {
         elementType: "Show",
         group: "shows",
         elementPosition: index,
-        searchText: queryString.value
+        searchText: queryString.value,
     })
 
     showId.value = id

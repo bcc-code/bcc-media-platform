@@ -10,11 +10,11 @@
 </template>
 <script lang="ts" setup>
 import EpisodeDisplay from "@/components/episodes/EpisodeDisplay.vue"
-import { GetEpisodeQuery } from "@/graph/generated";
+import { GetEpisodeQuery } from "@/graph/generated"
 import { computed, ref } from "vue"
 import { useRouter } from "vue-router"
 import { setTitle } from "@/utils/title"
-import { analytics } from "@/services/analytics";
+import { analytics } from "@/services/analytics"
 
 const props = defineProps<{
     episodeId: string
@@ -35,15 +35,15 @@ const setEpisode = (episode: GetEpisodeQuery["episode"]) => {
         params: { episodeId: episode.id },
         query: router.currentRoute.value.query,
     })
-    
+
     setTitle(episode.title)
 
     analytics.page({
         id: "episode",
         title: document.title,
         meta: {
-            episodeId: episode.id
-        }
+            episodeId: episode.id,
+        },
     })
 }
 </script>

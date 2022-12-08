@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/email"
+	"github.com/bcc-code/brunstadtv/backend/export"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/gin-gonic/gin"
@@ -67,12 +68,29 @@ func (r *Resolver) GetFilteredLoaders(ctx context.Context) *common.FilteredLoade
 	return r.FilteredLoaders(ctx)
 }
 
+func (r *Resolver) GetProfileLoaders(ctx context.Context) *common.ProfileLoaders {
+	return r.ProfileLoaders(ctx)
+}
+
 func (r *Resolver) GetS3Client() *s3.Client {
 	return r.S3Client
 }
 
+func (r *Resolver) GetURLSigner() *signing.Signer {
+	return r.URLSigner
+}
+
+func (r *Resolver) GetCDNConfig() export.CDNConfig {
+	return r.APIConfig
+}
+
 type awsConfig interface {
 	GetTempStorageBucket() string
+}
+
+type cdnConfig interface {
+	GetVOD2Domain() string
+	GetLegacyVODDomain() string
 }
 
 type apiConfig interface {
@@ -375,4 +393,16 @@ func resolveMessageSection(ctx context.Context, r *messageSectionResolver, s *co
 			Content: i.Content.Get(languages),
 		}
 	}), nil
+}
+
+func getProfile(ctx context.Context) (*common.Profile, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	p := user.GetProfileFromCtx(ginCtx)
+	if p == nil {
+		return nil, ErrProfileNotSet
+	}
+	return p, nil
 }

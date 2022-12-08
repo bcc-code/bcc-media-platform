@@ -1,0 +1,161 @@
+/* Codegen with figma plugin: "CSSGen": https://www.figma.com/community/plugin/742750636238601912/CSSGen. */
+/* Best I could find, the tailwind ones were pretty bad. */
+
+:root {
+    --color-tint-1: rgba(110, 176, 230, 1);
+    --color-tint-2: rgba(230, 60, 98, 1);
+    --color-tint-3: rgba(113, 210, 164, 1);
+    --color-on-tint: rgba(255, 255, 255, 1);
+    --color-label-1: rgba(254, 254, 254, 1);
+    --color-label-2: rgba(217, 224, 235, 1);
+    --color-label-3: rgba(180, 192, 210, 1);
+    --color-label-4: rgba(112, 124, 142, 1);
+    --color-background-1: rgba(13, 22, 35, 1);
+    --color-background-2: rgba(29, 40, 56, 1);
+    --color-separator-on-light: rgba(204, 221, 255, 0.100);
+    --color-light-1: rgba(230, 235, 242, 1);
+    --color-dark-transparent: rgba(24, 24, 24, 0.700);
+}
+
+.text-style-headline-1 {
+    font-size: 2.125rem;
+    font-family: "Barlow";
+    font-weight: 800;
+    font-style: normal;
+    line-height: 40px;
+    text-decoration: none;
+    text-transform: none;
+}
+
+.text-style-headline-2 {
+    font-size: 1.75rem;
+    font-family: "Barlow";
+    font-weight: 800;
+    font-style: normal;
+    line-height: 32px;
+    text-decoration: none;
+    text-transform: none;
+}
+
+.text-style-title-1 {
+    font-size: 1.5rem;
+    font-family: "Barlow";
+    font-weight: 800;
+    font-style: normal;
+    line-height: 28px;
+    text-decoration: none;
+    text-transform: none;
+}
+
+.text-style-title-2 {
+    font-size: 1.25rem;
+    font-family: "Barlow";
+    font-weight: 700;
+    font-style: normal;
+    line-height: 24px;
+    letter-spacing: -0.3px;
+    text-decoration: none;
+    text-transform: none;
+}
+
+.text-style-title-3 {
+    font-size: 1.062rem;
+    font-family: "Barlow";
+    font-weight: 700;
+    font-style: normal;
+    line-height: 20px;
+    text-decoration: none;
+    text-transform: none;
+}
+
+.text-style-body-1 {
+    font-size: 1.188rem;
+    font-family: "Barlow";
+    font-weight: 400;
+    font-style: normal;
+    line-height: 24px;
+    text-decoration: none;
+    text-transform: none;
+}
+
+.text-style-body-2 {
+    font-size: 1rem;
+    font-family: "Barlow";
+    font-weight: 500;
+    font-style: normal;
+    line-height: 20px;
+    text-decoration: none;
+    text-transform: none;
+}
+
+.text-style-button-1 {
+    font-size: 1.125rem;
+    font-family: "Barlow";
+    font-weight: 700;
+    font-style: normal;
+    line-height: 24px;
+    text-decoration: none;
+    text-transform: none;
+}
+
+.text-style-button-2 {
+    font-size: 0.938rem;
+    font-family: "Barlow";
+    font-weight: 700;
+    font-style: normal;
+    line-height: 24px;
+    text-decoration: none;
+    text-transform: none;
+}
+
+.text-style-button-2-upper {
+    font-size: 0.938rem;
+    font-family: "Barlow";
+    font-weight: 700;
+    font-style: normal;
+    line-height: 24px;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.text-style-caption-1 {
+    font-size: 0.875rem;
+    font-family: "Barlow";
+    font-weight: 500;
+    font-style: normal;
+    line-height: 16px;
+    text-decoration: none;
+    text-transform: none;
+}
+
+.text-style-caption-2 {
+    font-size: 0.75rem;
+    font-family: "Barlow";
+    font-weight: 500;
+    font-style: normal;
+    line-height: 14px;
+    text-decoration: none;
+    text-transform: none;
+}
+
+.text-style-caption-3 {
+    font-size: 0.688rem;
+    font-family: "Barlow";
+    font-weight: 500;
+    font-style: normal;
+    line-height: 12px;
+    letter-spacing: -0.27px;
+    text-decoration: none;
+    text-transform: none;
+}
+
+.text-style-overline {
+    font-size: 0.938rem;
+    font-family: "Barlow";
+    font-weight: 600;
+    font-style: normal;
+    line-height: 20px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    text-transform: uppercase;
+}

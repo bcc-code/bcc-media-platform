@@ -63,9 +63,14 @@ type FilteredLoaders struct {
 	StudyLessonFilterLoader *batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]
 	StudyTasksLoader        *batchloaders.BatchLoader[uuid.UUID, []*uuid.UUID]
 	StudyTaskFilterLoader   *batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]
+
+	//Relations
+	StudyLessonEpisodesLoader *batchloaders.BatchLoader[uuid.UUID, []*int]
+	EpisodeStudyLessonsLoader *batchloaders.BatchLoader[int, []*uuid.UUID]
 }
 
 // ProfileLoaders contains loaders per profile
 type ProfileLoaders struct {
-	ProgressLoader *batchloaders.BatchLoader[int, *Progress]
+	ProgressLoader      *batchloaders.BatchLoader[int, *Progress]
+	TaskCompletedLoader *batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]
 }

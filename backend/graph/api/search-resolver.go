@@ -152,7 +152,7 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 		return nil, err
 	}
 
-	err = ratelimit.Endpoint(ctx, "search", 50)
+	err = ratelimit.Endpoint(ctx, "search", 50, true)
 	if err != nil {
 		return nil, err
 	}

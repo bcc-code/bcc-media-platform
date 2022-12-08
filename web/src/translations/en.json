@@ -3,7 +3,9 @@
         "save": "Save",
         "login": "Login",
         "logout": "Logout",
-        "stayLoggedOut": "Stay logged out"
+        "stayLoggedOut": "Stay logged out",
+        "cancel": "Cancel",
+        "submit": "Submit"
     },
     "dashboard": {
         "loggedOut": "You were logged out"
@@ -43,7 +45,8 @@
         "availableFrom": "Available From",
         "availableTo": "Available To",
         "ageRating": "Rating",
-        "notFound": "Episode not found"
+        "notFound": "Episode not found",
+        "comingSoon": "Coming soon"
     },
     "live": {
         "now": "Now"
@@ -58,5 +61,12 @@
         "episodes": "Episodes",
         "cancel": "Cancel",
         "emptyQuery": "Search query is empty."
+    },
+    "support": {
+        "contact": "Contact Support",
+        "title": "Title",
+        "subject": "Subject",
+        "content": "Content",
+        "describeIssue": "Describe your issue in detail."
     }
 }

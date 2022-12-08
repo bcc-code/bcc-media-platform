@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
+	"strconv"
 )
 
 // GetTopics returns studies
@@ -67,9 +68,6 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 			title["no"] = l.OriginalTitle
 		}
 
-		var alternatives []common.QuestionAlternative
-		_ = json.Unmarshal(l.Alternatives.RawMessage, &alternatives)
-
 		var multiSelect null.Bool
 		if l.AlternativesMultiselect.Valid {
 			multiSelect.SetValid(l.AlternativesMultiselect.Bool)
@@ -80,7 +78,6 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 			LessonID:     l.LessonID,
 			Title:        title,
 			QuestionType: l.QuestionType.String,
-			Alternatives: alternatives,
 			Type:         l.Type,
 			MultiSelect:  multiSelect,
 		}
@@ -102,9 +99,10 @@ func (q *Queries) GetQuestionAlternatives(ctx context.Context, ids []uuid.UUID) 
 		}
 
 		return common.QuestionAlternative{
-			Title:  title,
-			TaskID: alt.TaskID.UUID,
-			ID:     alt.ID,
+			Title:     title,
+			TaskID:    alt.TaskID.UUID,
+			ID:        alt.ID,
+			IsCorrect: alt.IsCorrect,
 		}
 	}), nil
 }
@@ -162,4 +160,42 @@ func (rq *RoleQueries) GetTopicIDsWithRoles(ctx context.Context, ids []uuid.UUID
 func (rq *RoleQueries) GetLessonIDsWithRoles(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
 	// TODO: implement filtering
 	return ids, nil
+}
+
+// GetLessonIDsForEpisodes returns lessons for episodes
+func (rq *RoleQueries) GetLessonIDsForEpisodes(ctx context.Context, ids []int) ([]batchloaders.Relation[uuid.UUID, int], error) {
+	rows, err := rq.queries.getLessonsForItemsInCollection(ctx, getLessonsForItemsInCollectionParams{
+		Collection: null.StringFrom("episodes"),
+		Column2: lo.Map(ids, func(i int, _ int) string {
+			return strconv.Itoa(i)
+		}),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getLessonsForItemsInCollectionRow, _ int) batchloaders.Relation[uuid.UUID, int] {
+		p, _ := strconv.ParseInt(i.ParentID.String, 10, 64)
+		return relation[uuid.UUID, int]{
+			ID:       i.ID.UUID,
+			ParentID: int(p),
+		}
+	}), nil
+}
+
+// GetEpisodeIDsForLessons returns episodes for lessons
+func (rq *RoleQueries) GetEpisodeIDsForLessons(ctx context.Context, ids []uuid.UUID) ([]batchloaders.Relation[int, uuid.UUID], error) {
+	rows, err := rq.queries.getEpisodesForLessons(ctx, getEpisodesForLessonsParams{
+		Column1: ids,
+		Column2: rq.roles,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getEpisodesForLessonsRow, _ int) batchloaders.Relation[int, uuid.UUID] {
+		p, _ := strconv.ParseInt(i.ID.String, 10, 64)
+		return relation[int, uuid.UUID]{
+			ID:       int(p),
+			ParentID: i.ParentID.UUID,
+		}
+	}), nil
 }
