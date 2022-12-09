@@ -130,7 +130,7 @@ func (r *lessonResolver) Links(ctx context.Context, obj *model.Lesson, first *in
 				ID:          strconv.Itoa(link.ID),
 				URL:         link.URL,
 				Title:       link.Title.Get(languages),
-				Description: link.Title.GetValueOrNil(languages),
+				Description: link.Description.GetValueOrNil(languages),
 				Image:       link.Images.GetDefault(languages, common.ImageStyleDefault),
 			}
 		}),
