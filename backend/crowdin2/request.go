@@ -8,17 +8,21 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
+type response[T any] struct {
+	Data T
+}
+
 func send[T any](req *resty.Request) (T, error) {
-	var body T
+	var body response[T]
 	res, err := req.Send()
 	if err != nil {
-		return body, err
+		return body.Data, err
 	}
 	if !res.IsSuccess() {
-		return body, merry.New("Failed to send request to Crowdin")
+		return body.Data, merry.New("Failed to send request to Crowdin")
 	}
 	_ = json.Unmarshal(res.Body(), &body)
-	return body, nil
+	return body.Data, nil
 }
 
 func get[T any](ctx context.Context, client *Client, path string) (T, error) {
@@ -35,7 +39,8 @@ func post[T any](ctx context.Context, client *Client, path string, body any) (T,
 	defer span.End()
 	req := client.c.R()
 	req.URL = path
-	req.Body = body
+	b, _ := json.Marshal(body)
+	req.Body = b
 	req.Method = "POST"
 	req.SetHeader("Content-Type", "application/json")
 	return send[T](req)
