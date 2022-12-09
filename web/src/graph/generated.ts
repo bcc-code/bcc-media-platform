@@ -1217,6 +1217,13 @@ export type GetStudyLessonQueryVariables = Exact<{
 
 export type GetStudyLessonQuery = { studyLesson: { id: string, title: string, progress: { total: number, completed: number }, tasks: { items: Array<{ __typename: 'AlternativesTask', id: string, title: string, completed: boolean, alternatives: Array<{ title: string, isCorrect: boolean }> } | { __typename: 'LinkTask', id: string, title: string, completed: boolean } | { __typename: 'PosterTask', id: string, title: string, completed: boolean } | { __typename: 'QuoteTask', id: string, title: string, completed: boolean } | { __typename: 'TextTask', id: string, title: string, completed: boolean } | { __typename: 'VideoTask', id: string, title: string, completed: boolean }> } } };
 
+export type CompleteTaskMutationVariables = Exact<{
+  taskId: Scalars['ID'];
+}>;
+
+
+export type CompleteTaskMutation = { completeTask: boolean };
+
 export type SendTaskMessageMutationVariables = Exact<{
   taskId: Scalars['ID'];
   message: Scalars['String'];
@@ -1720,6 +1727,15 @@ export const GetStudyLessonDocument = gql`
 
 export function useGetStudyLessonQuery(options: Omit<Urql.UseQueryArgs<never, GetStudyLessonQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetStudyLessonQuery>({ query: GetStudyLessonDocument, ...options });
+};
+export const CompleteTaskDocument = gql`
+    mutation completeTask($taskId: ID!) {
+  completeTask(id: $taskId)
+}
+    `;
+
+export function useCompleteTaskMutation() {
+  return Urql.useMutation<CompleteTaskMutation, CompleteTaskMutationVariables>(CompleteTaskDocument);
 };
 export const SendTaskMessageDocument = gql`
     mutation sendTaskMessage($taskId: ID!, $message: String!) {

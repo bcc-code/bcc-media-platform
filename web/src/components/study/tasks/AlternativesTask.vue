@@ -46,6 +46,5 @@ watch(selectedIndex, (after, before) => {
 
 function selectAnswer(answer: number) {
     selectedIndex.value = answer
-    console.log(selectedIndex)
 }
 </script>

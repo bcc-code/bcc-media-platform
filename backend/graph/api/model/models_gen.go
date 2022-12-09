@@ -493,6 +493,7 @@ type Lesson struct {
 	Topic    *StudyTopic        `json:"topic"`
 	Progress *TasksProgress     `json:"progress"`
 	Episodes *EpisodePagination `json:"episodes"`
+	Links    *LinkPagination    `json:"links"`
 }
 
 type LessonPagination struct {
@@ -508,11 +509,26 @@ func (this LessonPagination) GetFirst() int  { return this.First }
 func (this LessonPagination) GetOffset() int { return this.Offset }
 
 type Link struct {
-	ID  string `json:"id"`
-	URL string `json:"url"`
+	ID          string  `json:"id"`
+	URL         string  `json:"url"`
+	Title       string  `json:"title"`
+	Description *string `json:"description"`
+	Image       *string `json:"image"`
 }
 
 func (Link) IsSectionItemType() {}
+
+type LinkPagination struct {
+	Total  int     `json:"total"`
+	First  int     `json:"first"`
+	Offset int     `json:"offset"`
+	Items  []*Link `json:"items"`
+}
+
+func (LinkPagination) IsPagination()       {}
+func (this LinkPagination) GetTotal() int  { return this.Total }
+func (this LinkPagination) GetFirst() int  { return this.First }
+func (this LinkPagination) GetOffset() int { return this.Offset }
 
 type LinkTask struct {
 	ID             string  `json:"id"`

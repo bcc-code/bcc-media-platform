@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -102,6 +103,37 @@ func (r *lessonResolver) Episodes(ctx context.Context, obj *model.Lesson, first 
 
 	return &model.EpisodePagination{
 		Items:  utils.MapWithCtx(ctx, episodes, model.EpisodeFrom),
+		Total:  page.Total,
+		First:  page.First,
+		Offset: page.Offset,
+	}, nil
+}
+
+// Links is the resolver for the links field.
+func (r *lessonResolver) Links(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.LinkPagination, error) {
+	ids, err := r.GetFilteredLoaders(ctx).StudyLessonLinksLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	page := utils.Paginate(ids, first, offset, nil)
+
+	links, err := batchloaders.GetMany(ctx, r.Loaders.LinkLoader, utils.PointerArrayToArray(page.Items))
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.LinkPagination{
+		Items: utils.MapWithCtx(ctx, links, func(ctx context.Context, link *common.Link) *model.Link {
+			ginCtx, _ := utils.GinCtx(ctx)
+			languages := user.GetLanguagesFromCtx(ginCtx)
+			return &model.Link{
+				ID:          strconv.Itoa(link.ID),
+				URL:         link.URL,
+				Title:       link.Title.Get(languages),
+				Description: link.Title.GetValueOrNil(languages),
+				Image:       link.Images.GetDefault(languages, common.ImageStyleDefault),
+			}
+		}),
 		Total:  page.Total,
 		First:  page.First,
 		Offset: page.Offset,

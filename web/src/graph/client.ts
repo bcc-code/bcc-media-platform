@@ -44,9 +44,6 @@ export default createClient({
                     } else {
                         state.authState = null
                     }
-                    console.log('HALLO 2');
-                    console.log(token);
-                    console.log(JSON.stringify(state));
                     return state;
                 }
                 const token = await Auth.getToken()

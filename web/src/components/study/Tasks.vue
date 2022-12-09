@@ -40,12 +40,14 @@ import { flutterStudy } from "@/utils/flutter"
 import QuizNavButton from '../../components/study/LargeButton.vue';
 import {
     GetStudyLessonQuery,
+    useCompleteTaskMutation,
     useGetStudyLessonQuery
 } from "@/graph/generated"
 import { useRoute } from "vue-router"
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()
 const { error, fetching, data, executeQuery, ...lessonQuery } = useGetStudyLessonQuery({ pause: props.lesson.studyLesson.id == null, variables: { id: props.lesson.studyLesson.id.toString() } });
+const { executeMutation } = useCompleteTaskMutation();
 
 const { t } = useI18n()
 
@@ -70,20 +72,19 @@ onMounted(() => {
     })
 })
 
-const isCurrentStepDone = ref(false)
+const isCurrentStepDone = ref(true)
 const taskPercent = computed(() => (currentTaskIndex.value + 1) / tasks.value.length * 100);
 
-
 function previousStep() {
-    console.log(`flutterStudy ${flutterStudy}`)
     if (currentTaskIndex.value > 0) {
         currentTaskIndex.value -= 1;
     }
 }
 function nextStep() {
-    console.log(`flutterStudy ${flutterStudy}`)
+    executeMutation({ taskId: currentTask.value.id })
     if (!isLastTask.value) {
         currentTaskIndex.value += 1;
+        isCurrentStepDone.value = true;
     } else {
         flutterStudy?.tasksCompleted()
     }
