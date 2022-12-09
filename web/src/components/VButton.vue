@@ -1,9 +1,7 @@
 <template>
     <button
-        class="cursor-pointer rounded-full border border-gray py-2 px-3 text-left shadow-sm hover:border-indigo-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
-        :class="[styles.background, styles.text]"
-        :disabled="disabled"
-    >
+        class="cursor-pointer rounded-full focus:outline-none font-bold leading-normal text-on-tint  text-style-button-1 border border-separator-on-light"
+        :class="styles" :disabled="disabled">
         <slot></slot>
     </button>
 </template>
@@ -11,41 +9,47 @@
 import { computed } from "vue"
 
 type Color = "default" | "red" | "green" | "secondary"
+type Size = "default" | "large"
 
 const props = defineProps<{
     color?: Color
     disabled?: boolean
+    size?: Size
 }>()
 
 const styles = computed(() => {
+    var styles = '';
+
+    const apply = (str: string) => styles += ` ${str}`;
+
     if (props.disabled) {
-        return {
-            background: "bg-background",
-            text: "text-gray",
+        apply("bg-background text-label-4 cursor-default");
+    } else {
+        switch (props.color) {
+            case "red":
+                apply("bg-red hover:bg-red-hover")
+                break;
+            case "green":
+                apply("bg-green hover:bg-green-hover")
+                break;
+            case "secondary":
+                apply("bg-secondary hover:bg-secondary-hover")
+                break;
+            default:
+                apply("bg-primary hover:bg-primary-hover")
+                break;
         }
     }
 
-    switch (props.color) {
-        case "red":
-            return {
-                background: "bg-red hover:bg-red-hover",
-                text: "text-white",
-            }
-        case "green":
-            return {
-                background: "bg-green hover:bg-green-hover",
-                text: "text-white",
-            }
-        case "secondary":
-            return {
-                background: "bg-secondary hover:bg-secondary-hover",
-                text: "text-white",
-            }
+    switch (props.size) {
+        case "large":
+            apply("px-5 py-3");
+            break;
         default:
-            return {
-                background: "bg-primary hover:bg-primary-hover",
-                text: "text-white",
-            }
+            apply("py-2 px-4");
+            break;
     }
+
+    return styles;
 })
 </script>

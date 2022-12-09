@@ -457,6 +457,7 @@ export type LegacyIdLookupOptions = {
 export type Lesson = {
   episodes: EpisodePagination;
   id: Scalars['ID'];
+  links: LinkPagination;
   progress: TasksProgress;
   tasks: TaskPagination;
   title: Scalars['String'];
@@ -465,6 +466,12 @@ export type Lesson = {
 
 
 export type LessonEpisodesArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+};
+
+
+export type LessonLinksArgs = {
   first?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
 };
@@ -483,8 +490,18 @@ export type LessonPagination = Pagination & {
 };
 
 export type Link = {
+  description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  image?: Maybe<Scalars['String']>;
+  title: Scalars['String'];
   url: Scalars['String'];
+};
+
+export type LinkPagination = Pagination & {
+  first: Scalars['Int'];
+  items: Array<Link>;
+  offset: Scalars['Int'];
+  total: Scalars['Int'];
 };
 
 export type LinkTask = Task & {

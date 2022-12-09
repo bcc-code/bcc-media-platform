@@ -14,17 +14,22 @@
                 }} / {{ tasks.length }}</p>
             </template>
         </div>
+        <TextTask v-if="currentTask?.__typename == 'TextTask'" v-model:task="currentTask" :key="currentTask.id"
+            v-model:is-done="isCurrentStepDone" />
         <AlternativesTask v-if="currentTask?.__typename == 'AlternativesTask'" v-model:task="currentTask"
             :key="currentTask.id" v-model:is-done="isCurrentStepDone" />
         <div class="flex-1"></div>
-        <div class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-24 pb-8" v-if="(tasks.length > 1)">
+        <div class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-24 pb-8"
+            v-if="!(currentTask?.__typename == 'TextTask' && !isCurrentStepDone)">
             <div class="inline-flex space-x-2 items-start justify-start w-full">
-                <QuizNavButton @click="previousStep()" :disabled="!anyPreviousStep" color="secondary">Back
-                </QuizNavButton>
-                <QuizNavButton @click="nextStep()" :disabled="!isCurrentStepDone">
+                <VButton class="w-full" size="large" v-if="(tasks.length > 1)" @click="previousStep()"
+                    :disabled="!anyPreviousStep" color="secondary">
+                    Back
+                </VButton>
+                <VButton class="w-full" size="large" @click="nextStep()" :disabled="!isCurrentStepDone">
                     <template v-if="isLastTask">Done</template>
                     <template v-else>Next</template>
-                </QuizNavButton>
+                </VButton>
             </div>
         </div>
     </div>
@@ -34,16 +39,16 @@ import { computed, onMounted, ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useTitle } from "@/utils/title"
 import { analytics } from "@/services/analytics"
-import router from "@/router"
 import AlternativesTask from "./tasks/AlternativesTask.vue"
 import { flutterStudy } from "@/utils/flutter"
-import QuizNavButton from '../../components/study/LargeButton.vue';
 import {
     GetStudyLessonQuery,
     useCompleteTaskMutation,
     useGetStudyLessonQuery
 } from "@/graph/generated"
 import { useRoute } from "vue-router"
+import TextTask from "./tasks/TextTask.vue"
+import { VButton } from ".."
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()
 const { error, fetching, data, executeQuery, ...lessonQuery } = useGetStudyLessonQuery({ pause: props.lesson.studyLesson.id == null, variables: { id: props.lesson.studyLesson.id.toString() } });
@@ -72,7 +77,7 @@ onMounted(() => {
     })
 })
 
-const isCurrentStepDone = ref(true)
+const isCurrentStepDone = ref(false)
 const taskPercent = computed(() => (currentTaskIndex.value + 1) / tasks.value.length * 100);
 
 function previousStep() {

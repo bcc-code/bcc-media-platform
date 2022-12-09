@@ -17,14 +17,11 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { computed, onMounted, ref } from "vue"
+import { onMounted, ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useTitle } from "@/utils/title"
 import { analytics } from "@/services/analytics"
 import router from "@/router"
-import QuizQuestion from "./tasks/AlternativesTask.vue"
-import { flutterStudy } from "@/utils/flutter"
-import QuizNavButton from '../../components/study/LargeButton.vue';
 import {
     useGetStudyLessonQuery
 } from "@/graph/generated"
