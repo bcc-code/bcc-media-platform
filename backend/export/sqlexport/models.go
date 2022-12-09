@@ -18,7 +18,6 @@ type Application struct {
 type Collection struct {
 	ID              int64  `db:"id" json:"id"`
 	Name            string `db:"name" json:"name"`
-	Type            string `db:"type" json:"type"`
 	CollectionItems string `db:"collection_items" json:"collectionItems"`
 }
 
