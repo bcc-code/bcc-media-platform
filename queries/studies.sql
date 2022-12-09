@@ -79,6 +79,13 @@ WHERE rl.collection = 'episodes'
     )
   AND rl.lessons_id = ANY ($1::uuid[]);
 
+-- name: getLinksForLessons :many
+SELECT rl.item       AS id,
+       rl.lessons_id AS parent_id
+FROM lessons_relations rl
+WHERE rl.collection = 'links'
+  AND rl.lessons_id = ANY ($1::uuid[]);
+
 -- name: getQuestionAlternatives :many
 WITH ts AS (SELECT questionalternatives_id, json_object_agg(languages_code, title) AS title
             FROM questionalternatives_translations
