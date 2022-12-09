@@ -5,6 +5,8 @@ package graph
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
@@ -35,8 +37,9 @@ func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.
 
 	return lo.Map(alts, func(alt *common.QuestionAlternative, _ int) *model.Alternative {
 		return &model.Alternative{
-			ID:    alt.ID.String(),
-			Title: alt.Title.Get(languages),
+			ID:        alt.ID.String(),
+			Title:     alt.Title.Get(languages),
+			IsCorrect: alt.IsCorrect,
 		}
 	}), nil
 }
@@ -106,6 +109,64 @@ func (r *lessonResolver) Episodes(ctx context.Context, obj *model.Lesson, first 
 	}, nil
 }
 
+// Links is the resolver for the links field.
+func (r *lessonResolver) Links(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.LinkPagination, error) {
+	ids, err := r.GetFilteredLoaders(ctx).StudyLessonLinksLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	page := utils.Paginate(ids, first, offset, nil)
+
+	links, err := batchloaders.GetMany(ctx, r.Loaders.LinkLoader, utils.PointerArrayToArray(page.Items))
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.LinkPagination{
+		Items: utils.MapWithCtx(ctx, links, func(ctx context.Context, link *common.Link) *model.Link {
+			ginCtx, _ := utils.GinCtx(ctx)
+			languages := user.GetLanguagesFromCtx(ginCtx)
+			return &model.Link{
+				ID:          strconv.Itoa(link.ID),
+				URL:         link.URL,
+				Title:       link.Title.Get(languages),
+				Description: link.Description.GetValueOrNil(languages),
+				Image:       link.Images.GetDefault(languages, common.ImageStyleDefault),
+			}
+		}),
+		Total:  page.Total,
+		First:  page.First,
+		Offset: page.Offset,
+	}, nil
+}
+
+// Completed is the resolver for the completed field.
+func (r *linkTaskResolver) Completed(ctx context.Context, obj *model.LinkTask) (bool, error) {
+	id, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return false, err
+	}
+	return id != nil, nil
+}
+
+// Completed is the resolver for the completed field.
+func (r *posterTaskResolver) Completed(ctx context.Context, obj *model.PosterTask) (bool, error) {
+	id, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return false, err
+	}
+	return id != nil, nil
+}
+
+// Completed is the resolver for the completed field.
+func (r *quoteTaskResolver) Completed(ctx context.Context, obj *model.QuoteTask) (bool, error) {
+	id, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return false, err
+	}
+	return id != nil, nil
+}
+
 // Lessons is the resolver for the lessons field.
 func (r *studyTopicResolver) Lessons(ctx context.Context, obj *model.StudyTopic, first *int, offset *int) (*model.LessonPagination, error) {
 	ids, err := r.FilteredLoaders(ctx).StudyLessonsLoader.Get(ctx, utils.AsUuid(obj.ID))
@@ -165,6 +226,20 @@ func (r *textTaskResolver) Completed(ctx context.Context, obj *model.TextTask) (
 	return id != nil, nil
 }
 
+// Completed is the resolver for the completed field.
+func (r *videoTaskResolver) Completed(ctx context.Context, obj *model.VideoTask) (bool, error) {
+	id, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return false, err
+	}
+	return id != nil, nil
+}
+
+// Episode is the resolver for the episode field.
+func (r *videoTaskResolver) Episode(ctx context.Context, obj *model.VideoTask) (*model.Episode, error) {
+	return r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
+}
+
 // AlternativesTask returns generated.AlternativesTaskResolver implementation.
 func (r *Resolver) AlternativesTask() generated.AlternativesTaskResolver {
 	return &alternativesTaskResolver{r}
@@ -173,13 +248,29 @@ func (r *Resolver) AlternativesTask() generated.AlternativesTaskResolver {
 // Lesson returns generated.LessonResolver implementation.
 func (r *Resolver) Lesson() generated.LessonResolver { return &lessonResolver{r} }
 
+// LinkTask returns generated.LinkTaskResolver implementation.
+func (r *Resolver) LinkTask() generated.LinkTaskResolver { return &linkTaskResolver{r} }
+
+// PosterTask returns generated.PosterTaskResolver implementation.
+func (r *Resolver) PosterTask() generated.PosterTaskResolver { return &posterTaskResolver{r} }
+
+// QuoteTask returns generated.QuoteTaskResolver implementation.
+func (r *Resolver) QuoteTask() generated.QuoteTaskResolver { return &quoteTaskResolver{r} }
+
 // StudyTopic returns generated.StudyTopicResolver implementation.
 func (r *Resolver) StudyTopic() generated.StudyTopicResolver { return &studyTopicResolver{r} }
 
 // TextTask returns generated.TextTaskResolver implementation.
 func (r *Resolver) TextTask() generated.TextTaskResolver { return &textTaskResolver{r} }
 
+// VideoTask returns generated.VideoTaskResolver implementation.
+func (r *Resolver) VideoTask() generated.VideoTaskResolver { return &videoTaskResolver{r} }
+
 type alternativesTaskResolver struct{ *Resolver }
 type lessonResolver struct{ *Resolver }
+type linkTaskResolver struct{ *Resolver }
+type posterTaskResolver struct{ *Resolver }
+type quoteTaskResolver struct{ *Resolver }
 type studyTopicResolver struct{ *Resolver }
 type textTaskResolver struct{ *Resolver }
+type videoTaskResolver struct{ *Resolver }

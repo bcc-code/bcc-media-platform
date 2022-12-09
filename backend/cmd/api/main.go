@@ -95,6 +95,8 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 		// Study Relations
 		StudyLessonEpisodesLoader: batchloaders.NewRelationLoader(rq.GetEpisodeIDsForLessons),
 		EpisodeStudyLessonsLoader: batchloaders.NewRelationLoader(rq.GetLessonIDsForEpisodes),
+		StudyLessonLinksLoader:    batchloaders.NewRelationLoader(rq.GetLinkIDsForLessons),
+		LinkStudyLessonsLoader:    batchloaders.NewRelationLoader(rq.GetLessonIDsForLinks),
 	}
 
 	rolesLoaderCache.Set(key, loaders)

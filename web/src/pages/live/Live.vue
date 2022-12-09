@@ -1,9 +1,9 @@
 <template>
-    <section class="font-medium mx-auto px-4 lg:px-20">
-        <div class="aspect-video w-full">
+    <section class="font-medium mx-auto px-2 lg:px-20">
+        <div class="aspect-video w-full max-w-screen-2xl mx-auto">
             <Player></Player>
         </div>
-        <div>
+        <div class="max-w-screen-2xl mx-auto">
             <div class="flex stroke-gray text-gray p-4 max-w-lg mx-auto">
                 <ChevronLeft
                     class="h-12 w-12"

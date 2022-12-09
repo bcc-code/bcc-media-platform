@@ -16,7 +16,6 @@ export type Scalars = {
   Cursor: any;
   Date: any;
   Language: any;
-  TaskAnswer: any;
 };
 
 export type Alternative = {
@@ -458,6 +457,7 @@ export type LegacyIdLookupOptions = {
 export type Lesson = {
   episodes: EpisodePagination;
   id: Scalars['ID'];
+  links: LinkPagination;
   progress: TasksProgress;
   tasks: TaskPagination;
   title: Scalars['String'];
@@ -466,6 +466,12 @@ export type Lesson = {
 
 
 export type LessonEpisodesArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+};
+
+
+export type LessonLinksArgs = {
   first?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
 };
@@ -484,8 +490,28 @@ export type LessonPagination = Pagination & {
 };
 
 export type Link = {
+  description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  image?: Maybe<Scalars['String']>;
+  title: Scalars['String'];
   url: Scalars['String'];
+};
+
+export type LinkPagination = Pagination & {
+  first: Scalars['Int'];
+  items: Array<Link>;
+  offset: Scalars['Int'];
+  total: Scalars['Int'];
+};
+
+export type LinkTask = Task & {
+  completed: Scalars['Boolean'];
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  image: Scalars['String'];
+  link: Scalars['String'];
+  secondaryTitle?: Maybe<Scalars['String']>;
+  title: Scalars['String'];
 };
 
 export type ListSection = ItemSection & Section & {
@@ -632,6 +658,13 @@ export type PosterSectionItemsArgs = {
   offset?: InputMaybe<Scalars['Int']>;
 };
 
+export type PosterTask = Task & {
+  completed: Scalars['Boolean'];
+  id: Scalars['ID'];
+  image: Scalars['String'];
+  title: Scalars['String'];
+};
+
 export type Profile = {
   id: Scalars['ID'];
   name: Scalars['String'];
@@ -745,6 +778,13 @@ export type QuestionPagination = Pagination & {
   items: Array<Question>;
   offset: Scalars['Int'];
   total: Scalars['Int'];
+};
+
+export type QuoteTask = Task & {
+  completed: Scalars['Boolean'];
+  id: Scalars['ID'];
+  image: Scalars['String'];
+  title: Scalars['String'];
 };
 
 export type RedirectLink = {
@@ -1018,6 +1058,15 @@ export type User = {
   settings: Settings;
 };
 
+export type VideoTask = Task & {
+  completed: Scalars['Boolean'];
+  description?: Maybe<Scalars['String']>;
+  episode: Episode;
+  id: Scalars['ID'];
+  secondaryTitle?: Maybe<Scalars['String']>;
+  title: Scalars['String'];
+};
+
 export type WebSection = Section & {
   aspectRatio?: Maybe<Scalars['Float']>;
   authentication: Scalars['Boolean'];
@@ -1161,12 +1210,36 @@ export type GetSectionQueryVariables = Exact<{
 
 export type GetSectionQuery = { section: { __typename: 'DefaultGridSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'DefaultSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'FeaturedSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'IconGridSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'IconSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'LabelSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'ListSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'MessageSection', id: string } | { __typename: 'PosterGridSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'PosterSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } }> } } | { __typename: 'WebSection', id: string } };
 
+type Task_AlternativesTask_Fragment = { __typename: 'AlternativesTask', id: string, title: string, completed: boolean, alternatives: Array<{ title: string, isCorrect: boolean }> };
+
+type Task_LinkTask_Fragment = { __typename: 'LinkTask', id: string, title: string, completed: boolean };
+
+type Task_PosterTask_Fragment = { __typename: 'PosterTask', id: string, title: string, completed: boolean };
+
+type Task_QuoteTask_Fragment = { __typename: 'QuoteTask', id: string, title: string, completed: boolean };
+
+type Task_TextTask_Fragment = { __typename: 'TextTask', id: string, title: string, completed: boolean };
+
+type Task_VideoTask_Fragment = { __typename: 'VideoTask', id: string, title: string, completed: boolean };
+
+export type TaskFragment = Task_AlternativesTask_Fragment | Task_LinkTask_Fragment | Task_PosterTask_Fragment | Task_QuoteTask_Fragment | Task_TextTask_Fragment | Task_VideoTask_Fragment;
+
+
+export type TaskFragmentVariables = Exact<{ [key: string]: never; }>;
+
 export type GetStudyLessonQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetStudyLessonQuery = { studyLesson: { id: string, title: string, tasks: { items: Array<{ title: string, completed: boolean, alternatives: Array<{ title: string, isCorrect: boolean }> } | { title: string, completed: boolean }> } } };
+export type GetStudyLessonQuery = { studyLesson: { id: string, title: string, progress: { total: number, completed: number }, tasks: { items: Array<{ __typename: 'AlternativesTask', id: string, title: string, completed: boolean, alternatives: Array<{ title: string, isCorrect: boolean }> } | { __typename: 'LinkTask', id: string, title: string, completed: boolean } | { __typename: 'PosterTask', id: string, title: string, completed: boolean } | { __typename: 'QuoteTask', id: string, title: string, completed: boolean } | { __typename: 'TextTask', id: string, title: string, completed: boolean } | { __typename: 'VideoTask', id: string, title: string, completed: boolean }> } } };
+
+export type CompleteTaskMutationVariables = Exact<{
+  taskId: Scalars['ID'];
+}>;
+
+
+export type CompleteTaskMutation = { completeTask: boolean };
 
 export type SendTaskMessageMutationVariables = Exact<{
   taskId: Scalars['ID'];
@@ -1310,6 +1383,20 @@ export const ItemSectionFragmentDoc = gql`
   }
 }
     ${SectionItemFragmentDoc}`;
+export const TaskFragmentDoc = gql`
+    fragment Task on Task {
+  __typename
+  id
+  title
+  completed
+  ... on AlternativesTask {
+    alternatives {
+      title
+      isCorrect
+    }
+  }
+}
+    `;
 export const GetCalendarDayDocument = gql`
     query getCalendarDay($day: Date!) {
   calendar {
@@ -1642,24 +1729,30 @@ export const GetStudyLessonDocument = gql`
   studyLesson(id: $id) {
     id
     title
+    progress {
+      total
+      completed
+    }
     tasks {
       items {
-        title
-        completed
-        ... on AlternativesTask {
-          alternatives {
-            title
-            isCorrect
-          }
-        }
+        ...Task
       }
     }
   }
 }
-    `;
+    ${TaskFragmentDoc}`;
 
 export function useGetStudyLessonQuery(options: Omit<Urql.UseQueryArgs<never, GetStudyLessonQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetStudyLessonQuery>({ query: GetStudyLessonDocument, ...options });
+};
+export const CompleteTaskDocument = gql`
+    mutation completeTask($taskId: ID!) {
+  completeTask(id: $taskId)
+}
+    `;
+
+export function useCompleteTaskMutation() {
+  return Urql.useMutation<CompleteTaskMutation, CompleteTaskMutationVariables>(CompleteTaskDocument);
 };
 export const SendTaskMessageDocument = gql`
     mutation sendTaskMessage($taskId: ID!, $message: String!) {

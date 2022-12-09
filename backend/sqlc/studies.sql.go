@@ -259,6 +259,42 @@ func (q *Queries) getLessonsForTopics(ctx context.Context, dollar_1 []uuid.UUID)
 	return items, nil
 }
 
+const getLinksForLessons = `-- name: getLinksForLessons :many
+SELECT rl.item       AS id,
+       rl.lessons_id AS parent_id
+FROM lessons_relations rl
+WHERE rl.collection = 'links'
+  AND rl.lessons_id = ANY ($1::uuid[])
+`
+
+type getLinksForLessonsRow struct {
+	ID       null_v4.String `db:"id" json:"id"`
+	ParentID uuid.NullUUID  `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getLinksForLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getLinksForLessonsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getLinksForLessons, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getLinksForLessonsRow
+	for rows.Next() {
+		var i getLinksForLessonsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getQuestionAlternatives = `-- name: getQuestionAlternatives :many
 WITH ts AS (SELECT questionalternatives_id, json_object_agg(languages_code, title) AS title
             FROM questionalternatives_translations
@@ -308,18 +344,33 @@ func (q *Queries) getQuestionAlternatives(ctx context.Context, dollar_1 []uuid.U
 
 const getTasks = `-- name: getTasks :many
 WITH ts AS (SELECT tasks_id,
-                   json_object_agg(languages_code, title) as title
+                   json_object_agg(languages_code, title) as title,
+                   json_object_agg(languages_code, description) as description,
+                   json_object_agg(languages_code, secondary_title) as secondary_title
             FROM tasks_translations
-            GROUP BY tasks_id)
+            GROUP BY tasks_id),
+     images AS (SELECT img.task_id, json_object_agg(img.language, df.filename_disk) as images
+                FROM tasks_images img
+                         JOIN directus_files df ON df.id = img.image
+                GROUP BY img.task_id)
 SELECT t.id,
        t.title as original_title,
+       t.secondary_title as original_secondary_title,
+       t.description as original_description,
        t.type,
        t.question_type,
        t.lesson_id,
        t.alternatives_multiselect,
-       ts.title
+       t.image_type,
+       t.link,
+       t.episode_id,
+       ts.title,
+       ts.secondary_title,
+       ts.description,
+       images.images
 FROM tasks t
          LEFT JOIN ts ON ts.tasks_id = t.id
+         LEFT JOIN images ON images.task_id = t.id
 WHERE t.status = 'published'
   AND t.id = ANY ($1::uuid[])
 `
@@ -327,11 +378,19 @@ WHERE t.status = 'published'
 type getTasksRow struct {
 	ID                      uuid.UUID             `db:"id" json:"id"`
 	OriginalTitle           null_v4.String        `db:"original_title" json:"originalTitle"`
+	OriginalSecondaryTitle  null_v4.String        `db:"original_secondary_title" json:"originalSecondaryTitle"`
+	OriginalDescription     null_v4.String        `db:"original_description" json:"originalDescription"`
 	Type                    string                `db:"type" json:"type"`
 	QuestionType            null_v4.String        `db:"question_type" json:"questionType"`
 	LessonID                uuid.UUID             `db:"lesson_id" json:"lessonID"`
 	AlternativesMultiselect sql.NullBool          `db:"alternatives_multiselect" json:"alternativesMultiselect"`
+	ImageType               null_v4.String        `db:"image_type" json:"imageType"`
+	Link                    null_v4.String        `db:"link" json:"link"`
+	EpisodeID               null_v4.Int           `db:"episode_id" json:"episodeID"`
 	Title                   pqtype.NullRawMessage `db:"title" json:"title"`
+	SecondaryTitle          pqtype.NullRawMessage `db:"secondary_title" json:"secondaryTitle"`
+	Description             pqtype.NullRawMessage `db:"description" json:"description"`
+	Images                  pqtype.NullRawMessage `db:"images" json:"images"`
 }
 
 func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getTasksRow, error) {
@@ -346,11 +405,19 @@ func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getTask
 		if err := rows.Scan(
 			&i.ID,
 			&i.OriginalTitle,
+			&i.OriginalSecondaryTitle,
+			&i.OriginalDescription,
 			&i.Type,
 			&i.QuestionType,
 			&i.LessonID,
 			&i.AlternativesMultiselect,
+			&i.ImageType,
+			&i.Link,
+			&i.EpisodeID,
 			&i.Title,
+			&i.SecondaryTitle,
+			&i.Description,
+			&i.Images,
 		); err != nil {
 			return nil, err
 		}

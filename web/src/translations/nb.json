@@ -1,0 +1,72 @@
+{
+    "buttons": {
+        "save": "Lagre",
+        "login": "Logg inn",
+        "logout": "Logg ut",
+        "stayLoggedOut": "Forbli utlogget",
+        "cancel": "Avbryt",
+        "submit": "Send inn"
+    },
+    "dashboard": {
+        "loggedOut": "Du ble logget ut"
+    },
+    "page": {
+        "home": "Hjem",
+        "search": "Søk",
+        "live": "Direkte",
+        "calendar": "Kalender",
+        "faq": "FAQ",
+        "notFound": "Finner ikke siden",
+        "explore": "Utforsk",
+        "watchNow": "Se nå"
+    },
+    "section": {
+        "item": {
+            "episode": "0 episoder | 1 episode | {count} episoder",
+            "season": "0 sesonger | 1 sesong | {count} sesonger"
+        }
+    },
+    "notFound": {
+        "title": "Ikke funnet",
+        "description": "Kanskje du ikke er innlogget eller mangler noen tillatelser.",
+        "returnHome": "Gå til hjem"
+    },
+    "common": {
+        "new": "Ny",
+        "newEpisodes": "Nye episoder"
+    },
+    "episode": {
+        "details": "Detaljer",
+        "episode": "Episode",
+        "episodes": "Episoder",
+        "videos": "Filmer",
+        "seriesDescription": "Seriebeskrivelse",
+        "releaseDate": "Utgivelsesdato",
+        "availableFrom": "Tilgjengelig fra",
+        "availableTo": "Tilgjengelig til",
+        "ageRating": "Vurdering",
+        "notFound": "Finner ikke episoden",
+        "comingSoon": ""
+    },
+    "live": {
+        "now": "Nå"
+    },
+    "calendar": {
+        "noScheduledEvents": "Ingen planlagte hendelser",
+        "thisWeek": "Denne uken",
+        "timeTableIsLocalTime": "Tidstabell er i din lokale tid."
+    },
+    "search": {
+        "programs": "Programmer",
+        "episodes": "Episoder",
+        "cancel": "Avbryt",
+        "emptyQuery": ""
+    },
+    "support": {
+        "contact": "",
+        "title": "",
+        "subject": "",
+        "content": "",
+        "describeIssue": ""
+    }
+}

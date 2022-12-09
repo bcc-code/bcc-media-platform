@@ -28,6 +28,7 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 
 		return common.Episode{
 			ID:                    int(e.ID),
+			Unlisted:              e.Unlisted,
 			Type:                  e.Type,
 			LegacyID:              e.LegacyID,
 			LegacyProgramID:       e.LegacyProgramID,
@@ -122,6 +123,7 @@ func (q *Queries) GetPermissionsForEpisodes(ctx context.Context, ids []int) ([]c
 			ItemID: int(i.ID),
 			Type:   common.TypeEpisode,
 			Availability: common.Availability{
+				Unlisted:  i.Unlisted,
 				Published: i.Published,
 				From:      i.AvailableFrom,
 				To:        i.AvailableTo,

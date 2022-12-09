@@ -676,6 +676,7 @@ type FilterDataset struct {
 	ID            int32       `db:"id" json:"id"`
 	SeasonID      null_v4.Int `db:"season_id" json:"seasonID"`
 	ShowID        null_v4.Int `db:"show_id" json:"showID"`
+	Number        null_v4.Int `db:"number" json:"number"`
 	AgeratingCode string      `db:"agerating_code" json:"ageratingCode"`
 	Type          string      `db:"type" json:"type"`
 	PublishDate   time.Time   `db:"publish_date" json:"publishDate"`
@@ -1117,13 +1118,27 @@ type Task struct {
 	LessonID                uuid.UUID      `db:"lesson_id" json:"lessonID"`
 	Title                   null_v4.String `db:"title" json:"title"`
 	AlternativesMultiselect sql.NullBool   `db:"alternatives_multiselect" json:"alternativesMultiselect"`
+	EpisodeID               null_v4.Int    `db:"episode_id" json:"episodeID"`
+	Link                    null_v4.String `db:"link" json:"link"`
+	ImageType               null_v4.String `db:"image_type" json:"imageType"`
+	SecondaryTitle          null_v4.String `db:"secondary_title" json:"secondaryTitle"`
+	Description             null_v4.String `db:"description" json:"description"`
+}
+
+type TasksImage struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	Image    uuid.UUID `db:"image" json:"image"`
+	Language string    `db:"language" json:"language"`
+	TaskID   uuid.UUID `db:"task_id" json:"taskID"`
 }
 
 type TasksTranslation struct {
-	ID            int32          `db:"id" json:"id"`
-	TasksID       uuid.NullUUID  `db:"tasks_id" json:"tasksID"`
-	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
-	Title         null_v4.String `db:"title" json:"title"`
+	ID             int32          `db:"id" json:"id"`
+	TasksID        uuid.NullUUID  `db:"tasks_id" json:"tasksID"`
+	LanguagesCode  null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title          null_v4.String `db:"title" json:"title"`
+	SecondaryTitle null_v4.String `db:"secondary_title" json:"secondaryTitle"`
+	Description    null_v4.String `db:"description" json:"description"`
 }
 
 type Tvguideentry struct {

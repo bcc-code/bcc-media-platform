@@ -228,6 +228,7 @@ WITH ts AS (SELECT episodes_id,
                 FROM images
                 GROUP BY episode_id)
 SELECT e.id,
+       e.status = 'unlisted'                                                                 AS unlisted,
        e.legacy_id,
        e.legacy_program_id,
        e.asset_id,
@@ -264,6 +265,7 @@ ORDER BY e.episode_number
 
 type getEpisodesRow struct {
 	ID                    int32                 `db:"id" json:"id"`
+	Unlisted              bool                  `db:"unlisted" json:"unlisted"`
 	LegacyID              null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	LegacyProgramID       null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
 	AssetID               null_v4.Int           `db:"asset_id" json:"assetID"`
@@ -298,6 +300,7 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 		var i getEpisodesRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.Unlisted,
 			&i.LegacyID,
 			&i.LegacyProgramID,
 			&i.AssetID,
@@ -335,6 +338,7 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 
 const getPermissionsForEpisodes = `-- name: getPermissionsForEpisodes :many
 SELECT e.id,
+       e.status = 'unlisted'              AS unlisted,
        access.published::bool             AS published,
        access.available_from::timestamp   AS available_from,
        access.available_to::timestamp     AS available_to,
@@ -349,6 +353,7 @@ WHERE e.id = ANY ($1::int[])
 
 type getPermissionsForEpisodesRow struct {
 	ID                    int32     `db:"id" json:"id"`
+	Unlisted              bool      `db:"unlisted" json:"unlisted"`
 	Published             bool      `db:"published" json:"published"`
 	AvailableFrom         time.Time `db:"available_from" json:"availableFrom"`
 	AvailableTo           time.Time `db:"available_to" json:"availableTo"`
@@ -368,6 +373,7 @@ func (q *Queries) getPermissionsForEpisodes(ctx context.Context, dollar_1 []int3
 		var i getPermissionsForEpisodesRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.Unlisted,
 			&i.Published,
 			&i.AvailableFrom,
 			&i.AvailableTo,
@@ -406,6 +412,7 @@ WITH ts AS (SELECT episodes_id,
                 FROM images
                 GROUP BY episode_id)
 SELECT e.id,
+       e.status = 'unlisted'                                                                 AS unlisted,
        e.legacy_id,
        e.legacy_program_id,
        e.asset_id,
@@ -440,6 +447,7 @@ FROM episodes e
 
 type listEpisodesRow struct {
 	ID                    int32                 `db:"id" json:"id"`
+	Unlisted              bool                  `db:"unlisted" json:"unlisted"`
 	LegacyID              null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	LegacyProgramID       null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
 	AssetID               null_v4.Int           `db:"asset_id" json:"assetID"`
@@ -474,6 +482,7 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 		var i listEpisodesRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.Unlisted,
 			&i.LegacyID,
 			&i.LegacyProgramID,
 			&i.AssetID,

@@ -1,7 +1,7 @@
 <template>
     <Disclosure as="nav" v-slot="{ open }">
         <div
-            class="mx-auto px-2 lg:px-8 transition duration-200"
+            class="mx-auto transition duration-200"
             :class="[loading ? 'opacity-0' : 'opacity-100']"
         >
             <div class="lg:flex py-4">

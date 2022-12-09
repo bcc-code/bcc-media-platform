@@ -54,6 +54,17 @@ func (q *Queries) GetLessons(ctx context.Context, ids []uuid.UUID) ([]common.Les
 	}), nil
 }
 
+func localeStringOrFallback(marshalled json.RawMessage, fallback null.String) common.LocaleString {
+	var localeString = common.LocaleString{}
+	_ = json.Unmarshal(marshalled, &localeString)
+
+	if fallback.Valid {
+		localeString["no"] = fallback
+	}
+
+	return localeString
+}
+
 // GetTasks returns tasks by ids
 func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task, error) {
 	tasks, err := q.getTasks(ctx, ids)
@@ -61,12 +72,12 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 		return nil, err
 	}
 	return lo.Map(tasks, func(l getTasksRow, _ int) common.Task {
-		var title = common.LocaleString{}
-		_ = json.Unmarshal(l.Title.RawMessage, &title)
+		title := localeStringOrFallback(l.Title.RawMessage, l.OriginalTitle)
+		secondaryTitle := localeStringOrFallback(l.SecondaryTitle.RawMessage, l.OriginalSecondaryTitle)
+		description := localeStringOrFallback(l.Description.RawMessage, l.OriginalDescription)
 
-		if l.OriginalTitle.Valid {
-			title["no"] = l.OriginalTitle
-		}
+		var images = common.LocaleMap[string]{}
+		_ = json.Unmarshal(l.Images.RawMessage, &images)
 
 		var multiSelect null.Bool
 		if l.AlternativesMultiselect.Valid {
@@ -74,12 +85,18 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 		}
 
 		return common.Task{
-			ID:           l.ID,
-			LessonID:     l.LessonID,
-			Title:        title,
-			QuestionType: l.QuestionType.String,
-			Type:         l.Type,
-			MultiSelect:  multiSelect,
+			ID:             l.ID,
+			LessonID:       l.LessonID,
+			Title:          title,
+			SecondaryTitle: secondaryTitle,
+			Description:    description,
+			QuestionType:   l.QuestionType.String,
+			ImageType:      l.ImageType.String,
+			Images:         images,
+			EpisodeID:      l.EpisodeID,
+			Link:           l.Link,
+			Type:           l.Type,
+			MultiSelect:    multiSelect,
 		}
 	}), nil
 }
@@ -182,6 +199,26 @@ func (rq *RoleQueries) GetLessonIDsForEpisodes(ctx context.Context, ids []int) (
 	}), nil
 }
 
+// GetLessonIDsForLinks returns lessons for episodes
+func (rq *RoleQueries) GetLessonIDsForLinks(ctx context.Context, ids []int) ([]batchloaders.Relation[uuid.UUID, int], error) {
+	rows, err := rq.queries.getLessonsForItemsInCollection(ctx, getLessonsForItemsInCollectionParams{
+		Collection: null.StringFrom("links"),
+		Column2: lo.Map(ids, func(i int, _ int) string {
+			return strconv.Itoa(i)
+		}),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getLessonsForItemsInCollectionRow, _ int) batchloaders.Relation[uuid.UUID, int] {
+		p, _ := strconv.ParseInt(i.ParentID.String, 10, 64)
+		return relation[uuid.UUID, int]{
+			ID:       i.ID.UUID,
+			ParentID: int(p),
+		}
+	}), nil
+}
+
 // GetEpisodeIDsForLessons returns episodes for lessons
 func (rq *RoleQueries) GetEpisodeIDsForLessons(ctx context.Context, ids []uuid.UUID) ([]batchloaders.Relation[int, uuid.UUID], error) {
 	rows, err := rq.queries.getEpisodesForLessons(ctx, getEpisodesForLessonsParams{
@@ -192,6 +229,21 @@ func (rq *RoleQueries) GetEpisodeIDsForLessons(ctx context.Context, ids []uuid.U
 		return nil, err
 	}
 	return lo.Map(rows, func(i getEpisodesForLessonsRow, _ int) batchloaders.Relation[int, uuid.UUID] {
+		p, _ := strconv.ParseInt(i.ID.String, 10, 64)
+		return relation[int, uuid.UUID]{
+			ID:       int(p),
+			ParentID: i.ParentID.UUID,
+		}
+	}), nil
+}
+
+// GetLinkIDsForLessons returns episodes for lessons
+func (rq *RoleQueries) GetLinkIDsForLessons(ctx context.Context, ids []uuid.UUID) ([]batchloaders.Relation[int, uuid.UUID], error) {
+	rows, err := rq.queries.getLinksForLessons(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getLinksForLessonsRow, _ int) batchloaders.Relation[int, uuid.UUID] {
 		p, _ := strconv.ParseInt(i.ID.String, 10, 64)
 		return relation[int, uuid.UUID]{
 			ID:       int(p),

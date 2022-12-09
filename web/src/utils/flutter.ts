@@ -1,7 +1,7 @@
 import { FlutterWebView } from "@/flutter"
 
 class FlutterRouter {
-    handlerName = "flutter_router_channel"
+    handlerName = "flutter_router"
     webView: FlutterWebView
     constructor(webView: FlutterWebView) {
         this.webView = webView
@@ -18,8 +18,7 @@ export const flutterRouter =
         : null
 
 class FlutterStudy {
-    static HandlerName = "flutter_study_channel"
-    handlerName = FlutterStudy.HandlerName
+    handlerName = "flutter_study"
     webView: FlutterWebView
     constructor(webView: FlutterWebView) {
         this.webView = webView
@@ -33,4 +32,21 @@ class FlutterStudy {
 export const flutterStudy =
     window.flutter_inappwebview != null
         ? new FlutterStudy(window.flutter_inappwebview)
+        : null
+
+class FlutterAuth {
+    handlerName = "flutter_auth"
+    webView: FlutterWebView
+    constructor(webView: FlutterWebView) {
+        this.webView = webView
+    }
+
+    getAccessToken(): Promise<String | null> {
+        return this.webView.callHandler(this.handlerName, "get_access_token")
+    }
+}
+
+export const flutterAuth =
+    window.flutter_inappwebview != null
+        ? new FlutterAuth(window.flutter_inappwebview)
         : null

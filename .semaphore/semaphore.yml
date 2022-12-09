@@ -30,7 +30,7 @@ blocks:
       secrets:
         - name: GoogleSemaphoreServiceAccount
     run:
-      when: change_in(['/cms/', '/migrations/'])
+      when: 'change_in([''/cms/'', ''/migrations/''])'
     dependencies: []
   - name: Test
     task:
@@ -42,7 +42,7 @@ blocks:
             - export CGO_ENABLED=0
             - checkout
             - cache restore
-            - go get ./...
+            - GOPROXY=direct go get -v ./...
             - go test ./...
       epilogue:
         on_pass:

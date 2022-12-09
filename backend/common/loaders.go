@@ -67,6 +67,8 @@ type FilteredLoaders struct {
 	//Relations
 	StudyLessonEpisodesLoader *batchloaders.BatchLoader[uuid.UUID, []*int]
 	EpisodeStudyLessonsLoader *batchloaders.BatchLoader[int, []*uuid.UUID]
+	StudyLessonLinksLoader    *batchloaders.BatchLoader[uuid.UUID, []*int]
+	LinkStudyLessonsLoader    *batchloaders.BatchLoader[int, []*uuid.UUID]
 }
 
 // ProfileLoaders contains loaders per profile

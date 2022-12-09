@@ -106,6 +106,12 @@ export const fields: Field[] = [
 		supportedOperators: ["==", "!=", "<", ">", "<=", "=>", "in"]
 	},
 	{
+		column: "number",
+		title: "Number",
+		type: "number",
+		supportedOperators: ["==", "!=", "<", ">", "<=", "=>", "in"]
+	},
+	{
 		column: "season_id",
 		title: "Season ID",
 		type: "number",
