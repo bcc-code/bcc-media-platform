@@ -1,26 +1,23 @@
 <script lang="ts" setup>
 import { PopoverButton, Popover, PopoverPanel, PopoverOverlay } from "@headlessui/vue"
-import { current, languages, currentAudioLanguage, subtitleLanguage, getNestedLangComputed, setNestedLangMethod } from "@/services/language"
-import { onMounted, ref } from "vue"
+import { current, languages, getNestedLangComputed, setNestedLangMethod } from "@/services/language"
+import { ref } from "vue"
 
 const selectedTitle = ref('')
 const isMenuActive = ref(true)
 
 defineProps<{ open: boolean }>()
 
-onMounted(() => {
-	var audLang = localStorage.getItem("audioLanguage") ?? "no"
-	localStorage.setItem("audioLanguage", audLang)
-	var subLang = localStorage.getItem("subtitleLanguage") ?? "fr"
-	localStorage.setItem("subtitleLanguage", subLang)
-})
+const data = [
+	"site", "audio", "subtitle"
+]
 
-const toPages = (title: string, event: Event): void => {
+const toPages = (title: string): void => {
 	selectedTitle.value = title;
 	isMenuActive.value = !isMenuActive.value
 }
 
-const toMenu = (code: string, event: Event): void => {
+const toMenu = (code: string): void => {
 	setNestedLangMethod(selectedTitle.value, code)
 	isMenuActive.value = !isMenuActive.value
 }
@@ -33,7 +30,7 @@ const getLanguage = (code: string) => {
 
 <template>
 
-	<Popover v-slot="{ open }" class="relative">
+	<Popover v-slot="{ open }">
 		<PopoverButton
 			@click="isMenuActive=true"
 			class="flex hover:bg-slate-800 transition rounded-full text-base px-2 p-1 font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
@@ -44,7 +41,7 @@ const getLanguage = (code: string) => {
 			</svg>
 			<span class="uppercase ml-1 my-auto">{{current.code}}</span>
 		</PopoverButton>
-		<PopoverOverlay class="fixed inset-0 bg-black opacity-30" />
+		<PopoverOverlay class="fixed inset-0 bg-black opacity-40" />
 		<transition 
 			enter-active-class="transition duration-200 ease-out"
 			enter-from-class="translate-y-1 opacity-0"
@@ -52,60 +49,42 @@ const getLanguage = (code: string) => {
 			leave-active-class="transition duration-150 ease-in"
 			leave-from-class="translate-y-0 opacity-100"
 			leave-to-class="translate-y-1 opacity-0">
-			<PopoverPanel class="absolute -right-0 lg:left-1/2 z-10 mt-3 min-w-[378px] lg:max-w-sm max-w-xs lg:-translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl">
+			<PopoverPanel class="absolute z-10 mt-3 w-52 sm:w-96 sm:-translate-x-64 -translate-x-1/2  px-4 sm:px-0">
 				
-				<div class="bg-slate-700 rounded-md relative bg-white p-5 text-black  ">
-					<button v-show="!isMenuActive" @click="isMenuActive=!isMenuActive" class="absolute left-5 top-[20px] rounded-[5px] hover:rounded-lg hover:bg-white-100 text-[#6EB0E6] font-bold">&#60 Back</button>
-					<div class="flex justify-center text-xl font-bold text-white mb-2">{{ isMenuActive ? 'Language' : selectedTitle}}</div>
+				<div class="bg-slate-700 rounded-md relative bg-white p-2.5 sm:p-5 text-black  ">
+					<button v-show="!isMenuActive" @click="isMenuActive=!isMenuActive" class="sm:absolute sm:left-5 sm:top-[20px] mb-1 sm:mb-0 rounded-[5px] hover:rounded-lg hover:bg-white-100 text-[#6EB0E6] font-bold">&#60 Back</button>
+					<div class="flex justify-center text-xl font-bold text-white mb-2">{{ isMenuActive ? $t("language.language") : $t('language.'+selectedTitle)}}</div>
 					<section v-show="isMenuActive">
-						<div class="mx-4 my-2 text-xs text-[#EBEBF599]">{{ 'Language' }}</div>
-						<div>
-							<button @click="toPages('Site Language', $event)"
-								class="hover:bg-[#EBEBF599] hover:text-white rounded-t-lg text-gray-900 bg-[#1D2838] w-full px-4 py-[16px] text-sm transition duration-50 cursor-pointer flow-root">
-								<div class="text-white float-left ">{{ 'Site Language' }}</div>
+						<div class="mx-4 my-2 text-xs text-[#EBEBF599]">{{ $t("language.language") }}</div>
+						<div v-for="el in data">
+							<button @click="toPages(el)"
+								class="hover:bg-[#EBEBF599] hover:text-white text-gray-900 bg-[#1D2838] w-full px-4 py-[16px] text-sm transition duration-50 cursor-pointer flow-root"
+								:class="data.indexOf(el)==0 ? 'rounded-t-lg' : data.indexOf(el)==data.length-1 ? 'rounded-b-lg' : ''"
+								>
+								<div class="text-white float-left ">{{ $t("language."+el) }}</div>
 								<div class="text-[#EBEBF599] float-right">
-									<span>{{ current.name }}</span>
-									<span v-show="current.code!='en'">&ensp;({{ current.english }})</span>
-								</div>
-							</button>
-						</div>
-						<div>
-							<button @click="toPages('Audio Language', $event)"
-								class="hover:bg-[#EBEBF599] hover:text-white text-gray-900 bg-[#1D2838] w-full px-4 py-[16px] text-sm transition duration-50 cursor-pointer flow-root">
-								<div class="text-white float-left ">{{ 'Audio Language' }}</div>
-								<div class="text-[#EBEBF599] float-right">
-									<span>{{ currentAudioLanguage.name }}</span>
-									<span v-show="current.code!='en'">&ensp;({{ currentAudioLanguage.english }})</span>
-								</div>
-							</button>
-						</div>
-						<div>
-							<button @click="toPages('Subtitle Language', $event)"
-								class="hover:bg-[#EBEBF599] hover:text-white rounded-b-lg text-gray-900 bg-[#1D2838] w-full px-4 py-[16px] text-sm transition duration-50 cursor-pointer flow-root">
-								<div class="text-white float-left ">{{ 'Subtitle Language' }}</div>
-								<div class="text-[#EBEBF599] float-right">
-									<span>{{ subtitleLanguage.name }}</span>
-									<span v-show="current.code!='en'">&ensp;({{ subtitleLanguage.english }})</span>
+									<span>{{ getNestedLangComputed(el).name }}</span>
+									<span v-if="current.code!='en'">&ensp;({{ getNestedLangComputed(el).english }})</span>
 								</div>
 							</button>
 						</div>
 					</section>
+					
 					<section v-show="!isMenuActive">
 						<div v-for="item in languages">
-							<button @click="toMenu(item.code, $event)" 
+							<button @click="toMenu(item.code)" 
 								class="hover:bg-[#EBEBF599] hover:text-white text-gray-900 bg-[#1D2838] w-full px-4 py-[16px] text-sm transition duration-50 cursor-pointer flow-root" 
 								:class="(languages.indexOf(item)==0) ? 'rounded-t-lg' : languages.indexOf(item)==languages.length-1 ? 'rounded-b-lg' : ''">
 								<div class="text-white float-left">
 									<div class="text-[17px] font-bold text-left">{{ item.name }}</div>
 									<div v-show="current.code!='en'" class=" mt-[2px] text-[#EBEBF599] text-xs text-left">{{getLanguage(item.code)?.english}}</div>
 								</div>
-								<div class="text-[#EBEBF599] flex justify-end" :class="current.code!='en' ? 'my-3' : 'py-1'" v-show="item.code == getNestedLangComputed(selectedTitle)?.value.code"> &#9745</div>
+								<div class="text-[#EBEBF599] flex justify-end" :class="current.code!='en' ? 'my-3' : 'py-1'" v-show="item.code == getNestedLangComputed(selectedTitle)?.code"> &#9745</div>
 							</button>
 						</div>
 					</section>
 				</div>
 			</PopoverPanel>
 		</transition>
-
 	</Popover>
 </template>

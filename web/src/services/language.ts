@@ -3,7 +3,7 @@ import i18n, {
     SUPPORT_LOCALES,
     setLanguage as i18nSetLanguage,
 } from "@/i18n"
-import { computed, ref } from "vue"
+import { computed, reactive, ref } from "vue"
 import settings from "./settings"
 
 export type Language = {
@@ -80,55 +80,22 @@ export const init = async () => {
     await setLanguage(current.value.code)
 }
 
-
-export const currentAudioLanguage = computed(() => {
-    localStorage.setItem("audioLanguage", localStorage.getItem("audioLanguage") ?? "en");
-    var code = localStorage.getItem("audioLanguage");
-    return languages.value.find(
-        (l) => l.code === code
-    ) as Language 
-})
-
-export const subtitleLanguage = computed(() => {
-    localStorage.setItem("subtitleLanguage", localStorage.getItem("subtitleLanguage") ?? "en");
-    var code = localStorage.getItem("subtitleLanguage");
-    return languages.value.find(
-        (l) => l.code === code
-    ) as Language 
-})
-
-export const setAudioLanguage = (l: string) => {
-    localStorage.setItem("audioLanguage", l);
-    languages.value = getLanguages(current.value.code)
-}
-
-export const setSubtitleLanguage = (l: string) => {
-    localStorage.setItem("subtitleLanguage", l);
-    languages.value = getLanguages(current.value.code)
-}
-
 export const getNestedLangComputed = (title: string) => {
-    switch (title) {
-        case 'Site Language':
-            return current
-        case 'Audio Language':
-            return currentAudioLanguage
-        case 'Subtitle Language':
-            return subtitleLanguage
-        default:
-            return;
+
+    if (title === 'site') {
+        return current.value
     }
+    localStorage.setItem(title, localStorage.getItem(title) ?? "en")
+    let code = localStorage.getItem(title)
+    return languages.value.find(
+        (l) => l.code === code
+    ) as Language  
 }
 
-export const setNestedLangMethod = (title: string, code: string) => {
-    switch (title) {
-        case 'Site Language':
-            return setLanguage(code)
-        case 'Audio Language':
-            return setAudioLanguage(code)
-        case 'Subtitle Language':
-            return setSubtitleLanguage(code)
-        default:
-            return;
+export const setNestedLangMethod = (title: string, code: string): void => {
+    localStorage.setItem(title, code);
+    if(title === 'site') {
+        setLanguage(code)
     }
+    languages.value = getLanguages(current.value.code)
 }

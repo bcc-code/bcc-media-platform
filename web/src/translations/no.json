@@ -61,5 +61,11 @@
         "episodes": "Episoder",
         "cancel": "Avbryt",
         "emptyQuery": "Søk er tomt"
+    },
+    "language": {
+        "language": "Språk",
+        "site": "Nettstedets Språk",
+        "audio": "Lydspråk",
+        "subtitle": "Undertekstspråk"
     }
 }

@@ -184,6 +184,7 @@ export type Episode = {
   images: Array<Image>;
   legacyID?: Maybe<Scalars['ID']>;
   legacyProgramID?: Maybe<Scalars['ID']>;
+  lessons: LessonPagination;
   number?: Maybe<Scalars['Int']>;
   productionDate: Scalars['Date'];
   productionDateInTitle: Scalars['Boolean'];
@@ -200,6 +201,12 @@ export type Episode = {
 
 export type EpisodeImageArgs = {
   style?: InputMaybe<ImageStyle>;
+};
+
+
+export type EpisodeLessonsArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -449,11 +456,18 @@ export type LegacyIdLookupOptions = {
 };
 
 export type Lesson = {
+  episodes: EpisodePagination;
   id: Scalars['ID'];
   progress: TasksProgress;
   tasks: TaskPagination;
   title: Scalars['String'];
   topic: StudyTopic;
+};
+
+
+export type LessonEpisodesArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
 };
 
 

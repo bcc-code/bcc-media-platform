@@ -68,5 +68,11 @@
         "subject": "Subject",
         "content": "Content",
         "describeIssue": "Describe your issue in detail."
+    },
+    "language": {
+        "language": "Language",
+        "site": "Site Language",
+        "audio": "Audio Language",
+        "subtitle": "Subtitle Language"
     }
 }

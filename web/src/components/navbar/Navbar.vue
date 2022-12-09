@@ -276,7 +276,6 @@ import {
     MenuItem,
 } from "@headlessui/vue"
 import { useAuth } from "@/services/auth"
-import { current, setLanguage, languages } from "@/services/language"
 import {
     CalendarIcon,
     HomeIcon,
@@ -284,13 +283,13 @@ import {
     ProfileIcon,
     QuestionIcon,
     SearchIcon,
-    SettingsIcon,
 } from "../icons"
 import { computed, onMounted, ref } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
 import { useGetCalendarStatusQuery } from "@/graph/generated"
 import ContactForm from "@/components/support/ContactForm.vue"
+import LanguageSetting from "@/components/languages/LanguageSetting.vue"
 
 const loading = ref(true)
 
