@@ -27,6 +27,10 @@ query getStudyLesson($id: ID!) {
     }
 }
 
+mutation completeTask($taskId: ID!) {
+    completeTask(id: $taskId)
+}
+
 mutation sendTaskMessage($taskId: ID!, $message: String!) {
     sendTaskMessage(taskId: $taskId, message: $message)
 }

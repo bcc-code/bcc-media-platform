@@ -42,16 +42,9 @@ class FlutterAuth {
     }
 
     getAccessToken(): Promise<String | null> {
-        console.log("get access token");
-        console.log("webview ", JSON.stringify(this.webView));
-        console.log("callhandler get_access_token ", this.webView.callHandler(this.handlerName, "get_access_token"));
         return this.webView.callHandler(this.handlerName, "get_access_token")
     }
 }
-
-window.addEventListener("flutterInAppWebViewPlatformReady", (event) => {
-    console.log('flutterInAppWebViewPlatformReady was fired. event: ' + event);
-});
 
 export const flutterAuth =
     window.flutter_inappwebview != null

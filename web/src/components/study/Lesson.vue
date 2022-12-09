@@ -53,7 +53,6 @@ onMounted(async () => {
     })
     var result = await lessonQuery;
     var data = result.data.value;
-    console.log(props);
     if (props.subRoute == '' && data != null) {
         var completedTasks = data.studyLesson.progress.completed;
         var totalTasks = data.studyLesson.progress.total;
