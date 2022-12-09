@@ -1,5 +1,5 @@
 <template>
-    <div class="inline-flex flex-col space-y-6 items-center justify-start w-full h-screen">
+    <div class="inline-flex flex-col space-y-6 items-center justify-start w-full h-screen mb-16">
         <div class="p-4 flex flex-col space-y-0.5  h-14  w-full">
             <template v-if="(tasks.length > 1)">
                 <div class="w-full right-0 bottom-0">
@@ -17,7 +17,7 @@
         <AlternativesTask v-if="currentTask?.__typename == 'AlternativesTask'" v-model:task="currentTask"
             :key="currentTask.id" v-model:is-done="isCurrentStepDone" />
         <div class="flex-1"></div>
-        <div class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-24" v-if="(tasks.length > 1)">
+        <div class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-24 pb-8" v-if="(tasks.length > 1)">
             <div class="inline-flex space-x-2 items-start justify-start w-full">
                 <QuizNavButton @click="previousStep()" :disabled="!anyPreviousStep" color="secondary">Back
                 </QuizNavButton>
@@ -25,9 +25,6 @@
                     <template v-if="isLastTask">Done</template>
                     <template v-else>Next</template>
                 </QuizNavButton>
-            </div>
-            <div class=" inline-flex items-end justify-center w-32 h-8 pt-5 pb-2">
-                <div class="flex-1 h-full bg-white rounded-full"></div>
             </div>
         </div>
     </div>
