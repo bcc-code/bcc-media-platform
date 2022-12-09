@@ -1,0 +1,72 @@
+{
+    "buttons": {
+        "save": "",
+        "login": "",
+        "logout": "",
+        "stayLoggedOut": "",
+        "cancel": "",
+        "submit": ""
+    },
+    "dashboard": {
+        "loggedOut": ""
+    },
+    "page": {
+        "home": "",
+        "search": "",
+        "live": "Direkte",
+        "calendar": "",
+        "faq": "",
+        "notFound": "",
+        "explore": "",
+        "watchNow": ""
+    },
+    "section": {
+        "item": {
+            "episode": "",
+            "season": ""
+        }
+    },
+    "notFound": {
+        "title": "",
+        "description": "",
+        "returnHome": ""
+    },
+    "common": {
+        "new": "",
+        "newEpisodes": ""
+    },
+    "episode": {
+        "details": "",
+        "episode": "",
+        "episodes": "",
+        "videos": "",
+        "seriesDescription": "",
+        "releaseDate": "",
+        "availableFrom": "",
+        "availableTo": "",
+        "ageRating": "",
+        "notFound": "",
+        "comingSoon": ""
+    },
+    "live": {
+        "now": ""
+    },
+    "calendar": {
+        "noScheduledEvents": "",
+        "thisWeek": "",
+        "timeTableIsLocalTime": ""
+    },
+    "search": {
+        "programs": "",
+        "episodes": "",
+        "cancel": "",
+        "emptyQuery": ""
+    },
+    "support": {
+        "contact": "",
+        "title": "",
+        "subject": "",
+        "content": "",
+        "describeIssue": ""
+    }
+}
