@@ -58,9 +58,9 @@ export default [
                 name: "lesson",
                 path: "lesson/:lessonId/:subRoute?",
                 component: () => import("@/components/study/Lesson.vue"),
-                props: true
-            }
-        ]
+                props: true,
+            },
+        ],
     },
     {
         name: "not-found",

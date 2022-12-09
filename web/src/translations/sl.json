@@ -46,7 +46,7 @@
         "availableTo": "Na voljo do",
         "ageRating": "Ocena",
         "notFound": "Del ni bil najden",
-        "comingSoon": ""
+        "comingSoon": "Pride kmalu"
     },
     "live": {
         "now": "Zdaj"
@@ -60,13 +60,13 @@
         "programs": "Programi",
         "episodes": "Deli",
         "cancel": "Prekliči",
-        "emptyQuery": ""
+        "emptyQuery": "Polje za iskanje je prazno."
     },
     "support": {
-        "contact": "",
-        "title": "",
-        "subject": "",
-        "content": "",
-        "describeIssue": ""
+        "contact": "Kontaktiraj podporo",
+        "title": "Naslov",
+        "subject": "Predmet",
+        "content": "Vsebina",
+        "describeIssue": "Podrobno opiši težavo."
     }
 }

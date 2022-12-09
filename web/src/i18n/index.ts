@@ -2,7 +2,22 @@ import { nextTick, ref } from "vue"
 import { createI18n } from "vue-i18n"
 import type { I18n, I18nOptions, Locale, Composer } from "vue-i18n"
 
-export const SUPPORT_LOCALES = ["en", "no", "de", "es", "fi", "fr", "hu", "it", "pl", "pt", "ro", "ru", "sl", "tr"]
+export const SUPPORT_LOCALES = [
+    "en",
+    "no",
+    "de",
+    "es",
+    "fi",
+    "fr",
+    "hu",
+    "it",
+    "pl",
+    "pt",
+    "ro",
+    "ru",
+    "sl",
+    "tr",
+]
 
 export const loading = ref(false)
 
@@ -26,9 +41,9 @@ export function setLanguage(i18n: I18n, locale: Locale): void {
 const getResourceMessages = (r: any) => r.default || r
 
 const alternative = (r: string) => {
-    switch(r) {
-        case "no": 
-            return "nb";
+    switch (r) {
+        case "no":
+            return "nb"
     }
     return r
 }
@@ -40,7 +55,7 @@ type Messages = {
 const cleanMessages = (messages: Messages) => {
     const result = {} as Messages
     for (const [key, value] of Object.entries(messages)) {
-        if (typeof(value) === "string") {
+        if (typeof value === "string") {
             if (value) {
                 result[key] = value
             }
@@ -52,9 +67,9 @@ const cleanMessages = (messages: Messages) => {
 }
 
 export async function loadLocaleMessages(i18n: I18n, locale: Locale) {
-    const messages = await import(`@/translations/${alternative(locale)}.json`).then(
-        getResourceMessages
-    ) as Messages
+    const messages = (await import(
+        `@/translations/${alternative(locale)}.json`
+    ).then(getResourceMessages)) as Messages
 
     i18n.global.setLocaleMessage(locale, cleanMessages(messages))
 

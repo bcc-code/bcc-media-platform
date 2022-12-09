@@ -37,16 +37,14 @@
                     <DialogPanel
                         class="w-full max-w-md transform overflow-hidden rounded-2xl p-4 lg:p-6 text-left align-middle shadow-xl transition-all bg-background"
                     >
-                        <DialogTitle
-                            class="text-2xl text-center font-bold"
-                        >
+                        <DialogTitle class="text-2xl text-center font-bold">
                             <span>{{ $t("support.contact") }}</span>
                         </DialogTitle>
                         <DialogDescription class="flex flex-col gap-2 mt-4">
                             <div
                                 class="font-bold text-xl text-white font-Barlow overflow-y-auto overscroll-auto"
                             >
-                                {{$t("support.title")}}
+                                {{ $t("support.title") }}
                             </div>
                             <input
                                 v-model="title"
@@ -60,7 +58,7 @@
                             <section>
                                 <div class="">
                                     <div class="text-xl font-bold mt-4 mb-2">
-                                        {{$t("support.content")}}
+                                        {{ $t("support.content") }}
                                     </div>
                                     <textarea
                                         v-model="content"
@@ -68,22 +66,30 @@
                                         id="content"
                                         cols="20"
                                         rows="10"
-                                        :placeholder="$t('support.describeIssue')"
+                                        :placeholder="
+                                            $t('support.describeIssue')
+                                        "
                                         class="w-full ellipsis border border-white rounded text-lg px-2 py-1 border-opacity-25 bg-primary bg-opacity-10"
                                     ></textarea>
                                 </div>
                             </section>
                             <div ref="technicalDetails">
                                 <table>
-                                    <tr v-for="[key, value] in Object.entries(technicalProperties)">
-                                        <td><strong>{{key}}</strong></td>
-                                        <td>{{value}}</td>
+                                    <tr
+                                        v-for="[key, value] in Object.entries(
+                                            technicalProperties
+                                        )"
+                                    >
+                                        <td>
+                                            <strong>{{ key }}</strong>
+                                        </td>
+                                        <td>{{ value }}</td>
                                     </tr>
                                 </table>
                             </div>
                             <div class="flex gap-2 ml-auto">
                                 <VButton color="secondary" @click="closePanel">
-                                    {{$t("buttons.cancel")}}
+                                    {{ $t("buttons.cancel") }}
                                 </VButton>
                                 <VButton
                                     :disabled="fetching"
@@ -91,7 +97,7 @@
                                     color="green"
                                     @click="submit"
                                 >
-                                    {{$t("buttons.submit")}}
+                                    {{ $t("buttons.submit") }}
                                 </VButton>
                             </div>
                         </DialogDescription>
@@ -102,9 +108,9 @@
     </TransitionRoot>
 </template>
 <script lang="ts" setup>
-import { VButton } from "@/components";
+import { VButton } from "@/components"
 import { useSendSupportEmailMutation } from "@/graph/generated"
-import { getRevision } from "@/services/revision";
+import { getRevision } from "@/services/revision"
 import {
     Dialog,
     DialogPanel,
@@ -129,12 +135,12 @@ const content = ref("")
 const technicalDetails = ref(null as HTMLDivElement | null)
 
 const technicalProperties = {
-    "Platform": navigator.platform,
-    "Version": "",
-    "Window Size": window.outerWidth + " x " + window.outerHeight
+    Platform: navigator.platform,
+    Version: "",
+    "Window Size": window.outerWidth + " x " + window.outerHeight,
 }
 
-getRevision().then(r => technicalProperties.Version = r)
+getRevision().then((r) => (technicalProperties.Version = r))
 
 const submit = async () => {
     const isValid = validateForm()
@@ -142,7 +148,14 @@ const submit = async () => {
         return
     }
 
-    const html = "<div><h1>" + title.value + "</h1><p>" + content.value + "</p><br/>" + technicalDetails.value?.innerHTML +  "</div>"
+    const html =
+        "<div><h1>" +
+        title.value +
+        "</h1><p>" +
+        content.value +
+        "</p><br/>" +
+        technicalDetails.value?.innerHTML +
+        "</div>"
 
     await executeMutation({
         title: "BTV Web - " + title.value,

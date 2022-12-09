@@ -40,7 +40,7 @@
                     class="hidden lg:block absolute w-full -bottom-1 left-0 bg-gradient-to-t from-background to-transparent"
                     :class="{
                         'p-20': props.item.size === 'medium',
-                        'p-10': props.item.size === 'small'
+                        'p-10': props.item.size === 'small',
                     }"
                 >
                     <h1 class="text-3xl font-bold">

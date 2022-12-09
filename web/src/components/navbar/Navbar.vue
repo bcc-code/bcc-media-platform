@@ -168,7 +168,7 @@
                                         </MenuItem> -->
                                         <MenuItem
                                             v-slot="{ active }"
-                                            @click="(showContactForm = true)"
+                                            @click="showContactForm = true"
                                             v-if="authenticated"
                                         >
                                             <button
@@ -183,7 +183,7 @@
                                                     class="h-6"
                                                 ></QuestionIcon>
                                                 <p class="ml-2 text-base">
-                                                    {{$t("support.contact")}}
+                                                    {{ $t("support.contact") }}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -342,7 +342,7 @@
                                         <MenuItem
                                             v-slot="{ active }"
                                             v-if="authenticated"
-                                            @click="(showContactForm = true)"
+                                            @click="showContactForm = true"
                                         >
                                             <button
                                                 :class="[
@@ -356,7 +356,7 @@
                                                     class="h-6"
                                                 ></QuestionIcon>
                                                 <p class="ml-2 text-base">
-                                                    {{$t("support.contact")}}
+                                                    {{ $t("support.contact") }}
                                                 </p>
                                             </button>
                                         </MenuItem>

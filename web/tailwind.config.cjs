@@ -38,10 +38,9 @@ module.exports = {
                 "background-2": "var(--color-background-2)",
                 "separator-on-light": "var(--color-separator-on-light)",
                 "light-1": "var(--color-light-1)",
-                "dark-transparent": "var(--color-dark-transparent)"
+                "dark-transparent": "var(--color-dark-transparent)",
             },
         },
     },
     plugins: [require("@tailwindcss/line-clamp")],
-
 }

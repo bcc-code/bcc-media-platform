@@ -23,6 +23,8 @@
         "@auth0/auth0-vue": "^1.0.2",
         "@headlessui/vue": "^1.7.4",
         "@heroicons/vue": "^2.0.13",
+        "@sentry/tracing": "^7.24.2",
+        "@sentry/vue": "^7.24.2",
         "@tailwindcss/line-clamp": "^0.4.2",
         "@types/showdown": "^2.0.0",
         "@urql/exchange-auth": "^1.0.0",

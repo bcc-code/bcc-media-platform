@@ -44,7 +44,7 @@ export default createClient({
                     } else {
                         state.authState = null
                     }
-                    return state;
+                    return state
                 }
                 const token = await Auth.getToken()
                 if (token) {

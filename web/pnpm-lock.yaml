@@ -9,6 +9,8 @@ specifiers:
   '@graphql-codegen/typescript-vue-urql': ^2.3.6
   '@headlessui/vue': ^1.7.4
   '@heroicons/vue': ^2.0.13
+  '@sentry/tracing': ^7.24.2
+  '@sentry/vue': ^7.24.2
   '@tailwindcss/line-clamp': ^0.4.2
   '@types/node': ^18.11.9
   '@types/showdown': ^2.0.0
@@ -41,6 +43,8 @@ dependencies:
   '@auth0/auth0-vue': 1.0.2_vue-router@4.1.6
   '@headlessui/vue': 1.7.4_vue@3.2.45
   '@heroicons/vue': 2.0.13_vue@3.2.45
+  '@sentry/tracing': 7.24.2
+  '@sentry/vue': 7.24.2_vue@3.2.45
   '@tailwindcss/line-clamp': 0.4.2_tailwindcss@3.2.4
   '@types/showdown': 2.0.0
   '@urql/exchange-auth': 1.0.0_graphql@16.6.0
@@ -1497,6 +1501,62 @@ packages:
   /@repeaterjs/repeater/3.0.4:
     resolution: {integrity: sha512-AW8PKd6iX3vAZ0vA43nOUOnbq/X5ihgU+mSXXqunMkeQADGiqw/PY0JNeYtD5sr0PAy51YPgAPbDoeapv9r8WA==}
     dev: true
+
+  /@sentry/browser/7.24.2:
+    resolution: {integrity: sha512-X6NbQT0Dp+h54j73TPLgWf3yyLyTZGJI5WQSGEsNIroqhVzD3UF8M+E+3roYpSJDDyYdfuM+WBme+MYkmeqHIw==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/core': 7.24.2
+      '@sentry/types': 7.24.2
+      '@sentry/utils': 7.24.2
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/core/7.24.2:
+    resolution: {integrity: sha512-CDfrVvr3PQ0qImJv7/6yN/5hxhwxy1HicxTL9K5RwSDoXqgK3kUGv/WmTvPNIVB2RQKodLwzS2T52NFRxRoqNw==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.24.2
+      '@sentry/utils': 7.24.2
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/tracing/7.24.2:
+    resolution: {integrity: sha512-rK1HUeCLM27DGGah1+5DN0C9Y4g9dnyMU5rdrRxGQGqxIJiwzHYwJI9xoNoAVMmt8jqFliDEpYvh2jsW8593IA==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/core': 7.24.2
+      '@sentry/types': 7.24.2
+      '@sentry/utils': 7.24.2
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/types/7.24.2:
+    resolution: {integrity: sha512-x2LEnKBPzUVzTGspvB0CjZmt1dWeJsLVHGeDKPUMUm004nIscFCxJsmYefqaJQdaIUMqDit5ApwcmKchuK6VKQ==}
+    engines: {node: '>=8'}
+    dev: false
+
+  /@sentry/utils/7.24.2:
+    resolution: {integrity: sha512-VuuYEF39v43Qk6YZMid8Em/N0HqCsS5ItuTSvunMtBai2dzDAIkJ2LqemF95wWFAXrzpLy4Nx3QyGVHayMn31A==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.24.2
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/vue/7.24.2_vue@3.2.45:
+    resolution: {integrity: sha512-g0H5c1fG1kitbSnHmErEcV8CEuyFfVCYQDRJa0eLBno5UDMDM3Ca4N4fbQXk0w5MPf2BX18hxWuz5lIp5/hpVQ==}
+    engines: {node: '>=8'}
+    peerDependencies:
+      vue: 2.x || 3.x
+    dependencies:
+      '@sentry/browser': 7.24.2
+      '@sentry/core': 7.24.2
+      '@sentry/types': 7.24.2
+      '@sentry/utils': 7.24.2
+      tslib: 1.14.1
+      vue: 3.2.45
+    dev: false
 
   /@tailwindcss/line-clamp/0.4.2_tailwindcss@3.2.4:
     resolution: {integrity: sha512-HFzAQuqYCjyy/SX9sLGB1lroPzmcnWv1FHkIpmypte10hptf4oPUfucryMKovZh2u0uiS9U5Ty3GghWfEJGwVw==}
@@ -4624,6 +4684,10 @@ packages:
       typescript: 4.9.3
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
+
+  /tslib/1.14.1:
+    resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
+    dev: false
 
   /tslib/2.4.1:
     resolution: {integrity: sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA==}

@@ -1,7 +1,9 @@
 <template>
     <button
-        class="cursor-pointer rounded-full focus:outline-none font-bold leading-normal text-on-tint  text-style-button-1 border border-separator-on-light"
-        :class="styles" :disabled="disabled">
+        class="cursor-pointer rounded-full focus:outline-none font-bold leading-normal text-on-tint text-style-button-1 border border-separator-on-light"
+        :class="styles"
+        :disabled="disabled"
+    >
         <slot></slot>
     </button>
 </template>
@@ -18,38 +20,38 @@ const props = defineProps<{
 }>()
 
 const styles = computed(() => {
-    var styles = '';
+    var styles = ""
 
-    const apply = (str: string) => styles += ` ${str}`;
+    const apply = (str: string) => (styles += ` ${str}`)
 
     if (props.disabled) {
-        apply("bg-background text-label-4 cursor-default");
+        apply("bg-background text-label-4 cursor-default")
     } else {
         switch (props.color) {
             case "red":
                 apply("bg-red hover:bg-red-hover")
-                break;
+                break
             case "green":
                 apply("bg-green hover:bg-green-hover")
-                break;
+                break
             case "secondary":
                 apply("bg-secondary hover:bg-secondary-hover")
-                break;
+                break
             default:
                 apply("bg-primary hover:bg-primary-hover")
-                break;
+                break
         }
     }
 
     switch (props.size) {
         case "large":
-            apply("px-5 py-3");
-            break;
+            apply("px-5 py-3")
+            break
         default:
-            apply("py-2 px-4");
-            break;
+            apply("py-2 px-4")
+            break
     }
 
-    return styles;
+    return styles
 })
 </script>

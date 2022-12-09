@@ -82,7 +82,9 @@ export const goToSectionItem = (
 export const itemDisabled = (item: SectionItemFragment) => {
     switch (item.item.__typename) {
         case "Episode":
-            return new Date(item.item.publishDate).getTime() > new Date().getTime()
+            return (
+                new Date(item.item.publishDate).getTime() > new Date().getTime()
+            )
     }
     return false
 }
