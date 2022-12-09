@@ -11,6 +11,13 @@ fragment Task on Task {
     }
 }
 
+fragment LessonLink on Link {
+    image
+    title
+    description
+    url
+}
+
 query getStudyLesson($id: ID!) {
     studyLesson(id: $id) {
         id
@@ -22,6 +29,18 @@ query getStudyLesson($id: ID!) {
         tasks {
             items {
                 ...Task
+            }
+        }
+        episodes {
+            items {
+                id
+                title
+                image
+            }
+        }
+        links {
+            items {
+                ...LessonLink
             }
         }
     }

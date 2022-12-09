@@ -1,9 +1,7 @@
 <template>
     <button
         class="cursor-pointer rounded-full focus:outline-none font-bold leading-normal text-on-tint text-style-button-1 border border-separator-on-light"
-        :class="styles"
-        :disabled="disabled"
-    >
+        :class="styles" :disabled="disabled">
         <slot></slot>
     </button>
 </template>
@@ -11,7 +9,7 @@
 import { computed } from "vue"
 
 type Color = "default" | "red" | "green" | "secondary"
-type Size = "default" | "large"
+type Size = "default" | "large" | "thin"
 
 const props = defineProps<{
     color?: Color
@@ -45,11 +43,14 @@ const styles = computed(() => {
 
     switch (props.size) {
         case "large":
-            apply("px-5 py-3")
-            break
+            apply("px-5 py-3");
+            break;
+        case "thin":
+            apply("px-4 py-1");
+            break;
         default:
-            apply("py-2 px-4")
-            break
+            apply("px-4 py-2 ");
+            break;
     }
 
     return styles

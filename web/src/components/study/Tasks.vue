@@ -1,62 +1,33 @@
 <template>
-    <div
-        class="inline-flex flex-col space-y-6 items-center justify-start w-full h-screen mb-16"
-    >
-        <div class="p-4 flex flex-col space-y-0.5 h-14 w-full">
-            <template v-if="tasks.length > 1">
-                <div class="w-full right-0 bottom-0">
-                    <div
-                        class="flex-1 h-full bg-black bg-opacity-50 rounded-full"
-                    >
-                        <div>
-                            <div
-                                class="w-28 h-[5px] bg-tint-1 rounded-full"
-                                :style="{ width: `${taskPercent}%` }"
-                            ></div>
+    <div class="w-full">
+        <div class="inline-flex flex-col space-y-6 items-center justify-start w-full h-screen mb-16">
+            <div class="p-4 flex flex-col space-y-0.5  h-14  w-full">
+                <template v-if="(tasks.length > 1)">
+                    <div class="w-full right-0 bottom-0">
+                        <div class="flex-1 h-full bg-black bg-opacity-50 rounded-full">
+                            <div>
+                                <div class="w-28 h-[5px] bg-tint-1 rounded-full" :style="{ width: `${taskPercent}%` }">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <p class="w-full text-lg leading-normal text-label-3">
-                    {{ currentTaskIndex + 1 }} / {{ tasks.length }}
-                </p>
-            </template>
+                    <p class="w-full text-lg leading-normal text-label-3">{{ (currentTaskIndex + 1)
+                    }} / {{ tasks.length }}</p>
+                </template>
+            </div>
+            <TextTask v-if="currentTask?.__typename == 'TextTask'" v-model:task="currentTask" :key="currentTask.id"
+                v-model:is-done="isCurrentStepDone" />
+            <AlternativesTask v-if="currentTask?.__typename == 'AlternativesTask'" v-model:task="currentTask"
+                :key="currentTask.id" v-model:is-done="isCurrentStepDone" />
         </div>
-        <TextTask
-            v-if="currentTask?.__typename == 'TextTask'"
-            v-model:task="currentTask"
-            :key="currentTask.id"
-            v-model:is-done="isCurrentStepDone"
-        />
-        <AlternativesTask
-            v-if="currentTask?.__typename == 'AlternativesTask'"
-            v-model:task="currentTask"
-            :key="currentTask.id"
-            v-model:is-done="isCurrentStepDone"
-        />
-        <div class="flex-1"></div>
-        <div
-            class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-24 pb-8"
-            v-if="
-                !(currentTask?.__typename == 'TextTask' && !isCurrentStepDone)
-            "
-        >
+        <div class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-24 pb-8 fixed bottom-0 bg-background-1"
+            v-if="!(currentTask?.__typename == 'TextTask' && !isCurrentStepDone)">
             <div class="inline-flex space-x-2 items-start justify-start w-full">
-                <VButton
-                    class="w-full"
-                    size="large"
-                    v-if="tasks.length > 1"
-                    @click="previousStep()"
-                    :disabled="!anyPreviousStep"
-                    color="secondary"
-                >
+                <VButton class="w-full" size="large" v-if="tasks.length > 1" @click="previousStep()"
+                    :disabled="!anyPreviousStep" color="secondary">
                     Back
                 </VButton>
-                <VButton
-                    class="w-full"
-                    size="large"
-                    @click="nextStep()"
-                    :disabled="!isCurrentStepDone"
-                >
+                <VButton class="w-full" size="large" @click="nextStep()" :disabled="!isCurrentStepDone">
                     <template v-if="isLastTask">Done</template>
                     <template v-else>Next</template>
                 </VButton>
@@ -79,20 +50,19 @@ import {
 import { useRoute } from "vue-router"
 import TextTask from "./tasks/TextTask.vue"
 import { VButton } from ".."
+import { Page } from "./Lesson.vue"
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()
-const { error, fetching, data, executeQuery, ...lessonQuery } =
-    useGetStudyLessonQuery({
-        pause: props.lesson.studyLesson.id == null,
-        variables: { id: props.lesson.studyLesson.id.toString() },
-    })
-const { executeMutation } = useCompleteTaskMutation()
-
+const { error, fetching, data, executeQuery, ...lessonQuery } = useGetStudyLessonQuery({ pause: props.lesson.studyLesson.id == null, variables: { id: props.lesson.studyLesson.id.toString() } });
+const { executeMutation } = useCompleteTaskMutation();
 const { t } = useI18n()
-
 const { setTitle } = useTitle()
 
-const currentTaskIndex = ref(0)
+const emit = defineEmits<{
+    (e: "navigate", i: Page): any
+}>();
+
+const currentTaskIndex = ref(0);
 const tasks = computed(() => props.lesson.studyLesson.tasks.items)
 const currentTask = computed(() => tasks.value[currentTaskIndex.value])
 const isLastTask = computed(
@@ -126,10 +96,11 @@ function previousStep() {
 function nextStep() {
     executeMutation({ taskId: currentTask.value.id })
     if (!isLastTask.value) {
-        currentTaskIndex.value += 1
-        isCurrentStepDone.value = true
+        currentTaskIndex.value += 1;
+        isCurrentStepDone.value = false;
     } else {
         flutterStudy?.tasksCompleted()
+        emit("navigate", "more")
     }
 }
 

@@ -494,7 +494,13 @@ export type Link = {
   id: Scalars['ID'];
   image?: Maybe<Scalars['String']>;
   title: Scalars['String'];
+  type: LinkType;
   url: Scalars['String'];
+};
+
+
+export type LinkImageArgs = {
+  style?: InputMaybe<ImageStyle>;
 };
 
 export type LinkPagination = Pagination & {
@@ -508,11 +514,17 @@ export type LinkTask = Task & {
   completed: Scalars['Boolean'];
   description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
-  image: Scalars['String'];
-  link: Scalars['String'];
+  link: Link;
   secondaryTitle?: Maybe<Scalars['String']>;
   title: Scalars['String'];
 };
+
+export enum LinkType {
+  Audio = 'audio',
+  Other = 'other',
+  Text = 'text',
+  Video = 'video'
+}
 
 export type ListSection = ItemSection & Section & {
   id: Scalars['ID'];
@@ -1227,12 +1239,17 @@ export type TaskFragment = Task_AlternativesTask_Fragment | Task_LinkTask_Fragme
 
 export type TaskFragmentVariables = Exact<{ [key: string]: never; }>;
 
+export type LessonLinkFragment = { image?: string | null, title: string, description?: string | null, url: string };
+
+
+export type LessonLinkFragmentVariables = Exact<{ [key: string]: never; }>;
+
 export type GetStudyLessonQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetStudyLessonQuery = { studyLesson: { id: string, title: string, progress: { total: number, completed: number }, tasks: { items: Array<{ __typename: 'AlternativesTask', id: string, title: string, completed: boolean, alternatives: Array<{ title: string, isCorrect: boolean }> } | { __typename: 'LinkTask', id: string, title: string, completed: boolean } | { __typename: 'PosterTask', id: string, title: string, completed: boolean } | { __typename: 'QuoteTask', id: string, title: string, completed: boolean } | { __typename: 'TextTask', id: string, title: string, completed: boolean } | { __typename: 'VideoTask', id: string, title: string, completed: boolean }> } } };
+export type GetStudyLessonQuery = { studyLesson: { id: string, title: string, progress: { total: number, completed: number }, tasks: { items: Array<{ __typename: 'AlternativesTask', id: string, title: string, completed: boolean, alternatives: Array<{ title: string, isCorrect: boolean }> } | { __typename: 'LinkTask', id: string, title: string, completed: boolean } | { __typename: 'PosterTask', id: string, title: string, completed: boolean } | { __typename: 'QuoteTask', id: string, title: string, completed: boolean } | { __typename: 'TextTask', id: string, title: string, completed: boolean } | { __typename: 'VideoTask', id: string, title: string, completed: boolean }> }, episodes: { items: Array<{ id: string, title: string, image?: string | null }> }, links: { items: Array<{ image?: string | null, title: string, description?: string | null, url: string }> } } };
 
 export type CompleteTaskMutationVariables = Exact<{
   taskId: Scalars['ID'];
@@ -1395,6 +1412,14 @@ export const TaskFragmentDoc = gql`
       isCorrect
     }
   }
+}
+    `;
+export const LessonLinkFragmentDoc = gql`
+    fragment LessonLink on Link {
+  image
+  title
+  description
+  url
 }
     `;
 export const GetCalendarDayDocument = gql`
@@ -1738,9 +1763,22 @@ export const GetStudyLessonDocument = gql`
         ...Task
       }
     }
+    episodes {
+      items {
+        id
+        title
+        image
+      }
+    }
+    links {
+      items {
+        ...LessonLink
+      }
+    }
   }
 }
-    ${TaskFragmentDoc}`;
+    ${TaskFragmentDoc}
+${LessonLinkFragmentDoc}`;
 
 export function useGetStudyLessonQuery(options: Omit<Urql.UseQueryArgs<never, GetStudyLessonQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetStudyLessonQuery>({ query: GetStudyLessonDocument, ...options });
