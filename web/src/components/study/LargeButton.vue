@@ -1,8 +1,7 @@
 <template>
     <button
         class="flex items-center justify-center flex-1 h-full px-5 py-3 border rounded-full border-indigo-200 border-opacity-10 transition-colors ease-in-out duration-200 text-style-button-1"
-        :class="[styles.background, styles.text, !disabled ? 'hover:opacity-80 active:opacity-100' : null]"
-        :disabled="disabled">
+        :class="[styles.background, styles.text, !disabled ? 'active:opacity-80' : null]" :disabled="disabled">
         <slot></slot>
     </button>
 </template>

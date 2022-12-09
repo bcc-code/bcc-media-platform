@@ -1,17 +1,27 @@
+fragment Task on Task {
+    __typename
+    id
+    title
+    completed
+    ... on AlternativesTask {
+        alternatives {
+            title
+            isCorrect
+        }
+    }
+}
+
 query getStudyLesson($id: ID!) {
     studyLesson(id: $id) {
         id
         title
+        progress {
+            total
+            completed
+        }
         tasks {
             items {
-                title
-                completed
-                ... on AlternativesTask {
-                    alternatives {
-                        title
-                        isCorrect
-                    }
-                }
+                ...Task
             }
         }
     }
