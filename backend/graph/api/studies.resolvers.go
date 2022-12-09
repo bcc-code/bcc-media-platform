@@ -36,8 +36,9 @@ func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.
 
 	return lo.Map(alts, func(alt *common.QuestionAlternative, _ int) *model.Alternative {
 		return &model.Alternative{
-			ID:    alt.ID.String(),
-			Title: alt.Title.Get(languages),
+			ID:        alt.ID.String(),
+			Title:     alt.Title.Get(languages),
+			IsCorrect: alt.IsCorrect,
 		}
 	}), nil
 }
