@@ -1,65 +1,65 @@
 {
     "buttons": {
-        "save": "",
-        "login": "",
-        "logout": "",
-        "stayLoggedOut": "",
-        "cancel": "",
-        "submit": ""
+        "save": "Lagre",
+        "login": "Logg inn",
+        "logout": "Logg ut",
+        "stayLoggedOut": "Forbli utlogget",
+        "cancel": "Avbryt",
+        "submit": "Send inn"
     },
     "dashboard": {
-        "loggedOut": ""
+        "loggedOut": "Du ble logget ut"
     },
     "page": {
-        "home": "",
-        "search": "",
+        "home": "Hjem",
+        "search": "Søk",
         "live": "Direkte",
-        "calendar": "",
-        "faq": "",
-        "notFound": "",
-        "explore": "",
-        "watchNow": ""
+        "calendar": "Kalender",
+        "faq": "FAQ",
+        "notFound": "Finner ikke siden",
+        "explore": "Utforsk",
+        "watchNow": "Se nå"
     },
     "section": {
         "item": {
-            "episode": "",
-            "season": ""
+            "episode": "0 episoder | 1 episode | {count} episoder",
+            "season": "0 sesonger | 1 sesong | {count} sesonger"
         }
     },
     "notFound": {
-        "title": "",
-        "description": "",
-        "returnHome": ""
+        "title": "Ikke funnet",
+        "description": "Kanskje du ikke er innlogget eller mangler noen tillatelser.",
+        "returnHome": "Gå til hjem"
     },
     "common": {
-        "new": "",
-        "newEpisodes": ""
+        "new": "Ny",
+        "newEpisodes": "Nye episoder"
     },
     "episode": {
-        "details": "",
-        "episode": "",
-        "episodes": "",
-        "videos": "",
-        "seriesDescription": "",
-        "releaseDate": "",
-        "availableFrom": "",
-        "availableTo": "",
-        "ageRating": "",
-        "notFound": "",
+        "details": "Detaljer",
+        "episode": "Episode",
+        "episodes": "Episoder",
+        "videos": "Filmer",
+        "seriesDescription": "Seriebeskrivelse",
+        "releaseDate": "Utgivelsesdato",
+        "availableFrom": "Tilgjengelig fra",
+        "availableTo": "Tilgjengelig til",
+        "ageRating": "Vurdering",
+        "notFound": "Finner ikke episoden",
         "comingSoon": ""
     },
     "live": {
-        "now": ""
+        "now": "Nå"
     },
     "calendar": {
-        "noScheduledEvents": "",
-        "thisWeek": "",
-        "timeTableIsLocalTime": ""
+        "noScheduledEvents": "Ingen planlagte hendelser",
+        "thisWeek": "Denne uken",
+        "timeTableIsLocalTime": "Tidstabell er i din lokale tid."
     },
     "search": {
-        "programs": "",
-        "episodes": "",
-        "cancel": "",
+        "programs": "Programmer",
+        "episodes": "Episoder",
+        "cancel": "Avbryt",
         "emptyQuery": ""
     },
     "support": {
