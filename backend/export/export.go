@@ -53,7 +53,7 @@ import (
 //   - NOTE: Changing column types is a major change, because of static langs
 //
 // * Major change: Everything else
-const SQLiteExportDBVersion = "v0.0.2"
+const SQLiteExportDBVersion = "v0.0.3"
 
 type CDNConfig interface {
 	GetLegacyVODDomain() string
@@ -350,6 +350,11 @@ func exportPages(ctx context.Context, q serviceProvider, liteQueries *sqlexport.
 	return nil
 }
 
+type collectionEntry struct {
+	ID   int
+	Type string
+}
+
 func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, collectionIDs []int) error {
 	filteredLoaders := q.GetFilteredLoaders(ctx)
 	collections, err := batchloaders.GetMany(ctx, q.GetLoaders().CollectionLoader, collectionIDs)
@@ -366,15 +371,19 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 			return merry.Wrap(err)
 		}
 
-		entryIDs := lo.Map(entries, func(e collection.Entry, _ int) int { return e.ID })
-		entryIDsJSON, _ := json.Marshal(entryIDs)
+		liteEntries := lo.Map(entries, func(e collection.Entry, _ int) collectionEntry {
+			return collectionEntry{
+				ID:   e.ID,
+				Type: string(e.Collection),
+			}
+		})
+		liteEntriesJSON, _ := json.Marshal(liteEntries)
 
 		err = liteQueries.InsertCollection(ctx, sqlexport.InsertCollectionParams{
 			ID: int64(c.ID),
 			// TODO: maybe remove name?
 			Name:            c.Title.Get([]string{"no"}),
-			Type:            c.Type,
-			CollectionItems: string(entryIDsJSON),
+			CollectionItems: string(liteEntriesJSON),
 		})
 
 		if err != nil {

@@ -70,7 +70,6 @@ CREATE TABLE sections (
 CREATE TABLE collections (
 	id INTEGER NOT NULL PRIMARY KEY,
 	name TEXT NOT NULL,
-	type TEXT NOT NULL,
 	collection_items TEXT NOT NULL
 );
 
