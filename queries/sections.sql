@@ -89,6 +89,7 @@ WITH ts AS (SELECT links_id,
 SELECT ls.id,
        ls.url,
        COALESCE(images.json, '[]') as images,
+       ls.type,
        ts.title,
        ts.description
 FROM links ls

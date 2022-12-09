@@ -94,7 +94,7 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 			ImageType:      l.ImageType.String,
 			Images:         images,
 			EpisodeID:      l.EpisodeID,
-			Link:           l.Link,
+			LinkID:         l.LinkID,
 			Type:           l.Type,
 			MultiSelect:    multiSelect,
 		}

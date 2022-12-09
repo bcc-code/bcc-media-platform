@@ -7,3 +7,4 @@ dist
 version.json
 key.local.rsa
 web/public/revision
+web/.crowdin_token

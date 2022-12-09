@@ -149,6 +149,29 @@ func (r *linkTaskResolver) Completed(ctx context.Context, obj *model.LinkTask) (
 	return id != nil, nil
 }
 
+// Link is the resolver for the link field.
+func (r *linkTaskResolver) Link(ctx context.Context, obj *model.LinkTask) (*model.Link, error) {
+	link, err := batchloaders.GetByID(ctx, r.Loaders.LinkLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	t := model.LinkType(link.Type)
+	if !t.IsValid() {
+		t = model.LinkTypeOther
+	}
+
+	return &model.Link{
+		ID:          strconv.Itoa(link.ID),
+		URL:         link.URL,
+		Title:       link.Title.Get(languages),
+		Type:        t,
+		Description: link.Description.GetValueOrNil(languages),
+	}, nil
+}
+
 // Completed is the resolver for the completed field.
 func (r *posterTaskResolver) Completed(ctx context.Context, obj *model.PosterTask) (bool, error) {
 	id, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.Get(ctx, utils.AsUuid(obj.ID))

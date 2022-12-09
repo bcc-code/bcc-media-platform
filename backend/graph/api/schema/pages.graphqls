@@ -162,12 +162,20 @@ type ContextCollection {
     ): SectionItemPagination @goField(forceResolver: true)
 }
 
+enum LinkType {
+    text
+    audio
+    video
+    other
+}
+
 type Link {
     id: ID!
     url: String!
     title: String!
     description: String
-    image: String
+    type: LinkType!
+    image(style: ImageStyle): String @goField(forceResolver: true)
 }
 
 type LinkPagination implements Pagination {

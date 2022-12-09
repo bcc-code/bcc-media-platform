@@ -48,10 +48,11 @@ func TaskFrom(ctx context.Context, task *common.Task) Task {
 		}
 	case common.TaskTypeLink:
 		return LinkTask{
-			ID:             id,
-			Title:          title,
-			Link:           task.Link.String,
-			Image:          task.Images.Get(languages),
+			ID:    id,
+			Title: title,
+			Link: &Link{
+				ID: strconv.Itoa(int(task.LinkID.Int64)),
+			},
 			SecondaryTitle: task.SecondaryTitle.GetValueOrNil(languages),
 			Description:    task.Description.GetValueOrNil(languages),
 		}

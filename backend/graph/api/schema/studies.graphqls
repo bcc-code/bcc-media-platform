@@ -86,8 +86,7 @@ type LinkTask implements Task {
     id: ID!
     title: String!
     completed: Boolean! @goField(forceResolver: true)
-    link: String!
-    image: String!
+    link: Link! @goField(forceResolver: true)
     secondaryTitle: String
     description: String
 }

@@ -1,72 +1,72 @@
 {
     "buttons": {
-        "save": "",
-        "login": "",
-        "logout": "",
-        "stayLoggedOut": "",
-        "cancel": "",
-        "submit": ""
+        "save": "Enregistrer",
+        "login": "Se connecter",
+        "logout": "Se déconnecter",
+        "stayLoggedOut": "Rester déconnecté",
+        "cancel": "Annuler",
+        "submit": "Envoyer"
     },
     "dashboard": {
-        "loggedOut": ""
+        "loggedOut": "Tu as été déconnecté"
     },
     "page": {
-        "home": "",
-        "search": "",
-        "live": "",
-        "calendar": "",
-        "faq": "",
-        "notFound": "",
-        "explore": "",
-        "watchNow": ""
+        "home": "Accueil",
+        "search": "Rechercher",
+        "live": "En direct",
+        "calendar": "Calendrier",
+        "faq": "FAQ",
+        "notFound": "Page non trouvée",
+        "explore": "Explorer",
+        "watchNow": "Regarder maintenant"
     },
     "section": {
         "item": {
-            "episode": "",
-            "season": ""
+            "episode": "0 épisode | 1 épisode | {count} épisodes",
+            "season": "0 saison | 1 saison | {count} saisons"
         }
     },
     "notFound": {
-        "title": "",
-        "description": "",
-        "returnHome": ""
+        "title": "Non trouvé",
+        "description": "Tu n'es peut-être pas connecté ou tu n'as pas les autorisations nécessaires.",
+        "returnHome": "Aller à la page d'accueil"
     },
     "common": {
-        "new": "",
-        "newEpisodes": ""
+        "new": "Nouveau",
+        "newEpisodes": "Nouveaux épisodes"
     },
     "episode": {
-        "details": "",
-        "episode": "",
-        "episodes": "",
-        "videos": "",
-        "seriesDescription": "",
-        "releaseDate": "",
-        "availableFrom": "",
-        "availableTo": "",
-        "ageRating": "",
-        "notFound": "",
-        "comingSoon": ""
+        "details": "Détails",
+        "episode": "Épisode",
+        "episodes": "Épisodes",
+        "videos": "Vidéos",
+        "seriesDescription": "Description de la série",
+        "releaseDate": "Date de sortie",
+        "availableFrom": "Disponible à partir du",
+        "availableTo": "Disponible jusqu'au",
+        "ageRating": "Évaluation",
+        "notFound": "Épisode non trouvé",
+        "comingSoon": "Bientôt disponible"
     },
     "live": {
-        "now": ""
+        "now": "Maintenant"
     },
     "calendar": {
-        "noScheduledEvents": "",
-        "thisWeek": "",
-        "timeTableIsLocalTime": ""
+        "noScheduledEvents": "Aucun événement prévu",
+        "thisWeek": "Cette semaine",
+        "timeTableIsLocalTime": "Horaires exprimés en heure locale."
     },
     "search": {
-        "programs": "",
-        "episodes": "",
-        "cancel": "",
-        "emptyQuery": ""
+        "programs": "Programmes",
+        "episodes": "Épisodes",
+        "cancel": "Annuler",
+        "emptyQuery": "La requête est vide."
     },
     "support": {
-        "contact": "",
-        "title": "",
-        "subject": "",
-        "content": "",
-        "describeIssue": ""
+        "contact": "Contacter le support",
+        "title": "Titre",
+        "subject": "Objet",
+        "content": "Contenu",
+        "describeIssue": "Décris ton problème de manière détaillée."
     }
 }

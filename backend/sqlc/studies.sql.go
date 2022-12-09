@@ -362,7 +362,7 @@ SELECT t.id,
        t.lesson_id,
        t.alternatives_multiselect,
        t.image_type,
-       t.link,
+       t.link_id,
        t.episode_id,
        ts.title,
        ts.secondary_title,
@@ -385,7 +385,7 @@ type getTasksRow struct {
 	LessonID                uuid.UUID             `db:"lesson_id" json:"lessonID"`
 	AlternativesMultiselect sql.NullBool          `db:"alternatives_multiselect" json:"alternativesMultiselect"`
 	ImageType               null_v4.String        `db:"image_type" json:"imageType"`
-	Link                    null_v4.String        `db:"link" json:"link"`
+	LinkID                  null_v4.Int           `db:"link_id" json:"linkID"`
 	EpisodeID               null_v4.Int           `db:"episode_id" json:"episodeID"`
 	Title                   pqtype.NullRawMessage `db:"title" json:"title"`
 	SecondaryTitle          pqtype.NullRawMessage `db:"secondary_title" json:"secondaryTitle"`
@@ -412,7 +412,7 @@ func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getTask
 			&i.LessonID,
 			&i.AlternativesMultiselect,
 			&i.ImageType,
-			&i.Link,
+			&i.LinkID,
 			&i.EpisodeID,
 			&i.Title,
 			&i.SecondaryTitle,
