@@ -16,6 +16,7 @@ WITH ts AS (SELECT episodes_id,
                 FROM images
                 GROUP BY episode_id)
 SELECT e.id,
+       e.status = 'unlisted'                                                                 AS unlisted,
        e.legacy_id,
        e.legacy_program_id,
        e.asset_id,
@@ -65,6 +66,7 @@ WITH ts AS (SELECT episodes_id,
                 FROM images
                 GROUP BY episode_id)
 SELECT e.id,
+       e.status = 'unlisted'                                                                 AS unlisted,
        e.legacy_id,
        e.legacy_program_id,
        e.asset_id,
@@ -145,6 +147,7 @@ WHERE e.legacy_id = ANY ($1::int[]);
 
 -- name: getPermissionsForEpisodes :many
 SELECT e.id,
+       e.status = 'unlisted'              AS unlisted,
        access.published::bool             AS published,
        access.available_from::timestamp   AS available_from,
        access.available_to::timestamp     AS available_to,
