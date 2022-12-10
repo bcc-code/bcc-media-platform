@@ -11,6 +11,7 @@ import router from "@/router"
 if (!!router.currentRoute.value.query["bg"]) {
     document.body.style.setProperty("--tw-bg-opacity", "1")
 }
+
 </script>
 
 <style>

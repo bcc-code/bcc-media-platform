@@ -18,8 +18,8 @@ fragment LessonLink on Link {
     url
 }
 
-query getStudyLesson($id: ID!) {
-    studyLesson(id: $id) {
+query getStudyLesson($lessonId: ID!, $episodeId: ID!) {
+    studyLesson(id: $lessonId) {
         id
         title
         progress {
@@ -31,18 +31,16 @@ query getStudyLesson($id: ID!) {
                 ...Task
             }
         }
-        episodes {
-            items {
-                id
-                title
-                image
-            }
-        }
         links {
             items {
                 ...LessonLink
             }
         }
+    }
+    episode(id: $episodeId) {
+        id
+        title
+        image
     }
 }
 

@@ -75,7 +75,8 @@
             "title": "Watch again",
             "description": "For a deeper understanding, we recommend watching the video more than once.",
             "button": "Play again"
-        }
+        },
+        "textTaskPlaceholder": "Write down and submit your thoughts."
     },
     "thankYou": "Thank you!",
     "yourResponseHasBeenSubmitted": "Your response has been submitted."

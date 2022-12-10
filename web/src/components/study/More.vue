@@ -1,7 +1,7 @@
 
 <template>
-    <div class="w-full">
-        <tempalte v-if="(lesson.studyLesson.tasks.items.length > 0)">
+    <div class="w-full select-none">
+        <template v-if="(lesson.studyLesson.tasks.items.length > 0)">
             <div class="p-4 pt-4">
                 <TaskButton title="a" secondary-title="b" @click="() => emit('navigate', 'tasks')"></TaskButton>
                 <div class="mt-6">
@@ -37,7 +37,7 @@
                     </div>
                 </div>
             </div>
-        </tempalte>
+        </template>
         <div class="my-4" v-if="(lesson.studyLesson.links.items.length > 0)">
             <p class="ml-4 text-white text-style-title-1">{{ t('lesson.related') }}</p>
             <LinkListItem v-for="link in lesson.studyLesson.links.items" :link="link" />
@@ -53,12 +53,12 @@ import TaskButton from './TaskButton.vue';
 import { Page } from './Lesson.vue';
 import { VButton } from '..';
 import { computed, pushScopeId } from 'vue';
-import { flutterRouter } from '@/utils/flutter';
+import { flutter } from '@/utils/flutter';
 import router from '@/router';
 
 const { t } = useI18n();
 
-const episode = computed(() => props.lesson.studyLesson.episodes.items[0]);
+const episode = computed(() => props.lesson.episode);
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>();
 const emit = defineEmits<{
@@ -66,8 +66,8 @@ const emit = defineEmits<{
 }>();
 
 const playAgain = () => {
-    if (flutterRouter) {
-        flutterRouter.navigate('/episode/' + episode.value.id);
+    if (flutter) {
+        flutter.navigate('/episode/' + episode.value.id);
         return;
     }
     router.push('/episode/' + episode.value.id)

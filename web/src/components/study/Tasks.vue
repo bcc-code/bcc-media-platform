@@ -1,6 +1,6 @@
 <template>
-    <div class="w-full">
-        <div class="inline-flex flex-col space-y-6 items-center justify-start w-full h-screen mb-16">
+    <div class="w-full h-full pb-36">
+        <div class="inline-flex flex-col space-y-6 items-center justify-start w-full h-full">
             <div class="p-4 flex flex-col space-y-0.5  h-14  w-full">
                 <template v-if="(tasks.length > 1)">
                     <div class="w-full right-0 bottom-0">
@@ -20,7 +20,7 @@
             <AlternativesTask v-if="currentTask?.__typename == 'AlternativesTask'" v-model:task="currentTask"
                 :key="currentTask.id" v-model:is-done="isCurrentStepDone" />
         </div>
-        <div class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-24 pb-8 fixed bottom-0 bg-background-1"
+        <div class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-36 pb-16 fixed bottom-0 bg-background-1"
             v-if="!(currentTask?.__typename == 'TextTask' && !isCurrentStepDone)">
             <div class="inline-flex space-x-2 items-start justify-start w-full">
                 <VButton class="w-full" size="large" v-if="tasks.length > 1" @click="previousStep()"
@@ -53,7 +53,6 @@ import { VButton } from ".."
 import { Page } from "./Lesson.vue"
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()
-const { error, fetching, data, executeQuery, ...lessonQuery } = useGetStudyLessonQuery({ pause: props.lesson.studyLesson.id == null, variables: { id: props.lesson.studyLesson.id.toString() } });
 const { executeMutation } = useCompleteTaskMutation();
 const { t } = useI18n()
 const { setTitle } = useTitle()
@@ -75,11 +74,6 @@ onMounted(() => {
     analytics.page({
         id: "study",
         title: t("page.study"),
-    })
-    lessonQuery.then((val) => {
-        const data = val.data.value
-        if (data == null) return
-        //taskProgress.value = data.studyLesson.tasks.items.map((task) => ({ id: task.id, completed: task.completed }));
     })
 })
 

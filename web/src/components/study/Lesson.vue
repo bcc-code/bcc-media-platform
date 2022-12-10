@@ -3,7 +3,7 @@
         <div v-if="fetching" class="p-12">
             <Loader></Loader>
         </div>
-        <div v-else-if="(error != null)" class="p-12">
+        <div v-else-if="error" class="p-12">
             <div class="text-style-title-1">Something went wrong</div>
             <div class="text-red mt-4">{{ error.message }}</div>
             <div class="text-red mt-2">{{ error.stack }}</div>
@@ -29,16 +29,18 @@ import { useRoute } from "vue-router"
 import { VButton } from ".."
 import Tasks from "./Tasks.vue"
 import More from "./More.vue"
+import Loader from "../Loader.vue"
 
 export type Page = "" | "intro" | "tasks" | "more"
 
+console.log(useRoute())
 const route = useRoute()
-const props = defineProps<{ lessonId: string; subRoute: Page }>()
+const props = defineProps<{ episodeId: string, lessonId: string, subRoute: Page }>()
 
 const { error, fetching, data, executeQuery, ...lessonQuery } =
     useGetStudyLessonQuery({
         pause: props.lessonId == null,
-        variables: { id: props.lessonId.toString() },
+        variables: { lessonId: props.lessonId, episodeId: props.episodeId },
     })
 
 const { t } = useI18n()
