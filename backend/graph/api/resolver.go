@@ -447,10 +447,7 @@ func (r *Resolver) sendMessage(ctx context.Context, itemID uuid.UUID, message *s
 	if err != nil {
 		return "", err
 	}
-	id, err := utils.GenerateRandomSecureString(32)
-	if err != nil {
-		return "", err
-	}
+	id, _ := utils.GenerateRandomSecureString(32)
 	var str string
 	if message != nil {
 		str = *message
