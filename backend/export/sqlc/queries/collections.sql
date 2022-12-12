@@ -1,3 +1,3 @@
 -- name: InsertCollection :exec
-INSERT INTO collections (id, name, type, collection_items)
-VALUES (?,?,?,?);
+INSERT INTO collections (id, name, collection_items)
+VALUES (?,?,?);

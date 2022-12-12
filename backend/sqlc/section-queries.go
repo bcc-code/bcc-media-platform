@@ -159,6 +159,7 @@ func (q *Queries) GetLinks(ctx context.Context, ids []int) ([]common.Link, error
 			Title:       title,
 			Description: desc,
 			URL:         i.Url,
+			Type:        i.Type.String,
 			Images:      q.getImages(i.Images),
 		}
 	}), nil

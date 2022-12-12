@@ -1,0 +1,72 @@
+{
+    "buttons": {
+        "save": "Mentés",
+        "login": "Bejelentkezés",
+        "logout": "Kijelentkezés",
+        "stayLoggedOut": "Kijelentkezve maradni",
+        "cancel": "Mégse",
+        "submit": "Megerősítés"
+    },
+    "dashboard": {
+        "loggedOut": "Kijelentkeztél"
+    },
+    "page": {
+        "home": "Főoldal",
+        "search": "Keresés",
+        "live": "Élő",
+        "calendar": "Naptár",
+        "faq": "GYIK",
+        "notFound": "Az oldal nem található",
+        "explore": "Felfedezés",
+        "watchNow": "Nézd meg most"
+    },
+    "section": {
+        "item": {
+            "episode": "0 epizód | 1 epizód | {count} epizód",
+            "season": "0 sorozat | 1 sorozat | {count} sorozat"
+        }
+    },
+    "notFound": {
+        "title": "Nem található",
+        "description": "Lehet, hogy nem vagy bejelentkezve, vagy hiányzik néhány jogosultságod.",
+        "returnHome": "Főoldalra"
+    },
+    "common": {
+        "new": "Új",
+        "newEpisodes": "Új epizód"
+    },
+    "episode": {
+        "details": "Részletek",
+        "episode": "Epizód",
+        "episodes": "Epizódok",
+        "videos": "Videók",
+        "seriesDescription": "Sorozat leírása",
+        "releaseDate": "Megjelenési dátum",
+        "availableFrom": "Elérhető dátumtól:",
+        "availableTo": "Elérhető dátumig:",
+        "ageRating": "Értékelés",
+        "notFound": "Epizód nem található",
+        "comingSoon": "Jön hamarosan"
+    },
+    "live": {
+        "now": "Most"
+    },
+    "calendar": {
+        "noScheduledEvents": "Nincs tervezett esemény",
+        "thisWeek": "Ez a hét",
+        "timeTableIsLocalTime": "Az időpontok a helyi idő szerint értendők."
+    },
+    "search": {
+        "programs": "Programok",
+        "episodes": "Epizódok",
+        "cancel": "Mégse",
+        "emptyQuery": "A keresési lekérdezés üres."
+    },
+    "support": {
+        "contact": "Kapcsolatfelvétel a Támogatással",
+        "title": "Cím",
+        "subject": "Tárgy",
+        "content": "Tartalom",
+        "describeIssue": "Írd le részletesen a problémát."
+    }
+}

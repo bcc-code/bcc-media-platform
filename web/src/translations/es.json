@@ -1,0 +1,72 @@
+{
+    "buttons": {
+        "save": "Guardar",
+        "login": "Iniciar sesión",
+        "logout": "Cerrar sesión",
+        "stayLoggedOut": "Permanecer desconectado",
+        "cancel": "Cancelar",
+        "submit": "Enviar"
+    },
+    "dashboard": {
+        "loggedOut": "Fuiste desconectado"
+    },
+    "page": {
+        "home": "Inicio",
+        "search": "Buscar",
+        "live": "En Vivo",
+        "calendar": "Calendario",
+        "faq": "Preguntas frecuentes",
+        "notFound": "Página no encontrada",
+        "explore": "Explorar",
+        "watchNow": "Ver ahora"
+    },
+    "section": {
+        "item": {
+            "episode": "0 episodios | 1 episodio | {count} episodios",
+            "season": "0 temporadas | 1 temporada | {count} temporadas"
+        }
+    },
+    "notFound": {
+        "title": "No encontrada",
+        "description": "Quizás no haya iniciado sesión o le falten algunos permisos.",
+        "returnHome": "Ir al inicio"
+    },
+    "common": {
+        "new": "Nuevo",
+        "newEpisodes": "Nuevos episodios"
+    },
+    "episode": {
+        "details": "Detalles",
+        "episode": "Episodio",
+        "episodes": "Episodios",
+        "videos": "Videos",
+        "seriesDescription": "Descripción de series",
+        "releaseDate": "Fecha de estreno",
+        "availableFrom": "Disponible desde",
+        "availableTo": "Disponible a",
+        "ageRating": "Clasificación",
+        "notFound": "Episodio no encontrado",
+        "comingSoon": ""
+    },
+    "live": {
+        "now": "Ahora"
+    },
+    "calendar": {
+        "noScheduledEvents": "Sin eventos programados",
+        "thisWeek": "Esta semana",
+        "timeTableIsLocalTime": "El horario está en su hora local."
+    },
+    "search": {
+        "programs": "Programas",
+        "episodes": "Episodios",
+        "cancel": "Cancelar",
+        "emptyQuery": ""
+    },
+    "support": {
+        "contact": "",
+        "title": "",
+        "subject": "",
+        "content": "",
+        "describeIssue": ""
+    }
+}

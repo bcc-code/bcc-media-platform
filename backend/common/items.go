@@ -159,7 +159,11 @@ type Link struct {
 	Description LocaleString `json:"description"`
 	URL         string       `json:"url"`
 	Images      Images       `json:"images"`
+	Type        LinkType     `json:"type"`
 }
+
+// LinkType is the general type of the link
+type LinkType = string
 
 // GetKey returns the key for this item
 func (i Link) GetKey() int {

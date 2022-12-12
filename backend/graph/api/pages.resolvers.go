@@ -12,6 +12,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
@@ -76,6 +77,26 @@ func (r *iconSectionResolver) Items(ctx context.Context, obj *model.IconSection,
 // Items is the resolver for the items field.
 func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int) (*model.SectionItemPagination, error) {
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+}
+
+// Image is the resolver for the image field.
+func (r *linkResolver) Image(ctx context.Context, obj *model.Link, style *model.ImageStyle) (*string, error) {
+	l, err := batchloaders.GetByID(ctx, r.Loaders.LinkLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	if l == nil {
+		return nil, nil
+	}
+	if style == nil {
+		s := model.ImageStyleDefault
+		style = &s
+	}
+
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	return l.Images.GetDefault(languages, style.String()), nil
 }
 
 // Items is the resolver for the items field.
@@ -196,6 +217,9 @@ func (r *Resolver) IconSection() generated.IconSectionResolver { return &iconSec
 // LabelSection returns generated.LabelSectionResolver implementation.
 func (r *Resolver) LabelSection() generated.LabelSectionResolver { return &labelSectionResolver{r} }
 
+// Link returns generated.LinkResolver implementation.
+func (r *Resolver) Link() generated.LinkResolver { return &linkResolver{r} }
+
 // ListSection returns generated.ListSectionResolver implementation.
 func (r *Resolver) ListSection() generated.ListSectionResolver { return &listSectionResolver{r} }
 
@@ -226,6 +250,7 @@ type featuredSectionResolver struct{ *Resolver }
 type iconGridSectionResolver struct{ *Resolver }
 type iconSectionResolver struct{ *Resolver }
 type labelSectionResolver struct{ *Resolver }
+type linkResolver struct{ *Resolver }
 type listSectionResolver struct{ *Resolver }
 type messageSectionResolver struct{ *Resolver }
 type pageResolver struct{ *Resolver }

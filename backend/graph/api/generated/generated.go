@@ -55,6 +55,7 @@ type ResolverRoot interface {
 	IconSection() IconSectionResolver
 	LabelSection() LabelSectionResolver
 	Lesson() LessonResolver
+	Link() LinkResolver
 	LinkTask() LinkTaskResolver
 	ListSection() ListSectionResolver
 	MessageSection() MessageSectionResolver
@@ -347,6 +348,7 @@ type ComplexityRoot struct {
 	Lesson struct {
 		Episodes func(childComplexity int, first *int, offset *int) int
 		ID       func(childComplexity int) int
+		Links    func(childComplexity int, first *int, offset *int) int
 		Progress func(childComplexity int) int
 		Tasks    func(childComplexity int, first *int, offset *int) int
 		Title    func(childComplexity int) int
@@ -361,15 +363,25 @@ type ComplexityRoot struct {
 	}
 
 	Link struct {
-		ID  func(childComplexity int) int
-		URL func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Image       func(childComplexity int, style *model.ImageStyle) int
+		Title       func(childComplexity int) int
+		Type        func(childComplexity int) int
+		URL         func(childComplexity int) int
+	}
+
+	LinkPagination struct {
+		First  func(childComplexity int) int
+		Items  func(childComplexity int) int
+		Offset func(childComplexity int) int
+		Total  func(childComplexity int) int
 	}
 
 	LinkTask struct {
 		Completed      func(childComplexity int) int
 		Description    func(childComplexity int) int
 		ID             func(childComplexity int) int
-		Image          func(childComplexity int) int
 		Link           func(childComplexity int) int
 		SecondaryTitle func(childComplexity int) int
 		Title          func(childComplexity int) int
@@ -805,9 +817,14 @@ type LessonResolver interface {
 	Topic(ctx context.Context, obj *model.Lesson) (*model.StudyTopic, error)
 	Progress(ctx context.Context, obj *model.Lesson) (*model.TasksProgress, error)
 	Episodes(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.EpisodePagination, error)
+	Links(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.LinkPagination, error)
+}
+type LinkResolver interface {
+	Image(ctx context.Context, obj *model.Link, style *model.ImageStyle) (*string, error)
 }
 type LinkTaskResolver interface {
 	Completed(ctx context.Context, obj *model.LinkTask) (bool, error)
+	Link(ctx context.Context, obj *model.LinkTask) (*model.Link, error)
 }
 type ListSectionResolver interface {
 	Items(ctx context.Context, obj *model.ListSection, first *int, offset *int) (*model.SectionItemPagination, error)
@@ -2158,6 +2175,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Lesson.ID(childComplexity), true
 
+	case "Lesson.links":
+		if e.complexity.Lesson.Links == nil {
+			break
+		}
+
+		args, err := ec.field_Lesson_links_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Lesson.Links(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+
 	case "Lesson.progress":
 		if e.complexity.Lesson.Progress == nil {
 			break
@@ -2219,6 +2248,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LessonPagination.Total(childComplexity), true
 
+	case "Link.description":
+		if e.complexity.Link.Description == nil {
+			break
+		}
+
+		return e.complexity.Link.Description(childComplexity), true
+
 	case "Link.id":
 		if e.complexity.Link.ID == nil {
 			break
@@ -2226,12 +2262,66 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Link.ID(childComplexity), true
 
+	case "Link.image":
+		if e.complexity.Link.Image == nil {
+			break
+		}
+
+		args, err := ec.field_Link_image_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Link.Image(childComplexity, args["style"].(*model.ImageStyle)), true
+
+	case "Link.title":
+		if e.complexity.Link.Title == nil {
+			break
+		}
+
+		return e.complexity.Link.Title(childComplexity), true
+
+	case "Link.type":
+		if e.complexity.Link.Type == nil {
+			break
+		}
+
+		return e.complexity.Link.Type(childComplexity), true
+
 	case "Link.url":
 		if e.complexity.Link.URL == nil {
 			break
 		}
 
 		return e.complexity.Link.URL(childComplexity), true
+
+	case "LinkPagination.first":
+		if e.complexity.LinkPagination.First == nil {
+			break
+		}
+
+		return e.complexity.LinkPagination.First(childComplexity), true
+
+	case "LinkPagination.items":
+		if e.complexity.LinkPagination.Items == nil {
+			break
+		}
+
+		return e.complexity.LinkPagination.Items(childComplexity), true
+
+	case "LinkPagination.offset":
+		if e.complexity.LinkPagination.Offset == nil {
+			break
+		}
+
+		return e.complexity.LinkPagination.Offset(childComplexity), true
+
+	case "LinkPagination.total":
+		if e.complexity.LinkPagination.Total == nil {
+			break
+		}
+
+		return e.complexity.LinkPagination.Total(childComplexity), true
 
 	case "LinkTask.completed":
 		if e.complexity.LinkTask.Completed == nil {
@@ -2253,13 +2343,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.LinkTask.ID(childComplexity), true
-
-	case "LinkTask.image":
-		if e.complexity.LinkTask.Image == nil {
-			break
-		}
-
-		return e.complexity.LinkTask.Image(childComplexity), true
 
 	case "LinkTask.link":
 		if e.complexity.LinkTask.Link == nil {
@@ -4597,9 +4680,27 @@ type ContextCollection {
     ): SectionItemPagination @goField(forceResolver: true)
 }
 
+enum LinkType {
+    text
+    audio
+    video
+    other
+}
+
 type Link {
     id: ID!
     url: String!
+    title: String!
+    description: String
+    type: LinkType!
+    image(style: ImageStyle): String @goField(forceResolver: true)
+}
+
+type LinkPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [Link!]!
 }
 
 union SectionItemType = Show | Season | Episode | Page | Link
@@ -4842,6 +4943,7 @@ type Lesson {
     topic: StudyTopic! @goField(forceResolver: true)
     progress: TasksProgress! @goField(forceResolver: true)
     episodes(first: Int, offset: Int): EpisodePagination! @goField(forceResolver: true)
+    links(first: Int, offset: Int): LinkPagination! @goField(forceResolver: true)
 }
 
 type LessonPagination implements Pagination {
@@ -4915,8 +5017,7 @@ type LinkTask implements Task {
     id: ID!
     title: String!
     completed: Boolean! @goField(forceResolver: true)
-    link: String!
-    image: String!
+    link: Link! @goField(forceResolver: true)
     secondaryTitle: String
     description: String
 }
@@ -5339,6 +5440,30 @@ func (ec *executionContext) field_Lesson_episodes_args(ctx context.Context, rawA
 	return args, nil
 }
 
+func (ec *executionContext) field_Lesson_links_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Lesson_tasks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -5360,6 +5485,21 @@ func (ec *executionContext) field_Lesson_tasks_args(ctx context.Context, rawArgs
 		}
 	}
 	args["offset"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Link_image_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.ImageStyle
+	if tmp, ok := rawArgs["style"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("style"))
+		arg0, err = ec.unmarshalOImageStyle2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImageStyle(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["style"] = arg0
 	return args, nil
 }
 
@@ -14106,6 +14246,71 @@ func (ec *executionContext) fieldContext_Lesson_episodes(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Lesson_links(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_links(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Lesson().Links(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.LinkPagination)
+	fc.Result = res
+	return ec.marshalNLinkPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLinkPagination(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_links(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_LinkPagination_total(ctx, field)
+			case "first":
+				return ec.fieldContext_LinkPagination_first(ctx, field)
+			case "offset":
+				return ec.fieldContext_LinkPagination_offset(ctx, field)
+			case "items":
+				return ec.fieldContext_LinkPagination_items(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LinkPagination", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Lesson_links_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LessonPagination_offset(ctx context.Context, field graphql.CollectedField, obj *model.LessonPagination) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LessonPagination_offset(ctx, field)
 	if err != nil {
@@ -14289,6 +14494,8 @@ func (ec *executionContext) fieldContext_LessonPagination_items(ctx context.Cont
 				return ec.fieldContext_Lesson_progress(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Lesson_episodes(ctx, field)
+			case "links":
+				return ec.fieldContext_Lesson_links(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Lesson", field.Name)
 		},
@@ -14379,6 +14586,377 @@ func (ec *executionContext) fieldContext_Link_url(ctx context.Context, field gra
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Link_title(ctx context.Context, field graphql.CollectedField, obj *model.Link) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Link_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Link_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Link",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Link_description(ctx context.Context, field graphql.CollectedField, obj *model.Link) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Link_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Link_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Link",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Link_type(ctx context.Context, field graphql.CollectedField, obj *model.Link) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Link_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.LinkType)
+	fc.Result = res
+	return ec.marshalNLinkType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLinkType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Link_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Link",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type LinkType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Link_image(ctx context.Context, field graphql.CollectedField, obj *model.Link) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Link_image(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Link().Image(rctx, obj, fc.Args["style"].(*model.ImageStyle))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Link_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Link",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Link_image_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LinkPagination_total(ctx context.Context, field graphql.CollectedField, obj *model.LinkPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LinkPagination_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LinkPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LinkPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LinkPagination_first(ctx context.Context, field graphql.CollectedField, obj *model.LinkPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LinkPagination_first(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.First, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LinkPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LinkPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LinkPagination_offset(ctx context.Context, field graphql.CollectedField, obj *model.LinkPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LinkPagination_offset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Offset, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LinkPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LinkPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LinkPagination_items(ctx context.Context, field graphql.CollectedField, obj *model.LinkPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LinkPagination_items(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Items, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Link)
+	fc.Result = res
+	return ec.marshalNLink2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLinkᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LinkPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LinkPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Link_id(ctx, field)
+			case "url":
+				return ec.fieldContext_Link_url(ctx, field)
+			case "title":
+				return ec.fieldContext_Link_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Link_description(ctx, field)
+			case "type":
+				return ec.fieldContext_Link_type(ctx, field)
+			case "image":
+				return ec.fieldContext_Link_image(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Link", field.Name)
 		},
 	}
 	return fc, nil
@@ -14530,7 +15108,7 @@ func (ec *executionContext) _LinkTask_link(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Link, nil
+		return ec.resolvers.LinkTask().Link(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14542,63 +15120,33 @@ func (ec *executionContext) _LinkTask_link(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*model.Link)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNLink2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLink(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_LinkTask_link(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LinkTask",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _LinkTask_image(ctx context.Context, field graphql.CollectedField, obj *model.LinkTask) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_LinkTask_image(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Image, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_LinkTask_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "LinkTask",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Link_id(ctx, field)
+			case "url":
+				return ec.fieldContext_Link_url(ctx, field)
+			case "title":
+				return ec.fieldContext_Link_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Link_description(ctx, field)
+			case "type":
+				return ec.fieldContext_Link_type(ctx, field)
+			case "image":
+				return ec.fieldContext_Link_image(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Link", field.Name)
 		},
 	}
 	return fc, nil
@@ -17981,6 +18529,8 @@ func (ec *executionContext) fieldContext_QueryRoot_studyLesson(ctx context.Conte
 				return ec.fieldContext_Lesson_progress(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Lesson_episodes(ctx, field)
+			case "links":
+				return ec.fieldContext_Lesson_links(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Lesson", field.Name)
 		},
@@ -27869,6 +28419,13 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._SectionPagination(ctx, sel, obj)
+	case model.LinkPagination:
+		return ec._LinkPagination(ctx, sel, &obj)
+	case *model.LinkPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LinkPagination(ctx, sel, obj)
 	case model.SectionItemPagination:
 		return ec._SectionItemPagination(ctx, sel, &obj)
 	case *model.SectionItemPagination:
@@ -30375,6 +30932,26 @@ func (ec *executionContext) _Lesson(ctx context.Context, sel ast.SelectionSet, o
 				return innerFunc(ctx)
 
 			})
+		case "links":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Lesson_links(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -30450,11 +31027,95 @@ func (ec *executionContext) _Link(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Link_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "url":
 
 			out.Values[i] = ec._Link_url(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "title":
+
+			out.Values[i] = ec._Link_title(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "description":
+
+			out.Values[i] = ec._Link_description(ctx, field, obj)
+
+		case "type":
+
+			out.Values[i] = ec._Link_type(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "image":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Link_image(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var linkPaginationImplementors = []string{"LinkPagination", "Pagination"}
+
+func (ec *executionContext) _LinkPagination(ctx context.Context, sel ast.SelectionSet, obj *model.LinkPagination) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, linkPaginationImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LinkPagination")
+		case "total":
+
+			out.Values[i] = ec._LinkPagination_total(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "first":
+
+			out.Values[i] = ec._LinkPagination_first(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "offset":
+
+			out.Values[i] = ec._LinkPagination_offset(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "items":
+
+			out.Values[i] = ec._LinkPagination_items(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -30515,19 +31176,25 @@ func (ec *executionContext) _LinkTask(ctx context.Context, sel ast.SelectionSet,
 
 			})
 		case "link":
+			field := field
 
-			out.Values[i] = ec._LinkTask_link(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._LinkTask_link(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
-		case "image":
 
-			out.Values[i] = ec._LinkTask_image(ctx, field, obj)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			})
 		case "secondaryTitle":
 
 			out.Values[i] = ec._LinkTask_secondaryTitle(ctx, field, obj)
@@ -34815,6 +35482,88 @@ func (ec *executionContext) marshalNLessonPagination2ᚖgithubᚗcomᚋbccᚑcod
 		return graphql.Null
 	}
 	return ec._LessonPagination(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNLink2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLink(ctx context.Context, sel ast.SelectionSet, v model.Link) graphql.Marshaler {
+	return ec._Link(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNLink2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLinkᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Link) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNLink2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLink(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNLink2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLink(ctx context.Context, sel ast.SelectionSet, v *model.Link) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Link(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNLinkPagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLinkPagination(ctx context.Context, sel ast.SelectionSet, v model.LinkPagination) graphql.Marshaler {
+	return ec._LinkPagination(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNLinkPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLinkPagination(ctx context.Context, sel ast.SelectionSet, v *model.LinkPagination) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._LinkPagination(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNLinkType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLinkType(ctx context.Context, v interface{}) (model.LinkType, error) {
+	var res model.LinkType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNLinkType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLinkType(ctx context.Context, sel ast.SelectionSet, v model.LinkType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNMessage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v *model.Message) graphql.Marshaler {

@@ -59,7 +59,7 @@ type Task struct {
 	Type           StudyTaskType
 	QuestionType   QuestionTaskType
 	ImageType      ImageTaskType
-	Link           null.String
+	LinkID         null.Int
 	EpisodeID      null.Int
 	Images         LocaleMap[string]
 	MultiSelect    null.Bool

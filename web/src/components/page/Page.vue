@@ -134,12 +134,14 @@ const appendItems = async (section: GetSectionQuery["section"]) => {
 }
 
 const loadMore = async () => {
-    const bottomOfWindow =
-        document.documentElement.scrollTop +
-            (window.innerHeight + window.innerHeight / 2) >=
-        document.documentElement.offsetHeight
+    const { scrollTop, offsetHeight } = document.documentElement
+    const { innerHeight } = window
 
-    if (bottomOfWindow) {
+    const bottom = scrollTop + innerHeight * 2 >= offsetHeight
+
+    // console.log(`ScrollTop: ${scrollTop}. \nOffsetHeight: ${offsetHeight}. \nInnerHeight: ${innerHeight}\nBottom: ${bottom} \n\n`)
+
+    if (bottom) {
         if (
             page.value &&
             page.value.sections.total >

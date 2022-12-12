@@ -58,6 +58,13 @@
                     @click="$emit('itemClick', index, i)"
                 >
                     <div class="relative mb-1">
+                        <div
+                            v-if="adminOn"
+                            class="absolute text-primary right-0 bg-black p-2 rounded cursor-pointer m-2"
+                            @click="open(i)"
+                        >
+                            EDIT
+                        </div>
                         <img
                             :id="i.id"
                             :src="
@@ -137,4 +144,28 @@ watch(
 const result = computed(() => {
     return data.value?.search.result ?? []
 })
+
+const adminOn = localStorage.getItem("admin") === "true"
+
+const open = (i: {__typename: string, id: string}) => {
+    let collection = ""
+    switch (i.__typename) {
+        case "EpisodeSearchItem":
+            collection = "episodes"
+            break
+        case "SeasonSearchItem":
+            collection = "seasons"
+            break
+        case "ShowSearchItem":
+            collection = "shows"
+            break
+    }
+
+    window.open(
+        "https://admin.brunstad.tv/admin/content/" +
+            collection +
+            "/" +
+            i.id
+    )
+}
 </script>

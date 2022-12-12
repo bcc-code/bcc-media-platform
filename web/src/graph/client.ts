@@ -9,7 +9,7 @@ import { authExchange } from "@urql/exchange-auth"
 import { makeOperation } from "@urql/vue"
 import Auth from "../services/auth"
 import { current } from "@/services/language"
-import { flutterAuth } from "@/utils/flutter"
+import { flutter } from "@/utils/flutter"
 
 type AuthState = {
     token: string
@@ -37,17 +37,14 @@ export default createClient({
                 return true
             },
             getAuth: async (state) => {
-                if (flutterAuth) {
-                    const token = await flutterAuth.getAccessToken()
+                if (flutter) {
+                    const token = await flutter.getAccessToken()
                     if (token) {
                         state.authState = { token }
                     } else {
                         state.authState = null
                     }
-                    console.log('HALLO 2');
-                    console.log(token);
-                    console.log(JSON.stringify(state));
-                    return state;
+                    return state
                 }
                 const token = await Auth.getToken()
                 if (token) {

@@ -1,6 +1,6 @@
 import { api } from "@/config"
 
-let revision: string | null = null;
+let revision: string | null = null
 
 export const getRevision = async () => {
     if (revision) {
@@ -11,8 +11,8 @@ export const getRevision = async () => {
         const rev = await result.json()
 
         if (rev["build_sha"]) {
-            return revision = rev as string
+            return (revision = rev as string)
         }
     } catch {}
-    return revision = "unknown | debug"
+    return (revision = "unknown | debug")
 }

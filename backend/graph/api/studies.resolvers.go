@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -108,6 +109,37 @@ func (r *lessonResolver) Episodes(ctx context.Context, obj *model.Lesson, first 
 	}, nil
 }
 
+// Links is the resolver for the links field.
+func (r *lessonResolver) Links(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.LinkPagination, error) {
+	ids, err := r.GetFilteredLoaders(ctx).StudyLessonLinksLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	page := utils.Paginate(ids, first, offset, nil)
+
+	links, err := batchloaders.GetMany(ctx, r.Loaders.LinkLoader, utils.PointerArrayToArray(page.Items))
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.LinkPagination{
+		Items: utils.MapWithCtx(ctx, links, func(ctx context.Context, link *common.Link) *model.Link {
+			ginCtx, _ := utils.GinCtx(ctx)
+			languages := user.GetLanguagesFromCtx(ginCtx)
+			return &model.Link{
+				ID:          strconv.Itoa(link.ID),
+				URL:         link.URL,
+				Title:       link.Title.Get(languages),
+				Description: link.Description.GetValueOrNil(languages),
+				Image:       link.Images.GetDefault(languages, common.ImageStyleDefault),
+			}
+		}),
+		Total:  page.Total,
+		First:  page.First,
+		Offset: page.Offset,
+	}, nil
+}
+
 // Completed is the resolver for the completed field.
 func (r *linkTaskResolver) Completed(ctx context.Context, obj *model.LinkTask) (bool, error) {
 	id, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.Get(ctx, utils.AsUuid(obj.ID))
@@ -115,6 +147,29 @@ func (r *linkTaskResolver) Completed(ctx context.Context, obj *model.LinkTask) (
 		return false, err
 	}
 	return id != nil, nil
+}
+
+// Link is the resolver for the link field.
+func (r *linkTaskResolver) Link(ctx context.Context, obj *model.LinkTask) (*model.Link, error) {
+	link, err := batchloaders.GetByID(ctx, r.Loaders.LinkLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	t := model.LinkType(link.Type)
+	if !t.IsValid() {
+		t = model.LinkTypeOther
+	}
+
+	return &model.Link{
+		ID:          strconv.Itoa(link.ID),
+		URL:         link.URL,
+		Title:       link.Title.Get(languages),
+		Type:        t,
+		Description: link.Description.GetValueOrNil(languages),
+	}, nil
 }
 
 // Completed is the resolver for the completed field.

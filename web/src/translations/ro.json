@@ -1,0 +1,72 @@
+{
+    "buttons": {
+        "save": "Salvare",
+        "login": "Autentificare",
+        "logout": "Deconectare",
+        "stayLoggedOut": "Rămâneți deconectat",
+        "cancel": "Anulare",
+        "submit": "Trimite"
+    },
+    "dashboard": {
+        "loggedOut": "Ai fost deconectat"
+    },
+    "page": {
+        "home": "Acasă",
+        "search": "Căutare",
+        "live": "În direct",
+        "calendar": "Calendar",
+        "faq": "Întrebări frecvente",
+        "notFound": "Pagina nu a fost găsită",
+        "explore": "Descoperă",
+        "watchNow": "Vezi acum"
+    },
+    "section": {
+        "item": {
+            "episode": "0 episoade | 1 episod | {count} episoade",
+            "season": "0 sezoane | 1 sezon | {count} sezoane"
+        }
+    },
+    "notFound": {
+        "title": "Negăsit",
+        "description": "Poate că nu ești autentificat sau îți lipsesc unele accese.",
+        "returnHome": "Mergi acasă"
+    },
+    "common": {
+        "new": "Nou",
+        "newEpisodes": "Episoade noi"
+    },
+    "episode": {
+        "details": "Detalii",
+        "episode": "Episod",
+        "episodes": "Episoade",
+        "videos": "Videouri",
+        "seriesDescription": "Descrierea seriei",
+        "releaseDate": "Data de lansare",
+        "availableFrom": "Disponibil de pe",
+        "availableTo": "Disponibil pentru",
+        "ageRating": "Evaluare",
+        "notFound": "Episodul nu poate fi găsit",
+        "comingSoon": ""
+    },
+    "live": {
+        "now": "Acum"
+    },
+    "calendar": {
+        "noScheduledEvents": "Nu sunt evenimente programate",
+        "thisWeek": "Această săptămână",
+        "timeTableIsLocalTime": "Orarul este în ora ta locală."
+    },
+    "search": {
+        "programs": "Programe",
+        "episodes": "Episoade",
+        "cancel": "Anulare",
+        "emptyQuery": ""
+    },
+    "support": {
+        "contact": "",
+        "title": "",
+        "subject": "",
+        "content": "",
+        "describeIssue": ""
+    }
+}

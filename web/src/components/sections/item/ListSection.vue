@@ -12,9 +12,11 @@
                     class="flex flex-col cursor-pointer mx-2 mt-2 hover:opacity-90"
                     :class="{
                         'cursor-pointer': !itemDisabled(i),
-                        'pointer-events-none': itemDisabled(i)
+                        'pointer-events-none': itemDisabled(i),
                     }"
-                    @click="!itemDisabled(i) ? $emit('clickItem', index) : undefined"
+                    @click="
+                        !itemDisabled(i) ? $emit('clickItem', index) : undefined
+                    "
                 >
                     <div
                         class="relative mb-1 rounded-md w-full aspect-video overflow-hidden transition"
@@ -29,11 +31,31 @@
                             v-if="i.item?.__typename === 'Episode'"
                             :item="i.item"
                         />
-                        <div v-if="(itemDisabled(i) && i.item.__typename === 'Episode')" class="absolute flex top-0 h-full w-full bg-black bg-opacity-80">
-                            <div class="mx-auto my-auto text-center items-center flex flex-col">
-                                <LockClosedIcon class="h-8 fill-gray my-auto"></LockClosedIcon>
-                                <p class="font-semibold text-sm text-slate-300">{{$t("episode.comingSoon")}}</p>
-                                <p class="text-base font-semibold text-slate-300">{{new Date(i.item.publishDate).toLocaleString()}}</p>
+                        <div
+                            v-if="
+                                itemDisabled(i) &&
+                                i.item.__typename === 'Episode'
+                            "
+                            class="absolute flex top-0 h-full w-full bg-black bg-opacity-80"
+                        >
+                            <div
+                                class="mx-auto my-auto text-center items-center flex flex-col"
+                            >
+                                <LockClosedIcon
+                                    class="h-8 fill-gray my-auto"
+                                ></LockClosedIcon>
+                                <p class="font-semibold text-sm text-slate-300">
+                                    {{ $t("episode.comingSoon") }}
+                                </p>
+                                <p
+                                    class="text-base font-semibold text-slate-300"
+                                >
+                                    {{
+                                        new Date(
+                                            i.item.publishDate
+                                        ).toLocaleString()
+                                    }}
+                                </p>
                             </div>
                         </div>
                     </div>

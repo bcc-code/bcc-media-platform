@@ -493,6 +493,7 @@ type Lesson struct {
 	Topic    *StudyTopic        `json:"topic"`
 	Progress *TasksProgress     `json:"progress"`
 	Episodes *EpisodePagination `json:"episodes"`
+	Links    *LinkPagination    `json:"links"`
 }
 
 type LessonPagination struct {
@@ -508,18 +509,33 @@ func (this LessonPagination) GetFirst() int  { return this.First }
 func (this LessonPagination) GetOffset() int { return this.Offset }
 
 type Link struct {
-	ID  string `json:"id"`
-	URL string `json:"url"`
+	ID          string   `json:"id"`
+	URL         string   `json:"url"`
+	Title       string   `json:"title"`
+	Description *string  `json:"description"`
+	Type        LinkType `json:"type"`
+	Image       *string  `json:"image"`
 }
 
 func (Link) IsSectionItemType() {}
+
+type LinkPagination struct {
+	Total  int     `json:"total"`
+	First  int     `json:"first"`
+	Offset int     `json:"offset"`
+	Items  []*Link `json:"items"`
+}
+
+func (LinkPagination) IsPagination()       {}
+func (this LinkPagination) GetTotal() int  { return this.Total }
+func (this LinkPagination) GetFirst() int  { return this.First }
+func (this LinkPagination) GetOffset() int { return this.Offset }
 
 type LinkTask struct {
 	ID             string  `json:"id"`
 	Title          string  `json:"title"`
 	Completed      bool    `json:"completed"`
-	Link           string  `json:"link"`
-	Image          string  `json:"image"`
+	Link           *Link   `json:"link"`
 	SecondaryTitle *string `json:"secondaryTitle"`
 	Description    *string `json:"description"`
 }
@@ -1151,6 +1167,51 @@ func (e *ImageStyle) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ImageStyle) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type LinkType string
+
+const (
+	LinkTypeText  LinkType = "text"
+	LinkTypeAudio LinkType = "audio"
+	LinkTypeVideo LinkType = "video"
+	LinkTypeOther LinkType = "other"
+)
+
+var AllLinkType = []LinkType{
+	LinkTypeText,
+	LinkTypeAudio,
+	LinkTypeVideo,
+	LinkTypeOther,
+}
+
+func (e LinkType) IsValid() bool {
+	switch e {
+	case LinkTypeText, LinkTypeAudio, LinkTypeVideo, LinkTypeOther:
+		return true
+	}
+	return false
+}
+
+func (e LinkType) String() string {
+	return string(e)
+}
+
+func (e *LinkType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = LinkType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid LinkType", str)
+	}
+	return nil
+}
+
+func (e LinkType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

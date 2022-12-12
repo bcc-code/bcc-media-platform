@@ -23,5 +23,5 @@ export {
     ChevronLeft,
     ChevronRight,
     ChevronUp,
-    QuestionIcon
+    QuestionIcon,
 }

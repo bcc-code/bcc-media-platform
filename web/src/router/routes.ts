@@ -56,11 +56,11 @@ export default [
         children: [
             {
                 name: "lesson",
-                path: "lesson/:lessonId/:subRoute?",
+                path: "episode/:episodeId/lesson/:lessonId/:subRoute?",
                 component: () => import("@/components/study/Lesson.vue"),
-                props: true
-            }
-        ]
+                props: true,
+            },
+        ],
     },
     {
         name: "not-found",

@@ -12,9 +12,9 @@
     --color-label-4: rgba(112, 124, 142, 1);
     --color-background-1: rgba(13, 22, 35, 1);
     --color-background-2: rgba(29, 40, 56, 1);
-    --color-separator-on-light: rgba(204, 221, 255, 0.100);
+    --color-separator-on-light: rgba(204, 221, 255, 0.1);
     --color-light-1: rgba(230, 235, 242, 1);
-    --color-dark-transparent: rgba(24, 24, 24, 0.700);
+    --color-dark-transparent: rgba(24, 24, 24, 0.7);
 }
 
 .text-style-headline-1 {

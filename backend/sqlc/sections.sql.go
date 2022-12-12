@@ -30,6 +30,7 @@ WITH ts AS (SELECT links_id,
 SELECT ls.id,
        ls.url,
        COALESCE(images.json, '[]') as images,
+       ls.type,
        ts.title,
        ts.description
 FROM links ls
@@ -43,6 +44,7 @@ type getLinksRow struct {
 	ID          int32                 `db:"id" json:"id"`
 	Url         string                `db:"url" json:"url"`
 	Images      json.RawMessage       `db:"images" json:"images"`
+	Type        null_v4.String        `db:"type" json:"type"`
 	Title       pqtype.NullRawMessage `db:"title" json:"title"`
 	Description pqtype.NullRawMessage `db:"description" json:"description"`
 }
@@ -60,6 +62,7 @@ func (q *Queries) getLinks(ctx context.Context, dollar_1 []int32) ([]getLinksRow
 			&i.ID,
 			&i.Url,
 			&i.Images,
+			&i.Type,
 			&i.Title,
 			&i.Description,
 		); err != nil {

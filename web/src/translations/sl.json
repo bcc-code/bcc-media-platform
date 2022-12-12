@@ -1,0 +1,72 @@
+{
+    "buttons": {
+        "save": "Shrani",
+        "login": "Prijava",
+        "logout": "Odjava",
+        "stayLoggedOut": "Ostani odjavljen",
+        "cancel": "Prekliči",
+        "submit": "Oddaj"
+    },
+    "dashboard": {
+        "loggedOut": "Bil si odjavljen"
+    },
+    "page": {
+        "home": "Domov",
+        "search": "Išči",
+        "live": "V živo",
+        "calendar": "Koledar",
+        "faq": "FAQ",
+        "notFound": "Stran ni bila najdena",
+        "explore": "Razišči",
+        "watchNow": "Glej zdaj"
+    },
+    "section": {
+        "item": {
+            "episode": "0 delov | 1 del | {count} delov",
+            "season": "0 sezon | 1 sezona | {count} sezon"
+        }
+    },
+    "notFound": {
+        "title": "Ni rezultatov",
+        "description": "Morda nisi prijavljen ali nimaš dostopa.",
+        "returnHome": "Pojdi na začetno stran"
+    },
+    "common": {
+        "new": "Novo",
+        "newEpisodes": "Novi deli"
+    },
+    "episode": {
+        "details": "Podrobnosti",
+        "episode": "Del",
+        "episodes": "Deli",
+        "videos": "Videoposnetki",
+        "seriesDescription": "Opis serije",
+        "releaseDate": "Datum izida",
+        "availableFrom": "Na voljo od",
+        "availableTo": "Na voljo do",
+        "ageRating": "Ocena",
+        "notFound": "Del ni bil najden",
+        "comingSoon": "Pride kmalu"
+    },
+    "live": {
+        "now": "Zdaj"
+    },
+    "calendar": {
+        "noScheduledEvents": "Ni načrtovanih dogodkov",
+        "thisWeek": "Ta teden",
+        "timeTableIsLocalTime": "Razpored je v tvojem lokalnem času."
+    },
+    "search": {
+        "programs": "Programi",
+        "episodes": "Deli",
+        "cancel": "Prekliči",
+        "emptyQuery": "Polje za iskanje je prazno."
+    },
+    "support": {
+        "contact": "Kontaktiraj podporo",
+        "title": "Naslov",
+        "subject": "Predmet",
+        "content": "Vsebina",
+        "describeIssue": "Podrobno opiši težavo."
+    }
+}

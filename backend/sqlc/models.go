@@ -754,13 +754,14 @@ type LessonsTranslation struct {
 }
 
 type Link struct {
-	ID          int32         `db:"id" json:"id"`
-	Status      string        `db:"status" json:"status"`
-	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
-	Url         string        `db:"url" json:"url"`
+	ID          int32          `db:"id" json:"id"`
+	Status      string         `db:"status" json:"status"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Url         string         `db:"url" json:"url"`
+	Type        null_v4.String `db:"type" json:"type"`
 }
 
 type LinksTranslation struct {
@@ -1119,10 +1120,10 @@ type Task struct {
 	Title                   null_v4.String `db:"title" json:"title"`
 	AlternativesMultiselect sql.NullBool   `db:"alternatives_multiselect" json:"alternativesMultiselect"`
 	EpisodeID               null_v4.Int    `db:"episode_id" json:"episodeID"`
-	Link                    null_v4.String `db:"link" json:"link"`
 	ImageType               null_v4.String `db:"image_type" json:"imageType"`
 	SecondaryTitle          null_v4.String `db:"secondary_title" json:"secondaryTitle"`
 	Description             null_v4.String `db:"description" json:"description"`
+	LinkID                  null_v4.Int    `db:"link_id" json:"linkID"`
 }
 
 type TasksImage struct {

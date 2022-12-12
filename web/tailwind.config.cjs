@@ -6,7 +6,7 @@ module.exports = {
             colors: {
                 primary: {
                     DEFAULT: "#6eb0e6",
-                    hover: "#6dafe5",
+                    hover: "#6dafe5cc",
                     light: "#1D2838",
                 },
                 background: {
@@ -15,15 +15,15 @@ module.exports = {
                 gray: "#707c8e",
                 green: {
                     DEFAULT: "#71D2A4",
-                    hover: "#70D1A3",
+                    hover: "#71D2A4cc",
                 },
                 red: {
                     DEFAULT: "#E63C62",
-                    hover: "#E53B61",
+                    hover: "#E63C62cc",
                 },
                 secondary: {
                     DEFAULT: "#202a39",
-                    hover: "#192938",
+                    hover: "#202a39cc",
                 },
                 // from figma:
                 "tint-1": "var(--color-tint-1)",
@@ -38,10 +38,9 @@ module.exports = {
                 "background-2": "var(--color-background-2)",
                 "separator-on-light": "var(--color-separator-on-light)",
                 "light-1": "var(--color-light-1)",
-                "dark-transparent": "var(--color-dark-transparent)"
+                "dark-transparent": "var(--color-dark-transparent)",
             },
         },
     },
     plugins: [require("@tailwindcss/line-clamp")],
-
 }

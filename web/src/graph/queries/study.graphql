@@ -11,8 +11,15 @@ fragment Task on Task {
     }
 }
 
-query getStudyLesson($id: ID!) {
-    studyLesson(id: $id) {
+fragment LessonLink on Link {
+    image
+    title
+    description
+    url
+}
+
+query getStudyLesson($lessonId: ID!, $episodeId: ID!) {
+    studyLesson(id: $lessonId) {
         id
         title
         progress {
@@ -24,7 +31,21 @@ query getStudyLesson($id: ID!) {
                 ...Task
             }
         }
+        links {
+            items {
+                ...LessonLink
+            }
+        }
     }
+    episode(id: $episodeId) {
+        id
+        title
+        image
+    }
+}
+
+mutation completeTask($taskId: ID!) {
+    completeTask(id: $taskId)
 }
 
 mutation sendTaskMessage($taskId: ID!, $message: String!) {

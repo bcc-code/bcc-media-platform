@@ -45,7 +45,7 @@ SELECT t.id,
        t.lesson_id,
        t.alternatives_multiselect,
        t.image_type,
-       t.link,
+       t.link_id,
        t.episode_id,
        ts.title,
        ts.secondary_title,
@@ -77,6 +77,13 @@ WHERE rl.collection = 'episodes'
         (roles.roles && $2::varchar[] AND access.available_from < now()) OR
         (roles.roles_earlyaccess && $2::varchar[])
     )
+  AND rl.lessons_id = ANY ($1::uuid[]);
+
+-- name: getLinksForLessons :many
+SELECT rl.item       AS id,
+       rl.lessons_id AS parent_id
+FROM lessons_relations rl
+WHERE rl.collection = 'links'
   AND rl.lessons_id = ANY ($1::uuid[]);
 
 -- name: getQuestionAlternatives :many

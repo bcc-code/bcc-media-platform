@@ -259,6 +259,42 @@ func (q *Queries) getLessonsForTopics(ctx context.Context, dollar_1 []uuid.UUID)
 	return items, nil
 }
 
+const getLinksForLessons = `-- name: getLinksForLessons :many
+SELECT rl.item       AS id,
+       rl.lessons_id AS parent_id
+FROM lessons_relations rl
+WHERE rl.collection = 'links'
+  AND rl.lessons_id = ANY ($1::uuid[])
+`
+
+type getLinksForLessonsRow struct {
+	ID       null_v4.String `db:"id" json:"id"`
+	ParentID uuid.NullUUID  `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getLinksForLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getLinksForLessonsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getLinksForLessons, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getLinksForLessonsRow
+	for rows.Next() {
+		var i getLinksForLessonsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getQuestionAlternatives = `-- name: getQuestionAlternatives :many
 WITH ts AS (SELECT questionalternatives_id, json_object_agg(languages_code, title) AS title
             FROM questionalternatives_translations
@@ -326,7 +362,7 @@ SELECT t.id,
        t.lesson_id,
        t.alternatives_multiselect,
        t.image_type,
-       t.link,
+       t.link_id,
        t.episode_id,
        ts.title,
        ts.secondary_title,
@@ -349,7 +385,7 @@ type getTasksRow struct {
 	LessonID                uuid.UUID             `db:"lesson_id" json:"lessonID"`
 	AlternativesMultiselect sql.NullBool          `db:"alternatives_multiselect" json:"alternativesMultiselect"`
 	ImageType               null_v4.String        `db:"image_type" json:"imageType"`
-	Link                    null_v4.String        `db:"link" json:"link"`
+	LinkID                  null_v4.Int           `db:"link_id" json:"linkID"`
 	EpisodeID               null_v4.Int           `db:"episode_id" json:"episodeID"`
 	Title                   pqtype.NullRawMessage `db:"title" json:"title"`
 	SecondaryTitle          pqtype.NullRawMessage `db:"secondary_title" json:"secondaryTitle"`
@@ -376,7 +412,7 @@ func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getTask
 			&i.LessonID,
 			&i.AlternativesMultiselect,
 			&i.ImageType,
-			&i.Link,
+			&i.LinkID,
 			&i.EpisodeID,
 			&i.Title,
 			&i.SecondaryTitle,
