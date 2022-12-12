@@ -16,6 +16,7 @@ WITH ts AS (SELECT episodes_id,
                 FROM images
                 GROUP BY episode_id)
 SELECT e.id,
+       e.uuid,
        e.status = 'unlisted'                                                                 AS unlisted,
        e.legacy_id,
        e.legacy_program_id,
@@ -66,6 +67,7 @@ WITH ts AS (SELECT episodes_id,
                 FROM images
                 GROUP BY episode_id)
 SELECT e.id,
+       e.uuid,
        e.status = 'unlisted'                                                                 AS unlisted,
        e.legacy_id,
        e.legacy_program_id,

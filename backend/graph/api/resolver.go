@@ -4,6 +4,11 @@ import (
 	"context"
 	"crypto/rsa"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/ratelimit"
+	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/cloudevents/sdk-go/v2/event/datacodec/json"
+	"github.com/google/uuid"
+	"github.com/tabbed/pqtype"
 	"strconv"
 	"sync"
 	"time"
@@ -405,4 +410,87 @@ func getProfile(ctx context.Context) (*common.Profile, error) {
 		return nil, ErrProfileNotSet
 	}
 	return p, nil
+}
+
+func getTask(ctx context.Context, resolver *Resolver, taskID string) (*common.Task, error) {
+	uid, err := uuid.Parse(taskID)
+	if err != nil {
+		return nil, err
+	}
+	task, err := resolver.Loaders.StudyTaskLoader.Get(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	if task == nil {
+		return nil, ErrItemNotFound
+	}
+	return task, nil
+}
+
+func getEpisode(ctx context.Context, resolver *Resolver, episodeID string) (*common.Episode, error) {
+	id, err := strconv.ParseInt(episodeID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	episode, err := batchloaders.GetByID(ctx, resolver.Loaders.EpisodeLoader, int(id))
+	if err != nil {
+		return nil, err
+	}
+	if episode == nil {
+		return nil, ErrItemNotFound
+	}
+	return episode, nil
+}
+
+func (r *Resolver) sendMessage(ctx context.Context, itemID uuid.UUID, message *string, metadata map[string]any) (string, error) {
+	err := ratelimit.Endpoint(ctx, "messages:send:"+itemID.String(), 2, false)
+	if err != nil {
+		return "", err
+	}
+	id, _ := utils.GenerateRandomSecureString(32)
+	var str string
+	if message != nil {
+		str = *message
+	}
+	var md pqtype.NullRawMessage
+	if metadata != nil {
+		md.RawMessage, err = json.Encode(ctx, metadata)
+		md.Valid = err != nil
+	}
+	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
+		ID:       id,
+		Message:  str,
+		ItemID:   itemID,
+		Metadata: md,
+	})
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to save string to database")
+		return "", merry.New("Failed to generate unique ID")
+	}
+	return id, nil
+}
+
+func (r *Resolver) updateMessage(ctx context.Context, id string, message *string, metadata map[string]any) (string, error) {
+	err := ratelimit.Endpoint(ctx, "messages:update", 100, false)
+	if err != nil {
+		return "", err
+	}
+	var str string
+	if message != nil {
+		str = *message
+	}
+	var md pqtype.NullRawMessage
+	if metadata != nil {
+		md.RawMessage, err = json.Encode(ctx, metadata)
+		md.Valid = err != nil
+	}
+	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
+		ID:       id,
+		Message:  str,
+		Metadata: md,
+	})
+	if err != nil {
+		return "", err
+	}
+	return id, err
 }

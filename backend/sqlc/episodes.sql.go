@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
 	null_v4 "gopkg.in/guregu/null.v4"
@@ -228,6 +229,7 @@ WITH ts AS (SELECT episodes_id,
                 FROM images
                 GROUP BY episode_id)
 SELECT e.id,
+       e.uuid,
        e.status = 'unlisted'                                                                 AS unlisted,
        e.legacy_id,
        e.legacy_program_id,
@@ -265,6 +267,7 @@ ORDER BY e.episode_number
 
 type getEpisodesRow struct {
 	ID                    int32                 `db:"id" json:"id"`
+	Uuid                  uuid.UUID             `db:"uuid" json:"uuid"`
 	Unlisted              bool                  `db:"unlisted" json:"unlisted"`
 	LegacyID              null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	LegacyProgramID       null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
@@ -300,6 +303,7 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 		var i getEpisodesRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.Uuid,
 			&i.Unlisted,
 			&i.LegacyID,
 			&i.LegacyProgramID,
@@ -412,6 +416,7 @@ WITH ts AS (SELECT episodes_id,
                 FROM images
                 GROUP BY episode_id)
 SELECT e.id,
+       e.uuid,
        e.status = 'unlisted'                                                                 AS unlisted,
        e.legacy_id,
        e.legacy_program_id,
@@ -447,6 +452,7 @@ FROM episodes e
 
 type listEpisodesRow struct {
 	ID                    int32                 `db:"id" json:"id"`
+	Uuid                  uuid.UUID             `db:"uuid" json:"uuid"`
 	Unlisted              bool                  `db:"unlisted" json:"unlisted"`
 	LegacyID              null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	LegacyProgramID       null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
@@ -482,6 +488,7 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 		var i listEpisodesRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.Uuid,
 			&i.Unlisted,
 			&i.LegacyID,
 			&i.LegacyProgramID,
