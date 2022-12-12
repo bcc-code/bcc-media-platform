@@ -23,7 +23,7 @@ sentryInit({
     integrations: [
         new BrowserTracing({
             routingInstrumentation: vueRouterInstrumentation(router),
-            tracePropagationTargets: ["localhost", /^\//],
+            tracePropagationTargets: [/^\//],
         }),
     ],
     tracesSampleRate: 1.0,

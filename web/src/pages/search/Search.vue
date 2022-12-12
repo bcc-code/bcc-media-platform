@@ -28,7 +28,6 @@ import ShowSearchQuery from "@/components/search/ShowSearchQuery.vue"
 import EpisodeSearchQuery from "@/components/search/EpisodeSearchQuery.vue"
 import { useRoute, useRouter } from "vue-router"
 import { useSearch } from "@/utils/search"
-import { useApplicationQuery } from "@/graph/generated"
 import { setTitle } from "@/utils/title"
 import { useI18n } from "vue-i18n"
 import SearchInput from "@/components/SearchInput.vue"
@@ -36,9 +35,8 @@ import { analytics } from "@/services/analytics"
 import { goToEpisode } from "@/utils/items"
 
 const { t } = useI18n()
-const { data } = useApplicationQuery()
-const queryString = ref("")
 const { query } = useSearch()
+const queryString = ref(query.value)
 
 const clickEpisode = (index: number, id: string) => {
     analytics.track("searchresult_clicked", {
@@ -75,7 +73,7 @@ watch(
     }
 )
 
-const queryVariable = ref("")
+const queryVariable = ref(queryString.value)
 
 const route = useRoute()
 const router = useRouter()
