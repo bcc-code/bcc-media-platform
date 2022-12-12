@@ -1,5 +1,7 @@
 package directus
 
+import "strconv"
+
 // AssetFile item in the DB
 type AssetFile struct {
 	ID               int    `json:"id,omitempty"`
@@ -14,8 +16,11 @@ type AssetFile struct {
 }
 
 // UID returns the id of the Asset
-func (a AssetFile) UID() int {
-	return a.ID
+func (a AssetFile) UID() string {
+	if a.ID == 0 {
+		return ""
+	}
+	return strconv.Itoa(a.ID)
 }
 
 // TypeName of the item. Statically set to "asset"

@@ -1,5 +1,7 @@
 package directus
 
+import "strconv"
+
 // Stream types
 const (
 	HLSCmaf = "hls_cmaf"
@@ -27,8 +29,11 @@ type AssetStreamLanguage struct {
 }
 
 // UID returns the id of the Asset
-func (a AssetStream) UID() int {
-	return a.ID
+func (a AssetStream) UID() string {
+	if a.ID == 0 {
+		return ""
+	}
+	return strconv.Itoa(a.ID)
 }
 
 // TypeName of the item. Statically set to "assetstreams"

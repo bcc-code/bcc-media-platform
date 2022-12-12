@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
+	"github.com/bcc-code/brunstadtv/backend/crowdin2"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	"github.com/bcc-code/brunstadtv/backend/push"
@@ -86,8 +87,10 @@ func main() {
 	searchService := search.New(queries, config.Algolia)
 	directusEventHandler := directus.NewEventHandler()
 	crowdinClient := crowdin.New(config.Crowdin, directus.NewHandler(directusClient), queries)
+	//crowdinClient2 := crowdin2.New(crowdin2.Config(config.Crowdin), directus.NewHandler(directusClient), queries)
 
-	crowdinClient.RetrieveAllTranslations()
+	crowdin2.GetTranslationsFromZip("crowdin-build-2221.zip")
+	//crowdinClient2.Build(ctx)
 
 	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.CloudTasks.QueueID)
 
@@ -159,5 +162,4 @@ func main() {
 		log.L.Error().Err(err).Msg("Couldn't start server")
 		return
 	}
-
 }

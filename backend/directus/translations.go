@@ -52,8 +52,11 @@ type episodesUpdate struct {
 }
 
 // UID retrieves the not so unique ID (except internally in Collection)
-func (i Translation) UID() int {
-	return i.ID
+func (i Translation) UID() string {
+	if i.ID == 0 {
+		return ""
+	}
+	return strconv.Itoa(i.ID)
 }
 
 // ForUpdate retrieves a struct with mutable properties
@@ -95,8 +98,8 @@ func (SectionsTranslation) TypeName() string {
 	return "sections_translations"
 }
 
-// GetSourceLanguage retrieves the configured language for this translation
-func (i Translation) GetSourceLanguage() string {
+// GetLanguage retrieves the configured language for this translation
+func (i Translation) GetLanguage() string {
 	return i.LanguagesCode
 }
 

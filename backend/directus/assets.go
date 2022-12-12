@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"net/url"
+	"strconv"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/go-resty/resty/v2"
@@ -34,8 +35,11 @@ func (a Asset) ForUpdate() interface{} {
 }
 
 // UID returns the id of the Asset
-func (a Asset) UID() int {
-	return a.ID
+func (a Asset) UID() string {
+	if a.ID == 0 {
+		return ""
+	}
+	return strconv.Itoa(a.ID)
 }
 
 // TypeName of the item. Statically set to "asset"
