@@ -88,6 +88,10 @@ func (r *linkResolver) Image(ctx context.Context, obj *model.Link, style *model.
 	if l == nil {
 		return nil, nil
 	}
+	if style == nil {
+		s := model.ImageStyleDefault
+		style = &s
+	}
 
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
