@@ -86,7 +86,7 @@ func (r *linkResolver) Image(ctx context.Context, obj *model.Link, style *model.
 		return nil, err
 	}
 	if l == nil {
-		return nil, ErrItemNotFound
+		return nil, nil
 	}
 
 	ginCtx, _ := utils.GinCtx(ctx)
