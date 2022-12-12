@@ -580,6 +580,9 @@ func (client *Client) Sync(ctx context.Context, d *directus.Handler) error {
 			return err
 		}
 		err = client.syncSections(ctx, d, project, directory.ID)
+		if err != nil {
+			return err
+		}
 	}
 	log.L.Debug().Msg("Translation sync: Done")
 	return nil

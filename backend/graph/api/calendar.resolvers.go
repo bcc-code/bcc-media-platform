@@ -86,7 +86,8 @@ func (r *episodeCalendarEntryResolver) Description(ctx context.Context, obj *mod
 
 // Episode is the resolver for the episode field.
 func (r *episodeCalendarEntryResolver) Episode(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Episode, error) {
-	return r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
+	e, _ := r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
+	return e, nil
 }
 
 // Event is the resolver for the event field.
@@ -160,7 +161,8 @@ func (r *showCalendarEntryResolver) Description(ctx context.Context, obj *model.
 
 // Show is the resolver for the show field.
 func (r *showCalendarEntryResolver) Show(ctx context.Context, obj *model.ShowCalendarEntry) (*model.Show, error) {
-	return r.QueryRoot().Show(ctx, obj.Show.ID)
+	s, _ := r.QueryRoot().Show(ctx, obj.Show.ID)
+	return s, nil
 }
 
 // Event is the resolver for the event field.
