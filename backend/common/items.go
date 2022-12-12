@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"github.com/google/uuid"
 	"time"
 
 	"gopkg.in/guregu/null.v4"
@@ -77,6 +78,7 @@ func (i Season) GetTagIDs() []int {
 // Episode is the definition of the Episode object
 type Episode struct {
 	ID                    int          `json:"id"`
+	UUID                  uuid.UUID    `json:"uuid"`
 	Unlisted              bool         `json:"unlisted"`
 	Type                  string       `json:"type"`
 	PreventPublicIndexing bool         `json:"preventPublicIndexing"`

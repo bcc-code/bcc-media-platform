@@ -51,20 +51,27 @@ func (q *Queries) GetAnsweredTasks(ctx context.Context, arg GetAnsweredTasksPara
 }
 
 const setMessage = `-- name: SetMessage :exec
-INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at)
-VALUES ($1, $2, $3, NOW(), NOW())
+INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at, metadata)
+VALUES ($1, $2, $3, NOW(), NOW(), $4)
 ON CONFLICT (id) DO UPDATE SET message    = EXCLUDED.message,
+                               metadata   = EXCLUDED.metadata,
                                updated_at = EXCLUDED.updated_at
 `
 
 type SetMessageParams struct {
-	ID      string    `db:"id" json:"id"`
-	ItemID  uuid.UUID `db:"item_id" json:"itemID"`
-	Message string    `db:"message" json:"message"`
+	ID       string                `db:"id" json:"id"`
+	ItemID   uuid.UUID             `db:"item_id" json:"itemID"`
+	Message  string                `db:"message" json:"message"`
+	Metadata pqtype.NullRawMessage `db:"metadata" json:"metadata"`
 }
 
 func (q *Queries) SetMessage(ctx context.Context, arg SetMessageParams) error {
-	_, err := q.db.ExecContext(ctx, setMessage, arg.ID, arg.ItemID, arg.Message)
+	_, err := q.db.ExecContext(ctx, setMessage,
+		arg.ID,
+		arg.ItemID,
+		arg.Message,
+		arg.Metadata,
+	)
 	return err
 }
 
@@ -344,8 +351,8 @@ func (q *Queries) getQuestionAlternatives(ctx context.Context, dollar_1 []uuid.U
 
 const getTasks = `-- name: getTasks :many
 WITH ts AS (SELECT tasks_id,
-                   json_object_agg(languages_code, title) as title,
-                   json_object_agg(languages_code, description) as description,
+                   json_object_agg(languages_code, title)           as title,
+                   json_object_agg(languages_code, description)     as description,
                    json_object_agg(languages_code, secondary_title) as secondary_title
             FROM tasks_translations
             GROUP BY tasks_id),
@@ -354,9 +361,9 @@ WITH ts AS (SELECT tasks_id,
                          JOIN directus_files df ON df.id = img.image
                 GROUP BY img.task_id)
 SELECT t.id,
-       t.title as original_title,
+       t.title           as original_title,
        t.secondary_title as original_secondary_title,
-       t.description as original_description,
+       t.description     as original_description,
        t.type,
        t.question_type,
        t.lesson_id,

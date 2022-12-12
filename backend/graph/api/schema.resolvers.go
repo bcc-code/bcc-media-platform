@@ -5,6 +5,8 @@ package graph
 
 import (
 	"context"
+	"fmt"
+	"github.com/tabbed/pqtype"
 	"net/url"
 	"strconv"
 	"time"
@@ -206,7 +208,7 @@ func (r *mutationRootResolver) SendTaskMessage(ctx context.Context, taskID strin
 	if err != nil {
 		return "", err
 	}
-	err = ratelimit.Endpoint(ctx, "tasks:messages:send"+task.ID.String(), 10, false)
+	err = ratelimit.Endpoint(ctx, "tasks:messages:send:"+task.ID.String(), 10, false)
 	if err != nil {
 		return "", err
 	}
@@ -243,6 +245,76 @@ func (r *mutationRootResolver) UpdateTaskMessage(ctx context.Context, id string,
 	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
 		ID:      id,
 		Message: message,
+	})
+	if err != nil {
+		return "", err
+	}
+	return id, err
+}
+
+// SendEpisodeFeedback is the resolver for the sendEpisodeFeedback field.
+func (r *mutationRootResolver) SendEpisodeFeedback(ctx context.Context, episodeID string, message *string, rating *int) (string, error) {
+	_, err := getProfile(ctx)
+	if err != nil {
+		return "", err
+	}
+	episode, err := getEpisode(ctx, r.Resolver, episodeID)
+	if err != nil {
+		return "", err
+	}
+	err = ratelimit.Endpoint(ctx, "episodes:messages:send:"+strconv.Itoa(episode.ID), 10, false)
+	if err != nil {
+		return "", err
+	}
+	id, err := utils.GenerateRandomSecureString(32)
+	if err != nil {
+		return "", err
+	}
+	var str string
+	if message != nil {
+		str = *message
+	}
+	var metadata pqtype.NullRawMessage
+	if rating != nil {
+		metadata.RawMessage = []byte(fmt.Sprintf("{\"rating\": %d}", rating))
+		metadata.Valid = true
+	}
+	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
+		ID:       id,
+		Message:  str,
+		ItemID:   episode.UUID,
+		Metadata: metadata,
+	})
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to save string to database")
+		return "", merry.New("Failed to generate unique ID")
+	}
+	return id, nil
+}
+
+// UpdateEpisodeFeedback is the resolver for the updateEpisodeFeedback field.
+func (r *mutationRootResolver) UpdateEpisodeFeedback(ctx context.Context, id string, message *string, rating *int) (string, error) {
+	_, err := getProfile(ctx)
+	if err != nil {
+		return "", err
+	}
+	err = ratelimit.Endpoint(ctx, "episodes:messages:update", 100, false)
+	if err != nil {
+		return "", err
+	}
+	var metadata pqtype.NullRawMessage
+	if rating != nil {
+		metadata.RawMessage = []byte(fmt.Sprintf("{\"rating\": %d}", rating))
+		metadata.Valid = true
+	}
+	var str string
+	if message != nil {
+		str = *message
+	}
+	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
+		ID:       id,
+		Message:  str,
+		Metadata: metadata,
 	})
 	if err != nil {
 		return "", err

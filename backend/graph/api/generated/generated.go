@@ -415,12 +415,14 @@ type ComplexityRoot struct {
 	}
 
 	MutationRoot struct {
-		CompleteTask       func(childComplexity int, id string) int
-		SendSupportEmail   func(childComplexity int, title string, content string, html string) int
-		SendTaskMessage    func(childComplexity int, taskID string, message *string) int
-		SetDevicePushToken func(childComplexity int, token string, languages []string) int
-		SetEpisodeProgress func(childComplexity int, id string, progress *int, duration *int, context *model.EpisodeContext) int
-		UpdateTaskMessage  func(childComplexity int, id string, message string) int
+		CompleteTask          func(childComplexity int, id string) int
+		SendEpisodeFeedback   func(childComplexity int, episodeID string, message *string, rating *int) int
+		SendSupportEmail      func(childComplexity int, title string, content string, html string) int
+		SendTaskMessage       func(childComplexity int, taskID string, message *string) int
+		SetDevicePushToken    func(childComplexity int, token string, languages []string) int
+		SetEpisodeProgress    func(childComplexity int, id string, progress *int, duration *int, context *model.EpisodeContext) int
+		UpdateEpisodeFeedback func(childComplexity int, id string, message *string, rating *int) int
+		UpdateTaskMessage     func(childComplexity int, id string, message string) int
 	}
 
 	Page struct {
@@ -839,6 +841,8 @@ type MutationRootResolver interface {
 	CompleteTask(ctx context.Context, id string) (bool, error)
 	SendTaskMessage(ctx context.Context, taskID string, message *string) (string, error)
 	UpdateTaskMessage(ctx context.Context, id string, message string) (string, error)
+	SendEpisodeFeedback(ctx context.Context, episodeID string, message *string, rating *int) (string, error)
+	UpdateEpisodeFeedback(ctx context.Context, id string, message *string, rating *int) (string, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -2487,6 +2491,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MutationRoot.CompleteTask(childComplexity, args["id"].(string)), true
 
+	case "MutationRoot.sendEpisodeFeedback":
+		if e.complexity.MutationRoot.SendEpisodeFeedback == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_sendEpisodeFeedback_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.SendEpisodeFeedback(childComplexity, args["episodeId"].(string), args["message"].(*string), args["rating"].(*int)), true
+
 	case "MutationRoot.sendSupportEmail":
 		if e.complexity.MutationRoot.SendSupportEmail == nil {
 			break
@@ -2534,6 +2550,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MutationRoot.SetEpisodeProgress(childComplexity, args["id"].(string), args["progress"].(*int), args["duration"].(*int), args["context"].(*model.EpisodeContext)), true
+
+	case "MutationRoot.updateEpisodeFeedback":
+		if e.complexity.MutationRoot.UpdateEpisodeFeedback == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_updateEpisodeFeedback_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.UpdateEpisodeFeedback(childComplexity, args["id"].(string), args["message"].(*string), args["rating"].(*int)), true
 
 	case "MutationRoot.updateTaskMessage":
 		if e.complexity.MutationRoot.UpdateTaskMessage == nil {
@@ -4858,6 +4886,9 @@ type MutationRoot {
 
   sendTaskMessage(taskId: ID!, message: String): ID!
   updateTaskMessage(id: ID!, message: String!): ID!
+
+  sendEpisodeFeedback(episodeId: ID!, message: String, rating: Int): ID!
+  updateEpisodeFeedback(id: ID!, message: String, rating: Int): ID!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -5542,6 +5573,39 @@ func (ec *executionContext) field_MutationRoot_completeTask_args(ctx context.Con
 	return args, nil
 }
 
+func (ec *executionContext) field_MutationRoot_sendEpisodeFeedback_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["episodeId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("episodeId"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["episodeId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["message"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("message"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["message"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["rating"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rating"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["rating"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_MutationRoot_sendSupportEmail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -5662,6 +5726,39 @@ func (ec *executionContext) field_MutationRoot_setEpisodeProgress_args(ctx conte
 		}
 	}
 	args["context"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_updateEpisodeFeedback_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["message"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("message"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["message"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["rating"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rating"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["rating"] = arg2
 	return args, nil
 }
 
@@ -16325,6 +16422,116 @@ func (ec *executionContext) fieldContext_MutationRoot_updateTaskMessage(ctx cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_MutationRoot_updateTaskMessage_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_sendEpisodeFeedback(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_sendEpisodeFeedback(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().SendEpisodeFeedback(rctx, fc.Args["episodeId"].(string), fc.Args["message"].(*string), fc.Args["rating"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_sendEpisodeFeedback(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_sendEpisodeFeedback_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_updateEpisodeFeedback(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_updateEpisodeFeedback(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().UpdateEpisodeFeedback(rctx, fc.Args["id"].(string), fc.Args["message"].(*string), fc.Args["rating"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_updateEpisodeFeedback(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_updateEpisodeFeedback_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -31479,6 +31686,24 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._MutationRoot_updateTaskMessage(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "sendEpisodeFeedback":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_sendEpisodeFeedback(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateEpisodeFeedback":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_updateEpisodeFeedback(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
