@@ -41,6 +41,12 @@ type SectionsTranslation struct {
 	SectionsID int `json:"sections_id"`
 }
 
+// PagesTranslation extends Translation
+type PagesTranslation struct {
+	Translation
+	PagesID int `json:"sections_id"`
+}
+
 type update struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
@@ -96,6 +102,11 @@ func (ShowsTranslation) TypeName() string {
 // TypeName shows_translations
 func (SectionsTranslation) TypeName() string {
 	return "sections_translations"
+}
+
+// TypeName shows_translations
+func (PagesTranslation) TypeName() string {
+	return "pages_translations"
 }
 
 // GetLanguage retrieves the configured language for this translation

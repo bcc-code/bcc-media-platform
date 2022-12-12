@@ -29,21 +29,42 @@ func asDSItems[T directus.DSItem](items []T) []directus.DSItem {
 	})
 }
 
-// Save translations to directus
-func (d *directusDestination) Save(ctx context.Context, translations []Translation) error {
-	var directusTs = map[string][]directus.DSItem{}
+func (d *directusDestination) getExistingMap(ctx context.Context, translations []Translation) (map[string]any, error) {
+	var directusTs = map[string]any{}
 
 	for _, t := range translations {
 		if _, ok := directusTs[t.Collection]; !ok {
+			var items any
+			var err error
 			switch t.Collection {
 			case "sections":
-				ts, err := directus.ListItems[directus.SectionsTranslation](ctx, d.client, getDirectusCollection(t.Collection), nil)
-				if err != nil {
-					return err
-				}
+				items, err = directus.ListItems[directus.SectionsTranslation](ctx, d.client, getDirectusCollection(t.Collection), nil)
+			case "shows":
+				items, err = directus.ListItems[directus.ShowsTranslation](ctx, d.client, getDirectusCollection(t.Collection), nil)
+			case "seasons":
+				items, err = directus.ListItems[directus.SeasonsTranslation](ctx, d.client, getDirectusCollection(t.Collection), nil)
+			case "episodes":
+				items, err = directus.ListItems[directus.EpisodesTranslation](ctx, d.client, getDirectusCollection(t.Collection), nil)
+			case "pages":
+				items, err = directus.ListItems[directus.PagesTranslation](ctx, d.client, getDirectusCollection(t.Collection), nil)
 			}
+			if err != nil {
+				return nil, err
+			}
+			directusTs[t.Collection] = items
 		}
 	}
+
+	return directusTs, nil
+}
+
+// Save translations to directus
+func (d *directusDestination) Save(ctx context.Context, translations []Translation) error {
+	directusTs, err := d.getExistingMap(ctx, translations)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func toDirectusDestination() {
