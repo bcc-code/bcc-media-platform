@@ -474,7 +474,7 @@ func (r *Resolver) sendMessage(ctx context.Context, itemID uuid.UUID, message *s
 }
 
 func (r *Resolver) updateMessage(ctx context.Context, id string, message *string, metadata map[string]any) (string, error) {
-	err := ratelimit.Endpoint(ctx, "tasks:messages:update", 100, false)
+	err := ratelimit.Endpoint(ctx, "messages:update", 100, false)
 	if err != nil {
 		return "", err
 	}
