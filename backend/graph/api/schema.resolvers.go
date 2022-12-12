@@ -24,7 +24,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"
@@ -208,28 +207,7 @@ func (r *mutationRootResolver) SendTaskMessage(ctx context.Context, taskID strin
 	if err != nil {
 		return "", err
 	}
-	err = ratelimit.Endpoint(ctx, "tasks:messages:send:"+task.ID.String(), 2, false)
-	if err != nil {
-		return "", err
-	}
-	id, err := utils.GenerateRandomSecureString(32)
-	if err != nil {
-		return "", err
-	}
-	var str string
-	if message != nil {
-		str = *message
-	}
-	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
-		ID:      id,
-		Message: str,
-		ItemID:  task.ID,
-	})
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to save string to database")
-		return "", merry.New("Failed to generate unique ID")
-	}
-	return id, nil
+	return r.sendMessage(ctx, task.ID, message, nil)
 }
 
 // UpdateTaskMessage is the resolver for the updateTaskMessage field.
@@ -262,34 +240,7 @@ func (r *mutationRootResolver) SendEpisodeFeedback(ctx context.Context, episodeI
 	if err != nil {
 		return "", err
 	}
-	err = ratelimit.Endpoint(ctx, "episodes:messages:send:"+strconv.Itoa(episode.ID), 2, false)
-	if err != nil {
-		return "", err
-	}
-	id, err := utils.GenerateRandomSecureString(32)
-	if err != nil {
-		return "", err
-	}
-	var str string
-	if message != nil {
-		str = *message
-	}
-	var metadata pqtype.NullRawMessage
-	if rating != nil {
-		metadata.RawMessage = []byte(fmt.Sprintf("{\"rating\": %d}", rating))
-		metadata.Valid = true
-	}
-	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
-		ID:       id,
-		Message:  str,
-		ItemID:   episode.UUID,
-		Metadata: metadata,
-	})
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to save string to database")
-		return "", merry.New("Failed to generate unique ID")
-	}
-	return id, nil
+	return r.sendMessage(ctx, episode.UUID, message, map[string]any{"rating": rating})
 }
 
 // UpdateEpisodeFeedback is the resolver for the updateEpisodeFeedback field.
