@@ -10,13 +10,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
-	"github.com/bcc-code/brunstadtv/backend/crowdin2"
+	"github.com/bcc-code/brunstadtv/backend/crowdin/build"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	"github.com/bcc-code/brunstadtv/backend/push"
 	"github.com/bcc-code/brunstadtv/backend/scheduler"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/brunstadtv/backend/translations"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/brunstadtv/backend/version"
 	"github.com/bcc-code/mediabank-bridge/log"
@@ -87,9 +88,14 @@ func main() {
 	searchService := search.New(queries, config.Algolia)
 	directusEventHandler := directus.NewEventHandler()
 	crowdinClient := crowdin.New(config.Crowdin, directus.NewHandler(directusClient), queries)
-	//crowdinClient2 := crowdin2.New(crowdin2.Config(config.Crowdin), directus.NewHandler(directusClient), queries)
+	crowdinClient2 := build.New(build.Config(config.Crowdin), directus.NewHandler(directusClient), queries)
+	translationService := translations.New(directusClient, crowdinClient2)
 
-	crowdin2.GetTranslationsFromZip("crowdin-build-2221.zip")
+	err = translationService.Sync(ctx)
+	if err != nil {
+		panic(err)
+	}
+	//build.GetTranslationsFromZip("crowdin-build-2221.zip")
 	//crowdinClient2.Build(ctx)
 
 	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.CloudTasks.QueueID)

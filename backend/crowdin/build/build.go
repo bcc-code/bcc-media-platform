@@ -1,10 +1,9 @@
-package crowdin2
+package build
 
 import (
 	"archive/zip"
 	"context"
 	"fmt"
-	"github.com/bcc-code/brunstadtv/backend/translations"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gocarina/gocsv"
 	"github.com/samber/lo"
@@ -40,13 +39,20 @@ type projectBuildResponse struct {
 	ExpireIn time.Time
 }
 
-func (c *Client) Build(ctx context.Context) {
+// List translations in crowdin
+func (c *Client) List(ctx context.Context) ([]Translation, error) {
+	var translations []Translation
 	for _, id := range c.config.ProjectIDs {
-		c.buildProject(ctx, id)
+		ts, err := c.buildProject(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		translations = append(translations, ts...)
 	}
+	return translations, nil
 }
 
-func (c *Client) buildProject(ctx context.Context, projectID int) (string, error) {
+func (c *Client) buildProject(ctx context.Context, projectID int) ([]Translation, error) {
 	body := buildProjectRequest{
 		ExportApprovedOnly:      true,
 		SkipUntranslatedStrings: true,
@@ -54,7 +60,7 @@ func (c *Client) buildProject(ctx context.Context, projectID int) (string, error
 
 	res, err := post[buildProjectResponse](ctx, c, fmt.Sprintf("projects/%d/translations/builds", projectID), body)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// Prevent waiting for too long. 5 minutes should be plenty of time.
@@ -66,7 +72,7 @@ func (c *Client) buildProject(ctx context.Context, projectID int) (string, error
 
 		res, err = get[buildProjectResponse](ctx, c, fmt.Sprintf("projects/%d/translations/builds/%d", projectID, res.ID))
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		log.L.Debug().Int("buildID", res.ID).
@@ -80,32 +86,28 @@ func (c *Client) buildProject(ctx context.Context, projectID int) (string, error
 
 	build, err := get[projectBuildResponse](ctx, c, fmt.Sprintf("projects/%d/translations/builds/%d/download", projectID, res.ID))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	resp, err := http.Get(build.URL)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
-	_ = handleBody(resp.Body, fmt.Sprintf("crowdin-build-%d", res.ID))
-
-	return "", nil
+	return handleBody(resp.Body, fmt.Sprintf("crowdin-build-%d", res.ID))
 }
 
-func handleBody(body io.ReadCloser, fileName string) error {
+func handleBody(body io.ReadCloser, fileName string) ([]Translation, error) {
 	out, err := os.Create(fileName + ".zip")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer out.Close()
 
 	io.Copy(out, body)
 
-	GetTranslationsFromZip(out.Name())
-
-	return nil
+	return GetTranslationsFromZip(out.Name())
 }
 
 func handleErr(errFunc func() error) {
@@ -126,15 +128,24 @@ func languageCode(language string) string {
 	return language
 }
 
+// Translation contains data for a specific translation key
+type Translation struct {
+	Collection string
+	ID         string
+	Field      string
+	Value      string
+	Language   string
+}
+
 // GetTranslationsFromZip retrieves translations from a zip containing csv files
-func GetTranslationsFromZip(zipFile string) ([]translations.Translation, error) {
+func GetTranslationsFromZip(zipFile string) ([]Translation, error) {
 	reader, err := zip.OpenReader(zipFile)
 	if err != nil {
 		return nil, err
 	}
 	defer handleErr(reader.Close)
 
-	var ts []translations.Translation
+	var ts []Translation
 
 	for _, file := range reader.File {
 		fileReader, err := file.Open()
@@ -168,7 +179,7 @@ func GetTranslationsFromZip(zipFile string) ([]translations.Translation, error) 
 			id := strings.Join(parts[1:len(parts)-1], "-")
 			field, _ := lo.Last(parts)
 
-			ts = append(ts, translations.Translation{
+			ts = append(ts, Translation{
 				Language:   language,
 				ID:         id,
 				Collection: collection,

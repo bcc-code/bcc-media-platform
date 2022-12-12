@@ -463,7 +463,7 @@ func (client *Client) syncCollection(ctx context.Context, d *directus.Handler, p
 }
 
 type hasStatus interface {
-	UID() int
+	UID() string
 	GetStatus() common.Status
 }
 
@@ -594,7 +594,7 @@ func (client *Client) Sync(ctx context.Context, d *directus.Handler) error {
 type TranslationSource interface {
 	GetCollection() string
 	GetItemID() int
-	GetSourceLanguage() string
+	GetLanguage() string
 	// GetValues returns a field mapped dictionary with the translation source as value, identifier as key
 	GetValues() map[string]string
 }
@@ -613,7 +613,7 @@ func (client *Client) SaveTranslations(objects []TranslationSource) error {
 		}
 		fileIdByCollection := map[string]int{}
 		for _, o := range objects {
-			if project.SourceLanguageId != o.GetSourceLanguage() {
+			if project.SourceLanguageId != o.GetLanguage() {
 				continue
 			}
 			collection := o.GetCollection()

@@ -1,8 +1,6 @@
-package crowdin2
+package build
 
 import (
-	"github.com/bcc-code/brunstadtv/backend/directus"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/go-resty/resty/v2"
 )
 
@@ -15,20 +13,16 @@ type Config struct {
 // Client for crowdin interactions
 type Client struct {
 	c      *resty.Client
-	du     *directus.Handler
 	config Config
-	q      *sqlc.Queries
 }
 
 // New client for requests
-func New(config Config, directusHandler *directus.Handler, queries *sqlc.Queries) *Client {
+func New(config Config) *Client {
 	c := resty.New().
 		SetBaseURL("https://api.crowdin.com/api/v2/").
 		SetAuthToken(config.Token)
 	return &Client{
-		du:     directusHandler,
 		c:      c,
 		config: config,
-		q:      queries,
 	}
 }

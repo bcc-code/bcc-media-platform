@@ -1,4 +1,4 @@
-package crowdin2
+package build
 
 import (
 	"context"
