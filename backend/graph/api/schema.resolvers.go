@@ -5,8 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
-	"github.com/tabbed/pqtype"
 	"net/url"
 	"strconv"
 	"time"
@@ -216,18 +214,7 @@ func (r *mutationRootResolver) UpdateTaskMessage(ctx context.Context, id string,
 	if err != nil {
 		return "", err
 	}
-	err = ratelimit.Endpoint(ctx, "tasks:messages:update", 100, false)
-	if err != nil {
-		return "", err
-	}
-	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
-		ID:      id,
-		Message: message,
-	})
-	if err != nil {
-		return "", err
-	}
-	return id, err
+	return r.updateMessage(ctx, id, &message, nil)
 }
 
 // SendEpisodeFeedback is the resolver for the sendEpisodeFeedback field.
@@ -249,28 +236,7 @@ func (r *mutationRootResolver) UpdateEpisodeFeedback(ctx context.Context, id str
 	if err != nil {
 		return "", err
 	}
-	err = ratelimit.Endpoint(ctx, "episodes:messages:update", 100, false)
-	if err != nil {
-		return "", err
-	}
-	var metadata pqtype.NullRawMessage
-	if rating != nil {
-		metadata.RawMessage = []byte(fmt.Sprintf("{\"rating\": %d}", rating))
-		metadata.Valid = true
-	}
-	var str string
-	if message != nil {
-		str = *message
-	}
-	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
-		ID:       id,
-		Message:  str,
-		Metadata: metadata,
-	})
-	if err != nil {
-		return "", err
-	}
-	return id, err
+	return r.updateMessage(ctx, id, message, map[string]any{"rating": rating})
 }
 
 // Application is the resolver for the application field.
