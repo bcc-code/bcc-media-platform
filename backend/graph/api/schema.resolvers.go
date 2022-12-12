@@ -208,7 +208,7 @@ func (r *mutationRootResolver) SendTaskMessage(ctx context.Context, taskID strin
 	if err != nil {
 		return "", err
 	}
-	err = ratelimit.Endpoint(ctx, "tasks:messages:send:"+task.ID.String(), 10, false)
+	err = ratelimit.Endpoint(ctx, "tasks:messages:send:"+task.ID.String(), 2, false)
 	if err != nil {
 		return "", err
 	}
@@ -262,7 +262,7 @@ func (r *mutationRootResolver) SendEpisodeFeedback(ctx context.Context, episodeI
 	if err != nil {
 		return "", err
 	}
-	err = ratelimit.Endpoint(ctx, "episodes:messages:send:"+strconv.Itoa(episode.ID), 10, false)
+	err = ratelimit.Endpoint(ctx, "episodes:messages:send:"+strconv.Itoa(episode.ID), 2, false)
 	if err != nil {
 		return "", err
 	}
