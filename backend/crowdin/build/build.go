@@ -194,9 +194,9 @@ func GetTranslationsFromZip(zipFile string) ([]Translation, error) {
 		}
 	}
 
-	//err = os.Remove(zipFile)
-	//if err != nil {
-	//	return nil, err
-	//}
+	err = os.Remove(zipFile)
+	if err != nil {
+		return nil, err
+	}
 	return ts, nil
 }
