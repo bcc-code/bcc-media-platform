@@ -551,6 +551,7 @@ type Episode struct {
 	ProductionDate           time.Time             `db:"production_date" json:"productionDate"`
 	PublicTitle              null_v4.String        `db:"public_title" json:"publicTitle"`
 	PreventPublicIndexing    sql.NullBool          `db:"prevent_public_indexing" json:"preventPublicIndexing"`
+	Uuid                     uuid.UUID             `db:"uuid" json:"uuid"`
 }
 
 type EpisodeAvailability struct {
@@ -1178,11 +1179,12 @@ type UsersDevice struct {
 }
 
 type UsersMessage struct {
-	ID        string       `db:"id" json:"id"`
-	Message   string       `db:"message" json:"message"`
-	ItemID    uuid.UUID    `db:"item_id" json:"itemID"`
-	CreatedAt time.Time    `db:"created_at" json:"createdAt"`
-	UpdatedAt null_v4.Time `db:"updated_at" json:"updatedAt"`
+	ID        string                `db:"id" json:"id"`
+	Message   string                `db:"message" json:"message"`
+	ItemID    uuid.UUID             `db:"item_id" json:"itemID"`
+	CreatedAt time.Time             `db:"created_at" json:"createdAt"`
+	UpdatedAt null_v4.Time          `db:"updated_at" json:"updatedAt"`
+	Metadata  pqtype.NullRawMessage `db:"metadata" json:"metadata"`
 }
 
 type UsersProfile struct {

@@ -3,7 +3,10 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/ratelimit"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	"net/http"
 	"sort"
 	"strings"
@@ -194,6 +197,13 @@ func graphqlHandler(
 	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(graphapigenerated.NewExecutableSchema(graphapigenerated.Config{Resolvers: &resolver}))
 	h.Use(tracer)
+	h.SetErrorPresenter(func(ctx context.Context, err error) *gqlerror.Error {
+		gqlError := graphql.DefaultErrorPresenter(ctx, err)
+		if userMessage := merry.UserMessage(err); userMessage != "" {
+			gqlError.Message = userMessage
+		}
+		return gqlError
+	})
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
