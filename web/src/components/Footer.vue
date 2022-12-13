@@ -1,0 +1,57 @@
+<template>
+    <div class="flex flex-col bg-black bg-opacity-20 mt-4 opacity-90">
+        <div
+            class="px-4 lg:px-20 py-4 flex gap-4 flex-col text-sm lg:text-base"
+        >
+            <div class="flex gap-4">
+                <a
+                    class="text-tint-1 hover:underline cursor-pointer"
+                    @click="accepted = false"
+                    >{{ $t("footer.cookies") }}</a
+                >
+                <a
+                    href="https://bcc.media/personvern"
+                    class="text-tint-1 hover:underline"
+                    >{{ $t("footer.privacyPolicy") }}</a
+                >
+            </div>
+            <div>
+                <div
+                    id="footer-description"
+                    v-html="$t('footer.information')"
+                ></div>
+            </div>
+            <div class="flex flex-col lg:flex-row gap-4 lg:gap-8">
+                <div>
+                    <b>{{ $t("footer.headOffice") }}</b>
+                    <p>bcc.media foundation</p>
+                    <p>Vålerveien 159</p>
+                    <p>1599 MOSS</p>
+                </div>
+                <div>
+                    <b>{{ $t("footer.contactUs") }}</b>
+                    <p>{{ $t("footer.editorialStaff") }}:</p>
+                    <a class="" href="mailto:redaksjon@brunstad.tv"
+                        >redaksjon@brunstad.tv</a
+                    >
+                    <p>{{ $t("footer.technicalSupport") }}:</p>
+                    <a href="mailto:support@brunstad.tv">support@brunstad.tv</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<script lang="ts" setup>
+import { useCookies } from "@/services/cookies"
+
+const { accepted } = useCookies()
+</script>
+<style>
+#footer-description > a {
+    cursor: pointer;
+    color: var(--color-tint-1);
+}
+#footer-description > p > a:hover {
+    text-decoration: underline;
+}
+</style>

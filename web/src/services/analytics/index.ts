@@ -6,6 +6,7 @@ export * from "./events"
 import { useAuth } from "../auth"
 import { current } from "../language"
 import config from "@/config"
+import { useCookies } from "../cookies"
 
 const getRevision = async () => {
     try {
@@ -58,6 +59,11 @@ class Analytics {
     private initialized = false
     private revision: string | null = null
 
+    private get enabled() {
+        const { accepted, statistics } = useCookies()
+        return accepted.value && statistics.value
+    }
+
     public setUser(user: IdentifyData) {
         this.initialized = true
         const data = Object.assign({}, user) as any
@@ -95,6 +101,8 @@ class Analytics {
     }
 
     public async initialize(idFactory: () => Promise<string | null>) {
+        if (!this.enabled) return
+
         this.revision = await getRevision()
         const { getClaims } = useAuth()
 

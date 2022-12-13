@@ -25,7 +25,7 @@
                 >
                     <Loader v-if="fetching" class="mx-auto my-auto"></Loader>
                 </div>
-                <div v-else class="h-40"></div>
+                <!-- <div v-else class="h-40"></div> -->
             </div>
             <div v-else-if="!fetching && !loading">
                 <NotFound :title="$t('page.notFound')"></NotFound>

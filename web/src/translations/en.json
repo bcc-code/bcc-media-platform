@@ -81,5 +81,22 @@
         "textTaskPlaceholder": "Write down and submit your thoughts."
     },
     "thankYou": "Thank you!",
-    "yourResponseHasBeenSubmitted": "Your response has been submitted."
+    "yourResponseHasBeenSubmitted": "Your response has been submitted.",
+    "cookies": {
+        "title": "This website uses cookies",
+        "description": "We use cookies to improve the user experience on this website. If you continue to use this website, you consent to our cookies.",
+        "necessary": "Necessary",
+        "preferences": "Preferences",
+        "statistics": "Statistics",
+        "accept": "Accept"
+    },
+    "footer": {
+        "cookies": "Cookies",
+        "privacyPolicy": "Privacy Policy",
+        "information": "BrunstadTV is a streaming service and TV channel from <a href=\"https://bcc.media/\">BCC Media</a><br>BCC Media is a registered broadcaster and adheres to the regulations laid down in the Norwegian Broadcasting Act. The supervisory body for this Act is <a href=\"https://medietilsynet.no/\">the Norwegian Media Authority.</a>",
+        "headOffice": "Head office",
+        "contactUs": "Contact us",
+        "editorialStaff": "Editorial staff",
+        "technicalSupport": "Technical support"
+    }
 }

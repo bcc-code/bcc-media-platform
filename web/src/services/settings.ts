@@ -1,3 +1,5 @@
+import { useCookies } from "./cookies"
+
 type TSettings = {
     locale: string
 }
@@ -12,6 +14,9 @@ class Settings implements TSettings {
     }
 
     private set settings(v) {
+        const { accepted, preferences } = useCookies()
+        if (!accepted.value || !preferences.value) return
+
         localStorage.setItem("settings", JSON.stringify(v))
     }
 
