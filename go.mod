@@ -28,6 +28,7 @@ require (
 	github.com/go-redis/redis/v9 v9.0.0-rc.1
 	github.com/go-redsync/redsync/v4 v4.6.0
 	github.com/go-resty/resty/v2 v2.7.0
+	github.com/gocarina/gocsv v0.0.0-20221105105431-c8ef78125b99
 	github.com/goodsign/monday v1.0.0
 	github.com/google/uuid v1.3.0
 	github.com/graph-gophers/dataloader/v7 v7.0.0
@@ -90,7 +91,6 @@ require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.0 // indirect
-	github.com/gocarina/gocsv v0.0.0-20221105105431-c8ef78125b99 // indirect
 	github.com/goccy/go-json v0.9.11 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
