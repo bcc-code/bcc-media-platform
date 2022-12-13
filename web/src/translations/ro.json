@@ -60,7 +60,9 @@
         "programs": "Programe",
         "episodes": "Episoade",
         "cancel": "Anulare",
-        "emptyQuery": ""
+        "emptyQuery": "",
+        "noResults": "",
+        "tryAdjustingQuery": ""
     },
     "support": {
         "contact": "",
@@ -68,5 +70,16 @@
         "subject": "",
         "content": "",
         "describeIssue": ""
-    }
+    },
+    "lesson": {
+        "related": "",
+        "watchAgain": {
+            "title": "",
+            "description": "",
+            "button": ""
+        },
+        "textTaskPlaceholder": ""
+    },
+    "thankYou": "Mulțumim!",
+    "yourResponseHasBeenSubmitted": ""
 }

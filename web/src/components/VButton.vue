@@ -1,7 +1,9 @@
 <template>
     <button
         class="cursor-pointer rounded-full focus:outline-none font-bold leading-normal text-on-tint text-style-button-1 border border-separator-on-light select-none"
-        :class="styles" :disabled="disabled">
+        :class="styles"
+        :disabled="disabled"
+    >
         <slot></slot>
     </button>
 </template>
@@ -43,14 +45,14 @@ const styles = computed(() => {
 
     switch (props.size) {
         case "large":
-            apply("px-5 py-3");
-            break;
+            apply("px-5 py-3")
+            break
         case "thin":
-            apply("px-4 py-1");
-            break;
+            apply("px-4 py-1")
+            break
         default:
-            apply("px-4 py-2 ");
-            break;
+            apply("px-4 py-2 ")
+            break
     }
 
     return styles

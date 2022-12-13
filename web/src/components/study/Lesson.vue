@@ -1,5 +1,7 @@
 <template>
-    <div class="inline-flex flex-col space-y-6 items-center justify-start w-full h-screen">
+    <div
+        class="inline-flex flex-col space-y-6 items-center justify-start w-full h-screen"
+    >
         <div v-if="fetching" class="p-12">
             <Loader></Loader>
         </div>
@@ -11,9 +13,21 @@
         </div>
         <template v-if="data != null">
             <transition name="fade" mode="out-in">
-                <Tasks v-if="page == 'intro'" :lesson="data" @navigate="(t) => page = t" />
-                <Tasks v-else-if="page == 'tasks'" :lesson="data" @navigate="(t) => page = t" />
-                <More v-else-if="page == 'more'" :lesson="data" @navigate="(t) => page = t" />
+                <Tasks
+                    v-if="page == 'intro'"
+                    :lesson="data"
+                    @navigate="(t) => (page = t)"
+                />
+                <Tasks
+                    v-else-if="page == 'tasks'"
+                    :lesson="data"
+                    @navigate="(t) => (page = t)"
+                />
+                <More
+                    v-else-if="page == 'more'"
+                    :lesson="data"
+                    @navigate="(t) => (page = t)"
+                />
             </transition>
         </template>
     </div>
@@ -35,7 +49,11 @@ export type Page = "" | "intro" | "tasks" | "more"
 
 console.log(useRoute())
 const route = useRoute()
-const props = defineProps<{ episodeId: string, lessonId: string, subRoute: Page }>()
+const props = defineProps<{
+    episodeId: string
+    lessonId: string
+    subRoute: Page
+}>()
 
 const { error, fetching, data, executeQuery, ...lessonQuery } =
     useGetStudyLessonQuery({
@@ -63,9 +81,9 @@ onMounted(async () => {
         if (completedTasks == 0) {
             page.value = "intro"
         } else if (completedTasks < totalTasks) {
-            page.value = "tasks";
+            page.value = "tasks"
         } else {
-            page.value = "more";
+            page.value = "more"
         }
     }
 })

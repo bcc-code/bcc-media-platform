@@ -60,7 +60,9 @@
         "programs": "Programi",
         "episodes": "Deli",
         "cancel": "Prekliči",
-        "emptyQuery": "Polje za iskanje je prazno."
+        "emptyQuery": "Polje za iskanje je prazno.",
+        "noResults": "",
+        "tryAdjustingQuery": ""
     },
     "support": {
         "contact": "Kontaktiraj podporo",
@@ -68,5 +70,16 @@
         "subject": "Predmet",
         "content": "Vsebina",
         "describeIssue": "Podrobno opiši težavo."
-    }
+    },
+    "lesson": {
+        "related": "",
+        "watchAgain": {
+            "title": "",
+            "description": "",
+            "button": ""
+        },
+        "textTaskPlaceholder": ""
+    },
+    "thankYou": "Hvala!",
+    "yourResponseHasBeenSubmitted": ""
 }

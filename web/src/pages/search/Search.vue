@@ -3,19 +3,33 @@
         <div class="flex lg:hidden w-full text-xl mb-4">
             <SearchInput class="mx-auto lg:w-96" v-model="query"></SearchInput>
         </div>
-        <div v-if="query">
+        <div v-if="query" class="relative">
             <ShowSearchQuery
                 class="mt-2 mb-8"
+                :class="{ hidden: !showCount && !episodeCount }"
                 :query="queryVariable"
                 :pause="pause"
                 @item-click=""
+                @count="(c) => (showCount = c)"
             ></ShowSearchQuery>
             <EpisodeSearchQuery
                 class="mb-2"
+                :class="{ hidden: !showCount && !episodeCount }"
                 :query="queryVariable"
                 :pause="pause"
                 @item-click="(i, e) => clickEpisode(i, e.id)"
+                @count="(c) => (episodeCount = c)"
             ></EpisodeSearchQuery>
+            <NotFound
+                :link="false"
+                class="transition opacity-100"
+                :class="{ 'opacity-0': showCount !== 0 || episodeCount !== 0 }"
+            >
+                <template #title>{{ $t("search.noResults") }}</template>
+                <template #description>{{
+                    $t("search.tryAdjustingQuery")
+                }}</template>
+            </NotFound>
         </div>
         <div v-else class="w-full text-center">
             <p class="text-lg text-gray">{{ $t("search.emptyQuery") }}</p>
@@ -33,10 +47,14 @@ import { useI18n } from "vue-i18n"
 import SearchInput from "@/components/SearchInput.vue"
 import { analytics } from "@/services/analytics"
 import { goToEpisode } from "@/utils/items"
+import NotFound from "@/components/NotFound.vue"
 
 const { t } = useI18n()
 const { query } = useSearch()
 const queryString = ref(query.value)
+
+const showCount = ref(null as number | null)
+const episodeCount = ref(null as number | null)
 
 const clickEpisode = (index: number, id: string) => {
     analytics.track("searchresult_clicked", {

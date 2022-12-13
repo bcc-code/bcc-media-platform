@@ -4,18 +4,18 @@
         "login": "",
         "logout": "",
         "stayLoggedOut": "",
-        "cancel": "",
-        "submit": ""
+        "cancel": "Annulla",
+        "submit": "Invia"
     },
     "dashboard": {
         "loggedOut": ""
     },
     "page": {
-        "home": "",
-        "search": "",
-        "live": "",
-        "calendar": "",
-        "faq": "",
+        "home": "Home",
+        "search": "Cerca",
+        "live": "Diretta",
+        "calendar": "Calendario",
+        "faq": "FAQ",
         "notFound": "",
         "explore": "",
         "watchNow": ""
@@ -37,36 +37,49 @@
     },
     "episode": {
         "details": "",
-        "episode": "",
-        "episodes": "",
-        "videos": "",
+        "episode": "Episodio",
+        "episodes": "Episodi",
+        "videos": "Video",
         "seriesDescription": "",
         "releaseDate": "",
         "availableFrom": "",
         "availableTo": "",
         "ageRating": "",
         "notFound": "",
-        "comingSoon": ""
+        "comingSoon": "Prossimamente"
     },
     "live": {
-        "now": ""
+        "now": "Adesso"
     },
     "calendar": {
         "noScheduledEvents": "",
-        "thisWeek": "",
+        "thisWeek": "Questa settimana",
         "timeTableIsLocalTime": ""
     },
     "search": {
-        "programs": "",
-        "episodes": "",
-        "cancel": "",
-        "emptyQuery": ""
+        "programs": "Programmi",
+        "episodes": "Episodi",
+        "cancel": "Annulla",
+        "emptyQuery": "L'interrogazione di ricerca è vuota.",
+        "noResults": "",
+        "tryAdjustingQuery": ""
     },
     "support": {
-        "contact": "",
-        "title": "",
-        "subject": "",
-        "content": "",
-        "describeIssue": ""
-    }
+        "contact": "Contatta il supporto",
+        "title": "Titolo",
+        "subject": "Argomento",
+        "content": "Contenuto",
+        "describeIssue": "Descrivi dettagliatamente il tuo problema."
+    },
+    "lesson": {
+        "related": "",
+        "watchAgain": {
+            "title": "",
+            "description": "",
+            "button": ""
+        },
+        "textTaskPlaceholder": ""
+    },
+    "thankYou": "",
+    "yourResponseHasBeenSubmitted": ""
 }

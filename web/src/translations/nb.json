@@ -46,7 +46,7 @@
         "availableTo": "Tilgjengelig til",
         "ageRating": "Vurdering",
         "notFound": "Finner ikke episoden",
-        "comingSoon": ""
+        "comingSoon": "Kommer snart"
     },
     "live": {
         "now": "Nå"
@@ -60,13 +60,26 @@
         "programs": "Programmer",
         "episodes": "Episoder",
         "cancel": "Avbryt",
-        "emptyQuery": ""
+        "emptyQuery": "",
+        "noResults": "",
+        "tryAdjustingQuery": ""
     },
     "support": {
-        "contact": "",
-        "title": "",
-        "subject": "",
-        "content": "",
-        "describeIssue": ""
-    }
+        "contact": "Kontakt support",
+        "title": "Tittel",
+        "subject": "Emne",
+        "content": "Innhold",
+        "describeIssue": "Beskriv problemet ditt i detalj."
+    },
+    "lesson": {
+        "related": "",
+        "watchAgain": {
+            "title": "",
+            "description": "",
+            "button": ""
+        },
+        "textTaskPlaceholder": ""
+    },
+    "thankYou": "",
+    "yourResponseHasBeenSubmitted": ""
 }

@@ -62,6 +62,10 @@ const props = defineProps<{
     pause: boolean
 }>()
 
+const emit = defineEmits<{
+    (e: "count", v: number): void
+}>()
+
 const queryString = ref(props.query)
 
 const { data, pause, resume } = useSearchQuery({
@@ -93,6 +97,13 @@ watch(
 const result = computed(() => {
     return data.value?.search.result ?? []
 })
+
+watch(
+    () => data.value,
+    () => {
+        emit("count", data.value?.search.hits ?? 0)
+    }
+)
 
 const modules = [Navigation]
 
@@ -130,27 +141,10 @@ const onclick = async (index: number, id: string) => {
         goToEpisode(getDefaultId.value.show.defaultEpisode.id)
     }
 }
+
 const adminOn = localStorage.getItem("admin") === "true"
 
-const open = (i: {__typename: string, id: string}) => {
-    let collection = ""
-    switch (i.__typename) {
-        case "EpisodeSearchItem":
-            collection = "episodes"
-            break
-        case "SeasonSearchItem":
-            collection = "seasons"
-            break
-        case "ShowSearchItem":
-            collection = "shows"
-            break
-    }
-
-    window.open(
-        "https://admin.brunstad.tv/admin/content/" +
-            collection +
-            "/" +
-            i.id
-    )
+const open = (i: { id: string }) => {
+    window.open("https://admin.brunstad.tv/admin/content/shows/" + i.id)
 }
 </script>

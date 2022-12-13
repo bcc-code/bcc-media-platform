@@ -1,72 +1,85 @@
 {
     "buttons": {
-        "save": "",
-        "login": "",
-        "logout": "",
-        "stayLoggedOut": "",
-        "cancel": "",
-        "submit": ""
+        "save": "Opslaan",
+        "login": "Inloggen",
+        "logout": "Uitloggen",
+        "stayLoggedOut": "Uitgelogd blijven",
+        "cancel": "Annuleren",
+        "submit": "Invoeren"
     },
     "dashboard": {
-        "loggedOut": ""
+        "loggedOut": "Je bent uitgelogd"
     },
     "page": {
-        "home": "",
-        "search": "",
-        "live": "",
-        "calendar": "",
-        "faq": "",
-        "notFound": "",
-        "explore": "",
-        "watchNow": ""
+        "home": "Home",
+        "search": "Zoeken",
+        "live": "Live",
+        "calendar": "Kalender",
+        "faq": "FAQ",
+        "notFound": "Pagina niet gevonden",
+        "explore": "Verkennen",
+        "watchNow": "Nu kijken"
     },
     "section": {
         "item": {
-            "episode": "",
-            "season": ""
+            "episode": "0 Afleveringen | 1 aflevering | {count} afleveringen",
+            "season": "0 seizoenen | 1 seizoen | {count} seizoenen"
         }
     },
     "notFound": {
-        "title": "",
-        "description": "",
-        "returnHome": ""
+        "title": "Niet gevonden",
+        "description": "Misschien bent u niet ingelogd of mist u bepaalde rechten.",
+        "returnHome": "Ga naar de homepagina"
     },
     "common": {
-        "new": "",
-        "newEpisodes": ""
+        "new": "Nieuw",
+        "newEpisodes": "Nieuwe afleveringen"
     },
     "episode": {
-        "details": "",
-        "episode": "",
-        "episodes": "",
-        "videos": "",
-        "seriesDescription": "",
-        "releaseDate": "",
-        "availableFrom": "",
-        "availableTo": "",
-        "ageRating": "",
-        "notFound": "",
-        "comingSoon": ""
+        "details": "Details",
+        "episode": "Aflevering",
+        "episodes": "Afleveringen",
+        "videos": "Video's",
+        "seriesDescription": "Beschrijving serie",
+        "releaseDate": "publicatiedatum",
+        "availableFrom": "Beschikbaar vanaf",
+        "availableTo": "Beschikbaar voor",
+        "ageRating": "Classificatie",
+        "notFound": "Kan de aflevering niet vinden",
+        "comingSoon": "Komt binnenkort"
     },
     "live": {
-        "now": ""
+        "now": "Nu"
     },
     "calendar": {
-        "noScheduledEvents": "",
-        "thisWeek": "",
-        "timeTableIsLocalTime": ""
+        "noScheduledEvents": "Geen geplande evenementen",
+        "thisWeek": "Deze week",
+        "timeTableIsLocalTime": "De tijden worden weergegeven in de lokale tijd."
     },
     "search": {
-        "programs": "",
-        "episodes": "",
-        "cancel": "",
-        "emptyQuery": ""
+        "programs": "Programma's",
+        "episodes": "Afleveringen",
+        "cancel": "Annuleren",
+        "emptyQuery": "Zoekbalk is leeg.",
+        "noResults": "",
+        "tryAdjustingQuery": ""
     },
     "support": {
-        "contact": "",
-        "title": "",
-        "subject": "",
-        "content": "",
-        "describeIssue": ""
-    }
+        "contact": "Contact support",
+        "title": "Titel",
+        "subject": "Onderwerp",
+        "content": "Inhoud",
+        "describeIssue": "Beschrijf je probleem in detail."
+    },
+    "lesson": {
+        "related": "",
+        "watchAgain": {
+            "title": "",
+            "description": "",
+            "button": ""
+        },
+        "textTaskPlaceholder": ""
+    },
+    "thankYou": "Hartelijk dank!",
+    "yourResponseHasBeenSubmitted": ""
 }

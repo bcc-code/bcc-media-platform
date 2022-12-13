@@ -103,7 +103,7 @@ const props = defineProps<{
     pause: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
     (
         e: "itemClick",
         index: number,
@@ -111,6 +111,7 @@ defineEmits<{
             __typename: "EpisodeSearchItem"
         }
     ): void
+    (e: "count", v: number): void
 }>()
 
 const queryString = ref(props.query)
@@ -141,31 +142,20 @@ watch(
     }
 )
 
+watch(
+    () => data.value,
+    () => {
+        emit("count", data.value?.search.hits ?? 0)
+    }
+)
+
 const result = computed(() => {
     return data.value?.search.result ?? []
 })
 
 const adminOn = localStorage.getItem("admin") === "true"
 
-const open = (i: {__typename: string, id: string}) => {
-    let collection = ""
-    switch (i.__typename) {
-        case "EpisodeSearchItem":
-            collection = "episodes"
-            break
-        case "SeasonSearchItem":
-            collection = "seasons"
-            break
-        case "ShowSearchItem":
-            collection = "shows"
-            break
-    }
-
-    window.open(
-        "https://admin.brunstad.tv/admin/content/" +
-            collection +
-            "/" +
-            i.id
-    )
+const open = (i: { id: string }) => {
+    window.open("https://admin.brunstad.tv/admin/content/episodes/" + i.id)
 }
 </script>

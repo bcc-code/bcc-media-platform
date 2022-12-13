@@ -4,7 +4,7 @@
         "login": "",
         "logout": "",
         "stayLoggedOut": "",
-        "cancel": "",
+        "cancel": "Cancelar",
         "submit": ""
     },
     "dashboard": {
@@ -59,8 +59,10 @@
     "search": {
         "programs": "",
         "episodes": "",
-        "cancel": "",
-        "emptyQuery": ""
+        "cancel": "Cancelar",
+        "emptyQuery": "",
+        "noResults": "",
+        "tryAdjustingQuery": ""
     },
     "support": {
         "contact": "",
@@ -68,5 +70,16 @@
         "subject": "",
         "content": "",
         "describeIssue": ""
-    }
+    },
+    "lesson": {
+        "related": "",
+        "watchAgain": {
+            "title": "",
+            "description": "",
+            "button": ""
+        },
+        "textTaskPlaceholder": ""
+    },
+    "thankYou": "",
+    "yourResponseHasBeenSubmitted": ""
 }

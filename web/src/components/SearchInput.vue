@@ -63,8 +63,8 @@ const value = computed({
                 router.replace({
                     name: "search",
                     query: {
-                        q: props.modelValue
-                    }
+                        q: props.modelValue,
+                    },
                 })
             }
         })

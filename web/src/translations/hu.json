@@ -60,7 +60,9 @@
         "programs": "Programok",
         "episodes": "Epizódok",
         "cancel": "Mégse",
-        "emptyQuery": "A keresési lekérdezés üres."
+        "emptyQuery": "A keresési lekérdezés üres.",
+        "noResults": "",
+        "tryAdjustingQuery": ""
     },
     "support": {
         "contact": "Kapcsolatfelvétel a Támogatással",
@@ -68,5 +70,16 @@
         "subject": "Tárgy",
         "content": "Tartalom",
         "describeIssue": "Írd le részletesen a problémát."
-    }
+    },
+    "lesson": {
+        "related": "",
+        "watchAgain": {
+            "title": "",
+            "description": "",
+            "button": ""
+        },
+        "textTaskPlaceholder": ""
+    },
+    "thankYou": "Köszönjük!",
+    "yourResponseHasBeenSubmitted": ""
 }

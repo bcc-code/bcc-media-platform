@@ -90,7 +90,11 @@
                                 </MenuItems>
                             </transition>
                         </Menu>
-                        <Menu as="div" class="relative my-auto ml-2">
+                        <Menu
+                            as="div"
+                            class="relative my-auto ml-2"
+                            v-if="authenticated"
+                        >
                             <div>
                                 <MenuButton
                                     :class="open ? '' : 'text-opacity-90'"
@@ -98,7 +102,7 @@
                                 >
                                     <img
                                         class="w-8 h-8 rounded rounded-full overflow-hidden stroke-primary"
-                                        v-if="authenticated && user.picture"
+                                        v-if="user.picture"
                                         :src="user.picture"
                                     />
                                     <ProfileIcon
@@ -191,6 +195,18 @@
                                 </MenuItems>
                             </transition>
                         </Menu>
+                        <button
+                            v-else
+                            @click="signIn()"
+                            class="ml-2 flex hover:bg-slate-800 transition rounded-full text-base px-2 p-1 font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                        >
+                            <ProfileIcon
+                                class="stroke-red-500 h-8 w-8"
+                            ></ProfileIcon>
+                            <p class="ml-1 my-auto">
+                                {{ $t("buttons.login") }}
+                            </p>
+                        </button>
                     </div>
                 </div>
                 <div class="flex lg:hidden mx-4">

@@ -60,7 +60,9 @@
         "programs": "Programmes",
         "episodes": "Épisodes",
         "cancel": "Annuler",
-        "emptyQuery": "La requête est vide."
+        "emptyQuery": "La requête est vide.",
+        "noResults": "",
+        "tryAdjustingQuery": ""
     },
     "support": {
         "contact": "Contacter le support",
@@ -68,5 +70,16 @@
         "subject": "Objet",
         "content": "Contenu",
         "describeIssue": "Décris ton problème de manière détaillée."
-    }
+    },
+    "lesson": {
+        "related": "",
+        "watchAgain": {
+            "title": "",
+            "description": "",
+            "button": ""
+        },
+        "textTaskPlaceholder": ""
+    },
+    "thankYou": "Merci beaucoup !",
+    "yourResponseHasBeenSubmitted": ""
 }

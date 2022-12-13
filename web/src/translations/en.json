@@ -60,7 +60,9 @@
         "programs": "Programs",
         "episodes": "Episodes",
         "cancel": "Cancel",
-        "emptyQuery": "Search query is empty."
+        "emptyQuery": "Search query is empty.",
+        "noResults": "No search results",
+        "tryAdjustingQuery": "Try adjusting the search query"
     },
     "support": {
         "contact": "Contact Support",

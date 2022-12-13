@@ -2,10 +2,20 @@
     <div class="p-4 flex flex-col space-y-8 items-start justify-start w-full">
         <p class="w-full text-white text-style-title-1">{{ task.title }}</p>
         <div class="flex flex-col space-y-2 items-start justify-start w-full">
-
-            <Alternative v-for="(alt, i) in task.alternatives" :key="alt.title" :letter="getLetter(i)" :text="alt.title"
-                :correct="alt.isCorrect" @click="() => selectAnswer(i)" :selected="(selectedIndex == i)"
-                :class="(selectedIndex != i && selectedIndex != null) ? 'opacity-50' : ''" />
+            <Alternative
+                v-for="(alt, i) in task.alternatives"
+                :key="alt.title"
+                :letter="getLetter(i)"
+                :text="alt.title"
+                :correct="alt.isCorrect"
+                @click="() => selectAnswer(i)"
+                :selected="selectedIndex == i"
+                :class="
+                    selectedIndex != i && selectedIndex != null
+                        ? 'opacity-50'
+                        : ''
+                "
+            />
         </div>
     </div>
 </template>
