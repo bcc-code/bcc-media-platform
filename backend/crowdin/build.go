@@ -162,18 +162,12 @@ func GetTranslationsFromZip(zipFile string) ([]Translation, error) {
 			log.L.Error().Err(err).Msg("Failed to read file")
 			continue
 		}
-		filteredMap := map[string]string{}
-		for key, value := range csvMap {
-			if value != "" {
-				filteredMap[key] = value
-			}
-		}
-		if len(filteredMap) == 0 {
-			continue
-		}
 		path := strings.Split(file.Name, "/")
 		language := languageCode(path[0])
-		for key, value := range filteredMap {
+		for key, value := range csvMap {
+			if value == "" {
+				continue
+			}
 			parts := strings.Split(key, "-")
 			collection := parts[0]
 			id := strings.Join(parts[1:len(parts)-1], "-")
