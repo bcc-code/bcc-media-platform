@@ -523,6 +523,24 @@ func (c *Client) syncSections(ctx context.Context, d *directus.Handler, project 
 	}, crowdinTranslations)
 }
 
+func (c *Client) syncPages(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "sections", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		ts, err := c.q.ListPageTranslations(ctx, []string{language})
+		if err != nil {
+			return nil, err
+		}
+		return lo.Map(ts, func(t sqlc.ListPageTranslationsRow, _ int) simpleTranslation {
+			return simpleTranslation{
+				ID:          strconv.Itoa(int(t.ID)),
+				Description: t.Description.ValueOrZero(),
+				Title:       t.Title.ValueOrZero(),
+				Language:    t.LanguagesCode.String,
+				ParentID:    strconv.Itoa(int(t.ParentID.Int64)),
+			}
+		}), nil
+	}, crowdinTranslations)
+}
+
 var projectCache = cache.New[int, Project]()
 
 func (c *Client) getProject(projectId int) (i Project, err error) {
@@ -569,6 +587,10 @@ func (c *Client) Sync(ctx context.Context, d *directus.Handler) error {
 			return err
 		}
 		err = c.syncSections(ctx, d, project, directory.ID, crowdinTranslations)
+		if err != nil {
+			return err
+		}
+		err = c.syncPages(ctx, d, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
