@@ -86,7 +86,6 @@ func main() {
 	searchService := search.New(queries, config.Algolia)
 	directusEventHandler := directus.NewEventHandler()
 	crowdinClient := crowdin.New(config.Crowdin, directus.NewHandler(directusClient), queries)
-	crowdinClient.Sync(ctx, directus.NewHandler(directusClient))
 
 	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.CloudTasks.QueueID)
 
