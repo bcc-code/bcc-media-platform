@@ -17,7 +17,7 @@ const capFirstLetter = (str: string) => {
 }
 
 const getLanguages: (language: string) => Language[] = (language) => {
-    if (typeof Intl.DisplayNames) {
+    if (typeof Intl.DisplayNames !== "undefined") {
         const displayNames = new Intl.DisplayNames([language], {
             type: "language",
         })
