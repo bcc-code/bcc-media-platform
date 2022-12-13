@@ -44,8 +44,8 @@ type File struct {
 	DirectoryID int    `json:"directoryId"`
 }
 
-// Translation model
-type Translation struct {
+// StringTranslation model
+type StringTranslation struct {
 	StringID      int    `json:"stringId"`
 	TranslationID int    `json:"translationId"`
 	Text          string `json:"text"`
