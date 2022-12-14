@@ -1220,6 +1220,12 @@ type Usergroup struct {
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 }
 
+type UsersAchievement struct {
+	ProfileID     uuid.UUID `db:"profile_id" json:"profileID"`
+	AchievementID uuid.UUID `db:"achievement_id" json:"achievementID"`
+	AchievedAt    time.Time `db:"achieved_at" json:"achievedAt"`
+}
+
 type UsersDevice struct {
 	Token     string    `db:"token" json:"token"`
 	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
