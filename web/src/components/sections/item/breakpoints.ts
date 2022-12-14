@@ -7,7 +7,7 @@ export default (size: "small" | "medium") => {
         case "small":
             return {
                 0: {
-                    slidesPerView: 2.5,
+                    slidesPerView: 2.2,
                     spaceBetween: 10,
                     slidesPerGroup: 2,
                 },
