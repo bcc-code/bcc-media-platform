@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -19,12 +18,12 @@ import (
 
 // Items is the resolver for the items field.
 func (r *cardListSectionResolver) Items(ctx context.Context, obj *model.CardListSection, first *int, offset *int) (*model.SectionItemPagination, error) {
-	panic(fmt.Errorf("not implemented: Items - items"))
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 }
 
 // Items is the resolver for the items field.
 func (r *cardSectionResolver) Items(ctx context.Context, obj *model.CardSection, first *int, offset *int) (*model.SectionItemPagination, error) {
-	panic(fmt.Errorf("not implemented: Items - items"))
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 }
 
 // Items is the resolver for the items field.
