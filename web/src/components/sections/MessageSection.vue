@@ -15,7 +15,7 @@
                     {{ m.title }}
                 </h1>
                 <hr v-if="m.title && m.content" />
-                <p class="p-3 pt-2 text-lg" v-html="convert(m.content)"></p>
+                <p class="p-3 pt-2 text-lg" v-html="mdToHTML(m.content)"></p>
             </div>
         </div>
     </section>
@@ -23,14 +23,7 @@
 <script lang="ts" setup>
 import SectionTitle from "./item/SectionTitle.vue"
 import { Section } from "./types"
-import { Converter } from "showdown"
-
-const convert = (content: string) => {
-    const converter = new Converter({
-        strikethrough: true,
-    })
-    return converter.makeHtml(content)
-}
+import { mdToHTML } from "@/services/converter";
 
 defineProps<{
     item: Section & { __typename: "MessageSection" }

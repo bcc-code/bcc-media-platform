@@ -34,11 +34,6 @@
                                 new Date(episode.productionDate).toDateString()
                             }}</span
                         >
-                        <!-- <span v-else-if="episode.season" class="text-gray ml-1"
-                            >S{{ episode.season.number }}:E{{
-                                episode.number
-                            }}</span
-                        > -->
                     </h1>
                 </div>
                 <div class="text-white mt-2 opacity-70 text-md lg:text-lg">
