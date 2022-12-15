@@ -6,7 +6,7 @@
             <Image class="rounded-xl" size-source="width" :ratio="9/16"></Image>
             <p class="mt-4 opacity-80">{{$t("episode.noAccess.otherContent")}}</p>
             <VButton class="w-full" @click="$router.push('/')">{{$t("episode.noAccess.exploreContent")}}</VButton>
-            <VButton class="w-full" color="green" @click=signIn>{{$t("buttons.login")}}</VButton>
+            <VButton class="w-full" color="green" @click="signIn()">{{$t("buttons.login")}}</VButton>
         </div>
     </div>
 </template>
