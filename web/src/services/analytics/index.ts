@@ -7,18 +7,7 @@ import { useAuth } from "../auth"
 import { current } from "../language"
 import config from "@/config"
 import { useCookies } from "../cookies"
-
-const getRevision = async () => {
-    try {
-        const result = await fetch(config.api.url + "/versionz")
-        const rev = await result.json()
-
-        if (rev["build_sha"]) {
-            return rev
-        }
-    } catch {}
-    return "unknown | debug"
-}
+import { getRevision } from "../revision"
 
 const isLoading = ref(true)
 
