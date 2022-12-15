@@ -15,8 +15,8 @@ import (
 
 // Sentinel errors
 var (
-	ErrItemNotPublished = merry.Sentinel("Selected item is not published")
-	ErrItemNoAccess     = merry.Sentinel("User does not have access to this item")
+	ErrItemNotPublished = common.ErrItemNotPublished
+	ErrItemNoAccess     = common.ErrItemNoAccess
 )
 
 // ValidateAccess returns error if user in context does not have access to the specified item

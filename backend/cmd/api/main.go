@@ -199,6 +199,12 @@ func graphqlHandler(
 	h.Use(tracer)
 	h.SetErrorPresenter(func(ctx context.Context, err error) *gqlerror.Error {
 		gqlError := graphql.DefaultErrorPresenter(ctx, err)
+		if code := merry.Value(err, "code"); code != nil {
+			if gqlError.Extensions == nil {
+				gqlError.Extensions = map[string]any{}
+			}
+			gqlError.Extensions["code"] = code
+		}
 		if userMessage := merry.UserMessage(err); userMessage != "" {
 			gqlError.Message = userMessage
 		}
