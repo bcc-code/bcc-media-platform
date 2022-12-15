@@ -1,14 +1,13 @@
-package achievements
+package common
 
 import (
-	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/google/uuid"
 )
 
 // Achievement is the struct for achievements.sql
 type Achievement struct {
 	ID         uuid.UUID
-	Title      common.LocaleString
+	Title      LocaleString
 	GroupID    uuid.NullUUID
 	Conditions []AchievementCondition
 }
@@ -24,5 +23,5 @@ type AchievementCondition struct {
 // AchievementGroup is a group of different achievements.sql
 type AchievementGroup struct {
 	ID    uuid.UUID
-	Title common.LocaleString
+	Title LocaleString
 }
