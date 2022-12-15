@@ -8,7 +8,6 @@
             ref="image"
             class="object-cover w-full transition"
             :class="[!loaded ? 'opacity-0' : 'opacity-100']"
-            :src="effectiveSrc"
             :height="effectiveHeight"
             :width="effectiveWidth"
             :loading="loading"
@@ -39,6 +38,9 @@ onMounted(() => {
     i.onerror = () => {}
     i.onload = () => {
         loaded.value = true
+    }
+    if (props.src) {
+        i.src = props.src
     }
 })
 

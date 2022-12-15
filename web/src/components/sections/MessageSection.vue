@@ -23,7 +23,7 @@
 <script lang="ts" setup>
 import SectionTitle from "./item/SectionTitle.vue"
 import { Section } from "./types"
-import { mdToHTML } from "@/services/converter";
+import { mdToHTML } from "@/services/converter"
 
 defineProps<{
     item: Section & { __typename: "MessageSection" }

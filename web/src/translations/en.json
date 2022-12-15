@@ -46,7 +46,13 @@
         "availableTo": "Available To",
         "ageRating": "Rating",
         "notFound": "Episode not found",
-        "comingSoon": "Coming soon"
+        "comingSoon": "Coming soon",
+        "noAccess": {
+            "oops": "Oops!",
+            "mustBeLoggedIn": "You need to be logged in to watch this content",
+            "otherContent": "Don't worry, there's still plenty of other content to enjoy!",
+            "exploreContent": "Explore content"
+        }
     },
     "live": {
         "now": "Now"

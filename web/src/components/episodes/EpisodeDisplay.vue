@@ -122,6 +122,9 @@
         </div>
         <div v-if="error" class="text-red">{{ error.message }}</div>
     </section>
+    <LoginToView v-else-if="noAccess && !authenticated">
+        
+    </LoginToView>
     <NotFound v-else-if="!loading" :title="$t('episode.notFound')"></NotFound>
 </template>
 <script lang="ts" setup>
@@ -139,13 +142,17 @@ import AgeRating from "@/components/episodes/AgeRating.vue"
 import SeasonSelector from "@/components/SeasonSelector.vue"
 import ItemList from "../sections/ItemList.vue"
 import NotFound from "../NotFound.vue"
+import LoginToView from "./LoginToView.vue"
 import { episodesToListItems, toListItems } from "@/utils/lists"
+import { useAuth } from "@/services/auth"
 
 const props = defineProps<{
     initialEpisodeId: string
     context: EpisodeContext
     autoPlay?: boolean
 }>()
+
+const { authenticated } = useAuth()
 
 const emit = defineEmits<{
     (e: "episode", v: GetEpisodeQuery["episode"]): void
@@ -178,6 +185,10 @@ const { error, executeQuery } = useGetEpisodeQuery({
         episodeId,
         context,
     },
+})
+
+const noAccess = computed(() => {
+    return error.value?.graphQLErrors.some(e => e.extensions.code === "item/no-access")
 })
 
 const seasonQuery = useGetSeasonOnEpisodePageQuery({

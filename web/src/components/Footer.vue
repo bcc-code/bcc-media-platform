@@ -15,10 +15,10 @@
                     >{{ $t("footer.privacyPolicy") }}</a
                 >
             </div>
-            <div 
+            <div
                 id="footer-description"
-                v-html="mdToHTML($t('footer.information'))">
-            </div>
+                v-html="mdToHTML($t('footer.information'))"
+            ></div>
             <div class="flex flex-col lg:flex-row gap-4 lg:gap-8">
                 <div>
                     <b>{{ $t("footer.headOffice") }}</b>
@@ -40,7 +40,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { mdToHTML } from "@/services/converter";
+import { mdToHTML } from "@/services/converter"
 import { useCookies } from "@/services/cookies"
 
 const { accepted } = useCookies()
