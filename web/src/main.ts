@@ -17,17 +17,19 @@ import i18n from "./i18n"
 
 const app = createApp(App)
 
-sentryInit({
-    app,
-    dsn: "https://3ffd6244935a49dab6913bdc148d8d41@o1045703.ingest.sentry.io/4504299662278656",
-    integrations: [
-        new BrowserTracing({
-            routingInstrumentation: vueRouterInstrumentation(router),
-            tracePropagationTargets: [/^\//],
-        }),
-    ],
-    tracesSampleRate: 1.0,
-})
+if (import.meta.env.PROD) {
+    sentryInit({
+        app,
+        dsn: "https://3ffd6244935a49dab6913bdc148d8d41@o1045703.ingest.sentry.io/4504299662278656",
+        integrations: [
+            new BrowserTracing({
+                routingInstrumentation: vueRouterInstrumentation(router),
+                tracePropagationTargets: [/^\//],
+            }),
+        ],
+        tracesSampleRate: 1.0,
+    })
+}
 
 app.use(i18n).use(router).use(auth0)
 app.mount("#app")
