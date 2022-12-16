@@ -3,7 +3,6 @@
 </template>
 <script lang="ts" setup>
 import { useGetLegacyIdQuery } from '@/graph/generated';
-import { useRouter } from 'vue-router';
 
 const props = defineProps<{
     episodeId?: number
@@ -16,8 +15,6 @@ const {data, then} = useGetLegacyIdQuery({
         programId: props.programId ? Number(props.programId) : undefined,
     }
 })
-
-const router = useRouter()
 
 then(() => {
     if (data.value?.legacyIDLookup.id) {
