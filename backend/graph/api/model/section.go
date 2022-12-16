@@ -75,6 +75,28 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				Size:     size,
 				Metadata: metadata,
 			}
+		case "cards":
+			size := CardSectionSize(s.Size)
+			if !size.IsValid() {
+				size = CardSectionSizeLarge
+			}
+			return &CardSection{
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
+			}
+		case "card_list":
+			size := CardSectionSize(s.Size)
+			if !size.IsValid() {
+				size = CardSectionSizeLarge
+			}
+			return &CardListSection{
+				ID:       id,
+				Title:    title,
+				Size:     size,
+				Metadata: metadata,
+			}
 		case "grid":
 			size := GridSectionSize(s.Size)
 			if !size.IsValid() {

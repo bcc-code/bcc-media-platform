@@ -78,34 +78,34 @@ func incrementallyRetrieve[T any](factory func(limit int, offset int) ([]T, erro
 	return
 }
 
-func (client *Client) getTranslations(projectId int, fileId int, language string) ([]Translation, error) {
+func (c *Client) getTranslations(projectId int, fileId int, language string) ([]Translation, error) {
 	return incrementallyRetrieve(func(limit int, offset int) ([]Translation, error) {
-		return getItems[Translation](client, fmt.Sprintf("projects/%d/languages/%s/translations", projectId, language), limit, offset, map[string]string{
+		return getItems[Translation](c, fmt.Sprintf("projects/%d/languages/%s/translations", projectId, language), limit, offset, map[string]string{
 			"fileId": strconv.Itoa(fileId),
 		})
 	})
 }
 
-func (client *Client) getApprovals(projectId int, fileId int, language string) ([]Approval, error) {
+func (c *Client) getApprovals(projectId int, fileId int, language string) ([]Approval, error) {
 	return incrementallyRetrieve(func(limit int, offset int) ([]Approval, error) {
-		return getItems[Approval](client, fmt.Sprintf("projects/%d/approvals", projectId), limit, offset, map[string]string{
+		return getItems[Approval](c, fmt.Sprintf("projects/%d/approvals", projectId), limit, offset, map[string]string{
 			"fileId":     strconv.Itoa(fileId),
 			"languageId": language,
 		})
 	})
 }
 
-func (client *Client) getStrings(projectId int, fileId int) ([]String, error) {
+func (c *Client) getStrings(projectId int, fileId int) ([]String, error) {
 	return incrementallyRetrieve(func(limit int, offset int) ([]String, error) {
-		return getItems[String](client, fmt.Sprintf("projects/%d/strings", projectId), limit, offset, map[string]string{
+		return getItems[String](c, fmt.Sprintf("projects/%d/strings", projectId), limit, offset, map[string]string{
 			"fileId": strconv.Itoa(fileId),
 		})
 	})
 }
 
-func (client *Client) getFiles(projectId int, directoryId int) ([]File, error) {
+func (c *Client) getFiles(projectId int, directoryId int) ([]File, error) {
 	return incrementallyRetrieve(func(limit int, offset int) ([]File, error) {
-		return getItems[File](client, fmt.Sprintf("projects/%d/files", projectId), limit, offset, map[string]string{
+		return getItems[File](c, fmt.Sprintf("projects/%d/files", projectId), limit, offset, map[string]string{
 			"directoryId": strconv.Itoa(directoryId),
 		})
 	})
@@ -113,14 +113,14 @@ func (client *Client) getFiles(projectId int, directoryId int) ([]File, error) {
 
 var directoriesCache = cache.New[int, []Directory]()
 
-func (client *Client) getDirectories(projectId int) ([]Directory, error) {
+func (c *Client) getDirectories(projectId int) ([]Directory, error) {
 	return getFromCacheOrIncrementallyRetrieve(directoriesCache, projectId, func(limit int, offset int) ([]Directory, error) {
-		return getItems[Directory](client, fmt.Sprintf("projects/%d/directories", projectId), limit, offset, nil)
+		return getItems[Directory](c, fmt.Sprintf("projects/%d/directories", projectId), limit, offset, nil)
 	})
 }
 
-func (client *Client) setString(projectId int, s String) (r String, err error) {
-	req := client.c.R()
+func (c *Client) setString(projectId int, s String) (r String, err error) {
+	req := c.c.R()
 	req.SetBody([]patchRequest{
 		{
 			Value: s.Text,
@@ -138,12 +138,12 @@ func (client *Client) setString(projectId int, s String) (r String, err error) {
 	if err == nil {
 		r = res.Result().(*Object[String]).Data
 	}
-	project, err := client.getProject(projectId)
+	project, err := c.getProject(projectId)
 	if err != nil {
 		return
 	}
 	for _, language := range project.TargetLanguages {
-		req = client.c.R()
+		req = c.c.R()
 		req.SetResult(Result[[]Object[Approval]]{})
 		req.SetQueryParams(map[string]string{
 			"stringId":   strconv.Itoa(r.ID),
@@ -154,7 +154,7 @@ func (client *Client) setString(projectId int, s String) (r String, err error) {
 			return
 		}
 		for _, approval := range res.Result().(*Result[[]Object[Approval]]).Data {
-			req = client.c.R()
+			req = c.c.R()
 			_, err = req.Delete(fmt.Sprintf("projects/%d/approvals/%d", project.ID, approval.Data.ID))
 			if err != nil {
 				return
@@ -164,8 +164,8 @@ func (client *Client) setString(projectId int, s String) (r String, err error) {
 	return
 }
 
-func (client *Client) addString(projectId int, fileId int, s String) (r String, err error) {
-	req := client.c.R()
+func (c *Client) addString(projectId int, fileId int, s String) (r String, err error) {
+	req := c.c.R()
 	req.SetBody(addStringRequest{
 		Identifier: s.Identifier,
 		Text:       s.Text,
@@ -183,9 +183,9 @@ func (client *Client) addString(projectId int, fileId int, s String) (r String, 
 	return
 }
 
-func (client *Client) addStrings(projectId int, fileId int, strings []String) error {
+func (c *Client) addStrings(projectId int, fileId int, strings []String) error {
 	for _, s := range strings {
-		_, err := client.addString(projectId, fileId, s)
+		_, err := c.addString(projectId, fileId, s)
 		if err != nil {
 			return err
 		}
@@ -193,12 +193,12 @@ func (client *Client) addStrings(projectId int, fileId int, strings []String) er
 	return nil
 }
 
-func (client *Client) createFile(projectId int, directoryId int, title string, initialStrings []String) (file File, err error) {
+func (c *Client) createFile(projectId int, directoryId int, title string, initialStrings []String) (file File, err error) {
 	content := ""
 	for _, s := range initialStrings {
 		content += fmt.Sprintf("%s,%s\n", s.Identifier, "\""+crowdinString(s.Text)+"\"")
 	}
-	req := client.c.R()
+	req := c.c.R()
 	req.SetHeader("Crowdin-API-FileName", fmt.Sprintf("%s.csv", title))
 	req.SetBody(content)
 	req.SetResult(Object[storageCreateResponse]{})
@@ -213,7 +213,7 @@ func (client *Client) createFile(projectId int, directoryId int, title string, i
 
 	storage := res.Result().(*Object[storageCreateResponse]).Data
 
-	req = client.c.R()
+	req = c.c.R()
 	req.SetBody(addFileRequest{
 		Name:        title + ".csv",
 		Title:       title,

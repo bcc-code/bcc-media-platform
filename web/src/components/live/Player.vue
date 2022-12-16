@@ -3,6 +3,7 @@
     <div v-if="err" class="w-full h-full text-center text-xl">{{ err }}</div>
 </template>
 <script lang="ts" setup>
+import { useGetAnalyticsIdQuery } from "@/graph/generated"
 import Auth from "@/services/auth"
 import { createPlayer, Player } from "bccm-video-player"
 import "bccm-video-player/css"
@@ -14,6 +15,8 @@ const err = ref(null as string | null)
 let player: Player | null = null
 
 const route = useRoute()
+
+const { data, executeQuery } = useGetAnalyticsIdQuery()
 
 onMounted(async () => {
     const fullPath = route.fullPath
@@ -37,6 +40,10 @@ onMounted(async () => {
         return
     }
 
+    if (!data.value) {
+        await executeQuery()
+    }
+
     const body = await res.json()
     const url = body.url
 
@@ -47,6 +54,15 @@ onMounted(async () => {
         autoplay: true,
         videojs: {
             autoplay: true,
+        },
+        npaw: {
+            enabled: true,
+            accountCode: import.meta.env.VITE_NPAW_ACCOUNT_CODE,
+            tracking: {
+                isLive: true,
+                userId: data.value?.me.analytics.anonymousId ?? "anonymous",
+                metadata: {}
+            },
         },
     })
 })

@@ -13,7 +13,7 @@ type Translation struct {
 	Title         string `json:"title"`
 	Description   string `json:"description,omitempty"`
 	LanguagesCode string `json:"languages_code"`
-	IsPrimary     bool   `json:"is_primary"`
+	//IsPrimary     bool   `json:"is_primary"`
 }
 
 // EpisodesTranslation extends Translation
@@ -41,6 +41,12 @@ type SectionsTranslation struct {
 	SectionsID int `json:"sections_id"`
 }
 
+// PagesTranslation extends Translation
+type PagesTranslation struct {
+	Translation
+	PagesID int `json:"sections_id"`
+}
+
 type update struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
@@ -52,8 +58,11 @@ type episodesUpdate struct {
 }
 
 // UID retrieves the not so unique ID (except internally in Collection)
-func (i Translation) UID() int {
-	return i.ID
+func (i Translation) UID() string {
+	if i.ID == 0 {
+		return ""
+	}
+	return strconv.Itoa(i.ID)
 }
 
 // ForUpdate retrieves a struct with mutable properties
@@ -95,8 +104,13 @@ func (SectionsTranslation) TypeName() string {
 	return "sections_translations"
 }
 
-// GetSourceLanguage retrieves the configured language for this translation
-func (i Translation) GetSourceLanguage() string {
+// TypeName shows_translations
+func (PagesTranslation) TypeName() string {
+	return "pages_translations"
+}
+
+// GetLanguage retrieves the configured language for this translation
+func (i Translation) GetLanguage() string {
 	return i.LanguagesCode
 }
 

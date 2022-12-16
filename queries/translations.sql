@@ -40,3 +40,12 @@ SELECT st.id, sections_id as parent_id, languages_code, title, description
 FROM sections_translations st
          JOIN sections e ON e.id = st.sections_id
 WHERE st.languages_code = ANY ($1::varchar[]);
+
+-- name: ListPageTranslations :many
+WITH pages AS (SELECT s.id
+                  FROM pages s
+                  WHERE s.status = 'published')
+SELECT st.id, pages_id as parent_id, languages_code, title, description
+FROM pages_translations st
+         JOIN pages e ON e.id = st.pages_id
+WHERE st.languages_code = ANY ($1::varchar[]);

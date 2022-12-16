@@ -65,6 +65,53 @@ func (q *Queries) ListEpisodeTranslations(ctx context.Context, dollar_1 []string
 	return items, nil
 }
 
+const listPageTranslations = `-- name: ListPageTranslations :many
+WITH pages AS (SELECT s.id
+                  FROM pages s
+                  WHERE s.status = 'published')
+SELECT st.id, pages_id as parent_id, languages_code, title, description
+FROM pages_translations st
+         JOIN pages e ON e.id = st.pages_id
+WHERE st.languages_code = ANY ($1::varchar[])
+`
+
+type ListPageTranslationsRow struct {
+	ID            int32          `db:"id" json:"id"`
+	ParentID      null_v4.Int    `db:"parent_id" json:"parentID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) ListPageTranslations(ctx context.Context, dollar_1 []string) ([]ListPageTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listPageTranslations, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListPageTranslationsRow
+	for rows.Next() {
+		var i ListPageTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.LanguagesCode,
+			&i.Title,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listSeasonTranslations = `-- name: ListSeasonTranslations :many
 WITH seasons AS (SELECT s.id
                  FROM seasons s

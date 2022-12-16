@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"gopkg.in/guregu/null.v4"
+	"strconv"
 )
 
 // Item model
@@ -30,8 +31,11 @@ type Show struct {
 }
 
 // UID retrieves the not so unique ID (but unique in collection)
-func (i Item) UID() int {
-	return i.ID
+func (i Item) UID() string {
+	if i.ID == 0 {
+		return ""
+	}
+	return strconv.Itoa(i.ID)
 }
 
 // ForUpdate retrieves a model with only mutable properties
