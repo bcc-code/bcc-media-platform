@@ -449,9 +449,19 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)
 }
 
+// Achievement is the resolver for the achievement field.
+func (r *queryRootResolver) Achievement(ctx context.Context, id string) (*model.Achievement, error) {
+	panic(fmt.Errorf("not implemented: Achievement - achievement"))
+}
+
 // Achievements is the resolver for the achievements field.
 func (r *queryRootResolver) Achievements(ctx context.Context, first *int, offset *int) (*model.AchievementPagination, error) {
 	panic(fmt.Errorf("not implemented: Achievements - achievements"))
+}
+
+// AchievementGroup is the resolver for the achievementGroup field.
+func (r *queryRootResolver) AchievementGroup(ctx context.Context, id string) (*model.AchievementGroup, error) {
+	panic(fmt.Errorf("not implemented: AchievementGroup - achievementGroup"))
 }
 
 // AchievementGroups is the resolver for the achievementGroups field.

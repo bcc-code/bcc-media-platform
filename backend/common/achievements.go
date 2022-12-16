@@ -2,12 +2,14 @@ package common
 
 import (
 	"github.com/google/uuid"
+	"gopkg.in/guregu/null.v4"
 )
 
 // Achievement is the struct for achievements.sql
 type Achievement struct {
 	ID         uuid.UUID
 	Title      LocaleString
+	Images     LocaleMap[null.String]
 	GroupID    uuid.NullUUID
 	Conditions []AchievementCondition
 }

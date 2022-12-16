@@ -16,9 +16,19 @@ func (r *achievementResolver) Image(ctx context.Context, obj *model.Achievement)
 	panic(fmt.Errorf("not implemented: Image - image"))
 }
 
+// Achieved is the resolver for the achieved field.
+func (r *achievementResolver) Achieved(ctx context.Context, obj *model.Achievement) (bool, error) {
+	panic(fmt.Errorf("not implemented: Achieved - achieved"))
+}
+
 // Group is the resolver for the group field.
 func (r *achievementResolver) Group(ctx context.Context, obj *model.Achievement) (*model.AchievementGroup, error) {
-	panic(fmt.Errorf("not implemented: Group - group"))
+	if obj.Group != nil {
+		// Ignore errors, as this field should just be null if they occur
+		g, _ := r.QueryRoot().AchievementGroup(ctx, obj.Group.ID)
+		return g, nil
+	}
+	return nil, nil
 }
 
 // Achievements is the resolver for the achievements field.

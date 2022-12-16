@@ -88,10 +88,11 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Achievement struct {
-		Group func(childComplexity int) int
-		ID    func(childComplexity int) int
-		Image func(childComplexity int) int
-		Title func(childComplexity int) int
+		Achieved func(childComplexity int) int
+		Group    func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Image    func(childComplexity int) int
+		Title    func(childComplexity int) int
 	}
 
 	AchievementGroup struct {
@@ -520,6 +521,8 @@ type ComplexityRoot struct {
 	}
 
 	QueryRoot struct {
+		Achievement       func(childComplexity int, id string) int
+		AchievementGroup  func(childComplexity int, id string) int
 		AchievementGroups func(childComplexity int, first *int, offset *int) int
 		Achievements      func(childComplexity int, first *int, offset *int) int
 		Application       func(childComplexity int) int
@@ -786,6 +789,7 @@ type ComplexityRoot struct {
 
 type AchievementResolver interface {
 	Image(ctx context.Context, obj *model.Achievement) (*string, error)
+	Achieved(ctx context.Context, obj *model.Achievement) (bool, error)
 	Group(ctx context.Context, obj *model.Achievement) (*model.AchievementGroup, error)
 }
 type AchievementGroupResolver interface {
@@ -931,7 +935,9 @@ type QueryRootResolver interface {
 	Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error)
 	Collection(ctx context.Context, id *string, slug *string) (*model.Collection, error)
 	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
+	Achievement(ctx context.Context, id string) (*model.Achievement, error)
 	Achievements(ctx context.Context, first *int, offset *int) (*model.AchievementPagination, error)
+	AchievementGroup(ctx context.Context, id string) (*model.AchievementGroup, error)
 	AchievementGroups(ctx context.Context, first *int, offset *int) (*model.AchievementGroupPagination, error)
 	StudyTopic(ctx context.Context, id string) (*model.StudyTopic, error)
 	StudyLesson(ctx context.Context, id string) (*model.Lesson, error)
@@ -1013,6 +1019,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "Achievement.achieved":
+		if e.complexity.Achievement.Achieved == nil {
+			break
+		}
+
+		return e.complexity.Achievement.Achieved(childComplexity), true
 
 	case "Achievement.group":
 		if e.complexity.Achievement.Group == nil {
@@ -3052,6 +3065,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Profile.Name(childComplexity), true
 
+	case "QueryRoot.achievement":
+		if e.complexity.QueryRoot.Achievement == nil {
+			break
+		}
+
+		args, err := ec.field_QueryRoot_achievement_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.Achievement(childComplexity, args["id"].(string)), true
+
+	case "QueryRoot.achievementGroup":
+		if e.complexity.QueryRoot.AchievementGroup == nil {
+			break
+		}
+
+		args, err := ec.field_QueryRoot_achievementGroup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.AchievementGroup(childComplexity, args["id"].(string)), true
+
 	case "QueryRoot.achievementGroups":
 		if e.complexity.QueryRoot.AchievementGroups == nil {
 			break
@@ -4465,6 +4502,7 @@ var sources = []*ast.Source{
     id: ID!
     title: String!
     image: String @goField(forceResolver: true)
+    achieved: Boolean! @goField(forceResolver: true)
     group: AchievementGroup @goField(forceResolver: true)
 }
 
@@ -5184,7 +5222,10 @@ type QueryRoot{
     minScore: Int
   ): SearchResult!
 
+  achievement(id: ID!): Achievement!
   achievements(first: Int, offset: Int): AchievementPagination!
+
+  achievementGroup(id: ID!): AchievementGroup!
   achievementGroups(first: Int, offset: Int): AchievementGroupPagination!
 
   studyTopic(id: ID!): StudyTopic!
@@ -6289,6 +6330,21 @@ func (ec *executionContext) field_QueryRoot___type_args(ctx context.Context, raw
 	return args, nil
 }
 
+func (ec *executionContext) field_QueryRoot_achievementGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_QueryRoot_achievementGroups_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -6310,6 +6366,21 @@ func (ec *executionContext) field_QueryRoot_achievementGroups_args(ctx context.C
 		}
 	}
 	args["offset"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_QueryRoot_achievement_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -6891,6 +6962,50 @@ func (ec *executionContext) fieldContext_Achievement_image(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Achievement_achieved(ctx context.Context, field graphql.CollectedField, obj *model.Achievement) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Achievement_achieved(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Achievement().Achieved(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Achievement_achieved(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Achievement",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Achievement_group(ctx context.Context, field graphql.CollectedField, obj *model.Achievement) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Achievement_group(ctx, field)
 	if err != nil {
@@ -7454,6 +7569,8 @@ func (ec *executionContext) fieldContext_AchievementPagination_items(ctx context
 				return ec.fieldContext_Achievement_title(ctx, field)
 			case "image":
 				return ec.fieldContext_Achievement_image(ctx, field)
+			case "achieved":
+				return ec.fieldContext_Achievement_achieved(ctx, field)
 			case "group":
 				return ec.fieldContext_Achievement_group(ctx, field)
 			}
@@ -20264,6 +20381,73 @@ func (ec *executionContext) fieldContext_QueryRoot_search(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _QueryRoot_achievement(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_achievement(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().Achievement(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Achievement)
+	fc.Result = res
+	return ec.marshalNAchievement2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAchievement(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_achievement(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Achievement_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Achievement_title(ctx, field)
+			case "image":
+				return ec.fieldContext_Achievement_image(ctx, field)
+			case "achieved":
+				return ec.fieldContext_Achievement_achieved(ctx, field)
+			case "group":
+				return ec.fieldContext_Achievement_group(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Achievement", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_achievement_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _QueryRoot_achievements(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_QueryRoot_achievements(ctx, field)
 	if err != nil {
@@ -20323,6 +20507,69 @@ func (ec *executionContext) fieldContext_QueryRoot_achievements(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_QueryRoot_achievements_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_achievementGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_achievementGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().AchievementGroup(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.AchievementGroup)
+	fc.Result = res
+	return ec.marshalNAchievementGroup2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAchievementGroup(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_achievementGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AchievementGroup_id(ctx, field)
+			case "title":
+				return ec.fieldContext_AchievementGroup_title(ctx, field)
+			case "achievements":
+				return ec.fieldContext_AchievementGroup_achievements(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AchievementGroup", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_achievementGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -30741,6 +30988,26 @@ func (ec *executionContext) _Achievement(ctx context.Context, sel ast.SelectionS
 				return innerFunc(ctx)
 
 			})
+		case "achieved":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Achievement_achieved(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "group":
 			field := field
 
@@ -34506,6 +34773,29 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "achievement":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_achievement(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "achievements":
 			field := field
 
@@ -34516,6 +34806,29 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._QueryRoot_achievements(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "achievementGroup":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_achievementGroup(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -37029,6 +37342,10 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) marshalNAchievement2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAchievement(ctx context.Context, sel ast.SelectionSet, v model.Achievement) graphql.Marshaler {
+	return ec._Achievement(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNAchievement2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAchievementᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Achievement) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -37081,6 +37398,10 @@ func (ec *executionContext) marshalNAchievement2ᚖgithubᚗcomᚋbccᚑcodeᚋb
 		return graphql.Null
 	}
 	return ec._Achievement(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAchievementGroup2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAchievementGroup(ctx context.Context, sel ast.SelectionSet, v model.AchievementGroup) graphql.Marshaler {
+	return ec._AchievementGroup(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNAchievementGroup2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAchievementGroupᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AchievementGroup) graphql.Marshaler {

@@ -89,10 +89,11 @@ type Task interface {
 }
 
 type Achievement struct {
-	ID    string            `json:"id"`
-	Title string            `json:"title"`
-	Image *string           `json:"image"`
-	Group *AchievementGroup `json:"group"`
+	ID       string            `json:"id"`
+	Title    string            `json:"title"`
+	Image    *string           `json:"image"`
+	Achieved bool              `json:"achieved"`
+	Group    *AchievementGroup `json:"group"`
 }
 
 type AchievementGroup struct {

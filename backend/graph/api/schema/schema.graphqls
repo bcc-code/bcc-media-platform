@@ -102,7 +102,10 @@ type QueryRoot{
     minScore: Int
   ): SearchResult!
 
+  achievement(id: ID!): Achievement!
   achievements(first: Int, offset: Int): AchievementPagination!
+
+  achievementGroup(id: ID!): AchievementGroup!
   achievementGroups(first: Int, offset: Int): AchievementGroupPagination!
 
   studyTopic(id: ID!): StudyTopic!
