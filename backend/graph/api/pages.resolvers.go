@@ -17,6 +17,16 @@ import (
 )
 
 // Items is the resolver for the items field.
+func (r *cardListSectionResolver) Items(ctx context.Context, obj *model.CardListSection, first *int, offset *int) (*model.SectionItemPagination, error) {
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+}
+
+// Items is the resolver for the items field.
+func (r *cardSectionResolver) Items(ctx context.Context, obj *model.CardSection, first *int, offset *int) (*model.SectionItemPagination, error) {
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+}
+
+// Items is the resolver for the items field.
 func (r *collectionResolver) Items(ctx context.Context, obj *model.Collection, first *int, offset *int) (*model.CollectionItemPagination, error) {
 	pagination, err := collectionItemResolverFromCollection(ctx, r.Resolver, obj.ID, first, offset)
 	if err != nil {
@@ -183,6 +193,14 @@ func (r *sectionItemResolver) Image(ctx context.Context, obj *model.SectionItem)
 	return obj.Image, nil
 }
 
+// CardListSection returns generated.CardListSectionResolver implementation.
+func (r *Resolver) CardListSection() generated.CardListSectionResolver {
+	return &cardListSectionResolver{r}
+}
+
+// CardSection returns generated.CardSectionResolver implementation.
+func (r *Resolver) CardSection() generated.CardSectionResolver { return &cardSectionResolver{r} }
+
 // Collection returns generated.CollectionResolver implementation.
 func (r *Resolver) Collection() generated.CollectionResolver { return &collectionResolver{r} }
 
@@ -242,6 +260,8 @@ func (r *Resolver) PosterSection() generated.PosterSectionResolver { return &pos
 // SectionItem returns generated.SectionItemResolver implementation.
 func (r *Resolver) SectionItem() generated.SectionItemResolver { return &sectionItemResolver{r} }
 
+type cardListSectionResolver struct{ *Resolver }
+type cardSectionResolver struct{ *Resolver }
 type collectionResolver struct{ *Resolver }
 type contextCollectionResolver struct{ *Resolver }
 type defaultGridSectionResolver struct{ *Resolver }

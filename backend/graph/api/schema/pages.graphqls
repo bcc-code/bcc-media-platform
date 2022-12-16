@@ -37,6 +37,11 @@ enum SectionSize {
     medium
 }
 
+enum CardSectionSize {
+    large
+    mini
+}
+
 enum GridSectionSize {
     half
 }
@@ -72,11 +77,27 @@ type DefaultSection implements Section & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
+type CardSection implements Section & ItemSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    size: CardSectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
 type ListSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
     size: SectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type CardListSection implements Section & ItemSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    size: CardSectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 

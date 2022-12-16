@@ -133,6 +133,42 @@ type CalendarPeriod struct {
 	Events     []*Event `json:"events"`
 }
 
+type CardListSection struct {
+	ID       string                 `json:"id"`
+	Metadata *ItemSectionMetadata   `json:"metadata"`
+	Title    *string                `json:"title"`
+	Size     CardSectionSize        `json:"size"`
+	Items    *SectionItemPagination `json:"items"`
+}
+
+func (CardListSection) IsSection()             {}
+func (this CardListSection) GetID() string     { return this.ID }
+func (this CardListSection) GetTitle() *string { return this.Title }
+
+func (CardListSection) IsItemSection() {}
+
+func (this CardListSection) GetMetadata() *ItemSectionMetadata { return this.Metadata }
+
+func (this CardListSection) GetItems() *SectionItemPagination { return this.Items }
+
+type CardSection struct {
+	ID       string                 `json:"id"`
+	Metadata *ItemSectionMetadata   `json:"metadata"`
+	Title    *string                `json:"title"`
+	Size     CardSectionSize        `json:"size"`
+	Items    *SectionItemPagination `json:"items"`
+}
+
+func (CardSection) IsSection()             {}
+func (this CardSection) GetID() string     { return this.ID }
+func (this CardSection) GetTitle() *string { return this.Title }
+
+func (CardSection) IsItemSection() {}
+
+func (this CardSection) GetMetadata() *ItemSectionMetadata { return this.Metadata }
+
+func (this CardSection) GetItems() *SectionItemPagination { return this.Items }
+
 type Chapter struct {
 	ID    string `json:"id"`
 	Start int    `json:"start"`
@@ -1046,6 +1082,47 @@ type WebSection struct {
 func (WebSection) IsSection()             {}
 func (this WebSection) GetID() string     { return this.ID }
 func (this WebSection) GetTitle() *string { return this.Title }
+
+type CardSectionSize string
+
+const (
+	CardSectionSizeLarge CardSectionSize = "large"
+	CardSectionSizeMini  CardSectionSize = "mini"
+)
+
+var AllCardSectionSize = []CardSectionSize{
+	CardSectionSizeLarge,
+	CardSectionSizeMini,
+}
+
+func (e CardSectionSize) IsValid() bool {
+	switch e {
+	case CardSectionSizeLarge, CardSectionSizeMini:
+		return true
+	}
+	return false
+}
+
+func (e CardSectionSize) String() string {
+	return string(e)
+}
+
+func (e *CardSectionSize) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CardSectionSize(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CardSectionSize", str)
+	}
+	return nil
+}
+
+func (e CardSectionSize) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
 
 type EpisodeType string
 
