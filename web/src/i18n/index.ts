@@ -82,4 +82,5 @@ export default setup({
     fallbackLocale: "en",
     silentTranslationWarn: import.meta.env.PROD,
     silentFallbackWarn: import.meta.env.PROD,
+    
 })

@@ -122,9 +122,7 @@
         </div>
         <div v-if="error" class="text-red">{{ error.message }}</div>
     </section>
-    <LoginToView v-else-if="noAccess && !authenticated">
-        
-    </LoginToView>
+    <LoginToView v-else-if="noAccess && !authenticated"> </LoginToView>
     <NotFound v-else-if="!loading" :title="$t('episode.notFound')"></NotFound>
 </template>
 <script lang="ts" setup>
@@ -188,7 +186,9 @@ const { error, executeQuery } = useGetEpisodeQuery({
 })
 
 const noAccess = computed(() => {
-    return error.value?.graphQLErrors.some(e => e.extensions.code === "item/no-access")
+    return error.value?.graphQLErrors.some(
+        (e) => e.extensions.code === "item/no-access"
+    )
 })
 
 const seasonQuery = useGetSeasonOnEpisodePageQuery({
