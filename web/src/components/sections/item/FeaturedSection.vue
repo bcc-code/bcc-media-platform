@@ -8,7 +8,7 @@
             @load-more="$emit('loadMore')"
         >
             <div
-                class="relative h-full cursor-pointer aspect-video lg:aspect-[11/5] overflow-hidden"
+                class="relative h-full cursor-pointer max-h-[60vh] overflow-hidden"
                 @click="$emit('clickItem', index)"
             >
                 <Image
