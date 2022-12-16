@@ -10,17 +10,19 @@ export const getRevision = async () => {
     try {
         const { getToken } = useAuth()
         const token = await getToken()
-        const headers = token ? {
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }
-        } : {};
+        const headers = token
+            ? {
+                  headers: {
+                      Authorization: "Bearer " + token,
+                  },
+              }
+            : {}
         const result = await fetch(api.url + "/versionz", headers)
 
         const rev = await result.json()
 
         if (rev["build_sha"]) {
-            return revision = rev
+            return (revision = rev)
         }
     } catch {}
     return (revision = "unknown | debug")

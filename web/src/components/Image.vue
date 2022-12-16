@@ -40,7 +40,7 @@ onMounted(() => {
         loaded.value = true
     }
     if (props.src) {
-        i.src = props.src
+        i.src = effectiveSrc.value
     }
 })
 
@@ -65,14 +65,18 @@ const effectiveSrc = computed(() => {
 })
 
 const effectiveWidth = computed(() => {
-    return props.sizeSource === "height"
-        ? getImageSize(parentDimensions.value.height) * (props.ratio ?? 1)
-        : getImageSize(parentDimensions.value.width)
+    return Math.floor(
+        props.sizeSource === "height"
+            ? getImageSize(parentDimensions.value.height) * (props.ratio ?? 1)
+            : getImageSize(parentDimensions.value.width)
+    )
 })
 
 const effectiveHeight = computed(() => {
-    return props.sizeSource === "height"
-        ? getImageSize(parentDimensions.value.height)
-        : getImageSize(parentDimensions.value.width) * (props.ratio ?? 1)
+    return Math.floor(
+        props.sizeSource === "height"
+            ? getImageSize(parentDimensions.value.height)
+            : getImageSize(parentDimensions.value.width) * (props.ratio ?? 1)
+    )
 })
 </script>

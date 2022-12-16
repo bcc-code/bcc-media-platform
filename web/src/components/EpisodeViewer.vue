@@ -59,6 +59,7 @@ const updateEpisodeProgress = async (episode: {
     })
 }
 
+let lastProgress = props.episode.progress
 const loaded = ref(false)
 
 const load = async () => {
@@ -94,28 +95,10 @@ const load = async () => {
                 },
             },
         })
-        let lastProgress = props.episode.progress
+        lastProgress = props.episode.progress
         player.value.currentTime(lastProgress)
         if (isAuthenticated.value) {
-            player.value.on("timeupdate", async () => {
-                const progress = Math.floor(player.value.currentTime())
-                if (
-                    progress &&
-                    (lastProgress === null ||
-                        lastProgress === undefined ||
-                        (progress != lastProgress && progress % 15 === 0) ||
-                        lastProgress - progress < -15 ||
-                        progress - lastProgress < -15)
-                ) {
-                    lastProgress = progress
-                    await updateEpisodeProgress({
-                        id: episodeId,
-                        duration: props.episode.duration,
-                        progress: progress,
-                    })
-                    setProgress(episodeId, progress)
-                }
-            })
+            player.value.on("timeupdate", checkProgress)
         }
         if (player.value === null) {
             addError("No available VOD for this episode")
@@ -124,10 +107,36 @@ const load = async () => {
     }
 }
 
+const checkProgress = async (force?: boolean) => {
+    if (!player.value) {
+        return
+    }
+    const episodeId = props.episode.id
+    const progress = Math.floor(player.value.currentTime())
+    if (
+        force === true ||
+        (progress &&
+            (lastProgress === null ||
+                lastProgress === undefined ||
+                (progress != lastProgress && progress % 15 === 0) ||
+                lastProgress - progress < -15 ||
+                progress - lastProgress < -15))
+    ) {
+        lastProgress = progress
+        await updateEpisodeProgress({
+            id: episodeId,
+            duration: props.episode.duration,
+            progress: progress,
+        })
+        setProgress(episodeId, progress)
+    }
+}
+
 onUpdated(load)
 onMounted(load)
 
-onUnmounted(() => {
+onUnmounted(async () => {
+    await checkProgress(true)
     player.value?.dispose()
 })
 </script>

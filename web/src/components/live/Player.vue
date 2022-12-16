@@ -61,7 +61,7 @@ onMounted(async () => {
             tracking: {
                 isLive: true,
                 userId: data.value?.me.analytics.anonymousId ?? "anonymous",
-                metadata: {}
+                metadata: {},
             },
         },
     })
