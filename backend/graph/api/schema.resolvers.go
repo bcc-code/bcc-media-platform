@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -446,6 +447,16 @@ func (r *queryRootResolver) Collection(ctx context.Context, id *string, slug *st
 // Search is the resolver for the search field.
 func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error) {
 	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)
+}
+
+// Achievements is the resolver for the achievements field.
+func (r *queryRootResolver) Achievements(ctx context.Context, first *int, offset *int) (*model.AchievementPagination, error) {
+	panic(fmt.Errorf("not implemented: Achievements - achievements"))
+}
+
+// AchievementGroups is the resolver for the achievementGroups field.
+func (r *queryRootResolver) AchievementGroups(ctx context.Context, first *int, offset *int) (*model.AchievementGroupPagination, error) {
+	panic(fmt.Errorf("not implemented: AchievementGroups - achievementGroups"))
 }
 
 // StudyTopic is the resolver for the studyTopic field.

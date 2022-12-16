@@ -2,6 +2,7 @@ type Achievement {
     id: ID!
     title: String!
     image: String @goField(forceResolver: true)
+    achieved: Boolean! @goField(forceResolver: true)
     group: AchievementGroup @goField(forceResolver: true)
 }
 
@@ -16,4 +17,11 @@ type AchievementGroup {
     id: ID!
     title: String!
     achievements(first: Int, offset: Int): AchievementPagination! @goField(forceResolver: true)
+}
+
+type AchievementGroupPagination implements Pagination {
+    offset: Int!
+    first: Int!
+    total: Int!
+    items: [AchievementGroup!]!
 }
