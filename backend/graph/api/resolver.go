@@ -93,11 +93,6 @@ type awsConfig interface {
 	GetTempStorageBucket() string
 }
 
-type cdnConfig interface {
-	GetVOD2Domain() string
-	GetLegacyVODDomain() string
-}
-
 type apiConfig interface {
 	GetVOD2Domain() string
 	GetFilesCDNDomain() string
@@ -108,10 +103,10 @@ type redirectConfig interface {
 	GetPrivateKey() *rsa.PrivateKey
 }
 
-// ErrItemNotFound for not found items
+// Errors
 var (
-	ErrItemNotFound  = merry.Sentinel("item not found")
-	ErrProfileNotSet = merry.Sentinel("profile not set", merry.WithUserMessage("must be logged in for this function"))
+	ErrItemNotFound  = common.ErrItemNotFound
+	ErrProfileNotSet = common.ErrProfileNotSet
 )
 
 var requestLocks = map[string]*sync.Mutex{}

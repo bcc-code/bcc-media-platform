@@ -29,7 +29,10 @@ const effectiveHeight = computed(() => {
     if (!frame.value) {
         return 0
     }
-    const rect = frame.value.getBoundingClientRect()
+    const rect = frame.value?.getBoundingClientRect()
+    if (!rect) {
+        return 0
+    }
 
     return rect.width / (props.item.aspectRatio ?? 1)
 })

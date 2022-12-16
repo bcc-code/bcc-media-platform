@@ -26,7 +26,7 @@ func Middleware() gin.HandlerFunc {
 			return
 		}
 
-		const rateLimit = 200
+		const rateLimit = 10000
 
 		forwardedFor := ctx.Request.Header.Get("X-Forwarded-For")
 

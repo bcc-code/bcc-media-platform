@@ -83,7 +83,10 @@ export class Auth {
     }
 
     public static user() {
-        const { user } = useAuth0()
+        const { isAuthenticated, user } = useAuth0()
+        // if (!isAuthenticated.value) {
+        //     return null
+        // }
         return user
     }
 
