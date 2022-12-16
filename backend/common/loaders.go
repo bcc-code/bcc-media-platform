@@ -45,6 +45,9 @@ type BatchLoaders struct {
 	EpisodePermissionLoader *dataloader.Loader[int, *Permissions[int]]
 	PagePermissionLoader    *dataloader.Loader[int, *Permissions[int]]
 	SectionPermissionLoader *dataloader.Loader[int, *Permissions[int]]
+	// Achievements
+	AchievementLoader      *batchloaders.BatchLoader[uuid.UUID, *Achievement]
+	AchievementGroupLoader *batchloaders.BatchLoader[uuid.UUID, *AchievementGroup]
 }
 
 // FilteredLoaders contains loaders that will be filtered by permissions.

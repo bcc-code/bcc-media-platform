@@ -12,6 +12,11 @@ type Achievement struct {
 	Conditions []AchievementCondition
 }
 
+// GetKey returns key for this item
+func (a Achievement) GetKey() uuid.UUID {
+	return a.ID
+}
+
 // AchievementCondition is a condition for which an achievement should be completed
 type AchievementCondition struct {
 	ID         uuid.UUID
@@ -24,4 +29,9 @@ type AchievementCondition struct {
 type AchievementGroup struct {
 	ID    uuid.UUID
 	Title LocaleString
+}
+
+// GetKey returns key for this item
+func (a AchievementGroup) GetKey() uuid.UUID {
+	return a.ID
 }

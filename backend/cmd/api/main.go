@@ -363,6 +363,9 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		StudyQuestionAlternativesLoader: &batchloaders.BatchLoader[uuid.UUID, []*common.QuestionAlternative]{batchloaders.NewListLoader(queries.GetQuestionAlternatives, func(alt common.QuestionAlternative) uuid.UUID {
 			return alt.TaskID
 		})},
+		// Achievements
+		AchievementLoader:      batchloaders.New(queries.GetAchievements),
+		AchievementGroupLoader: batchloaders.New(queries.GetAchievementGroups),
 	}
 }
 
