@@ -9,6 +9,8 @@ export default defineConfig({
         vue(),
         VueI18nPlugin({
           /* options */
+          fullInstall: true,
+          runtimeOnly: false,
         }),
     ],
     server: {
