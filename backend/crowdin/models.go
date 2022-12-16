@@ -2,7 +2,7 @@ package crowdin
 
 // Object is the base of all responses in Crowdin
 type Object[T any] struct {
-	Data T
+	Data T `json:"data"`
 }
 
 // Pagination contains simple pagination data
@@ -44,8 +44,8 @@ type File struct {
 	DirectoryID int    `json:"directoryId"`
 }
 
-// Translation model
-type Translation struct {
+// StringTranslation model
+type StringTranslation struct {
 	StringID      int    `json:"stringId"`
 	TranslationID int    `json:"translationId"`
 	Text          string `json:"text"`

@@ -90,29 +90,29 @@ var supportedCollections = []string{
 }
 
 // HandleModelUpdate for triggering actions on object change
-func (client *Client) HandleModelUpdate(ctx context.Context, collection string, key string) error {
+func (c *Client) HandleModelUpdate(ctx context.Context, collection string, key string) error {
 	if !lo.Contains(supportedCollections, collection) {
 		return nil
 	}
 
 	id, _ := strconv.ParseInt(key, 10, 64)
 
-	if status, err := getStatusForItem(ctx, client.du, collection, int(id)); err != nil || status != "published" {
+	if status, err := getStatusForItem(ctx, c.du, collection, int(id)); err != nil || status != "published" {
 		// Return error, else just ignore if not published
 		return err
 	}
-	translations, err := getTranslationsForItem(ctx, client.du, collection, int(id), "")
+	translations, err := getTranslationsForItem(ctx, c.du, collection, int(id), "")
 	if err != nil {
 		return err
 	}
 	if len(translations) == 0 {
 		return nil
 	}
-	return client.SaveTranslations(translations)
+	return c.SaveTranslations(translations)
 }
 
 // HandleModelDelete for triggering actions to handle deletion events
-func (client *Client) HandleModelDelete(_ context.Context, collection string, id string) error {
+func (c *Client) HandleModelDelete(_ context.Context, collection string, id string) error {
 	if !lo.Contains(supportedCollections, collection) {
 		return nil
 	}

@@ -50,7 +50,7 @@ type Handler struct {
 
 // DSItem objects provide an id
 type DSItem interface {
-	UID() int
+	UID() string
 	TypeName() string
 	ForUpdate() interface{}
 }
@@ -74,8 +74,8 @@ func SaveItem[t DSItem](ctx context.Context, c *resty.Client, i t, unmashall boo
 	var err error
 	var res *resty.Response
 
-	if i.UID() != 0 {
-		path := fmt.Sprintf("/items/%s/%d", i.TypeName(), i.UID())
+	if i.UID() != "" {
+		path := fmt.Sprintf("/items/%s/%s", i.TypeName(), i.UID())
 		req.SetBody(i.ForUpdate())
 		res, err = req.Patch(path)
 	} else {
