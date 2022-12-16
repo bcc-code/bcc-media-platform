@@ -47,6 +47,18 @@ export default [
                 path: "/live",
                 component: () => import("@/pages/live/Live.vue"),
             },
+            {
+                name: "series-redirect",
+                path: "/series/:episodeId",
+                component: () => import("@/pages/EpisodeRedirect.vue"),
+                props: true,
+            },
+            {
+                name: "program-redirect",
+                path: "/program/:programId",
+                component: () => import("@/pages/EpisodeRedirect.vue"),
+                props: true,
+            }
         ],
     },
     {

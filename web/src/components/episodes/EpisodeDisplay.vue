@@ -21,9 +21,7 @@
                 </h1>
                 <div class="flex">
                     <h1 class="my-auto flex gap-1">
-                        <AgeRating v-if="episode.ageRating">{{
-                            episode.ageRating
-                        }}</AgeRating>
+                        <AgeRating :episode="episode" />
                         <span v-if="episode.season" class="text-primary ml-1">{{
                             episode.season.show.title
                         }}</span>
