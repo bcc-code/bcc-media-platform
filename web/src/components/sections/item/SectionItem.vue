@@ -2,12 +2,13 @@
     <div class="relative">
         <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
         <div
-            class="flex flex-col mt-2"
+            class="flex flex-col mt-2 transition"
             :class="{
                 'cursor-pointer': !itemDisabled(i),
                 'pointer-events-none': itemDisabled(i),
+                'opacity-50': clicked,
             }"
-            @click="!itemDisabled(i) ? $emit('click') : undefined"
+            @click="!itemDisabled(i) ? click() : undefined"
         >
             <div
                 class="relative mb-1 rounded-md w-full overflow-hidden hover:opacity-90 transition"
@@ -57,11 +58,11 @@ import Image from "@/components/Image.vue"
 import { SectionItemFragment } from "@/graph/generated"
 import { itemDisabled } from "@/utils/items"
 import { LockClosedIcon } from "@heroicons/vue/24/solid"
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import NewPill from "./NewPill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
 
-defineEmits<{
+const emit = defineEmits<{
     (e: "click"): void
 }>()
 
@@ -74,6 +75,13 @@ const props = withDefaults(
     { secondaryTitles: false }
 )
 
+const clicked = ref(false)
+
+const click = () => {
+    clicked.value = true
+    emit("click")
+}
+
 const ratio = computed(() => {
     return {
         default: 16 / 9,
@@ -84,7 +92,7 @@ const ratio = computed(() => {
 const aspect = computed(() => {
     return {
         default: "aspect-video",
-        poster: "aspect-[240/357]"
+        poster: "aspect-[240/357]",
     }[props.type]
 })
 </script>
