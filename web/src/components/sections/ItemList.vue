@@ -34,7 +34,7 @@
                             >{{ i.number }}. </span
                         >{{ i.title }}
                     </h1>
-                    <AgeRating :episode="i"/>
+                    <AgeRating :episode="i" />
                     <div
                         class="hidden lg:flex mt-1.5 line-clamp-2 text-sm opacity-70"
                     >

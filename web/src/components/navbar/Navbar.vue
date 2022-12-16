@@ -456,27 +456,24 @@ const navigation = computed(() => {
     ]
 
     if (authenticated.value) {
-        n.push({
-            name: "page.live",
-            to: {
-                name: "live",
+        n.push(
+            {
+                name: "page.live",
+                to: {
+                    name: "live",
+                },
+                icon: LiveIcon,
+                ping: isLive.value,
             },
-            icon: LiveIcon,
-            ping: isLive.value,
-        })
-    }
-
-    n.push(
-        ...[
             {
                 name: "page.calendar",
                 to: {
                     name: "calendar",
                 },
                 icon: CalendarIcon,
-            },
-        ]
-    )
+            }
+        )
+    }
 
     return n
 })

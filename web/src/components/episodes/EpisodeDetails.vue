@@ -7,7 +7,7 @@
         <div class="flex flex-col gap-1">
             <h1 class="text-lg font-semibold">{{ t("episode.rating") }}</h1>
             <p class="flex">
-                <AgeRating :episode="episode"/>
+                <AgeRating :episode="episode" />
                 >{{ new Date(episode.publishDate).getFullYear() }}
             </p>
         </div>
