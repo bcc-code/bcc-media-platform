@@ -40,3 +40,15 @@ SELECT ag.id, ag.title as original_title, ts.title
 FROM achievementgroups ag
          LEFT JOIN ts ON ts.achievementgroups_id = ag.id
 WHERE ag.id = ANY ($1::uuid[]);
+
+-- name: GetAchievedAchievements :many
+SELECT a.achievement_id
+FROM "users"."achievements" a
+WHERE a.profile_id = $1
+  AND a.achievement_id = ANY ($2::uuid[]);
+
+-- name: ListAchievedAchievements :many
+SELECT a.achievement_id
+FROM "users"."achievements" a
+WHERE a.profile_id = $1
+ORDER BY a.achieved_at DESC;

@@ -14,6 +14,71 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getAchievedAchievements = `-- name: GetAchievedAchievements :many
+SELECT a.achievement_id
+FROM "users"."achievements" a
+WHERE a.profile_id = $1
+  AND a.achievement_id = ANY ($2::uuid[])
+`
+
+type GetAchievedAchievementsParams struct {
+	ProfileID uuid.UUID   `db:"profile_id" json:"profileID"`
+	Column2   []uuid.UUID `db:"column_2" json:"column2"`
+}
+
+func (q *Queries) GetAchievedAchievements(ctx context.Context, arg GetAchievedAchievementsParams) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getAchievedAchievements, arg.ProfileID, pq.Array(arg.Column2))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var achievement_id uuid.UUID
+		if err := rows.Scan(&achievement_id); err != nil {
+			return nil, err
+		}
+		items = append(items, achievement_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listAchievedAchievements = `-- name: ListAchievedAchievements :many
+SELECT a.achievement_id
+FROM "users"."achievements" a
+WHERE a.profile_id = $1
+ORDER BY a.achieved_at DESC
+`
+
+func (q *Queries) ListAchievedAchievements(ctx context.Context, profileID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, listAchievedAchievements, profileID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var achievement_id uuid.UUID
+		if err := rows.Scan(&achievement_id); err != nil {
+			return nil, err
+		}
+		items = append(items, achievement_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAchievementGroups = `-- name: getAchievementGroups :many
 WITH ts AS (SELECT achievementgroups_id, json_object_agg(languages_code, title) as title
             FROM achievementgroups_translations

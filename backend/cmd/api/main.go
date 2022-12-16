@@ -135,6 +135,12 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 				Column2:   ids,
 			})
 		}, batchloaders.WithMemoryCache(time.Second*5)),
+		AchievementFilterLoader: batchloaders.NewFilterLoader(func(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
+			return queries.GetAchievedAchievements(ctx, sqlc.GetAchievedAchievementsParams{
+				ProfileID: profileID,
+				Column2:   ids,
+			})
+		}),
 	}
 
 	profilesLoaderCache.Set(profileID, loaders, cache.WithExpiration(time.Minute*5))
