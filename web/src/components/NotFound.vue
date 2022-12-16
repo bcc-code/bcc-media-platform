@@ -24,7 +24,7 @@ withDefaults(
     defineProps<{
         title?: string
         description?: string
-        link: boolean
+        link?: boolean
     }>(),
     {
         link: true,

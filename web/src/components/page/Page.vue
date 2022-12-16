@@ -5,17 +5,15 @@
                 class="px-4 lg:px-20 flex flex-col gap-8 relative"
                 v-if="page && page.sections.items.length"
             >
-                <TransitionGroup name="slide-fade">
-                    <Section
-                        v-for="(section, i) in page.sections.items"
-                        :key="section.id"
-                        :section="section"
-                        :index="{ last: page.sections.total - 1, current: i }"
-                        @load-more="appendItems(section)"
-                        @click-item="(index) => clickItem(i, index)"
-                    >
-                    </Section>
-                </TransitionGroup>
+                <Section
+                    v-for="(section, i) in page.sections.items"
+                    :key="section.id"
+                    :section="section"
+                    :index="{ last: page.sections.total - 1, current: i }"
+                    @load-more="appendItems(section)"
+                    @click-item="(index) => clickItem(i, index)"
+                >
+                </Section>
                 <div
                     v-if="
                         page.sections.total >

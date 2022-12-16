@@ -1,14 +1,14 @@
 {
     "buttons": {
-        "save": "",
-        "login": "",
-        "logout": "",
-        "stayLoggedOut": "",
+        "save": "Salva",
+        "login": "Accedi",
+        "logout": "Disconnettiti",
+        "stayLoggedOut": "Rimani disconnesso",
         "cancel": "Annulla",
         "submit": "Invia"
     },
     "dashboard": {
-        "loggedOut": ""
+        "loggedOut": "Sei stato disconnesso"
     },
     "page": {
         "home": "Home",
@@ -16,53 +16,53 @@
         "live": "Diretta",
         "calendar": "Calendario",
         "faq": "FAQ",
-        "notFound": "",
-        "explore": "",
-        "watchNow": ""
+        "notFound": "Pagina non trovata",
+        "explore": "Esplora",
+        "watchNow": "Guarda adesso"
     },
     "section": {
         "item": {
-            "episode": "",
-            "season": ""
+            "episode": "0 episodi | 1 episodio | {count} episodi",
+            "season": "0 stagioni | 1 stagione | {count} stagioni"
         }
     },
     "notFound": {
-        "title": "",
-        "description": "",
-        "returnHome": ""
+        "title": "Non trovato",
+        "description": "Forse non hai effettuato l'accesso o ti mancano alcune autorizzazioni.",
+        "returnHome": "Vai alla home"
     },
     "common": {
-        "new": "",
-        "newEpisodes": ""
+        "new": "Nuovo",
+        "newEpisodes": "Nuovi episodi"
     },
     "episode": {
-        "details": "",
+        "details": "Dettagli",
         "episode": "Episodio",
         "episodes": "Episodi",
         "videos": "Video",
-        "seriesDescription": "",
-        "releaseDate": "",
-        "availableFrom": "",
-        "availableTo": "",
-        "ageRating": "",
-        "notFound": "",
+        "seriesDescription": "Descrizione delle serie",
+        "releaseDate": "Data di rilascio",
+        "availableFrom": "Disponibile dal",
+        "availableTo": "Disponibile a",
+        "ageRating": "Valutazione",
+        "notFound": "Episodio non trovato",
         "comingSoon": "Prossimamente"
     },
     "live": {
         "now": "Adesso"
     },
     "calendar": {
-        "noScheduledEvents": "",
+        "noScheduledEvents": "Nessun evento in programma",
         "thisWeek": "Questa settimana",
-        "timeTableIsLocalTime": ""
+        "timeTableIsLocalTime": "L'orario è nella tua ora locale."
     },
     "search": {
         "programs": "Programmi",
         "episodes": "Episodi",
         "cancel": "Annulla",
         "emptyQuery": "L'interrogazione di ricerca è vuota.",
-        "noResults": "",
-        "tryAdjustingQuery": ""
+        "noResults": "Nessun risultato trovato",
+        "tryAdjustingQuery": "Prova a modificare la domanda di ricerca"
     },
     "support": {
         "contact": "Contatta il supporto",
@@ -72,14 +72,31 @@
         "describeIssue": "Descrivi dettagliatamente il tuo problema."
     },
     "lesson": {
-        "related": "",
+        "related": "Risorse correlate",
         "watchAgain": {
-            "title": "",
-            "description": "",
-            "button": ""
+            "title": "Guarda di nuovo",
+            "description": "Per una comprensione più approfondita, si consiglia di guardare il video più di una volta.",
+            "button": "Riprova"
         },
-        "textTaskPlaceholder": ""
+        "textTaskPlaceholder": "Annota e invia i tuoi pensieri."
     },
-    "thankYou": "",
-    "yourResponseHasBeenSubmitted": ""
+    "thankYou": "Grazie!",
+    "yourResponseHasBeenSubmitted": "La tua risposta è stata inviata.",
+    "cookies": {
+        "title": "",
+        "description": "",
+        "necessary": "",
+        "preferences": "",
+        "statistics": "",
+        "accept": ""
+    },
+    "footer": {
+        "cookies": "",
+        "privacyPolicy": "Informativa sulla privacy",
+        "information": "",
+        "headOffice": "",
+        "contactUs": "",
+        "editorialStaff": "",
+        "technicalSupport": ""
+    }
 }

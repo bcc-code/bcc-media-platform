@@ -61,8 +61,8 @@
         "episodes": "Épisodes",
         "cancel": "Annuler",
         "emptyQuery": "La requête est vide.",
-        "noResults": "",
-        "tryAdjustingQuery": ""
+        "noResults": "Aucun résultat trouvé",
+        "tryAdjustingQuery": "Essaie d'ajuster la requête"
     },
     "support": {
         "contact": "Contacter le support",
@@ -72,14 +72,31 @@
         "describeIssue": "Décris ton problème de manière détaillée."
     },
     "lesson": {
-        "related": "",
+        "related": "Ressources connexes",
         "watchAgain": {
-            "title": "",
-            "description": "",
-            "button": ""
+            "title": "Regarder à nouveau",
+            "description": "Pour une meilleure compréhension, nous vous recommandons de regarder la vidéo plus d'une fois.",
+            "button": "Rejouer"
         },
-        "textTaskPlaceholder": ""
+        "textTaskPlaceholder": "Noter et soumettre ses idées."
     },
     "thankYou": "Merci beaucoup !",
-    "yourResponseHasBeenSubmitted": ""
+    "yourResponseHasBeenSubmitted": "Ta réponse a été envoyée.",
+    "cookies": {
+        "title": "",
+        "description": "",
+        "necessary": "",
+        "preferences": "",
+        "statistics": "",
+        "accept": ""
+    },
+    "footer": {
+        "cookies": "",
+        "privacyPolicy": "Politique de confidentialité",
+        "information": "",
+        "headOffice": "",
+        "contactUs": "",
+        "editorialStaff": "",
+        "technicalSupport": ""
+    }
 }

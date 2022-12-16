@@ -61,8 +61,8 @@
         "episodes": "Afleveringen",
         "cancel": "Annuleren",
         "emptyQuery": "Zoekbalk is leeg.",
-        "noResults": "",
-        "tryAdjustingQuery": ""
+        "noResults": "Geen zoekresultaten",
+        "tryAdjustingQuery": "Probeer het zoekveld te wijzigen"
     },
     "support": {
         "contact": "Contact support",
@@ -72,14 +72,31 @@
         "describeIssue": "Beschrijf je probleem in detail."
     },
     "lesson": {
-        "related": "",
+        "related": "Gerelateerde resultaten",
         "watchAgain": {
-            "title": "",
-            "description": "",
-            "button": ""
+            "title": "Nogmaals kijken",
+            "description": "Voor een beter begrip raden wij aan de video meer dan eens te bekijken.",
+            "button": "Speel nogmaals af"
         },
-        "textTaskPlaceholder": ""
+        "textTaskPlaceholder": "Schrijf je gedachten op en stuur ze op."
     },
     "thankYou": "Hartelijk dank!",
-    "yourResponseHasBeenSubmitted": ""
+    "yourResponseHasBeenSubmitted": "Jouw antwoord is verzonden.",
+    "cookies": {
+        "title": "",
+        "description": "",
+        "necessary": "",
+        "preferences": "",
+        "statistics": "",
+        "accept": ""
+    },
+    "footer": {
+        "cookies": "",
+        "privacyPolicy": "Privacybeleid",
+        "information": "",
+        "headOffice": "",
+        "contactUs": "",
+        "editorialStaff": "",
+        "technicalSupport": ""
+    }
 }
