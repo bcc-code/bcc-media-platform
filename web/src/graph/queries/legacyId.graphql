@@ -1,0 +1,5 @@
+query getLegacyId($episodeId: Int, $programId: Int) {
+    legacyIDLookup(options: { episodeID: $episodeId, programID: $programId }) {
+        id
+    }
+}
