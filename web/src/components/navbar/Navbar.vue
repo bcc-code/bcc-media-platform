@@ -5,13 +5,13 @@
             :class="[loading ? 'opacity-0' : 'opacity-100']"
         >
             <div class="lg:flex py-4">
-                <div class="flex justify-between w-full">
+                <div class="flex lg:grid justify-between w-full" style="grid-template-columns: 1fr auto 1fr">
                     <div class="flex flex-shrink-0 my-auto">
                         <img
                             @click="$router.push({ name: 'front-page' })"
                             class="hidden h-8 w-auto lg:block cursor-pointer hover:scale-105 transition"
                             src="/logo.svg"
-                            alt="BrunstadTV"
+                            alt="BCC Media"
                         />
                     </div>
                     <div class="hidden lg:flex my-auto space-x-2">
@@ -26,7 +26,10 @@
                         </div>
                         <SearchInput v-model="query"></SearchInput>
                     </div>
-                    <div class="hidden lg:flex ml-2">
+                    <div class="hidden lg:flex ml-auto gap-4">
+                        <a class="my-auto hover:underline" href="https://about.bcc.media">
+                            {{$t("page.aboutUs")}}
+                        </a>
                         <Menu as="div" class="relative my-auto">
                             <MenuButton
                                 :class="open ? '' : 'text-opacity-90'"
@@ -92,7 +95,7 @@
                         </Menu>
                         <Menu
                             as="div"
-                            class="relative my-auto ml-2"
+                            class="relative my-auto"
                             v-if="authenticated"
                         >
                             <div>
@@ -211,9 +214,9 @@
                 </div>
                 <div class="flex lg:hidden mx-4">
                     <img
-                        class="h-8 w-auto mb-4"
+                        class="h-4 my-auto w-auto"
                         src="/logo.svg"
-                        alt="Your Company"
+                        alt="BCC Media"
                     />
                     <div class="ml-auto right-4 flex">
                         <Menu as="div" class="relative my-auto">
@@ -419,7 +422,6 @@ import {
     ProfileIcon,
     QuestionIcon,
     SearchIcon,
-    SettingsIcon,
 } from "../icons"
 import { computed, onMounted, ref } from "vue"
 import SearchInput from "../SearchInput.vue"
