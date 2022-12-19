@@ -1,19 +1,13 @@
 <template>
     <div class="w-full h-full pb-36">
-        <div
-            class="inline-flex flex-col space-y-6 items-center justify-start w-full h-full"
-        >
+        <div class="inline-flex flex-col space-y-6 items-center justify-start w-full h-full">
             <div class="p-4 flex flex-col space-y-0.5 h-14 w-full">
                 <template v-if="tasks.length > 1">
                     <div class="w-full right-0 bottom-0">
-                        <div
-                            class="flex-1 h-full bg-black bg-opacity-50 rounded-full"
-                        >
+                        <div class="flex-1 h-full bg-black bg-opacity-50 rounded-full">
                             <div>
-                                <div
-                                    class="w-28 h-[5px] bg-tint-1 rounded-full"
-                                    :style="{ width: `${taskPercent}%` }"
-                                ></div>
+                                <div class="w-28 h-[5px] bg-tint-1 rounded-full" :style="{ width: `${taskPercent}%` }">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -22,42 +16,21 @@
                     </p>
                 </template>
             </div>
-            <TextTask
-                v-if="currentTask?.__typename == 'TextTask'"
-                v-model:task="currentTask"
-                :key="currentTask.id"
-                v-model:is-done="isCurrentStepDone"
-            />
-            <AlternativesTask
-                v-if="currentTask?.__typename == 'AlternativesTask'"
-                v-model:task="currentTask"
-                :key="currentTask.id"
-                v-model:is-done="isCurrentStepDone"
-            />
+            <TextTask v-if="currentTask?.__typename == 'TextTask'" v-model:task="currentTask" :key="currentTask.id"
+                v-model:is-done="isCurrentStepDone" />
+            <AlternativesTask v-if="currentTask?.__typename == 'AlternativesTask'" v-model:task="currentTask"
+                :key="currentTask.id" v-model:is-done="isCurrentStepDone" />
         </div>
-        <div
-            class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-36 pb-16 fixed bottom-0 bg-background-1"
+        <div class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-36 pb-16 fixed bottom-0 bg-background-1"
             v-if="
                 !(currentTask?.__typename == 'TextTask' && !isCurrentStepDone)
-            "
-        >
+            ">
             <div class="inline-flex space-x-2 items-start justify-start w-full">
-                <VButton
-                    class="w-full"
-                    size="large"
-                    v-if="tasks.length > 1"
-                    @click="previousStep()"
-                    :disabled="!anyPreviousStep"
-                    color="secondary"
-                >
+                <VButton class="w-full" size="large" v-if="tasks.length > 1" @click="previousStep()"
+                    :disabled="!anyPreviousStep" color="secondary">
                     Back
                 </VButton>
-                <VButton
-                    class="w-full"
-                    size="large"
-                    @click="nextStep()"
-                    :disabled="!isCurrentStepDone"
-                >
+                <VButton class="w-full" size="large" @click="nextStep()" :disabled="!isCurrentStepDone">
                     <template v-if="isLastTask">Done</template>
                     <template v-else>Next</template>
                 </VButton>
@@ -91,8 +64,22 @@ const emit = defineEmits<{
     (e: "navigate", i: Page): any
 }>()
 
-const currentTaskIndex = ref(0)
-const tasks = computed(() => props.lesson.studyLesson.tasks.items)
+function moveToEnd(array: any[], index: number) {
+    return array.push(array.splice(index, 1)[0]);
+}
+
+const tasks = computed(() => {
+    var copy = props.lesson.studyLesson.tasks.items.slice();
+    while (true) {
+        const index = copy.findIndex((el, index) => !el.completed && copy.some((el2, index2) => el2.completed && index2 > index))
+        if (index == -1) {
+            break;
+        }
+        moveToEnd(copy, index);
+    }
+    return copy;
+})
+const currentTaskIndex = ref(Math.min(tasks.value.length - 1, props.lesson.studyLesson.progress.completed))
 const currentTask = computed(() => tasks.value[currentTaskIndex.value])
 const isLastTask = computed(
     () => currentTaskIndex.value + 1 == tasks.value.length
