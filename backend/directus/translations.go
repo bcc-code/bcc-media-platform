@@ -47,6 +47,110 @@ type PagesTranslation struct {
 	PagesID int `json:"sections_id"`
 }
 
+// StudyTopicsTranslation struct
+type StudyTopicsTranslation struct {
+	ID            string `json:"id,omitempty"`
+	Title         string `json:"title"`
+	Description   string `json:"description,omitempty"`
+	LanguagesCode string `json:"languages_code"`
+	StudyTopicsID string `json:"studytopics_id"`
+}
+
+// LessonsTranslation struct
+type LessonsTranslation struct {
+	ID            string `json:"id,omitempty"`
+	Title         string `json:"title"`
+	Description   string `json:"description,omitempty"`
+	LanguagesCode string `json:"languages_code"`
+	LessonsID     string `json:"lessons_id"`
+}
+
+// TasksTranslation struct
+type TasksTranslation struct {
+	ID            string `json:"id,omitempty"`
+	Title         string `json:"title"`
+	Description   string `json:"description,omitempty"`
+	LanguagesCode string `json:"languages_code"`
+	TasksID       string `json:"tasks_id"`
+}
+
+// QuestionAlternativesTranslation struct
+type QuestionAlternativesTranslation struct {
+	ID                     string `json:"id,omitempty"`
+	Title                  string `json:"title"`
+	Description            string `json:"description,omitempty"`
+	LanguagesCode          string `json:"languages_code"`
+	QuestionAlternativesID string `json:"questionalternatives_id"`
+}
+
+// ForUpdate for update
+func (i StudyTopicsTranslation) ForUpdate() any {
+	return map[string]string{
+		"title": i.Title,
+	}
+}
+
+// UID for unique id
+func (i StudyTopicsTranslation) UID() string {
+	return i.ID
+}
+
+// TypeName string
+func (StudyTopicsTranslation) TypeName() string {
+	return "studytopics_translations"
+}
+
+// ForUpdate for update
+func (i LessonsTranslation) ForUpdate() any {
+	return map[string]string{
+		"title": i.Title,
+	}
+}
+
+// UID unique id
+func (i LessonsTranslation) UID() string {
+	return i.ID
+}
+
+// TypeName string
+func (LessonsTranslation) TypeName() string {
+	return "lessons_translations"
+}
+
+// ForUpdate for update
+func (i TasksTranslation) ForUpdate() any {
+	return map[string]string{
+		"title": i.Title,
+	}
+}
+
+// UID unique id
+func (i TasksTranslation) UID() string {
+	return i.ID
+}
+
+// TypeName string
+func (TasksTranslation) TypeName() string {
+	return "tasks_translations"
+}
+
+// ForUpdate for update
+func (i QuestionAlternativesTranslation) ForUpdate() any {
+	return map[string]string{
+		"title": i.Title,
+	}
+}
+
+// UID unique id
+func (i QuestionAlternativesTranslation) UID() string {
+	return i.ID
+}
+
+// TypeName string
+func (QuestionAlternativesTranslation) TypeName() string {
+	return "questionalternatives_translations"
+}
+
 type update struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
@@ -122,6 +226,7 @@ func (i Translation) GetValues() map[string]string {
 	}
 }
 
+// GetValues returns values
 func (i EpisodesTranslation) GetValues() map[string]string {
 	return map[string]string{
 		"title":             i.Title,

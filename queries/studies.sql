@@ -124,5 +124,3 @@ VALUES ($1, $2, $3, NOW(), NOW(), $4)
 ON CONFLICT (id) DO UPDATE SET message    = EXCLUDED.message,
                                metadata   = EXCLUDED.metadata,
                                updated_at = EXCLUDED.updated_at;
-
--- name: C
