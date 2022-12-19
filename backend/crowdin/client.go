@@ -199,6 +199,58 @@ func toDSItems(collection string, translations []simpleTranslation) []directus.D
 				SectionsID: utils.AsInt(t.ParentID),
 			}
 		})
+	case "pages":
+		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			return directus.PagesTranslation{
+				Translation: directus.Translation{
+					ID:            utils.AsInt(t.ID),
+					LanguagesCode: t.Language,
+					Title:         t.Title,
+					Description:   t.Description,
+				},
+				PagesID: utils.AsInt(t.ParentID),
+			}
+		})
+	case "studytopics":
+		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			return directus.StudyTopicsTranslation{
+				ID:            t.ID,
+				LanguagesCode: t.Language,
+				Title:         t.Title,
+				Description:   t.Description,
+				StudyTopicsID: t.ParentID,
+			}
+		})
+	case "lessons":
+		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			return directus.LessonsTranslation{
+				ID:            t.ID,
+				LanguagesCode: t.Language,
+				Title:         t.Title,
+				Description:   t.Description,
+				LessonsID:     t.ParentID,
+			}
+		})
+	case "tasks":
+		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			return directus.TasksTranslation{
+				ID:            t.ID,
+				LanguagesCode: t.Language,
+				Title:         t.Title,
+				Description:   t.Description,
+				TasksID:       t.ParentID,
+			}
+		})
+	case "questionalternatives":
+		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			return directus.QuestionAlternativesTranslation{
+				ID:                     t.ID,
+				LanguagesCode:          t.Language,
+				Title:                  t.Title,
+				Description:            t.Description,
+				QuestionAlternativesID: t.ParentID,
+			}
+		})
 	default:
 		return nil
 	}
@@ -249,9 +301,6 @@ func (c *Client) getFileForCollection(project Project, directoryId int, collecti
 				file = f
 			}
 		}
-	}
-	if !found {
-		err = merry.New("Couldn't find file for collection. Do an initial sync to create the file.")
 	}
 	return
 }
@@ -385,6 +434,12 @@ func (c *Client) syncCollection(
 
 		var items []*simpleTranslation
 		for _, t := range ts {
+			_, found = lo.Find(sourceTranslations, func(i simpleTranslation) bool {
+				return i.ParentID == t.ID
+			})
+			if !found {
+				continue
+			}
 			item, found := lo.Find(items, func(i *simpleTranslation) bool {
 				return i.ParentID == t.ID
 			})
@@ -524,7 +579,7 @@ func (c *Client) syncSections(ctx context.Context, d *directus.Handler, project 
 }
 
 func (c *Client) syncPages(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "sections", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+	return c.syncCollection(ctx, d, project, directoryId, "pages", func(ctx context.Context, language string) ([]simpleTranslation, error) {
 		ts, err := c.q.ListPageTranslations(ctx, []string{language})
 		if err != nil {
 			return nil, err
@@ -536,6 +591,130 @@ func (c *Client) syncPages(ctx context.Context, d *directus.Handler, project Pro
 				Title:       t.Title.ValueOrZero(),
 				Language:    t.LanguagesCode.String,
 				ParentID:    strconv.Itoa(int(t.ParentID.Int64)),
+			}
+		}), nil
+	}, crowdinTranslations)
+}
+
+func (c *Client) syncLessons(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "lessons", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListLessonOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListLessonOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID:       t.ID.String(),
+					Title:    t.Title,
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
+		ts, err := c.q.ListLessonTranslations(ctx, []string{language})
+		if err != nil {
+			return nil, err
+		}
+		return lo.Map(ts, func(t sqlc.ListLessonTranslationsRow, _ int) simpleTranslation {
+			return simpleTranslation{
+				ID:       strconv.Itoa(int(t.ID)),
+				Title:    t.Title.ValueOrZero(),
+				Language: t.LanguagesCode.String,
+				ParentID: t.ParentID.UUID.String(),
+			}
+		}), nil
+	}, crowdinTranslations)
+}
+
+func (c *Client) syncTopics(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "studytopics", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListStudyTopicOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListStudyTopicOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID:       t.ID.String(),
+					Title:    t.Title,
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
+		ts, err := c.q.ListStudyTopicTranslations(ctx, []string{language})
+		if err != nil {
+			return nil, err
+		}
+		return lo.Map(ts, func(t sqlc.ListStudyTopicTranslationsRow, _ int) simpleTranslation {
+			return simpleTranslation{
+				ID:       strconv.Itoa(int(t.ID)),
+				Title:    t.Title.ValueOrZero(),
+				Language: t.LanguagesCode.String,
+				ParentID: t.ParentID.UUID.String(),
+			}
+		}), nil
+	}, crowdinTranslations)
+}
+
+func (c *Client) syncTasks(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "tasks", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListTaskOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListTaskOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID:       t.ID.String(),
+					Title:    t.Title.ValueOrZero(),
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
+		ts, err := c.q.ListTaskTranslations(ctx, []string{language})
+		if err != nil {
+			return nil, err
+		}
+		return lo.Map(ts, func(t sqlc.ListTaskTranslationsRow, _ int) simpleTranslation {
+			return simpleTranslation{
+				ID:       strconv.Itoa(int(t.ID)),
+				Title:    t.Title.ValueOrZero(),
+				Language: t.LanguagesCode.String,
+				ParentID: t.ParentID.UUID.String(),
+			}
+		}), nil
+	}, crowdinTranslations)
+}
+
+func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "questionalternatives", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListQuestionAlternativesOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListQuestionAlternativesOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID:       t.ID.String(),
+					Title:    t.Title.ValueOrZero(),
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
+		ts, err := c.q.ListAlternativeTranslations(ctx, []string{language})
+		if err != nil {
+			return nil, err
+		}
+		return lo.Map(ts, func(t sqlc.ListAlternativeTranslationsRow, _ int) simpleTranslation {
+			return simpleTranslation{
+				ID:       strconv.Itoa(int(t.ID)),
+				Title:    t.Title.ValueOrZero(),
+				Language: t.LanguagesCode,
+				ParentID: t.ParentID.UUID.String(),
 			}
 		}), nil
 	}, crowdinTranslations)
@@ -574,23 +753,39 @@ func (c *Client) Sync(ctx context.Context, d *directus.Handler) error {
 			return err
 		}
 
-		err = c.syncEpisodes(ctx, d, project, directory.ID, crowdinTranslations)
+		//err = c.syncEpisodes(ctx, d, project, directory.ID, crowdinTranslations)
+		//if err != nil {
+		//	return err
+		//}
+		//err = c.syncSeasons(ctx, d, project, directory.ID, crowdinTranslations)
+		//if err != nil {
+		//	return err
+		//}
+		//err = c.syncShows(ctx, d, project, directory.ID, crowdinTranslations)
+		//if err != nil {
+		//	return err
+		//}
+		//err = c.syncSections(ctx, d, project, directory.ID, crowdinTranslations)
+		//if err != nil {
+		//	return err
+		//}
+		//err = c.syncPages(ctx, d, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncSeasons(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncTopics(ctx, d, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncShows(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncLessons(ctx, d, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncSections(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncTasks(ctx, d, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncPages(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncAlternatives(ctx, d, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
