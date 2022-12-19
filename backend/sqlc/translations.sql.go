@@ -8,9 +8,54 @@ package sqlc
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
+
+const listAlternativeTranslations = `-- name: ListAlternativeTranslations :many
+WITH items AS (SELECT i.id
+               FROM questionalternatives i)
+SELECT ts.id, questionalternatives_id as parent_id, languages_code, title
+FROM questionalternatives_translations ts
+         JOIN items i ON i.id = ts.questionalternatives_id
+WHERE ts.languages_code = ANY ($1::varchar[])
+`
+
+type ListAlternativeTranslationsRow struct {
+	ID            int32          `db:"id" json:"id"`
+	ParentID      uuid.NullUUID  `db:"parent_id" json:"parentID"`
+	LanguagesCode string         `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+}
+
+func (q *Queries) ListAlternativeTranslations(ctx context.Context, dollar_1 []string) ([]ListAlternativeTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listAlternativeTranslations, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListAlternativeTranslationsRow
+	for rows.Next() {
+		var i ListAlternativeTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.LanguagesCode,
+			&i.Title,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const listEpisodeTranslations = `-- name: ListEpisodeTranslations :many
 WITH episodes AS (SELECT e.id
@@ -65,10 +110,55 @@ func (q *Queries) ListEpisodeTranslations(ctx context.Context, dollar_1 []string
 	return items, nil
 }
 
+const listLessonTranslations = `-- name: ListLessonTranslations :many
+WITH lessons AS (SELECT s.id
+                 FROM lessons s
+                 WHERE s.status = 'published')
+SELECT st.id, lessons_id as parent_id, languages_code, title
+FROM lessons_translations st
+         JOIN lessons e ON e.id = st.lessons_id
+WHERE st.languages_code = ANY ($1::varchar[])
+`
+
+type ListLessonTranslationsRow struct {
+	ID            int32          `db:"id" json:"id"`
+	ParentID      uuid.NullUUID  `db:"parent_id" json:"parentID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+}
+
+func (q *Queries) ListLessonTranslations(ctx context.Context, dollar_1 []string) ([]ListLessonTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listLessonTranslations, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListLessonTranslationsRow
+	for rows.Next() {
+		var i ListLessonTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.LanguagesCode,
+			&i.Title,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listPageTranslations = `-- name: ListPageTranslations :many
 WITH pages AS (SELECT s.id
-                  FROM pages s
-                  WHERE s.status = 'published')
+               FROM pages s
+               WHERE s.status = 'published')
 SELECT st.id, pages_id as parent_id, languages_code, title, description
 FROM pages_translations st
          JOIN pages e ON e.id = st.pages_id
@@ -242,6 +332,96 @@ func (q *Queries) ListShowTranslations(ctx context.Context, dollar_1 []string) (
 			&i.LanguagesCode,
 			&i.Title,
 			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listStudyTopicTranslations = `-- name: ListStudyTopicTranslations :many
+WITH items AS (SELECT i.id
+               FROM studytopics i
+               WHERE i.status = 'published')
+SELECT ts.id, studytopics_id as parent_id, languages_code, title
+FROM studytopics_translations ts
+         JOIN items i ON i.id = ts.studytopics_id
+WHERE ts.languages_code = ANY ($1::varchar[])
+`
+
+type ListStudyTopicTranslationsRow struct {
+	ID            int32          `db:"id" json:"id"`
+	ParentID      uuid.NullUUID  `db:"parent_id" json:"parentID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+}
+
+func (q *Queries) ListStudyTopicTranslations(ctx context.Context, dollar_1 []string) ([]ListStudyTopicTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listStudyTopicTranslations, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListStudyTopicTranslationsRow
+	for rows.Next() {
+		var i ListStudyTopicTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.LanguagesCode,
+			&i.Title,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTaskTranslations = `-- name: ListTaskTranslations :many
+WITH items AS (SELECT i.id
+               FROM tasks i
+               WHERE i.status = 'published')
+SELECT ts.id, tasks_id as parent_id, languages_code, title
+FROM tasks_translations ts
+         JOIN items i ON i.id = ts.tasks_id
+WHERE ts.languages_code = ANY ($1::varchar[])
+`
+
+type ListTaskTranslationsRow struct {
+	ID            int32          `db:"id" json:"id"`
+	ParentID      uuid.NullUUID  `db:"parent_id" json:"parentID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+}
+
+func (q *Queries) ListTaskTranslations(ctx context.Context, dollar_1 []string) ([]ListTaskTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listTaskTranslations, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListTaskTranslationsRow
+	for rows.Next() {
+		var i ListTaskTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.LanguagesCode,
+			&i.Title,
 		); err != nil {
 			return nil, err
 		}
