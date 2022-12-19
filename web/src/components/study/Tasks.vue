@@ -18,8 +18,10 @@
             </div>
             <TextTask v-if="currentTask?.__typename == 'TextTask'" v-model:task="currentTask" :key="currentTask.id"
                 v-model:is-done="isCurrentStepDone" />
-            <AlternativesTask v-if="currentTask?.__typename == 'AlternativesTask'" v-model:task="currentTask"
-                :key="currentTask.id" v-model:is-done="isCurrentStepDone" />
+            <AlternativesTask v-else-if="currentTask?.__typename == 'AlternativesTask'" v-model:task="currentTask"
+                :key="currentTask.id!" v-model:is-done="isCurrentStepDone" />
+            <PosterTask v-else-if="currentTask?.__typename == 'PosterTask'" v-model:task="currentTask"
+                :key="currentTask.id!!" v-model:is-done="isCurrentStepDone" />
         </div>
         <div class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-36 pb-16 fixed bottom-0 bg-background-1"
             v-if="
@@ -44,6 +46,7 @@ import { useI18n } from "vue-i18n"
 import { useTitle } from "@/utils/title"
 import { analytics } from "@/services/analytics"
 import AlternativesTask from "./tasks/AlternativesTask.vue"
+import PosterTask from "./tasks/PosterTask.vue"
 import { flutterStudy } from "@/utils/flutter"
 import {
     GetStudyLessonQuery,

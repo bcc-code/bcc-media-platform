@@ -1287,9 +1287,9 @@ type Task_AlternativesTask_Fragment = { __typename: 'AlternativesTask', id: stri
 
 type Task_LinkTask_Fragment = { __typename: 'LinkTask', id: string, title: string, completed: boolean };
 
-type Task_PosterTask_Fragment = { __typename: 'PosterTask', id: string, title: string, completed: boolean };
+type Task_PosterTask_Fragment = { __typename: 'PosterTask', image: string, id: string, title: string, completed: boolean };
 
-type Task_QuoteTask_Fragment = { __typename: 'QuoteTask', id: string, title: string, completed: boolean };
+type Task_QuoteTask_Fragment = { __typename: 'QuoteTask', image: string, id: string, title: string, completed: boolean };
 
 type Task_TextTask_Fragment = { __typename: 'TextTask', id: string, title: string, completed: boolean };
 
@@ -1311,7 +1311,7 @@ export type GetStudyLessonQueryVariables = Exact<{
 }>;
 
 
-export type GetStudyLessonQuery = { studyLesson: { id: string, title: string, progress: { total: number, completed: number }, tasks: { items: Array<{ __typename: 'AlternativesTask', id: string, title: string, completed: boolean, alternatives: Array<{ title: string, isCorrect: boolean }> } | { __typename: 'LinkTask', id: string, title: string, completed: boolean } | { __typename: 'PosterTask', id: string, title: string, completed: boolean } | { __typename: 'QuoteTask', id: string, title: string, completed: boolean } | { __typename: 'TextTask', id: string, title: string, completed: boolean } | { __typename: 'VideoTask', id: string, title: string, completed: boolean }> }, links: { items: Array<{ image?: string | null, title: string, description?: string | null, url: string }> } }, episode: { id: string, title: string, image?: string | null } };
+export type GetStudyLessonQuery = { studyLesson: { id: string, title: string, progress: { total: number, completed: number }, tasks: { items: Array<{ __typename: 'AlternativesTask', id: string, title: string, completed: boolean, alternatives: Array<{ title: string, isCorrect: boolean }> } | { __typename: 'LinkTask', id: string, title: string, completed: boolean } | { __typename: 'PosterTask', image: string, id: string, title: string, completed: boolean } | { __typename: 'QuoteTask', image: string, id: string, title: string, completed: boolean } | { __typename: 'TextTask', id: string, title: string, completed: boolean } | { __typename: 'VideoTask', id: string, title: string, completed: boolean }> }, links: { items: Array<{ image?: string | null, title: string, description?: string | null, url: string }> } }, episode: { id: string, title: string, image?: string | null } };
 
 export type CompleteTaskMutationVariables = Exact<{
   taskId: Scalars['ID'];
@@ -1473,6 +1473,12 @@ export const TaskFragmentDoc = gql`
       title
       isCorrect
     }
+  }
+  ... on PosterTask {
+    image
+  }
+  ... on QuoteTask {
+    image
   }
 }
     `;
