@@ -100,10 +100,8 @@
     "footer": {
         "cookies": "Cookies",
         "privacyPolicy": "Privacy Policy",
-        "information": "BrunstadTV is a streaming service and TV channel from [BCC Media](https://bcc.media)\n\nBCC Media is a registered broadcaster and adheres to the regulations laid down in the Norwegian Broadcasting Act. The supervisory body for this Act is [the Norwegian Media Authority](https://medietilsynet.no/).",
+        "information": "BCC Media is a media foundation in the [BCC federation](https://bcc.no) that produces and distributes content with positive and Christian values.\n\nBCC Media is a registered broadcaster and adheres to the regulations laid down in the Norwegian Broadcasting Act. The supervisory body for this Act is [the Norwegian Media Authority](https://medietilsynet.no/).",
         "headOffice": "Head office",
-        "contactUs": "Contact us",
-        "editorialStaff": "Editorial staff",
-        "technicalSupport": "Technical support"
+        "contactUs": "Contact us"
     }
 }

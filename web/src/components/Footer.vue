@@ -25,12 +25,11 @@
                     <p>bcc.media foundation</p>
                     <p>Vålerveien 159</p>
                     <p>1599 MOSS</p>
+                    <p>Norway</p>
                 </div>
                 <div>
                     <h3><b>{{ $t("footer.contactUs") }}</b></h3>
                     <a href="mailto:support@bcc.media">support@bcc.media</a>
-                    <!-- <p>{{ $t("footer.technicalSupport") }}:</p>
-                    <a href="mailto:support@brunstad.tv">support@brunstad.tv</a> -->
                 </div>
             </div>
         </div>
