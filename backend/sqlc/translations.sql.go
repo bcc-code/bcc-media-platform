@@ -110,6 +110,40 @@ func (q *Queries) ListEpisodeTranslations(ctx context.Context, dollar_1 []string
 	return items, nil
 }
 
+const listLessonOriginalTranslations = `-- name: ListLessonOriginalTranslations :many
+SELECT items.id, items.title
+FROM lessons items
+WHERE status = 'published'
+`
+
+type ListLessonOriginalTranslationsRow struct {
+	ID    uuid.UUID `db:"id" json:"id"`
+	Title string    `db:"title" json:"title"`
+}
+
+func (q *Queries) ListLessonOriginalTranslations(ctx context.Context) ([]ListLessonOriginalTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listLessonOriginalTranslations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListLessonOriginalTranslationsRow
+	for rows.Next() {
+		var i ListLessonOriginalTranslationsRow
+		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listLessonTranslations = `-- name: ListLessonTranslations :many
 WITH lessons AS (SELECT s.id
                  FROM lessons s
@@ -189,6 +223,41 @@ func (q *Queries) ListPageTranslations(ctx context.Context, dollar_1 []string) (
 			&i.Title,
 			&i.Description,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listQuestionAlternativesOriginalTranslations = `-- name: ListQuestionAlternativesOriginalTranslations :many
+SELECT items.id, items.title
+FROM questionalternatives items
+         JOIN tasks t ON t.id = items.task_id
+WHERE t.status = 'published'
+`
+
+type ListQuestionAlternativesOriginalTranslationsRow struct {
+	ID    uuid.UUID      `db:"id" json:"id"`
+	Title null_v4.String `db:"title" json:"title"`
+}
+
+func (q *Queries) ListQuestionAlternativesOriginalTranslations(ctx context.Context) ([]ListQuestionAlternativesOriginalTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listQuestionAlternativesOriginalTranslations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListQuestionAlternativesOriginalTranslationsRow
+	for rows.Next() {
+		var i ListQuestionAlternativesOriginalTranslationsRow
+		if err := rows.Scan(&i.ID, &i.Title); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -346,6 +415,40 @@ func (q *Queries) ListShowTranslations(ctx context.Context, dollar_1 []string) (
 	return items, nil
 }
 
+const listStudyTopicOriginalTranslations = `-- name: ListStudyTopicOriginalTranslations :many
+SELECT items.id, items.title
+FROM studytopics items
+WHERE status = 'published'
+`
+
+type ListStudyTopicOriginalTranslationsRow struct {
+	ID    uuid.UUID `db:"id" json:"id"`
+	Title string    `db:"title" json:"title"`
+}
+
+func (q *Queries) ListStudyTopicOriginalTranslations(ctx context.Context) ([]ListStudyTopicOriginalTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listStudyTopicOriginalTranslations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListStudyTopicOriginalTranslationsRow
+	for rows.Next() {
+		var i ListStudyTopicOriginalTranslationsRow
+		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listStudyTopicTranslations = `-- name: ListStudyTopicTranslations :many
 WITH items AS (SELECT i.id
                FROM studytopics i
@@ -378,6 +481,40 @@ func (q *Queries) ListStudyTopicTranslations(ctx context.Context, dollar_1 []str
 			&i.LanguagesCode,
 			&i.Title,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTaskOriginalTranslations = `-- name: ListTaskOriginalTranslations :many
+SELECT items.id, items.title
+FROM tasks items
+WHERE status = 'published'
+`
+
+type ListTaskOriginalTranslationsRow struct {
+	ID    uuid.UUID      `db:"id" json:"id"`
+	Title null_v4.String `db:"title" json:"title"`
+}
+
+func (q *Queries) ListTaskOriginalTranslations(ctx context.Context) ([]ListTaskOriginalTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listTaskOriginalTranslations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListTaskOriginalTranslationsRow
+	for rows.Next() {
+		var i ListTaskOriginalTranslationsRow
+		if err := rows.Scan(&i.ID, &i.Title); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

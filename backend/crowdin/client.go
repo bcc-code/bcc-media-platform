@@ -302,9 +302,6 @@ func (c *Client) getFileForCollection(project Project, directoryId int, collecti
 			}
 		}
 	}
-	if !found {
-		err = merry.New("Couldn't find file for collection. Do an initial sync to create the file.")
-	}
 	return
 }
 
@@ -601,6 +598,20 @@ func (c *Client) syncPages(ctx context.Context, d *directus.Handler, project Pro
 
 func (c *Client) syncLessons(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
 	return c.syncCollection(ctx, d, project, directoryId, "lessons", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListLessonOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListLessonOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID:       t.ID.String(),
+					Title:    t.Title,
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
 		ts, err := c.q.ListLessonTranslations(ctx, []string{language})
 		if err != nil {
 			return nil, err
@@ -618,6 +629,20 @@ func (c *Client) syncLessons(ctx context.Context, d *directus.Handler, project P
 
 func (c *Client) syncTopics(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
 	return c.syncCollection(ctx, d, project, directoryId, "studytopics", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListStudyTopicOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListStudyTopicOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID:       t.ID.String(),
+					Title:    t.Title,
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
 		ts, err := c.q.ListStudyTopicTranslations(ctx, []string{language})
 		if err != nil {
 			return nil, err
@@ -635,6 +660,20 @@ func (c *Client) syncTopics(ctx context.Context, d *directus.Handler, project Pr
 
 func (c *Client) syncTasks(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
 	return c.syncCollection(ctx, d, project, directoryId, "tasks", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListTaskOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListTaskOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID:       t.ID.String(),
+					Title:    t.Title.ValueOrZero(),
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
 		ts, err := c.q.ListTaskTranslations(ctx, []string{language})
 		if err != nil {
 			return nil, err
@@ -652,6 +691,20 @@ func (c *Client) syncTasks(ctx context.Context, d *directus.Handler, project Pro
 
 func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
 	return c.syncCollection(ctx, d, project, directoryId, "questionalternatives", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListQuestionAlternativesOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListQuestionAlternativesOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID:       t.ID.String(),
+					Title:    t.Title.ValueOrZero(),
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
 		ts, err := c.q.ListAlternativeTranslations(ctx, []string{language})
 		if err != nil {
 			return nil, err
@@ -700,23 +753,23 @@ func (c *Client) Sync(ctx context.Context, d *directus.Handler) error {
 			return err
 		}
 
-		err = c.syncEpisodes(ctx, d, project, directory.ID, crowdinTranslations)
-		if err != nil {
-			return err
-		}
-		err = c.syncSeasons(ctx, d, project, directory.ID, crowdinTranslations)
-		if err != nil {
-			return err
-		}
-		err = c.syncShows(ctx, d, project, directory.ID, crowdinTranslations)
-		if err != nil {
-			return err
-		}
-		err = c.syncSections(ctx, d, project, directory.ID, crowdinTranslations)
-		if err != nil {
-			return err
-		}
-		err = c.syncPages(ctx, d, project, directory.ID, crowdinTranslations)
+		//err = c.syncEpisodes(ctx, d, project, directory.ID, crowdinTranslations)
+		//if err != nil {
+		//	return err
+		//}
+		//err = c.syncSeasons(ctx, d, project, directory.ID, crowdinTranslations)
+		//if err != nil {
+		//	return err
+		//}
+		//err = c.syncShows(ctx, d, project, directory.ID, crowdinTranslations)
+		//if err != nil {
+		//	return err
+		//}
+		//err = c.syncSections(ctx, d, project, directory.ID, crowdinTranslations)
+		//if err != nil {
+		//	return err
+		//}
+		//err = c.syncPages(ctx, d, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}

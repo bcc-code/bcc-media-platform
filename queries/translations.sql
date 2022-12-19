@@ -84,3 +84,24 @@ SELECT ts.id, questionalternatives_id as parent_id, languages_code, title
 FROM questionalternatives_translations ts
          JOIN items i ON i.id = ts.questionalternatives_id
 WHERE ts.languages_code = ANY ($1::varchar[]);
+
+-- name: ListStudyTopicOriginalTranslations :many
+SELECT items.id, items.title
+FROM studytopics items
+WHERE status = 'published';
+
+-- name: ListLessonOriginalTranslations :many
+SELECT items.id, items.title
+FROM lessons items
+WHERE status = 'published';
+
+-- name: ListTaskOriginalTranslations :many
+SELECT items.id, items.title
+FROM tasks items
+WHERE status = 'published';
+
+-- name: ListQuestionAlternativesOriginalTranslations :many
+SELECT items.id, items.title
+FROM questionalternatives items
+         JOIN tasks t ON t.id = items.task_id
+WHERE t.status = 'published';
