@@ -1,8 +1,8 @@
 export const setTitle = (title: string) => {
     if (title) {
-        document.title = "BrunstadTV - " + title
+        document.title = "BCC Media - " + title
     } else {
-        document.title = "BrunstadTV"
+        document.title = "BCC Media"
     }
 }
 
