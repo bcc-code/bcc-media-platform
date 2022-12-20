@@ -119,7 +119,9 @@ const start = computed(() => {
 })
 
 const end = computed(() => {
-    return weeks.value[weeks.value.length - 1][6]
+    const d = new Date(weeks.value[weeks.value.length - 1][6])
+    d.setHours(23, 59, 59)
+    return d
 })
 
 const { data } = useGetLiveCalendarRangeQuery({
