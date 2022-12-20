@@ -29,9 +29,15 @@
                 v-model:is-done="isCurrentStepDone"
             />
             <AlternativesTask
-                v-if="currentTask?.__typename == 'AlternativesTask'"
+                v-else-if="currentTask?.__typename == 'AlternativesTask'"
                 v-model:task="currentTask"
-                :key="currentTask.id"
+                :key="currentTask.id!"
+                v-model:is-done="isCurrentStepDone"
+            />
+            <PosterTask
+                v-else-if="currentTask?.__typename == 'PosterTask'"
+                v-model:task="currentTask"
+                :key="currentTask.id!!"
                 v-model:is-done="isCurrentStepDone"
             />
         </div>
@@ -71,6 +77,7 @@ import { useI18n } from "vue-i18n"
 import { useTitle } from "@/utils/title"
 import { analytics } from "@/services/analytics"
 import AlternativesTask from "./tasks/AlternativesTask.vue"
+import PosterTask from "./tasks/PosterTask.vue"
 import { flutterStudy } from "@/utils/flutter"
 import {
     GetStudyLessonQuery,
@@ -91,8 +98,31 @@ const emit = defineEmits<{
     (e: "navigate", i: Page): any
 }>()
 
-const currentTaskIndex = ref(0)
-const tasks = computed(() => props.lesson.studyLesson.tasks.items)
+function moveToEnd(array: any[], index: number) {
+    return array.push(array.splice(index, 1)[0])
+}
+
+const tasks = computed(() => {
+    var copy = props.lesson.studyLesson.tasks.items.slice()
+    while (true) {
+        const index = copy.findIndex(
+            (el, index) =>
+                !el.completed &&
+                copy.some((el2, index2) => el2.completed && index2 > index)
+        )
+        if (index == -1) {
+            break
+        }
+        moveToEnd(copy, index)
+    }
+    return copy
+})
+const currentTaskIndex = ref(
+    Math.min(
+        tasks.value.length - 1,
+        props.lesson.studyLesson.progress.completed
+    )
+)
 const currentTask = computed(() => tasks.value[currentTaskIndex.value])
 const isLastTask = computed(
     () => currentTaskIndex.value + 1 == tasks.value.length

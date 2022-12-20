@@ -98,7 +98,7 @@ const router = useRouter()
 
 onMounted(() => {
     const q = route.query.q
-    if (q && typeof q === "string") {
+    if (q && typeof q === "string" && !query.value) {
         query.value = q
         queryVariable.value = q
     }

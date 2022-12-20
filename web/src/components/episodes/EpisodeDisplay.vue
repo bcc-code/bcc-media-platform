@@ -16,9 +16,14 @@
         </div>
         <div class="flex flex-col">
             <div class="bg-primary-light p-4 w-full">
-                <h1 class="text-lg lg:text-xl font-medium">
-                    {{ episode.title }}
-                </h1>
+                <div class="flex">
+                    <h1 class="text-lg lg:text-xl font-medium">
+                        {{ episode.title }}
+                    </h1>
+                    <div class="ml-auto">
+                        <SharePopover :episode="episode"></SharePopover>
+                    </div>
+                </div>
                 <div class="flex">
                     <h1 class="my-auto flex gap-1">
                         <AgeRating :episode="episode" />
@@ -141,6 +146,7 @@ import NotFound from "../NotFound.vue"
 import LoginToView from "./LoginToView.vue"
 import { episodesToListItems, toListItems } from "@/utils/lists"
 import { useAuth } from "@/services/auth"
+import SharePopover from "./SharePopover.vue"
 
 const props = defineProps<{
     initialEpisodeId: string

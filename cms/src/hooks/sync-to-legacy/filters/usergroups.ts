@@ -34,7 +34,7 @@ export async function deleteEpisodesUsergroup(p, m, c) {
     let ug = (await c.database("episodes_usergroups").select("*").where("id", p[0]))[0];
 
     let episode = (await c.database("episodes").select("*").where("id", ug.episodes_id))[0];
-    let ug_codes = await getEpisodeUsergroups(c, "episodes_usergroups", p.episodes_id)
+    let ug_codes = await getEpisodeUsergroups(c, "episodes_usergroups", ug.episodes_id)
 
     const index = ug_codes.indexOf(ug.usergroups_code);
     if (index > -1) {

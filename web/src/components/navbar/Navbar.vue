@@ -5,7 +5,10 @@
             :class="[loading ? 'opacity-0' : 'opacity-100']"
         >
             <div class="lg:flex py-4">
-                <div class="flex lg:grid justify-between w-full" style="grid-template-columns: 1fr auto 1fr">
+                <div
+                    class="flex lg:grid justify-between w-full"
+                    style="grid-template-columns: 1fr auto 1fr"
+                >
                     <div class="flex flex-shrink-0 my-auto">
                         <img
                             @click="$router.push({ name: 'front-page' })"
@@ -27,8 +30,11 @@
                         <SearchInput v-model="query"></SearchInput>
                     </div>
                     <div class="hidden lg:flex ml-auto gap-4">
-                        <a class="my-auto hover:underline" href="https://about.bcc.media">
-                            {{$t("page.aboutUs")}}
+                        <a
+                            class="my-auto hover:underline"
+                            href="https://about.bcc.media"
+                        >
+                            {{ $t("page.aboutUs") }}
                         </a>
                         <Menu as="div" class="relative my-auto">
                             <MenuButton

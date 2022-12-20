@@ -58,7 +58,7 @@ export default [
                 path: "/program/:programId",
                 component: () => import("@/pages/EpisodeRedirect.vue"),
                 props: true,
-            }
+            },
         ],
     },
     {

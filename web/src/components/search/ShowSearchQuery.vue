@@ -31,6 +31,7 @@
                             EDIT
                         </div>
                         <Image
+                            :key="i.image ?? index"
                             :src="i.image"
                             :ratio="9 / 16"
                             size-source="width"

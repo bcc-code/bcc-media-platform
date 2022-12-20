@@ -9,6 +9,12 @@ fragment Task on Task {
             isCorrect
         }
     }
+    ... on PosterTask {
+        image
+    }
+    ... on QuoteTask {
+        image
+    }
 }
 
 fragment LessonLink on Link {

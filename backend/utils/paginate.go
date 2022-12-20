@@ -17,8 +17,9 @@ type PaginationResult[t any] struct {
 
 // Paginate a collection with specified parameters
 func Paginate[t any](collection []t, first *int, offset *int, dir *string) PaginationResult[t] {
+	arr := collection
 	var result PaginationResult[t]
-	result.Total = len(collection)
+	result.Total = len(arr)
 	if offset != nil {
 		result.Offset = *offset
 	}
@@ -30,17 +31,17 @@ func Paginate[t any](collection []t, first *int, offset *int, dir *string) Pagin
 
 	if dir != nil {
 		if strings.ToLower(*dir) == "desc" {
-			collection = lo.Reverse(collection)
+			arr = lo.Reverse(arr)
 		}
 	}
 
-	collection = lo.Filter(collection, func(_ t, index int) bool {
+	arr = lo.Filter(arr, func(_ t, index int) bool {
 		return index >= result.Offset
 	})
-	collection = lo.Filter(collection, func(_ t, index int) bool {
+	arr = lo.Filter(arr, func(_ t, index int) bool {
 		return index < result.First
 	})
-	result.Items = collection
+	result.Items = arr
 
 	return result
 }

@@ -79,6 +79,11 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 		var images = common.LocaleMap[string]{}
 		_ = json.Unmarshal(l.Images.RawMessage, &images)
 
+		imagesWithUrl := common.LocaleMap[string]{}
+		for key, value := range images {
+			imagesWithUrl[key] = q.filenameToImageURL(value)
+		}
+
 		var multiSelect null.Bool
 		if l.AlternativesMultiselect.Valid {
 			multiSelect.SetValid(l.AlternativesMultiselect.Bool)
@@ -92,7 +97,7 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 			Description:    description,
 			QuestionType:   l.QuestionType.String,
 			ImageType:      l.ImageType.String,
-			Images:         images,
+			Images:         imagesWithUrl,
 			EpisodeID:      l.EpisodeID,
 			LinkID:         l.LinkID,
 			Type:           l.Type,
