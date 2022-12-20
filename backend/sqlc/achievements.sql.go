@@ -15,7 +15,7 @@ import (
 )
 
 const getAchievedAchievements = `-- name: GetAchievedAchievements :many
-SELECT a.achievement_id
+SELECT a.achievement_id as id
 FROM "users"."achievements" a
 WHERE a.profile_id = $1
   AND a.achievement_id = ANY ($2::uuid[])
@@ -34,11 +34,11 @@ func (q *Queries) GetAchievedAchievements(ctx context.Context, arg GetAchievedAc
 	defer rows.Close()
 	var items []uuid.UUID
 	for rows.Next() {
-		var achievement_id uuid.UUID
-		if err := rows.Scan(&achievement_id); err != nil {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
 			return nil, err
 		}
-		items = append(items, achievement_id)
+		items = append(items, id)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -49,26 +49,31 @@ func (q *Queries) GetAchievedAchievements(ctx context.Context, arg GetAchievedAc
 	return items, nil
 }
 
-const listAchievedAchievements = `-- name: ListAchievedAchievements :many
-SELECT a.achievement_id
+const getAchievedAchievementsForProfiles = `-- name: getAchievedAchievementsForProfiles :many
+SELECT a.achievement_id as id, a.profile_id as parent_id
 FROM "users"."achievements" a
-WHERE a.profile_id = $1
+WHERE a.profile_id = ANY ($1::uuid[])
 ORDER BY a.achieved_at DESC
 `
 
-func (q *Queries) ListAchievedAchievements(ctx context.Context, profileID uuid.UUID) ([]uuid.UUID, error) {
-	rows, err := q.db.QueryContext(ctx, listAchievedAchievements, profileID)
+type getAchievedAchievementsForProfilesRow struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getAchievedAchievementsForProfiles(ctx context.Context, dollar_1 []uuid.UUID) ([]getAchievedAchievementsForProfilesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAchievedAchievementsForProfiles, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []uuid.UUID
+	var items []getAchievedAchievementsForProfilesRow
 	for rows.Next() {
-		var achievement_id uuid.UUID
-		if err := rows.Scan(&achievement_id); err != nil {
+		var i getAchievedAchievementsForProfilesRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
 			return nil, err
 		}
-		items = append(items, achievement_id)
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -234,6 +239,41 @@ func (q *Queries) getAchievementsForGroups(ctx context.Context, dollar_1 []uuid.
 	var items []getAchievementsForGroupsRow
 	for rows.Next() {
 		var i getAchievementsForGroupsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUnconfirmedAchievedAchievementsForProfiles = `-- name: getUnconfirmedAchievedAchievementsForProfiles :many
+SELECT a.achievement_id as id, a.profile_id as parent_id
+FROM "users"."achievements" a
+WHERE a.profile_id = ANY ($1::uuid[])
+  AND a.confirmed_at IS NULL
+`
+
+type getUnconfirmedAchievedAchievementsForProfilesRow struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getUnconfirmedAchievedAchievementsForProfiles(ctx context.Context, dollar_1 []uuid.UUID) ([]getUnconfirmedAchievedAchievementsForProfilesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUnconfirmedAchievedAchievementsForProfiles, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getUnconfirmedAchievedAchievementsForProfilesRow
+	for rows.Next() {
+		var i getUnconfirmedAchievedAchievementsForProfilesRow
 		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
 			return nil, err
 		}

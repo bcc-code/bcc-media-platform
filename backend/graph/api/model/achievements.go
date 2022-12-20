@@ -26,3 +26,14 @@ func AchievementFrom(ctx context.Context, i *common.Achievement) *Achievement {
 		Group: group,
 	}
 }
+
+// AchievementGroupFrom returns an Achievement from common.Achievement
+func AchievementGroupFrom(ctx context.Context, i *common.AchievementGroup) *AchievementGroup {
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	return &AchievementGroup{
+		ID:    i.ID.String(),
+		Title: i.Title.Get(languages),
+	}
+}

@@ -76,3 +76,25 @@ func (q *Queries) GetAchievementGroups(ctx context.Context, ids []uuid.UUID) ([]
 		}
 	}), nil
 }
+
+// GetAchievementsForProfiles returns achievements achieved for profiles
+func (q *Queries) GetAchievementsForProfiles(ctx context.Context, ids []uuid.UUID) ([]batchloaders.Relation[uuid.UUID, uuid.UUID], error) {
+	rows, err := q.getAchievedAchievementsForProfiles(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getAchievedAchievementsForProfilesRow, _ int) batchloaders.Relation[uuid.UUID, uuid.UUID] {
+		return relation[uuid.UUID, uuid.UUID](i)
+	}), nil
+}
+
+// GetUnconfirmedAchievementsForProfiles returns achievements achieved for profiles
+func (q *Queries) GetUnconfirmedAchievementsForProfiles(ctx context.Context, ids []uuid.UUID) ([]batchloaders.Relation[uuid.UUID, uuid.UUID], error) {
+	rows, err := q.getUnconfirmedAchievedAchievementsForProfiles(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getUnconfirmedAchievedAchievementsForProfilesRow, _ int) batchloaders.Relation[uuid.UUID, uuid.UUID] {
+		return relation[uuid.UUID, uuid.UUID](i)
+	}), nil
+}

@@ -240,6 +240,11 @@ func (r *mutationRootResolver) UpdateEpisodeFeedback(ctx context.Context, id str
 	return r.updateMessage(ctx, id, message, map[string]any{"rating": rating})
 }
 
+// ConfirmAchievement is the resolver for the confirmAchievement field.
+func (r *mutationRootResolver) ConfirmAchievement(ctx context.Context, achievementID string) (bool, error) {
+	panic(fmt.Errorf("not implemented: ConfirmAchievement - confirmAchievement"))
+}
+
 // Application is the resolver for the application field.
 func (r *queryRootResolver) Application(ctx context.Context) (*model.Application, error) {
 	ginCtx, err := utils.GinCtx(ctx)
@@ -449,9 +454,37 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)
 }
 
+// PendingAchievements is the resolver for the pendingAchievements field.
+func (r *queryRootResolver) PendingAchievements(ctx context.Context) ([]*model.Achievement, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ids, err := r.Queries.ListUnconfirmedAchievedAchievements(ctx, p.ID)
+	if err != nil {
+		return nil, err
+	}
+	achievements, err := r.Loaders.AchievementLoader.GetMany(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return utils.MapWithCtx(ctx, achievements, model.AchievementFrom), nil
+}
+
 // Achievement is the resolver for the achievement field.
 func (r *queryRootResolver) Achievement(ctx context.Context, id string) (*model.Achievement, error) {
-	panic(fmt.Errorf("not implemented: Achievement - achievement"))
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	achievement, err := r.Loaders.AchievementLoader.Get(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	if achievement == nil {
+		return nil, common.ErrItemNotFound
+	}
+	return model.AchievementFrom(ctx, achievement), nil
 }
 
 // Achievements is the resolver for the achievements field.
@@ -461,7 +494,18 @@ func (r *queryRootResolver) Achievements(ctx context.Context, first *int, offset
 
 // AchievementGroup is the resolver for the achievementGroup field.
 func (r *queryRootResolver) AchievementGroup(ctx context.Context, id string) (*model.AchievementGroup, error) {
-	panic(fmt.Errorf("not implemented: AchievementGroup - achievementGroup"))
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	group, err := r.Loaders.AchievementGroupLoader.Get(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	if group == nil {
+		return nil, common.ErrItemNotFound
+	}
+	return model.AchievementGroupFrom(ctx, group), nil
 }
 
 // AchievementGroups is the resolver for the achievementGroups field.

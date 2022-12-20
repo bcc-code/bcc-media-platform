@@ -464,6 +464,7 @@ type ComplexityRoot struct {
 
 	MutationRoot struct {
 		CompleteTask          func(childComplexity int, id string) int
+		ConfirmAchievement    func(childComplexity int, achievementID string) int
 		SendEpisodeFeedback   func(childComplexity int, episodeID string, message *string, rating *int) int
 		SendSupportEmail      func(childComplexity int, title string, content string, html string) int
 		SendTaskMessage       func(childComplexity int, taskID string, message *string) int
@@ -521,30 +522,31 @@ type ComplexityRoot struct {
 	}
 
 	QueryRoot struct {
-		Achievement       func(childComplexity int, id string) int
-		AchievementGroup  func(childComplexity int, id string) int
-		AchievementGroups func(childComplexity int, first *int, offset *int) int
-		Achievements      func(childComplexity int, first *int, offset *int) int
-		Application       func(childComplexity int) int
-		Calendar          func(childComplexity int) int
-		Collection        func(childComplexity int, id *string, slug *string) int
-		Config            func(childComplexity int) int
-		Episode           func(childComplexity int, id string, context *model.EpisodeContext) int
-		Event             func(childComplexity int, id string) int
-		Export            func(childComplexity int, groups []string) int
-		Faq               func(childComplexity int) int
-		LegacyIDLookup    func(childComplexity int, options *model.LegacyIDLookupOptions) int
-		Me                func(childComplexity int) int
-		Page              func(childComplexity int, id *string, code *string) int
-		Profile           func(childComplexity int) int
-		Profiles          func(childComplexity int) int
-		Redirect          func(childComplexity int, id string) int
-		Search            func(childComplexity int, queryString string, first *int, offset *int, typeArg *string, minScore *int) int
-		Season            func(childComplexity int, id string) int
-		Section           func(childComplexity int, id string, timestamp *string) int
-		Show              func(childComplexity int, id string) int
-		StudyLesson       func(childComplexity int, id string) int
-		StudyTopic        func(childComplexity int, id string) int
+		Achievement         func(childComplexity int, id string) int
+		AchievementGroup    func(childComplexity int, id string) int
+		AchievementGroups   func(childComplexity int, first *int, offset *int) int
+		Achievements        func(childComplexity int, first *int, offset *int) int
+		Application         func(childComplexity int) int
+		Calendar            func(childComplexity int) int
+		Collection          func(childComplexity int, id *string, slug *string) int
+		Config              func(childComplexity int) int
+		Episode             func(childComplexity int, id string, context *model.EpisodeContext) int
+		Event               func(childComplexity int, id string) int
+		Export              func(childComplexity int, groups []string) int
+		Faq                 func(childComplexity int) int
+		LegacyIDLookup      func(childComplexity int, options *model.LegacyIDLookupOptions) int
+		Me                  func(childComplexity int) int
+		Page                func(childComplexity int, id *string, code *string) int
+		PendingAchievements func(childComplexity int) int
+		Profile             func(childComplexity int) int
+		Profiles            func(childComplexity int) int
+		Redirect            func(childComplexity int, id string) int
+		Search              func(childComplexity int, queryString string, first *int, offset *int, typeArg *string, minScore *int) int
+		Season              func(childComplexity int, id string) int
+		Section             func(childComplexity int, id string, timestamp *string) int
+		Show                func(childComplexity int, id string) int
+		StudyLesson         func(childComplexity int, id string) int
+		StudyTopic          func(childComplexity int, id string) int
 	}
 
 	Question struct {
@@ -788,7 +790,6 @@ type ComplexityRoot struct {
 }
 
 type AchievementResolver interface {
-	Image(ctx context.Context, obj *model.Achievement) (*string, error)
 	Achieved(ctx context.Context, obj *model.Achievement) (bool, error)
 	Group(ctx context.Context, obj *model.Achievement) (*model.AchievementGroup, error)
 }
@@ -909,6 +910,7 @@ type MutationRootResolver interface {
 	UpdateTaskMessage(ctx context.Context, id string, message string) (string, error)
 	SendEpisodeFeedback(ctx context.Context, episodeID string, message *string, rating *int) (string, error)
 	UpdateEpisodeFeedback(ctx context.Context, id string, message *string, rating *int) (string, error)
+	ConfirmAchievement(ctx context.Context, achievementID string) (bool, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -935,6 +937,7 @@ type QueryRootResolver interface {
 	Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error)
 	Collection(ctx context.Context, id *string, slug *string) (*model.Collection, error)
 	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
+	PendingAchievements(ctx context.Context) ([]*model.Achievement, error)
 	Achievement(ctx context.Context, id string) (*model.Achievement, error)
 	Achievements(ctx context.Context, first *int, offset *int) (*model.AchievementPagination, error)
 	AchievementGroup(ctx context.Context, id string) (*model.AchievementGroup, error)
@@ -2758,6 +2761,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MutationRoot.CompleteTask(childComplexity, args["id"].(string)), true
 
+	case "MutationRoot.confirmAchievement":
+		if e.complexity.MutationRoot.ConfirmAchievement == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_confirmAchievement_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.ConfirmAchievement(childComplexity, args["achievementId"].(string)), true
+
 	case "MutationRoot.sendEpisodeFeedback":
 		if e.complexity.MutationRoot.SendEpisodeFeedback == nil {
 			break
@@ -3219,6 +3234,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.QueryRoot.Page(childComplexity, args["id"].(*string), args["code"].(*string)), true
+
+	case "QueryRoot.pendingAchievements":
+		if e.complexity.QueryRoot.PendingAchievements == nil {
+			break
+		}
+
+		return e.complexity.QueryRoot.PendingAchievements(childComplexity), true
 
 	case "QueryRoot.profile":
 		if e.complexity.QueryRoot.Profile == nil {
@@ -4501,7 +4523,7 @@ var sources = []*ast.Source{
 	{Name: "../schema/achievements.graphqls", Input: `type Achievement {
     id: ID!
     title: String!
-    image: String @goField(forceResolver: true)
+    image: String
     achieved: Boolean! @goField(forceResolver: true)
     group: AchievementGroup @goField(forceResolver: true)
 }
@@ -5222,6 +5244,8 @@ type QueryRoot{
     minScore: Int
   ): SearchResult!
 
+  pendingAchievements: [Achievement!]!
+
   achievement(id: ID!): Achievement!
   achievements(first: Int, offset: Int): AchievementPagination!
 
@@ -5259,6 +5283,8 @@ type MutationRoot {
 
   sendEpisodeFeedback(episodeId: ID!, message: String, rating: Int): ID!
   updateEpisodeFeedback(id: ID!, message: String, rating: Int): ID!
+
+  confirmAchievement(achievementId: ID!): Boolean!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -6012,6 +6038,21 @@ func (ec *executionContext) field_MutationRoot_completeTask_args(ctx context.Con
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_confirmAchievement_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["achievementId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("achievementId"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["achievementId"] = arg0
 	return args, nil
 }
 
@@ -6935,7 +6976,7 @@ func (ec *executionContext) _Achievement_image(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Achievement().Image(rctx, obj)
+		return obj.Image, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6953,8 +6994,8 @@ func (ec *executionContext) fieldContext_Achievement_image(ctx context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "Achievement",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -18299,6 +18340,61 @@ func (ec *executionContext) fieldContext_MutationRoot_updateEpisodeFeedback(ctx 
 	return fc, nil
 }
 
+func (ec *executionContext) _MutationRoot_confirmAchievement(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_confirmAchievement(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().ConfirmAchievement(rctx, fc.Args["achievementId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_confirmAchievement(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_confirmAchievement_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Page_id(ctx context.Context, field graphql.CollectedField, obj *model.Page) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Page_id(ctx, field)
 	if err != nil {
@@ -20377,6 +20473,62 @@ func (ec *executionContext) fieldContext_QueryRoot_search(ctx context.Context, f
 	if fc.Args, err = ec.field_QueryRoot_search_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_pendingAchievements(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_pendingAchievements(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().PendingAchievements(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Achievement)
+	fc.Result = res
+	return ec.marshalNAchievement2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAchievementᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_pendingAchievements(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Achievement_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Achievement_title(ctx, field)
+			case "image":
+				return ec.fieldContext_Achievement_image(ctx, field)
+			case "achieved":
+				return ec.fieldContext_Achievement_achieved(ctx, field)
+			case "group":
+				return ec.fieldContext_Achievement_group(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Achievement", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -30972,22 +31124,9 @@ func (ec *executionContext) _Achievement(ctx context.Context, sel ast.SelectionS
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "image":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Achievement_image(ctx, field, obj)
-				return res
-			}
+			out.Values[i] = ec._Achievement_image(ctx, field, obj)
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		case "achieved":
 			field := field
 
@@ -34140,6 +34279,15 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "confirmAchievement":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_confirmAchievement(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -34760,6 +34908,29 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._QueryRoot_search(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "pendingAchievements":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_pendingAchievements(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

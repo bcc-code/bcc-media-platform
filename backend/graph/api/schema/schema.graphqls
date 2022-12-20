@@ -102,6 +102,8 @@ type QueryRoot{
     minScore: Int
   ): SearchResult!
 
+  pendingAchievements: [Achievement!]!
+
   achievement(id: ID!): Achievement!
   achievements(first: Int, offset: Int): AchievementPagination!
 
@@ -139,4 +141,6 @@ type MutationRoot {
 
   sendEpisodeFeedback(episodeId: ID!, message: String, rating: Int): ID!
   updateEpisodeFeedback(id: ID!, message: String, rating: Int): ID!
+
+  confirmAchievement(achievementId: ID!): Boolean!
 }

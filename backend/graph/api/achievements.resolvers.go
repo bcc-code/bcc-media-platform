@@ -6,19 +6,24 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/samber/lo"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 )
-
-// Image is the resolver for the image field.
-func (r *achievementResolver) Image(ctx context.Context, obj *model.Achievement) (*string, error) {
-	panic(fmt.Errorf("not implemented: Image - image"))
-}
 
 // Achieved is the resolver for the achieved field.
 func (r *achievementResolver) Achieved(ctx context.Context, obj *model.Achievement) (bool, error) {
-	panic(fmt.Errorf("not implemented: Achieved - achieved"))
+	p, err := getProfile(ctx)
+	if err != nil {
+		return false, err
+	}
+	achievedIDs, err := r.Loaders.AchievementsLoader.Get(ctx, p.ID)
+	if err != nil {
+		return false, err
+	}
+	return lo.Contains(utils.PointerArrayToArray(achievedIDs), utils.AsUuid(obj.ID)), nil
 }
 
 // Group is the resolver for the group field.

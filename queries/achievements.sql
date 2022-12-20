@@ -42,13 +42,19 @@ FROM achievementgroups ag
 WHERE ag.id = ANY ($1::uuid[]);
 
 -- name: GetAchievedAchievements :many
-SELECT a.achievement_id
+SELECT a.achievement_id as id
 FROM "users"."achievements" a
 WHERE a.profile_id = $1
   AND a.achievement_id = ANY ($2::uuid[]);
 
--- name: ListAchievedAchievements :many
-SELECT a.achievement_id
+-- name: getAchievedAchievementsForProfiles :many
+SELECT a.achievement_id as id, a.profile_id as parent_id
 FROM "users"."achievements" a
-WHERE a.profile_id = $1
+WHERE a.profile_id = ANY ($1::uuid[])
 ORDER BY a.achieved_at DESC;
+
+-- name: getUnconfirmedAchievedAchievementsForProfiles :many
+SELECT a.achievement_id as id, a.profile_id as parent_id
+FROM "users"."achievements" a
+WHERE a.profile_id = ANY ($1::uuid[])
+  AND a.confirmed_at IS NULL;

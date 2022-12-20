@@ -1,7 +1,7 @@
 type Achievement {
     id: ID!
     title: String!
-    image: String @goField(forceResolver: true)
+    image: String
     achieved: Boolean! @goField(forceResolver: true)
     group: AchievementGroup @goField(forceResolver: true)
 }

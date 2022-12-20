@@ -1221,9 +1221,10 @@ type Usergroup struct {
 }
 
 type UsersAchievement struct {
-	ProfileID     uuid.UUID `db:"profile_id" json:"profileID"`
-	AchievementID uuid.UUID `db:"achievement_id" json:"achievementID"`
-	AchievedAt    time.Time `db:"achieved_at" json:"achievedAt"`
+	ProfileID     uuid.UUID    `db:"profile_id" json:"profileID"`
+	AchievementID uuid.UUID    `db:"achievement_id" json:"achievementID"`
+	AchievedAt    time.Time    `db:"achieved_at" json:"achievedAt"`
+	ConfirmedAt   null_v4.Time `db:"confirmed_at" json:"confirmedAt"`
 }
 
 type UsersDevice struct {

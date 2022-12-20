@@ -135,12 +135,6 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 				Column2:   ids,
 			})
 		}, batchloaders.WithMemoryCache(time.Second*5)),
-		AchievementFilterLoader: batchloaders.NewFilterLoader(func(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
-			return queries.GetAchievedAchievements(ctx, sqlc.GetAchievedAchievementsParams{
-				ProfileID: profileID,
-				Column2:   ids,
-			})
-		}),
 	}
 
 	profilesLoaderCache.Set(profileID, loaders, cache.WithExpiration(time.Minute*5))
@@ -370,8 +364,10 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 			return alt.TaskID
 		})},
 		// Achievements
-		AchievementLoader:      batchloaders.New(queries.GetAchievements),
-		AchievementGroupLoader: batchloaders.New(queries.GetAchievementGroups),
+		AchievementLoader:             batchloaders.New(queries.GetAchievements),
+		AchievementGroupLoader:        batchloaders.New(queries.GetAchievementGroups),
+		AchievementsLoader:            batchloaders.NewRelationLoader(queries.GetAchievementsForProfiles, batchloaders.WithMemoryCache(time.Second*30)),
+		UnconfirmedAchievementsLoader: batchloaders.NewRelationLoader(queries.GetUnconfirmedAchievementsForProfiles, batchloaders.WithMemoryCache(time.Second*30)),
 	}
 }
 
