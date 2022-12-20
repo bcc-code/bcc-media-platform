@@ -32,23 +32,21 @@
                         </span>
                     </div>
                 </div>
-                <div v-for="week in weeks" class="flex mx-auto w-full">
+                <div v-for="week in weeksComputed" class="flex mx-auto w-full">
                     <div
                         v-for="day in week"
                         class="relative text-center cursor-pointer hover:bg-gray hover:bg-opacity-10 w-full align-middle"
-                        @click="setDay(day)"
+                        @click="setDay(day.date)"
                     >
                         <div class="w-full absolute top-0 z-0">
                             <div
                                 class="bg-opacity-20 h-8 z-0"
                                 :class="[
-                                    startEvent(day) && endEvent(day)
-                                        ? 'rounded-full mx-4'
-                                        : startEvent(day)
-                                        ? 'bg-gray ml-4 rounded-l-full'
-                                        : inEvent(day)
+                                    day.in
                                         ? 'bg-gray'
-                                        : endEvent(day)
+                                        : day.start
+                                        ? 'bg-gray ml-4 rounded-l-full'
+                                        : day.end
                                         ? 'bg-gray mr-4 rounded-r-full'
                                         : '',
                                 ]"
@@ -57,18 +55,18 @@
                         <div
                             class="h-8 aspect-square mx-auto rounded-full font-bold z-10"
                             :class="[
-                                day.getTime() === now.getTime()
+                                day.date.getTime() === now.getTime()
                                     ? 'text-red'
-                                    : day.getMonth() === month.getMonth()
+                                    : day.date.getMonth() === month.getMonth()
                                     ? ''
                                     : 'text-gray',
-                                day.getTime() === selected.getTime()
+                                day.date.getTime() === selected.getTime()
                                     ? 'outline outline-white outline-2 bg-gray bg-opacity-20'
                                     : 'outline-none',
                             ]"
                         >
                             <span class="align-middle leading-8">{{
-                                day.getDate()
+                                day.date.getDate()
                             }}</span>
                         </div>
                         <div class="flex p-2">
@@ -78,9 +76,9 @@
                                     data?.calendar?.period.activeDays.some(
                                         (d) =>
                                             new Date(d).getMonth() ===
-                                                day.getMonth() &&
+                                                day.date.getMonth() &&
                                             new Date(d).getDate() ===
-                                                day.getDate()
+                                                day.date.getDate()
                                     )
                                         ? 'bg-gray'
                                         : 'bg-none',
@@ -108,19 +106,13 @@ import { useI18n } from "vue-i18n"
 import { analytics } from "@/services/analytics"
 
 const now = new Date()
-
 const weeks = ref(getMonth(now))
-
 const month = ref(now)
-
 const selected = ref(now)
 
-const incrementMonth = (increment: number) => {
-    const date = new Date(month.value)
-    date.setMonth(date.getMonth() + increment)
-    month.value = date
-    weeks.value = getMonth(date)
-}
+const weeksComputed = computed(() => {
+    return mapDays(weeks.value)
+})
 
 const start = computed(() => {
     return weeks.value[0][0]
@@ -137,6 +129,77 @@ const { data } = useGetLiveCalendarRangeQuery({
     },
 })
 
+const startEvent = (day: Date) => {
+    const events = data.value?.calendar?.period.events ?? []
+    for (const e of events) {
+        const date = new Date(e.start)
+        if (
+            date.getFullYear() === day.getFullYear() &&
+            date.getMonth() === day.getMonth() &&
+            date.getDate() === day.getDate()
+        ) {
+            return e.start
+        }
+    }
+    return false
+}
+
+const endEvent = (day: Date) => {
+    const events = data.value?.calendar?.period.events ?? []
+    for (const e of events) {
+        const date = new Date(e.end)
+        if (
+            date.getFullYear() === day.getFullYear() &&
+            date.getMonth() === day.getMonth() &&
+            date.getDate() === day.getDate()
+        ) {
+            return e.start
+        }
+    }
+    return false
+}
+
+const inEvent = (day: Date) => {
+    const events = data.value?.calendar?.period.events ?? []
+    for (const e of events) {
+        const start = new Date(e.start)
+        const end = new Date(e.end)
+        if (
+            start.getFullYear() <= day.getFullYear() &&
+            start.getMonth() <= day.getMonth() &&
+            start.getDate() < day.getDate() &&
+            (end.getFullYear() >= day.getFullYear() &&
+            end.getMonth() >= day.getMonth() &&
+            end.getDate() > day.getDate() || end.getFullYear() > day.getFullYear())
+        ) {
+            return true
+        }
+    }
+    return false
+}
+
+const mapDays = (weeks: Date[][]) => {
+    return weeks.map(w => {
+        return w.map(date => {
+            const start = startEvent(date)
+            const end = endEvent(date)
+            return {
+                date,
+                start: start !== false,
+                end: end !== false,
+                in: inEvent(date) || (start && end && start !== end),
+            }
+        })
+    })
+}
+
+const incrementMonth = (increment: number) => {
+    const date = new Date(month.value)
+    date.setMonth(date.getMonth() + increment)
+    month.value = date
+    weeks.value = getMonth(date)
+}
+
 const setDay = (day: Date) => {
     selected.value = day
     month.value = day
@@ -149,57 +212,11 @@ const setDay = (day: Date) => {
     })
 }
 
-const startEvent = (day: Date) => {
-    const events = data.value?.calendar?.period.events ?? []
-    for (const e of events) {
-        const date = new Date(e.start)
-        if (
-            date.getFullYear() === day.getFullYear() &&
-            date.getMonth() === day.getMonth() &&
-            date.getDate() === day.getDate()
-        ) {
-            return true
-        }
-    }
-    return false
-}
-const endEvent = (day: Date) => {
-    const events = data.value?.calendar?.period.events ?? []
-    for (const e of events) {
-        const date = new Date(e.end)
-        if (
-            date.getFullYear() === day.getFullYear() &&
-            date.getMonth() === day.getMonth() &&
-            date.getDate() === day.getDate()
-        ) {
-            return true
-        }
-    }
-    return false
-}
-const inEvent = (day: Date) => {
-    const events = data.value?.calendar?.period.events ?? []
-    for (const e of events) {
-        const start = new Date(e.start)
-        const end = new Date(e.end)
-        if (
-            start.getFullYear() <= day.getFullYear() &&
-            start.getMonth() <= day.getMonth() &&
-            start.getDate() < day.getDate() &&
-            end.getFullYear() >= day.getFullYear() &&
-            end.getMonth() >= day.getMonth() &&
-            end.getDate() > day.getDate()
-        ) {
-            return true
-        }
-    }
-    return false
-}
-
 const { setTitle } = useTitle()
 const { t } = useI18n()
 
 onMounted(() => {
+    weeks.value = getMonth(now)
     setTitle(t("page.calendar"))
     analytics.page({
         id: "calendar",
