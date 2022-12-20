@@ -170,9 +170,10 @@ const inEvent = (day: Date) => {
             start.getFullYear() <= day.getFullYear() &&
             start.getMonth() <= day.getMonth() &&
             start.getDate() < day.getDate() &&
-            (end.getFullYear() >= day.getFullYear() &&
-            end.getMonth() >= day.getMonth() &&
-            end.getDate() > day.getDate() || end.getFullYear() > day.getFullYear())
+            ((end.getFullYear() >= day.getFullYear() &&
+                end.getMonth() >= day.getMonth() &&
+                end.getDate() > day.getDate()) ||
+                end.getFullYear() > day.getFullYear())
         ) {
             return true
         }
@@ -181,8 +182,8 @@ const inEvent = (day: Date) => {
 }
 
 const mapDays = (weeks: Date[][]) => {
-    return weeks.map(w => {
-        return w.map(date => {
+    return weeks.map((w) => {
+        return w.map((date) => {
             const start = startEvent(date)
             const end = endEvent(date)
             return {
