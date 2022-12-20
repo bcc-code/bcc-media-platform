@@ -753,23 +753,23 @@ func (c *Client) Sync(ctx context.Context, d *directus.Handler) error {
 			return err
 		}
 
-		//err = c.syncEpisodes(ctx, d, project, directory.ID, crowdinTranslations)
-		//if err != nil {
-		//	return err
-		//}
-		//err = c.syncSeasons(ctx, d, project, directory.ID, crowdinTranslations)
-		//if err != nil {
-		//	return err
-		//}
-		//err = c.syncShows(ctx, d, project, directory.ID, crowdinTranslations)
-		//if err != nil {
-		//	return err
-		//}
-		//err = c.syncSections(ctx, d, project, directory.ID, crowdinTranslations)
-		//if err != nil {
-		//	return err
-		//}
-		//err = c.syncPages(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncEpisodes(ctx, d, project, directory.ID, crowdinTranslations)
+		if err != nil {
+			return err
+		}
+		err = c.syncSeasons(ctx, d, project, directory.ID, crowdinTranslations)
+		if err != nil {
+			return err
+		}
+		err = c.syncShows(ctx, d, project, directory.ID, crowdinTranslations)
+		if err != nil {
+			return err
+		}
+		err = c.syncSections(ctx, d, project, directory.ID, crowdinTranslations)
+		if err != nil {
+			return err
+		}
+		err = c.syncPages(ctx, d, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
