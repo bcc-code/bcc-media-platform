@@ -15,27 +15,32 @@
             ></EpisodeViewer>
         </div>
         <div class="flex flex-col">
-            <div class="bg-primary-light p-4 w-full">
-                <h1 class="text-lg lg:text-xl font-medium">
-                    {{ episode.title }}
-                </h1>
-                <div class="flex">
-                    <h1 class="my-auto flex gap-1">
-                        <AgeRating :episode="episode" />
-                        <span v-if="episode.season" class="text-primary ml-1">{{
-                            episode.season.show.title
-                        }}</span>
-                        <span
-                            v-if="episode.productionDateInTitle"
-                            class="text-gray ml-1"
-                            >{{
-                                new Date(episode.productionDate).toDateString()
-                            }}</span
-                        >
+            <div class="bg-primary-light p-4 w-full flex">
+                <div>
+                    <h1 class="text-lg lg:text-xl font-medium">
+                        {{ episode.title }}
                     </h1>
+                    <div class="flex">
+                        <h1 class="my-auto flex gap-1">
+                            <AgeRating :episode="episode" />
+                            <span v-if="episode.season" class="text-primary ml-1">{{
+                                episode.season.show.title
+                            }}</span>
+                            <span
+                                v-if="episode.productionDateInTitle"
+                                class="text-gray ml-1"
+                                >{{
+                                    new Date(episode.productionDate).toDateString()
+                                }}</span
+                            >
+                        </h1>
+                    </div>
+                    <div class="text-white mt-2 opacity-70 text-md lg:text-lg">
+                        {{ episode.description }}
+                    </div>
                 </div>
-                <div class="text-white mt-2 opacity-70 text-md lg:text-lg">
-                    {{ episode.description }}
+                <div class="ml-auto">
+                    <SharePopover></SharePopover>
                 </div>
             </div>
             <div class="flex flex-col gap-2 mt-4">
@@ -141,6 +146,7 @@ import NotFound from "../NotFound.vue"
 import LoginToView from "./LoginToView.vue"
 import { episodesToListItems, toListItems } from "@/utils/lists"
 import { useAuth } from "@/services/auth"
+import SharePopover from "./SharePopover.vue"
 
 const props = defineProps<{
     initialEpisodeId: string
