@@ -194,6 +194,8 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string) (boo
 		return false, err
 	}
 
+	// TODO: clean this solution
+
 	siblingTaskIDs, err := r.GetFilteredLoaders(ctx).StudyTasksLoader.Get(ctx, task.LessonID)
 
 	r.Loaders.CompletedTasksLoader.Clear(ctx, p.ID)
@@ -201,6 +203,7 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string) (boo
 	if err != nil {
 		return true, err
 	}
+
 	if lo.Every(utils.PointerArrayToArray(taskIDs), utils.PointerArrayToArray(siblingTaskIDs)) {
 		completedLessons, err := r.Queries.GetCompletedLessons(ctx, p.ID)
 		if err != nil {
