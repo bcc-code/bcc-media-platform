@@ -14,18 +14,26 @@
                 class="absolute z-10 right-0 bg-slate-700 p-4 shadow-lg rounded-md flex flex-col gap-2"
             >
                 <h1 class="text-xl">{{ $t("share.title") }}</h1>
-                <div class="bg-slate-800 rounded-md p-2 cursor-pointer hover:scale-[1.01] transition flex" @click="copy()">
-                <span ref="locationSpan" class="my-auto">{{ l }}</span
+                <div
+                    class="bg-slate-800 rounded-md p-2 cursor-pointer hover:scale-[1.01] transition flex"
+                    @click="copy()"
+                >
+                    <span ref="locationSpan" class="my-auto">{{ l }}</span
                     ><ClipboardIcon class="h-6 opacity-80 ml-2"></ClipboardIcon>
                 </div>
-                <p class="text-green-500 transition pointer-events-none" :class="{'opacity-0': !copied}">{{ $t("share.copied") }}</p> 
+                <p
+                    class="text-green-500 transition pointer-events-none"
+                    :class="{ 'opacity-0': !copied }"
+                >
+                    {{ $t("share.copied") }}
+                </p>
             </PopoverPanel>
         </transition>
     </Popover>
 </template>
 <script lang="ts" setup>
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/vue"
-import { ClipboardIcon } from "@heroicons/vue/24/outline";
+import { ClipboardIcon } from "@heroicons/vue/24/outline"
 import { computed, ref } from "vue"
 
 const props = defineProps<{
@@ -66,6 +74,6 @@ const copy = () => {
     navigator.clipboard.writeText(locationSpan.value.innerText)
     copied.value = true
 
-    setTimeout(() => copied.value = false, 5000)
+    setTimeout(() => (copied.value = false), 5000)
 }
 </script>

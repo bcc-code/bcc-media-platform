@@ -68,7 +68,10 @@ export const current = computed(() => {
 })
 
 export const setLanguage = async (l: string) => {
-    settings.locale = l
+    if (settings.locale !== l) {
+        settings.locale = l
+        location.reload()
+    }
 
     await loadLocaleMessages(i18n, l)
     i18nSetLanguage(i18n, l)
