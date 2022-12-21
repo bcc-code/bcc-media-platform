@@ -10,6 +10,7 @@
 import PageComponent from "@/components/page/Page.vue"
 import { useApplicationQuery } from "@/graph/generated"
 import { analytics } from "@/services/analytics"
+import { usePage } from "@/utils/page"
 import { useTitle } from "@/utils/title"
 import { ref, watch } from "vue"
 
@@ -39,5 +40,8 @@ const updateTitle = (title: string) => {
         id: page.value,
         title,
     })
+
+    const { setCurrent } = usePage()
+    setCurrent(page.value)
 }
 </script>

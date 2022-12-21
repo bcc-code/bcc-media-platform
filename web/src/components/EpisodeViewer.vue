@@ -18,6 +18,7 @@ import {
 } from "@/graph/generated"
 import { useAuth0 } from "@auth0/auth0-vue"
 import { setProgress } from "@/utils/episodes"
+import { analytics } from "@/services/analytics"
 
 const { isAuthenticated } = useAuth0()
 
@@ -97,6 +98,10 @@ const load = async () => {
         })
         lastProgress = props.episode.progress
         player.value.currentTime(lastProgress)
+        // player.value.on("play", analytics.track("playback_started", ))
+        // player.value.on("ended", analytics.track("playback_ended", undefined))
+        // player.value.on("pause", analytics.track("playback_paused", undefined))
+        // player.value.on("error", analytics.track("playback_interrupted", undefined))
         if (isAuthenticated.value) {
             player.value.on("timeupdate", checkProgress)
         }

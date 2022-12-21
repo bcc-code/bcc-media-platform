@@ -81,6 +81,7 @@ import DayQuery from "@/components/calendar/DayQuery.vue"
 import { useI18n } from "vue-i18n"
 import { useTitle } from "@/utils/title"
 import { analytics } from "@/services/analytics"
+import { usePage } from "@/utils/page"
 
 const { t } = useI18n()
 
@@ -129,5 +130,8 @@ onMounted(() => {
         id: "livestream",
         title: t("page.live"),
     })
+
+    const { setCurrent } = usePage()
+    setCurrent("live")
 })
 </script>
