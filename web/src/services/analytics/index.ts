@@ -90,7 +90,7 @@ class Analytics {
     }
 
     public async initialize(idFactory: () => Promise<string | null>) {
-        if (!this.enabled) return
+        if (!this.enabled || this.initialized) return
 
         this.revision = await getRevision()
         const { getClaims } = useAuth()

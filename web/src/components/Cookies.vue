@@ -56,7 +56,7 @@
                             $t("cookies.statistics")
                         }}</SwitchLabel>
                     </div>
-                    <VButton @click="accepted = true">{{
+                    <VButton @click="accept()">{{
                         $t("cookies.accept")
                     }}</VButton>
                 </div>
@@ -65,9 +65,21 @@
     </div>
 </template>
 <script lang="ts" setup>
+import { useGetAnalyticsIdQuery } from "@/graph/generated"
+import { analytics } from "@/services/analytics"
 import { useCookies } from "@/services/cookies"
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue"
 import { VButton } from "."
 
 const { accepted, preferences, statistics } = useCookies()
+
+const { executeQuery } = useGetAnalyticsIdQuery()
+
+const accept = () => {
+    accepted.value = true
+    analytics.initialize(
+        async () =>
+            (await executeQuery()).data.value?.me.analytics.anonymousId ?? null
+    )
+}
 </script>
