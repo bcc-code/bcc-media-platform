@@ -256,3 +256,14 @@ func (rq *RoleQueries) GetLinkIDsForLessons(ctx context.Context, ids []uuid.UUID
 		}
 	}), nil
 }
+
+// GetCompletedTasks for profiles
+func (q *Queries) GetCompletedTasks(ctx context.Context, profileIDs []uuid.UUID) ([]batchloaders.Relation[uuid.UUID, uuid.UUID], error) {
+	rows, err := q.getCompletedTasks(ctx, profileIDs)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getCompletedTasksRow, _ int) batchloaders.Relation[uuid.UUID, uuid.UUID] {
+		return relation[uuid.UUID, uuid.UUID](i)
+	}), nil
+}

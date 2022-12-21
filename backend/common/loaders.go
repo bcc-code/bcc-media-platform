@@ -46,6 +46,9 @@ type BatchLoaders struct {
 	EpisodePermissionLoader *dataloader.Loader[int, *Permissions[int]]
 	PagePermissionLoader    *dataloader.Loader[int, *Permissions[int]]
 	SectionPermissionLoader *dataloader.Loader[int, *Permissions[int]]
+
+	CompletedTasksLoader *batchloaders.BatchLoader[uuid.UUID, []*uuid.UUID]
+
 	// Achievements
 	AchievementLoader             *batchloaders.BatchLoader[uuid.UUID, *Achievement]
 	AchievementGroupLoader        *batchloaders.BatchLoader[uuid.UUID, *AchievementGroup]

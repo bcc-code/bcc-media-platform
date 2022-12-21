@@ -107,6 +107,26 @@ FROM tasks t
 WHERE t.status = 'published'
   AND t.lesson_id = ANY ($1::uuid[]);
 
+-- name: getCompletedTasks :many
+SELECT ta.task_id as id, ta.profile_id as parent_id
+FROM "users"."taskanswers" ta
+WHERE ta.profile_id = ANY ($1::uuid[]);
+
+-- name: GetCompletedLessons :many
+WITH counts AS (SELECT l.id,
+                       COUNT(t.id)       task_count,
+                       COUNT(ta.task_id) completed_count
+                FROM "public"."lessons" l
+                         LEFT JOIN tasks t ON t.lesson_id = l.id
+                         LEFT JOIN "users"."taskanswers" ta
+                                   ON ta.profile_id = $1 AND ta.task_id = t.id
+                GROUP BY l.id)
+SELECT
+    l.id
+FROM lessons l
+         JOIN counts ON counts.id = l.id
+WHERE counts.completed_count = counts.task_count;
+
 -- name: GetAnsweredTasks :many
 SELECT ta.task_id
 FROM "users"."taskanswers" ta

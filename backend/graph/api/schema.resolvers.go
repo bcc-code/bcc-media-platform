@@ -193,6 +193,44 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string) (boo
 	if err != nil {
 		return false, err
 	}
+
+	siblingTaskIDs, err := r.GetFilteredLoaders(ctx).StudyTasksLoader.Get(ctx, task.LessonID)
+
+	r.Loaders.CompletedTasksLoader.Clear(ctx, p.ID)
+	taskIDs, err := r.Loaders.CompletedTasksLoader.Get(ctx, p.ID)
+	if err != nil {
+		return true, err
+	}
+	if lo.Every(utils.PointerArrayToArray(taskIDs), utils.PointerArrayToArray(siblingTaskIDs)) {
+		completedLessons, err := r.Queries.GetCompletedLessons(ctx, p.ID)
+		if err != nil {
+			return true, err
+		}
+
+		achievedIDs, err := r.Queries.ConditionAchieved(ctx, sqlc.ConditionAchievedParams{
+			ProfileID:  p.ID,
+			Collection: null.StringFrom("lessons"),
+			Action:     null.StringFrom("completed"),
+			Amount:     null.IntFrom(int64(len(completedLessons))),
+		})
+		if err != nil {
+			return true, err
+		}
+		if len(achievedIDs) > 0 {
+			for _, aID := range achievedIDs {
+				if !aID.Valid {
+					continue
+				}
+				err = r.Queries.AchievedAchievement(ctx, sqlc.AchievedAchievementParams{
+					AchievementID: aID.UUID,
+					ProfileID:     p.ID,
+				})
+				if err != nil {
+					return true, err
+				}
+			}
+		}
+	}
 	return true, nil
 }
 

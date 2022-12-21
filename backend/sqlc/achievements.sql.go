@@ -14,6 +14,68 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const achievedAchievement = `-- name: AchievedAchievement :exec
+INSERT INTO "users"."achievements" (profile_id, achievement_id, achieved_at)
+VALUES ($1, $2, now())
+ON CONFLICT(profile_id, achievement_id) DO UPDATE SET achieved_at = now()
+`
+
+type AchievedAchievementParams struct {
+	ProfileID     uuid.UUID `db:"profile_id" json:"profileID"`
+	AchievementID uuid.UUID `db:"achievement_id" json:"achievementID"`
+}
+
+func (q *Queries) AchievedAchievement(ctx context.Context, arg AchievedAchievementParams) error {
+	_, err := q.db.ExecContext(ctx, achievedAchievement, arg.ProfileID, arg.AchievementID)
+	return err
+}
+
+const conditionAchieved = `-- name: ConditionAchieved :many
+SELECT c.achievement_id
+FROM "public"."achievementconditions" c
+         LEFT JOIN "users"."achievements" achieved
+                   ON achieved.profile_id = $1 AND achieved.achievement_id = c.achievement_id
+WHERE achieved IS NULL
+  AND c.collection = $2
+  AND c.action = $3
+  AND c.amount <= $4
+`
+
+type ConditionAchievedParams struct {
+	ProfileID  uuid.UUID      `db:"profile_id" json:"profileID"`
+	Collection null_v4.String `db:"collection" json:"collection"`
+	Action     null_v4.String `db:"action" json:"action"`
+	Amount     null_v4.Int    `db:"amount" json:"amount"`
+}
+
+func (q *Queries) ConditionAchieved(ctx context.Context, arg ConditionAchievedParams) ([]uuid.NullUUID, error) {
+	rows, err := q.db.QueryContext(ctx, conditionAchieved,
+		arg.ProfileID,
+		arg.Collection,
+		arg.Action,
+		arg.Amount,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.NullUUID
+	for rows.Next() {
+		var achievement_id uuid.NullUUID
+		if err := rows.Scan(&achievement_id); err != nil {
+			return nil, err
+		}
+		items = append(items, achievement_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const confirmAchievement = `-- name: ConfirmAchievement :exec
 UPDATE "users"."achievements"
 SET confirmed_at = NOW()
