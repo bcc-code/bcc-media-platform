@@ -736,7 +736,7 @@ INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "disp
                                              "translations", "archive_field", "archive_app_filter", "archive_value",
                                              "unarchive_value", "sort_field", "accountability", "color",
                                              "item_duplication_fields", "sort", "group", "collapse")
-VALUES ('tasks', 'fact_check', NULL, '{{type}}', true, false, NULL, 'status', true, 'archived', 'draft', NULL, 'all',
+VALUES ('tasks', 'fact_check', NULL, '{{type}}', true, false, NULL, 'status', true, 'archived', 'draft', 'sort', 'all',
         NULL, NULL, 1, 'lessons', 'open');
 
 INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "display_template", "hidden", "singleton",
