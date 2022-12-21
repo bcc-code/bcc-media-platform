@@ -14,6 +14,23 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const confirmAchievement = `-- name: ConfirmAchievement :exec
+UPDATE "users"."achievements"
+SET confirmed_at = NOW()
+WHERE profile_id = $1
+  AND achievement_id = $2
+`
+
+type ConfirmAchievementParams struct {
+	ProfileID     uuid.UUID `db:"profile_id" json:"profileID"`
+	AchievementID uuid.UUID `db:"achievement_id" json:"achievementID"`
+}
+
+func (q *Queries) ConfirmAchievement(ctx context.Context, arg ConfirmAchievementParams) error {
+	_, err := q.db.ExecContext(ctx, confirmAchievement, arg.ProfileID, arg.AchievementID)
+	return err
+}
+
 const getAchievedAchievements = `-- name: GetAchievedAchievements :many
 SELECT a.achievement_id as id
 FROM "users"."achievements" a

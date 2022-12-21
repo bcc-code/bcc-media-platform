@@ -5,8 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
-	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"net/url"
 	"strconv"
 	"time"
@@ -20,6 +18,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/export"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/bcc-code/brunstadtv/backend/ratelimit"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
@@ -242,8 +241,34 @@ func (r *mutationRootResolver) UpdateEpisodeFeedback(ctx context.Context, id str
 }
 
 // ConfirmAchievement is the resolver for the confirmAchievement field.
-func (r *mutationRootResolver) ConfirmAchievement(ctx context.Context, achievementID string) (bool, error) {
-	panic(fmt.Errorf("not implemented: ConfirmAchievement - confirmAchievement"))
+func (r *mutationRootResolver) ConfirmAchievement(ctx context.Context, id string) (bool, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return false, err
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return false, err
+	}
+	ids, err := r.Loaders.UnconfirmedAchievementsLoader.Get(ctx, p.ID)
+	if err != nil {
+		return false, err
+	}
+	if !lo.Contains(utils.PointerArrayToArray(ids), uid) {
+		return false, merry.New("", merry.WithUserMessage("Achievement is not unconfirmed"))
+	}
+	ids = lo.Filter(ids, func(i *uuid.UUID, _ int) bool {
+		return i != nil && *i != uid
+	})
+	err = r.Queries.ConfirmAchievement(ctx, sqlc.ConfirmAchievementParams{
+		ProfileID:     p.ID,
+		AchievementID: uid,
+	})
+	if err != nil {
+		return false, err
+	}
+	r.Loaders.UnconfirmedAchievementsLoader.Clear(ctx, p.ID)
+	return true, nil
 }
 
 // Application is the resolver for the application field.

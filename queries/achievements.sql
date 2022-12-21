@@ -63,3 +63,9 @@ SELECT a.achievement_id as id, a.profile_id as parent_id
 FROM "users"."achievements" a
 WHERE a.profile_id = ANY ($1::uuid[])
   AND a.confirmed_at IS NULL;
+
+-- name: ConfirmAchievement :exec
+UPDATE "users"."achievements"
+SET confirmed_at = NOW()
+WHERE profile_id = $1
+  AND achievement_id = $2;

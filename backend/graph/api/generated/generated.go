@@ -464,7 +464,7 @@ type ComplexityRoot struct {
 
 	MutationRoot struct {
 		CompleteTask          func(childComplexity int, id string) int
-		ConfirmAchievement    func(childComplexity int, achievementID string) int
+		ConfirmAchievement    func(childComplexity int, id string) int
 		SendEpisodeFeedback   func(childComplexity int, episodeID string, message *string, rating *int) int
 		SendSupportEmail      func(childComplexity int, title string, content string, html string) int
 		SendTaskMessage       func(childComplexity int, taskID string, message *string) int
@@ -909,7 +909,7 @@ type MutationRootResolver interface {
 	UpdateTaskMessage(ctx context.Context, id string, message string) (string, error)
 	SendEpisodeFeedback(ctx context.Context, episodeID string, message *string, rating *int) (string, error)
 	UpdateEpisodeFeedback(ctx context.Context, id string, message *string, rating *int) (string, error)
-	ConfirmAchievement(ctx context.Context, achievementID string) (bool, error)
+	ConfirmAchievement(ctx context.Context, id string) (bool, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -2769,7 +2769,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.MutationRoot.ConfirmAchievement(childComplexity, args["achievementId"].(string)), true
+		return e.complexity.MutationRoot.ConfirmAchievement(childComplexity, args["id"].(string)), true
 
 	case "MutationRoot.sendEpisodeFeedback":
 		if e.complexity.MutationRoot.SendEpisodeFeedback == nil {
@@ -5269,7 +5269,7 @@ type MutationRoot {
   sendEpisodeFeedback(episodeId: ID!, message: String, rating: Int): ID!
   updateEpisodeFeedback(id: ID!, message: String, rating: Int): ID!
 
-  confirmAchievement(achievementId: ID!): Boolean!
+  confirmAchievement(id: ID!): Boolean!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -6030,14 +6030,14 @@ func (ec *executionContext) field_MutationRoot_confirmAchievement_args(ctx conte
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["achievementId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("achievementId"))
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["achievementId"] = arg0
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -18315,7 +18315,7 @@ func (ec *executionContext) _MutationRoot_confirmAchievement(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MutationRoot().ConfirmAchievement(rctx, fc.Args["achievementId"].(string))
+		return ec.resolvers.MutationRoot().ConfirmAchievement(rctx, fc.Args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
