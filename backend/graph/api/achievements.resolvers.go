@@ -5,12 +5,11 @@ package graph
 
 import (
 	"context"
-	"fmt"
-	"github.com/samber/lo"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/samber/lo"
 )
 
 // Achieved is the resolver for the achieved field.
@@ -38,7 +37,21 @@ func (r *achievementResolver) Group(ctx context.Context, obj *model.Achievement)
 
 // Achievements is the resolver for the achievements field.
 func (r *achievementGroupResolver) Achievements(ctx context.Context, obj *model.AchievementGroup, first *int, offset *int) (*model.AchievementPagination, error) {
-	panic(fmt.Errorf("not implemented: Achievements - achievements"))
+	ids, err := r.GetLoaders().AchievementGroupAchievementsLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	page := utils.Paginate(ids, first, offset, nil)
+	items, err := r.GetLoaders().AchievementLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	if err != nil {
+		return nil, err
+	}
+	return &model.AchievementPagination{
+		Offset: page.Offset,
+		First:  page.First,
+		Total:  page.Total,
+		Items:  utils.MapWithCtx(ctx, items, model.AchievementFrom),
+	}, nil
 }
 
 // Achievement returns generated.AchievementResolver implementation.

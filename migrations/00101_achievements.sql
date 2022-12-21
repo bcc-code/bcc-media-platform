@@ -98,7 +98,7 @@ COMMENT ON TABLE "public"."achievementgroups" IS NULL;
 
 --- END CREATE TABLE "public"."achievementgroups" ---
 
---- BEGIN CREATE TABLE "public"."achievements.sql" ---
+--- BEGIN CREATE TABLE "public"."achievements" ---
 
 CREATE TABLE IF NOT EXISTS "public"."achievements"
 (
@@ -160,7 +160,7 @@ COMMENT ON CONSTRAINT "achievements_user_updated_foreign" ON "public"."achieveme
 
 COMMENT ON TABLE "public"."achievements" IS NULL;
 
---- END CREATE TABLE "public"."achievements.sql" ---
+--- END CREATE TABLE "public"."achievements" ---
 
 --- BEGIN CREATE TABLE "public"."achievements_images" ---
 
@@ -349,7 +349,7 @@ INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "disp
                                              "translations", "archive_field", "archive_app_filter", "archive_value",
                                              "unarchive_value", "sort_field", "accountability", "color",
                                              "item_duplication_fields", "sort", "group", "collapse")
-VALUES ('achievements.sql', 'stars', NULL, '{{title}}', false, false, NULL, 'status', true, 'archived', 'draft', NULL,
+VALUES ('achievements', 'stars', NULL, '{{title}}', false, false, NULL, 'status', true, 'archived', 'draft', NULL,
         'all', '#FFA439', NULL, 9, NULL, 'open');
 
 
@@ -362,14 +362,14 @@ INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "disp
                                              "unarchive_value", "sort_field", "accountability", "color",
                                              "item_duplication_fields", "sort", "group", "collapse")
 VALUES ('achievementconditions', NULL, NULL, NULL, true, false, NULL, NULL, true, NULL, NULL, NULL, 'all', NULL, NULL,
-        2, 'achievements.sql', 'open');
+        2, 'achievements', 'open');
 
 INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "display_template", "hidden", "singleton",
                                              "translations", "archive_field", "archive_app_filter", "archive_value",
                                              "unarchive_value", "sort_field", "accountability", "color",
                                              "item_duplication_fields", "sort", "group", "collapse")
 VALUES ('achievements_images', NULL, NULL, NULL, true, false, NULL, NULL, true, NULL, NULL, NULL, 'all', NULL, NULL, 3,
-        'achievements.sql', 'open');
+        'achievements', 'open');
 
 UPDATE "public"."directus_collections"
 SET "sort" = 7
@@ -456,7 +456,7 @@ VALUES ('achievementgroups', NULL, NULL, '{{title}}', false, false, '[
     "singular": "Group",
     "plural": "Groups"
   }
-]', 'status', true, 'archived', 'draft', NULL, 'all', NULL, NULL, 1, 'achievements.sql', 'open');
+]', 'status', true, 'archived', 'draft', NULL, 'all', NULL, NULL, 1, 'achievements', 'open');
 
 UPDATE "public"."directus_collections"
 SET "sort" = 12
@@ -533,7 +533,7 @@ VALUES (918, 'achievements_images', 'achievement_id', NULL, 'select-dropdown-m2o
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
                                         "display_options", "readonly", "hidden", "sort", "width", "translations",
                                         "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (917, 'achievements.sql', 'images', 'o2m', 'list-o2m', NULL, 'raw', NULL, false, false, 10, 'full', NULL, NULL, NULL,
+VALUES (917, 'achievements', 'images', 'o2m', 'list-o2m', NULL, 'raw', NULL, false, false, 10, 'full', NULL, NULL, NULL,
         false, NULL, NULL, NULL);
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
@@ -591,19 +591,19 @@ VALUES (928, 'achievementgroups_translations', 'achievementgroups_id', NULL, NUL
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
                                         "display_options", "readonly", "hidden", "sort", "width", "translations",
                                         "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (934, 'achievements.sql', 'title', NULL, 'input', NULL, 'raw', NULL, false, false, 8, 'full', NULL, NULL, NULL,
+VALUES (934, 'achievements', 'title', NULL, 'input', NULL, 'raw', NULL, false, false, 8, 'full', NULL, NULL, NULL,
         false, NULL, NULL, NULL);
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
                                         "display_options", "readonly", "hidden", "sort", "width", "translations",
                                         "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (935, 'achievements.sql', 'translations', 'translations', NULL, NULL, NULL, NULL, false, true, 11, 'full', NULL,
+VALUES (935, 'achievements', 'translations', 'translations', NULL, NULL, NULL, NULL, false, true, 11, 'full', NULL,
         NULL, NULL, false, NULL, NULL, NULL);
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
                                         "display_options", "readonly", "hidden", "sort", "width", "translations",
                                         "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (932, 'achievements.sql', 'group_id', 'm2o', 'select-dropdown-m2o', NULL, 'related-values', '{
+VALUES (932, 'achievements', 'group_id', 'm2o', 'select-dropdown-m2o', NULL, 'related-values', '{
   "template": "{{title}}"
 }', false, false, 7, 'full', NULL, NULL, NULL, false, NULL, NULL, NULL);
 
@@ -682,7 +682,7 @@ VALUES (942, 'achievementconditions', 'action', NULL, 'select-dropdown', '{
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
                                         "display_options", "readonly", "hidden", "sort", "width", "translations",
                                         "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (933, 'achievementgroups', 'achievements.sql', 'o2m', 'list-o2m', NULL, 'related-values', NULL, false, false, 10,
+VALUES (933, 'achievementgroups', 'achievements', 'o2m', 'list-o2m', NULL, 'related-values', NULL, false, false, 10,
         'full', NULL, NULL, NULL, false, NULL, NULL, NULL);
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
@@ -700,13 +700,13 @@ VALUES (930, 'achievementgroups', 'title', NULL, 'input', NULL, 'raw', NULL, fal
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
                                         "display_options", "readonly", "hidden", "sort", "width", "translations",
                                         "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (902, 'achievements.sql', 'id', 'uuid', 'input', NULL, NULL, NULL, true, true, 1, 'full', NULL, NULL, NULL, false,
+VALUES (902, 'achievements', 'id', 'uuid', 'input', NULL, NULL, NULL, true, true, 1, 'full', NULL, NULL, NULL, false,
         NULL, NULL, NULL);
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
                                         "display_options", "readonly", "hidden", "sort", "width", "translations",
                                         "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (903, 'achievements.sql', 'status', NULL, 'select-dropdown', '{
+VALUES (903, 'achievements', 'status', NULL, 'select-dropdown', '{
   "choices": [
     {
       "text": "$t:published",
@@ -748,28 +748,28 @@ VALUES (903, 'achievements.sql', 'status', NULL, 'select-dropdown', '{
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
                                         "display_options", "readonly", "hidden", "sort", "width", "translations",
                                         "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (904, 'achievements.sql', 'user_created', 'user-created', 'select-dropdown-m2o', '{
+VALUES (904, 'achievements', 'user_created', 'user-created', 'select-dropdown-m2o', '{
   "template": "{{avatar.$thumbnail}} {{first_name}} {{last_name}}"
 }', 'user', NULL, true, true, 3, 'half', NULL, NULL, NULL, false, NULL, NULL, NULL);
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
                                         "display_options", "readonly", "hidden", "sort", "width", "translations",
                                         "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (905, 'achievements.sql', 'date_created', 'date-created', 'datetime', NULL, 'datetime', '{
+VALUES (905, 'achievements', 'date_created', 'date-created', 'datetime', NULL, 'datetime', '{
   "relative": true
 }', true, true, 4, 'half', NULL, NULL, NULL, false, NULL, NULL, NULL);
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
                                         "display_options", "readonly", "hidden", "sort", "width", "translations",
                                         "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (906, 'achievements.sql', 'user_updated', 'user-updated', 'select-dropdown-m2o', '{
+VALUES (906, 'achievements', 'user_updated', 'user-updated', 'select-dropdown-m2o', '{
   "template": "{{avatar.$thumbnail}} {{first_name}} {{last_name}}"
 }', 'user', NULL, true, true, 5, 'half', NULL, NULL, NULL, false, NULL, NULL, NULL);
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
                                         "display_options", "readonly", "hidden", "sort", "width", "translations",
                                         "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (907, 'achievements.sql', 'date_updated', 'date-updated', 'datetime', NULL, 'datetime', '{
+VALUES (907, 'achievements', 'date_updated', 'date-updated', 'datetime', NULL, 'datetime', '{
   "relative": true
 }', true, true, 6, 'half', NULL, NULL, NULL, false, NULL, NULL, NULL);
 
@@ -842,7 +842,7 @@ VALUES (939, 'achievements_translations', 'title', NULL, 'input', NULL, 'raw', N
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
                                         "display_options", "readonly", "hidden", "sort", "width", "translations",
                                         "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (946, 'achievements.sql', 'conditions', 'o2m', 'list-o2m', NULL, 'related-values', NULL, false, false, 9, 'full',
+VALUES (946, 'achievements', 'conditions', 'o2m', 'list-o2m', NULL, 'related-values', NULL, false, false, 9, 'full',
         NULL, NULL, NULL, false, NULL, NULL, NULL);
 
 --- END SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
@@ -852,7 +852,7 @@ VALUES (946, 'achievements.sql', 'conditions', 'o2m', 'list-o2m', NULL, 'related
 INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field", "one_collection", "one_field",
                                            "one_collection_field", "one_allowed_collections", "junction_field",
                                            "sort_field", "one_deselect_action")
-VALUES (275, 'achievements.sql', 'user_created', 'directus_users', NULL, NULL, NULL, NULL, NULL, 'nullify');
+VALUES (275, 'achievements', 'user_created', 'directus_users', NULL, NULL, NULL, NULL, NULL, 'nullify');
 
 INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field", "one_collection", "one_field",
                                            "one_collection_field", "one_allowed_collections", "junction_field",
@@ -872,7 +872,7 @@ VALUES (282, 'achievementgroups', 'user_updated', 'directus_users', NULL, NULL, 
 INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field", "one_collection", "one_field",
                                            "one_collection_field", "one_allowed_collections", "junction_field",
                                            "sort_field", "one_deselect_action")
-VALUES (287, 'achievements_translations', 'achievements_id', 'achievements.sql', 'translations', NULL, NULL,
+VALUES (287, 'achievements_translations', 'achievements_id', 'achievements', 'translations', NULL, NULL,
         'languages_code', NULL, 'nullify');
 
 INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field", "one_collection", "one_field",
@@ -884,17 +884,17 @@ VALUES (286, 'achievements_translations', 'languages_code', 'languages', NULL, N
 INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field", "one_collection", "one_field",
                                            "one_collection_field", "one_allowed_collections", "junction_field",
                                            "sort_field", "one_deselect_action")
-VALUES (289, 'achievementconditions', 'achievement_id', 'achievements.sql', 'conditions', NULL, NULL, NULL, NULL, 'delete');
+VALUES (289, 'achievementconditions', 'achievement_id', 'achievements', 'conditions', NULL, NULL, NULL, NULL, 'delete');
 
 INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field", "one_collection", "one_field",
                                            "one_collection_field", "one_allowed_collections", "junction_field",
                                            "sort_field", "one_deselect_action")
-VALUES (274, 'achievements.sql', 'user_updated', 'directus_users', NULL, NULL, NULL, NULL, NULL, 'nullify');
+VALUES (274, 'achievements', 'user_updated', 'directus_users', NULL, NULL, NULL, NULL, NULL, 'nullify');
 
 INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field", "one_collection", "one_field",
                                            "one_collection_field", "one_allowed_collections", "junction_field",
                                            "sort_field", "one_deselect_action")
-VALUES (279, 'achievements_images', 'achievement_id', 'achievements.sql', 'images', NULL, NULL, NULL, NULL, 'delete');
+VALUES (279, 'achievements_images', 'achievement_id', 'achievements', 'images', NULL, NULL, NULL, NULL, 'delete');
 
 INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field", "one_collection", "one_field",
                                            "one_collection_field", "one_allowed_collections", "junction_field",
@@ -916,7 +916,7 @@ VALUES (284, 'achievementgroups_translations', 'achievementgroups_id', 'achievem
 INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field", "one_collection", "one_field",
                                            "one_collection_field", "one_allowed_collections", "junction_field",
                                            "sort_field", "one_deselect_action")
-VALUES (285, 'achievements.sql', 'group_id', 'achievementgroups', 'achievements.sql', NULL, NULL, NULL, NULL, 'nullify');
+VALUES (285, 'achievements', 'group_id', 'achievementgroups', 'achievements', NULL, NULL, NULL, NULL, 'nullify');
 
 --- END SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
 -- +goose Down
@@ -950,11 +950,11 @@ DROP TABLE IF EXISTS "public"."achievements_images";
 
 --- END DROP TABLE "public"."achievements_images" ---
 
---- BEGIN DROP TABLE "public"."achievements.sql" ---
+--- BEGIN DROP TABLE "public"."achievements" ---
 
 DROP TABLE IF EXISTS "public"."achievements";
 
---- END DROP TABLE "public"."achievements.sql" ---
+--- END DROP TABLE "public"."achievements" ---
 
 --- BEGIN DROP TABLE "public"."achievementgroups" ---
 
@@ -1058,7 +1058,7 @@ WHERE "collection" = 'achievementgroups';
 
 DELETE
 FROM "public"."directus_collections"
-WHERE "collection" = 'achievements.sql';
+WHERE "collection" = 'achievements';
 
 --- END SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
 

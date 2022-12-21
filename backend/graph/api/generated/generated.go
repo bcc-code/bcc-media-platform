@@ -525,7 +525,6 @@ type ComplexityRoot struct {
 		Achievement         func(childComplexity int, id string) int
 		AchievementGroup    func(childComplexity int, id string) int
 		AchievementGroups   func(childComplexity int, first *int, offset *int) int
-		Achievements        func(childComplexity int, first *int, offset *int) int
 		Application         func(childComplexity int) int
 		Calendar            func(childComplexity int) int
 		Collection          func(childComplexity int, id *string, slug *string) int
@@ -939,7 +938,6 @@ type QueryRootResolver interface {
 	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
 	PendingAchievements(ctx context.Context) ([]*model.Achievement, error)
 	Achievement(ctx context.Context, id string) (*model.Achievement, error)
-	Achievements(ctx context.Context, first *int, offset *int) (*model.AchievementPagination, error)
 	AchievementGroup(ctx context.Context, id string) (*model.AchievementGroup, error)
 	AchievementGroups(ctx context.Context, first *int, offset *int) (*model.AchievementGroupPagination, error)
 	StudyTopic(ctx context.Context, id string) (*model.StudyTopic, error)
@@ -3116,18 +3114,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QueryRoot.AchievementGroups(childComplexity, args["first"].(*int), args["offset"].(*int)), true
 
-	case "QueryRoot.achievements":
-		if e.complexity.QueryRoot.Achievements == nil {
-			break
-		}
-
-		args, err := ec.field_QueryRoot_achievements_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.QueryRoot.Achievements(childComplexity, args["first"].(*int), args["offset"].(*int)), true
-
 	case "QueryRoot.application":
 		if e.complexity.QueryRoot.Application == nil {
 			break
@@ -5247,7 +5233,6 @@ type QueryRoot{
   pendingAchievements: [Achievement!]!
 
   achievement(id: ID!): Achievement!
-  achievements(first: Int, offset: Int): AchievementPagination!
 
   achievementGroup(id: ID!): AchievementGroup!
   achievementGroups(first: Int, offset: Int): AchievementGroupPagination!
@@ -6422,30 +6407,6 @@ func (ec *executionContext) field_QueryRoot_achievement_args(ctx context.Context
 		}
 	}
 	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_QueryRoot_achievements_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *int
-	if tmp, ok := rawArgs["first"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["first"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["offset"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["offset"] = arg1
 	return args, nil
 }
 
@@ -20594,71 +20555,6 @@ func (ec *executionContext) fieldContext_QueryRoot_achievement(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_QueryRoot_achievement_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _QueryRoot_achievements(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_QueryRoot_achievements(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Achievements(rctx, fc.Args["first"].(*int), fc.Args["offset"].(*int))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.AchievementPagination)
-	fc.Result = res
-	return ec.marshalNAchievementPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAchievementPagination(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_QueryRoot_achievements(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "QueryRoot",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "offset":
-				return ec.fieldContext_AchievementPagination_offset(ctx, field)
-			case "first":
-				return ec.fieldContext_AchievementPagination_first(ctx, field)
-			case "total":
-				return ec.fieldContext_AchievementPagination_total(ctx, field)
-			case "items":
-				return ec.fieldContext_AchievementPagination_items(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AchievementPagination", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_QueryRoot_achievements_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -34954,29 +34850,6 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._QueryRoot_achievement(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
-		case "achievements":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._QueryRoot_achievements(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

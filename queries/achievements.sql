@@ -16,9 +16,14 @@ FROM "public"."achievements" a
          LEFT JOIN cons ON cons.achievement_id = a.id
 WHERE a.id = ANY ($1::uuid[]);
 
--- name: listAchievements :many
+-- name: ListAchievements :many
 SELECT id
 FROM "public"."achievements"
+WHERE status = 'published';
+
+-- name: ListAchievementGroups :many
+SELECT id
+FROM "public"."achievementgroups"
 WHERE status = 'published';
 
 -- name: getAchievementsForGroups :many

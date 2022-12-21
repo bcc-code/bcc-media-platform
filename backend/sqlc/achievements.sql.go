@@ -49,6 +49,64 @@ func (q *Queries) GetAchievedAchievements(ctx context.Context, arg GetAchievedAc
 	return items, nil
 }
 
+const listAchievementGroups = `-- name: ListAchievementGroups :many
+SELECT id
+FROM "public"."achievementgroups"
+WHERE status = 'published'
+`
+
+func (q *Queries) ListAchievementGroups(ctx context.Context) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, listAchievementGroups)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listAchievements = `-- name: ListAchievements :many
+SELECT id
+FROM "public"."achievements"
+WHERE status = 'published'
+`
+
+func (q *Queries) ListAchievements(ctx context.Context) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, listAchievements)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAchievedAchievementsForProfiles = `-- name: getAchievedAchievementsForProfiles :many
 SELECT a.achievement_id as id, a.profile_id as parent_id
 FROM "users"."achievements" a
@@ -278,35 +336,6 @@ func (q *Queries) getUnconfirmedAchievedAchievementsForProfiles(ctx context.Cont
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listAchievements = `-- name: listAchievements :many
-SELECT id
-FROM "public"."achievements"
-WHERE status = 'published'
-`
-
-func (q *Queries) listAchievements(ctx context.Context) ([]uuid.UUID, error) {
-	rows, err := q.db.QueryContext(ctx, listAchievements)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []uuid.UUID
-	for rows.Next() {
-		var id uuid.UUID
-		if err := rows.Scan(&id); err != nil {
-			return nil, err
-		}
-		items = append(items, id)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

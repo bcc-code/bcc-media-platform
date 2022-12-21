@@ -51,6 +51,8 @@ type BatchLoaders struct {
 	AchievementGroupLoader        *batchloaders.BatchLoader[uuid.UUID, *AchievementGroup]
 	AchievementsLoader            *batchloaders.BatchLoader[uuid.UUID, []*uuid.UUID]
 	UnconfirmedAchievementsLoader *batchloaders.BatchLoader[uuid.UUID, []*uuid.UUID]
+
+	AchievementGroupAchievementsLoader *batchloaders.BatchLoader[uuid.UUID, []*uuid.UUID]
 }
 
 // FilteredLoaders contains loaders that will be filtered by permissions.

@@ -53,8 +53,8 @@ func (cq *CollectionQueries) GetAchievementsForActions(ctx context.Context, acti
 }
 
 // GetAchievementsForGroups retrieves achievementIDs for actions
-func (cq *CollectionQueries) GetAchievementsForGroups(ctx context.Context, groupIDs []uuid.UUID) ([]batchloaders.Relation[uuid.UUID, uuid.UUID], error) {
-	rows, err := cq.getAchievementsForGroups(ctx, groupIDs)
+func (q *Queries) GetAchievementsForGroups(ctx context.Context, groupIDs []uuid.UUID) ([]batchloaders.Relation[uuid.UUID, uuid.UUID], error) {
+	rows, err := q.getAchievementsForGroups(ctx, groupIDs)
 	if err != nil {
 		return nil, err
 	}

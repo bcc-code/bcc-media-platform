@@ -364,10 +364,11 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 			return alt.TaskID
 		})},
 		// Achievements
-		AchievementLoader:             batchloaders.New(queries.GetAchievements),
-		AchievementGroupLoader:        batchloaders.New(queries.GetAchievementGroups),
-		AchievementsLoader:            batchloaders.NewRelationLoader(queries.GetAchievementsForProfiles, batchloaders.WithMemoryCache(time.Second*30)),
-		UnconfirmedAchievementsLoader: batchloaders.NewRelationLoader(queries.GetUnconfirmedAchievementsForProfiles, batchloaders.WithMemoryCache(time.Second*30)),
+		AchievementLoader:                  batchloaders.New(queries.GetAchievements),
+		AchievementGroupLoader:             batchloaders.New(queries.GetAchievementGroups),
+		AchievementsLoader:                 batchloaders.NewRelationLoader(queries.GetAchievementsForProfiles, batchloaders.WithMemoryCache(time.Second*30)),
+		UnconfirmedAchievementsLoader:      batchloaders.NewRelationLoader(queries.GetUnconfirmedAchievementsForProfiles, batchloaders.WithMemoryCache(time.Second*30)),
+		AchievementGroupAchievementsLoader: batchloaders.NewRelationLoader(queries.GetAchievementsForGroups),
 	}
 }
 

@@ -6,6 +6,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"net/url"
 	"strconv"
 	"time"
@@ -460,11 +461,11 @@ func (r *queryRootResolver) PendingAchievements(ctx context.Context) ([]*model.A
 	if err != nil {
 		return nil, err
 	}
-	ids, err := r.Queries.ListUnconfirmedAchievedAchievements(ctx, p.ID)
+	ids, err := r.Loaders.UnconfirmedAchievementsLoader.Get(ctx, p.ID)
 	if err != nil {
 		return nil, err
 	}
-	achievements, err := r.Loaders.AchievementLoader.GetMany(ctx, ids)
+	achievements, err := r.Loaders.AchievementLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
 	if err != nil {
 		return nil, err
 	}
@@ -487,11 +488,6 @@ func (r *queryRootResolver) Achievement(ctx context.Context, id string) (*model.
 	return model.AchievementFrom(ctx, achievement), nil
 }
 
-// Achievements is the resolver for the achievements field.
-func (r *queryRootResolver) Achievements(ctx context.Context, first *int, offset *int) (*model.AchievementPagination, error) {
-	panic(fmt.Errorf("not implemented: Achievements - achievements"))
-}
-
 // AchievementGroup is the resolver for the achievementGroup field.
 func (r *queryRootResolver) AchievementGroup(ctx context.Context, id string) (*model.AchievementGroup, error) {
 	uid, err := uuid.Parse(id)
@@ -510,7 +506,26 @@ func (r *queryRootResolver) AchievementGroup(ctx context.Context, id string) (*m
 
 // AchievementGroups is the resolver for the achievementGroups field.
 func (r *queryRootResolver) AchievementGroups(ctx context.Context, first *int, offset *int) (*model.AchievementGroupPagination, error) {
-	panic(fmt.Errorf("not implemented: AchievementGroups - achievementGroups"))
+	ids, err := memorycache.GetOrSet(ctx, "achievement_groups", r.Queries.ListAchievementGroups)
+	if err != nil {
+		return nil, err
+	}
+	if ids == nil {
+		ids = &[]uuid.UUID{}
+	}
+	page := utils.Paginate(*ids, first, offset, nil)
+
+	groups, err := r.Loaders.AchievementGroupLoader.GetMany(ctx, page.Items)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AchievementGroupPagination{
+		Total:  page.Total,
+		First:  page.First,
+		Offset: page.Offset,
+		Items:  utils.MapWithCtx(ctx, groups, model.AchievementGroupFrom),
+	}, nil
 }
 
 // StudyTopic is the resolver for the studyTopic field.

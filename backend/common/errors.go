@@ -1,6 +1,8 @@
 package common
 
-import "github.com/ansel1/merry/v2"
+import (
+	"github.com/ansel1/merry/v2"
+)
 
 func withCode(code string) merry.Wrapper {
 	return merry.WithValue("code", code)

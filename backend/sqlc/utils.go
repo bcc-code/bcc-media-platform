@@ -9,6 +9,9 @@ import (
 func toLocaleString(msg json.RawMessage, withOriginal null.String) common.LocaleString {
 	r := unmarshalTo[common.LocaleString](msg)
 	if withOriginal.Valid {
+		if r == nil {
+			r = common.LocaleString{}
+		}
 		r["no"] = withOriginal
 	}
 	return r
