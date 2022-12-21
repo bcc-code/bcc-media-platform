@@ -78,7 +78,7 @@ export const setLanguage = async (l: string) => {
             languageTo: l,
         })
         settings.locale = l
-        location.reload()
+        // location.reload()
     }
 
     await loadLocaleMessages(i18n, l)
