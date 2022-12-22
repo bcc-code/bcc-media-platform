@@ -8,6 +8,14 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
+// Constants for string keys
+const (
+	ActionCompleted = "completed"
+
+	CollectionLessons = "lessons"
+	CollectionTasks   = "tasks"
+)
+
 type Condition struct {
 	Collection string
 	Action     string
@@ -23,18 +31,18 @@ func CheckAchievements(ctx context.Context, queries *sqlc.Queries, loaders *comm
 
 	var amount int
 	switch condition.Collection {
-	case "lessons":
+	case CollectionLessons:
 		switch condition.Action {
-		case "completed":
+		case ActionCompleted:
 			ids, err := loaders.CompletedLessonsLoader.Get(ctx, p.ID)
 			if err != nil {
 				return err
 			}
 			amount = len(ids)
 		}
-	case "tasks":
+	case CollectionTasks:
 		switch condition.Action {
-		case "completed":
+		case ActionCompleted:
 			ids, err := loaders.CompletedTasksLoader.Get(ctx, p.ID)
 			if err != nil {
 				return err

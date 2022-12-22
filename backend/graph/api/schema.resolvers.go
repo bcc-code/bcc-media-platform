@@ -195,12 +195,16 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string) (boo
 		return false, err
 	}
 
+	r.Loaders.CompletedTasksLoader.Clear(ctx, p.ID)
+	r.Loaders.CompletedLessonsLoader.Clear(ctx, p.ID)
 	err = achievements.CheckAchievements(ctx, r.Queries, r.Loaders, achievements.Condition{
-		Collection: "lessons",
-		Action:     "completed",
+		Collection: achievements.CollectionLessons,
+		Action:     achievements.ActionCompleted,
 	})
-
-	return true, err
+	if err != nil {
+		return true, err
+	}
+	return true, nil
 }
 
 // SendTaskMessage is the resolver for the sendTaskMessage field.
