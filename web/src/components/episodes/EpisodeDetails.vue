@@ -55,7 +55,7 @@ const details = computed(() => {
         lines.push({
             title: t("episode.availableTo"),
             value:
-                availableTo.toLocaleTimeString() +
+                availableTo.toLocaleDateString() +
                 " " +
                 availableTo.toLocaleTimeString(),
         })
