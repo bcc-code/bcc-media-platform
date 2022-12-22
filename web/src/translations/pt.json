@@ -18,7 +18,8 @@
         "faq": "",
         "notFound": "",
         "explore": "",
-        "watchNow": ""
+        "watchNow": "",
+        "aboutUs": ""
     },
     "section": {
         "item": {
@@ -46,7 +47,13 @@
         "availableTo": "",
         "ageRating": "",
         "notFound": "",
-        "comingSoon": ""
+        "comingSoon": "",
+        "noAccess": {
+            "oops": "",
+            "mustBeLoggedIn": "",
+            "otherContent": "",
+            "exploreContent": ""
+        }
     },
     "live": {
         "now": ""
@@ -95,8 +102,11 @@
         "privacyPolicy": "",
         "information": "",
         "headOffice": "",
-        "contactUs": "",
-        "editorialStaff": "",
-        "technicalSupport": ""
+        "contactUs": ""
+    },
+    "share": {
+        "title": "",
+        "copied": "",
+        "membersOnly": ""
     }
 }

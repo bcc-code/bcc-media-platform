@@ -18,7 +18,8 @@
         "faq": "FAQ",
         "notFound": "Finner ikke siden",
         "explore": "Utforsk",
-        "watchNow": "Se nå"
+        "watchNow": "Se nå",
+        "aboutUs": ""
     },
     "section": {
         "item": {
@@ -46,7 +47,13 @@
         "availableTo": "Tilgjengelig til",
         "ageRating": "Vurdering",
         "notFound": "Finner ikke episoden",
-        "comingSoon": "Kommer snart"
+        "comingSoon": "Kommer snart",
+        "noAccess": {
+            "oops": "",
+            "mustBeLoggedIn": "",
+            "otherContent": "",
+            "exploreContent": ""
+        }
     },
     "live": {
         "now": "Nå"
@@ -95,8 +102,11 @@
         "privacyPolicy": "",
         "information": "",
         "headOffice": "",
-        "contactUs": "",
-        "editorialStaff": "",
-        "technicalSupport": ""
+        "contactUs": ""
+    },
+    "share": {
+        "title": "",
+        "copied": "",
+        "membersOnly": ""
     }
 }

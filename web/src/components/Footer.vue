@@ -24,7 +24,7 @@
                     <h3>
                         <b>{{ $t("footer.headOffice") }}</b>
                     </h3>
-                    <p>bcc.media foundation</p>
+                    <p>BCC Media STI</p>
                     <p>Vålerveien 159</p>
                     <p>1599 MOSS</p>
                     <p>Norway</p>

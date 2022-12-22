@@ -18,7 +18,8 @@
         "faq": "Întrebări frecvente",
         "notFound": "Pagina nu a fost găsită",
         "explore": "Descoperă",
-        "watchNow": "Vezi acum"
+        "watchNow": "Vezi acum",
+        "aboutUs": ""
     },
     "section": {
         "item": {
@@ -46,7 +47,13 @@
         "availableTo": "Disponibil pentru",
         "ageRating": "Evaluare",
         "notFound": "Episodul nu poate fi găsit",
-        "comingSoon": "Apare în curând"
+        "comingSoon": "Apare în curând",
+        "noAccess": {
+            "oops": "",
+            "mustBeLoggedIn": "",
+            "otherContent": "",
+            "exploreContent": "Descoperă conținut"
+        }
     },
     "live": {
         "now": "Acum"
@@ -95,8 +102,11 @@
         "privacyPolicy": "Politica de Confidențialitate",
         "information": "",
         "headOffice": "",
-        "contactUs": "",
-        "editorialStaff": "",
-        "technicalSupport": ""
+        "contactUs": ""
+    },
+    "share": {
+        "title": "Distribuie",
+        "copied": "",
+        "membersOnly": ""
     }
 }
