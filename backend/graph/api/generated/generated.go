@@ -216,6 +216,7 @@ type ComplexityRoot struct {
 		PublishDate           func(childComplexity int) int
 		RelatedItems          func(childComplexity int, first *int, offset *int) int
 		Season                func(childComplexity int) int
+		ShareRestriction      func(childComplexity int) int
 		Streams               func(childComplexity int) int
 		SubtitleLanguages     func(childComplexity int) int
 		Title                 func(childComplexity int) int
@@ -805,6 +806,7 @@ type EpisodeResolver interface {
 	RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error)
 
 	Lessons(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.LessonPagination, error)
+	ShareRestriction(ctx context.Context, obj *model.Episode) (model.ShareRestriction, error)
 }
 type EpisodeCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Event, error)
@@ -1586,6 +1588,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.Season(childComplexity), true
+
+	case "Episode.shareRestriction":
+		if e.complexity.Episode.ShareRestriction == nil {
+			break
+		}
+
+		return e.complexity.Episode.ShareRestriction(childComplexity), true
 
 	case "Episode.streams":
 		if e.complexity.Episode.Streams == nil {
@@ -4563,6 +4572,12 @@ enum EpisodeType {
 
 union EpisodeContextUnion = Season | ContextCollection
 
+enum ShareRestriction {
+    registered
+    members
+    public
+}
+
 type Episode {
     id: ID!
     type: EpisodeType!
@@ -4592,6 +4607,7 @@ type Episode {
     images: [Image!]!
     number: Int
     lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
+    shareRestriction: ShareRestriction! @goField(forceResolver: true)
 }
 
 type EpisodePagination implements Pagination {
@@ -10477,6 +10493,50 @@ func (ec *executionContext) fieldContext_Episode_lessons(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_shareRestriction(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_shareRestriction(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Episode().ShareRestriction(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.ShareRestriction)
+	fc.Result = res
+	return ec.marshalNShareRestriction2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShareRestriction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_shareRestriction(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ShareRestriction does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _EpisodeCalendarEntry_id(ctx context.Context, field graphql.CollectedField, obj *model.EpisodeCalendarEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_EpisodeCalendarEntry_id(ctx, field)
 	if err != nil {
@@ -10842,6 +10902,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_number(ctx, field)
 			case "lessons":
 				return ec.fieldContext_Episode_lessons(ctx, field)
+			case "shareRestriction":
+				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -11167,6 +11229,8 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 				return ec.fieldContext_Episode_number(ctx, field)
 			case "lessons":
 				return ec.fieldContext_Episode_lessons(ctx, field)
+			case "shareRestriction":
+				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -11401,6 +11465,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_number(ctx, field)
 			case "lessons":
 				return ec.fieldContext_Episode_lessons(ctx, field)
+			case "shareRestriction":
+				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -16857,6 +16923,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_number(ctx, field)
 			case "lessons":
 				return ec.fieldContext_Episode_lessons(ctx, field)
+			case "shareRestriction":
+				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -19143,6 +19211,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_number(ctx, field)
 			case "lessons":
 				return ec.fieldContext_Episode_lessons(ctx, field)
+			case "shareRestriction":
+				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -24068,6 +24138,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 				return ec.fieldContext_Episode_number(ctx, field)
 			case "lessons":
 				return ec.fieldContext_Episode_lessons(ctx, field)
+			case "shareRestriction":
+				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -26761,6 +26833,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_number(ctx, field)
 			case "lessons":
 				return ec.fieldContext_Episode_lessons(ctx, field)
+			case "shareRestriction":
+				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -30747,6 +30821,26 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 					}
 				}()
 				res = ec._Episode_lessons(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "shareRestriction":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_shareRestriction(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -37090,6 +37184,16 @@ func (ec *executionContext) marshalNSettings2ᚖgithubᚗcomᚋbccᚑcodeᚋbrun
 		return graphql.Null
 	}
 	return ec._Settings(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNShareRestriction2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShareRestriction(ctx context.Context, v interface{}) (model.ShareRestriction, error) {
+	var res model.ShareRestriction
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNShareRestriction2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShareRestriction(ctx context.Context, sel ast.SelectionSet, v model.ShareRestriction) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNShow2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v model.Show) graphql.Marshaler {

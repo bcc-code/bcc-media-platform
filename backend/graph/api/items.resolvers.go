@@ -234,6 +234,24 @@ func (r *episodeResolver) Lessons(ctx context.Context, obj *model.Episode, first
 	}, nil
 }
 
+// ShareRestriction is the resolver for the shareCode field.
+func (r *episodeResolver) ShareRestriction(ctx context.Context, obj *model.Episode) (model.ShareRestriction, error) {
+	perms, err := batchloaders.GetByID(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return model.ShareRestrictionPublic, err
+	}
+	if lo.Contains(perms.Roles.Access, user.RolePublic) {
+		return model.ShareRestrictionPublic, nil
+	}
+	if lo.Contains(perms.Roles.Access, user.RoleBCCMember) {
+		return model.ShareRestrictionMembers, nil
+	}
+	if lo.Contains(perms.Roles.Access, user.RoleRegistered) {
+		return model.ShareRestrictionRegistered, nil
+	}
+	return model.ShareRestrictionPublic, nil
+}
+
 // Image is the resolver for the image field.
 func (r *seasonResolver) Image(ctx context.Context, obj *model.Season, style *model.ImageStyle) (*string, error) {
 	e, err := batchloaders.GetByID(ctx, r.Loaders.SeasonLoader, utils.AsInt(obj.ID))

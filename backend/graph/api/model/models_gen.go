@@ -279,6 +279,7 @@ type Episode struct {
 	Images                []*Image               `json:"images"`
 	Number                *int                   `json:"number"`
 	Lessons               *LessonPagination      `json:"lessons"`
+	ShareRestriction      ShareRestriction       `json:"shareRestriction"`
 }
 
 func (Episode) IsSectionItemType() {}
@@ -1330,6 +1331,49 @@ func (e *SectionSize) UnmarshalGQL(v interface{}) error {
 }
 
 func (e SectionSize) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ShareRestriction string
+
+const (
+	ShareRestrictionRegistered ShareRestriction = "registered"
+	ShareRestrictionMembers    ShareRestriction = "members"
+	ShareRestrictionPublic     ShareRestriction = "public"
+)
+
+var AllShareRestriction = []ShareRestriction{
+	ShareRestrictionRegistered,
+	ShareRestrictionMembers,
+	ShareRestrictionPublic,
+}
+
+func (e ShareRestriction) IsValid() bool {
+	switch e {
+	case ShareRestrictionRegistered, ShareRestrictionMembers, ShareRestrictionPublic:
+		return true
+	}
+	return false
+}
+
+func (e ShareRestriction) String() string {
+	return string(e)
+}
+
+func (e *ShareRestriction) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ShareRestriction(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ShareRestriction", str)
+	}
+	return nil
+}
+
+func (e ShareRestriction) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
