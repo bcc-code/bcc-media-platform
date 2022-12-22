@@ -18,7 +18,8 @@
         "faq": "FAQ",
         "notFound": "Page non trouvée",
         "explore": "Explorer",
-        "watchNow": "Regarder maintenant"
+        "watchNow": "Regarder maintenant",
+        "aboutUs": ""
     },
     "section": {
         "item": {
@@ -46,7 +47,13 @@
         "availableTo": "Disponible jusqu'au",
         "ageRating": "Évaluation",
         "notFound": "Épisode non trouvé",
-        "comingSoon": "Bientôt disponible"
+        "comingSoon": "Bientôt disponible",
+        "noAccess": {
+            "oops": "",
+            "mustBeLoggedIn": "",
+            "otherContent": "",
+            "exploreContent": "Explorer le contenu"
+        }
     },
     "live": {
         "now": "Maintenant"
@@ -93,10 +100,13 @@
     "footer": {
         "cookies": "Cookies",
         "privacyPolicy": "Politique de confidentialité",
-        "information": "BrunstadTV est un service de streaming et une chaîne de télévision de [BCC Media](https://bcc.media)\n\nBCC Media est un radiodiffuseur enregistré et adhère aux règlements établis dans la loi norvégienne sur la radiodiffusion. L'organe de surveillance de cette loi est [the Norwegian Media Authority](https://medietilsynet.no/).",
+        "information": "",
         "headOffice": "Siège social",
-        "contactUs": "Nous contacter",
-        "editorialStaff": "Équipe de rédaction",
-        "technicalSupport": "Support technique"
+        "contactUs": "Nous contacter"
+    },
+    "share": {
+        "title": "Partager",
+        "copied": "",
+        "membersOnly": ""
     }
 }

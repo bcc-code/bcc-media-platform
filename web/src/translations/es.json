@@ -18,7 +18,8 @@
         "faq": "Preguntas frecuentes",
         "notFound": "Página no encontrada",
         "explore": "Explorar",
-        "watchNow": "Ver ahora"
+        "watchNow": "Ver ahora",
+        "aboutUs": ""
     },
     "section": {
         "item": {
@@ -46,7 +47,13 @@
         "availableTo": "Disponible a",
         "ageRating": "Clasificación",
         "notFound": "Episodio no encontrado",
-        "comingSoon": ""
+        "comingSoon": "",
+        "noAccess": {
+            "oops": "",
+            "mustBeLoggedIn": "",
+            "otherContent": "",
+            "exploreContent": ""
+        }
     },
     "live": {
         "now": "Ahora"
@@ -95,8 +102,11 @@
         "privacyPolicy": "Políticas de privacidad",
         "information": "",
         "headOffice": "",
-        "contactUs": "",
-        "editorialStaff": "",
-        "technicalSupport": ""
+        "contactUs": ""
+    },
+    "share": {
+        "title": "Compartir",
+        "copied": "",
+        "membersOnly": ""
     }
 }

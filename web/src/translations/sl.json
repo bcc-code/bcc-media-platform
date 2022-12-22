@@ -18,7 +18,8 @@
         "faq": "FAQ",
         "notFound": "Stran ni bila najdena",
         "explore": "Razišči",
-        "watchNow": "Glej zdaj"
+        "watchNow": "Glej zdaj",
+        "aboutUs": ""
     },
     "section": {
         "item": {
@@ -46,7 +47,13 @@
         "availableTo": "Na voljo do",
         "ageRating": "Ocena",
         "notFound": "Del ni bil najden",
-        "comingSoon": "Pride kmalu"
+        "comingSoon": "Pride kmalu",
+        "noAccess": {
+            "oops": "",
+            "mustBeLoggedIn": "",
+            "otherContent": "",
+            "exploreContent": "Razišči vsebino"
+        }
     },
     "live": {
         "now": "Zdaj"
@@ -95,8 +102,11 @@
         "privacyPolicy": "Pravilnik o zasebnosti",
         "information": "",
         "headOffice": "",
-        "contactUs": "",
-        "editorialStaff": "",
-        "technicalSupport": ""
+        "contactUs": ""
+    },
+    "share": {
+        "title": "Deli",
+        "copied": "",
+        "membersOnly": ""
     }
 }

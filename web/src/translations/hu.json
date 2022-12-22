@@ -18,7 +18,8 @@
         "faq": "GYIK",
         "notFound": "Az oldal nem található",
         "explore": "Felfedezés",
-        "watchNow": "Nézd meg most"
+        "watchNow": "Nézd meg most",
+        "aboutUs": ""
     },
     "section": {
         "item": {
@@ -46,7 +47,13 @@
         "availableTo": "Elérhető dátumig:",
         "ageRating": "Értékelés",
         "notFound": "Epizód nem található",
-        "comingSoon": "Jön hamarosan"
+        "comingSoon": "Jön hamarosan",
+        "noAccess": {
+            "oops": "",
+            "mustBeLoggedIn": "",
+            "otherContent": "",
+            "exploreContent": "Tartalom felfedezése"
+        }
     },
     "live": {
         "now": "Most"
@@ -93,10 +100,13 @@
     "footer": {
         "cookies": "Sütik",
         "privacyPolicy": "Adatvédelmi szabályzat",
-        "information": "A BrunstadTV a [BCC Media](https://bcc.media) streaming szolgáltatása és TV csatornája.\n\nA BCC Media bejegyzett műsorszolgáltató, és betartja a norvég műsorszolgáltatási törvényben meghatározott szabályokat. A törvényt felügyelő szerv a [Norvég Médiahatóság](https://medietilsynet.no/).",
+        "information": "",
         "headOffice": "Székhely",
-        "contactUs": "Kapcsolat",
-        "editorialStaff": "Szerkesztőség",
-        "technicalSupport": "Technikai segítségnyújtás"
+        "contactUs": "Kapcsolat"
+    },
+    "share": {
+        "title": "Megosztás",
+        "copied": "",
+        "membersOnly": ""
     }
 }
