@@ -35,6 +35,20 @@
                     </h3>
                     <a href="mailto:support@bcc.media">support@bcc.media</a>
                 </div>
+                <div>
+                    <h3>
+                        <b>{{ $t("footer.downloadApp") }}</b>
+                    </h3>
+                    <div class="flex gap-2 mt-1">
+                        <a href="https://apple.co/3VewzK9"
+                            ><img src="/badges/app_store.png"
+                        /></a>
+                        <a
+                            href="https://play.google.com/store/apps/details?id=tv.brunstad.app"
+                            ><img src="/badges/google_play.png"
+                        /></a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

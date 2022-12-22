@@ -17,7 +17,10 @@ type PaginationResult[t any] struct {
 
 // Paginate a collection with specified parameters
 func Paginate[t any](collection []t, first *int, offset *int, dir *string) PaginationResult[t] {
-	arr := collection
+	var arr []t
+	for _, v := range collection {
+		arr = append(arr, v)
+	}
 	var result PaginationResult[t]
 	result.Total = len(arr)
 	if offset != nil {

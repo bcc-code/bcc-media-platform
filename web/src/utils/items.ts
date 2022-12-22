@@ -70,8 +70,7 @@ export const goToSectionItem = (
             goToEpisode(item.item.id, section?.options)
             break
         case "Show":
-            if (item.item.item.defaultEpisode)
-                goToEpisode(item.item.item.defaultEpisode.id)
+            goToEpisode(item.item.item.defaultEpisode.id)
             break
         case "Page":
             goToPage(item.item.item.code)
