@@ -42,13 +42,13 @@ WHERE achieved IS NULL
 `
 
 type ConditionAchievedParams struct {
-	ProfileID  uuid.UUID      `db:"profile_id" json:"profileID"`
-	Collection null_v4.String `db:"collection" json:"collection"`
-	Action     null_v4.String `db:"action" json:"action"`
-	Amount     null_v4.Int    `db:"amount" json:"amount"`
+	ProfileID  uuid.UUID `db:"profile_id" json:"profileID"`
+	Collection string    `db:"collection" json:"collection"`
+	Action     string    `db:"action" json:"action"`
+	Amount     int32     `db:"amount" json:"amount"`
 }
 
-func (q *Queries) ConditionAchieved(ctx context.Context, arg ConditionAchievedParams) ([]uuid.NullUUID, error) {
+func (q *Queries) ConditionAchieved(ctx context.Context, arg ConditionAchievedParams) ([]uuid.UUID, error) {
 	rows, err := q.db.QueryContext(ctx, conditionAchieved,
 		arg.ProfileID,
 		arg.Collection,
@@ -59,9 +59,9 @@ func (q *Queries) ConditionAchieved(ctx context.Context, arg ConditionAchievedPa
 		return nil, err
 	}
 	defer rows.Close()
-	var items []uuid.NullUUID
+	var items []uuid.UUID
 	for rows.Next() {
-		var achievement_id uuid.NullUUID
+		var achievement_id uuid.UUID
 		if err := rows.Scan(&achievement_id); err != nil {
 			return nil, err
 		}

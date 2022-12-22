@@ -304,10 +304,10 @@ COMMENT ON TABLE "public"."achievements_translations" IS NULL;
 CREATE TABLE IF NOT EXISTS "public"."achievementconditions"
 (
     "id"             uuid         NOT NULL,
-    "collection"     varchar(255) NULL,
-    "action"         varchar(255) NULL,
-    "amount"         int4         NULL,
-    "achievement_id" uuid         NULL,
+    "collection"     varchar(255) NOT NULL,
+    "action"         varchar(255) NOT NULL,
+    "amount"         int4         NOT NULL,
+    "achievement_id" uuid         NOT NULL,
     CONSTRAINT "achievementconditions_pkey" PRIMARY KEY (id),
     CONSTRAINT "achievementconditions_achievement_id_foreign" FOREIGN KEY (achievement_id) REFERENCES achievements (id) ON DELETE CASCADE
 );

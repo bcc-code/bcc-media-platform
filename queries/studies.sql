@@ -112,20 +112,21 @@ SELECT ta.task_id as id, ta.profile_id as parent_id
 FROM "users"."taskanswers" ta
 WHERE ta.profile_id = ANY ($1::uuid[]);
 
--- name: GetCompletedLessons :many
-WITH counts AS (SELECT l.id,
-                       COUNT(t.id)       task_count,
-                       COUNT(ta.task_id) completed_count
-                FROM "public"."lessons" l
-                         LEFT JOIN tasks t ON t.lesson_id = l.id
-                         LEFT JOIN "users"."taskanswers" ta
-                                   ON ta.profile_id = $1 AND ta.task_id = t.id
-                GROUP BY l.id)
-SELECT
-    l.id
-FROM lessons l
-         JOIN counts ON counts.id = l.id
-WHERE counts.completed_count = counts.task_count;
+-- name: getCompletedLessons :many
+WITH total AS (SELECT t.lesson_id,
+                      COUNT(t.id) task_count
+               FROM tasks t
+               GROUP BY t.lesson_id),
+     completed AS (SELECT t.lesson_id, ta.profile_id, COUNT(t.id) completed_count
+                   FROM tasks t
+                            JOIN "users"."taskanswers" ta ON ta.task_id = t.id
+                   GROUP BY t.lesson_id, ta.profile_id)
+SELECT total.lesson_id as id, p.id as parent_id
+FROM users.profiles p
+         JOIN completed ON completed.profile_id = p.id
+         JOIN total ON total.lesson_id = completed.lesson_id
+WHERE p.id = ANY ($1::uuid[])
+  AND completed.completed_count = total.task_count;
 
 -- name: GetAnsweredTasks :many
 SELECT ta.task_id

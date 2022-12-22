@@ -25,11 +25,11 @@ type Achievement struct {
 }
 
 type Achievementcondition struct {
-	ID            uuid.UUID      `db:"id" json:"id"`
-	Collection    null_v4.String `db:"collection" json:"collection"`
-	Action        null_v4.String `db:"action" json:"action"`
-	Amount        null_v4.Int    `db:"amount" json:"amount"`
-	AchievementID uuid.NullUUID  `db:"achievement_id" json:"achievementID"`
+	ID            uuid.UUID `db:"id" json:"id"`
+	Collection    string    `db:"collection" json:"collection"`
+	Action        string    `db:"action" json:"action"`
+	Amount        int32     `db:"amount" json:"amount"`
+	AchievementID uuid.UUID `db:"achievement_id" json:"achievementID"`
 }
 
 type Achievementgroup struct {

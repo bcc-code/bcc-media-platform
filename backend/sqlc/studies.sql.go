@@ -50,45 +50,6 @@ func (q *Queries) GetAnsweredTasks(ctx context.Context, arg GetAnsweredTasksPara
 	return items, nil
 }
 
-const getCompletedLessons = `-- name: GetCompletedLessons :many
-WITH counts AS (SELECT l.id,
-                       COUNT(t.id)       task_count,
-                       COUNT(ta.task_id) completed_count
-                FROM "public"."lessons" l
-                         LEFT JOIN tasks t ON t.lesson_id = l.id
-                         LEFT JOIN "users"."taskanswers" ta
-                                   ON ta.profile_id = $1 AND ta.task_id = t.id
-                GROUP BY l.id)
-SELECT
-    l.id
-FROM lessons l
-         JOIN counts ON counts.id = l.id
-WHERE counts.completed_count = counts.task_count
-`
-
-func (q *Queries) GetCompletedLessons(ctx context.Context, profileID uuid.UUID) ([]uuid.UUID, error) {
-	rows, err := q.db.QueryContext(ctx, getCompletedLessons, profileID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []uuid.UUID
-	for rows.Next() {
-		var id uuid.UUID
-		if err := rows.Scan(&id); err != nil {
-			return nil, err
-		}
-		items = append(items, id)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const setMessage = `-- name: SetMessage :exec
 INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at, metadata)
 VALUES ($1, $2, $3, NOW(), NOW(), $4)
@@ -128,6 +89,51 @@ type SetTaskCompletedParams struct {
 func (q *Queries) SetTaskCompleted(ctx context.Context, arg SetTaskCompletedParams) error {
 	_, err := q.db.ExecContext(ctx, setTaskCompleted, arg.ProfileID, arg.TaskID)
 	return err
+}
+
+const getCompletedLessons = `-- name: getCompletedLessons :many
+WITH total AS (SELECT t.lesson_id,
+                      COUNT(t.id) task_count
+               FROM tasks t
+               GROUP BY t.lesson_id),
+     completed AS (SELECT t.lesson_id, ta.profile_id, COUNT(t.id) completed_count
+                   FROM tasks t
+                            JOIN "users"."taskanswers" ta ON ta.task_id = t.id
+                   GROUP BY t.lesson_id, ta.profile_id)
+SELECT total.lesson_id as id, p.id as parent_id
+FROM users.profiles p
+         JOIN completed ON completed.profile_id = p.id
+         JOIN total ON total.lesson_id = completed.lesson_id
+WHERE p.id = ANY ($1::uuid[])
+  AND completed.completed_count = total.task_count
+`
+
+type getCompletedLessonsRow struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getCompletedLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getCompletedLessonsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCompletedLessons, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getCompletedLessonsRow
+	for rows.Next() {
+		var i getCompletedLessonsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getCompletedTasks = `-- name: getCompletedTasks :many
