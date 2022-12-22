@@ -497,15 +497,19 @@ func (r *queryRootResolver) PendingAchievements(ctx context.Context) ([]*model.A
 	if err != nil {
 		return nil, err
 	}
+	err = achievements.CheckAllAchievements(ctx, r.Queries, r.Loaders)
+	if err != nil {
+		return nil, err
+	}
 	ids, err := r.Loaders.UnconfirmedAchievementsLoader.Get(ctx, p.ID)
 	if err != nil {
 		return nil, err
 	}
-	achievements, err := r.Loaders.AchievementLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
+	items, err := r.Loaders.AchievementLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
 	if err != nil {
 		return nil, err
 	}
-	return utils.MapWithCtx(ctx, achievements, model.AchievementFrom), nil
+	return utils.MapWithCtx(ctx, items, model.AchievementFrom), nil
 }
 
 // Achievement is the resolver for the achievement field.

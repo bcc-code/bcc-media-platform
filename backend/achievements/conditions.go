@@ -71,3 +71,24 @@ func CheckAchievements(ctx context.Context, queries *sqlc.Queries, loaders *comm
 	}
 	return nil
 }
+
+// CheckAllAchievements checks if any achievement has been achieved
+func CheckAllAchievements(ctx context.Context, queries *sqlc.Queries, loaders *common.BatchLoaders) error {
+	actions := []Action{
+		{
+			Collection: CollectionLessons,
+			Action:     ActionCompleted,
+		},
+		{
+			Collection: CollectionTasks,
+			Action:     ActionCompleted,
+		},
+	}
+	for _, a := range actions {
+		err := CheckAchievements(ctx, queries, loaders, a)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
