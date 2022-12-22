@@ -46,7 +46,7 @@
         "availableTo": "Disponibil pentru",
         "ageRating": "Evaluare",
         "notFound": "Episodul nu poate fi găsit",
-        "comingSoon": ""
+        "comingSoon": "Apare în curând"
     },
     "live": {
         "now": "Acum"
@@ -60,16 +60,16 @@
         "programs": "Programe",
         "episodes": "Episoade",
         "cancel": "Anulare",
-        "emptyQuery": "",
+        "emptyQuery": "Rezultatul căutării este gol.",
         "noResults": "",
         "tryAdjustingQuery": ""
     },
     "support": {
-        "contact": "",
-        "title": "",
-        "subject": "",
-        "content": "",
-        "describeIssue": ""
+        "contact": "Contactare suport",
+        "title": "Titlu",
+        "subject": "Subiect",
+        "content": "Conţinut",
+        "describeIssue": "Descrie problema in detaliu."
     },
     "lesson": {
         "related": "",

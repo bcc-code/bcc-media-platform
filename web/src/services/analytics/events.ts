@@ -37,6 +37,17 @@ export type AgeGroup =
 
 type ElementType = SectionItemFragment["item"]["__typename"]
 
+type VideoEvent = {
+    sessionId: string
+    livestream: boolean
+    contentPodId: string
+    position?: number
+    totalLength: number
+    videoPlayer: "videojs"
+    fullScreen: boolean
+    hasVideo: true
+}
+
 export type Events = {
     section_clicked: {
         sectionId: string
@@ -79,7 +90,7 @@ export type Events = {
         reason: string
         coldStart: boolean
     }
-    share_clicked: {
+    content_shared: {
         pageCode: Page
         elementType: ElementType
         elementId: string
@@ -89,4 +100,9 @@ export type Events = {
     logout: undefined
     airplay_started: undefined
     chromecast_started: undefined
+    playback_started: VideoEvent
+    playback_paused: VideoEvent
+    playback_ended: VideoEvent
+    playback_interrupted: VideoEvent
+    playback_buffering_started: VideoEvent
 }

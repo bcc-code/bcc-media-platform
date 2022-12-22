@@ -15,6 +15,7 @@ import { computed, ref } from "vue"
 import { useRouter } from "vue-router"
 import { setTitle } from "@/utils/title"
 import { analytics } from "@/services/analytics"
+import { usePage } from "@/utils/page"
 
 const props = defineProps<{
     episodeId: string
@@ -38,6 +39,8 @@ const setEpisode = (episode: GetEpisodeQuery["episode"]) => {
 
     setTitle(episode.title)
 
+    const { setCurrent } = usePage()
+    setCurrent("episode")
     analytics.page({
         id: "episode",
         title: document.title,

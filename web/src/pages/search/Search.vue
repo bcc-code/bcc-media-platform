@@ -48,6 +48,7 @@ import SearchInput from "@/components/SearchInput.vue"
 import { analytics } from "@/services/analytics"
 import { goToEpisode } from "@/utils/items"
 import NotFound from "@/components/NotFound.vue"
+import { usePage } from "@/utils/page"
 
 const { t } = useI18n()
 const { query } = useSearch()
@@ -107,6 +108,9 @@ onMounted(() => {
         id: "search",
         title: t("page.search"),
     })
+
+    const { setCurrent } = usePage()
+    setCurrent("search")
 })
 
 watch(

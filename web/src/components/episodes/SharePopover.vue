@@ -22,10 +22,28 @@
                     ><ClipboardIcon class="h-6 opacity-80 ml-2"></ClipboardIcon>
                 </div>
                 <p
-                    class="text-green-500 transition pointer-events-none"
-                    :class="{ 'opacity-0': !copied }"
+                    class="transition pointer-events-none flex gap-1"
+                    :class="{
+                        'opacity-0':
+                            episode.shareRestriction === 'public' && !copied,
+                        'text-green-500': copied,
+                    }"
                 >
-                    {{ $t("share.copied") }}
+                    <span class="grow-0 my-auto">
+                        <InformationCircleIcon
+                            v-if="episode.shareRestriction !== 'public' && !copied"
+                            class="h-6 w-6 stroke-red-500"
+                        ></InformationCircleIcon
+                        ><ClipboardIcon
+                            v-else
+                            class="h-6 w-6 stroke-green-500"
+                        ></ClipboardIcon>
+                    </span>
+                    <span class="grow-0 text-sm my-auto">
+                        {{
+                            $t(copied ? "share.copied" : "share.membersOnly")
+                        }}
+                    </span>
                 </p>
             </PopoverPanel>
         </transition>
@@ -33,12 +51,13 @@
 </template>
 <script lang="ts" setup>
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/vue"
-import { ClipboardIcon } from "@heroicons/vue/24/outline"
+import { ClipboardIcon, InformationCircleIcon } from "@heroicons/vue/24/outline"
 import { computed, ref } from "vue"
 
 const props = defineProps<{
     episode: {
         title: string
+        shareRestriction: "public" | "registered" | "members"
     }
 }>()
 

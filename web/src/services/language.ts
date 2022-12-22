@@ -5,6 +5,8 @@ import i18n, {
 } from "@/i18n"
 import { computed, ref } from "vue"
 import settings from "./settings"
+import { analytics } from "./analytics"
+import { usePage } from "@/utils/page"
 
 export type Language = {
     code: string
@@ -69,8 +71,14 @@ export const current = computed(() => {
 
 export const setLanguage = async (l: string) => {
     if (settings.locale !== l) {
+        const { current } = usePage()
+        analytics.track("language_changed", {
+            pageCode: current.value,
+            languageFrom: settings.locale,
+            languageTo: l,
+        })
         settings.locale = l
-        location.reload()
+        // location.reload()
     }
 
     await loadLocaleMessages(i18n, l)

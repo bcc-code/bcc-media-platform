@@ -106,6 +106,7 @@
     },
     "share": {
         "title": "Share",
-        "copied": "Copied to clipboard"
+        "copied": "Copied to clipboard",
+        "membersOnly": "This video is only accessible to users that are logged in."
     }
 }
