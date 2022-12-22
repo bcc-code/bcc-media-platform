@@ -31,7 +31,9 @@
                 >
                     <span class="grow-0 my-auto">
                         <InformationCircleIcon
-                            v-if="episode.shareRestriction !== 'public' && !copied"
+                            v-if="
+                                episode.shareRestriction !== 'public' && !copied
+                            "
                             class="h-6 w-6 stroke-red-500"
                         ></InformationCircleIcon
                         ><ClipboardIcon
@@ -40,9 +42,7 @@
                         ></ClipboardIcon>
                     </span>
                     <span class="grow-0 text-sm my-auto">
-                        {{
-                            $t(copied ? "share.copied" : "share.membersOnly")
-                        }}
+                        {{ $t(copied ? "share.copied" : "share.membersOnly") }}
                     </span>
                 </p>
             </PopoverPanel>
