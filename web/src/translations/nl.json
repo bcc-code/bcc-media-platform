@@ -83,20 +83,20 @@
     "thankYou": "Hartelijk dank!",
     "yourResponseHasBeenSubmitted": "Jouw antwoord is verzonden.",
     "cookies": {
-        "title": "",
-        "description": "",
-        "necessary": "",
-        "preferences": "",
-        "statistics": "",
-        "accept": ""
+        "title": "Deze website maakt gebruik van cookies",
+        "description": "Wij gebruiken cookies om uw surfervaring op deze website gemakkelijker te maken. Door gebruik te maken van deze website verleent u toestemming voor het gebruik hiervan.",
+        "necessary": "Noodzakelijk",
+        "preferences": "Voorkeuren",
+        "statistics": "Statistieken",
+        "accept": "Accepteren"
     },
     "footer": {
-        "cookies": "",
+        "cookies": "Cookies",
         "privacyPolicy": "Privacybeleid",
-        "information": "",
-        "headOffice": "",
-        "contactUs": "",
-        "editorialStaff": "",
-        "technicalSupport": ""
+        "information": "BCC Media is een geregistreerde omroep en volgt de regels van de omroepwet. Toezichthoudend orgaan voor deze wet is De Noorse Media-autoriteit/).",
+        "headOffice": "Hoofdkantoor",
+        "contactUs": "Contact",
+        "editorialStaff": "Redactie",
+        "technicalSupport": "Technische ondersteuning"
     }
 }

@@ -61,8 +61,8 @@
         "episodes": "Epizódok",
         "cancel": "Mégse",
         "emptyQuery": "A keresési lekérdezés üres.",
-        "noResults": "",
-        "tryAdjustingQuery": ""
+        "noResults": "Nincs keresési eredmény",
+        "tryAdjustingQuery": "Próbáld meg beállítani a keresési lekérdezést"
     },
     "support": {
         "contact": "Kapcsolatfelvétel a Támogatással",
@@ -72,31 +72,31 @@
         "describeIssue": "Írd le részletesen a problémát."
     },
     "lesson": {
-        "related": "",
+        "related": "Kapcsolódó források",
         "watchAgain": {
-            "title": "",
-            "description": "",
-            "button": ""
+            "title": "Nézd meg újra",
+            "description": "A mélyebb megértés érdekében javasoljuk, hogy nézzd meg a videót többször is.",
+            "button": "Ismét lejátszás"
         },
-        "textTaskPlaceholder": ""
+        "textTaskPlaceholder": "Írd le és küldd el gondolataidat."
     },
     "thankYou": "Köszönjük!",
-    "yourResponseHasBeenSubmitted": "",
+    "yourResponseHasBeenSubmitted": "A válaszodat elküldtük.",
     "cookies": {
-        "title": "",
-        "description": "",
-        "necessary": "",
-        "preferences": "",
-        "statistics": "",
-        "accept": ""
+        "title": "Ez a weboldal cookie-kat használ",
+        "description": "Sütiket használunk, hogy javítsuk a felhasználói élményt ezen a weboldalon. Ha továbbra is használod ezt a weboldalt, ezzel hozzájárulsz a sütik használatához.",
+        "necessary": "Szükséges",
+        "preferences": "Kedvezmények",
+        "statistics": "Statisztikák",
+        "accept": "Jóváhagyás"
     },
     "footer": {
-        "cookies": "",
+        "cookies": "Sütik",
         "privacyPolicy": "Adatvédelmi szabályzat",
-        "information": "",
-        "headOffice": "",
-        "contactUs": "",
-        "editorialStaff": "",
-        "technicalSupport": ""
+        "information": "A BrunstadTV a [BCC Media](https://bcc.media) streaming szolgáltatása és TV csatornája.\n\nA BCC Media bejegyzett műsorszolgáltató, és betartja a norvég műsorszolgáltatási törvényben meghatározott szabályokat. A törvényt felügyelő szerv a [Norvég Médiahatóság](https://medietilsynet.no/).",
+        "headOffice": "Székhely",
+        "contactUs": "Kapcsolat",
+        "editorialStaff": "Szerkesztőség",
+        "technicalSupport": "Technikai segítségnyújtás"
     }
 }

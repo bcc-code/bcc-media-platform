@@ -47,6 +47,7 @@ query getEpisode($episodeId: ID!, $context: EpisodeContext) {
         productionDateInTitle
         availableFrom
         availableTo
+        shareRestriction
         context {
             __typename
             ... on Season {

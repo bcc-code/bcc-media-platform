@@ -93,7 +93,7 @@
 </template>
 <script lang="ts" setup>
 import { SearchQuery, useSearchQuery } from "@/graph/generated"
-import { analytics } from "@/services/analytics";
+import { analytics } from "@/services/analytics"
 import { computed, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 
