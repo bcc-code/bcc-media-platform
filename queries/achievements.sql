@@ -70,7 +70,7 @@ SET confirmed_at = NOW()
 WHERE profile_id = $1
   AND achievement_id = $2;
 
--- name: ConditionAchieved :many
+-- name: GetAchievementsWithConditionAchieved :many
 SELECT c.achievement_id
 FROM "public"."achievementconditions" c
          LEFT JOIN "users"."achievements" achieved
@@ -80,7 +80,7 @@ WHERE achieved IS NULL
   AND c.action = $3
   AND c.amount <= $4;
 
--- name: AchievedAchievement :exec
+-- name: SetAchievementAchieved :exec
 INSERT INTO "users"."achievements" (profile_id, achievement_id, achieved_at)
 VALUES ($1, $2, now())
 ON CONFLICT(profile_id, achievement_id) DO UPDATE SET achieved_at = now();

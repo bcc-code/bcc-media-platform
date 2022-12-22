@@ -16,13 +16,13 @@ const (
 	CollectionTasks   = "tasks"
 )
 
-type Condition struct {
+type Action struct {
 	Collection string
 	Action     string
 }
 
 // CheckAchievements achieved since last check
-func CheckAchievements(ctx context.Context, queries *sqlc.Queries, loaders *common.BatchLoaders, condition Condition) error {
+func CheckAchievements(ctx context.Context, queries *sqlc.Queries, loaders *common.BatchLoaders, action Action) error {
 	ginCtx, _ := utils.GinCtx(ctx)
 	p := user.GetProfileFromCtx(ginCtx)
 	if p == nil {
@@ -30,9 +30,9 @@ func CheckAchievements(ctx context.Context, queries *sqlc.Queries, loaders *comm
 	}
 
 	var amount int
-	switch condition.Collection {
+	switch action.Collection {
 	case CollectionLessons:
-		switch condition.Action {
+		switch action.Action {
 		case ActionCompleted:
 			ids, err := loaders.CompletedLessonsLoader.Get(ctx, p.ID)
 			if err != nil {
@@ -41,7 +41,7 @@ func CheckAchievements(ctx context.Context, queries *sqlc.Queries, loaders *comm
 			amount = len(ids)
 		}
 	case CollectionTasks:
-		switch condition.Action {
+		switch action.Action {
 		case ActionCompleted:
 			ids, err := loaders.CompletedTasksLoader.Get(ctx, p.ID)
 			if err != nil {
@@ -51,17 +51,17 @@ func CheckAchievements(ctx context.Context, queries *sqlc.Queries, loaders *comm
 		}
 	}
 
-	ids, err := queries.ConditionAchieved(ctx, sqlc.ConditionAchievedParams{
+	ids, err := queries.GetAchievementsWithConditionAchieved(ctx, sqlc.GetAchievementsWithConditionAchievedParams{
 		ProfileID:  p.ID,
-		Action:     condition.Action,
-		Collection: condition.Collection,
+		Action:     action.Action,
+		Collection: action.Collection,
 		Amount:     int32(amount),
 	})
 	if err != nil {
 		return err
 	}
 	for _, aID := range ids {
-		err = queries.AchievedAchievement(ctx, sqlc.AchievedAchievementParams{
+		err = queries.SetAchievementAchieved(ctx, sqlc.SetAchievementAchievedParams{
 			AchievementID: aID,
 			ProfileID:     p.ID,
 		})
