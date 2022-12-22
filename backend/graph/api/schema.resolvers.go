@@ -20,7 +20,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
-	"github.com/bcc-code/brunstadtv/backend/ratelimit"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -183,9 +182,12 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string) (boo
 	if err != nil {
 		return false, err
 	}
-	err = ratelimit.Endpoint(ctx, "tasks:complete:"+task.ID.String(), 5, false)
+	storedIds, err := r.Loaders.CompletedTasksLoader.Get(ctx, p.ID)
 	if err != nil {
 		return false, err
+	}
+	if lo.Contains(utils.PointerArrayToArray(storedIds), task.ID) {
+		return false, common.ErrTaskAlreadyCompleted
 	}
 	err = r.Queries.SetTaskCompleted(ctx, sqlc.SetTaskCompletedParams{
 		ProfileID: p.ID,
