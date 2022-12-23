@@ -32,7 +32,7 @@
                     <div class="hidden lg:flex ml-auto gap-4">
                         <a
                             class="my-auto hover:underline"
-                            href="https://about.bcc.media"
+                            href="https://bcc.media"
                         >
                             {{ $t("page.aboutUs") }}
                         </a>
