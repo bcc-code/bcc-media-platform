@@ -9,6 +9,7 @@ const COUNTRY_CODE_CLAIM = "https://login.bcc.no/claims/CountryIso2Code"
 const CHURCH_ID_CLAIM = "https://login.bcc.no/claims/churchId"
 
 export class Auth {
+    private static wasLoggedIn: string | null;
     public static shouldSignIn() {
         const { isAuthenticated } = useAuth0()
         if (isAuthenticated.value) {
@@ -84,7 +85,7 @@ export class Auth {
     public static isAuthenticated() {
         const { isAuthenticated } = useAuth0()
         if (isAuthenticated.value) {
-            if (localStorage.getItem("wasLoggedIn") !== "true") {
+            if ((this.wasLoggedIn ??= localStorage.getItem("wasLoggedIn")) !== "true") {
                 localStorage.setItem("wasLoggedIn", "true")
             }
         }
