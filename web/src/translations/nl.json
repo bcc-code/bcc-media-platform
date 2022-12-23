@@ -19,7 +19,7 @@
         "notFound": "Pagina niet gevonden",
         "explore": "Verkennen",
         "watchNow": "Nu kijken",
-        "aboutUs": ""
+        "aboutUs": "Over ons"
     },
     "section": {
         "item": {
@@ -49,9 +49,9 @@
         "notFound": "Kan de aflevering niet vinden",
         "comingSoon": "Komt binnenkort",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
+            "oops": "Oeps!",
+            "mustBeLoggedIn": "Je moet ingelogd zijn om dit te kunnen bekijken",
+            "otherContent": "Geen zorgen, er is nog veel meer materiaal om te bekijken!",
             "exploreContent": "Inhoud verkennen"
         }
     },
@@ -100,14 +100,14 @@
     "footer": {
         "cookies": "Cookies",
         "privacyPolicy": "Privacybeleid",
-        "information": "",
+        "information": "BCC Media is een geregistreerde omroep en volgt de regels van de omroepwet. Toezichthoudend orgaan voor deze wet is De Noorse Media-autoriteit/).",
         "headOffice": "Hoofdkantoor",
         "contactUs": "Contact",
-        "downloadApp": ""
+        "downloadApp": "Download onze app"
     },
     "share": {
         "title": "Deel",
-        "copied": "",
-        "membersOnly": ""
+        "copied": "Gekopieerd naar klembord",
+        "membersOnly": "Deze video is alleen beschikbaar voor ingelogde gebruikers."
     }
 }
