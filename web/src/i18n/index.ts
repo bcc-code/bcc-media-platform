@@ -5,6 +5,8 @@ import type { I18n, I18nOptions, Locale, Composer } from "vue-i18n"
 export const SUPPORT_LOCALES = [
     "en",
     "no",
+    "da",
+    "bg",
     "de",
     "es",
     "fi",

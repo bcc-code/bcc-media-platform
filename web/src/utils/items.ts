@@ -78,7 +78,7 @@ export const goToSectionItem = (
     }
 }
 
-export const itemDisabled = (item: SectionItemFragment) => {
+export const comingSoon = (item: SectionItemFragment) => {
     switch (item.item.__typename) {
         case "Episode":
             return (
