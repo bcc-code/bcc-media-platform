@@ -83,6 +83,11 @@ export class Auth {
 
     public static isAuthenticated() {
         const { isAuthenticated } = useAuth0()
+        if (isAuthenticated.value) {
+            if (localStorage.getItem("wasLoggedIn") !== "true") {
+                localStorage.setItem("wasLoggedIn", "true")
+            }
+        }
         return isAuthenticated
     }
 
