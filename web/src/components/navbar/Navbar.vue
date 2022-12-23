@@ -70,7 +70,7 @@
                                 <MenuItems
                                     class="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-slate-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
                                 >
-                                    <div class="p-1">
+                                    <div class="p-1 max-h-96 overflow-y-scroll">
                                         <MenuItem
                                             v-slot="{ active }"
                                             v-for="l in languages"
@@ -259,7 +259,7 @@
                                 <MenuItems
                                     class="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-slate-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
                                 >
-                                    <div class="p-1">
+                                    <div class="p-1 max-h-96 overflow-y-scroll">
                                         <MenuItem
                                             v-slot="{ active }"
                                             v-for="l in languages"

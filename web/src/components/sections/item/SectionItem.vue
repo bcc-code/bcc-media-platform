@@ -1,14 +1,15 @@
 <template>
     <div class="relative">
-        <NewPill class="absolute top-0 -right-1" :item="i"></NewPill>
+        <NewPill class="absolute top-0 -right-1" :item="i" v-if="!comingSoon(i)"></NewPill>
+        <Pill class="absolute top-0 -right-1" v-else>{{ $t("episode.comingSoon") }}</Pill>
         <div
-            class="flex flex-col mt-2 transition"
+            class="flex flex-col mt-1 pt-1 transition"
             :class="{
-                'cursor-pointer': !itemDisabled(i),
-                'pointer-events-none': itemDisabled(i),
+                'cursor-pointer': !comingSoon(i),
+                'pointer-events-none': comingSoon(i),
                 'opacity-50': clicked,
             }"
-            @click="!itemDisabled(i) ? click() : undefined"
+            @click="!comingSoon(i) ? click() : undefined"
         >
             <div
                 class="relative mb-1 rounded-md w-full overflow-hidden hover:opacity-90 transition"
@@ -27,7 +28,7 @@
                     :item="i.item"
                 />
                 <div
-                    v-if="itemDisabled(i) && i.item.__typename === 'Episode'"
+                    v-if="comingSoon(i) && i.item.__typename === 'Episode'"
                     class="absolute flex top-0 h-full w-full bg-black bg-opacity-80"
                 >
                     <div
@@ -56,10 +57,11 @@
 import ProgressBar from "@/components/episodes/ProgressBar.vue"
 import Image from "@/components/Image.vue"
 import { SectionItemFragment } from "@/graph/generated"
-import { itemDisabled } from "@/utils/items"
+import { comingSoon } from "@/utils/items"
 import { LockClosedIcon } from "@heroicons/vue/24/solid"
 import { computed, ref } from "vue"
 import NewPill from "./NewPill.vue"
+import Pill from "./Pill.vue"
 import SectionItemTitle from "./SectionItemTitle.vue"
 
 const emit = defineEmits<{
