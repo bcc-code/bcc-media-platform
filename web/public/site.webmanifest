@@ -13,7 +13,14 @@
             "type": "image/png"
         }
     ],
-    "theme_color": "#ffffff",
-    "background_color": "#ffffff",
+    "related_applications": [
+        {
+            "platform": "play",
+            "id": "tv.brunstad.app"
+        }
+    ],
+    "prefer_related_applications": true,
+    "theme_color": "#6eb0e6",
+    "background_color": "#0d1623",
     "display": "standalone"
 }
