@@ -15,8 +15,22 @@ type AuthState = {
     token: string
 }
 
+function getApiUrl() {
+    const query = new URLSearchParams(location.search);
+    const envOverride = query.get('env_override')?.replace(/[^a-zA-Z0-9]/g, "");
+    if (envOverride && envOverride != 'none') {
+        return {
+            'prod': 'https://api.brunstad.tv',
+            'sta': 'https://api.sta.brunstad.tv',
+            'dev': 'https://api.dev.brunstad.tv',
+        }[envOverride]
+    }
+    return config.api.url;
+}
+const apiUrl = getApiUrl();
+
 export default createClient({
-    url: config.api.url + "/query",
+    url: apiUrl + "/query",
     maskTypename: false,
     fetch(input, init) {
         return fetch(
