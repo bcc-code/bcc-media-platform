@@ -42,3 +42,27 @@ export const toISOStringWithTimezone = (date: Date) => {
         pad(tzOffset % 60)
     )
 }
+
+export const isoDate = (date: Date) => {
+    const isoString = toISOStringWithTimezone(date)
+
+    return {
+        year: parseInt(isoString.substring(0, 4)),
+        month: parseInt(isoString.substring(5, 7)),
+        date: parseInt(isoString.substring(8, 10)),
+    }
+}
+
+export const isoDateString = (date: Date) => {
+    const d = isoDate(date)
+
+    return `${d.year.toString().padStart(4, "0")}-${d.month.toString().padStart(2, "0")}-${d.date.toString().padStart(2, "0")}`
+}
+
+export const toDateStamp = (str: string) => {
+    return {
+        year: parseInt(str.substring(0, 4)),
+        month: parseInt(str.substring(5, 7)),
+        date: parseInt(str.substring(8, 10)),
+    }
+}
