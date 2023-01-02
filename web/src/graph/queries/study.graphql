@@ -15,6 +15,25 @@ fragment Task on Task {
     ... on QuoteTask {
         image
     }
+    ... on LinkTask {
+        secondaryTitle
+        link {
+            type
+            title
+            url
+            image
+            description
+        }
+    }
+    ... on VideoTask {
+        secondaryTitle
+        episode {
+            id
+            image
+            title
+            description
+        }
+    }
 }
 
 fragment LessonLink on Link {

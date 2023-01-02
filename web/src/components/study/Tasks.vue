@@ -25,19 +25,25 @@
             <TextTask
                 v-if="currentTask?.__typename == 'TextTask'"
                 v-model:task="currentTask"
-                :key="currentTask.id"
+                :key="'text' + currentTask.id"
                 v-model:is-done="isCurrentStepDone"
             />
             <AlternativesTask
                 v-else-if="currentTask?.__typename == 'AlternativesTask'"
                 v-model:task="currentTask"
-                :key="currentTask.id!"
+                :key="'alt' + currentTask.id"
                 v-model:is-done="isCurrentStepDone"
             />
             <PosterTask
                 v-else-if="currentTask?.__typename == 'PosterTask'"
                 v-model:task="currentTask"
-                :key="currentTask.id!!"
+                :key="'poster' + currentTask.id"
+                v-model:is-done="isCurrentStepDone"
+            />
+            <VideoTask
+                v-else-if="currentTask?.__typename == 'VideoTask'"
+                v-model:task="currentTask"
+                :key="'video' + currentTask.id"
                 v-model:is-done="isCurrentStepDone"
             />
         </div>
@@ -88,6 +94,7 @@ import { useRoute } from "vue-router"
 import TextTask from "./tasks/TextTask.vue"
 import { VButton } from ".."
 import { Page } from "./Lesson.vue"
+import VideoTask from "./tasks/VideoTask.vue"
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()
 const { executeMutation } = useCompleteTaskMutation()
