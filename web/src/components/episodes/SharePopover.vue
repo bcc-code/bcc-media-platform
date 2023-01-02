@@ -9,7 +9,7 @@
         <PopoverButton class="hover:scale-110 transition"
             ><img class="lg:h-8 lg:w-8" src="/icons/share.svg"
         /></PopoverButton>
-        <transition type="slide-fade">
+        <transition type="transition">
             <PopoverPanel
                 class="absolute z-10 right-0 bg-slate-700 p-4 shadow-lg rounded-md flex flex-col gap-2"
             >
