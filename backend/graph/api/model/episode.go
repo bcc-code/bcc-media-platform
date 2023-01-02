@@ -42,6 +42,9 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 	if e.Image.Valid {
 		image = &e.Image.String
 	}
+	if image == nil {
+		image = e.Images.GetDefault(languages, common.ImageStyleDefault)
+	}
 
 	var images []*Image
 	for style, img := range e.Images.GetForLanguages(languages) {
