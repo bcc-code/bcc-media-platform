@@ -19,7 +19,7 @@
         "notFound": "Finner ikke siden",
         "explore": "Utforsk",
         "watchNow": "Se nå",
-        "aboutUs": ""
+        "aboutUs": "Om oss"
     },
     "section": {
         "item": {
@@ -49,10 +49,10 @@
         "notFound": "Finner ikke episoden",
         "comingSoon": "Kommer snart",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
-            "exploreContent": ""
+            "oops": "Uups!",
+            "mustBeLoggedIn": "Du må være logget inn for å se dette innholdet",
+            "otherContent": "Fortvil ikke, det er fortsatt mye annet innhold du kan se!",
+            "exploreContent": "Utforsk innhold"
         }
     },
     "live": {
@@ -67,9 +67,9 @@
         "programs": "Programmer",
         "episodes": "Episoder",
         "cancel": "Avbryt",
-        "emptyQuery": "",
-        "noResults": "",
-        "tryAdjustingQuery": ""
+        "emptyQuery": "Søkefeltet er tomt.",
+        "noResults": "Ingen treff på søk",
+        "tryAdjustingQuery": "Prøv med annet søkeord"
     },
     "support": {
         "contact": "Kontakt support",
@@ -79,35 +79,35 @@
         "describeIssue": "Beskriv problemet ditt i detalj."
     },
     "lesson": {
-        "related": "",
+        "related": "Relatert innhold",
         "watchAgain": {
-            "title": "",
-            "description": "",
-            "button": ""
+            "title": "Se igjen",
+            "description": "Vi anbefaler å se filmen mer enn en gang for å få en dypere forståelse.",
+            "button": "Spill igjen"
         },
-        "textTaskPlaceholder": ""
+        "textTaskPlaceholder": "Skriv ned dine tanker og send inn."
     },
-    "thankYou": "",
-    "yourResponseHasBeenSubmitted": "",
+    "thankYou": "Tusen takk!",
+    "yourResponseHasBeenSubmitted": "Ditt svar er sendt inn.",
     "cookies": {
-        "title": "",
-        "description": "",
-        "necessary": "",
-        "preferences": "",
-        "statistics": "",
-        "accept": ""
+        "title": "Dette nettstedet bruker informasjonskapsler",
+        "description": "Vi bruker informasjonskapsler (cookies) for å støtte brukeropplevelsen på siden vår. Ved å fortsette å bruke vårt nettsted samtykker du til vår bruk av informasjonskapsler.",
+        "necessary": "Nødvendige",
+        "preferences": "Nettsidepreferanser",
+        "statistics": "Statistikk",
+        "accept": "Godta"
     },
     "footer": {
-        "cookies": "",
-        "privacyPolicy": "",
+        "cookies": "Informasjonskapsler",
+        "privacyPolicy": "Personvernerklæring",
         "information": "",
-        "headOffice": "",
-        "contactUs": "",
-        "downloadApp": ""
+        "headOffice": "Hovedkontor",
+        "contactUs": "Kontakt oss",
+        "downloadApp": "Last ned vår app"
     },
     "share": {
-        "title": "",
-        "copied": "",
-        "membersOnly": ""
+        "title": "Del",
+        "copied": "Lenke kopiert til utklippstavle",
+        "membersOnly": "Denne videoen er kun tilgjengelig for brukere som er logget inn."
     }
 }

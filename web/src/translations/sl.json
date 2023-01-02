@@ -19,7 +19,7 @@
         "notFound": "Stran ni bila najdena",
         "explore": "Razišči",
         "watchNow": "Glej zdaj",
-        "aboutUs": ""
+        "aboutUs": "O nas"
     },
     "section": {
         "item": {
@@ -49,9 +49,9 @@
         "notFound": "Del ni bil najden",
         "comingSoon": "Pride kmalu",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
+            "oops": "Oops!",
+            "mustBeLoggedIn": "Za ogled te vsebine moraš biti prijavljen",
+            "otherContent": "Brez skrbi, na voljo je dovolj druge vsebine!",
             "exploreContent": "Razišči vsebino"
         }
     },
@@ -68,8 +68,8 @@
         "episodes": "Deli",
         "cancel": "Prekliči",
         "emptyQuery": "Polje za iskanje je prazno.",
-        "noResults": "",
-        "tryAdjustingQuery": ""
+        "noResults": "Ni rezultatov iskanja",
+        "tryAdjustingQuery": "Poskusi prilagoditi iskalno poizvedbo"
     },
     "support": {
         "contact": "Kontaktiraj podporo",
@@ -79,35 +79,35 @@
         "describeIssue": "Podrobno opiši težavo."
     },
     "lesson": {
-        "related": "",
+        "related": "Povezane možnosti",
         "watchAgain": {
-            "title": "",
-            "description": "",
-            "button": ""
+            "title": "Poglej znova",
+            "description": "Za globlje razumevanje priporočamo večkraten ogled videa.",
+            "button": "Predvajaj znova"
         },
-        "textTaskPlaceholder": ""
+        "textTaskPlaceholder": "Napiši in oddaj svoje mnenje."
     },
     "thankYou": "Hvala!",
-    "yourResponseHasBeenSubmitted": "",
+    "yourResponseHasBeenSubmitted": "Tvoj odgovor je bil oddan.",
     "cookies": {
-        "title": "",
-        "description": "",
-        "necessary": "",
-        "preferences": "",
-        "statistics": "",
-        "accept": ""
+        "title": "Ta spletna stran uporablja piškotke",
+        "description": "Za izboljšanje uporabniške izkušnje uporabljamo piškotke. Z nadaljnjo uporabo te spletne strani se strinjaš z uporabo piškotkov.",
+        "necessary": "Nujni",
+        "preferences": "Nastavitve",
+        "statistics": "Statistika",
+        "accept": "Sprejmi"
     },
     "footer": {
-        "cookies": "",
+        "cookies": "Piškotki",
         "privacyPolicy": "Pravilnik o zasebnosti",
         "information": "",
-        "headOffice": "",
-        "contactUs": "",
-        "downloadApp": ""
+        "headOffice": "Sedež podjetja",
+        "contactUs": "Kontaktiraj nas",
+        "downloadApp": "Prenesi našo aplikacijo"
     },
     "share": {
         "title": "Deli",
-        "copied": "",
-        "membersOnly": ""
+        "copied": "Kopirano v odlagališče",
+        "membersOnly": "Ta video je na voljo samo prijavljenim uporabnikom."
     }
 }
