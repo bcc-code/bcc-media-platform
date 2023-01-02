@@ -16,18 +16,18 @@ type AuthState = {
 }
 
 function getApiUrl() {
-    const query = new URLSearchParams(location.search);
-    const envOverride = query.get('env_override')?.replace(/[^a-zA-Z0-9]/g, "");
-    if (envOverride && envOverride != 'none') {
+    const query = new URLSearchParams(location.search)
+    const envOverride = query.get("env_override")?.replace(/[^a-zA-Z0-9]/g, "")
+    if (envOverride && envOverride != "none") {
         return {
-            'prod': 'https://api.brunstad.tv',
-            'sta': 'https://api.sta.brunstad.tv',
-            'dev': 'https://api.dev.brunstad.tv',
+            prod: "https://api.brunstad.tv",
+            sta: "https://api.sta.brunstad.tv",
+            dev: "https://api.dev.brunstad.tv",
         }[envOverride]
     }
-    return config.api.url;
+    return config.api.url
 }
-const apiUrl = getApiUrl();
+const apiUrl = getApiUrl()
 
 export default createClient({
     url: apiUrl + "/query",
