@@ -8,11 +8,27 @@
             <img :src="task.image" />
         </div>
         <div class="flex align-center justify-center">
-            <VButton @click="download" class="mt-6" size="thin" color="secondary">
-                <svg class="-mt-1 inline" width="25" height="24" viewBox="0 0 25 24" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path d="M21.5 21H3.5M18.5 11L12.5 17M12.5 17L6.5 11M12.5 17V3" stroke="white" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" />
+            <VButton
+                @click="download"
+                class="mt-6"
+                size="thin"
+                color="secondary"
+            >
+                <svg
+                    class="-mt-1 inline"
+                    width="25"
+                    height="24"
+                    viewBox="0 0 25 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <path
+                        d="M21.5 21H3.5M18.5 11L12.5 17M12.5 17L6.5 11M12.5 17V3"
+                        stroke="white"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    />
                 </svg>
                 Download poster
                 <sup class="text-style-caption-3 text-label-3">

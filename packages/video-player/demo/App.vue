@@ -15,8 +15,20 @@ const factory = new PlayerFactory({
 })
 
 onMounted(async () => {
-    await factory.create("btv-video", {
-        episodeId: "794"
+    const player = await factory.create("btv-video", {
+        episodeId: "1705",
+        overrides: {
+            languagePreferenceDefaults: {
+                audio: "eng",
+                subtitle: "eng",
+            },
+        }
+    })
+
+    player.on("loadedmetadata", () => {
+        console.log(player.audioTracks())
+        player.setAudioTrackToLanguage("eng")
+        console.log(player.audioTracks())
     })
 })
 

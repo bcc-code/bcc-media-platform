@@ -104,6 +104,7 @@ import { current } from "@/services/language"
 import { useTitle } from "@/utils/title"
 import { useI18n } from "vue-i18n"
 import { analytics } from "@/services/analytics"
+import { isoDate, isoDateString, toISOStringWithTimezone } from "@/utils/time"
 
 const now = new Date()
 const weeks = ref(getMonth(now))
@@ -115,13 +116,13 @@ const weeksComputed = computed(() => {
 })
 
 const start = computed(() => {
-    return weeks.value[0][0]
+    return toISOStringWithTimezone(weeks.value[0][0])
 })
 
 const end = computed(() => {
     const d = new Date(weeks.value[weeks.value.length - 1][6])
     d.setHours(23, 59, 59)
-    return d
+    return toISOStringWithTimezone(d)
 })
 
 const { data } = useGetLiveCalendarRangeQuery({
@@ -133,13 +134,10 @@ const { data } = useGetLiveCalendarRangeQuery({
 
 const startEvent = (day: Date) => {
     const events = data.value?.calendar?.period.events ?? []
+    const dayString = isoDateString(day)
     for (const e of events) {
-        const date = new Date(e.start)
-        if (
-            date.getFullYear() === day.getFullYear() &&
-            date.getMonth() === day.getMonth() &&
-            date.getDate() === day.getDate()
-        ) {
+        const start = isoDateString(new Date(e.start))
+        if (start === dayString) {
             return e.start
         }
     }
@@ -148,14 +146,11 @@ const startEvent = (day: Date) => {
 
 const endEvent = (day: Date) => {
     const events = data.value?.calendar?.period.events ?? []
+    const dayString = isoDateString(day)
     for (const e of events) {
-        const date = new Date(e.end)
-        if (
-            date.getFullYear() === day.getFullYear() &&
-            date.getMonth() === day.getMonth() &&
-            date.getDate() === day.getDate()
-        ) {
-            return e.start
+        const end = isoDateString(new Date(e.end))
+        if (end === dayString) {
+            return e.end
         }
     }
     return false
@@ -163,17 +158,12 @@ const endEvent = (day: Date) => {
 
 const inEvent = (day: Date) => {
     const events = data.value?.calendar?.period.events ?? []
+    const dayString = isoDateString(day)
     for (const e of events) {
-        const start = new Date(e.start)
-        const end = new Date(e.end)
+        const start = isoDateString(new Date(e.start))
+        const end = isoDateString(new Date(e.end))
         if (
-            start.getFullYear() <= day.getFullYear() &&
-            start.getMonth() <= day.getMonth() &&
-            start.getDate() < day.getDate() &&
-            ((end.getFullYear() >= day.getFullYear() &&
-                end.getMonth() >= day.getMonth() &&
-                end.getDate() > day.getDate()) ||
-                end.getFullYear() > day.getFullYear())
+            start < dayString && end > dayString
         ) {
             return true
         }

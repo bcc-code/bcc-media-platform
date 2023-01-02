@@ -1,7 +1,7 @@
 <template>
     <div
         :class="
-            'inline-flex space-x-4 items-center justify-start w-full h-16 pl-4 bg-separator-on-light bg-opacity-10 rounded-xl border-2 ' +
+            'inline-flex space-x-4 items-center justify-start w-full min-h-[4rem] py-2.5 pl-4 bg-separator-on-light bg-opacity-10 rounded-xl border-2 ' +
             conditionalClass
         "
     >
@@ -25,7 +25,7 @@
                 <path d="M1 1L13 13" stroke="#E63C62" stroke-width="2" />
             </svg>
             <svg
-                v-if="props.selected && props.correct"
+                v-else-if="props.selected && props.correct"
                 width="15"
                 height="12"
                 viewBox="0 0 15 12"
@@ -38,6 +38,7 @@
                     stroke-width="2"
                 />
             </svg>
+            <div class="w-3.5" v-else>&nbsp;</div>
         </div>
     </div>
 </template>

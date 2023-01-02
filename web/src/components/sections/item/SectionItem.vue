@@ -1,9 +1,15 @@
 <template>
     <div class="relative">
-        <NewPill class="absolute top-0 -right-1" :item="i" v-if="!comingSoon(i)"></NewPill>
-        <Pill class="absolute top-0 -right-1" v-else>{{ $t("episode.comingSoon") }}</Pill>
+        <NewPill
+            class="absolute -top-1 -right-1 pointer-events-none"
+            :item="i"
+            v-if="!comingSoon(i)"
+        ></NewPill>
+        <Pill class="absolute -top-1 -right-1 pointer-events-none" v-else>{{
+            $t("episode.comingSoon")
+        }}</Pill>
         <div
-            class="flex flex-col mt-1 pt-1 transition"
+            class="flex flex-col mt-2 transition"
             :class="{
                 'cursor-pointer': !comingSoon(i),
                 'pointer-events-none': comingSoon(i),

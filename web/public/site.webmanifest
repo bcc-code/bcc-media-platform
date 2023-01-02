@@ -1,6 +1,8 @@
 {
     "name": "BCC Media",
     "short_name": "BCCM",
+    "display": "minimal-ui",
+    "prefer_related_applications": true,
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
@@ -13,7 +15,15 @@
             "type": "image/png"
         }
     ],
-    "theme_color": "#ffffff",
-    "background_color": "#ffffff",
-    "display": "standalone"
+    "related_applications": [
+        {
+            "platform": "play",
+            "url": "https://play.google.com/store/apps/details?id=tv.brunstad.app",
+            "id": "tv.brunstad.app"
+        },
+        {
+            "platform": "itunes",
+            "url": "https://itunes.apple.com/no/app/brunstadtv/id913268220"
+        }
+    ]
 }

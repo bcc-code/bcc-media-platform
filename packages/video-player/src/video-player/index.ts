@@ -147,7 +147,7 @@ function createVideoElement(id: string, options: Options) {
 function setAudioTrackToLanguage(player: VideoJsPlayer, language?: string) {
     let track = null as videojs.VideojsAudioTrack | null
 
-    for (const t of Object.values(player.audioTracks())) {
+    for (const t of Object.values((player.audioTracks() as unknown as {tracks_: any[]}).tracks_)) {
         if (t.language === language) {
             track = t
         }

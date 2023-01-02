@@ -3,7 +3,6 @@
         class="transition bg-slate-800"
         :class="[loaded ? 'opacity-100' : 'opacity-0']"
         id="video-player"
-        ref="video-player"
     ></div>
 </template>
 <script lang="ts" setup>
@@ -18,9 +17,30 @@ import {
 } from "@/graph/generated"
 import { useAuth0 } from "@auth0/auth0-vue"
 import { setProgress } from "@/utils/episodes"
+import { current as currentLanguage, languages } from "@/services/language"
 import { analytics } from "@/services/analytics"
 
 const { isAuthenticated } = useAuth0()
+
+const lanTo3letter: {
+    [key: string]: string
+} = {
+    no: "nor",
+    en: "eng",
+    nl: "nld",
+    de: "deu",
+    fr: "fra",
+    es: "spa",
+    fi: "fin",
+    ru: "rus",
+    pt: "por",
+    ro: "ron",
+    tr: "tur",
+    pl: "pol",
+    hu: "hun",
+    it: "ita",
+    da: "dan",
+}
 
 const { data, executeQuery } = useGetAnalyticsIdQuery()
 
@@ -76,6 +96,10 @@ const load = async () => {
         player.value = await playerFactory.create("video-player", {
             episodeId: episodeId,
             overrides: {
+                languagePreferenceDefaults: {
+                    audio: lanTo3letter[currentLanguage.value.code],
+                    subtitle: lanTo3letter[currentLanguage.value.code],
+                },
                 videojs: {
                     autoplay: props.autoPlay,
                 },
@@ -98,6 +122,7 @@ const load = async () => {
         })
         lastProgress = props.episode.progress
         player.value.currentTime(lastProgress)
+
         // player.value.on("play", analytics.track("playback_started", ))
         // player.value.on("ended", analytics.track("playback_ended", undefined))
         // player.value.on("pause", analytics.track("playback_paused", undefined))
