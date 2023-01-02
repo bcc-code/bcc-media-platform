@@ -47,7 +47,8 @@
 </template>
 <script lang="ts" setup>
 import { useGetCalendarDayQuery } from "@/graph/generated"
-import { ref, watch } from "vue"
+import { computed, ref, watch } from "vue"
+import { toISOStringWithTimezone } from "@/utils/time"
 
 const now = new Date()
 
@@ -64,9 +65,13 @@ watch(
     }
 )
 
+const dateInLocale = computed(() => {
+    return toISOStringWithTimezone(selectedDay.value)
+})
+
 const { data, fetching } = useGetCalendarDayQuery({
     variables: {
-        day: selectedDay,
+        day: dateInLocale,
     },
 })
 

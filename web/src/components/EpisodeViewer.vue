@@ -39,7 +39,7 @@ const lanTo3letter: {
     pl: "pol",
     hu: "hun",
     it: "ita",
-    da: "dan"
+    da: "dan",
 }
 
 const { data, executeQuery } = useGetAnalyticsIdQuery()

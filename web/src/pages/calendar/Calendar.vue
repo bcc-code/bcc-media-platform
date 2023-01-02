@@ -104,6 +104,7 @@ import { current } from "@/services/language"
 import { useTitle } from "@/utils/title"
 import { useI18n } from "vue-i18n"
 import { analytics } from "@/services/analytics"
+import { toISOStringWithTimezone } from "@/utils/time"
 
 const now = new Date()
 const weeks = ref(getMonth(now))
@@ -115,13 +116,13 @@ const weeksComputed = computed(() => {
 })
 
 const start = computed(() => {
-    return weeks.value[0][0]
+    return toISOStringWithTimezone(weeks.value[0][0])
 })
 
 const end = computed(() => {
     const d = new Date(weeks.value[weeks.value.length - 1][6])
     d.setHours(23, 59, 59)
-    return d
+    return toISOStringWithTimezone(d)
 })
 
 const { data } = useGetLiveCalendarRangeQuery({
