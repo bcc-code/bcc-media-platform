@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/google/uuid"
 	"regexp"
 	"strconv"
 	"strings"
@@ -131,7 +132,7 @@ type simpleTranslation struct {
 	Changed     bool
 }
 
-func convertTsToStrings(ts []simpleTranslation, prefix string) []String {
+func convertTsToStrings(ts []simpleTranslation, prefix string, contextFactory func(parentID string) string) []String {
 	return lo.Reduce(ts, func(stringObjects []String, t simpleTranslation, _ int) []String {
 		var values = map[string]string{
 			"title":       t.Title,
@@ -139,10 +140,16 @@ func convertTsToStrings(ts []simpleTranslation, prefix string) []String {
 		}
 		for key, value := range values {
 			if value != "" {
-				stringObjects = append(stringObjects, String{
+				str := String{
 					Identifier: fmt.Sprintf("%s-%s-%s", prefix, t.ParentID, key),
 					Text:       value,
-				})
+				}
+
+				if contextFactory != nil {
+					str.Context = contextFactory(t.ParentID)
+				}
+
+				stringObjects = append(stringObjects, str)
 			}
 		}
 		return stringObjects
@@ -339,6 +346,7 @@ func (c *Client) syncCollection(
 	collection string,
 	translationFactory func(ctx context.Context, language string) ([]simpleTranslation, error),
 	crowdinTranslations []Translation,
+	contextFactory func(identifier string) string,
 ) error {
 	log.L.Debug().Int("project", project.ID).Str("collection", collection).Msg("Syncing collection")
 	projectId := project.ID
@@ -353,14 +361,14 @@ func (c *Client) syncCollection(
 	}
 	if !found {
 		log.L.Debug().Msg("Creating file")
-		_, err := c.createFile(project.ID, directoryId, collection, convertTsToStrings(sourceTranslations, collection))
+		_, err := c.createFile(project.ID, directoryId, collection, convertTsToStrings(sourceTranslations, collection, contextFactory))
 		if err != nil {
 			log.L.Error().Err(err).Str("collection", collection).Msg("failed to create file for collection")
 		}
 		return err
 	}
 
-	dbStrings := convertTsToStrings(sourceTranslations, collection)
+	dbStrings := convertTsToStrings(sourceTranslations, collection, contextFactory)
 
 	fileStrings, err := c.getStrings(projectId, file.ID)
 	if err != nil {
@@ -521,7 +529,7 @@ func (c *Client) syncEpisodes(ctx context.Context, d *directus.Handler, project 
 					ParentID:    strconv.Itoa(int(t.ParentID)),
 				}
 			}), nil
-	}, crowdinTranslations)
+	}, crowdinTranslations, nil)
 }
 
 func (c *Client) syncSeasons(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
@@ -539,7 +547,7 @@ func (c *Client) syncSeasons(ctx context.Context, d *directus.Handler, project P
 				ParentID:    strconv.Itoa(int(t.ParentID)),
 			}
 		}), nil
-	}, crowdinTranslations)
+	}, crowdinTranslations, nil)
 }
 
 func (c *Client) syncShows(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
@@ -557,7 +565,7 @@ func (c *Client) syncShows(ctx context.Context, d *directus.Handler, project Pro
 				ParentID:    strconv.Itoa(int(t.ParentID)),
 			}
 		}), nil
-	}, crowdinTranslations)
+	}, crowdinTranslations, nil)
 }
 
 func (c *Client) syncSections(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
@@ -575,7 +583,7 @@ func (c *Client) syncSections(ctx context.Context, d *directus.Handler, project 
 				ParentID:    strconv.Itoa(int(t.ParentID)),
 			}
 		}), nil
-	}, crowdinTranslations)
+	}, crowdinTranslations, nil)
 }
 
 func (c *Client) syncPages(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
@@ -593,7 +601,7 @@ func (c *Client) syncPages(ctx context.Context, d *directus.Handler, project Pro
 				ParentID:    strconv.Itoa(int(t.ParentID.Int64)),
 			}
 		}), nil
-	}, crowdinTranslations)
+	}, crowdinTranslations, nil)
 }
 
 func (c *Client) syncLessons(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
@@ -624,7 +632,7 @@ func (c *Client) syncLessons(ctx context.Context, d *directus.Handler, project P
 				ParentID: t.ParentID.UUID.String(),
 			}
 		}), nil
-	}, crowdinTranslations)
+	}, crowdinTranslations, nil)
 }
 
 func (c *Client) syncTopics(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
@@ -655,7 +663,7 @@ func (c *Client) syncTopics(ctx context.Context, d *directus.Handler, project Pr
 				ParentID: t.ParentID.UUID.String(),
 			}
 		}), nil
-	}, crowdinTranslations)
+	}, crowdinTranslations, nil)
 }
 
 func (c *Client) syncTasks(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
@@ -686,17 +694,41 @@ func (c *Client) syncTasks(ctx context.Context, d *directus.Handler, project Pro
 				ParentID: t.ParentID.UUID.String(),
 			}
 		}), nil
-	}, crowdinTranslations)
+	}, crowdinTranslations, nil)
 }
 
 func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	originalTs, err := c.q.ListQuestionAlternativesOriginalTranslations(ctx)
+	if err != nil {
+		return err
+	}
+
+	alts, err := c.q.GetQuestionAlternatives(ctx, lo.Map(originalTs, func(i sqlc.ListQuestionAlternativesOriginalTranslationsRow, _ int) uuid.UUID {
+		return i.ID
+	}))
+	if err != nil {
+		return err
+	}
+	tasks, err := c.q.GetTasks(ctx, lo.Map(alts, func(i common.QuestionAlternative, _ int) uuid.UUID {
+		return i.TaskID
+	}))
+	if err != nil {
+		return err
+	}
+	taskTitles := lo.Reduce(alts, func(m map[string]string, i common.QuestionAlternative, _ int) map[string]string {
+		t, f := lo.Find(tasks, func(t common.Task) bool {
+			return t.ID == i.TaskID
+		})
+		if !f {
+			return m
+		}
+		m[i.ID.String()] = t.Title.Get([]string{"no"})
+		return m
+	}, map[string]string{})
+
 	return c.syncCollection(ctx, d, project, directoryId, "questionalternatives", func(ctx context.Context, language string) ([]simpleTranslation, error) {
 		if language == "no" {
-			ts, err := c.q.ListQuestionAlternativesOriginalTranslations(ctx)
-			if err != nil {
-				return nil, err
-			}
-			return lo.Map(ts, func(t sqlc.ListQuestionAlternativesOriginalTranslationsRow, _ int) simpleTranslation {
+			return lo.Map(originalTs, func(t sqlc.ListQuestionAlternativesOriginalTranslationsRow, _ int) simpleTranslation {
 				return simpleTranslation{
 					ID:       t.ID.String(),
 					Title:    t.Title.ValueOrZero(),
@@ -717,7 +749,12 @@ func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, proj
 				ParentID: t.ParentID.UUID.String(),
 			}
 		}), nil
-	}, crowdinTranslations)
+	}, crowdinTranslations, func(id string) string {
+		if t, ok := taskTitles[id]; ok {
+			return "Question: " + t
+		}
+		return ""
+	})
 }
 
 var projectCache = cache.New[int, Project]()
