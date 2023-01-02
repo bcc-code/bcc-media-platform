@@ -82,6 +82,13 @@ type Notification struct {
 	SendCompleted null.Time              `json:"sendCompleted"`
 	DeepLink      null.String            `json:"deepLink"`
 	Action        null.String            `json:"action"`
+	TargetIDs     []uuid.UUID            `json:"targetIds"`
+}
+
+type Target struct {
+	ID         uuid.UUID
+	Type       string
+	GroupCodes []string
 }
 
 // Progress contains basic data for progress

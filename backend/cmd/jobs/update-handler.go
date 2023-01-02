@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/push"
 	"github.com/bcc-code/brunstadtv/backend/scheduler"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -18,6 +19,7 @@ type modelHandler struct {
 	push      *push.Service
 	scheduler *scheduler.Service
 	locker    *redsync.Redsync
+	members   *members.Client
 }
 
 func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string, key string) error {
@@ -57,6 +59,9 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 			err = h.queries.NotificationMarkSendStarted(ctx, id)
 			if err != nil {
 				return err
+			}
+			if len(n.TargetIDs) > 0 {
+
 			}
 			err = h.push.PushNotificationToEveryone(ctx, n)
 			if err != nil {
