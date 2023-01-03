@@ -613,10 +613,11 @@ func (c *Client) syncLessons(ctx context.Context, d *directus.Handler, project P
 			}
 			return lo.Map(ts, func(t sqlc.ListLessonOriginalTranslationsRow, _ int) simpleTranslation {
 				return simpleTranslation{
-					ID:       t.ID.String(),
-					Title:    t.Title,
-					Language: "no",
-					ParentID: t.ID.String(),
+					ID:          t.ID.String(),
+					Title:       t.Title,
+					Description: t.Description.ValueOrZero(),
+					Language:    "no",
+					ParentID:    t.ID.String(),
 				}
 			}), nil
 		}
@@ -626,10 +627,11 @@ func (c *Client) syncLessons(ctx context.Context, d *directus.Handler, project P
 		}
 		return lo.Map(ts, func(t sqlc.ListLessonTranslationsRow, _ int) simpleTranslation {
 			return simpleTranslation{
-				ID:       strconv.Itoa(int(t.ID)),
-				Title:    t.Title.ValueOrZero(),
-				Language: t.LanguagesCode.String,
-				ParentID: t.ParentID.UUID.String(),
+				ID:          strconv.Itoa(int(t.ID)),
+				Title:       t.Title.ValueOrZero(),
+				Description: t.Description.ValueOrZero(),
+				Language:    t.LanguagesCode.String,
+				ParentID:    t.ParentID.UUID.String(),
 			}
 		}), nil
 	}, crowdinTranslations, nil)
@@ -644,10 +646,11 @@ func (c *Client) syncTopics(ctx context.Context, d *directus.Handler, project Pr
 			}
 			return lo.Map(ts, func(t sqlc.ListStudyTopicOriginalTranslationsRow, _ int) simpleTranslation {
 				return simpleTranslation{
-					ID:       t.ID.String(),
-					Title:    t.Title,
-					Language: "no",
-					ParentID: t.ID.String(),
+					ID:          t.ID.String(),
+					Title:       t.Title,
+					Description: t.Description.ValueOrZero(),
+					Language:    "no",
+					ParentID:    t.ID.String(),
 				}
 			}), nil
 		}
@@ -657,10 +660,11 @@ func (c *Client) syncTopics(ctx context.Context, d *directus.Handler, project Pr
 		}
 		return lo.Map(ts, func(t sqlc.ListStudyTopicTranslationsRow, _ int) simpleTranslation {
 			return simpleTranslation{
-				ID:       strconv.Itoa(int(t.ID)),
-				Title:    t.Title.ValueOrZero(),
-				Language: t.LanguagesCode.String,
-				ParentID: t.ParentID.UUID.String(),
+				ID:          strconv.Itoa(int(t.ID)),
+				Title:       t.Title.ValueOrZero(),
+				Description: t.Description.ValueOrZero(),
+				Language:    t.LanguagesCode.String,
+				ParentID:    t.ParentID.UUID.String(),
 			}
 		}), nil
 	}, crowdinTranslations, nil)
@@ -675,10 +679,11 @@ func (c *Client) syncTasks(ctx context.Context, d *directus.Handler, project Pro
 			}
 			return lo.Map(ts, func(t sqlc.ListTaskOriginalTranslationsRow, _ int) simpleTranslation {
 				return simpleTranslation{
-					ID:       t.ID.String(),
-					Title:    t.Title.ValueOrZero(),
-					Language: "no",
-					ParentID: t.ID.String(),
+					ID:          t.ID.String(),
+					Title:       t.Title.ValueOrZero(),
+					Description: t.Description.ValueOrZero(),
+					Language:    "no",
+					ParentID:    t.ID.String(),
 				}
 			}), nil
 		}
@@ -688,10 +693,11 @@ func (c *Client) syncTasks(ctx context.Context, d *directus.Handler, project Pro
 		}
 		return lo.Map(ts, func(t sqlc.ListTaskTranslationsRow, _ int) simpleTranslation {
 			return simpleTranslation{
-				ID:       strconv.Itoa(int(t.ID)),
-				Title:    t.Title.ValueOrZero(),
-				Language: t.LanguagesCode.String,
-				ParentID: t.ParentID.UUID.String(),
+				ID:          strconv.Itoa(int(t.ID)),
+				Title:       t.Title.ValueOrZero(),
+				Description: t.Description.ValueOrZero(),
+				Language:    t.LanguagesCode.String,
+				ParentID:    t.ParentID.UUID.String(),
 			}
 		}), nil
 	}, crowdinTranslations, nil)
