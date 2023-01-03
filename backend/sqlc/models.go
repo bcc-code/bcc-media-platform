@@ -847,6 +847,12 @@ type Notification struct {
 	TemplateID    uuid.NullUUID  `db:"template_id" json:"templateID"`
 }
 
+type NotificationsTarget struct {
+	ID              int32         `db:"id" json:"id"`
+	NotificationsID uuid.NullUUID `db:"notifications_id" json:"notificationsID"`
+	TargetsID       uuid.NullUUID `db:"targets_id" json:"targetsID"`
+}
+
 type Notificationtemplate struct {
 	ID          uuid.UUID      `db:"id" json:"id"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
@@ -1105,6 +1111,18 @@ type TagsTranslation struct {
 	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
 	Name          null_v4.String `db:"name" json:"name"`
 	TagsID        null_v4.Int    `db:"tags_id" json:"tagsID"`
+}
+
+type Target struct {
+	ID    uuid.UUID      `db:"id" json:"id"`
+	Label null_v4.String `db:"label" json:"label"`
+	Type  null_v4.String `db:"type" json:"type"`
+}
+
+type TargetsUsergroup struct {
+	ID             int32          `db:"id" json:"id"`
+	TargetsID      uuid.NullUUID  `db:"targets_id" json:"targetsID"`
+	UsergroupsCode null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
 }
 
 type Task struct {
