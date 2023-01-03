@@ -1,6 +1,6 @@
 import { oldKnex } from "../oldKnex";
 import { EpisodeEntity, ProgramEntity, SystemDataEntity } from "@/Database";
-import { getEpisodeUsergroups, ugCodesToVisibility, Visibility } from "../utils";
+import {getEpisodeUsergroups, shouldDraft, ugCodesToVisibility, Visibility} from "../utils";
 
 export async function createEpisodesUsergroup(p, m, c) {
     if (m.collection != "episodes_usergroups") {
@@ -14,6 +14,10 @@ export async function createEpisodesUsergroup(p, m, c) {
     let patch: Partial<EpisodeEntity> = {}
 
     patch.Visibility = ugCodesToVisibility(ug_codes);
+
+    if (shouldDraft(ug_codes)) {
+        patch.Status = 0;
+    }
 
     if (episode.type === "episode") {
         let legacyEpisode = await oldKnex<EpisodeEntity>("Episode").update(patch).where("Id", episode.legacy_id).returning("*")

@@ -19,7 +19,7 @@
         "notFound": "Pagina nu a fost găsită",
         "explore": "Descoperă",
         "watchNow": "Vezi acum",
-        "aboutUs": ""
+        "aboutUs": "Despre noi"
     },
     "section": {
         "item": {
@@ -49,9 +49,9 @@
         "notFound": "Episodul nu poate fi găsit",
         "comingSoon": "Apare în curând",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
+            "oops": "Oops!",
+            "mustBeLoggedIn": "Trebuie să fii conectat cu contul propriu pentru a urmări acest conținut",
+            "otherContent": "Stai liniștit, totuși este foarte mult conținut de care te poți bucura!",
             "exploreContent": "Descoperă conținut"
         }
     },
@@ -100,14 +100,14 @@
     "footer": {
         "cookies": "",
         "privacyPolicy": "Politica de Confidențialitate",
-        "information": "",
+        "information": "BCC Media este o fundație media din [Federația BCC](https://bcc.no) care produce și distribuie conținut cu valori pozitive și creștine.\n\nBCC Media este un transmițător înregistrat și respectă reglementările prevăzute în Legea Norvegiană de Difuzare. Organismul de supraveghere pentru această Lege este [Autoritatea Media Norvegiană](https://medietilsynet.no/).",
         "headOffice": "",
         "contactUs": "",
-        "downloadApp": ""
+        "downloadApp": "Descarcă aplicația noastră"
     },
     "share": {
         "title": "Distribuie",
-        "copied": "",
-        "membersOnly": ""
+        "copied": "S-a copiat în memorie",
+        "membersOnly": "Acest video este accesibil doar pentru utilizatorii conectați cu cont personal."
     }
 }

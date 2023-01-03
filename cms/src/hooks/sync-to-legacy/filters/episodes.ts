@@ -1,5 +1,14 @@
 import { oldKnex } from "../oldKnex";
-import { createLocalizable, getEpisodeUsergroups, getStatusFromNew, isObjectUseless, ShouldAllowFKTBSpecialAccess, ShouldAllowSpecialAccess, ugCodesToVisibility } from "../utils";
+import {
+    createLocalizable,
+    getEpisodeUsergroups,
+    getStatusFromNew,
+    isObjectUseless,
+    ShouldAllowFKTBSpecialAccess,
+    ShouldAllowSpecialAccess,
+    shouldDraft,
+    ugCodesToVisibility
+} from "../utils";
 import { EpisodeEntity, ProgramEntity } from "@/Database";
 
 export async function createEpisode(p, m, c) {
@@ -45,6 +54,9 @@ async function createOneEpisode(p, c) {
     if (p.id) {
         let visibilityCodes = await getEpisodeUsergroups(c, "episodes_usergroups", p.id);
         patch.Visibility = ugCodesToVisibility(visibilityCodes);
+        if (shouldDraft(visibilityCodes)) {
+            patch.Status = 0
+        }
 
         let earlyaccess_ugs = await getEpisodeUsergroups(c, "episodes_usergroups_earlyaccess", p.id);
         patch.AllowSpecialAccess = ShouldAllowSpecialAccess(earlyaccess_ugs);
@@ -83,11 +95,11 @@ async function createOneEpisode(p, c) {
         patch.Image = "https://brunstadtv.imgix.net/" + image.filename_disk
     }
 
-    if (p.status == "published") {
-        patch.Status = 1
-    } else {
-        patch.Status = 0
-    }
+    // if (p.status == "published") {
+    //     patch.Status = 1
+    // } else {
+    //     patch.Status = 0
+    // }
 
     if (p.type === "episode" || p.season_id) {
         let season = (await c.database("seasons").select("*").where("id", p.season_id))[0];

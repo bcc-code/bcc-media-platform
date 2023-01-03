@@ -19,7 +19,7 @@
         "notFound": "Page non trouvée",
         "explore": "Explorer",
         "watchNow": "Regarder maintenant",
-        "aboutUs": ""
+        "aboutUs": "À propos de nous"
     },
     "section": {
         "item": {
@@ -49,9 +49,9 @@
         "notFound": "Épisode non trouvé",
         "comingSoon": "Bientôt disponible",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
+            "oops": "Oups !",
+            "mustBeLoggedIn": "Tu dois être connecté pour regarder ce contenu",
+            "otherContent": "Pas d'inquiétude ! Il y a plein d'autres contenus à apprécier !",
             "exploreContent": "Explorer le contenu"
         }
     },
@@ -100,14 +100,14 @@
     "footer": {
         "cookies": "Cookies",
         "privacyPolicy": "Politique de confidentialité",
-        "information": "",
+        "information": "BCC Media est une fondation médiatique de la [BCC federation](https://bcc.no) qui produit et distribue des contenus aux valeurs positives et chrétiennes.\n\nBCC Media est un radiodiffuseur enregistré et adhère aux règlements établis dans la loi norvégienne sur la radiodiffusion. L'organe de surveillance de cette loi est [the Norwegian Media Authority](https://medietilsynet.no/).",
         "headOffice": "Siège social",
         "contactUs": "Nous contacter",
-        "downloadApp": ""
+        "downloadApp": "Télécharge notre application"
     },
     "share": {
         "title": "Partager",
-        "copied": "",
-        "membersOnly": ""
+        "copied": "Copié dans le presse-papiers",
+        "membersOnly": "Cette vidéo est uniquement accessible aux utilisateurs qui sont connectés."
     }
 }

@@ -96,6 +96,10 @@ export enum Visibility {
     Both = 3
 }
 
+export function shouldDraft(ug_codes: string[]) {
+    return !ug_codes.some(ug => ["bcc-members", "public"].includes(ug))
+}
+
 export function ugCodesToVisibility(ug_codes: string[]) {
     if (ug_codes.some(ug => ug === "public") && ug_codes.some(ug => ug === "bcc-members")) {
         return Visibility.Both

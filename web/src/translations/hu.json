@@ -19,7 +19,7 @@
         "notFound": "Az oldal nem található",
         "explore": "Felfedezés",
         "watchNow": "Nézd meg most",
-        "aboutUs": ""
+        "aboutUs": "Rólunk"
     },
     "section": {
         "item": {
@@ -49,9 +49,9 @@
         "notFound": "Epizód nem található",
         "comingSoon": "Jön hamarosan",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
+            "oops": "Uups!",
+            "mustBeLoggedIn": "Be kell jelentkezned, hogy megnézhesd ezt a tartalmat",
+            "otherContent": "Ne aggódj, még rengeteg más tartalmat is élvezhetsz!",
             "exploreContent": "Tartalom felfedezése"
         }
     },
@@ -100,14 +100,14 @@
     "footer": {
         "cookies": "Sütik",
         "privacyPolicy": "Adatvédelmi szabályzat",
-        "information": "",
+        "information": "A BCC Media a [BCC Szövetség] (https://bcc.no) médiaalapítványa, amely pozitív és keresztény értékeket tartalmazó tartalmakat gyárt és terjeszt.\n\nA BCC Media bejegyzett műsorszolgáltató, és betartja a norvég műsorszolgáltatási törvényben meghatározott szabályokat. A törvényt felügyelő szerv a [Norvég Médiahatóság](https://medietilsynet.no/).",
         "headOffice": "Székhely",
         "contactUs": "Kapcsolat",
-        "downloadApp": ""
+        "downloadApp": "Alkalmazásunk letöltése"
     },
     "share": {
         "title": "Megosztás",
-        "copied": "",
-        "membersOnly": ""
+        "copied": "Vágólapra másolva",
+        "membersOnly": "Ez a videó csak bejelentkezett felhasználók számára érhető el."
     }
 }

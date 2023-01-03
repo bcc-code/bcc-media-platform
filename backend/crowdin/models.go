@@ -57,6 +57,7 @@ type String struct {
 	FileID     int    `json:"fileId"`
 	Text       string `json:"text"`
 	Identifier string `json:"identifier"`
+	Context    string `json:"context"`
 }
 
 // Approval model
