@@ -17,8 +17,7 @@ import {
 } from "@/graph/generated"
 import { useAuth0 } from "@auth0/auth0-vue"
 import { setProgress } from "@/utils/episodes"
-import { current as currentLanguage, languages } from "@/services/language"
-import { analytics } from "@/services/analytics"
+import { current as currentLanguage } from "@/services/language"
 
 const { isAuthenticated } = useAuth0()
 
@@ -83,6 +82,22 @@ const updateEpisodeProgress = async (episode: {
 let lastProgress = props.episode.progress
 const loaded = ref(false)
 
+const onSpaceBar = (event: KeyboardEvent) => {
+    if (event.type === "keydown") {
+        if (event.key === " ") {
+            event.preventDefault()
+
+            if (!player.value) return
+
+            if (player.value.paused()) {
+                player.value.play()
+            } else {
+                player.value.pause()
+            }
+        }
+    }
+}
+
 const load = async () => {
     const episodeId = props.episode.id
     if (current.value !== episodeId) {
@@ -98,7 +113,7 @@ const load = async () => {
             overrides: {
                 languagePreferenceDefaults: {
                     audio: lanTo3letter[currentLanguage.value.code],
-                    subtitle: lanTo3letter[currentLanguage.value.code],
+                    subtitles: lanTo3letter[currentLanguage.value.code],
                 },
                 videojs: {
                     autoplay: props.autoPlay,
@@ -163,10 +178,15 @@ const checkProgress = async (force?: boolean) => {
 }
 
 onUpdated(load)
-onMounted(load)
+
+onMounted(() => {
+    load()
+    window.addEventListener("keydown", onSpaceBar)
+})
 
 onUnmounted(async () => {
     await checkProgress(true)
     player.value?.dispose()
+    window.removeEventListener("keydown", onSpaceBar)
 })
 </script>

@@ -194,6 +194,10 @@ type ComplexityRoot struct {
 		Global func(childComplexity int, timestamp *string) int
 	}
 
+	ConfirmAchievementResult struct {
+		Success func(childComplexity int) int
+	}
+
 	ContextCollection struct {
 		ID    func(childComplexity int) int
 		Items func(childComplexity int, first *int, offset *int) int
@@ -911,7 +915,7 @@ type MutationRootResolver interface {
 	UpdateTaskMessage(ctx context.Context, id string, message string) (string, error)
 	SendEpisodeFeedback(ctx context.Context, episodeID string, message *string, rating *int) (string, error)
 	UpdateEpisodeFeedback(ctx context.Context, id string, message *string, rating *int) (string, error)
-	ConfirmAchievement(ctx context.Context, id string) (bool, error)
+	ConfirmAchievement(ctx context.Context, id string) (*model.ConfirmAchievementResult, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -1449,6 +1453,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Config.Global(childComplexity, args["timestamp"].(*string)), true
+
+	case "ConfirmAchievementResult.success":
+		if e.complexity.ConfirmAchievementResult.Success == nil {
+			break
+		}
+
+		return e.complexity.ConfirmAchievementResult.Success(childComplexity), true
 
 	case "ContextCollection.id":
 		if e.complexity.ContextCollection.ID == nil {
@@ -4542,6 +4553,10 @@ type AchievementGroupPagination implements Pagination {
     total: Int!
     items: [AchievementGroup!]!
 }
+
+type ConfirmAchievementResult {
+    success: Boolean!
+}
 `, BuiltIn: false},
 	{Name: "../schema/analytics.graphqls", Input: `type Analytics {
     anonymousId: String! @goField(forceResolver: true)
@@ -5285,7 +5300,7 @@ type MutationRoot {
   sendEpisodeFeedback(episodeId: ID!, message: String, rating: Int): ID!
   updateEpisodeFeedback(id: ID!, message: String, rating: Int): ID!
 
-  confirmAchievement(id: ID!): Boolean!
+  confirmAchievement(id: ID!): ConfirmAchievementResult!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -9532,6 +9547,50 @@ func (ec *executionContext) fieldContext_Config_global(ctx context.Context, fiel
 	if fc.Args, err = ec.field_Config_global_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ConfirmAchievementResult_success(ctx context.Context, field graphql.CollectedField, obj *model.ConfirmAchievementResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ConfirmAchievementResult_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ConfirmAchievementResult_success(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ConfirmAchievementResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -18395,9 +18454,9 @@ func (ec *executionContext) _MutationRoot_confirmAchievement(ctx context.Context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(*model.ConfirmAchievementResult)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNConfirmAchievementResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐConfirmAchievementResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MutationRoot_confirmAchievement(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18407,7 +18466,11 @@ func (ec *executionContext) fieldContext_MutationRoot_confirmAchievement(ctx con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_ConfirmAchievementResult_success(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ConfirmAchievementResult", field.Name)
 		},
 	}
 	defer func() {
@@ -31970,6 +32033,34 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
+var confirmAchievementResultImplementors = []string{"ConfirmAchievementResult"}
+
+func (ec *executionContext) _ConfirmAchievementResult(ctx context.Context, sel ast.SelectionSet, obj *model.ConfirmAchievementResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, confirmAchievementResultImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ConfirmAchievementResult")
+		case "success":
+
+			out.Values[i] = ec._ConfirmAchievementResult_success(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var contextCollectionImplementors = []string{"ContextCollection", "EpisodeContextUnion"}
 
 func (ec *executionContext) _ContextCollection(ctx context.Context, sel ast.SelectionSet, obj *model.ContextCollection) graphql.Marshaler {
@@ -37943,6 +38034,20 @@ func (ec *executionContext) marshalNConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunst
 		return graphql.Null
 	}
 	return ec._Config(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNConfirmAchievementResult2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐConfirmAchievementResult(ctx context.Context, sel ast.SelectionSet, v model.ConfirmAchievementResult) graphql.Marshaler {
+	return ec._ConfirmAchievementResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNConfirmAchievementResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐConfirmAchievementResult(ctx context.Context, sel ast.SelectionSet, v *model.ConfirmAchievementResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ConfirmAchievementResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNDate2string(ctx context.Context, v interface{}) (string, error) {

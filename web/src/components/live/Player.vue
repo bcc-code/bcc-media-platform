@@ -5,10 +5,12 @@
 <script lang="ts" setup>
 import { useGetAnalyticsIdQuery } from "@/graph/generated"
 import Auth from "@/services/auth"
+import { languageTo3letter } from "@/utils/languages"
 import { createPlayer, Player } from "bccm-video-player"
 import "bccm-video-player/css"
-import { onMounted, onUnmounted, ref } from "vue"
+import { onMounted, onUnmounted, ref, watch } from "vue"
 import { useRoute } from "vue-router"
+import { current as currentLanguage } from "@/services/language"
 
 const err = ref(null as string | null)
 
@@ -17,6 +19,22 @@ let player: Player | null = null
 const route = useRoute()
 
 const { data, executeQuery } = useGetAnalyticsIdQuery()
+
+const onSpaceBar = (event: KeyboardEvent) => {
+    if (event.type === "keydown") {
+        if (event.key === " ") {
+            event.preventDefault()
+
+            if (!player) return
+
+            if (player.paused()) {
+                player.play()
+            } else {
+                player.pause()
+            }
+        }
+    }
+}
 
 onMounted(async () => {
     const fullPath = route.fullPath
@@ -51,6 +69,10 @@ onMounted(async () => {
         src: {
             src: url,
         },
+        languagePreferenceDefaults: {
+            audio: languageTo3letter(currentLanguage.value.code),
+            subtitles: languageTo3letter(currentLanguage.value.code),
+        },
         autoplay: true,
         videojs: {
             autoplay: true,
@@ -65,7 +87,12 @@ onMounted(async () => {
             },
         },
     })
+
+    window.addEventListener("keydown", onSpaceBar)
 })
 
-onUnmounted(() => player?.dispose())
+onUnmounted(() => {
+    player?.dispose()
+    window.removeEventListener("keydown", onSpaceBar)
+})
 </script>
