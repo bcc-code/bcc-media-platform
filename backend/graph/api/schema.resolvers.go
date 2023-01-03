@@ -199,7 +199,7 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string) (boo
 
 	r.Loaders.CompletedTasksLoader.Clear(ctx, p.ID)
 	r.Loaders.CompletedLessonsLoader.Clear(ctx, p.ID)
-	err = achievements.CheckAchievements(ctx, r.Queries, r.Loaders, achievements.Action{
+	err = achievements.CheckNewAchievements(ctx, r.Queries, r.Loaders, achievements.Action{
 		Collection: achievements.CollectionLessons,
 		Action:     achievements.ActionCompleted,
 	})

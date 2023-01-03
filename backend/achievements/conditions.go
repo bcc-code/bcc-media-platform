@@ -21,8 +21,8 @@ type Action struct {
 	Action     string
 }
 
-// CheckAchievements achieved since last check
-func CheckAchievements(ctx context.Context, queries *sqlc.Queries, loaders *common.BatchLoaders, action Action) error {
+// CheckNewAchievements achieved since last check
+func CheckNewAchievements(ctx context.Context, queries *sqlc.Queries, loaders *common.BatchLoaders, action Action) error {
 	ginCtx, _ := utils.GinCtx(ctx)
 	p := user.GetProfileFromCtx(ginCtx)
 	if p == nil {
@@ -51,7 +51,7 @@ func CheckAchievements(ctx context.Context, queries *sqlc.Queries, loaders *comm
 		}
 	}
 
-	ids, err := queries.GetAchievementsWithConditionAchieved(ctx, sqlc.GetAchievementsWithConditionAchievedParams{
+	achieved, err := queries.GetAchievementsWithConditionAchieved(ctx, sqlc.GetAchievementsWithConditionAchievedParams{
 		ProfileID:  p.ID,
 		Action:     action.Action,
 		Collection: action.Collection,
@@ -60,10 +60,11 @@ func CheckAchievements(ctx context.Context, queries *sqlc.Queries, loaders *comm
 	if err != nil {
 		return err
 	}
-	for _, aID := range ids {
+	for _, a := range achieved {
 		err = queries.SetAchievementAchieved(ctx, sqlc.SetAchievementAchievedParams{
-			AchievementID: aID,
+			AchievementID: a.ID,
 			ProfileID:     p.ID,
+			ConditionIds:  a.ConditionIds,
 		})
 		if err != nil {
 			return err
@@ -85,7 +86,7 @@ func CheckAllAchievements(ctx context.Context, queries *sqlc.Queries, loaders *c
 		},
 	}
 	for _, a := range actions {
-		err := CheckAchievements(ctx, queries, loaders, a)
+		err := CheckNewAchievements(ctx, queries, loaders, a)
 		if err != nil {
 			return err
 		}

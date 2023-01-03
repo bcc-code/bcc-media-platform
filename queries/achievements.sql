@@ -71,16 +71,17 @@ WHERE profile_id = $1
   AND achievement_id = $2;
 
 -- name: GetAchievementsWithConditionAchieved :many
-SELECT c.achievement_id
+SELECT c.achievement_id AS id, array_agg(c.id)::uuid[] AS condition_ids
 FROM "public"."achievementconditions" c
          LEFT JOIN "users"."achievements" achieved
                    ON achieved.profile_id = $1 AND achieved.achievement_id = c.achievement_id
 WHERE achieved IS NULL
   AND c.collection = $2
   AND c.action = $3
-  AND c.amount <= $4;
+  AND c.amount <= $4
+GROUP BY c.achievement_id;
 
 -- name: SetAchievementAchieved :exec
-INSERT INTO "users"."achievements" (profile_id, achievement_id, achieved_at)
-VALUES ($1, $2, now())
+INSERT INTO "users"."achievements" (profile_id, achievement_id, achieved_at, condition_ids)
+VALUES ($1, $2, now(), $3)
 ON CONFLICT(profile_id, achievement_id) DO UPDATE SET achieved_at = now();

@@ -1224,6 +1224,7 @@ type UsersAchievement struct {
 	ProfileID     uuid.UUID    `db:"profile_id" json:"profileID"`
 	AchievementID uuid.UUID    `db:"achievement_id" json:"achievementID"`
 	AchievedAt    time.Time    `db:"achieved_at" json:"achievedAt"`
+	ConditionIds  []uuid.UUID  `db:"condition_ids" json:"conditionIds"`
 	ConfirmedAt   null_v4.Time `db:"confirmed_at" json:"confirmedAt"`
 }
 

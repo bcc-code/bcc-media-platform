@@ -67,7 +67,7 @@ func (q *Queries) GetAchievedAchievements(ctx context.Context, arg GetAchievedAc
 }
 
 const getAchievementsWithConditionAchieved = `-- name: GetAchievementsWithConditionAchieved :many
-SELECT c.achievement_id
+SELECT c.achievement_id AS id, array_agg(c.id)::uuid[] AS condition_ids
 FROM "public"."achievementconditions" c
          LEFT JOIN "users"."achievements" achieved
                    ON achieved.profile_id = $1 AND achieved.achievement_id = c.achievement_id
@@ -75,6 +75,7 @@ WHERE achieved IS NULL
   AND c.collection = $2
   AND c.action = $3
   AND c.amount <= $4
+GROUP BY c.achievement_id
 `
 
 type GetAchievementsWithConditionAchievedParams struct {
@@ -84,7 +85,12 @@ type GetAchievementsWithConditionAchievedParams struct {
 	Amount     int32     `db:"amount" json:"amount"`
 }
 
-func (q *Queries) GetAchievementsWithConditionAchieved(ctx context.Context, arg GetAchievementsWithConditionAchievedParams) ([]uuid.UUID, error) {
+type GetAchievementsWithConditionAchievedRow struct {
+	ID           uuid.UUID   `db:"id" json:"id"`
+	ConditionIds []uuid.UUID `db:"condition_ids" json:"conditionIds"`
+}
+
+func (q *Queries) GetAchievementsWithConditionAchieved(ctx context.Context, arg GetAchievementsWithConditionAchievedParams) ([]GetAchievementsWithConditionAchievedRow, error) {
 	rows, err := q.db.QueryContext(ctx, getAchievementsWithConditionAchieved,
 		arg.ProfileID,
 		arg.Collection,
@@ -95,13 +101,13 @@ func (q *Queries) GetAchievementsWithConditionAchieved(ctx context.Context, arg 
 		return nil, err
 	}
 	defer rows.Close()
-	var items []uuid.UUID
+	var items []GetAchievementsWithConditionAchievedRow
 	for rows.Next() {
-		var achievement_id uuid.UUID
-		if err := rows.Scan(&achievement_id); err != nil {
+		var i GetAchievementsWithConditionAchievedRow
+		if err := rows.Scan(&i.ID, pq.Array(&i.ConditionIds)); err != nil {
 			return nil, err
 		}
-		items = append(items, achievement_id)
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -171,18 +177,19 @@ func (q *Queries) ListAchievements(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 const setAchievementAchieved = `-- name: SetAchievementAchieved :exec
-INSERT INTO "users"."achievements" (profile_id, achievement_id, achieved_at)
-VALUES ($1, $2, now())
+INSERT INTO "users"."achievements" (profile_id, achievement_id, achieved_at, condition_ids)
+VALUES ($1, $2, now(), $3)
 ON CONFLICT(profile_id, achievement_id) DO UPDATE SET achieved_at = now()
 `
 
 type SetAchievementAchievedParams struct {
-	ProfileID     uuid.UUID `db:"profile_id" json:"profileID"`
-	AchievementID uuid.UUID `db:"achievement_id" json:"achievementID"`
+	ProfileID     uuid.UUID   `db:"profile_id" json:"profileID"`
+	AchievementID uuid.UUID   `db:"achievement_id" json:"achievementID"`
+	ConditionIds  []uuid.UUID `db:"condition_ids" json:"conditionIds"`
 }
 
 func (q *Queries) SetAchievementAchieved(ctx context.Context, arg SetAchievementAchievedParams) error {
-	_, err := q.db.ExecContext(ctx, setAchievementAchieved, arg.ProfileID, arg.AchievementID)
+	_, err := q.db.ExecContext(ctx, setAchievementAchieved, arg.ProfileID, arg.AchievementID, pq.Array(arg.ConditionIds))
 	return err
 }
 

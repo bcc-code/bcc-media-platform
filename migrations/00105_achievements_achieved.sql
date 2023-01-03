@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS "users"."achievements" (
 	"profile_id" uuid NOT NULL  ,
 	"achievement_id" uuid NOT NULL  ,
 	"achieved_at" timestamp NOT NULL  ,
+	"condition_ids" uuid[] ,
 	CONSTRAINT "achievements_pk" PRIMARY KEY (profile_id, achievement_id) ,
 	CONSTRAINT "achievements_profiles_id_fk" FOREIGN KEY (profile_id) REFERENCES users.profiles(id) ON DELETE CASCADE ,
     CONSTRAINT "achievements_achievements_id_fk" FOREIGN KEY (achievement_id) REFERENCES public.achievements(id) ON DELETE cascade
