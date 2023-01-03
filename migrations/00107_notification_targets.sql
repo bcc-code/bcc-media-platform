@@ -320,7 +320,7 @@ VALUES (977, 'targets', 'usergroups', 'm2m', 'list-m2m', NULL, 'related-values',
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
                                         "display_options", "readonly", "hidden", "sort", "width", "translations",
                                         "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (981, 'notifications', 'targets', 'm2m', NULL, NULL, NULL, NULL, false, false, NULL, 'full', NULL, NULL, NULL,
+VALUES (981, 'notifications', 'targets', 'm2m', 'list-m2m', NULL, 'related-values', NULL, false, false, NULL, 'full', NULL, NULL, NULL,
         false, NULL, NULL, NULL);
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display",
