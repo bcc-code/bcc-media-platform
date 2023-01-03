@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/members"
+	"github.com/bcc-code/brunstadtv/backend/notifications"
 	"github.com/bcc-code/brunstadtv/backend/push"
 	"github.com/bcc-code/brunstadtv/backend/scheduler"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -15,11 +16,12 @@ import (
 )
 
 type modelHandler struct {
-	queries   *sqlc.Queries
-	push      *push.Service
-	scheduler *scheduler.Service
-	locker    *redsync.Redsync
-	members   *members.Client
+	queries           *sqlc.Queries
+	push              *push.Service
+	scheduler         *scheduler.Service
+	locker            *redsync.Redsync
+	members           *members.Client
+	notificationUtils *notifications.Utils
 }
 
 func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string, key string) error {
@@ -61,9 +63,15 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 				return err
 			}
 			if len(n.TargetIDs) > 0 {
-
+				var devices []common.Device
+				devices, err = h.notificationUtils.ResolveTargets(ctx, n.TargetIDs)
+				if err != nil {
+					return err
+				}
+				err = h.push.SendNotificationToDevices(ctx, devices, n)
+			} else {
+				err = h.push.PushNotificationToEveryone(ctx, n)
 			}
-			err = h.push.PushNotificationToEveryone(ctx, n)
 			if err != nil {
 				return err
 			}
