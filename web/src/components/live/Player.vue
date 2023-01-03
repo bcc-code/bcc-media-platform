@@ -5,10 +5,12 @@
 <script lang="ts" setup>
 import { useGetAnalyticsIdQuery } from "@/graph/generated"
 import Auth from "@/services/auth"
+import { languageTo3letter } from "@/utils/languages"
 import { createPlayer, Player } from "bccm-video-player"
 import "bccm-video-player/css"
 import { onMounted, onUnmounted, ref } from "vue"
 import { useRoute } from "vue-router"
+import { current as currentLanguage } from "@/services/language"
 
 const err = ref(null as string | null)
 
@@ -50,6 +52,10 @@ onMounted(async () => {
     player = await createPlayer("live-video-player", {
         src: {
             src: url,
+        },
+        languagePreferenceDefaults: {
+            audio: languageTo3letter(currentLanguage.value.code),
+            subtitles: languageTo3letter(currentLanguage.value.code),
         },
         autoplay: true,
         videojs: {

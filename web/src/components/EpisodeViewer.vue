@@ -98,7 +98,7 @@ const load = async () => {
             overrides: {
                 languagePreferenceDefaults: {
                     audio: lanTo3letter[currentLanguage.value.code],
-                    subtitle: lanTo3letter[currentLanguage.value.code],
+                    subtitles: lanTo3letter[currentLanguage.value.code],
                 },
                 videojs: {
                     autoplay: props.autoPlay,
