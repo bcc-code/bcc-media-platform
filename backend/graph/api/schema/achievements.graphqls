@@ -26,6 +26,6 @@ type AchievementGroupPagination implements Pagination {
     items: [AchievementGroup!]!
 }
 
-type AchievementConfirmResult {
+type ConfirmAchievementResult {
     success: Boolean!
 }

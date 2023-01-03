@@ -96,10 +96,6 @@ type Achievement struct {
 	Group    *AchievementGroup `json:"group"`
 }
 
-type AchievementConfirmResult struct {
-	Success bool `json:"success"`
-}
-
 type AchievementGroup struct {
 	ID           string                 `json:"id"`
 	Title        string                 `json:"title"`
