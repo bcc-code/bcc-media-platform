@@ -254,21 +254,21 @@ func (r *mutationRootResolver) UpdateEpisodeFeedback(ctx context.Context, id str
 }
 
 // ConfirmAchievement is the resolver for the confirmAchievement field.
-func (r *mutationRootResolver) ConfirmAchievement(ctx context.Context, id string) (bool, error) {
+func (r *mutationRootResolver) ConfirmAchievement(ctx context.Context, id string) (*model.ConfirmAchievementResult, error) {
 	p, err := getProfile(ctx)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 	ids, err := r.Loaders.UnconfirmedAchievementsLoader.Get(ctx, p.ID)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 	if !lo.Contains(utils.PointerArrayToArray(ids), uid) {
-		return false, merry.New("", merry.WithUserMessage("Achievement is not unconfirmed"))
+		return nil, merry.New("", merry.WithUserMessage("Achievement is not unconfirmed"))
 	}
 	ids = lo.Filter(ids, func(i *uuid.UUID, _ int) bool {
 		return i != nil && *i != uid
@@ -278,10 +278,12 @@ func (r *mutationRootResolver) ConfirmAchievement(ctx context.Context, id string
 		AchievementID: uid,
 	})
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 	r.Loaders.UnconfirmedAchievementsLoader.Clear(ctx, p.ID)
-	return true, nil
+	return &model.ConfirmAchievementResult{
+		Success: true,
+	}, nil
 }
 
 // Application is the resolver for the application field.

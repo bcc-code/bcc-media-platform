@@ -239,6 +239,10 @@ type Config struct {
 	Global *GlobalConfig `json:"global"`
 }
 
+type ConfirmAchievementResult struct {
+	Success bool `json:"success"`
+}
+
 type ContextCollection struct {
 	ID    string                 `json:"id"`
 	Slug  *string                `json:"slug"`
