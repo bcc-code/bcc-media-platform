@@ -75,7 +75,7 @@
 import { ChevronLeft, ChevronRight } from "@/components/icons"
 import Player from "@/components/live/Player.vue"
 import { getWeek } from "@/utils/date"
-import { computed, onMounted, ref } from "vue"
+import { computed, onMounted, onUnmounted, ref } from "vue"
 import { useGetLiveCalendarRangeQuery } from "@/graph/generated"
 import DayQuery from "@/components/calendar/DayQuery.vue"
 import { useI18n } from "vue-i18n"
