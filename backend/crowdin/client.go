@@ -20,6 +20,12 @@ import (
 	"github.com/samber/lo"
 )
 
+// Fields
+const (
+	TitleField       = "title"
+	DescriptionField = "description"
+)
+
 // Config for the client
 type Config struct {
 	Token      string
@@ -124,20 +130,16 @@ func createItem[t any](client *Client, endpoint string, item t) (i t, err error)
 }
 
 type simpleTranslation struct {
-	ID          string
-	ParentID    string
-	Title       string
-	Description string
-	Language    string
-	Changed     bool
+	ID       string
+	ParentID string
+	Values   map[string]string
+	Language string
+	Changed  bool
 }
 
 func convertTsToStrings(ts []simpleTranslation, prefix string, contextFactory func(parentID string) string) []String {
 	return lo.Reduce(ts, func(stringObjects []String, t simpleTranslation, _ int) []String {
-		var values = map[string]string{
-			"title":       t.Title,
-			"description": t.Description,
-		}
+		var values = t.Values
 		for key, value := range values {
 			if value != "" {
 				str := String{
@@ -160,101 +162,119 @@ func toDSItems(collection string, translations []simpleTranslation) []directus.D
 	switch collection {
 	case "episodes":
 		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			ti, _ := t.Values[TitleField]
+			de, _ := t.Values[DescriptionField]
 			return directus.EpisodesTranslation{
 				Translation: directus.Translation{
 					ID:            utils.AsInt(t.ID),
 					LanguagesCode: t.Language,
-					Title:         t.Title,
-					Description:   t.Description,
+					Title:         ti,
+					Description:   de,
 				},
 				EpisodesID: utils.AsInt(t.ParentID),
 			}
 		})
 	case "seasons":
 		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			ti, _ := t.Values[TitleField]
+			de, _ := t.Values[DescriptionField]
 			return directus.SeasonsTranslation{
 				Translation: directus.Translation{
 					ID:            utils.AsInt(t.ID),
 					LanguagesCode: t.Language,
-					Title:         t.Title,
-					Description:   t.Description,
+					Title:         ti,
+					Description:   de,
 				},
 				SeasonsID: utils.AsInt(t.ParentID),
 			}
 		})
 	case "shows":
 		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			ti, _ := t.Values[TitleField]
+			de, _ := t.Values[DescriptionField]
 			return directus.ShowsTranslation{
 				Translation: directus.Translation{
 					ID:            utils.AsInt(t.ID),
 					LanguagesCode: t.Language,
-					Title:         t.Title,
-					Description:   t.Description,
+					Title:         ti,
+					Description:   de,
 				},
 				ShowsID: utils.AsInt(t.ParentID),
 			}
 		})
 	case "sections":
 		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			ti, _ := t.Values[TitleField]
+			de, _ := t.Values[DescriptionField]
 			return directus.SectionsTranslation{
 				Translation: directus.Translation{
 					ID:            utils.AsInt(t.ID),
 					LanguagesCode: t.Language,
-					Title:         t.Title,
-					Description:   t.Description,
+					Title:         ti,
+					Description:   de,
 				},
 				SectionsID: utils.AsInt(t.ParentID),
 			}
 		})
 	case "pages":
 		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			ti, _ := t.Values[TitleField]
+			de, _ := t.Values[DescriptionField]
 			return directus.PagesTranslation{
 				Translation: directus.Translation{
 					ID:            utils.AsInt(t.ID),
 					LanguagesCode: t.Language,
-					Title:         t.Title,
-					Description:   t.Description,
+					Title:         ti,
+					Description:   de,
 				},
 				PagesID: utils.AsInt(t.ParentID),
 			}
 		})
 	case "studytopics":
 		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			ti, _ := t.Values[TitleField]
+			de, _ := t.Values[DescriptionField]
 			return directus.StudyTopicsTranslation{
 				ID:            t.ID,
 				LanguagesCode: t.Language,
-				Title:         t.Title,
-				Description:   t.Description,
+				Title:         ti,
+				Description:   de,
 				StudyTopicsID: t.ParentID,
 			}
 		})
 	case "lessons":
 		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			ti, _ := t.Values[TitleField]
+			de, _ := t.Values[DescriptionField]
 			return directus.LessonsTranslation{
 				ID:            t.ID,
 				LanguagesCode: t.Language,
-				Title:         t.Title,
-				Description:   t.Description,
+				Title:         ti,
+				Description:   de,
 				LessonsID:     t.ParentID,
 			}
 		})
 	case "tasks":
 		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			ti, _ := t.Values[TitleField]
+			de, _ := t.Values[DescriptionField]
 			return directus.TasksTranslation{
 				ID:            t.ID,
 				LanguagesCode: t.Language,
-				Title:         t.Title,
-				Description:   t.Description,
+				Title:         ti,
+				Description:   de,
 				TasksID:       t.ParentID,
 			}
 		})
 	case "questionalternatives":
 		return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+			ti, _ := t.Values[TitleField]
+			de, _ := t.Values[DescriptionField]
 			return directus.QuestionAlternativesTranslation{
 				ID:                     t.ID,
 				LanguagesCode:          t.Language,
-				Title:                  t.Title,
-				Description:            t.Description,
+				Title:                  ti,
+				Description:            de,
 				QuestionAlternativesID: t.ParentID,
 			}
 		})
@@ -469,17 +489,10 @@ func (c *Client) syncCollection(
 			if value == "" {
 				continue
 			}
-			switch t.Field {
-			case "title":
-				if !strEqual(item.Title, value) {
-					item.Title = value
-					item.Changed = true
-				}
-			case "description":
-				if !strEqual(item.Description, value) {
-					item.Description = value
-					item.Changed = true
-				}
+			val, ok := item.Values[t.Field]
+			if !ok || !strEqual(val, value) {
+				item.Values[t.Field] = value
+				item.Changed = true
 			}
 		}
 		queuedTranslations = append(queuedTranslations, lo.Map(
@@ -522,11 +535,13 @@ func (c *Client) syncEpisodes(ctx context.Context, d *directus.Handler, project 
 			ts,
 			func(t sqlc.ListEpisodeTranslationsRow, _ int) simpleTranslation {
 				return simpleTranslation{
-					ID:          strconv.Itoa(int(t.ID)),
-					Description: t.Description.ValueOrZero(),
-					Title:       t.Title.ValueOrZero(),
-					Language:    t.LanguagesCode,
-					ParentID:    strconv.Itoa(int(t.ParentID)),
+					ID: strconv.Itoa(int(t.ID)),
+					Values: map[string]string{
+						TitleField:       t.Title.ValueOrZero(),
+						DescriptionField: t.Description.ValueOrZero(),
+					},
+					Language: t.LanguagesCode,
+					ParentID: strconv.Itoa(int(t.ParentID)),
 				}
 			}), nil
 	}, crowdinTranslations, nil)
@@ -540,11 +555,13 @@ func (c *Client) syncSeasons(ctx context.Context, d *directus.Handler, project P
 		}
 		return lo.Map(ts, func(t sqlc.ListSeasonTranslationsRow, _ int) simpleTranslation {
 			return simpleTranslation{
-				ID:          strconv.Itoa(int(t.ID)),
-				Description: t.Description.ValueOrZero(),
-				Title:       t.Title.ValueOrZero(),
-				Language:    t.LanguagesCode,
-				ParentID:    strconv.Itoa(int(t.ParentID)),
+				ID: strconv.Itoa(int(t.ID)),
+				Values: map[string]string{
+					TitleField:       t.Title.ValueOrZero(),
+					DescriptionField: t.Description.ValueOrZero(),
+				},
+				Language: t.LanguagesCode,
+				ParentID: strconv.Itoa(int(t.ParentID)),
 			}
 		}), nil
 	}, crowdinTranslations, nil)
@@ -558,11 +575,13 @@ func (c *Client) syncShows(ctx context.Context, d *directus.Handler, project Pro
 		}
 		return lo.Map(ts, func(t sqlc.ListShowTranslationsRow, _ int) simpleTranslation {
 			return simpleTranslation{
-				ID:          strconv.Itoa(int(t.ID)),
-				Description: t.Description.ValueOrZero(),
-				Title:       t.Title.ValueOrZero(),
-				Language:    t.LanguagesCode,
-				ParentID:    strconv.Itoa(int(t.ParentID)),
+				ID: strconv.Itoa(int(t.ID)),
+				Values: map[string]string{
+					TitleField:       t.Title.ValueOrZero(),
+					DescriptionField: t.Description.ValueOrZero(),
+				},
+				Language: t.LanguagesCode,
+				ParentID: strconv.Itoa(int(t.ParentID)),
 			}
 		}), nil
 	}, crowdinTranslations, nil)
@@ -576,11 +595,13 @@ func (c *Client) syncSections(ctx context.Context, d *directus.Handler, project 
 		}
 		return lo.Map(ts, func(t sqlc.ListSectionTranslationsRow, _ int) simpleTranslation {
 			return simpleTranslation{
-				ID:          strconv.Itoa(int(t.ID)),
-				Description: t.Description.ValueOrZero(),
-				Title:       t.Title.ValueOrZero(),
-				Language:    t.LanguagesCode,
-				ParentID:    strconv.Itoa(int(t.ParentID)),
+				ID: strconv.Itoa(int(t.ID)),
+				Values: map[string]string{
+					TitleField:       t.Title.ValueOrZero(),
+					DescriptionField: t.Description.ValueOrZero(),
+				},
+				Language: t.LanguagesCode,
+				ParentID: strconv.Itoa(int(t.ParentID)),
 			}
 		}), nil
 	}, crowdinTranslations, nil)
@@ -594,11 +615,13 @@ func (c *Client) syncPages(ctx context.Context, d *directus.Handler, project Pro
 		}
 		return lo.Map(ts, func(t sqlc.ListPageTranslationsRow, _ int) simpleTranslation {
 			return simpleTranslation{
-				ID:          strconv.Itoa(int(t.ID)),
-				Description: t.Description.ValueOrZero(),
-				Title:       t.Title.ValueOrZero(),
-				Language:    t.LanguagesCode.String,
-				ParentID:    strconv.Itoa(int(t.ParentID.Int64)),
+				ID: strconv.Itoa(int(t.ID)),
+				Values: map[string]string{
+					TitleField:       t.Title.ValueOrZero(),
+					DescriptionField: t.Description.ValueOrZero(),
+				},
+				Language: t.LanguagesCode.String,
+				ParentID: strconv.Itoa(int(t.ParentID.Int64)),
 			}
 		}), nil
 	}, crowdinTranslations, nil)
@@ -613,11 +636,13 @@ func (c *Client) syncLessons(ctx context.Context, d *directus.Handler, project P
 			}
 			return lo.Map(ts, func(t sqlc.ListLessonOriginalTranslationsRow, _ int) simpleTranslation {
 				return simpleTranslation{
-					ID:          t.ID.String(),
-					Title:       t.Title,
-					Description: t.Description.ValueOrZero(),
-					Language:    "no",
-					ParentID:    t.ID.String(),
+					ID: t.ID.String(),
+					Values: map[string]string{
+						TitleField:       t.Title,
+						DescriptionField: t.Description.ValueOrZero(),
+					},
+					Language: "no",
+					ParentID: t.ID.String(),
 				}
 			}), nil
 		}
@@ -627,11 +652,13 @@ func (c *Client) syncLessons(ctx context.Context, d *directus.Handler, project P
 		}
 		return lo.Map(ts, func(t sqlc.ListLessonTranslationsRow, _ int) simpleTranslation {
 			return simpleTranslation{
-				ID:          strconv.Itoa(int(t.ID)),
-				Title:       t.Title.ValueOrZero(),
-				Description: t.Description.ValueOrZero(),
-				Language:    t.LanguagesCode.String,
-				ParentID:    t.ParentID.UUID.String(),
+				ID: strconv.Itoa(int(t.ID)),
+				Values: map[string]string{
+					TitleField:       t.Title.ValueOrZero(),
+					DescriptionField: t.Description.ValueOrZero(),
+				},
+				Language: t.LanguagesCode.String,
+				ParentID: t.ParentID.UUID.String(),
 			}
 		}), nil
 	}, crowdinTranslations, nil)
@@ -646,11 +673,13 @@ func (c *Client) syncTopics(ctx context.Context, d *directus.Handler, project Pr
 			}
 			return lo.Map(ts, func(t sqlc.ListStudyTopicOriginalTranslationsRow, _ int) simpleTranslation {
 				return simpleTranslation{
-					ID:          t.ID.String(),
-					Title:       t.Title,
-					Description: t.Description.ValueOrZero(),
-					Language:    "no",
-					ParentID:    t.ID.String(),
+					ID: t.ID.String(),
+					Values: map[string]string{
+						TitleField:       t.Title,
+						DescriptionField: t.Description.ValueOrZero(),
+					},
+					Language: "no",
+					ParentID: t.ID.String(),
 				}
 			}), nil
 		}
@@ -660,11 +689,13 @@ func (c *Client) syncTopics(ctx context.Context, d *directus.Handler, project Pr
 		}
 		return lo.Map(ts, func(t sqlc.ListStudyTopicTranslationsRow, _ int) simpleTranslation {
 			return simpleTranslation{
-				ID:          strconv.Itoa(int(t.ID)),
-				Title:       t.Title.ValueOrZero(),
-				Description: t.Description.ValueOrZero(),
-				Language:    t.LanguagesCode.String,
-				ParentID:    t.ParentID.UUID.String(),
+				ID: strconv.Itoa(int(t.ID)),
+				Values: map[string]string{
+					TitleField:       t.Title.ValueOrZero(),
+					DescriptionField: t.Description.ValueOrZero(),
+				},
+				Language: t.LanguagesCode.String,
+				ParentID: t.ParentID.UUID.String(),
 			}
 		}), nil
 	}, crowdinTranslations, nil)
@@ -679,11 +710,13 @@ func (c *Client) syncTasks(ctx context.Context, d *directus.Handler, project Pro
 			}
 			return lo.Map(ts, func(t sqlc.ListTaskOriginalTranslationsRow, _ int) simpleTranslation {
 				return simpleTranslation{
-					ID:          t.ID.String(),
-					Title:       t.Title.ValueOrZero(),
-					Description: t.Description.ValueOrZero(),
-					Language:    "no",
-					ParentID:    t.ID.String(),
+					ID: t.ID.String(),
+					Values: map[string]string{
+						TitleField:       t.Title.ValueOrZero(),
+						DescriptionField: t.Description.ValueOrZero(),
+					},
+					Language: "no",
+					ParentID: t.ID.String(),
 				}
 			}), nil
 		}
@@ -693,11 +726,13 @@ func (c *Client) syncTasks(ctx context.Context, d *directus.Handler, project Pro
 		}
 		return lo.Map(ts, func(t sqlc.ListTaskTranslationsRow, _ int) simpleTranslation {
 			return simpleTranslation{
-				ID:          strconv.Itoa(int(t.ID)),
-				Title:       t.Title.ValueOrZero(),
-				Description: t.Description.ValueOrZero(),
-				Language:    t.LanguagesCode.String,
-				ParentID:    t.ParentID.UUID.String(),
+				ID: strconv.Itoa(int(t.ID)),
+				Values: map[string]string{
+					TitleField:       t.Title.ValueOrZero(),
+					DescriptionField: t.Description.ValueOrZero(),
+				},
+				Language: t.LanguagesCode.String,
+				ParentID: t.ParentID.UUID.String(),
 			}
 		}), nil
 	}, crowdinTranslations, nil)
@@ -736,8 +771,10 @@ func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, proj
 		if language == "no" {
 			return lo.Map(originalTs, func(t sqlc.ListQuestionAlternativesOriginalTranslationsRow, _ int) simpleTranslation {
 				return simpleTranslation{
-					ID:       t.ID.String(),
-					Title:    t.Title.ValueOrZero(),
+					ID: t.ID.String(),
+					Values: map[string]string{
+						TitleField: t.Title.ValueOrZero(),
+					},
 					Language: "no",
 					ParentID: t.ID.String(),
 				}
@@ -749,8 +786,10 @@ func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, proj
 		}
 		return lo.Map(ts, func(t sqlc.ListAlternativeTranslationsRow, _ int) simpleTranslation {
 			return simpleTranslation{
-				ID:       strconv.Itoa(int(t.ID)),
-				Title:    t.Title.ValueOrZero(),
+				ID: strconv.Itoa(int(t.ID)),
+				Values: map[string]string{
+					TitleField: t.Title.ValueOrZero(),
+				},
 				Language: t.LanguagesCode,
 				ParentID: t.ParentID.UUID.String(),
 			}
