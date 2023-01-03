@@ -363,6 +363,15 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		StudyQuestionAlternativesLoader: &batchloaders.BatchLoader[uuid.UUID, []*common.QuestionAlternative]{batchloaders.NewListLoader(queries.GetQuestionAlternatives, func(alt common.QuestionAlternative) uuid.UUID {
 			return alt.TaskID
 		})},
+		// Achievements
+		AchievementLoader:                  batchloaders.New(queries.GetAchievements),
+		AchievementGroupLoader:             batchloaders.New(queries.GetAchievementGroups),
+		AchievementsLoader:                 batchloaders.NewRelationLoader(queries.GetAchievementsForProfiles, batchloaders.WithMemoryCache(time.Second*30)),
+		UnconfirmedAchievementsLoader:      batchloaders.NewRelationLoader(queries.GetUnconfirmedAchievementsForProfiles, batchloaders.WithMemoryCache(time.Second*30)),
+		AchievementGroupAchievementsLoader: batchloaders.NewRelationLoader(queries.GetAchievementsForGroups),
+
+		CompletedTasksLoader:   batchloaders.NewRelationLoader(queries.GetCompletedTasks),
+		CompletedLessonsLoader: batchloaders.NewRelationLoader(queries.GetCompletedLessons),
 	}
 }
 

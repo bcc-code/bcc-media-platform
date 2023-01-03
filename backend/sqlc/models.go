@@ -13,6 +13,56 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+type Achievement struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Status      string         `db:"status" json:"status"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	GroupID     uuid.NullUUID  `db:"group_id" json:"groupID"`
+	Title       null_v4.String `db:"title" json:"title"`
+}
+
+type Achievementcondition struct {
+	ID            uuid.UUID `db:"id" json:"id"`
+	Collection    string    `db:"collection" json:"collection"`
+	Action        string    `db:"action" json:"action"`
+	Amount        int32     `db:"amount" json:"amount"`
+	AchievementID uuid.UUID `db:"achievement_id" json:"achievementID"`
+}
+
+type Achievementgroup struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Status      string         `db:"status" json:"status"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Title       null_v4.String `db:"title" json:"title"`
+}
+
+type AchievementgroupsTranslation struct {
+	ID                  int32          `db:"id" json:"id"`
+	AchievementgroupsID uuid.NullUUID  `db:"achievementgroups_id" json:"achievementgroupsID"`
+	LanguagesCode       null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title               null_v4.String `db:"title" json:"title"`
+}
+
+type AchievementsImage struct {
+	ID            uuid.UUID      `db:"id" json:"id"`
+	Image         uuid.NullUUID  `db:"image" json:"image"`
+	AchievementID uuid.NullUUID  `db:"achievement_id" json:"achievementID"`
+	Language      null_v4.String `db:"language" json:"language"`
+}
+
+type AchievementsTranslation struct {
+	ID             int32          `db:"id" json:"id"`
+	AchievementsID uuid.NullUUID  `db:"achievements_id" json:"achievementsID"`
+	LanguagesCode  string         `db:"languages_code" json:"languagesCode"`
+	Title          null_v4.String `db:"title" json:"title"`
+}
+
 type Agerating struct {
 	Code        string         `db:"code" json:"code"`
 	DateCreated time.Time      `db:"date_created" json:"dateCreated"`
@@ -1186,6 +1236,14 @@ type Usergroup struct {
 	Sort        null_v4.Int    `db:"sort" json:"sort"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+}
+
+type UsersAchievement struct {
+	ProfileID     uuid.UUID    `db:"profile_id" json:"profileID"`
+	AchievementID uuid.UUID    `db:"achievement_id" json:"achievementID"`
+	AchievedAt    time.Time    `db:"achieved_at" json:"achievedAt"`
+	ConditionIds  []uuid.UUID  `db:"condition_ids" json:"conditionIds"`
+	ConfirmedAt   null_v4.Time `db:"confirmed_at" json:"confirmedAt"`
 }
 
 type UsersDevice struct {

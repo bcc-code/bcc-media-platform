@@ -79,14 +79,22 @@ export const setLanguage = async (l: string) => {
         })
         settings.locale = l
         // location.reload()
+
+        if (settings.locale === l) {
+            location.reload()
+        }
     }
+    // await loadLocaleMessages(i18n, l)
+    // i18nSetLanguage(i18n, l)
+
+    // languages.value = getLanguages(l)
+}
+
+export const init = async () => {
+    const l = current.value.code
 
     await loadLocaleMessages(i18n, l)
     i18nSetLanguage(i18n, l)
 
     languages.value = getLanguages(l)
-}
-
-export const init = async () => {
-    await setLanguage(current.value.code)
 }
