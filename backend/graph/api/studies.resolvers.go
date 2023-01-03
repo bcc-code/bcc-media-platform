@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
@@ -43,6 +42,19 @@ func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.
 			IsCorrect: alt.IsCorrect,
 		}
 	}), nil
+}
+
+// Image is the resolver for the image field.
+func (r *lessonResolver) Image(ctx context.Context, obj *model.Lesson, style *model.ImageStyle) (*string, error) {
+	e, err := r.Loaders.StudyLessonLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	t, err := r.Loaders.StudyTopicLoader.Get(ctx, e.TopicID)
+	if err != nil {
+		return nil, err
+	}
+	return imageOrFallback(ctx, e.Images, style, t.Images), nil
 }
 
 // Tasks is the resolver for the tasks field.
@@ -193,7 +205,11 @@ func (r *quoteTaskResolver) Completed(ctx context.Context, obj *model.QuoteTask)
 
 // Image is the resolver for the image field.
 func (r *studyTopicResolver) Image(ctx context.Context, obj *model.StudyTopic, style *model.ImageStyle) (*string, error) {
-	panic(fmt.Errorf("not implemented: Image - image"))
+	e, err := r.Loaders.StudyTopicLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	return imageOrFallback(ctx, e.Images, style), nil
 }
 
 // Lessons is the resolver for the lessons field.

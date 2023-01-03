@@ -569,6 +569,7 @@ type Lesson struct {
 	ID          string             `json:"id"`
 	Title       string             `json:"title"`
 	Description string             `json:"description"`
+	Image       *string            `json:"image"`
 	Tasks       *TaskPagination    `json:"tasks"`
 	Topic       *StudyTopic        `json:"topic"`
 	Progress    *TasksProgress     `json:"progress"`

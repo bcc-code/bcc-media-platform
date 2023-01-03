@@ -402,6 +402,7 @@ type ComplexityRoot struct {
 		Description func(childComplexity int) int
 		Episodes    func(childComplexity int, first *int, offset *int) int
 		ID          func(childComplexity int) int
+		Image       func(childComplexity int, style *model.ImageStyle) int
 		Links       func(childComplexity int, first *int, offset *int) int
 		Progress    func(childComplexity int) int
 		Tasks       func(childComplexity int, first *int, offset *int) int
@@ -890,6 +891,7 @@ type LabelSectionResolver interface {
 	Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int) (*model.SectionItemPagination, error)
 }
 type LessonResolver interface {
+	Image(ctx context.Context, obj *model.Lesson, style *model.ImageStyle) (*string, error)
 	Tasks(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.TaskPagination, error)
 	Topic(ctx context.Context, obj *model.Lesson) (*model.StudyTopic, error)
 	Progress(ctx context.Context, obj *model.Lesson) (*model.TasksProgress, error)
@@ -2477,6 +2479,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Lesson.ID(childComplexity), true
+
+	case "Lesson.image":
+		if e.complexity.Lesson.Image == nil {
+			break
+		}
+
+		args, err := ec.field_Lesson_image_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Lesson.Image(childComplexity, args["style"].(*model.ImageStyle)), true
 
 	case "Lesson.links":
 		if e.complexity.Lesson.Links == nil {
@@ -5415,6 +5429,7 @@ type Lesson {
     id: ID!
     title: String!
     description: String!
+    image(style: ImageStyle): String @goField(forceResolver: true)
     tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
     topic: StudyTopic! @goField(forceResolver: true)
     progress: TasksProgress! @goField(forceResolver: true)
@@ -5985,6 +6000,21 @@ func (ec *executionContext) field_Lesson_episodes_args(ctx context.Context, rawA
 		}
 	}
 	args["offset"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Lesson_image_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.ImageStyle
+	if tmp, ok := rawArgs["style"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("style"))
+		arg0, err = ec.unmarshalOImageStyle2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImageStyle(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["style"] = arg0
 	return args, nil
 }
 
@@ -16089,6 +16119,58 @@ func (ec *executionContext) fieldContext_Lesson_description(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Lesson_image(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_image(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Lesson().Image(rctx, obj, fc.Args["style"].(*model.ImageStyle))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Lesson_image_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Lesson_tasks(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Lesson_tasks(ctx, field)
 	if err != nil {
@@ -16569,6 +16651,8 @@ func (ec *executionContext) fieldContext_LessonPagination_items(ctx context.Cont
 				return ec.fieldContext_Lesson_title(ctx, field)
 			case "description":
 				return ec.fieldContext_Lesson_description(ctx, field)
+			case "image":
+				return ec.fieldContext_Lesson_image(ctx, field)
 			case "tasks":
 				return ec.fieldContext_Lesson_tasks(ctx, field)
 			case "topic":
@@ -21030,6 +21114,8 @@ func (ec *executionContext) fieldContext_QueryRoot_studyLesson(ctx context.Conte
 				return ec.fieldContext_Lesson_title(ctx, field)
 			case "description":
 				return ec.fieldContext_Lesson_description(ctx, field)
+			case "image":
+				return ec.fieldContext_Lesson_image(ctx, field)
 			case "tasks":
 				return ec.fieldContext_Lesson_tasks(ctx, field)
 			case "topic":
@@ -33920,6 +34006,23 @@ func (ec *executionContext) _Lesson(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "image":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Lesson_image(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "tasks":
 			field := field
 
