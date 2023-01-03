@@ -96,6 +96,10 @@ type Achievement struct {
 	Group    *AchievementGroup `json:"group"`
 }
 
+type AchievementConfirmResult struct {
+	Success bool `json:"success"`
+}
+
 type AchievementGroup struct {
 	ID           string                 `json:"id"`
 	Title        string                 `json:"title"`
@@ -562,13 +566,14 @@ type LegacyIDLookupOptions struct {
 }
 
 type Lesson struct {
-	ID       string             `json:"id"`
-	Title    string             `json:"title"`
-	Tasks    *TaskPagination    `json:"tasks"`
-	Topic    *StudyTopic        `json:"topic"`
-	Progress *TasksProgress     `json:"progress"`
-	Episodes *EpisodePagination `json:"episodes"`
-	Links    *LinkPagination    `json:"links"`
+	ID          string             `json:"id"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Tasks       *TaskPagination    `json:"tasks"`
+	Topic       *StudyTopic        `json:"topic"`
+	Progress    *TasksProgress     `json:"progress"`
+	Episodes    *EpisodePagination `json:"episodes"`
+	Links       *LinkPagination    `json:"links"`
 }
 
 type LessonPagination struct {
@@ -1048,11 +1053,15 @@ type Stream struct {
 }
 
 type StudyTopic struct {
-	ID       string            `json:"id"`
-	Title    string            `json:"title"`
-	Lessons  *LessonPagination `json:"lessons"`
-	Progress *TasksProgress    `json:"progress"`
+	ID          string            `json:"id"`
+	Title       string            `json:"title"`
+	Description string            `json:"description"`
+	Image       *string           `json:"image"`
+	Lessons     *LessonPagination `json:"lessons"`
+	Progress    *TasksProgress    `json:"progress"`
 }
+
+func (StudyTopic) IsSectionItemType() {}
 
 type TaskPagination struct {
 	Offset int    `json:"offset"`

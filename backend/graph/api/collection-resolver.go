@@ -17,16 +17,33 @@ func preloadLoaders(ctx context.Context, loaders *common.BatchLoaders, entries [
 	for _, e := range entries {
 		switch e.Collection {
 		case "shows":
-			loaders.ShowLoader.Load(ctx, e.ID)
+			loaders.ShowLoader.Load(ctx, utils.AsInt(e.ID))
 		case "seasons":
-			loaders.SeasonLoader.Load(ctx, e.ID)
+			loaders.SeasonLoader.Load(ctx, utils.AsInt(e.ID))
 		case "episodes":
-			loaders.EpisodeLoader.Load(ctx, e.ID)
+			loaders.EpisodeLoader.Load(ctx, utils.AsInt(e.ID))
 		case "pages":
-			loaders.PageLoader.Load(ctx, e.ID)
+			loaders.PageLoader.Load(ctx, utils.AsInt(e.ID))
 		case "sections":
-			loaders.SectionLoader.Load(ctx, e.ID)
+			loaders.SectionLoader.Load(ctx, utils.AsInt(e.ID))
+		case "studytopics":
+			loaders.StudyTopicLoader.Load(ctx, utils.AsUuid(e.ID))
+		case "links":
+			loaders.LinkLoader.Load(ctx, utils.AsInt(e.ID))
 		}
+	}
+}
+
+func sectionStyleToImageStyle(style string) common.ImageStyle {
+	switch style {
+	case "icon_grid", "icons":
+		return common.ImageStyleIcon
+	case "poster_grid", "posters":
+		return common.ImageStylePoster
+	case "featured":
+		return common.ImageStyleFeatured
+	default:
+		return common.ImageStyleDefault
 	}
 }
 
@@ -76,7 +93,7 @@ func sectionCollectionEntryResolver(
 		var newEntries []collection.Entry
 		for _, id := range utils.PointerIntArrayToIntArray(ids) {
 			entry, found := lo.Find(entries, func(e collection.Entry) bool {
-				return e.Collection == "episodes" && e.ID == id
+				return e.Collection == "episodes" && e.ID == strconv.Itoa(id)
 			})
 			if found {
 				newEntries = append(newEntries, entry)
@@ -90,6 +107,8 @@ func sectionCollectionEntryResolver(
 
 	pagination := utils.Paginate(entries, first, offset, nil)
 
+	imageStyle := sectionStyleToImageStyle(section.Style)
+
 	preloadLoaders(ctx, loaders, pagination.Items)
 
 	var items []*model.SectionItem
@@ -97,55 +116,65 @@ func sectionCollectionEntryResolver(
 		var item *model.SectionItem
 		switch e.Collection {
 		case "pages":
-			i, err := batchloaders.GetByID(ctx, loaders.PageLoader, e.ID)
+			i, err := batchloaders.GetByID(ctx, loaders.PageLoader, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			if i == nil {
-				log.L.Debug().Int("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
 				continue
 			}
-			item = model.PageSectionItemFrom(ctx, i, e.Sort, section.Style)
+			item = model.PageSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		case "shows":
-			i, err := batchloaders.GetByID(ctx, loaders.ShowLoader, e.ID)
+			i, err := batchloaders.GetByID(ctx, loaders.ShowLoader, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			if i == nil {
-				log.L.Debug().Int("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
 				continue
 			}
-			item = model.ShowSectionItemFrom(ctx, i, e.Sort, section.Style)
+			item = model.ShowSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		case "seasons":
-			i, err := batchloaders.GetByID(ctx, loaders.SeasonLoader, e.ID)
+			i, err := batchloaders.GetByID(ctx, loaders.SeasonLoader, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			if i == nil {
-				log.L.Debug().Int("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
 				continue
 			}
-			item = model.SeasonSectionItemFrom(ctx, i, e.Sort, section.Style)
+			item = model.SeasonSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		case "episodes":
-			i, err := batchloaders.GetByID(ctx, loaders.EpisodeLoader, e.ID)
+			i, err := batchloaders.GetByID(ctx, loaders.EpisodeLoader, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			if i == nil {
-				log.L.Debug().Int("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
 				continue
 			}
-			item = model.EpisodeSectionItemFrom(ctx, i, e.Sort, section.Style)
+			item = model.EpisodeSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		case "links":
-			i, err := batchloaders.GetByID(ctx, loaders.LinkLoader, e.ID)
+			i, err := batchloaders.GetByID(ctx, loaders.LinkLoader, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			if i == nil {
-				log.L.Debug().Int("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
 				continue
 			}
-			item = model.LinkSectionItemFrom(ctx, i, e.Sort, section.Style)
+			item = model.LinkSectionItemFrom(ctx, i, e.Sort, imageStyle)
+		case "studytopics":
+			i, err := loaders.StudyTopicLoader.Get(ctx, utils.AsUuid(e.ID))
+			if err != nil {
+				return nil, err
+			}
+			if i == nil {
+				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				continue
+			}
+			item = model.StudyTopicSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		}
 		if item != nil {
 			items = append(items, item)
@@ -175,25 +204,25 @@ func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, 
 		var item model.CollectionItem
 		switch e.Collection {
 		case "pages":
-			i, err := batchloaders.GetByID(ctx, loaders.PageLoader, e.ID)
+			i, err := batchloaders.GetByID(ctx, loaders.PageLoader, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			item = model.PageItemFrom(ctx, i, e.Sort)
 		case "shows":
-			i, err := batchloaders.GetByID(ctx, loaders.ShowLoader, e.ID)
+			i, err := batchloaders.GetByID(ctx, loaders.ShowLoader, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			item = model.ShowItemFrom(ctx, i, e.Sort)
 		case "seasons":
-			i, err := batchloaders.GetByID(ctx, loaders.SeasonLoader, e.ID)
+			i, err := batchloaders.GetByID(ctx, loaders.SeasonLoader, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			item = model.SeasonItemFrom(ctx, i, e.Sort)
 		case "episodes":
-			i, err := batchloaders.GetByID(ctx, loaders.EpisodeLoader, e.ID)
+			i, err := batchloaders.GetByID(ctx, loaders.EpisodeLoader, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}

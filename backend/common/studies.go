@@ -30,8 +30,10 @@ const (
 
 // StudyTopic is a topic for studying something specific
 type StudyTopic struct {
-	ID    uuid.UUID
-	Title LocaleString
+	ID          uuid.UUID
+	Title       LocaleString
+	Description LocaleString
+	Images      Images
 }
 
 // GetKey returns the key for this item
@@ -41,9 +43,11 @@ func (i StudyTopic) GetKey() uuid.UUID {
 
 // Lesson is a lesson within a topic
 type Lesson struct {
-	ID      uuid.UUID
-	TopicID uuid.UUID
-	Title   LocaleString
+	ID          uuid.UUID
+	TopicID     uuid.UUID
+	Title       LocaleString
+	Description LocaleString
+	Images      Images
 }
 
 // GetKey returns the key for this item

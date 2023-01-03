@@ -373,7 +373,8 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 
 		liteEntries := lo.Map(entries, func(e collection.Entry, _ int) collectionEntry {
 			return collectionEntry{
-				ID:   e.ID,
+				// TODO: change this ID type to string
+				ID:   utils.AsInt(e.ID),
 				Type: string(e.Collection),
 			}
 		})

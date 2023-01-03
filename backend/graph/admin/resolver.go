@@ -11,7 +11,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
-	"strconv"
 )
 
 // Resolver contains the common properties for all endpoints
@@ -39,7 +38,7 @@ func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.F
 		return lo.Map(lo.Filter(ids, func(i common.Identifier, _ int) bool {
 			return i.Collection == col
 		}), func(i common.Identifier, _ int) int {
-			return i.ID
+			return utils.AsInt(i.ID)
 		})
 	}
 
@@ -59,33 +58,33 @@ func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.F
 	for _, e := range ids {
 		switch e.Collection {
 		case "shows":
-			i, err := batchloaders.GetByID(ctx, r.Loaders.ShowLoader, e.ID)
+			i, err := batchloaders.GetByID(ctx, r.Loaders.ShowLoader, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			items = append(items, &model.CollectionItem{
 				Collection: model.CollectionShows,
-				ID:         strconv.Itoa(e.ID),
+				ID:         e.ID,
 				Title:      i.Title.Get(languages),
 			})
 		case "seasons":
-			i, err := batchloaders.GetByID(ctx, r.Loaders.SeasonLoader, e.ID)
+			i, err := batchloaders.GetByID(ctx, r.Loaders.SeasonLoader, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			items = append(items, &model.CollectionItem{
 				Collection: model.CollectionSeasons,
-				ID:         strconv.Itoa(e.ID),
+				ID:         e.ID,
 				Title:      i.Title.Get(languages),
 			})
 		case "episodes":
-			i, err := batchloaders.GetByID(ctx, r.Loaders.EpisodeLoader, e.ID)
+			i, err := batchloaders.GetByID(ctx, r.Loaders.EpisodeLoader, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			items = append(items, &model.CollectionItem{
 				Collection: model.CollectionEpisodes,
-				ID:         strconv.Itoa(e.ID),
+				ID:         e.ID,
 				Title:      i.Title.Get(languages),
 			})
 		}

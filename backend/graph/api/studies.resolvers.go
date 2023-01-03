@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
@@ -188,6 +189,11 @@ func (r *quoteTaskResolver) Completed(ctx context.Context, obj *model.QuoteTask)
 		return false, err
 	}
 	return id != nil, nil
+}
+
+// Image is the resolver for the image field.
+func (r *studyTopicResolver) Image(ctx context.Context, obj *model.StudyTopic, style *model.ImageStyle) (*string, error) {
+	panic(fmt.Errorf("not implemented: Image - image"))
 }
 
 // Lessons is the resolver for the lessons field.
