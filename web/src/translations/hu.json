@@ -5,7 +5,19 @@
         "logout": "Kijelentkezés",
         "stayLoggedOut": "Kijelentkezve maradni",
         "cancel": "Mégse",
-        "submit": "Megerősítés"
+        "submit": "Megerősítés",
+        "back": "Vissza",
+        "next": "Következő",
+        "continue": "",
+        "close": "",
+        "download": "",
+        "goTo": "",
+        "send": "Küldés"
+    },
+    "error": {
+        "couldntSendYourMessage": "Nem sikerült elküldeni az üzenetedet",
+        "somethingWentWrong": "",
+        "checkNetwork": ""
     },
     "dashboard": {
         "loggedOut": "Kijelentkeztél"
@@ -85,10 +97,12 @@
             "description": "A mélyebb megértés érdekében javasoljuk, hogy nézzd meg a videót többször is.",
             "button": "Ismét lejátszás"
         },
-        "textTaskPlaceholder": "Írd le és küldd el gondolataidat."
+        "lessonActivityTitle": "",
+        "textTaskPlaceholder": "Írd le és küldd el gondolataidat.",
+        "question": "Kérdés",
+        "wrongAnswerMessage": "",
+        "correctAnswerMessage": "Jól csináltad!"
     },
-    "thankYou": "Köszönjük!",
-    "yourResponseHasBeenSubmitted": "A válaszodat elküldtük.",
     "cookies": {
         "title": "Ez a weboldal cookie-kat használ",
         "description": "Sütiket használunk, hogy javítsuk a felhasználói élményt ezen a weboldalon. Ha továbbra is használod ezt a weboldalt, ezzel hozzájárulsz a sütik használatához.",
@@ -109,5 +123,16 @@
         "title": "Megosztás",
         "copied": "Vágólapra másolva",
         "membersOnly": "Ez a videó csak bejelentkezett felhasználók számára érhető el."
-    }
+    },
+    "feedback": {
+        "appreciated": "",
+        "comment": "",
+        "episodeTitle": "",
+        "anonymousInfo": "",
+        "placeholder": ""
+    },
+    "thankYou": "Köszönjük!",
+    "yourResponseHasBeenSubmitted": "A válaszodat elküldtük.",
+    "sending": "Adás",
+    "defaultInputPlaceholder": ""
 }

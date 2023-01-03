@@ -5,7 +5,19 @@
         "logout": "Odjava",
         "stayLoggedOut": "Ostani odjavljen",
         "cancel": "Prekliči",
-        "submit": "Oddaj"
+        "submit": "Oddaj",
+        "back": "Nazaj",
+        "next": "Sledi",
+        "continue": "",
+        "close": "",
+        "download": "",
+        "goTo": "",
+        "send": "Pošlji"
+    },
+    "error": {
+        "couldntSendYourMessage": "Sporočila ni bilo mogoče poslati",
+        "somethingWentWrong": "",
+        "checkNetwork": ""
     },
     "dashboard": {
         "loggedOut": "Bil si odjavljen"
@@ -85,10 +97,12 @@
             "description": "Za globlje razumevanje priporočamo večkraten ogled videa.",
             "button": "Predvajaj znova"
         },
-        "textTaskPlaceholder": "Napiši in oddaj svoje mnenje."
+        "lessonActivityTitle": "",
+        "textTaskPlaceholder": "Napiši in oddaj svoje mnenje.",
+        "question": "Vprašanje",
+        "wrongAnswerMessage": "",
+        "correctAnswerMessage": "Bravo!"
     },
-    "thankYou": "Hvala!",
-    "yourResponseHasBeenSubmitted": "Tvoj odgovor je bil oddan.",
     "cookies": {
         "title": "Ta spletna stran uporablja piškotke",
         "description": "Za izboljšanje uporabniške izkušnje uporabljamo piškotke. Z nadaljnjo uporabo te spletne strani se strinjaš z uporabo piškotkov.",
@@ -100,7 +114,7 @@
     "footer": {
         "cookies": "Piškotki",
         "privacyPolicy": "Pravilnik o zasebnosti",
-        "information": "",
+        "information": "BCC Media je medijska fundacija v BCC zvezi (https://bcc.no), ki proizvaja in širi vsebino s pozitivnimi in krščanskimi vrednotami.\n\nBCC je registriran izdajatelj televizijskega programa in spoštuje pravila norveškega zakonika o oddajanju. Nadzorno telo tega zakonika je [the Norwegian Media Authority](https://medietilsynet.no/).",
         "headOffice": "Sedež podjetja",
         "contactUs": "Kontaktiraj nas",
         "downloadApp": "Prenesi našo aplikacijo"
@@ -109,5 +123,16 @@
         "title": "Deli",
         "copied": "Kopirano v odlagališče",
         "membersOnly": "Ta video je na voljo samo prijavljenim uporabnikom."
-    }
+    },
+    "feedback": {
+        "appreciated": "",
+        "comment": "",
+        "episodeTitle": "",
+        "anonymousInfo": "",
+        "placeholder": ""
+    },
+    "thankYou": "Hvala!",
+    "yourResponseHasBeenSubmitted": "Tvoj odgovor je bil oddan.",
+    "sending": "Pošiljam",
+    "defaultInputPlaceholder": ""
 }

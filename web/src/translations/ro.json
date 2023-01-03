@@ -5,7 +5,19 @@
         "logout": "Deconectare",
         "stayLoggedOut": "Rămâneți deconectat",
         "cancel": "Anulare",
-        "submit": "Trimite"
+        "submit": "Trimite",
+        "back": "Înapoi",
+        "next": "Urmează",
+        "continue": "",
+        "close": "",
+        "download": "",
+        "goTo": "",
+        "send": "Trimite"
+    },
+    "error": {
+        "couldntSendYourMessage": "Nu am putut trimite mesajul dvs",
+        "somethingWentWrong": "",
+        "checkNetwork": ""
     },
     "dashboard": {
         "loggedOut": "Ai fost deconectat"
@@ -85,10 +97,12 @@
             "description": "",
             "button": ""
         },
-        "textTaskPlaceholder": ""
+        "lessonActivityTitle": "",
+        "textTaskPlaceholder": "",
+        "question": "Întrebare",
+        "wrongAnswerMessage": "",
+        "correctAnswerMessage": "Bună treabă!"
     },
-    "thankYou": "Mulțumim!",
-    "yourResponseHasBeenSubmitted": "",
     "cookies": {
         "title": "",
         "description": "",
@@ -109,5 +123,16 @@
         "title": "Distribuie",
         "copied": "S-a copiat în memorie",
         "membersOnly": "Acest video este accesibil doar pentru utilizatorii conectați cu cont personal."
-    }
+    },
+    "feedback": {
+        "appreciated": "",
+        "comment": "",
+        "episodeTitle": "",
+        "anonymousInfo": "",
+        "placeholder": ""
+    },
+    "thankYou": "Mulțumim!",
+    "yourResponseHasBeenSubmitted": "",
+    "sending": "Se trimite",
+    "defaultInputPlaceholder": ""
 }

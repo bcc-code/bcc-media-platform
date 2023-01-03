@@ -5,7 +5,19 @@
         "logout": "Wyloguj",
         "stayLoggedOut": "Pozostań wylogowany",
         "cancel": "Anuluj",
-        "submit": "Wyślij"
+        "submit": "Wyślij",
+        "back": "Wstecz",
+        "next": "Następne",
+        "continue": "",
+        "close": "",
+        "download": "",
+        "goTo": "",
+        "send": "Wyślij"
+    },
+    "error": {
+        "couldntSendYourMessage": "Nie udało się wysłać wiadomości",
+        "somethingWentWrong": "",
+        "checkNetwork": ""
     },
     "dashboard": {
         "loggedOut": "Zostałeś wylogowany"
@@ -85,10 +97,12 @@
             "description": "",
             "button": ""
         },
-        "textTaskPlaceholder": ""
+        "lessonActivityTitle": "",
+        "textTaskPlaceholder": "",
+        "question": "Pytanie",
+        "wrongAnswerMessage": "",
+        "correctAnswerMessage": "Dobra robota!"
     },
-    "thankYou": "Dziękujemy!",
-    "yourResponseHasBeenSubmitted": "",
     "cookies": {
         "title": "",
         "description": "",
@@ -109,5 +123,16 @@
         "title": "Udostępnij",
         "copied": "",
         "membersOnly": ""
-    }
+    },
+    "feedback": {
+        "appreciated": "",
+        "comment": "",
+        "episodeTitle": "",
+        "anonymousInfo": "",
+        "placeholder": ""
+    },
+    "thankYou": "Dziękujemy!",
+    "yourResponseHasBeenSubmitted": "",
+    "sending": "Wysyłam",
+    "defaultInputPlaceholder": ""
 }

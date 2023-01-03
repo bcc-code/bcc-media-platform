@@ -5,7 +5,19 @@
         "logout": "Logg ut",
         "stayLoggedOut": "Forbli utlogget",
         "cancel": "Avbryt",
-        "submit": "Send inn"
+        "submit": "Send inn",
+        "back": "",
+        "next": "",
+        "continue": "",
+        "close": "",
+        "download": "",
+        "goTo": "",
+        "send": ""
+    },
+    "error": {
+        "couldntSendYourMessage": "",
+        "somethingWentWrong": "",
+        "checkNetwork": ""
     },
     "dashboard": {
         "loggedOut": "Du ble logget ut"
@@ -85,10 +97,12 @@
             "description": "Vi anbefaler å se filmen mer enn en gang for å få en dypere forståelse.",
             "button": "Spill igjen"
         },
-        "textTaskPlaceholder": "Skriv ned dine tanker og send inn."
+        "lessonActivityTitle": "",
+        "textTaskPlaceholder": "Skriv ned dine tanker og send inn.",
+        "question": "",
+        "wrongAnswerMessage": "",
+        "correctAnswerMessage": ""
     },
-    "thankYou": "Tusen takk!",
-    "yourResponseHasBeenSubmitted": "Ditt svar er sendt inn.",
     "cookies": {
         "title": "Dette nettstedet bruker informasjonskapsler",
         "description": "Vi bruker informasjonskapsler (cookies) for å støtte brukeropplevelsen på siden vår. Ved å fortsette å bruke vårt nettsted samtykker du til vår bruk av informasjonskapsler.",
@@ -109,5 +123,16 @@
         "title": "Del",
         "copied": "Lenke kopiert til utklippstavle",
         "membersOnly": "Denne videoen er kun tilgjengelig for brukere som er logget inn."
-    }
+    },
+    "feedback": {
+        "appreciated": "",
+        "comment": "",
+        "episodeTitle": "",
+        "anonymousInfo": "",
+        "placeholder": ""
+    },
+    "thankYou": "Tusen takk!",
+    "yourResponseHasBeenSubmitted": "Ditt svar er sendt inn.",
+    "sending": "",
+    "defaultInputPlaceholder": ""
 }
