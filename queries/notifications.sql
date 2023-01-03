@@ -9,7 +9,10 @@ WITH ts AS (SELECT ts.notificationtemplates_id,
                        JOIN directus_files df on img.file = df.id),
      images AS (SELECT item_id, json_agg(imgs) as json
                 FROM imgs
-                GROUP BY item_id)
+                GROUP BY item_id),
+     target_ids AS (SELECT notifications_id, array_agg(targets_id)::uuid[] AS targets
+                    FROM notifications_targets
+                    GROUP BY notifications_id)
 SELECT n.id,
        n.status,
        COALESCE(ts.title, '{}')       AS title,
@@ -19,15 +22,21 @@ SELECT n.id,
        n.deep_link,
        n.schedule_at,
        n.send_started,
-       n.send_completed
+       n.send_completed,
+       ti.targets                     AS target_ids
 FROM notifications n
          LEFT JOIN notificationtemplates t ON n.template_id = t.id
          LEFT JOIN ts ON ts.notificationtemplates_id = t.id
          LEFT JOIN images img ON img.item_id = t.id
+         LEFT JOIN target_ids ti ON ti.notifications_id = n.id
 WHERE n.id = ANY ($1::uuid[]);
 
 -- name: NotificationMarkSendStarted :exec
-UPDATE notifications n SET send_started = NOW() WHERE id = $1;
+UPDATE notifications n
+SET send_started = NOW()
+WHERE id = $1;
 
 -- name: NotificationMarkSendCompleted :exec
-UPDATE notifications n SET send_completed = NOW() WHERE id = $1;
+UPDATE notifications n
+SET send_completed = NOW()
+WHERE id = $1;

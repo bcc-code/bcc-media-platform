@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS "public"."targets"
 (
     "id"    uuid         NOT NULL,
     "label" varchar(255) NULL,
-    "type"  varchar(255) NULL,
+    "type"  varchar(255) NOT NULL,
     CONSTRAINT "targets_pkey" PRIMARY KEY (id)
 );
 
