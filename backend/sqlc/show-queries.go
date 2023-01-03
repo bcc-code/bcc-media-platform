@@ -92,6 +92,7 @@ func (q *Queries) GetPermissionsForShows(ctx context.Context, ids []int) ([]comm
 			ItemID: int(i.ID),
 			Type:   common.TypeShow,
 			Availability: common.Availability{
+				Unlisted:  i.Unlisted,
 				Published: i.Published,
 				From:      i.AvailableFrom,
 				To:        i.AvailableTo,

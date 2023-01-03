@@ -108,6 +108,7 @@ func (q *Queries) GetPermissionsForSeasons(ctx context.Context, ids []int) ([]co
 			ItemID: int(i.ID),
 			Type:   common.TypeSeason,
 			Availability: common.Availability{
+				Unlisted:  i.Unlisted,
 				Published: i.Published,
 				From:      i.AvailableFrom,
 				To:        i.AvailableTo,
