@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/achievements"
 	"net/url"
 	"strconv"
 	"time"
@@ -18,7 +19,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/export"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
-	"github.com/bcc-code/brunstadtv/backend/ratelimit"
+	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -181,9 +182,12 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string) (boo
 	if err != nil {
 		return false, err
 	}
-	err = ratelimit.Endpoint(ctx, "tasks:complete:"+task.ID.String(), 5, false)
+	storedIds, err := r.Loaders.CompletedTasksLoader.Get(ctx, p.ID)
 	if err != nil {
 		return false, err
+	}
+	if lo.Contains(utils.PointerArrayToArray(storedIds), task.ID) {
+		return false, common.ErrTaskAlreadyCompleted
 	}
 	err = r.Queries.SetTaskCompleted(ctx, sqlc.SetTaskCompletedParams{
 		ProfileID: p.ID,
@@ -191,6 +195,16 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string) (boo
 	})
 	if err != nil {
 		return false, err
+	}
+
+	r.Loaders.CompletedTasksLoader.Clear(ctx, p.ID)
+	r.Loaders.CompletedLessonsLoader.Clear(ctx, p.ID)
+	err = achievements.CheckNewAchievements(ctx, r.Queries, r.Loaders, achievements.Action{
+		Collection: achievements.CollectionLessons,
+		Action:     achievements.ActionCompleted,
+	})
+	if err != nil {
+		return true, err
 	}
 	return true, nil
 }
@@ -237,6 +251,37 @@ func (r *mutationRootResolver) UpdateEpisodeFeedback(ctx context.Context, id str
 		return "", err
 	}
 	return r.updateMessage(ctx, id, message, map[string]any{"rating": rating})
+}
+
+// ConfirmAchievement is the resolver for the confirmAchievement field.
+func (r *mutationRootResolver) ConfirmAchievement(ctx context.Context, id string) (bool, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return false, err
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return false, err
+	}
+	ids, err := r.Loaders.UnconfirmedAchievementsLoader.Get(ctx, p.ID)
+	if err != nil {
+		return false, err
+	}
+	if !lo.Contains(utils.PointerArrayToArray(ids), uid) {
+		return false, merry.New("", merry.WithUserMessage("Achievement is not unconfirmed"))
+	}
+	ids = lo.Filter(ids, func(i *uuid.UUID, _ int) bool {
+		return i != nil && *i != uid
+	})
+	err = r.Queries.ConfirmAchievement(ctx, sqlc.ConfirmAchievementParams{
+		ProfileID:     p.ID,
+		AchievementID: uid,
+	})
+	if err != nil {
+		return false, err
+	}
+	r.Loaders.UnconfirmedAchievementsLoader.Clear(ctx, p.ID)
+	return true, nil
 }
 
 // Application is the resolver for the application field.
@@ -446,6 +491,83 @@ func (r *queryRootResolver) Collection(ctx context.Context, id *string, slug *st
 // Search is the resolver for the search field.
 func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error) {
 	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)
+}
+
+// PendingAchievements is the resolver for the pendingAchievements field.
+func (r *queryRootResolver) PendingAchievements(ctx context.Context) ([]*model.Achievement, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return nil, err
+	}
+	err = achievements.CheckAllAchievements(ctx, r.Queries, r.Loaders)
+	if err != nil {
+		return nil, err
+	}
+	ids, err := r.Loaders.UnconfirmedAchievementsLoader.Get(ctx, p.ID)
+	if err != nil {
+		return nil, err
+	}
+	items, err := r.Loaders.AchievementLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
+	if err != nil {
+		return nil, err
+	}
+	return utils.MapWithCtx(ctx, items, model.AchievementFrom), nil
+}
+
+// Achievement is the resolver for the achievement field.
+func (r *queryRootResolver) Achievement(ctx context.Context, id string) (*model.Achievement, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	achievement, err := r.Loaders.AchievementLoader.Get(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	if achievement == nil {
+		return nil, common.ErrItemNotFound
+	}
+	return model.AchievementFrom(ctx, achievement), nil
+}
+
+// AchievementGroup is the resolver for the achievementGroup field.
+func (r *queryRootResolver) AchievementGroup(ctx context.Context, id string) (*model.AchievementGroup, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	group, err := r.Loaders.AchievementGroupLoader.Get(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	if group == nil {
+		return nil, common.ErrItemNotFound
+	}
+	return model.AchievementGroupFrom(ctx, group), nil
+}
+
+// AchievementGroups is the resolver for the achievementGroups field.
+func (r *queryRootResolver) AchievementGroups(ctx context.Context, first *int, offset *int) (*model.AchievementGroupPagination, error) {
+	ids, err := memorycache.GetOrSet(ctx, "achievement_groups", r.Queries.ListAchievementGroups)
+	if err != nil {
+		return nil, err
+	}
+	if ids == nil {
+		ids = &[]uuid.UUID{}
+	}
+	page := utils.Paginate(*ids, first, offset, nil)
+
+	groups, err := r.Loaders.AchievementGroupLoader.GetMany(ctx, page.Items)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AchievementGroupPagination{
+		Total:  page.Total,
+		First:  page.First,
+		Offset: page.Offset,
+		Items:  utils.MapWithCtx(ctx, groups, model.AchievementGroupFrom),
+	}, nil
 }
 
 // StudyTopic is the resolver for the studyTopic field.

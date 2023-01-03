@@ -88,6 +88,44 @@ type Task interface {
 	GetCompleted() bool
 }
 
+type Achievement struct {
+	ID       string            `json:"id"`
+	Title    string            `json:"title"`
+	Image    *string           `json:"image"`
+	Achieved bool              `json:"achieved"`
+	Group    *AchievementGroup `json:"group"`
+}
+
+type AchievementGroup struct {
+	ID           string                 `json:"id"`
+	Title        string                 `json:"title"`
+	Achievements *AchievementPagination `json:"achievements"`
+}
+
+type AchievementGroupPagination struct {
+	Offset int                 `json:"offset"`
+	First  int                 `json:"first"`
+	Total  int                 `json:"total"`
+	Items  []*AchievementGroup `json:"items"`
+}
+
+func (AchievementGroupPagination) IsPagination()       {}
+func (this AchievementGroupPagination) GetTotal() int  { return this.Total }
+func (this AchievementGroupPagination) GetFirst() int  { return this.First }
+func (this AchievementGroupPagination) GetOffset() int { return this.Offset }
+
+type AchievementPagination struct {
+	Offset int            `json:"offset"`
+	First  int            `json:"first"`
+	Total  int            `json:"total"`
+	Items  []*Achievement `json:"items"`
+}
+
+func (AchievementPagination) IsPagination()       {}
+func (this AchievementPagination) GetTotal() int  { return this.Total }
+func (this AchievementPagination) GetFirst() int  { return this.First }
+func (this AchievementPagination) GetOffset() int { return this.Offset }
+
 type Alternative struct {
 	ID        string `json:"id"`
 	Title     string `json:"title"`

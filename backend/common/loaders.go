@@ -38,13 +38,25 @@ type BatchLoaders struct {
 	ProfilesLoader                     *dataloader.Loader[string, []*Profile]
 	MessageGroupLoader                 *dataloader.Loader[int, *MessageGroup]
 	RedirectFromCodeLoader             *dataloader.Loader[string, *Redirect]
-	EpisodeProgressLoader              *batchloaders.BatchLoader[uuid.UUID, []*int]
+
+	EpisodeProgressLoader *batchloaders.BatchLoader[uuid.UUID, []*int]
 	// Permissions
 	ShowPermissionLoader    *dataloader.Loader[int, *Permissions[int]]
 	SeasonPermissionLoader  *dataloader.Loader[int, *Permissions[int]]
 	EpisodePermissionLoader *dataloader.Loader[int, *Permissions[int]]
 	PagePermissionLoader    *dataloader.Loader[int, *Permissions[int]]
 	SectionPermissionLoader *dataloader.Loader[int, *Permissions[int]]
+
+	CompletedTasksLoader   *batchloaders.BatchLoader[uuid.UUID, []*uuid.UUID]
+	CompletedLessonsLoader *batchloaders.BatchLoader[uuid.UUID, []*uuid.UUID]
+
+	// Achievements
+	AchievementLoader             *batchloaders.BatchLoader[uuid.UUID, *Achievement]
+	AchievementGroupLoader        *batchloaders.BatchLoader[uuid.UUID, *AchievementGroup]
+	AchievementsLoader            *batchloaders.BatchLoader[uuid.UUID, []*uuid.UUID]
+	UnconfirmedAchievementsLoader *batchloaders.BatchLoader[uuid.UUID, []*uuid.UUID]
+
+	AchievementGroupAchievementsLoader *batchloaders.BatchLoader[uuid.UUID, []*uuid.UUID]
 }
 
 // FilteredLoaders contains loaders that will be filtered by permissions.
