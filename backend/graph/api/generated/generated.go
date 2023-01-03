@@ -399,13 +399,17 @@ type ComplexityRoot struct {
 	}
 
 	Lesson struct {
-		Episodes func(childComplexity int, first *int, offset *int) int
-		ID       func(childComplexity int) int
-		Links    func(childComplexity int, first *int, offset *int) int
-		Progress func(childComplexity int) int
-		Tasks    func(childComplexity int, first *int, offset *int) int
-		Title    func(childComplexity int) int
-		Topic    func(childComplexity int) int
+		Completed func(childComplexity int) int
+		Episodes  func(childComplexity int, first *int, offset *int) int
+		ID        func(childComplexity int) int
+		Links     func(childComplexity int, first *int, offset *int) int
+		Locked    func(childComplexity int) int
+		Next      func(childComplexity int) int
+		Previous  func(childComplexity int) int
+		Progress  func(childComplexity int) int
+		Tasks     func(childComplexity int, first *int, offset *int) int
+		Title     func(childComplexity int) int
+		Topic     func(childComplexity int) int
 	}
 
 	LessonPagination struct {
@@ -892,6 +896,10 @@ type LessonResolver interface {
 	Progress(ctx context.Context, obj *model.Lesson) (*model.TasksProgress, error)
 	Episodes(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.EpisodePagination, error)
 	Links(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.LinkPagination, error)
+	Completed(ctx context.Context, obj *model.Lesson) (bool, error)
+	Locked(ctx context.Context, obj *model.Lesson) (bool, error)
+	Previous(ctx context.Context, obj *model.Lesson) (*model.Lesson, error)
+	Next(ctx context.Context, obj *model.Lesson) (*model.Lesson, error)
 }
 type LinkResolver interface {
 	Image(ctx context.Context, obj *model.Link, style *model.ImageStyle) (*string, error)
@@ -2448,6 +2456,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LegacyIDLookup.ID(childComplexity), true
 
+	case "Lesson.completed":
+		if e.complexity.Lesson.Completed == nil {
+			break
+		}
+
+		return e.complexity.Lesson.Completed(childComplexity), true
+
 	case "Lesson.episodes":
 		if e.complexity.Lesson.Episodes == nil {
 			break
@@ -2478,6 +2493,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Lesson.Links(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+
+	case "Lesson.locked":
+		if e.complexity.Lesson.Locked == nil {
+			break
+		}
+
+		return e.complexity.Lesson.Locked(childComplexity), true
+
+	case "Lesson.next":
+		if e.complexity.Lesson.Next == nil {
+			break
+		}
+
+		return e.complexity.Lesson.Next(childComplexity), true
+
+	case "Lesson.previous":
+		if e.complexity.Lesson.Previous == nil {
+			break
+		}
+
+		return e.complexity.Lesson.Previous(childComplexity), true
 
 	case "Lesson.progress":
 		if e.complexity.Lesson.Progress == nil {
@@ -5387,6 +5423,12 @@ type Lesson {
     progress: TasksProgress! @goField(forceResolver: true)
     episodes(first: Int, offset: Int): EpisodePagination! @goField(forceResolver: true)
     links(first: Int, offset: Int): LinkPagination! @goField(forceResolver: true)
+
+    completed: Boolean! @goField(forceResolver: true)
+    locked: Boolean! @goField(forceResolver: true)
+
+    previous: Lesson @goField(forceResolver: true)
+    next: Lesson @goField(forceResolver: true)
 }
 
 type LessonPagination implements Pagination {
@@ -5399,6 +5441,7 @@ type LessonPagination implements Pagination {
 interface Task {
     id: ID!
     title: String!
+
     completed: Boolean!
 }
 
@@ -16296,6 +16339,224 @@ func (ec *executionContext) fieldContext_Lesson_links(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Lesson_completed(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_completed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Lesson().Completed(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Lesson_locked(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_locked(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Lesson().Locked(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_locked(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Lesson_previous(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_previous(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Lesson().Previous(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Lesson)
+	fc.Result = res
+	return ec.marshalOLesson2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLesson(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_previous(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Lesson_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Lesson_title(ctx, field)
+			case "tasks":
+				return ec.fieldContext_Lesson_tasks(ctx, field)
+			case "topic":
+				return ec.fieldContext_Lesson_topic(ctx, field)
+			case "progress":
+				return ec.fieldContext_Lesson_progress(ctx, field)
+			case "episodes":
+				return ec.fieldContext_Lesson_episodes(ctx, field)
+			case "links":
+				return ec.fieldContext_Lesson_links(ctx, field)
+			case "completed":
+				return ec.fieldContext_Lesson_completed(ctx, field)
+			case "locked":
+				return ec.fieldContext_Lesson_locked(ctx, field)
+			case "previous":
+				return ec.fieldContext_Lesson_previous(ctx, field)
+			case "next":
+				return ec.fieldContext_Lesson_next(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Lesson", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Lesson_next(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_next(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Lesson().Next(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Lesson)
+	fc.Result = res
+	return ec.marshalOLesson2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLesson(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_next(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Lesson_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Lesson_title(ctx, field)
+			case "tasks":
+				return ec.fieldContext_Lesson_tasks(ctx, field)
+			case "topic":
+				return ec.fieldContext_Lesson_topic(ctx, field)
+			case "progress":
+				return ec.fieldContext_Lesson_progress(ctx, field)
+			case "episodes":
+				return ec.fieldContext_Lesson_episodes(ctx, field)
+			case "links":
+				return ec.fieldContext_Lesson_links(ctx, field)
+			case "completed":
+				return ec.fieldContext_Lesson_completed(ctx, field)
+			case "locked":
+				return ec.fieldContext_Lesson_locked(ctx, field)
+			case "previous":
+				return ec.fieldContext_Lesson_previous(ctx, field)
+			case "next":
+				return ec.fieldContext_Lesson_next(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Lesson", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LessonPagination_offset(ctx context.Context, field graphql.CollectedField, obj *model.LessonPagination) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LessonPagination_offset(ctx, field)
 	if err != nil {
@@ -16481,6 +16742,14 @@ func (ec *executionContext) fieldContext_LessonPagination_items(ctx context.Cont
 				return ec.fieldContext_Lesson_episodes(ctx, field)
 			case "links":
 				return ec.fieldContext_Lesson_links(ctx, field)
+			case "completed":
+				return ec.fieldContext_Lesson_completed(ctx, field)
+			case "locked":
+				return ec.fieldContext_Lesson_locked(ctx, field)
+			case "previous":
+				return ec.fieldContext_Lesson_previous(ctx, field)
+			case "next":
+				return ec.fieldContext_Lesson_next(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Lesson", field.Name)
 		},
@@ -20940,6 +21209,14 @@ func (ec *executionContext) fieldContext_QueryRoot_studyLesson(ctx context.Conte
 				return ec.fieldContext_Lesson_episodes(ctx, field)
 			case "links":
 				return ec.fieldContext_Lesson_links(ctx, field)
+			case "completed":
+				return ec.fieldContext_Lesson_completed(ctx, field)
+			case "locked":
+				return ec.fieldContext_Lesson_locked(ctx, field)
+			case "previous":
+				return ec.fieldContext_Lesson_previous(ctx, field)
+			case "next":
+				return ec.fieldContext_Lesson_next(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Lesson", field.Name)
 		},
@@ -33810,6 +34087,80 @@ func (ec *executionContext) _Lesson(ctx context.Context, sel ast.SelectionSet, o
 				return innerFunc(ctx)
 
 			})
+		case "completed":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Lesson_completed(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "locked":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Lesson_locked(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "previous":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Lesson_previous(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "next":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Lesson_next(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -39872,6 +40223,13 @@ func (ec *executionContext) unmarshalOLegacyIDLookupOptions2ᚖgithubᚗcomᚋbc
 	}
 	res, err := ec.unmarshalInputLegacyIDLookupOptions(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOLesson2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLesson(ctx context.Context, sel ast.SelectionSet, v *model.Lesson) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Lesson(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOMessage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐMessageᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Message) graphql.Marshaler {

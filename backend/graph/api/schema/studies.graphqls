@@ -13,6 +13,12 @@ type Lesson {
     progress: TasksProgress! @goField(forceResolver: true)
     episodes(first: Int, offset: Int): EpisodePagination! @goField(forceResolver: true)
     links(first: Int, offset: Int): LinkPagination! @goField(forceResolver: true)
+
+    completed: Boolean! @goField(forceResolver: true)
+    locked: Boolean! @goField(forceResolver: true)
+
+    previous: Lesson @goField(forceResolver: true)
+    next: Lesson @goField(forceResolver: true)
 }
 
 type LessonPagination implements Pagination {
@@ -25,6 +31,7 @@ type LessonPagination implements Pagination {
 interface Task {
     id: ID!
     title: String!
+
     completed: Boolean!
 }
 

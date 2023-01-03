@@ -566,13 +566,17 @@ type LegacyIDLookupOptions struct {
 }
 
 type Lesson struct {
-	ID       string             `json:"id"`
-	Title    string             `json:"title"`
-	Tasks    *TaskPagination    `json:"tasks"`
-	Topic    *StudyTopic        `json:"topic"`
-	Progress *TasksProgress     `json:"progress"`
-	Episodes *EpisodePagination `json:"episodes"`
-	Links    *LinkPagination    `json:"links"`
+	ID        string             `json:"id"`
+	Title     string             `json:"title"`
+	Tasks     *TaskPagination    `json:"tasks"`
+	Topic     *StudyTopic        `json:"topic"`
+	Progress  *TasksProgress     `json:"progress"`
+	Episodes  *EpisodePagination `json:"episodes"`
+	Links     *LinkPagination    `json:"links"`
+	Completed bool               `json:"completed"`
+	Locked    bool               `json:"locked"`
+	Previous  *Lesson            `json:"previous"`
+	Next      *Lesson            `json:"next"`
 }
 
 type LessonPagination struct {

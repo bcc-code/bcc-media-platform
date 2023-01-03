@@ -315,6 +315,7 @@ SELECT l.id, l.topic_id AS parent_id
 FROM lessons l
 WHERE l.status = 'published'
   AND l.topic_id = ANY ($1::uuid[])
+ORDER BY l.sort
 `
 
 type getLessonsForTopicsRow struct {
@@ -523,6 +524,7 @@ SELECT t.id, t.lesson_id AS parent_id
 FROM tasks t
 WHERE t.status = 'published'
   AND t.lesson_id = ANY ($1::uuid[])
+ORDER BY t.sort
 `
 
 type getTasksForLessonsRow struct {
