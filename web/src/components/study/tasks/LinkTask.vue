@@ -1,12 +1,14 @@
 <template>
     <div class="p-4 pb-0 w-full h-full">
-        <p class="w-full text-white text-style-title-1 text-center">
+        <p
+            class="w-full text-white text-style-title-1 text-center h-full max-h-24"
+        >
             {{ task.title }}
         </p>
         <p v-if="true"><!--description--></p>
         <div class="mx-12">
             <div
-                class="mt-6 cursor-pointer mt-4 relative z-10 relative"
+                class="cursor-pointer mt-4 relative z-10 relative"
                 v-if="task.link.image"
             >
                 <div

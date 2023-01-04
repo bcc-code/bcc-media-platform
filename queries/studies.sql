@@ -119,13 +119,15 @@ WHERE qa.task_id = ANY ($1::uuid[]);
 SELECT l.id, l.topic_id AS parent_id
 FROM lessons l
 WHERE l.status = 'published'
-  AND l.topic_id = ANY ($1::uuid[]);
+  AND l.topic_id = ANY ($1::uuid[])
+ORDER BY l.sort;
 
 -- name: getTasksForLessons :many
 SELECT t.id, t.lesson_id AS parent_id
 FROM tasks t
 WHERE t.status = 'published'
-  AND t.lesson_id = ANY ($1::uuid[]);
+  AND t.lesson_id = ANY ($1::uuid[])
+ORDER BY t.sort;
 
 -- name: getCompletedTasks :many
 SELECT ta.task_id as id, ta.profile_id as parent_id

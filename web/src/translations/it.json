@@ -5,7 +5,19 @@
         "logout": "Disconnettiti",
         "stayLoggedOut": "Rimani disconnesso",
         "cancel": "Annulla",
-        "submit": "Invia"
+        "submit": "Invia",
+        "back": "Indietro",
+        "next": "Prossimo",
+        "continue": "",
+        "close": "",
+        "download": "",
+        "goTo": "",
+        "send": "Invia"
+    },
+    "error": {
+        "couldntSendYourMessage": "Impossibile inviare il messaggio",
+        "somethingWentWrong": "",
+        "checkNetwork": ""
     },
     "dashboard": {
         "loggedOut": "Sei stato disconnesso"
@@ -85,10 +97,12 @@
             "description": "Per una comprensione più approfondita, si consiglia di guardare il video più di una volta.",
             "button": "Riprova"
         },
-        "textTaskPlaceholder": "Annota e invia i tuoi pensieri."
+        "lessonActivityTitle": "",
+        "textTaskPlaceholder": "Annota e invia i tuoi pensieri.",
+        "question": "Domanda",
+        "wrongAnswerMessage": "",
+        "correctAnswerMessage": "Ben fatto!"
     },
-    "thankYou": "Grazie!",
-    "yourResponseHasBeenSubmitted": "La tua risposta è stata inviata.",
     "cookies": {
         "title": "",
         "description": "",
@@ -109,5 +123,16 @@
         "title": "Condividi",
         "copied": "",
         "membersOnly": ""
-    }
+    },
+    "feedback": {
+        "appreciated": "",
+        "comment": "",
+        "episodeTitle": "",
+        "anonymousInfo": "",
+        "placeholder": ""
+    },
+    "thankYou": "Grazie!",
+    "yourResponseHasBeenSubmitted": "La tua risposta è stata inviata.",
+    "sending": "Invio",
+    "defaultInputPlaceholder": ""
 }

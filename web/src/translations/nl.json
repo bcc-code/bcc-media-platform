@@ -5,7 +5,19 @@
         "logout": "Uitloggen",
         "stayLoggedOut": "Uitgelogd blijven",
         "cancel": "Annuleren",
-        "submit": "Invoeren"
+        "submit": "Invoeren",
+        "back": "Terug",
+        "next": "Volgende",
+        "continue": "",
+        "close": "",
+        "download": "",
+        "goTo": "",
+        "send": "Verzenden"
+    },
+    "error": {
+        "couldntSendYourMessage": "Je bericht kon niet worden verzonden",
+        "somethingWentWrong": "",
+        "checkNetwork": ""
     },
     "dashboard": {
         "loggedOut": "Je bent uitgelogd"
@@ -85,10 +97,12 @@
             "description": "Voor een beter begrip raden wij aan de video meer dan eens te bekijken.",
             "button": "Speel nogmaals af"
         },
-        "textTaskPlaceholder": "Schrijf je gedachten op en stuur ze op."
+        "lessonActivityTitle": "",
+        "textTaskPlaceholder": "Schrijf je gedachten op en stuur ze op.",
+        "question": "Vraag",
+        "wrongAnswerMessage": "",
+        "correctAnswerMessage": "Goed gedaan!"
     },
-    "thankYou": "Hartelijk dank!",
-    "yourResponseHasBeenSubmitted": "Jouw antwoord is verzonden.",
     "cookies": {
         "title": "Deze website maakt gebruik van cookies",
         "description": "Wij gebruiken cookies om uw surfervaring op deze website gemakkelijker te maken. Door gebruik te maken van deze website verleent u toestemming voor het gebruik hiervan.",
@@ -109,5 +123,16 @@
         "title": "Deel",
         "copied": "Gekopieerd naar klembord",
         "membersOnly": "Deze video is alleen beschikbaar voor ingelogde gebruikers."
-    }
+    },
+    "feedback": {
+        "appreciated": "",
+        "comment": "",
+        "episodeTitle": "",
+        "anonymousInfo": "",
+        "placeholder": ""
+    },
+    "thankYou": "Hartelijk dank!",
+    "yourResponseHasBeenSubmitted": "Jouw antwoord is verzonden.",
+    "sending": "Verzenden",
+    "defaultInputPlaceholder": ""
 }

@@ -3,3 +3,6 @@ SELECT array_agg(code)::text[] as groups FROM usergroups WHERE $1::text = ANY(st
 
 -- name: GetRoles :many
 SELECT code, string_to_array(emails, E'\n')::text[] as emails  FROM usergroups;
+
+-- name: GetRolesWithCode :many
+SELECT code, string_to_array(emails, E'\n')::text[] as emails  FROM usergroups WHERE code = ANY($1::varchar[]);

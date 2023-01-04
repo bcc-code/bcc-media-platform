@@ -105,6 +105,7 @@ WHERE se.id = ANY ($1::int[])
 
 -- name: getPermissionsForSeasons :many
 SELECT se.id,
+       se.status = 'unlisted'             AS unlisted,
        access.published::bool             AS published,
        access.available_from::timestamp   AS available_from,
        access.available_to::timestamp     AS available_to,

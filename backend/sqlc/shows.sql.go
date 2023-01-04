@@ -17,6 +17,7 @@ import (
 
 const getPermissionsForShows = `-- name: getPermissionsForShows :many
 SELECT sh.id,
+       sh.status = 'unlisted'             AS unlisted,
        access.published::boolean          AS published,
        access.available_from::timestamp   AS available_from,
        access.available_to::timestamp     AS available_to,
@@ -31,6 +32,7 @@ WHERE sh.id = ANY ($1::int[])
 
 type getPermissionsForShowsRow struct {
 	ID                    int32     `db:"id" json:"id"`
+	Unlisted              bool      `db:"unlisted" json:"unlisted"`
 	Published             bool      `db:"published" json:"published"`
 	AvailableFrom         time.Time `db:"available_from" json:"availableFrom"`
 	AvailableTo           time.Time `db:"available_to" json:"availableTo"`
@@ -50,6 +52,7 @@ func (q *Queries) getPermissionsForShows(ctx context.Context, dollar_1 []int32) 
 		var i getPermissionsForShowsRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.Unlisted,
 			&i.Published,
 			&i.AvailableFrom,
 			&i.AvailableTo,
