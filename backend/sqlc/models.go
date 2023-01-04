@@ -21,7 +21,8 @@ type Achievement struct {
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
 	GroupID     uuid.NullUUID  `db:"group_id" json:"groupID"`
-	Title       null_v4.String `db:"title" json:"title"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
 }
 
 type Achievementcondition struct {
@@ -47,6 +48,7 @@ type AchievementgroupsTranslation struct {
 	AchievementgroupsID uuid.NullUUID  `db:"achievementgroups_id" json:"achievementgroupsID"`
 	LanguagesCode       null_v4.String `db:"languages_code" json:"languagesCode"`
 	Title               null_v4.String `db:"title" json:"title"`
+	Description         null_v4.String `db:"description" json:"description"`
 }
 
 type AchievementsImage struct {
@@ -61,6 +63,7 @@ type AchievementsTranslation struct {
 	AchievementsID uuid.NullUUID  `db:"achievements_id" json:"achievementsID"`
 	LanguagesCode  string         `db:"languages_code" json:"languagesCode"`
 	Title          null_v4.String `db:"title" json:"title"`
+	Description    null_v4.String `db:"description" json:"description"`
 }
 
 type Agerating struct {

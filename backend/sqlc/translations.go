@@ -267,3 +267,33 @@ func (r ListAlternativeTranslationsRow) GetValues() map[string]string {
 func (r ListAlternativeTranslationsRow) GetLanguage() string {
 	return r.LanguagesCode
 }
+
+// GetKey for this item
+func (r ListAchievementTranslationsRow) GetKey() string {
+	return strconv.Itoa(int(r.ID))
+}
+
+// GetParentKey for this item
+func (r ListAchievementTranslationsRow) GetParentKey() string {
+	return r.ParentID.UUID.String()
+}
+
+// GetValues for this entry
+func (r ListAchievementTranslationsRow) GetValues() map[string]string {
+	ret := map[string]string{}
+
+	if r.Title.Valid {
+		ret["title"] = r.Title.String
+	}
+
+	if r.Description.Valid {
+		ret["description"] = r.Description.String
+	}
+
+	return ret
+}
+
+// GetLanguage for this item
+func (r ListAchievementTranslationsRow) GetLanguage() string {
+	return r.LanguagesCode
+}

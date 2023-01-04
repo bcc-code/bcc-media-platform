@@ -340,7 +340,7 @@ WHERE a.id = ANY ($1::uuid[])
 type getAchievementsRow struct {
 	ID            uuid.UUID             `db:"id" json:"id"`
 	GroupID       uuid.NullUUID         `db:"group_id" json:"groupID"`
-	OriginalTitle null_v4.String        `db:"original_title" json:"originalTitle"`
+	OriginalTitle string                `db:"original_title" json:"originalTitle"`
 	Title         pqtype.NullRawMessage `db:"title" json:"title"`
 	Images        pqtype.NullRawMessage `db:"images" json:"images"`
 	Conditions    pqtype.NullRawMessage `db:"conditions" json:"conditions"`

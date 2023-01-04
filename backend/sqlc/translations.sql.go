@@ -13,6 +13,17 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const clearAchievementTranslations = `-- name: ClearAchievementTranslations :exec
+DELETE
+FROM achievements_translations ts
+WHERE ts.achievements_id = ANY ($1::uuid[])
+`
+
+func (q *Queries) ClearAchievementTranslations(ctx context.Context, dollar_1 []uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearAchievementTranslations, pq.Array(dollar_1))
+	return err
+}
+
 const clearEpisodeTranslations = `-- name: ClearEpisodeTranslations :exec
 DELETE
 FROM episodes_translations
@@ -115,6 +126,87 @@ WHERE ts.tasks_id = ANY ($1::uuid[])
 func (q *Queries) ClearTaskTranslations(ctx context.Context, dollar_1 []uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, clearTaskTranslations, pq.Array(dollar_1))
 	return err
+}
+
+const listAchievementOriginalTranslations = `-- name: ListAchievementOriginalTranslations :many
+SELECT items.id, items.title, items.description
+FROM achievements items
+WHERE status = 'published'
+`
+
+type ListAchievementOriginalTranslationsRow struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) ListAchievementOriginalTranslations(ctx context.Context) ([]ListAchievementOriginalTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listAchievementOriginalTranslations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListAchievementOriginalTranslationsRow
+	for rows.Next() {
+		var i ListAchievementOriginalTranslationsRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listAchievementTranslations = `-- name: ListAchievementTranslations :many
+WITH items AS (SELECT i.id
+               FROM achievements i)
+SELECT ts.id, achievements_id as parent_id, languages_code, title, description
+FROM achievements_translations ts
+         JOIN items i ON i.id = ts.achievements_id
+WHERE ts.languages_code = ANY ($1::varchar[])
+`
+
+type ListAchievementTranslationsRow struct {
+	ID            int32          `db:"id" json:"id"`
+	ParentID      uuid.NullUUID  `db:"parent_id" json:"parentID"`
+	LanguagesCode string         `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) ListAchievementTranslations(ctx context.Context, dollar_1 []string) ([]ListAchievementTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listAchievementTranslations, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListAchievementTranslationsRow
+	for rows.Next() {
+		var i ListAchievementTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.LanguagesCode,
+			&i.Title,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listAlternativeTranslations = `-- name: ListAlternativeTranslations :many

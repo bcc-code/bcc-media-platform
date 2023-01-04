@@ -304,6 +304,43 @@ func alternativesToDSItems(translations []simpleTranslation) []directus.DSItem {
 	})
 }
 
+func (c *Client) syncAchievements(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "achievements", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListAchievementOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListAchievementOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID: t.ID.String(),
+					Values: map[string]string{
+						TitleField:       t.Title,
+						DescriptionField: t.Description.ValueOrZero(),
+					},
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
+		return dbToSimple(ctx, language, c.q.ListAchievementTranslations)
+	}, crowdinTranslations, nil, achievementsToDSItems)
+}
+
+func achievementsToDSItems(translations []simpleTranslation) []directus.DSItem {
+	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+		ti, _ := t.Values[TitleField]
+		de, _ := t.Values[DescriptionField]
+		return directus.TasksTranslation{
+			ID:            t.ID,
+			LanguagesCode: t.Language,
+			Title:         ti,
+			Description:   de,
+			TasksID:       t.ParentID,
+		}
+	})
+}
+
 type dbT interface {
 	GetKey() string
 	GetParentKey() string
