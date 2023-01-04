@@ -32,10 +32,11 @@ type Config struct {
 
 // Client for crowdin interactions
 type Client struct {
-	c      *resty.Client
-	du     *directus.Handler
-	config Config
-	q      *sqlc.Queries
+	c        *resty.Client
+	du       *directus.Handler
+	config   Config
+	q        *sqlc.Queries
+	readonly bool
 }
 
 // ErrRequestFailed error for failed requests
@@ -58,6 +59,8 @@ func New(config Config, directusHandler *directus.Handler, queries *sqlc.Queries
 		c:      c,
 		config: config,
 		q:      queries,
+		// TODO: remove default true
+		readonly: true,
 	}
 }
 

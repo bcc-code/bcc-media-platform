@@ -32,6 +32,9 @@ func (c *Client) syncCollection(
 	}
 	if !found {
 		log.L.Debug().Msg("Creating file")
+		if c.readonly {
+			return nil
+		}
 		_, err := c.createFile(project.ID, directoryId, collection, convertTsToStrings(sourceTranslations, collection, contextFactory))
 		if err != nil {
 			log.L.Error().Err(err).Str("collection", collection).Msg("failed to create file for collection")
@@ -66,6 +69,9 @@ func (c *Client) syncCollection(
 	if len(missingStrings) > 0 {
 		for _, str := range missingStrings {
 			log.L.Debug().Str("identifier", str.Identifier).Msg("Adding missing string")
+			if c.readonly {
+				continue
+			}
 			_, err = c.addString(project.ID, file.ID, str)
 			if err != nil {
 				return err
@@ -75,6 +81,9 @@ func (c *Client) syncCollection(
 	if len(editStrings) > 0 {
 		for _, str := range editStrings {
 			log.L.Debug().Str("identifier", str.Identifier).Msg("Editing string")
+			if c.readonly {
+				continue
+			}
 			_, err = c.setString(project.ID, str)
 			if err != nil {
 				return err
@@ -87,9 +96,11 @@ func (c *Client) syncCollection(
 	pushTranslations := func(force bool) error {
 		if length := len(queuedTranslations); length > 100 || (force && length > 0) {
 			log.L.Debug().Str("collection", collection).Int("count", length).Msg("Pushing translations to database")
-			err = d.SaveTranslations(ctx, toDSItems(queuedTranslations))
-			if err != nil {
-				return err
+			if !c.readonly {
+				err = d.SaveTranslations(ctx, toDSItems(queuedTranslations))
+				if err != nil {
+					return err
+				}
 			}
 			queuedTranslations = nil
 		}
@@ -130,6 +141,7 @@ func (c *Client) syncCollection(
 					item = &simpleTranslation{
 						Language: dbLanguage(language.ID),
 						ParentID: t.ID,
+						Values:   map[string]string{},
 					}
 				} else {
 					item = &existingItem
