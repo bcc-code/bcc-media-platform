@@ -2,10 +2,12 @@ package sqlc
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
 )
 
 // GetAchievements retrieves achievements from database
@@ -15,11 +17,22 @@ func (q *Queries) GetAchievements(ctx context.Context, ids []uuid.UUID) ([]commo
 		return nil, err
 	}
 	return lo.Map(rows, func(i getAchievementsRow, _ int) common.Achievement {
+		var images = common.LocaleMap[null.String]{}
+		_ = json.Unmarshal(i.Images.RawMessage, &images)
+
+		var res = common.LocaleMap[null.String]{}
+		for key, img := range images {
+			if img.Valid {
+				res[key] = null.StringFrom(q.filenameToImageURL(img.String))
+			}
+		}
+
 		return common.Achievement{
 			ID:         i.ID,
 			GroupID:    i.GroupID,
 			Title:      toLocaleString(i.Title.RawMessage, i.OriginalTitle),
 			Conditions: unmarshalTo[[]common.AchievementCondition](i.Conditions.RawMessage),
+			Images:     res,
 		}
 	}), nil
 }

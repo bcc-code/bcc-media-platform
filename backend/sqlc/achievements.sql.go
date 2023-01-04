@@ -274,15 +274,21 @@ WITH ts AS (SELECT achievements_id, json_object_agg(languages_code, title) as ti
      cons AS (SELECT achievement_id,
                      json_agg(c) as conditions
               FROM achievementconditions c
-              GROUP BY achievement_id)
+              GROUP BY achievement_id),
+     images AS (SELECT achievement_id, json_object_agg(language, df.filename_disk) as images
+                FROM achievements_images
+                         JOIN directus_files df on achievements_images.image = df.id
+                GROUP BY achievement_id)
 SELECT a.id,
        a.group_id,
        a.title as original_title,
        ts.title,
+       images.images,
        cons.conditions
 FROM "public"."achievements" a
          LEFT JOIN ts ON ts.achievements_id = a.id
          LEFT JOIN cons ON cons.achievement_id = a.id
+         LEFT JOIN images ON images.achievement_id = a.id
 WHERE a.id = ANY ($1::uuid[])
 `
 
@@ -291,6 +297,7 @@ type getAchievementsRow struct {
 	GroupID       uuid.NullUUID         `db:"group_id" json:"groupID"`
 	OriginalTitle null_v4.String        `db:"original_title" json:"originalTitle"`
 	Title         pqtype.NullRawMessage `db:"title" json:"title"`
+	Images        pqtype.NullRawMessage `db:"images" json:"images"`
 	Conditions    pqtype.NullRawMessage `db:"conditions" json:"conditions"`
 }
 
@@ -308,6 +315,7 @@ func (q *Queries) getAchievements(ctx context.Context, dollar_1 []uuid.UUID) ([]
 			&i.GroupID,
 			&i.OriginalTitle,
 			&i.Title,
+			&i.Images,
 			&i.Conditions,
 		); err != nil {
 			return nil, err

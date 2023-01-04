@@ -13,6 +13,110 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const clearEpisodeTranslations = `-- name: ClearEpisodeTranslations :exec
+DELETE
+FROM episodes_translations
+WHERE episodes_id = ANY ($1::int[])
+  AND languages_code != 'no'
+`
+
+func (q *Queries) ClearEpisodeTranslations(ctx context.Context, dollar_1 []int32) error {
+	_, err := q.db.ExecContext(ctx, clearEpisodeTranslations, pq.Array(dollar_1))
+	return err
+}
+
+const clearLessonTranslations = `-- name: ClearLessonTranslations :exec
+DELETE
+FROM lessons_translations ts
+WHERE ts.lessons_id = ANY ($1::uuid[])
+`
+
+func (q *Queries) ClearLessonTranslations(ctx context.Context, dollar_1 []uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearLessonTranslations, pq.Array(dollar_1))
+	return err
+}
+
+const clearPageTranslations = `-- name: ClearPageTranslations :exec
+DELETE
+FROM pages_translations
+WHERE pages_id = ANY ($1::int[])
+  AND languages_code != 'no'
+`
+
+func (q *Queries) ClearPageTranslations(ctx context.Context, dollar_1 []int32) error {
+	_, err := q.db.ExecContext(ctx, clearPageTranslations, pq.Array(dollar_1))
+	return err
+}
+
+const clearQuestionAlternativeTranslations = `-- name: ClearQuestionAlternativeTranslations :exec
+DELETE
+FROM questionalternatives_translations ts
+WHERE ts.questionalternatives_id = ANY ($1::uuid[])
+`
+
+func (q *Queries) ClearQuestionAlternativeTranslations(ctx context.Context, dollar_1 []uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearQuestionAlternativeTranslations, pq.Array(dollar_1))
+	return err
+}
+
+const clearSeasonTranslations = `-- name: ClearSeasonTranslations :exec
+DELETE
+FROM seasons_translations
+WHERE seasons_id = ANY ($1::int[])
+  AND languages_code != 'no'
+`
+
+func (q *Queries) ClearSeasonTranslations(ctx context.Context, dollar_1 []int32) error {
+	_, err := q.db.ExecContext(ctx, clearSeasonTranslations, pq.Array(dollar_1))
+	return err
+}
+
+const clearSectionTranslations = `-- name: ClearSectionTranslations :exec
+DELETE
+FROM sections_translations
+WHERE sections_id = ANY ($1::int[])
+  AND languages_code != 'no'
+`
+
+func (q *Queries) ClearSectionTranslations(ctx context.Context, dollar_1 []int32) error {
+	_, err := q.db.ExecContext(ctx, clearSectionTranslations, pq.Array(dollar_1))
+	return err
+}
+
+const clearShowTranslations = `-- name: ClearShowTranslations :exec
+DELETE
+FROM shows_translations
+WHERE shows_id = ANY ($1::int[])
+  AND languages_code != 'no'
+`
+
+func (q *Queries) ClearShowTranslations(ctx context.Context, dollar_1 []int32) error {
+	_, err := q.db.ExecContext(ctx, clearShowTranslations, pq.Array(dollar_1))
+	return err
+}
+
+const clearStudyTopicTranslations = `-- name: ClearStudyTopicTranslations :exec
+DELETE
+FROM studytopics_translations ts
+WHERE ts.studytopics_id = ANY ($1::uuid[])
+`
+
+func (q *Queries) ClearStudyTopicTranslations(ctx context.Context, dollar_1 []uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearStudyTopicTranslations, pq.Array(dollar_1))
+	return err
+}
+
+const clearTaskTranslations = `-- name: ClearTaskTranslations :exec
+DELETE
+FROM tasks_translations ts
+WHERE ts.tasks_id = ANY ($1::uuid[])
+`
+
+func (q *Queries) ClearTaskTranslations(ctx context.Context, dollar_1 []uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearTaskTranslations, pq.Array(dollar_1))
+	return err
+}
+
 const listAlternativeTranslations = `-- name: ListAlternativeTranslations :many
 WITH items AS (SELECT i.id
                FROM questionalternatives i)
