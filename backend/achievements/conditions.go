@@ -12,6 +12,7 @@ import (
 const (
 	ActionCompleted = "completed"
 
+	CollectionTopics  = "topics"
 	CollectionLessons = "lessons"
 	CollectionTasks   = "tasks"
 )
@@ -31,6 +32,15 @@ func CheckNewAchievements(ctx context.Context, queries *sqlc.Queries, loaders *c
 
 	var amount int
 	switch action.Collection {
+	case CollectionTopics:
+		switch action.Action {
+		case ActionCompleted:
+			ids, err := loaders.CompletedTopicsLoader.Get(ctx, p.ID)
+			if err != nil {
+				return err
+			}
+			amount = len(ids)
+		}
 	case CollectionLessons:
 		switch action.Action {
 		case ActionCompleted:

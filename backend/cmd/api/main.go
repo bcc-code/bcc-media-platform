@@ -371,8 +371,9 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		UnconfirmedAchievementsLoader:      batchloaders.NewRelationLoader(queries.GetUnconfirmedAchievementsForProfiles, batchloaders.WithMemoryCache(time.Second*30)),
 		AchievementGroupAchievementsLoader: batchloaders.NewRelationLoader(queries.GetAchievementsForGroups),
 
-		CompletedTasksLoader:   batchloaders.NewRelationLoader(queries.GetCompletedTasks),
+		CompletedTopicsLoader:  batchloaders.NewRelationLoader(queries.GetCompletedTopics),
 		CompletedLessonsLoader: batchloaders.NewRelationLoader(queries.GetCompletedLessons),
+		CompletedTasksLoader:   batchloaders.NewRelationLoader(queries.GetCompletedTasks),
 	}
 }
 

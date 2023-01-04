@@ -292,3 +292,14 @@ func (q *Queries) GetCompletedLessons(ctx context.Context, profileIDs []uuid.UUI
 		return relation[uuid.UUID, uuid.UUID](i)
 	}), nil
 }
+
+// GetCompletedTopics for profiles
+func (q *Queries) GetCompletedTopics(ctx context.Context, profileIDs []uuid.UUID) ([]batchloaders.Relation[uuid.UUID, uuid.UUID], error) {
+	rows, err := q.getCompletedTopics(ctx, profileIDs)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getCompletedTopicsRow, _ int) batchloaders.Relation[uuid.UUID, uuid.UUID] {
+		return relation[uuid.UUID, uuid.UUID](i)
+	}), nil
+}
