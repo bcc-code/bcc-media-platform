@@ -77,6 +77,7 @@ WHERE sh.id = ANY ($1::int[])
 
 -- name: getPermissionsForShows :many
 SELECT sh.id,
+       sh.status = 'unlisted'             AS unlisted,
        access.published::boolean          AS published,
        access.available_from::timestamp   AS available_from,
        access.available_to::timestamp     AS available_to,

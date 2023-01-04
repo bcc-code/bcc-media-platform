@@ -111,7 +111,7 @@ type EpisodeContext struct {
 // Identifier contains basic data for identifying an item in a list
 type Identifier struct {
 	Collection string
-	ID         int
+	ID         string
 }
 
 // GetKey returns the key for this item

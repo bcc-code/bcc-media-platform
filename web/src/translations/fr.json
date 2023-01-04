@@ -5,7 +5,19 @@
         "logout": "Se déconnecter",
         "stayLoggedOut": "Rester déconnecté",
         "cancel": "Annuler",
-        "submit": "Envoyer"
+        "submit": "Envoyer",
+        "back": "Retour",
+        "next": "Suivant",
+        "continue": "Continuer",
+        "close": "Fermer",
+        "download": "Télécharger",
+        "goTo": "Aller à",
+        "send": "Envoyer"
+    },
+    "error": {
+        "couldntSendYourMessage": "Ton message n'a pas pu être envoyé",
+        "somethingWentWrong": "Il y a eu un problème.",
+        "checkNetwork": "Vérifie ta connexion internet et tente à nouveau."
     },
     "dashboard": {
         "loggedOut": "Tu as été déconnecté"
@@ -85,10 +97,12 @@
             "description": "Pour une meilleure compréhension, nous vous recommandons de regarder la vidéo plus d'une fois.",
             "button": "Rejouer"
         },
-        "textTaskPlaceholder": "Noter et soumettre ses idées."
+        "lessonActivityTitle": "Activité de la leçon",
+        "textTaskPlaceholder": "Noter et soumettre ses idées.",
+        "question": "Question",
+        "wrongAnswerMessage": "Oh, c'est fermé. Tente à nouveau !",
+        "correctAnswerMessage": "Bien joué !"
     },
-    "thankYou": "Merci beaucoup !",
-    "yourResponseHasBeenSubmitted": "Ta réponse a été envoyée.",
     "cookies": {
         "title": "Ce site web utilise des cookies",
         "description": "Nous utilisons des cookies pour vous garantir la meilleure expérience sur notre site. Si vous continuez à utiliser ce dernier, nous considérerons que vous acceptez l'utilisation des cookies.",
@@ -109,5 +123,16 @@
         "title": "Partager",
         "copied": "Copié dans le presse-papiers",
         "membersOnly": "Cette vidéo est uniquement accessible aux utilisateurs qui sont connectés."
-    }
+    },
+    "feedback": {
+        "appreciated": "Nous apprécions tes commentaires.",
+        "comment": "Ajouter un commentaire sur ton expérience",
+        "episodeTitle": "Comment évalues-tu cet épisode ?",
+        "anonymousInfo": "Ta note sera soumise de manière anonyme",
+        "placeholder": "Merci d'être le plus précis possible pour nous aider à comprendre."
+    },
+    "thankYou": "Merci beaucoup !",
+    "yourResponseHasBeenSubmitted": "Ta réponse a été envoyée.",
+    "sending": "Envoi en cours",
+    "defaultInputPlaceholder": "Commence à écrire ici..."
 }

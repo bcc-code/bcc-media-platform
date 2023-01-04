@@ -5,7 +5,19 @@
         "logout": "Logout",
         "stayLoggedOut": "Stay logged out",
         "cancel": "Cancel",
-        "submit": "Submit"
+        "submit": "Submit",
+        "back": "Back",
+        "next": "Next",
+        "continue": "Continue",
+        "close": "Close",
+        "download": "Download",
+        "goTo": "Go to",
+        "send": "Send"
+    },
+    "error": {
+        "couldntSendYourMessage": "Couldn't send your message",
+        "somethingWentWrong": "Something went wrong.",
+        "checkNetwork": "Check your internet connection and try again."
     },
     "dashboard": {
         "loggedOut": "You were logged out"
@@ -85,10 +97,12 @@
             "description": "For a deeper understanding, we recommend watching the video more than once.",
             "button": "Play again"
         },
-        "textTaskPlaceholder": "Write down and submit your thoughts."
+        "lessonActivityTitle": "Lesson activity",
+        "textTaskPlaceholder": "Write down and submit your thoughts.",
+        "question": "Question",
+        "wrongAnswerMessage": "Oh, close. Try again!",
+        "correctAnswerMessage": "Well done!"
     },
-    "thankYou": "Thank you!",
-    "yourResponseHasBeenSubmitted": "Your response has been submitted.",
     "cookies": {
         "title": "This website uses cookies",
         "description": "We use cookies to improve the user experience on this website. If you continue to use this website, you consent to our cookies.",
@@ -109,5 +123,16 @@
         "title": "Share",
         "copied": "Copied to clipboard",
         "membersOnly": "This video is only accessible to users that are logged in."
-    }
+    },
+    "feedback": {
+        "appreciated": "We appreciate your feedback.",
+        "comment": "Add a comment to your experience",
+        "episodeTitle": "How would you rate this episode?",
+        "anonymousInfo": "Your rating will be submitted anonymously",
+        "placeholder": "Please be as detailed as possible to help us understand."
+    },
+    "thankYou": "Thank you!",
+    "yourResponseHasBeenSubmitted": "Your response has been submitted.",
+    "sending": "Sending",
+    "defaultInputPlaceholder": "Start typing here..."
 }

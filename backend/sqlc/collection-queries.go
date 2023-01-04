@@ -6,7 +6,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
-	"strconv"
 )
 
 func mapToCollections(collections []getCollectionsRow) []common.Collection {
@@ -45,13 +44,12 @@ func (q *Queries) GetCollections(ctx context.Context, ids []int) ([]common.Colle
 
 func mapToCollectionItems(items []CollectionsEntry) []common.CollectionItem {
 	return lo.Map(items, func(i CollectionsEntry, _ int) common.CollectionItem {
-		itemID, _ := strconv.ParseInt(i.Item.ValueOrZero(), 10, 64)
 		return common.CollectionItem{
 			ID:           int(i.ID),
 			Sort:         int(i.Sort.ValueOrZero()),
 			CollectionID: int(i.CollectionsID),
 			Type:         common.ItemCollection(i.Collection.ValueOrZero()),
-			ItemID:       int(itemID),
+			ItemID:       i.Item.ValueOrZero(),
 		}
 	})
 }

@@ -1,12 +1,14 @@
 <template>
-    <div class="p-4 pb-0 w-full h-full">
-        <p class="w-full text-white text-style-title-1 text-center">
+    <div class="p-4 pb-0 w-full h-full flex flex-col">
+        <p
+            class="w-full text-white text-style-title-1 text-center h-full max-h-24"
+        >
             {{ task.title }}
         </p>
         <p v-if="true"><!--description--></p>
         <div class="mx-12">
             <div
-                class="mt-6 cursor-pointer mt-4 relative z-10 relative"
+                class="cursor-pointer mt-4 relative z-10 relative"
                 v-if="task.episode.image"
             >
                 <div
@@ -21,7 +23,7 @@
                     />
                 </div>
             </div>
-            <h2 class="text-style-title-2 text-on-tint text-center mt-2">
+            <h2 class="text-style-title-2 text-on-tint text-center mt-3">
                 {{ task.episode.title }}
             </h2>
             <h2 class="text-style-caption-1 text-label-3">
@@ -96,6 +98,8 @@ console.log(task.value.title)
 const openLink = () => {
     if (flutter) {
         flutter.navigate("/episode/" + task.value.episode.id)
+    } else {
+        window.location.assign("/episode/" + task.value.episode.id)
     }
 }
 onMounted(async () => {

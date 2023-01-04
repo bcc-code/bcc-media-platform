@@ -221,24 +221,37 @@ func (q *Queries) getEpisodesForLessons(ctx context.Context, arg getEpisodesForL
 
 const getLessons = `-- name: getLessons :many
 WITH ts AS (SELECT lessons_id,
-                   json_object_agg(languages_code, title) as title
+                   json_object_agg(languages_code, title)       as title,
+                   json_object_agg(languages_code, description) as description
             FROM lessons_translations
-            GROUP BY lessons_id)
+            GROUP BY lessons_id),
+     imgs AS (SELECT images.lesson_id, json_agg(images) as json
+              FROM (SELECT lesson_id, style, language, filename_disk
+                    FROM lessons_images
+                             JOIN directus_files df on file = df.id) images
+              GROUP BY images.lesson_id)
 SELECT l.id,
        l.topic_id,
-       l.title as original_title,
-       ts.title
+       l.title       as original_title,
+       l.description as original_description,
+       ts.title,
+       ts.description,
+       img.json      as images
 FROM lessons l
          LEFT JOIN ts ON ts.lessons_id = l.id
+         LEFT JOIN imgs img ON img.lesson_id = l.id
 WHERE l.status = 'published'
   AND l.id = ANY ($1::uuid[])
 `
 
 type getLessonsRow struct {
-	ID            uuid.UUID             `db:"id" json:"id"`
-	TopicID       uuid.UUID             `db:"topic_id" json:"topicID"`
-	OriginalTitle string                `db:"original_title" json:"originalTitle"`
-	Title         pqtype.NullRawMessage `db:"title" json:"title"`
+	ID                  uuid.UUID             `db:"id" json:"id"`
+	TopicID             uuid.UUID             `db:"topic_id" json:"topicID"`
+	OriginalTitle       string                `db:"original_title" json:"originalTitle"`
+	OriginalDescription null_v4.String        `db:"original_description" json:"originalDescription"`
+	Title               pqtype.NullRawMessage `db:"title" json:"title"`
+	Description         pqtype.NullRawMessage `db:"description" json:"description"`
+	Images              pqtype.NullRawMessage `db:"images" json:"images"`
 }
 
 func (q *Queries) getLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getLessonsRow, error) {
@@ -254,7 +267,10 @@ func (q *Queries) getLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getLe
 			&i.ID,
 			&i.TopicID,
 			&i.OriginalTitle,
+			&i.OriginalDescription,
 			&i.Title,
+			&i.Description,
+			&i.Images,
 		); err != nil {
 			return nil, err
 		}
@@ -315,6 +331,7 @@ SELECT l.id, l.topic_id AS parent_id
 FROM lessons l
 WHERE l.status = 'published'
   AND l.topic_id = ANY ($1::uuid[])
+ORDER BY l.sort
 `
 
 type getLessonsForTopicsRow struct {
@@ -523,6 +540,7 @@ SELECT t.id, t.lesson_id AS parent_id
 FROM tasks t
 WHERE t.status = 'published'
   AND t.lesson_id = ANY ($1::uuid[])
+ORDER BY t.sort
 `
 
 type getTasksForLessonsRow struct {
@@ -555,22 +573,35 @@ func (q *Queries) getTasksForLessons(ctx context.Context, dollar_1 []uuid.UUID) 
 
 const getTopics = `-- name: getTopics :many
 WITH ts AS (SELECT studytopics_id,
-                   json_object_agg(languages_code, title) as title
+                   json_object_agg(languages_code, title)       as title,
+                   json_object_agg(languages_code, description) as description
             FROM studytopics_translations
-            GROUP BY studytopics_id)
+            GROUP BY studytopics_id),
+     imgs AS (SELECT images.topic_id, json_agg(images) as json
+              FROM (SELECT topic_id, style, language, filename_disk
+                    FROM studytopics_images
+                             JOIN directus_files df on file = df.id) images
+              GROUP BY images.topic_id)
 SELECT s.id,
-       s.title as original_title,
-       ts.title
+       s.title       as original_title,
+       s.description as original_description,
+       ts.title,
+       ts.description,
+       img.json      as images
 FROM studytopics s
          LEFT JOIN ts ON ts.studytopics_id = s.id
+         LEFT JOIN imgs img ON img.topic_id = s.id
 WHERE s.status = 'published'
   AND s.id = ANY ($1::uuid[])
 `
 
 type getTopicsRow struct {
-	ID            uuid.UUID             `db:"id" json:"id"`
-	OriginalTitle string                `db:"original_title" json:"originalTitle"`
-	Title         pqtype.NullRawMessage `db:"title" json:"title"`
+	ID                  uuid.UUID             `db:"id" json:"id"`
+	OriginalTitle       string                `db:"original_title" json:"originalTitle"`
+	OriginalDescription null_v4.String        `db:"original_description" json:"originalDescription"`
+	Title               pqtype.NullRawMessage `db:"title" json:"title"`
+	Description         pqtype.NullRawMessage `db:"description" json:"description"`
+	Images              pqtype.NullRawMessage `db:"images" json:"images"`
 }
 
 func (q *Queries) getTopics(ctx context.Context, dollar_1 []uuid.UUID) ([]getTopicsRow, error) {
@@ -582,7 +613,14 @@ func (q *Queries) getTopics(ctx context.Context, dollar_1 []uuid.UUID) ([]getTop
 	var items []getTopicsRow
 	for rows.Next() {
 		var i getTopicsRow
-		if err := rows.Scan(&i.ID, &i.OriginalTitle, &i.Title); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.OriginalTitle,
+			&i.OriginalDescription,
+			&i.Title,
+			&i.Description,
+			&i.Images,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

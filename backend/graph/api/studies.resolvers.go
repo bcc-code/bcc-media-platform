@@ -44,6 +44,19 @@ func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.
 	}), nil
 }
 
+// Image is the resolver for the image field.
+func (r *lessonResolver) Image(ctx context.Context, obj *model.Lesson, style *model.ImageStyle) (*string, error) {
+	e, err := r.Loaders.StudyLessonLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	t, err := r.Loaders.StudyTopicLoader.Get(ctx, e.TopicID)
+	if err != nil {
+		return nil, err
+	}
+	return imageOrFallback(ctx, e.Images, style, t.Images), nil
+}
+
 // Tasks is the resolver for the tasks field.
 func (r *lessonResolver) Tasks(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.TaskPagination, error) {
 	ids, err := r.FilteredLoaders(ctx).StudyTasksLoader.Get(ctx, utils.AsUuid(obj.ID))
@@ -141,6 +154,86 @@ func (r *lessonResolver) Links(ctx context.Context, obj *model.Lesson, first *in
 }
 
 // Completed is the resolver for the completed field.
+func (r *lessonResolver) Completed(ctx context.Context, obj *model.Lesson) (bool, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return false, err
+	}
+	ids, err := r.Loaders.CompletedLessonsLoader.Get(ctx, p.ID)
+	if err != nil {
+		return false, err
+	}
+	for _, id := range ids {
+		if id != nil && *id == utils.AsUuid(obj.ID) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// Locked is the resolver for the locked field.
+func (r *lessonResolver) Locked(ctx context.Context, obj *model.Lesson) (bool, error) {
+	pr, err := r.Previous(ctx, obj)
+	if err != nil {
+		return false, err
+	}
+	if pr == nil {
+		return false, nil
+	}
+	prCompleted, err := r.Completed(ctx, pr)
+	if err != nil {
+		return false, err
+	}
+	return !prCompleted, nil
+}
+
+// Previous is the resolver for the previous field.
+func (r *lessonResolver) Previous(ctx context.Context, obj *model.Lesson) (*model.Lesson, error) {
+	l, err := r.Loaders.StudyLessonLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	siblings, err := r.GetFilteredLoaders(ctx).StudyLessonsLoader.Get(ctx, l.TopicID)
+	if err != nil {
+		return nil, err
+	}
+	index := -1
+	for i, s := range siblings {
+		if s != nil && *s == l.ID {
+			index = i
+			break
+		}
+	}
+	if index <= 0 {
+		return nil, nil
+	}
+	return r.QueryRoot().StudyLesson(ctx, siblings[index-1].String())
+}
+
+// Next is the resolver for the next field.
+func (r *lessonResolver) Next(ctx context.Context, obj *model.Lesson) (*model.Lesson, error) {
+	l, err := r.Loaders.StudyLessonLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	siblings, err := r.GetFilteredLoaders(ctx).StudyLessonsLoader.Get(ctx, l.TopicID)
+	if err != nil {
+		return nil, err
+	}
+	index := -1
+	for i, s := range siblings {
+		if s != nil && *s == l.ID {
+			index = i
+			break
+		}
+	}
+	if index < 0 || index >= (len(siblings)-1) {
+		return nil, nil
+	}
+	return r.QueryRoot().StudyLesson(ctx, siblings[index+1].String())
+}
+
+// Completed is the resolver for the completed field.
 func (r *linkTaskResolver) Completed(ctx context.Context, obj *model.LinkTask) (bool, error) {
 	id, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
@@ -188,6 +281,15 @@ func (r *quoteTaskResolver) Completed(ctx context.Context, obj *model.QuoteTask)
 		return false, err
 	}
 	return id != nil, nil
+}
+
+// Image is the resolver for the image field.
+func (r *studyTopicResolver) Image(ctx context.Context, obj *model.StudyTopic, style *model.ImageStyle) (*string, error) {
+	e, err := r.Loaders.StudyTopicLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	return imageOrFallback(ctx, e.Images, style), nil
 }
 
 // Lessons is the resolver for the lessons field.

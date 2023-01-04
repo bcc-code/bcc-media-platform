@@ -566,13 +566,19 @@ type LegacyIDLookupOptions struct {
 }
 
 type Lesson struct {
-	ID       string             `json:"id"`
-	Title    string             `json:"title"`
-	Tasks    *TaskPagination    `json:"tasks"`
-	Topic    *StudyTopic        `json:"topic"`
-	Progress *TasksProgress     `json:"progress"`
-	Episodes *EpisodePagination `json:"episodes"`
-	Links    *LinkPagination    `json:"links"`
+	ID          string             `json:"id"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Image       *string            `json:"image"`
+	Tasks       *TaskPagination    `json:"tasks"`
+	Topic       *StudyTopic        `json:"topic"`
+	Progress    *TasksProgress     `json:"progress"`
+	Episodes    *EpisodePagination `json:"episodes"`
+	Links       *LinkPagination    `json:"links"`
+	Completed   bool               `json:"completed"`
+	Locked      bool               `json:"locked"`
+	Previous    *Lesson            `json:"previous"`
+	Next        *Lesson            `json:"next"`
 }
 
 type LessonPagination struct {
@@ -1052,11 +1058,15 @@ type Stream struct {
 }
 
 type StudyTopic struct {
-	ID       string            `json:"id"`
-	Title    string            `json:"title"`
-	Lessons  *LessonPagination `json:"lessons"`
-	Progress *TasksProgress    `json:"progress"`
+	ID          string            `json:"id"`
+	Title       string            `json:"title"`
+	Description string            `json:"description"`
+	Image       *string           `json:"image"`
+	Lessons     *LessonPagination `json:"lessons"`
+	Progress    *TasksProgress    `json:"progress"`
 }
+
+func (StudyTopic) IsSectionItemType() {}
 
 type TaskPagination struct {
 	Offset int    `json:"offset"`

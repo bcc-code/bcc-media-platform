@@ -5,7 +5,19 @@
         "logout": "Kijelentkezés",
         "stayLoggedOut": "Kijelentkezve maradni",
         "cancel": "Mégse",
-        "submit": "Megerősítés"
+        "submit": "Megerősítés",
+        "back": "Vissza",
+        "next": "Következő",
+        "continue": "Folytatás",
+        "close": "Bezárás",
+        "download": "Letöltés",
+        "goTo": "Ugrás",
+        "send": "Küldés"
+    },
+    "error": {
+        "couldntSendYourMessage": "Nem sikerült elküldeni az üzenetedet",
+        "somethingWentWrong": "Valami rosszul ment.",
+        "checkNetwork": "Ellenőrizd az internetkapcsolatodat, és próbáld meg újra."
     },
     "dashboard": {
         "loggedOut": "Kijelentkeztél"
@@ -85,10 +97,12 @@
             "description": "A mélyebb megértés érdekében javasoljuk, hogy nézzd meg a videót többször is.",
             "button": "Ismét lejátszás"
         },
-        "textTaskPlaceholder": "Írd le és küldd el gondolataidat."
+        "lessonActivityTitle": "Tanítási tevékenység",
+        "textTaskPlaceholder": "Írd le és küldd el gondolataidat.",
+        "question": "Kérdés",
+        "wrongAnswerMessage": "Ó, közel. Próbáld újra!",
+        "correctAnswerMessage": "Jól csináltad!"
     },
-    "thankYou": "Köszönjük!",
-    "yourResponseHasBeenSubmitted": "A válaszodat elküldtük.",
     "cookies": {
         "title": "Ez a weboldal cookie-kat használ",
         "description": "Sütiket használunk, hogy javítsuk a felhasználói élményt ezen a weboldalon. Ha továbbra is használod ezt a weboldalt, ezzel hozzájárulsz a sütik használatához.",
@@ -109,5 +123,16 @@
         "title": "Megosztás",
         "copied": "Vágólapra másolva",
         "membersOnly": "Ez a videó csak bejelentkezett felhasználók számára érhető el."
-    }
+    },
+    "feedback": {
+        "appreciated": "Nagyra értékeljük visszajelzésedet.",
+        "comment": "Hozzászólás a tapasztalataihoz",
+        "episodeTitle": "Hogyan értékelnéd ezt az epizódot?",
+        "anonymousInfo": "Az Értékelésed névtelenül kerül átadásra",
+        "placeholder": "Kérjük, legyél a lehető legrészletesebb, hogy segítsd a megértést."
+    },
+    "thankYou": "Köszönjük!",
+    "yourResponseHasBeenSubmitted": "A válaszodat elküldtük.",
+    "sending": "Adás",
+    "defaultInputPlaceholder": "Kezdj elitt gépelni..."
 }

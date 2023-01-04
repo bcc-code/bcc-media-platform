@@ -90,7 +90,7 @@ func NewCollectionItemLoader(db *sql.DB, collectionLoader *dataloader.Loader[int
 
 // Entry contains the ID and collection of a CollectionItem
 type Entry struct {
-	ID         int
+	ID         string
 	Collection common.ItemCollection
 	Sort       int
 }
