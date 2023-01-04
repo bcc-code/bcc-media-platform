@@ -85,6 +85,7 @@ type FilteredLoaders struct {
 
 // ProfileLoaders contains loaders per profile
 type ProfileLoaders struct {
-	ProgressLoader      *batchloaders.BatchLoader[int, *Progress]
-	TaskCompletedLoader *batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]
+	ProgressLoader              *batchloaders.BatchLoader[int, *Progress]
+	TaskCompletedLoader         *batchloaders.BatchLoader[uuid.UUID, *uuid.UUID]
+	AchievementAchievedAtLoader *batchloaders.BatchLoader[uuid.UUID, *Achieved]
 }

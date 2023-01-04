@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -23,6 +22,19 @@ func (r *achievementResolver) Achieved(ctx context.Context, obj *model.Achieveme
 		return false, err
 	}
 	return lo.Contains(utils.PointerArrayToArray(achievedIDs), utils.AsUuid(obj.ID)), nil
+}
+
+// AchievedAt is the resolver for the achievedAt field.
+func (r *achievementResolver) AchievedAt(ctx context.Context, obj *model.Achievement) (*string, error) {
+	achieved, err := r.GetProfileLoaders(ctx).AchievementAchievedAtLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	if achieved == nil {
+		return nil, nil
+	}
+	at := achieved.AchievedAt.String()
+	return &at, nil
 }
 
 // Group is the resolver for the group field.

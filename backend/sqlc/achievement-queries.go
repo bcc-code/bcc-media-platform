@@ -111,3 +111,18 @@ func (q *Queries) GetUnconfirmedAchievementsForProfiles(ctx context.Context, ids
 		return relation[uuid.UUID, uuid.UUID](i)
 	}), nil
 }
+
+// GetAchievementsAchievedAt returns when achievements has been achieved
+func (pq *ProfileQueries) GetAchievementsAchievedAt(ctx context.Context, ids []uuid.UUID) ([]common.Achieved, error) {
+	rows, err := pq.queries.achievementAchievedAt(ctx, achievementAchievedAtParams{ProfileID: pq.profileID, Column2: ids})
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i achievementAchievedAtRow, _ int) common.Achieved {
+		return common.Achieved{
+			ID:          i.AchievementID,
+			AchievedAt:  i.AchievedAt,
+			ConfirmedAt: i.ConfirmedAt,
+		}
+	}), nil
+}

@@ -3,6 +3,7 @@ package common
 import (
 	"github.com/google/uuid"
 	"gopkg.in/guregu/null.v4"
+	"time"
 )
 
 // Achievement is the struct for achievements.sql
@@ -36,4 +37,10 @@ type AchievementGroup struct {
 // GetKey returns key for this item
 func (a AchievementGroup) GetKey() uuid.UUID {
 	return a.ID
+}
+
+type Achieved struct {
+	ID          uuid.UUID
+	AchievedAt  time.Time
+	ConfirmedAt null.Time
 }

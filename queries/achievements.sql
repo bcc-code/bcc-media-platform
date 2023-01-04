@@ -91,3 +91,12 @@ GROUP BY c.achievement_id;
 INSERT INTO "users"."achievements" (profile_id, achievement_id, achieved_at, condition_ids)
 VALUES ($1, $2, now(), $3)
 ON CONFLICT(profile_id, achievement_id) DO UPDATE SET achieved_at = now();
+
+-- name: achievementAchievedAt :many
+SELECT
+    a.achievement_id,
+    a.achieved_at,
+    a.confirmed_at
+FROM "users"."achievements" a
+WHERE a.profile_id = $1
+  AND a.achievement_id = ANY ($2::uuid[]);

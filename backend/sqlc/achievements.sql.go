@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -191,6 +192,50 @@ type SetAchievementAchievedParams struct {
 func (q *Queries) SetAchievementAchieved(ctx context.Context, arg SetAchievementAchievedParams) error {
 	_, err := q.db.ExecContext(ctx, setAchievementAchieved, arg.ProfileID, arg.AchievementID, pq.Array(arg.ConditionIds))
 	return err
+}
+
+const achievementAchievedAt = `-- name: achievementAchievedAt :many
+SELECT
+    a.achievement_id,
+    a.achieved_at,
+    a.confirmed_at
+FROM "users"."achievements" a
+WHERE a.profile_id = $1
+  AND a.achievement_id = ANY ($2::uuid[])
+`
+
+type achievementAchievedAtParams struct {
+	ProfileID uuid.UUID   `db:"profile_id" json:"profileID"`
+	Column2   []uuid.UUID `db:"column_2" json:"column2"`
+}
+
+type achievementAchievedAtRow struct {
+	AchievementID uuid.UUID    `db:"achievement_id" json:"achievementID"`
+	AchievedAt    time.Time    `db:"achieved_at" json:"achievedAt"`
+	ConfirmedAt   null_v4.Time `db:"confirmed_at" json:"confirmedAt"`
+}
+
+func (q *Queries) achievementAchievedAt(ctx context.Context, arg achievementAchievedAtParams) ([]achievementAchievedAtRow, error) {
+	rows, err := q.db.QueryContext(ctx, achievementAchievedAt, arg.ProfileID, pq.Array(arg.Column2))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []achievementAchievedAtRow
+	for rows.Next() {
+		var i achievementAchievedAtRow
+		if err := rows.Scan(&i.AchievementID, &i.AchievedAt, &i.ConfirmedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getAchievedAchievementsForProfiles = `-- name: getAchievedAchievementsForProfiles :many
