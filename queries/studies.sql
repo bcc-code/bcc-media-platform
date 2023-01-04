@@ -1,27 +1,47 @@
 -- name: getTopics :many
 WITH ts AS (SELECT studytopics_id,
-                   json_object_agg(languages_code, title) as title
+                   json_object_agg(languages_code, title)       as title,
+                   json_object_agg(languages_code, description) as description
             FROM studytopics_translations
-            GROUP BY studytopics_id)
+            GROUP BY studytopics_id),
+     imgs AS (SELECT images.topic_id, json_agg(images) as json
+              FROM (SELECT topic_id, style, language, filename_disk
+                    FROM studytopics_images
+                             JOIN directus_files df on file = df.id) images
+              GROUP BY images.topic_id)
 SELECT s.id,
-       s.title as original_title,
-       ts.title
+       s.title       as original_title,
+       s.description as original_description,
+       ts.title,
+       ts.description,
+       img.json      as images
 FROM studytopics s
          LEFT JOIN ts ON ts.studytopics_id = s.id
+         LEFT JOIN imgs img ON img.topic_id = s.id
 WHERE s.status = 'published'
   AND s.id = ANY ($1::uuid[]);
 
 -- name: getLessons :many
 WITH ts AS (SELECT lessons_id,
-                   json_object_agg(languages_code, title) as title
+                   json_object_agg(languages_code, title)       as title,
+                   json_object_agg(languages_code, description) as description
             FROM lessons_translations
-            GROUP BY lessons_id)
+            GROUP BY lessons_id),
+     imgs AS (SELECT images.lesson_id, json_agg(images) as json
+              FROM (SELECT lesson_id, style, language, filename_disk
+                    FROM lessons_images
+                             JOIN directus_files df on file = df.id) images
+              GROUP BY images.lesson_id)
 SELECT l.id,
        l.topic_id,
-       l.title as original_title,
-       ts.title
+       l.title       as original_title,
+       l.description as original_description,
+       ts.title,
+       ts.description,
+       img.json      as images
 FROM lessons l
          LEFT JOIN ts ON ts.lessons_id = l.id
+         LEFT JOIN imgs img ON img.lesson_id = l.id
 WHERE l.status = 'published'
   AND l.id = ANY ($1::uuid[]);
 

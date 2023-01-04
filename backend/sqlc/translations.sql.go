@@ -111,14 +111,15 @@ func (q *Queries) ListEpisodeTranslations(ctx context.Context, dollar_1 []string
 }
 
 const listLessonOriginalTranslations = `-- name: ListLessonOriginalTranslations :many
-SELECT items.id, items.title
+SELECT items.id, items.title, items.description
 FROM lessons items
 WHERE status = 'published'
 `
 
 type ListLessonOriginalTranslationsRow struct {
-	ID    uuid.UUID `db:"id" json:"id"`
-	Title string    `db:"title" json:"title"`
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
 }
 
 func (q *Queries) ListLessonOriginalTranslations(ctx context.Context) ([]ListLessonOriginalTranslationsRow, error) {
@@ -130,7 +131,7 @@ func (q *Queries) ListLessonOriginalTranslations(ctx context.Context) ([]ListLes
 	var items []ListLessonOriginalTranslationsRow
 	for rows.Next() {
 		var i ListLessonOriginalTranslationsRow
-		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -148,7 +149,7 @@ const listLessonTranslations = `-- name: ListLessonTranslations :many
 WITH lessons AS (SELECT s.id
                  FROM lessons s
                  WHERE s.status = 'published')
-SELECT st.id, lessons_id as parent_id, languages_code, title
+SELECT st.id, lessons_id as parent_id, languages_code, title, description
 FROM lessons_translations st
          JOIN lessons e ON e.id = st.lessons_id
 WHERE st.languages_code = ANY ($1::varchar[])
@@ -159,6 +160,7 @@ type ListLessonTranslationsRow struct {
 	ParentID      uuid.NullUUID  `db:"parent_id" json:"parentID"`
 	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
 	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
 }
 
 func (q *Queries) ListLessonTranslations(ctx context.Context, dollar_1 []string) ([]ListLessonTranslationsRow, error) {
@@ -175,6 +177,7 @@ func (q *Queries) ListLessonTranslations(ctx context.Context, dollar_1 []string)
 			&i.ParentID,
 			&i.LanguagesCode,
 			&i.Title,
+			&i.Description,
 		); err != nil {
 			return nil, err
 		}
@@ -416,14 +419,15 @@ func (q *Queries) ListShowTranslations(ctx context.Context, dollar_1 []string) (
 }
 
 const listStudyTopicOriginalTranslations = `-- name: ListStudyTopicOriginalTranslations :many
-SELECT items.id, items.title
+SELECT items.id, items.title, items.description
 FROM studytopics items
 WHERE status = 'published'
 `
 
 type ListStudyTopicOriginalTranslationsRow struct {
-	ID    uuid.UUID `db:"id" json:"id"`
-	Title string    `db:"title" json:"title"`
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
 }
 
 func (q *Queries) ListStudyTopicOriginalTranslations(ctx context.Context) ([]ListStudyTopicOriginalTranslationsRow, error) {
@@ -435,7 +439,7 @@ func (q *Queries) ListStudyTopicOriginalTranslations(ctx context.Context) ([]Lis
 	var items []ListStudyTopicOriginalTranslationsRow
 	for rows.Next() {
 		var i ListStudyTopicOriginalTranslationsRow
-		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -453,7 +457,7 @@ const listStudyTopicTranslations = `-- name: ListStudyTopicTranslations :many
 WITH items AS (SELECT i.id
                FROM studytopics i
                WHERE i.status = 'published')
-SELECT ts.id, studytopics_id as parent_id, languages_code, title
+SELECT ts.id, studytopics_id as parent_id, languages_code, title, description
 FROM studytopics_translations ts
          JOIN items i ON i.id = ts.studytopics_id
 WHERE ts.languages_code = ANY ($1::varchar[])
@@ -464,6 +468,7 @@ type ListStudyTopicTranslationsRow struct {
 	ParentID      uuid.NullUUID  `db:"parent_id" json:"parentID"`
 	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
 	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
 }
 
 func (q *Queries) ListStudyTopicTranslations(ctx context.Context, dollar_1 []string) ([]ListStudyTopicTranslationsRow, error) {
@@ -480,6 +485,7 @@ func (q *Queries) ListStudyTopicTranslations(ctx context.Context, dollar_1 []str
 			&i.ParentID,
 			&i.LanguagesCode,
 			&i.Title,
+			&i.Description,
 		); err != nil {
 			return nil, err
 		}
@@ -495,14 +501,15 @@ func (q *Queries) ListStudyTopicTranslations(ctx context.Context, dollar_1 []str
 }
 
 const listTaskOriginalTranslations = `-- name: ListTaskOriginalTranslations :many
-SELECT items.id, items.title
+SELECT items.id, items.title, items.description
 FROM tasks items
 WHERE status = 'published'
 `
 
 type ListTaskOriginalTranslationsRow struct {
-	ID    uuid.UUID      `db:"id" json:"id"`
-	Title null_v4.String `db:"title" json:"title"`
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
 }
 
 func (q *Queries) ListTaskOriginalTranslations(ctx context.Context) ([]ListTaskOriginalTranslationsRow, error) {
@@ -514,7 +521,7 @@ func (q *Queries) ListTaskOriginalTranslations(ctx context.Context) ([]ListTaskO
 	var items []ListTaskOriginalTranslationsRow
 	for rows.Next() {
 		var i ListTaskOriginalTranslationsRow
-		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -532,7 +539,7 @@ const listTaskTranslations = `-- name: ListTaskTranslations :many
 WITH items AS (SELECT i.id
                FROM tasks i
                WHERE i.status = 'published')
-SELECT ts.id, tasks_id as parent_id, languages_code, title
+SELECT ts.id, tasks_id as parent_id, languages_code, title, description
 FROM tasks_translations ts
          JOIN items i ON i.id = ts.tasks_id
 WHERE ts.languages_code = ANY ($1::varchar[])
@@ -543,6 +550,7 @@ type ListTaskTranslationsRow struct {
 	ParentID      uuid.NullUUID  `db:"parent_id" json:"parentID"`
 	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
 	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
 }
 
 func (q *Queries) ListTaskTranslations(ctx context.Context, dollar_1 []string) ([]ListTaskTranslationsRow, error) {
@@ -559,6 +567,7 @@ func (q *Queries) ListTaskTranslations(ctx context.Context, dollar_1 []string) (
 			&i.ParentID,
 			&i.LanguagesCode,
 			&i.Title,
+			&i.Description,
 		); err != nil {
 			return nil, err
 		}

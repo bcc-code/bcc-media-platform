@@ -234,7 +234,7 @@ type CollectionItem struct {
 	Sort         int            `json:"sort"`
 	CollectionID int            `json:"collectionId"`
 	Type         ItemCollection `json:"type"`
-	ItemID       int            `json:"itemId"`
+	ItemID       string         `json:"itemId"`
 }
 
 // GetKey returns the key for this item

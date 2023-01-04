@@ -19,15 +19,22 @@ func (q *Queries) GetTopics(ctx context.Context, ids []uuid.UUID) ([]common.Stud
 	}
 	return lo.Map(topics, func(t getTopicsRow, _ int) common.StudyTopic {
 		var title = common.LocaleString{}
+		var description = common.LocaleString{}
 		_ = json.Unmarshal(t.Title.RawMessage, &title)
+		_ = json.Unmarshal(t.Description.RawMessage, &description)
 
 		if t.OriginalTitle != "" {
 			title["no"] = null.StringFrom(t.OriginalTitle)
 		}
+		if t.OriginalDescription.String != "" {
+			description["no"] = t.OriginalDescription
+		}
 
 		return common.StudyTopic{
-			ID:    t.ID,
-			Title: title,
+			ID:          t.ID,
+			Title:       title,
+			Description: description,
+			Images:      q.getImages(t.Images.RawMessage),
 		}
 	}), nil
 }
@@ -40,16 +47,23 @@ func (q *Queries) GetLessons(ctx context.Context, ids []uuid.UUID) ([]common.Les
 	}
 	return lo.Map(lessons, func(l getLessonsRow, _ int) common.Lesson {
 		var title = common.LocaleString{}
+		var description = common.LocaleString{}
 		_ = json.Unmarshal(l.Title.RawMessage, &title)
+		_ = json.Unmarshal(l.Description.RawMessage, &description)
 
 		if l.OriginalTitle != "" {
 			title["no"] = null.StringFrom(l.OriginalTitle)
 		}
+		if l.OriginalDescription.Valid {
+			description["no"] = l.OriginalDescription
+		}
 
 		return common.Lesson{
-			ID:      l.ID,
-			TopicID: l.TopicID,
-			Title:   title,
+			ID:          l.ID,
+			TopicID:     l.TopicID,
+			Title:       title,
+			Description: description,
+			Images:      q.getImages(l.Images.RawMessage),
 		}
 	}), nil
 }

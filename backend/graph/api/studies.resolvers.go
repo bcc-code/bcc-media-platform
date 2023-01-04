@@ -44,6 +44,19 @@ func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.
 	}), nil
 }
 
+// Image is the resolver for the image field.
+func (r *lessonResolver) Image(ctx context.Context, obj *model.Lesson, style *model.ImageStyle) (*string, error) {
+	e, err := r.Loaders.StudyLessonLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	t, err := r.Loaders.StudyTopicLoader.Get(ctx, e.TopicID)
+	if err != nil {
+		return nil, err
+	}
+	return imageOrFallback(ctx, e.Images, style, t.Images), nil
+}
+
 // Tasks is the resolver for the tasks field.
 func (r *lessonResolver) Tasks(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.TaskPagination, error) {
 	ids, err := r.FilteredLoaders(ctx).StudyTasksLoader.Get(ctx, utils.AsUuid(obj.ID))
@@ -268,6 +281,15 @@ func (r *quoteTaskResolver) Completed(ctx context.Context, obj *model.QuoteTask)
 		return false, err
 	}
 	return id != nil, nil
+}
+
+// Image is the resolver for the image field.
+func (r *studyTopicResolver) Image(ctx context.Context, obj *model.StudyTopic, style *model.ImageStyle) (*string, error) {
+	e, err := r.Loaders.StudyTopicLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	return imageOrFallback(ctx, e.Images, style), nil
 }
 
 // Lessons is the resolver for the lessons field.

@@ -778,15 +778,24 @@ type Language struct {
 }
 
 type Lesson struct {
-	ID          uuid.UUID     `db:"id" json:"id"`
-	Status      string        `db:"status" json:"status"`
-	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
-	Title       string        `db:"title" json:"title"`
-	TopicID     uuid.UUID     `db:"topic_id" json:"topicID"`
-	Sort        null_v4.Int   `db:"sort" json:"sort"`
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Status      string         `db:"status" json:"status"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Title       string         `db:"title" json:"title"`
+	TopicID     uuid.UUID      `db:"topic_id" json:"topicID"`
+	Sort        null_v4.Int    `db:"sort" json:"sort"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+type LessonsImage struct {
+	ID       uuid.UUID     `db:"id" json:"id"`
+	LessonID uuid.NullUUID `db:"lesson_id" json:"lessonID"`
+	File     uuid.UUID     `db:"file" json:"file"`
+	Language string        `db:"language" json:"language"`
+	Style    string        `db:"style" json:"style"`
 }
 
 type LessonsRelation struct {
@@ -802,6 +811,7 @@ type LessonsTranslation struct {
 	LessonsID     uuid.NullUUID  `db:"lessons_id" json:"lessonsID"`
 	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
 	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
 }
 
 type Link struct {
@@ -1124,13 +1134,22 @@ type ShowsUsergroup struct {
 }
 
 type Studytopic struct {
-	ID          uuid.UUID     `db:"id" json:"id"`
-	Status      string        `db:"status" json:"status"`
-	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
-	Title       string        `db:"title" json:"title"`
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Status      string         `db:"status" json:"status"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+type StudytopicsImage struct {
+	ID       uuid.UUID      `db:"id" json:"id"`
+	TopicID  uuid.UUID      `db:"topic_id" json:"topicID"`
+	File     uuid.UUID      `db:"file" json:"file"`
+	Language string         `db:"language" json:"language"`
+	Style    null_v4.String `db:"style" json:"style"`
 }
 
 type StudytopicsTranslation struct {
@@ -1138,6 +1157,7 @@ type StudytopicsTranslation struct {
 	StudytopicsID uuid.NullUUID  `db:"studytopics_id" json:"studytopicsID"`
 	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
 	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
 }
 
 type Tag struct {
