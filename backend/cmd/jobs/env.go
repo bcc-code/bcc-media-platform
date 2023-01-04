@@ -1,7 +1,9 @@
 package main
 
 import (
+	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
+	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
@@ -50,6 +52,8 @@ type envConfig struct {
 	CloudTasks        cloudTasks
 	ServiceUrl        string
 	Redis             utils.RedisConfig
+	Auth0             auth0.Config
+	Members           members.Config
 }
 
 func getEnvConfig() envConfig {
@@ -109,5 +113,13 @@ func getEnvConfig() envConfig {
 			Database: utils.AsInt(os.Getenv("REDIS_DATABASE")),
 		},
 		ServiceUrl: os.Getenv("SERVICE_URL"),
+		Auth0: auth0.Config{
+			ClientID:     os.Getenv("AUTH0_CLIENT_ID"),
+			ClientSecret: os.Getenv("AUTH0_CLIENT_SECRET"),
+			Domain:       os.Getenv("AUTH0_DOMAIN"),
+		},
+		Members: members.Config{
+			Domain: os.Getenv("MEMBERS_API_DOMAIN"),
+		},
 	}
 }

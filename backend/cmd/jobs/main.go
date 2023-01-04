@@ -8,10 +8,13 @@ import (
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/events"
+	"github.com/bcc-code/brunstadtv/backend/members"
+	"github.com/bcc-code/brunstadtv/backend/notifications"
 	"github.com/bcc-code/brunstadtv/backend/push"
 	"github.com/bcc-code/brunstadtv/backend/scheduler"
 	"github.com/bcc-code/brunstadtv/backend/search"
@@ -97,11 +100,17 @@ func main() {
 	pool := goredis.NewPool(rdb)
 	rs := redsync.New(pool)
 
+	authClient := auth0.New(config.Auth0)
+	membersClient := members.New(config.Members, authClient)
+	notificationUtils := notifications.NewUtils(queries, membersClient)
+
 	mh := &modelHandler{
-		scheduler: sr,
-		push:      pushService,
-		queries:   queries,
-		locker:    rs,
+		scheduler:         sr,
+		push:              pushService,
+		queries:           queries,
+		locker:            rs,
+		members:           membersClient,
+		notificationUtils: notificationUtils,
 	}
 
 	sr.OnRequest(func(ctx context.Context, item scheduler.QueuedItem) error {
