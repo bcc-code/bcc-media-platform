@@ -53,7 +53,7 @@ import (
 //   - NOTE: Changing column types is a major change, because of static langs
 //
 // * Major change: Everything else
-const SQLiteExportDBVersion = "v0.0.3"
+const SQLiteExportDBVersion = "v0.0.4"
 
 type CDNConfig interface {
 	GetLegacyVODDomain() string
@@ -351,7 +351,7 @@ func exportPages(ctx context.Context, q serviceProvider, liteQueries *sqlexport.
 }
 
 type collectionEntry struct {
-	ID   int
+	ID   string
 	Type string
 }
 
@@ -373,8 +373,7 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 
 		liteEntries := lo.Map(entries, func(e collection.Entry, _ int) collectionEntry {
 			return collectionEntry{
-				// TODO: change this ID type to string
-				ID:   utils.AsInt(e.ID),
+				ID:   e.ID,
 				Type: string(e.Collection),
 			}
 		})
