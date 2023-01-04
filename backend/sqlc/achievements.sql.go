@@ -320,7 +320,7 @@ WITH ts AS (SELECT achievements_id, json_object_agg(languages_code, title) as ti
                      json_agg(c) as conditions
               FROM achievementconditions c
               GROUP BY achievement_id),
-     images AS (SELECT achievement_id, json_object_agg(language, df.filename_disk) as images
+     images AS (SELECT achievement_id, json_object_agg(COALESCE(language, 'no'), df.filename_disk) as images
                 FROM achievements_images
                          JOIN directus_files df on achievements_images.image = df.id
                 GROUP BY achievement_id)
