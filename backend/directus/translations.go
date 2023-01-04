@@ -91,6 +91,14 @@ type AchievementsTranslation struct {
 	AchievementsID string `json:"achievements_id"`
 }
 
+// AchievementGroupsTranslation struct
+type AchievementGroupsTranslation struct {
+	ID                  string `json:"id,omitempty"`
+	Title               string `json:"title"`
+	LanguagesCode       string `json:"languages_code"`
+	AchievementGroupsID string `json:"achievementgroups_id"`
+}
+
 // ForUpdate for update
 func (i StudyTopicsTranslation) ForUpdate() any {
 	return map[string]string{
@@ -175,6 +183,23 @@ func (i AchievementsTranslation) UID() string {
 // TypeName string
 func (AchievementsTranslation) TypeName() string {
 	return "achievements_translations"
+}
+
+// ForUpdate for update
+func (i AchievementGroupsTranslation) ForUpdate() any {
+	return map[string]string{
+		"title": i.Title,
+	}
+}
+
+// UID unique id
+func (i AchievementGroupsTranslation) UID() string {
+	return i.ID
+}
+
+// TypeName string
+func (AchievementGroupsTranslation) TypeName() string {
+	return "achievementgroups_translations"
 }
 
 type update struct {

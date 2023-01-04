@@ -123,6 +123,14 @@ FROM achievements_translations ts
          JOIN items i ON i.id = ts.achievements_id
 WHERE ts.languages_code = ANY ($1::varchar[]);
 
+-- name: ListAchievementGroupTranslations :many
+WITH items AS (SELECT i.id
+               FROM achievementgroups i)
+SELECT ts.id, achievementgroups_id as parent_id, languages_code, title, description
+FROM achievementgroups_translations ts
+         JOIN items i ON i.id = ts.achievementgroups_id
+WHERE ts.languages_code = ANY ($1::varchar[]);
+
 -- name: ListStudyTopicOriginalTranslations :many
 SELECT items.id, items.title, items.description
 FROM studytopics items
@@ -173,3 +181,13 @@ WHERE status = 'published';
 DELETE
 FROM achievements_translations ts
 WHERE ts.achievements_id = ANY ($1::uuid[]);
+
+-- name: ListAchievementGroupOriginalTranslations :many
+SELECT items.id, items.title
+FROM achievementgroups items
+WHERE status = 'published';
+
+-- name: ClearAchievementGroupTranslations :exec
+DELETE
+FROM achievementgroups_translations ts
+WHERE ts.achievementgroups_id = ANY ($1::uuid[]);

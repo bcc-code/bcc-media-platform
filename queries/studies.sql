@@ -150,6 +150,7 @@ FROM users.profiles p
 WHERE p.id = ANY ($1::uuid[])
   AND completed.completed_count = total.task_count;
 
+
 -- name: getCompletedTopics :many
 WITH total AS (SELECT l.topic_id,
                       COUNT(t.id) task_count

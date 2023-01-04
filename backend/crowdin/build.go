@@ -137,6 +137,14 @@ type Translation struct {
 	Language   string
 }
 
+func partsFromIdentifier(identifier string) (collection string, key string, field string) {
+	parts := strings.Split(identifier, "-")
+	collection = parts[0]
+	key = strings.Join(parts[1:len(parts)-1], "-")
+	field, _ = lo.Last(parts)
+	return
+}
+
 // GetTranslationsFromZip retrieves translations from a zip containing csv files
 func GetTranslationsFromZip(zipFile string) ([]Translation, error) {
 	reader, err := zip.OpenReader(zipFile)
@@ -168,10 +176,8 @@ func GetTranslationsFromZip(zipFile string) ([]Translation, error) {
 			if value == "" {
 				continue
 			}
-			parts := strings.Split(key, "-")
-			collection := parts[0]
-			id := strings.Join(parts[1:len(parts)-1], "-")
-			field, _ := lo.Last(parts)
+
+			collection, id, field := partsFromIdentifier(key)
 
 			ts = append(ts, Translation{
 				Language:   language,

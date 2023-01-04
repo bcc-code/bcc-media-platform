@@ -24,3 +24,10 @@ func PointerArrayToArray[K any](collection []*K) []K {
 		return *i
 	})
 }
+
+// MapWith function
+func MapWith[T any, R any](collection []T, with func(T) R) []R {
+	return lo.Map(collection, func(i T, _ int) R {
+		return with(i)
+	})
+}

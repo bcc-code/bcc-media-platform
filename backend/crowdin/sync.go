@@ -18,6 +18,7 @@ func (c *Client) syncCollection(
 	crowdinTranslations []Translation,
 	contextFactory func(identifier string) string,
 	toDSItems func(items []simpleTranslation) []directus.DSItem,
+	deleteTranslations func(ctx context.Context, keys []string) error,
 ) error {
 	log.L.Debug().Int("project", project.ID).Str("collection", collection).Msg("Syncing collection")
 	projectId := project.ID
@@ -85,6 +86,15 @@ func (c *Client) syncCollection(
 				continue
 			}
 			_, err = c.setString(project.ID, str)
+			if err != nil {
+				return err
+			}
+		}
+		if deleteTranslations != nil {
+			err = deleteTranslations(ctx, lo.Map(editStrings, func(i String, _ int) string {
+				_, key, _ := partsFromIdentifier(i.Identifier)
+				return key
+			}))
 			if err != nil {
 				return err
 			}

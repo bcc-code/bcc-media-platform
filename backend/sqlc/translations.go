@@ -297,3 +297,29 @@ func (r ListAchievementTranslationsRow) GetValues() map[string]string {
 func (r ListAchievementTranslationsRow) GetLanguage() string {
 	return r.LanguagesCode
 }
+
+// GetKey for this item
+func (r ListAchievementGroupTranslationsRow) GetKey() string {
+	return strconv.Itoa(int(r.ID))
+}
+
+// GetParentKey for this item
+func (r ListAchievementGroupTranslationsRow) GetParentKey() string {
+	return r.ParentID.UUID.String()
+}
+
+// GetValues for this entry
+func (r ListAchievementGroupTranslationsRow) GetValues() map[string]string {
+	ret := map[string]string{}
+
+	if r.Title.Valid {
+		ret["title"] = r.Title.String
+	}
+
+	return ret
+}
+
+// GetLanguage for this item
+func (r ListAchievementGroupTranslationsRow) GetLanguage() string {
+	return r.LanguagesCode.String
+}

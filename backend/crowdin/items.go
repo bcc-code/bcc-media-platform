@@ -11,7 +11,7 @@ import (
 )
 
 func (c *Client) syncEpisodes(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "episodes", c.episodesTranslationFactory, crowdinTranslations, nil, episodesToDSItems)
+	return c.syncCollection(ctx, d, project, directoryId, "episodes", c.episodesTranslationFactory, crowdinTranslations, nil, episodesToDSItems, nil)
 }
 
 func (c *Client) episodesTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
@@ -35,7 +35,7 @@ func episodesToDSItems(translations []simpleTranslation) []directus.DSItem {
 }
 
 func (c *Client) syncSeasons(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "seasons", c.seasonsTranslationFactory, crowdinTranslations, nil, seasonsToDSItems)
+	return c.syncCollection(ctx, d, project, directoryId, "seasons", c.seasonsTranslationFactory, crowdinTranslations, nil, seasonsToDSItems, nil)
 }
 
 func (c *Client) seasonsTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
@@ -59,7 +59,7 @@ func seasonsToDSItems(translations []simpleTranslation) []directus.DSItem {
 }
 
 func (c *Client) syncShows(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "shows", c.showsTranslationFactory, crowdinTranslations, nil, showsToDSItems)
+	return c.syncCollection(ctx, d, project, directoryId, "shows", c.showsTranslationFactory, crowdinTranslations, nil, showsToDSItems, nil)
 }
 
 func (c *Client) showsTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
@@ -83,7 +83,7 @@ func showsToDSItems(translations []simpleTranslation) []directus.DSItem {
 }
 
 func (c *Client) syncSections(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "sections", c.sectionsTranslationFactory, crowdinTranslations, nil, sectionsToDSItems)
+	return c.syncCollection(ctx, d, project, directoryId, "sections", c.sectionsTranslationFactory, crowdinTranslations, nil, sectionsToDSItems, nil)
 }
 
 func (c *Client) sectionsTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
@@ -107,7 +107,7 @@ func sectionsToDSItems(translations []simpleTranslation) []directus.DSItem {
 }
 
 func (c *Client) syncPages(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "pages", c.pagesTranslationFactory, crowdinTranslations, nil, pagesToDSItems)
+	return c.syncCollection(ctx, d, project, directoryId, "pages", c.pagesTranslationFactory, crowdinTranslations, nil, pagesToDSItems, nil)
 }
 
 func (c *Client) pagesTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
@@ -150,7 +150,7 @@ func (c *Client) syncLessons(ctx context.Context, d *directus.Handler, project P
 			}), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListLessonTranslations)
-	}, crowdinTranslations, nil, lessonsToDSItems)
+	}, crowdinTranslations, nil, lessonsToDSItems, nil)
 }
 
 func lessonsToDSItems(translations []simpleTranslation) []directus.DSItem {
@@ -187,7 +187,7 @@ func (c *Client) syncTopics(ctx context.Context, d *directus.Handler, project Pr
 			}), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListStudyTopicTranslations)
-	}, crowdinTranslations, nil, topicsToDSItems)
+	}, crowdinTranslations, nil, topicsToDSItems, nil)
 }
 
 func topicsToDSItems(translations []simpleTranslation) []directus.DSItem {
@@ -224,7 +224,7 @@ func (c *Client) syncTasks(ctx context.Context, d *directus.Handler, project Pro
 			}), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListTaskTranslations)
-	}, crowdinTranslations, nil, tasksToDSItems)
+	}, crowdinTranslations, nil, tasksToDSItems, nil)
 }
 
 func tasksToDSItems(translations []simpleTranslation) []directus.DSItem {
@@ -287,7 +287,7 @@ func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, proj
 			return "Question: " + t
 		}
 		return ""
-	}, alternativesToDSItems)
+	}, alternativesToDSItems, nil)
 }
 
 func alternativesToDSItems(translations []simpleTranslation) []directus.DSItem {
@@ -324,19 +324,57 @@ func (c *Client) syncAchievements(ctx context.Context, d *directus.Handler, proj
 			}), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListAchievementTranslations)
-	}, crowdinTranslations, nil, achievementsToDSItems)
+	}, crowdinTranslations, nil, achievementsToDSItems, func(ctx context.Context, keys []string) error {
+		return c.q.ClearAchievementTranslations(ctx, utils.MapWith(keys, utils.AsUuid))
+	})
 }
 
 func achievementsToDSItems(translations []simpleTranslation) []directus.DSItem {
 	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
 		ti, _ := t.Values[TitleField]
 		de, _ := t.Values[DescriptionField]
-		return directus.TasksTranslation{
-			ID:            t.ID,
-			LanguagesCode: t.Language,
-			Title:         ti,
-			Description:   de,
-			TasksID:       t.ParentID,
+		return directus.AchievementsTranslation{
+			ID:             t.ID,
+			LanguagesCode:  t.Language,
+			Title:          ti,
+			Description:    de,
+			AchievementsID: t.ParentID,
+		}
+	})
+}
+
+func (c *Client) syncAchievementGroups(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "achievementgroups", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListAchievementGroupOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListAchievementGroupOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID: t.ID.String(),
+					Values: map[string]string{
+						TitleField: t.Title.ValueOrZero(),
+					},
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
+		return dbToSimple(ctx, language, c.q.ListAchievementGroupTranslations)
+	}, crowdinTranslations, nil, achievementGroupsToDSItems, func(ctx context.Context, keys []string) error {
+		return c.q.ClearAchievementGroupTranslations(ctx, utils.MapWith(keys, utils.AsUuid))
+	})
+}
+
+func achievementGroupsToDSItems(translations []simpleTranslation) []directus.DSItem {
+	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+		ti, _ := t.Values[TitleField]
+		return directus.AchievementGroupsTranslation{
+			ID:                  t.ID,
+			LanguagesCode:       t.Language,
+			Title:               ti,
+			AchievementGroupsID: t.ParentID,
 		}
 	})
 }
