@@ -5,7 +5,19 @@
         "logout": "",
         "stayLoggedOut": "",
         "cancel": "",
-        "submit": ""
+        "submit": "",
+        "back": "",
+        "next": "",
+        "continue": "",
+        "close": "",
+        "download": "",
+        "goTo": "",
+        "send": ""
+    },
+    "error": {
+        "couldntSendYourMessage": "",
+        "somethingWentWrong": "",
+        "checkNetwork": ""
     },
     "dashboard": {
         "loggedOut": ""
@@ -85,10 +97,12 @@
             "description": "",
             "button": ""
         },
-        "textTaskPlaceholder": ""
+        "lessonActivityTitle": "",
+        "textTaskPlaceholder": "",
+        "question": "",
+        "wrongAnswerMessage": "",
+        "correctAnswerMessage": ""
     },
-    "thankYou": "",
-    "yourResponseHasBeenSubmitted": "",
     "cookies": {
         "title": "",
         "description": "",
@@ -109,5 +123,16 @@
         "title": "",
         "copied": "",
         "membersOnly": ""
-    }
+    },
+    "feedback": {
+        "appreciated": "",
+        "comment": "",
+        "episodeTitle": "",
+        "anonymousInfo": "",
+        "placeholder": ""
+    },
+    "thankYou": "",
+    "yourResponseHasBeenSubmitted": "",
+    "sending": "",
+    "defaultInputPlaceholder": ""
 }
