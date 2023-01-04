@@ -253,20 +253,18 @@ func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, proj
 	if err != nil {
 		return err
 	}
-	tasks, err := c.q.GetTasks(ctx, lo.Map(alts, func(i common.QuestionAlternative, _ int) uuid.UUID {
-		return i.TaskID
-	}))
+	taskOriginals, err := c.q.ListTaskOriginalTranslations(ctx)
 	if err != nil {
 		return err
 	}
 	taskTitles := lo.Reduce(alts, func(m map[string]string, i common.QuestionAlternative, _ int) map[string]string {
-		t, f := lo.Find(tasks, func(t common.Task) bool {
+		t, f := lo.Find(taskOriginals, func(t sqlc.ListTaskOriginalTranslationsRow) bool {
 			return t.ID == i.TaskID
 		})
 		if !f {
 			return m
 		}
-		m[i.ID.String()] = t.Title.Get([]string{"no"})
+		m[i.ID.String()] = t.Title.String
 		return m
 	}, map[string]string{})
 
