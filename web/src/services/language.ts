@@ -23,18 +23,18 @@ const getLanguages: (language: string) => Language[] = (language) => {
         const displayNames = new Intl.DisplayNames([language], {
             type: "language",
         })
-        const enDisplayNames = new Intl.DisplayNames(["en"], {
-            type: "language",
-        })
 
         const ls = SUPPORT_LOCALES.map((l) => {
+            const enDisplayNames = new Intl.DisplayNames([l], {
+                type: "language",
+            })
             const name = displayNames.of(l)
             const enName = enDisplayNames.of(l)
 
             return {
                 code: l,
-                name: capFirstLetter(name ?? l),
-                english: name === enName ? undefined : enName,
+                name: capFirstLetter(enName ?? l),
+                english: capFirstLetter(name ?? l),
             }
         })
 
