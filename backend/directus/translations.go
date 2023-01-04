@@ -226,15 +226,6 @@ func (i Translation) GetValues() map[string]string {
 	}
 }
 
-// GetValues returns values
-func (i EpisodesTranslation) GetValues() map[string]string {
-	return map[string]string{
-		"title":             i.Title,
-		"description":       i.Description,
-		"extra_description": i.ExtraDescription,
-	}
-}
-
 // GetCollection episodes
 func (i EpisodesTranslation) GetCollection() string {
 	return "episodes"

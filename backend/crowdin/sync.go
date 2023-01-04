@@ -124,6 +124,9 @@ func (c *Client) syncCollection(
 
 		var items []*simpleTranslation
 		for _, t := range ts {
+			if t.Field == "extra_description" {
+				continue
+			}
 			_, found = lo.Find(sourceTranslations, func(i simpleTranslation) bool {
 				return i.ParentID == t.ID
 			})

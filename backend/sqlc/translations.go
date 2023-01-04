@@ -24,10 +24,6 @@ func (r ListEpisodeTranslationsRow) GetValues() map[string]string {
 		ret["description"] = r.Description.String
 	}
 
-	if r.ExtraDescription.Valid {
-		ret["extra_description"] = r.ExtraDescription.String
-	}
-
 	return ret
 }
 
