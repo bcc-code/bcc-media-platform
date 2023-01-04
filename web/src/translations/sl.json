@@ -8,16 +8,16 @@
         "submit": "Oddaj",
         "back": "Nazaj",
         "next": "Sledi",
-        "continue": "",
-        "close": "",
-        "download": "",
-        "goTo": "",
+        "continue": "Nadaljuj",
+        "close": "Zapri",
+        "download": "Prenesi",
+        "goTo": "Pojdi na",
         "send": "Pošlji"
     },
     "error": {
         "couldntSendYourMessage": "Sporočila ni bilo mogoče poslati",
-        "somethingWentWrong": "",
-        "checkNetwork": ""
+        "somethingWentWrong": "Nekaj je šlo narobe.",
+        "checkNetwork": "Preveri svojo internetno povezavo in poskusi znova."
     },
     "dashboard": {
         "loggedOut": "Bil si odjavljen"
@@ -97,10 +97,10 @@
             "description": "Za globlje razumevanje priporočamo večkraten ogled videa.",
             "button": "Predvajaj znova"
         },
-        "lessonActivityTitle": "",
+        "lessonActivityTitle": "Aktivnost lekcije",
         "textTaskPlaceholder": "Napiši in oddaj svoje mnenje.",
         "question": "Vprašanje",
-        "wrongAnswerMessage": "",
+        "wrongAnswerMessage": "Oh, skoraj. Poskusi znova!",
         "correctAnswerMessage": "Bravo!"
     },
     "cookies": {
@@ -125,14 +125,14 @@
         "membersOnly": "Ta video je na voljo samo prijavljenim uporabnikom."
     },
     "feedback": {
-        "appreciated": "",
-        "comment": "",
-        "episodeTitle": "",
-        "anonymousInfo": "",
-        "placeholder": ""
+        "appreciated": "Cenimo tvojo povratno informacijo.",
+        "comment": "Dodaj komentar k tvoji izkušnji",
+        "episodeTitle": "Kako bi ocenil ta del?",
+        "anonymousInfo": "Tvoja ocena je anonimna",
+        "placeholder": "Za lažje razumevanje, prosim, napiši čim več podrobnosti."
     },
     "thankYou": "Hvala!",
     "yourResponseHasBeenSubmitted": "Tvoj odgovor je bil oddan.",
     "sending": "Pošiljam",
-    "defaultInputPlaceholder": ""
+    "defaultInputPlaceholder": "Napiši tukaj ..."
 }

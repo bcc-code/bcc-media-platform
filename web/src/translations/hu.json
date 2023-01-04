@@ -8,16 +8,16 @@
         "submit": "Megerősítés",
         "back": "Vissza",
         "next": "Következő",
-        "continue": "",
-        "close": "",
-        "download": "",
-        "goTo": "",
+        "continue": "Folytatás",
+        "close": "Bezárás",
+        "download": "Letöltés",
+        "goTo": "Ugrás",
         "send": "Küldés"
     },
     "error": {
         "couldntSendYourMessage": "Nem sikerült elküldeni az üzenetedet",
-        "somethingWentWrong": "",
-        "checkNetwork": ""
+        "somethingWentWrong": "Valami rosszul ment.",
+        "checkNetwork": "Ellenőrizd az internetkapcsolatodat, és próbáld meg újra."
     },
     "dashboard": {
         "loggedOut": "Kijelentkeztél"
@@ -97,10 +97,10 @@
             "description": "A mélyebb megértés érdekében javasoljuk, hogy nézzd meg a videót többször is.",
             "button": "Ismét lejátszás"
         },
-        "lessonActivityTitle": "",
+        "lessonActivityTitle": "Tanítási tevékenység",
         "textTaskPlaceholder": "Írd le és küldd el gondolataidat.",
         "question": "Kérdés",
-        "wrongAnswerMessage": "",
+        "wrongAnswerMessage": "Ó, közel. Próbáld újra!",
         "correctAnswerMessage": "Jól csináltad!"
     },
     "cookies": {
@@ -125,14 +125,14 @@
         "membersOnly": "Ez a videó csak bejelentkezett felhasználók számára érhető el."
     },
     "feedback": {
-        "appreciated": "",
-        "comment": "",
-        "episodeTitle": "",
-        "anonymousInfo": "",
-        "placeholder": ""
+        "appreciated": "Nagyra értékeljük visszajelzésedet.",
+        "comment": "Hozzászólás a tapasztalataihoz",
+        "episodeTitle": "Hogyan értékelnéd ezt az epizódot?",
+        "anonymousInfo": "Az Értékelésed névtelenül kerül átadásra",
+        "placeholder": "Kérjük, legyél a lehető legrészletesebb, hogy segítsd a megértést."
     },
     "thankYou": "Köszönjük!",
     "yourResponseHasBeenSubmitted": "A válaszodat elküldtük.",
     "sending": "Adás",
-    "defaultInputPlaceholder": ""
+    "defaultInputPlaceholder": "Kezdj elitt gépelni..."
 }

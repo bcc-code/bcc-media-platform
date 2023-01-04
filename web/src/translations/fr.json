@@ -8,16 +8,16 @@
         "submit": "Envoyer",
         "back": "Retour",
         "next": "Suivant",
-        "continue": "",
-        "close": "",
-        "download": "",
-        "goTo": "",
+        "continue": "Continuer",
+        "close": "Fermer",
+        "download": "Télécharger",
+        "goTo": "Aller à",
         "send": "Envoyer"
     },
     "error": {
         "couldntSendYourMessage": "Ton message n'a pas pu être envoyé",
-        "somethingWentWrong": "",
-        "checkNetwork": ""
+        "somethingWentWrong": "Il y a eu un problème.",
+        "checkNetwork": "Vérifie ta connexion internet et tente à nouveau."
     },
     "dashboard": {
         "loggedOut": "Tu as été déconnecté"
@@ -97,10 +97,10 @@
             "description": "Pour une meilleure compréhension, nous vous recommandons de regarder la vidéo plus d'une fois.",
             "button": "Rejouer"
         },
-        "lessonActivityTitle": "",
+        "lessonActivityTitle": "Activité de la leçon",
         "textTaskPlaceholder": "Noter et soumettre ses idées.",
         "question": "Question",
-        "wrongAnswerMessage": "",
+        "wrongAnswerMessage": "Oh, c'est fermé. Tente à nouveau !",
         "correctAnswerMessage": "Bien joué !"
     },
     "cookies": {
@@ -125,14 +125,14 @@
         "membersOnly": "Cette vidéo est uniquement accessible aux utilisateurs qui sont connectés."
     },
     "feedback": {
-        "appreciated": "",
-        "comment": "",
-        "episodeTitle": "",
-        "anonymousInfo": "",
-        "placeholder": ""
+        "appreciated": "Nous apprécions tes commentaires.",
+        "comment": "Ajouter un commentaire sur ton expérience",
+        "episodeTitle": "Comment évalues-tu cet épisode ?",
+        "anonymousInfo": "Ta note sera soumise de manière anonyme",
+        "placeholder": "Merci d'être le plus précis possible pour nous aider à comprendre."
     },
     "thankYou": "Merci beaucoup !",
     "yourResponseHasBeenSubmitted": "Ta réponse a été envoyée.",
     "sending": "Envoi en cours",
-    "defaultInputPlaceholder": ""
+    "defaultInputPlaceholder": "Commence à écrire ici..."
 }
