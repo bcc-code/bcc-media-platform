@@ -50,17 +50,16 @@ func ensureSuccess(res *resty.Response) error {
 }
 
 // New client for requests
-func New(config Config, directusHandler *directus.Handler, queries *sqlc.Queries) *Client {
+func New(config Config, directusHandler *directus.Handler, queries *sqlc.Queries, readonly bool) *Client {
 	c := resty.New().
 		SetBaseURL("https://api.crowdin.com/api/v2/").
 		SetAuthToken(config.Token)
 	return &Client{
-		du:     directusHandler,
-		c:      c,
-		config: config,
-		q:      queries,
-		// TODO: remove default true
-		readonly: true,
+		du:       directusHandler,
+		c:        c,
+		config:   config,
+		q:        queries,
+		readonly: readonly,
 	}
 }
 

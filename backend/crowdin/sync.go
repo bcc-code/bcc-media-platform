@@ -97,7 +97,8 @@ func (c *Client) syncCollection(
 		if length := len(queuedTranslations); length > 100 || (force && length > 0) {
 			log.L.Debug().Str("collection", collection).Int("count", length).Msg("Pushing translations to database")
 			if !c.readonly {
-				err = d.SaveTranslations(ctx, toDSItems(queuedTranslations))
+				items := toDSItems(queuedTranslations)
+				err = d.SaveTranslations(ctx, items)
 				if err != nil {
 					return err
 				}

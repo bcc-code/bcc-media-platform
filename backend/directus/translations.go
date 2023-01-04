@@ -19,8 +19,7 @@ type Translation struct {
 // EpisodesTranslation extends Translation
 type EpisodesTranslation struct {
 	Translation
-	EpisodesID       int    `json:"episodes_id"`
-	ExtraDescription string `json:"extra_description,omitempty"`
+	EpisodesID int `json:"episodes_id"`
 }
 
 // SeasonsTranslation extends Translation
@@ -44,7 +43,7 @@ type SectionsTranslation struct {
 // PagesTranslation extends Translation
 type PagesTranslation struct {
 	Translation
-	PagesID int `json:"sections_id"`
+	PagesID int `json:"pages_id"`
 }
 
 // StudyTopicsTranslation struct
@@ -156,11 +155,6 @@ type update struct {
 	Description string `json:"description"`
 }
 
-type episodesUpdate struct {
-	update
-	ExtraDescription string `json:"extra_description"`
-}
-
 // UID retrieves the not so unique ID (except internally in Collection)
 func (i Translation) UID() string {
 	if i.ID == 0 {
@@ -174,17 +168,6 @@ func (i Translation) ForUpdate() interface{} {
 	return update{
 		i.Title,
 		i.Description,
-	}
-}
-
-// ForUpdate retrieves a struct with mutable properties
-func (i EpisodesTranslation) ForUpdate() interface{} {
-	return episodesUpdate{
-		update{
-			i.Title,
-			i.Description,
-		},
-		i.ExtraDescription,
 	}
 }
 
