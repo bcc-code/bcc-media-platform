@@ -157,19 +157,21 @@ type ComplexityRoot struct {
 	}
 
 	CardListSection struct {
-		ID       func(childComplexity int) int
-		Items    func(childComplexity int, first *int, offset *int) int
-		Metadata func(childComplexity int) int
-		Size     func(childComplexity int) int
-		Title    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Items       func(childComplexity int, first *int, offset *int) int
+		Metadata    func(childComplexity int) int
+		Size        func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	CardSection struct {
-		ID       func(childComplexity int) int
-		Items    func(childComplexity int, first *int, offset *int) int
-		Metadata func(childComplexity int) int
-		Size     func(childComplexity int) int
-		Title    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Items       func(childComplexity int, first *int, offset *int) int
+		Metadata    func(childComplexity int) int
+		Size        func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	Chapter struct {
@@ -206,19 +208,21 @@ type ComplexityRoot struct {
 	}
 
 	DefaultGridSection struct {
-		ID       func(childComplexity int) int
-		Items    func(childComplexity int, first *int, offset *int) int
-		Metadata func(childComplexity int) int
-		Size     func(childComplexity int) int
-		Title    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Items       func(childComplexity int, first *int, offset *int) int
+		Metadata    func(childComplexity int) int
+		Size        func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	DefaultSection struct {
-		ID       func(childComplexity int) int
-		Items    func(childComplexity int, first *int, offset *int) int
-		Metadata func(childComplexity int) int
-		Size     func(childComplexity int) int
-		Title    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Items       func(childComplexity int, first *int, offset *int) int
+		Metadata    func(childComplexity int) int
+		Size        func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	Device struct {
@@ -338,11 +342,12 @@ type ComplexityRoot struct {
 	}
 
 	FeaturedSection struct {
-		ID       func(childComplexity int) int
-		Items    func(childComplexity int, first *int, offset *int) int
-		Metadata func(childComplexity int) int
-		Size     func(childComplexity int) int
-		Title    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Items       func(childComplexity int, first *int, offset *int) int
+		Metadata    func(childComplexity int) int
+		Size        func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	File struct {
@@ -361,18 +366,20 @@ type ComplexityRoot struct {
 	}
 
 	IconGridSection struct {
-		ID       func(childComplexity int) int
-		Items    func(childComplexity int, first *int, offset *int) int
-		Metadata func(childComplexity int) int
-		Size     func(childComplexity int) int
-		Title    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Items       func(childComplexity int, first *int, offset *int) int
+		Metadata    func(childComplexity int) int
+		Size        func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	IconSection struct {
-		ID       func(childComplexity int) int
-		Items    func(childComplexity int, first *int, offset *int) int
-		Metadata func(childComplexity int) int
-		Title    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Items       func(childComplexity int, first *int, offset *int) int
+		Metadata    func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	Image struct {
@@ -389,10 +396,11 @@ type ComplexityRoot struct {
 	}
 
 	LabelSection struct {
-		ID       func(childComplexity int) int
-		Items    func(childComplexity int, first *int, offset *int) int
-		Metadata func(childComplexity int) int
-		Title    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Items       func(childComplexity int, first *int, offset *int) int
+		Metadata    func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	LegacyIDLookup struct {
@@ -448,11 +456,12 @@ type ComplexityRoot struct {
 	}
 
 	ListSection struct {
-		ID       func(childComplexity int) int
-		Items    func(childComplexity int, first *int, offset *int) int
-		Metadata func(childComplexity int) int
-		Size     func(childComplexity int) int
-		Title    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Items       func(childComplexity int, first *int, offset *int) int
+		Metadata    func(childComplexity int) int
+		Size        func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	Message struct {
@@ -462,10 +471,11 @@ type ComplexityRoot struct {
 	}
 
 	MessageSection struct {
-		ID       func(childComplexity int) int
-		Messages func(childComplexity int) int
-		Metadata func(childComplexity int) int
-		Title    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Messages    func(childComplexity int) int
+		Metadata    func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	MessageStyle struct {
@@ -506,19 +516,21 @@ type ComplexityRoot struct {
 	}
 
 	PosterGridSection struct {
-		ID       func(childComplexity int) int
-		Items    func(childComplexity int, first *int, offset *int) int
-		Metadata func(childComplexity int) int
-		Size     func(childComplexity int) int
-		Title    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Items       func(childComplexity int, first *int, offset *int) int
+		Metadata    func(childComplexity int) int
+		Size        func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	PosterSection struct {
-		ID       func(childComplexity int) int
-		Items    func(childComplexity int, first *int, offset *int) int
-		Metadata func(childComplexity int) int
-		Size     func(childComplexity int) int
-		Title    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Items       func(childComplexity int, first *int, offset *int) int
+		Metadata    func(childComplexity int) int
+		Size        func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	PosterTask struct {
@@ -747,6 +759,7 @@ type ComplexityRoot struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Image       func(childComplexity int, style *model.ImageStyle) int
+		Images      func(childComplexity int) int
 		Lessons     func(childComplexity int, first *int, offset *int) int
 		Progress    func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -793,6 +806,7 @@ type ComplexityRoot struct {
 	WebSection struct {
 		AspectRatio    func(childComplexity int) int
 		Authentication func(childComplexity int) int
+		Description    func(childComplexity int) int
 		Height         func(childComplexity int) int
 		ID             func(childComplexity int) int
 		Metadata       func(childComplexity int) int
@@ -1017,6 +1031,7 @@ type SimpleCalendarEntryResolver interface {
 }
 type StudyTopicResolver interface {
 	Image(ctx context.Context, obj *model.StudyTopic, style *model.ImageStyle) (*string, error)
+
 	Lessons(ctx context.Context, obj *model.StudyTopic, first *int, offset *int) (*model.LessonPagination, error)
 	Progress(ctx context.Context, obj *model.StudyTopic) (*model.TasksProgress, error)
 }
@@ -1310,6 +1325,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CalendarPeriod.Events(childComplexity), true
 
+	case "CardListSection.description":
+		if e.complexity.CardListSection.Description == nil {
+			break
+		}
+
+		return e.complexity.CardListSection.Description(childComplexity), true
+
 	case "CardListSection.id":
 		if e.complexity.CardListSection.ID == nil {
 			break
@@ -1349,6 +1371,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CardListSection.Title(childComplexity), true
+
+	case "CardSection.description":
+		if e.complexity.CardSection.Description == nil {
+			break
+		}
+
+		return e.complexity.CardSection.Description(childComplexity), true
 
 	case "CardSection.id":
 		if e.complexity.CardSection.ID == nil {
@@ -1510,6 +1539,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ContextCollection.Slug(childComplexity), true
 
+	case "DefaultGridSection.description":
+		if e.complexity.DefaultGridSection.Description == nil {
+			break
+		}
+
+		return e.complexity.DefaultGridSection.Description(childComplexity), true
+
 	case "DefaultGridSection.id":
 		if e.complexity.DefaultGridSection.ID == nil {
 			break
@@ -1549,6 +1585,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DefaultGridSection.Title(childComplexity), true
+
+	case "DefaultSection.description":
+		if e.complexity.DefaultSection.Description == nil {
+			break
+		}
+
+		return e.complexity.DefaultSection.Description(childComplexity), true
 
 	case "DefaultSection.id":
 		if e.complexity.DefaultSection.ID == nil {
@@ -2206,6 +2249,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.FAQCategoryPagination.Total(childComplexity), true
 
+	case "FeaturedSection.description":
+		if e.complexity.FeaturedSection.Description == nil {
+			break
+		}
+
+		return e.complexity.FeaturedSection.Description(childComplexity), true
+
 	case "FeaturedSection.id":
 		if e.complexity.FeaturedSection.ID == nil {
 			break
@@ -2309,6 +2359,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GlobalConfig.NpawEnabled(childComplexity), true
 
+	case "IconGridSection.description":
+		if e.complexity.IconGridSection.Description == nil {
+			break
+		}
+
+		return e.complexity.IconGridSection.Description(childComplexity), true
+
 	case "IconGridSection.id":
 		if e.complexity.IconGridSection.ID == nil {
 			break
@@ -2348,6 +2405,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.IconGridSection.Title(childComplexity), true
+
+	case "IconSection.description":
+		if e.complexity.IconSection.Description == nil {
+			break
+		}
+
+		return e.complexity.IconSection.Description(childComplexity), true
 
 	case "IconSection.id":
 		if e.complexity.IconSection.ID == nil {
@@ -2430,6 +2494,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ItemSectionMetadata.UseContext(childComplexity), true
+
+	case "LabelSection.description":
+		if e.complexity.LabelSection.Description == nil {
+			break
+		}
+
+		return e.complexity.LabelSection.Description(childComplexity), true
 
 	case "LabelSection.id":
 		if e.complexity.LabelSection.ID == nil {
@@ -2727,6 +2798,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LinkTask.Title(childComplexity), true
 
+	case "ListSection.description":
+		if e.complexity.ListSection.Description == nil {
+			break
+		}
+
+		return e.complexity.ListSection.Description(childComplexity), true
+
 	case "ListSection.id":
 		if e.complexity.ListSection.ID == nil {
 			break
@@ -2787,6 +2865,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Message.Title(childComplexity), true
+
+	case "MessageSection.description":
+		if e.complexity.MessageSection.Description == nil {
+			break
+		}
+
+		return e.complexity.MessageSection.Description(childComplexity), true
 
 	case "MessageSection.id":
 		if e.complexity.MessageSection.ID == nil {
@@ -3046,6 +3131,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PageItem.Title(childComplexity), true
 
+	case "PosterGridSection.description":
+		if e.complexity.PosterGridSection.Description == nil {
+			break
+		}
+
+		return e.complexity.PosterGridSection.Description(childComplexity), true
+
 	case "PosterGridSection.id":
 		if e.complexity.PosterGridSection.ID == nil {
 			break
@@ -3085,6 +3177,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PosterGridSection.Title(childComplexity), true
+
+	case "PosterSection.description":
+		if e.complexity.PosterSection.Description == nil {
+			break
+		}
+
+		return e.complexity.PosterSection.Description(childComplexity), true
 
 	case "PosterSection.id":
 		if e.complexity.PosterSection.ID == nil {
@@ -4302,6 +4401,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.StudyTopic.Image(childComplexity, args["style"].(*model.ImageStyle)), true
 
+	case "StudyTopic.images":
+		if e.complexity.StudyTopic.Images == nil {
+			break
+		}
+
+		return e.complexity.StudyTopic.Images(childComplexity), true
+
 	case "StudyTopic.lessons":
 		if e.complexity.StudyTopic.Lessons == nil {
 			break
@@ -4502,6 +4608,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.WebSection.Authentication(childComplexity), true
+
+	case "WebSection.description":
+		if e.complexity.WebSection.Description == nil {
+			break
+		}
+
+		return e.complexity.WebSection.Description(childComplexity), true
 
 	case "WebSection.height":
 		if e.complexity.WebSection.Height == nil {
@@ -5041,6 +5154,7 @@ type ItemSectionMetadata {
 interface Section{
     id: ID!
     title: String
+    description: String
 }
 
 type SectionPagination implements Pagination {
@@ -5068,6 +5182,7 @@ interface ItemSection implements Section {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
@@ -5075,6 +5190,7 @@ type PosterSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     size: SectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
@@ -5083,6 +5199,7 @@ type FeaturedSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     size: SectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
@@ -5091,6 +5208,7 @@ type DefaultSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     size: SectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
@@ -5099,6 +5217,7 @@ type CardSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     size: CardSectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
@@ -5107,6 +5226,7 @@ type ListSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     size: SectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
@@ -5115,6 +5235,7 @@ type CardListSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     size: CardSectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
@@ -5123,6 +5244,7 @@ interface GridSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     size: GridSectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
@@ -5131,6 +5253,7 @@ type DefaultGridSection implements Section & ItemSection & GridSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     size: GridSectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
@@ -5139,6 +5262,7 @@ type PosterGridSection implements Section & ItemSection & GridSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     size: GridSectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
@@ -5147,6 +5271,7 @@ type IconGridSection implements Section & ItemSection & GridSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     size: GridSectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
@@ -5155,6 +5280,7 @@ type IconSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
@@ -5162,6 +5288,7 @@ type LabelSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
@@ -5169,6 +5296,7 @@ type MessageSection implements Section {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     messages: [Message!] @goField(forceResolver: true)
 }
 
@@ -5176,6 +5304,7 @@ type WebSection implements Section {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
+    description: String
     url: String!
     widthRatio: Float!
     aspectRatio: Float
@@ -5467,6 +5596,7 @@ type SearchResult {
     title: String!
     description: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
+    images: [Image!]!
     lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
     progress: TasksProgress! @goField(forceResolver: true)
 }
@@ -8853,6 +8983,47 @@ func (ec *executionContext) fieldContext_CardListSection_title(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _CardListSection_description(ctx context.Context, field graphql.CollectedField, obj *model.CardListSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CardListSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CardListSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardListSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CardListSection_size(ctx context.Context, field graphql.CollectedField, obj *model.CardListSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CardListSection_size(ctx, field)
 	if err != nil {
@@ -9088,6 +9259,47 @@ func (ec *executionContext) _CardSection_title(ctx context.Context, field graphq
 }
 
 func (ec *executionContext) fieldContext_CardSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CardSection_description(ctx context.Context, field graphql.CollectedField, obj *model.CardSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CardSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CardSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CardSection",
 		Field:      field,
@@ -10054,6 +10266,47 @@ func (ec *executionContext) fieldContext_DefaultGridSection_title(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _DefaultGridSection_description(ctx context.Context, field graphql.CollectedField, obj *model.DefaultGridSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DefaultGridSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DefaultGridSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DefaultGridSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DefaultGridSection_size(ctx context.Context, field graphql.CollectedField, obj *model.DefaultGridSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_DefaultGridSection_size(ctx, field)
 	if err != nil {
@@ -10289,6 +10542,47 @@ func (ec *executionContext) _DefaultSection_title(ctx context.Context, field gra
 }
 
 func (ec *executionContext) fieldContext_DefaultSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DefaultSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DefaultSection_description(ctx context.Context, field graphql.CollectedField, obj *model.DefaultSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DefaultSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DefaultSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DefaultSection",
 		Field:      field,
@@ -14579,6 +14873,47 @@ func (ec *executionContext) fieldContext_FeaturedSection_title(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _FeaturedSection_description(ctx context.Context, field graphql.CollectedField, obj *model.FeaturedSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FeaturedSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FeaturedSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FeaturedSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _FeaturedSection_size(ctx context.Context, field graphql.CollectedField, obj *model.FeaturedSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_FeaturedSection_size(ctx, field)
 	if err != nil {
@@ -15216,6 +15551,47 @@ func (ec *executionContext) fieldContext_IconGridSection_title(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _IconGridSection_description(ctx context.Context, field graphql.CollectedField, obj *model.IconGridSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IconGridSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IconGridSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IconGridSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _IconGridSection_size(ctx context.Context, field graphql.CollectedField, obj *model.IconGridSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_IconGridSection_size(ctx, field)
 	if err != nil {
@@ -15451,6 +15827,47 @@ func (ec *executionContext) _IconSection_title(ctx context.Context, field graphq
 }
 
 func (ec *executionContext) fieldContext_IconSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IconSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IconSection_description(ctx context.Context, field graphql.CollectedField, obj *model.IconSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IconSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IconSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IconSection",
 		Field:      field,
@@ -15974,6 +16391,47 @@ func (ec *executionContext) fieldContext_LabelSection_title(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _LabelSection_description(ctx context.Context, field graphql.CollectedField, obj *model.LabelSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LabelSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LabelSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LabelSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LabelSection_items(ctx context.Context, field graphql.CollectedField, obj *model.LabelSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LabelSection_items(ctx, field)
 	if err != nil {
@@ -16379,6 +16837,8 @@ func (ec *executionContext) fieldContext_Lesson_topic(ctx context.Context, field
 				return ec.fieldContext_StudyTopic_description(ctx, field)
 			case "image":
 				return ec.fieldContext_StudyTopic_image(ctx, field)
+			case "images":
+				return ec.fieldContext_StudyTopic_images(ctx, field)
 			case "lessons":
 				return ec.fieldContext_StudyTopic_lessons(ctx, field)
 			case "progress":
@@ -17869,6 +18329,47 @@ func (ec *executionContext) fieldContext_ListSection_title(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _ListSection_description(ctx context.Context, field graphql.CollectedField, obj *model.ListSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ListSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ListSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ListSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ListSection_size(ctx context.Context, field graphql.CollectedField, obj *model.ListSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ListSection_size(ctx, field)
 	if err != nil {
@@ -18244,6 +18745,47 @@ func (ec *executionContext) _MessageSection_title(ctx context.Context, field gra
 }
 
 func (ec *executionContext) fieldContext_MessageSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MessageSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MessageSection_description(ctx context.Context, field graphql.CollectedField, obj *model.MessageSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MessageSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MessageSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MessageSection",
 		Field:      field,
@@ -19760,6 +20302,47 @@ func (ec *executionContext) fieldContext_PosterGridSection_title(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _PosterGridSection_description(ctx context.Context, field graphql.CollectedField, obj *model.PosterGridSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PosterGridSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PosterGridSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PosterGridSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PosterGridSection_size(ctx context.Context, field graphql.CollectedField, obj *model.PosterGridSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PosterGridSection_size(ctx, field)
 	if err != nil {
@@ -19995,6 +20578,47 @@ func (ec *executionContext) _PosterSection_title(ctx context.Context, field grap
 }
 
 func (ec *executionContext) fieldContext_PosterSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PosterSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PosterSection_description(ctx context.Context, field graphql.CollectedField, obj *model.PosterSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PosterSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PosterSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterSection",
 		Field:      field,
@@ -21385,6 +22009,8 @@ func (ec *executionContext) fieldContext_QueryRoot_studyTopic(ctx context.Contex
 				return ec.fieldContext_StudyTopic_description(ctx, field)
 			case "image":
 				return ec.fieldContext_StudyTopic_image(ctx, field)
+			case "images":
+				return ec.fieldContext_StudyTopic_images(ctx, field)
 			case "lessons":
 				return ec.fieldContext_StudyTopic_lessons(ctx, field)
 			case "progress":
@@ -27835,6 +28461,56 @@ func (ec *executionContext) fieldContext_StudyTopic_image(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _StudyTopic_images(ctx context.Context, field graphql.CollectedField, obj *model.StudyTopic) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StudyTopic_images(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Images, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Image)
+	fc.Result = res
+	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StudyTopic_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StudyTopic",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "style":
+				return ec.fieldContext_Image_style(ctx, field)
+			case "url":
+				return ec.fieldContext_Image_url(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Image", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _StudyTopic_lessons(ctx context.Context, field graphql.CollectedField, obj *model.StudyTopic) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_StudyTopic_lessons(ctx, field)
 	if err != nil {
@@ -29143,6 +29819,47 @@ func (ec *executionContext) _WebSection_title(ctx context.Context, field graphql
 }
 
 func (ec *executionContext) fieldContext_WebSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WebSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WebSection_description(ctx context.Context, field graphql.CollectedField, obj *model.WebSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WebSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WebSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WebSection",
 		Field:      field,
@@ -32403,6 +33120,10 @@ func (ec *executionContext) _CardListSection(ctx context.Context, sel ast.Select
 
 			out.Values[i] = ec._CardListSection_title(ctx, field, obj)
 
+		case "description":
+
+			out.Values[i] = ec._CardListSection_description(ctx, field, obj)
+
 		case "size":
 
 			out.Values[i] = ec._CardListSection_size(ctx, field, obj)
@@ -32465,6 +33186,10 @@ func (ec *executionContext) _CardSection(ctx context.Context, sel ast.SelectionS
 		case "title":
 
 			out.Values[i] = ec._CardSection_title(ctx, field, obj)
+
+		case "description":
+
+			out.Values[i] = ec._CardSection_description(ctx, field, obj)
 
 		case "size":
 
@@ -32787,6 +33512,10 @@ func (ec *executionContext) _DefaultGridSection(ctx context.Context, sel ast.Sel
 
 			out.Values[i] = ec._DefaultGridSection_title(ctx, field, obj)
 
+		case "description":
+
+			out.Values[i] = ec._DefaultGridSection_description(ctx, field, obj)
+
 		case "size":
 
 			out.Values[i] = ec._DefaultGridSection_size(ctx, field, obj)
@@ -32849,6 +33578,10 @@ func (ec *executionContext) _DefaultSection(ctx context.Context, sel ast.Selecti
 		case "title":
 
 			out.Values[i] = ec._DefaultSection_title(ctx, field, obj)
+
+		case "description":
+
+			out.Values[i] = ec._DefaultSection_description(ctx, field, obj)
 
 		case "size":
 
@@ -33907,6 +34640,10 @@ func (ec *executionContext) _FeaturedSection(ctx context.Context, sel ast.Select
 
 			out.Values[i] = ec._FeaturedSection_title(ctx, field, obj)
 
+		case "description":
+
+			out.Values[i] = ec._FeaturedSection_description(ctx, field, obj)
+
 		case "size":
 
 			out.Values[i] = ec._FeaturedSection_size(ctx, field, obj)
@@ -34069,6 +34806,10 @@ func (ec *executionContext) _IconGridSection(ctx context.Context, sel ast.Select
 
 			out.Values[i] = ec._IconGridSection_title(ctx, field, obj)
 
+		case "description":
+
+			out.Values[i] = ec._IconGridSection_description(ctx, field, obj)
+
 		case "size":
 
 			out.Values[i] = ec._IconGridSection_size(ctx, field, obj)
@@ -34131,6 +34872,10 @@ func (ec *executionContext) _IconSection(ctx context.Context, sel ast.SelectionS
 		case "title":
 
 			out.Values[i] = ec._IconSection_title(ctx, field, obj)
+
+		case "description":
+
+			out.Values[i] = ec._IconSection_description(ctx, field, obj)
 
 		case "items":
 			field := field
@@ -34278,6 +35023,10 @@ func (ec *executionContext) _LabelSection(ctx context.Context, sel ast.Selection
 		case "title":
 
 			out.Values[i] = ec._LabelSection_title(ctx, field, obj)
+
+		case "description":
+
+			out.Values[i] = ec._LabelSection_description(ctx, field, obj)
 
 		case "items":
 			field := field
@@ -34847,6 +35596,10 @@ func (ec *executionContext) _ListSection(ctx context.Context, sel ast.SelectionS
 
 			out.Values[i] = ec._ListSection_title(ctx, field, obj)
 
+		case "description":
+
+			out.Values[i] = ec._ListSection_description(ctx, field, obj)
+
 		case "size":
 
 			out.Values[i] = ec._ListSection_size(ctx, field, obj)
@@ -34951,6 +35704,10 @@ func (ec *executionContext) _MessageSection(ctx context.Context, sel ast.Selecti
 		case "title":
 
 			out.Values[i] = ec._MessageSection_title(ctx, field, obj)
+
+		case "description":
+
+			out.Values[i] = ec._MessageSection_description(ctx, field, obj)
 
 		case "messages":
 			field := field
@@ -35305,6 +36062,10 @@ func (ec *executionContext) _PosterGridSection(ctx context.Context, sel ast.Sele
 
 			out.Values[i] = ec._PosterGridSection_title(ctx, field, obj)
 
+		case "description":
+
+			out.Values[i] = ec._PosterGridSection_description(ctx, field, obj)
+
 		case "size":
 
 			out.Values[i] = ec._PosterGridSection_size(ctx, field, obj)
@@ -35367,6 +36128,10 @@ func (ec *executionContext) _PosterSection(ctx context.Context, sel ast.Selectio
 		case "title":
 
 			out.Values[i] = ec._PosterSection_title(ctx, field, obj)
+
+		case "description":
+
+			out.Values[i] = ec._PosterSection_description(ctx, field, obj)
 
 		case "size":
 
@@ -37621,6 +38386,13 @@ func (ec *executionContext) _StudyTopic(ctx context.Context, sel ast.SelectionSe
 				return innerFunc(ctx)
 
 			})
+		case "images":
+
+			out.Values[i] = ec._StudyTopic_images(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "lessons":
 			field := field
 
@@ -37986,6 +38758,10 @@ func (ec *executionContext) _WebSection(ctx context.Context, sel ast.SelectionSe
 		case "title":
 
 			out.Values[i] = ec._WebSection_title(ctx, field, obj)
+
+		case "description":
+
+			out.Values[i] = ec._WebSection_description(ctx, field, obj)
 
 		case "url":
 

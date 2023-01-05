@@ -12,10 +12,22 @@ func StudyTopicFrom(ctx context.Context, topic *common.StudyTopic) *StudyTopic {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
+	var images []*Image
+	for key, img := range topic.Images.GetForLanguages(languages) {
+		if img == nil {
+			continue
+		}
+		images = append(images, &Image{
+			Style: key,
+			URL:   *img,
+		})
+	}
+
 	return &StudyTopic{
 		ID:          topic.ID.String(),
 		Title:       topic.Title.Get(languages),
 		Description: topic.Description.Get(languages),
+		Images:      images,
 	}
 }
 

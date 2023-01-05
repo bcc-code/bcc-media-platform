@@ -16,8 +16,12 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 	id := strconv.Itoa(s.ID)
 
 	var title *string
+	var description *string
 	if s.ShowTitle {
 		title = s.Title.GetValueOrNil(languages)
+		if s.Description.Has("no") && s.Description["no"].String != "" {
+			description = s.Description.GetValueOrNil(languages)
+		}
 	}
 
 	switch s.Type {
@@ -37,10 +41,11 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = SectionSizeMedium
 			}
 			return &FeaturedSection{
-				ID:       id,
-				Title:    title,
-				Size:     size,
-				Metadata: metadata,
+				ID:          id,
+				Title:       title,
+				Description: description,
+				Size:        size,
+				Metadata:    metadata,
 			}
 		case "default":
 			size := SectionSize(s.Size)
@@ -48,10 +53,11 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = SectionSizeMedium
 			}
 			return &DefaultSection{
-				ID:       id,
-				Title:    title,
-				Size:     size,
-				Metadata: metadata,
+				ID:          id,
+				Title:       title,
+				Description: description,
+				Size:        size,
+				Metadata:    metadata,
 			}
 		case "list":
 			size := SectionSize(s.Size)
@@ -59,10 +65,11 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = SectionSizeMedium
 			}
 			return &ListSection{
-				ID:       id,
-				Title:    title,
-				Size:     size,
-				Metadata: metadata,
+				ID:          id,
+				Title:       title,
+				Description: description,
+				Size:        size,
+				Metadata:    metadata,
 			}
 		case "posters":
 			size := SectionSize(s.Size)
@@ -70,10 +77,11 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = SectionSizeMedium
 			}
 			return &PosterSection{
-				ID:       id,
-				Title:    title,
-				Size:     size,
-				Metadata: metadata,
+				ID:          id,
+				Title:       title,
+				Description: description,
+				Size:        size,
+				Metadata:    metadata,
 			}
 		case "cards":
 			size := CardSectionSize(s.Size)
@@ -81,10 +89,11 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = CardSectionSizeLarge
 			}
 			return &CardSection{
-				ID:       id,
-				Title:    title,
-				Size:     size,
-				Metadata: metadata,
+				ID:          id,
+				Title:       title,
+				Description: description,
+				Size:        size,
+				Metadata:    metadata,
 			}
 		case "card_list":
 			size := CardSectionSize(s.Size)
@@ -92,10 +101,11 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = CardSectionSizeLarge
 			}
 			return &CardListSection{
-				ID:       id,
-				Title:    title,
-				Size:     size,
-				Metadata: metadata,
+				ID:          id,
+				Title:       title,
+				Description: description,
+				Size:        size,
+				Metadata:    metadata,
 			}
 		case "grid":
 			size := GridSectionSize(s.Size)
@@ -103,10 +113,11 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = GridSectionSizeHalf
 			}
 			return &DefaultGridSection{
-				ID:       id,
-				Title:    title,
-				Size:     size,
-				Metadata: metadata,
+				ID:          id,
+				Title:       title,
+				Description: description,
+				Size:        size,
+				Metadata:    metadata,
 			}
 		case "poster_grid":
 			size := GridSectionSize(s.Size)
@@ -114,10 +125,11 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = GridSectionSizeHalf
 			}
 			return &PosterGridSection{
-				ID:       id,
-				Title:    title,
-				Size:     size,
-				Metadata: metadata,
+				ID:          id,
+				Title:       title,
+				Description: description,
+				Size:        size,
+				Metadata:    metadata,
 			}
 		case "icon_grid":
 			size := GridSectionSize(s.Size)
@@ -125,28 +137,32 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = GridSectionSizeHalf
 			}
 			return &IconGridSection{
-				ID:       id,
-				Title:    title,
-				Size:     size,
-				Metadata: metadata,
+				ID:          id,
+				Title:       title,
+				Description: description,
+				Size:        size,
+				Metadata:    metadata,
 			}
 		case "icons":
 			return &IconSection{
-				ID:       id,
-				Title:    title,
-				Metadata: metadata,
+				ID:          id,
+				Title:       title,
+				Description: description,
+				Metadata:    metadata,
 			}
 		case "labels":
 			return &LabelSection{
-				ID:       id,
-				Title:    title,
-				Metadata: metadata,
+				ID:          id,
+				Title:       title,
+				Description: description,
+				Metadata:    metadata,
 			}
 		}
 	case "message":
 		return &MessageSection{
-			ID:    id,
-			Title: title,
+			ID:          id,
+			Title:       title,
+			Description: description,
 		}
 	case "embed_web":
 		var height *int
@@ -163,6 +179,7 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 		return &WebSection{
 			ID:             id,
 			Title:          title,
+			Description:    description,
 			WidthRatio:     s.EmbedAspectRatio.Float64,
 			Height:         height,
 			AspectRatio:    aspectRatio,
@@ -172,9 +189,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 	}
 
 	return &DefaultSection{
-		ID:    id,
-		Title: title,
-		Size:  SectionSizeMedium,
+		ID:          id,
+		Title:       title,
+		Description: description,
+		Size:        SectionSizeMedium,
 	}
 }
 

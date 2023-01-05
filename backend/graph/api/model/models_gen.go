@@ -38,6 +38,7 @@ type GridSection interface {
 	GetID() string
 	GetMetadata() *ItemSectionMetadata
 	GetTitle() *string
+	GetDescription() *string
 	GetSize() GridSectionSize
 	GetItems() *SectionItemPagination
 }
@@ -48,6 +49,7 @@ type ItemSection interface {
 	GetID() string
 	GetMetadata() *ItemSectionMetadata
 	GetTitle() *string
+	GetDescription() *string
 	GetItems() *SectionItemPagination
 }
 
@@ -75,6 +77,7 @@ type Section interface {
 	IsSection()
 	GetID() string
 	GetTitle() *string
+	GetDescription() *string
 }
 
 type SectionItemType interface {
@@ -173,16 +176,18 @@ type CalendarPeriod struct {
 }
 
 type CardListSection struct {
-	ID       string                 `json:"id"`
-	Metadata *ItemSectionMetadata   `json:"metadata"`
-	Title    *string                `json:"title"`
-	Size     CardSectionSize        `json:"size"`
-	Items    *SectionItemPagination `json:"items"`
+	ID          string                 `json:"id"`
+	Metadata    *ItemSectionMetadata   `json:"metadata"`
+	Title       *string                `json:"title"`
+	Description *string                `json:"description"`
+	Size        CardSectionSize        `json:"size"`
+	Items       *SectionItemPagination `json:"items"`
 }
 
-func (CardListSection) IsSection()             {}
-func (this CardListSection) GetID() string     { return this.ID }
-func (this CardListSection) GetTitle() *string { return this.Title }
+func (CardListSection) IsSection()                   {}
+func (this CardListSection) GetID() string           { return this.ID }
+func (this CardListSection) GetTitle() *string       { return this.Title }
+func (this CardListSection) GetDescription() *string { return this.Description }
 
 func (CardListSection) IsItemSection() {}
 
@@ -191,16 +196,18 @@ func (this CardListSection) GetMetadata() *ItemSectionMetadata { return this.Met
 func (this CardListSection) GetItems() *SectionItemPagination { return this.Items }
 
 type CardSection struct {
-	ID       string                 `json:"id"`
-	Metadata *ItemSectionMetadata   `json:"metadata"`
-	Title    *string                `json:"title"`
-	Size     CardSectionSize        `json:"size"`
-	Items    *SectionItemPagination `json:"items"`
+	ID          string                 `json:"id"`
+	Metadata    *ItemSectionMetadata   `json:"metadata"`
+	Title       *string                `json:"title"`
+	Description *string                `json:"description"`
+	Size        CardSectionSize        `json:"size"`
+	Items       *SectionItemPagination `json:"items"`
 }
 
-func (CardSection) IsSection()             {}
-func (this CardSection) GetID() string     { return this.ID }
-func (this CardSection) GetTitle() *string { return this.Title }
+func (CardSection) IsSection()                   {}
+func (this CardSection) GetID() string           { return this.ID }
+func (this CardSection) GetTitle() *string       { return this.Title }
+func (this CardSection) GetDescription() *string { return this.Description }
 
 func (CardSection) IsItemSection() {}
 
@@ -249,16 +256,18 @@ type ContextCollection struct {
 func (ContextCollection) IsEpisodeContextUnion() {}
 
 type DefaultGridSection struct {
-	ID       string                 `json:"id"`
-	Metadata *ItemSectionMetadata   `json:"metadata"`
-	Title    *string                `json:"title"`
-	Size     GridSectionSize        `json:"size"`
-	Items    *SectionItemPagination `json:"items"`
+	ID          string                 `json:"id"`
+	Metadata    *ItemSectionMetadata   `json:"metadata"`
+	Title       *string                `json:"title"`
+	Description *string                `json:"description"`
+	Size        GridSectionSize        `json:"size"`
+	Items       *SectionItemPagination `json:"items"`
 }
 
-func (DefaultGridSection) IsSection()             {}
-func (this DefaultGridSection) GetID() string     { return this.ID }
-func (this DefaultGridSection) GetTitle() *string { return this.Title }
+func (DefaultGridSection) IsSection()                   {}
+func (this DefaultGridSection) GetID() string           { return this.ID }
+func (this DefaultGridSection) GetTitle() *string       { return this.Title }
+func (this DefaultGridSection) GetDescription() *string { return this.Description }
 
 func (DefaultGridSection) IsItemSection() {}
 
@@ -271,16 +280,18 @@ func (DefaultGridSection) IsGridSection() {}
 func (this DefaultGridSection) GetSize() GridSectionSize { return this.Size }
 
 type DefaultSection struct {
-	ID       string                 `json:"id"`
-	Metadata *ItemSectionMetadata   `json:"metadata"`
-	Title    *string                `json:"title"`
-	Size     SectionSize            `json:"size"`
-	Items    *SectionItemPagination `json:"items"`
+	ID          string                 `json:"id"`
+	Metadata    *ItemSectionMetadata   `json:"metadata"`
+	Title       *string                `json:"title"`
+	Description *string                `json:"description"`
+	Size        SectionSize            `json:"size"`
+	Items       *SectionItemPagination `json:"items"`
 }
 
-func (DefaultSection) IsSection()             {}
-func (this DefaultSection) GetID() string     { return this.ID }
-func (this DefaultSection) GetTitle() *string { return this.Title }
+func (DefaultSection) IsSection()                   {}
+func (this DefaultSection) GetID() string           { return this.ID }
+func (this DefaultSection) GetTitle() *string       { return this.Title }
+func (this DefaultSection) GetDescription() *string { return this.Description }
 
 func (DefaultSection) IsItemSection() {}
 
@@ -456,16 +467,18 @@ func (this FAQCategoryPagination) GetFirst() int  { return this.First }
 func (this FAQCategoryPagination) GetOffset() int { return this.Offset }
 
 type FeaturedSection struct {
-	ID       string                 `json:"id"`
-	Metadata *ItemSectionMetadata   `json:"metadata"`
-	Title    *string                `json:"title"`
-	Size     SectionSize            `json:"size"`
-	Items    *SectionItemPagination `json:"items"`
+	ID          string                 `json:"id"`
+	Metadata    *ItemSectionMetadata   `json:"metadata"`
+	Title       *string                `json:"title"`
+	Description *string                `json:"description"`
+	Size        SectionSize            `json:"size"`
+	Items       *SectionItemPagination `json:"items"`
 }
 
-func (FeaturedSection) IsSection()             {}
-func (this FeaturedSection) GetID() string     { return this.ID }
-func (this FeaturedSection) GetTitle() *string { return this.Title }
+func (FeaturedSection) IsSection()                   {}
+func (this FeaturedSection) GetID() string           { return this.ID }
+func (this FeaturedSection) GetTitle() *string       { return this.Title }
+func (this FeaturedSection) GetDescription() *string { return this.Description }
 
 func (FeaturedSection) IsItemSection() {}
 
@@ -489,16 +502,18 @@ type GlobalConfig struct {
 }
 
 type IconGridSection struct {
-	ID       string                 `json:"id"`
-	Metadata *ItemSectionMetadata   `json:"metadata"`
-	Title    *string                `json:"title"`
-	Size     GridSectionSize        `json:"size"`
-	Items    *SectionItemPagination `json:"items"`
+	ID          string                 `json:"id"`
+	Metadata    *ItemSectionMetadata   `json:"metadata"`
+	Title       *string                `json:"title"`
+	Description *string                `json:"description"`
+	Size        GridSectionSize        `json:"size"`
+	Items       *SectionItemPagination `json:"items"`
 }
 
-func (IconGridSection) IsSection()             {}
-func (this IconGridSection) GetID() string     { return this.ID }
-func (this IconGridSection) GetTitle() *string { return this.Title }
+func (IconGridSection) IsSection()                   {}
+func (this IconGridSection) GetID() string           { return this.ID }
+func (this IconGridSection) GetTitle() *string       { return this.Title }
+func (this IconGridSection) GetDescription() *string { return this.Description }
 
 func (IconGridSection) IsItemSection() {}
 
@@ -511,15 +526,17 @@ func (IconGridSection) IsGridSection() {}
 func (this IconGridSection) GetSize() GridSectionSize { return this.Size }
 
 type IconSection struct {
-	ID       string                 `json:"id"`
-	Metadata *ItemSectionMetadata   `json:"metadata"`
-	Title    *string                `json:"title"`
-	Items    *SectionItemPagination `json:"items"`
+	ID          string                 `json:"id"`
+	Metadata    *ItemSectionMetadata   `json:"metadata"`
+	Title       *string                `json:"title"`
+	Description *string                `json:"description"`
+	Items       *SectionItemPagination `json:"items"`
 }
 
-func (IconSection) IsSection()             {}
-func (this IconSection) GetID() string     { return this.ID }
-func (this IconSection) GetTitle() *string { return this.Title }
+func (IconSection) IsSection()                   {}
+func (this IconSection) GetID() string           { return this.ID }
+func (this IconSection) GetTitle() *string       { return this.Title }
+func (this IconSection) GetDescription() *string { return this.Description }
 
 func (IconSection) IsItemSection() {}
 
@@ -541,15 +558,17 @@ type ItemSectionMetadata struct {
 }
 
 type LabelSection struct {
-	ID       string                 `json:"id"`
-	Metadata *ItemSectionMetadata   `json:"metadata"`
-	Title    *string                `json:"title"`
-	Items    *SectionItemPagination `json:"items"`
+	ID          string                 `json:"id"`
+	Metadata    *ItemSectionMetadata   `json:"metadata"`
+	Title       *string                `json:"title"`
+	Description *string                `json:"description"`
+	Items       *SectionItemPagination `json:"items"`
 }
 
-func (LabelSection) IsSection()             {}
-func (this LabelSection) GetID() string     { return this.ID }
-func (this LabelSection) GetTitle() *string { return this.Title }
+func (LabelSection) IsSection()                   {}
+func (this LabelSection) GetID() string           { return this.ID }
+func (this LabelSection) GetTitle() *string       { return this.Title }
+func (this LabelSection) GetDescription() *string { return this.Description }
 
 func (LabelSection) IsItemSection() {}
 
@@ -632,16 +651,18 @@ func (this LinkTask) GetTitle() string   { return this.Title }
 func (this LinkTask) GetCompleted() bool { return this.Completed }
 
 type ListSection struct {
-	ID       string                 `json:"id"`
-	Metadata *ItemSectionMetadata   `json:"metadata"`
-	Title    *string                `json:"title"`
-	Size     SectionSize            `json:"size"`
-	Items    *SectionItemPagination `json:"items"`
+	ID          string                 `json:"id"`
+	Metadata    *ItemSectionMetadata   `json:"metadata"`
+	Title       *string                `json:"title"`
+	Description *string                `json:"description"`
+	Size        SectionSize            `json:"size"`
+	Items       *SectionItemPagination `json:"items"`
 }
 
-func (ListSection) IsSection()             {}
-func (this ListSection) GetID() string     { return this.ID }
-func (this ListSection) GetTitle() *string { return this.Title }
+func (ListSection) IsSection()                   {}
+func (this ListSection) GetID() string           { return this.ID }
+func (this ListSection) GetTitle() *string       { return this.Title }
+func (this ListSection) GetDescription() *string { return this.Description }
 
 func (ListSection) IsItemSection() {}
 
@@ -656,15 +677,17 @@ type Message struct {
 }
 
 type MessageSection struct {
-	ID       string               `json:"id"`
-	Metadata *ItemSectionMetadata `json:"metadata"`
-	Title    *string              `json:"title"`
-	Messages []*Message           `json:"messages"`
+	ID          string               `json:"id"`
+	Metadata    *ItemSectionMetadata `json:"metadata"`
+	Title       *string              `json:"title"`
+	Description *string              `json:"description"`
+	Messages    []*Message           `json:"messages"`
 }
 
-func (MessageSection) IsSection()             {}
-func (this MessageSection) GetID() string     { return this.ID }
-func (this MessageSection) GetTitle() *string { return this.Title }
+func (MessageSection) IsSection()                   {}
+func (this MessageSection) GetID() string           { return this.ID }
+func (this MessageSection) GetTitle() *string       { return this.Title }
+func (this MessageSection) GetDescription() *string { return this.Description }
 
 type MessageStyle struct {
 	Text       string `json:"text"`
@@ -710,16 +733,18 @@ func (this PageItem) GetImages() []*Image {
 }
 
 type PosterGridSection struct {
-	ID       string                 `json:"id"`
-	Metadata *ItemSectionMetadata   `json:"metadata"`
-	Title    *string                `json:"title"`
-	Size     GridSectionSize        `json:"size"`
-	Items    *SectionItemPagination `json:"items"`
+	ID          string                 `json:"id"`
+	Metadata    *ItemSectionMetadata   `json:"metadata"`
+	Title       *string                `json:"title"`
+	Description *string                `json:"description"`
+	Size        GridSectionSize        `json:"size"`
+	Items       *SectionItemPagination `json:"items"`
 }
 
-func (PosterGridSection) IsSection()             {}
-func (this PosterGridSection) GetID() string     { return this.ID }
-func (this PosterGridSection) GetTitle() *string { return this.Title }
+func (PosterGridSection) IsSection()                   {}
+func (this PosterGridSection) GetID() string           { return this.ID }
+func (this PosterGridSection) GetTitle() *string       { return this.Title }
+func (this PosterGridSection) GetDescription() *string { return this.Description }
 
 func (PosterGridSection) IsItemSection() {}
 
@@ -732,16 +757,18 @@ func (PosterGridSection) IsGridSection() {}
 func (this PosterGridSection) GetSize() GridSectionSize { return this.Size }
 
 type PosterSection struct {
-	ID       string                 `json:"id"`
-	Metadata *ItemSectionMetadata   `json:"metadata"`
-	Title    *string                `json:"title"`
-	Size     SectionSize            `json:"size"`
-	Items    *SectionItemPagination `json:"items"`
+	ID          string                 `json:"id"`
+	Metadata    *ItemSectionMetadata   `json:"metadata"`
+	Title       *string                `json:"title"`
+	Description *string                `json:"description"`
+	Size        SectionSize            `json:"size"`
+	Items       *SectionItemPagination `json:"items"`
 }
 
-func (PosterSection) IsSection()             {}
-func (this PosterSection) GetID() string     { return this.ID }
-func (this PosterSection) GetTitle() *string { return this.Title }
+func (PosterSection) IsSection()                   {}
+func (this PosterSection) GetID() string           { return this.ID }
+func (this PosterSection) GetTitle() *string       { return this.Title }
+func (this PosterSection) GetDescription() *string { return this.Description }
 
 func (PosterSection) IsItemSection() {}
 
@@ -1063,6 +1090,7 @@ type StudyTopic struct {
 	Title       string            `json:"title"`
 	Description string            `json:"description"`
 	Image       *string           `json:"image"`
+	Images      []*Image          `json:"images"`
 	Lessons     *LessonPagination `json:"lessons"`
 	Progress    *TasksProgress    `json:"progress"`
 }
@@ -1126,6 +1154,7 @@ type WebSection struct {
 	ID             string               `json:"id"`
 	Metadata       *ItemSectionMetadata `json:"metadata"`
 	Title          *string              `json:"title"`
+	Description    *string              `json:"description"`
 	URL            string               `json:"url"`
 	WidthRatio     float64              `json:"widthRatio"`
 	AspectRatio    *float64             `json:"aspectRatio"`
@@ -1133,9 +1162,10 @@ type WebSection struct {
 	Authentication bool                 `json:"authentication"`
 }
 
-func (WebSection) IsSection()             {}
-func (this WebSection) GetID() string     { return this.ID }
-func (this WebSection) GetTitle() *string { return this.Title }
+func (WebSection) IsSection()                   {}
+func (this WebSection) GetID() string           { return this.ID }
+func (this WebSection) GetTitle() *string       { return this.Title }
+func (this WebSection) GetDescription() *string { return this.Description }
 
 type CardSectionSize string
 
