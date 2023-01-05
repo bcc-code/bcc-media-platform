@@ -70,7 +70,7 @@ func ValidateAccessWithFrom[k comparable](ctx context.Context, permissionLoader 
 		return nil
 	}
 
-	if !availability.Published ||
+	if !(availability.Published || availability.Unlisted) ||
 		availability.From.After(time.Now()) ||
 		availability.To.Before(time.Now()) {
 		return merry.Wrap(ErrItemNotPublished)
