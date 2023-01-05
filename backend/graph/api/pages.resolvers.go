@@ -111,12 +111,30 @@ func (r *linkResolver) URL(ctx context.Context, obj *model.Link) (string, error)
 	}
 	for _, i := range data {
 		if lo.EveryBy(i.Conditions, func(i common.ComputedCondition) bool {
-			return true
+			switch i.Type {
+			case "user_church":
+				switch i.Operator {
+				case "==":
+					intValue, _ := strconv.ParseInt(i.Value, 10, 64)
+					return lo.Contains(u.ChurchIDs, int(intValue))
+				}
+			case "user_age":
+				intValue, _ := strconv.ParseInt(i.Value, 10, 64)
+				switch i.Operator {
+				case "<":
+					return u.Age < int(intValue)
+				case ">":
+					return u.Age > int(intValue)
+				case "==":
+					return u.Age == int(intValue)
+				}
+			}
+			return false
 		}) {
-			return "", nil
+			return i.Result, nil
 		}
 	}
-	return "", nil
+	return l.URL, nil
 }
 
 // Image is the resolver for the image field.

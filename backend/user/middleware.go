@@ -103,7 +103,7 @@ var ageGroups = map[int]string{
 
 // NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
-func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin.Context) {
+func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) func(*gin.Context) {
 	return func(ctx *gin.Context) {
 		reqCtx, span := otel.Tracer("user/middleware").Start(ctx.Request.Context(), "run")
 		defer span.End()
@@ -139,7 +139,7 @@ func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin
 		pid := ctx.GetString(auth0.CtxPersonID)
 		intID, _ := strconv.ParseInt(pid, 10, 32)
 
-		member, err := members.Lookup(ctx, int(intID))
+		member, err := membersClient.Lookup(ctx, int(intID))
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to retrieve user")
 		}
@@ -188,6 +188,12 @@ func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin
 				}
 			}
 		}
+
+		u.ChurchIDs = lo.Map(lo.Filter(member.Affiliations, func(i members.Affiliation, _ int) bool {
+			return i.Active && i.Type == "Member" && i.OrgType == "Church"
+		}), func(i members.Affiliation, _ int) int {
+			return i.OrgID
+		})
 
 		// Add the user to the cache
 		span.AddEvent("User loaded into cache")
