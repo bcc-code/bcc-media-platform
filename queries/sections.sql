@@ -90,6 +90,7 @@ SELECT ls.id,
        ls.url,
        COALESCE(images.json, '[]') as images,
        ls.type,
+       ls.computeddatagroup_id,
        ts.title,
        ts.description
 FROM links ls

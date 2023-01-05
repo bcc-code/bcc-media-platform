@@ -11,4 +11,5 @@ type Member struct {
 	BirthDate   string
 	Email       string
 	DisplayName string
+	ChurchID    int
 }

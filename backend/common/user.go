@@ -9,6 +9,7 @@ type User struct {
 	Anonymous   bool
 	ActiveBCC   bool
 	AgeGroup    string
+	Age         int
 }
 
 // IsAnonymous user?

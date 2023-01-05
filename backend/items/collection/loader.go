@@ -19,7 +19,7 @@ import (
 func NewItemListBatchLoader(queries sqlc.Queries) *dataloader.Loader[int, []*common.CollectionItem] {
 	return batchloaders.NewListLoader(queries.GetItemsForCollections, func(row common.CollectionItem) int {
 		return row.CollectionID
-	})
+	}).Loader
 }
 
 // NewCollectionItemLoader returns a new loader for getting ItemIds for Collection

@@ -11,12 +11,12 @@ import (
 func NewBatchFilesLoader(queries sqlc.Queries) *dataloader.Loader[int, []*common.File] {
 	return batchloaders.NewListLoader(queries.GetFilesForEpisodes, func(row common.File) int {
 		return row.EpisodeID
-	})
+	}).Loader
 }
 
 // NewBatchStreamsLoader returns a configured batch loader for GQL Stream
 func NewBatchStreamsLoader(queries sqlc.Queries) *dataloader.Loader[int, []*common.Stream] {
 	return batchloaders.NewListLoader(queries.GetStreamsForEpisodes, func(row common.Stream) int {
 		return row.EpisodeID
-	})
+	}).Loader
 }

@@ -156,12 +156,13 @@ func (i Page) GetKey() int {
 
 // Link contains link data
 type Link struct {
-	ID          int          `json:"id"`
-	Title       LocaleString `json:"title"`
-	Description LocaleString `json:"description"`
-	URL         string       `json:"url"`
-	Images      Images       `json:"images"`
-	Type        LinkType     `json:"type"`
+	ID                  int           `json:"id"`
+	Title               LocaleString  `json:"title"`
+	Description         LocaleString  `json:"description"`
+	URL                 string        `json:"url"`
+	Images              Images        `json:"images"`
+	Type                LinkType      `json:"type"`
+	ComputedDataGroupID uuid.NullUUID `json:"computedDataGroupId"`
 }
 
 // LinkType is the general type of the link

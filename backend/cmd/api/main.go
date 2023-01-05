@@ -86,7 +86,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *dat
 		EpisodesLoader:      batchloaders.NewRelationLoader(rq.GetEpisodeIDsForSeasonsWithRoles).Loader,
 		CollectionItemsLoader: batchloaders.NewListLoader(rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
 			return i.CollectionID
-		}),
+		}).Loader,
 		CollectionItemIDsLoader: collection.NewCollectionItemLoader(db, collectionLoader, roles),
 		CalendarEntryLoader:     batchloaders.New(rq.GetCalendarEntries),
 		StudyTopicFilterLoader:  batchloaders.NewFilterLoader(rq.GetTopicIDsWithRoles),
@@ -357,13 +357,13 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		// User Data
 		ProfilesLoader: batchloaders.NewListLoader(queries.GetProfilesForUserIDs, func(i common.Profile) string {
 			return i.UserID
-		}),
+		}).Loader,
 		StudyTopicLoader:  batchloaders.New(queries.GetTopics),
 		StudyLessonLoader: batchloaders.New(queries.GetLessons),
 		StudyTaskLoader:   batchloaders.New(queries.GetTasks),
-		StudyQuestionAlternativesLoader: &batchloaders.BatchLoader[uuid.UUID, []*common.QuestionAlternative]{batchloaders.NewListLoader(queries.GetQuestionAlternatives, func(alt common.QuestionAlternative) uuid.UUID {
+		StudyQuestionAlternativesLoader: batchloaders.NewListLoader(queries.GetQuestionAlternatives, func(alt common.QuestionAlternative) uuid.UUID {
 			return alt.TaskID
-		})},
+		}),
 		// Achievements
 		AchievementLoader:                  batchloaders.New(queries.GetAchievements),
 		AchievementGroupLoader:             batchloaders.New(queries.GetAchievementGroups),
@@ -374,6 +374,10 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		CompletedTopicsLoader:  batchloaders.NewRelationLoader(queries.GetCompletedTopics),
 		CompletedLessonsLoader: batchloaders.NewRelationLoader(queries.GetCompletedLessons),
 		CompletedTasksLoader:   batchloaders.NewRelationLoader(queries.GetCompletedTasks),
+
+		ComputedDataLoader: batchloaders.NewListLoader(queries.GetComputedDataForGroups, func(i common.ComputedData) uuid.UUID {
+			return i.GroupID
+		}),
 	}
 }
 

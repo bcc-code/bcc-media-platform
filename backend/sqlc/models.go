@@ -267,6 +267,35 @@ type CollectionsTranslation struct {
 	Title         null_v4.String `db:"title" json:"title"`
 }
 
+type ComputeddataCondition struct {
+	ID             uuid.UUID     `db:"id" json:"id"`
+	ComputeddataID uuid.NullUUID `db:"computeddata_id" json:"computeddataID"`
+	Type           string        `db:"type" json:"type"`
+	Operator       string        `db:"operator" json:"operator"`
+	Value          string        `db:"value" json:"value"`
+}
+
+type Computeddatagroup struct {
+	ID          uuid.UUID     `db:"id" json:"id"`
+	Status      string        `db:"status" json:"status"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	Label       string        `db:"label" json:"label"`
+}
+
+type Computeddatum struct {
+	ID          uuid.UUID     `db:"id" json:"id"`
+	Status      string        `db:"status" json:"status"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	GroupID     uuid.UUID     `db:"group_id" json:"groupID"`
+	Value       string        `db:"value" json:"value"`
+}
+
 type DirectusActivity struct {
 	ID         int32          `db:"id" json:"id"`
 	Action     string         `db:"action" json:"action"`
@@ -818,14 +847,15 @@ type LessonsTranslation struct {
 }
 
 type Link struct {
-	ID          int32          `db:"id" json:"id"`
-	Status      string         `db:"status" json:"status"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Url         string         `db:"url" json:"url"`
-	Type        null_v4.String `db:"type" json:"type"`
+	ID                  int32          `db:"id" json:"id"`
+	Status              string         `db:"status" json:"status"`
+	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated         null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated         null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Url                 string         `db:"url" json:"url"`
+	Type                null_v4.String `db:"type" json:"type"`
+	ComputeddatagroupID uuid.NullUUID  `db:"computeddatagroup_id" json:"computeddatagroupID"`
 }
 
 type LinksTranslation struct {
