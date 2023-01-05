@@ -23,6 +23,7 @@ type Achievement struct {
 	GroupID     uuid.NullUUID  `db:"group_id" json:"groupID"`
 	Title       string         `db:"title" json:"title"`
 	Description null_v4.String `db:"description" json:"description"`
+	Sort        null_v4.Int    `db:"sort" json:"sort"`
 }
 
 type Achievementcondition struct {
