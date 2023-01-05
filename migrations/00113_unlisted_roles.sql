@@ -6,7 +6,6 @@
 
 --- BEGIN ALTER VIEW "public"."season_roles" ---
 
-DROP VIEW IF EXISTS "public"."season_roles";
 CREATE OR REPLACE VIEW "public"."season_roles" AS
 SELECT s.id,
        array_remove(array_agg(DISTINCT eu.usergroups_code), NULL::character varying)  AS roles,
@@ -34,7 +33,6 @@ COMMENT ON VIEW "public"."season_roles" IS NULL;
 
 --- BEGIN ALTER VIEW "public"."show_roles" ---
 
-DROP VIEW IF EXISTS "public"."show_roles";
 CREATE OR REPLACE VIEW "public"."show_roles" AS
 SELECT sh.id,
        array_remove(array_agg(DISTINCT eu.usergroups_code), NULL::character varying)  AS roles,
@@ -95,7 +93,6 @@ WHERE "id" = 536;
 
 --- BEGIN ALTER VIEW "public"."show_roles" ---
 
-DROP VIEW IF EXISTS "public"."show_roles";
 CREATE OR REPLACE VIEW "public"."show_roles" AS
 SELECT sh.id,
        array_remove(array_agg(DISTINCT eu.usergroups_code), NULL::character varying)  AS roles,
@@ -123,7 +120,6 @@ COMMENT ON VIEW "public"."show_roles" IS NULL;
 
 --- BEGIN ALTER VIEW "public"."season_roles" ---
 
-DROP VIEW IF EXISTS "public"."season_roles";
 CREATE OR REPLACE VIEW "public"."season_roles" AS
 SELECT s.id,
        array_remove(array_agg(DISTINCT eu.usergroups_code), NULL::character varying)  AS roles,
