@@ -101,7 +101,7 @@ func (r *linkResolver) URL(ctx context.Context, obj *model.Link) (string, error)
 	}
 	ginCtx, _ := utils.GinCtx(ctx)
 	u := user.GetFromCtx(ginCtx)
-	if u == nil {
+	if u == nil || !u.ActiveBCC {
 		return l.URL, nil
 	}
 
