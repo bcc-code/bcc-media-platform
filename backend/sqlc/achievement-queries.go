@@ -28,11 +28,12 @@ func (q *Queries) GetAchievements(ctx context.Context, ids []uuid.UUID) ([]commo
 		}
 
 		return common.Achievement{
-			ID:         i.ID,
-			GroupID:    i.GroupID,
-			Title:      toLocaleString(i.Title.RawMessage, null.StringFrom(i.OriginalTitle)),
-			Conditions: unmarshalTo[[]common.AchievementCondition](i.Conditions.RawMessage),
-			Images:     res,
+			ID:          i.ID,
+			GroupID:     i.GroupID,
+			Title:       toLocaleString(i.Title.RawMessage, null.StringFrom(i.OriginalTitle)),
+			Description: toLocaleString(i.Description.RawMessage, i.OriginalDescription),
+			Conditions:  unmarshalTo[[]common.AchievementCondition](i.Conditions.RawMessage),
+			Images:      res,
 		}
 	}), nil
 }

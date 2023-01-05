@@ -8,11 +8,12 @@ import (
 
 // Achievement is the struct for achievements.sql
 type Achievement struct {
-	ID         uuid.UUID
-	Title      LocaleString
-	Images     LocaleMap[null.String]
-	GroupID    uuid.NullUUID
-	Conditions []AchievementCondition
+	ID          uuid.UUID
+	Title       LocaleString
+	Description LocaleString
+	Images      LocaleMap[null.String]
+	GroupID     uuid.NullUUID
+	Conditions  []AchievementCondition
 }
 
 // GetKey returns key for this item

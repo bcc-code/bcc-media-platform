@@ -20,10 +20,11 @@ func AchievementFrom(ctx context.Context, i *common.Achievement) *Achievement {
 	}
 
 	return &Achievement{
-		ID:    i.ID.String(),
-		Title: i.Title.Get(languages),
-		Image: i.Images.Get(languages).Ptr(),
-		Group: group,
+		ID:          i.ID.String(),
+		Title:       i.Title.Get(languages),
+		Description: i.Description.GetValueOrNil(languages),
+		Image:       i.Images.Get(languages).Ptr(),
+		Group:       group,
 	}
 }
 

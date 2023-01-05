@@ -195,10 +195,9 @@ func (q *Queries) SetAchievementAchieved(ctx context.Context, arg SetAchievement
 }
 
 const achievementAchievedAt = `-- name: achievementAchievedAt :many
-SELECT
-    a.achievement_id,
-    a.achieved_at,
-    a.confirmed_at
+SELECT a.achievement_id,
+       a.achieved_at,
+       a.confirmed_at
 FROM "users"."achievements" a
 WHERE a.profile_id = $1
   AND a.achievement_id = ANY ($2::uuid[])
@@ -313,7 +312,9 @@ func (q *Queries) getAchievementGroups(ctx context.Context, dollar_1 []uuid.UUID
 }
 
 const getAchievements = `-- name: getAchievements :many
-WITH ts AS (SELECT achievements_id, json_object_agg(languages_code, title) as title
+WITH ts AS (SELECT achievements_id,
+                   json_object_agg(languages_code, title)       as title,
+                   json_object_agg(languages_code, description) as description
             FROM achievements_translations
             GROUP BY achievements_id),
      cons AS (SELECT achievement_id,
@@ -327,7 +328,9 @@ WITH ts AS (SELECT achievements_id, json_object_agg(languages_code, title) as ti
 SELECT a.id,
        a.group_id,
        a.title as original_title,
+       a.description as original_description,
        ts.title,
+       ts.description,
        images.images,
        cons.conditions
 FROM "public"."achievements" a
@@ -338,12 +341,14 @@ WHERE a.id = ANY ($1::uuid[])
 `
 
 type getAchievementsRow struct {
-	ID            uuid.UUID             `db:"id" json:"id"`
-	GroupID       uuid.NullUUID         `db:"group_id" json:"groupID"`
-	OriginalTitle string                `db:"original_title" json:"originalTitle"`
-	Title         pqtype.NullRawMessage `db:"title" json:"title"`
-	Images        pqtype.NullRawMessage `db:"images" json:"images"`
-	Conditions    pqtype.NullRawMessage `db:"conditions" json:"conditions"`
+	ID                  uuid.UUID             `db:"id" json:"id"`
+	GroupID             uuid.NullUUID         `db:"group_id" json:"groupID"`
+	OriginalTitle       string                `db:"original_title" json:"originalTitle"`
+	OriginalDescription null_v4.String        `db:"original_description" json:"originalDescription"`
+	Title               pqtype.NullRawMessage `db:"title" json:"title"`
+	Description         pqtype.NullRawMessage `db:"description" json:"description"`
+	Images              pqtype.NullRawMessage `db:"images" json:"images"`
+	Conditions          pqtype.NullRawMessage `db:"conditions" json:"conditions"`
 }
 
 func (q *Queries) getAchievements(ctx context.Context, dollar_1 []uuid.UUID) ([]getAchievementsRow, error) {
@@ -359,7 +364,9 @@ func (q *Queries) getAchievements(ctx context.Context, dollar_1 []uuid.UUID) ([]
 			&i.ID,
 			&i.GroupID,
 			&i.OriginalTitle,
+			&i.OriginalDescription,
 			&i.Title,
+			&i.Description,
 			&i.Images,
 			&i.Conditions,
 		); err != nil {

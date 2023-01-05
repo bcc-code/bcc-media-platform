@@ -83,24 +83,6 @@ func (r *lessonResolver) Topic(ctx context.Context, obj *model.Lesson) (*model.S
 	return r.QueryRoot().StudyTopic(ctx, obj.Topic.ID)
 }
 
-// Progress is the resolver for the progress field.
-func (r *lessonResolver) Progress(ctx context.Context, obj *model.Lesson) (*model.TasksProgress, error) {
-	ids, err := r.GetFilteredLoaders(ctx).StudyTasksLoader.Get(ctx, utils.AsUuid(obj.ID))
-	if err != nil {
-		return nil, err
-	}
-	completed, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
-	if err != nil {
-		return nil, err
-	}
-	return &model.TasksProgress{
-		Total: len(ids),
-		Completed: len(lo.Filter(completed, func(i *uuid.UUID, _ int) bool {
-			return i != nil
-		})),
-	}, nil
-}
-
 // Episodes is the resolver for the episodes field.
 func (r *lessonResolver) Episodes(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.EpisodePagination, error) {
 	ids, err := r.GetFilteredLoaders(ctx).StudyLessonEpisodesLoader.Get(ctx, utils.AsUuid(obj.ID))
@@ -150,6 +132,24 @@ func (r *lessonResolver) Links(ctx context.Context, obj *model.Lesson, first *in
 		Total:  page.Total,
 		First:  page.First,
 		Offset: page.Offset,
+	}, nil
+}
+
+// Progress is the resolver for the progress field.
+func (r *lessonResolver) Progress(ctx context.Context, obj *model.Lesson) (*model.TasksProgress, error) {
+	ids, err := r.GetFilteredLoaders(ctx).StudyTasksLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	completed, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
+	if err != nil {
+		return nil, err
+	}
+	return &model.TasksProgress{
+		Total: len(ids),
+		Completed: len(lo.Filter(completed, func(i *uuid.UUID, _ int) bool {
+			return i != nil
+		})),
 	}, nil
 }
 
@@ -314,30 +314,24 @@ func (r *studyTopicResolver) Lessons(ctx context.Context, obj *model.StudyTopic,
 }
 
 // Progress is the resolver for the progress field.
-func (r *studyTopicResolver) Progress(ctx context.Context, obj *model.StudyTopic) (*model.TasksProgress, error) {
+func (r *studyTopicResolver) Progress(ctx context.Context, obj *model.StudyTopic) (*model.LessonsProgress, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return nil, err
+	}
 	ids, err := r.GetFilteredLoaders(ctx).StudyLessonsLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
-	taskIDGroups, err := r.GetFilteredLoaders(ctx).StudyTasksLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
+	noPointerIds := utils.PointerArrayToArray(ids)
+	completedLessonIDs, err := r.Loaders.CompletedLessonsLoader.Get(ctx, p.ID)
 	if err != nil {
 		return nil, err
 	}
-	taskIDs := lo.Uniq(
-		utils.PointerArrayToArray(
-			lo.Reduce(taskIDGroups, func(r []*uuid.UUID, v []*uuid.UUID, _ int) []*uuid.UUID {
-				return append(r, v...)
-			}, []*uuid.UUID{}),
-		),
-	)
-	completedTaskIDs, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.GetMany(ctx, taskIDs)
-	if err != nil {
-		return nil, err
-	}
-	return &model.TasksProgress{
-		Total: len(taskIDs),
-		Completed: len(lo.Filter(completedTaskIDs, func(i *uuid.UUID, _ int) bool {
-			return i != nil
+	return &model.LessonsProgress{
+		Total: len(noPointerIds),
+		Completed: len(lo.Filter(completedLessonIDs, func(i *uuid.UUID, _ int) bool {
+			return i != nil && lo.Contains(noPointerIds, *i)
 		})),
 	}, nil
 }

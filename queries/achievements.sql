@@ -1,5 +1,7 @@
 -- name: getAchievements :many
-WITH ts AS (SELECT achievements_id, json_object_agg(languages_code, title) as title
+WITH ts AS (SELECT achievements_id,
+                   json_object_agg(languages_code, title)       as title,
+                   json_object_agg(languages_code, description) as description
             FROM achievements_translations
             GROUP BY achievements_id),
      cons AS (SELECT achievement_id,
@@ -13,7 +15,9 @@ WITH ts AS (SELECT achievements_id, json_object_agg(languages_code, title) as ti
 SELECT a.id,
        a.group_id,
        a.title as original_title,
+       a.description as original_description,
        ts.title,
+       ts.description,
        images.images,
        cons.conditions
 FROM "public"."achievements" a
@@ -93,10 +97,9 @@ VALUES ($1, $2, now(), $3)
 ON CONFLICT(profile_id, achievement_id) DO UPDATE SET achieved_at = now();
 
 -- name: achievementAchievedAt :many
-SELECT
-    a.achievement_id,
-    a.achieved_at,
-    a.confirmed_at
+SELECT a.achievement_id,
+       a.achieved_at,
+       a.confirmed_at
 FROM "users"."achievements" a
 WHERE a.profile_id = $1
   AND a.achievement_id = ANY ($2::uuid[]);

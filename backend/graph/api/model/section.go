@@ -186,6 +186,18 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			URL:            s.EmbedUrl.ValueOrZero(),
 			Authentication: s.NeedsAuthentication.ValueOrZero(),
 		}
+	case "achievements":
+		return &AchievementSection{
+			ID:          id,
+			Title:       title,
+			Description: description,
+		}
+	case "page_details":
+		return &PageDetailsSection{
+			ID:          id,
+			Title:       title,
+			Description: description,
+		}
 	}
 
 	return &DefaultSection{

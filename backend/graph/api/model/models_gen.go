@@ -92,12 +92,13 @@ type Task interface {
 }
 
 type Achievement struct {
-	ID         string            `json:"id"`
-	Title      string            `json:"title"`
-	Image      *string           `json:"image"`
-	Achieved   bool              `json:"achieved"`
-	AchievedAt *string           `json:"achievedAt"`
-	Group      *AchievementGroup `json:"group"`
+	ID          string            `json:"id"`
+	Title       string            `json:"title"`
+	Description *string           `json:"description"`
+	Image       *string           `json:"image"`
+	Achieved    bool              `json:"achieved"`
+	AchievedAt  *string           `json:"achievedAt"`
+	Group       *AchievementGroup `json:"group"`
 }
 
 type AchievementGroup struct {
@@ -129,6 +130,17 @@ func (AchievementPagination) IsPagination()       {}
 func (this AchievementPagination) GetTotal() int  { return this.Total }
 func (this AchievementPagination) GetFirst() int  { return this.First }
 func (this AchievementPagination) GetOffset() int { return this.Offset }
+
+type AchievementSection struct {
+	ID          string  `json:"id"`
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
+}
+
+func (AchievementSection) IsSection()                   {}
+func (this AchievementSection) GetID() string           { return this.ID }
+func (this AchievementSection) GetTitle() *string       { return this.Title }
+func (this AchievementSection) GetDescription() *string { return this.Description }
 
 type Alternative struct {
 	ID        string `json:"id"`
@@ -593,9 +605,9 @@ type Lesson struct {
 	Image       *string            `json:"image"`
 	Tasks       *TaskPagination    `json:"tasks"`
 	Topic       *StudyTopic        `json:"topic"`
-	Progress    *TasksProgress     `json:"progress"`
 	Episodes    *EpisodePagination `json:"episodes"`
 	Links       *LinkPagination    `json:"links"`
+	Progress    *TasksProgress     `json:"progress"`
 	Completed   bool               `json:"completed"`
 	Locked      bool               `json:"locked"`
 	Previous    *Lesson            `json:"previous"`
@@ -613,6 +625,11 @@ func (LessonPagination) IsPagination()       {}
 func (this LessonPagination) GetTotal() int  { return this.Total }
 func (this LessonPagination) GetFirst() int  { return this.First }
 func (this LessonPagination) GetOffset() int { return this.Offset }
+
+type LessonsProgress struct {
+	Total     int `json:"total"`
+	Completed int `json:"completed"`
+}
 
 type Link struct {
 	ID          string   `json:"id"`
@@ -707,6 +724,17 @@ type Page struct {
 }
 
 func (Page) IsSectionItemType() {}
+
+type PageDetailsSection struct {
+	ID          string  `json:"id"`
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
+}
+
+func (PageDetailsSection) IsSection()                   {}
+func (this PageDetailsSection) GetID() string           { return this.ID }
+func (this PageDetailsSection) GetTitle() *string       { return this.Title }
+func (this PageDetailsSection) GetDescription() *string { return this.Description }
 
 type PageItem struct {
 	ID       string   `json:"id"`
@@ -1093,7 +1121,7 @@ type StudyTopic struct {
 	Image       *string           `json:"image"`
 	Images      []*Image          `json:"images"`
 	Lessons     *LessonPagination `json:"lessons"`
-	Progress    *TasksProgress    `json:"progress"`
+	Progress    *LessonsProgress  `json:"progress"`
 }
 
 func (StudyTopic) IsSectionItemType() {}
