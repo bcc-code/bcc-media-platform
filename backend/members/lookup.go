@@ -15,6 +15,7 @@ type retrieveByEmailRequestFilter struct {
 	Email map[string]any `json:"email"`
 }
 
+// RetrieveByEmails retrieves members by emails
 func (c *Client) RetrieveByEmails(ctx context.Context, emails []string) (*[]Member, error) {
 	filter := retrieveByEmailRequestFilter{
 		Email: map[string]any{

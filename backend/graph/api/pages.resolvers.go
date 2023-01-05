@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"github.com/samber/lo"
 	"strconv"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -87,6 +88,53 @@ func (r *iconSectionResolver) Items(ctx context.Context, obj *model.IconSection,
 // Items is the resolver for the items field.
 func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int) (*model.SectionItemPagination, error) {
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+}
+
+// URL is the resolver for the url field.
+func (r *linkResolver) URL(ctx context.Context, obj *model.Link) (string, error) {
+	l, err := batchloaders.GetByID(ctx, r.Loaders.LinkLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return "", err
+	}
+	if !l.ComputedDataGroupID.Valid {
+		return l.URL, nil
+	}
+	ginCtx, _ := utils.GinCtx(ctx)
+	u := user.GetFromCtx(ginCtx)
+	if u == nil {
+		return l.URL, nil
+	}
+
+	data, err := r.Loaders.ComputedDataLoader.Get(ctx, l.ComputedDataGroupID.UUID)
+	if err != nil {
+		return "", err
+	}
+	for _, i := range data {
+		if lo.EveryBy(i.Conditions, func(i common.ComputedCondition) bool {
+			switch i.Type {
+			case "user_church":
+				switch i.Operator {
+				case "==":
+					intValue, _ := strconv.ParseInt(i.Value, 10, 64)
+					return lo.Contains(u.ChurchIDs, int(intValue))
+				}
+			case "user_age":
+				intValue, _ := strconv.ParseInt(i.Value, 10, 64)
+				switch i.Operator {
+				case "<":
+					return u.Age < int(intValue)
+				case ">":
+					return u.Age > int(intValue)
+				case "==":
+					return u.Age == int(intValue)
+				}
+			}
+			return false
+		}) {
+			return i.Result, nil
+		}
+	}
+	return l.URL, nil
 }
 
 // Image is the resolver for the image field.

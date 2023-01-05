@@ -944,6 +944,8 @@ type LessonResolver interface {
 	Next(ctx context.Context, obj *model.Lesson) (*model.Lesson, error)
 }
 type LinkResolver interface {
+	URL(ctx context.Context, obj *model.Link) (string, error)
+
 	Image(ctx context.Context, obj *model.Link, style *model.ImageStyle) (*string, error)
 }
 type LinkTaskResolver interface {
@@ -5444,7 +5446,7 @@ enum LinkType {
 
 type Link {
     id: ID!
-    url: String!
+    url: String! @goField(forceResolver: true)
     title: String!
     description: String
     type: LinkType!
@@ -17937,7 +17939,7 @@ func (ec *executionContext) _Link_url(ctx context.Context, field graphql.Collect
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.URL, nil
+		return ec.resolvers.Link().URL(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17958,8 +17960,8 @@ func (ec *executionContext) fieldContext_Link_url(ctx context.Context, field gra
 	fc = &graphql.FieldContext{
 		Object:     "Link",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -36053,12 +36055,25 @@ func (ec *executionContext) _Link(ctx context.Context, sel ast.SelectionSet, obj
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "url":
+			field := field
 
-			out.Values[i] = ec._Link_url(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Link_url(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "title":
 
 			out.Values[i] = ec._Link_title(ctx, field, obj)

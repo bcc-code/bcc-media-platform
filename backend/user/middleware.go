@@ -69,7 +69,7 @@ func getRoles(ctx context.Context, queries *sqlc.Queries) (map[string][]string, 
 func GetRolesForEmail(ctx context.Context, queries *sqlc.Queries, email string) ([]string, error) {
 	ctx, span := otel.Tracer("user").Start(ctx, "GetRolesForEmail")
 	defer span.End()
-	rtnRoles := []string{}
+	var rtnRoles []string
 
 	allRoles, err := getRoles(ctx, queries)
 	if err != nil {
@@ -103,12 +103,12 @@ var ageGroups = map[int]string{
 
 // NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
-func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin.Context) {
+func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) func(*gin.Context) {
 	return func(ctx *gin.Context) {
 		reqCtx, span := otel.Tracer("user/middleware").Start(ctx.Request.Context(), "run")
 		defer span.End()
 
-		roles := []string{}
+		var roles []string
 
 		authed := ctx.GetBool(auth0.CtxAuthenticated)
 
@@ -139,7 +139,7 @@ func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin
 		pid := ctx.GetString(auth0.CtxPersonID)
 		intID, _ := strconv.ParseInt(pid, 10, 32)
 
-		member, err := members.Lookup(ctx, int(intID))
+		member, err := membersClient.Lookup(ctx, int(intID))
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to retrieve user")
 		}
@@ -180,14 +180,20 @@ func NewUserMiddleware(queries *sqlc.Queries, members *members.Client) func(*gin
 		if err != nil {
 			log.L.Error().Err(err).Msg("Error parsing birthday of user")
 		} else {
-			age := time.Now().Year() - birthDate.Year()
+			u.Age = time.Now().Year() - birthDate.Year()
 			for minAge, group := range ageGroups {
-				if age > minAge {
+				if u.Age > minAge {
 					u.AgeGroup = group
 					break
 				}
 			}
 		}
+
+		u.ChurchIDs = lo.Map(lo.Filter(member.Affiliations, func(i members.Affiliation, _ int) bool {
+			return i.Active && i.Type == "Member" && i.OrgType == "Church"
+		}), func(i members.Affiliation, _ int) int {
+			return i.OrgID
+		})
 
 		// Add the user to the cache
 		span.AddEvent("User loaded into cache")

@@ -155,12 +155,13 @@ func (q *Queries) GetLinks(ctx context.Context, ids []int) ([]common.Link, error
 		_ = json.Unmarshal(i.Description.RawMessage, &desc)
 
 		return common.Link{
-			ID:          int(i.ID),
-			Title:       title,
-			Description: desc,
-			URL:         i.Url,
-			Type:        i.Type.String,
-			Images:      q.getImages(i.Images),
+			ID:                  int(i.ID),
+			Title:               title,
+			Description:         desc,
+			URL:                 i.Url,
+			Type:                i.Type.String,
+			Images:              q.getImages(i.Images),
+			ComputedDataGroupID: i.ComputeddatagroupID,
 		}
 	}), nil
 }

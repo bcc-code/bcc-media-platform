@@ -48,7 +48,7 @@ func NewListLoader[K comparable, V any](
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	getKey func(item V) K,
 	opts ...Option,
-) *dataloader.Loader[K, []*V] {
+) *BatchLoader[K, []*V] {
 	batchLoadLists := func(ctx context.Context, keys []K) []*dataloader.Result[[]*V] {
 		var results []*dataloader.Result[[]*V]
 
@@ -85,7 +85,7 @@ func NewListLoader[K comparable, V any](
 
 	options := getOptions[K, []*V](opts...)
 
-	return dataloader.NewBatchedLoader(batchLoadLists, options...)
+	return &BatchLoader[K, []*V]{Loader: dataloader.NewBatchedLoader(batchLoadLists, options...)}
 }
 
 // RelationItem implements Relation
@@ -151,7 +151,7 @@ func NewRelationLoader[K comparable, R comparable](
 
 	options := getOptions[R, []*K](opts...)
 
-	return &BatchLoader[R, []*K]{dataloader.NewBatchedLoader(batchLoadLists, options...)}
+	return &BatchLoader[R, []*K]{Loader: dataloader.NewBatchedLoader(batchLoadLists, options...)}
 }
 
 // Conversion contains the original and converted value
@@ -299,7 +299,7 @@ func NewCustomLoader[K comparable, V any](
 	options := getOptions[K, *V](opts...)
 
 	// Currently we do not want to cache at the GQL level
-	return &BatchLoader[K, *V]{dataloader.NewBatchedLoader(batchLoadItems, options...)}
+	return &BatchLoader[K, *V]{Loader: dataloader.NewBatchedLoader(batchLoadItems, options...)}
 }
 
 // GetByID returns the object from the loader

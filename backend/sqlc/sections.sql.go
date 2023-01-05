@@ -10,6 +10,7 @@ import (
 	"database/sql"
 	"encoding/json"
 
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
 	null_v4 "gopkg.in/guregu/null.v4"
@@ -31,6 +32,7 @@ SELECT ls.id,
        ls.url,
        COALESCE(images.json, '[]') as images,
        ls.type,
+       ls.computeddatagroup_id,
        ts.title,
        ts.description
 FROM links ls
@@ -41,12 +43,13 @@ WHERE ls.id = ANY ($1::int[])
 `
 
 type getLinksRow struct {
-	ID          int32                 `db:"id" json:"id"`
-	Url         string                `db:"url" json:"url"`
-	Images      json.RawMessage       `db:"images" json:"images"`
-	Type        null_v4.String        `db:"type" json:"type"`
-	Title       pqtype.NullRawMessage `db:"title" json:"title"`
-	Description pqtype.NullRawMessage `db:"description" json:"description"`
+	ID                  int32                 `db:"id" json:"id"`
+	Url                 string                `db:"url" json:"url"`
+	Images              json.RawMessage       `db:"images" json:"images"`
+	Type                null_v4.String        `db:"type" json:"type"`
+	ComputeddatagroupID uuid.NullUUID         `db:"computeddatagroup_id" json:"computeddatagroupID"`
+	Title               pqtype.NullRawMessage `db:"title" json:"title"`
+	Description         pqtype.NullRawMessage `db:"description" json:"description"`
 }
 
 func (q *Queries) getLinks(ctx context.Context, dollar_1 []int32) ([]getLinksRow, error) {
@@ -63,6 +66,7 @@ func (q *Queries) getLinks(ctx context.Context, dollar_1 []int32) ([]getLinksRow
 			&i.Url,
 			&i.Images,
 			&i.Type,
+			&i.ComputeddatagroupID,
 			&i.Title,
 			&i.Description,
 		); err != nil {
