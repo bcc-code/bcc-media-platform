@@ -21,6 +21,24 @@ import (
 	null "gopkg.in/guregu/null.v4"
 )
 
+// Locked is the resolver for the locked field.
+func (r *episodeResolver) Locked(ctx context.Context, obj *model.Episode) (bool, error) {
+	e, err := batchloaders.GetByID(ctx, r.Loaders.EpisodeLoader, utils.AsInt(obj.ID))
+	if err != nil {
+		return false, err
+	}
+	perms, err := batchloaders.GetByID(ctx, r.Loaders.EpisodePermissionLoader, e.ID)
+	if err != nil {
+		return false, err
+	}
+	ginCtx, _ := utils.GinCtx(ctx)
+	roles := user.GetRolesFromCtx(ginCtx)
+	if e.PublishDate.After(time.Now()) && len(lo.Intersect(perms.Roles.EarlyAccess, roles)) == 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
 // AvailableFrom is the resolver for the availableFrom field.
 func (r *episodeResolver) AvailableFrom(ctx context.Context, obj *model.Episode) (string, error) {
 	perms, err := batchloaders.GetByID(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID))

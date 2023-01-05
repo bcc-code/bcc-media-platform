@@ -309,6 +309,7 @@ type Episode struct {
 	Type                  EpisodeType            `json:"type"`
 	LegacyID              *string                `json:"legacyID"`
 	LegacyProgramID       *string                `json:"legacyProgramID"`
+	Locked                bool                   `json:"locked"`
 	PublishDate           string                 `json:"publishDate"`
 	ProductionDate        string                 `json:"productionDate"`
 	ProductionDateInTitle bool                   `json:"productionDateInTitle"`

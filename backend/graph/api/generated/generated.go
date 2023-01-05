@@ -248,6 +248,7 @@ type ComplexityRoot struct {
 		LegacyID              func(childComplexity int) int
 		LegacyProgramID       func(childComplexity int) int
 		Lessons               func(childComplexity int, first *int, offset *int) int
+		Locked                func(childComplexity int) int
 		Number                func(childComplexity int) int
 		ProductionDate        func(childComplexity int) int
 		ProductionDateInTitle func(childComplexity int) int
@@ -861,6 +862,8 @@ type DefaultSectionResolver interface {
 	Items(ctx context.Context, obj *model.DefaultSection, first *int, offset *int) (*model.SectionItemPagination, error)
 }
 type EpisodeResolver interface {
+	Locked(ctx context.Context, obj *model.Episode) (bool, error)
+
 	AvailableFrom(ctx context.Context, obj *model.Episode) (string, error)
 
 	Image(ctx context.Context, obj *model.Episode, style *model.ImageStyle) (*string, error)
@@ -1775,6 +1778,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.Lessons(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+
+	case "Episode.locked":
+		if e.complexity.Episode.Locked == nil {
+			break
+		}
+
+		return e.complexity.Episode.Locked(childComplexity), true
 
 	case "Episode.number":
 		if e.complexity.Episode.Number == nil {
@@ -5048,6 +5058,7 @@ type Episode {
     type: EpisodeType!
     legacyID: ID
     legacyProgramID: ID
+    locked: Boolean! @goField(forceResolver: true)
     publishDate: Date!
     productionDate: Date!
     productionDateInTitle: Boolean!
@@ -10962,6 +10973,50 @@ func (ec *executionContext) fieldContext_Episode_legacyProgramID(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_locked(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_locked(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Episode().Locked(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_locked(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_publishDate(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_publishDate(ctx, field)
 	if err != nil {
@@ -12477,6 +12532,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "locked":
+				return ec.fieldContext_Episode_locked(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -12804,6 +12861,8 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "locked":
+				return ec.fieldContext_Episode_locked(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -13040,6 +13099,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "locked":
+				return ec.fieldContext_Episode_locked(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -19084,6 +19145,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "locked":
+				return ec.fieldContext_Episode_locked(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -21513,6 +21576,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "locked":
+				return ec.fieldContext_Episode_locked(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -26713,6 +26778,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "locked":
+				return ec.fieldContext_Episode_locked(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -29554,6 +29621,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_legacyID(ctx, field)
 			case "legacyProgramID":
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "locked":
+				return ec.fieldContext_Episode_locked(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -33688,6 +33757,26 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._Episode_legacyProgramID(ctx, field, obj)
 
+		case "locked":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_locked(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "publishDate":
 
 			out.Values[i] = ec._Episode_publishDate(ctx, field, obj)
