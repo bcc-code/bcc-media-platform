@@ -97,9 +97,11 @@ console.log(task.value.title)
 
 const openLink = () => {
     if (flutter) {
-        flutter.navigate("/episode/" + task.value.episode.id)
+        flutter.push(
+            "/embed/" + task.value.episode.id + "?hide_bottom_section=true"
+        )
     } else {
-        window.location.assign("/episode/" + task.value.episode.id)
+        window.open("/episode/" + task.value.episode.id, "_blank")?.focus()
     }
 }
 onMounted(async () => {

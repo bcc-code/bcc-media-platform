@@ -11,12 +11,20 @@ class FlutterMain {
         this.webView.callHandler(this.handlerName, "navigate", path)
     }
 
+    push(path: String) {
+        this.webView.callHandler(this.handlerName, "push", path)
+    }
+
     getAccessToken(): Promise<String | null> {
         return this.webView.callHandler(this.handlerName, "get_access_token")
     }
 
     getLocale(): Promise<String | null> {
         return this.webView.callHandler(this.handlerName, "get_locale")
+    }
+
+    shareImage(url: string): Promise<boolean | null> {
+        return this.webView.callHandler(this.handlerName, "share_image", url)
     }
 }
 
@@ -40,4 +48,14 @@ class FlutterStudy {
 export const flutterStudy =
     window.flutter_inappwebview != null
         ? new FlutterStudy(window.flutter_inappwebview)
-        : null
+        : null;
+
+function addQueryParameter(url: string, name: string, value: string | number | boolean) {
+    const separator = url.indexOf('?') === -1 ? '?' : '&';
+    return `${url}${separator}${name}=${encodeURIComponent(value)}`;
+}
+
+export const openInBrowser = (url: string) => {
+    const newUrl = addQueryParameter(url, 'launch_url', 'true');
+    window.location.assign(newUrl)
+};

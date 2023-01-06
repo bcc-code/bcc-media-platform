@@ -61,23 +61,12 @@
 
 <script lang="ts" setup>
 import { VButton } from "@/components"
-import {
-    TaskFragment,
-    useCompleteTaskMutation,
-    useSendTaskMessageMutation,
-} from "@/graph/generated"
-import { computed, getCurrentInstance, onMounted, Ref, ref, watch } from "vue"
+import { TaskFragment } from "@/graph/generated"
+import { computed, onMounted } from "vue"
 import { useI18n } from "vue-i18n"
-import Alternative from "./Alternative.vue"
-import Loader from "@/components/Loader.vue"
-import { flutter } from "@/utils/flutter"
-
-var selectedIndex = ref<number>()
+import { openInBrowser } from "@/utils/flutter"
 
 const { t } = useI18n()
-
-const { fetching, executeMutation, error } = useSendTaskMessageMutation()
-const { executeMutation: completeTask } = useCompleteTaskMutation()
 
 const props = defineProps<{
     task: TaskFragment
@@ -88,15 +77,14 @@ const emit = defineEmits<{
     (event: "update:isDone", val: boolean): void
 }>()
 
-const imgSize = ref<string>()
-
 const task = computed(() => {
     return (props.task.__typename == "LinkTask" ? props.task : undefined)!
 })
 console.log(task.value.title)
 
 const openLink = () => {
-    window.location.assign(task.value.link.url)
+    console.log("ajksdhkjasdhask")
+    openInBrowser(task.value.link.url)
 }
 onMounted(async () => {
     emit(`update:isDone`, true)
