@@ -67,3 +67,7 @@ The initial login credentials are:
 
 ### Test-data
 You can quickly make some dummy data with `./packages/test-data`. Do `npm install` and `make all`.
+
+### Formats
+
+The default date format is RFC3339. For go: `x.Format(time.RFC3339)`

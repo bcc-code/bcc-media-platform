@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
@@ -34,7 +35,7 @@ func (r *achievementResolver) AchievedAt(ctx context.Context, obj *model.Achieve
 	if achieved == nil {
 		return nil, nil
 	}
-	at := achieved.AchievedAt.String()
+	at := achieved.AchievedAt.Format(time.RFC3339)
 	return &at, nil
 }
 
