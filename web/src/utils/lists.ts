@@ -5,7 +5,7 @@ import {
 
 export type ListItem = {
     id: string
-    type: "Episode" | "Season" | "Show" | "Page" | "Link"
+    type: "Episode" | "Season" | "Show" | "Page" | "Link" | "StudyTopic"
     title: string
     image?: string | null
     progress?: number | null
@@ -42,17 +42,17 @@ export const episodesToListItems = (
 ): ListItem[] => {
     const items = episodes.map(
         (i) =>
-            ({
-                id: i.id,
-                type: "Episode",
-                title: i.title,
-                image: i.image,
-                ageRating: i.ageRating,
-                duration: i.duration,
-                number: i.number,
-                progress: i.progress,
-                description: i.description,
-            } as ListItem)
+        ({
+            id: i.id,
+            type: "Episode",
+            title: i.title,
+            image: i.image,
+            ageRating: i.ageRating,
+            duration: i.duration,
+            number: i.number,
+            progress: i.progress,
+            description: i.description,
+        } as ListItem)
     )
 
     return items
