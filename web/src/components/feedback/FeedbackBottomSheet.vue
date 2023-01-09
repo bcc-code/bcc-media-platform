@@ -54,6 +54,7 @@
                         v-if="_visible"
                         v-model="comment"
                         name="comment"
+                        @focus="onCommentFocus"
                         :placeholder="t('feedback.placeholder')"
                         rows="6"
                         class="mt-2 w-full ellipsis rounded-xl text-lg pl-4 pr-6 py-3 bg-background-2 border border-transparent focus:border-tint-1 focus:outline-none placeholder:text-label-4 feedback-comment resize-none"
@@ -93,6 +94,7 @@ import swipeModal from "@takuma-ru/vue-swipe-modal"
 import { useSendEpisodeFeedbackMutation } from "@/graph/generated"
 import { exec } from "child_process"
 import Loader from "../Loader.vue"
+import { flutter } from "@/utils/flutter"
 
 const { fetching, executeMutation, error, data } =
     useSendEpisodeFeedbackMutation()
@@ -131,6 +133,14 @@ const _visible = computed({
         emit("update:visible", value)
     },
 })
+
+const onCommentFocus = (e: FocusEvent) => {
+    const modalContents = document.getElementsByClassName("modal-contents")[0]
+    if (modalContents && flutter) {
+        modalContents.scrollTop = 1000
+        setTimeout(() => (modalContents.scrollTop = 1000), 500)
+    }
+}
 
 const cancel = (e: Event) => {
     emit("update:selected", null)
