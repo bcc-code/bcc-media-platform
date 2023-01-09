@@ -36,9 +36,9 @@
                     name=""
                     id="messageInput"
                     cols="20"
-                    rows="10"
+                    rows="7"
                     :placeholder="$t('lesson.textTaskPlaceholder')"
-                    class="w-full ellipsis rounded text-lg p-4 pr-6 bg-background-2 rounded-xl text-label-1 placeholder-label-4 text-style-body-1 outline-tint-1 focus:outline outline-2 outline-offset-0 resize-none"
+                    class="w-full ellipsis rounded text-lg p-4 pr-6 bg-background-2 rounded-xl text-label-1 placeholder-label-4 text-style-body-1 border border-transparent focus:border-tint-1 focus:outline-none resize-none"
                 ></textarea>
                 <p class="mt-2">
                     Your response will be
@@ -49,7 +49,7 @@
             <VButton
                 :disabled="!messageInput"
                 @click="submit"
-                class="w-full mt-4"
+                class="w-full mt-4 mb-32"
                 size="large"
                 >Send</VButton
             >

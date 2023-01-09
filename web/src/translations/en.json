@@ -98,7 +98,7 @@
             "button": "Play again"
         },
         "lessonActivityTitle": "Lesson activity",
-        "textTaskPlaceholder": "Write down and submit your thoughts.",
+        "textTaskPlaceholder": "Start typing here...",
         "question": "Question",
         "wrongAnswerMessage": "Oh, close. Try again!",
         "correctAnswerMessage": "Well done!"
