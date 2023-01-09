@@ -26,6 +26,7 @@
         "@sentry/tracing": "^7.28.1",
         "@sentry/vue": "^7.28.1",
         "@tailwindcss/line-clamp": "^0.4.2",
+        "@takuma-ru/vue-swipe-modal": "^4.0.7",
         "@types/showdown": "^2.0.0",
         "@urql/exchange-auth": "^1.0.0",
         "@urql/vue": "^1.0.4",

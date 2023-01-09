@@ -7,12 +7,14 @@ class FlutterMain {
         this.webView = webView
     }
 
-    navigate(path: String) {
-        this.webView.callHandler(this.handlerName, "navigate", path)
+    navigate(path: String): Promise<any> | null {
+        var promise = this.webView.callHandler(this.handlerName, "navigate", path);
+        return !promise?.then ? null : promise;
     }
 
-    push(path: String) {
-        this.webView.callHandler(this.handlerName, "push", path)
+    push(path: String): Promise<any> {
+        var promise = this.webView.callHandler(this.handlerName, "push", path);
+        return !promise?.then ? null : promise;
     }
 
     getAccessToken(): Promise<String | null> {
@@ -43,6 +45,10 @@ class FlutterStudy {
     tasksCompleted() {
         this.webView.callHandler(this.handlerName, "tasks_completed")
     }
+    /* 
+        pushThenTasksCompleted(path: String) {
+            this.webView.callHandler(this.handlerName, "tasks_completed")
+        } */
 }
 
 export const flutterStudy =

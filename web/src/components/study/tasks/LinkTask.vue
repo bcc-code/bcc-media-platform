@@ -75,6 +75,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (event: "change"): void
     (event: "update:isDone", val: boolean): void
+    (event: "nextTask"): void
 }>()
 
 const task = computed(() => {
@@ -83,7 +84,6 @@ const task = computed(() => {
 console.log(task.value.title)
 
 const openLink = () => {
-    console.log("ajksdhkjasdhask")
     openInBrowser(task.value.link.url)
 }
 onMounted(async () => {

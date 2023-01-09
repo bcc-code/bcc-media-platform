@@ -40,12 +40,29 @@
                 :key="'poster' + currentTask.id"
                 v-model:is-done="isCurrentStepDone"
             />
+            <QuoteTask
+                v-else-if="currentTask?.__typename == 'QuoteTask'"
+                v-model:task="currentTask"
+                :key="'quote' + currentTask.id"
+                v-model:is-done="isCurrentStepDone"
+            />
             <VideoTask
                 v-else-if="currentTask?.__typename == 'VideoTask'"
                 v-model:task="currentTask"
                 :key="'video' + currentTask.id"
                 v-model:is-done="isCurrentStepDone"
+                @next-task="() => nextTask()"
             />
+            <LinkTask
+                v-else-if="currentTask?.__typename == 'LinkTask'"
+                v-model:task="currentTask"
+                :key="'link' + currentTask.id"
+                v-model:is-done="isCurrentStepDone"
+                @next-task="() => nextTask()"
+            />
+            <div v-else>
+                {{ (currentTask as any)?.__typename }}
+            </div>
         </div>
         <div
             class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-36 pb-16 fixed bottom-0 bg-background-1"
@@ -58,7 +75,7 @@
                     class="w-full"
                     size="large"
                     v-if="tasks.length > 1"
-                    @click="previousStep()"
+                    @click="previousTask()"
                     :disabled="!anyPreviousStep"
                     color="secondary"
                 >
@@ -67,7 +84,7 @@
                 <VButton
                     class="w-full"
                     size="large"
-                    @click="nextStep()"
+                    @click="nextTask()"
                     :disabled="!isCurrentStepDone"
                 >
                     <template v-if="isLastTask">Done</template>
@@ -95,6 +112,8 @@ import TextTask from "./tasks/TextTask.vue"
 import { VButton } from ".."
 import { Page } from "./Lesson.vue"
 import VideoTask from "./tasks/VideoTask.vue"
+import QuoteTask from "./tasks/QuoteTask.vue"
+import LinkTask from "./tasks/LinkTask.vue"
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()
 const { executeMutation } = useCompleteTaskMutation()
@@ -110,19 +129,7 @@ function moveToEnd(array: any[], index: number) {
 }
 
 const tasks = computed(() => {
-    var copy = props.lesson.studyLesson.tasks.items.slice()
-    while (true) {
-        const index = copy.findIndex(
-            (el, index) =>
-                !el.completed &&
-                copy.some((el2, index2) => el2.completed && index2 > index)
-        )
-        if (index == -1) {
-            break
-        }
-        moveToEnd(copy, index)
-    }
-    return copy
+    return props.lesson.studyLesson.tasks.items
 })
 const currentTaskIndex = ref(
     Math.min(
@@ -149,12 +156,12 @@ const taskPercent = computed(
     () => ((currentTaskIndex.value + 1) / tasks.value.length) * 100
 )
 
-function previousStep() {
+function previousTask() {
     if (currentTaskIndex.value > 0) {
         currentTaskIndex.value -= 1
     }
 }
-function nextStep() {
+function nextTask() {
     executeMutation({ taskId: currentTask.value.id })
     if (!isLastTask.value) {
         currentTaskIndex.value += 1

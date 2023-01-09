@@ -71,6 +71,23 @@
                             </div>
                         </div>
                     </div>
+                    <div
+                        class="mt-4"
+                        v-if="!feedbackSentPreviously || feedbackSentNow"
+                    >
+                        <h2 class="text-style-title-2">
+                            {{ t("feedback.episodeTitle") }}
+                        </h2>
+                        <p class="mt-1 text-style-body-2 text-label-3">
+                            {{ t("feedback.anonymousInfo") }}
+                        </p>
+                        <FeedbackRatingAndForm
+                            :episode-id="episode.id"
+                            class="mt-2.5"
+                            @sent="() => registerFeedbackSent()"
+                        >
+                        </FeedbackRatingAndForm>
+                    </div>
                 </div>
             </div>
         </template>
@@ -93,13 +110,22 @@ import LinkListItem from "./LinkListItem.vue"
 import TaskButton from "./TaskButton.vue"
 import { Page } from "./Lesson.vue"
 import { VButton } from ".."
-import { computed, pushScopeId } from "vue"
+import { computed, ref } from "vue"
 import { flutter } from "@/utils/flutter"
 import router from "@/router"
+import FeedbackRatingAndForm from "../feedback/FeedbackRatingAndForm.vue"
 
 const { t } = useI18n()
-
 const episode = computed(() => props.lesson.episode)
+
+const feedbackSentPreviously =
+    localStorage.getItem(episode.value.id + ":feedback_sent") == "true"
+const feedbackSentNow = ref(false)
+
+const registerFeedbackSent = () => {
+    feedbackSentNow.value = true
+    localStorage.setItem(episode.value.id + ":feedback_sent", "true")
+}
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()
 const emit = defineEmits<{
