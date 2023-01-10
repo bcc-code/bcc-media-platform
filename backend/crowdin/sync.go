@@ -2,10 +2,11 @@ package crowdin
 
 import (
 	"context"
+	"strings"
+
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
-	"strings"
 )
 
 func (c *Client) syncCollection(
@@ -20,7 +21,9 @@ func (c *Client) syncCollection(
 	toDSItems func(items []simpleTranslation) []directus.DSItem,
 	deleteTranslations func(ctx context.Context, keys []string) error,
 ) error {
-	log.L.Debug().Int("project", project.ID).Str("collection", collection).Msg("Syncing collection")
+	l := log.L.With().Int("project", project.ID).Str("collection", collection).Logger()
+	l.Debug().Msg("Syncing collection")
+
 	projectId := project.ID
 	language := project.SourceLanguageId
 	sourceTranslations, err := translationFactory(ctx, language)
@@ -32,13 +35,13 @@ func (c *Client) syncCollection(
 		return err
 	}
 	if !found {
-		log.L.Debug().Msg("Creating file")
+		l.Debug().Msg("Creating file")
 		if c.readonly {
 			return nil
 		}
 		_, err := c.createFile(project.ID, directoryId, collection, convertTsToStrings(sourceTranslations, collection, contextFactory))
 		if err != nil {
-			log.L.Error().Err(err).Str("collection", collection).Msg("failed to create file for collection")
+			l.Error().Err(err).Msg("failed to create file for collection")
 		}
 		return err
 	}
@@ -56,11 +59,11 @@ func (c *Client) syncCollection(
 		if s, found := lo.Find(fileStrings, func(s String) bool {
 			return s.Identifier == str.Identifier
 		}); !found {
-			log.L.Debug().Str("identifier", str.Identifier).Msg("String not found, updating")
+			l.Debug().Str("identifier", str.Identifier).Msg("String not found, updating")
 			missingStrings = append(missingStrings, str)
 		} else {
 			if strings.TrimSpace(s.Text) != strings.TrimSpace(str.Text) {
-				log.L.Debug().Str("source", str.Text).Str("value", s.Text).Msg("Texts are not identical, updating")
+				l.Debug().Str("source", str.Text).Str("value", s.Text).Msg("Texts are not identical, updating")
 				s.Text = str.Text
 				editStrings = append(editStrings, s)
 			}
@@ -69,7 +72,7 @@ func (c *Client) syncCollection(
 
 	if len(missingStrings) > 0 {
 		for _, str := range missingStrings {
-			log.L.Debug().Str("identifier", str.Identifier).Msg("Adding missing string")
+			l.Debug().Str("identifier", str.Identifier).Msg("Adding missing string")
 			if c.readonly {
 				continue
 			}
@@ -81,7 +84,7 @@ func (c *Client) syncCollection(
 	}
 	if len(editStrings) > 0 {
 		for _, str := range editStrings {
-			log.L.Debug().Str("identifier", str.Identifier).Msg("Editing string")
+			l.Debug().Str("identifier", str.Identifier).Msg("Editing string")
 			if c.readonly {
 				continue
 			}
@@ -105,7 +108,7 @@ func (c *Client) syncCollection(
 
 	pushTranslations := func(force bool) error {
 		if length := len(queuedTranslations); length > 100 || (force && length > 0) {
-			log.L.Debug().Str("collection", collection).Int("count", length).Msg("Pushing translations to database")
+			l.Debug().Int("count", length).Msg("Pushing translations to database")
 			if !c.readonly {
 				items := toDSItems(queuedTranslations)
 				err = d.SaveTranslations(ctx, items)
@@ -119,19 +122,19 @@ func (c *Client) syncCollection(
 	}
 
 	for _, language := range project.TargetLanguages {
-		log.L.Debug().Str("language", language.ID).Msg("Syncing translations.")
+		l.Debug().Msg("Syncing translations.")
 
 		lan := dbLanguage(language.ID)
 
 		existingTranslations, err := translationFactory(ctx, lan)
 
-		log.L.Debug().Int("count", len(existingTranslations)).Msg("Found existing translations")
+		l.Debug().Int("count", len(existingTranslations)).Msg("Found existing translations")
 
 		ts := lo.Filter(crowdinTranslations, func(i Translation, _ int) bool {
 			return i.Collection == collection && i.Language == lan
 		})
 
-		log.L.Debug().Int("count", len(ts)).Msg("Retrieved translations")
+		l.Debug().Int("count", len(ts)).Msg("Retrieved translations")
 
 		var items []*simpleTranslation
 		for _, t := range ts {
