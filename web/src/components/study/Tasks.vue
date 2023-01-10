@@ -1,7 +1,7 @@
 <template>
     <div class="w-full h-full pb-36">
         <div
-            class="inline-flex flex-col space-y-6 items-center justify-start w-full h-full"
+            class="inline-flex flex-col space-y-6 items-center justify-start w-full h-full overflow-scroll"
         >
             <div class="p-4 flex flex-col space-y-0.5 h-14 w-full">
                 <template v-if="tasks.length > 1">
