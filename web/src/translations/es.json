@@ -8,16 +8,16 @@
         "submit": "Enviar",
         "back": "Atrás",
         "next": "Siguiente",
-        "continue": "",
-        "close": "",
-        "download": "",
-        "goTo": "",
+        "continue": "Continuar",
+        "close": "Cerrar",
+        "download": "Descargar",
+        "goTo": "Ir a",
         "send": "Enviar"
     },
     "error": {
         "couldntSendYourMessage": "Tu mensaje no pudo ser enviado",
-        "somethingWentWrong": "",
-        "checkNetwork": ""
+        "somethingWentWrong": "Algo salió mal.",
+        "checkNetwork": "Comprueba tu conexión a Internet e inténtalo de nuevo."
     },
     "dashboard": {
         "loggedOut": "Fuiste desconectado"
@@ -31,7 +31,7 @@
         "notFound": "Página no encontrada",
         "explore": "Explorar",
         "watchNow": "Ver ahora",
-        "aboutUs": ""
+        "aboutUs": "Sobre nosotros"
     },
     "section": {
         "item": {
@@ -59,12 +59,12 @@
         "availableTo": "Disponible a",
         "ageRating": "Clasificación",
         "notFound": "Episodio no encontrado",
-        "comingSoon": "",
+        "comingSoon": "Próximamente",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
-            "exploreContent": ""
+            "oops": "Oops!",
+            "mustBeLoggedIn": "Debes iniciar sesión para ver este contenido",
+            "otherContent": "¡No te preocupes, todavía hay mucho más contenido para disfrutar!",
+            "exploreContent": "Explora el contenido"
         }
     },
     "live": {
@@ -79,60 +79,60 @@
         "programs": "Programas",
         "episodes": "Episodios",
         "cancel": "Cancelar",
-        "emptyQuery": "",
-        "noResults": "",
-        "tryAdjustingQuery": ""
+        "emptyQuery": "La búsqueda está vacía.",
+        "noResults": "Sin resultados de búsqueda",
+        "tryAdjustingQuery": "Intenta modificar la consulta de búsqueda"
     },
     "support": {
-        "contact": "",
-        "title": "",
-        "subject": "",
-        "content": "",
-        "describeIssue": ""
+        "contact": "Contactar al soporte",
+        "title": "Título",
+        "subject": "Tema",
+        "content": "Contenido",
+        "describeIssue": "Describe el problema en detalle."
     },
     "lesson": {
-        "related": "",
+        "related": "Recursos Relacionados",
         "watchAgain": {
-            "title": "",
-            "description": "",
-            "button": ""
+            "title": "Ver de nuevo",
+            "description": "Para comprender mejor, recomendamos ver el video más de una vez.",
+            "button": "Jugar de nuevo"
         },
-        "lessonActivityTitle": "",
-        "textTaskPlaceholder": "",
+        "lessonActivityTitle": "Actividad de la lección",
+        "textTaskPlaceholder": "Escriba y envíe sus comentarios.",
         "question": "Pregunta",
-        "wrongAnswerMessage": "",
+        "wrongAnswerMessage": "Ah, cerca. ¡Intentar otra vez!",
         "correctAnswerMessage": "¡Bien hecho!"
     },
     "cookies": {
-        "title": "",
-        "description": "",
-        "necessary": "",
-        "preferences": "",
-        "statistics": "",
-        "accept": ""
+        "title": "Este sitio web utiliza cookies",
+        "description": "Utilizamos cookies para mejorar la experiencia del usuario en este sitio web. Si continúara utilizando este sitio web, acepta nuestras cookies.",
+        "necessary": "Necesario",
+        "preferences": "Preferencias",
+        "statistics": "Estadísticas",
+        "accept": "Aceptar"
     },
     "footer": {
-        "cookies": "",
+        "cookies": "Cookies",
         "privacyPolicy": "Políticas de privacidad",
-        "information": "",
-        "headOffice": "",
-        "contactUs": "",
-        "downloadApp": ""
+        "information": "BCC Media es una fundación de medios en la [Federación BCC](https://bcc.no) que produce y distribuye contenidos con valores positivos y cristianos.",
+        "headOffice": "Oficina central",
+        "contactUs": "Contactenos",
+        "downloadApp": "Descarga nuestra aplicación"
     },
     "share": {
         "title": "Compartir",
-        "copied": "",
-        "membersOnly": ""
+        "copied": "Copiada al portapapeles",
+        "membersOnly": "Este video solo es accesible para los usuarios que han iniciado sesión."
     },
     "feedback": {
-        "appreciated": "",
-        "comment": "",
-        "episodeTitle": "",
-        "anonymousInfo": "",
-        "placeholder": ""
+        "appreciated": "Agradecemos sus comentarios.",
+        "comment": "Agrega un comentario a tu experiencia",
+        "episodeTitle": "¿Cómo calificarías este episodio?",
+        "anonymousInfo": "Su calificación se enviará de forma anónima",
+        "placeholder": "Sea lo más detallado posible para ayudarnos a comprender."
     },
     "thankYou": "¡Gracias!",
-    "yourResponseHasBeenSubmitted": "",
+    "yourResponseHasBeenSubmitted": "Su respuesta ha sido enviada.",
     "sending": "Enviando",
-    "defaultInputPlaceholder": ""
+    "defaultInputPlaceholder": "Empieza a escribir aquí..."
 }

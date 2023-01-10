@@ -8,16 +8,16 @@
         "submit": "Invoeren",
         "back": "Terug",
         "next": "Volgende",
-        "continue": "",
-        "close": "",
-        "download": "",
-        "goTo": "",
+        "continue": "Doorgaan",
+        "close": "Sluiten",
+        "download": "Downloaden",
+        "goTo": "Ga naar",
         "send": "Verzenden"
     },
     "error": {
         "couldntSendYourMessage": "Je bericht kon niet worden verzonden",
-        "somethingWentWrong": "",
-        "checkNetwork": ""
+        "somethingWentWrong": "Er ging iets fout.",
+        "checkNetwork": "Controleer je internet verbinding en probeer opnieuw."
     },
     "dashboard": {
         "loggedOut": "Je bent uitgelogd"
@@ -97,10 +97,10 @@
             "description": "Voor een beter begrip raden wij aan de video meer dan eens te bekijken.",
             "button": "Speel nogmaals af"
         },
-        "lessonActivityTitle": "",
+        "lessonActivityTitle": "Les activiteit",
         "textTaskPlaceholder": "Schrijf je gedachten op en stuur ze op.",
         "question": "Vraag",
-        "wrongAnswerMessage": "",
+        "wrongAnswerMessage": "O, bijna. Probeer opnieuw!",
         "correctAnswerMessage": "Goed gedaan!"
     },
     "cookies": {
@@ -125,14 +125,14 @@
         "membersOnly": "Deze video is alleen beschikbaar voor ingelogde gebruikers."
     },
     "feedback": {
-        "appreciated": "",
-        "comment": "",
-        "episodeTitle": "",
-        "anonymousInfo": "",
-        "placeholder": ""
+        "appreciated": "We stellen je feedback op prijs.",
+        "comment": "Voeg een commentaar toe aan je ervaring",
+        "episodeTitle": "Hoe zou je deze aflevering beoordelen?",
+        "anonymousInfo": "Je beoordeling zal anoniem opgeslagen worden",
+        "placeholder": "Geef zoveel mogelijk details, om ons te helpen je te begrijpen."
     },
     "thankYou": "Hartelijk dank!",
     "yourResponseHasBeenSubmitted": "Jouw antwoord is verzonden.",
     "sending": "Verzenden",
-    "defaultInputPlaceholder": ""
+    "defaultInputPlaceholder": "Begin hier met typen..."
 }
