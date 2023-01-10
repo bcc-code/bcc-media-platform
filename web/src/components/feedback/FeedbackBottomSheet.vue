@@ -135,11 +135,11 @@ const _visible = computed({
 })
 
 const onCommentFocus = (e: FocusEvent) => {
-    const modalContents = document.getElementsByClassName("modal-contents")[0]
+    /* const modalContents = document.getElementsByClassName("modal-contents")[0]
     if (modalContents && flutter) {
         modalContents.scrollTop = 1000
         setTimeout(() => (modalContents.scrollTop = 1000), 500)
-    }
+    } */
 }
 
 const cancel = (e: Event) => {

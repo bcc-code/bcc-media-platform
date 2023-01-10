@@ -25,8 +25,6 @@ import { TaskFragment } from "@/graph/generated"
 import { computed, getCurrentInstance, Ref, ref, watch } from "vue"
 import Alternative from "./Alternative.vue"
 
-var selectedIndex = ref<number>()
-
 const props = defineProps<{
     task: TaskFragment
     isDone: boolean
@@ -36,6 +34,18 @@ const emit = defineEmits<{
     (event: "update:isDone", val: boolean): void
 }>()
 
+const task = computed(() => {
+    return (
+        props.task.__typename == "AlternativesTask" ? props.task : undefined
+    )!
+})
+
+var selectedIndex = ref<number | undefined>(
+    !props.isDone
+        ? undefined
+        : task.value.alternatives.findIndex((s) => s.isCorrect)
+)
+
 const isDone = computed({
     get() {
         return props.isDone
@@ -43,12 +53,6 @@ const isDone = computed({
     set(value) {
         emit(`update:isDone`, value)
     },
-})
-
-const task = computed(() => {
-    return (
-        props.task.__typename == "AlternativesTask" ? props.task : undefined
-    )!
 })
 
 const getLetter = (index: number) => ["A", "B", "C", "D", "E", "F", "G"][index]

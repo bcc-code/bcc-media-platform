@@ -27,6 +27,12 @@ export default [
                 props: true,
             },
             {
+                name: "episode-lesson-page",
+                path: "episode/:episodeId/lesson/:lessonId/:subRoute?",
+                component: () => import("@/pages/episode/EpisodeLesson.vue"),
+                props: true,
+            },
+            {
                 name: "episode-collection-page",
                 path: "episode/:collection/:episodeId",
                 component: () => import("@/pages/episode/Episode.vue"),

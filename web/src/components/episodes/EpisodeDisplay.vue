@@ -42,6 +42,12 @@
                 <div class="text-white mt-2 opacity-70 text-md lg:text-lg">
                     {{ episode.description }}
                 </div>
+                <LessonButton
+                    v-if="lesson"
+                    :lesson="lesson"
+                    :episode-id="episode.id"
+                    @click="openLesson"
+                />
             </div>
             <div class="flex flex-col gap-2 mt-4">
                 <div class="flex gap-4 p-2 font-semibold">
@@ -147,6 +153,8 @@ import LoginToView from "./LoginToView.vue"
 import { episodesToListItems, toListItems } from "@/utils/lists"
 import { useAuth } from "@/services/auth"
 import SharePopover from "./SharePopover.vue"
+import LessonButton from "../study/LessonButton.vue"
+import router from "@/router"
 
 const props = defineProps<{
     initialEpisodeId: string
@@ -188,6 +196,10 @@ const { error, executeQuery } = useGetEpisodeQuery({
         context,
     },
 })
+
+const lesson = computed(() => episode.value?.lessons.items[0])
+const openLesson = () =>
+    router.push("/episode/" + episode.value?.id + "/lesson/" + lesson.value?.id)
 
 const noAccess = computed(() => {
     return error.value?.graphQLErrors.some(
