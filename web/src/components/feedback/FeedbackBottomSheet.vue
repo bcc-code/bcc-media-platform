@@ -146,8 +146,6 @@ const cancel = (e: Event) => {
     emit("update:selected", null)
     emit("update:visible", false)
     setTimeout(() => emit("update:visible", false), 10)
-    e.preventDefault()
-    e.stopPropagation()
 }
 const sendFeedback = async () => {
     var result = await executeMutation({
