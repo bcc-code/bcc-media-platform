@@ -26,8 +26,12 @@
                 </div>
                 <div class="flex">
                     <h1 class="my-auto flex gap-1">
-                        <AgeRating :episode="episode" />
-                        <span v-if="episode.season" class="text-primary ml-1">{{
+                        <AgeRating
+                            :episode="episode"
+                            :show-a="true"
+                            class="mr-1"
+                        />
+                        <span v-if="episode.season" class="text-primary">{{
                             episode.season.show.title
                         }}</span>
                         <span
@@ -44,6 +48,7 @@
                 </div>
                 <LessonButton
                     v-if="lesson"
+                    class="mt-4"
                     :lesson="lesson"
                     :episode-id="episode.id"
                     @click="openLesson"
