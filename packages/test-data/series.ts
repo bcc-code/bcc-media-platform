@@ -85,6 +85,7 @@ async function makeEpisodes(seasonId: number, count : number) : Promise<Array<nu
 			],
 			episode_number: i,
 			publish_date: faker.date.recent().toJSON(),
+			production_date: faker.date.past().toJSON(),
 		}
 
 		if (Math.random() > 0.3) {
