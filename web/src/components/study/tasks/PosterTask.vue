@@ -97,7 +97,12 @@ const imgSize = ref<string>()
 const downloading = ref<boolean>()
 
 const task = computed(() => {
-    return (props.task.__typename == "PosterTask" ? props.task : undefined)!
+    return (
+        props.task.__typename == "PosterTask" ||
+        props.task.__typename == "QuoteTask"
+            ? props.task
+            : undefined
+    )!
 })
 
 const download = async () => {

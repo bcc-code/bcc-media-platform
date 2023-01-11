@@ -35,15 +35,12 @@
                 v-model:is-done="isCurrentStepDone"
             />
             <PosterTask
-                v-else-if="currentTask?.__typename == 'PosterTask'"
+                v-else-if="
+                    currentTask?.__typename == 'PosterTask' ||
+                    currentTask?.__typename == 'QuoteTask'
+                "
                 v-model:task="currentTask"
                 :key="'poster' + currentTask.id"
-                v-model:is-done="isCurrentStepDone"
-            />
-            <QuoteTask
-                v-else-if="currentTask?.__typename == 'QuoteTask'"
-                v-model:task="currentTask"
-                :key="'quote' + currentTask.id"
                 v-model:is-done="isCurrentStepDone"
             />
             <VideoTask
@@ -118,7 +115,6 @@ import TextTask from "./tasks/TextTask.vue"
 import { VButton } from ".."
 import { Page } from "./Lesson.vue"
 import VideoTask from "./tasks/VideoTask.vue"
-import QuoteTask from "./tasks/QuoteTask.vue"
 import LinkTask from "./tasks/LinkTask.vue"
 import Loader from "../Loader.vue"
 
