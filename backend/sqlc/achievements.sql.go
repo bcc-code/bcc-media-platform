@@ -339,6 +339,7 @@ FROM "public"."achievements" a
          LEFT JOIN cons ON cons.achievement_id = a.id
          LEFT JOIN images ON images.achievement_id = a.id
 WHERE a.id = ANY ($1::uuid[])
+ORDER BY sort
 `
 
 type getAchievementsRow struct {

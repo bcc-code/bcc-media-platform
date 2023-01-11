@@ -24,7 +24,8 @@ FROM "public"."achievements" a
          LEFT JOIN ts ON ts.achievements_id = a.id
          LEFT JOIN cons ON cons.achievement_id = a.id
          LEFT JOIN images ON images.achievement_id = a.id
-WHERE a.id = ANY ($1::uuid[]);
+WHERE a.id = ANY ($1::uuid[])
+ORDER BY sort;
 
 -- name: ListAchievements :many
 SELECT id
