@@ -244,7 +244,8 @@ func (r *linkTaskResolver) Completed(ctx context.Context, obj *model.LinkTask) (
 
 // Link is the resolver for the link field.
 func (r *linkTaskResolver) Link(ctx context.Context, obj *model.LinkTask) (*model.Link, error) {
-	link, err := batchloaders.GetByID(ctx, r.Loaders.LinkLoader, utils.AsInt(obj.ID))
+	link, err := batchloaders.GetByID(ctx, r.Loaders.LinkLoader, utils.AsInt(obj.Link.ID))
+
 	if err != nil {
 		return nil, err
 	}
