@@ -6,8 +6,8 @@ CREATE TABLE shows (
     legacy_id INTEGER,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    image TEXT,
-    default_episode TEXT
+    images TEXT, -- JSON
+    default_episode INTEGER
 );
 
 CREATE TABLE seasons (

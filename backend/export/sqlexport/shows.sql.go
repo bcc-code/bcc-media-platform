@@ -11,7 +11,7 @@ import (
 )
 
 const insertShow = `-- name: InsertShow :exec
-INSERT INTO shows (id, type, legacy_id, title, description, image, default_episode) VALUES (?, ?, ?, ?, ?, ?, ?)
+INSERT INTO shows (id, type, legacy_id, title, description, images, default_episode) VALUES (?, ?, ?, ?, ?, ?, ?)
 `
 
 type InsertShowParams struct {
@@ -20,8 +20,8 @@ type InsertShowParams struct {
 	LegacyID       sql.NullInt64  `db:"legacy_id" json:"legacyID"`
 	Title          string         `db:"title" json:"title"`
 	Description    string         `db:"description" json:"description"`
-	Image          sql.NullString `db:"image" json:"image"`
-	DefaultEpisode sql.NullString `db:"default_episode" json:"defaultEpisode"`
+	Images         sql.NullString `db:"images" json:"images"`
+	DefaultEpisode sql.NullInt64  `db:"default_episode" json:"defaultEpisode"`
 }
 
 func (q *Queries) InsertShow(ctx context.Context, arg InsertShowParams) error {
@@ -31,7 +31,7 @@ func (q *Queries) InsertShow(ctx context.Context, arg InsertShowParams) error {
 		arg.LegacyID,
 		arg.Title,
 		arg.Description,
-		arg.Image,
+		arg.Images,
 		arg.DefaultEpisode,
 	)
 	return err

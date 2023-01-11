@@ -27,6 +27,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/export/sqlexport"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
+	"github.com/bcc-code/brunstadtv/backend/items/show"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	_ "github.com/glebarez/go-sqlite"
@@ -113,17 +114,26 @@ func exportShows(ctx *gin.Context, q serviceProvider, liteQueries *sqlexport.Que
 	}
 
 	for _, s := range shows {
-		de := sql.NullString{}
-		_ = de.Scan(s.DefaultEpisode)
+		eID, err := show.DefaultEpisodeID(ctx, q.GetFilteredLoaders(ctx), s)
+		if err != nil {
+			return nil, err
+		}
+		if eID == nil {
+			return nil, merry.New("invalid default episode")
+		}
 
-		err := liteQueries.InsertShow(ctx, sqlexport.InsertShowParams{
+		defEpisode := sql.NullInt64{}
+		_ = defEpisode.Scan(eID)
+		imagesJson, _ := json.Marshal(s.Images)
+
+		err = liteQueries.InsertShow(ctx, sqlexport.InsertShowParams{
 			ID:             int64(s.ID),
 			Type:           s.Type,
 			LegacyID:       s.LegacyID.NullInt64,
 			Title:          string(s.Title.AsJSON()),
 			Description:    string(s.Description.AsJSON()),
-			Image:          s.Image.NullString,
-			DefaultEpisode: de,
+			Images:         imagesJson,
+			DefaultEpisode: defEpisode,
 		})
 
 		if err != nil {

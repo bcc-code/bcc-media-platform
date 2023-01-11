@@ -77,8 +77,8 @@ type Show struct {
 	LegacyID       sql.NullInt64  `db:"legacy_id" json:"legacyID"`
 	Title          string         `db:"title" json:"title"`
 	Description    string         `db:"description" json:"description"`
-	Image          sql.NullString `db:"image" json:"image"`
-	DefaultEpisode sql.NullString `db:"default_episode" json:"defaultEpisode"`
+	Images         sql.NullString `db:"images" json:"images"`
+	DefaultEpisode sql.NullInt64  `db:"default_episode" json:"defaultEpisode"`
 }
 
 type Stream struct {
