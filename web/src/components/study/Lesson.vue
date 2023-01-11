@@ -1,6 +1,6 @@
 <template>
     <div
-        class="inline-flex flex-col space-y-6 items-center justify-start w-full"
+        class="inline-flex flex-col space-y-6 items-center justify-start w-full h-full"
     >
         <div v-if="fetching" class="p-12">
             <Loader></Loader>

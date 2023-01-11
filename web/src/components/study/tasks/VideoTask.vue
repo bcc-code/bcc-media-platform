@@ -97,12 +97,13 @@ const task = computed(() => {
 console.log(task.value.title)
 
 const openLink = async () => {
+    completeTask({ taskId: task.value.id })
     if (flutter) {
         var promise = flutter.push(
             "/embed/" + task.value.episode.id + "?hide_bottom_section=true"
         )
         console.log(promise)
-        if (promise != null) {
+        if (promise.then != null) {
             await promise
             emit("nextTask")
         }
