@@ -152,6 +152,7 @@ const listAchievements = `-- name: ListAchievements :many
 SELECT id
 FROM "public"."achievements"
 WHERE status = 'published'
+ORDER BY sort
 `
 
 func (q *Queries) ListAchievements(ctx context.Context) ([]uuid.UUID, error) {
@@ -427,6 +428,7 @@ const getAchievementsForGroups = `-- name: getAchievementsForGroups :many
 SELECT id, group_id::uuid as parent_id
 FROM "public"."achievements"
 WHERE group_id = ANY ($1::uuid[])
+ORDER BY sort
 `
 
 type getAchievementsForGroupsRow struct {

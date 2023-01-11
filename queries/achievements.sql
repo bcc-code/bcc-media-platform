@@ -29,7 +29,8 @@ WHERE a.id = ANY ($1::uuid[]);
 -- name: ListAchievements :many
 SELECT id
 FROM "public"."achievements"
-WHERE status = 'published';
+WHERE status = 'published'
+ORDER BY sort;
 
 -- name: ListAchievementGroups :many
 SELECT id
@@ -39,7 +40,8 @@ WHERE status = 'published';
 -- name: getAchievementsForGroups :many
 SELECT id, group_id::uuid as parent_id
 FROM "public"."achievements"
-WHERE group_id = ANY ($1::uuid[]);
+WHERE group_id = ANY ($1::uuid[])
+ORDER BY sort;
 
 -- name: getAchievementsForActions :many
 SELECT achievement_id::uuid as id, action::varchar as parent_id
