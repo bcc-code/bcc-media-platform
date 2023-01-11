@@ -72,13 +72,13 @@ type Section struct {
 }
 
 type Show struct {
-	ID             int64          `db:"id" json:"id"`
-	Type           string         `db:"type" json:"type"`
-	LegacyID       sql.NullInt64  `db:"legacy_id" json:"legacyID"`
-	Title          string         `db:"title" json:"title"`
-	Description    string         `db:"description" json:"description"`
-	Images         sql.NullString `db:"images" json:"images"`
-	DefaultEpisode sql.NullInt64  `db:"default_episode" json:"defaultEpisode"`
+	ID             int64         `db:"id" json:"id"`
+	Type           string        `db:"type" json:"type"`
+	LegacyID       sql.NullInt64 `db:"legacy_id" json:"legacyID"`
+	Title          string        `db:"title" json:"title"`
+	Description    string        `db:"description" json:"description"`
+	Images         string        `db:"images" json:"images"`
+	DefaultEpisode sql.NullInt64 `db:"default_episode" json:"defaultEpisode"`
 }
 
 type Stream struct {
