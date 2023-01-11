@@ -132,7 +132,7 @@ func exportShows(ctx *gin.Context, q serviceProvider, liteQueries *sqlexport.Que
 			LegacyID:       s.LegacyID.NullInt64,
 			Title:          string(s.Title.AsJSON()),
 			Description:    string(s.Description.AsJSON()),
-			Images:         imagesJson,
+			Images:         string(imagesJson),
 			DefaultEpisode: defEpisode,
 		})
 

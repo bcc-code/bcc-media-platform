@@ -6,7 +6,7 @@ CREATE TABLE shows (
     legacy_id INTEGER,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    images TEXT, -- JSON
+    images TEXT NOT NULL, -- JSON
     default_episode INTEGER
 );
 
