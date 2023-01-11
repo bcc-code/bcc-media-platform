@@ -11,8 +11,8 @@ import (
 )
 
 const insertEpisode = `-- name: InsertEpisode :exec
-INSERT INTO episodes ( id, legacy_id, legacy_program_id, age_rating, title, description, extra_description, image, image_url, production_date, season_id, duration, number)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+INSERT INTO episodes ( id, legacy_id, legacy_program_id, age_rating, title, description, extra_description, images, production_date, season_id, duration, number)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 type InsertEpisodeParams struct {
@@ -23,8 +23,7 @@ type InsertEpisodeParams struct {
 	Title            string         `db:"title" json:"title"`
 	Description      string         `db:"description" json:"description"`
 	ExtraDescription string         `db:"extra_description" json:"extraDescription"`
-	Image            sql.NullString `db:"image" json:"image"`
-	ImageUrl         sql.NullString `db:"image_url" json:"imageUrl"`
+	Images           string         `db:"images" json:"images"`
 	ProductionDate   sql.NullString `db:"production_date" json:"productionDate"`
 	SeasonID         sql.NullInt64  `db:"season_id" json:"seasonID"`
 	Duration         int64          `db:"duration" json:"duration"`
@@ -40,8 +39,7 @@ func (q *Queries) InsertEpisode(ctx context.Context, arg InsertEpisodeParams) er
 		arg.Title,
 		arg.Description,
 		arg.ExtraDescription,
-		arg.Image,
-		arg.ImageUrl,
+		arg.Images,
 		arg.ProductionDate,
 		arg.SeasonID,
 		arg.Duration,

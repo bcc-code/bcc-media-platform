@@ -100,8 +100,9 @@ func migrate(db *sql.DB) error {
 	return merry.Wrap(err)
 }
 
-func exportShows(ctx *gin.Context, q serviceProvider, liteQueries *sqlexport.Queries) ([]int, error) {
-	showIDs, err := q.GetQueries().ListAllPermittedShowIDs(ctx, user.GetRolesFromCtx(ctx))
+func exportShows(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries) ([]int, error) {
+	gctx, _ := utils.GinCtx(ctx)
+	showIDs, err := q.GetQueries().ListAllPermittedShowIDs(ctx, user.GetRolesFromCtx(gctx))
 	if err != nil {
 		err = merry.Wrap(err)
 		return nil, err
@@ -166,6 +167,8 @@ func exportSeasons(ctx context.Context, q serviceProvider, liteQueries *sqlexpor
 
 	for _, s := range seasons {
 		tagIds, _ := json.Marshal(s.TagIDs)
+		imagesJson, _ := json.Marshal(s.Images)
+
 		err := liteQueries.InsertSeason(ctx, sqlexport.InsertSeasonParams{
 			ID:          int64(s.ID),
 			LegacyID:    s.LegacyID.NullInt64,
@@ -175,7 +178,7 @@ func exportSeasons(ctx context.Context, q serviceProvider, liteQueries *sqlexpor
 			Title:       string(s.Title.AsJSON()),
 			Description: string(s.Description.AsJSON()),
 			ShowID:      int64(s.ShowID),
-			Image:       s.Image.NullString,
+			Images:      string(imagesJson),
 		})
 
 		if err != nil {
@@ -205,6 +208,7 @@ func exportEpisodes(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 	}
 
 	for _, e := range episodes {
+		imagesJson, _ := json.Marshal(e.Images)
 		err := liteQueries.InsertEpisode(ctx, sqlexport.InsertEpisodeParams{
 			ID:               int64(e.ID),
 			LegacyID:         e.LegacyID.NullInt64,
@@ -213,7 +217,7 @@ func exportEpisodes(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 			Title:            string(e.Title.AsJSON()),
 			Description:      string(e.Description.AsJSON()),
 			ExtraDescription: string(e.ExtraDescription.AsJSON()),
-			Image:            e.Image.NullString,
+			Images:           string(imagesJson),
 			ProductionDate:   sql.NullString{String: e.PublishDate.Format(time.RFC1123), Valid: true},
 			SeasonID:         e.SeasonID.NullInt64,
 			Duration:         int64(e.Duration),
@@ -427,7 +431,7 @@ func DoExport(ctx context.Context, q serviceProvider, bucketName string) (string
 	}
 	liteQueries := sqlexport.New(db)
 
-	showIDs, err := exportShows(gctx, q, liteQueries)
+	showIDs, err := exportShows(ctx, q, liteQueries)
 	if err != nil {
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}

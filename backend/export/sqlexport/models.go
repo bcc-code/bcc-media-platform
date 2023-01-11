@@ -29,8 +29,7 @@ type Episode struct {
 	Title            string         `db:"title" json:"title"`
 	Description      string         `db:"description" json:"description"`
 	ExtraDescription string         `db:"extra_description" json:"extraDescription"`
-	Image            sql.NullString `db:"image" json:"image"`
-	ImageUrl         sql.NullString `db:"image_url" json:"imageUrl"`
+	Images           string         `db:"images" json:"images"`
 	ProductionDate   sql.NullString `db:"production_date" json:"productionDate"`
 	SeasonID         sql.NullInt64  `db:"season_id" json:"seasonID"`
 	Duration         int64          `db:"duration" json:"duration"`
@@ -47,15 +46,15 @@ type Page struct {
 }
 
 type Season struct {
-	ID          int64          `db:"id" json:"id"`
-	LegacyID    sql.NullInt64  `db:"legacy_id" json:"legacyID"`
-	TagIds      string         `db:"tag_ids" json:"tagIds"`
-	Number      int64          `db:"number" json:"number"`
-	AgeRating   string         `db:"age_rating" json:"ageRating"`
-	Title       string         `db:"title" json:"title"`
-	Description string         `db:"description" json:"description"`
-	ShowID      int64          `db:"show_id" json:"showID"`
-	Image       sql.NullString `db:"image" json:"image"`
+	ID          int64         `db:"id" json:"id"`
+	LegacyID    sql.NullInt64 `db:"legacy_id" json:"legacyID"`
+	TagIds      string        `db:"tag_ids" json:"tagIds"`
+	Number      int64         `db:"number" json:"number"`
+	AgeRating   string        `db:"age_rating" json:"ageRating"`
+	Title       string        `db:"title" json:"title"`
+	Description string        `db:"description" json:"description"`
+	ShowID      int64         `db:"show_id" json:"showID"`
+	Images      string        `db:"images" json:"images"`
 }
 
 type Section struct {

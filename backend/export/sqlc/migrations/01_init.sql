@@ -19,7 +19,7 @@ CREATE TABLE seasons (
 	title TEXT NOT NULL,
 	description TEXT NOT NULL,
 	show_id INTEGER NOT NULL,
-	image TEXT
+	images TEXT NOT NULL -- JSON
 );
 
 CREATE TABLE episodes (
@@ -30,8 +30,7 @@ CREATE TABLE episodes (
 	title TEXT NOT NULL,
 	description TEXT NOT NULL,
 	extra_description TEXT NOT NULL,
-	image TEXT,
-	image_url TEXT,
+	images TEXT NOT NULL, -- JSON
 	production_date TEXT,
 	season_id INTEGER,
 	duration INTEGER NOT NULL,

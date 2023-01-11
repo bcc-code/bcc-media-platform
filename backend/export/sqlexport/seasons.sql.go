@@ -11,20 +11,20 @@ import (
 )
 
 const insertSeason = `-- name: InsertSeason :exec
-INSERT INTO seasons (id, legacy_id, tag_ids, number, age_rating, title, description, show_id, image)
+INSERT INTO seasons (id, legacy_id, tag_ids, number, age_rating, title, description, show_id, images)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 type InsertSeasonParams struct {
-	ID          int64          `db:"id" json:"id"`
-	LegacyID    sql.NullInt64  `db:"legacy_id" json:"legacyID"`
-	TagIds      string         `db:"tag_ids" json:"tagIds"`
-	Number      int64          `db:"number" json:"number"`
-	AgeRating   string         `db:"age_rating" json:"ageRating"`
-	Title       string         `db:"title" json:"title"`
-	Description string         `db:"description" json:"description"`
-	ShowID      int64          `db:"show_id" json:"showID"`
-	Image       sql.NullString `db:"image" json:"image"`
+	ID          int64         `db:"id" json:"id"`
+	LegacyID    sql.NullInt64 `db:"legacy_id" json:"legacyID"`
+	TagIds      string        `db:"tag_ids" json:"tagIds"`
+	Number      int64         `db:"number" json:"number"`
+	AgeRating   string        `db:"age_rating" json:"ageRating"`
+	Title       string        `db:"title" json:"title"`
+	Description string        `db:"description" json:"description"`
+	ShowID      int64         `db:"show_id" json:"showID"`
+	Images      string        `db:"images" json:"images"`
 }
 
 func (q *Queries) InsertSeason(ctx context.Context, arg InsertSeasonParams) error {
@@ -37,7 +37,7 @@ func (q *Queries) InsertSeason(ctx context.Context, arg InsertSeasonParams) erro
 		arg.Title,
 		arg.Description,
 		arg.ShowID,
-		arg.Image,
+		arg.Images,
 	)
 	return err
 }
