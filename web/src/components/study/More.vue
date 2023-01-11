@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full select-none">
+    <div class="w-full">
         <template v-if="lesson.studyLesson.tasks.items.length > 0">
             <div class="p-4 pt-4">
                 <TaskButton

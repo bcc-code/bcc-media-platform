@@ -1,7 +1,7 @@
 <template>
-    <div class="w-full h-full pb-36">
+    <div class="w-full h-full">
         <div
-            class="inline-flex flex-col space-y-6 items-center justify-start w-full h-full overflow-scroll"
+            class="inline-flex flex-col space-y-6 items-center justify-start w-full h-full overflow-auto embed-hide-scrollbar"
         >
             <div class="p-4 flex flex-col space-y-0.5 h-14 w-full">
                 <template v-if="tasks.length > 1">
@@ -65,7 +65,7 @@
             </div>
         </div>
         <div
-            class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-36 pb-16 fixed bottom-0 bg-background-1"
+            class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-36 pb-16 sticky bottom-0 bg-background-1"
             v-if="
                 !(currentTask?.__typename == 'TextTask' && !isCurrentStepDone)
             "
@@ -131,10 +131,14 @@ function moveToEnd(array: any[], index: number) {
 const tasks = computed(() => {
     return props.lesson.studyLesson.tasks.items
 })
+
 const currentTaskIndex = ref(
     Math.min(
         tasks.value.length - 1,
-        props.lesson.studyLesson.progress.completed
+        props.lesson.studyLesson.progress.completed <
+            props.lesson.studyLesson.progress.total
+            ? props.lesson.studyLesson.progress.completed
+            : 0
     )
 )
 const currentTask = computed(() => tasks.value[currentTaskIndex.value])
@@ -159,6 +163,7 @@ const taskPercent = computed(
 function previousTask() {
     if (currentTaskIndex.value > 0) {
         currentTaskIndex.value -= 1
+        isCurrentStepDone.value = true
     }
 }
 function nextTask() {

@@ -36,6 +36,14 @@ query getSeasonOnEpisodePage(
     }
 }
 
+fragment LessonProgressOverview on Lesson {
+    id
+    progress {
+        total
+        completed
+    }
+}
+
 query getEpisode($episodeId: ID!, $context: EpisodeContext) {
     episode(id: $episodeId, context: $context) {
         ...SimpleEpisode
@@ -48,6 +56,11 @@ query getEpisode($episodeId: ID!, $context: EpisodeContext) {
         availableFrom
         availableTo
         shareRestriction
+        lessons {
+            items {
+                ...LessonProgressOverview
+            }
+        }
         context {
             __typename
             ... on Season {

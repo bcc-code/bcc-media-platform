@@ -1,138 +1,138 @@
 {
     "buttons": {
-        "save": "",
-        "login": "",
-        "logout": "",
-        "stayLoggedOut": "",
-        "cancel": "",
-        "submit": "",
-        "back": "",
-        "next": "",
-        "continue": "",
-        "close": "",
-        "download": "",
-        "goTo": "",
-        "send": ""
+        "save": "Gem",
+        "login": "Log ind",
+        "logout": "Log ud",
+        "stayLoggedOut": "Forbliv logget ud",
+        "cancel": "Annuller",
+        "submit": "Indsend",
+        "back": "Tilbage",
+        "next": "Næste",
+        "continue": "Fortsæt",
+        "close": "Luk",
+        "download": "Download",
+        "goTo": "Gå til",
+        "send": "Send"
     },
     "error": {
-        "couldntSendYourMessage": "",
-        "somethingWentWrong": "",
-        "checkNetwork": ""
+        "couldntSendYourMessage": "Kunne ikke sende din besked",
+        "somethingWentWrong": "Noget gik galt...",
+        "checkNetwork": "Tjek din netværksforbindelse, og prøv igen."
     },
     "dashboard": {
-        "loggedOut": ""
+        "loggedOut": "Du blev logget ud"
     },
     "page": {
-        "home": "",
-        "search": "",
-        "live": "",
-        "calendar": "",
-        "faq": "",
-        "notFound": "",
-        "explore": "",
-        "watchNow": "",
-        "aboutUs": ""
+        "home": "Hjem",
+        "search": "Søg",
+        "live": "Live",
+        "calendar": "Kalender",
+        "faq": "FAQ",
+        "notFound": "Siden findes ikke",
+        "explore": "Udforsk",
+        "watchNow": "Se nu",
+        "aboutUs": "Om os"
     },
     "section": {
         "item": {
-            "episode": "",
-            "season": ""
+            "episode": "0 episoder | 1 episode | {count} episoder",
+            "season": "0 sæsoner | 1 sæson | {count} sæsoner"
         }
     },
     "notFound": {
-        "title": "",
-        "description": "",
-        "returnHome": ""
+        "title": "Ikke fundet",
+        "description": "Måske er du ikke logget ind eller har manglende adgang",
+        "returnHome": "Gå til hjem"
     },
     "common": {
-        "new": "",
-        "newEpisodes": ""
+        "new": "Ny",
+        "newEpisodes": "Nye episoder"
     },
     "episode": {
-        "details": "",
-        "episode": "",
-        "episodes": "",
-        "videos": "",
-        "seriesDescription": "",
-        "releaseDate": "",
-        "availableFrom": "",
-        "availableTo": "",
-        "ageRating": "",
-        "notFound": "",
-        "comingSoon": "",
+        "details": "Detaljer",
+        "episode": "Episode",
+        "episodes": "Episoder \n",
+        "videos": "Film",
+        "seriesDescription": "Seriebeskrivelse",
+        "releaseDate": "Publiceringsdato",
+        "availableFrom": "Tilgængelig fra\n",
+        "availableTo": "Tilgængelig til\n",
+        "ageRating": "Vurdering",
+        "notFound": "Episode ikke fundet",
+        "comingSoon": "Kommer snart",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
-            "exploreContent": ""
+            "oops": "Ups!",
+            "mustBeLoggedIn": "Du må være logget ind for at se dette indhold",
+            "otherContent": "Bare rolig, der er stadig masser af andet indhold at se!",
+            "exploreContent": "Udforsk indhold"
         }
     },
     "live": {
-        "now": ""
+        "now": "Nu"
     },
     "calendar": {
-        "noScheduledEvents": "",
-        "thisWeek": "",
-        "timeTableIsLocalTime": ""
+        "noScheduledEvents": "Ingen planlagte begivenheder",
+        "thisWeek": "Denne uge",
+        "timeTableIsLocalTime": "Tv-guidens tidsplan er i din lokale tid."
     },
     "search": {
-        "programs": "",
-        "episodes": "",
-        "cancel": "",
-        "emptyQuery": "",
-        "noResults": "",
-        "tryAdjustingQuery": ""
+        "programs": "Programmer",
+        "episodes": "Episoder \n",
+        "cancel": "Annuller",
+        "emptyQuery": "Søgefeltet er tomt.\n",
+        "noResults": "Ingen søgeresultater",
+        "tryAdjustingQuery": "Prøv at justere søgeforespørgslen"
     },
     "support": {
-        "contact": "",
-        "title": "",
-        "subject": "",
-        "content": "",
-        "describeIssue": ""
+        "contact": "Kontakt support",
+        "title": "Titel ",
+        "subject": "Emne",
+        "content": "Indhold",
+        "describeIssue": "Beskriv dit problem i detaljer."
     },
     "lesson": {
-        "related": "",
+        "related": "Relateret indhold\n",
         "watchAgain": {
-            "title": "",
-            "description": "",
-            "button": ""
+            "title": "Se igen",
+            "description": "For en dybere forståelse anbefaler vi at se videoen mere end én gang.",
+            "button": "Afspil igen"
         },
-        "lessonActivityTitle": "",
-        "textTaskPlaceholder": "",
-        "question": "",
-        "wrongAnswerMessage": "",
-        "correctAnswerMessage": ""
+        "lessonActivityTitle": "Aktivitet til filmen",
+        "textTaskPlaceholder": "Skriv ned og indsend dine tanker",
+        "question": "Spørgsmål",
+        "wrongAnswerMessage": "Det var tæt på! Prøv igen.",
+        "correctAnswerMessage": "Godt klaret!"
     },
     "cookies": {
-        "title": "",
-        "description": "",
-        "necessary": "",
-        "preferences": "",
-        "statistics": "",
-        "accept": ""
+        "title": "Denne hjemmeside bruger cookies ",
+        "description": "Vi bruger cookies til at forbedre brugeroplevelsen på denne hjemmeside. Hvis du fortsætter med at bruge denne hjemmeside, giver du dit samtykke til vores cookies.",
+        "necessary": "Nødvendigt ",
+        "preferences": "Præferencer",
+        "statistics": "Statistik",
+        "accept": "Godkend"
     },
     "footer": {
-        "cookies": "",
-        "privacyPolicy": "",
-        "information": "",
-        "headOffice": "",
-        "contactUs": "",
-        "downloadApp": ""
+        "cookies": "Cookies",
+        "privacyPolicy": "Privacy Policy",
+        "information": "BCC Media er en mediefond i [BCC-forbundet](https://bcc.no), der producerer og distribuerer indhold med positive og kristne værdier.\n\nBCC Media er et registreret TV-selskab og overholder reglerne i den norske radio- og TV-lov. Tilsynsorganet for denne lov er [den norske medietilsyn](https://medietilsynet.no/).",
+        "headOffice": "Hovedkontor",
+        "contactUs": "Kontakt os",
+        "downloadApp": "Download vores app"
     },
     "share": {
-        "title": "",
-        "copied": "",
-        "membersOnly": ""
+        "title": "Del",
+        "copied": "Kopieret til udklipsholder",
+        "membersOnly": "Denne video er kun tilgængelig for brugere, der er logget ind."
     },
     "feedback": {
-        "appreciated": "",
-        "comment": "",
-        "episodeTitle": "",
-        "anonymousInfo": "",
-        "placeholder": ""
+        "appreciated": "Vi sætter pris på din feedback.",
+        "comment": "Tilføj en kommentar til din oplevelse",
+        "episodeTitle": "Hvordan vil du vurdere denne episode?",
+        "anonymousInfo": "Din vurdering vil blive indsendt anonymt",
+        "placeholder": "Vær så detaljeret som muligt for at hjælpe os med at forstå."
     },
-    "thankYou": "",
-    "yourResponseHasBeenSubmitted": "",
-    "sending": "",
-    "defaultInputPlaceholder": ""
+    "thankYou": "Mange tak!",
+    "yourResponseHasBeenSubmitted": "Dit svar er blevet sendt.",
+    "sending": "Sender",
+    "defaultInputPlaceholder": "Begynd at skrive her..."
 }

@@ -21,9 +21,9 @@
                     </svg>
                 </div>
                 <div class="flex-1 flex flex-col">
-                    <span class="text-style-title-3 text-on-tint"
-                        >Lesson activity</span
-                    >
+                    <span class="text-style-title-3 text-on-tint">
+                        {{ t("lesson.lessonActivityTitle") }}
+                    </span>
                     <span class="text-style-caption-1 text-label-2"></span>
                 </div>
                 <div class="pl-3">
@@ -68,7 +68,11 @@
 </template>
 
 <script lang="ts" setup>
+import { useI18n } from "vue-i18n"
+
 const props = defineProps<{ title: string; secondaryTitle: string }>()
+
+const { t } = useI18n()
 </script>
 
 <style scoped>

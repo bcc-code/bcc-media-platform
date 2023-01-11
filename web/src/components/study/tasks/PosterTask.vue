@@ -99,7 +99,7 @@ const download = async () => {
     const response = await flutter?.shareImage(task.value.image)
     downloading.value = false
     if (response == null || response == false) {
-        openInBrowser(task.value.image + "?&dl=1")
+        openInBrowser(task.value.image + "?&dl")
     }
 }
 onMounted(async () => {

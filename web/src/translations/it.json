@@ -8,16 +8,16 @@
         "submit": "Invia",
         "back": "Indietro",
         "next": "Prossimo",
-        "continue": "",
-        "close": "",
-        "download": "",
-        "goTo": "",
+        "continue": "Continua",
+        "close": "Chiudi",
+        "download": "Download",
+        "goTo": "Vai a",
         "send": "Invia"
     },
     "error": {
         "couldntSendYourMessage": "Impossibile inviare il messaggio",
-        "somethingWentWrong": "",
-        "checkNetwork": ""
+        "somethingWentWrong": "Qualcosa è andato storto.",
+        "checkNetwork": "Controlla la connessione a internet e riprova."
     },
     "dashboard": {
         "loggedOut": "Sei stato disconnesso"
@@ -31,7 +31,7 @@
         "notFound": "Pagina non trovata",
         "explore": "Esplora",
         "watchNow": "Guarda adesso",
-        "aboutUs": ""
+        "aboutUs": "Chi siamo"
     },
     "section": {
         "item": {
@@ -61,9 +61,9 @@
         "notFound": "Episodio non trovato",
         "comingSoon": "Prossimamente",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
+            "oops": "Oops!",
+            "mustBeLoggedIn": "Devi essere loggato per guardare questo contenuto",
+            "otherContent": "Non preoccuparti, ci sono ancora molti altri contenuti con cui divertirti!",
             "exploreContent": "Esplora i contenuti"
         }
     },
@@ -97,42 +97,42 @@
             "description": "Per una comprensione più approfondita, si consiglia di guardare il video più di una volta.",
             "button": "Riprova"
         },
-        "lessonActivityTitle": "",
+        "lessonActivityTitle": "Attività didattica",
         "textTaskPlaceholder": "Annota e invia i tuoi pensieri.",
         "question": "Domanda",
-        "wrongAnswerMessage": "",
+        "wrongAnswerMessage": "Oh, chiudi. Riprova!",
         "correctAnswerMessage": "Ben fatto!"
     },
     "cookies": {
-        "title": "",
-        "description": "",
-        "necessary": "",
-        "preferences": "",
-        "statistics": "",
-        "accept": ""
+        "title": "Questo sito web utilizza i cookie",
+        "description": "Utilizziamo i cookie per migliorare l'esperienza dell'utente su questo sito web. Se continui a utilizzare questo sito acconsenti ai nostri cookie.",
+        "necessary": "Necessario",
+        "preferences": "Preferenze",
+        "statistics": "Statistiche",
+        "accept": "Accetta"
     },
     "footer": {
-        "cookies": "",
+        "cookies": "Cookies",
         "privacyPolicy": "Informativa sulla privacy",
-        "information": "",
-        "headOffice": "",
-        "contactUs": "",
-        "downloadApp": ""
+        "information": "BCC Media è una fondazione mediatica della [federazione BCC](https://bcc.no) che produce e distribuisce contenuti con valori positivi e cristiani.\n\nBCC Media è un'emittente registrata e aderisce alle norme stabilite dal Norwegian Broadcasting Act. L'organo di controllo per questa legge è [l'autorità norvegese per i media](https://medietilsynet.no/).",
+        "headOffice": "Capoufficio",
+        "contactUs": "Contattaci",
+        "downloadApp": "Scarica la nostra app"
     },
     "share": {
         "title": "Condividi",
-        "copied": "",
-        "membersOnly": ""
+        "copied": "Copiato negli appunti",
+        "membersOnly": "Questo video è accessibile solo agli utenti che hanno effettuato l'accesso."
     },
     "feedback": {
-        "appreciated": "",
-        "comment": "",
-        "episodeTitle": "",
-        "anonymousInfo": "",
-        "placeholder": ""
+        "appreciated": "Apprezziamo il tuo feedback.",
+        "comment": "Aggiungi un commento alla tua esperienza",
+        "episodeTitle": "Come giudichi questo episodio?",
+        "anonymousInfo": "La tua valutazione sarà inviata in forma anonima",
+        "placeholder": "Sii il più dettagliato possibile per aiutarci a capire."
     },
     "thankYou": "Grazie!",
     "yourResponseHasBeenSubmitted": "La tua risposta è stata inviata.",
     "sending": "Invio",
-    "defaultInputPlaceholder": ""
+    "defaultInputPlaceholder": "Inizia a digitare qui..."
 }

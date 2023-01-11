@@ -8,16 +8,16 @@
         "submit": "Wyślij",
         "back": "Wstecz",
         "next": "Następne",
-        "continue": "",
-        "close": "",
-        "download": "",
-        "goTo": "",
+        "continue": "Kontynuuj",
+        "close": "Zamknij",
+        "download": "Pobierz",
+        "goTo": "Przejdź do",
         "send": "Wyślij"
     },
     "error": {
         "couldntSendYourMessage": "Nie udało się wysłać wiadomości",
-        "somethingWentWrong": "",
-        "checkNetwork": ""
+        "somethingWentWrong": "Coś poszło nie tak.",
+        "checkNetwork": "Sprawdź połączenie internetowe i spróbuj ponownie."
     },
     "dashboard": {
         "loggedOut": "Zostałeś wylogowany"
@@ -31,7 +31,7 @@
         "notFound": "Nie znaleziono strony",
         "explore": "Odkrywaj",
         "watchNow": "Oglądaj teraz",
-        "aboutUs": ""
+        "aboutUs": "O nas"
     },
     "section": {
         "item": {
@@ -61,9 +61,9 @@
         "notFound": "Nie znaleziono odcinka",
         "comingSoon": "Dostępne wkrótce",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
+            "oops": "Ups!",
+            "mustBeLoggedIn": "Musisz być zalogowany, by obejrzeć tę zawartość",
+            "otherContent": "Nic się nie martw, mamy dla ciebie mnóstwo innych materiałów!",
             "exploreContent": "Odkryj zawartość"
         }
     },
@@ -80,8 +80,8 @@
         "episodes": "Odcinki",
         "cancel": "Anuluj",
         "emptyQuery": "Wyszukiwarka jest pusta.",
-        "noResults": "",
-        "tryAdjustingQuery": ""
+        "noResults": "Brak wyników",
+        "tryAdjustingQuery": "Spróbuj inaczej sformułować wyszukiwaną frazę"
     },
     "support": {
         "contact": "Zgłoś problem",
@@ -91,48 +91,48 @@
         "describeIssue": "Opisz problem ze szczegółami."
     },
     "lesson": {
-        "related": "",
+        "related": "Powiązane materiały",
         "watchAgain": {
-            "title": "",
-            "description": "",
-            "button": ""
+            "title": "Obejrzyj ponownie",
+            "description": "Aby lepiej zrozumieć zawartość, polecamy ponowne obejrzenie filmu.",
+            "button": "Obejrzyj ponownie"
         },
-        "lessonActivityTitle": "",
-        "textTaskPlaceholder": "",
+        "lessonActivityTitle": "Aktywność lekcji",
+        "textTaskPlaceholder": "Zapisz i prześlij swoje przemyślenia.",
         "question": "Pytanie",
-        "wrongAnswerMessage": "",
+        "wrongAnswerMessage": "Ajj, było blisko. Spróbuj jeszcze raz!",
         "correctAnswerMessage": "Dobra robota!"
     },
     "cookies": {
-        "title": "",
-        "description": "",
-        "necessary": "",
-        "preferences": "",
-        "statistics": "",
-        "accept": ""
+        "title": "Ta strona używa ciasteczek",
+        "description": "Używamy ciasteczek, by poprawić jakość użytkowania tej strony. Korzystając ze strony, zgadzasz się na używanie przez nas ciasteczek.",
+        "necessary": "Konieczne",
+        "preferences": "Preferencje",
+        "statistics": "Statystyki",
+        "accept": "Akceptuję"
     },
     "footer": {
-        "cookies": "",
+        "cookies": "Ciasteczka",
         "privacyPolicy": "Polityka prywatności",
-        "information": "",
-        "headOffice": "",
-        "contactUs": "",
-        "downloadApp": ""
+        "information": "BCC Media to fundacja medialna w federacji BCC, która zajmuje się produkcją i dystrybucją treści o charakterze pozytywnym i chrześcijańskim.\n\nBCC Media jest zarejestrowanym kanałem telewizyjnym i stosuje się do regulacji zawartych w Norweskim Akcie Telewizyjnym. Organem nadzorującym ten Akt jest [the Norwegian Media Authority] (https://medietilsynet.no/).",
+        "headOffice": "Siedziba",
+        "contactUs": "Kontakt",
+        "downloadApp": "Pobierz naszą aplikację"
     },
     "share": {
         "title": "Udostępnij",
-        "copied": "",
-        "membersOnly": ""
+        "copied": "Skopiowano do schowka",
+        "membersOnly": "To wideo jest dostępne wyłącznie dla zalogowanych użytkowników."
     },
     "feedback": {
-        "appreciated": "",
-        "comment": "",
-        "episodeTitle": "",
-        "anonymousInfo": "",
-        "placeholder": ""
+        "appreciated": "Doceniamy twój feedback.",
+        "comment": "Dodaj komentarz",
+        "episodeTitle": "Jak oceniłbyś ten odcinek?",
+        "anonymousInfo": "Twoja ocena zostanie zapisana anonimowo",
+        "placeholder": "Prosimy o szczegółowy opis, który będzie łatwiejszy do zrozumienia."
     },
     "thankYou": "Dziękujemy!",
-    "yourResponseHasBeenSubmitted": "",
+    "yourResponseHasBeenSubmitted": "Zapisano twoją odpowiedź.",
     "sending": "Wysyłam",
-    "defaultInputPlaceholder": ""
+    "defaultInputPlaceholder": "Pisz tutaj..."
 }
