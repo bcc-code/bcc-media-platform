@@ -87,7 +87,13 @@
                     @click="nextTask()"
                     :disabled="!isCurrentStepDone"
                 >
-                    <template v-if="isLastTask">Done</template>
+                    <template v-if="savingTaskProgress"
+                        ><Loader
+                            variant="spinner"
+                            class="fill-white text-center inline"
+                        ></Loader
+                    ></template>
+                    <template v-else-if="isLastTask">Done</template>
                     <template v-else>Next</template>
                 </VButton>
             </div>
@@ -114,6 +120,7 @@ import { Page } from "./Lesson.vue"
 import VideoTask from "./tasks/VideoTask.vue"
 import QuoteTask from "./tasks/QuoteTask.vue"
 import LinkTask from "./tasks/LinkTask.vue"
+import Loader from "../Loader.vue"
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()
 const { executeMutation } = useCompleteTaskMutation()
@@ -166,12 +173,21 @@ function previousTask() {
         isCurrentStepDone.value = true
     }
 }
-function nextTask() {
-    executeMutation({ taskId: currentTask.value.id })
+
+const savingTaskProgress = ref(false)
+async function nextTask() {
     if (!isLastTask.value) {
+        // intentionally not awaiting
+        executeMutation({ taskId: currentTask.value.id })
         currentTaskIndex.value += 1
         isCurrentStepDone.value = false
     } else {
+        // done with the tasks
+        // awaiting to avoid race condition with achievements
+        savingTaskProgress.value = true
+        await executeMutation({ taskId: currentTask.value.id })
+        await new Promise((r) => setTimeout(r, 100))
+        savingTaskProgress.value = false
         flutterStudy?.tasksCompleted()
         emit("navigate", "more")
     }

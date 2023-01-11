@@ -2,8 +2,11 @@
     <div
         class="inline-flex flex-col space-y-6 items-center justify-start w-full h-full"
     >
-        <div v-if="fetching" class="p-12">
-            <Loader></Loader>
+        <div
+            v-if="fetching"
+            class="p-12 h-full flex items-center justify-center"
+        >
+            <Loader variant="spinner"></Loader>
         </div>
         <div v-else-if="error" class="p-12">
             <div class="text-style-title-1">Something went wrong</div>

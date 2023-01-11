@@ -1,8 +1,10 @@
 <template>
     <div class="p-4 pb-0 w-full h-full">
         <template v-if="fetching">
-            <div class="w-full h-full flex items-center justify-center">
-                <Loader></Loader>
+            <div
+                class="w-full h-full flex pb-36 min-h-48 items-center justify-center"
+            >
+                <Loader variant="spinner"></Loader>
             </div>
         </template>
         <template v-else-if="error">
@@ -15,7 +17,7 @@
         </template>
         <template v-else-if="isDone">
             <div
-                class="flex flex-col items-center justify-center w-full h-full"
+                class="flex flex-col items-center justify-center w-full h-full pb-36"
             >
                 <p class="w-full text-white text-style-title-1 text-center">
                     {{ t("thankYou") }}
