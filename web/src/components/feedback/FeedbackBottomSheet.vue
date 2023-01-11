@@ -12,7 +12,7 @@
                 v-show="fetching"
                 class="absolute w-full h-full flex items-center justify-center"
             >
-                <Loader />
+                <Loader variant="spinner" />
             </div>
             <div
                 v-if="data && !fetching"
