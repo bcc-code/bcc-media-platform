@@ -119,9 +119,6 @@ func exportShows(ctx context.Context, q serviceProvider, liteQueries *sqlexport.
 		if err != nil {
 			return nil, err
 		}
-		if eID == nil {
-			return nil, merry.New("invalid default episode")
-		}
 
 		defEpisode := sql.NullInt64{}
 		_ = defEpisode.Scan(eID)
