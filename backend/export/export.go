@@ -54,7 +54,7 @@ import (
 //   - NOTE: Changing column types is a major change, because of static langs
 //
 // * Major change: Everything else
-const SQLiteExportDBVersion = "v0.0.4"
+const SQLiteExportDBVersion = "v0.0.5"
 
 type CDNConfig interface {
 	GetLegacyVODDomain() string
@@ -422,63 +422,75 @@ func DoExport(ctx context.Context, q serviceProvider, bucketName string) (string
 
 	db, dbPath, err := initDB()
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "initDB").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	err = migrate(db)
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "migrate").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 	liteQueries := sqlexport.New(db)
 
 	showIDs, err := exportShows(ctx, q, liteQueries)
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "exportShow").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	seasonIDs, err := exportSeasons(ctx, q, liteQueries, showIDs)
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "exportSeasons").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	episodeIDs, err := exportEpisodes(ctx, q, liteQueries, seasonIDs)
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "exportEpisodes").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	err = exportStreams(ctx, q, liteQueries, episodeIDs)
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "exportStreams").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	// Just the current app for now. We can look into expanding later
 	err = exportCurrentApplication(gctx, liteQueries)
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "exportCurrentApplication").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	pagesToExport, collectionsToExport, err := exportSections(ctx, q, liteQueries)
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "exportCurrentSections").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	err = exportPages(ctx, q, liteQueries, pagesToExport)
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "exportPages").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	err = exportCollections(ctx, q, liteQueries, collectionsToExport)
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "exportCollections").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	err = db.Close()
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "exportDBClose").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	f, err := os.Open(dbPath)
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "os.Open(dbPath)").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
@@ -491,19 +503,22 @@ func DoExport(ctx context.Context, q serviceProvider, bucketName string) (string
 		Key:          s3DestinationPath,
 	})
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "s3 PutObject").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	presignClient := s3.NewPresignClient(q.GetS3Client(), s3.WithPresignExpires(1*time.Hour))
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "Presign Client").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	res, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
-		Bucket: aws.String(bucketName), // TODO - from external
+		Bucket: aws.String(bucketName),
 		Key:    s3DestinationPath,
 	})
 	if err != nil {
+		log.L.Error().Err(err).Str("exportStep", "Presign Object").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 	return res.URL, nil
