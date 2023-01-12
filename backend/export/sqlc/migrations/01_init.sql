@@ -49,7 +49,7 @@ CREATE TABLE pages (
 	code TEXT NOT NULL,
 	title TEXT NOT NULL,
 	description TEXT NOT NULL,
-	image TEXT,
+	images TEXT NOT NULL,
 	section_ids TEXT NOT NULL
 );
 

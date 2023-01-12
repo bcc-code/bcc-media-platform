@@ -307,7 +307,6 @@ func exportSections(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 	for _, s := range sections {
 
 		allowedPageIDs[s.PageID] = nil
-
 		if s.CollectionID.Valid {
 			neededCollectionIDs[int(s.CollectionID.ValueOrZero())] = nil
 		}
@@ -341,15 +340,14 @@ func exportPages(ctx context.Context, q serviceProvider, liteQueries *sqlexport.
 	}
 
 	for _, p := range pages {
-		img := sql.NullString{}
-		_ = img.Scan(p.Images.GetDefault([]string{"no"}, "default"))
+		images, _ := json.Marshal(p.Images)
 
 		err := liteQueries.InsertPage(ctx, sqlexport.InsertPageParams{
 			ID:          int64(p.ID),
 			Code:        p.Code,
 			Title:       string(p.Title.AsJSON()),
 			Description: string(p.Description.AsJSON()),
-			Image:       img,
+			Images:      string(images),
 		})
 
 		if err != nil {

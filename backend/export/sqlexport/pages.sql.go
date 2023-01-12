@@ -7,21 +7,20 @@ package sqlexport
 
 import (
 	"context"
-	"database/sql"
 )
 
 const insertPage = `-- name: InsertPage :exec
-INSERT INTO pages (id, code, title, description, image, section_ids)
+INSERT INTO pages (id, code, title, description, images, section_ids)
 VALUES (?,?,?,?,?,?)
 `
 
 type InsertPageParams struct {
-	ID          int64          `db:"id" json:"id"`
-	Code        string         `db:"code" json:"code"`
-	Title       string         `db:"title" json:"title"`
-	Description string         `db:"description" json:"description"`
-	Image       sql.NullString `db:"image" json:"image"`
-	SectionIds  string         `db:"section_ids" json:"sectionIds"`
+	ID          int64  `db:"id" json:"id"`
+	Code        string `db:"code" json:"code"`
+	Title       string `db:"title" json:"title"`
+	Description string `db:"description" json:"description"`
+	Images      string `db:"images" json:"images"`
+	SectionIds  string `db:"section_ids" json:"sectionIds"`
 }
 
 func (q *Queries) InsertPage(ctx context.Context, arg InsertPageParams) error {
@@ -30,7 +29,7 @@ func (q *Queries) InsertPage(ctx context.Context, arg InsertPageParams) error {
 		arg.Code,
 		arg.Title,
 		arg.Description,
-		arg.Image,
+		arg.Images,
 		arg.SectionIds,
 	)
 	return err

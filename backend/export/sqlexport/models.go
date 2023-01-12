@@ -37,12 +37,12 @@ type Episode struct {
 }
 
 type Page struct {
-	ID          int64          `db:"id" json:"id"`
-	Code        string         `db:"code" json:"code"`
-	Title       string         `db:"title" json:"title"`
-	Description string         `db:"description" json:"description"`
-	Image       sql.NullString `db:"image" json:"image"`
-	SectionIds  string         `db:"section_ids" json:"sectionIds"`
+	ID          int64  `db:"id" json:"id"`
+	Code        string `db:"code" json:"code"`
+	Title       string `db:"title" json:"title"`
+	Description string `db:"description" json:"description"`
+	Images      string `db:"images" json:"images"`
+	SectionIds  string `db:"section_ids" json:"sectionIds"`
 }
 
 type Season struct {
