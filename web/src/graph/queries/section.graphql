@@ -58,6 +58,9 @@ fragment SectionItem on SectionItem {
             id
             code
         }
+        ... on StudyTopic {
+            id
+        }
     }
 }
 

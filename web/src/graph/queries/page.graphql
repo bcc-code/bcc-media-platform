@@ -81,4 +81,29 @@ fragment ItemSection on ItemSection {
     ... on PosterSection {
         size
     }
+    ... on CardSection {
+        cardSize: size
+        items(first: $sectionFirst, offset: $sectionOffset) {
+            items {
+                item {
+                    ... on StudyTopic {
+                        ...StudyTopicSectionItem
+                    }
+                }
+            }
+        }
+    }
+}
+fragment StudyTopicSectionItem on StudyTopic {
+    id
+    title
+    description
+    images {
+        style
+        url
+    }
+    lessonsProgress: progress {
+        completed
+        total
+    }
 }

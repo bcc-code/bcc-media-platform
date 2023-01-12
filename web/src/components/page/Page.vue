@@ -193,10 +193,13 @@ const clickItem = (sectionIndex: number, itemIndex: number) => {
                 case "IconSection":
                 case "LabelSection":
                 case "ListSection":
+                case "CardListSection":
+                case "CardSection":
                 case "PosterGridSection":
                 case "PosterSection":
                     for (let i = 0; i < section.items.items.length; i++) {
                         if (i === itemIndex) {
+                            // TODO: refactor to pass the item. This can cause bugs when the section filters out certain types, like CardSection does
                             goToSectionItem(
                                 {
                                     index: i,

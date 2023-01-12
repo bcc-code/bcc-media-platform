@@ -11,6 +11,7 @@
             :height="effectiveHeight"
             :width="effectiveWidth"
             :loading="loading"
+            :draggable="draggable"
         />
     </div>
 </template>
@@ -23,6 +24,7 @@ const props = defineProps<{
     sizeSource: "width" | "height"
     ratio?: number
     loading?: "lazy" | "eager"
+    draggable?: boolean
 }>()
 
 const loaded = ref(false)

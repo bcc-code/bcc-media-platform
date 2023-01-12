@@ -1,6 +1,8 @@
-import { GetSectionQuery, SectionItemFragment } from "@/graph/generated"
+import { GetSectionQuery, SectionItemFragment, GetStudyTopicLessonStatusesQuery, GetStudyTopicLessonStatusesDocument, GetStudyTopicLessonStatusesQueryVariables } from "@/graph/generated"
 import router from "@/router"
 import { analytics, Page } from "@/services/analytics"
+import { createRequest } from "@urql/vue"
+import client from "@/graph/client"
 
 export const goToEpisode = (
     episodeId: string,
@@ -32,6 +34,26 @@ export const goToPage = (code: string) => {
         name: "page",
         params: {
             pageId: code,
+        },
+    })
+}
+
+export const goToStudyTopic = async (id: string) => {
+    // TODO: nothing is as permanent as a temporary solution lol
+    const result = await client.query<GetStudyTopicLessonStatusesQuery, GetStudyTopicLessonStatusesQueryVariables>(GetStudyTopicLessonStatusesDocument, { first: 100, id: id }).toPromise();
+    const uncompletedLessonWithEpisode = result.data?.studyTopic.lessons.items.find((el) => console.log(el.episodes.items) as any || !el.completed && el.episodes.items[0]?.locked == false);
+    var episodeId = uncompletedLessonWithEpisode?.episodes.items[0]?.id;
+    console.log(uncompletedLessonWithEpisode)
+    console.log(episodeId)
+    episodeId ??= result.data?.studyTopic.lessons.items[0]?.episodes.items[0]?.id;
+    if (episodeId == null) {
+        throw Error(`Failed finding an episode to navigate to for topic ${id}`);
+    }
+
+    router.push({
+        name: "episode-page",
+        params: {
+            episodeId,
         },
     })
 }
@@ -74,6 +96,9 @@ export const goToSectionItem = (
             break
         case "Page":
             goToPage(item.item.item.code)
+            break
+        case "StudyTopic":
+            goToStudyTopic(item.item.item.id)
             break
     }
 }

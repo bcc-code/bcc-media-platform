@@ -74,6 +74,13 @@
         v-else-if="section.__typename === 'MessageSection'"
         :item="section"
     ></MessageSection>
+    <CardSection
+        v-else-if="
+            section.__typename === 'CardSection' && section.cardSize == 'large'
+        "
+        :item="section"
+        @click-item="(i) => $emit('clickItem', i)"
+    ></CardSection>
 </template>
 <script lang="ts" setup>
 import { Section } from "./types"
@@ -88,6 +95,7 @@ import IconGridSection from "./item/IconGridSection.vue"
 import ListSection from "./item/ListSection.vue"
 import WebSection from "./WebSection.vue"
 import MessageSection from "./MessageSection.vue"
+import CardSection from "./item/CardSection.vue"
 
 defineProps<{
     section: Section

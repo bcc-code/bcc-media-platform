@@ -90,6 +90,10 @@
         "content": "Content",
         "describeIssue": "Describe your issue in detail."
     },
+    "study": {
+        "startStudy": "Start study",
+        "continueStudy": "Continue study"
+    },
     "lesson": {
         "related": "Related resources",
         "watchAgain": {

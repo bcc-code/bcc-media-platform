@@ -69,6 +69,23 @@ query getStudyLesson($lessonId: ID!, $episodeId: ID!) {
     }
 }
 
+query GetStudyTopicLessonStatuses($id: ID!, $first: Int!) {
+    studyTopic(id: $id) {
+        lessons(first: $first) {
+            items {
+                id
+                completed
+                episodes(first: 1) {
+                    items {
+                        id
+                        locked
+                    }
+                }
+            }
+        }
+    }
+}
+
 mutation completeTask($taskId: ID!) {
     completeTask(id: $taskId)
 }
