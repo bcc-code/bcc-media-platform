@@ -2,6 +2,7 @@ package show
 
 import (
 	"context"
+
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
@@ -50,11 +51,14 @@ func DefaultEpisodeID(ctx context.Context, loaders *common.FilteredLoaders, show
 		sID, _ := lo.Last(sIDs)
 		eId, err = getEpisodeIDFromSeason(ctx, loaders, sID, false)
 	}
+
 	if err != nil {
 		return nil, err
 	}
+
 	for i := 0; i < len(sIDs) && eId == nil && err == nil; i++ {
 		eId, err = getEpisodeIDFromSeason(ctx, loaders, sIDs[i], true)
 	}
+
 	return eId, err
 }

@@ -121,7 +121,11 @@ func exportShows(ctx context.Context, q serviceProvider, liteQueries *sqlexport.
 		}
 
 		defEpisode := sql.NullInt64{}
-		_ = defEpisode.Scan(eID)
+		if eID != nil {
+			e := int64(*eID)
+			_ = defEpisode.Scan(e)
+		}
+
 		imagesJson, _ := json.Marshal(s.Images)
 
 		err = liteQueries.InsertShow(ctx, sqlexport.InsertShowParams{
