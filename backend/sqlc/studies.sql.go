@@ -50,6 +50,46 @@ func (q *Queries) GetAnsweredTasks(ctx context.Context, arg GetAnsweredTasksPara
 	return items, nil
 }
 
+const getSelectedAlternatives = `-- name: GetSelectedAlternatives :many
+SELECT ta.task_id, ta.selected_alternatives::uuid[] as selected_alternatives
+FROM "users"."taskanswers" ta
+WHERE ta.profile_id = $1
+  AND ta.task_id = ANY ($2::uuid[])
+`
+
+type GetSelectedAlternativesParams struct {
+	ProfileID uuid.UUID   `db:"profile_id" json:"profileID"`
+	TaskIds   []uuid.UUID `db:"task_ids" json:"taskIds"`
+}
+
+type GetSelectedAlternativesRow struct {
+	TaskID               uuid.UUID   `db:"task_id" json:"taskID"`
+	SelectedAlternatives []uuid.UUID `db:"selected_alternatives" json:"selectedAlternatives"`
+}
+
+func (q *Queries) GetSelectedAlternatives(ctx context.Context, arg GetSelectedAlternativesParams) ([]GetSelectedAlternativesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSelectedAlternatives, arg.ProfileID, pq.Array(arg.TaskIds))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSelectedAlternativesRow
+	for rows.Next() {
+		var i GetSelectedAlternativesRow
+		if err := rows.Scan(&i.TaskID, pq.Array(&i.SelectedAlternatives)); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const setMessage = `-- name: SetMessage :exec
 INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at, metadata)
 VALUES ($1, $2, $3, NOW(), NOW(), $4)
@@ -76,18 +116,19 @@ func (q *Queries) SetMessage(ctx context.Context, arg SetMessageParams) error {
 }
 
 const setTaskCompleted = `-- name: SetTaskCompleted :exec
-INSERT INTO "users"."taskanswers" (profile_id, task_id, updated_at)
-VALUES ($1, $2, NOW())
-ON CONFLICT (profile_id, task_id) DO UPDATE SET updated_at = EXCLUDED.updated_at
+INSERT INTO "users"."taskanswers" (profile_id, task_id, selected_alternatives, updated_at)
+VALUES ($1, $2, $3::uuid[], NOW())
+ON CONFLICT (profile_id, task_id) DO UPDATE SET updated_at = EXCLUDED.updated_at, selected_alternatives = $3::uuid[]
 `
 
 type SetTaskCompletedParams struct {
-	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
-	TaskID    uuid.UUID `db:"task_id" json:"taskID"`
+	ProfileID            uuid.UUID   `db:"profile_id" json:"profileID"`
+	TaskID               uuid.UUID   `db:"task_id" json:"taskID"`
+	SelectedAlternatives []uuid.UUID `db:"selected_alternatives" json:"selectedAlternatives"`
 }
 
 func (q *Queries) SetTaskCompleted(ctx context.Context, arg SetTaskCompletedParams) error {
-	_, err := q.db.ExecContext(ctx, setTaskCompleted, arg.ProfileID, arg.TaskID)
+	_, err := q.db.ExecContext(ctx, setTaskCompleted, arg.ProfileID, arg.TaskID, pq.Array(arg.SelectedAlternatives))
 	return err
 }
 
@@ -514,6 +555,7 @@ SELECT t.id,
        t.image_type,
        t.link_id,
        t.episode_id,
+       t.competition_mode,
        ts.title,
        ts.secondary_title,
        ts.description,
@@ -537,6 +579,7 @@ type getTasksRow struct {
 	ImageType               null_v4.String        `db:"image_type" json:"imageType"`
 	LinkID                  null_v4.Int           `db:"link_id" json:"linkID"`
 	EpisodeID               null_v4.Int           `db:"episode_id" json:"episodeID"`
+	CompetitionMode         sql.NullBool          `db:"competition_mode" json:"competitionMode"`
 	Title                   pqtype.NullRawMessage `db:"title" json:"title"`
 	SecondaryTitle          pqtype.NullRawMessage `db:"secondary_title" json:"secondaryTitle"`
 	Description             pqtype.NullRawMessage `db:"description" json:"description"`
@@ -564,6 +607,7 @@ func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getTask
 			&i.ImageType,
 			&i.LinkID,
 			&i.EpisodeID,
+			&i.CompetitionMode,
 			&i.Title,
 			&i.SecondaryTitle,
 			&i.Description,

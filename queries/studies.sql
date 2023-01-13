@@ -67,6 +67,7 @@ SELECT t.id,
        t.image_type,
        t.link_id,
        t.episode_id,
+       t.competition_mode,
        ts.title,
        ts.secondary_title,
        ts.description,
@@ -175,10 +176,16 @@ FROM "users"."taskanswers" ta
 WHERE ta.profile_id = $1
   AND ta.task_id = ANY ($2::uuid[]);
 
+-- name: GetSelectedAlternatives :many
+SELECT ta.task_id, ta.selected_alternatives::uuid[] as selected_alternatives
+FROM "users"."taskanswers" ta
+WHERE ta.profile_id = $1
+  AND ta.task_id = ANY (@task_ids::uuid[]);
+
 -- name: SetTaskCompleted :exec
-INSERT INTO "users"."taskanswers" (profile_id, task_id, updated_at)
-VALUES ($1, $2, NOW())
-ON CONFLICT (profile_id, task_id) DO UPDATE SET updated_at = EXCLUDED.updated_at;
+INSERT INTO "users"."taskanswers" (profile_id, task_id, selected_alternatives, updated_at)
+VALUES ($1, $2, @selected_alternatives::uuid[], NOW())
+ON CONFLICT (profile_id, task_id) DO UPDATE SET updated_at = EXCLUDED.updated_at, selected_alternatives = @selected_alternatives::uuid[];
 
 -- name: SetMessage :exec
 INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at, metadata)

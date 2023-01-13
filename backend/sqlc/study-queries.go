@@ -3,12 +3,13 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+	"strconv"
+
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
-	"strconv"
 )
 
 // GetTopics returns studies
@@ -104,18 +105,19 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 		}
 
 		return common.Task{
-			ID:             l.ID,
-			LessonID:       l.LessonID,
-			Title:          title,
-			SecondaryTitle: secondaryTitle,
-			Description:    description,
-			QuestionType:   l.QuestionType.String,
-			ImageType:      l.ImageType.String,
-			Images:         imagesWithUrl,
-			EpisodeID:      l.EpisodeID,
-			LinkID:         l.LinkID,
-			Type:           l.Type,
-			MultiSelect:    multiSelect,
+			ID:              l.ID,
+			LessonID:        l.LessonID,
+			Title:           title,
+			SecondaryTitle:  secondaryTitle,
+			Description:     description,
+			QuestionType:    l.QuestionType.String,
+			ImageType:       l.ImageType.String,
+			Images:          imagesWithUrl,
+			EpisodeID:       l.EpisodeID,
+			LinkID:          l.LinkID,
+			Type:            l.Type,
+			MultiSelect:     multiSelect,
+			CompetitionMode: l.CompetitionMode.Bool,
 		}
 	}), nil
 }
@@ -301,5 +303,24 @@ func (q *Queries) GetCompletedTopics(ctx context.Context, profileIDs []uuid.UUID
 	}
 	return lo.Map(rows, func(i getCompletedTopicsRow, _ int) batchloaders.Relation[uuid.UUID, uuid.UUID] {
 		return relation[uuid.UUID, uuid.UUID](i)
+	}), nil
+}
+
+// GetSelectedAlternatives returns the alternatives a user selected on a given questions
+func (pq *ProfileQueries) GetSelectedAlternatives(ctx context.Context, ids []uuid.UUID) ([]common.SelectedAlternatives, error) {
+	rows, err := pq.queries.GetSelectedAlternatives(ctx, GetSelectedAlternativesParams{
+		ProfileID: pq.profileID,
+		TaskIds:   ids,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(rows, func(i GetSelectedAlternativesRow, _ int) common.SelectedAlternatives {
+		return common.SelectedAlternatives{
+			ID:       i.TaskID,
+			Selected: i.SelectedAlternatives,
+		}
 	}), nil
 }

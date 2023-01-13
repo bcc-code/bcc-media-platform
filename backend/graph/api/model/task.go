@@ -2,10 +2,11 @@ package model
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"strconv"
 )
 
 // TaskFrom returns a task from studies.Task
@@ -21,8 +22,9 @@ func TaskFrom(ctx context.Context, task *common.Task) Task {
 		switch task.QuestionType {
 		case common.QuestionTaskTypeAlternatives:
 			return AlternativesTask{
-				ID:    id,
-				Title: title,
+				ID:              id,
+				Title:           title,
+				CompetitionMode: task.CompetitionMode,
 			}
 		case common.QuestionTaskTypeText:
 			return TextTask{

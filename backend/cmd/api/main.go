@@ -3,14 +3,15 @@ package main
 import (
 	"context"
 	"database/sql"
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/ansel1/merry/v2"
-	"github.com/bcc-code/brunstadtv/backend/ratelimit"
-	"github.com/vektah/gqlparser/v2/gqlerror"
 	"net/http"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/ratelimit"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 
 	"github.com/bcc-code/brunstadtv/backend/analytics"
 
@@ -135,7 +136,8 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 				Column2:   ids,
 			})
 		}, batchloaders.WithMemoryCache(time.Second*5)),
-		AchievementAchievedAtLoader: batchloaders.New(profileQueries.GetAchievementsAchievedAt, batchloaders.WithMemoryCache(time.Second*5)),
+		AchievementAchievedAtLoader:   batchloaders.New(profileQueries.GetAchievementsAchievedAt, batchloaders.WithMemoryCache(time.Second*5)),
+		GetSelectedAlternativesLoader: batchloaders.New(profileQueries.GetSelectedAlternatives, batchloaders.WithMemoryCache(time.Second*1)),
 	}
 
 	profilesLoaderCache.Set(profileID, loaders, cache.WithExpiration(time.Minute*5))

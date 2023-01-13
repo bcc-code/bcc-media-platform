@@ -57,19 +57,20 @@ func (i Lesson) GetKey() uuid.UUID {
 
 // Task is the struct for Tasks
 type Task struct {
-	ID             uuid.UUID
-	LessonID       uuid.UUID
-	Title          LocaleString
-	Type           StudyTaskType
-	QuestionType   QuestionTaskType
-	ImageType      ImageTaskType
-	LinkID         null.Int
-	EpisodeID      null.Int
-	Images         LocaleMap[string]
-	MultiSelect    null.Bool
-	Alternatives   []QuestionAlternative
-	SecondaryTitle LocaleString
-	Description    LocaleString
+	ID              uuid.UUID
+	LessonID        uuid.UUID
+	Title           LocaleString
+	Type            StudyTaskType
+	QuestionType    QuestionTaskType
+	ImageType       ImageTaskType
+	LinkID          null.Int
+	EpisodeID       null.Int
+	Images          LocaleMap[string]
+	MultiSelect     null.Bool
+	CompetitionMode bool
+	Alternatives    []QuestionAlternative
+	SecondaryTitle  LocaleString
+	Description     LocaleString
 }
 
 // GetKey returns the key for this item
@@ -88,4 +89,15 @@ type QuestionAlternative struct {
 // GetKey returns the key for this item
 func (i QuestionAlternative) GetKey() uuid.UUID {
 	return i.ID
+}
+
+// SelectedAlternatives is a struct for getting selected alternatives of a question
+type SelectedAlternatives struct {
+	ID       uuid.UUID
+	Selected []uuid.UUID
+}
+
+// GetKey returns the key for this item
+func (sa SelectedAlternatives) GetKey() uuid.UUID {
+	return sa.ID
 }

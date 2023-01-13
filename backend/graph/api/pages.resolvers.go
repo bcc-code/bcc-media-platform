@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"github.com/samber/lo"
 	"strconv"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -15,6 +14,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/samber/lo"
 )
 
 // Items is the resolver for the items field.

@@ -3,6 +3,7 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/google/uuid"
