@@ -225,6 +225,7 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 	}
 
 	r.Loaders.CompletedTasksLoader.Clear(ctx, p.ID)
+	r.Loaders.CompletedAndLockedTasksLoader.Clear(ctx, p.ID)
 	r.Loaders.CompletedLessonsLoader.Clear(ctx, p.ID)
 
 	err = achievements.CheckNewAchievements(ctx, r.Queries, r.Loaders, achievements.Action{
@@ -250,6 +251,8 @@ func (r *mutationRootResolver) LockLessonAnswers(ctx context.Context, id string)
 		ProfileID: p.ID,
 		LessonID:  utils.AsUuid(id),
 	})
+
+	r.Loaders.CompletedAndLockedTasksLoader.Clear(ctx, p.ID)
 
 	return err == nil, err
 }

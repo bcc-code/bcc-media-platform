@@ -376,7 +376,7 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		CompletedTopicsLoader:         batchloaders.NewRelationLoader(queries.GetCompletedTopics),
 		CompletedLessonsLoader:        batchloaders.NewRelationLoader(queries.GetCompletedLessons),
 		CompletedTasksLoader:          batchloaders.NewRelationLoader(queries.GetCompletedTasks),
-		CompletedAndLockedTasksLoader: batchloaders.NewRelationLoader(queries.GetCompletedAndLockedTasks, batchloaders.WithMemoryCache(time.Second*30)),
+		CompletedAndLockedTasksLoader: batchloaders.NewRelationLoader(queries.GetCompletedAndLockedTasks, batchloaders.WithMemoryCache(time.Second*1)),
 
 		ComputedDataLoader: batchloaders.NewListLoader(queries.GetComputedDataForGroups, func(i common.ComputedData) uuid.UUID {
 			return i.GroupID
