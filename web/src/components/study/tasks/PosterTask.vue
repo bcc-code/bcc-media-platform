@@ -1,5 +1,7 @@
 <template>
-    <div class="p-4 pb-0 w-full h-full">
+    <div
+        class="p-x4 py-0 w-full h-full flex flex-col items-center justify-center pb-8 embed:pb-52"
+    >
         <p class="w-full text-white text-style-title-1 text-center">
             {{ task.title }}
         </p>
@@ -8,7 +10,12 @@
         </div>
         <div v-show="imgLoaded">
             <div class="w-full mt-6 px-12">
-                <img @load="() => (imgLoaded = true)" :src="task.image" />
+                <img
+                    @load="() => (imgLoaded = true)"
+                    :src="task.image"
+                    style="max-height: 35vh"
+                    class=""
+                />
             </div>
             <div class="flex align-center justify-center">
                 <VButton
@@ -119,8 +126,8 @@ onMounted(async () => {
     const contentLength = imgInfo.headers.get("Content-Length")
     if (contentLength) {
         const bytes = parseFloat(contentLength)
-        const megabytes = (bytes / 1024 / 1024).toFixed(0)
-        imgSize.value = `${megabytes}mb`
+        const megaBytes = (bytes / 1024 / 1024).toFixed(1)
+        imgSize.value = `${megaBytes} mb`
     }
 })
 </script>

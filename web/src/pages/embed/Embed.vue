@@ -1,5 +1,5 @@
 <template>
-    <div class="h-screen">
+    <div class="h-screen embedded-page">
         <router-view v-slot="{ Component }">
             <transition name="slide-fade" mode="out-in">
                 <component :key="$route.name" :is="Component" />
@@ -18,15 +18,5 @@ if (!!router.currentRoute.value.query["bg"]) {
 <style>
 .bg-background {
     --tw-bg-opacity: 0;
-}
-/* Hide scrollbar for Chrome, Safari and Opera */
-.embed-hide-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-.embed-hide-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
 }
 </style>
