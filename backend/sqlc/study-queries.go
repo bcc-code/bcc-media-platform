@@ -3,12 +3,13 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+	"strconv"
+
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
-	"strconv"
 )
 
 // GetTopics returns studies
@@ -104,18 +105,19 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 		}
 
 		return common.Task{
-			ID:             l.ID,
-			LessonID:       l.LessonID,
-			Title:          title,
-			SecondaryTitle: secondaryTitle,
-			Description:    description,
-			QuestionType:   l.QuestionType.String,
-			ImageType:      l.ImageType.String,
-			Images:         imagesWithUrl,
-			EpisodeID:      l.EpisodeID,
-			LinkID:         l.LinkID,
-			Type:           l.Type,
-			MultiSelect:    multiSelect,
+			ID:               l.ID,
+			LessonID:         l.LessonID,
+			Title:            title,
+			SecondaryTitle:   secondaryTitle,
+			Description:      description,
+			QuestionType:     l.QuestionType.String,
+			ImageType:        l.ImageType.String,
+			Images:           imagesWithUrl,
+			EpisodeID:        l.EpisodeID,
+			LinkID:           l.LinkID,
+			Type:             l.Type,
+			MultiSelect:      multiSelect,
+			ComptetitionMode: l.CompetitionMode.Bool,
 		}
 	}), nil
 }

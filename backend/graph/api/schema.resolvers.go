@@ -23,6 +23,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"
@@ -173,36 +174,64 @@ func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title strin
 }
 
 // CompleteTask is the resolver for the completeTask field.
-func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string) (bool, error) {
+func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, selectedAlternatives []string) (bool, error) {
 	p, err := getProfile(ctx)
 	if err != nil {
 		return false, err
 	}
+
 	task, err := getTask(ctx, r.Resolver, id)
 	if err != nil {
 		return false, err
 	}
-	storedIds, err := r.Loaders.CompletedTasksLoader.Get(ctx, p.ID)
-	if err != nil {
-		return false, err
+
+	if task.ComptetitionMode {
+		storedIds, err := r.Loaders.CompletedTasksLoader.Get(ctx, p.ID)
+		if err != nil {
+			return false, err
+		}
+
+		if lo.Contains(utils.PointerArrayToArray(storedIds), task.ID) {
+			return false, common.ErrTaskAlreadyCompleted
+		}
 	}
-	if lo.Contains(utils.PointerArrayToArray(storedIds), task.ID) {
-		return false, common.ErrTaskAlreadyCompleted
+
+	selectedUUIDs := []uuid.UUID{}
+	if selectedAlternatives != nil {
+		// Optional
+		errs := []error{}
+		lo.ForEach(selectedAlternatives, func(id string, _ int) {
+			uu, err := uuid.Parse(id)
+			if err != nil {
+				errs = append(errs, err)
+			} else {
+				selectedUUIDs = append(selectedUUIDs, uu)
+			}
+		})
+
+		if len(errs) > 0 {
+			log.L.Warn().Errs("errors", errs).Msg("Could not parse some selected alternatives as UUID")
+		}
 	}
+
 	err = r.Queries.SetTaskCompleted(ctx, sqlc.SetTaskCompletedParams{
-		ProfileID: p.ID,
-		TaskID:    task.ID,
+		ProfileID:            p.ID,
+		TaskID:               task.ID,
+		SelectedAlternatives: selectedUUIDs,
 	})
+
 	if err != nil {
 		return false, err
 	}
 
 	r.Loaders.CompletedTasksLoader.Clear(ctx, p.ID)
 	r.Loaders.CompletedLessonsLoader.Clear(ctx, p.ID)
+
 	err = achievements.CheckNewAchievements(ctx, r.Queries, r.Loaders, achievements.Action{
 		Collection: achievements.CollectionLessons,
 		Action:     achievements.ActionCompleted,
 	})
+
 	if err != nil {
 		return true, err
 	}

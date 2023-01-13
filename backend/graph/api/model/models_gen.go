@@ -146,13 +146,15 @@ type Alternative struct {
 	ID        string `json:"id"`
 	Title     string `json:"title"`
 	IsCorrect bool   `json:"isCorrect"`
+	Selected  bool   `json:"selected"`
 }
 
 type AlternativesTask struct {
-	ID           string         `json:"id"`
-	Title        string         `json:"title"`
-	Completed    bool           `json:"completed"`
-	Alternatives []*Alternative `json:"alternatives"`
+	ID              string         `json:"id"`
+	Title           string         `json:"title"`
+	Completed       bool           `json:"completed"`
+	Alternatives    []*Alternative `json:"alternatives"`
+	CompetitionMode bool           `json:"competitionMode"`
 }
 
 func (AlternativesTask) IsTask()                 {}

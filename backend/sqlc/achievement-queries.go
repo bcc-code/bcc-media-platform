@@ -3,6 +3,7 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+
 	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/google/uuid"
@@ -124,6 +125,25 @@ func (pq *ProfileQueries) GetAchievementsAchievedAt(ctx context.Context, ids []u
 			ID:          i.AchievementID,
 			AchievedAt:  i.AchievedAt,
 			ConfirmedAt: i.ConfirmedAt,
+		}
+	}), nil
+}
+
+// GetSelectedAlternatives returns the alternatives a user selected on a given questions
+func (pq *ProfileQueries) GetSelectedAlternatives(ctx context.Context, ids []uuid.UUID) ([]common.SelectedAlternatives, error) {
+	rows, err := pq.queries.GetSelectedAlternatives(ctx, GetSelectedAlternativesParams{
+		ProfileID: pq.profileID,
+		TaskIds:   ids,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(rows, func(i GetSelectedAlternativesRow, _ int) common.SelectedAlternatives {
+		return common.SelectedAlternatives{
+			ID:       i.TaskID,
+			Selected: i.SelectedAlternatives,
 		}
 	}), nil
 }

@@ -287,14 +287,15 @@ type Computeddatagroup struct {
 }
 
 type Computeddatum struct {
-	ID          uuid.UUID     `db:"id" json:"id"`
-	Status      string        `db:"status" json:"status"`
-	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
-	GroupID     uuid.UUID     `db:"group_id" json:"groupID"`
-	Value       string        `db:"value" json:"value"`
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Status      string         `db:"status" json:"status"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	GroupID     uuid.UUID      `db:"group_id" json:"groupID"`
+	Value       string         `db:"value" json:"value"`
+	Label       null_v4.String `db:"label" json:"label"`
 }
 
 type DirectusActivity struct {
@@ -857,6 +858,7 @@ type Link struct {
 	Url                 string         `db:"url" json:"url"`
 	Type                null_v4.String `db:"type" json:"type"`
 	ComputeddatagroupID uuid.NullUUID  `db:"computeddatagroup_id" json:"computeddatagroupID"`
+	Label               null_v4.String `db:"label" json:"label"`
 }
 
 type LinksTranslation struct {
@@ -1247,6 +1249,7 @@ type Task struct {
 	SecondaryTitle          null_v4.String `db:"secondary_title" json:"secondaryTitle"`
 	Description             null_v4.String `db:"description" json:"description"`
 	LinkID                  null_v4.Int    `db:"link_id" json:"linkID"`
+	CompetitionMode         sql.NullBool   `db:"competition_mode" json:"competitionMode"`
 }
 
 type TasksImage struct {
@@ -1336,7 +1339,8 @@ type UsersProgress struct {
 }
 
 type UsersTaskanswer struct {
-	ProfileID uuid.UUID    `db:"profile_id" json:"profileID"`
-	TaskID    uuid.UUID    `db:"task_id" json:"taskID"`
-	UpdatedAt null_v4.Time `db:"updated_at" json:"updatedAt"`
+	ProfileID            uuid.UUID    `db:"profile_id" json:"profileID"`
+	TaskID               uuid.UUID    `db:"task_id" json:"taskID"`
+	UpdatedAt            null_v4.Time `db:"updated_at" json:"updatedAt"`
+	SelectedAlternatives interface{}  `db:"selected_alternatives" json:"selectedAlternatives"`
 }

@@ -126,14 +126,16 @@ type ComplexityRoot struct {
 	Alternative struct {
 		ID        func(childComplexity int) int
 		IsCorrect func(childComplexity int) int
+		Selected  func(childComplexity int) int
 		Title     func(childComplexity int) int
 	}
 
 	AlternativesTask struct {
-		Alternatives func(childComplexity int) int
-		Completed    func(childComplexity int) int
-		ID           func(childComplexity int) int
-		Title        func(childComplexity int) int
+		Alternatives    func(childComplexity int) int
+		CompetitionMode func(childComplexity int) int
+		Completed       func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Title           func(childComplexity int) int
 	}
 
 	Analytics struct {
@@ -498,7 +500,7 @@ type ComplexityRoot struct {
 	}
 
 	MutationRoot struct {
-		CompleteTask          func(childComplexity int, id string) int
+		CompleteTask          func(childComplexity int, id string, selectedAlternatives []string) int
 		ConfirmAchievement    func(childComplexity int, id string) int
 		SendEpisodeFeedback   func(childComplexity int, episodeID string, message *string, rating *int) int
 		SendSupportEmail      func(childComplexity int, title string, content string, html string) int
@@ -962,7 +964,7 @@ type MutationRootResolver interface {
 	SetDevicePushToken(ctx context.Context, token string, languages []string) (*model.Device, error)
 	SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int, context *model.EpisodeContext) (*model.Episode, error)
 	SendSupportEmail(ctx context.Context, title string, content string, html string) (bool, error)
-	CompleteTask(ctx context.Context, id string) (bool, error)
+	CompleteTask(ctx context.Context, id string, selectedAlternatives []string) (bool, error)
 	SendTaskMessage(ctx context.Context, taskID string, message *string) (string, error)
 	UpdateTaskMessage(ctx context.Context, id string, message string) (string, error)
 	SendEpisodeFeedback(ctx context.Context, episodeID string, message *string, rating *int) (string, error)
@@ -1247,6 +1249,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Alternative.IsCorrect(childComplexity), true
 
+	case "Alternative.selected":
+		if e.complexity.Alternative.Selected == nil {
+			break
+		}
+
+		return e.complexity.Alternative.Selected(childComplexity), true
+
 	case "Alternative.title":
 		if e.complexity.Alternative.Title == nil {
 			break
@@ -1260,6 +1269,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AlternativesTask.Alternatives(childComplexity), true
+
+	case "AlternativesTask.competitionMode":
+		if e.complexity.AlternativesTask.CompetitionMode == nil {
+			break
+		}
+
+		return e.complexity.AlternativesTask.CompetitionMode(childComplexity), true
 
 	case "AlternativesTask.completed":
 		if e.complexity.AlternativesTask.Completed == nil {
@@ -3004,7 +3020,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.MutationRoot.CompleteTask(childComplexity, args["id"].(string)), true
+		return e.complexity.MutationRoot.CompleteTask(childComplexity, args["id"].(string), args["selectedAlternatives"].([]string)), true
 
 	case "MutationRoot.confirmAchievement":
 		if e.complexity.MutationRoot.ConfirmAchievement == nil {
@@ -5618,10 +5634,13 @@ type MutationRoot {
 
   sendSupportEmail(title: String!, content: String!, html: String!): Boolean!
 
-  completeTask(id: ID!): Boolean!
+  completeTask(
+    id: ID!,
+    selectedAlternatives: [String!],
+  ): Boolean!
 
-  sendTaskMessage(taskId: ID!, message: String): ID!
-  updateTaskMessage(id: ID!, message: String!): ID!
+  sendTaskMessage(taskId: ID!, message: String): ID! @deprecated(reason: "Replaced wiht \"submittedFreeText\" on completeTask")
+  updateTaskMessage(id: ID!, message: String!): ID! @deprecated(reason: "Replaced wiht \"submittedFreeText\" on completeTask")
 
   sendEpisodeFeedback(episodeId: ID!, message: String, rating: Int): ID!
   updateEpisodeFeedback(id: ID!, message: String, rating: Int): ID!
@@ -5764,12 +5783,14 @@ type AlternativesTask implements Task {
     title: String!
     completed: Boolean! @goField(forceResolver: true)
     alternatives: [Alternative!]! @goField(forceResolver: true)
+    competitionMode: Boolean!
 }
 
 type Alternative {
     id: ID!
     title: String!
     isCorrect: Boolean!
+    selected: Boolean!
 }
 
 type TextTask implements Task {
@@ -6414,6 +6435,15 @@ func (ec *executionContext) field_MutationRoot_completeTask_args(ctx context.Con
 		}
 	}
 	args["id"] = arg0
+	var arg1 []string
+	if tmp, ok := rawArgs["selectedAlternatives"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("selectedAlternatives"))
+		arg1, err = ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["selectedAlternatives"] = arg1
 	return args, nil
 }
 
@@ -8332,6 +8362,50 @@ func (ec *executionContext) fieldContext_Alternative_isCorrect(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Alternative_selected(ctx context.Context, field graphql.CollectedField, obj *model.Alternative) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Alternative_selected(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Selected, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Alternative_selected(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Alternative",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AlternativesTask_id(ctx context.Context, field graphql.CollectedField, obj *model.AlternativesTask) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AlternativesTask_id(ctx, field)
 	if err != nil {
@@ -8509,8 +8583,54 @@ func (ec *executionContext) fieldContext_AlternativesTask_alternatives(ctx conte
 				return ec.fieldContext_Alternative_title(ctx, field)
 			case "isCorrect":
 				return ec.fieldContext_Alternative_isCorrect(ctx, field)
+			case "selected":
+				return ec.fieldContext_Alternative_selected(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Alternative", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AlternativesTask_competitionMode(ctx context.Context, field graphql.CollectedField, obj *model.AlternativesTask) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AlternativesTask_competitionMode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CompetitionMode, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AlternativesTask_competitionMode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AlternativesTask",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -19644,7 +19764,7 @@ func (ec *executionContext) _MutationRoot_completeTask(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MutationRoot().CompleteTask(rctx, fc.Args["id"].(string))
+		return ec.resolvers.MutationRoot().CompleteTask(rctx, fc.Args["id"].(string), fc.Args["selectedAlternatives"].([]string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -33374,6 +33494,13 @@ func (ec *executionContext) _Alternative(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "selected":
+
+			out.Values[i] = ec._Alternative_selected(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -33449,6 +33576,13 @@ func (ec *executionContext) _AlternativesTask(ctx context.Context, sel ast.Selec
 				return innerFunc(ctx)
 
 			})
+		case "competitionMode":
+
+			out.Values[i] = ec._AlternativesTask_competitionMode(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

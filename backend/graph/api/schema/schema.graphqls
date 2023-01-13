@@ -133,10 +133,13 @@ type MutationRoot {
 
   sendSupportEmail(title: String!, content: String!, html: String!): Boolean!
 
-  completeTask(id: ID!): Boolean!
+  completeTask(
+    id: ID!,
+    selectedAlternatives: [String!],
+  ): Boolean!
 
-  sendTaskMessage(taskId: ID!, message: String): ID!
-  updateTaskMessage(id: ID!, message: String!): ID!
+  sendTaskMessage(taskId: ID!, message: String): ID! @deprecated(reason: "Replaced wiht \"submittedFreeText\" on completeTask")
+  updateTaskMessage(id: ID!, message: String!): ID! @deprecated(reason: "Replaced wiht \"submittedFreeText\" on completeTask")
 
   sendEpisodeFeedback(episodeId: ID!, message: String, rating: Int): ID!
   updateEpisodeFeedback(id: ID!, message: String, rating: Int): ID!
