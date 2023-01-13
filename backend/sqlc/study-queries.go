@@ -105,19 +105,19 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 		}
 
 		return common.Task{
-			ID:               l.ID,
-			LessonID:         l.LessonID,
-			Title:            title,
-			SecondaryTitle:   secondaryTitle,
-			Description:      description,
-			QuestionType:     l.QuestionType.String,
-			ImageType:        l.ImageType.String,
-			Images:           imagesWithUrl,
-			EpisodeID:        l.EpisodeID,
-			LinkID:           l.LinkID,
-			Type:             l.Type,
-			MultiSelect:      multiSelect,
-			ComptetitionMode: l.CompetitionMode.Bool,
+			ID:              l.ID,
+			LessonID:        l.LessonID,
+			Title:           title,
+			SecondaryTitle:  secondaryTitle,
+			Description:     description,
+			QuestionType:    l.QuestionType.String,
+			ImageType:       l.ImageType.String,
+			Images:          imagesWithUrl,
+			EpisodeID:       l.EpisodeID,
+			LinkID:          l.LinkID,
+			Type:            l.Type,
+			MultiSelect:     multiSelect,
+			CompetitionMode: l.CompetitionMode.Bool,
 		}
 	}), nil
 }

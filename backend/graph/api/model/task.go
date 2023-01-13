@@ -24,7 +24,7 @@ func TaskFrom(ctx context.Context, task *common.Task) Task {
 			return AlternativesTask{
 				ID:              id,
 				Title:           title,
-				CompetitionMode: task.ComptetitionMode,
+				CompetitionMode: task.CompetitionMode,
 			}
 		case common.QuestionTaskTypeText:
 			return TextTask{
