@@ -1,17 +1,32 @@
 <template>
     <div class="p-4 pb-0 w-full h-full">
         <div
+            v-if="task.link.url === 'null'"
             class="h-full flex flex-col justify-center items-center pb-8 embed:pb-52"
         >
-            <p class="w-full text-white text-style-title-1 text-center">
-                {{ task.title }}
+            <h2 class="w-full text-white text-style-title-1 text-center">
+                {{ t("lesson.noLocalGroupFound") }}
+            </h2>
+            <p
+                v-if="task.description"
+                class="text-style-body-1 text-label-3 text-center mt-2"
+            >
+                {{ t("contactLocalBukIfWrong") }}
             </p>
-            <h2
+        </div>
+        <div
+            v-else
+            class="h-full flex flex-col justify-center items-center pb-8 embed:pb-52"
+        >
+            <h2 class="w-full text-white text-style-title-1 text-center">
+                {{ task.title }}
+            </h2>
+            <p
                 v-if="task.description"
                 class="text-style-body-1 text-label-3 text-center mt-2"
             >
                 {{ task.description }}
-            </h2>
+            </p>
             <div class="flex mt-6 flex-grow max-h-48"></div>
             <div class="mx-12">
                 <a

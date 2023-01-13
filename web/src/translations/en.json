@@ -105,7 +105,8 @@
         "textTaskPlaceholder": "Start typing here...",
         "question": "Question",
         "wrongAnswerMessage": "Oh, close. Try again!",
-        "correctAnswerMessage": "Well done!"
+        "correctAnswerMessage": "Well done!",
+        "noLocalGroupFound": "No local group found"
     },
     "cookies": {
         "title": "This website uses cookies",
@@ -136,6 +137,7 @@
         "anonymousInfo": "Your rating will be submitted anonymously",
         "placeholder": "Please be as detailed as possible to help us understand."
     },
+    "contactLocalBukIfWrong": "Contact the person responsible in your local BUK association if you think this is wrong.",
     "thankYou": "Thank you!",
     "yourResponseHasBeenSubmitted": "Your response has been submitted.",
     "sending": "Sending",
