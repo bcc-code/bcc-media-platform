@@ -137,15 +137,7 @@ const tasks = computed(() => {
     return props.lesson.studyLesson.tasks.items
 })
 
-const currentTaskIndex = ref(
-    Math.min(
-        tasks.value.length - 1,
-        props.lesson.studyLesson.progress.completed <
-            props.lesson.studyLesson.progress.total
-            ? props.lesson.studyLesson.progress.completed
-            : 0
-    )
-)
+const currentTaskIndex = ref(0)
 const currentTask = computed(() => tasks.value[currentTaskIndex.value])
 const isLastTask = computed(
     () => currentTaskIndex.value + 1 == tasks.value.length
