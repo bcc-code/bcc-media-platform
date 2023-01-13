@@ -204,7 +204,9 @@ ON CONFLICT (id) DO UPDATE SET message    = EXCLUDED.message,
                                updated_at = EXCLUDED.updated_at;
 
 -- name: SetAnswerLock :exec
-UPDATE users.taskanswers
-SET locked = @locked::bool
-WHERE task_id = @task_id::uuid
-  AND profile_id = @profile_id::uuid;
+UPDATE users.taskanswers SET locked = @locked::bool WHERE (task_id, profile_id) IN (SELECT ta.task_id, ta.profile_id FROM users.taskanswers ta
+LEFT JOIN public.tasks t ON ta.task_id = t.id
+WHERE
+ta.profile_id = @profile_id::uuid AND
+t.lesson_id = @lesson_id::uuid AND
+t.competition_mode = true);

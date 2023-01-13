@@ -238,8 +238,8 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 	return true, nil
 }
 
-// LockTaskAnswer is the resolver for the lockTaskAnswer field.
-func (r *mutationRootResolver) LockTaskAnswer(ctx context.Context, id string) (bool, error) {
+// LockLessonAnswers is the resolver for the lockLessonAnswers field.
+func (r *mutationRootResolver) LockLessonAnswers(ctx context.Context, id string) (bool, error) {
 	p, err := getProfile(ctx)
 	if err != nil {
 		return false, err
@@ -248,7 +248,7 @@ func (r *mutationRootResolver) LockTaskAnswer(ctx context.Context, id string) (b
 	err = r.Queries.SetAnswerLock(ctx, sqlc.SetAnswerLockParams{
 		Locked:    true,
 		ProfileID: p.ID,
-		TaskID:    utils.AsUuid(id),
+		LessonID:  utils.AsUuid(id),
 	})
 
 	return err == nil, err

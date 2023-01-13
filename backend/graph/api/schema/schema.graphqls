@@ -138,7 +138,7 @@ type MutationRoot {
     selectedAlternatives: [String!],
   ): Boolean!
 
-  lockTaskAnswer(id: ID!) : Boolean!
+  lockLessonAnswers(id: ID!) : Boolean!
 
   sendTaskMessage(taskId: ID!, message: String): ID!
   updateTaskMessage(id: ID!, message: String!): ID!

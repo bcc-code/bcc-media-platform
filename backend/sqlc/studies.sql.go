@@ -92,20 +92,22 @@ func (q *Queries) GetSelectedAlternativesAndLockStatus(ctx context.Context, arg 
 }
 
 const setAnswerLock = `-- name: SetAnswerLock :exec
-UPDATE users.taskanswers
-SET locked = $1::bool
-WHERE task_id = $2::uuid
-  AND profile_id = $3::uuid
+UPDATE users.taskanswers SET locked = $1::bool WHERE (task_id, profile_id) IN (SELECT ta.task_id, ta.profile_id FROM users.taskanswers ta
+LEFT JOIN public.tasks t ON ta.task_id = t.id
+WHERE
+ta.profile_id = $2::uuid AND
+t.lesson_id = $3::uuid AND
+t.competition_mode = true)
 `
 
 type SetAnswerLockParams struct {
 	Locked    bool      `db:"locked" json:"locked"`
-	TaskID    uuid.UUID `db:"task_id" json:"taskID"`
 	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
+	LessonID  uuid.UUID `db:"lesson_id" json:"lessonID"`
 }
 
 func (q *Queries) SetAnswerLock(ctx context.Context, arg SetAnswerLockParams) error {
-	_, err := q.db.ExecContext(ctx, setAnswerLock, arg.Locked, arg.TaskID, arg.ProfileID)
+	_, err := q.db.ExecContext(ctx, setAnswerLock, arg.Locked, arg.ProfileID, arg.LessonID)
 	return err
 }
 

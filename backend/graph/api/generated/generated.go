@@ -503,7 +503,7 @@ type ComplexityRoot struct {
 	MutationRoot struct {
 		CompleteTask          func(childComplexity int, id string, selectedAlternatives []string) int
 		ConfirmAchievement    func(childComplexity int, id string) int
-		LockTaskAnswer        func(childComplexity int, id string) int
+		LockLessonAnswers     func(childComplexity int, id string) int
 		SendEpisodeFeedback   func(childComplexity int, episodeID string, message *string, rating *int) int
 		SendSupportEmail      func(childComplexity int, title string, content string, html string) int
 		SendTaskMessage       func(childComplexity int, taskID string, message *string) int
@@ -969,7 +969,7 @@ type MutationRootResolver interface {
 	SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int, context *model.EpisodeContext) (*model.Episode, error)
 	SendSupportEmail(ctx context.Context, title string, content string, html string) (bool, error)
 	CompleteTask(ctx context.Context, id string, selectedAlternatives []string) (bool, error)
-	LockTaskAnswer(ctx context.Context, id string) (bool, error)
+	LockLessonAnswers(ctx context.Context, id string) (bool, error)
 	SendTaskMessage(ctx context.Context, taskID string, message *string) (string, error)
 	UpdateTaskMessage(ctx context.Context, id string, message string) (string, error)
 	SendEpisodeFeedback(ctx context.Context, episodeID string, message *string, rating *int) (string, error)
@@ -3046,17 +3046,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MutationRoot.ConfirmAchievement(childComplexity, args["id"].(string)), true
 
-	case "MutationRoot.lockTaskAnswer":
-		if e.complexity.MutationRoot.LockTaskAnswer == nil {
+	case "MutationRoot.lockLessonAnswers":
+		if e.complexity.MutationRoot.LockLessonAnswers == nil {
 			break
 		}
 
-		args, err := ec.field_MutationRoot_lockTaskAnswer_args(context.TODO(), rawArgs)
+		args, err := ec.field_MutationRoot_lockLessonAnswers_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.MutationRoot.LockTaskAnswer(childComplexity, args["id"].(string)), true
+		return e.complexity.MutationRoot.LockLessonAnswers(childComplexity, args["id"].(string)), true
 
 	case "MutationRoot.sendEpisodeFeedback":
 		if e.complexity.MutationRoot.SendEpisodeFeedback == nil {
@@ -5663,7 +5663,7 @@ type MutationRoot {
     selectedAlternatives: [String!],
   ): Boolean!
 
-  lockTaskAnswer(id: ID!) : Boolean!
+  lockLessonAnswers(id: ID!) : Boolean!
 
   sendTaskMessage(taskId: ID!, message: String): ID!
   updateTaskMessage(id: ID!, message: String!): ID!
@@ -6489,7 +6489,7 @@ func (ec *executionContext) field_MutationRoot_confirmAchievement_args(ctx conte
 	return args, nil
 }
 
-func (ec *executionContext) field_MutationRoot_lockTaskAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_MutationRoot_lockLessonAnswers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -19891,8 +19891,8 @@ func (ec *executionContext) fieldContext_MutationRoot_completeTask(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _MutationRoot_lockTaskAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MutationRoot_lockTaskAnswer(ctx, field)
+func (ec *executionContext) _MutationRoot_lockLessonAnswers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_lockLessonAnswers(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -19905,7 +19905,7 @@ func (ec *executionContext) _MutationRoot_lockTaskAnswer(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MutationRoot().LockTaskAnswer(rctx, fc.Args["id"].(string))
+		return ec.resolvers.MutationRoot().LockLessonAnswers(rctx, fc.Args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19922,7 +19922,7 @@ func (ec *executionContext) _MutationRoot_lockTaskAnswer(ctx context.Context, fi
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MutationRoot_lockTaskAnswer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MutationRoot_lockLessonAnswers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MutationRoot",
 		Field:      field,
@@ -19939,7 +19939,7 @@ func (ec *executionContext) fieldContext_MutationRoot_lockTaskAnswer(ctx context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_MutationRoot_lockTaskAnswer_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_MutationRoot_lockLessonAnswers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -36807,10 +36807,10 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "lockTaskAnswer":
+		case "lockLessonAnswers":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._MutationRoot_lockTaskAnswer(ctx, field)
+				return ec._MutationRoot_lockLessonAnswers(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
