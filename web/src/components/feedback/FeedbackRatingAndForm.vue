@@ -5,7 +5,7 @@
             :class="!sent ? '' : 'pointer-events-none opacity-30'"
         />
 
-        <FeedbackBottomSheet
+        <FeedbackModal
             v-model:visible="bottomSheet"
             v-model:selected="selectedRating"
             :episode-id="episodeId"
@@ -17,7 +17,7 @@
 import { ref, watch } from "vue"
 import FeedbackRating from "./FeedbackRating.vue"
 
-import FeedbackBottomSheet from "./FeedbackBottomSheet.vue"
+import FeedbackModal from "./FeedbackModal.vue"
 
 defineProps<{
     episodeId: string
@@ -36,6 +36,8 @@ const registerSent = () => {
 }
 
 watch(selectedRating, (value) => {
-    bottomSheet.value = true
+    if (value != null) {
+        bottomSheet.value = true
+    }
 })
 </script>
