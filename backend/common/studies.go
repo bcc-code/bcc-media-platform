@@ -95,6 +95,7 @@ func (i QuestionAlternative) GetKey() uuid.UUID {
 type SelectedAlternatives struct {
 	ID       uuid.UUID
 	Selected []uuid.UUID
+	Locked   bool
 }
 
 // GetKey returns the key for this item

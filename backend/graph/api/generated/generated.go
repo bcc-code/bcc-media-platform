@@ -135,6 +135,7 @@ type ComplexityRoot struct {
 		CompetitionMode func(childComplexity int) int
 		Completed       func(childComplexity int) int
 		ID              func(childComplexity int) int
+		Locked          func(childComplexity int) int
 		Title           func(childComplexity int) int
 	}
 
@@ -848,6 +849,8 @@ type AchievementGroupResolver interface {
 type AlternativesTaskResolver interface {
 	Completed(ctx context.Context, obj *model.AlternativesTask) (bool, error)
 	Alternatives(ctx context.Context, obj *model.AlternativesTask) ([]*model.Alternative, error)
+
+	Locked(ctx context.Context, obj *model.AlternativesTask) (bool, error)
 }
 type AnalyticsResolver interface {
 	AnonymousID(ctx context.Context, obj *model.Analytics) (string, error)
@@ -1290,6 +1293,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AlternativesTask.ID(childComplexity), true
+
+	case "AlternativesTask.locked":
+		if e.complexity.AlternativesTask.Locked == nil {
+			break
+		}
+
+		return e.complexity.AlternativesTask.Locked(childComplexity), true
 
 	case "AlternativesTask.title":
 		if e.complexity.AlternativesTask.Title == nil {
@@ -5784,6 +5794,7 @@ type AlternativesTask implements Task {
     completed: Boolean! @goField(forceResolver: true)
     alternatives: [Alternative!]! @goField(forceResolver: true)
     competitionMode: Boolean!
+    locked: Boolean! @goField(forceResolver: true)
 }
 
 type Alternative {
@@ -8629,6 +8640,50 @@ func (ec *executionContext) fieldContext_AlternativesTask_competitionMode(ctx co
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AlternativesTask_locked(ctx context.Context, field graphql.CollectedField, obj *model.AlternativesTask) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AlternativesTask_locked(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.AlternativesTask().Locked(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AlternativesTask_locked(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AlternativesTask",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
 		},
@@ -33583,6 +33638,26 @@ func (ec *executionContext) _AlternativesTask(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "locked":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AlternativesTask_locked(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

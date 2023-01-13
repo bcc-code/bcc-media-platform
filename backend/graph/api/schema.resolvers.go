@@ -186,7 +186,7 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 	}
 
 	if task.CompetitionMode {
-		storedIds, err := r.Loaders.CompletedTasksLoader.Get(ctx, p.ID)
+		storedIds, err := r.Loaders.CompletedAndLockedTasksLoader.Get(ctx, p.ID)
 		if err != nil {
 			return false, err
 		}

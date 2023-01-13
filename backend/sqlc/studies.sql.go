@@ -50,33 +50,34 @@ func (q *Queries) GetAnsweredTasks(ctx context.Context, arg GetAnsweredTasksPara
 	return items, nil
 }
 
-const getSelectedAlternatives = `-- name: GetSelectedAlternatives :many
-SELECT ta.task_id, ta.selected_alternatives::uuid[] as selected_alternatives
+const getSelectedAlternativesAndLockStatus = `-- name: GetSelectedAlternativesAndLockStatus :many
+SELECT ta.task_id, ta.selected_alternatives::uuid[] as selected_alternatives, ta.locked as locked
 FROM "users"."taskanswers" ta
 WHERE ta.profile_id = $1
   AND ta.task_id = ANY ($2::uuid[])
 `
 
-type GetSelectedAlternativesParams struct {
+type GetSelectedAlternativesAndLockStatusParams struct {
 	ProfileID uuid.UUID   `db:"profile_id" json:"profileID"`
 	TaskIds   []uuid.UUID `db:"task_ids" json:"taskIds"`
 }
 
-type GetSelectedAlternativesRow struct {
+type GetSelectedAlternativesAndLockStatusRow struct {
 	TaskID               uuid.UUID   `db:"task_id" json:"taskID"`
 	SelectedAlternatives []uuid.UUID `db:"selected_alternatives" json:"selectedAlternatives"`
+	Locked               bool        `db:"locked" json:"locked"`
 }
 
-func (q *Queries) GetSelectedAlternatives(ctx context.Context, arg GetSelectedAlternativesParams) ([]GetSelectedAlternativesRow, error) {
-	rows, err := q.db.QueryContext(ctx, getSelectedAlternatives, arg.ProfileID, pq.Array(arg.TaskIds))
+func (q *Queries) GetSelectedAlternativesAndLockStatus(ctx context.Context, arg GetSelectedAlternativesAndLockStatusParams) ([]GetSelectedAlternativesAndLockStatusRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSelectedAlternativesAndLockStatus, arg.ProfileID, pq.Array(arg.TaskIds))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetSelectedAlternativesRow
+	var items []GetSelectedAlternativesAndLockStatusRow
 	for rows.Next() {
-		var i GetSelectedAlternativesRow
-		if err := rows.Scan(&i.TaskID, pq.Array(&i.SelectedAlternatives)); err != nil {
+		var i GetSelectedAlternativesAndLockStatusRow
+		if err := rows.Scan(&i.TaskID, pq.Array(&i.SelectedAlternatives), &i.Locked); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -130,6 +131,43 @@ type SetTaskCompletedParams struct {
 func (q *Queries) SetTaskCompleted(ctx context.Context, arg SetTaskCompletedParams) error {
 	_, err := q.db.ExecContext(ctx, setTaskCompleted, arg.ProfileID, arg.TaskID, pq.Array(arg.SelectedAlternatives))
 	return err
+}
+
+const getCompletedAndLockedTasks = `-- name: getCompletedAndLockedTasks :many
+SELECT a.task_id as id, a.profile_id as parent_id
+FROM users.taskanswers a
+LEFT JOIN public.tasks t on a.task_id = t.id
+WHERE a.profile_id = ANY ($1::uuid[]) AND
+		a.locked = true AND
+		t.competition_mode = true
+`
+
+type getCompletedAndLockedTasksRow struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getCompletedAndLockedTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getCompletedAndLockedTasksRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCompletedAndLockedTasks, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getCompletedAndLockedTasksRow
+	for rows.Next() {
+		var i getCompletedAndLockedTasksRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getCompletedLessons = `-- name: getCompletedLessons :many

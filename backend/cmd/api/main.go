@@ -373,9 +373,10 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		UnconfirmedAchievementsLoader:      batchloaders.NewRelationLoader(queries.GetUnconfirmedAchievementsForProfiles, batchloaders.WithMemoryCache(time.Second*30)),
 		AchievementGroupAchievementsLoader: batchloaders.NewRelationLoader(queries.GetAchievementsForGroups),
 
-		CompletedTopicsLoader:  batchloaders.NewRelationLoader(queries.GetCompletedTopics),
-		CompletedLessonsLoader: batchloaders.NewRelationLoader(queries.GetCompletedLessons),
-		CompletedTasksLoader:   batchloaders.NewRelationLoader(queries.GetCompletedTasks),
+		CompletedTopicsLoader:         batchloaders.NewRelationLoader(queries.GetCompletedTopics),
+		CompletedLessonsLoader:        batchloaders.NewRelationLoader(queries.GetCompletedLessons),
+		CompletedTasksLoader:          batchloaders.NewRelationLoader(queries.GetCompletedTasks),
+		CompletedAndLockedTasksLoader: batchloaders.NewRelationLoader(queries.GetCompletedAndLockedTasks, batchloaders.WithMemoryCache(time.Second*30)),
 
 		ComputedDataLoader: batchloaders.NewListLoader(queries.GetComputedDataForGroups, func(i common.ComputedData) uuid.UUID {
 			return i.GroupID
