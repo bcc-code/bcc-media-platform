@@ -138,8 +138,8 @@ type MutationRoot {
     selectedAlternatives: [String!],
   ): Boolean!
 
-  sendTaskMessage(taskId: ID!, message: String): ID! @deprecated(reason: "Replaced wiht \"submittedFreeText\" on completeTask")
-  updateTaskMessage(id: ID!, message: String!): ID! @deprecated(reason: "Replaced wiht \"submittedFreeText\" on completeTask")
+  sendTaskMessage(taskId: ID!, message: String): ID!
+  updateTaskMessage(id: ID!, message: String!): ID!
 
   sendEpisodeFeedback(episodeId: ID!, message: String, rating: Int): ID!
   updateEpisodeFeedback(id: ID!, message: String, rating: Int): ID!
