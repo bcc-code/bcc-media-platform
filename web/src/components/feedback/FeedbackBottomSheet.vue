@@ -169,4 +169,8 @@ const sendFeedback = async () => {
     text-decoration: none;
     text-transform: none;
 }
+
+:root {
+    --contents-height: 100vh;
+}
 </style>
