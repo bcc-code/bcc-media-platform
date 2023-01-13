@@ -75,7 +75,8 @@ FROM tasks t
          LEFT JOIN ts ON ts.tasks_id = t.id
          LEFT JOIN images ON images.task_id = t.id
 WHERE t.status = 'published'
-  AND t.id = ANY ($1::uuid[]);
+  AND t.id = ANY ($1::uuid[])
+ORDER BY t.sort;
 
 -- name: getLessonsForItemsInCollection :many
 SELECT rl.lessons_id AS id,
