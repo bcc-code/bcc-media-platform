@@ -196,7 +196,7 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		}
 	}
 
-	selectedUUIDs := []uuid.UUID{}
+	var selectedUUIDs []uuid.UUID
 	if selectedAlternatives != nil {
 		// Optional
 		errs := []error{}
@@ -223,6 +223,10 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 	if err != nil {
 		return false, err
 	}
+
+	// TODO: Clear cache, but this is the wrong key
+	//pr := r.GetProfileLoaders(ctx)
+	//pr.GetSelectedAlternativesLoader.Clear(ctx, p.ID)
 
 	r.Loaders.CompletedTasksLoader.Clear(ctx, p.ID)
 	r.Loaders.CompletedLessonsLoader.Clear(ctx, p.ID)

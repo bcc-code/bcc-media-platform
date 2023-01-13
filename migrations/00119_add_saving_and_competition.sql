@@ -14,7 +14,7 @@ COMMENT ON COLUMN "public"."tasks"."competition_mode"  IS NULL;
 
 --- BEGIN ALTER TABLE "users"."taskanswers" ---
 
-ALTER TABLE IF EXISTS "users"."taskanswers" ADD COLUMN IF NOT EXISTS "selected_alternatives" _uuid NULL DEFAULT '{}'::uuid[] ;
+ALTER TABLE IF EXISTS "users"."taskanswers" ADD COLUMN IF NOT EXISTS "selected_alternatives" _uuid NULL;
 
 COMMENT ON COLUMN "users"."taskanswers"."selected_alternatives"  IS NULL;
 

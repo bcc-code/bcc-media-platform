@@ -137,7 +137,7 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 			})
 		}, batchloaders.WithMemoryCache(time.Second*5)),
 		AchievementAchievedAtLoader:   batchloaders.New(profileQueries.GetAchievementsAchievedAt, batchloaders.WithMemoryCache(time.Second*5)),
-		GetSelectedAlternativesLoader: batchloaders.New(profileQueries.GetSelectedAlternatives, batchloaders.WithMemoryCache(time.Second*10)),
+		GetSelectedAlternativesLoader: batchloaders.New(profileQueries.GetSelectedAlternatives, batchloaders.WithMemoryCache(time.Second*5)),
 	}
 
 	profilesLoaderCache.Set(profileID, loaders, cache.WithExpiration(time.Minute*5))
