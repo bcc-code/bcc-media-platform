@@ -76,7 +76,7 @@
                     :disabled="!anyPreviousStep"
                     color="secondary"
                 >
-                    Back
+                    {{ t("buttons.back") }}
                 </VButton>
                 <VButton
                     class="w-full"
@@ -90,8 +90,10 @@
                             class="fill-white text-center inline"
                         ></Loader
                     ></template>
-                    <template v-else-if="isLastTask">Done</template>
-                    <template v-else>Next</template>
+                    <template v-else-if="isLastTask">{{
+                        t("buttons.continue")
+                    }}</template>
+                    <template v-else>{{ t("buttons.next") }}</template>
                 </VButton>
             </div>
         </div>

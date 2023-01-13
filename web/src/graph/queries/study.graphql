@@ -17,6 +17,7 @@ fragment Task on Task {
     }
     ... on LinkTask {
         secondaryTitle
+        description
         link {
             type
             title

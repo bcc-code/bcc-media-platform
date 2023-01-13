@@ -35,7 +35,7 @@
             <div v-else v-show="!fetching" class="px-4 mb-10">
                 <div class="mt-8">
                     <h2 class="text-style-title-2">
-                        {{ t("feedback.episodeTitle") }}
+                        {{ t("feedback.howEasyToUnderstand") }}
                     </h2>
                     <p class="mt-1 text-style-body-2 text-label-3">
                         {{ t("feedback.anonymousInfo") }}

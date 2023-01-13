@@ -76,7 +76,7 @@
                         v-if="!feedbackSentPreviously || feedbackSentNow"
                     >
                         <h2 class="text-style-title-2">
-                            {{ t("feedback.episodeTitle") }}
+                            {{ t("feedback.howEasyToUnderstand") }}
                         </h2>
                         <p class="mt-1 text-style-body-2 text-label-3">
                             {{ t("feedback.anonymousInfo") }}

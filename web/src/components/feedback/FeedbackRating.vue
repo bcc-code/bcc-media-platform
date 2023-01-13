@@ -2,7 +2,7 @@
     <div class="flex gap-x-1">
         <div
             v-for="opt in [0, 1, 2, 3, 4]"
-            class="flex-1 h-16 w-16 p-3 pb-4 pb-5 flex items-center justify-center bg-background-2 text-3xl"
+            class="flex-1 h-16 w-16 p-3 flex items-center justify-center bg-background-2 text-3xl"
             :class="[
                 opt === 0 ? 'rounded-l-xl' : '',
                 opt === 4 ? 'rounded-r-xl' : '',
