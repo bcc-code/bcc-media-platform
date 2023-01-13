@@ -305,3 +305,22 @@ func (q *Queries) GetCompletedTopics(ctx context.Context, profileIDs []uuid.UUID
 		return relation[uuid.UUID, uuid.UUID](i)
 	}), nil
 }
+
+// GetSelectedAlternatives returns the alternatives a user selected on a given questions
+func (pq *ProfileQueries) GetSelectedAlternatives(ctx context.Context, ids []uuid.UUID) ([]common.SelectedAlternatives, error) {
+	rows, err := pq.queries.GetSelectedAlternatives(ctx, GetSelectedAlternativesParams{
+		ProfileID: pq.profileID,
+		TaskIds:   ids,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(rows, func(i GetSelectedAlternativesRow, _ int) common.SelectedAlternatives {
+		return common.SelectedAlternatives{
+			ID:       i.TaskID,
+			Selected: i.SelectedAlternatives,
+		}
+	}), nil
+}
