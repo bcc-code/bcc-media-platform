@@ -224,10 +224,6 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		return false, err
 	}
 
-	// TODO: Clear cache, but this is the wrong key
-	//pr := r.GetProfileLoaders(ctx)
-	//pr.GetSelectedAlternativesLoader.Clear(ctx, p.ID)
-
 	r.Loaders.CompletedTasksLoader.Clear(ctx, p.ID)
 	r.Loaders.CompletedLessonsLoader.Clear(ctx, p.ID)
 
@@ -240,6 +236,22 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		return true, err
 	}
 	return true, nil
+}
+
+// LockTaskAnswer is the resolver for the lockTaskAnswer field.
+func (r *mutationRootResolver) LockTaskAnswer(ctx context.Context, id string) (bool, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	err = r.Queries.SetAnswerLock(ctx, sqlc.SetAnswerLockParams{
+		Locked:    true,
+		ProfileID: p.ID,
+		TaskID:    utils.AsUuid(id),
+	})
+
+	return err == nil, err
 }
 
 // SendTaskMessage is the resolver for the sendTaskMessage field.

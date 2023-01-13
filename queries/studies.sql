@@ -202,3 +202,9 @@ VALUES ($1, $2, $3, NOW(), NOW(), $4)
 ON CONFLICT (id) DO UPDATE SET message    = EXCLUDED.message,
                                metadata   = EXCLUDED.metadata,
                                updated_at = EXCLUDED.updated_at;
+
+-- name: SetAnswerLock :exec
+UPDATE users.taskanswers
+SET locked = @locked::bool
+WHERE task_id = @task_id::uuid
+  AND profile_id = @profile_id::uuid;

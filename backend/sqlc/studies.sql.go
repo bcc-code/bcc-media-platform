@@ -91,6 +91,24 @@ func (q *Queries) GetSelectedAlternativesAndLockStatus(ctx context.Context, arg 
 	return items, nil
 }
 
+const setAnswerLock = `-- name: SetAnswerLock :exec
+UPDATE users.taskanswers
+SET locked = $1::bool
+WHERE task_id = $2::uuid
+  AND profile_id = $3::uuid
+`
+
+type SetAnswerLockParams struct {
+	Locked    bool      `db:"locked" json:"locked"`
+	TaskID    uuid.UUID `db:"task_id" json:"taskID"`
+	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
+}
+
+func (q *Queries) SetAnswerLock(ctx context.Context, arg SetAnswerLockParams) error {
+	_, err := q.db.ExecContext(ctx, setAnswerLock, arg.Locked, arg.TaskID, arg.ProfileID)
+	return err
+}
+
 const setMessage = `-- name: SetMessage :exec
 INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at, metadata)
 VALUES ($1, $2, $3, NOW(), NOW(), $4)
