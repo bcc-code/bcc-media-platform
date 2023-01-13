@@ -1,7 +1,7 @@
 <template>
     <div class="p-4 pb-0 w-full h-full">
         <div
-            v-if="task.link.url === 'null'"
+            v-if="task.link.url === 'no-local-group-found'"
             class="h-full flex flex-col justify-center items-center pb-8 embed:pb-52"
         >
             <h2 class="w-full text-white text-style-title-1 text-center">
