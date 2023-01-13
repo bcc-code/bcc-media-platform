@@ -14,9 +14,6 @@ class Settings implements TSettings {
     }
 
     private set settings(v) {
-        const { accepted } = useCookies()
-        if (!accepted.value) return
-
         localStorage.setItem("settings", JSON.stringify(v))
     }
 

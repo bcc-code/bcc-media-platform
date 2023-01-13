@@ -1,138 +1,138 @@
 {
     "buttons": {
-        "save": "",
-        "login": "",
-        "logout": "",
-        "stayLoggedOut": "",
-        "cancel": "",
-        "submit": "",
-        "back": "",
-        "next": "",
-        "continue": "",
-        "close": "",
-        "download": "",
-        "goTo": "",
-        "send": ""
+        "save": "Speichern",
+        "login": "Einloggen",
+        "logout": "Ausloggen",
+        "stayLoggedOut": "Abgemeldet bleiben",
+        "cancel": "Abbrechen",
+        "submit": "Bestätige",
+        "back": "Zurück",
+        "next": "Weiter",
+        "continue": "Weiter",
+        "close": "Schließen",
+        "download": "Herunterladen",
+        "goTo": "Gehe zu",
+        "send": "Senden"
     },
     "error": {
-        "couldntSendYourMessage": "",
-        "somethingWentWrong": "",
-        "checkNetwork": ""
+        "couldntSendYourMessage": "Deine Nachricht konnte nicht gesendet werden",
+        "somethingWentWrong": "Etwas ist schief gelaufen.",
+        "checkNetwork": "Überprüfe deine Internetverbindung und versuche es noch einmal."
     },
     "dashboard": {
-        "loggedOut": ""
+        "loggedOut": "Du wurdest abgemeldet"
     },
     "page": {
-        "home": "",
-        "search": "",
-        "live": "",
-        "calendar": "",
-        "faq": "",
-        "notFound": "",
-        "explore": "",
-        "watchNow": "",
-        "aboutUs": ""
+        "home": "Home",
+        "search": "Suchen",
+        "live": "Live ",
+        "calendar": "Kalender",
+        "faq": "FAQ",
+        "notFound": "Seite nicht gefunden",
+        "explore": "Erkunden",
+        "watchNow": "Schaue es jetzt",
+        "aboutUs": "Über uns"
     },
     "section": {
         "item": {
-            "episode": "",
-            "season": ""
+            "episode": "0 Folgen | 1 Folge | {count} Folgen",
+            "season": "0 Staffeln | 1 Staffel | {count} Staffeln"
         }
     },
     "notFound": {
-        "title": "",
-        "description": "",
-        "returnHome": ""
+        "title": "Nicht gefunden",
+        "description": "Vielleicht bist du nicht eingeloggt oder dir fehlen Rechte.",
+        "returnHome": "Gehe zur Startseite"
     },
     "common": {
-        "new": "",
-        "newEpisodes": ""
+        "new": "Neu",
+        "newEpisodes": "Neue Folgen"
     },
     "episode": {
-        "details": "",
-        "episode": "",
-        "episodes": "",
-        "videos": "",
-        "seriesDescription": "",
-        "releaseDate": "",
-        "availableFrom": "",
-        "availableTo": "",
-        "ageRating": "",
-        "notFound": "",
-        "comingSoon": "",
+        "details": "Details",
+        "episode": "Folge",
+        "episodes": "Folgen",
+        "videos": "Videos",
+        "seriesDescription": "Serienbeschreibung",
+        "releaseDate": "Veröffentlichsdatum",
+        "availableFrom": "Verfügbar ab",
+        "availableTo": "Verfügbar bis",
+        "ageRating": "Bewertung",
+        "notFound": "Folge nicht gefunden",
+        "comingSoon": "Kommt in Kürze",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
-            "exploreContent": ""
+            "oops": "Ups!",
+            "mustBeLoggedIn": "Du musst angemeldet sein, um diesen Inhalt zu schauen",
+            "otherContent": "Keine Sorge, es gibt noch genug anderen Inhalt!",
+            "exploreContent": "Entdecke den Inhalt"
         }
     },
     "live": {
-        "now": ""
+        "now": "Jetzt"
     },
     "calendar": {
-        "noScheduledEvents": "",
-        "thisWeek": "",
-        "timeTableIsLocalTime": ""
+        "noScheduledEvents": "Keine geplanten Veranstaltungen",
+        "thisWeek": "Diese Woche",
+        "timeTableIsLocalTime": "Das Tv Programm ist deiner Ortszeit angepasst."
     },
     "search": {
-        "programs": "",
-        "episodes": "",
-        "cancel": "",
-        "emptyQuery": "",
-        "noResults": "",
-        "tryAdjustingQuery": ""
+        "programs": "Programme",
+        "episodes": "Folgen",
+        "cancel": "Abbrechen",
+        "emptyQuery": "Suchverlauf ist leer.",
+        "noResults": "Keine Suchergebnisse",
+        "tryAdjustingQuery": "Versuche, die Suchanfrage abzuändern"
     },
     "support": {
-        "contact": "",
-        "title": "",
-        "subject": "",
-        "content": "",
-        "describeIssue": ""
+        "contact": "Support kontaktieren",
+        "title": "Titel",
+        "subject": "Thema",
+        "content": "Inhalt",
+        "describeIssue": "Beschreibe dein Problem im Detail."
     },
     "lesson": {
-        "related": "",
+        "related": "Ähnlicher Inhalt",
         "watchAgain": {
-            "title": "",
-            "description": "",
-            "button": ""
+            "title": "Schaue noch ein Mal",
+            "description": "Für ein tieferes Verständnis empfehlen wir, das Video mehr als einmal anzuschauen.",
+            "button": "Spiele es noch einmal ab"
         },
-        "lessonActivityTitle": "",
-        "textTaskPlaceholder": "",
-        "question": "",
-        "wrongAnswerMessage": "",
-        "correctAnswerMessage": ""
+        "lessonActivityTitle": "Aufgabe zum Film",
+        "textTaskPlaceholder": "Schreibe deine Gedanken nieder.",
+        "question": "Frage",
+        "wrongAnswerMessage": "Oh, fast. Versuche es noch einmal!",
+        "correctAnswerMessage": "Gut gemacht!"
     },
     "cookies": {
-        "title": "",
-        "description": "",
-        "necessary": "",
-        "preferences": "",
-        "statistics": "",
-        "accept": ""
+        "title": "Diese Webseite verwendet Cookies",
+        "description": "Wir benutzen Informationsdateien (Cookies), um dein Benutzererlebnis auf unserer Seite zu unterstützen. Besuchst du weiterhin unsere Internetseite, stimmst du gleichzeitig unserem Gebrauch von Informationsdateien zu.",
+        "necessary": "Notwendig",
+        "preferences": "Präferenzen",
+        "statistics": "Statistiken",
+        "accept": "Akzeptieren"
     },
     "footer": {
-        "cookies": "",
-        "privacyPolicy": "",
-        "information": "",
-        "headOffice": "",
-        "contactUs": "",
-        "downloadApp": ""
+        "cookies": "Cookies",
+        "privacyPolicy": "Datenschutz",
+        "information": "BCC Media ist eine Media Grundlage im [BCC federation](https://bcc.no), die Inhalt mit positiven und christlichen Werten produziert.\n\nBCC Media ist ein registrierter Sender und befolgt die Vorschriften der norwegischen Sendeverordnung. Die Aufsichtsbehörde für diese Verordnung ist [the Norwegian Media Authority](https://medietilsynet.no/).",
+        "headOffice": "Direktion",
+        "contactUs": "Kontaktiere uns",
+        "downloadApp": "Lade unsere App herunter"
     },
     "share": {
-        "title": "",
-        "copied": "",
-        "membersOnly": ""
+        "title": "Teilen",
+        "copied": "Link in Zwischenablage kopiert",
+        "membersOnly": "Dieses Video ist nur zugänglich für Nutzer, die eingeloggt sind."
     },
     "feedback": {
-        "appreciated": "",
-        "comment": "",
-        "episodeTitle": "",
-        "anonymousInfo": "",
-        "placeholder": ""
+        "appreciated": "Wir schätzen dein Feedback.",
+        "comment": "Füge einen Kommentar zu deinem Erlebnis hinzu",
+        "episodeTitle": "Wie würdest du diese Episode bewerten?",
+        "anonymousInfo": "Deine Bewertung wird anonym eingereicht",
+        "placeholder": "Bitte sei so detailliert wie möglich, sodass wir es verstehen."
     },
-    "thankYou": "",
-    "yourResponseHasBeenSubmitted": "",
-    "sending": "",
-    "defaultInputPlaceholder": ""
+    "thankYou": "Vielen Dank!",
+    "yourResponseHasBeenSubmitted": "Deine Antwort wurde eingereicht.",
+    "sending": "Sendung",
+    "defaultInputPlaceholder": "Schreibe hier..."
 }

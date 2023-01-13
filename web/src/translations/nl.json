@@ -5,7 +5,7 @@
         "logout": "Uitloggen",
         "stayLoggedOut": "Uitgelogd blijven",
         "cancel": "Annuleren",
-        "submit": "Invoeren",
+        "submit": "Indienen",
         "back": "Terug",
         "next": "Volgende",
         "continue": "Doorgaan",
@@ -133,6 +133,6 @@
     },
     "thankYou": "Hartelijk dank!",
     "yourResponseHasBeenSubmitted": "Jouw antwoord is verzonden.",
-    "sending": "Verzenden",
+    "sending": "Aan het verzenden",
     "defaultInputPlaceholder": "Begin hier met typen..."
 }

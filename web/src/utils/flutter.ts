@@ -21,7 +21,7 @@ class FlutterMain {
         return this.webView.callHandler(this.handlerName, "get_access_token")
     }
 
-    getLocale(): Promise<String | null> {
+    getLocale(): Promise<string | null> {
         return this.webView.callHandler(this.handlerName, "get_locale")
     }
 

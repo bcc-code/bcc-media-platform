@@ -1,6 +1,9 @@
 <template>
     <div class="h-screen embedded-page">
-        <router-view v-slot="{ Component }">
+        <div v-if="initializing" class="flex">
+            <div class="m-auto"><Loader variant="spinner"></Loader></div>
+        </div>
+        <router-view v-else v-slot="{ Component }">
             <transition name="slide-fade" mode="out-in">
                 <component :key="$route.name" :is="Component" />
             </transition>
@@ -9,10 +12,27 @@
 </template>
 <script lang="ts" setup>
 import router from "@/router"
+import settings from "@/services/settings"
+import { flutter } from "@/utils/flutter"
+import { onMounted, ref } from "vue"
+import { init } from "@/services/language"
+import Loader from "@/components/Loader.vue"
+
+const initializing = ref(true)
 
 if (!!router.currentRoute.value.query["bg"]) {
     document.body.style.setProperty("--tw-bg-opacity", "1")
 }
+onMounted(async () => {
+    const flutterLocale = await flutter?.getLocale()
+    console.time("embedInitLocale")
+    if (flutterLocale) {
+        settings.locale = flutterLocale
+    }
+    await init()
+    console.timeEnd("embedInitLocale")
+    initializing.value = false
+})
 </script>
 
 <style>
