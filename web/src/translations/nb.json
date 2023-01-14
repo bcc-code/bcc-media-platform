@@ -6,18 +6,18 @@
         "stayLoggedOut": "Forbli utlogget",
         "cancel": "Avbryt",
         "submit": "Send inn",
-        "back": "",
-        "next": "",
-        "continue": "",
-        "close": "",
-        "download": "",
-        "goTo": "",
-        "send": ""
+        "back": "Tilbake",
+        "next": "Neste",
+        "continue": "Fortsett",
+        "close": "Lukk",
+        "download": "Last ned",
+        "goTo": "Gå til",
+        "send": "Send"
     },
     "error": {
-        "couldntSendYourMessage": "",
-        "somethingWentWrong": "",
-        "checkNetwork": ""
+        "couldntSendYourMessage": "Kunne ikke sende meldingen din",
+        "somethingWentWrong": "Noe gikk galt.",
+        "checkNetwork": "Sjekk internettforbindelsen din og prøv igjen."
     },
     "dashboard": {
         "loggedOut": "Du ble logget ut"
@@ -90,6 +90,10 @@
         "content": "Innhold",
         "describeIssue": "Beskriv problemet ditt i detalj."
     },
+    "study": {
+        "startStudy": "Start studie",
+        "continueStudy": "Fortsett studie"
+    },
     "lesson": {
         "related": "Relatert innhold",
         "watchAgain": {
@@ -97,11 +101,12 @@
             "description": "Vi anbefaler å se filmen mer enn en gang for å få en dypere forståelse.",
             "button": "Spill igjen"
         },
-        "lessonActivityTitle": "",
-        "textTaskPlaceholder": "Skriv ned dine tanker og send inn.",
-        "question": "",
-        "wrongAnswerMessage": "",
-        "correctAnswerMessage": ""
+        "lessonActivityTitle": "Oppgaver",
+        "textTaskPlaceholder": "Begynn å skrive her...",
+        "question": "Spørsmål",
+        "wrongAnswerMessage": "Det var nesten. Prøv igjen!",
+        "correctAnswerMessage": "Bra gjort!",
+        "noLocalGroupFound": "Ingen lokal gruppe funnet"
     },
     "cookies": {
         "title": "Dette nettstedet bruker informasjonskapsler",
@@ -114,7 +119,7 @@
     "footer": {
         "cookies": "Informasjonskapsler",
         "privacyPolicy": "Personvernerklæring",
-        "information": "",
+        "information": "BCC Media er en mediestiftelse i BCC-forbundet (https://bcc.no) som produserer og og distribuerer innhold med positive og kristne verdier.\n\nBCC Media er registrert kringkaster og følger reglene i kringkastingsloven. Tilsynsorgan for denne loven er Medietilsynet (https://medietilsynet.no/).",
         "headOffice": "Hovedkontor",
         "contactUs": "Kontakt oss",
         "downloadApp": "Last ned vår app"
@@ -125,14 +130,16 @@
         "membersOnly": "Denne videoen er kun tilgjengelig for brukere som er logget inn."
     },
     "feedback": {
-        "appreciated": "",
-        "comment": "",
-        "episodeTitle": "",
-        "anonymousInfo": "",
-        "placeholder": ""
+        "appreciated": "Vi setter pris på din tilbakemelding.",
+        "comment": "Legg en kommentar til din opplevelse",
+        "episodeTitle": "Hvordan rangerer du denne episoden?",
+        "howEasyToUnderstand": "Hvor enkelt var det å forstå videoen?",
+        "anonymousInfo": "Din tilbakemelding vil bli sendt inn anonymt",
+        "placeholder": "Vær så detaljert som mulig for å hjelpe oss å forstå."
     },
+    "contactLocalBukIfWrong": "Kontakt BUK-ansvarlig i din lokalforening hvis du mener dette er feil.",
     "thankYou": "Tusen takk!",
     "yourResponseHasBeenSubmitted": "Ditt svar er sendt inn.",
-    "sending": "",
-    "defaultInputPlaceholder": ""
+    "sending": "Sender",
+    "defaultInputPlaceholder": "Begynn å skrive her..."
 }

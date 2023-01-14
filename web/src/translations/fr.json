@@ -90,6 +90,10 @@
         "content": "Contenu",
         "describeIssue": "Décris ton problème de manière détaillée."
     },
+    "study": {
+        "startStudy": "Commencer l'étude",
+        "continueStudy": "Continuer l'étude"
+    },
     "lesson": {
         "related": "Ressources connexes",
         "watchAgain": {
@@ -98,10 +102,11 @@
             "button": "Rejouer"
         },
         "lessonActivityTitle": "Activité de la leçon",
-        "textTaskPlaceholder": "Noter et soumettre ses idées.",
+        "textTaskPlaceholder": "Commence à écrire ici...",
         "question": "Question",
         "wrongAnswerMessage": "Oh, c'est fermé. Tente à nouveau !",
-        "correctAnswerMessage": "Bien joué !"
+        "correctAnswerMessage": "Bien joué !",
+        "noLocalGroupFound": "Aucun groupe local trouvé"
     },
     "cookies": {
         "title": "Ce site web utilise des cookies",
@@ -128,9 +133,11 @@
         "appreciated": "Nous apprécions tes commentaires.",
         "comment": "Ajouter un commentaire sur ton expérience",
         "episodeTitle": "Comment évalues-tu cet épisode ?",
+        "howEasyToUnderstand": "La vidéo était-elle facile à comprendre ?",
         "anonymousInfo": "Ta note sera soumise de manière anonyme",
         "placeholder": "Merci d'être le plus précis possible pour nous aider à comprendre."
     },
+    "contactLocalBukIfWrong": "Contacte la personne responsable de ton association locale BUK si tu penses qu'il s'agit d'une erreur.",
     "thankYou": "Merci beaucoup !",
     "yourResponseHasBeenSubmitted": "Ta réponse a été envoyée.",
     "sending": "Envoi en cours",

@@ -90,6 +90,10 @@
         "content": "Inhoud",
         "describeIssue": "Beschrijf je probleem in detail."
     },
+    "study": {
+        "startStudy": "Start studie",
+        "continueStudy": "Doorgaan met studie"
+    },
     "lesson": {
         "related": "Gerelateerde resultaten",
         "watchAgain": {
@@ -98,10 +102,11 @@
             "button": "Speel nogmaals af"
         },
         "lessonActivityTitle": "Les activiteit",
-        "textTaskPlaceholder": "Schrijf je gedachten op en stuur ze op.",
+        "textTaskPlaceholder": "Begin hier met typen...",
         "question": "Vraag",
         "wrongAnswerMessage": "O, bijna. Probeer opnieuw!",
-        "correctAnswerMessage": "Goed gedaan!"
+        "correctAnswerMessage": "Goed gedaan!",
+        "noLocalGroupFound": ""
     },
     "cookies": {
         "title": "Deze website maakt gebruik van cookies",
@@ -128,9 +133,11 @@
         "appreciated": "We stellen je feedback op prijs.",
         "comment": "Voeg een commentaar toe aan je ervaring",
         "episodeTitle": "Hoe zou je deze aflevering beoordelen?",
+        "howEasyToUnderstand": "",
         "anonymousInfo": "Je beoordeling zal anoniem opgeslagen worden",
         "placeholder": "Geef zoveel mogelijk details, om ons te helpen je te begrijpen."
     },
+    "contactLocalBukIfWrong": "",
     "thankYou": "Hartelijk dank!",
     "yourResponseHasBeenSubmitted": "Jouw antwoord is verzonden.",
     "sending": "Aan het verzenden",

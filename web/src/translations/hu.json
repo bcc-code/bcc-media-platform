@@ -90,6 +90,10 @@
         "content": "Tartalom",
         "describeIssue": "Írd le részletesen a problémát."
     },
+    "study": {
+        "startStudy": "Tanulmányozás megkezdése",
+        "continueStudy": "Tanulmányozás folytatása"
+    },
     "lesson": {
         "related": "Kapcsolódó források",
         "watchAgain": {
@@ -98,10 +102,11 @@
             "button": "Ismét lejátszás"
         },
         "lessonActivityTitle": "Tanítási tevékenység",
-        "textTaskPlaceholder": "Írd le és küldd el gondolataidat.",
+        "textTaskPlaceholder": "Kezdj elitt gépelni...",
         "question": "Kérdés",
         "wrongAnswerMessage": "Ó, közel. Próbáld újra!",
-        "correctAnswerMessage": "Jól csináltad!"
+        "correctAnswerMessage": "Jól csináltad!",
+        "noLocalGroupFound": ""
     },
     "cookies": {
         "title": "Ez a weboldal cookie-kat használ",
@@ -128,9 +133,11 @@
         "appreciated": "Nagyra értékeljük visszajelzésedet.",
         "comment": "Hozzászólás a tapasztalataihoz",
         "episodeTitle": "Hogyan értékelnéd ezt az epizódot?",
+        "howEasyToUnderstand": "",
         "anonymousInfo": "Az Értékelésed névtelenül kerül átadásra",
         "placeholder": "Kérjük, legyél a lehető legrészletesebb, hogy segítsd a megértést."
     },
+    "contactLocalBukIfWrong": "",
     "thankYou": "Köszönjük!",
     "yourResponseHasBeenSubmitted": "A válaszodat elküldtük.",
     "sending": "Adás",

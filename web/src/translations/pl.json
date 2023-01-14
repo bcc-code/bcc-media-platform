@@ -90,6 +90,10 @@
         "content": "Treść",
         "describeIssue": "Opisz problem ze szczegółami."
     },
+    "study": {
+        "startStudy": "Rozpocznij naukę",
+        "continueStudy": "Kontynuuj naukę"
+    },
     "lesson": {
         "related": "Powiązane materiały",
         "watchAgain": {
@@ -98,10 +102,11 @@
             "button": "Obejrzyj ponownie"
         },
         "lessonActivityTitle": "Aktywność lekcji",
-        "textTaskPlaceholder": "Zapisz i prześlij swoje przemyślenia.",
+        "textTaskPlaceholder": "Pisz tutaj...",
         "question": "Pytanie",
         "wrongAnswerMessage": "Ajj, było blisko. Spróbuj jeszcze raz!",
-        "correctAnswerMessage": "Dobra robota!"
+        "correctAnswerMessage": "Dobra robota!",
+        "noLocalGroupFound": ""
     },
     "cookies": {
         "title": "Ta strona używa ciasteczek",
@@ -128,9 +133,11 @@
         "appreciated": "Doceniamy twój feedback.",
         "comment": "Dodaj komentarz",
         "episodeTitle": "Jak oceniłbyś ten odcinek?",
+        "howEasyToUnderstand": "",
         "anonymousInfo": "Twoja ocena zostanie zapisana anonimowo",
         "placeholder": "Prosimy o szczegółowy opis, który będzie łatwiejszy do zrozumienia."
     },
+    "contactLocalBukIfWrong": "",
     "thankYou": "Dziękujemy!",
     "yourResponseHasBeenSubmitted": "Zapisano twoją odpowiedź.",
     "sending": "Wysyłam",

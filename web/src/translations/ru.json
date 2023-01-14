@@ -90,6 +90,10 @@
         "content": "",
         "describeIssue": ""
     },
+    "study": {
+        "startStudy": "",
+        "continueStudy": ""
+    },
     "lesson": {
         "related": "",
         "watchAgain": {
@@ -101,7 +105,8 @@
         "textTaskPlaceholder": "",
         "question": "",
         "wrongAnswerMessage": "",
-        "correctAnswerMessage": ""
+        "correctAnswerMessage": "",
+        "noLocalGroupFound": ""
     },
     "cookies": {
         "title": "",
@@ -128,9 +133,11 @@
         "appreciated": "",
         "comment": "",
         "episodeTitle": "",
+        "howEasyToUnderstand": "",
         "anonymousInfo": "",
         "placeholder": ""
     },
+    "contactLocalBukIfWrong": "",
     "thankYou": "",
     "yourResponseHasBeenSubmitted": "",
     "sending": "",

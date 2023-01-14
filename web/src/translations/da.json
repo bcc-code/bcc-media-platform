@@ -90,6 +90,10 @@
         "content": "Indhold",
         "describeIssue": "Beskriv dit problem i detaljer."
     },
+    "study": {
+        "startStudy": "Start",
+        "continueStudy": "Fortsæt"
+    },
     "lesson": {
         "related": "Relateret indhold\n",
         "watchAgain": {
@@ -98,10 +102,11 @@
             "button": "Afspil igen"
         },
         "lessonActivityTitle": "Aktivitet til filmen",
-        "textTaskPlaceholder": "Skriv ned og indsend dine tanker",
+        "textTaskPlaceholder": "Begynd at skrive her...",
         "question": "Spørgsmål",
         "wrongAnswerMessage": "Det var tæt på! Prøv igen.",
-        "correctAnswerMessage": "Godt klaret!"
+        "correctAnswerMessage": "Godt klaret!",
+        "noLocalGroupFound": ""
     },
     "cookies": {
         "title": "Denne hjemmeside bruger cookies ",
@@ -128,9 +133,11 @@
         "appreciated": "Vi sætter pris på din feedback.",
         "comment": "Tilføj en kommentar til din oplevelse",
         "episodeTitle": "Hvordan vil du vurdere denne episode?",
+        "howEasyToUnderstand": "",
         "anonymousInfo": "Din vurdering vil blive indsendt anonymt",
         "placeholder": "Vær så detaljeret som muligt for at hjælpe os med at forstå."
     },
+    "contactLocalBukIfWrong": "",
     "thankYou": "Mange tak!",
     "yourResponseHasBeenSubmitted": "Dit svar er blevet sendt.",
     "sending": "Sender",

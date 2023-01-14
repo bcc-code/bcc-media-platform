@@ -90,6 +90,10 @@
         "content": "Vsebina",
         "describeIssue": "Podrobno opiši težavo."
     },
+    "study": {
+        "startStudy": "Začni preučevanje",
+        "continueStudy": "Nadaljuj preučevanje"
+    },
     "lesson": {
         "related": "Povezane možnosti",
         "watchAgain": {
@@ -98,10 +102,11 @@
             "button": "Predvajaj znova"
         },
         "lessonActivityTitle": "Aktivnost lekcije",
-        "textTaskPlaceholder": "Napiši in oddaj svoje mnenje.",
+        "textTaskPlaceholder": "Napiši tukaj ...",
         "question": "Vprašanje",
         "wrongAnswerMessage": "Oh, skoraj. Poskusi znova!",
-        "correctAnswerMessage": "Bravo!"
+        "correctAnswerMessage": "Bravo!",
+        "noLocalGroupFound": ""
     },
     "cookies": {
         "title": "Ta spletna stran uporablja piškotke",
@@ -128,9 +133,11 @@
         "appreciated": "Cenimo tvojo povratno informacijo.",
         "comment": "Dodaj komentar k tvoji izkušnji",
         "episodeTitle": "Kako bi ocenil ta del?",
+        "howEasyToUnderstand": "",
         "anonymousInfo": "Tvoja ocena je anonimna",
         "placeholder": "Za lažje razumevanje, prosim, napiši čim več podrobnosti."
     },
+    "contactLocalBukIfWrong": "",
     "thankYou": "Hvala!",
     "yourResponseHasBeenSubmitted": "Tvoj odgovor je bil oddan.",
     "sending": "Pošiljam",

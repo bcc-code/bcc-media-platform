@@ -90,6 +90,10 @@
         "content": "Conţinut",
         "describeIssue": "Descrie problema in detaliu."
     },
+    "study": {
+        "startStudy": "",
+        "continueStudy": ""
+    },
     "lesson": {
         "related": "",
         "watchAgain": {
@@ -101,7 +105,8 @@
         "textTaskPlaceholder": "",
         "question": "Întrebare",
         "wrongAnswerMessage": "",
-        "correctAnswerMessage": "Bună treabă!"
+        "correctAnswerMessage": "Bună treabă!",
+        "noLocalGroupFound": ""
     },
     "cookies": {
         "title": "",
@@ -128,9 +133,11 @@
         "appreciated": "",
         "comment": "",
         "episodeTitle": "",
+        "howEasyToUnderstand": "",
         "anonymousInfo": "",
         "placeholder": ""
     },
+    "contactLocalBukIfWrong": "",
     "thankYou": "Mulțumim!",
     "yourResponseHasBeenSubmitted": "",
     "sending": "Se trimite",

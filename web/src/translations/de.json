@@ -90,6 +90,10 @@
         "content": "Inhalt",
         "describeIssue": "Beschreibe dein Problem im Detail."
     },
+    "study": {
+        "startStudy": "",
+        "continueStudy": ""
+    },
     "lesson": {
         "related": "Ähnlicher Inhalt",
         "watchAgain": {
@@ -98,10 +102,11 @@
             "button": "Spiele es noch einmal ab"
         },
         "lessonActivityTitle": "Aufgabe zum Film",
-        "textTaskPlaceholder": "Schreibe deine Gedanken nieder.",
+        "textTaskPlaceholder": "Schreibe hier...",
         "question": "Frage",
         "wrongAnswerMessage": "Oh, fast. Versuche es noch einmal!",
-        "correctAnswerMessage": "Gut gemacht!"
+        "correctAnswerMessage": "Gut gemacht!",
+        "noLocalGroupFound": ""
     },
     "cookies": {
         "title": "Diese Webseite verwendet Cookies",
@@ -128,9 +133,11 @@
         "appreciated": "Wir schätzen dein Feedback.",
         "comment": "Füge einen Kommentar zu deinem Erlebnis hinzu",
         "episodeTitle": "Wie würdest du diese Episode bewerten?",
+        "howEasyToUnderstand": "",
         "anonymousInfo": "Deine Bewertung wird anonym eingereicht",
         "placeholder": "Bitte sei so detailliert wie möglich, sodass wir es verstehen."
     },
+    "contactLocalBukIfWrong": "",
     "thankYou": "Vielen Dank!",
     "yourResponseHasBeenSubmitted": "Deine Antwort wurde eingereicht.",
     "sending": "Sendung",
