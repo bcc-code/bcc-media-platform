@@ -115,7 +115,8 @@ WITH ts AS (SELECT questionalternatives_id, json_object_agg(languages_code, titl
 SELECT qa.id, qa.title as original_title, qa.task_id, qa.is_correct, ts.title
 FROM questionalternatives qa
          LEFT JOIN ts ON ts.questionalternatives_id = qa.id
-WHERE qa.task_id = ANY ($1::uuid[]);
+WHERE qa.task_id = ANY ($1::uuid[])
+ORDER BY qa.sort;
 
 -- name: getLessonsForTopics :many
 SELECT l.id, l.topic_id AS parent_id

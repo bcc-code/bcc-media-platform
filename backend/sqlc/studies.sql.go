@@ -494,6 +494,7 @@ SELECT qa.id, qa.title as original_title, qa.task_id, qa.is_correct, ts.title
 FROM questionalternatives qa
          LEFT JOIN ts ON ts.questionalternatives_id = qa.id
 WHERE qa.task_id = ANY ($1::uuid[])
+ORDER BY qa.sort
 `
 
 type getQuestionAlternativesRow struct {
