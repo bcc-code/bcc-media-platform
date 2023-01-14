@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-screen-sm mx-auto px-32">
+    <div class="max-w-screen-sm mx-auto lg:px-32">
         <router-link
             :to="`/episode/${episodeId}`"
             class="mx-4 flex items-center text-tint-1 text-style-button-2"
