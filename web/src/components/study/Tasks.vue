@@ -107,12 +107,7 @@ import { analytics } from "@/services/analytics"
 import AlternativesTask from "./tasks/AlternativesTask.vue"
 import PosterTask from "./tasks/PosterTask.vue"
 import { flutterStudy } from "@/utils/flutter"
-import {
-    GetStudyLessonQuery,
-    useCompleteTaskMutation,
-    useGetStudyLessonQuery,
-} from "@/graph/generated"
-import { useRoute } from "vue-router"
+import { GetStudyLessonQuery, useCompleteTaskMutation } from "@/graph/generated"
 import TextTask from "./tasks/TextTask.vue"
 import { VButton } from ".."
 import { Page } from "./Lesson.vue"
@@ -128,10 +123,6 @@ const { setTitle } = useTitle()
 const emit = defineEmits<{
     (e: "navigate", i: Page): any
 }>()
-
-function moveToEnd(array: any[], index: number) {
-    return array.push(array.splice(index, 1)[0])
-}
 
 const tasks = computed(() => {
     return props.lesson.studyLesson.tasks.items
@@ -166,16 +157,17 @@ function previousTask() {
 
 const savingTaskProgress = ref(false)
 async function nextTask() {
+    const skipSave = currentTask.value.__typename == "AlternativesTask"
     if (!isLastTask.value) {
         // intentionally not awaiting
-        executeMutation({ taskId: currentTask.value.id })
+        if (!skipSave) executeMutation({ taskId: currentTask.value.id })
         currentTaskIndex.value += 1
         isCurrentStepDone.value = false
     } else {
         // done with the tasks
         // awaiting to avoid race condition with achievements
         savingTaskProgress.value = true
-        await executeMutation({ taskId: currentTask.value.id })
+        if (!skipSave) await executeMutation({ taskId: currentTask.value.id })
         await new Promise((r) => setTimeout(r, 100))
         savingTaskProgress.value = false
         flutterStudy?.tasksCompleted()

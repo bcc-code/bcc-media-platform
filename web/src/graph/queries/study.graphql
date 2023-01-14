@@ -5,8 +5,10 @@ fragment Task on Task {
     completed
     ... on AlternativesTask {
         alternatives {
+            id
             title
             isCorrect
+            selected
         }
     }
     ... on PosterTask {
@@ -87,8 +89,8 @@ query GetStudyTopicLessonStatuses($id: ID!, $first: Int!) {
     }
 }
 
-mutation completeTask($taskId: ID!) {
-    completeTask(id: $taskId)
+mutation completeTask($taskId: ID!, $selectedAlternatives: [String!]) {
+    completeTask(id: $taskId, selectedAlternatives: $selectedAlternatives)
 }
 
 mutation sendTaskMessage($taskId: ID!, $message: String!) {

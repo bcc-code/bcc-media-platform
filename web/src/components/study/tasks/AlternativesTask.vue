@@ -8,7 +8,7 @@
                 :letter="getLetter(i)"
                 :text="alt.title"
                 :correct="alt.isCorrect"
-                @click="() => selectAnswer(i)"
+                @click="() => selectAnswer(alt.id)"
                 :selected="selectedIndex == i"
                 :class="
                     selectedIndex != i && selectedIndex != null
@@ -24,6 +24,9 @@
 import { TaskFragment } from "@/graph/generated"
 import { computed, getCurrentInstance, Ref, ref, watch } from "vue"
 import Alternative from "./Alternative.vue"
+import { useCompleteTaskMutation } from "@/graph/generated"
+
+const { executeMutation } = useCompleteTaskMutation()
 
 const props = defineProps<{
     task: TaskFragment
@@ -39,12 +42,18 @@ const task = computed(() => {
         props.task.__typename == "AlternativesTask" ? props.task : undefined
     )!
 })
-
+/* 
 var selectedIndex = ref<number | undefined>(
     !props.isDone
-        ? undefined
-        : task.value.alternatives.findIndex((s) => s.isCorrect)
-)
+        ? task.value.alternatives.findIndex((s) => s.selected)
+        : undefined
+) */
+
+const selectedIndex = computed(() => {
+    const index = task.value.alternatives.findIndex((s) => s.selected)
+    if (index === -1) return undefined
+    return index
+})
 
 const isDone = computed({
     get() {
@@ -57,14 +66,24 @@ const isDone = computed({
 
 const getLetter = (index: number) => ["A", "B", "C", "D", "E", "F", "G"][index]
 
-watch(selectedIndex, (after, before) => {
-    isDone.value =
-        selectedIndex.value != null
-            ? task.value.alternatives[selectedIndex.value].isCorrect
-            : false
-})
+watch(
+    selectedIndex,
+    (after, before) => {
+        console.log(task.value.alternatives)
+        console.log(selectedIndex.value)
+        isDone.value =
+            selectedIndex.value != null
+                ? task.value.alternatives[selectedIndex.value]?.isCorrect ??
+                  false
+                : false
+    },
+    { immediate: true }
+)
 
-function selectAnswer(answer: number) {
-    selectedIndex.value = answer
+function selectAnswer(id: string) {
+    for (const alt of task.value.alternatives) {
+        alt.selected = id == alt.id
+        executeMutation({ taskId: task.value.id, selectedAlternatives: [id] })
+    }
 }
 </script>
