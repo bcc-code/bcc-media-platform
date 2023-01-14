@@ -28,7 +28,7 @@ export default [
             },
             {
                 name: "episode-lesson-page",
-                path: "episode/:episodeId/lesson/:lessonId/:subRoute?",
+                path: "ep/:episodeId/lesson/:lessonId/:subRoute?",
                 component: () => import("@/pages/episode/EpisodeLesson.vue"),
                 props: true,
             },

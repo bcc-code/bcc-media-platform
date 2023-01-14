@@ -204,7 +204,7 @@ const { error, executeQuery } = useGetEpisodeQuery({
 
 const lesson = computed(() => episode.value?.lessons.items[0])
 const openLesson = () =>
-    router.push("/episode/" + episode.value?.id + "/lesson/" + lesson.value?.id)
+    router.push("/ep/" + episode.value?.id + "/lesson/" + lesson.value?.id)
 
 const noAccess = computed(() => {
     return error.value?.graphQLErrors.some(
