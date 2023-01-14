@@ -36,6 +36,8 @@ const registerSent = () => {
 }
 
 watch(selectedRating, (value) => {
-    bottomSheet.value = true
+    if (value != null) {
+        bottomSheet.value = true
+    }
 })
 </script>
