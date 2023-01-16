@@ -153,6 +153,7 @@ SELECT e.id,
        access.published::bool             AS published,
        access.available_from::timestamp   AS available_from,
        access.available_to::timestamp     AS available_to,
+	   access.published_on::timestamp     AS published_on,
        roles.roles::varchar[]             AS usergroups,
        roles.roles_download::varchar[]    AS usergroups_downloads,
        roles.roles_earlyaccess::varchar[] AS usergroups_earlyaccess

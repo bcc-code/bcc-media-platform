@@ -124,10 +124,11 @@ func (q *Queries) GetPermissionsForEpisodes(ctx context.Context, ids []int) ([]c
 			ItemID: int(i.ID),
 			Type:   common.TypeEpisode,
 			Availability: common.Availability{
-				Unlisted:  i.Unlisted,
-				Published: i.Published,
-				From:      i.AvailableFrom,
-				To:        i.AvailableTo,
+				Unlisted:    i.Unlisted,
+				Published:   i.Published,
+				From:        i.AvailableFrom,
+				To:          i.AvailableTo,
+				PublishedOn: i.PublishedOn,
 			},
 			Roles: common.Roles{
 				Access:      i.Usergroups,

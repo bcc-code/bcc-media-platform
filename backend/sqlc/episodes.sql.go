@@ -346,6 +346,7 @@ SELECT e.id,
        access.published::bool             AS published,
        access.available_from::timestamp   AS available_from,
        access.available_to::timestamp     AS available_to,
+	   access.published_on::timestamp     AS published_on,
        roles.roles::varchar[]             AS usergroups,
        roles.roles_download::varchar[]    AS usergroups_downloads,
        roles.roles_earlyaccess::varchar[] AS usergroups_earlyaccess
@@ -361,6 +362,7 @@ type getPermissionsForEpisodesRow struct {
 	Published             bool      `db:"published" json:"published"`
 	AvailableFrom         time.Time `db:"available_from" json:"availableFrom"`
 	AvailableTo           time.Time `db:"available_to" json:"availableTo"`
+	PublishedOn           time.Time `db:"published_on" json:"publishedOn"`
 	Usergroups            []string  `db:"usergroups" json:"usergroups"`
 	UsergroupsDownloads   []string  `db:"usergroups_downloads" json:"usergroupsDownloads"`
 	UsergroupsEarlyaccess []string  `db:"usergroups_earlyaccess" json:"usergroupsEarlyaccess"`
@@ -381,6 +383,7 @@ func (q *Queries) getPermissionsForEpisodes(ctx context.Context, dollar_1 []int3
 			&i.Published,
 			&i.AvailableFrom,
 			&i.AvailableTo,
+			&i.PublishedOn,
 			pq.Array(&i.Usergroups),
 			pq.Array(&i.UsergroupsDownloads),
 			pq.Array(&i.UsergroupsEarlyaccess),
