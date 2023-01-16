@@ -448,11 +448,13 @@ func (r *Resolver) sendMessage(ctx context.Context, itemID uuid.UUID, message *s
 	if message != nil {
 		str = *message
 	}
+
 	var md pqtype.NullRawMessage
 	if metadata != nil {
 		md.RawMessage, err = json.Encode(ctx, metadata)
-		md.Valid = err != nil
+		md.Valid = err == nil
 	}
+
 	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
 		ID:       id,
 		Message:  str,
