@@ -4,14 +4,15 @@ import (
 	"context"
 	"crypto/rsa"
 	"fmt"
+	"strconv"
+	"sync"
+	"time"
+
 	"github.com/bcc-code/brunstadtv/backend/ratelimit"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/cloudevents/sdk-go/v2/event/datacodec/json"
 	"github.com/google/uuid"
 	"github.com/tabbed/pqtype"
-	"strconv"
-	"sync"
-	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -234,7 +235,7 @@ func resolverFor[k comparable, t any, r any](ctx context.Context, loaders *itemL
 	}
 
 	if t, ok := any(obj).(batchloaders.HasKey[k]); ok && loaders.Permissions != nil {
-		err = user.ValidateAccess(ctx, loaders.Permissions, t.GetKey())
+		err = user.ValidateAccess(ctx, loaders.Permissions, t.GetKey(), user.CheckConditions{})
 		if err != nil {
 			return res, err
 		}
@@ -263,7 +264,7 @@ func itemsResolverFor[k comparable, kr comparable, t any, r any](ctx context.Con
 
 	ids := lo.Map(lo.Filter(itemIds, func(i *k, _ int) bool {
 		if loaders.Permissions != nil {
-			return user.ValidateAccess(ctx, loaders.Permissions, *i) == nil
+			return user.ValidateAccess(ctx, loaders.Permissions, *i, user.CheckConditions{}) == nil
 		}
 		return true
 	}), func(i *k, _ int) k {

@@ -53,10 +53,11 @@ type Roles struct {
 
 // Availability struct for availability on items
 type Availability struct {
-	Unlisted  bool
-	Published bool
-	From      time.Time
-	To        time.Time
+	Unlisted    bool
+	Published   bool
+	From        time.Time
+	To          time.Time
+	PublishedOn time.Time
 }
 
 // AppConfig contains configuration of the app.
