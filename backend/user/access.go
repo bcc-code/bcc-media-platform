@@ -47,7 +47,7 @@ func ValidateAccess[k comparable](
 	roles := perms.Roles
 	availability := perms.Availability
 
-	if len(lo.Intersect(rs, roles.EarlyAccess)) > 0 && availability.Published {
+	if len(lo.Intersect(rs, roles.EarlyAccess)) > 0 && (availability.Published || availability.Unlisted) {
 		return nil
 	}
 
