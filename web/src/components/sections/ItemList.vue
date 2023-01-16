@@ -8,27 +8,38 @@
                     i.id === currentId
                         ? 'bg-red bg-opacity-20 hover:bg-opacity-20'
                         : 'border-opacity-0',
+                    episodeComingSoon(i) ? 'pointer-events-none' : '',
                 ]"
                 @click="$emit('itemClick', i)"
                 :key="i.id"
             >
                 <WithProgressBar
                     v-if="i.duration"
-                    class="w-1/3 aspect-video text-xs rounded-lg overflow-hidden"
+                    class="w-1/3 aspect-video text-xs"
                     :item="{
                         duration: i.duration,
                         progress: i.progress,
                         id: i.id,
                     }"
                 >
+                    <Pill
+                        class="absolute -top-1 -right-1 pointer-events-none"
+                        v-if="episodeComingSoon(i)"
+                        >{{ $t("episode.comingSoon") }}</Pill
+                    >
                     <Image
                         v-if="i.image"
                         :src="i.image"
                         size-source="width"
+                        class="rounded-lg"
+                        :class="episodeComingSoon(i) ? 'opacity-50' : ''"
                         :ratio="9 / 16"
                     />
                 </WithProgressBar>
-                <div class="w-2/3 ml-4">
+                <div
+                    class="w-2/3 ml-4"
+                    :class="episodeComingSoon(i) ? 'opacity-50' : ''"
+                >
                     <h1 class="text-sm font-light lg:text-lg line-clamp-2">
                         <span v-if="viewEpisodeNumber && i.number"
                             >{{ i.number }}. </span
@@ -50,6 +61,8 @@ import Image from "../Image.vue"
 import WithProgressBar from "@/components/episodes/WithProgressBar.vue"
 import AgeRating from "../episodes/AgeRating.vue"
 import { ListItem } from "@/utils/lists"
+import Pill from "./item/Pill.vue"
+import { comingSoon, episodeComingSoon } from "@/utils/items"
 
 defineProps<{
     items: ListItem[]

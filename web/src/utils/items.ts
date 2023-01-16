@@ -112,3 +112,7 @@ export const comingSoon = (item: SectionItemFragment) => {
     }
     return false
 }
+
+export const episodeComingSoon = (episode: { publishDate?: string | null | undefined }) => {
+    return episode.publishDate != null && new Date(episode.publishDate).getTime() > new Date().getTime()
+}

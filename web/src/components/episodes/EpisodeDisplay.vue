@@ -47,7 +47,7 @@
                     {{ episode.description }}
                 </div>
                 <LessonButton
-                    v-if="lesson"
+                    v-if="lesson && !episodeComingSoon(episode)"
                     class="mt-4"
                     :lesson="lesson"
                     :episode-id="episode.id"
@@ -160,6 +160,7 @@ import { useAuth } from "@/services/auth"
 import SharePopover from "./SharePopover.vue"
 import LessonButton from "../study/LessonButton.vue"
 import router from "@/router"
+import { episodeComingSoon } from "../../utils/items"
 
 const props = defineProps<{
     initialEpisodeId: string
