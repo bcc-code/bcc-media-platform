@@ -643,6 +643,7 @@ type EpisodeAvailability struct {
 	Published     interface{} `db:"published" json:"published"`
 	AvailableFrom interface{} `db:"available_from" json:"availableFrom"`
 	AvailableTo   interface{} `db:"available_to" json:"availableTo"`
+	PublishedOn   interface{} `db:"published_on" json:"publishedOn"`
 }
 
 type EpisodeRole struct {
@@ -1343,4 +1344,5 @@ type UsersTaskanswer struct {
 	TaskID               uuid.UUID    `db:"task_id" json:"taskID"`
 	UpdatedAt            null_v4.Time `db:"updated_at" json:"updatedAt"`
 	SelectedAlternatives interface{}  `db:"selected_alternatives" json:"selectedAlternatives"`
+	Locked               bool         `db:"locked" json:"locked"`
 }

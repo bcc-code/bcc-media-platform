@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"strconv"
 	"time"
 
@@ -81,8 +82,14 @@ func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *
 
 // Streams is the resolver for the streams field.
 func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*model.Stream, error) {
-	err := user.ValidateAccessWithFrom(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID))
-	if err != nil {
+	var out []*model.Stream
+	err := user.ValidateAccess(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID), user.CheckConditions{
+		FromDate:    true,
+		PublishDate: true,
+	})
+	if errors.Is(err, user.ErrPublishDateInFuture) {
+		return out, nil
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -92,7 +99,6 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 		return nil, err
 	}
 
-	var out []*model.Stream
 	for _, s := range streams {
 		stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
 		if err != nil {
@@ -107,7 +113,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 
 // Files is the resolver for the files field.
 func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode) ([]*model.File, error) {
-	err := user.ValidateAccessWithFrom(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID))
+	err := user.ValidateAccess(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID), user.CheckConditions{FromDate: true})
 	if err != nil {
 		return nil, err
 	}
