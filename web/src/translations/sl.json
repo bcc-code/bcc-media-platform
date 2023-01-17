@@ -106,7 +106,7 @@
         "question": "Vprašanje",
         "wrongAnswerMessage": "Oh, skoraj. Poskusi znova!",
         "correctAnswerMessage": "Bravo!",
-        "noLocalGroupFound": ""
+        "noLocalGroupFound": "Ni bila najdena lokalna ekipa"
     },
     "cookies": {
         "title": "Ta spletna stran uporablja piškotke",
@@ -133,11 +133,11 @@
         "appreciated": "Cenimo tvojo povratno informacijo.",
         "comment": "Dodaj komentar k tvoji izkušnji",
         "episodeTitle": "Kako bi ocenil ta del?",
-        "howEasyToUnderstand": "",
+        "howEasyToUnderstand": "Kako razumljiv je bil ta video?",
         "anonymousInfo": "Tvoja ocena je anonimna",
         "placeholder": "Za lažje razumevanje, prosim, napiši čim več podrobnosti."
     },
-    "contactLocalBukIfWrong": "",
+    "contactLocalBukIfWrong": "Kontaktiraj odgovorno osebo za tvoj BUK, če misliš, da je prišlo do napake.",
     "thankYou": "Hvala!",
     "yourResponseHasBeenSubmitted": "Tvoj odgovor je bil oddan.",
     "sending": "Pošiljam",

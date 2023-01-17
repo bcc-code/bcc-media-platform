@@ -57,9 +57,9 @@
         "releaseDate": "Megjelenési dátum",
         "availableFrom": "Elérhető dátumtól:",
         "availableTo": "Elérhető dátumig:",
-        "ageRating": "Értékelés",
+        "ageRating": "Besorolás",
         "notFound": "Epizód nem található",
-        "comingSoon": "Jön hamarosan",
+        "comingSoon": "Hamarosan jön",
         "noAccess": {
             "oops": "Uups!",
             "mustBeLoggedIn": "Be kell jelentkezned, hogy megnézhesd ezt a tartalmat",
@@ -106,7 +106,7 @@
         "question": "Kérdés",
         "wrongAnswerMessage": "Ó, közel. Próbáld újra!",
         "correctAnswerMessage": "Jól csináltad!",
-        "noLocalGroupFound": ""
+        "noLocalGroupFound": "Nem található helyi csoport"
     },
     "cookies": {
         "title": "Ez a weboldal cookie-kat használ",
@@ -131,13 +131,13 @@
     },
     "feedback": {
         "appreciated": "Nagyra értékeljük visszajelzésedet.",
-        "comment": "Hozzászólás a tapasztalataihoz",
+        "comment": "Hozzászólás a tapasztalataidról",
         "episodeTitle": "Hogyan értékelnéd ezt az epizódot?",
-        "howEasyToUnderstand": "",
+        "howEasyToUnderstand": "Mennyire volt könnyű megérteni a videót?",
         "anonymousInfo": "Az Értékelésed névtelenül kerül átadásra",
         "placeholder": "Kérjük, legyél a lehető legrészletesebb, hogy segítsd a megértést."
     },
-    "contactLocalBukIfWrong": "",
+    "contactLocalBukIfWrong": "Ha úgy gondolod, hogy ez nem helyes, vedd fel a kapcsolatot a helyi BUK-szövetség illetékesével.",
     "thankYou": "Köszönjük!",
     "yourResponseHasBeenSubmitted": "A válaszodat elküldtük.",
     "sending": "Adás",

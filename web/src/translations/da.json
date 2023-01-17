@@ -106,7 +106,7 @@
         "question": "Spørgsmål",
         "wrongAnswerMessage": "Det var tæt på! Prøv igen.",
         "correctAnswerMessage": "Godt klaret!",
-        "noLocalGroupFound": ""
+        "noLocalGroupFound": "Ingen lokal gruppe fundet"
     },
     "cookies": {
         "title": "Denne hjemmeside bruger cookies ",
@@ -133,11 +133,11 @@
         "appreciated": "Vi sætter pris på din feedback.",
         "comment": "Tilføj en kommentar til din oplevelse",
         "episodeTitle": "Hvordan vil du vurdere denne episode?",
-        "howEasyToUnderstand": "",
+        "howEasyToUnderstand": "Hvor let var det at forstå videoen?",
         "anonymousInfo": "Din vurdering vil blive indsendt anonymt",
         "placeholder": "Vær så detaljeret som muligt for at hjælpe os med at forstå."
     },
-    "contactLocalBukIfWrong": "",
+    "contactLocalBukIfWrong": "Kontakt ansvarlig person i din lokale BUK-forening hvis du tror dette er forkert.",
     "thankYou": "Mange tak!",
     "yourResponseHasBeenSubmitted": "Dit svar er blevet sendt.",
     "sending": "Sender",

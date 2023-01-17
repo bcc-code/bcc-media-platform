@@ -106,7 +106,7 @@
         "question": "Vraag",
         "wrongAnswerMessage": "O, bijna. Probeer opnieuw!",
         "correctAnswerMessage": "Goed gedaan!",
-        "noLocalGroupFound": ""
+        "noLocalGroupFound": "Geen lokale groep gevonden"
     },
     "cookies": {
         "title": "Deze website maakt gebruik van cookies",
@@ -133,11 +133,11 @@
         "appreciated": "We stellen je feedback op prijs.",
         "comment": "Voeg een commentaar toe aan je ervaring",
         "episodeTitle": "Hoe zou je deze aflevering beoordelen?",
-        "howEasyToUnderstand": "",
+        "howEasyToUnderstand": "Hoe makkelijk was het om de film te begrijpen?",
         "anonymousInfo": "Je beoordeling zal anoniem opgeslagen worden",
         "placeholder": "Geef zoveel mogelijk details, om ons te helpen je te begrijpen."
     },
-    "contactLocalBukIfWrong": "",
+    "contactLocalBukIfWrong": "Neem contact op met de verantwoordelijke in jouw lokale BUK-vereniging als je denkt dat dit niet klopt.",
     "thankYou": "Hartelijk dank!",
     "yourResponseHasBeenSubmitted": "Jouw antwoord is verzonden.",
     "sending": "Aan het verzenden",

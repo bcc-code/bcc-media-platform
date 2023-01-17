@@ -99,14 +99,14 @@
         "watchAgain": {
             "title": "",
             "description": "",
-            "button": ""
+            "button": "Посмотреть снова"
         },
         "lessonActivityTitle": "",
         "textTaskPlaceholder": "",
         "question": "",
         "wrongAnswerMessage": "",
         "correctAnswerMessage": "",
-        "noLocalGroupFound": ""
+        "noLocalGroupFound": "Локальная группа не найдена"
     },
     "cookies": {
         "title": "",
@@ -133,11 +133,11 @@
         "appreciated": "",
         "comment": "",
         "episodeTitle": "",
-        "howEasyToUnderstand": "",
+        "howEasyToUnderstand": "Насколько легко было понять видео?",
         "anonymousInfo": "",
         "placeholder": ""
     },
-    "contactLocalBukIfWrong": "",
+    "contactLocalBukIfWrong": "Свяжитесь с ответственным за BUK в вашей поместной церкви, если считаете, что здесь есть ошибка.",
     "thankYou": "",
     "yourResponseHasBeenSubmitted": "",
     "sending": "",

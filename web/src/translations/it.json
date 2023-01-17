@@ -106,7 +106,7 @@
         "question": "Domanda",
         "wrongAnswerMessage": "Oh, chiudi. Riprova!",
         "correctAnswerMessage": "Ben fatto!",
-        "noLocalGroupFound": ""
+        "noLocalGroupFound": "Nessun gruppo locale trovato"
     },
     "cookies": {
         "title": "Questo sito web utilizza i cookie",
@@ -133,11 +133,11 @@
         "appreciated": "Apprezziamo il tuo feedback.",
         "comment": "Aggiungi un commento alla tua esperienza",
         "episodeTitle": "Come giudichi questo episodio?",
-        "howEasyToUnderstand": "",
+        "howEasyToUnderstand": "Quanto è stato facile capire il video?",
         "anonymousInfo": "La tua valutazione sarà inviata in forma anonima",
         "placeholder": "Sii il più dettagliato possibile per aiutarci a capire."
     },
-    "contactLocalBukIfWrong": "",
+    "contactLocalBukIfWrong": "Contatta la persona responsabile nella tua associazione BUK locale se pensi che questo sia sbagliato.",
     "thankYou": "Grazie!",
     "yourResponseHasBeenSubmitted": "La tua risposta è stata inviata.",
     "sending": "Invio",

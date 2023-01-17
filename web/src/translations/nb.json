@@ -52,13 +52,13 @@
         "details": "Detaljer",
         "episode": "Episode",
         "episodes": "Episoder",
-        "videos": "Filmer",
+        "videos": "Videoer",
         "seriesDescription": "Seriebeskrivelse",
         "releaseDate": "Utgivelsesdato",
         "availableFrom": "Tilgjengelig fra",
         "availableTo": "Tilgjengelig til",
         "ageRating": "Vurdering",
-        "notFound": "Finner ikke episoden",
+        "notFound": "Episode ikke funnet",
         "comingSoon": "Kommer snart",
         "noAccess": {
             "oops": "Uups!",
@@ -71,17 +71,17 @@
         "now": "Nå"
     },
     "calendar": {
-        "noScheduledEvents": "Ingen planlagte hendelser",
+        "noScheduledEvents": "Ingen planlagte sendinger",
         "thisWeek": "Denne uken",
-        "timeTableIsLocalTime": "Tidstabell er i din lokale tid."
+        "timeTableIsLocalTime": "Tidspunkter er oppgitt i din lokaltid."
     },
     "search": {
         "programs": "Programmer",
         "episodes": "Episoder",
         "cancel": "Avbryt",
         "emptyQuery": "Søkefeltet er tomt.",
-        "noResults": "Ingen treff på søk",
-        "tryAdjustingQuery": "Prøv med annet søkeord"
+        "noResults": "Ingen treff på søkordet",
+        "tryAdjustingQuery": "Prøv med et annet søkeord"
     },
     "support": {
         "contact": "Kontakt support",
@@ -99,9 +99,9 @@
         "watchAgain": {
             "title": "Se igjen",
             "description": "Vi anbefaler å se filmen mer enn en gang for å få en dypere forståelse.",
-            "button": "Spill igjen"
+            "button": "Spill av igjen"
         },
-        "lessonActivityTitle": "Oppgaver",
+        "lessonActivityTitle": "Oppgave",
         "textTaskPlaceholder": "Begynn å skrive her...",
         "question": "Spørsmål",
         "wrongAnswerMessage": "Det var nesten. Prøv igjen!",
@@ -131,7 +131,7 @@
     },
     "feedback": {
         "appreciated": "Vi setter pris på din tilbakemelding.",
-        "comment": "Legg en kommentar til din opplevelse",
+        "comment": "Legg til en kommentar til din opplevelse",
         "episodeTitle": "Hvordan rangerer du denne episoden?",
         "howEasyToUnderstand": "Hvor enkelt var det å forstå videoen?",
         "anonymousInfo": "Din tilbakemelding vil bli sendt inn anonymt",
