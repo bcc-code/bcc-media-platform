@@ -14,13 +14,16 @@
                 :key="i.id"
             >
                 <WithProgressBar
-                    v-if="i.duration"
                     class="w-1/3 aspect-video text-xs"
-                    :item="{
-                        duration: i.duration,
-                        progress: i.progress,
-                        id: i.id,
-                    }"
+                    :item="
+                        i.duration == null
+                            ? undefined
+                            : {
+                                  duration: i.duration,
+                                  progress: i.progress,
+                                  id: i.id,
+                              }
+                    "
                 >
                     <Pill
                         class="absolute -top-1 -right-1 pointer-events-none"

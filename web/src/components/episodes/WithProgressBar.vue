@@ -2,6 +2,7 @@
     <div class="relative">
         <slot></slot>
         <ProgressBar
+            v-if="item"
             class="absolute bottom-0 w-full"
             :item="item"
         ></ProgressBar>
@@ -11,6 +12,6 @@
 import ProgressBar from "./ProgressBar.vue"
 
 defineProps<{
-    item: { id: string; progress?: number | null; duration: number }
+    item?: { id: string; progress?: number | null; duration: number }
 }>()
 </script>
