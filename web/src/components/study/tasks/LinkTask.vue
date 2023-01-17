@@ -1,7 +1,7 @@
 <template>
     <div class="p-4 pb-0 w-full h-full">
         <div
-            v-if="task.link.url === 'no-local-group-found'"
+            v-if="showNoLocalGroupFound"
             class="h-full flex flex-col justify-center items-center pb-8 embed:pb-52"
         >
             <h2 class="w-full text-white text-style-title-1 text-center">
@@ -28,13 +28,8 @@
                 {{ task.description }}
             </p>
             <div class="flex mt-6 flex-grow max-h-48"></div>
-            <div class="mx-12">
-                <a
-                    href="#"
-                    @click="openLink"
-                    class="flex justify-center"
-                    v-if="task.link.image"
-                >
+            <div class="mx-12 cursor-pointer" @click="openLink">
+                <a href="#" class="flex justify-center" v-if="task.link.image">
                     <img :src="task.link.image ?? ''" />
                 </a>
                 <h2 class="text-style-title-2 text-on-tint text-center">
@@ -76,12 +71,14 @@
 <script lang="ts" setup>
 import { VButton } from "@/components"
 import { TaskFragment, useCompleteTaskMutation } from "@/graph/generated"
-import { computed, onMounted } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { openInBrowser } from "@/utils/flutter"
 
 const { t } = useI18n()
 const { executeMutation: completeTask } = useCompleteTaskMutation()
+
+const showNoLocalGroupFound = ref(false)
 
 const props = defineProps<{
     task: TaskFragment
@@ -99,6 +96,10 @@ const task = computed(() => {
 console.log(task.value.title)
 
 const openLink = () => {
+    if (task.value.link.url === "no-local-group-found") {
+        showNoLocalGroupFound.value = true
+        return
+    }
     completeTask({ taskId: task.value.id })
     openInBrowser(task.value.link.url)
 }
