@@ -455,12 +455,25 @@ func (r *Resolver) sendMessage(ctx context.Context, itemID uuid.UUID, message *s
 		md.Valid = err == nil
 	}
 
-	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
+	insertParams := sqlc.SetMessageParams{
 		ID:       id,
 		Message:  str,
 		ItemID:   itemID,
 		Metadata: md,
-	})
+	}
+
+	gc, err := utils.GinCtx(ctx)
+	if err != nil {
+		log.L.Warn().Err(err).Msg("sendMessage is unable to get GinCtx")
+	} else {
+		usr := user.GetFromCtx(gc)
+		if len(usr.ChurchIDs) > 0 {
+			insertParams.OrgID = int32(usr.ChurchIDs[0])
+		}
+		insertParams.AgeGroup = usr.AgeGroup
+	}
+
+	err = r.Queries.SetMessage(ctx, insertParams)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to save string to database")
 		return "", merry.New("Failed to generate unique ID")

@@ -91,8 +91,8 @@ func (q *Queries) GetSelectedAlternatives(ctx context.Context, arg GetSelectedAl
 }
 
 const setMessage = `-- name: SetMessage :exec
-INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at, metadata)
-VALUES ($1, $2, $3, NOW(), NOW(), $4)
+INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at, metadata, age_group, org_id)
+VALUES ($1, $2, $3, NOW(), NOW(), $4, $5::TEXT, $6::int4)
 ON CONFLICT (id) DO UPDATE SET message    = EXCLUDED.message,
                                metadata   = EXCLUDED.metadata,
                                updated_at = EXCLUDED.updated_at
@@ -103,6 +103,8 @@ type SetMessageParams struct {
 	ItemID   uuid.UUID             `db:"item_id" json:"itemID"`
 	Message  string                `db:"message" json:"message"`
 	Metadata pqtype.NullRawMessage `db:"metadata" json:"metadata"`
+	AgeGroup string                `db:"age_group" json:"ageGroup"`
+	OrgID    int32                 `db:"org_id" json:"orgID"`
 }
 
 func (q *Queries) SetMessage(ctx context.Context, arg SetMessageParams) error {
@@ -111,6 +113,8 @@ func (q *Queries) SetMessage(ctx context.Context, arg SetMessageParams) error {
 		arg.ItemID,
 		arg.Message,
 		arg.Metadata,
+		arg.AgeGroup,
+		arg.OrgID,
 	)
 	return err
 }
