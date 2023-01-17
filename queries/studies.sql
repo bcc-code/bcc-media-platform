@@ -190,8 +190,8 @@ VALUES ($1, $2, @selected_alternatives::uuid[], NOW())
 ON CONFLICT (profile_id, task_id) DO UPDATE SET updated_at = EXCLUDED.updated_at, selected_alternatives = @selected_alternatives::uuid[];
 
 -- name: SetMessage :exec
-INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at, metadata)
-VALUES ($1, $2, $3, NOW(), NOW(), $4)
+INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at, metadata, age_group, org_id)
+VALUES ($1, $2, $3, NOW(), NOW(), $4, @age_group::TEXT, @org_id::int4)
 ON CONFLICT (id) DO UPDATE SET message    = EXCLUDED.message,
                                metadata   = EXCLUDED.metadata,
                                updated_at = EXCLUDED.updated_at;

@@ -1319,6 +1319,8 @@ type UsersMessage struct {
 	CreatedAt time.Time             `db:"created_at" json:"createdAt"`
 	UpdatedAt null_v4.Time          `db:"updated_at" json:"updatedAt"`
 	Metadata  pqtype.NullRawMessage `db:"metadata" json:"metadata"`
+	AgeGroup  null_v4.String        `db:"age_group" json:"ageGroup"`
+	OrgID     null_v4.Int           `db:"org_id" json:"orgID"`
 }
 
 type UsersProfile struct {
@@ -1344,5 +1346,4 @@ type UsersTaskanswer struct {
 	TaskID               uuid.UUID    `db:"task_id" json:"taskID"`
 	UpdatedAt            null_v4.Time `db:"updated_at" json:"updatedAt"`
 	SelectedAlternatives interface{}  `db:"selected_alternatives" json:"selectedAlternatives"`
-	Locked               bool         `db:"locked" json:"locked"`
 }

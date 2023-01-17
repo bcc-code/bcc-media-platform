@@ -2,14 +2,15 @@ package user
 
 import (
 	"context"
+	"strconv"
+	"time"
+
 	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/go-redis/redis/v9"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/google/uuid"
 	"github.com/vmihailenco/msgpack/v5"
-	"strconv"
-	"time"
 
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
@@ -181,10 +182,12 @@ func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) fun
 			log.L.Error().Err(err).Msg("Error parsing birthday of user")
 		} else {
 			u.Age = time.Now().Year() - birthDate.Year()
+			ageGrpupMin := 0
 			for minAge, group := range ageGroups {
-				if u.Age > minAge {
+				// Note: Maps are not iterated in a sorted order so we have to find the lowed applicable
+				if u.Age > minAge && minAge > ageGrpupMin {
 					u.AgeGroup = group
-					break
+					ageGrpupMin = minAge
 				}
 			}
 		}
@@ -328,6 +331,7 @@ func NewProfileMiddleware(queries *sqlc.Queries, client *redis.Client) func(*gin
 			log.L.Error().Err(err).Msg("Failed to retrieve profiles from loader")
 			return
 		}
+
 		profileID := ctx.GetHeader("x-profile")
 		profile, found := lo.Find(profiles, func(p common.Profile) bool {
 			return p.ID.String() == profileID || p.Name == profileID
