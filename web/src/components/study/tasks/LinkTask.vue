@@ -101,7 +101,9 @@ const openLink = () => {
         return
     }
     completeTask({ taskId: task.value.id })
-    openInBrowser(task.value.link.url)
+    openInBrowser(
+        task.value.link.url.replace("https://t.me/+", "https://t.me/joinchat/")
+    )
 }
 onMounted(async () => {
     emit(`update:isDone`, true)
