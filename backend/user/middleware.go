@@ -193,7 +193,7 @@ func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) fun
 		}
 
 		u.ChurchIDs = lo.Map(lo.Filter(member.Affiliations, func(i members.Affiliation, _ int) bool {
-			return i.Active && i.Type == "Member" && i.OrgType == "Church"
+			return i.Active && i.OrgType == "Church"
 		}), func(i members.Affiliation, _ int) int {
 			return i.OrgID
 		})
