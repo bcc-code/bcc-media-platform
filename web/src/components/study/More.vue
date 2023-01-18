@@ -76,7 +76,7 @@
                         v-if="!feedbackSentPreviously || feedbackSentNow"
                     >
                         <h2 class="text-style-title-2">
-                            {{ t("feedback.howEasyToUnderstand") }}
+                            {{ t("feedback.episodeTitle") }}
                         </h2>
                         <p class="mt-1 text-style-body-2 text-label-3">
                             {{ t("feedback.anonymousInfo") }}
@@ -91,7 +91,10 @@
                 </div>
             </div>
         </template>
-        <div class="my-4" v-if="lesson.studyLesson.links.items.length > 0">
+        <div
+            class="my-4 embed:mb-24"
+            v-if="lesson.studyLesson.links.items.length > 0"
+        >
             <p class="ml-4 text-white text-style-title-1">
                 {{ t("lesson.related") }}
             </p>
