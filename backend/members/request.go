@@ -6,9 +6,14 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/ansel1/merry/v2"
 )
+
+var httpClient = &http.Client{
+	Timeout: time.Second * 3,
+}
 
 func sendRequest[t any](ctx context.Context, client *Client, req *http.Request) (*result[t], error) {
 	token, err := client.tokenProvider.GetToken(ctx, client.domain)
@@ -17,7 +22,7 @@ func sendRequest[t any](ctx context.Context, client *Client, req *http.Request) 
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
