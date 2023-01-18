@@ -17,7 +17,7 @@
         </template>
         <template v-else-if="isDone">
             <div
-                class="flex flex-col items-center justify-center w-full h-full pb-12 embed:pb-24"
+                class="flex flex-col items-center justify-center w-full h-full pb-12 embed:pb-44"
             >
                 <p class="w-full text-white text-style-title-1 text-center">
                     {{ t("thankYou") }}
