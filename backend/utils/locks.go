@@ -1,27 +1,28 @@
 package utils
 
 import (
+	"sync"
+
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/go-redsync/redsync/v4"
-	"sync"
 )
 
 var mapLock = &sync.Mutex{}
-var locks = map[string]*sync.Mutex{}
+var locks = sync.Map{}
 
 // Lock returns a new stored lock
 func Lock(key string) *sync.Mutex {
-	lock, ok := locks[key]
+	lock, ok := locks.Load(key)
 	if !ok {
 		mapLock.Lock()
 		defer mapLock.Unlock()
-		lock, ok = locks[key]
+		lock, ok = locks.Load(key)
 		if !ok {
 			lock = &sync.Mutex{}
-			locks[key] = lock
+			locks.Store(key, lock)
 		}
 	}
-	return lock
+	return lock.(*sync.Mutex)
 }
 
 // UnlockRedisLock unlocks the specified lock
