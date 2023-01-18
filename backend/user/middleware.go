@@ -140,9 +140,25 @@ func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) fun
 		pid := ctx.GetString(auth0.CtxPersonID)
 		intID, _ := strconv.ParseInt(pid, 10, 32)
 
+		roles = append(roles, RoleRegistered)
+		if ctx.GetBool(auth0.CtxIsBCCMember) {
+			roles = append(roles, RoleBCCMember)
+		}
+
+		u := &common.User{
+			PersonID:  pid,
+			Roles:     roles,
+			Anonymous: false,
+			ActiveBCC: ctx.GetBool(auth0.CtxIsBCCMember),
+			AgeGroup:  "unknown",
+		}
+
 		member, err := membersClient.Lookup(ctx, int(intID))
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to retrieve user")
+			span.AddEvent("User failed to load")
+			userCache.Set(userID, u, cache.WithExpiration(1*time.Minute))
+			ctx.Set(CtxUser, u)
 		}
 
 		email := member.Email
@@ -150,12 +166,6 @@ func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) fun
 		if email == "" {
 			// Explicit values make it easier to see that it was intended when debugging
 			email = "<MISSING>"
-		}
-
-		roles = append(roles, RoleRegistered)
-
-		if ctx.GetBool(auth0.CtxIsBCCMember) {
-			roles = append(roles, RoleBCCMember)
 		}
 
 		userRoles, err := GetRolesForEmail(reqCtx, queries, email)
@@ -166,15 +176,8 @@ func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) fun
 			roles = append(roles, userRoles...)
 		}
 
-		u := &common.User{
-			PersonID:    pid,
-			DisplayName: member.DisplayName,
-			Roles:       roles,
-			Email:       email,
-			Anonymous:   false,
-			ActiveBCC:   ctx.GetBool(auth0.CtxIsBCCMember),
-			AgeGroup:    "unknown",
-		}
+		u.Email = email
+		u.DisplayName = member.DisplayName
 
 		// Set AgeGroup and avoid passing identifying information through the application
 		birthDate, err := time.Parse("2006-01-02", member.BirthDate)
