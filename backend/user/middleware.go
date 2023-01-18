@@ -176,6 +176,7 @@ func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) fun
 			roles = append(roles, userRoles...)
 		}
 
+		u.Roles = roles
 		u.Email = email
 		u.DisplayName = member.DisplayName
 
