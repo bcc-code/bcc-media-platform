@@ -31,7 +31,7 @@ func DefaultEpisodeID(ctx context.Context, loaders *common.FilteredLoaders, show
 	}
 	var defaultEpisode string
 	if show.DefaultEpisodeBehaviour.Valid {
-		defaultEpisode = *&show.DefaultEpisodeBehaviour.String
+		defaultEpisode = show.DefaultEpisodeBehaviour.String
 	} else {
 		switch show.Type {
 		case "event":
