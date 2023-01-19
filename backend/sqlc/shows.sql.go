@@ -139,7 +139,8 @@ SELECT sh.id,
        tags.tags::int[]            AS tag_ids,
        COALESCE(images.json, '[]') as images,
        ts.title,
-       ts.description
+       ts.description,
+       sh.default_episode_behaviour
 FROM shows sh
          LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
@@ -149,15 +150,16 @@ WHERE sh.id = ANY ($1::int[])
 `
 
 type getShowsRow struct {
-	ID            int32                 `db:"id" json:"id"`
-	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyID"`
-	Type          string                `db:"type" json:"type"`
-	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
-	PublicTitle   null_v4.String        `db:"public_title" json:"publicTitle"`
-	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
-	Images        json.RawMessage       `db:"images" json:"images"`
-	Title         pqtype.NullRawMessage `db:"title" json:"title"`
-	Description   pqtype.NullRawMessage `db:"description" json:"description"`
+	ID                      int32                 `db:"id" json:"id"`
+	LegacyID                null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	Type                    string                `db:"type" json:"type"`
+	ImageFileName           null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	PublicTitle             null_v4.String        `db:"public_title" json:"publicTitle"`
+	TagIds                  []int32               `db:"tag_ids" json:"tagIds"`
+	Images                  json.RawMessage       `db:"images" json:"images"`
+	Title                   pqtype.NullRawMessage `db:"title" json:"title"`
+	Description             pqtype.NullRawMessage `db:"description" json:"description"`
+	DefaultEpisodeBehaviour null_v4.String        `db:"default_episode_behaviour" json:"defaultEpisodeBehaviour"`
 }
 
 func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]getShowsRow, error) {
@@ -179,6 +181,7 @@ func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]getShowsRow
 			&i.Images,
 			&i.Title,
 			&i.Description,
+			&i.DefaultEpisodeBehaviour,
 		); err != nil {
 			return nil, err
 		}
@@ -250,7 +253,8 @@ SELECT sh.id,
        tags.tags::int[]            AS tag_ids,
        COALESCE(images.json, '[]') as images,
        ts.title,
-       ts.description
+       ts.description,
+       sh.default_episode_behaviour
 FROM shows sh
          LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
@@ -259,15 +263,16 @@ FROM shows sh
 `
 
 type listShowsRow struct {
-	ID            int32                 `db:"id" json:"id"`
-	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyID"`
-	Type          string                `db:"type" json:"type"`
-	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
-	PublicTitle   null_v4.String        `db:"public_title" json:"publicTitle"`
-	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
-	Images        json.RawMessage       `db:"images" json:"images"`
-	Title         pqtype.NullRawMessage `db:"title" json:"title"`
-	Description   pqtype.NullRawMessage `db:"description" json:"description"`
+	ID                      int32                 `db:"id" json:"id"`
+	LegacyID                null_v4.Int           `db:"legacy_id" json:"legacyID"`
+	Type                    string                `db:"type" json:"type"`
+	ImageFileName           null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	PublicTitle             null_v4.String        `db:"public_title" json:"publicTitle"`
+	TagIds                  []int32               `db:"tag_ids" json:"tagIds"`
+	Images                  json.RawMessage       `db:"images" json:"images"`
+	Title                   pqtype.NullRawMessage `db:"title" json:"title"`
+	Description             pqtype.NullRawMessage `db:"description" json:"description"`
+	DefaultEpisodeBehaviour null_v4.String        `db:"default_episode_behaviour" json:"defaultEpisodeBehaviour"`
 }
 
 func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
@@ -289,6 +294,7 @@ func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
 			&i.Images,
 			&i.Title,
 			&i.Description,
+			&i.DefaultEpisodeBehaviour,
 		); err != nil {
 			return nil, err
 		}

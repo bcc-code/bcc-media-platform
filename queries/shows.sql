@@ -22,7 +22,8 @@ SELECT sh.id,
        tags.tags::int[]            AS tag_ids,
        COALESCE(images.json, '[]') as images,
        ts.title,
-       ts.description
+       ts.description,
+       sh.default_episode_behaviour
 FROM shows sh
          LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
@@ -54,7 +55,8 @@ SELECT sh.id,
        tags.tags::int[]            AS tag_ids,
        COALESCE(images.json, '[]') as images,
        ts.title,
-       ts.description
+       ts.description,
+       sh.default_episode_behaviour
 FROM shows sh
          LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
