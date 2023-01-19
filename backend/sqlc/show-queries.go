@@ -24,14 +24,15 @@ func (q *Queries) mapToShows(shows []getShowsRow) []common.Show {
 		}
 
 		return common.Show{
-			ID:          int(e.ID),
-			Type:        e.Type,
-			LegacyID:    e.LegacyID,
-			PublicTitle: e.PublicTitle,
-			Title:       title,
-			Description: description,
-			Image:       image,
-			Images:      q.getImages(e.Images),
+			ID:                      int(e.ID),
+			Type:                    e.Type,
+			LegacyID:                e.LegacyID,
+			PublicTitle:             e.PublicTitle,
+			Title:                   title,
+			DefaultEpisodeBehaviour: e.DefaultEpisodeBehaviour,
+			Description:             description,
+			Image:                   image,
+			Images:                  q.getImages(e.Images),
 			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
 				return int(id)
 			}),

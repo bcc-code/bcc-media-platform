@@ -2,8 +2,9 @@ package common
 
 import (
 	"encoding/json"
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 
 	"gopkg.in/guregu/null.v4"
 )
@@ -28,16 +29,16 @@ var (
 
 // Show is the definition of the Show object
 type Show struct {
-	ID             int          `json:"id"`
-	Type           string       `json:"type"`
-	TagIDs         []int        `json:"tagIds"`
-	LegacyID       null.Int     `json:"legacyId"`
-	PublicTitle    null.String  `json:"publicTitle"`
-	Title          LocaleString `json:"title"`
-	Description    LocaleString `json:"description"`
-	Image          null.String  `json:"image"`
-	Images         Images       `json:"images"`
-	DefaultEpisode *string      `json:"defaultEpisode"`
+	ID                      int          `json:"id"`
+	Type                    string       `json:"type"`
+	TagIDs                  []int        `json:"tagIds"`
+	LegacyID                null.Int     `json:"legacyId"`
+	PublicTitle             null.String  `json:"publicTitle"`
+	Title                   LocaleString `json:"title"`
+	Description             LocaleString `json:"description"`
+	Image                   null.String  `json:"image"`
+	Images                  Images       `json:"images"`
+	DefaultEpisodeBehaviour null.String  `json:"defaultEpisode"`
 }
 
 // GetKey returns the key for this item
