@@ -71,10 +71,10 @@ const { setTitle } = useTitle()
 const page = ref<Page>(props.subRoute)
 
 onMounted(async () => {
-    setTitle(t("page.study"))
+    setTitle("")
     analytics.page({
         id: "study",
-        title: t("page.study"),
+        title: "",
     })
     var result = await lessonQuery
     var data = result.data.value

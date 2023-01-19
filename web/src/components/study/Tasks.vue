@@ -136,10 +136,10 @@ const isLastTask = computed(
 //const taskProgress = ref<{ id: string, completed: boolean }[]>([]);
 
 onMounted(() => {
-    setTitle(t("page.study"))
+    setTitle("")
     analytics.page({
         id: "study",
-        title: t("page.study"),
+        title: t(""),
     })
 })
 
