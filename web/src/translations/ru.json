@@ -4,20 +4,20 @@
         "login": "",
         "logout": "",
         "stayLoggedOut": "",
-        "cancel": "",
+        "cancel": "Отмена",
         "submit": "",
-        "back": "",
-        "next": "",
-        "continue": "",
-        "close": "",
-        "download": "",
-        "goTo": "",
-        "send": ""
+        "back": "Назад",
+        "next": "Дальше",
+        "continue": "Продолжить",
+        "close": "Закрыть",
+        "download": "Скачать",
+        "goTo": "Перейти к",
+        "send": "Отправить"
     },
     "error": {
-        "couldntSendYourMessage": "",
-        "somethingWentWrong": "",
-        "checkNetwork": ""
+        "couldntSendYourMessage": "Не удалось отправить ваше сообщение",
+        "somethingWentWrong": "Что-то пошло не так.",
+        "checkNetwork": "Проверьте подключение к Интернету и повторите попытку."
     },
     "dashboard": {
         "loggedOut": ""
@@ -31,7 +31,7 @@
         "notFound": "",
         "explore": "",
         "watchNow": "",
-        "aboutUs": ""
+        "aboutUs": "О нас"
     },
     "section": {
         "item": {
@@ -61,10 +61,10 @@
         "notFound": "",
         "comingSoon": "",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
-            "exploreContent": ""
+            "oops": "Ой!",
+            "mustBeLoggedIn": "Вы должны войти в систему, чтобы смотреть этот контент",
+            "otherContent": "Не волнуйтесь, впереди еще много интересного!",
+            "exploreContent": "Исследуйте контент"
         }
     },
     "live": {
@@ -78,7 +78,7 @@
     "search": {
         "programs": "",
         "episodes": "",
-        "cancel": "",
+        "cancel": "Отмена",
         "emptyQuery": "",
         "noResults": "",
         "tryAdjustingQuery": ""
@@ -91,8 +91,8 @@
         "describeIssue": ""
     },
     "study": {
-        "startStudy": "",
-        "continueStudy": ""
+        "startStudy": "Начать изучение",
+        "continueStudy": "Продолжить изучение"
     },
     "lesson": {
         "related": "",
@@ -101,45 +101,45 @@
             "description": "",
             "button": "Посмотреть снова"
         },
-        "lessonActivityTitle": "",
-        "textTaskPlaceholder": "",
-        "question": "",
-        "wrongAnswerMessage": "",
-        "correctAnswerMessage": "",
+        "lessonActivityTitle": "Задание по уроку",
+        "textTaskPlaceholder": "Начните печатать здесь...",
+        "question": "Вопрос",
+        "wrongAnswerMessage": "Ох, было близко. Попробуйте еще раз!",
+        "correctAnswerMessage": "Отличная работа!",
         "noLocalGroupFound": "Локальная группа не найдена"
     },
     "cookies": {
-        "title": "",
-        "description": "",
-        "necessary": "",
-        "preferences": "",
-        "statistics": "",
-        "accept": ""
+        "title": "Этот веб-сайт использует файлы cookie",
+        "description": "Мы используем файлы cookie для улучшения взаимодействия с пользователем на этом веб-сайте. Если вы продолжаете использовать этот веб-сайт, вы соглашаетесь с нашими файлами cookie.",
+        "necessary": "Необходимо",
+        "preferences": "Настройки",
+        "statistics": "Статистика",
+        "accept": "Принять"
     },
     "footer": {
-        "cookies": "",
-        "privacyPolicy": "",
-        "information": "",
-        "headOffice": "",
-        "contactUs": "",
-        "downloadApp": ""
+        "cookies": " Файлы cookies",
+        "privacyPolicy": "Политика конфиденциальности",
+        "information": "BCC Media — это медиа-фонд в [организации BCC] (https://bcc.no), который производит и распространяет контент с позитивными и христианскими ценностями.\n\nBCC Media является зарегистрированной вещательной компанией и придерживается правил, изложенных в Норвежском законе о вещании. Надзорным органом по этому закону является [Норвежское управление по средствам массовой информации] (https://medietilsynet.no/).",
+        "headOffice": "Главный офис",
+        "contactUs": "Свяжитесь с нами",
+        "downloadApp": "Загрузите наше приложение"
     },
     "share": {
-        "title": "",
-        "copied": "",
-        "membersOnly": ""
+        "title": "Поделиться",
+        "copied": "Скопировано в буфер обмена",
+        "membersOnly": "Видео доступно только авторизованным пользователям."
     },
     "feedback": {
-        "appreciated": "",
-        "comment": "",
-        "episodeTitle": "",
+        "appreciated": "Мы ценим Ваш отзыв.",
+        "comment": "Добавьте комментарий о своих впечатлениях",
+        "episodeTitle": "Как бы вы оценили этот эпизод?",
         "howEasyToUnderstand": "Насколько легко было понять видео?",
-        "anonymousInfo": "",
-        "placeholder": ""
+        "anonymousInfo": "Ваша оценка будет отправлена ​​анонимно",
+        "placeholder": "Пожалуйста, напишите как можно более подробно, чтобы помочь нам понять."
     },
     "contactLocalBukIfWrong": "Свяжитесь с ответственным за BUK в вашей поместной церкви, если считаете, что здесь есть ошибка.",
     "thankYou": "",
     "yourResponseHasBeenSubmitted": "",
-    "sending": "",
-    "defaultInputPlaceholder": ""
+    "sending": "Отправка",
+    "defaultInputPlaceholder": "Начните печатать здесь..."
 }
