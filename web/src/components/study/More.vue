@@ -73,10 +73,13 @@
                     </div>
                     <div
                         class="mt-4"
-                        v-if="!feedbackSentPreviously || feedbackSentNow"
+                        v-if="
+                            isProbablyAnimation &&
+                            (!feedbackSentPreviously || feedbackSentNow)
+                        "
                     >
                         <h2 class="text-style-title-2">
-                            {{ t("feedback.episodeTitle") }}
+                            {{ t("feedback.howEasyToUnderstand") }}
                         </h2>
                         <p class="mt-1 text-style-body-2 text-label-3">
                             {{ t("feedback.anonymousInfo") }}
@@ -129,6 +132,10 @@ const registerFeedbackSent = () => {
     feedbackSentNow.value = true
     localStorage.setItem(episode.value.id + ":feedback_sent", "true")
 }
+
+const isProbablyAnimation = computed(
+    () => !episode.value.title.includes("Fra Kåre")
+)
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()
 const emit = defineEmits<{
