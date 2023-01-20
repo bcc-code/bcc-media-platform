@@ -1,6 +1,9 @@
 <template>
     <div class="h-screen embedded-page">
-        <div v-if="initializing" class="flex">
+        <div
+            v-if="initializing"
+            class="flex h-full items-center justify-center"
+        >
             <div class="m-auto"><Loader variant="spinner"></Loader></div>
         </div>
         <router-view v-else v-slot="{ Component }">

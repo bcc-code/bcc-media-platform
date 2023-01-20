@@ -76,7 +76,6 @@ var selectedIndex = ref<number>()
 
 const { t } = useI18n()
 
-const { fetching, executeMutation, error } = useSendTaskMessageMutation()
 const { executeMutation: completeTask } = useCompleteTaskMutation()
 
 const props = defineProps<{
@@ -86,29 +85,25 @@ const props = defineProps<{
 const emit = defineEmits<{
     (event: "change"): void
     (event: "update:isDone", val: boolean): void
-    (event: "nextTask"): void
 }>()
-
-const imgSize = ref<string>()
 
 const task = computed(() => {
     return (props.task.__typename == "VideoTask" ? props.task : undefined)!
 })
-console.log(task.value.title)
 
 const openLink = async () => {
     completeTask({ taskId: task.value.id })
     if (flutter) {
         var promise = flutter.push(
-            "/embed/" + task.value.episode.id + "?hide_bottom_section=true"
+            `/embed/${task.value.episode.id}?hide_bottom_section=true&autoplay=true`
         )
-        console.log(promise)
         if (promise.then != null) {
             await promise
-            emit("nextTask")
         }
     } else {
-        window.open("/episode/" + task.value.episode.id, "_blank")?.focus()
+        window
+            .open(`/episode/${task.value.episode.id}?autoplay=true`, "_blank")
+            ?.focus()
     }
 }
 onMounted(async () => {

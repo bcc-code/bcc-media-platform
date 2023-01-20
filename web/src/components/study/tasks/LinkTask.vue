@@ -87,7 +87,6 @@ const props = defineProps<{
 const emit = defineEmits<{
     (event: "change"): void
     (event: "update:isDone", val: boolean): void
-    (event: "nextTask"): void
 }>()
 
 const task = computed(() => {
