@@ -123,6 +123,12 @@ const handleClick = () => {
         } else {
             navigator.vibrate(40)
         }
+    } else {
+        if (flutter != null) {
+            flutter.hapticFeedback("lightImpact")
+        } else {
+            navigator.vibrate(20)
+        }
     }
 }
 
