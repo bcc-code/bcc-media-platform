@@ -155,6 +155,7 @@ type AlternativesTask struct {
 	Completed       bool           `json:"completed"`
 	Alternatives    []*Alternative `json:"alternatives"`
 	CompetitionMode bool           `json:"competitionMode"`
+	Locked          bool           `json:"locked"`
 }
 
 func (AlternativesTask) IsTask()                 {}

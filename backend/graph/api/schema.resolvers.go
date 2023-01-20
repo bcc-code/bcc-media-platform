@@ -186,7 +186,7 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 	}
 
 	if task.CompetitionMode {
-		storedIds, err := r.Loaders.CompletedTasksLoader.Get(ctx, p.ID)
+		storedIds, err := r.Loaders.CompletedAndLockedTasksLoader.Get(ctx, p.ID)
 		if err != nil {
 			return false, err
 		}
@@ -224,11 +224,8 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		return false, err
 	}
 
-	// TODO: Clear cache, but this is the wrong key
-	//pr := r.GetProfileLoaders(ctx)
-	//pr.GetSelectedAlternativesLoader.Clear(ctx, p.ID)
-
 	r.Loaders.CompletedTasksLoader.Clear(ctx, p.ID)
+	r.Loaders.CompletedAndLockedTasksLoader.Clear(ctx, p.ID)
 	r.Loaders.CompletedLessonsLoader.Clear(ctx, p.ID)
 
 	err = achievements.CheckNewAchievements(ctx, r.Queries, r.Loaders, achievements.Action{
@@ -240,6 +237,24 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		return true, err
 	}
 	return true, nil
+}
+
+// LockLessonAnswers is the resolver for the lockLessonAnswers field.
+func (r *mutationRootResolver) LockLessonAnswers(ctx context.Context, id string) (bool, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	err = r.Queries.SetAnswerLock(ctx, sqlc.SetAnswerLockParams{
+		Locked:    true,
+		ProfileID: p.ID,
+		LessonID:  utils.AsUuid(id),
+	})
+
+	r.Loaders.CompletedAndLockedTasksLoader.Clear(ctx, p.ID)
+
+	return err == nil, err
 }
 
 // SendTaskMessage is the resolver for the sendTaskMessage field.

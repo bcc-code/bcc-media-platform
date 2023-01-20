@@ -55,6 +55,16 @@ func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.
 	}), nil
 }
 
+// Locked is the resolver for the locked field.
+func (r *alternativesTaskResolver) Locked(ctx context.Context, obj *model.AlternativesTask) (bool, error) {
+	selectedRow, err := r.GetProfileLoaders(ctx).GetSelectedAlternativesLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return false, err
+	}
+
+	return selectedRow.Locked, err
+}
+
 // Image is the resolver for the image field.
 func (r *lessonResolver) Image(ctx context.Context, obj *model.Lesson, style *model.ImageStyle) (*string, error) {
 	e, err := r.Loaders.StudyLessonLoader.Get(ctx, utils.AsUuid(obj.ID))

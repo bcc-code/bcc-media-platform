@@ -65,6 +65,7 @@ type AlternativesTask implements Task {
     completed: Boolean! @goField(forceResolver: true)
     alternatives: [Alternative!]! @goField(forceResolver: true)
     competitionMode: Boolean!
+    locked: Boolean! @goField(forceResolver: true)
 }
 
 type Alternative {

@@ -137,6 +137,15 @@ SELECT ta.task_id as id, ta.profile_id as parent_id
 FROM "users"."taskanswers" ta
 WHERE ta.profile_id = ANY ($1::uuid[]);
 
+-- name: getCompletedAndLockedTasks :many
+SELECT a.task_id as id, a.profile_id as parent_id
+FROM users.taskanswers a
+LEFT JOIN public.tasks t on a.task_id = t.id
+WHERE a.profile_id = ANY ($1::uuid[]) AND
+		a.locked = true AND
+		t.competition_mode = true
+;
+
 -- name: getCompletedLessons :many
 WITH total AS (SELECT t.lesson_id,
                       COUNT(t.id) task_count
@@ -178,8 +187,8 @@ FROM "users"."taskanswers" ta
 WHERE ta.profile_id = $1
   AND ta.task_id = ANY ($2::uuid[]);
 
--- name: GetSelectedAlternatives :many
-SELECT ta.task_id, ta.selected_alternatives::uuid[] as selected_alternatives
+-- name: GetSelectedAlternativesAndLockStatus :many
+SELECT ta.task_id, ta.selected_alternatives::uuid[] as selected_alternatives, ta.locked as locked
 FROM "users"."taskanswers" ta
 WHERE ta.profile_id = $1
   AND ta.task_id = ANY (@task_ids::uuid[]);
@@ -195,3 +204,11 @@ VALUES ($1, $2, $3, NOW(), NOW(), $4, @age_group::TEXT, @org_id::int4)
 ON CONFLICT (id) DO UPDATE SET message    = EXCLUDED.message,
                                metadata   = EXCLUDED.metadata,
                                updated_at = EXCLUDED.updated_at;
+
+-- name: SetAnswerLock :exec
+UPDATE users.taskanswers SET locked = @locked::bool WHERE (task_id, profile_id) IN (SELECT ta.task_id, ta.profile_id FROM users.taskanswers ta
+LEFT JOIN public.tasks t ON ta.task_id = t.id
+WHERE
+ta.profile_id = @profile_id::uuid AND
+t.lesson_id = @lesson_id::uuid AND
+t.competition_mode = true);

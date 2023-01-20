@@ -284,6 +284,17 @@ func (q *Queries) GetCompletedTasks(ctx context.Context, profileIDs []uuid.UUID)
 	}), nil
 }
 
+// GetCompletedAndLockedTasks for profiles
+func (q *Queries) GetCompletedAndLockedTasks(ctx context.Context, profileIDs []uuid.UUID) ([]batchloaders.Relation[uuid.UUID, uuid.UUID], error) {
+	rows, err := q.getCompletedAndLockedTasks(ctx, profileIDs)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getCompletedAndLockedTasksRow, _ int) batchloaders.Relation[uuid.UUID, uuid.UUID] {
+		return relation[uuid.UUID, uuid.UUID](i)
+	}), nil
+}
+
 // GetCompletedLessons for profiles
 func (q *Queries) GetCompletedLessons(ctx context.Context, profileIDs []uuid.UUID) ([]batchloaders.Relation[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getCompletedLessons(ctx, profileIDs)
@@ -308,7 +319,7 @@ func (q *Queries) GetCompletedTopics(ctx context.Context, profileIDs []uuid.UUID
 
 // GetSelectedAlternatives returns the alternatives a user selected on a given questions
 func (pq *ProfileQueries) GetSelectedAlternatives(ctx context.Context, ids []uuid.UUID) ([]common.SelectedAlternatives, error) {
-	rows, err := pq.queries.GetSelectedAlternatives(ctx, GetSelectedAlternativesParams{
+	rows, err := pq.queries.GetSelectedAlternativesAndLockStatus(ctx, GetSelectedAlternativesAndLockStatusParams{
 		ProfileID: pq.profileID,
 		TaskIds:   ids,
 	})
@@ -317,10 +328,11 @@ func (pq *ProfileQueries) GetSelectedAlternatives(ctx context.Context, ids []uui
 		return nil, err
 	}
 
-	return lo.Map(rows, func(i GetSelectedAlternativesRow, _ int) common.SelectedAlternatives {
+	return lo.Map(rows, func(i GetSelectedAlternativesAndLockStatusRow, _ int) common.SelectedAlternatives {
 		return common.SelectedAlternatives{
 			ID:       i.TaskID,
 			Selected: i.SelectedAlternatives,
+			Locked:   i.Locked,
 		}
 	}), nil
 }

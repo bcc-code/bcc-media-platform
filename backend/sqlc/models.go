@@ -1346,4 +1346,5 @@ type UsersTaskanswer struct {
 	TaskID               uuid.UUID    `db:"task_id" json:"taskID"`
 	UpdatedAt            null_v4.Time `db:"updated_at" json:"updatedAt"`
 	SelectedAlternatives interface{}  `db:"selected_alternatives" json:"selectedAlternatives"`
+	Locked               bool         `db:"locked" json:"locked"`
 }
