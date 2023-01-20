@@ -7,7 +7,8 @@
                 :key="alt.title"
                 :letter="getLetter(i)"
                 :text="alt.title"
-                :correct="alt.isCorrect"
+                :correct="noWrongAnswers ? undefined : alt.isCorrect"
+                :competition-mode="task.competitionMode"
                 @click="() => selectAnswer(alt.id)"
                 :selected="selectedIndex == i"
                 :class="
@@ -25,6 +26,8 @@ import { TaskFragment } from "@/graph/generated"
 import { computed, getCurrentInstance, Ref, ref, watch } from "vue"
 import Alternative from "./Alternative.vue"
 import { useCompleteTaskMutation } from "@/graph/generated"
+import { Vue3Lottie as LottieAnimation } from "vue3-lottie"
+import confettiAnimation from "./confetti.json"
 
 const { executeMutation } = useCompleteTaskMutation()
 
@@ -37,17 +40,15 @@ const emit = defineEmits<{
     (event: "update:isDone", val: boolean): void
 }>()
 
+const noWrongAnswers = computed(() =>
+    task.value.alternatives.every((alt) => alt.isCorrect)
+)
+
 const task = computed(() => {
     return (
         props.task.__typename == "AlternativesTask" ? props.task : undefined
     )!
 })
-/* 
-var selectedIndex = ref<number | undefined>(
-    !props.isDone
-        ? task.value.alternatives.findIndex((s) => s.selected)
-        : undefined
-) */
 
 const selectedIndex = computed(() => {
     const index = task.value.alternatives.findIndex((s) => s.selected)
@@ -69,13 +70,8 @@ const getLetter = (index: number) => ["A", "B", "C", "D", "E", "F", "G"][index]
 watch(
     selectedIndex,
     (after, before) => {
-        console.log(task.value.alternatives)
-        console.log(selectedIndex.value)
-        isDone.value =
-            selectedIndex.value != null
-                ? task.value.alternatives[selectedIndex.value]?.isCorrect ??
-                  false
-                : false
+        let alternative = after == null ? null : task.value.alternatives[after]
+        isDone.value = alternative?.isCorrect ?? false
     },
     { immediate: true }
 )
@@ -83,7 +79,8 @@ watch(
 function selectAnswer(id: string) {
     for (const alt of task.value.alternatives) {
         alt.selected = id == alt.id
-        executeMutation({ taskId: task.value.id, selectedAlternatives: [id] })
     }
+    const alt = task.value.alternatives.find((alt) => alt.id == id)
+    executeMutation({ taskId: task.value.id, selectedAlternatives: [id] })
 }
 </script>

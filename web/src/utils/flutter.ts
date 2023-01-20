@@ -1,5 +1,7 @@
 import { FlutterWebView } from "@/flutter"
 
+type HapticFeedbackType = 'lightImpact' | 'mediumImpact' | 'vibrate' | 'selectionClick' | 'heavyImpact';
+
 class FlutterMain {
     handlerName = "flutter_main"
     webView: FlutterWebView
@@ -27,6 +29,10 @@ class FlutterMain {
 
     shareImage(url: string): Promise<boolean | null> {
         return this.webView.callHandler(this.handlerName, "share_image", url)
+    }
+
+    hapticFeedback(hapticFeedbackType: HapticFeedbackType): Promise<boolean | null> {
+        return this.webView.callHandler(this.handlerName, "haptic_feedback", hapticFeedbackType)
     }
 }
 

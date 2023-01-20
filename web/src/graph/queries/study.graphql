@@ -4,6 +4,7 @@ fragment Task on Task {
     title
     completed
     ... on AlternativesTask {
+        competitionMode
         alternatives {
             id
             title
