@@ -48,14 +48,12 @@
                 v-model:task="currentTask"
                 :key="'video' + currentTask.id"
                 v-model:is-done="isCurrentStepDone"
-                @next-task="() => nextTask()"
             />
             <LinkTask
                 v-else-if="currentTask?.__typename == 'LinkTask'"
                 v-model:task="currentTask"
                 :key="'link' + currentTask.id"
                 v-model:is-done="isCurrentStepDone"
-                @next-task="() => nextTask()"
             />
             <div v-else>
                 {{ (currentTask as any)?.__typename }}
@@ -116,7 +114,7 @@ import LinkTask from "./tasks/LinkTask.vue"
 import Loader from "../Loader.vue"
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()
-const { executeMutation } = useCompleteTaskMutation()
+const { executeMutation: completeTask } = useCompleteTaskMutation()
 const { t } = useI18n()
 const { setTitle } = useTitle()
 
@@ -147,6 +145,7 @@ const isCurrentStepDone = ref(false)
 const taskPercent = computed(
     () => ((currentTaskIndex.value + 1) / tasks.value.length) * 100
 )
+const allCompletedBeforeStarting = tasks.value.every((t) => t.completed)
 
 function previousTask() {
     if (currentTaskIndex.value > 0) {
@@ -160,17 +159,21 @@ async function nextTask() {
     const skipSave = currentTask.value.__typename == "AlternativesTask"
     if (!isLastTask.value) {
         // intentionally not awaiting
-        if (!skipSave) executeMutation({ taskId: currentTask.value.id })
+        if (!skipSave) completeTask({ taskId: currentTask.value.id })
+        currentTask.value.completed = true
         currentTaskIndex.value += 1
         isCurrentStepDone.value = false
     } else {
         // done with the tasks
         // awaiting to avoid race condition with achievements
         savingTaskProgress.value = true
-        if (!skipSave) await executeMutation({ taskId: currentTask.value.id })
+        if (!skipSave) await completeTask({ taskId: currentTask.value.id })
         await new Promise((r) => setTimeout(r, 100))
+        currentTask.value.completed = true
         savingTaskProgress.value = false
-        flutterStudy?.tasksCompleted()
+        if (!allCompletedBeforeStarting) {
+            flutterStudy?.tasksCompleted()
+        }
         emit("navigate", "more")
     }
 }
