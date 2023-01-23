@@ -1,6 +1,6 @@
 <template>
     <div
-        class="p-x4 py-0 w-full h-full flex flex-col items-center justify-center pb-8 embed:pb-52"
+        class="p-x4 py-0 w-full h-full flex flex-col items-center justify-center pb-8 embed:min-h-screen embed:pb-64"
     >
         <p class="w-full text-white text-style-title-1 text-center">
             {{ task.title }}

@@ -1,7 +1,11 @@
 <template>
-    <div class="p-4 flex flex-col space-y-8 items-start justify-start w-full">
+    <div
+        class="p-4 flex flex-col space-y-8 items-start justify-start w-full embed:min-h-screen"
+    >
         <p class="w-full text-white text-style-title-1">{{ task.title }}</p>
-        <div class="flex flex-col space-y-2 items-start justify-start w-full">
+        <div
+            class="flex flex-col space-y-2 items-start justify-start w-full h-full"
+        >
             <Alternative
                 v-for="(alt, i) in task.alternatives"
                 :key="alt.title"

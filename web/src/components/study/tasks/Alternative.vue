@@ -56,7 +56,7 @@
                 />
             </svg>
 
-            <div class="w-3.5" v-else>&nbsp;</div>
+            <div class="w-4" v-else>&nbsp;</div>
         </div>
         <div
             class="absolute top-50 left-0 pr-4 pointer-events-none z-20"

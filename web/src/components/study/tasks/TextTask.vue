@@ -1,5 +1,7 @@
 <template>
-    <div class="p-4 pb-0 w-full h-full">
+    <div
+        class="p-4 pb-0 w-full h-full flex flex-col items-center justify-center pb-12 embed:min-h-screen embed:pb-64"
+    >
         <template v-if="fetching">
             <div
                 class="w-full h-full flex pb-36 min-h-48 items-center justify-center"
@@ -17,7 +19,7 @@
         </template>
         <template v-else-if="isDone">
             <div
-                class="flex flex-col items-center justify-center w-full h-full pb-12 embed:pb-44"
+                class="flex flex-col items-center justify-center w-full h-full"
             >
                 <p class="w-full text-white text-style-title-1 text-center">
                     {{ t("thankYou") }}
