@@ -112,14 +112,14 @@ const handleClick = () => {
         confetti.value.play()
         scaleShake()
         if (flutter != null) {
-            flutter.hapticFeedback("lightImpact")
+            flutter.hapticFeedback("heavyImpact")
         } else {
             navigator.vibrate(20)
         }
     } else if (props.correct === false) {
         shake()
         if (flutter != null) {
-            flutter.hapticFeedback("vibrate")
+            flutter.hapticFeedback("mediumImpact")
         } else {
             navigator.vibrate(40)
         }
