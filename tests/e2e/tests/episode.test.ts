@@ -33,12 +33,12 @@ test("create and delete episode", async (t) => {
 
         t.truthy(existing, "episode exists")
 
-        const apiResponse = await query(
-            "query($episodeId: ID!){ episode(id: $episodeId) { title }}",
-            {
-                episodeId: episode.id!,
-            }
-        )
+        const queryString =
+            "query($episodeId: ID!){ episode(id: $episodeId) { title }}"
+
+        const apiResponse = await query(queryString, {
+            episodeId: episode.id!,
+        })
 
         t.is(title, apiResponse.data.episode.title, "titles not equal")
     } finally {
