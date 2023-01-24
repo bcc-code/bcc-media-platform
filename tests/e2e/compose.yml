@@ -1,9 +1,9 @@
-services: 
-  db:
-    command: ["postgres", "-c", "log_statement=all"]
-    image: postgres:13
-    ports:
-    - "5400:5432/tcp"
-    environment:
-    - POSTGRES_USER=test
-    - POSTGRES_PASSWORD=test
+services:
+    db:
+        command: ["postgres", "-c", "log_statement=all"]
+        image: postgres:13
+        ports:
+            - "5400:5432/tcp"
+        environment:
+            - POSTGRES_USER=test
+            - POSTGRES_PASSWORD=test
