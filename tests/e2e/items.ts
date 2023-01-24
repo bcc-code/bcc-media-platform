@@ -1,5 +1,5 @@
 import { ID } from "@directus/sdk"
-import { client } from "./client"
+import { client } from "./directus"
 import { episodes as Types } from "./types"
 
 export const createItem = async <C extends keyof Types>(collection: C, obj: Types[C]) => {
@@ -11,7 +11,7 @@ export const deleteItem = async <C extends keyof Types>(collection: C, id: ID) =
 }
 
 export class Factory<C extends keyof Types> {
-    private items: Types[C][]
+    private items: Types[C][] = []
 
     constructor(private collection: C, private keyfunc: (i: Types[C]) => ID) {}
 
@@ -23,10 +23,17 @@ export class Factory<C extends keyof Types> {
         return item
     }
 
+    public async get(id: ID) {
+        return await client.items(this.collection).readOne(id) as NonNullable<Types[C]>
+    }
+
     public async dispose() {
-        for (const item of this.items) {
-            await client.items(this.collection).deleteOne(this.keyfunc(item))
-        }
+        await client.items(this.collection).deleteMany(this.items.map(i => this.keyfunc(i)))
+    }
+
+    public async delete(id: ID) {
+        this.items = this.items.filter(i => this.keyfunc(i) === id)
+        await client.items(this.collection).deleteOne(id)
     }
 }
 

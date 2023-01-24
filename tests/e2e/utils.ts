@@ -1,5 +1,5 @@
 import { TestFn } from "ava";
-import { client, login } from "./client";
+import { client, login } from "./directus";
 
 export const authed = (test: TestFn<unknown>) => {
     test.before("init auth", async () => {
