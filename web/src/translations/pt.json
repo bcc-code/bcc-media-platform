@@ -1,145 +1,145 @@
 {
     "buttons": {
-        "save": "",
-        "login": "",
-        "logout": "",
-        "stayLoggedOut": "",
+        "save": "Salvar",
+        "login": "Login ",
+        "logout": "Sair",
+        "stayLoggedOut": "Permanecer desconectado ",
         "cancel": "Cancelar",
-        "submit": "",
-        "back": "",
-        "next": "",
-        "continue": "",
-        "close": "",
-        "download": "",
-        "goTo": "",
-        "send": ""
+        "submit": "Enviar",
+        "back": "Voltar",
+        "next": "Próximo",
+        "continue": "Continuar",
+        "close": "Fechar",
+        "download": "Baixar",
+        "goTo": "Ir para",
+        "send": "Enviar"
     },
     "error": {
-        "couldntSendYourMessage": "",
-        "somethingWentWrong": "",
-        "checkNetwork": ""
+        "couldntSendYourMessage": "Não foi possível enviar sua mensagem",
+        "somethingWentWrong": "Algo deu errado.",
+        "checkNetwork": "Verifique a sua conexão com a Internet e tente novamente."
     },
     "dashboard": {
-        "loggedOut": ""
+        "loggedOut": "Você foi desconectado "
     },
     "page": {
-        "home": "",
-        "search": "",
-        "live": "",
-        "calendar": "",
-        "faq": "",
-        "notFound": "",
-        "explore": "",
-        "watchNow": "",
-        "aboutUs": ""
+        "home": "Início",
+        "search": "Busca",
+        "live": "Ao vivo. ",
+        "calendar": "Calendário",
+        "faq": "Perguntas frequentes",
+        "notFound": "Página não encontrada ",
+        "explore": "Explorar",
+        "watchNow": "Assistir agora",
+        "aboutUs": "Sobre nós "
     },
     "section": {
         "item": {
-            "episode": "",
-            "season": ""
+            "episode": "0 episódios | 1 episódio | {count} episódios",
+            "season": "0 temporadas | 1 temporada | {count} temporadas"
         }
     },
     "notFound": {
-        "title": "",
-        "description": "",
-        "returnHome": ""
+        "title": "Não encontrado ",
+        "description": "Talvez você não esteja logado ou não tenha algumas permissões.",
+        "returnHome": "Ir para página principal "
     },
     "common": {
-        "new": "",
-        "newEpisodes": ""
+        "new": "Novo ",
+        "newEpisodes": "Novos episódios "
     },
     "episode": {
-        "details": "",
-        "episode": "",
-        "episodes": "",
-        "videos": "",
-        "seriesDescription": "",
-        "releaseDate": "",
-        "availableFrom": "",
-        "availableTo": "",
-        "ageRating": "",
-        "notFound": "",
-        "comingSoon": "",
+        "details": "Detalhes ",
+        "episode": "Episódio",
+        "episodes": "Episódios",
+        "videos": "Vídeos",
+        "seriesDescription": "Descrição de séries ",
+        "releaseDate": "Datas de lançamento ",
+        "availableFrom": "Disponível a partir de",
+        "availableTo": "Disponível para ",
+        "ageRating": "Avaliação ",
+        "notFound": "Episódio não encontrado ",
+        "comingSoon": "Em breve ",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
-            "exploreContent": ""
+            "oops": "Oops! ",
+            "mustBeLoggedIn": "Você precisa estar logado para assistir a este conteúdo",
+            "otherContent": "Não se preocupe, ainda há muitos outros conteúdos para você aproveitar!",
+            "exploreContent": "Explorar conteúdo"
         }
     },
     "live": {
-        "now": ""
+        "now": "Agora"
     },
     "calendar": {
-        "noScheduledEvents": "",
-        "thisWeek": "",
-        "timeTableIsLocalTime": ""
+        "noScheduledEvents": "Nenhum evento agendado",
+        "thisWeek": "Essa semana ",
+        "timeTableIsLocalTime": "O horário está no seu horário local."
     },
     "search": {
-        "programs": "",
-        "episodes": "",
+        "programs": "Programas",
+        "episodes": "Episódios",
         "cancel": "Cancelar",
-        "emptyQuery": "",
-        "noResults": "",
-        "tryAdjustingQuery": ""
+        "emptyQuery": "A consulta de pesquisa está vazia.",
+        "noResults": "Nenhum resultado encontrado ",
+        "tryAdjustingQuery": "Tente ajustar a consulta de pesquisa "
     },
     "support": {
-        "contact": "",
-        "title": "",
-        "subject": "",
-        "content": "",
-        "describeIssue": ""
+        "contact": "Contate o suporte ",
+        "title": "Título ",
+        "subject": "Tema ",
+        "content": "Conteúdo ",
+        "describeIssue": "Descreva o problema em detalhe "
     },
     "study": {
-        "startStudy": "",
-        "continueStudy": ""
+        "startStudy": "Começar estudo",
+        "continueStudy": "Continuar estudo"
     },
     "lesson": {
-        "related": "",
+        "related": "Recursos relacionados ",
         "watchAgain": {
-            "title": "",
-            "description": "",
-            "button": ""
+            "title": "Ver de novo ",
+            "description": "Para entender melhor, recomendamos ver o vídeo mais de uma vez. ",
+            "button": "Jogar outra vez "
         },
-        "lessonActivityTitle": "",
-        "textTaskPlaceholder": "",
-        "question": "",
-        "wrongAnswerMessage": "",
-        "correctAnswerMessage": "",
-        "noLocalGroupFound": ""
+        "lessonActivityTitle": "Atividade da lição",
+        "textTaskPlaceholder": "Começar a escrever aqui...",
+        "question": "Questão",
+        "wrongAnswerMessage": "Oh, feche! Tentar novamente!",
+        "correctAnswerMessage": "Bem feito!",
+        "noLocalGroupFound": "Não há grupo local"
     },
     "cookies": {
-        "title": "",
-        "description": "",
-        "necessary": "",
-        "preferences": "",
-        "statistics": "",
-        "accept": ""
+        "title": "Este website utiliza cookies ",
+        "description": "Utilizamos cookies para melhorar a experiência do usuário nesse website. Se continuar usando nosso site deve aceitar os cookies.",
+        "necessary": "Necessário ",
+        "preferences": "Preferências ",
+        "statistics": "Estatísticas ",
+        "accept": "Aceitar "
     },
     "footer": {
-        "cookies": "",
-        "privacyPolicy": "",
-        "information": "",
-        "headOffice": "",
-        "contactUs": "",
-        "downloadApp": ""
+        "cookies": "Cookies",
+        "privacyPolicy": "Política de privacidade",
+        "information": "BCC Media é uma fundação de mídia na [federação BCC](https://bcc.no) que produz e distribui conteúdo com valores positivos e cristãos.\n\nA BCC Media é uma emissora registrada e adere aos regulamentos estabelecidos na Lei Norueguesa de Radiodifusão. O órgão de supervisão desta lei é [a Autoridade Norueguesa de Mídia](https://medietilsynet.no/).",
+        "headOffice": "Sede",
+        "contactUs": "Entre em contato ",
+        "downloadApp": "Baixe nosso aplicativo "
     },
     "share": {
-        "title": "",
-        "copied": "",
-        "membersOnly": ""
+        "title": "Compartilhar",
+        "copied": "Copiado para a área de transferência",
+        "membersOnly": "Este vídeo é acessível apenas para usuários que estão logados."
     },
     "feedback": {
-        "appreciated": "",
-        "comment": "",
-        "episodeTitle": "",
-        "howEasyToUnderstand": "",
-        "anonymousInfo": "",
-        "placeholder": ""
+        "appreciated": "Agradecemos seus comentários.",
+        "comment": "Adicionar um comentário sobre tua experiência",
+        "episodeTitle": "Como classificaria esse episódio?",
+        "howEasyToUnderstand": "Quão fácil foi entender o vídeo?",
+        "anonymousInfo": "Sua classificação se enviará de forma anônima",
+        "placeholder": "Por favor, seja o mais detalhado possível para nos ajudar a entender."
     },
-    "contactLocalBukIfWrong": "",
-    "thankYou": "",
-    "yourResponseHasBeenSubmitted": "",
-    "sending": "",
-    "defaultInputPlaceholder": ""
+    "contactLocalBukIfWrong": "Entre em contato com a pessoa responsável em sua associação BUK local se achar que isso está errado.",
+    "thankYou": "Obrigada!",
+    "yourResponseHasBeenSubmitted": "Sua resposta foi enviada ",
+    "sending": "Enviado",
+    "defaultInputPlaceholder": "Começar a escrever aqui..."
 }
