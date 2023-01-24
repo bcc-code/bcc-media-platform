@@ -5,5 +5,27 @@ services:
         ports:
             - "5400:5432/tcp"
         environment:
-            - POSTGRES_USER=test
-            - POSTGRES_PASSWORD=test
+            - POSTGRES_USER=btv
+            - POSTGRES_HOST_AUTH_METHOD=trust
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U btv"]
+            interval: 1s
+            timeout: 5s
+            retries: 5
+    migrations:
+        build:
+            context: ../../migrations
+            dockerfile: test.Dockerfile
+        depends_on:
+            db:
+                condition: service_healthy
+        command: ["./migrate_test.sh", "-h host.docker.internal", "-U btv", "-d btv", "-p 5400"]
+    api: 
+        depends_on:
+            - migrations
+    directus:
+        build:
+            context: ../../backend
+            dockerfile: ./cmd/api/Dockerfile
+        depends_on:
+            - migrations
