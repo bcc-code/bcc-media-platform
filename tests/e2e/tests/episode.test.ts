@@ -10,7 +10,7 @@ test("create episode", async t => {
         publish_date: new Date().toISOString(),
     })
 
-    t.true(!!episode)
+    t.truthy(episode)
 
-    await deleteItem("episodes", episode?.id ?? 0)
+    await deleteItem("episodes", episode.id ?? 0)
 })
