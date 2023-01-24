@@ -27,6 +27,7 @@
                 v-model:task="currentTask"
                 :key="'text' + currentTask.id"
                 v-model:is-done="isCurrentStepDone"
+                @next-task="() => nextTask()"
             />
             <AlternativesTask
                 v-else-if="currentTask?.__typename == 'AlternativesTask'"
