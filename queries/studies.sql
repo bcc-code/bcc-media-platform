@@ -84,7 +84,8 @@ SELECT rl.lessons_id AS id,
        rl.item       AS parent_id
 FROM lessons_relations rl
 WHERE rl.collection = $1
-  AND rl.item = ANY ($2::varchar[]);
+  AND rl.item = ANY ($2::varchar[])
+ORDER BY rl.sort;
 
 -- name: getEpisodesForLessons :many
 SELECT rl.item       AS id,
@@ -99,14 +100,16 @@ WHERE rl.collection = 'episodes'
         (roles.roles && $2::varchar[] AND access.available_from < now()) OR
         (roles.roles_earlyaccess && $2::varchar[])
     )
-  AND rl.lessons_id = ANY ($1::uuid[]);
+  AND rl.lessons_id = ANY ($1::uuid[])
+ORDER BY rl.sort;
 
 -- name: getLinksForLessons :many
 SELECT rl.item       AS id,
        rl.lessons_id AS parent_id
 FROM lessons_relations rl
 WHERE rl.collection = 'links'
-  AND rl.lessons_id = ANY ($1::uuid[]);
+  AND rl.lessons_id = ANY ($1::uuid[])
+ORDER BY rl.sort;
 
 -- name: getQuestionAlternatives :many
 WITH ts AS (SELECT questionalternatives_id, json_object_agg(languages_code, title) AS title
@@ -140,10 +143,10 @@ WHERE ta.profile_id = ANY ($1::uuid[]);
 -- name: getCompletedAndLockedTasks :many
 SELECT a.task_id as id, a.profile_id as parent_id
 FROM users.taskanswers a
-LEFT JOIN public.tasks t on a.task_id = t.id
-WHERE a.profile_id = ANY ($1::uuid[]) AND
-		a.locked = true AND
-		t.competition_mode = true
+         LEFT JOIN public.tasks t on a.task_id = t.id
+WHERE a.profile_id = ANY ($1::uuid[])
+  AND a.locked = true
+  AND t.competition_mode = true
 ;
 
 -- name: getCompletedLessons :many
@@ -196,7 +199,8 @@ WHERE ta.profile_id = $1
 -- name: SetTaskCompleted :exec
 INSERT INTO "users"."taskanswers" (profile_id, task_id, selected_alternatives, updated_at)
 VALUES ($1, $2, @selected_alternatives::uuid[], NOW())
-ON CONFLICT (profile_id, task_id) DO UPDATE SET updated_at = EXCLUDED.updated_at, selected_alternatives = @selected_alternatives::uuid[];
+ON CONFLICT (profile_id, task_id) DO UPDATE SET updated_at            = EXCLUDED.updated_at,
+                                                selected_alternatives = @selected_alternatives::uuid[];
 
 -- name: SetMessage :exec
 INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at, metadata, age_group, org_id)
@@ -206,9 +210,11 @@ ON CONFLICT (id) DO UPDATE SET message    = EXCLUDED.message,
                                updated_at = EXCLUDED.updated_at;
 
 -- name: SetAnswerLock :exec
-UPDATE users.taskanswers SET locked = @locked::bool WHERE (task_id, profile_id) IN (SELECT ta.task_id, ta.profile_id FROM users.taskanswers ta
-LEFT JOIN public.tasks t ON ta.task_id = t.id
-WHERE
-ta.profile_id = @profile_id::uuid AND
-t.lesson_id = @lesson_id::uuid AND
-t.competition_mode = true);
+UPDATE users.taskanswers
+SET locked = @locked::bool
+WHERE (task_id, profile_id) IN (SELECT ta.task_id, ta.profile_id
+                                FROM users.taskanswers ta
+                                         LEFT JOIN public.tasks t ON ta.task_id = t.id
+                                WHERE ta.profile_id = @profile_id::uuid
+                                  AND t.lesson_id = @lesson_id::uuid
+                                  AND t.competition_mode = true);
