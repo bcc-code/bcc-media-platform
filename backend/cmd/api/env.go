@@ -20,6 +20,28 @@ import (
 	"github.com/samber/lo"
 )
 
+type env string
+
+// Development checks if env is development
+func (e env) Development() bool {
+	switch e {
+	case "development", "testing":
+		return true
+	}
+	return false
+}
+
+// Production checks if env is production
+func (e env) Production() bool {
+	switch e {
+	case "development", "testing":
+		return false
+	}
+	return true
+}
+
+var environment = env(os.Getenv("ENVIRONMENT"))
+
 type envConfig struct {
 	Members       members.Config
 	DB            postgres
@@ -99,8 +121,6 @@ func (a awsConfig) GetTempStorageBucket() string {
 }
 
 func getEnvConfig() envConfig {
-	development := os.Getenv("ENVIRONMENT") == "development"
-
 	aud := lo.Map(strings.Split(os.Getenv("AUTH0_AUDIENCES"), ","),
 		func(s string, _ int) string {
 			return strings.TrimSpace(s)
@@ -108,7 +128,7 @@ func getEnvConfig() envConfig {
 	)
 
 	var jwtkey *rsa.PrivateKey
-	if key := os.Getenv("REDIRECT_JWT_KEY"); !development || key != "" {
+	if key := os.Getenv("REDIRECT_JWT_KEY"); !environment.Development() || key != "" {
 		// Parse the RSA Private KEY. The key should be in the pem format as delivered by Terraform
 		block, _ := pem.Decode([]byte(key))
 		if block == nil {

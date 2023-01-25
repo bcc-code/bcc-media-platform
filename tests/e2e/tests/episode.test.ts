@@ -1,7 +1,7 @@
 import test from "ava"
-import { episodes } from "../items"
-import { authed } from "../utils"
-import { query } from "../api"
+import { episodes } from "lib/items"
+import { authed } from "lib/utils"
+import { query } from "lib/api"
 
 authed(test)
 

@@ -1,5 +1,5 @@
 import { Directus } from "@directus/sdk"
-import { episodes } from "../../cms/src/btv"
+import { episodes } from "./types"
 import { config } from "dotenv"
 
 config()

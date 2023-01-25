@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
     db:
         command: ["postgres", "-c", "log_statement=all"]
@@ -12,20 +14,27 @@ services:
             interval: 1s
             timeout: 5s
             retries: 5
-    migrations:
-        build:
-            context: ../../migrations
-            dockerfile: test.Dockerfile
+    redis:
+        image: redis
+    api:
         depends_on:
             db:
                 condition: service_healthy
-        command: ["./migrate_test.sh", "-h host.docker.internal", "-U btv", "-d btv", "-p 5400"]
-    api: 
-        depends_on:
-            - migrations
-    directus:
         build:
-            context: ../../backend
-            dockerfile: ./cmd/api/Dockerfile
+            context: ../..
+            dockerfile: ./tests/e2e/api.Dockerfile
+        ports:
+            - "7077:8077/tcp"
+        environment:
+            - ENVIRONMENT=development
+            - DB_CONNECTION_STRING=postgres://btv@db/btv?sslmode=disable
+            - REDIS_ADDRESS=redis:6379
+            - PORT=8077
+    directus:
         depends_on:
-            - migrations
+            db:
+                condition: service_healthy
+        build:
+            context: ../../cms
+        ports:
+            - "7055:8055/tcp"
