@@ -210,9 +210,9 @@ WITH total AS (SELECT t.lesson_id,
 SELECT total.lesson_id as id, p.id as parent_id
 FROM users.profiles p
          JOIN completed ON completed.profile_id = p.id
-         JOIN total ON total.lesson_id >= completed.lesson_id -- In case somethig has been archived later
+         JOIN total ON total.lesson_id = completed.lesson_id
 WHERE p.id = ANY ($1::uuid[])
-  AND completed.completed_count = total.task_count
+  AND completed.completed_count >= total.task_count
 `
 
 type getCompletedLessonsRow struct {
@@ -278,6 +278,8 @@ func (q *Queries) getCompletedTasks(ctx context.Context, dollar_1 []uuid.UUID) (
 }
 
 const getCompletedTopics = `-- name: getCompletedTopics :many
+
+
 WITH total AS (SELECT l.topic_id,
                       COUNT(t.id) task_count
                FROM tasks t
@@ -301,6 +303,7 @@ type getCompletedTopicsRow struct {
 	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
 }
 
+// >= instead of = In case somethig has been archived later
 func (q *Queries) getCompletedTopics(ctx context.Context, dollar_1 []uuid.UUID) ([]getCompletedTopicsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getCompletedTopics, pq.Array(dollar_1))
 	if err != nil {

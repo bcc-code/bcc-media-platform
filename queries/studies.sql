@@ -162,9 +162,10 @@ WITH total AS (SELECT t.lesson_id,
 SELECT total.lesson_id as id, p.id as parent_id
 FROM users.profiles p
          JOIN completed ON completed.profile_id = p.id
-         JOIN total ON total.lesson_id >= completed.lesson_id -- In case somethig has been archived later
+         JOIN total ON total.lesson_id = completed.lesson_id
 WHERE p.id = ANY ($1::uuid[])
-  AND completed.completed_count = total.task_count;
+-- >= instead of = In case somethig has been archived later
+  AND completed.completed_count >= total.task_count;
 
 
 -- name: getCompletedTopics :many
