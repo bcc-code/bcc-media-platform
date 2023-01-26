@@ -30,11 +30,37 @@ services:
             - DB_CONNECTION_STRING=postgres://btv@db/btv?sslmode=disable
             - REDIS_ADDRESS=redis:6379
             - PORT=8077
+            - TRACE_SAMPLING_FREQUENCY=0
     directus:
         depends_on:
             db:
                 condition: service_healthy
         build:
             context: ../../cms
+            dockerfile: ../tests/e2e/directus.Dockerfile
         ports:
             - "7055:8055/tcp"
+        environment:
+            - HOST=0.0.0.0
+            - PORT=8055
+            - PUBLIC_URL=/
+            - LOG_LEVEL=debug
+            - CACHE_ENABLED=false
+            - API_PATH=http://api:8077/
+            - API_SECRET=123456
+            - STORAGE_LOCATIONS=local
+            - STORAGE_LOCAL_DRIVER=local
+            - STORAGE_LOCAL_ROOT=./uploads
+            - DB_CLIENT=pg
+            - DB_HOST=db
+            - DB_PORT=5432
+            - DB_DATABASE=btv
+            - DB_USER=btv
+            - DB_SSL=false
+            - KEY="bb9d7e61-96bd-4c7e-8acf-599864e8eb62"
+            - SECRET="A4HL-7uMnqjLpkr1bpzblNXCilUCj5Nr"
+            - ACCESS_TOKEN_TTL="15m"
+            - REFRESH_TOKEN_TTL="7d"
+            - REFRESH_TOKEN_COOKIE_SECURE=false
+            - REFRESH_TOKEN_COOKIE_SAME_SITE="lax"
+            - REFRESH_TOKEN_COOKIE_NAME="directus_refresh_token"
