@@ -201,6 +201,7 @@ const getCompletedLessons = `-- name: getCompletedLessons :many
 WITH total AS (SELECT t.lesson_id,
                       COUNT(t.id) task_count
                FROM tasks t
+			   WHERE t.status = 'published'
                GROUP BY t.lesson_id),
      completed AS (SELECT t.lesson_id, ta.profile_id, COUNT(t.id) completed_count
                    FROM tasks t
@@ -209,7 +210,7 @@ WITH total AS (SELECT t.lesson_id,
 SELECT total.lesson_id as id, p.id as parent_id
 FROM users.profiles p
          JOIN completed ON completed.profile_id = p.id
-         JOIN total ON total.lesson_id = completed.lesson_id
+         JOIN total ON total.lesson_id >= completed.lesson_id -- In case somethig has been archived later
 WHERE p.id = ANY ($1::uuid[])
   AND completed.completed_count = total.task_count
 `
