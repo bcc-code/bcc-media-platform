@@ -26,6 +26,6 @@ GOOSE=$(which goose || echo "/bin/goose")
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 cd $script_dir
 
-psql -h $HOST -p $PORT -U $USERNAME $DATABASE < ./special/00-reset.sql
+psql -h $HOST -p $PORT -U $USERNAME postgres < ./special/00-reset.sql
 $GOOSE postgres "user=$USERNAME dbname=$DATABASE port=$PORT host=$HOST sslmode=disable" up
-psql -h $HOST -p $PORT -U $USERNAME $DATABASE < ./special/01-admin-user.sql
+psql -h $HOST -p $PORT -U $USERNAME postgres < ./special/01-admin-user.sql
