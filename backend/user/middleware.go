@@ -159,6 +159,7 @@ func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) fun
 			span.AddEvent("User failed to load")
 			userCache.Set(userID, u, cache.WithExpiration(1*time.Minute))
 			ctx.Set(CtxUser, u)
+			return
 		}
 
 		email := member.Email
