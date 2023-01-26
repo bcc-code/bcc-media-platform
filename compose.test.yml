@@ -7,10 +7,10 @@ services:
         ports:
             - "5400:5432/tcp"
         environment:
-            - POSTGRES_USER=btv
+            - POSTGRES_USER=bccm
             - POSTGRES_HOST_AUTH_METHOD=trust
         healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U btv"]
+            test: ["CMD-SHELL", "pg_isready -U bccm"]
             interval: 1s
             timeout: 5s
             retries: 5
@@ -20,14 +20,16 @@ services:
         depends_on:
             db:
                 condition: service_healthy
+            redis:
+                condition: service_started
         build:
-            context: ../..
-            dockerfile: ./tests/e2e/api.Dockerfile
+            context: ./
+            dockerfile: ./backend/Dockerfile.api.test
         ports:
             - "7077:8077/tcp"
         environment:
             - ENVIRONMENT=development
-            - DB_CONNECTION_STRING=postgres://btv@db/btv?sslmode=disable
+            - DB_CONNECTION_STRING=postgres://bccm@db/bccm?sslmode=disable
             - REDIS_ADDRESS=redis:6379
             - PORT=8077
             - TRACE_SAMPLING_FREQUENCY=0
@@ -36,8 +38,8 @@ services:
             db:
                 condition: service_healthy
         build:
-            context: ../../cms
-            dockerfile: ../tests/e2e/directus.Dockerfile
+            context: ./cms
+            dockerfile: Dockerfile.test
         ports:
             - "7055:8055/tcp"
         environment:
@@ -54,9 +56,10 @@ services:
             - DB_CLIENT=pg
             - DB_HOST=db
             - DB_PORT=5432
-            - DB_DATABASE=btv
-            - DB_USER=btv
+            - DB_DATABASE=bccm
+            - DB_USER=bccm
             - DB_SSL=false
+            - DB_CONNECTION_STRING=postgres://bccm@db/bccm?sslmode=disable
             - KEY="bb9d7e61-96bd-4c7e-8acf-599864e8eb62"
             - SECRET="A4HL-7uMnqjLpkr1bpzblNXCilUCj5Nr"
             - ACCESS_TOKEN_TTL="15m"
