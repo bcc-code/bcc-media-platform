@@ -27,10 +27,25 @@ type CollectionItem {
     title: String!
 }
 
+type ProgressByOrg {
+  name: String!
+  progress: Int!
+}
+
+type Statistics {
+  lessonProgressGroupedByOrg(
+    lessonID: ID!,
+    ageGroups: [String!]!,
+    orgMaxSize: Int,
+    orgMinSize: Int,
+  ): [ProgressByOrg!]! @goField(forceResolver: true)
+}
+
 schema{
     query: QueryRoot
 }
 
 type QueryRoot {
     preview: Preview!
+    statistics: Statistics!
 }

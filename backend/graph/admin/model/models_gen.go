@@ -28,6 +28,15 @@ type PreviewCollection struct {
 	Items []*CollectionItem `json:"items"`
 }
 
+type ProgressByOrg struct {
+	Name     string `json:"name"`
+	Progress int    `json:"progress"`
+}
+
+type Statistics struct {
+	LessonProgressGroupedByOrg []*ProgressByOrg `json:"lessonProgressGroupedByOrg"`
+}
+
 type Collection string
 
 const (

@@ -85,3 +85,72 @@ func (c *Client) CountMembersByAge(ctx context.Context, min, max int) (int, erro
 		page += 1
 	}
 }
+
+// CountMembersByAgeGroupedByOrg counts active members who are min <= age <= max
+func (c *Client) CountMembersByAgeGroupedByOrg(ctx context.Context, min, max int) (map[int]int, error) {
+	out := map[int]int{}
+
+	filter := gin.H{
+		"age": gin.H{
+			"_gte": min,
+			"_lte": max,
+		},
+	}
+
+	encoded, _ := json.Marshal(filter)
+
+	page := 1
+	for {
+		print(".")
+		ms, err := get[[]Member](ctx, c, fmt.Sprintf("persons?limit=999&page=%d&fields=age,affiliations.*&filter=%s", page, encoded))
+		if err != nil {
+			return nil, err
+		}
+
+		// Are we done?
+		if len(*ms) == 0 {
+			return out, nil
+		}
+
+		// Remove inactive members
+		lo.ForEach(*ms, func(m Member, _ int) {
+			counted := false
+			lo.ForEach(m.Affiliations, func(af Affiliation, _ int) {
+				if counted || af.OrgType != "Church" || !af.Active {
+					return
+				}
+
+				if _, ok := out[af.OrgID]; !ok {
+					out[af.OrgID] = 0
+				}
+				out[af.OrgID] += 1
+				counted = true
+			})
+		})
+
+		// Add to total and next page
+		//cnt += len(activeMembers)
+		page += 1
+	}
+}
+
+func (c *Client) GetOrgs(ctx context.Context, min, max int) ([]Organization, error) {
+	page := 1
+	out := []Organization{}
+	for {
+		print(".")
+		ms, err := get[[]Organization](ctx, c, fmt.Sprintf("orgs?limit=999&page=%d&fields=orgID,name,type", page))
+		if err != nil {
+			return nil, err
+		}
+
+		// Are we done?
+		if len(*ms) == 0 {
+			return out, nil
+		}
+
+		out = append(out, *ms...)
+
+		page += 1
+	}
+}

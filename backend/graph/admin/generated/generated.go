@@ -38,6 +38,7 @@ type Config struct {
 type ResolverRoot interface {
 	Preview() PreviewResolver
 	QueryRoot() QueryRootResolver
+	Statistics() StatisticsResolver
 }
 
 type DirectiveRoot struct {
@@ -64,8 +65,18 @@ type ComplexityRoot struct {
 		Items func(childComplexity int) int
 	}
 
+	ProgressByOrg struct {
+		Name     func(childComplexity int) int
+		Progress func(childComplexity int) int
+	}
+
 	QueryRoot struct {
-		Preview func(childComplexity int) int
+		Preview    func(childComplexity int) int
+		Statistics func(childComplexity int) int
+	}
+
+	Statistics struct {
+		LessonProgressGroupedByOrg func(childComplexity int, lessonID string, ageGroups []string, orgMaxSize *int, orgMinSize *int) int
 	}
 }
 
@@ -75,6 +86,10 @@ type PreviewResolver interface {
 }
 type QueryRootResolver interface {
 	Preview(ctx context.Context) (*model.Preview, error)
+	Statistics(ctx context.Context) (*model.Statistics, error)
+}
+type StatisticsResolver interface {
+	LessonProgressGroupedByOrg(ctx context.Context, obj *model.Statistics, lessonID string, ageGroups []string, orgMaxSize *int, orgMinSize *int) ([]*model.ProgressByOrg, error)
 }
 
 type executableSchema struct {
@@ -158,12 +173,45 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PreviewCollection.Items(childComplexity), true
 
+	case "ProgressByOrg.name":
+		if e.complexity.ProgressByOrg.Name == nil {
+			break
+		}
+
+		return e.complexity.ProgressByOrg.Name(childComplexity), true
+
+	case "ProgressByOrg.progress":
+		if e.complexity.ProgressByOrg.Progress == nil {
+			break
+		}
+
+		return e.complexity.ProgressByOrg.Progress(childComplexity), true
+
 	case "QueryRoot.preview":
 		if e.complexity.QueryRoot.Preview == nil {
 			break
 		}
 
 		return e.complexity.QueryRoot.Preview(childComplexity), true
+
+	case "QueryRoot.statistics":
+		if e.complexity.QueryRoot.Statistics == nil {
+			break
+		}
+
+		return e.complexity.QueryRoot.Statistics(childComplexity), true
+
+	case "Statistics.lessonProgressGroupedByOrg":
+		if e.complexity.Statistics.LessonProgressGroupedByOrg == nil {
+			break
+		}
+
+		args, err := ec.field_Statistics_lessonProgressGroupedByOrg_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Statistics.LessonProgressGroupedByOrg(childComplexity, args["lessonID"].(string), args["ageGroups"].([]string), args["orgMaxSize"].(*int), args["orgMinSize"].(*int)), true
 
 	}
 	return 0, false
@@ -246,12 +294,27 @@ type CollectionItem {
     title: String!
 }
 
+type ProgressByOrg {
+  name: String!
+  progress: Int!
+}
+
+type Statistics {
+  lessonProgressGroupedByOrg(
+    lessonID: ID!,
+    ageGroups: [String!]!,
+    orgMaxSize: Int,
+    orgMinSize: Int,
+  ): [ProgressByOrg!]! @goField(forceResolver: true)
+}
+
 schema{
     query: QueryRoot
 }
 
 type QueryRoot {
     preview: Preview!
+    statistics: Statistics!
 }
 `, BuiltIn: false},
 }
@@ -303,6 +366,48 @@ func (ec *executionContext) field_QueryRoot___type_args(ctx context.Context, raw
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Statistics_lessonProgressGroupedByOrg_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["lessonID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lessonID"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["lessonID"] = arg0
+	var arg1 []string
+	if tmp, ok := rawArgs["ageGroups"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ageGroups"))
+		arg1, err = ec.unmarshalNString2ᚕstringᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["ageGroups"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["orgMaxSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orgMaxSize"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orgMaxSize"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["orgMinSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orgMinSize"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orgMinSize"] = arg3
 	return args, nil
 }
 
@@ -736,6 +841,94 @@ func (ec *executionContext) fieldContext_PreviewCollection_items(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _ProgressByOrg_name(ctx context.Context, field graphql.CollectedField, obj *model.ProgressByOrg) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProgressByOrg_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProgressByOrg_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProgressByOrg",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProgressByOrg_progress(ctx context.Context, field graphql.CollectedField, obj *model.ProgressByOrg) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProgressByOrg_progress(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Progress, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProgressByOrg_progress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProgressByOrg",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _QueryRoot_preview(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_QueryRoot_preview(ctx, field)
 	if err != nil {
@@ -781,6 +974,54 @@ func (ec *executionContext) fieldContext_QueryRoot_preview(ctx context.Context, 
 				return ec.fieldContext_Preview_asset(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Preview", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_statistics(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_statistics(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().Statistics(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Statistics)
+	fc.Result = res
+	return ec.marshalNStatistics2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐStatistics(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_statistics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "lessonProgressGroupedByOrg":
+				return ec.fieldContext_Statistics_lessonProgressGroupedByOrg(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Statistics", field.Name)
 		},
 	}
 	return fc, nil
@@ -911,6 +1152,67 @@ func (ec *executionContext) fieldContext_QueryRoot___schema(ctx context.Context,
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Statistics_lessonProgressGroupedByOrg(ctx context.Context, field graphql.CollectedField, obj *model.Statistics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Statistics_lessonProgressGroupedByOrg(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Statistics().LessonProgressGroupedByOrg(rctx, obj, fc.Args["lessonID"].(string), fc.Args["ageGroups"].([]string), fc.Args["orgMaxSize"].(*int), fc.Args["orgMinSize"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ProgressByOrg)
+	fc.Result = res
+	return ec.marshalNProgressByOrg2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐProgressByOrgᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Statistics_lessonProgressGroupedByOrg(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Statistics",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_ProgressByOrg_name(ctx, field)
+			case "progress":
+				return ec.fieldContext_ProgressByOrg_progress(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProgressByOrg", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Statistics_lessonProgressGroupedByOrg_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -2862,6 +3164,41 @@ func (ec *executionContext) _PreviewCollection(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var progressByOrgImplementors = []string{"ProgressByOrg"}
+
+func (ec *executionContext) _ProgressByOrg(ctx context.Context, sel ast.SelectionSet, obj *model.ProgressByOrg) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, progressByOrgImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ProgressByOrg")
+		case "name":
+
+			out.Values[i] = ec._ProgressByOrg_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "progress":
+
+			out.Values[i] = ec._ProgressByOrg_progress(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var queryRootImplementors = []string{"QueryRoot"}
 
 func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -2904,6 +3241,29 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "statistics":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_statistics(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -2916,6 +3276,47 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 				return ec._QueryRoot___schema(ctx, field)
 			})
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var statisticsImplementors = []string{"Statistics"}
+
+func (ec *executionContext) _Statistics(ctx context.Context, sel ast.SelectionSet, obj *model.Statistics) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, statisticsImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Statistics")
+		case "lessonProgressGroupedByOrg":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Statistics_lessonProgressGroupedByOrg(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3339,6 +3740,21 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalNPreview2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐPreview(ctx context.Context, sel ast.SelectionSet, v model.Preview) graphql.Marshaler {
 	return ec._Preview(ctx, sel, &v)
 }
@@ -3381,6 +3797,74 @@ func (ec *executionContext) marshalNPreviewCollection2ᚖgithubᚗcomᚋbccᚑco
 	return ec._PreviewCollection(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNProgressByOrg2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐProgressByOrgᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ProgressByOrg) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNProgressByOrg2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐProgressByOrg(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNProgressByOrg2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐProgressByOrg(ctx context.Context, sel ast.SelectionSet, v *model.ProgressByOrg) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ProgressByOrg(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNStatistics2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐStatistics(ctx context.Context, sel ast.SelectionSet, v model.Statistics) graphql.Marshaler {
+	return ec._Statistics(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNStatistics2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐStatistics(ctx context.Context, sel ast.SelectionSet, v *model.Statistics) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Statistics(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3394,6 +3878,38 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -3672,6 +4188,22 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	res := graphql.MarshalBoolean(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
 	return res
 }
 

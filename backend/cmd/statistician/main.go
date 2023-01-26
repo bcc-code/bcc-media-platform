@@ -22,6 +22,11 @@ func chunkBy[T any](items []T, chunkSize int) [][]T {
 	return append(_chunks, items)
 }
 
+type ageRange struct {
+	Min int
+	Max int
+}
+
 func main() {
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 	ctx := context.Background()
@@ -32,6 +37,55 @@ func main() {
 
 	authClient := auth0.New(config.Auth0)
 	membersClient := members.New(config.Members, authClient)
+
+	orgs, err := membersClient.GetOrgs(ctx, 0, 0)
+	if err != nil {
+		log.L.Panic().Err(err).Msg("Members failed")
+	}
+
+	for _, org := range orgs {
+		err := queries.InsertOrg(ctx, sqlc.InsertOrgParams{
+			OrgID: int32(org.OrgID),
+			Name:  org.Name,
+			Type:  org.Type,
+		})
+		if err != nil {
+			log.L.Panic().Err(err).Msg("Query failed")
+		}
+		print(",")
+	}
+
+	ageRanges := []ageRange{
+		{Min: 13, Max: 18},
+		{Min: 19, Max: 25},
+		{Min: 26, Max: 36},
+	}
+
+	for _, ar := range ageRanges {
+		data, _ := membersClient.CountMembersByAgeGroupedByOrg(ctx, ar.Min, ar.Max)
+		tx, err := db.Begin()
+		defer tx.Rollback()
+
+		if err != nil {
+			log.L.Panic().Err(err).Msg("Members failed")
+		}
+		queriesTx := queries.WithTx(tx)
+
+		for churchId, count := range data {
+			err := queriesTx.InsertOrgCounts(ctx, sqlc.InsertOrgCountsParams{
+				CountPersons: int32(count),
+				OrgID:        int32(churchId),
+				AgeGroup:     fmt.Sprintf("%d - %d", ar.Min, ar.Max),
+			})
+			if err != nil {
+				log.L.Panic().Err(err).Msg("Query failed")
+			}
+			fmt.Printf("A: %d-%d O: %d C: %d\n", ar.Min, ar.Max, churchId, count)
+		}
+
+		tx.Commit()
+	}
+	return
 
 	count1, _ := membersClient.CountMembersByAge(ctx, 13, 18)
 	count2, _ := membersClient.CountMembersByAge(ctx, 19, 25)
