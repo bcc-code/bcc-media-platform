@@ -100,7 +100,7 @@ func (r *statisticsResolver) LessonProgressGroupedByOrg(ctx context.Context, obj
 		})
 	}
 
-	return nil, err
+	return out, err
 }
 
 // Preview returns generated.PreviewResolver implementation.
