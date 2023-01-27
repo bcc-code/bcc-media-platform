@@ -153,6 +153,7 @@ WHERE a.profile_id = ANY ($1::uuid[])
 WITH total AS (SELECT t.lesson_id,
                       COUNT(t.id) task_count
                FROM tasks t
+			   WHERE t.status = 'published'
                GROUP BY t.lesson_id),
      completed AS (SELECT t.lesson_id, ta.profile_id, COUNT(t.id) completed_count
                    FROM tasks t
@@ -163,7 +164,8 @@ FROM users.profiles p
          JOIN completed ON completed.profile_id = p.id
          JOIN total ON total.lesson_id = completed.lesson_id
 WHERE p.id = ANY ($1::uuid[])
-  AND completed.completed_count = total.task_count;
+-- >= instead of = In case somethig has been archived later
+  AND completed.completed_count >= total.task_count;
 
 
 -- name: getCompletedTopics :many
