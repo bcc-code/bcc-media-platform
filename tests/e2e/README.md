@@ -9,6 +9,7 @@ Start the other necessary applications:
 
 # Running tests
 
-Copy `.env.example` to `.env` and change parameters to the correct ones if different.
+Copy `.env.example` to `.env` and change parameters to the correct ones if different,
+or leave them empty to use the default values specified in [config.ts](./lib/config.ts)
 
 Do `make test` to run the tests

@@ -1,14 +1,12 @@
 import { Directus } from "@directus/sdk"
 import { episodes } from "./types"
-import { config } from "dotenv"
+import { directus } from "lib/config"
 
-config()
-
-export const client = new Directus<episodes>(process.env.DIRECTUS_ADDRESS!)
+export const client = new Directus<episodes>(directus.address)
 
 export const login = async () => {
     await client.auth.login({
-        email: process.env.DIRECTUS_EMAIL!,
-        password: process.env.DIRECTUS_PASSWORD!,
+        email: directus.email,
+        password: directus.password,
     })
 }

@@ -41,7 +41,7 @@ For example:
 A fake pubsub instance is run with the compose file, and is configured/triggered manually by the "commands" in the backend [Makefile](./backend/Makefile)
 
 ### [API](./backend/cmd/api)
-is the public facing/open GraphQL API which an (un)authenticated user can retrieve data. It is built on the GraphQL schema files located at [graph/schema](./backend/graph/schema)
+is the public facing/open GraphQL API which an (un)authenticated user can retrieve data. It is built on the GraphQL schema files located at [graph/schema](./backend/graph/api/schema)
 
 In most cases, this is the only backend service (in addition to a filled database/CMS) you need to run in order to get a working local environment, as this is what the frontend will exclusively communicate with.
 
@@ -71,3 +71,13 @@ You can quickly make some dummy data with `./packages/test-data`. Do `npm instal
 ### Formats
 
 The default date format is RFC3339. For go: `x.Format(time.RFC3339)`
+
+## [Testing](./tests)
+
+Do `make tests.setup` to install dependencies and set up a testing environment.
+
+Do `make tests.run` to run configured tests.
+
+### [End to end](./tests/e2e)
+
+E2E testing is written mostly in TypeScript and uses [AVA](https://github.com/avajs/ava) as the testing framework.

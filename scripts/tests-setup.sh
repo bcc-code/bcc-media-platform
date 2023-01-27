@@ -11,3 +11,6 @@ cd ./migrations
 cd ..
 docker compose -f compose.test.yml up api directus -d --wait
 
+# Install test dependencies
+cd ./tests/e2e
+make install
