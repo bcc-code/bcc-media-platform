@@ -13,7 +13,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/admin/model"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
 )
 
@@ -73,7 +72,6 @@ func (r *queryRootResolver) Statistics(ctx context.Context) (*model.Statistics, 
 
 // LessonProgressGroupedByOrg is the resolver for the lessonProgressGroupedByOrg field.
 func (r *statisticsResolver) LessonProgressGroupedByOrg(ctx context.Context, obj *model.Statistics, lessonID string, ageGroups []string, orgMaxSize *int, orgMinSize *int) ([]*model.ProgressByOrg, error) {
-
 	minSize := 0
 	maxSize := 9999999
 	if orgMinSize != nil {
@@ -94,7 +92,13 @@ func (r *statisticsResolver) LessonProgressGroupedByOrg(ctx context.Context, obj
 		return nil, err
 	}
 
-	spew.Dump(stats)
+	out := []*model.ProgressByOrg{}
+	for _, s := range stats {
+		out = append(out, &model.ProgressByOrg{
+			Name:     s.Name.String,
+			Progress: s.Perc,
+		})
+	}
 
 	return nil, err
 }

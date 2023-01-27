@@ -29,7 +29,7 @@ type CollectionItem {
 
 type ProgressByOrg {
   name: String!
-  progress: Int!
+  progress: Float!
 }
 
 type Statistics {

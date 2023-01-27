@@ -57,7 +57,7 @@ group by m.org_id), totals as (
 	WHERE age_group IN ($4::text[])
     group by org_id
 )
-SELECT c.org_id, o.name, o.type, c.cnt as answers, t.cnt as totals, round(cast((c.cnt::float/t.cnt) as numeric), 2) as perc FROM counts c
+SELECT c.org_id, o.name, o.type, c.cnt as answers, t.cnt as totals, round(cast((c.cnt::float/t.cnt) as numeric), 2)::float as perc FROM counts c
 LEFT JOIN totals t ON c.org_id = t.org_id
 LEFT JOIN stats.orgs o ON o.id = t.org_id
 WHERE t.cnt >= $1::int AND t.cnt <= $2::int
@@ -77,7 +77,7 @@ type GetLessonProgressGroupedByOrgRow struct {
 	Type    null_v4.String `db:"type" json:"type"`
 	Answers int64          `db:"answers" json:"answers"`
 	Totals  null_v4.Int    `db:"totals" json:"totals"`
-	Perc    string         `db:"perc" json:"perc"`
+	Perc    float64        `db:"perc" json:"perc"`
 }
 
 // counts generates a count per orgid and age group
@@ -85,7 +85,7 @@ type GetLessonProgressGroupedByOrgRow struct {
 //	SUB Query: Get the last task of the lesson
 //
 // totals: Sum age groups for the orgs
-// Main Query: Calculate the %
+// Main Query: Calculate the % of answers per org for the task
 func (q *Queries) GetLessonProgressGroupedByOrg(ctx context.Context, arg GetLessonProgressGroupedByOrgParams) ([]GetLessonProgressGroupedByOrgRow, error) {
 	rows, err := q.db.QueryContext(ctx, getLessonProgressGroupedByOrg,
 		arg.MinSize,

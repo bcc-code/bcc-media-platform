@@ -41,7 +41,7 @@ group by m.org_id), totals as (
 	WHERE age_group IN (@age_groups::text[])
     group by org_id
 )
-SELECT c.org_id, o.name, o.type, c.cnt as answers, t.cnt as totals, round(cast((c.cnt::float/t.cnt) as numeric), 2) as perc FROM counts c
+SELECT c.org_id, o.name, o.type, c.cnt as answers, t.cnt as totals, round(cast((c.cnt::float/t.cnt) as numeric), 2)::float as perc FROM counts c
 LEFT JOIN totals t ON c.org_id = t.org_id
 LEFT JOIN stats.orgs o ON o.id = t.org_id
 WHERE t.cnt >= @min_size::int AND t.cnt <= @max_size::int

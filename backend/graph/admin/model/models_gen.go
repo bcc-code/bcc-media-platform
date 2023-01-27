@@ -29,8 +29,8 @@ type PreviewCollection struct {
 }
 
 type ProgressByOrg struct {
-	Name     string `json:"name"`
-	Progress int    `json:"progress"`
+	Name     string  `json:"name"`
+	Progress float64 `json:"progress"`
 }
 
 type Statistics struct {
