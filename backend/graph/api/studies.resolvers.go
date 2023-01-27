@@ -46,10 +46,14 @@ func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.
 	}
 
 	return lo.Map(alts, func(alt *common.QuestionAlternative, _ int) *model.Alternative {
+		var correct *bool
+		if !obj.CompetitionMode {
+			correct = &alt.IsCorrect
+		}
 		return &model.Alternative{
 			ID:        alt.ID.String(),
 			Title:     alt.Title.Get(languages),
-			IsCorrect: alt.IsCorrect,
+			IsCorrect: correct,
 			Selected:  lo.Contains(selectedIDs, alt.ID),
 		}
 	}), nil
@@ -58,7 +62,7 @@ func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.
 // Locked is the resolver for the locked field.
 func (r *alternativesTaskResolver) Locked(ctx context.Context, obj *model.AlternativesTask) (bool, error) {
 	selectedRow, err := r.GetProfileLoaders(ctx).GetSelectedAlternativesLoader.Get(ctx, utils.AsUuid(obj.ID))
-	if err != nil {
+	if err != nil || selectedRow == nil {
 		return false, err
 	}
 

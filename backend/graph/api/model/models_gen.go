@@ -145,7 +145,7 @@ func (this AchievementSection) GetDescription() *string { return this.Descriptio
 type Alternative struct {
 	ID        string `json:"id"`
 	Title     string `json:"title"`
-	IsCorrect bool   `json:"isCorrect"`
+	IsCorrect *bool  `json:"isCorrect"`
 	Selected  bool   `json:"selected"`
 }
 
