@@ -220,6 +220,7 @@ type getCompletedLessonsRow struct {
 	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
 }
 
+// >= instead of = In case somethig has been archived later
 func (q *Queries) getCompletedLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getCompletedLessonsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getCompletedLessons, pq.Array(dollar_1))
 	if err != nil {
@@ -278,8 +279,6 @@ func (q *Queries) getCompletedTasks(ctx context.Context, dollar_1 []uuid.UUID) (
 }
 
 const getCompletedTopics = `-- name: getCompletedTopics :many
-
-
 WITH total AS (SELECT l.topic_id,
                       COUNT(t.id) task_count
                FROM tasks t
@@ -303,7 +302,6 @@ type getCompletedTopicsRow struct {
 	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
 }
 
-// >= instead of = In case somethig has been archived later
 func (q *Queries) getCompletedTopics(ctx context.Context, dollar_1 []uuid.UUID) ([]getCompletedTopicsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getCompletedTopics, pq.Array(dollar_1))
 	if err != nil {

@@ -23,3 +23,10 @@ type Affiliation struct {
 	ValidFrom string
 	ChurchID  int
 }
+
+// Organization
+type Organization struct {
+	OrgID int
+	Name  string
+	Type  string
+}
