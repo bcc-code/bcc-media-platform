@@ -43,15 +43,15 @@ services:
         ports:
             - "7055:8055/tcp"
         environment:
-            - ADMIN_EMAIL="admin@brunstad.tv"
-            - ADMIN_PASSWORD="btv123"
+            - ADMIN_EMAIL=admin@brunstad.tv
+            - ADMIN_PASSWORD=btv123
             - HOST=0.0.0.0
             - PORT=8055
             - PUBLIC_URL=/
             - LOG_LEVEL=debug
             - CACHE_ENABLED=false
             - API_PATH=http://api:8077/
-            - API_SECRET=123456
+            - API_SECRET=common_secret
             - STORAGE_LOCATIONS=local
             - STORAGE_LOCAL_DRIVER=local
             - STORAGE_LOCAL_ROOT=./uploads
@@ -62,13 +62,13 @@ services:
             - DB_USER=bccm
             - DB_SSL=false
             - DB_CONNECTION_STRING=postgres://bccm@db/bccm?sslmode=disable
-            - KEY="a_secret_key"
-            - SECRET="a_secret_value"
-            - ACCESS_TOKEN_TTL="15m"
-            - REFRESH_TOKEN_TTL="7d"
+            - KEY=a_secret_key
+            - SECRET=a_secret_value
+            - ACCESS_TOKEN_TTL=15m
+            - REFRESH_TOKEN_TTL=7d
             - REFRESH_TOKEN_COOKIE_SECURE=false
-            - REFRESH_TOKEN_COOKIE_SAME_SITE="lax"
-            - REFRESH_TOKEN_COOKIE_NAME="directus_refresh_token"
+            - REFRESH_TOKEN_COOKIE_SAME_SITE=lax
+            - REFRESH_TOKEN_COOKIE_NAME=directus_refresh_token
             - CROWDIN_ENABLED=false
             - PUBSUB_ENABLED=false
             - LEGACY_SYNC=off
