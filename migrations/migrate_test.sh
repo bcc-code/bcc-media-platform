@@ -28,4 +28,5 @@ cd $script_dir
 
 psql -h $HOST -p $PORT -U $USERNAME postgres < ./special/00-reset.sql
 $GOOSE postgres "user=$USERNAME dbname=$DATABASE port=$PORT host=$HOST sslmode=disable" up
-psql -h $HOST -p $PORT -U $USERNAME postgres < ./special/01-admin-user.sql
+psql -h $HOST -p $PORT -U $USERNAME $DATABASE < ./special/01-admin-user.sql
+psql -h $HOST -p $PORT -U $USERNAME $DATABASE < ./special/02-basic-data.sql

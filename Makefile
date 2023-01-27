@@ -33,3 +33,9 @@ migrate.status:
 
 sync.staging:
 	cd ./scripts/staging-sync/ && ./copy.sh
+
+tests.setup:
+	./scripts/tests-setup.sh
+
+tests.run:
+	./scripts/tests-run.sh

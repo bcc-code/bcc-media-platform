@@ -1,5 +1,5 @@
 version: '3.8'
-
+name: bccm-test
 services:
     db:
         command: ["postgres", "-c", "log_statement=all"]
@@ -43,6 +43,8 @@ services:
         ports:
             - "7055:8055/tcp"
         environment:
+            - ADMIN_EMAIL="admin@brunstad.tv"
+            - ADMIN_PASSWORD="btv123"
             - HOST=0.0.0.0
             - PORT=8055
             - PUBLIC_URL=/
@@ -67,3 +69,6 @@ services:
             - REFRESH_TOKEN_COOKIE_SECURE=false
             - REFRESH_TOKEN_COOKIE_SAME_SITE="lax"
             - REFRESH_TOKEN_COOKIE_NAME="directus_refresh_token"
+            - CROWDIN_ENABLED=false
+            - PUBSUB_ENABLED=false
+            - LEGACY_SYNC=off

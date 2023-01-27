@@ -7,10 +7,7 @@ docker compose -f compose.test.yml up db redis -d --wait
 cd ./migrations
 ./migrate_test.sh -h localhost -p 5400 -U bccm -d bccm
 
-# Run tests
+# Start API and directus
 cd ..
 docker compose -f compose.test.yml up api directus -d --wait
 
-# cd ./tests/e2e
-# pnpm i
-# pnpm ava
