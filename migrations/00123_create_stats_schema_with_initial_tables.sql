@@ -1,7 +1,6 @@
 -- +goose Up
 /**********************************************************/
 /*** SCRIPT AUTHOR: Matjaz Debelak (matjaz@debelak.org) ***/
-/***    CREATED ON: 2023-01-13T15:19:43.529Z            ***/
 /**********************************************************/
 
 CREATE SCHEMA stats;
@@ -11,20 +10,12 @@ create table stats.members_data
     id     integer not null
         constraint members_data_pk
             primary key,
-    age    integer not null,
+    age_group    text not null,
     org_id integer not null
 );
 
 alter table stats.members_data
     owner to builder;
-
-GRANT ALL PRIVILEGES ON stats.members_data TO api;
-
-alter table stats.members_data
-    rename column age to age_group;
-
-alter table stats.members_data
-    alter column age_group type text using age_group::text;
 
 create table stats.org_counts
 (
@@ -38,7 +29,6 @@ create table stats.org_counts
 alter table stats.org_counts
     owner to builder;
 
-GRANT ALL PRIVILEGES ON stats.org_counts TO api;
 
 alter table stats.org_counts
     drop constraint org_counts_pk;
@@ -61,15 +51,11 @@ alter table stats.org_counts
         foreign key (org_id) references stats.orgs (id)
             on update cascade on delete restrict;
 
-
 GRANT ALL PRIVILEGES ON stats.orgs TO api;
+GRANT ALL PRIVILEGES ON stats.org_counts TO api;
+GRANT ALL PRIVILEGES ON stats.members_data TO api;
 
---- END ALTER TABLE "users"."taskanswers" ---
 -- +goose Down
-/**********************************************************/
-/*** SCRIPT AUTHOR: Matjaz Debelak (matjaz@debelak.org) ***/
-/***    CREATED ON: 2023-01-13T15:19:45.039Z            ***/
-/**********************************************************/
 
 DROP TABLE IF EXISTS stats.members_data;
 DROP TABLE IF EXISTS stats.org_counts;

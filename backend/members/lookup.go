@@ -35,8 +35,10 @@ type listOfMembersByIDFilter struct {
 	PersonID map[string]any `json:"personID"`
 }
 
-// RetrieveByEmails retrieves members by emails
+// RetrieveByID retrieves a batch of members by ID
 func (c *Client) RetrieveByID(ctx context.Context, ids []int) (*[]Member, error) {
+	// TODO: We should likely allow passing any number of ids in here and chunk them internally
+
 	filter := listOfMembersByIDFilter{
 		PersonID: map[string]any{
 			"_in": ids,
@@ -50,6 +52,7 @@ func (c *Client) RetrieveByID(ctx context.Context, ids []int) (*[]Member, error)
 
 // CountMembersByAge counts active members who are min <= age <= max
 func (c *Client) CountMembersByAge(ctx context.Context, min, max int) (int, error) {
+	/// TOOO: This is currenty only used by `statistician` and needs to be cleaned up, possibly limited?
 	filter := gin.H{
 		"age": gin.H{
 			"_gte": min,
@@ -86,10 +89,11 @@ func (c *Client) CountMembersByAge(ctx context.Context, min, max int) (int, erro
 	}
 }
 
-// CountMembersByAgeGroupedByOrg counts active members who are min <= age <= max
+// CountMembersByAgeGroupedByOrg counts active members who are min <= age <= max, and groups them by their active "Church"
 func (c *Client) CountMembersByAgeGroupedByOrg(ctx context.Context, min, max int) (map[int]int, error) {
-	out := map[int]int{}
+	/// TOOO: This is currenty only used by `statistician` and needs to be cleaned up, possibly limited?
 
+	out := map[int]int{}
 	filter := gin.H{
 		"age": gin.H{
 			"_gte": min,
@@ -112,7 +116,9 @@ func (c *Client) CountMembersByAgeGroupedByOrg(ctx context.Context, min, max int
 			return out, nil
 		}
 
-		// Remove inactive members
+		// Can this easily be parallelized?
+		// Is the += thread safe or do we have to make it better
+		// Will it be faster? Do we care?
 		lo.ForEach(*ms, func(m Member, _ int) {
 			counted := false
 			lo.ForEach(m.Affiliations, func(af Affiliation, _ int) {
@@ -128,12 +134,13 @@ func (c *Client) CountMembersByAgeGroupedByOrg(ctx context.Context, min, max int
 			})
 		})
 
-		// Add to total and next page
-		//cnt += len(activeMembers)
+		// Next page
 		page += 1
 	}
 }
 
+// GetOrgs returns basic data about all organizations
+// Meant for use by statistician
 func (c *Client) GetOrgs(ctx context.Context, min, max int) ([]Organization, error) {
 	page := 1
 	out := []Organization{}

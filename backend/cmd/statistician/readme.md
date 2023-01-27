@@ -1,3 +1,9 @@
+# WARNING
+
+This is a work in progress and may do what you think it does, delete your hard disk,
+burn down your house, kill your cat, or anything in between. Please do not run unless you are sure
+you know what you are doing
+
 # statistician
 
 Statistician is a tool for generating some statistics from the DB.

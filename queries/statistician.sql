@@ -24,7 +24,7 @@ values (
 -- counts generates a count per orgid and age group
 --   SUB Query: Get the last task of the lesson
 -- totals: Sum age groups for the orgs
--- Main Query: Calculate the %
+-- Main Query: Calculate the % of answers per org for the task
 WITH counts AS (SELECT m.org_id, count(*) as cnt FROM users.taskanswers a
          LEFT JOIN users.profiles p on p.id = a.profile_id
          LEFT JOIN stats.members_data m ON p.user_id = text(m.id)
