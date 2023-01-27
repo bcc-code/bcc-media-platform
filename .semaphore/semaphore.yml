@@ -42,7 +42,7 @@ blocks:
             - export CGO_ENABLED=0
             - checkout
             - cache restore
-            - GOPROXY=direct go get -v ./...
+            - go get -v ./...
             - go test ./...
       epilogue:
         on_pass:
@@ -68,6 +68,7 @@ blocks:
           commands:
             - scripts/gen-version.sh
             - cp version.json ./backend
+            - go get -v ./...
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/api
             - cd ./backend
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:$SEMAPHORE_GIT_BRANCH .'
@@ -79,6 +80,7 @@ blocks:
           commands:
             - scripts/gen-version.sh
             - cp version.json ./backend
+            - go get -v ./...
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/jobs
             - cd ./backend
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:$SEMAPHORE_GIT_BRANCH .'
@@ -90,6 +92,7 @@ blocks:
           commands:
             - scripts/gen-version.sh
             - cp version.json ./backend
+            - go get -v ./...
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/rewriter
             - cd ./backend
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:$SEMAPHORE_GIT_BRANCH .'
