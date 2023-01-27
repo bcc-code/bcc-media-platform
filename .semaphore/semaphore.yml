@@ -66,9 +66,10 @@ blocks:
       jobs:
         - name: API
           commands:
+            - go get -v ./...
+            - go test ./...
             - scripts/gen-version.sh
             - cp version.json ./backend
-            - go get -v ./...
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/api
             - cd ./backend
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:$SEMAPHORE_GIT_BRANCH .'
@@ -76,11 +77,7 @@ blocks:
             - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:$SEMAPHORE_GIT_BRANCH'
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}" > api.txt'
             - artifact push workflow api.txt
-        - name: Jobs
-          commands:
-            - scripts/gen-version.sh
-            - cp version.json ./backend
-            - go get -v ./...
+            - cd ..
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/jobs
             - cd ./backend
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:$SEMAPHORE_GIT_BRANCH .'
@@ -88,11 +85,7 @@ blocks:
             - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:$SEMAPHORE_GIT_BRANCH'
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}" > jobs.txt'
             - artifact push workflow jobs.txt
-        - name: Rewriter
-          commands:
-            - scripts/gen-version.sh
-            - cp version.json ./backend
-            - go get -v ./...
+            - cd ..
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/rewriter
             - cd ./backend
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:$SEMAPHORE_GIT_BRANCH .'
