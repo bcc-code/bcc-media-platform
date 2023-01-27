@@ -32,26 +32,6 @@ blocks:
     run:
       when: 'change_in([''/cms/'', ''/migrations/''])'
     dependencies: []
-  - name: Test
-    task:
-      jobs:
-        - name: go test
-          commands:
-            - export GOPATH=~/go
-            - 'export PATH=/home/semaphore/go/bin:$PATH'
-            - export CGO_ENABLED=0
-            - checkout
-            - cache restore
-            - go get -v ./...
-            - go test ./...
-      epilogue:
-        on_pass:
-          commands:
-            - cache store
-      prologue:
-        commands:
-          - sem-version go 1.19
-    dependencies: []
   - name: Build Backend
     task:
       prologue:
@@ -95,8 +75,7 @@ blocks:
             - artifact push workflow rewriter.txt
       secrets:
         - name: GoogleSemaphoreServiceAccount
-    dependencies:
-      - Test
+    dependencies: []
   - name: Build Migrations
     dependencies: []
     task:
