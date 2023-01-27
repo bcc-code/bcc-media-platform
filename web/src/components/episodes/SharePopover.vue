@@ -72,12 +72,9 @@ const canShare = computed(() => {
 })
 
 const share = () => {
-    if (!locationSpan.value) {
-        return
-    }
     const data = {
         title: props.episode.title,
-        url: locationSpan.value.innerText,
+        url: l.value,
     }
     if (typeof navigator.canShare !== "undefined" && navigator.canShare(data)) {
         navigator.share(data)
