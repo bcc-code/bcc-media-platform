@@ -62,8 +62,8 @@ services:
             - DB_USER=bccm
             - DB_SSL=false
             - DB_CONNECTION_STRING=postgres://bccm@db/bccm?sslmode=disable
-            - KEY="bb9d7e61-96bd-4c7e-8acf-599864e8eb62"
-            - SECRET="A4HL-7uMnqjLpkr1bpzblNXCilUCj5Nr"
+            - KEY="a_secret_key"
+            - SECRET="a_secret_value"
             - ACCESS_TOKEN_TTL="15m"
             - REFRESH_TOKEN_TTL="7d"
             - REFRESH_TOKEN_COOKIE_SECURE=false
