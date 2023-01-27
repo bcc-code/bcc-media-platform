@@ -7,7 +7,7 @@ require (
 	cloud.google.com/go/pubsub v1.26.0
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/99designs/gqlgen v0.17.9
-	github.com/Code-Hex/go-generics-cache v1.1.0
+	github.com/Code-Hex/go-generics-cache v1.2.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.1
 	github.com/Masterminds/squirrel v1.5.3
 	github.com/XSAM/otelsql v0.17.0
