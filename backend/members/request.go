@@ -42,14 +42,15 @@ func sendRequest[t any](ctx context.Context, client *Client, req *http.Request) 
 }
 
 func get[t any](ctx context.Context, client *Client, endpoint string) (*t, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://%s/%s", client.domain, endpoint), nil)
+	url := fmt.Sprintf("https://%s/%s", client.domain, endpoint)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, err
+		return nil, merry.Wrap(err)
 	}
 
 	res, err := sendRequest[t](ctx, client, req)
 	if err != nil {
-		return nil, err
+		return nil, merry.Wrap(err)
 	}
 
 	return &res.Data, nil
