@@ -32,26 +32,6 @@ blocks:
     run:
       when: 'change_in([''/cms/'', ''/migrations/''])'
     dependencies: []
-  - name: Test
-    task:
-      jobs:
-        - name: go test
-          commands:
-            - export GOPATH=~/go
-            - 'export PATH=/home/semaphore/go/bin:$PATH'
-            - export CGO_ENABLED=0
-            - checkout
-            - cache restore
-            - GOPROXY=direct go get -v ./...
-            - go test ./...
-      epilogue:
-        on_pass:
-          commands:
-            - cache store
-      prologue:
-        commands:
-          - sem-version go 1.19
-    dependencies: []
   - name: Build Backend
     task:
       prologue:
@@ -66,6 +46,8 @@ blocks:
       jobs:
         - name: API
           commands:
+            - go get -v ./...
+            - go test ./...
             - scripts/gen-version.sh
             - cp version.json ./backend
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/api
@@ -75,10 +57,7 @@ blocks:
             - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:$SEMAPHORE_GIT_BRANCH'
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}" > api.txt'
             - artifact push workflow api.txt
-        - name: Jobs
-          commands:
-            - scripts/gen-version.sh
-            - cp version.json ./backend
+            - cd ..
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/jobs
             - cd ./backend
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:$SEMAPHORE_GIT_BRANCH .'
@@ -86,10 +65,7 @@ blocks:
             - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:$SEMAPHORE_GIT_BRANCH'
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}" > jobs.txt'
             - artifact push workflow jobs.txt
-        - name: Rewriter
-          commands:
-            - scripts/gen-version.sh
-            - cp version.json ./backend
+            - cd ..
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/rewriter
             - cd ./backend
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:$SEMAPHORE_GIT_BRANCH .'
@@ -99,8 +75,7 @@ blocks:
             - artifact push workflow rewriter.txt
       secrets:
         - name: GoogleSemaphoreServiceAccount
-    dependencies:
-      - Test
+    dependencies: []
   - name: Build Migrations
     dependencies: []
     task:

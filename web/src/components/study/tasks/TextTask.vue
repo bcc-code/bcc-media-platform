@@ -17,7 +17,7 @@
                 >Retry</VButton
             >
         </template>
-        <template v-else-if="isDone">
+        <template v-else-if="data">
             <div
                 class="flex flex-col items-center justify-center w-full h-full"
             >
@@ -54,9 +54,16 @@
             <VButton
                 :disabled="!messageInput"
                 @click="submit"
-                class="w-full mt-4 mb-32"
+                class="w-full mt-4"
                 size="large"
                 >Send</VButton
+            >
+            <VButton
+                @click="emit('nextTask')"
+                class="w-full mt-4 mb-32"
+                size="large"
+                color="secondary"
+                >Skip</VButton
             >
         </template>
     </div>
@@ -78,7 +85,7 @@ var selectedIndex = ref<number>()
 
 const { t } = useI18n()
 
-const { fetching, executeMutation, error } = useSendTaskMessageMutation()
+const { fetching, executeMutation, error, data } = useSendTaskMessageMutation()
 const { executeMutation: completeTask } = useCompleteTaskMutation()
 
 const props = defineProps<{
@@ -87,6 +94,7 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{
     (event: "change"): void
+    (event: "nextTask"): void
     (event: "update:isDone", val: boolean): void
 }>()
 
