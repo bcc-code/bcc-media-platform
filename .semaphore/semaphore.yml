@@ -19,6 +19,7 @@ blocks:
             - checkout
             - cd cms
             - cache restore
+            - nvm install 16.15
             - make install
             - cache store
             - docker build -f Dockerfile.builder -t builder .
