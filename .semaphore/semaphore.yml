@@ -18,6 +18,11 @@ blocks:
           commands:
             - checkout
             - cd cms
+            - cache restore
+            - make install
+            - cache store
+            - docker build -t builder .
+            - docker run --rm -it -v $(pwd):/app builder
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:$SEMAPHORE_GIT_BRANCH .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" '
             - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:$SEMAPHORE_GIT_BRANCH'
