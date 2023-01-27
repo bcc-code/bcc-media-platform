@@ -32,7 +32,7 @@
                 <a href="#" class="flex justify-center" v-if="task.link.image">
                     <img :src="task.link.image ?? ''" />
                 </a>
-                <h2 class="text-style-title-2 text-on-tint text-center">
+                <h2 class="mt-2 text-style-title-2 text-on-tint text-center">
                     {{ task.link.title }}
                 </h2>
                 <h2 class="mt-1 text-style-caption-1 text-label-3 text-center">

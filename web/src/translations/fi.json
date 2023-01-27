@@ -1,145 +1,145 @@
 {
     "buttons": {
-        "save": "",
-        "login": "",
-        "logout": "",
-        "stayLoggedOut": "",
-        "cancel": "",
-        "submit": "",
-        "back": "",
-        "next": "",
-        "continue": "",
-        "close": "",
-        "download": "",
-        "goTo": "",
-        "send": ""
+        "save": "Tallenna",
+        "login": "Kirjaudu",
+        "logout": "Kirjaudu ulos",
+        "stayLoggedOut": "Pysy uloskirjautuneena",
+        "cancel": "Peru",
+        "submit": "Lähetä",
+        "back": "Takaisin",
+        "next": "Seuraava",
+        "continue": "Jatka",
+        "close": "Sulje",
+        "download": "Lataa",
+        "goTo": "Siirry",
+        "send": "Lähetä"
     },
     "error": {
-        "couldntSendYourMessage": "",
-        "somethingWentWrong": "",
-        "checkNetwork": ""
+        "couldntSendYourMessage": "Lähettäminen epäonnistui",
+        "somethingWentWrong": "Jokin meni pieleen.",
+        "checkNetwork": "Tarkista nettiyhteys ja yritä uudelleen."
     },
     "dashboard": {
-        "loggedOut": ""
+        "loggedOut": "Sinut kirjattiin ulos"
     },
     "page": {
-        "home": "",
-        "search": "",
-        "live": "",
-        "calendar": "",
-        "faq": "",
-        "notFound": "",
-        "explore": "",
-        "watchNow": "",
-        "aboutUs": ""
+        "home": "Etusivu",
+        "search": "Haku",
+        "live": "Live",
+        "calendar": "Kalenteri",
+        "faq": "UKK",
+        "notFound": "Sivua ei löydy",
+        "explore": "Selaa",
+        "watchNow": "Katso",
+        "aboutUs": "Tietoa meistä"
     },
     "section": {
         "item": {
-            "episode": "",
-            "season": ""
+            "episode": "0 jaksoa | 1 jakso | {count} jaksoa",
+            "season": "0 tuotantokautta | 1 tuotantokausi | {count} tuotantokautta"
         }
     },
     "notFound": {
-        "title": "",
-        "description": "",
-        "returnHome": ""
+        "title": "Ei löydy",
+        "description": "Ehkä et ole kirjautuneena, tai jokin oikeus puuttuu.",
+        "returnHome": "Kotisivulle"
     },
     "common": {
-        "new": "",
-        "newEpisodes": ""
+        "new": "Uutta",
+        "newEpisodes": "Uusia jaksoja"
     },
     "episode": {
-        "details": "",
-        "episode": "",
-        "episodes": "",
-        "videos": "",
-        "seriesDescription": "",
-        "releaseDate": "",
-        "availableFrom": "",
-        "availableTo": "",
-        "ageRating": "",
-        "notFound": "",
-        "comingSoon": "",
+        "details": "Lisätietoa",
+        "episode": "Jakso",
+        "episodes": "Jaksot",
+        "videos": "Videot",
+        "seriesDescription": "Kuvaus sarjasta",
+        "releaseDate": "Julkaisupäivämäärä",
+        "availableFrom": "Saatavilla:",
+        "availableTo": "Poistuu:",
+        "ageRating": "Ikäraja",
+        "notFound": "Jaksoa ei löydy",
+        "comingSoon": "Tulossa pian",
         "noAccess": {
-            "oops": "",
-            "mustBeLoggedIn": "",
-            "otherContent": "",
-            "exploreContent": ""
+            "oops": "Hupsista!",
+            "mustBeLoggedIn": "Tämän katsominen vaatii kirjautumista",
+            "otherContent": "Mutta ei syytä huoleen. On edelleen paljon katsottavaa!",
+            "exploreContent": "Tutustu sisältöön"
         }
     },
     "live": {
-        "now": ""
+        "now": "Nyt"
     },
     "calendar": {
-        "noScheduledEvents": "",
-        "thisWeek": "",
-        "timeTableIsLocalTime": ""
+        "noScheduledEvents": "Ei suunniteltuja tapahtumia",
+        "thisWeek": "Tällä viikolla",
+        "timeTableIsLocalTime": "Kellonajat noudattavat aikavyöhykettäsi."
     },
     "search": {
-        "programs": "",
-        "episodes": "",
-        "cancel": "",
-        "emptyQuery": "",
-        "noResults": "",
-        "tryAdjustingQuery": ""
+        "programs": "Ohjelmat",
+        "episodes": "Jaksot",
+        "cancel": "Peru",
+        "emptyQuery": "Tyhjä hakukenttä.",
+        "noResults": "Mitään ei löytynyt",
+        "tryAdjustingQuery": "Haun muuttaminen hiukan voi auttaa"
     },
     "support": {
-        "contact": "",
-        "title": "",
-        "subject": "",
-        "content": "",
-        "describeIssue": ""
+        "contact": "Ota yhteys käyttötukeen",
+        "title": "Otsikko",
+        "subject": "Aihe",
+        "content": "Sisältö",
+        "describeIssue": "Selitä asiasi huolellisesti."
     },
     "study": {
-        "startStudy": "",
-        "continueStudy": ""
+        "startStudy": "Aloita opinto",
+        "continueStudy": "Jatka opintoa"
     },
     "lesson": {
-        "related": "",
+        "related": "Aiheeseen liittyvää",
         "watchAgain": {
-            "title": "",
-            "description": "",
-            "button": ""
+            "title": "Katso uudelleen",
+            "description": "Suosittelemme, että katsot videon useamman kerran. Näin saat paremman ymmärryksen.",
+            "button": "Toista uudelleen"
         },
-        "lessonActivityTitle": "",
-        "textTaskPlaceholder": "",
-        "question": "",
-        "wrongAnswerMessage": "",
-        "correctAnswerMessage": "",
-        "noLocalGroupFound": ""
+        "lessonActivityTitle": "Oppitunnin tehtävä",
+        "textTaskPlaceholder": "Kirjoita tähän...",
+        "question": "Kysymys",
+        "wrongAnswerMessage": "Ei ihan. Yritä uudelleen!",
+        "correctAnswerMessage": "Hyvin tehty!",
+        "noLocalGroupFound": "Paikallista ryhmää ei löytynyt"
     },
     "cookies": {
-        "title": "",
-        "description": "",
-        "necessary": "",
-        "preferences": "",
-        "statistics": "",
-        "accept": ""
+        "title": "Tämä verkkosivusto hyödyntää evästeitä",
+        "description": "Evästeiden tallentaminen parantaa verkkosivuston käyttökokemusta. Jos jatkat sivuston käyttöä, hyväksyt tämän.",
+        "necessary": "Välttämättömät",
+        "preferences": "Valinnat",
+        "statistics": "Tilastot",
+        "accept": "Hyväksy"
     },
     "footer": {
-        "cookies": "",
-        "privacyPolicy": "",
-        "information": "",
-        "headOffice": "",
-        "contactUs": "",
-        "downloadApp": ""
+        "cookies": "Evästeet",
+        "privacyPolicy": "Tietosuojakäytäntö",
+        "information": "BCC Media on [BCC Liiton](https://bcc.no) mediaosasto, joka tuottaa ja toimittaa positiivista Kristillisten arvojen mukaista sisältöä.\n\nBCC Media on rekisteröity juokkoviestinnän tarjoaja ja noudattaa Norjan lakia joukkoviestinnästä. Joukkoviestintää Norjassa sääntelee [Medietilsynet](https://medietilsynet.no/).",
+        "headOffice": "Pääkonttori",
+        "contactUs": "Yhteydenotto",
+        "downloadApp": "Lataa sovelluksemme"
     },
     "share": {
-        "title": "",
-        "copied": "",
-        "membersOnly": ""
+        "title": "Jaa",
+        "copied": "Kopioitu leikepöydälle",
+        "membersOnly": "Tämä video näkyy vain sisäänkirjautuneille."
     },
     "feedback": {
-        "appreciated": "",
-        "comment": "",
-        "episodeTitle": "",
-        "howEasyToUnderstand": "",
-        "anonymousInfo": "",
-        "placeholder": ""
+        "appreciated": "Kiitos palautteesta.",
+        "comment": "Lisää huomio kokemuksesta",
+        "episodeTitle": "Minkä arvosanan annat tälle jaksolle?",
+        "howEasyToUnderstand": "Kuinka helppoa oli ymmärtää videon sisältö?",
+        "anonymousInfo": "Arvostelusi tallentuu nimettömänä",
+        "placeholder": "Jotta voisimme mahdollisimman hyvin ymmärtää, pyydämme selittämään yksityiskohtaisesti."
     },
-    "contactLocalBukIfWrong": "",
-    "thankYou": "",
-    "yourResponseHasBeenSubmitted": "",
-    "sending": "",
-    "defaultInputPlaceholder": ""
+    "contactLocalBukIfWrong": "Jos pidät tätä vääränä ota yhteyttä paikalliseen BUK-vastuuhenkilöön.",
+    "thankYou": "Kiitoksia!",
+    "yourResponseHasBeenSubmitted": "Lähetetty.",
+    "sending": "Lähetetään",
+    "defaultInputPlaceholder": "Kirjoita tähän..."
 }

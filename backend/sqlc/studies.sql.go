@@ -92,12 +92,14 @@ func (q *Queries) GetSelectedAlternativesAndLockStatus(ctx context.Context, arg 
 }
 
 const setAnswerLock = `-- name: SetAnswerLock :exec
-UPDATE users.taskanswers SET locked = $1::bool WHERE (task_id, profile_id) IN (SELECT ta.task_id, ta.profile_id FROM users.taskanswers ta
-LEFT JOIN public.tasks t ON ta.task_id = t.id
-WHERE
-ta.profile_id = $2::uuid AND
-t.lesson_id = $3::uuid AND
-t.competition_mode = true)
+UPDATE users.taskanswers
+SET locked = $1::bool
+WHERE (task_id, profile_id) IN (SELECT ta.task_id, ta.profile_id
+                                FROM users.taskanswers ta
+                                         LEFT JOIN public.tasks t ON ta.task_id = t.id
+                                WHERE ta.profile_id = $2::uuid
+                                  AND t.lesson_id = $3::uuid
+                                  AND t.competition_mode = true)
 `
 
 type SetAnswerLockParams struct {
@@ -143,7 +145,8 @@ func (q *Queries) SetMessage(ctx context.Context, arg SetMessageParams) error {
 const setTaskCompleted = `-- name: SetTaskCompleted :exec
 INSERT INTO "users"."taskanswers" (profile_id, task_id, selected_alternatives, updated_at)
 VALUES ($1, $2, $3::uuid[], NOW())
-ON CONFLICT (profile_id, task_id) DO UPDATE SET updated_at = EXCLUDED.updated_at, selected_alternatives = $3::uuid[]
+ON CONFLICT (profile_id, task_id) DO UPDATE SET updated_at            = EXCLUDED.updated_at,
+                                                selected_alternatives = $3::uuid[]
 `
 
 type SetTaskCompletedParams struct {
@@ -160,10 +163,10 @@ func (q *Queries) SetTaskCompleted(ctx context.Context, arg SetTaskCompletedPara
 const getCompletedAndLockedTasks = `-- name: getCompletedAndLockedTasks :many
 SELECT a.task_id as id, a.profile_id as parent_id
 FROM users.taskanswers a
-LEFT JOIN public.tasks t on a.task_id = t.id
-WHERE a.profile_id = ANY ($1::uuid[]) AND
-		a.locked = true AND
-		t.competition_mode = true
+         LEFT JOIN public.tasks t on a.task_id = t.id
+WHERE a.profile_id = ANY ($1::uuid[])
+  AND a.locked = true
+  AND t.competition_mode = true
 `
 
 type getCompletedAndLockedTasksRow struct {
@@ -198,6 +201,7 @@ const getCompletedLessons = `-- name: getCompletedLessons :many
 WITH total AS (SELECT t.lesson_id,
                       COUNT(t.id) task_count
                FROM tasks t
+			   WHERE t.status = 'published'
                GROUP BY t.lesson_id),
      completed AS (SELECT t.lesson_id, ta.profile_id, COUNT(t.id) completed_count
                    FROM tasks t
@@ -208,7 +212,7 @@ FROM users.profiles p
          JOIN completed ON completed.profile_id = p.id
          JOIN total ON total.lesson_id = completed.lesson_id
 WHERE p.id = ANY ($1::uuid[])
-  AND completed.completed_count = total.task_count
+  AND completed.completed_count >= total.task_count
 `
 
 type getCompletedLessonsRow struct {
@@ -274,6 +278,8 @@ func (q *Queries) getCompletedTasks(ctx context.Context, dollar_1 []uuid.UUID) (
 }
 
 const getCompletedTopics = `-- name: getCompletedTopics :many
+
+
 WITH total AS (SELECT l.topic_id,
                       COUNT(t.id) task_count
                FROM tasks t
@@ -297,6 +303,7 @@ type getCompletedTopicsRow struct {
 	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
 }
 
+// >= instead of = In case somethig has been archived later
 func (q *Queries) getCompletedTopics(ctx context.Context, dollar_1 []uuid.UUID) ([]getCompletedTopicsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getCompletedTopics, pq.Array(dollar_1))
 	if err != nil {
@@ -334,6 +341,7 @@ WHERE rl.collection = 'episodes'
         (roles.roles_earlyaccess && $2::varchar[])
     )
   AND rl.lessons_id = ANY ($1::uuid[])
+ORDER BY rl.sort
 `
 
 type getEpisodesForLessonsParams struct {
@@ -441,6 +449,7 @@ SELECT rl.lessons_id AS id,
 FROM lessons_relations rl
 WHERE rl.collection = $1
   AND rl.item = ANY ($2::varchar[])
+ORDER BY rl.sort
 `
 
 type getLessonsForItemsInCollectionParams struct {
@@ -518,6 +527,7 @@ SELECT rl.item       AS id,
 FROM lessons_relations rl
 WHERE rl.collection = 'links'
   AND rl.lessons_id = ANY ($1::uuid[])
+ORDER BY rl.sort
 `
 
 type getLinksForLessonsRow struct {

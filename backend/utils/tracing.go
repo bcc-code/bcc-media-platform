@@ -63,6 +63,6 @@ func MustSetupTracing(serviceName string, config TracingConfig) {
 		}
 	}
 
-	traceProvider := sdktrace.NewTracerProvider(sdktrace.WithBatcher(exporter))
+	traceProvider := sdktrace.NewTracerProvider(sdktrace.WithBatcher(exporter), sdktrace.WithSampler(sdktrace.TraceIDRatioBased(frequency)))
 	otel.SetTracerProvider(traceProvider)
 }
