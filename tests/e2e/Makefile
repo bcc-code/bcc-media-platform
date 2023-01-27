@@ -4,3 +4,6 @@ install:
 
 test:
 	pnpm test
+
+types:
+	cd ../../cms && make generate-types
