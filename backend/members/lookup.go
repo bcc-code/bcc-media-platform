@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/ansel1/merry/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 )
@@ -36,18 +37,29 @@ type listOfMembersByIDFilter struct {
 }
 
 // RetrieveByID retrieves a batch of members by ID
-func (c *Client) RetrieveByID(ctx context.Context, ids []int) (*[]Member, error) {
-	// TODO: We should likely allow passing any number of ids in here and chunk them internally
+func (c *Client) RetrieveByID(ctx context.Context, ids []int) ([]Member, error) {
+	chunkedIds := lo.Chunk(ids, 800)
+	out := []Member{}
 
-	filter := listOfMembersByIDFilter{
-		PersonID: map[string]any{
-			"_in": ids,
-		},
+	for _, chunk := range chunkedIds {
+		filter := listOfMembersByIDFilter{
+			PersonID: map[string]any{
+				"_in": chunk,
+			},
+		}
+
+		encoded, _ := json.Marshal(filter)
+
+		ms, err := get[[]Member](ctx, c, fmt.Sprintf("persons?limit=999&fields=personID,age,affiliations.*&filter=%s", encoded))
+		if err != nil {
+			return nil, merry.Wrap(err)
+
+		}
+
+		out = append(out, *ms...)
 	}
 
-	encoded, _ := json.Marshal(filter)
-
-	return get[[]Member](ctx, c, fmt.Sprintf("persons?limit=999&fields=personID,age,affiliations.*&filter=%s", encoded))
+	return out, nil
 }
 
 // CountMembersByAge counts active members who are min <= age <= max
@@ -61,7 +73,6 @@ func (c *Client) CountMembersByAge(ctx context.Context, min, max int) (int, erro
 	}
 
 	encoded, _ := json.Marshal(filter)
-
 	cnt := 0
 	page := 1
 	for {

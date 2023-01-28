@@ -2,7 +2,10 @@
 SELECT user_id FROM users.profiles GROUP BY user_id;
 
 -- name: InsertMember :exec
-INSERT INTO stats.members_data (id, age_group, org_id) VALUES (@id, @age_group, @org);
+INSERT INTO stats.members_data (id, age_group, org_id) VALUES (@id, @age_group, @org)
+ON CONFLICT ON CONSTRAINT members_data_pk DO UPDATE SET
+	age_group = @age_group, org_id = @org
+;
 
 -- name: InsertOrg :exec
 INSERT INTO stats.orgs(id, type, name)

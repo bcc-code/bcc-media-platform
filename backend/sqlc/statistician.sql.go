@@ -123,6 +123,8 @@ func (q *Queries) GetLessonProgressGroupedByOrg(ctx context.Context, arg GetLess
 
 const insertMember = `-- name: InsertMember :exec
 INSERT INTO stats.members_data (id, age_group, org_id) VALUES ($1, $2, $3)
+ON CONFLICT ON CONSTRAINT members_data_pk DO UPDATE SET
+	age_group = $2, org_id = $3
 `
 
 type InsertMemberParams struct {
