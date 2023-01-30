@@ -12,7 +12,10 @@
         "close": "Cerrar",
         "download": "Descargar",
         "goTo": "Ir a",
-        "send": "Enviar"
+        "send": "Enviar",
+        "start": "Comenzar",
+        "skip": "",
+        "join": ""
     },
     "error": {
         "couldntSendYourMessage": "Tu mensaje no pudo ser enviado",
@@ -93,6 +96,20 @@
     "study": {
         "startStudy": "Empezar a estudiar",
         "continueStudy": "Continuar con el estudio"
+    },
+    "competition": {
+        "title": "",
+        "description": "",
+        "howDoesItWork": "",
+        "onlyOnce": "",
+        "watchNextBroadcast": "",
+        "joinCompetition": "",
+        "terms": "",
+        "alreadySent": "",
+        "areYouSure": "",
+        "lookThouroughly": "",
+        "submitted": "",
+        "dontMiss": ""
     },
     "lesson": {
         "related": "Recursos Relacionados",

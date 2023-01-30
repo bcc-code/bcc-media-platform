@@ -12,7 +12,10 @@
         "close": "Sulje",
         "download": "Lataa",
         "goTo": "Siirry",
-        "send": "Lähetä"
+        "send": "Lähetä",
+        "start": "Alkaa",
+        "skip": "",
+        "join": ""
     },
     "error": {
         "couldntSendYourMessage": "Lähettäminen epäonnistui",
@@ -93,6 +96,20 @@
     "study": {
         "startStudy": "Aloita opinto",
         "continueStudy": "Jatka opintoa"
+    },
+    "competition": {
+        "title": "",
+        "description": "",
+        "howDoesItWork": "",
+        "onlyOnce": "",
+        "watchNextBroadcast": "",
+        "joinCompetition": "",
+        "terms": "",
+        "alreadySent": "",
+        "areYouSure": "",
+        "lookThouroughly": "",
+        "submitted": "",
+        "dontMiss": ""
     },
     "lesson": {
         "related": "Aiheeseen liittyvää",

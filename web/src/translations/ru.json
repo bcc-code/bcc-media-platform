@@ -12,7 +12,10 @@
         "close": "Закрыть",
         "download": "Скачать",
         "goTo": "Перейти к",
-        "send": "Отправить"
+        "send": "Отправить",
+        "start": "",
+        "skip": "",
+        "join": ""
     },
     "error": {
         "couldntSendYourMessage": "Не удалось отправить ваше сообщение",
@@ -93,6 +96,20 @@
     "study": {
         "startStudy": "Начать изучение",
         "continueStudy": "Продолжить изучение"
+    },
+    "competition": {
+        "title": "",
+        "description": "",
+        "howDoesItWork": "",
+        "onlyOnce": "",
+        "watchNextBroadcast": "",
+        "joinCompetition": "",
+        "terms": "",
+        "alreadySent": "",
+        "areYouSure": "",
+        "lookThouroughly": "",
+        "submitted": "",
+        "dontMiss": ""
     },
     "lesson": {
         "related": "",
