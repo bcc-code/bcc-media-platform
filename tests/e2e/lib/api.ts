@@ -5,11 +5,17 @@ export const query = async (
     query: string,
     variables: {
         [key: string]: number | string
+    },
+    headers?: {
+        [key: string]: string
     }
 ) => {
-    const headers = {
-        "Content-Type": "application/json",
-    }
+    headers = Object.assign(
+        {
+            "Content-Type": "application/json",
+        },
+        headers
+    )
 
     const result = await fetch(api.endpoint, {
         method: "POST",

@@ -25,7 +25,7 @@ type env string
 // Development checks if env is development
 func (e env) Development() bool {
 	switch e {
-	case "development", "testing":
+	case "development":
 		return true
 	}
 	return false
@@ -34,10 +34,19 @@ func (e env) Development() bool {
 // Production checks if env is production
 func (e env) Production() bool {
 	switch e {
-	case "development", "testing":
+	case "development", "test":
 		return false
 	}
 	return true
+}
+
+// Test checks if env is test
+func (e env) Test() bool {
+	switch e {
+	case "test":
+		return true
+	}
+	return false
 }
 
 var environment = env(os.Getenv("ENVIRONMENT"))
@@ -128,7 +137,7 @@ func getEnvConfig() envConfig {
 	)
 
 	var jwtkey *rsa.PrivateKey
-	if key := os.Getenv("REDIRECT_JWT_KEY"); !environment.Development() || key != "" {
+	if key := os.Getenv("REDIRECT_JWT_KEY"); environment.Production() || key != "" {
 		// Parse the RSA Private KEY. The key should be in the pem format as delivered by Terraform
 		block, _ := pem.Decode([]byte(key))
 		if block == nil {
