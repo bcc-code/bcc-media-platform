@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/gin-contrib/pprof"
 	"net/http"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -462,6 +464,10 @@ func main() {
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, loaders))
 	r.POST("/public", publicGraphqlHandler(loaders))
 	r.GET("/versionz", version.GinHandler)
+
+	if os.Getenv("PPROF") == "TRUE" {
+		pprof.Register(r, "debug/pprof")
+	}
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
