@@ -201,7 +201,7 @@ func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) fun
 			ageGrpupMin := 0
 			for minAge, group := range AgeGroups {
 				// Note: Maps are not iterated in a sorted order so we have to find the lowed applicable
-				if u.Age > minAge && minAge > ageGrpupMin {
+				if u.Age >= minAge && minAge > ageGrpupMin {
 					u.AgeGroup = group
 					ageGrpupMin = minAge
 				}

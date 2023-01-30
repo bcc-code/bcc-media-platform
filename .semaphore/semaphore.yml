@@ -21,12 +21,11 @@ blocks:
             - cache restore
             - nvm install 16.15
             - make install
-            - cache store
             - make build
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:$SEMAPHORE_GIT_BRANCH .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" '
             - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:$SEMAPHORE_GIT_BRANCH'
-            - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}"  > cms.txt'
+            - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" > cms.txt'
             - artifact push workflow cms.txt
       prologue:
         commands:
