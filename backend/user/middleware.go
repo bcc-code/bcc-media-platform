@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"encoding/json"
+	"os"
 	"strconv"
 	"time"
 
@@ -118,6 +120,15 @@ func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) fun
 
 		// If the user is anonymous we just create a simple object and bail
 		if !authed {
+			if os.Getenv("ENVIRONMENT") == "test" {
+				d := ctx.GetHeader("user-data")
+				if d != "" {
+					var u common.User
+					_ = json.Unmarshal([]byte(d), &u)
+					ctx.Set(CtxUser, &u)
+					return
+				}
+			}
 			span.AddEvent("Anonymous")
 			roles = append(roles, RolePublic)
 			ctx.Set(CtxUser,
@@ -220,7 +231,7 @@ func GetFromCtx(ctx *gin.Context) *common.User {
 	return u.(*common.User)
 }
 
-var profileCache = cache.New[string, []common.Profile]()
+var profileCache = cache.New[string, []common.Profile](cache.WithJanitorInterval[string, []common.Profile](time.Second * 10))
 
 func cacheProfilesAndReturn(ctx context.Context, redisCache *redis.Client, key string, profiles []common.Profile) ([]common.Profile, error) {
 	profileCache.Set(key, profiles, cache.WithExpiration(time.Second*1))
@@ -229,7 +240,7 @@ func cacheProfilesAndReturn(ctx context.Context, redisCache *redis.Client, key s
 		if err != nil {
 			return nil, err
 		}
-		err = redisCache.Set(ctx, key, bytes, time.Minute*5).Err()
+		err = redisCache.Set(ctx, key, bytes, time.Second*5).Err()
 		if err != nil {
 			return nil, err
 		}
