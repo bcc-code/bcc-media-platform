@@ -71,8 +71,8 @@ github.com/99designs/gqlgen v0.17.9/go.mod h1:PThAZAK9t2pAat7g8QdSI4dCBMOhBO+t2q
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/toml v1.1.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/Code-Hex/go-generics-cache v1.1.0 h1:S3QFzvwNE8y2T848Y5C48VFXK86qtphVGgWJlPV7ztw=
-github.com/Code-Hex/go-generics-cache v1.1.0/go.mod h1:qxcC9kRVrct9rHeiYpFWSoW1vxyillCVzX13KZG8dl4=
+github.com/Code-Hex/go-generics-cache v1.2.1 h1:jKof8Hk8mr28lcEAo9g90oj7H3vb8y2DdccoGpL4lyE=
+github.com/Code-Hex/go-generics-cache v1.2.1/go.mod h1:qxcC9kRVrct9rHeiYpFWSoW1vxyillCVzX13KZG8dl4=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.1 h1:E0Hwk1YC0lWXJboAvQrOnDSyVpmdlqC2v4m+GNmNszA=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.1/go.mod h1:ZWWusXNLjdTConvbpJZf+/5xxtLfu7y3hRfKjmb/DOI=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.34.1 h1:2G1eO4RSvcTNncDivyGTd3Zh9tozmMeA2JpF07QEYlc=

@@ -91,7 +91,7 @@ func GetAcceptedLanguagesFromCtx(ctx *gin.Context) []string {
 	return utils.ParseAcceptLanguage(accLang)
 }
 
-var ageGroups = map[int]string{
+var AgeGroups = map[int]string{
 	65: "65+",
 	51: "51 - 64",
 	37: "37 - 50",
@@ -188,7 +188,7 @@ func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) fun
 		} else {
 			u.Age = time.Now().Year() - birthDate.Year()
 			ageGrpupMin := 0
-			for minAge, group := range ageGroups {
+			for minAge, group := range AgeGroups {
 				// Note: Maps are not iterated in a sorted order so we have to find the lowed applicable
 				if u.Age > minAge && minAge > ageGrpupMin {
 					u.AgeGroup = group

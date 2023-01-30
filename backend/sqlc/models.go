@@ -1176,6 +1176,24 @@ type ShowsUsergroup struct {
 	UsergroupsCode string `db:"usergroups_code" json:"usergroupsCode"`
 }
 
+type StatsMembersDatum struct {
+	ID       int32  `db:"id" json:"id"`
+	AgeGroup string `db:"age_group" json:"ageGroup"`
+	OrgID    int32  `db:"org_id" json:"orgID"`
+}
+
+type StatsOrg struct {
+	ID   int32  `db:"id" json:"id"`
+	Name string `db:"name" json:"name"`
+	Type string `db:"type" json:"type"`
+}
+
+type StatsOrgCount struct {
+	OrgID        int32  `db:"org_id" json:"orgID"`
+	CountPersons int32  `db:"count_persons" json:"countPersons"`
+	AgeGroup     string `db:"age_group" json:"ageGroup"`
+}
+
 type Studytopic struct {
 	ID          uuid.UUID      `db:"id" json:"id"`
 	Status      string         `db:"status" json:"status"`

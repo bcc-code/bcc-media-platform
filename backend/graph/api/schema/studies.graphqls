@@ -71,7 +71,7 @@ type AlternativesTask implements Task {
 type Alternative {
     id: ID!
     title: String!
-    isCorrect: Boolean!
+    isCorrect: Boolean
     selected: Boolean!
 }
 

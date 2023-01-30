@@ -11,6 +11,8 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/admin/model"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
 )
 
@@ -63,11 +65,53 @@ func (r *queryRootResolver) Preview(ctx context.Context) (*model.Preview, error)
 	return &model.Preview{}, nil
 }
 
+// Statistics is the resolver for the statistics field.
+func (r *queryRootResolver) Statistics(ctx context.Context) (*model.Statistics, error) {
+	return &model.Statistics{}, nil
+}
+
+// LessonProgressGroupedByOrg is the resolver for the lessonProgressGroupedByOrg field.
+func (r *statisticsResolver) LessonProgressGroupedByOrg(ctx context.Context, obj *model.Statistics, lessonID string, ageGroups []string, orgMaxSize *int, orgMinSize *int) ([]*model.ProgressByOrg, error) {
+	minSize := 0
+	maxSize := 9999999
+	if orgMinSize != nil {
+		minSize = *orgMinSize
+	}
+
+	if orgMaxSize != nil {
+		maxSize = *orgMaxSize
+	}
+
+	stats, err := r.Queries.GetLessonProgressGroupedByOrg(ctx, sqlc.GetLessonProgressGroupedByOrgParams{
+		AgeGroups: ageGroups,
+		LessonID:  utils.AsUuid(lessonID),
+		MinSize:   int32(minSize),
+		MaxSize:   int32(maxSize),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	out := []*model.ProgressByOrg{}
+	for _, s := range stats {
+		out = append(out, &model.ProgressByOrg{
+			Name:     s.Name.String,
+			Progress: s.Perc,
+		})
+	}
+
+	return out, err
+}
+
 // Preview returns generated.PreviewResolver implementation.
 func (r *Resolver) Preview() generated.PreviewResolver { return &previewResolver{r} }
 
 // QueryRoot returns generated.QueryRootResolver implementation.
 func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
 
+// Statistics returns generated.StatisticsResolver implementation.
+func (r *Resolver) Statistics() generated.StatisticsResolver { return &statisticsResolver{r} }
+
 type previewResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
+type statisticsResolver struct{ *Resolver }
