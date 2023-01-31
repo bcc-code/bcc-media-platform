@@ -2,7 +2,7 @@ package graph
 
 import (
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/graph-gophers/dataloader/v7"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
 )
 
 // This file will not be regenerated automatically.
@@ -16,7 +16,7 @@ type Resolver struct {
 
 // Loaders required for operation
 type Loaders struct {
-	ShowLoader    *dataloader.Loader[int, *common.Show]
-	SeasonLoader  *dataloader.Loader[int, *common.Season]
-	EpisodeLoader *dataloader.Loader[int, *common.Episode]
+	ShowLoader    *loaders.Loader[int, *common.Show]
+	SeasonLoader  *loaders.Loader[int, *common.Season]
+	EpisodeLoader *loaders.Loader[int, *common.Episode]
 }

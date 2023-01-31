@@ -16,10 +16,10 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/email"
 	"github.com/bcc-code/brunstadtv/backend/export"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/otel"
@@ -31,7 +31,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
 )
 
@@ -218,15 +217,15 @@ func timestampFromString(timestamp *string) (*time.Time, error) {
 }
 
 type itemLoaders[k comparable, t any] struct {
-	Permissions *dataloader.Loader[k, *common.Permissions[k]]
-	Item        *dataloader.Loader[k, *t]
+	Permissions *loaders.Loader[k, *common.Permissions[k]]
+	Item        *loaders.Loader[k, *t]
 }
 
 // resolverFor returns a resolver for the specified item
-func resolverFor[k comparable, t any, r any](ctx context.Context, loaders *itemLoaders[k, t], id k, converter func(context.Context, *t) r) (res r, err error) {
+func resolverFor[k comparable, t any, r any](ctx context.Context, ls *itemLoaders[k, t], id k, converter func(context.Context, *t) r) (res r, err error) {
 	ctx, span := otel.Tracer("resolver").Start(ctx, "item")
 	defer span.End()
-	obj, err := batchloaders.GetByID(ctx, loaders.Item, id)
+	obj, err := ls.Item.Get(ctx, id)
 	if err != nil {
 		return res, err
 	}
@@ -234,8 +233,8 @@ func resolverFor[k comparable, t any, r any](ctx context.Context, loaders *itemL
 		return res, merry.Wrap(ErrItemNotFound)
 	}
 
-	if t, ok := any(obj).(batchloaders.HasKey[k]); ok && loaders.Permissions != nil {
-		err = user.ValidateAccess(ctx, loaders.Permissions, t.GetKey(), user.CheckConditions{})
+	if t, ok := any(obj).(loaders.HasKey[k]); ok && ls.Permissions != nil {
+		err = user.ValidateAccess(ctx, ls.Permissions, t.GetKey(), user.CheckConditions{})
 		if err != nil {
 			return res, err
 		}
@@ -254,29 +253,29 @@ func resolverForIntID[t any, r any](ctx context.Context, loaders *itemLoaders[in
 	return resolverFor(ctx, loaders, int(intID), converter)
 }
 
-func itemsResolverFor[k comparable, kr comparable, t any, r any](ctx context.Context, loaders *itemLoaders[k, t], listLoader *dataloader.Loader[kr, []*k], id kr, converter func(context.Context, *t) r) ([]r, error) {
+func itemsResolverFor[k comparable, kr comparable, t any, r any](ctx context.Context, ls *itemLoaders[k, t], listLoader *loaders.Loader[kr, []*k], id kr, converter func(context.Context, *t) r) ([]r, error) {
 	ctx, span := otel.Tracer("resolver").Start(ctx, "items")
 	defer span.End()
-	itemIds, err := batchloaders.GetForKey(ctx, listLoader, id)
+	itemIds, err := listLoader.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
 	ids := lo.Map(lo.Filter(itemIds, func(i *k, _ int) bool {
-		if loaders.Permissions != nil {
-			return user.ValidateAccess(ctx, loaders.Permissions, *i, user.CheckConditions{}) == nil
+		if ls.Permissions != nil {
+			return user.ValidateAccess(ctx, ls.Permissions, *i, user.CheckConditions{}) == nil
 		}
 		return true
 	}), func(i *k, _ int) k {
 		return *i
 	})
 
-	items, err := batchloaders.GetMany(ctx, loaders.Item, ids)
+	items, err := ls.Item.GetMany(ctx, ids)
 
 	return utils.MapWithCtx(ctx, items, converter), err
 }
 
-func itemsResolverForIntID[t any, r any](ctx context.Context, loaders *itemLoaders[int, t], listLoader *dataloader.Loader[int, []*int], id string, converter func(context.Context, *t) r) ([]r, error) {
+func itemsResolverForIntID[t any, r any](ctx context.Context, loaders *itemLoaders[int, t], listLoader *loaders.Loader[int, []*int], id string, converter func(context.Context, *t) r) ([]r, error) {
 	intID, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return nil, err
@@ -372,7 +371,7 @@ func resolveMessageSection(ctx context.Context, r *messageSectionResolver, s *co
 		}
 	}
 
-	group, err := batchloaders.GetByID(ctx, r.Loaders.MessageGroupLoader, int(s.MessageID.Int64))
+	group, err := r.Loaders.MessageGroupLoader.Get(ctx, int(s.MessageID.Int64))
 	if err != nil {
 		return nil, err
 	}
@@ -428,7 +427,7 @@ func getEpisode(ctx context.Context, resolver *Resolver, episodeID string) (*com
 	if err != nil {
 		return nil, err
 	}
-	episode, err := batchloaders.GetByID(ctx, resolver.Loaders.EpisodeLoader, int(id))
+	episode, err := resolver.Loaders.EpisodeLoader.Get(ctx, int(id))
 	if err != nil {
 		return nil, err
 	}

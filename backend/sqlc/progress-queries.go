@@ -3,8 +3,8 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/tabbed/pqtype"
@@ -39,13 +39,13 @@ func (pq *ProfileQueries) GetProgressForEpisodes(ctx context.Context, episodeIDs
 }
 
 // GetEpisodeIDsWithProgress returns episodeIDs ordered by date progressed.
-func (q *Queries) GetEpisodeIDsWithProgress(ctx context.Context, profileIDs []uuid.UUID) ([]batchloaders.Relation[int, uuid.UUID], error) {
+func (q *Queries) GetEpisodeIDsWithProgress(ctx context.Context, profileIDs []uuid.UUID) ([]loaders.Relation[int, uuid.UUID], error) {
 	rows, err := q.getEpisodeIDsWithProgress(ctx, profileIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getEpisodeIDsWithProgressRow, _ int) batchloaders.Relation[int, uuid.UUID] {
-		return batchloaders.RelationItem[int, uuid.UUID]{
+	return lo.Map(rows, func(i getEpisodeIDsWithProgressRow, _ int) loaders.Relation[int, uuid.UUID] {
+		return loaders.RelationItem[int, uuid.UUID]{
 			Key:        int(i.EpisodeID),
 			RelationID: i.ProfileID,
 		}

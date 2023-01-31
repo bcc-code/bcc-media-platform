@@ -2,7 +2,7 @@ package search
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"strconv"
 	"strings"
 
@@ -10,7 +10,6 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
 )
 
@@ -117,7 +116,7 @@ func (service *Service) indexShow(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	p, err := batchloaders.GetByID(ctx, service.loaders.ShowPermissionLoader, id)
+	p, err := service.loaders.ShowPermissionLoader.Get(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -140,7 +139,7 @@ func (service *Service) indexSeason(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	p, err := batchloaders.GetByID(ctx, service.loaders.SeasonPermissionLoader, id)
+	p, err := service.loaders.SeasonPermissionLoader.Get(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -163,7 +162,7 @@ func (service *Service) indexEpisode(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	p, err := batchloaders.GetByID(ctx, service.loaders.EpisodePermissionLoader, id)
+	p, err := service.loaders.EpisodePermissionLoader.Get(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -177,8 +176,8 @@ type indexable[k comparable] interface {
 func indexCollection[k comparable, t indexable[k]](
 	ctx context.Context,
 	index *search.Index,
-	loader *dataloader.Loader[k, *t],
-	permissionLoader *dataloader.Loader[k, *common.Permissions[k]],
+	loader *loaders.Loader[k, *t],
+	permissionLoader *loaders.Loader[k, *common.Permissions[k]],
 	factory func(context.Context) ([]t, error),
 	converter func(context.Context, t) (searchItem, error),
 ) error {
@@ -214,7 +213,7 @@ func indexCollection[k comparable, t indexable[k]](
 			return err
 		}
 
-		perm, err := batchloaders.GetByID(ctx, permissionLoader, i.GetKey())
+		perm, err := permissionLoader.Get(ctx, i.GetKey())
 		if err != nil {
 			return err
 		}

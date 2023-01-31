@@ -3,8 +3,8 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/samber/lo"
 )
 
@@ -78,12 +78,12 @@ func (row getQuestionIDsForCategoriesRow) GetRelationID() int {
 }
 
 // GetQuestionIDsForCategories returns a list of episodes specified by seasons
-func (q *Queries) GetQuestionIDsForCategories(ctx context.Context, ids []int) ([]batchloaders.Relation[int, int], error) {
+func (q *Queries) GetQuestionIDsForCategories(ctx context.Context, ids []int) ([]loaders.Relation[int, int], error) {
 	rows, err := q.getQuestionIDsForCategories(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getQuestionIDsForCategoriesRow, _ int) batchloaders.Relation[int, int] {
+	return lo.Map(rows, func(i getQuestionIDsForCategoriesRow, _ int) loaders.Relation[int, int] {
 		return i
 	}), nil
 }
