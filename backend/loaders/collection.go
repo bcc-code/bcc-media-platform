@@ -2,6 +2,7 @@ package loaders
 
 import (
 	"context"
+	"log"
 	"sync"
 	"time"
 )
@@ -93,6 +94,7 @@ func (c Collection[K, V]) Delete(key K) {
 
 // DeleteExpired entries
 func (c Collection[K, V]) DeleteExpired() {
+	log.Print("Deleting expired entries from cache")
 	var deleteKeys []K
 	c.values.Range(func(key any, value any) bool {
 		e, _ := value.(*entry[K, V])
@@ -101,6 +103,9 @@ func (c Collection[K, V]) DeleteExpired() {
 		}
 		return true
 	})
+	for _, k := range deleteKeys {
+		c.Delete(k)
+	}
 }
 
 type onDelete func()
