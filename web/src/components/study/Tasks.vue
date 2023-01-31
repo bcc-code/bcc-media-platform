@@ -318,11 +318,12 @@ const currentIsFirstCompetitionTask = computed(
         ) === currentTaskIndex.value
 )
 const currentIsLastCompetitionTask = computed(() => {
-    const lastIndex = findLastIndex(
-        tasks.value,
-        (t) => t.__typename == "AlternativesTask" && t.competitionMode
+    return (
+        findLastIndex(
+            tasks.value,
+            (t) => t.__typename == "AlternativesTask" && t.competitionMode
+        ) === currentTaskIndex.value
     )
-    return lastIndex !== -1 && currentTaskIndex.value
 })
 const competitionLocked = computed(
     () =>
