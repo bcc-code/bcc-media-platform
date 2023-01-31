@@ -62,7 +62,7 @@ export type AchievementSection = Section & {
 
 export type Alternative = {
   id: Scalars['ID'];
-  isCorrect: Scalars['Boolean'];
+  isCorrect?: Maybe<Scalars['Boolean']>;
   selected: Scalars['Boolean'];
   title: Scalars['String'];
 };
@@ -1438,7 +1438,7 @@ export type GetSectionQueryVariables = Exact<{
 
 export type GetSectionQuery = { section: { __typename: 'AchievementSection', id: string } | { __typename: 'CardListSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } } | { __typename: 'CardSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } } | { __typename: 'DefaultGridSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } } | { __typename: 'DefaultSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } } | { __typename: 'FeaturedSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } } | { __typename: 'IconGridSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } } | { __typename: 'IconSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } } | { __typename: 'LabelSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } } | { __typename: 'ListSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } } | { __typename: 'MessageSection', id: string } | { __typename: 'PageDetailsSection', id: string } | { __typename: 'PosterGridSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } } | { __typename: 'PosterSection', id: string, metadata?: { collectionId: string, continueWatching: boolean, useContext: boolean, prependLiveElement: boolean, secondaryTitles: boolean } | null, items: { total: number, first: number, offset: number, items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } } | { __typename: 'WebSection', id: string } };
 
-type Task_AlternativesTask_Fragment = { __typename: 'AlternativesTask', competitionMode: boolean, id: string, title: string, completed: boolean, alternatives: Array<{ id: string, title: string, isCorrect: boolean, selected: boolean }> };
+type Task_AlternativesTask_Fragment = { __typename: 'AlternativesTask', competitionMode: boolean, locked: boolean, id: string, title: string, completed: boolean, alternatives: Array<{ id: string, title: string, isCorrect?: boolean | null, selected: boolean }> };
 
 type Task_LinkTask_Fragment = { __typename: 'LinkTask', secondaryTitle?: string | null, description?: string | null, id: string, title: string, completed: boolean, link: { type: LinkType, title: string, url: string, image?: string | null, description?: string | null } };
 
@@ -1466,7 +1466,7 @@ export type GetStudyLessonQueryVariables = Exact<{
 }>;
 
 
-export type GetStudyLessonQuery = { studyLesson: { id: string, title: string, progress: { total: number, completed: number }, tasks: { items: Array<{ __typename: 'AlternativesTask', competitionMode: boolean, id: string, title: string, completed: boolean, alternatives: Array<{ id: string, title: string, isCorrect: boolean, selected: boolean }> } | { __typename: 'LinkTask', secondaryTitle?: string | null, description?: string | null, id: string, title: string, completed: boolean, link: { type: LinkType, title: string, url: string, image?: string | null, description?: string | null } } | { __typename: 'PosterTask', image: string, id: string, title: string, completed: boolean } | { __typename: 'QuoteTask', image: string, id: string, title: string, completed: boolean } | { __typename: 'TextTask', id: string, title: string, completed: boolean } | { __typename: 'VideoTask', secondaryTitle?: string | null, id: string, title: string, completed: boolean, episode: { id: string, image?: string | null, title: string, description: string } }> }, links: { items: Array<{ image?: string | null, title: string, description?: string | null, url: string }> } }, episode: { id: string, title: string, image?: string | null } };
+export type GetStudyLessonQuery = { studyLesson: { id: string, title: string, progress: { total: number, completed: number }, tasks: { items: Array<{ __typename: 'AlternativesTask', competitionMode: boolean, locked: boolean, id: string, title: string, completed: boolean, alternatives: Array<{ id: string, title: string, isCorrect?: boolean | null, selected: boolean }> } | { __typename: 'LinkTask', secondaryTitle?: string | null, description?: string | null, id: string, title: string, completed: boolean, link: { type: LinkType, title: string, url: string, image?: string | null, description?: string | null } } | { __typename: 'PosterTask', image: string, id: string, title: string, completed: boolean } | { __typename: 'QuoteTask', image: string, id: string, title: string, completed: boolean } | { __typename: 'TextTask', id: string, title: string, completed: boolean } | { __typename: 'VideoTask', secondaryTitle?: string | null, id: string, title: string, completed: boolean, episode: { id: string, image?: string | null, title: string, description: string } }> }, links: { items: Array<{ image?: string | null, title: string, description?: string | null, url: string }> } }, episode: { id: string, title: string, image?: string | null } };
 
 export type GetStudyTopicLessonStatusesQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -1475,6 +1475,16 @@ export type GetStudyTopicLessonStatusesQueryVariables = Exact<{
 
 
 export type GetStudyTopicLessonStatusesQuery = { studyTopic: { lessons: { items: Array<{ id: string, completed: boolean, episodes: { items: Array<{ id: string, locked: boolean }> } }> } } };
+
+export type GetFirstSotmLessonForConsentQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetFirstSotmLessonForConsentQuery = { studyLesson: { tasks: { items: Array<{ __typename: 'AlternativesTask', alternatives: Array<{ id: string, selected: boolean }> } | { __typename: 'LinkTask' } | { __typename: 'PosterTask' } | { __typename: 'QuoteTask' } | { __typename: 'TextTask' } | { __typename: 'VideoTask' }> } } };
+
+export type SetStudyConsentTrueMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SetStudyConsentTrueMutation = { completeTask: boolean };
 
 export type CompleteTaskMutationVariables = Exact<{
   taskId: Scalars['ID'];
@@ -1491,6 +1501,13 @@ export type SendTaskMessageMutationVariables = Exact<{
 
 
 export type SendTaskMessageMutation = { sendTaskMessage: string };
+
+export type LockAnswersMutationVariables = Exact<{
+  lessonId: Scalars['ID'];
+}>;
+
+
+export type LockAnswersMutation = { lockLessonAnswers: boolean };
 
 export type GetCalendarStatusQueryVariables = Exact<{
   day: Scalars['Date'];
@@ -1674,6 +1691,7 @@ export const TaskFragmentDoc = gql`
   completed
   ... on AlternativesTask {
     competitionMode
+    locked
     alternatives {
       id
       title
@@ -2125,6 +2143,39 @@ export const GetStudyTopicLessonStatusesDocument = gql`
 export function useGetStudyTopicLessonStatusesQuery(options: Omit<Urql.UseQueryArgs<never, GetStudyTopicLessonStatusesQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetStudyTopicLessonStatusesQuery>({ query: GetStudyTopicLessonStatusesDocument, ...options });
 };
+export const GetFirstSotmLessonForConsentDocument = gql`
+    query getFirstSOTMLessonForConsent {
+  studyLesson(id: "5677226a-990b-4c24-b057-a5b0beab63f1") {
+    tasks {
+      items {
+        __typename
+        ... on AlternativesTask {
+          alternatives {
+            id
+            selected
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useGetFirstSotmLessonForConsentQuery(options: Omit<Urql.UseQueryArgs<never, GetFirstSotmLessonForConsentQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetFirstSotmLessonForConsentQuery>({ query: GetFirstSotmLessonForConsentDocument, ...options });
+};
+export const SetStudyConsentTrueDocument = gql`
+    mutation setStudyConsentTrue {
+  completeTask(
+    id: "9ca12a44-93b3-4c83-8fd6-a1334f0d877e"
+    selectedAlternatives: ["fe8c23c2-0aab-4853-a75f-f148400d005a"]
+  )
+}
+    `;
+
+export function useSetStudyConsentTrueMutation() {
+  return Urql.useMutation<SetStudyConsentTrueMutation, SetStudyConsentTrueMutationVariables>(SetStudyConsentTrueDocument);
+};
 export const CompleteTaskDocument = gql`
     mutation completeTask($taskId: ID!, $selectedAlternatives: [String!]) {
   completeTask(id: $taskId, selectedAlternatives: $selectedAlternatives)
@@ -2142,6 +2193,15 @@ export const SendTaskMessageDocument = gql`
 
 export function useSendTaskMessageMutation() {
   return Urql.useMutation<SendTaskMessageMutation, SendTaskMessageMutationVariables>(SendTaskMessageDocument);
+};
+export const LockAnswersDocument = gql`
+    mutation lockAnswers($lessonId: ID!) {
+  lockLessonAnswers(id: $lessonId)
+}
+    `;
+
+export function useLockAnswersMutation() {
+  return Urql.useMutation<LockAnswersMutation, LockAnswersMutationVariables>(LockAnswersDocument);
 };
 export const GetCalendarStatusDocument = gql`
     query getCalendarStatus($day: Date!) {

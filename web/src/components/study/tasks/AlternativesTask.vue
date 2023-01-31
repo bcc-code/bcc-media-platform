@@ -2,7 +2,16 @@
     <div
         class="p-4 flex flex-col space-y-8 items-start justify-start w-full embed:min-h-screen"
     >
-        <p class="w-full text-white text-style-title-1">{{ task.title }}</p>
+        <p
+            class="w-full text-white"
+            :class="
+                task.title.length > 100
+                    ? 'text-style-title-3'
+                    : 'text-style-title-1'
+            "
+        >
+            {{ task.title }}
+        </p>
         <div
             class="flex flex-col space-y-2 items-start justify-start w-full h-full"
         >
@@ -11,7 +20,12 @@
                 :key="alt.title"
                 :letter="getLetter(i)"
                 :text="alt.title"
-                :correct="noWrongAnswers ? undefined : alt.isCorrect"
+                :locked="task.locked"
+                :correct="
+                    noWrongAnswers || task.competitionMode
+                        ? undefined
+                        : alt.isCorrect
+                "
                 :competition-mode="task.competitionMode"
                 @click="() => selectAnswer(alt.id)"
                 :selected="selectedIndex == i"
@@ -29,6 +43,7 @@
 import { TaskFragment } from "@/graph/generated"
 import { computed, getCurrentInstance, Ref, ref, watch } from "vue"
 import Alternative from "./Alternative.vue"
+import ModalBase from "../ModalBase.vue"
 import { useCompleteTaskMutation } from "@/graph/generated"
 import { Vue3Lottie as LottieAnimation } from "vue3-lottie"
 import confettiAnimation from "./confetti.json"
@@ -42,6 +57,10 @@ const props = defineProps<{
 const emit = defineEmits<{
     (event: "change"): void
     (event: "update:isDone", val: boolean): void
+    (
+        event: "competitionAnswer",
+        val: { taskId: string; alternativeId: string }
+    ): void
 }>()
 
 const noWrongAnswers = computed(() =>
@@ -75,16 +94,26 @@ watch(
     selectedIndex,
     (after, before) => {
         let alternative = after == null ? null : task.value.alternatives[after]
-        isDone.value = alternative?.isCorrect ?? false
+        if (alternative && task.value.competitionMode) {
+            isDone.value = true
+        } else if (alternative && alternative.isCorrect) {
+            isDone.value = true
+        } else {
+            isDone.value = false
+        }
     },
     { immediate: true }
 )
 
 function selectAnswer(id: string) {
+    if (task.value.locked) return
     for (const alt of task.value.alternatives) {
         alt.selected = id == alt.id
     }
-    const alt = task.value.alternatives.find((alt) => alt.id == id)
-    executeMutation({ taskId: task.value.id, selectedAlternatives: [id] })
+    if (task.value.competitionMode) {
+        emit("competitionAnswer", { taskId: task.value.id, alternativeId: id })
+    } else {
+        executeMutation({ taskId: task.value.id, selectedAlternatives: [id] })
+    }
 }
 </script>
