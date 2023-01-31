@@ -28,5 +28,8 @@
             "tsconfig-paths/register",
             "ts-node/register"
         ]
+    },
+    "dependencies": {
+        "@faker-js/faker": "^7.6.0"
     }
 }

@@ -6,7 +6,7 @@ import { client } from "lib/directus"
 authed(test)
 
 test("create episode", async (t) => {
-    const title = "EPISODE"
+    const title = "Kåre Smith the Movie"
 
     const episode = await client.items("episodes").createOne({
         status: "published",
@@ -25,14 +25,24 @@ test("create episode", async (t) => {
         ],
     })
 
+    //check if episode ain't null
     t.truthy(episode, "episode is not null")
 
-    const existing = await client.items("episodes").readOne(episode.id ?? 0)
+    //read the newly added episode into a variable
+    const existing = await client.items("episodes").readOne(episode.id)
 
+    //check if the episode does exist
     t.truthy(existing, "episode exists")
 
     const queryString =
-        "query($episodeId: ID!){ episode(id: $episodeId) { title }}"
+        `
+        query($episodeId: ID!) {
+            episode(id: $episodeId) {
+                title
+                
+            }
+        }
+        `;
 
     const apiResponse = await query(queryString, {
         episodeId: episode.id!,
