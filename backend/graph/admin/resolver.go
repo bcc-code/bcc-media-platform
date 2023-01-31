@@ -3,7 +3,6 @@ package graph
 import (
 	"context"
 	"database/sql"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/admin/model"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
@@ -58,7 +57,7 @@ func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.F
 	for _, e := range ids {
 		switch e.Collection {
 		case "shows":
-			i, err := batchloaders.GetByID(ctx, r.Loaders.ShowLoader, utils.AsInt(e.ID))
+			i, err := r.Loaders.ShowLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
@@ -68,7 +67,7 @@ func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.F
 				Title:      i.Title.Get(languages),
 			})
 		case "seasons":
-			i, err := batchloaders.GetByID(ctx, r.Loaders.SeasonLoader, utils.AsInt(e.ID))
+			i, err := r.Loaders.SeasonLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
@@ -78,7 +77,7 @@ func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.F
 				Title:      i.Title.Get(languages),
 			})
 		case "episodes":
-			i, err := batchloaders.GetByID(ctx, r.Loaders.EpisodeLoader, utils.AsInt(e.ID))
+			i, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}

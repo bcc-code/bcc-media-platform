@@ -2,13 +2,9 @@ package search
 
 import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/items/episode"
-	"github.com/bcc-code/brunstadtv/backend/items/season"
-	"github.com/bcc-code/brunstadtv/backend/items/show"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/graph-gophers/dataloader/v7"
 	_ "github.com/lib/pq"
 )
 
@@ -31,15 +27,15 @@ func (object *searchObject) assignVisibility(v common.Visibility) {
 	}
 }
 
-type loaders struct {
-	ShowLoader    *dataloader.Loader[int, *common.Show]
-	SeasonLoader  *dataloader.Loader[int, *common.Season]
-	EpisodeLoader *dataloader.Loader[int, *common.Episode]
-	TagLoader     *dataloader.Loader[int, *common.Tag]
+type batchLoaders struct {
+	ShowLoader    *loaders.Loader[int, *common.Show]
+	SeasonLoader  *loaders.Loader[int, *common.Season]
+	EpisodeLoader *loaders.Loader[int, *common.Episode]
+	TagLoader     *loaders.Loader[int, *common.Tag]
 	// Permissions
-	ShowPermissionLoader    *dataloader.Loader[int, *common.Permissions[int]]
-	SeasonPermissionLoader  *dataloader.Loader[int, *common.Permissions[int]]
-	EpisodePermissionLoader *dataloader.Loader[int, *common.Permissions[int]]
+	ShowPermissionLoader    *loaders.Loader[int, *common.Permissions[int]]
+	SeasonPermissionLoader  *loaders.Loader[int, *common.Permissions[int]]
+	EpisodePermissionLoader *loaders.Loader[int, *common.Permissions[int]]
 }
 
 // Config contains configuration options for the service
@@ -53,7 +49,7 @@ type Service struct {
 	algoliaClient *search.Client
 	index         *search.Index
 	queries       *sqlc.Queries
-	loaders       loaders
+	loaders       batchLoaders
 }
 
 // New creates a new instance of the search service
@@ -64,15 +60,21 @@ func New(queries *sqlc.Queries, config Config) *Service {
 	service.index = service.algoliaClient.InitIndex(indexName)
 	service.queries = queries
 
-	service.loaders = loaders{
-		ShowLoader:    show.NewBatchLoader(*service.queries),
-		SeasonLoader:  season.NewBatchLoader(*service.queries),
-		EpisodeLoader: episode.NewBatchLoader(*service.queries),
-		TagLoader:     batchloaders.NewLoader(service.queries.GetTags).Loader,
+	service.loaders = batchLoaders{
+		ShowLoader:    loaders.NewLoader(queries.GetShows),
+		SeasonLoader:  loaders.NewLoader(queries.GetSeasons),
+		EpisodeLoader: loaders.NewLoader(queries.GetEpisodes),
+		TagLoader:     loaders.NewLoader(service.queries.GetTags),
 		// Permissions
-		ShowPermissionLoader:    show.NewPermissionLoader(*service.queries),
-		SeasonPermissionLoader:  season.NewPermissionLoader(*service.queries),
-		EpisodePermissionLoader: episode.NewPermissionLoader(*service.queries),
+		ShowPermissionLoader: loaders.NewCustomLoader(queries.GetPermissionsForShows, func(i common.Permissions[int]) int {
+			return i.ItemID
+		}),
+		SeasonPermissionLoader: loaders.NewCustomLoader(queries.GetPermissionsForSeasons, func(i common.Permissions[int]) int {
+			return i.ItemID
+		}),
+		EpisodePermissionLoader: loaders.NewCustomLoader(queries.GetPermissionsForEpisodes, func(i common.Permissions[int]) int {
+			return i.ItemID
+		}),
 	}
 
 	return &service

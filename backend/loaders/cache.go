@@ -1,4 +1,4 @@
-package batchloaders
+package loaders
 
 import (
 	"context"
@@ -17,7 +17,7 @@ type LoaderCache[K comparable, V any] struct {
 func NewMemoryLoaderCache[K comparable, V any](expiration time.Duration) *LoaderCache[K, V] {
 	return &LoaderCache[K, V]{
 		expiration: expiration,
-		cache:      cache.New[K, dataloader.Thunk[V]](),
+		cache:      cache.New[K, dataloader.Thunk[V]](cache.AsLRU[K, dataloader.Thunk[V]]()),
 	}
 }
 

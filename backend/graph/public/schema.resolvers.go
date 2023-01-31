@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	merry "github.com/ansel1/merry/v2"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/public/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
@@ -18,7 +17,7 @@ import (
 // Episode is the resolver for the episode field.
 func (r *queryRootResolver) Episode(ctx context.Context, id string) (*model.Episode, error) {
 	intID, _ := strconv.ParseInt(id, 10, 64)
-	item, err := batchloaders.GetByID(ctx, r.Loaders.EpisodeLoader, int(intID))
+	item, err := r.Loaders.EpisodeLoader.Get(ctx, int(intID))
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +57,7 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string) (*model.Epis
 // Season is the resolver for the season field.
 func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Season, error) {
 	intID, _ := strconv.ParseInt(id, 10, 64)
-	item, err := batchloaders.GetByID(ctx, r.Loaders.SeasonLoader, int(intID))
+	item, err := r.Loaders.SeasonLoader.Get(ctx, int(intID))
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +86,7 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 // Show is the resolver for the show field.
 func (r *queryRootResolver) Show(ctx context.Context, id string) (*model.Show, error) {
 	intID, _ := strconv.ParseInt(id, 10, 64)
-	item, err := batchloaders.GetByID(ctx, r.Loaders.ShowLoader, int(intID))
+	item, err := r.Loaders.ShowLoader.Get(ctx, int(intID))
 	if err != nil {
 		return nil, err
 	}

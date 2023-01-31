@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
@@ -49,7 +48,7 @@ func sectionStyleToImageStyle(style string) common.ImageStyle {
 
 func sectionCollectionEntryResolver(
 	ctx context.Context,
-	loaders *common.BatchLoaders,
+	ls *common.BatchLoaders,
 	filteredLoaders *common.FilteredLoaders,
 	section *common.Section,
 	first *int,
@@ -61,12 +60,12 @@ func sectionCollectionEntryResolver(
 
 	collectionId := int(section.CollectionID.ValueOrZero())
 
-	col, err := batchloaders.GetByID(ctx, loaders.CollectionLoader, collectionId)
+	col, err := ls.CollectionLoader.Get(ctx, collectionId)
 	if err != nil {
 		return nil, err
 	}
 
-	entries, err := collection.GetCollectionEntries(ctx, loaders, filteredLoaders, collectionId)
+	entries, err := collection.GetCollectionEntries(ctx, ls, filteredLoaders, collectionId)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +80,7 @@ func sectionCollectionEntryResolver(
 		if profile == nil {
 			break
 		}
-		ids, err := loaders.EpisodeProgressLoader.Get(ctx, profile.ID)
+		ids, err := ls.EpisodeProgressLoader.Get(ctx, profile.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -109,14 +108,14 @@ func sectionCollectionEntryResolver(
 
 	imageStyle := sectionStyleToImageStyle(section.Style)
 
-	preloadLoaders(ctx, loaders, pagination.Items)
+	preloadLoaders(ctx, ls, pagination.Items)
 
 	var items []*model.SectionItem
 	for _, e := range pagination.Items {
 		var item *model.SectionItem
 		switch e.Collection {
 		case "pages":
-			i, err := batchloaders.GetByID(ctx, loaders.PageLoader, utils.AsInt(e.ID))
+			i, err := ls.PageLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
@@ -126,7 +125,7 @@ func sectionCollectionEntryResolver(
 			}
 			item = model.PageSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		case "shows":
-			i, err := batchloaders.GetByID(ctx, loaders.ShowLoader, utils.AsInt(e.ID))
+			i, err := ls.ShowLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
@@ -136,7 +135,7 @@ func sectionCollectionEntryResolver(
 			}
 			item = model.ShowSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		case "seasons":
-			i, err := batchloaders.GetByID(ctx, loaders.SeasonLoader, utils.AsInt(e.ID))
+			i, err := ls.SeasonLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
@@ -146,7 +145,7 @@ func sectionCollectionEntryResolver(
 			}
 			item = model.SeasonSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		case "episodes":
-			i, err := batchloaders.GetByID(ctx, loaders.EpisodeLoader, utils.AsInt(e.ID))
+			i, err := ls.EpisodeLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
@@ -156,7 +155,7 @@ func sectionCollectionEntryResolver(
 			}
 			item = model.EpisodeSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		case "links":
-			i, err := batchloaders.GetByID(ctx, loaders.LinkLoader, utils.AsInt(e.ID))
+			i, err := ls.LinkLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
@@ -166,7 +165,7 @@ func sectionCollectionEntryResolver(
 			}
 			item = model.LinkSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		case "studytopics":
-			i, err := loaders.StudyTopicLoader.Get(ctx, utils.AsUuid(e.ID))
+			i, err := ls.StudyTopicLoader.Get(ctx, utils.AsUuid(e.ID))
 			if err != nil {
 				return nil, err
 			}
@@ -189,40 +188,40 @@ func sectionCollectionEntryResolver(
 	}, nil
 }
 
-func collectionEntryResolver(ctx context.Context, loaders *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, collectionId int, first *int, offset *int) (*utils.PaginationResult[model.CollectionItem], error) {
-	entries, err := collection.GetCollectionEntries(ctx, loaders, filteredLoaders, collectionId)
+func collectionEntryResolver(ctx context.Context, ls *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, collectionId int, first *int, offset *int) (*utils.PaginationResult[model.CollectionItem], error) {
+	entries, err := collection.GetCollectionEntries(ctx, ls, filteredLoaders, collectionId)
 	if err != nil {
 		return nil, err
 	}
 
 	pagination := utils.Paginate(entries, first, offset, nil)
 
-	preloadLoaders(ctx, loaders, pagination.Items)
+	preloadLoaders(ctx, ls, pagination.Items)
 
 	var items []model.CollectionItem
 	for _, e := range pagination.Items {
 		var item model.CollectionItem
 		switch e.Collection {
 		case "pages":
-			i, err := batchloaders.GetByID(ctx, loaders.PageLoader, utils.AsInt(e.ID))
+			i, err := ls.PageLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			item = model.PageItemFrom(ctx, i, e.Sort)
 		case "shows":
-			i, err := batchloaders.GetByID(ctx, loaders.ShowLoader, utils.AsInt(e.ID))
+			i, err := ls.ShowLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			item = model.ShowItemFrom(ctx, i, e.Sort)
 		case "seasons":
-			i, err := batchloaders.GetByID(ctx, loaders.SeasonLoader, utils.AsInt(e.ID))
+			i, err := ls.SeasonLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			item = model.SeasonItemFrom(ctx, i, e.Sort)
 		case "episodes":
-			i, err := batchloaders.GetByID(ctx, loaders.EpisodeLoader, utils.AsInt(e.ID))
+			i, err := ls.EpisodeLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
@@ -250,7 +249,7 @@ func collectionItemResolverFromCollection(ctx context.Context, r *Resolver, id s
 func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*model.SectionItemPagination, error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 
-	section, err := batchloaders.GetByID(ctx, r.Loaders.SectionLoader, int(int64ID))
+	section, err := r.Loaders.SectionLoader.Get(ctx, int(int64ID))
 	if err != nil {
 		return nil, err
 	}

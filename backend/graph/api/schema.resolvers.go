@@ -13,7 +13,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/achievements"
 	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/email"
 	"github.com/bcc-code/brunstadtv/backend/export"
@@ -408,7 +407,7 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 		)
 	}
 
-	redirID, err := batchloaders.GetByID(ctx, r.Loaders.RedirectIDFromCodeLoader, id)
+	redirID, err := r.Loaders.RedirectIDFromCodeLoader.Get(ctx, id)
 	if err != nil {
 		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
 	}
@@ -417,7 +416,7 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 		return nil, merry.New("no rows", merry.WithUserMessage("Code not found"))
 	}
 
-	redir, err := batchloaders.GetByID(ctx, r.Loaders.RedirectLoader, *redirID)
+	redir, err := r.Loaders.RedirectLoader.Get(ctx, *redirID)
 	if err != nil {
 		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
 	}
@@ -462,7 +461,7 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 		}, *id, model.PageFrom)
 	}
 	if code != nil {
-		intID, err := batchloaders.GetByID(ctx, r.Loaders.PageIDFromCodeLoader, *code)
+		intID, err := r.Loaders.PageIDFromCodeLoader.Get(ctx, *code)
 		if err != nil {
 			return nil, err
 		}
@@ -633,7 +632,7 @@ func (r *queryRootResolver) StudyTopic(ctx context.Context, id string) (*model.S
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 	return resolverFor(ctx, &itemLoaders[uuid.UUID, common.StudyTopic]{
-		Item: r.Loaders.StudyTopicLoader.Loader,
+		Item: r.Loaders.StudyTopicLoader,
 	}, uid, func(ctx context.Context, topic *common.StudyTopic) *model.StudyTopic {
 		return &model.StudyTopic{
 			ID:    topic.ID.String(),
@@ -670,7 +669,7 @@ func (r *queryRootResolver) Calendar(ctx context.Context) (*model.Calendar, erro
 // Event is the resolver for the event field.
 func (r *queryRootResolver) Event(ctx context.Context, id string) (*model.Event, error) {
 	return resolverForIntID(ctx, &itemLoaders[int, common.Event]{
-		Item: r.Loaders.EventLoader.Loader,
+		Item: r.Loaders.EventLoader,
 	}, id, model.EventFrom)
 }
 
@@ -750,10 +749,10 @@ func (r *queryRootResolver) LegacyIDLookup(ctx context.Context, options *model.L
 	var id *int
 	var err error
 	if options.EpisodeID != nil {
-		id, err = batchloaders.GetByID(ctx, r.Loaders.EpisodeIDFromLegacyIDLoader, *options.EpisodeID)
+		id, err = r.Loaders.EpisodeIDFromLegacyIDLoader.Get(ctx, *options.EpisodeID)
 	}
 	if options.ProgramID != nil {
-		id, err = batchloaders.GetByID(ctx, r.Loaders.EpisodeIDFromLegacyProgramIDLoader, *options.ProgramID)
+		id, err = r.Loaders.EpisodeIDFromLegacyProgramIDLoader.Get(ctx, *options.ProgramID)
 	}
 	if err != nil {
 		return nil, err

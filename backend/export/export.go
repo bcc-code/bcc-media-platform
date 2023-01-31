@@ -23,7 +23,6 @@ import (
 
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/applications"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/export/sqlexport"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
@@ -108,7 +107,7 @@ func exportShows(ctx context.Context, q serviceProvider, liteQueries *sqlexport.
 		return nil, err
 	}
 
-	shows, err := batchloaders.GetMany(ctx, q.GetLoaders().ShowLoader, showIDs)
+	shows, err := q.GetLoaders().ShowLoader.GetMany(ctx, showIDs)
 	if err != nil {
 		err = merry.Wrap(err)
 		return nil, err
@@ -161,7 +160,7 @@ func exportSeasons(ctx context.Context, q serviceProvider, liteQueries *sqlexpor
 	}
 
 	seasonIDs := lo.Map(lo.Flatten(seasonIDsResult), func(i *int, _ int) int { return *i })
-	seasons, err := batchloaders.GetMany(ctx, q.GetLoaders().SeasonLoader, seasonIDs)
+	seasons, err := q.GetLoaders().SeasonLoader.GetMany(ctx, seasonIDs)
 	if err != nil {
 		return nil, merry.Wrap(err)
 	}
@@ -203,7 +202,7 @@ func exportEpisodes(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 	}
 
 	episodeIDs := lo.Map(lo.Flatten(episodesIDsResult), func(i *int, _ int) int { return *i })
-	episodes, err := batchloaders.GetMany(ctx, q.GetLoaders().EpisodeLoader, episodeIDs)
+	episodes, err := q.GetLoaders().EpisodeLoader.GetMany(ctx, episodeIDs)
 	if err != nil {
 		return nil, merry.Wrap(err)
 	}
@@ -234,7 +233,7 @@ func exportEpisodes(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 
 func exportStreams(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, episodeIDs []int) error {
 	l := q.GetLoaders().StreamsLoader
-	streams, err := batchloaders.GetMany(ctx, l, episodeIDs)
+	streams, err := l.GetMany(ctx, episodeIDs)
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -301,7 +300,7 @@ func exportSections(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 	}
 
 	sectionIDs := lo.Map(lo.Flatten(sectionIDsResult), func(i *int, _ int) int { return *i })
-	sections, err := batchloaders.GetMany(ctx, q.GetLoaders().SectionLoader, sectionIDs)
+	sections, err := q.GetLoaders().SectionLoader.GetMany(ctx, sectionIDs)
 	if err != nil {
 		return nil, nil, merry.Wrap(err)
 	}
@@ -338,7 +337,7 @@ func exportSections(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 }
 
 func exportPages(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, pageIDs []int) error {
-	pages, err := batchloaders.GetMany(ctx, q.GetLoaders().PageLoader, pageIDs)
+	pages, err := q.GetLoaders().PageLoader.GetMany(ctx, pageIDs)
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -370,7 +369,7 @@ type collectionEntry struct {
 
 func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, collectionIDs []int) error {
 	filteredLoaders := q.GetFilteredLoaders(ctx)
-	collections, err := batchloaders.GetMany(ctx, q.GetLoaders().CollectionLoader, collectionIDs)
+	collections, err := q.GetLoaders().CollectionLoader.GetMany(ctx, collectionIDs)
 	if err != nil {
 		return merry.Wrap(err)
 	}

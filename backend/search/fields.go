@@ -140,7 +140,7 @@ type hasTags interface {
 	GetTagIDs() []int
 }
 
-func (i *searchItem) assignTags(ctx context.Context, loaders loaders, source hasTags) error {
+func (i *searchItem) assignTags(ctx context.Context, loaders batchLoaders, source hasTags) error {
 	tagIds := source.GetTagIDs()
 	if len(tagIds) > 0 {
 		tags, errs := loaders.TagLoader.LoadMany(ctx, tagIds)()

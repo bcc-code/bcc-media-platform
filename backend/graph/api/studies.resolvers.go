@@ -7,7 +7,6 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
@@ -116,7 +115,7 @@ func (r *lessonResolver) Episodes(ctx context.Context, obj *model.Lesson, first 
 	}
 	page := utils.Paginate(ids, first, offset, nil)
 
-	episodes, err := batchloaders.GetMany(ctx, r.Loaders.EpisodeLoader, utils.PointerArrayToArray(page.Items))
+	episodes, err := r.Loaders.EpisodeLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +136,7 @@ func (r *lessonResolver) Links(ctx context.Context, obj *model.Lesson, first *in
 	}
 	page := utils.Paginate(ids, first, offset, nil)
 
-	links, err := batchloaders.GetMany(ctx, r.Loaders.LinkLoader, utils.PointerArrayToArray(page.Items))
+	links, err := r.Loaders.LinkLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
 	if err != nil {
 		return nil, err
 	}
@@ -269,7 +268,7 @@ func (r *linkTaskResolver) Completed(ctx context.Context, obj *model.LinkTask) (
 
 // Link is the resolver for the link field.
 func (r *linkTaskResolver) Link(ctx context.Context, obj *model.LinkTask) (*model.Link, error) {
-	link, err := batchloaders.GetByID(ctx, r.Loaders.LinkLoader, utils.AsInt(obj.Link.ID))
+	link, err := r.Loaders.LinkLoader.Get(ctx, utils.AsInt(obj.Link.ID))
 
 	if err != nil {
 		return nil, err
