@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/api/iterator"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -48,13 +49,10 @@ func (s *Service) Queue(ctx context.Context, collection string, id string, at ti
 
 	taskName := s.queueID + "/tasks/" + collection + "-" + id
 
-	for {
-		resp, err := it.Next()
-		if err == iterator.Done {
-			break
-		}
+	for resp, err := it.Next(); err != iterator.Done; {
 		if err != nil {
-			return err
+			log.L.Error().Err(err).Send()
+			break
 		}
 		if !strings.HasPrefix(resp.GetName(), taskName) {
 			continue
