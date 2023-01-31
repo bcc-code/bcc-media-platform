@@ -57,6 +57,10 @@ const props = defineProps<{
 const emit = defineEmits<{
     (event: "change"): void
     (event: "update:isDone", val: boolean): void
+    (
+        event: "competitionAnswer",
+        val: { taskId: string; alternativeId: string }
+    ): void
 }>()
 
 const noWrongAnswers = computed(() =>
@@ -106,7 +110,10 @@ function selectAnswer(id: string) {
     for (const alt of task.value.alternatives) {
         alt.selected = id == alt.id
     }
-    const alt = task.value.alternatives.find((alt) => alt.id == id)
-    executeMutation({ taskId: task.value.id, selectedAlternatives: [id] })
+    if (task.value.competitionMode) {
+        emit("competitionAnswer", { taskId: task.value.id, alternativeId: id })
+    } else {
+        executeMutation({ taskId: task.value.id, selectedAlternatives: [id] })
+    }
 }
 </script>

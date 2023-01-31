@@ -1476,6 +1476,16 @@ export type GetStudyTopicLessonStatusesQueryVariables = Exact<{
 
 export type GetStudyTopicLessonStatusesQuery = { studyTopic: { lessons: { items: Array<{ id: string, completed: boolean, episodes: { items: Array<{ id: string, locked: boolean }> } }> } } };
 
+export type GetFirstSotmLessonForConsentQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetFirstSotmLessonForConsentQuery = { studyLesson: { tasks: { items: Array<{ __typename: 'AlternativesTask', alternatives: Array<{ id: string, selected: boolean }> } | { __typename: 'LinkTask' } | { __typename: 'PosterTask' } | { __typename: 'QuoteTask' } | { __typename: 'TextTask' } | { __typename: 'VideoTask' }> } } };
+
+export type SetStudyConsentTrueMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SetStudyConsentTrueMutation = { completeTask: boolean };
+
 export type CompleteTaskMutationVariables = Exact<{
   taskId: Scalars['ID'];
   selectedAlternatives?: InputMaybe<Array<Scalars['String']> | Scalars['String']>;
@@ -2132,6 +2142,39 @@ export const GetStudyTopicLessonStatusesDocument = gql`
 
 export function useGetStudyTopicLessonStatusesQuery(options: Omit<Urql.UseQueryArgs<never, GetStudyTopicLessonStatusesQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetStudyTopicLessonStatusesQuery>({ query: GetStudyTopicLessonStatusesDocument, ...options });
+};
+export const GetFirstSotmLessonForConsentDocument = gql`
+    query getFirstSOTMLessonForConsent {
+  studyLesson(id: "5677226a-990b-4c24-b057-a5b0beab63f1") {
+    tasks {
+      items {
+        __typename
+        ... on AlternativesTask {
+          alternatives {
+            id
+            selected
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useGetFirstSotmLessonForConsentQuery(options: Omit<Urql.UseQueryArgs<never, GetFirstSotmLessonForConsentQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetFirstSotmLessonForConsentQuery>({ query: GetFirstSotmLessonForConsentDocument, ...options });
+};
+export const SetStudyConsentTrueDocument = gql`
+    mutation setStudyConsentTrue {
+  completeTask(
+    id: "9ca12a44-93b3-4c83-8fd6-a1334f0d877e"
+    selectedAlternatives: ["fe8c23c2-0aab-4853-a75f-f148400d005a"]
+  )
+}
+    `;
+
+export function useSetStudyConsentTrueMutation() {
+  return Urql.useMutation<SetStudyConsentTrueMutation, SetStudyConsentTrueMutationVariables>(SetStudyConsentTrueDocument);
 };
 export const CompleteTaskDocument = gql`
     mutation completeTask($taskId: ID!, $selectedAlternatives: [String!]) {

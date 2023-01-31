@@ -91,6 +91,29 @@ query GetStudyTopicLessonStatuses($id: ID!, $first: Int!) {
     }
 }
 
+query getFirstSOTMLessonForConsent {
+    studyLesson(id: "5677226a-990b-4c24-b057-a5b0beab63f1") {
+        tasks {
+            items {
+                __typename
+                ... on AlternativesTask {
+                    alternatives {
+                        id
+                        selected
+                    }
+                }
+            }
+        }
+    }
+}
+
+mutation setStudyConsentTrue {
+    completeTask(
+        id: "9ca12a44-93b3-4c83-8fd6-a1334f0d877e"
+        selectedAlternatives: ["fe8c23c2-0aab-4853-a75f-f148400d005a"]
+    )
+}
+
 mutation completeTask($taskId: ID!, $selectedAlternatives: [String!]) {
     completeTask(id: $taskId, selectedAlternatives: $selectedAlternatives)
 }
