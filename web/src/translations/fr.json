@@ -14,8 +14,8 @@
         "goTo": "Aller à",
         "send": "Envoyer",
         "start": "Démarrer",
-        "skip": "",
-        "join": ""
+        "skip": "Sauter",
+        "join": "Rejoindre"
     },
     "error": {
         "couldntSendYourMessage": "Ton message n'a pas pu être envoyé",
@@ -98,18 +98,18 @@
         "continueStudy": "Continuer l'étude"
     },
     "competition": {
-        "title": "",
-        "description": "",
-        "howDoesItWork": "",
-        "onlyOnce": "",
-        "watchNextBroadcast": "",
-        "joinCompetition": "",
-        "terms": "",
-        "alreadySent": "",
-        "areYouSure": "",
-        "lookThouroughly": "",
-        "submitted": "",
-        "dontMiss": ""
+        "title": "Doubler tes chances",
+        "description": "Augmente tes chances de remporter le prix exclusif de <strong>Disse mine ord</strong> en répondant correctement.",
+        "howDoesItWork": "Comment cela fonctionne-t-il ?",
+        "onlyOnce": "Tu ne peux répondre au quiz qu'une seule fois.",
+        "watchNextBroadcast": "Les bonnes réponses seront données lors de la prochaine émission en direct.",
+        "joinCompetition": "Rejoindre le concours",
+        "terms": "En participant, tu acceptes que ton nom soit mentionné dans l'émission lors de l'annonce du gagnant.",
+        "alreadySent": "Tu as déjà envoyé ta réponse, mais tu peux consulter ce que tu as répondu.",
+        "areYouSure": "Es-tu sûr ?",
+        "lookThouroughly": "Relis attentivement tes réponses. Une fois envoyées, tu ne pourras plus les modifier.",
+        "submitted": "Ta réponse a été envoyée !",
+        "dontMiss": "Ne manque pas la prochaine émission en studio, où la bonne réponse sera annoncée."
     },
     "lesson": {
         "related": "Ressources connexes",

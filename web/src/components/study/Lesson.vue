@@ -14,7 +14,7 @@
             <div class="text-red mt-2">{{ error.stack }}</div>
             <VButton class="mt-4" @click="() => reload()">Retry</VButton>
         </div>
-        <template v-if="data != null">
+        <template v-else-if="data != null">
             <transition name="fade" mode="out-in">
                 <Tasks
                     v-if="page == 'intro'"
@@ -36,7 +36,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { onMounted, ref } from "vue"
+import { onMounted, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import { useTitle } from "@/utils/title"
 import { analytics } from "@/services/analytics"
@@ -62,6 +62,7 @@ const { error, fetching, data, executeQuery, ...lessonQuery } =
     useGetStudyLessonQuery({
         pause: props.lessonId == null,
         variables: { lessonId: props.lessonId, episodeId: props.episodeId },
+        requestPolicy: "network-only",
     })
 
 const { t } = useI18n()
@@ -69,6 +70,12 @@ const { t } = useI18n()
 const { setTitle } = useTitle()
 
 const page = ref<Page>(props.subRoute)
+
+watch(page, (val) => {
+    if (val == "tasks") {
+        executeQuery()
+    }
+})
 
 onMounted(async () => {
     setTitle("")

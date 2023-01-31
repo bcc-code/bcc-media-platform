@@ -14,8 +14,8 @@
         "goTo": "Ga naar",
         "send": "Verzenden",
         "start": "Start",
-        "skip": "",
-        "join": ""
+        "skip": "Skip",
+        "join": "Meedoen"
     },
     "error": {
         "couldntSendYourMessage": "Je bericht kon niet worden verzonden",
@@ -98,18 +98,18 @@
         "continueStudy": "Doorgaan met studie"
     },
     "competition": {
-        "title": "",
-        "description": "",
-        "howDoesItWork": "",
-        "onlyOnce": "",
-        "watchNextBroadcast": "",
-        "joinCompetition": "",
-        "terms": "",
-        "alreadySent": "",
-        "areYouSure": "",
-        "lookThouroughly": "",
-        "submitted": "",
-        "dontMiss": ""
+        "title": "Verdubbel je kansen",
+        "description": "Krijg een grotere kans om de exclusieve  <strong>Deze mijn woorden</strong>  prijs te winnen door juist te antwoorden.",
+        "howDoesItWork": "Hoe werkt het?",
+        "onlyOnce": "Je kan de quiz maar een keer maken.",
+        "watchNextBroadcast": "Bekijk de volgende live studio uitzending voor de correcte antwoorden.",
+        "joinCompetition": "Doe mee met de wedstrijd",
+        "terms": "Door deelname ben je het eens met het feit dat jouw naam zichtbaar kan zijn in de uitzending als de winnaar wordt bekendgemaakt.",
+        "alreadySent": "Je hebt je antwoorden al ingestuurd, maar je kan nog wel je antwoorden inzien.",
+        "areYouSure": "Weet je het zeker?",
+        "lookThouroughly": "Kijk je antwoorden goed na. Eenmaal ingeleverd kunnen de antwoorden niet meer gewijzigd worden.",
+        "submitted": "Jouw antwoord is verzonden!",
+        "dontMiss": "Mis de volgende studio uitzending niet, waar het juiste antwoord bekend wordt gemaakt."
     },
     "lesson": {
         "related": "Gerelateerde resultaten",
