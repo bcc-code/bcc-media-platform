@@ -33,3 +33,16 @@ migrate.status:
 
 sync.staging:
 	cd ./scripts/staging-sync/ && ./copy.sh
+
+tests.setup:
+	./scripts/tests-setup.sh
+
+# Must be run in order to rebuild the docker images
+tests.build:
+	./scripts/tests-rebuild.sh
+
+tests.rebuild:
+	make tests.build && make tests.setup
+
+tests.run:
+	./scripts/tests-run.sh

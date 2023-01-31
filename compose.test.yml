@@ -1,0 +1,74 @@
+version: '3.8'
+name: bccm-test
+services:
+    db:
+        command: ["postgres", "-c", "log_statement=all"]
+        image: postgres:13
+        ports:
+            - "5400:5432/tcp"
+        environment:
+            - POSTGRES_USER=bccm
+            - POSTGRES_HOST_AUTH_METHOD=trust
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U bccm"]
+            interval: 1s
+            timeout: 5s
+            retries: 5
+    redis:
+        image: redis
+    api:
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_started
+        build:
+            context: ./
+            dockerfile: ./backend/Dockerfile.api.test
+        ports:
+            - "7077:8077/tcp"
+        environment:
+            - ENVIRONMENT=development
+            - DB_CONNECTION_STRING=postgres://bccm@db/bccm?sslmode=disable
+            - REDIS_ADDRESS=redis:6379
+            - PORT=8077
+            - TRACE_SAMPLING_FREQUENCY=0
+    directus:
+        depends_on:
+            db:
+                condition: service_healthy
+        build:
+            context: ./cms
+            dockerfile: Dockerfile.test
+        ports:
+            - "7055:8055/tcp"
+        environment:
+            - ADMIN_EMAIL=admin@brunstad.tv
+            - ADMIN_PASSWORD=btv123
+            - HOST=0.0.0.0
+            - PORT=8055
+            - PUBLIC_URL=/
+            - LOG_LEVEL=debug
+            - CACHE_ENABLED=false
+            - API_PATH=http://api:8077/
+            - API_SECRET=common_secret
+            - STORAGE_LOCATIONS=local
+            - STORAGE_LOCAL_DRIVER=local
+            - STORAGE_LOCAL_ROOT=./uploads
+            - DB_CLIENT=pg
+            - DB_HOST=db
+            - DB_PORT=5432
+            - DB_DATABASE=bccm
+            - DB_USER=bccm
+            - DB_SSL=false
+            - DB_CONNECTION_STRING=postgres://bccm@db/bccm?sslmode=disable
+            - KEY=a_secret_key
+            - SECRET=a_secret_value
+            - ACCESS_TOKEN_TTL=15m
+            - REFRESH_TOKEN_TTL=7d
+            - REFRESH_TOKEN_COOKIE_SECURE=false
+            - REFRESH_TOKEN_COOKIE_SAME_SITE=lax
+            - REFRESH_TOKEN_COOKIE_NAME=directus_refresh_token
+            - CROWDIN_ENABLED=false
+            - PUBSUB_ENABLED=false
+            - LEGACY_SYNC=off

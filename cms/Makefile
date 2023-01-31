@@ -21,7 +21,7 @@ reset:
 	make init
 
 generate-types:
-	npx directus-typescript-gen --host http://localhost:8055 --email admin@brunstad.tv --password btv123 --typeName episodes --outFile types/btv.d.ts
+	npx directus-typescript-gen --host http://localhost:8055 --email admin@brunstad.tv --password btv123 --typeName episodes --outFile src/btv.d.ts
 
 setup-macos:
 	brew install libpq

@@ -411,7 +411,12 @@ func main() {
 
 	db := mustConnectToDB(ctx, config.DB)
 	rdb := utils.MustCreateRedisClient(ctx, config.Redis)
-	urlSigner := signing.MustNewSigner(config.CDNConfig)
+	urlSigner, err := signing.NewSigner(config.CDNConfig)
+	if err != nil {
+		if environment.Production() {
+			log.L.Panic().Err(err).Send()
+		}
+	}
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
 	loaders := initBatchLoaders(queries)
