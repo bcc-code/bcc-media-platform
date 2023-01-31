@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
@@ -11,24 +10,22 @@ import (
 	"github.com/google/uuid"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
-var rolesLoaderCache = cache.New[string, *common.FilteredLoaders]()
-var profilesLoaderCache = cache.New[uuid.UUID, *common.ProfileLoaders](cache.AsLRU[uuid.UUID, *common.ProfileLoaders]())
+var roleLoaders = sync.Map{}
 
 func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loaders.Loader[int, *common.Collection], roles []string) *common.FilteredLoaders {
 	sort.Strings(roles)
 
 	key := strings.Join(roles, "-")
 
-	if ls, ok := rolesLoaderCache.Get(key); ok {
-		return ls
+	if ls, ok := roleLoaders.Load(key); ok {
+		return ls.(*common.FilteredLoaders)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-
-	defer cancel()
+	ctx := context.Background()
 
 	rq := queries.RoleQueries(roles)
 
@@ -57,14 +54,19 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		LinkStudyLessonsLoader:    loaders.NewRelationLoader(ctx, rq.GetLessonIDsForLinks),
 	}
 
-	rolesLoaderCache.Set(key, ls)
+	roleLoaders.Store(key, ls)
 
 	return ls
 }
 
+// Will be interesting to see if this will affect anything.
+// I doubt instantiating this 10000 times will be slow,
+// and we'll probably have fewer issues with runaway janitors.
+var profileLoaders = sync.Map{}
+
 func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.ProfileLoaders {
-	if ls, ok := profilesLoaderCache.Get(profileID); ok {
-		return ls
+	if ls, ok := profileLoaders.Load(profileID); ok {
+		return ls.(*common.ProfileLoaders)
 	}
 
 	ctx := context.TODO()
@@ -82,7 +84,7 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 		GetSelectedAlternativesLoader: loaders.New(ctx, profileQueries.GetSelectedAlternatives, loaders.WithMemoryCache(time.Second*1)),
 	}
 
-	profilesLoaderCache.Set(profileID, ls, cache.WithExpiration(time.Minute*5))
+	profileLoaders.Store(profileID, ls)
 
 	return ls
 }
