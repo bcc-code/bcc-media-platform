@@ -193,7 +193,7 @@
                         <svg
                             v-if="lockingInProgress"
                             aria-hidden="true"
-                            class="-mt-1 inline w-6 h-6 -ml-1 mr-1 text-transparent animate-spin fill-tint-1"
+                            class="-mt-1 inline w-6 h-6 -ml-1 mr-1 text-transparent animate-spin fill-white"
                             viewBox="0 0 100 101"
                             fill="none"
                             xmlns="http://www.w3.org/2000/svg"
@@ -341,6 +341,7 @@ watch(
 )
 const hasConsented = () => {
     return (
+        lockData.value?.lockLessonAnswers ||
         competitionLocked.value === true ||
         consentSaveResult.value?.completeTask === true ||
         consent.value?.studyLesson.tasks.items.some(
@@ -381,6 +382,10 @@ const consentAndStartCompetition = async () => {
     startCompetition(true)
 }
 const startCompetition = async (bypassConsentCheck?: boolean) => {
+    if (lockData.value?.lockLessonAnswers) {
+        hijackWithCompetitionIntro.value = false
+        return
+    }
     if (bypassConsentCheck !== true && !hasConsented()) {
         showConsentModal.value = true
         return
@@ -429,6 +434,12 @@ async function nextTask() {
         currentTask.value.completed = true
         currentTaskIndex.value += 1
         isCurrentStepDone.value = false
+        if (
+            currentTask.value.__typename == "AlternativesTask" &&
+            lockData?.value?.lockLessonAnswers
+        ) {
+            isCurrentStepDone.value = true
+        }
     } else {
         // done with the tasks
         // awaiting to avoid race condition with achievements
