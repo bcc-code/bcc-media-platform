@@ -5,6 +5,7 @@ fragment Task on Task {
     completed
     ... on AlternativesTask {
         competitionMode
+        locked
         alternatives {
             id
             title
@@ -96,4 +97,8 @@ mutation completeTask($taskId: ID!, $selectedAlternatives: [String!]) {
 
 mutation sendTaskMessage($taskId: ID!, $message: String!) {
     sendTaskMessage(taskId: $taskId, message: $message)
+}
+
+mutation lockAnswers($lessonId: ID!) {
+    lockLessonAnswers(id: $lessonId)
 }
