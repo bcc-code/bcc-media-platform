@@ -220,7 +220,7 @@ func GetFromCtx(ctx *gin.Context) *common.User {
 	return u.(*common.User)
 }
 
-var profileCache = cache.New[string, []common.Profile](cache.WithJanitorInterval[string, []common.Profile](time.Second * 10))
+var profileCache = cache.New[string, []common.Profile]()
 
 func cacheProfilesAndReturn(ctx context.Context, redisCache *redis.Client, key string, profiles []common.Profile) ([]common.Profile, error) {
 	profileCache.Set(key, profiles, cache.WithExpiration(time.Second*1))
@@ -229,7 +229,7 @@ func cacheProfilesAndReturn(ctx context.Context, redisCache *redis.Client, key s
 		if err != nil {
 			return nil, err
 		}
-		err = redisCache.Set(ctx, key, bytes, time.Second*5).Err()
+		err = redisCache.Set(ctx, key, bytes, time.Minute*5).Err()
 		if err != nil {
 			return nil, err
 		}
