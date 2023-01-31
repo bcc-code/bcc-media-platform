@@ -2,8 +2,6 @@ package user
 
 import (
 	"context"
-	"encoding/json"
-	"os"
 	"strconv"
 	"time"
 
@@ -120,15 +118,6 @@ func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) fun
 
 		// If the user is anonymous we just create a simple object and bail
 		if !authed {
-			if os.Getenv("ENVIRONMENT") == "test" {
-				d := ctx.GetHeader("user-data")
-				if d != "" {
-					var u common.User
-					_ = json.Unmarshal([]byte(d), &u)
-					ctx.Set(CtxUser, &u)
-					return
-				}
-			}
 			span.AddEvent("Anonymous")
 			roles = append(roles, RolePublic)
 			ctx.Set(CtxUser,
