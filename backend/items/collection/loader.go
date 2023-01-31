@@ -15,7 +15,7 @@ import (
 )
 
 // NewCollectionItemLoader returns a new loader for getting ItemIds for Collection
-func NewCollectionItemLoader(db *sql.DB, collectionLoader *loaders.Loader[int, *common.Collection], roles []string) *loaders.Loader[int, []common.Identifier] {
+func NewCollectionItemLoader(ctx context.Context, db *sql.DB, collectionLoader *loaders.Loader[int, *common.Collection], roles []string) *loaders.Loader[int, []common.Identifier] {
 	batchLoader := func(ctx context.Context, keys []int) []*dataloader.Result[[]common.Identifier] {
 		var results []*dataloader.Result[[]common.Identifier]
 		var err error
@@ -59,7 +59,7 @@ func NewCollectionItemLoader(db *sql.DB, collectionLoader *loaders.Loader[int, *
 	}
 
 	return &loaders.Loader[int, []common.Identifier]{
-		Loader: dataloader.NewBatchedLoader(batchLoader, dataloader.WithCache[int, []common.Identifier](loaders.NewMemoryLoaderCache[int, []common.Identifier](time.Minute*5))),
+		Loader: dataloader.NewBatchedLoader(batchLoader, dataloader.WithCache[int, []common.Identifier](loaders.NewMemoryLoaderCache[int, []common.Identifier](ctx, time.Minute*5))),
 	}
 }
 

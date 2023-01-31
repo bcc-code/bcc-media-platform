@@ -144,6 +144,8 @@ func main() {
 	if err != nil {
 		if environment.Production() {
 			log.L.Panic().Err(err).Send()
+		} else {
+			log.L.Error().Err(err).Send()
 		}
 	}
 	queries := sqlc.New(db)

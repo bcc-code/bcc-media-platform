@@ -1,6 +1,7 @@
 package search
 
 import (
+	"context"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
@@ -60,19 +61,21 @@ func New(queries *sqlc.Queries, config Config) *Service {
 	service.index = service.algoliaClient.InitIndex(indexName)
 	service.queries = queries
 
+	ctx := context.Background()
+
 	service.loaders = batchLoaders{
-		ShowLoader:    loaders.NewLoader(queries.GetShows),
-		SeasonLoader:  loaders.NewLoader(queries.GetSeasons),
-		EpisodeLoader: loaders.NewLoader(queries.GetEpisodes),
-		TagLoader:     loaders.NewLoader(service.queries.GetTags),
+		ShowLoader:    loaders.NewLoader(ctx, queries.GetShows),
+		SeasonLoader:  loaders.NewLoader(ctx, queries.GetSeasons),
+		EpisodeLoader: loaders.NewLoader(ctx, queries.GetEpisodes),
+		TagLoader:     loaders.NewLoader(ctx, service.queries.GetTags),
 		// Permissions
-		ShowPermissionLoader: loaders.NewCustomLoader(queries.GetPermissionsForShows, func(i common.Permissions[int]) int {
+		ShowPermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForShows, func(i common.Permissions[int]) int {
 			return i.ItemID
 		}),
-		SeasonPermissionLoader: loaders.NewCustomLoader(queries.GetPermissionsForSeasons, func(i common.Permissions[int]) int {
+		SeasonPermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForSeasons, func(i common.Permissions[int]) int {
 			return i.ItemID
 		}),
-		EpisodePermissionLoader: loaders.NewCustomLoader(queries.GetPermissionsForEpisodes, func(i common.Permissions[int]) int {
+		EpisodePermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForEpisodes, func(i common.Permissions[int]) int {
 			return i.ItemID
 		}),
 	}
