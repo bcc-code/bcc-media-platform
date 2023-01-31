@@ -34,26 +34,6 @@ func NewService(ctx context.Context, firebaseProjectID string, queries *sqlc.Que
 	return service, nil
 }
 
-func notificationToPayload(notification common.Notification) map[string]string {
-	var payload = map[string]string{}
-	for lan, val := range notification.Title {
-		if val.Valid {
-			payload["title_"+lan] = val.ValueOrZero()
-		}
-	}
-	for lan, val := range notification.Description {
-		if val.Valid {
-			payload["description_"+lan] = val.ValueOrZero()
-		}
-	}
-	for lan, val := range notification.Images {
-		if val.Valid {
-			payload["image_"+lan] = val.String
-		}
-	}
-	return payload
-}
-
 func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Message) error {
 	client, err := s.app.Messaging(ctx)
 	if err != nil {
