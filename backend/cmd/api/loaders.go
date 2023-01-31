@@ -10,22 +10,21 @@ import (
 	"github.com/google/uuid"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 )
 
-var roleLoaders = sync.Map{}
+var roleLoaders = loaders.NewCollection[string, *common.FilteredLoaders](time.Minute)
 
 func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loaders.Loader[int, *common.Collection], roles []string) *common.FilteredLoaders {
 	sort.Strings(roles)
 
 	key := strings.Join(roles, "-")
 
-	if ls, ok := roleLoaders.Load(key); ok {
-		return ls.(*common.FilteredLoaders)
+	if ls, ok := roleLoaders.Get(key); ok {
+		return ls
 	}
 
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
 
 	rq := queries.RoleQueries(roles)
 
@@ -54,22 +53,19 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		LinkStudyLessonsLoader:    loaders.NewRelationLoader(ctx, rq.GetLessonIDsForLinks),
 	}
 
-	roleLoaders.Store(key, ls)
+	roleLoaders.Set(key, ls, loaders.WithOnDelete(cancel))
 
 	return ls
 }
 
-// Will be interesting to see if this will affect anything.
-// I doubt instantiating this 10000 times will be slow,
-// and we'll probably have fewer issues with runaway janitors.
-var profileLoaders = sync.Map{}
+var profileLoaders = loaders.NewCollection[uuid.UUID, *common.ProfileLoaders](time.Minute)
 
 func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.ProfileLoaders {
-	if ls, ok := profileLoaders.Load(profileID); ok {
-		return ls.(*common.ProfileLoaders)
+	if ls, ok := profileLoaders.Get(profileID); ok {
+		return ls
 	}
 
-	ctx := context.TODO()
+	ctx, cancel := context.WithCancel(context.Background())
 
 	profileQueries := queries.ProfileQueries(profileID)
 	ls := &common.ProfileLoaders{
@@ -84,7 +80,7 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 		GetSelectedAlternativesLoader: loaders.New(ctx, profileQueries.GetSelectedAlternatives, loaders.WithMemoryCache(time.Second*1)),
 	}
 
-	profileLoaders.Store(profileID, ls)
+	profileLoaders.Set(profileID, ls, loaders.WithOnDelete(cancel))
 
 	return ls
 }
