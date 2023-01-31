@@ -443,7 +443,7 @@ func (r *Resolver) sendMessage(ctx context.Context, itemID uuid.UUID, message *s
 	if err != nil {
 		return "", err
 	}
-	id, _ := utils.GenerateRandomSecureString(32)
+	id := utils.GenerateRandomSecureString(32)
 	var str string
 	if message != nil {
 		str = *message
