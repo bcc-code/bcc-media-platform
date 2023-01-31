@@ -24,8 +24,17 @@ func chunkBy[T any](items []T, chunkSize int) [][]T {
 }
 
 type ageRange struct {
-	Min int
-	Max int
+	Min       int
+	Max       int
+	GroupName string
+}
+
+func (a ageRange) Name() string {
+	if len(a.GroupName) > 0 {
+		return a.GroupName
+	}
+
+	return fmt.Sprintf("%d - %d", a.Min, a.Max)
 }
 
 func main() {
@@ -39,14 +48,20 @@ func main() {
 	authClient := auth0.New(config.Auth0)
 	membersClient := members.New(config.Members, authClient)
 
-	updateMemberData(ctx, *queries, *membersClient, db)
+	//updateMemberData(ctx, *queries, *membersClient, db)
+	updateMemeberCountByAgeGroup(ctx, queries, membersClient, db)
 }
 
-func updateMemeberCountByAgeGroup(ctx context.Context, queries sqlc.Queries, membersClient members.Client, db *sql.DB) {
+func updateMemeberCountByAgeGroup(ctx context.Context, queries *sqlc.Queries, membersClient *members.Client, db *sql.DB) {
 	ageRanges := []ageRange{
+		{Min: 0, Max: 9},
+		{Min: 10, Max: 12},
 		{Min: 13, Max: 18},
 		{Min: 19, Max: 25},
 		{Min: 26, Max: 36},
+		{Min: 37, Max: 50},
+		{Min: 51, Max: 64},
+		{Min: 65, Max: 200, GroupName: "65+"},
 	}
 
 	for _, ar := range ageRanges {
@@ -63,12 +78,12 @@ func updateMemeberCountByAgeGroup(ctx context.Context, queries sqlc.Queries, mem
 			err := queriesTx.InsertOrgCounts(ctx, sqlc.InsertOrgCountsParams{
 				CountPersons: int32(count),
 				OrgID:        int32(churchId),
-				AgeGroup:     fmt.Sprintf("%d - %d", ar.Min, ar.Max),
+				AgeGroup:     ar.Name(),
 			})
 			if err != nil {
 				log.L.Panic().Err(err).Msg("Query failed")
 			}
-			fmt.Printf("A: %d-%d O: %d C: %d\n", ar.Min, ar.Max, churchId, count)
+			fmt.Printf("A: %s O: %d C: %d\n", ar.Name(), churchId, count)
 		}
 
 		tx.Commit()

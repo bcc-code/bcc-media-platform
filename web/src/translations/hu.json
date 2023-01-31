@@ -12,7 +12,10 @@
         "close": "Bezárás",
         "download": "Letöltés",
         "goTo": "Ugrás",
-        "send": "Küldés"
+        "send": "Küldés",
+        "start": "Kezdés",
+        "skip": "",
+        "join": ""
     },
     "error": {
         "couldntSendYourMessage": "Nem sikerült elküldeni az üzenetedet",
@@ -93,6 +96,20 @@
     "study": {
         "startStudy": "Tanulmányozás megkezdése",
         "continueStudy": "Tanulmányozás folytatása"
+    },
+    "competition": {
+        "title": "",
+        "description": "",
+        "howDoesItWork": "",
+        "onlyOnce": "",
+        "watchNextBroadcast": "",
+        "joinCompetition": "",
+        "terms": "",
+        "alreadySent": "",
+        "areYouSure": "",
+        "lookThouroughly": "",
+        "submitted": "",
+        "dontMiss": ""
     },
     "lesson": {
         "related": "Kapcsolódó források",

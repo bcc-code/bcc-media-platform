@@ -12,7 +12,10 @@
         "close": "Zapri",
         "download": "Prenesi",
         "goTo": "Pojdi na",
-        "send": "Pošlji"
+        "send": "Pošlji",
+        "start": "Začetek",
+        "skip": "",
+        "join": ""
     },
     "error": {
         "couldntSendYourMessage": "Sporočila ni bilo mogoče poslati",
@@ -93,6 +96,20 @@
     "study": {
         "startStudy": "Začni preučevanje",
         "continueStudy": "Nadaljuj preučevanje"
+    },
+    "competition": {
+        "title": "",
+        "description": "",
+        "howDoesItWork": "",
+        "onlyOnce": "",
+        "watchNextBroadcast": "",
+        "joinCompetition": "",
+        "terms": "",
+        "alreadySent": "",
+        "areYouSure": "",
+        "lookThouroughly": "",
+        "submitted": "",
+        "dontMiss": ""
     },
     "lesson": {
         "related": "Povezane možnosti",

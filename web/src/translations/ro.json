@@ -12,7 +12,10 @@
         "close": "",
         "download": "",
         "goTo": "",
-        "send": "Trimite"
+        "send": "Trimite",
+        "start": "Începe",
+        "skip": "",
+        "join": ""
     },
     "error": {
         "couldntSendYourMessage": "Nu am putut trimite mesajul dvs",
@@ -93,6 +96,20 @@
     "study": {
         "startStudy": "",
         "continueStudy": ""
+    },
+    "competition": {
+        "title": "",
+        "description": "",
+        "howDoesItWork": "",
+        "onlyOnce": "",
+        "watchNextBroadcast": "",
+        "joinCompetition": "",
+        "terms": "",
+        "alreadySent": "",
+        "areYouSure": "",
+        "lookThouroughly": "",
+        "submitted": "",
+        "dontMiss": ""
     },
     "lesson": {
         "related": "",

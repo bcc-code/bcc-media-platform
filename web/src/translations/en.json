@@ -12,7 +12,10 @@
         "close": "Close",
         "download": "Download",
         "goTo": "Go to",
-        "send": "Send"
+        "send": "Send",
+        "start": "Start",
+        "skip": "Skip",
+        "join": "Join"
     },
     "error": {
         "couldntSendYourMessage": "Couldn't send your message",
@@ -93,6 +96,20 @@
     "study": {
         "startStudy": "Start study",
         "continueStudy": "Continue study"
+    },
+    "competition": {
+        "title": "Double your chances",
+        "description": "Get a higher chance to win the exclusive <strong>Disse mine ord</strong> prize by answering correctly.",
+        "howDoesItWork": "How does it work?",
+        "onlyOnce": "You can only take the quiz once.",
+        "watchNextBroadcast": "Watch the next live studio broadcast to see the right answers.",
+        "joinCompetition": "Join competition",
+        "terms": "By participating you agree that your name can be shown in the broadcast when announcing the winner.",
+        "alreadySent": "You have already submitted, but you can still see what you answered.",
+        "areYouSure": "Are you sure?",
+        "lookThouroughly": "Review your answers carefully. Once submitted, you will not be able to change your answer.",
+        "submitted": "Your answer has been submitted!",
+        "dontMiss": "Don't miss the next studio broadcast, where the correct answer will be announced."
     },
     "lesson": {
         "related": "Related resources",

@@ -12,7 +12,10 @@
         "close": "Lukk",
         "download": "Last ned",
         "goTo": "Gå til",
-        "send": "Send"
+        "send": "Send",
+        "start": "Start",
+        "skip": "Hopp over",
+        "join": "Bli med"
     },
     "error": {
         "couldntSendYourMessage": "Kunne ikke sende meldingen din",
@@ -93,6 +96,20 @@
     "study": {
         "startStudy": "Start studie",
         "continueStudy": "Fortsett studie"
+    },
+    "competition": {
+        "title": "Dobbelsjansen",
+        "description": "Få en ekstra sjanse til å vinne den eksklusive <strong>Disse mine ord</strong>-premien ved å svare riktig.",
+        "howDoesItWork": "Hvordan fungerer det?",
+        "onlyOnce": "Du kan kun svare én gang.",
+        "watchNextBroadcast": "Riktig svar blir annonsert i neste studiosending.",
+        "joinCompetition": "Bli med i konkurranse",
+        "terms": "Ved å delta godtar du at navnet ditt kan bli vist i studiosendingen når vinneren annonseres.",
+        "alreadySent": "Du har allerede sendt inn ditt svar, men kan fortsatt se hva du svarte.",
+        "areYouSure": "Er du sikker?",
+        "lookThouroughly": "Se nøye gjennom svarene dine. Når du har sendt inn, vil du ikke kunne endre svaret.",
+        "submitted": "Ditt svar har blitt sendt inn!",
+        "dontMiss": "Ikke gå glipp av neste studiosending, hvor riktig svar blir annonsert."
     },
     "lesson": {
         "related": "Relatert innhold",

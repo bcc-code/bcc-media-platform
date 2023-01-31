@@ -12,7 +12,10 @@
         "close": "Sluiten",
         "download": "Downloaden",
         "goTo": "Ga naar",
-        "send": "Verzenden"
+        "send": "Verzenden",
+        "start": "Start",
+        "skip": "",
+        "join": ""
     },
     "error": {
         "couldntSendYourMessage": "Je bericht kon niet worden verzonden",
@@ -93,6 +96,20 @@
     "study": {
         "startStudy": "Start studie",
         "continueStudy": "Doorgaan met studie"
+    },
+    "competition": {
+        "title": "",
+        "description": "",
+        "howDoesItWork": "",
+        "onlyOnce": "",
+        "watchNextBroadcast": "",
+        "joinCompetition": "",
+        "terms": "",
+        "alreadySent": "",
+        "areYouSure": "",
+        "lookThouroughly": "",
+        "submitted": "",
+        "dontMiss": ""
     },
     "lesson": {
         "related": "Gerelateerde resultaten",
