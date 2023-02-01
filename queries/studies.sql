@@ -153,17 +153,16 @@ WHERE a.profile_id = ANY ($1::uuid[])
 WITH total AS (SELECT t.lesson_id,
                       COUNT(t.id) task_count
                FROM tasks t
-			   WHERE t.status = 'published'
+               WHERE t.status = 'published'
                GROUP BY t.lesson_id),
      completed AS (SELECT t.lesson_id, ta.profile_id, COUNT(t.id) completed_count
                    FROM tasks t
                             JOIN "users"."taskanswers" ta ON ta.task_id = t.id
                    GROUP BY t.lesson_id, ta.profile_id)
-SELECT total.lesson_id as id, p.id as parent_id
-FROM users.profiles p
-         JOIN completed ON completed.profile_id = p.id
+SELECT completed.lesson_id as id, completed.profile_id as parent_id
+FROM completed
          JOIN total ON total.lesson_id = completed.lesson_id
-WHERE p.id = ANY ($1::uuid[])
+WHERE completed.profile_id = ANY ($1::uuid[])
 -- >= instead of = In case somethig has been archived later
   AND completed.completed_count >= total.task_count;
 
@@ -172,18 +171,17 @@ WHERE p.id = ANY ($1::uuid[])
 WITH total AS (SELECT l.topic_id,
                       COUNT(t.id) task_count
                FROM tasks t
-                        JOIN lessons l ON l.id = t.lesson_id
+                        LEFT JOIN lessons l ON l.id = t.lesson_id
                GROUP BY l.topic_id),
      completed AS (SELECT t.lesson_id, ta.profile_id, COUNT(t.id) completed_count
                    FROM tasks t
-                            JOIN "users"."taskanswers" ta ON ta.task_id = t.id
-                            JOIN lessons l ON l.id = t.lesson_id
+                            LEFT JOIN users.taskanswers ta ON ta.task_id = t.id
+                            LEFT JOIN lessons l ON l.id = t.lesson_id
                    GROUP BY t.lesson_id, ta.profile_id)
-SELECT total.topic_id as id, p.id as parent_id
-FROM users.profiles p
-         JOIN completed ON completed.profile_id = p.id
-         JOIN total ON total.topic_id = completed.lesson_id
-WHERE p.id = ANY ($1::uuid[])
+SELECT total.topic_id as id, completed.profile_id as parent_id
+FROM completed
+         LEFT JOIN total ON total.topic_id = completed.lesson_id
+WHERE completed.lesson_id = ANY ($1::uuid[])
   AND completed.completed_count = total.task_count;
 
 -- name: GetAnsweredTasks :many

@@ -207,11 +207,10 @@ WITH total AS (SELECT t.lesson_id,
                    FROM tasks t
                             JOIN "users"."taskanswers" ta ON ta.task_id = t.id
                    GROUP BY t.lesson_id, ta.profile_id)
-SELECT total.lesson_id as id, p.id as parent_id
-FROM users.profiles p
-         JOIN completed ON completed.profile_id = p.id
+SELECT completed.lesson_id as id, completed.profile_id as parent_id
+FROM completed
          JOIN total ON total.lesson_id = completed.lesson_id
-WHERE p.id = ANY ($1::uuid[])
+WHERE completed.profile_id = ANY ($1::uuid[])
   AND completed.completed_count >= total.task_count
 `
 
@@ -282,24 +281,23 @@ const getCompletedTopics = `-- name: getCompletedTopics :many
 WITH total AS (SELECT l.topic_id,
                       COUNT(t.id) task_count
                FROM tasks t
-                        JOIN lessons l ON l.id = t.lesson_id
+                        LEFT JOIN lessons l ON l.id = t.lesson_id
                GROUP BY l.topic_id),
      completed AS (SELECT t.lesson_id, ta.profile_id, COUNT(t.id) completed_count
                    FROM tasks t
-                            JOIN "users"."taskanswers" ta ON ta.task_id = t.id
-                            JOIN lessons l ON l.id = t.lesson_id
+                            LEFT JOIN users.taskanswers ta ON ta.task_id = t.id
+                            LEFT JOIN lessons l ON l.id = t.lesson_id
                    GROUP BY t.lesson_id, ta.profile_id)
-SELECT total.topic_id as id, p.id as parent_id
-FROM users.profiles p
-         JOIN completed ON completed.profile_id = p.id
-         JOIN total ON total.topic_id = completed.lesson_id
-WHERE p.id = ANY ($1::uuid[])
+SELECT total.topic_id as id, completed.profile_id as parent_id
+FROM completed
+         LEFT JOIN total ON total.topic_id = completed.lesson_id
+WHERE completed.lesson_id = ANY ($1::uuid[])
   AND completed.completed_count = total.task_count
 `
 
 type getCompletedTopicsRow struct {
-	ID       uuid.UUID `db:"id" json:"id"`
-	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
+	ID       uuid.NullUUID `db:"id" json:"id"`
+	ParentID uuid.NullUUID `db:"parent_id" json:"parentID"`
 }
 
 func (q *Queries) getCompletedTopics(ctx context.Context, dollar_1 []uuid.UUID) ([]getCompletedTopicsRow, error) {
