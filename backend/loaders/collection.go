@@ -2,13 +2,13 @@ package loaders
 
 import (
 	"context"
-	"sync"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 	"time"
 )
 
 // Collection is a collection of loaders or other advanced structures
 type Collection[K comparable, V any] struct {
-	values  *sync.Map
+	values  *utils.SyncMap[K, *entry[K, V]]
 	expiry  time.Duration
 	janitor *janitor
 }
@@ -16,7 +16,7 @@ type Collection[K comparable, V any] struct {
 // NewCollection of loaders or other structures
 func NewCollection[K comparable, V any](expiration time.Duration) *Collection[K, V] {
 	col := &Collection[K, V]{
-		values:  &sync.Map{},
+		values:  &utils.SyncMap[K, *entry[K, V]]{},
 		expiry:  expiration,
 		janitor: newJanitor(context.Background(), time.Minute),
 	}
@@ -38,9 +38,8 @@ type entry[K comparable, V any] struct {
 // Keys returns all keys
 func (c Collection[K, V]) Keys() []K {
 	var keys []K
-	c.values.Range(func(key any, value any) bool {
-		k, _ := key.(K)
-		keys = append(keys, k)
+	c.values.Range(func(key K, _ *entry[K, V]) bool {
+		keys = append(keys, key)
 		return true
 	})
 	return keys
@@ -64,11 +63,10 @@ func (c Collection[K, V]) Set(key K, value V, opts ...any) {
 
 // Get a value by the specified key
 func (c Collection[K, V]) Get(key K) (value V, ok bool) {
-	v, ok := c.values.Load(key)
+	e, ok := c.values.Load(key)
 	if !ok {
 		return value, false
 	}
-	e, _ := v.(*entry[K, V])
 	if e.ExpiresAt.Before(time.Now()) {
 		c.values.Delete(key)
 		if e.OnDelete != nil {
@@ -82,11 +80,10 @@ func (c Collection[K, V]) Get(key K) (value V, ok bool) {
 
 // Delete the specified key (&entry)
 func (c Collection[K, V]) Delete(key K) {
-	v, ok := c.values.LoadAndDelete(key)
+	e, ok := c.values.LoadAndDelete(key)
 	if !ok {
 		return
 	}
-	e, _ := v.(*entry[K, V])
 	c.values.Delete(key)
 	if e.OnDelete != nil {
 		e.OnDelete()
@@ -96,10 +93,9 @@ func (c Collection[K, V]) Delete(key K) {
 // DeleteExpired entries
 func (c Collection[K, V]) DeleteExpired() {
 	var deleteKeys []K
-	c.values.Range(func(key any, value any) bool {
-		e, _ := value.(*entry[K, V])
-		if e.ExpiresAt.Before(time.Now()) {
-			deleteKeys = append(deleteKeys, e.Key)
+	c.values.Range(func(key K, value *entry[K, V]) bool {
+		if value.ExpiresAt.Before(time.Now()) {
+			deleteKeys = append(deleteKeys, value.Key)
 		}
 		return true
 	})
