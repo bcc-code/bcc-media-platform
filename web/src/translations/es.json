@@ -123,7 +123,7 @@
         "question": "Pregunta",
         "wrongAnswerMessage": "Ah, cerca. ¡Intentar otra vez!",
         "correctAnswerMessage": "¡Bien hecho!",
-        "noLocalGroupFound": ""
+        "noLocalGroupFound": "No se encontró un grupo local"
     },
     "cookies": {
         "title": "Este sitio web utiliza cookies",
@@ -150,11 +150,11 @@
         "appreciated": "Agradecemos sus comentarios.",
         "comment": "Agrega un comentario a tu experiencia",
         "episodeTitle": "¿Cómo calificarías este episodio?",
-        "howEasyToUnderstand": "",
+        "howEasyToUnderstand": "¿Qué tan fácil fue entender el video?",
         "anonymousInfo": "Su calificación se enviará de forma anónima",
         "placeholder": "Sea lo más detallado posible para ayudarnos a comprender."
     },
-    "contactLocalBukIfWrong": "",
+    "contactLocalBukIfWrong": "Póngase en contacto con la persona responsable en su asociación BUK local si cree que esto está mal.",
     "thankYou": "¡Gracias!",
     "yourResponseHasBeenSubmitted": "Su respuesta ha sido enviada.",
     "sending": "Enviando",

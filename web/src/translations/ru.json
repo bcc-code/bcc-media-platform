@@ -1,9 +1,9 @@
 {
     "buttons": {
-        "save": "",
-        "login": "",
-        "logout": "",
-        "stayLoggedOut": "",
+        "save": "Сохранить",
+        "login": "Войти",
+        "logout": "Выйти",
+        "stayLoggedOut": "Не выходить из системы",
         "cancel": "Отмена",
         "submit": "Отправить",
         "back": "Назад",
@@ -23,45 +23,45 @@
         "checkNetwork": "Проверьте подключение к Интернету и повторите попытку."
     },
     "dashboard": {
-        "loggedOut": ""
+        "loggedOut": "Вы вышли из системы"
     },
     "page": {
-        "home": "",
-        "search": "",
-        "live": "",
-        "calendar": "",
-        "faq": "",
-        "notFound": "",
-        "explore": "",
-        "watchNow": "",
+        "home": "Главная",
+        "search": "Поиск",
+        "live": "Прямой эфир",
+        "calendar": "Календарь",
+        "faq": "ЧАВО",
+        "notFound": "Страница не найдена",
+        "explore": "Исследовать",
+        "watchNow": "Смотреть сейчас",
         "aboutUs": "О нас"
     },
     "section": {
         "item": {
-            "episode": "",
-            "season": ""
+            "episode": "0 серий | 1 серия | {count} серий",
+            "season": "0 сезонов | 1 сезон | {count} сезона"
         }
     },
     "notFound": {
-        "title": "",
-        "description": "",
-        "returnHome": ""
+        "title": "Не найдено",
+        "description": "Возможно, вы не вошли в систему или у вас отсутствуют какие-либо разрешения.",
+        "returnHome": "Вернуться домой"
     },
     "common": {
-        "new": "",
-        "newEpisodes": ""
+        "new": "Новика",
+        "newEpisodes": "Новые эпизоды"
     },
     "episode": {
         "details": "Подробности",
-        "episode": "",
-        "episodes": "",
-        "videos": "",
-        "seriesDescription": "",
-        "releaseDate": "",
-        "availableFrom": "",
-        "availableTo": "",
-        "ageRating": "",
-        "notFound": "",
+        "episode": "Эпизод",
+        "episodes": "Эпизоды",
+        "videos": "Видео",
+        "seriesDescription": "Описание серии",
+        "releaseDate": "Дата выхода",
+        "availableFrom": "Доступно с",
+        "availableTo": "Доступно до",
+        "ageRating": "Рейтинг",
+        "notFound": "Эпизод не найден",
         "comingSoon": "Скоро выйдут",
         "noAccess": {
             "oops": "Ой!",
@@ -71,16 +71,16 @@
         }
     },
     "live": {
-        "now": ""
+        "now": "Сейчас"
     },
     "calendar": {
-        "noScheduledEvents": "",
-        "thisWeek": "",
-        "timeTableIsLocalTime": ""
+        "noScheduledEvents": "Нет запланированных мероприятий",
+        "thisWeek": "На этой неделе",
+        "timeTableIsLocalTime": "Расписание телепрограммы указано по вашему местному времени."
     },
     "search": {
-        "programs": "",
-        "episodes": "",
+        "programs": "Программы",
+        "episodes": "Эпизоды",
         "cancel": "Отмена",
         "emptyQuery": "Поисковый запрос пуст.",
         "noResults": "Нет результатов поиска",
