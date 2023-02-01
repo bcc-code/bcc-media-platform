@@ -53,6 +53,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		LinkStudyLessonsLoader:    loaders.NewRelationLoader(ctx, rq.GetLessonIDsForLinks),
 	}
 
+	// Canceling the context on delete stops janitors nested inside the loaders as well.
 	roleLoaders.Set(key, ls, loaders.WithOnDelete(cancel))
 
 	return ls

@@ -32,8 +32,8 @@ func (j *janitor) stop() {
 func (j *janitor) run(cleanup func()) {
 	go func() {
 		ticker := time.NewTicker(j.interval)
-
 		defer ticker.Stop()
+
 		for {
 			select {
 			case <-ticker.C:

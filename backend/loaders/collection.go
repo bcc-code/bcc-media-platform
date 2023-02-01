@@ -2,7 +2,6 @@ package loaders
 
 import (
 	"context"
-	"log"
 	"sync"
 	"time"
 )
@@ -31,7 +30,9 @@ type entry[K comparable, V any] struct {
 	Key       K
 	Value     V
 	ExpiresAt time.Time
-	OnDelete  func()
+	// A function that should run when this entry is deleted.
+	// For example canceling a context.
+	OnDelete func()
 }
 
 // Keys returns all keys
@@ -94,7 +95,6 @@ func (c Collection[K, V]) Delete(key K) {
 
 // DeleteExpired entries
 func (c Collection[K, V]) DeleteExpired() {
-	log.Print("Deleting expired entries from cache")
 	var deleteKeys []K
 	c.values.Range(func(key any, value any) bool {
 		e, _ := value.(*entry[K, V])
