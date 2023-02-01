@@ -42,6 +42,9 @@ import (
 // App global caches
 var generalCache = cache.New[string, any]()
 
+const filteredLoadersCtxKey = "filtered-loaders"
+const profileLoadersCtxKey = "profile-loaders"
+
 func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *loaders.Loader[int, *common.Collection]) func(ctx context.Context) *common.FilteredLoaders {
 	return func(ctx context.Context) *common.FilteredLoaders {
 		ginCtx, err := utils.GinCtx(ctx)
@@ -52,7 +55,12 @@ func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *
 		} else {
 			roles = user.GetRolesFromCtx(ginCtx)
 		}
-		return getLoadersForRoles(db, queries, collectionLoader, roles)
+		if ls := ginCtx.Value(filteredLoadersCtxKey); ls != nil {
+			return ls.(*common.FilteredLoaders)
+		}
+		ls := getLoadersForRoles(db, queries, collectionLoader, roles)
+		ginCtx.Set(filteredLoadersCtxKey, ls)
+		return ls
 	}
 }
 
@@ -66,7 +74,12 @@ func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *comm
 		if p == nil {
 			return nil
 		}
-		return getLoadersForProfile(queries, p.ID)
+		if ls := ginCtx.Value(profileLoadersCtxKey); ls != nil {
+			return ls.(*common.ProfileLoaders)
+		}
+		ls := getLoadersForProfile(queries, p.ID)
+		ginCtx.Set(profileLoadersCtxKey, ls)
+		return ls
 	}
 }
 
