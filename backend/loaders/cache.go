@@ -22,17 +22,17 @@ func NewMemoryLoaderCache[K comparable, V any](ctx context.Context, expiration t
 }
 
 // Get retrieves an entry from the cache
-func (c *LoaderCache[K, V]) Get(ctx context.Context, key K) (dataloader.Thunk[V], bool) {
+func (c *LoaderCache[K, V]) Get(_ context.Context, key K) (dataloader.Thunk[V], bool) {
 	return c.cache.Get(key)
 }
 
 // Set sets the specified key to value
-func (c *LoaderCache[K, V]) Set(ctx context.Context, key K, val dataloader.Thunk[V]) {
+func (c *LoaderCache[K, V]) Set(_ context.Context, key K, val dataloader.Thunk[V]) {
 	c.cache.Set(key, val, cache.WithExpiration(c.expiration))
 }
 
 // Delete deletes the specified key
-func (c *LoaderCache[K, V]) Delete(ctx context.Context, key K) bool {
+func (c *LoaderCache[K, V]) Delete(_ context.Context, key K) bool {
 	c.cache.Delete(key)
 	return true
 }
