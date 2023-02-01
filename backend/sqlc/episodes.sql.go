@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"time"
 
@@ -238,6 +239,7 @@ SELECT e.id,
        e.publish_date,
        e.production_date,
        e.public_title,
+       s.episode_number_in_title                                                             AS number_in_title,
        COALESCE(e.prevent_public_indexing, false)                                            as prevent_public_indexing,
        ea.available_from::timestamp without time zone                                        AS available_from,
        ea.available_to::timestamp without time zone                                          AS available_to,
@@ -276,6 +278,7 @@ type getEpisodesRow struct {
 	PublishDate           time.Time             `db:"publish_date" json:"publishDate"`
 	ProductionDate        time.Time             `db:"production_date" json:"productionDate"`
 	PublicTitle           null_v4.String        `db:"public_title" json:"publicTitle"`
+	NumberInTitle         sql.NullBool          `db:"number_in_title" json:"numberInTitle"`
 	PreventPublicIndexing bool                  `db:"prevent_public_indexing" json:"preventPublicIndexing"`
 	AvailableFrom         time.Time             `db:"available_from" json:"availableFrom"`
 	AvailableTo           time.Time             `db:"available_to" json:"availableTo"`
@@ -312,6 +315,7 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.PublishDate,
 			&i.ProductionDate,
 			&i.PublicTitle,
+			&i.NumberInTitle,
 			&i.PreventPublicIndexing,
 			&i.AvailableFrom,
 			&i.AvailableTo,
@@ -346,7 +350,7 @@ SELECT e.id,
        access.published::bool             AS published,
        access.available_from::timestamp   AS available_from,
        access.available_to::timestamp     AS available_to,
-	   access.published_on::timestamp     AS published_on,
+       access.published_on::timestamp     AS published_on,
        roles.roles::varchar[]             AS usergroups,
        roles.roles_download::varchar[]    AS usergroups_downloads,
        roles.roles_earlyaccess::varchar[] AS usergroups_earlyaccess
@@ -428,6 +432,7 @@ SELECT e.id,
        e.publish_date,
        e.production_date,
        e.public_title,
+       s.episode_number_in_title                                                             AS number_in_title,
        COALESCE(e.prevent_public_indexing, false)                                            as prevent_public_indexing,
        ea.available_from::timestamp without time zone                                        AS available_from,
        ea.available_to::timestamp without time zone                                          AS available_to,
@@ -464,6 +469,7 @@ type listEpisodesRow struct {
 	PublishDate           time.Time             `db:"publish_date" json:"publishDate"`
 	ProductionDate        time.Time             `db:"production_date" json:"productionDate"`
 	PublicTitle           null_v4.String        `db:"public_title" json:"publicTitle"`
+	NumberInTitle         sql.NullBool          `db:"number_in_title" json:"numberInTitle"`
 	PreventPublicIndexing bool                  `db:"prevent_public_indexing" json:"preventPublicIndexing"`
 	AvailableFrom         time.Time             `db:"available_from" json:"availableFrom"`
 	AvailableTo           time.Time             `db:"available_to" json:"availableTo"`
@@ -500,6 +506,7 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 			&i.PublishDate,
 			&i.ProductionDate,
 			&i.PublicTitle,
+			&i.NumberInTitle,
 			&i.PreventPublicIndexing,
 			&i.AvailableFrom,
 			&i.AvailableTo,

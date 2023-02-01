@@ -14,8 +14,8 @@
         "goTo": "Ugrás",
         "send": "Küldés",
         "start": "Kezdés",
-        "skip": "",
-        "join": ""
+        "skip": "Átugrás",
+        "join": "Csatlakozás"
     },
     "error": {
         "couldntSendYourMessage": "Nem sikerült elküldeni az üzenetedet",
@@ -98,21 +98,21 @@
         "continueStudy": "Tanulmányozás folytatása"
     },
     "competition": {
-        "title": "",
-        "description": "",
-        "howDoesItWork": "",
-        "onlyOnce": "",
-        "watchNextBroadcast": "",
-        "joinCompetition": "",
-        "terms": "",
-        "alreadySent": "",
-        "areYouSure": "",
-        "lookThouroughly": "",
-        "submitted": "",
-        "dontMiss": ""
+        "title": "Duplázd meg esélyeidet",
+        "description": "Ha helyesen válaszolsz, nagyobb eséllyel nyerheted meg az exkluzív <strong>Ezek a szavaim </strong> nyereményt.",
+        "howDoesItWork": "Hogyan működik?",
+        "onlyOnce": "Csak egyszer részt vehetsz a kvízben.",
+        "watchNextBroadcast": "A helyes válaszokért nézd meg a következő élő közvetítést.",
+        "joinCompetition": "Csatlakozz a versenyhez",
+        "terms": "A részvétellel hozzájárulsz ahhoz, hogy a neved megjelenjen az adásban a győztes kihirdetésekor.",
+        "alreadySent": "Már beküldted, de még mindig láthatod, hogy mit válaszoltál.",
+        "areYouSure": "Biztos vagy abban?",
+        "lookThouroughly": "Gondosan vizsgáld át a válaszaidat. A beküldés után nem tudod megváltoztatni a válaszodat.",
+        "submitted": "A válaszodat elküldtük!",
+        "dontMiss": "Ne hagyd ki a következő adást, ahol a helyes választ bejelentjük."
     },
     "lesson": {
-        "related": "Kapcsolódó források",
+        "related": "Kapcsolódó tartalmak",
         "watchAgain": {
             "title": "Nézd meg újra",
             "description": "A mélyebb megértés érdekében javasoljuk, hogy nézd meg a videót többször is.",

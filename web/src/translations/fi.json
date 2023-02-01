@@ -14,8 +14,8 @@
         "goTo": "Siirry",
         "send": "Lähetä",
         "start": "Alkaa",
-        "skip": "",
-        "join": ""
+        "skip": "Ohita",
+        "join": "Liity"
     },
     "error": {
         "couldntSendYourMessage": "Lähettäminen epäonnistui",
@@ -98,18 +98,18 @@
         "continueStudy": "Jatka opintoa"
     },
     "competition": {
-        "title": "",
-        "description": "",
-        "howDoesItWork": "",
-        "onlyOnce": "",
-        "watchNextBroadcast": "",
-        "joinCompetition": "",
-        "terms": "",
-        "alreadySent": "",
-        "areYouSure": "",
-        "lookThouroughly": "",
-        "submitted": "",
-        "dontMiss": ""
+        "title": "Tuplaa mahdollisuutesi",
+        "description": "Vastaamalla oikein nostat mahdollisuuttasi voittaa aivan erityinen <strong>Nämä minun sanani</strong> palkinto.",
+        "howDoesItWork": "Miten se toimii?",
+        "onlyOnce": "Voit vastata kyselyyn vain kerran.",
+        "watchNextBroadcast": "Seuraavassa studiolähetyksessä kuulet oikeat vastaukset.",
+        "joinCompetition": "Liity kisaan",
+        "terms": "Osallistumalla hyväksyt että nimesi mahdollisesti näytetään kun voittaja julkistetaan.",
+        "alreadySent": "Lähetit jo vastaukset, mutta voit vielä katsoa vastauksiasi.",
+        "areYouSure": "Oletko varma?",
+        "lookThouroughly": "Tarkista vastauksesi huolella. Lähettämisen jälkeen niitä ei voi enää muuttaa.",
+        "submitted": "Vastauksesi on lähetetty!",
+        "dontMiss": "Älä jää paitsi seuraavasta studiolähetyksestä. Siellä julkistetaan oikea vastaus."
     },
     "lesson": {
         "related": "Aiheeseen liittyvää",

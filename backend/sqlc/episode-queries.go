@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
@@ -24,6 +25,10 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 		var image null.String
 		if e.ImageFileName.Valid {
 			image = null.StringFrom(fmt.Sprintf("https://%s/%s", q.getImageCDNDomain(), e.ImageFileName.String))
+		}
+
+		if e.NumberInTitle.Valid && e.NumberInTitle.Bool && e.EpisodeNumber.Valid {
+			title = title.Prefix(strconv.Itoa(int(e.EpisodeNumber.Int64)) + ". ")
 		}
 
 		return common.Episode{

@@ -1019,24 +1019,25 @@ type Redirect struct {
 }
 
 type Season struct {
-	AgeratingCode       null_v4.String `db:"agerating_code" json:"ageratingCode"`
-	AvailableFrom       null_v4.Time   `db:"available_from" json:"availableFrom"`
-	AvailableTo         null_v4.Time   `db:"available_to" json:"availableTo"`
-	DateCreated         time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated         time.Time      `db:"date_updated" json:"dateUpdated"`
-	ID                  int32          `db:"id" json:"id"`
-	ImageFileID         uuid.NullUUID  `db:"image_file_id" json:"imageFileID"`
-	LegacyDescriptionID null_v4.Int    `db:"legacy_description_id" json:"legacyDescriptionID"`
-	LegacyID            null_v4.Int    `db:"legacy_id" json:"legacyID"`
-	LegacyTitleID       null_v4.Int    `db:"legacy_title_id" json:"legacyTitleID"`
-	PublishDate         time.Time      `db:"publish_date" json:"publishDate"`
-	SeasonNumber        int32          `db:"season_number" json:"seasonNumber"`
-	ShowID              int32          `db:"show_id" json:"showID"`
-	Status              string         `db:"status" json:"status"`
-	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	Label               null_v4.String `db:"label" json:"label"`
-	PublicTitle         null_v4.String `db:"public_title" json:"publicTitle"`
+	AgeratingCode        null_v4.String `db:"agerating_code" json:"ageratingCode"`
+	AvailableFrom        null_v4.Time   `db:"available_from" json:"availableFrom"`
+	AvailableTo          null_v4.Time   `db:"available_to" json:"availableTo"`
+	DateCreated          time.Time      `db:"date_created" json:"dateCreated"`
+	DateUpdated          time.Time      `db:"date_updated" json:"dateUpdated"`
+	ID                   int32          `db:"id" json:"id"`
+	ImageFileID          uuid.NullUUID  `db:"image_file_id" json:"imageFileID"`
+	LegacyDescriptionID  null_v4.Int    `db:"legacy_description_id" json:"legacyDescriptionID"`
+	LegacyID             null_v4.Int    `db:"legacy_id" json:"legacyID"`
+	LegacyTitleID        null_v4.Int    `db:"legacy_title_id" json:"legacyTitleID"`
+	PublishDate          time.Time      `db:"publish_date" json:"publishDate"`
+	SeasonNumber         int32          `db:"season_number" json:"seasonNumber"`
+	ShowID               int32          `db:"show_id" json:"showID"`
+	Status               string         `db:"status" json:"status"`
+	UserCreated          uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated          uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	Label                null_v4.String `db:"label" json:"label"`
+	PublicTitle          null_v4.String `db:"public_title" json:"publicTitle"`
+	EpisodeNumberInTitle sql.NullBool   `db:"episode_number_in_title" json:"episodeNumberInTitle"`
 }
 
 type SeasonAvailability struct {
