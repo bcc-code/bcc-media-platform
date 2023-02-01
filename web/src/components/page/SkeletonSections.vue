@@ -21,7 +21,7 @@
                 >
                     <SwiperSlide v-for="i in 3" class="relative">
                         <div
-                            class="relative h-full cursor-pointer aspect-video lg:aspect-[11/5] overflow-hidden"
+                            class="relative h-full cursor-pointer aspect-video w-full overflow-hidden max-h-[60vh]"
                         >
                             <Image
                                 :src="undefined"

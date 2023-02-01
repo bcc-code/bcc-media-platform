@@ -135,6 +135,16 @@ const load = async () => {
                 },
             },
         })
+
+        // create a event when player is created 
+        const vodPlayer = new CustomEvent("vodPlayer", {
+            detail: player.value,
+            bubbles: false,
+            cancelable: true,
+            composed: false,
+        });
+        window.dispatchEvent(vodPlayer)
+        
         lastProgress = props.episode.progress
         player.value.currentTime(lastProgress)
 
