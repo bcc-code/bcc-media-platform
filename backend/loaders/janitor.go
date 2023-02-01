@@ -1,3 +1,6 @@
+// Copied from: https://github.com/Code-Hex/go-generics-cache/blob/main/janitor.go
+// Author: Code-Hex
+
 package loaders
 
 import (
