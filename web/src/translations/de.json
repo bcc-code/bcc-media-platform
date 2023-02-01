@@ -13,9 +13,9 @@
         "download": "Herunterladen",
         "goTo": "Gehe zu",
         "send": "Senden",
-        "start": "",
-        "skip": "",
-        "join": ""
+        "start": "Start",
+        "skip": "Überspringen",
+        "join": "Beitreten"
     },
     "error": {
         "couldntSendYourMessage": "Deine Nachricht konnte nicht gesendet werden",
@@ -94,22 +94,22 @@
         "describeIssue": "Beschreibe dein Problem im Detail."
     },
     "study": {
-        "startStudy": "",
-        "continueStudy": ""
+        "startStudy": "Untersuchung starten",
+        "continueStudy": "Untersuchung fortsetzen"
     },
     "competition": {
-        "title": "",
-        "description": "",
-        "howDoesItWork": "",
-        "onlyOnce": "",
-        "watchNextBroadcast": "",
-        "joinCompetition": "",
-        "terms": "",
-        "alreadySent": "",
-        "areYouSure": "",
-        "lookThouroughly": "",
-        "submitted": "",
-        "dontMiss": ""
+        "title": "Verdopple deine Chancen",
+        "description": "Erhalte eine größere Chance, den exklusiven <strong>Diese meine Worte</strong> Preis zu gewinnen, indem du korrekt antwortest.",
+        "howDoesItWork": "Wie funktioniert es?",
+        "onlyOnce": "Du kannst dieses Quiz nur einmal machen.",
+        "watchNextBroadcast": "Schaue die nächste Live Studiosendung, um die richtigen Antworten zu sehen.",
+        "joinCompetition": "Mache beim Wettbewerb mit",
+        "terms": "Wenn du mitmachst, stimmst du zu, dass dein Name in der Sendung gezeigt werden könnte, wenn die Gewinner bekanntgegeben werden.",
+        "alreadySent": "Du hast deine Antwort schon eingereicht, aber kannst immer noch sehen, was du geantwortet hast.",
+        "areYouSure": "Bist du sicher?",
+        "lookThouroughly": "Schaue deine Antworten genau an. Sobald du sie eingereicht hast, kannst du sie nicht mehr ändern.",
+        "submitted": "Deine Antwort wurde eingereicht!",
+        "dontMiss": "Verpasse nicht die nächste Studiosendung, in der die richtigen Antworten gezeigt werden."
     },
     "lesson": {
         "related": "Ähnlicher Inhalt",
@@ -123,7 +123,7 @@
         "question": "Frage",
         "wrongAnswerMessage": "Oh, fast. Versuche es noch einmal!",
         "correctAnswerMessage": "Gut gemacht!",
-        "noLocalGroupFound": ""
+        "noLocalGroupFound": "Keine lokale Gruppe gefunden"
     },
     "cookies": {
         "title": "Diese Webseite verwendet Cookies",
@@ -150,11 +150,11 @@
         "appreciated": "Wir schätzen dein Feedback.",
         "comment": "Füge einen Kommentar zu deinem Erlebnis hinzu",
         "episodeTitle": "Wie würdest du diese Episode bewerten?",
-        "howEasyToUnderstand": "",
+        "howEasyToUnderstand": "Wie einfach war es, das Video zu verstehen?",
         "anonymousInfo": "Deine Bewertung wird anonym eingereicht",
         "placeholder": "Bitte sei so detailliert wie möglich, sodass wir es verstehen."
     },
-    "contactLocalBukIfWrong": "",
+    "contactLocalBukIfWrong": "Kontaktiere die Person, die in deiner Gemeinde für BUK verantwortlich ist, wenn du denkst, dass das falsch ist.",
     "thankYou": "Vielen Dank!",
     "yourResponseHasBeenSubmitted": "Deine Antwort wurde eingereicht.",
     "sending": "Sendung",
