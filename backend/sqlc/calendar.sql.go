@@ -174,9 +174,7 @@ const getCalendarEntryIDsForPeriod = `-- name: getCalendarEntryIDsForPeriod :man
 SELECT e.id
 FROM calendarentries e
 WHERE e.status = 'published'
-  AND ((e.start >= $1::timestamptz AND e.start <= $2::timestamptz)
-    OR (e.end >= $1::timestamptz AND e.end <= $2::timestamptz)
-    OR (e.start <= $1::timestamptz AND e.end >= $2::timestamptz))
+  AND (e.start >= $1::timestamptz AND e.start <= $2::timestamptz)
 ORDER BY e.start
 `
 

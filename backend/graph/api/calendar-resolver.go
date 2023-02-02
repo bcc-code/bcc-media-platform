@@ -33,18 +33,18 @@ func getActiveDays(entries []*common.CalendarEntry, sourceTime time.Time) []stri
 		if !lo.Contains(days, dateString) {
 			days = append(days, dateString)
 		}
-		endDate := entry.End.In(location)
-		endDateString := endDate.Format("2006-01-02")
-		if !endDate.After(date) {
-			continue
-		}
-		for endDateString != dateString {
-			if !lo.Contains(days, endDateString) {
-				days = append(days, endDateString)
-			}
-			endDate = endDate.Add(time.Hour * -24)
-			endDateString = endDate.Format("2006-01-02")
-		}
+		//endDate := entry.End.In(location)
+		//endDateString := endDate.Format("2006-01-02")
+		//if !endDate.After(date) {
+		//	continue
+		//}
+		//for endDateString != dateString {
+		//	if !lo.Contains(days, endDateString) {
+		//		days = append(days, endDateString)
+		//	}
+		//	endDate = endDate.Add(time.Hour * -24)
+		//	endDateString = endDate.Format("2006-01-02")
+		//}
 	}
 
 	return lo.Map(days, func(date string, _ int) string {
