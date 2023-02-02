@@ -11,32 +11,46 @@ func getOptions[K comparable, V any](ctx context.Context, opts ...Option) []data
 	var options []dataloader.Option[K, V]
 
 	var cache *LoaderCache[K, V]
-	var tracerName string
+	var name string
 
 	for _, opt := range opts {
 		switch t := opt.(type) {
-		case MemoryCache:
-			cache = NewMemoryLoaderCache[K, V](ctx, t.expiration)
-		case traceName:
-			tracerName = string(t)
+		case loaderName:
+			name = string(t)
 		}
 	}
 
-	if cache == nil {
-		cache = NewMemoryLoaderCache[K, V](ctx, time.Minute*5)
-	}
-
-	if tracerName == "" {
+	if name == "" {
 		var t V
 		tp := reflect.TypeOf(t)
 		n := tp.String()
 		if n != "" {
-			tracerName = n
+			name = n
 		}
 	}
 
+	for _, opt := range opts {
+		switch t := opt.(type) {
+		case MemoryCache:
+			cache = NewMemoryLoaderCache[K, V](ctx, name, t.expiration)
+		}
+	}
+
+	if name == "" {
+		var t V
+		tp := reflect.TypeOf(t)
+		n := tp.String()
+		if n != "" {
+			name = n
+		}
+	}
+
+	if cache == nil {
+		cache = NewMemoryLoaderCache[K, V](ctx, name, time.Minute*5)
+	}
+
 	options = append(options, dataloader.WithCache[K, V](cache))
-	options = append(options, dataloader.WithTracer[K, V](newTracer[K, V](tracerName)))
+	options = append(options, dataloader.WithTracer[K, V](newTracer[K, V](name)))
 
 	return options
 }

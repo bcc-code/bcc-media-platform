@@ -59,7 +59,7 @@ func NewCollectionItemLoader(ctx context.Context, db *sql.DB, collectionLoader *
 	}
 
 	return &loaders.Loader[int, []common.Identifier]{
-		Loader: dataloader.NewBatchedLoader(batchLoader, dataloader.WithCache[int, []common.Identifier](loaders.NewMemoryLoaderCache[int, []common.Identifier](ctx, time.Minute*5))),
+		Loader: dataloader.NewBatchedLoader(batchLoader, dataloader.WithCache[int, []common.Identifier](loaders.NewMemoryLoaderCache[int, []common.Identifier](ctx, "collection-item", time.Minute*5))),
 	}
 }
 

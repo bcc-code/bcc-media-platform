@@ -14,17 +14,6 @@ type tracer[K comparable, V any] struct {
 	t trace.Tracer
 }
 
-type traceName string
-
-func (traceName) isOption() {
-
-}
-
-// WithTraceName assigns the specified name to the tracer
-func WithTraceName(name string) Option {
-	return traceName(name)
-}
-
 func newTracer[K comparable, V any](name string) *tracer[K, V] {
 	return &tracer[K, V]{
 		t: otel.Tracer(name),

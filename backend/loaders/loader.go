@@ -32,6 +32,17 @@ func (kf keyFunc[K, V]) isOption() {
 
 }
 
+type loaderName string
+
+func (loaderName) isOption() {
+
+}
+
+// WithName assigns the specified name to the tracer
+func WithName(name string) Option {
+	return loaderName(name)
+}
+
 // WithKeyFunc specifies that the key should be retrieved with this function.
 func WithKeyFunc[K comparable, V any](getKey func(V) K) Option {
 	return keyFunc[K, V](getKey)
