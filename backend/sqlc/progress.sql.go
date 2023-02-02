@@ -34,32 +34,30 @@ func (q *Queries) deleteProgress(ctx context.Context, arg deleteProgressParams) 
 }
 
 const getEpisodeIDsWithProgress = `-- name: getEpisodeIDsWithProgress :many
-WITH shows AS (SELECT DISTINCT ON (p.show_id, p.profile_id) p.show_id,
-                                                            p.profile_id,
-                                                            p.episode_id,
-                                                            p.updated_at
-               FROM "users"."progress" p
-               WHERE p.show_id IS NOT NULL
-               GROUP BY p.profile_id, p.show_id, p.episode_id
-               ORDER BY p.show_id, p.profile_id, p.updated_at DESC)
-SELECT p.episode_id, p.profile_id
-FROM "users"."progress" p
-         LEFT JOIN shows s ON p.show_id = s.show_id AND p.profile_id = s.profile_id
+WITH uniques AS (SELECT DISTINCT ON (p.show_id, p.profile_id) p.show_id, p.profile_id, p.episode_id
+                 FROM users.progress p
+                 WHERE p.show_id IS NOT NULL
+                 ORDER BY p.show_id, p.profile_id, p.updated_at DESC)
+SELECT p.episode_id, p.profile_id, p.show_id, p.progress, p.duration
+FROM users.progress p
+         LEFT JOIN uniques u ON u.show_id = p.show_id AND u.profile_id = p.profile_id
 WHERE p.profile_id = ANY ($1::uuid[])
-  AND (s IS NULL
-    OR s.episode_id = p.episode_id)
-  AND p.progress > 10
-  AND COALESCE((p.progress::float / COALESCE(NULLIF(p.duration, 0), 1)) > 0.8, false) != true
+  AND (u IS NULL OR u.episode_id = p.episode_id)
+  AND p.progress > 10 AND p.duration > 20
+  AND ((p.progress::float / p.duration) > 0.8) != true
 ORDER BY p.updated_at DESC
 `
 
 type getEpisodeIDsWithProgressRow struct {
-	EpisodeID int32     `db:"episode_id" json:"episodeID"`
-	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
+	EpisodeID int32       `db:"episode_id" json:"episodeID"`
+	ProfileID uuid.UUID   `db:"profile_id" json:"profileID"`
+	ShowID    null_v4.Int `db:"show_id" json:"showID"`
+	Progress  int32       `db:"progress" json:"progress"`
+	Duration  int32       `db:"duration" json:"duration"`
 }
 
-func (q *Queries) getEpisodeIDsWithProgress(ctx context.Context, dollar_1 []uuid.UUID) ([]getEpisodeIDsWithProgressRow, error) {
-	rows, err := q.db.QueryContext(ctx, getEpisodeIDsWithProgress, pq.Array(dollar_1))
+func (q *Queries) getEpisodeIDsWithProgress(ctx context.Context, profileIds []uuid.UUID) ([]getEpisodeIDsWithProgressRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeIDsWithProgress, pq.Array(profileIds))
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +65,13 @@ func (q *Queries) getEpisodeIDsWithProgress(ctx context.Context, dollar_1 []uuid
 	var items []getEpisodeIDsWithProgressRow
 	for rows.Next() {
 		var i getEpisodeIDsWithProgressRow
-		if err := rows.Scan(&i.EpisodeID, &i.ProfileID); err != nil {
+		if err := rows.Scan(
+			&i.EpisodeID,
+			&i.ProfileID,
+			&i.ShowID,
+			&i.Progress,
+			&i.Duration,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
