@@ -3,14 +3,12 @@ package jsonlogic
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lib/pq"
-	"github.com/samber/lo"
 )
 
 // Query is the struct for filter and joins
@@ -27,6 +25,19 @@ func arrayToSql(value any) string {
 	return "false"
 }
 
+func relativeOrFalse(operator string, property string, value any) (squirrel.Sqlizer, bool) {
+	if str, ok := value.(string); ok {
+		if strings.HasPrefix(str, "relative:") {
+			return squirrel.Expr(fmt.Sprintf("%s %s (NOW() + interval %s)", property, operator, pq.QuoteLiteral(strings.Replace(str, "relative:", "", 1)))), true
+		} else if strings.HasPrefix(str, "relativeneg:") {
+			return squirrel.Expr(fmt.Sprintf("%s %s (NOW() - interval %s)", property, operator, pq.QuoteLiteral(strings.Replace(str, "relativeneg:", "", 1)))), true
+		}
+	}
+	return squirrel.Eq{
+		"1": "0",
+	}, false
+}
+
 func toSquirrelQuery(operator string, property string, value any) (squirrel.Sqlizer, error) {
 	switch operator {
 	case "==", "in":
@@ -38,18 +49,30 @@ func toSquirrelQuery(operator string, property string, value any) (squirrel.Sqli
 			property: value,
 		}, nil
 	case "<":
+		if rel, ok := relativeOrFalse(operator, property, value); ok {
+			return rel, nil
+		}
 		return squirrel.Lt{
 			property: value,
 		}, nil
 	case "<=":
+		if rel, ok := relativeOrFalse(operator, property, value); ok {
+			return rel, nil
+		}
 		return squirrel.LtOrEq{
 			property: value,
 		}, nil
 	case ">":
+		if rel, ok := relativeOrFalse(operator, property, value); ok {
+			return rel, nil
+		}
 		return squirrel.Gt{
 			property: value,
 		}, nil
 	case ">=":
+		if rel, ok := relativeOrFalse(operator, property, value); ok {
+			return rel, nil
+		}
 		return squirrel.GtOrEq{
 			property: value,
 		}, nil
@@ -61,33 +84,6 @@ func toSquirrelQuery(operator string, property string, value any) (squirrel.Sqli
 	return squirrel.Eq{
 		"1": "0",
 	}, merry.New("unknown operator")
-}
-
-func (q *Query) getValueFromSource(source any) (string, error) {
-	switch v := source.(type) {
-	case map[string]any:
-		if prop, ok := v["var"]; ok {
-			switch vt := prop.(type) {
-			case string:
-				return pq.QuoteIdentifier(vt), nil
-			}
-		}
-	case string:
-		return pq.QuoteLiteral(v), nil
-	case float64:
-		return strconv.Itoa(int(v)), nil
-	case int:
-		return strconv.Itoa(v), nil
-	case []any:
-		return "(" + strings.Join(lo.Map(v, func(i any, _ int) string {
-			if s, ok := i.(string); ok {
-				return pq.QuoteLiteral(s)
-			}
-
-			return "false"
-		}), ",") + ")", nil
-	}
-	return "", merry.New("unsupported source type")
 }
 
 func (q *Query) getSQLStringFromFilter(filter map[string]any) squirrel.Sqlizer {
