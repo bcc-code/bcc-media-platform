@@ -1,19 +1,19 @@
-package main
+package utils
 
 import (
 	"context"
 	"database/sql"
-	"github.com/samber/lo"
-
 	"github.com/XSAM/otelsql"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/samber/lo"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
-func mustConnectToDB(ctx context.Context, config postgres) (*sql.DB, chan error) {
-	log.L.Debug().Str("DBConnString", config.ConnectionString).Msg("Connection to DB")
+// MustCreateDBClient returns also a channel for async pinging
+func MustCreateDBClient(ctx context.Context, connectionString string) (*sql.DB, chan error) {
+	log.L.Debug().Str("DBConnString", connectionString).Msg("Connection to DB")
 
-	db, err := otelsql.Open("postgres", config.ConnectionString, otelsql.WithAttributes(
+	db, err := otelsql.Open("postgres", connectionString, otelsql.WithAttributes(
 		semconv.DBSystemPostgreSQL,
 	))
 	if err != nil {

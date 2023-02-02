@@ -129,7 +129,7 @@ func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code st
 }
 
 func jwksHandler(config redirectConfig) gin.HandlerFunc {
-	pub, _ := jwk.PublicKeyOf(config.JWTPrivateKey)
+	pub, _ := jwk.PublicKeyOf(config.GetPrivateKey())
 	_ = pub.Set(jwk.AlgorithmKey, jwa.RS256)
 	_ = pub.Set(jwk.KeyUsageKey, jwk.ForSignature)
 	_ = pub.Set(jwk.KeyIDKey, config.KeyID)
@@ -141,18 +141,33 @@ func jwksHandler(config redirectConfig) gin.HandlerFunc {
 	}
 }
 
+func diff(init int64) (int64, bool) {
+	now := time.Now().UnixNano()
+	diff := now - init
+	log.L.Debug().Msgf("DIFF: %d", diff)
+	return now, false
+}
+
 func main() {
 	ctx := context.Background()
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 
+	t := time.Now().UnixNano()
+	start := t
+	log.L.Debug().Msgf("START: %d", t)
+
 	config := getEnvConfig()
 
-	log.L.Debug().Msg("Setting up tracing!")
+	log.L.Info().Msg("Setting up tracing!")
 	utils.MustSetupTracing("BTV-API", config.Tracing)
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
-
-	db := mustConnectToDB(ctx, config.DB)
-	rdb := utils.MustCreateRedisClient(ctx, config.Redis)
+	db, dbChan := utils.MustCreateDBClient(ctx, config.DB.ConnectionString)
+	rdb, rdbChan := utils.MustCreateRedisClient(ctx, config.Redis)
+	jwkChan := lo.Async(func() gin.HandlerFunc {
+		handler := jwksHandler(config.Redirect)
+		log.L.Info().Msg("JWK generated")
+		return handler
+	})
 	urlSigner, err := signing.NewSigner(config.CDNConfig)
 	if err != nil {
 		if environment.Production() {
@@ -176,19 +191,9 @@ func main() {
 	awsConfig.Region = config.AWS.Region
 
 	s3Client := s3.NewFromConfig(awsConfig)
-	gqlHandler := graphqlHandler(
-		db,
-		queries,
-		loaders,
-		searchService,
-		emailService,
-		urlSigner,
-		config,
-		s3Client,
-		config.AnalyticsSalt,
-	)
 
 	log.L.Debug().Msg("Set up HTTP server")
+
 	r := gin.Default()
 
 	r.Use(utils.GinContextToContextMiddleware())
@@ -207,16 +212,45 @@ func main() {
 	r.Use(applications.RoleMiddleware())
 	r.Use(ratelimit.Middleware())
 
-	r.POST("/query", gqlHandler)
+	log.L.Debug().Msg("ROUTES")
+	t, _ = diff(t)
+	r.POST("/query", graphqlHandler(
+		db,
+		queries,
+		loaders,
+		searchService,
+		emailService,
+		urlSigner,
+		config,
+		s3Client,
+		config.AnalyticsSalt,
+	))
 	r.GET("/", playgroundHandler())
-	r.GET("/.well-known/jwks.json", jwksHandler(config.Redirect))
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, loaders))
 	r.POST("/public", publicGraphqlHandler(loaders))
 	r.GET("/versionz", version.GinHandler)
 
+	t, _ = diff(t)
+	log.L.Debug().Msg("DONE")
+
 	if os.Getenv("PPROF") == "TRUE" {
 		pprof.Register(r, "debug/pprof")
 	}
+
+	r.GET("/.well-known/jwks.json", <-jwkChan)
+
+	err = <-dbChan
+	if err != nil {
+		panic(err)
+	}
+	err = <-rdbChan
+	if err != nil {
+		panic(err)
+	}
+
+	end := time.Now().UnixNano()
+	log.L.Debug().Msgf("END: %d", end)
+	log.L.Debug().Msgf("DIFF: %d", end-start)
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
