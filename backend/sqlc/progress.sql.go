@@ -36,7 +36,7 @@ func (q *Queries) deleteProgress(ctx context.Context, arg deleteProgressParams) 
 const getEpisodeIDsWithProgress = `-- name: getEpisodeIDsWithProgress :many
 WITH uniques AS (SELECT DISTINCT ON (p.show_id, p.profile_id) p.show_id, p.profile_id, p.episode_id
                  FROM users.progress p
-                 WHERE p.show_id IS NOT NULL
+                 WHERE p.show_id IS NOT NULL AND p.profile_id = ANY ($1::uuid[])
                  ORDER BY p.show_id, p.profile_id, p.updated_at DESC)
 SELECT p.episode_id, p.profile_id, p.show_id, p.progress, p.duration
 FROM users.progress p
