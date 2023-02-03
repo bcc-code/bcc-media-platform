@@ -141,20 +141,9 @@ func jwksHandler(config redirectConfig) gin.HandlerFunc {
 	}
 }
 
-func diff(init int64) (int64, bool) {
-	now := time.Now().UnixNano()
-	diff := now - init
-	log.L.Debug().Msgf("DIFF: %d", diff)
-	return now, false
-}
-
 func main() {
 	ctx := context.Background()
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
-
-	t := time.Now().UnixNano()
-	start := t
-	log.L.Debug().Msgf("START: %d", t)
 
 	config := getEnvConfig()
 
@@ -212,8 +201,6 @@ func main() {
 	r.Use(applications.RoleMiddleware())
 	r.Use(ratelimit.Middleware())
 
-	log.L.Debug().Msg("ROUTES")
-	t, _ = diff(t)
 	r.POST("/query", graphqlHandler(
 		db,
 		queries,
@@ -230,9 +217,6 @@ func main() {
 	r.POST("/public", publicGraphqlHandler(ls))
 	r.GET("/versionz", version.GinHandler)
 
-	t, _ = diff(t)
-	log.L.Debug().Msg("DONE")
-
 	if os.Getenv("PPROF") == "TRUE" {
 		pprof.Register(r, "debug/pprof")
 	}
@@ -247,10 +231,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	end := time.Now().UnixNano()
-	log.L.Debug().Msgf("END: %d", end)
-	log.L.Debug().Msgf("DIFF: %d", end-start)
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
