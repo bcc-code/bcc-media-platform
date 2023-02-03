@@ -14,7 +14,7 @@ import (
 )
 
 const getDevicesForProfiles = `-- name: getDevicesForProfiles :many
-SELECT token, profile_id, updated_at, name, languages FROM users.devices WHERE profile_id = ANY($1::uuid[])
+SELECT token, profile_id, updated_at, name, languages FROM users.devices d WHERE d.profile_id = ANY($1::uuid[]) AND d.updated_at > (NOW() - interval '1 month') ORDER BY updated_at DESC
 `
 
 func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUID) ([]UsersDevice, error) {
@@ -47,7 +47,7 @@ func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUI
 }
 
 const listDevices = `-- name: listDevices :many
-SELECT token, profile_id, updated_at, name, languages FROM users.devices
+SELECT token, profile_id, updated_at, name, languages FROM users.devices d WHERE d.updated_at > (NOW() - interval '1 month') ORDER BY updated_at DESC
 `
 
 func (q *Queries) listDevices(ctx context.Context) ([]UsersDevice, error) {

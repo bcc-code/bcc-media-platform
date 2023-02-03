@@ -65,7 +65,7 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 		}
 		// Just return errors for now. This part filters the responses and only returns errors that arent nil.
 		return lo.Map(lo.Filter(res.Responses, func(r *messaging.SendResponse, _ int) bool {
-			return r.Error != nil
+			return r.Error != nil && !messaging.IsRegistrationTokenNotRegistered(r.Error)
 		}), func(r *messaging.SendResponse, _ int) error {
 			return r.Error
 		})

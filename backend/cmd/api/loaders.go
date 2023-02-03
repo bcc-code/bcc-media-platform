@@ -6,6 +6,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
+	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/google/uuid"
 	"sort"
@@ -86,7 +87,7 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 	return ls
 }
 
-func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
+func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *common.BatchLoaders {
 	ctx := context.Background()
 	return &common.BatchLoaders{
 		// App
@@ -134,6 +135,10 @@ func initBatchLoaders(queries *sqlc.Queries) *common.BatchLoaders {
 		SectionPermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForSections, func(i common.Permissions[int]) int {
 			return i.ItemID
 		}, loaders.WithName("section-permission")),
+
+		MemberLoader: loaders.New(ctx, membersClient.RetrieveByIDs, loaders.WithKeyFunc(func(i members.Member) int {
+			return i.PersonID
+		}), loaders.WithName("member-loader")),
 
 		FAQCategoryLoader:  loaders.NewLoader(ctx, queries.GetFAQCategories),
 		QuestionLoader:     loaders.NewLoader(ctx, queries.GetQuestions),

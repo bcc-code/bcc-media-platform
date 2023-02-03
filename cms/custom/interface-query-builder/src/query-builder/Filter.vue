@@ -17,6 +17,11 @@
                         @update:modelValue="(v) => {selectedOperator = v; update()}"
                         :items="filterOperators"
                     />
+                    <v-checkbox
+                        v-if="field.type === 'datetime-local'"
+                        v-model="relative"
+                        label="Relative"
+                    ></v-checkbox>
                     <!-- <select
                         v-model="selectedOperator"
                         @change="update"
@@ -27,8 +32,20 @@
                 </div>
                 <div v-if="field">
                     <h3>Value</h3>
+                    <div v-if="field.type === 'datetime-local' && relative">
+                        <v-input 
+                            type="text"
+                            :modelValue="selectedValue?.replace('relative:', '').replace('relativeneg:', '')"
+                            @update:modelValue="(v) => {selectedValue = 'relative' + (relativeNegative ? '-' : '') + ':' + (v ?? ''); update()}"
+                        />
+                        <v-checkbox
+                            label="Negative"
+                            v-model="relativeNegative"
+                        />
+                        <small>For example "2 days" or "2 hours"</small>
+                    </div>
                     <v-select
-                        v-if="field.type === 'string' && field.options"
+                        v-else-if="field.type === 'string' && field.options"
                         :modelValue="selectedValue"
                         @update:modelValue="(v) => {selectedValue = v; update()}"
                         :items="field.options"
@@ -72,6 +89,9 @@ const operator = computed(() => (Object.keys(props.value).filter(i => i !== "id"
 const selectedOperator = ref(operator.value);
 const selectedProperty = ref((((props.value as TFilter)[operator.value][0] as Variable)?.var ?? null) as string | null)
 const selectedValue = ref(props.value[operator.value][1] as string | null);
+
+const relative = ref(selectedValue.value?.startsWith("relative"))
+const relativeNegative = ref(selectedValue.value?.startsWith("relativeneg"))
 
 const field = computed(() => {
     const field = props.fields.find(f => f.column === selectedProperty.value);

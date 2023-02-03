@@ -2,6 +2,7 @@ package common
 
 import (
 	"github.com/bcc-code/brunstadtv/backend/loaders"
+	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/google/uuid"
 )
 
@@ -36,6 +37,8 @@ type BatchLoaders struct {
 	ProfilesLoader                     *loaders.Loader[string, []*Profile]
 	MessageGroupLoader                 *loaders.Loader[int, *MessageGroup]
 	RedirectFromCodeLoader             *loaders.Loader[string, *Redirect]
+
+	MemberLoader *loaders.Loader[int, *members.Member]
 
 	EpisodeProgressLoader *loaders.Loader[uuid.UUID, []*int]
 	// Permissions
