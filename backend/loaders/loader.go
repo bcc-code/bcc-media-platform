@@ -3,7 +3,6 @@ package loaders
 import (
 	"context"
 	"github.com/graph-gophers/dataloader/v7"
-	"go.opentelemetry.io/otel"
 )
 
 // Loader contains loader and additional functions to retrieve data easily
@@ -140,8 +139,6 @@ func NewCustomLoader[K comparable, V any](
 
 // GetByID returns the object from the loader
 func GetByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, t], id k) (t, error) {
-	ctx, span := otel.Tracer("loader").Start(ctx, "single")
-	defer span.End()
 	thunk := loader.Load(ctx, id)
 	result, err := thunk()
 	if err != nil {
@@ -153,8 +150,6 @@ func GetByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader
 
 // GetMany retrieves multiple items from specified loader
 func GetMany[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, t], ids []k) ([]t, error) {
-	ctx, span := otel.Tracer("loader").Start(ctx, "multiple")
-	defer span.End()
 	thunk := loader.LoadMany(ctx, ids)
 	result, errs := thunk()
 	if len(errs) > 0 {
