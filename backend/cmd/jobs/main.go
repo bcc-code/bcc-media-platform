@@ -66,11 +66,7 @@ func main() {
 
 	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key, debugDirectus)
 	rdb, rdbChan := utils.MustCreateRedisClient(ctx, config.Redis)
-	// No reason to postpone this
-	<-rdbChan
-
 	db, dbChan := utils.MustCreateDBClient(ctx, config.DB)
-	<-dbChan
 
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.ImageCDNDomain)
@@ -147,6 +143,15 @@ func main() {
 	}
 
 	router.GET("/versionz", version.GinHandler)
+
+	err = <-dbChan
+	if err != nil {
+		panic(err)
+	}
+	err = <-rdbChan
+	if err != nil {
+		panic(err)
+	}
 
 	span.End()
 
