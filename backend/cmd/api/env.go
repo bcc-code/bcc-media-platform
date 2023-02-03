@@ -5,10 +5,9 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"github.com/bcc-code/brunstadtv/backend/email"
 	"os"
 	"strings"
-
-	"github.com/bcc-code/brunstadtv/backend/email"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -53,7 +52,7 @@ var environment = env(os.Getenv("ENVIRONMENT"))
 
 type envConfig struct {
 	Members       members.Config
-	DB            postgres
+	DB            utils.DatabaseConfig
 	Algolia       search.Config
 	Port          string
 	Auth0         auth0.Config
@@ -65,10 +64,6 @@ type envConfig struct {
 	AnalyticsSalt string
 	Email         email.Config
 	Redirect      redirectConfig
-}
-
-type postgres struct {
-	ConnectionString string
 }
 
 type cdnConfig struct {
@@ -91,12 +86,32 @@ type serviceSecrets struct {
 }
 
 type redirectConfig struct {
-	JWTPrivateKey *rsa.PrivateKey
-	KeyID         string
+	JWTPrivateKeyRaw string
+	KeyID            string
+}
+
+func toPrivateKey(key string) *rsa.PrivateKey {
+	var jwtkey *rsa.PrivateKey
+	if environment.Production() || key != "" {
+		// Parse the RSA Private KEY. The key should be in the pem format as delivered by Terraform
+		block, _ := pem.Decode([]byte(key))
+		if block == nil {
+			panic(merry.New("Unable to parse PEM key, likely not set (REDIRECT_JWT_KEY)"))
+		}
+
+		var err error
+		jwtkey, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			panic(merry.Wrap(err, merry.WithMessage("Unable to parse JWT private key (REDIRECT_JWT_KEY)")))
+		}
+	} else {
+		jwtkey, _ = rsa.GenerateKey(rand.Reader, 2048)
+	}
+	return jwtkey
 }
 
 func (r redirectConfig) GetPrivateKey() *rsa.PrivateKey {
-	return r.JWTPrivateKey
+	return toPrivateKey(r.JWTPrivateKeyRaw)
 }
 
 // GetVOD2Domain returns the configured VOD2Domain
@@ -135,30 +150,14 @@ func getEnvConfig() envConfig {
 			return strings.TrimSpace(s)
 		},
 	)
-
-	var jwtkey *rsa.PrivateKey
-	if key := os.Getenv("REDIRECT_JWT_KEY"); environment.Production() || key != "" {
-		// Parse the RSA Private KEY. The key should be in the pem format as delivered by Terraform
-		block, _ := pem.Decode([]byte(key))
-		if block == nil {
-			panic(merry.New("Unable to parse PEM key, likely not set (REDIRECT_JWT_KEY)"))
-		}
-
-		var err error
-		jwtkey, err = x509.ParsePKCS1PrivateKey(block.Bytes)
-		if err != nil {
-			panic(merry.Wrap(err, merry.WithMessage("Unable to parse JWT private key (REDIRECT_JWT_KEY)")))
-		}
-	} else {
-		jwtkey, _ = rsa.GenerateKey(rand.Reader, 2048)
-	}
-
 	return envConfig{
 		Members: members.Config{
 			Domain: os.Getenv("MEMBERS_API_DOMAIN"),
 		},
-		DB: postgres{
-			ConnectionString: os.Getenv("DB_CONNECTION_STRING"),
+		DB: utils.DatabaseConfig{
+			ConnectionString:   os.Getenv("DB_CONNECTION_STRING"),
+			MaxConnections:     utils.AsIntOrNil(os.Getenv("DB_MAX_CONS")),
+			MaxIdleConnections: utils.AsIntOrNil(os.Getenv("DB_MAX_IDLE_CONS")),
 		},
 		Auth0: auth0.Config{
 			ClientID:     os.Getenv("AUTH0_CLIENT_ID"),
@@ -202,8 +201,8 @@ func getEnvConfig() envConfig {
 			ApiKey: os.Getenv("SENDGRID_API_KEY"),
 		},
 		Redirect: redirectConfig{
-			JWTPrivateKey: jwtkey,
-			KeyID:         os.Getenv("REDIRECT_JWT_KEY_ID"),
+			JWTPrivateKeyRaw: os.Getenv("REDIRECT_JWT_KEY"),
+			KeyID:            os.Getenv("REDIRECT_JWT_KEY_ID"),
 		},
 		AnalyticsSalt: os.Getenv("ANALYTICS_SALT"),
 	}

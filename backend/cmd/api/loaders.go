@@ -119,8 +119,6 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		}),
 		CollectionIDFromSlugLoader: loaders.NewConversionLoader(ctx, queries.GetCollectionIDsForCodes, loaders.WithName("collection-id")),
 		EpisodeProgressLoader:      loaders.NewRelationLoader(ctx, queries.GetEpisodeIDsWithProgress, loaders.WithName("episode-progress")),
-		// Relations
-		SectionsLoader: loaders.NewRelationLoader(ctx, queries.GetSectionIDsForPages, loaders.WithName("sections")),
 		// Permissions
 		ShowPermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForShows, func(i common.Permissions[int]) int {
 			return i.ItemID

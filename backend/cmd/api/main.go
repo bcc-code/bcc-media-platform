@@ -129,7 +129,7 @@ func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code st
 }
 
 func jwksHandler(config redirectConfig) gin.HandlerFunc {
-	pub, _ := jwk.PublicKeyOf(config.JWTPrivateKey)
+	pub, _ := jwk.PublicKeyOf(config.GetPrivateKey())
 	_ = pub.Set(jwk.AlgorithmKey, jwa.RS256)
 	_ = pub.Set(jwk.KeyUsageKey, jwk.ForSignature)
 	_ = pub.Set(jwk.KeyIDKey, config.KeyID)
@@ -147,12 +147,16 @@ func main() {
 
 	config := getEnvConfig()
 
-	log.L.Debug().Msg("Setting up tracing!")
+	log.L.Info().Msg("Setting up tracing!")
 	utils.MustSetupTracing("BTV-API", config.Tracing)
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
-
-	db := mustConnectToDB(ctx, config.DB)
-	rdb := utils.MustCreateRedisClient(ctx, config.Redis)
+	db, dbChan := utils.MustCreateDBClient(ctx, config.DB)
+	rdb, rdbChan := utils.MustCreateRedisClient(ctx, config.Redis)
+	jwkChan := lo.Async(func() gin.HandlerFunc {
+		handler := jwksHandler(config.Redirect)
+		log.L.Info().Msg("JWK generated")
+		return handler
+	})
 	urlSigner, err := signing.NewSigner(config.CDNConfig)
 	if err != nil {
 		if environment.Production() {
@@ -165,7 +169,7 @@ func main() {
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
 	authClient := auth0.New(config.Auth0)
 	membersClient := members.New(config.Members, authClient)
-	loaders := initBatchLoaders(queries, membersClient)
+	ls := initBatchLoaders(queries, membersClient)
 	searchService := search.New(queries, config.Algolia)
 	emailService := email.New(config.Email)
 
@@ -176,19 +180,9 @@ func main() {
 	awsConfig.Region = config.AWS.Region
 
 	s3Client := s3.NewFromConfig(awsConfig)
-	gqlHandler := graphqlHandler(
-		db,
-		queries,
-		loaders,
-		searchService,
-		emailService,
-		urlSigner,
-		config,
-		s3Client,
-		config.AnalyticsSalt,
-	)
 
 	log.L.Debug().Msg("Set up HTTP server")
+
 	r := gin.Default()
 
 	r.Use(utils.GinContextToContextMiddleware())
@@ -207,15 +201,35 @@ func main() {
 	r.Use(applications.RoleMiddleware())
 	r.Use(ratelimit.Middleware())
 
-	r.POST("/query", gqlHandler)
+	r.POST("/query", graphqlHandler(
+		db,
+		queries,
+		ls,
+		searchService,
+		emailService,
+		urlSigner,
+		config,
+		s3Client,
+		config.AnalyticsSalt,
+	))
 	r.GET("/", playgroundHandler())
-	r.GET("/.well-known/jwks.json", jwksHandler(config.Redirect))
-	r.POST("/admin", adminGraphqlHandler(config, db, queries, loaders))
-	r.POST("/public", publicGraphqlHandler(loaders))
+	r.POST("/admin", adminGraphqlHandler(config, db, queries, ls))
+	r.POST("/public", publicGraphqlHandler(ls))
 	r.GET("/versionz", version.GinHandler)
 
 	if os.Getenv("PPROF") == "TRUE" {
 		pprof.Register(r, "debug/pprof")
+	}
+
+	r.GET("/.well-known/jwks.json", <-jwkChan)
+
+	err = <-dbChan
+	if err != nil {
+		panic(err)
+	}
+	err = <-rdbChan
+	if err != nil {
+		panic(err)
 	}
 
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)

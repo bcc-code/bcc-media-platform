@@ -21,10 +21,6 @@ type awsConfig struct {
 	StorageBucket         string
 }
 
-type postgres struct {
-	ConnectionString string
-}
-
 type directusConfig struct {
 	BaseURL string
 	Key     string
@@ -43,7 +39,7 @@ type envConfig struct {
 	Directus          directusConfig
 	Port              string
 	DeleteIngestFiles bool
-	DB                postgres
+	DB                utils.DatabaseConfig
 	Algolia           search.Config
 	Crowdin           crowdin.Config
 	Firebase          firebase
@@ -84,8 +80,10 @@ func getEnvConfig() envConfig {
 			BaseURL: os.Getenv("DIRECTUS_URL"),
 			Key:     os.Getenv("DIRECTUS_KEY"),
 		},
-		DB: postgres{
-			ConnectionString: os.Getenv("DB_CONNECTION_STRING"),
+		DB: utils.DatabaseConfig{
+			ConnectionString:   os.Getenv("DB_CONNECTION_STRING"),
+			MaxConnections:     utils.AsIntOrNil(os.Getenv("DB_MAX_CONS")),
+			MaxIdleConnections: utils.AsIntOrNil(os.Getenv("DB_MAX_IDLE_CONS")),
 		},
 		Algolia: search.Config{
 			AppID:  os.Getenv("ALGOLIA_APP_ID"),

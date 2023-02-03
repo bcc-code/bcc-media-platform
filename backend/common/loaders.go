@@ -16,7 +16,6 @@ type BatchLoaders struct {
 	PageIDFromCodeLoader               *loaders.Loader[string, *int]
 	CollectionIDFromSlugLoader         *loaders.Loader[string, *int]
 	SectionLoader                      *loaders.Loader[int, *Section]
-	SectionsLoader                     *loaders.Loader[int, []*int]
 	CollectionLoader                   *loaders.Loader[int, *Collection]
 	CollectionItemLoader               *loaders.Loader[int, []*CollectionItem]
 	StudyTopicLoader                   *loaders.Loader[uuid.UUID, *StudyTopic]

@@ -4,7 +4,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -66,22 +65,8 @@ func main() {
 	mediaPackageVOD := mediapackagevod.NewFromConfig(awsConfig)
 
 	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key, debugDirectus)
-	rdb := utils.MustCreateRedisClient(ctx, config.Redis)
-
-	db, err := sql.Open("postgres", config.DB.ConnectionString)
-	if err != nil {
-		log.L.Error().Err(err)
-		return
-	}
-	db.SetMaxIdleConns(2)
-	// TODO: What makes sense here? We should gather some metrics over time
-	db.SetMaxOpenConns(10)
-
-	err = db.PingContext(ctx)
-	if err != nil {
-		log.L.Panic().Err(err).Msg("Ping failed")
-		return
-	}
+	rdb, rdbChan := utils.MustCreateRedisClient(ctx, config.Redis)
+	db, dbChan := utils.MustCreateDBClient(ctx, config.DB)
 
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.ImageCDNDomain)
@@ -158,6 +143,15 @@ func main() {
 	}
 
 	router.GET("/versionz", version.GinHandler)
+
+	err = <-dbChan
+	if err != nil {
+		panic(err)
+	}
+	err = <-rdbChan
+	if err != nil {
+		panic(err)
+	}
 
 	span.End()
 
