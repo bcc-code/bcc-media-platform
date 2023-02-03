@@ -118,7 +118,7 @@ func updateMemberData(ctx context.Context, queries sqlc.Queries, membersClient m
 
 	intMemberIDs := utils.MapWith(memberIDs, utils.AsInt)
 
-	membersList, err := membersClient.RetrieveByID(ctx, intMemberIDs)
+	membersList, err := membersClient.RetrieveByIDs(ctx, intMemberIDs)
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Members failed")
 	}

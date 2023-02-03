@@ -36,8 +36,8 @@ type listOfMembersByIDFilter struct {
 	PersonID map[string]any `json:"personID"`
 }
 
-// RetrieveByID retrieves a batch of members by ID
-func (c *Client) RetrieveByID(ctx context.Context, ids []int) ([]Member, error) {
+// RetrieveByIDs retrieves a batch of members by ID
+func (c *Client) RetrieveByIDs(ctx context.Context, ids []int) ([]Member, error) {
 	chunkedIds := lo.Chunk(ids, 800)
 	out := []Member{}
 

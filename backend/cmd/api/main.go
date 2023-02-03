@@ -163,9 +163,9 @@ func main() {
 	}
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
-	loaders := initBatchLoaders(queries)
 	authClient := auth0.New(config.Auth0)
 	membersClient := members.New(config.Members, authClient)
+	loaders := initBatchLoaders(queries, membersClient)
 	searchService := search.New(queries, config.Algolia)
 	emailService := email.New(config.Email)
 
@@ -201,7 +201,7 @@ func main() {
 
 	r.Use(otelgin.Middleware("api"))
 	r.Use(authClient.ValidateToken())
-	r.Use(user.NewUserMiddleware(queries, membersClient))
+	r.Use(user.NewUserMiddleware(queries, loaders.MemberLoader))
 	r.Use(user.NewProfileMiddleware(queries, rdb))
 	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
 	r.Use(applications.RoleMiddleware())

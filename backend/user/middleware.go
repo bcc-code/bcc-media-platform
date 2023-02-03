@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"strconv"
 	"time"
 
@@ -91,6 +92,7 @@ func GetAcceptedLanguagesFromCtx(ctx *gin.Context) []string {
 	return utils.ParseAcceptLanguage(accLang)
 }
 
+// AgeGroups contains the different age groups keyed by the minimum age.
 var AgeGroups = map[int]string{
 	65: "65+",
 	51: "51 - 64",
@@ -104,7 +106,7 @@ var AgeGroups = map[int]string{
 
 // NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
-func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) func(*gin.Context) {
+func NewUserMiddleware(queries *sqlc.Queries, memberLoader *loaders.Loader[int, *members.Member]) func(*gin.Context) {
 	return func(ctx *gin.Context) {
 		reqCtx, span := otel.Tracer("user/middleware").Start(ctx.Request.Context(), "run")
 		defer span.End()
@@ -153,7 +155,7 @@ func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) fun
 			AgeGroup:  "unknown",
 		}
 
-		member, err := membersClient.Lookup(ctx, int(intID))
+		member, err := memberLoader.Get(ctx, int(intID))
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to retrieve user")
 			span.AddEvent("User failed to load")
@@ -182,17 +184,19 @@ func NewUserMiddleware(queries *sqlc.Queries, membersClient *members.Client) fun
 		u.DisplayName = member.DisplayName
 
 		// Set AgeGroup and avoid passing identifying information through the application
-		birthDate, err := time.Parse("2006-01-02", member.BirthDate)
-		if err != nil {
-			log.L.Error().Err(err).Msg("Error parsing birthday of user")
-		} else {
-			u.Age = time.Now().Year() - birthDate.Year()
-			ageGrpupMin := 0
-			for minAge, group := range AgeGroups {
-				// Note: Maps are not iterated in a sorted order so we have to find the lowed applicable
-				if u.Age >= minAge && minAge > ageGrpupMin {
-					u.AgeGroup = group
-					ageGrpupMin = minAge
+		if member.BirthDate != "" {
+			birthDate, err := time.Parse("2006-01-02", member.BirthDate)
+			if err != nil {
+				log.L.Error().Err(err).Msg("Error parsing birthday of user")
+			} else {
+				u.Age = time.Now().Year() - birthDate.Year()
+				ageGroupMin := 0
+				for minAge, group := range AgeGroups {
+					// Note: Maps are not iterated in a sorted order, so we have to find the lowed applicable
+					if u.Age >= minAge && minAge > ageGroupMin {
+						u.AgeGroup = group
+						ageGroupMin = minAge
+					}
 				}
 			}
 		}
