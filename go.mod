@@ -1,6 +1,6 @@
 module github.com/bcc-code/brunstadtv
 
-go 1.18
+go 1.19
 
 require (
 	cloud.google.com/go/cloudtasks v1.9.0

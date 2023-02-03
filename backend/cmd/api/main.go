@@ -195,7 +195,7 @@ func main() {
 
 	r.Use(otelgin.Middleware("api"))
 	r.Use(authClient.ValidateToken())
-	r.Use(user.NewUserMiddleware(queries, loaders.MemberLoader))
+	r.Use(user.NewUserMiddleware(queries, ls.MemberLoader))
 	r.Use(user.NewProfileMiddleware(queries, rdb))
 	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
 	r.Use(applications.RoleMiddleware())
