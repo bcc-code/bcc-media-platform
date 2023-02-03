@@ -52,7 +52,7 @@ var environment = env(os.Getenv("ENVIRONMENT"))
 
 type envConfig struct {
 	Members       members.Config
-	DB            postgres
+	DB            utils.DatabaseConfig
 	Algolia       search.Config
 	Port          string
 	Auth0         auth0.Config
@@ -64,10 +64,6 @@ type envConfig struct {
 	AnalyticsSalt string
 	Email         email.Config
 	Redirect      redirectConfig
-}
-
-type postgres struct {
-	ConnectionString string
 }
 
 type cdnConfig struct {
@@ -154,13 +150,14 @@ func getEnvConfig() envConfig {
 			return strings.TrimSpace(s)
 		},
 	)
-
 	return envConfig{
 		Members: members.Config{
 			Domain: os.Getenv("MEMBERS_API_DOMAIN"),
 		},
-		DB: postgres{
-			ConnectionString: os.Getenv("DB_CONNECTION_STRING"),
+		DB: utils.DatabaseConfig{
+			ConnectionString:   os.Getenv("DB_CONNECTION_STRING"),
+			MaxConnections:     utils.AsIntOrNil(os.Getenv("DB_MAX_CONS")),
+			MaxIdleConnections: utils.AsIntOrNil(os.Getenv("DB_MAX_IDLE_CONS")),
 		},
 		Auth0: auth0.Config{
 			ClientID:     os.Getenv("AUTH0_CLIENT_ID"),

@@ -9,11 +9,17 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
-// MustCreateDBClient returns also a channel for async pinging
-func MustCreateDBClient(ctx context.Context, connectionString string) (*sql.DB, chan error) {
-	log.L.Debug().Str("DBConnString", connectionString).Msg("Connection to DB")
+type DatabaseConfig struct {
+	ConnectionString   string
+	MaxConnections     *int
+	MaxIdleConnections *int
+}
 
-	db, err := otelsql.Open("postgres", connectionString, otelsql.WithAttributes(
+// MustCreateDBClient returns also a channel for async pinging
+func MustCreateDBClient(ctx context.Context, config DatabaseConfig) (*sql.DB, chan error) {
+	log.L.Debug().Str("DBConnString", config.ConnectionString).Msg("Connection to DB")
+
+	db, err := otelsql.Open("postgres", config.ConnectionString, otelsql.WithAttributes(
 		semconv.DBSystemPostgreSQL,
 	))
 	if err != nil {
@@ -27,10 +33,16 @@ func MustCreateDBClient(ctx context.Context, connectionString string) (*sql.DB, 
 	}
 
 	asyncPing := lo.Async(func() error {
-
-		db.SetMaxIdleConns(2)
-		// TODO: What makes sense here? We should gather some metrics over time
-		db.SetMaxOpenConns(10)
+		idle := 2
+		if config.MaxIdleConnections != nil {
+			idle = *config.MaxIdleConnections
+		}
+		max := 9
+		if config.MaxConnections != nil {
+			max = *config.MaxConnections
+		}
+		db.SetMaxIdleConns(idle)
+		db.SetMaxOpenConns(max)
 
 		err = db.PingContext(ctx)
 		if err != nil {

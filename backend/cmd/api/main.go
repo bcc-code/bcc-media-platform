@@ -161,7 +161,7 @@ func main() {
 	log.L.Info().Msg("Setting up tracing!")
 	utils.MustSetupTracing("BTV-API", config.Tracing)
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
-	db, dbChan := utils.MustCreateDBClient(ctx, config.DB.ConnectionString)
+	db, dbChan := utils.MustCreateDBClient(ctx, config.DB)
 	rdb, rdbChan := utils.MustCreateRedisClient(ctx, config.Redis)
 	jwkChan := lo.Async(func() gin.HandlerFunc {
 		handler := jwksHandler(config.Redirect)
@@ -178,7 +178,7 @@ func main() {
 	}
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
-	loaders := initBatchLoaders(queries)
+	ls := initBatchLoaders(queries)
 	authClient := auth0.New(config.Auth0)
 	membersClient := members.New(config.Members, authClient)
 	searchService := search.New(queries, config.Algolia)
@@ -217,7 +217,7 @@ func main() {
 	r.POST("/query", graphqlHandler(
 		db,
 		queries,
-		loaders,
+		ls,
 		searchService,
 		emailService,
 		urlSigner,
@@ -226,8 +226,8 @@ func main() {
 		config.AnalyticsSalt,
 	))
 	r.GET("/", playgroundHandler())
-	r.POST("/admin", adminGraphqlHandler(config, db, queries, loaders))
-	r.POST("/public", publicGraphqlHandler(loaders))
+	r.POST("/admin", adminGraphqlHandler(config, db, queries, ls))
+	r.POST("/public", publicGraphqlHandler(ls))
 	r.GET("/versionz", version.GinHandler)
 
 	t, _ = diff(t)

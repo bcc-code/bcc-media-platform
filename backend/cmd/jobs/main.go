@@ -4,7 +4,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -70,20 +69,8 @@ func main() {
 	// No reason to postpone this
 	<-rdbChan
 
-	db, err := sql.Open("postgres", config.DB.ConnectionString)
-	if err != nil {
-		log.L.Error().Err(err)
-		return
-	}
-	db.SetMaxIdleConns(2)
-	// TODO: What makes sense here? We should gather some metrics over time
-	db.SetMaxOpenConns(10)
-
-	err = db.PingContext(ctx)
-	if err != nil {
-		log.L.Panic().Err(err).Msg("Ping failed")
-		return
-	}
+	db, dbChan := utils.MustCreateDBClient(ctx, config.DB)
+	<-dbChan
 
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.ImageCDNDomain)
