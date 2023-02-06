@@ -1,9 +1,6 @@
 package utils
 
 import (
-	"context"
-	"github.com/bcc-code/brunstadtv/backend/remotecache"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"sync"
 )
 
@@ -23,12 +20,4 @@ func Lock(key string) *sync.Mutex {
 		}
 	}
 	return lock.(*sync.Mutex)
-}
-
-// UnlockRedisLock unlocks the specified lock
-func UnlockRedisLock(ctx context.Context, lock remotecache.RemoteLock) {
-	err := lock.Release(ctx)
-	if err != nil {
-		log.L.Error().Err(err).Msg("failed to release redis lock")
-	}
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bcc-code/brunstadtv/backend/scheduler"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"time"
@@ -36,7 +35,7 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 			log.L.Error().Err(err).Msg("Failed to retrieve redis lock")
 		} else {
 			// We want to keep running the function, but unlocking will fail if the lock failed
-			defer utils.UnlockRedisLock(ctx, lock)
+			defer remotecache.Release(ctx, lock)
 		}
 		ns, err := h.queries.GetNotifications(ctx, []uuid.UUID{id})
 		if err != nil {

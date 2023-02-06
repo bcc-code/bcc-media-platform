@@ -46,7 +46,7 @@ func TestRedisLock(t *testing.T) {
 
 		time.Sleep(time.Millisecond * 200)
 		running--
-		UnlockRedisLock(ctx, rl)
+		remotecache.Release(ctx, rl)
 
 		return true
 	})
