@@ -3,14 +3,14 @@ package user
 import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
+	"github.com/bsm/redislock"
+	"github.com/davecgh/go-spew/spew"
 	"strconv"
 	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/members"
-	"github.com/go-redis/redis/v9"
-	"github.com/go-redsync/redsync/v4"
-	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 	"github.com/vmihailenco/msgpack/v5"
 
 	cache "github.com/Code-Hex/go-generics-cache"
@@ -285,7 +285,7 @@ func getProfilesFromDatabase(ctx context.Context, queries *sqlc.Queries, user *c
 	return profiles, nil
 }
 
-func getProfiles(ctx *gin.Context, queries *sqlc.Queries, redisClient *redis.Client, rs *redsync.Redsync, user *common.User) ([]common.Profile, error) {
+func getProfiles(ctx *gin.Context, queries *sqlc.Queries, redisClient *redis.Client, locker *redislock.Client, user *common.User) ([]common.Profile, error) {
 	key := "profiles:" + user.PersonID
 	if p, ok := profileCache.Get(key); ok && len(p) > 0 {
 		return p, nil
@@ -304,11 +304,12 @@ func getProfiles(ctx *gin.Context, queries *sqlc.Queries, redisClient *redis.Cli
 		return profiles, err
 	}
 
-	rl, err := utils.RedisLock(rs, key)
+	rl, err := utils.RedisLock(ctx, locker, key)
+	spew.Dump(rl)
 	if err != nil {
 		return nil, err
 	}
-	defer utils.UnlockRedisLock(rl)
+	defer utils.UnlockRedisLock(ctx, rl)
 
 	profiles, err = checkCachedProfiles(ctx, redisClient, key)
 	if err != nil || len(profiles) > 0 {
@@ -325,8 +326,7 @@ func getProfiles(ctx *gin.Context, queries *sqlc.Queries, redisClient *redis.Cli
 
 // NewProfileMiddleware prefills context with a profileID
 func NewProfileMiddleware(queries *sqlc.Queries, client *redis.Client) func(*gin.Context) {
-	pool := goredis.NewPool(client)
-	rs := redsync.New(pool)
+	locker := redislock.New(client)
 
 	return func(ctx *gin.Context) {
 		u := GetFromCtx(ctx)
@@ -335,7 +335,7 @@ func NewProfileMiddleware(queries *sqlc.Queries, client *redis.Client) func(*gin
 			return
 		}
 
-		profiles, err := getProfiles(ctx, queries, client, rs, u)
+		profiles, err := getProfiles(ctx, queries, client, locker, u)
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to retrieve profiles from loader")
 			return
