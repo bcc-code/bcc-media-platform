@@ -227,7 +227,7 @@ func GetFromCtx(ctx *gin.Context) *common.User {
 var profileCache = cache.New[string, []common.Profile]()
 
 func cacheProfilesAndReturn(ctx context.Context, redisCache *redis.Client, key string, profiles []common.Profile) ([]common.Profile, error) {
-	profileCache.Set(key, profiles, cache.WithExpiration(time.Second*1))
+	profileCache.Set(key, profiles, cache.WithExpiration(time.Minute))
 	if redisCache != nil {
 		bytes, err := msgpack.Marshal(profiles)
 		if err != nil {
