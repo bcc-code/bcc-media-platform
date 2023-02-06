@@ -1,5 +1,6 @@
 fragment SimpleEpisode on Episode {
     id
+    uuid
     title
     image
     publishDate

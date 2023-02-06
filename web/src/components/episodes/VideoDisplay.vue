@@ -112,7 +112,7 @@
                                     )
                                 "
                                 :current-id="episode.id"
-                                @item-click="(i) => setEpisode(uuid ? (i as any).uuid : i.id)"
+                                @item-click="(i) => setEpisode((i as any).uuid)"
                             ></ItemList>
                         </div>
                         <div
@@ -127,7 +127,7 @@
                             <ItemList
                                 :items="seasonEpisodes"
                                 :current-id="episode.id"
-                                @item-click="(i) => setEpisode(uuid ? (i as any).uuid : i.id)"
+                                @item-click="(i) => setEpisode((i as any).uuid)"
                             ></ItemList>
                         </div>
                     </Transition>
@@ -163,9 +163,8 @@ import router from "@/router"
 import { episodeComingSoon } from "../../utils/items"
 
 const props = defineProps<{
-    initialEpisodeId: string
+    initialVideoUuid: string
     context: EpisodeContext
-    uuid?: boolean
     autoPlay?: boolean
 }>()
 
@@ -183,10 +182,10 @@ const loading = ref(true)
 
 const context = ref(props.context)
 
-const episodeId = ref(props.initialEpisodeId)
+const uuid = ref(props.initialVideoUuid)
 
 const setEpisode = (id: string) => {
-    episodeId.value = id
+    uuid.value = id
     nextTick()
         .then(load)
         .then(() => {
@@ -199,7 +198,7 @@ const setEpisode = (id: string) => {
 const { error, executeQuery } = useGetEpisodeQuery({
     pause: true,
     variables: {
-        episodeId,
+        uuid,
         context,
     },
 })

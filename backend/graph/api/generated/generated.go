@@ -271,6 +271,7 @@ type ComplexityRoot struct {
 		SubtitleLanguages     func(childComplexity int) int
 		Title                 func(childComplexity int) int
 		Type                  func(childComplexity int) int
+		UUID                  func(childComplexity int) int
 	}
 
 	EpisodeCalendarEntry struct {
@@ -1950,6 +1951,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.Type(childComplexity), true
+
+	case "Episode.uuid":
+		if e.complexity.Episode.UUID == nil {
+			break
+		}
+
+		return e.complexity.Episode.UUID(childComplexity), true
 
 	case "EpisodeCalendarEntry.description":
 		if e.complexity.EpisodeCalendarEntry.Description == nil {
@@ -5179,6 +5187,7 @@ enum ShareRestriction {
 
 type Episode {
     id: ID!
+    uuid: String!
     type: EpisodeType!
     legacyID: ID
     legacyProgramID: ID
@@ -11322,6 +11331,50 @@ func (ec *executionContext) fieldContext_Episode_id(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_uuid(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_uuid(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UUID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_uuid(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_type(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_type(ctx, field)
 	if err != nil {
@@ -13001,6 +13054,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -13330,6 +13385,8 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -13568,6 +13625,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -19702,6 +19761,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -22314,6 +22375,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -27520,6 +27583,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -30363,6 +30428,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(ctx context.Context, 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -34571,6 +34638,13 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 		case "id":
 
 			out.Values[i] = ec._Episode_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "uuid":
+
+			out.Values[i] = ec._Episode_uuid(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)

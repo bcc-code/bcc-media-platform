@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -502,12 +503,35 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 
 // Episode is the resolver for the episode field.
 func (r *queryRootResolver) Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error) {
+	ginCtx, _ := utils.GinCtx(ctx)
 	if context != nil {
 		eCtx := common.EpisodeContext{
 			CollectionID: utils.AsNullInt(context.CollectionID),
 		}
-		ginCtx, _ := utils.GinCtx(ctx)
 		ginCtx.Set(episodeContextKey, eCtx)
+	}
+	if intID, err := strconv.ParseInt(id, 10, 64); err == nil {
+		e, err := r.GetLoaders().EpisodeLoader.Get(ctx, int(intID))
+		if err != nil {
+			return nil, err
+		}
+		u := user.GetFromCtx(ginCtx)
+		if e.Unlisted && u.Anonymous {
+			return nil, ErrItemNotFound
+		}
+	} else {
+		uuidValue, err := uuid.Parse(id)
+		if err != nil {
+			return nil, ErrItemNotFound
+		}
+		eid, err := r.GetLoaders().EpisodeIDFromUuidLoader.Get(ctx, uuidValue)
+		if err != nil {
+			return nil, err
+		}
+		if eid == nil {
+			return nil, ErrItemNotFound
+		}
+		id = fmt.Sprint(*eid)
 	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
 		Item:        r.Loaders.EpisodeLoader,
