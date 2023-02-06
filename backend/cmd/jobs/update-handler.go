@@ -6,11 +6,11 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/notifications"
 	"github.com/bcc-code/brunstadtv/backend/push"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bcc-code/brunstadtv/backend/scheduler"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/bsm/redislock"
 	"github.com/google/uuid"
 	"time"
 )
@@ -19,7 +19,7 @@ type modelHandler struct {
 	queries           *sqlc.Queries
 	push              *push.Service
 	scheduler         *scheduler.Service
-	locker            *redislock.Client
+	remoteCache       *remotecache.Client
 	members           *members.Client
 	notificationUtils *notifications.Utils
 }
@@ -31,7 +31,7 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 		if err != nil {
 			return err
 		}
-		lock, err := utils.RedisLock(ctx, h.locker, "notification-model-update")
+		lock, err := h.remoteCache.Lock(ctx, "notification-model-update")
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to retrieve redis lock")
 		} else {

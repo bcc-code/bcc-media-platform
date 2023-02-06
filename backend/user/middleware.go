@@ -3,24 +3,20 @@ package user
 import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
-	"github.com/bsm/redislock"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"strconv"
 	"time"
-
-	"github.com/bcc-code/brunstadtv/backend/members"
-	"github.com/google/uuid"
-	"github.com/redis/go-redis/v9"
-	"github.com/vmihailenco/msgpack/v5"
 
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"go.opentelemetry.io/otel"
 )
@@ -226,40 +222,6 @@ func GetFromCtx(ctx *gin.Context) *common.User {
 
 var profileCache = cache.New[string, []common.Profile]()
 
-func cacheProfilesAndReturn(ctx context.Context, redisCache *redis.Client, key string, profiles []common.Profile) ([]common.Profile, error) {
-	profileCache.Set(key, profiles, cache.WithExpiration(time.Minute))
-	if redisCache != nil {
-		bytes, err := msgpack.Marshal(profiles)
-		if err != nil {
-			return nil, err
-		}
-		err = redisCache.Set(ctx, key, bytes, time.Minute*5).Err()
-		if err != nil {
-			return nil, err
-		}
-	}
-	return profiles, nil
-}
-
-func checkCachedProfiles(ctx context.Context, redisClient *redis.Client, key string) ([]common.Profile, error) {
-	bytes, err := redisClient.Get(ctx, key).Bytes()
-	if err != nil && err != redis.Nil {
-		return nil, err
-	}
-	if err == nil {
-		var profiles []common.Profile
-		if err != nil {
-			return nil, err
-		}
-		_ = msgpack.Unmarshal(bytes, &profiles)
-		return cacheProfilesAndReturn(ctx, nil, key, profiles)
-	}
-	if err != redis.Nil {
-		return nil, err
-	}
-	return nil, nil
-}
-
 func getProfilesFromDatabase(ctx context.Context, queries *sqlc.Queries, user *common.User) ([]common.Profile, error) {
 	profiles, err := queries.GetProfilesForUserIDs(ctx, []string{user.PersonID})
 	if err != nil {
@@ -285,7 +247,7 @@ func getProfilesFromDatabase(ctx context.Context, queries *sqlc.Queries, user *c
 	return profiles, nil
 }
 
-func getProfiles(ctx *gin.Context, queries *sqlc.Queries, redisClient *redis.Client, locker *redislock.Client, user *common.User) ([]common.Profile, error) {
+func getProfiles(ctx *gin.Context, queries *sqlc.Queries, remoteCache *remotecache.Client, user *common.User) ([]common.Profile, error) {
 	key := "profiles:" + user.PersonID
 	if p, ok := profileCache.Get(key); ok && len(p) > 0 {
 		return p, nil
@@ -299,35 +261,24 @@ func getProfiles(ctx *gin.Context, queries *sqlc.Queries, redisClient *redis.Cli
 		return p, nil
 	}
 
-	profiles, err := checkCachedProfiles(ctx, redisClient, key)
-	if err != nil || len(profiles) > 0 {
-		return profiles, err
+	profileFactory := func(o *remotecache.Options) ([]common.Profile, error) {
+		o.SetTTL(time.Minute * 5)
+		profiles, err := getProfilesFromDatabase(ctx, queries, user)
+		if err != nil {
+			return nil, err
+		}
+		return profiles, nil
 	}
-
-	rl, err := utils.RedisLock(ctx, locker, key)
-	spew.Dump(rl)
+	profiles, err := remotecache.GetOrCreate(ctx, remoteCache, key, profileFactory)
 	if err != nil {
 		return nil, err
 	}
-	defer utils.UnlockRedisLock(ctx, rl)
-
-	profiles, err = checkCachedProfiles(ctx, redisClient, key)
-	if err != nil || len(profiles) > 0 {
-		return profiles, err
-	}
-
-	profiles, err = getProfilesFromDatabase(ctx, queries, user)
-	if err != nil {
-		return nil, err
-	}
-
-	return cacheProfilesAndReturn(ctx, redisClient, key, profiles)
+	profileCache.Set(user.PersonID, profiles, cache.WithExpiration(time.Second*2))
+	return profiles, nil
 }
 
 // NewProfileMiddleware prefills context with a profileID
-func NewProfileMiddleware(queries *sqlc.Queries, client *redis.Client) func(*gin.Context) {
-	locker := redislock.New(client)
-
+func NewProfileMiddleware(queries *sqlc.Queries, client *remotecache.Client) func(*gin.Context) {
 	return func(ctx *gin.Context) {
 		u := GetFromCtx(ctx)
 
@@ -335,7 +286,7 @@ func NewProfileMiddleware(queries *sqlc.Queries, client *redis.Client) func(*gin
 			return
 		}
 
-		profiles, err := getProfiles(ctx, queries, client, locker, u)
+		profiles, err := getProfiles(ctx, queries, client, u)
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to retrieve profiles from loader")
 			return

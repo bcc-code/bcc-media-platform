@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
+	"github.com/bsm/redislock"
 	"github.com/gin-contrib/pprof"
 	"net/http"
 	"os"
@@ -151,7 +153,9 @@ func main() {
 	utils.MustSetupTracing("BTV-API", config.Tracing)
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
 	db, dbChan := utils.MustCreateDBClient(ctx, config.DB)
-	rdb, rdbChan := utils.MustCreateRedisClient(ctx, config.Redis)
+	redisClient, rdbChan := utils.MustCreateRedisClient(ctx, config.Redis)
+	locker := redislock.New(redisClient)
+	remoteCache := remotecache.New(redisClient, locker)
 	jwkChan := lo.Async(func() gin.HandlerFunc {
 		handler := jwksHandler(config.Redirect)
 		log.L.Info().Msg("JWK generated")
@@ -196,7 +200,7 @@ func main() {
 	r.Use(otelgin.Middleware("api"))
 	r.Use(authClient.ValidateToken())
 	r.Use(user.NewUserMiddleware(queries, ls.MemberLoader))
-	r.Use(user.NewProfileMiddleware(queries, rdb))
+	r.Use(user.NewProfileMiddleware(queries, remoteCache))
 	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
 	r.Use(applications.RoleMiddleware())
 	r.Use(ratelimit.Middleware())

@@ -4,6 +4,7 @@ package utils
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bsm/redislock"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo/parallel"
@@ -35,7 +36,7 @@ func TestRedisLock(t *testing.T) {
 	running := 0
 
 	parallel.Times(10, func(index int) bool {
-		rl, err := RedisLock(ctx, locker, lockKey+strconv.Itoa(index%2))
+		rl, err := remotecache.Lock(ctx, locker, lockKey+strconv.Itoa(index%2))
 		if err != nil {
 			t.Fatal(err)
 			return false
