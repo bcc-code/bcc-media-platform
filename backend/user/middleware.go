@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/bsm/redislock"
-	"github.com/davecgh/go-spew/spew"
 	"strconv"
 	"time"
 
@@ -305,7 +304,6 @@ func getProfiles(ctx *gin.Context, queries *sqlc.Queries, redisClient *redis.Cli
 	}
 
 	rl, err := utils.RedisLock(ctx, locker, key)
-	spew.Dump(rl)
 	if err != nil {
 		return nil, err
 	}
