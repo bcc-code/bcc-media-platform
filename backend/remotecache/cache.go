@@ -56,18 +56,12 @@ func Set[T any](ctx context.Context, client *redis.Client, key string, value T, 
 
 // GetOrCreate the cache entry
 func GetOrCreate[T any](ctx context.Context, rc *Client, key string, valueFactory func(*Options) (T, error)) (T, error) {
-	client := rc.Client()
-	result := client.Get(ctx, key)
-	var value T
-	if result.Err() == nil {
-		bs, err := result.Bytes()
-		if err != nil {
-			return value, err
-		}
-		err = msgpack.Unmarshal(bs, &value)
+	value, err := Get[T](ctx, rc.Client(), key)
+	if err == nil {
+		return value, nil
+	}
+	if err != Nil {
 		return value, err
-	} else if result.Err() != Nil {
-		return value, result.Err()
 	}
 	options := &Options{}
 	lock, err := Lock(ctx, rc.Locker(), key)
@@ -76,12 +70,8 @@ func GetOrCreate[T any](ctx context.Context, rc *Client, key string, valueFactor
 	if err != nil {
 		return value, err
 	}
-	str, err := msgpack.Marshal(value)
-	if err != nil {
-		return value, err
-	}
-	status := client.Set(ctx, key, str, options.expiry)
-	return value, status.Err()
+	err = Set(ctx, rc.Client(), key, value, options.expiry)
+	return value, err
 }
 
 // Lock the specified key and get a release method in return
