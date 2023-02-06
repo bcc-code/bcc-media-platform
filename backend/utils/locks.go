@@ -2,6 +2,7 @@ package utils
 
 import (
 	"sync"
+	"time"
 
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/go-redsync/redsync/v4"
@@ -35,7 +36,7 @@ func UnlockRedisLock(lock *redsync.Mutex) {
 
 // RedisLock locks across nodes through redis
 func RedisLock(rs *redsync.Redsync, key string) (*redsync.Mutex, error) {
-	lock := rs.NewMutex(key)
+	lock := rs.NewMutex(key, redsync.WithExpiry(time.Second*20))
 	if err := lock.Lock(); err != nil {
 		return nil, err
 	}
