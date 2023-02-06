@@ -50,7 +50,7 @@ func (c *Client) RetrieveByIDs(ctx context.Context, ids []int) ([]Member, error)
 
 		encoded, _ := json.Marshal(filter)
 
-		ms, err := get[[]Member](ctx, c, fmt.Sprintf("persons?limit=999&fields=personID,age,affiliations.*&filter=%s", encoded))
+		ms, err := get[[]Member](ctx, c, fmt.Sprintf("persons?limit=999&filter=%s", encoded))
 		if err != nil {
 			return nil, merry.Wrap(err)
 

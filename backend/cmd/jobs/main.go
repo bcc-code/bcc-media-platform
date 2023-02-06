@@ -21,9 +21,8 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/brunstadtv/backend/version"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bsm/redislock"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redsync/redsync/v4"
-	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"go.opentelemetry.io/otel"
@@ -82,8 +81,6 @@ func main() {
 		log.L.Panic().Err(err).Msg("Failed to initialize push service")
 		return
 	}
-	pool := goredis.NewPool(rdb)
-	rs := redsync.New(pool)
 
 	authClient := auth0.New(config.Auth0)
 	membersClient := members.New(config.Members, authClient)
@@ -93,7 +90,7 @@ func main() {
 		scheduler:         sr,
 		push:              pushService,
 		queries:           queries,
-		locker:            rs,
+		locker:            redislock.New(rdb),
 		members:           membersClient,
 		notificationUtils: notificationUtils,
 	}

@@ -1,10 +1,11 @@
 package utils
 
 import (
-	"sync"
-
+	"context"
 	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/go-redsync/redsync/v4"
+	"github.com/bsm/redislock"
+	"sync"
+	"time"
 )
 
 var mapLock = &sync.Mutex{}
@@ -26,17 +27,20 @@ func Lock(key string) *sync.Mutex {
 }
 
 // UnlockRedisLock unlocks the specified lock
-func UnlockRedisLock(lock *redsync.Mutex) {
-	_, err := lock.Unlock()
+func UnlockRedisLock(ctx context.Context, lock *redislock.Lock) {
+	err := lock.Release(ctx)
 	if err != nil {
 		log.L.Error().Err(err).Msg("failed to release redis lock")
 	}
 }
 
 // RedisLock locks across nodes through redis
-func RedisLock(rs *redsync.Redsync, key string) (*redsync.Mutex, error) {
-	lock := rs.NewMutex(key)
-	if err := lock.Lock(); err != nil {
+func RedisLock(ctx context.Context, locker *redislock.Client, key string) (*redislock.Lock, error) {
+	key = "lock:" + key
+	lock, err := locker.Obtain(ctx, key, 10*time.Second, &redislock.Options{
+		RetryStrategy: redislock.LimitRetry(redislock.LinearBackoff(time.Millisecond*100), 20),
+	})
+	if err != nil {
 		return nil, err
 	}
 	return lock, nil

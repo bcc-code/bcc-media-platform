@@ -20,14 +20,13 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/mediapackagevod v1.21.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.30.1
 	github.com/bcc-code/mediabank-bridge v1.1.1
+	github.com/bsm/redislock v0.9.0
 	github.com/cloudevents/sdk-go/v2 v2.13.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-contrib/pprof v1.4.0
 	github.com/gin-gonic/gin v1.8.2
 	github.com/glebarez/go-sqlite v1.20.3
-	github.com/go-redis/redis/v9 v9.0.0-rc.2
-	github.com/go-redsync/redsync/v4 v4.7.1
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/gocarina/gocsv v0.0.0-20230123225133-763e25b40669
 	github.com/goodsign/monday v1.0.0
@@ -38,6 +37,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.22
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pressly/goose/v3 v3.9.0
+	github.com/redis/go-redis/v9 v9.0.2
 	github.com/robbiet480/go.sns v0.0.0-20221010181423-5d7c717f43d9
 	github.com/rs/zerolog v1.29.0
 	github.com/samber/lo v1.37.0
@@ -106,8 +106,6 @@ require (
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0 // indirect
-	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect

@@ -4,9 +4,8 @@ package utils
 
 import (
 	"context"
-	"github.com/go-redis/redis/v9"
-	"github.com/go-redsync/redsync/v4"
-	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
+	"github.com/bsm/redislock"
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo/parallel"
 	"github.com/stretchr/testify/assert"
 	"os"
@@ -28,15 +27,15 @@ func TestRedisLock(t *testing.T) {
 		t.Fatalf("Failed to ping redis database. DB: %s", addr)
 		return
 	}
-	pool := goredis.NewPool(rdb)
-	rs := redsync.New(pool)
+
+	locker := redislock.New(rdb)
 
 	lockKey := "key"
 
 	running := 0
 
 	parallel.Times(10, func(index int) bool {
-		rl, err := RedisLock(rs, lockKey+strconv.Itoa(index%2))
+		rl, err := RedisLock(ctx, locker, lockKey+strconv.Itoa(index%2))
 		if err != nil {
 			t.Fatal(err)
 			return false
@@ -46,7 +45,7 @@ func TestRedisLock(t *testing.T) {
 
 		time.Sleep(time.Millisecond * 200)
 		running--
-		UnlockRedisLock(rl)
+		UnlockRedisLock(ctx, rl)
 
 		return true
 	})

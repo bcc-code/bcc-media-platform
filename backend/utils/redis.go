@@ -5,7 +5,7 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/go-redis/redis/v9"
+	"github.com/redis/go-redis/v9"
 )
 
 // RedisConfig contains configuration of the redis client
