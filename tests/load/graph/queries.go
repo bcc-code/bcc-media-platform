@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/tests/load/request"
+	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 )
 
 func query(q string, vars map[string]any) any {
@@ -21,15 +23,20 @@ func query(q string, vars map[string]any) any {
 }
 
 type queryAndVars struct {
-	p    *url.URL
-	h    map[string]string
-	q    string
-	vars map[string]any
+	taskID string
+	p      *url.URL
+	h      map[string]string
+	q      string
+	vars   map[string]any
 }
 
 type queryResult struct {
-	R   any
-	Err error
+	TaskID        string
+	R             any
+	Err           error
+	Started       time.Time
+	Ended         time.Time
+	ExecutionTime time.Duration
 }
 
 func queryReq(qs []queryAndVars) chan []queryResult {
@@ -38,14 +45,20 @@ func queryReq(qs []queryAndVars) chan []queryResult {
 		defer log.Print("executed queries")
 		var result []queryResult
 		for _, q := range qs {
-			res, err := request.Post(http.DefaultClient, q.p, request.RequestOptions{
+			qr := queryResult{
+				TaskID:  q.taskID,
+				Started: time.Now(),
+			}
+
+			qr.R, qr.Err = request.Post(http.DefaultClient, q.p, request.RequestOptions{
 				Headers: q.h,
 				Body:    query(q.q, q.vars),
 			})
-			result = append(result, queryResult{
-				R:   res,
-				Err: err,
-			})
+
+			qr.Ended = time.Now()
+			qr.ExecutionTime = qr.Ended.Sub(qr.Started)
+
+			result = append(result, qr)
 		}
 		return result
 	})
@@ -73,20 +86,28 @@ func Run() {
 		var queries []queryAndVars
 		for _, input := range getInputs() {
 			queries = append(queries, queryAndVars{
-				h:    h,
-				p:    path,
-				q:    input.query,
-				vars: input.variables,
+				taskID: fmt.Sprintf("%s-%d", input.name, i),
+				h:      h,
+				p:      path,
+				q:      input.query,
+				vars:   input.variables,
 			})
 		}
 		channels = append(channels, queryReq(queries))
 	}
 
+	csv := "task,start,end,duration,error"
+
 	for _, c := range channels {
 		for _, r := range <-c {
+			errStr := ""
 			if r.Err != nil {
-				log.Print(r.Err)
+				errStr = pq.QuoteLiteral(fmt.Sprint(r.Err))
 			}
+
+			csv += fmt.Sprintf("\n%s,%s,%s,%d,%v", r.TaskID, r.Started.Format(time.RFC3339Nano), r.Ended.Format(time.RFC3339Nano), r.ExecutionTime.Nanoseconds(), errStr)
 		}
 	}
+
+	os.WriteFile("out.csv", []byte(csv), os.ModePerm)
 }
