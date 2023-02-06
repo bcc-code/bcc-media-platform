@@ -15,6 +15,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/notifications"
 	"github.com/bcc-code/brunstadtv/backend/push"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bcc-code/brunstadtv/backend/scheduler"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -90,7 +91,7 @@ func main() {
 		scheduler:         sr,
 		push:              pushService,
 		queries:           queries,
-		locker:            redislock.New(rdb),
+		remoteCache:       remotecache.New(rdb, redislock.New(rdb)),
 		members:           membersClient,
 		notificationUtils: notificationUtils,
 	}

@@ -57,7 +57,7 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 		ranges = append(ranges, messages[i:r])
 	}
 
-	errors := parallel.Map(ranges, func(r []*messaging.Message, _ int) []error {
+	batchSendMessages := func(r []*messaging.Message, _ int) []error {
 		res, err := client.SendAll(ctx, r)
 		//TODO: Implement error handling
 		if err != nil {
@@ -69,7 +69,9 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 		}), func(r *messaging.SendResponse, _ int) error {
 			return r.Error
 		})
-	})
+	}
+
+	errors := parallel.Map(ranges, batchSendMessages)
 
 	for _, errs := range errors {
 		if len(errs) > 0 {
