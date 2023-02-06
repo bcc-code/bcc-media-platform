@@ -381,7 +381,7 @@ func (r *videoTaskResolver) Completed(ctx context.Context, obj *model.VideoTask)
 
 // Episode is the resolver for the episode field.
 func (r *videoTaskResolver) Episode(ctx context.Context, obj *model.VideoTask) (*model.Episode, error) {
-	return r.QueryRoot().Episode(ctx, &obj.Episode.ID, nil, nil)
+	return r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
 }
 
 // AlternativesTask returns generated.AlternativesTaskResolver implementation.

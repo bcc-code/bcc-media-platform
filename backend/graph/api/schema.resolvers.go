@@ -81,7 +81,7 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 	if p == nil {
 		return nil, ErrProfileNotSet
 	}
-	e, err := r.QueryRoot().Episode(ctx, &id, nil, nil)
+	e, err := r.QueryRoot().Episode(ctx, id, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -502,7 +502,7 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 }
 
 // Episode is the resolver for the episode field.
-func (r *queryRootResolver) Episode(ctx context.Context, id *string, uuid *string, context *model.EpisodeContext) (*model.Episode, error) {
+func (r *queryRootResolver) Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error) {
 	ginCtx, _ := utils.GinCtx(ctx)
 	if context != nil {
 		eCtx := common.EpisodeContext{
@@ -510,34 +510,33 @@ func (r *queryRootResolver) Episode(ctx context.Context, id *string, uuid *strin
 		}
 		ginCtx.Set(episodeContextKey, eCtx)
 	}
-	if id != nil {
+	if intID, err := strconv.ParseInt(id, 10, 64); err == nil {
+		e, err := r.GetLoaders().EpisodeLoader.Get(ctx, int(intID))
+		if err != nil {
+			return nil, err
+		}
 		u := user.GetFromCtx(ginCtx)
-		e, _ := r.GetLoaders().EpisodeLoader.Get(ctx, utils.AsInt(*id))
 		if e.Unlisted && u.Anonymous {
 			return nil, ErrItemNotFound
 		}
-	}
-	if uuid != nil {
-		uuidValue, err := parseUuid(uuid)
+	} else {
+		uuidValue, err := uuid.Parse(id)
 		if err != nil {
-			return nil, err
+			return nil, ErrItemNotFound
 		}
 		eid, err := r.GetLoaders().EpisodeIDFromUuidLoader.Get(ctx, uuidValue)
 		if err != nil {
 			return nil, err
 		}
-		if eid != nil {
-			idString := fmt.Sprint(*eid)
-			id = &idString
+		if eid == nil {
+			return nil, ErrItemNotFound
 		}
-	}
-	if id == nil {
-		return nil, ErrItemNotFound
+		id = fmt.Sprint(*eid)
 	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
 		Item:        r.Loaders.EpisodeLoader,
 		Permissions: r.Loaders.EpisodePermissionLoader,
-	}, *id, model.EpisodeFrom)
+	}, id, model.EpisodeFrom)
 }
 
 // Collection is the resolver for the collection field.

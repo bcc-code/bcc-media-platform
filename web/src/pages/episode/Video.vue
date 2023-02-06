@@ -1,11 +1,12 @@
 <template>
     <div class="px-2 lg:px-20">
-        <VideoDisplay
+        <EpisodeDisplay
             :auto-play="autoPlay"
-            :initial-video-uuid="videoId"
+            :initial-episode-id="videoId"
+            :uuid="true"
             :context="context"
             @episode="setEpisode"
-        ></VideoDisplay>
+        ></EpisodeDisplay>
     </div>
 </template>
 <script lang="ts" setup>
@@ -15,7 +16,7 @@ import { useRouter } from "vue-router"
 import { setTitle } from "@/utils/title"
 import { analytics } from "@/services/analytics"
 import { usePage } from "@/utils/page"
-import VideoDisplay from "@/components/episodes/VideoDisplay.vue"
+import EpisodeDisplay from "@/components/episodes/EpisodeDisplay.vue"
 
 const props = defineProps<{
     videoId: string

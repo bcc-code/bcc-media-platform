@@ -577,7 +577,7 @@ type ComplexityRoot struct {
 		Calendar            func(childComplexity int) int
 		Collection          func(childComplexity int, id *string, slug *string) int
 		Config              func(childComplexity int) int
-		Episode             func(childComplexity int, id *string, uuid *string, context *model.EpisodeContext) int
+		Episode             func(childComplexity int, id string, context *model.EpisodeContext) int
 		Event               func(childComplexity int, id string) int
 		Export              func(childComplexity int, groups []string) int
 		Faq                 func(childComplexity int) int
@@ -999,7 +999,7 @@ type QueryRootResolver interface {
 	Section(ctx context.Context, id string, timestamp *string) (model.Section, error)
 	Show(ctx context.Context, id string) (*model.Show, error)
 	Season(ctx context.Context, id string) (*model.Season, error)
-	Episode(ctx context.Context, id *string, uuid *string, context *model.EpisodeContext) (*model.Episode, error)
+	Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error)
 	Collection(ctx context.Context, id *string, slug *string) (*model.Collection, error)
 	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
 	PendingAchievements(ctx context.Context) ([]*model.Achievement, error)
@@ -3487,7 +3487,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.QueryRoot.Episode(childComplexity, args["id"].(*string), args["uuid"].(*string), args["context"].(*model.EpisodeContext)), true
+		return e.complexity.QueryRoot.Episode(childComplexity, args["id"].(string), args["context"].(*model.EpisodeContext)), true
 
 	case "QueryRoot.event":
 		if e.complexity.QueryRoot.Event == nil {
@@ -5619,8 +5619,7 @@ type QueryRoot{
   ): Season!
 
   episode(
-    id: ID
-    uuid: String
+    id: ID!
     context: EpisodeContext
   ): Episode!
 
@@ -6910,33 +6909,24 @@ func (ec *executionContext) field_QueryRoot_collection_args(ctx context.Context,
 func (ec *executionContext) field_QueryRoot_episode_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *string
+	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["id"] = arg0
-	var arg1 *string
-	if tmp, ok := rawArgs["uuid"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("uuid"))
-		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["uuid"] = arg1
-	var arg2 *model.EpisodeContext
+	var arg1 *model.EpisodeContext
 	if tmp, ok := rawArgs["context"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("context"))
-		arg2, err = ec.unmarshalOEpisodeContext2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeContext(ctx, tmp)
+		arg1, err = ec.unmarshalOEpisodeContext2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeContext(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["context"] = arg2
+	args["context"] = arg1
 	return args, nil
 }
 
@@ -22358,7 +22348,7 @@ func (ec *executionContext) _QueryRoot_episode(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Episode(rctx, fc.Args["id"].(*string), fc.Args["uuid"].(*string), fc.Args["context"].(*model.EpisodeContext))
+		return ec.resolvers.QueryRoot().Episode(rctx, fc.Args["id"].(string), fc.Args["context"].(*model.EpisodeContext))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

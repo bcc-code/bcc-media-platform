@@ -45,8 +45,8 @@ fragment LessonProgressOverview on Lesson {
     }
 }
 
-query getEpisode($episodeId: ID, $uuid: String, $context: EpisodeContext) {
-    episode(id: $episodeId, uuid: $uuid, context: $context) {
+query getEpisode($episodeId: ID!, $context: EpisodeContext) {
+    episode(id: $episodeId, context: $context) {
         ...SimpleEpisode
         description
         number
@@ -116,11 +116,5 @@ mutation updateEpisodeProgress(
         context: $context
     ) {
         progress
-    }
-}
-
-query getVideoIdFromUuid($uuid: String!) {
-    episode(uuid: $uuid) {
-        id
     }
 }

@@ -884,8 +884,7 @@ export type QueryRootCollectionArgs = {
 
 export type QueryRootEpisodeArgs = {
   context?: InputMaybe<EpisodeContext>;
-  id?: InputMaybe<Scalars['ID']>;
-  uuid?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
 };
 
 
@@ -1318,8 +1317,7 @@ export type LessonProgressOverviewFragment = { id: string, progress: { total: nu
 export type LessonProgressOverviewFragmentVariables = Exact<{ [key: string]: never; }>;
 
 export type GetEpisodeQueryVariables = Exact<{
-  episodeId?: InputMaybe<Scalars['ID']>;
-  uuid?: InputMaybe<Scalars['String']>;
+  episodeId: Scalars['ID'];
   context?: InputMaybe<EpisodeContext>;
 }>;
 
@@ -1335,13 +1333,6 @@ export type UpdateEpisodeProgressMutationVariables = Exact<{
 
 
 export type UpdateEpisodeProgressMutation = { setEpisodeProgress: { progress?: number | null } };
-
-export type GetVideoIdFromUuidQueryVariables = Exact<{
-  uuid: Scalars['String'];
-}>;
-
-
-export type GetVideoIdFromUuidQuery = { episode: { id: string } };
 
 export type SendEpisodeFeedbackMutationVariables = Exact<{
   episodeId: Scalars['ID'];
@@ -1862,8 +1853,8 @@ export function useGetSeasonOnEpisodePageQuery(options: Omit<Urql.UseQueryArgs<n
   return Urql.useQuery<GetSeasonOnEpisodePageQuery>({ query: GetSeasonOnEpisodePageDocument, ...options });
 };
 export const GetEpisodeDocument = gql`
-    query getEpisode($episodeId: ID, $uuid: String, $context: EpisodeContext) {
-  episode(id: $episodeId, uuid: $uuid, context: $context) {
+    query getEpisode($episodeId: ID!, $context: EpisodeContext) {
+  episode(id: $episodeId, context: $context) {
     ...SimpleEpisode
     description
     number
@@ -1941,17 +1932,6 @@ export const UpdateEpisodeProgressDocument = gql`
 
 export function useUpdateEpisodeProgressMutation() {
   return Urql.useMutation<UpdateEpisodeProgressMutation, UpdateEpisodeProgressMutationVariables>(UpdateEpisodeProgressDocument);
-};
-export const GetVideoIdFromUuidDocument = gql`
-    query getVideoIdFromUuid($uuid: String!) {
-  episode(uuid: $uuid) {
-    id
-  }
-}
-    `;
-
-export function useGetVideoIdFromUuidQuery(options: Omit<Urql.UseQueryArgs<never, GetVideoIdFromUuidQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetVideoIdFromUuidQuery>({ query: GetVideoIdFromUuidDocument, ...options });
 };
 export const SendEpisodeFeedbackDocument = gql`
     mutation SendEpisodeFeedback($episodeId: ID!, $rating: Int!, $message: String) {
