@@ -2,6 +2,9 @@ package graph
 
 import (
 	_ "embed"
+	"encoding/json"
+	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/tests/load/request"
 	"github.com/samber/lo"
 	"log"
@@ -29,44 +32,61 @@ type queryResult struct {
 	Err error
 }
 
-func queryReq(q queryAndVars) chan queryResult {
-	return lo.Async(func() queryResult {
-		log.Print("EXEC QUERY")
-		defer log.Print("EXECUTED QUERY")
-		res, err := request.Post(http.DefaultClient, q.p, request.RequestOptions{
-			Headers: q.h,
-			Body:    query(q.q, q.vars),
-		})
-		return queryResult{
-			R:   res,
-			Err: err,
+func queryReq(qs []queryAndVars) chan []queryResult {
+	return lo.Async(func() []queryResult {
+		log.Print("execute queries")
+		defer log.Print("executed queries")
+		var result []queryResult
+		for _, q := range qs {
+			res, err := request.Post(http.DefaultClient, q.p, request.RequestOptions{
+				Headers: q.h,
+				Body:    query(q.q, q.vars),
+			})
+			result = append(result, queryResult{
+				R:   res,
+				Err: err,
+			})
 		}
+		return result
 	})
 }
-
-//go:embed queries/page.graphql
-var pageQuery string
 
 func Run() {
 	path, _ := url.Parse(os.Getenv("API_ENDPOINT"))
 
-	headers := map[string]string{
-		"content-type": "application/json",
-	}
+	var channels []<-chan []queryResult
+	for i := 0; i < 1000; i++ {
+		h := map[string]string{
+			"content-type": "application/json",
+		}
+		u := common.User{
+			PersonID:  fmt.Sprintf("TEST_USER_%d", i),
+			Email:     fmt.Sprintf("%d@test.local", i),
+			ActiveBCC: i%2 == 0,
+			Anonymous: false,
+			Age:       i,
+			Roles:     []string{"bcc-members"},
+		}
+		marshalled, _ := json.Marshal(u)
+		h["x-user-data"] = string(marshalled)
 
-	var channels []<-chan queryResult
-	for i := 0; i < 100; i++ {
-		channels = append(channels, queryReq(queryAndVars{
-			h: headers,
-			p: path,
-			q: pageQuery,
-			vars: map[string]any{
-				"code": "frontpage",
-			},
-		}))
+		var queries []queryAndVars
+		for _, input := range getInputs() {
+			queries = append(queries, queryAndVars{
+				h:    h,
+				p:    path,
+				q:    input.query,
+				vars: input.variables,
+			})
+		}
+		channels = append(channels, queryReq(queries))
 	}
 
 	for _, c := range channels {
-		<-c
+		for _, r := range <-c {
+			if r.Err != nil {
+				log.Print(r.Err)
+			}
+		}
 	}
 }
