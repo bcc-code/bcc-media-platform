@@ -85,7 +85,8 @@ type QueryRoot{
   ): Season!
 
   episode(
-    id: ID!
+    id: ID
+    uuid: String
     context: EpisodeContext
   ): Episode!
 

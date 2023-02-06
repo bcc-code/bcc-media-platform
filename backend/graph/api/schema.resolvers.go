@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -80,7 +81,7 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 	if p == nil {
 		return nil, ErrProfileNotSet
 	}
-	e, err := r.QueryRoot().Episode(ctx, id, nil)
+	e, err := r.QueryRoot().Episode(ctx, &id, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -501,18 +502,42 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 }
 
 // Episode is the resolver for the episode field.
-func (r *queryRootResolver) Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error) {
+func (r *queryRootResolver) Episode(ctx context.Context, id *string, uuid *string, context *model.EpisodeContext) (*model.Episode, error) {
+	ginCtx, _ := utils.GinCtx(ctx)
 	if context != nil {
 		eCtx := common.EpisodeContext{
 			CollectionID: utils.AsNullInt(context.CollectionID),
 		}
-		ginCtx, _ := utils.GinCtx(ctx)
 		ginCtx.Set(episodeContextKey, eCtx)
+	}
+	if id != nil {
+		u := user.GetFromCtx(ginCtx)
+		e, _ := r.GetLoaders().EpisodeLoader.Get(ctx, utils.AsInt(*id))
+		if e.Unlisted && u.Anonymous {
+			return nil, ErrItemNotFound
+		}
+	}
+	if uuid != nil {
+		uuidValue, err := parseUuid(uuid)
+		if err != nil {
+			return nil, err
+		}
+		eid, err := r.GetLoaders().EpisodeIDFromUuidLoader.Get(ctx, uuidValue)
+		if err != nil {
+			return nil, err
+		}
+		if eid != nil {
+			idString := fmt.Sprint(*eid)
+			id = &idString
+		}
+	}
+	if id == nil {
+		return nil, ErrItemNotFound
 	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
 		Item:        r.Loaders.EpisodeLoader,
 		Permissions: r.Loaders.EpisodePermissionLoader,
-	}, id, model.EpisodeFrom)
+	}, *id, model.EpisodeFrom)
 }
 
 // Collection is the resolver for the collection field.

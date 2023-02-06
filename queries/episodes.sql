@@ -163,3 +163,8 @@ FROM episodes e
          LEFT JOIN episode_availability access ON access.id = e.id
          LEFT JOIN episode_roles roles ON roles.id = e.id
 WHERE e.id = ANY ($1::int[]);
+
+-- name: getEpisodeIDsForUuids :many
+SELECT e.id as result, e.uuid as original
+FROM episodes e
+WHERE e.uuid = ANY (@ids::uuid[]);

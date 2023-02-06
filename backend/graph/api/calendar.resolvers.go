@@ -65,7 +65,7 @@ func (r *episodeCalendarEntryResolver) Title(ctx context.Context, obj *model.Epi
 	if obj.Title != "" {
 		return obj.Title, nil
 	}
-	e, err := r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
+	e, err := r.QueryRoot().Episode(ctx, &obj.Episode.ID, nil, nil)
 	if err != nil {
 		return "", nil
 	}
@@ -77,7 +77,7 @@ func (r *episodeCalendarEntryResolver) Description(ctx context.Context, obj *mod
 	if obj.Description != "" {
 		return obj.Description, nil
 	}
-	e, err := r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
+	e, err := r.QueryRoot().Episode(ctx, &obj.Episode.ID, nil, nil)
 	if err != nil {
 		return "", nil
 	}
@@ -86,7 +86,7 @@ func (r *episodeCalendarEntryResolver) Description(ctx context.Context, obj *mod
 
 // Episode is the resolver for the episode field.
 func (r *episodeCalendarEntryResolver) Episode(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Episode, error) {
-	e, _ := r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
+	e, _ := r.QueryRoot().Episode(ctx, &obj.Episode.ID, nil, nil)
 	return e, nil
 }
 

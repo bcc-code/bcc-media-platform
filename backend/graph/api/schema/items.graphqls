@@ -68,6 +68,7 @@ enum ShareRestriction {
 
 type Episode {
     id: ID!
+    uuid: String!
     type: EpisodeType!
     legacyID: ID
     legacyProgramID: ID

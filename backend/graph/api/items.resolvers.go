@@ -401,7 +401,8 @@ func (r *showResolver) DefaultEpisode(ctx context.Context, obj *model.Show) (*mo
 	if eID == nil {
 		return nil, merry.New("invalid default episode")
 	}
-	return r.QueryRoot().Episode(ctx, strconv.Itoa(*eID), nil)
+	idString := strconv.Itoa(*eID)
+	return r.QueryRoot().Episode(ctx, &idString, nil, nil)
 }
 
 // Episode returns generated.EpisodeResolver implementation.

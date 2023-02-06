@@ -40,7 +40,8 @@ type BatchLoaders struct {
 
 	MemberLoader *loaders.Loader[int, *members.Member]
 
-	EpisodeProgressLoader *loaders.Loader[uuid.UUID, []*int]
+	EpisodeProgressLoader   *loaders.Loader[uuid.UUID, []*int]
+	EpisodeIDFromUuidLoader *loaders.Loader[uuid.UUID, *int]
 	// Permissions
 	ShowPermissionLoader    *loaders.Loader[int, *Permissions[int]]
 	SeasonPermissionLoader  *loaders.Loader[int, *Permissions[int]]

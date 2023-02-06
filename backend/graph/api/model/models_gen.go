@@ -321,6 +321,7 @@ type Device struct {
 
 type Episode struct {
 	ID                    string                 `json:"id"`
+	UUID                  string                 `json:"uuid"`
 	Type                  EpisodeType            `json:"type"`
 	LegacyID              *string                `json:"legacyID"`
 	LegacyProgramID       *string                `json:"legacyProgramID"`
