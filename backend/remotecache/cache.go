@@ -56,7 +56,9 @@ func GetOrCreate[T any](ctx context.Context, rc *Client, key string, valueFactor
 	if err != Nil {
 		return value, err
 	}
-	options := &Options{}
+	options := &Options{
+		expiry: time.Minute,
+	}
 	lock, err := Lock(ctx, rc.Locker(), key)
 	defer Release(ctx, lock)
 	value, err = valueFactory(options)
