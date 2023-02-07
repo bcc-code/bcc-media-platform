@@ -130,7 +130,7 @@ func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code st
 	}
 }
 
-func jwksHandler(config redirectConfig) gin.HandlerFunc {
+func jwksHandler(config *redirectConfig) gin.HandlerFunc {
 	pub, _ := jwk.PublicKeyOf(config.GetPrivateKey())
 	_ = pub.Set(jwk.AlgorithmKey, jwa.RS256)
 	_ = pub.Set(jwk.KeyUsageKey, jwk.ForSignature)

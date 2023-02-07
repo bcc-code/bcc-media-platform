@@ -63,7 +63,7 @@ type envConfig struct {
 	Tracing       utils.TracingConfig
 	AnalyticsSalt string
 	Email         email.Config
-	Redirect      redirectConfig
+	Redirect      *redirectConfig
 }
 
 type cdnConfig struct {
@@ -111,7 +111,7 @@ func toPrivateKey(key string) *rsa.PrivateKey {
 	return jwtkey
 }
 
-func (r redirectConfig) GetPrivateKey() *rsa.PrivateKey {
+func (r *redirectConfig) GetPrivateKey() *rsa.PrivateKey {
 	if r.jwtPrivateKey == nil {
 		r.jwtPrivateKey = toPrivateKey(r.JWTPrivateKeyRaw)
 	}
@@ -204,7 +204,7 @@ func getEnvConfig() envConfig {
 		Email: email.Config{
 			ApiKey: os.Getenv("SENDGRID_API_KEY"),
 		},
-		Redirect: redirectConfig{
+		Redirect: &redirectConfig{
 			JWTPrivateKeyRaw: os.Getenv("REDIRECT_JWT_KEY"),
 			KeyID:            os.Getenv("REDIRECT_JWT_KEY_ID"),
 		},
