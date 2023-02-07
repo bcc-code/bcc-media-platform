@@ -1369,12 +1369,12 @@ type UsersTaskanswer struct {
 }
 
 type UsersUser struct {
-	ID          string         `db:"id" json:"id"`
-	Email       string         `db:"email" json:"email"`
-	DisplayName null_v4.String `db:"display_name" json:"displayName"`
-	Age         null_v4.Int    `db:"age" json:"age"`
-	ChurchIds   interface{}    `db:"church_ids" json:"churchIds"`
-	ActiveBcc   sql.NullBool   `db:"active_bcc" json:"activeBcc"`
-	Roles       interface{}    `db:"roles" json:"roles"`
-	AgeGroup    null_v4.String `db:"age_group" json:"ageGroup"`
+	ID          string      `db:"id" json:"id"`
+	Email       string      `db:"email" json:"email"`
+	DisplayName string      `db:"display_name" json:"displayName"`
+	Age         int32       `db:"age" json:"age"`
+	ChurchIds   interface{} `db:"church_ids" json:"churchIds"`
+	ActiveBcc   bool        `db:"active_bcc" json:"activeBcc"`
+	Roles       interface{} `db:"roles" json:"roles"`
+	AgeGroup    string      `db:"age_group" json:"ageGroup"`
 }

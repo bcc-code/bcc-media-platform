@@ -9,12 +9,12 @@
 CREATE TABLE IF NOT EXISTS "users"."users" (
 	"id" varchar NOT NULL  ,
 	"email" varchar NOT NULL  ,
-	"display_name" varchar NULL  ,
-	"age" int4 NULL  ,
-	"church_ids" _int4 NULL  ,
-	"active_bcc" bool NULL  ,
-	"roles" _varchar NULL  ,
-	"age_group" varchar NULL  ,
+	"display_name" varchar NOT NULL  ,
+	"age" int4 NOT NULL  ,
+	"church_ids" _int4 NOT NULL  ,
+	"active_bcc" bool NOT NULL  ,
+	"roles" _varchar NOT NULL  ,
+	"age_group" varchar NOT NULL  ,
 	CONSTRAINT "users_pk" PRIMARY KEY (id)
 );
 

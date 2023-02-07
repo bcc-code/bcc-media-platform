@@ -7,10 +7,8 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/lib/pq"
-	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getRoles = `-- name: GetRoles :many
@@ -93,11 +91,11 @@ func (q *Queries) GetRolesWithCode(ctx context.Context, dollar_1 []string) ([]Ge
 	return items, nil
 }
 
-const insertUser = `-- name: InsertUser :exec
+const upsertUser = `-- name: UpsertUser :exec
 INSERT INTO users.users (id, email, display_name, age, church_ids, active_bcc, roles, age_group)
 VALUES ($1, $2, $3, $4, $7::int[], $5, $8::varchar[], $6)
-ON CONFLICT (id) DO UPDATE SET email        = EXCLUDED.email,
-                               display_name = EXCLUDED.display_name,
+ON CONFLICT (id) DO UPDATE SET email        = excluded.email,
+                               display_name = excluded.display_name,
                                age          = excluded.age,
                                church_ids   = excluded.church_ids,
                                active_bcc   = excluded.active_bcc,
@@ -105,19 +103,19 @@ ON CONFLICT (id) DO UPDATE SET email        = EXCLUDED.email,
                                age_group    = excluded.age_group
 `
 
-type InsertUserParams struct {
-	ID          string         `db:"id" json:"id"`
-	Email       string         `db:"email" json:"email"`
-	DisplayName null_v4.String `db:"display_name" json:"displayName"`
-	Age         null_v4.Int    `db:"age" json:"age"`
-	ActiveBcc   sql.NullBool   `db:"active_bcc" json:"activeBcc"`
-	AgeGroup    null_v4.String `db:"age_group" json:"ageGroup"`
-	ChurchIds   []int32        `db:"church_ids" json:"churchIds"`
-	Roles       []string       `db:"roles" json:"roles"`
+type UpsertUserParams struct {
+	ID          string   `db:"id" json:"id"`
+	Email       string   `db:"email" json:"email"`
+	DisplayName string   `db:"display_name" json:"displayName"`
+	Age         int32    `db:"age" json:"age"`
+	ActiveBcc   bool     `db:"active_bcc" json:"activeBcc"`
+	AgeGroup    string   `db:"age_group" json:"ageGroup"`
+	ChurchIds   []int32  `db:"church_ids" json:"churchIds"`
+	Roles       []string `db:"roles" json:"roles"`
 }
 
-func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) error {
-	_, err := q.db.ExecContext(ctx, insertUser,
+func (q *Queries) UpsertUser(ctx context.Context, arg UpsertUserParams) error {
+	_, err := q.db.ExecContext(ctx, upsertUser,
 		arg.ID,
 		arg.Email,
 		arg.DisplayName,
@@ -144,14 +142,14 @@ WHERE u.id = ANY ($1::varchar[])
 `
 
 type getUsersRow struct {
-	ID          string         `db:"id" json:"id"`
-	Email       string         `db:"email" json:"email"`
-	DisplayName null_v4.String `db:"display_name" json:"displayName"`
-	Age         null_v4.Int    `db:"age" json:"age"`
-	AgeGroup    null_v4.String `db:"age_group" json:"ageGroup"`
-	ChurchIds   []int32        `db:"church_ids" json:"churchIds"`
-	ActiveBcc   sql.NullBool   `db:"active_bcc" json:"activeBcc"`
-	Roles       []string       `db:"roles" json:"roles"`
+	ID          string   `db:"id" json:"id"`
+	Email       string   `db:"email" json:"email"`
+	DisplayName string   `db:"display_name" json:"displayName"`
+	Age         int32    `db:"age" json:"age"`
+	AgeGroup    string   `db:"age_group" json:"ageGroup"`
+	ChurchIds   []int32  `db:"church_ids" json:"churchIds"`
+	ActiveBcc   bool     `db:"active_bcc" json:"activeBcc"`
+	Roles       []string `db:"roles" json:"roles"`
 }
 
 func (q *Queries) getUsers(ctx context.Context, dollar_1 []string) ([]getUsersRow, error) {

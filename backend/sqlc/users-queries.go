@@ -13,7 +13,7 @@ func (q *Queries) GetUsers(ctx context.Context, ids []string) ([]common.User, er
 		return nil, err
 	}
 	return lo.Map(rows, func(i getUsersRow, _ int) common.User {
-		ag := i.AgeGroup.ValueOrZero()
+		ag := i.AgeGroup
 		if ag == "" {
 			ag = "unknown"
 		}
@@ -21,12 +21,12 @@ func (q *Queries) GetUsers(ctx context.Context, ids []string) ([]common.User, er
 			PersonID:    i.ID,
 			Anonymous:   false,
 			Roles:       i.Roles,
-			Age:         int(i.Age.Int64),
+			Age:         int(i.Age),
 			AgeGroup:    ag,
-			ActiveBCC:   i.ActiveBcc.Bool,
+			ActiveBCC:   i.ActiveBcc,
 			Email:       i.Email,
 			ChurchIDs:   int32ToInt(i.ChurchIds),
-			DisplayName: i.DisplayName.ValueOrZero(),
+			DisplayName: i.DisplayName,
 		}
 	}), nil
 }

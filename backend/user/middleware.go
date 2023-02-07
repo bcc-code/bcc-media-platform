@@ -2,10 +2,8 @@ package user
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/remotecache"
-	"gopkg.in/guregu/null.v4"
 	"strconv"
 	"time"
 
@@ -191,22 +189,14 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 			u.Roles = roles
 			u.Email = email
 			u.DisplayName = member.DisplayName
+			u.Age = member.Age
 
-			// Set AgeGroup and avoid passing identifying information through the application
-			if member.BirthDate != "" {
-				birthDate, err := time.Parse("2006-01-02", member.BirthDate)
-				if err != nil {
-					log.L.Error().Err(err).Msg("Error parsing birthday of user")
-				} else {
-					u.Age = time.Now().Year() - birthDate.Year()
-					ageGroupMin := 0
-					for minAge, group := range AgeGroups {
-						// Note: Maps are not iterated in a sorted order, so we have to find the lowed applicable
-						if u.Age >= minAge && minAge > ageGroupMin {
-							u.AgeGroup = group
-							ageGroupMin = minAge
-						}
-					}
+			ageGroupMin := 0
+			for minAge, group := range AgeGroups {
+				// Note: Maps are not iterated in a sorted order, so we have to find the lowed applicable
+				if u.Age >= minAge && minAge > ageGroupMin {
+					u.AgeGroup = group
+					ageGroupMin = minAge
 				}
 			}
 
@@ -216,17 +206,14 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				return i.OrgID
 			})
 
-			err = queries.InsertUser(ctx, sqlc.InsertUserParams{
+			err = queries.UpsertUser(ctx, sqlc.UpsertUserParams{
 				ID:          u.PersonID,
 				Roles:       u.Roles,
-				DisplayName: null.StringFrom(u.DisplayName),
-				ActiveBcc: sql.NullBool{
-					Bool:  u.ActiveBCC,
-					Valid: true,
-				},
-				Email:    u.Email,
-				AgeGroup: null.StringFrom(u.AgeGroup),
-				Age:      null.IntFrom(int64(u.Age)),
+				DisplayName: u.DisplayName,
+				ActiveBcc:   u.ActiveBCC,
+				Email:       u.Email,
+				AgeGroup:    u.AgeGroup,
+				Age:         int32(u.Age),
 				ChurchIds: lo.Map(u.ChurchIDs, func(i int, _ int) int32 {
 					return int32(i)
 				}),

@@ -24,7 +24,7 @@ SELECT u.id,
 FROM users.users u
 WHERE u.id = ANY ($1::varchar[]);
 
--- name: InsertUser :exec
+-- name: UpsertUser :exec
 INSERT INTO users.users (id, email, display_name, age, church_ids, active_bcc, roles, age_group)
 VALUES ($1, $2, $3, $4, @church_ids::int[], $5, @roles::varchar[], $6)
 ON CONFLICT (id) DO UPDATE SET email        = excluded.email,
