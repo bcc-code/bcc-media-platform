@@ -42,6 +42,7 @@ require (
 	github.com/rs/zerolog v1.29.0
 	github.com/samber/lo v1.37.0
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
+	github.com/sony/gobreaker v0.5.0
 	github.com/stretchr/testify v1.8.1
 	github.com/tabbed/pqtype v0.1.1
 	github.com/uptrace/uptrace-go v1.12.0
@@ -126,7 +127,6 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/sendgrid/rest v2.6.9+incompatible // indirect
-	github.com/sony/gobreaker v0.5.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/ugorji/go/codec v1.2.8 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
