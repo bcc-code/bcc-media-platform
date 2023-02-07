@@ -6,5 +6,5 @@ export const getImageSize = (width: number) => {
             return bp
         }
     }
-    return 420
+    return 3640
 }
