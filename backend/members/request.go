@@ -28,6 +28,7 @@ func sendRequest[t any](ctx context.Context, client *Client, req *http.Request) 
 			return nil, err
 		}
 
+		defer res.Body.Close()
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
 			return nil, err
