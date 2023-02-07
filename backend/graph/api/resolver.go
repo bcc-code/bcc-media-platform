@@ -437,6 +437,14 @@ func getEpisode(ctx context.Context, resolver *Resolver, episodeID string) (*com
 	return episode, nil
 }
 
+func parseUuid(uuidString *string) (uuid.UUID, error) {
+	uuidValue, err := uuid.Parse(*uuidString)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return uuidValue, nil
+}
+
 func (r *Resolver) sendMessage(ctx context.Context, itemID uuid.UUID, message *string, metadata map[string]any) (string, error) {
 	err := ratelimit.Endpoint(ctx, "messages:send:"+itemID.String(), 2, false)
 	if err != nil {

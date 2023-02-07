@@ -49,17 +49,23 @@ func (s *Service) Queue(ctx context.Context, collection string, id string, at ti
 
 	taskName := s.queueID + "/tasks/" + collection + "-" + id
 
-	for resp, err := it.Next(); err != iterator.Done; {
+	for {
+		resp, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
 		if err != nil {
 			log.L.Error().Err(err).Send()
 			break
 		}
 		if !strings.HasPrefix(resp.GetName(), taskName) {
+			log.L.Debug().Str("name", resp.GetName()).Msg("Ignoring existing task")
 			continue
 		}
 		if resp.ScheduleTime.AsTime().Equal(at) {
 			return nil
 		}
+		log.L.Debug().Str("name", resp.GetName()).Msg("Deleting existing task")
 		err = client.DeleteTask(ctx, &cloudtaskspb.DeleteTaskRequest{
 			Name: resp.Name,
 		})
@@ -83,6 +89,7 @@ func (s *Service) Queue(ctx context.Context, collection string, id string, at ti
 			},
 		},
 	}
+	log.L.Debug().Str("name", task.Task.Name).Msg("Creating task")
 
 	body, err := json.Marshal(QueuedItem{Collection: collection, ID: id})
 

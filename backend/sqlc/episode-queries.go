@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -144,14 +145,19 @@ func (q *Queries) GetPermissionsForEpisodes(ctx context.Context, ids []int) ([]c
 	}), nil
 }
 
+type conversion[S comparable, R comparable] struct {
+	source S
+	result R
+}
+
 // GetOriginal returns the requested string
-func (row getEpisodeIDsForLegacyIDsRow) GetOriginal() int {
-	return int(row.LegacyID.Int64)
+func (c conversion[S, R]) GetOriginal() S {
+	return c.source
 }
 
 // GetResult returns the id from the query
-func (row getEpisodeIDsForLegacyIDsRow) GetResult() int {
-	return int(row.ID)
+func (c conversion[S, R]) GetResult() R {
+	return c.result
 }
 
 // GetEpisodeIDsForLegacyIDs returns ids for the requested codes
@@ -161,7 +167,10 @@ func (q *Queries) GetEpisodeIDsForLegacyIDs(ctx context.Context, ids []int) ([]l
 		return nil, err
 	}
 	return lo.Map(rows, func(i getEpisodeIDsForLegacyIDsRow, _ int) loaders.Conversion[int, int] {
-		return i
+		return conversion[int, int]{
+			source: int(i.LegacyID.ValueOrZero()),
+			result: int(i.ID),
+		}
 	}), nil
 }
 
@@ -172,6 +181,23 @@ func (q *Queries) GetEpisodeIDsForLegacyProgramIDs(ctx context.Context, ids []in
 		return nil, err
 	}
 	return lo.Map(rows, func(i getEpisodeIDsForLegacyProgramIDsRow, _ int) loaders.Conversion[int, int] {
-		return getEpisodeIDsForLegacyIDsRow(i)
+		return conversion[int, int]{
+			source: int(i.LegacyID.ValueOrZero()),
+			result: int(i.ID),
+		}
+	}), nil
+}
+
+// GetEpisodeIDsForUuids returns episodeIds for specified uuids
+func (q *Queries) GetEpisodeIDsForUuids(ctx context.Context, uuids []uuid.UUID) ([]loaders.Conversion[uuid.UUID, int], error) {
+	rows, err := q.getEpisodeIDsForUuids(ctx, uuids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getEpisodeIDsForUuidsRow, _ int) loaders.Conversion[uuid.UUID, int] {
+		return conversion[uuid.UUID, int]{
+			source: i.Original,
+			result: int(i.Result),
+		}
 	}), nil
 }

@@ -46,6 +46,7 @@ export const episodesToListItems = (
         (i) =>
         ({
             id: i.id,
+            uuid: i.uuid,
             type: "Episode",
             title: i.title,
             image: i.image,

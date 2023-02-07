@@ -170,6 +170,40 @@ func (q *Queries) getEpisodeIDsForSeasonsWithRoles(ctx context.Context, arg getE
 	return items, nil
 }
 
+const getEpisodeIDsForUuids = `-- name: getEpisodeIDsForUuids :many
+SELECT e.id as result, e.uuid as original
+FROM episodes e
+WHERE e.uuid = ANY ($1::uuid[])
+`
+
+type getEpisodeIDsForUuidsRow struct {
+	Result   int32     `db:"result" json:"result"`
+	Original uuid.UUID `db:"original" json:"original"`
+}
+
+func (q *Queries) getEpisodeIDsForUuids(ctx context.Context, ids []uuid.UUID) ([]getEpisodeIDsForUuidsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeIDsForUuids, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getEpisodeIDsForUuidsRow
+	for rows.Next() {
+		var i getEpisodeIDsForUuidsRow
+		if err := rows.Scan(&i.Result, &i.Original); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getEpisodeIDsWithRoles = `-- name: getEpisodeIDsWithRoles :many
 SELECT e.id
 FROM episodes e

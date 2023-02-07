@@ -27,6 +27,12 @@ export default [
                 props: true,
             },
             {
+                name: "video-page",
+                path: "videos/:videoId",
+                component: () => import("@/pages/episode/Video.vue"),
+                props: true,
+            },
+            {
                 name: "episode-lesson-page",
                 path: "ep/:episodeId/lesson/:lessonId/:subRoute?",
                 component: () => import("@/pages/episode/EpisodeLesson.vue"),

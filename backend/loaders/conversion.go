@@ -6,9 +6,9 @@ import (
 )
 
 // Conversion contains the original and converted value
-type Conversion[o comparable, r comparable] interface {
-	GetOriginal() o
-	GetResult() r
+type Conversion[O comparable, R comparable] interface {
+	GetOriginal() O
+	GetResult() R
 }
 
 // NewConversionLoader returns a configured batch loader for Lists
