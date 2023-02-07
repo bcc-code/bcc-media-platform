@@ -29,7 +29,7 @@
                 <NotFound :title="$t('page.notFound')"></NotFound>
             </div>
             <div v-else-if="error">{{ error.message }}</div>
-            <SkeletonSections class="px-4 lg:px-20" v-else></SkeletonSections>
+            <!-- <SkeletonSections class="px-4 lg:px-20" v-else></SkeletonSections> -->
         </transition>
     </section>
 </template>
@@ -39,6 +39,7 @@ import {
     GetSectionQuery,
     useGetPageQuery,
     useGetSectionQuery,
+    useGetSectionsForPageQuery,
 } from "@/graph/generated"
 import Section from "@/components/sections/Section.vue"
 import { computed, nextTick, onMounted, onUnmounted, ref } from "vue"
@@ -62,11 +63,22 @@ const { error, fetching, executeQuery } = useGetPageQuery({
     pause: true,
     variables: {
         code: computed(() => props.pageId),
+        offset: 0,
+        first: 10,
+        sectionFirst: 10,
+        sectionOffset: 0,
+    },
+})
+
+const getSectionsQuery = useGetSectionsForPageQuery({
+    pause: true,
+    variables: {
+        code: computed(() => props.pageId),
         offset: pageOffset,
         first: pageFirst,
         sectionFirst: 10,
         sectionOffset: 0,
-    },
+    }
 })
 
 const page = ref(null as GetPageQuery["page"] | null)
@@ -140,19 +152,22 @@ const loadMore = async () => {
     // console.log(`ScrollTop: ${scrollTop}. \nOffsetHeight: ${offsetHeight}. \nInnerHeight: ${innerHeight}\nBottom: ${bottom} \n\n`)
 
     if (bottom) {
-        if (!page.value) {
+        const p = getSectionsQuery.data.value?.page ?? page.value
+        if (!p) {
             return
         }
+
         if (
-            page.value.sections.total >
-                page.value.sections.offset + page.value.sections.first
+            p.sections.total >
+                p.sections.offset + p.sections.first
         ) {
             if (!fetching.value) {
                 pageOffset.value =
-                    page.value.sections.offset + page.value.sections.first
+                    p.sections.offset + p.sections.first
                 await nextTick()
-                const r = await executeQuery()
-                if (r.data.value) {
+                const r = await getSectionsQuery.executeQuery()
+                console.log(r)
+                if (r.data.value && page.value) {
                     page.value.sections.items.push(
                         ...r.data.value.page.sections.items
                     )
@@ -162,7 +177,7 @@ const loadMore = async () => {
                 }
             }
         } else if (!sectionQuery.fetching.value) {
-            const sections = page.value.sections.items
+            const sections = p.sections.items
             const lastSection = sections[sections.length - 1]
             if (lastSection) {
                 switch (lastSection.__typename) {
