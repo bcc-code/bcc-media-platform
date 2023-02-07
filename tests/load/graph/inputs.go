@@ -10,16 +10,15 @@ type input struct {
 
 //go:embed queries/page.graphql
 var pageQuery string
-var pageInput = input{
-	name:  "page",
-	query: pageQuery,
-	variables: map[string]any{
-		"code": "frontpage",
-	},
-}
 
 func getInputs() []input {
 	return []input{
-		pageInput,
+		{
+			name:  "page",
+			query: pageQuery,
+			variables: map[string]any{
+				"code": "frontpage",
+			},
+		},
 	}
 }

@@ -6,9 +6,8 @@ import (
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/tests/load/request"
-	"github.com/lib/pq"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -39,43 +38,30 @@ type queryResult struct {
 	ExecutionTime time.Duration
 }
 
-func queryReq(qs []queryAndVars) chan []queryResult {
-	return lo.Async(func() []queryResult {
-		log.Print("execute queries")
-		defer log.Print("executed queries")
-		var result []queryResult
-		for _, q := range qs {
-			qr := queryResult{
-				TaskID:  q.taskID,
-				Started: time.Now(),
-			}
-
-			qr.R, qr.Err = request.Post(http.DefaultClient, q.p, request.RequestOptions{
-				Headers: q.h,
-				Body:    query(q.q, q.vars),
-			})
-
-			qr.Ended = time.Now()
-			qr.ExecutionTime = qr.Ended.Sub(qr.Started)
-
-			result = append(result, qr)
-		}
-		return result
+func toReq(q queryAndVars) *http.Request {
+	req, err := request.Post(q.p, request.RequestOptions{
+		Headers: q.h,
+		Body:    query(q.q, q.vars),
 	})
+	if err != nil {
+		log.L.Panic().Err(err).Send()
+	}
+	return req
 }
 
-func Run() {
+func GetRequestsForDevices(devices []request.Device) []request.Request {
 	path, _ := url.Parse(os.Getenv("API_ENDPOINT"))
 
-	var channels []<-chan []queryResult
-	for i := 0; i < 1000; i++ {
+	var result []request.Request
+
+	for i, d := range devices {
 		h := map[string]string{
 			"content-type": "application/json",
 		}
 		u := common.User{
-			PersonID:  fmt.Sprintf("TEST_USER_%d", i),
-			Email:     fmt.Sprintf("%d@test.local", i),
-			ActiveBCC: i%2 == 0,
+			PersonID:  fmt.Sprintf("test_device_%s", d.ID),
+			Email:     fmt.Sprintf("%s@test.local", d.ID),
+			ActiveBCC: true,
 			Anonymous: false,
 			Age:       i,
 			Roles:     []string{"bcc-members"},
@@ -83,31 +69,24 @@ func Run() {
 		marshalled, _ := json.Marshal(u)
 		h["x-user-data"] = string(marshalled)
 
-		var queries []queryAndVars
+		var requests []*http.Request
 		for _, input := range getInputs() {
-			queries = append(queries, queryAndVars{
-				taskID: fmt.Sprintf("%s-%d", input.name, i),
+			requests = append(requests, toReq(queryAndVars{
+				taskID: fmt.Sprintf("%s-%s", input.name, d.ID),
 				h:      h,
 				p:      path,
 				q:      input.query,
 				vars:   input.variables,
-			})
+			}))
 		}
-		channels = append(channels, queryReq(queries))
-	}
 
-	csv := "task,start,end,duration,error"
-
-	for _, c := range channels {
-		for _, r := range <-c {
-			errStr := ""
-			if r.Err != nil {
-				errStr = pq.QuoteLiteral(fmt.Sprint(r.Err))
+		result = append(result, lo.Map(requests, func(i *http.Request, _ int) request.Request {
+			return request.Request{
+				DeviceID: d.ID,
+				Req:      i,
 			}
-
-			csv += fmt.Sprintf("\n%s,%s,%s,%d,%v", r.TaskID, r.Started.Format(time.RFC3339Nano), r.Ended.Format(time.RFC3339Nano), r.ExecutionTime.Nanoseconds(), errStr)
-		}
+		})...)
 	}
 
-	os.WriteFile("out.csv", []byte(csv), os.ModePerm)
+	return result
 }

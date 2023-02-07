@@ -18,7 +18,7 @@ type RequestOptions struct {
 	Body    any
 }
 
-func Post(client *http.Client, url *url.URL, opts RequestOptions) (*http.Response, error) {
+func Post(url *url.URL, opts RequestOptions) (*http.Request, error) {
 	body, _ := json.Marshal(opts.Body)
 	req, err := http.NewRequest(http.MethodPost, url.String(), bytes.NewReader(body))
 	if err != nil {
@@ -27,5 +27,15 @@ func Post(client *http.Client, url *url.URL, opts RequestOptions) (*http.Respons
 	if opts.Headers != nil {
 		headers(req, opts.Headers)
 	}
-	return client.Do(req)
+	return req, nil
+}
+
+type Device struct {
+	ID     string
+	UserID string
+}
+
+type Request struct {
+	DeviceID string
+	Req      *http.Request
 }
