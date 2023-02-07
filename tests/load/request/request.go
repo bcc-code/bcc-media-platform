@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 func headers(req *http.Request, headers map[string]string) {
@@ -36,6 +37,37 @@ type Device struct {
 }
 
 type Request struct {
+	Name string
+	R    *http.Request
+}
+
+type Requests struct {
 	DeviceID string
-	Req      *http.Request
+	Requests []Request
+}
+
+type RequestRun struct {
+	DeviceID string
+	Name     string
+	Started  time.Time
+	Ended    time.Time
+	Error    error
+}
+
+func Do(client *http.Client, requests Requests) []RequestRun {
+	var result []RequestRun
+	for _, r := range requests.Requests {
+		run := RequestRun{
+			DeviceID: requests.DeviceID,
+			Name:     r.Name,
+			Started:  time.Now(),
+		}
+
+		_, run.Error = client.Do(r.R)
+
+		run.Ended = time.Now()
+
+		result = append(result, run)
+	}
+	return result
 }
