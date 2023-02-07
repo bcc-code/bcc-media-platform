@@ -28,21 +28,21 @@ export async function getApiResponsefromEpisodeWithStatus(status: string) {
             }
         }
         `;
-    
+
     const apiResponse = await query(queryString, {
-            episodeId: episode.id!,
-        })
+        episodeId: episode.id!,
+    })
 
     return apiResponse
 }
 
-export async function getApiResponsefromEpisodeWithAvailability(title: string, available_from?: Date, available_to?: Date) {
+export async function createEpisodeWith(title: string, available_from?: Date, available_to?: Date, publish_date?: Date, asset_id?: number) {
     const episode = await client.items("episodes").createOne({
         status: "published",
         available_from: available_from?.toISOString() ?? null,
         available_to: available_to?.toISOString() ?? null,
         production_date: new Date().toISOString(),
-        publish_date: available_from?.toISOString() ?? faker.date.future().toISOString(),
+        publish_date: publish_date?.toISOString() ?? available_from?.toISOString() ?? faker.date.future().toISOString(),
         usergroups: [
             {
                 usergroups_code: "public",
@@ -54,22 +54,26 @@ export async function getApiResponsefromEpisodeWithAvailability(title: string, a
                 title: title,
             },
         ],
+        asset_id: asset_id
     })
 
+    return episode
+}
+
+export async function GetApiResonseforAvailability(id: number) {
     const queryString =
         `
-        query($episodeId: ID!) {
-            episode(id: $episodeId) {
-                title
-                availableFrom
-                availableTo
-            }
+    query($episodeId: ID!) {
+        episode(id: $episodeId) {
+            title
+            availableFrom
+            availableTo
         }
-        `;
-    
+    }
+    `;
     const apiResponse = await query(queryString, {
-            episodeId: episode.id!,
-        })
+        episodeId: id,
+    })
 
     return apiResponse
 }
