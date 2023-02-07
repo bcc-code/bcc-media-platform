@@ -39,10 +39,10 @@ export async function getApiResponsefromEpisodeWithStatus(status: string) {
 export async function getApiResponsefromEpisodeWithAvailability(title: string, available_from?: Date, available_to?: Date) {
     const episode = await client.items("episodes").createOne({
         status: "published",
-        available_from: available_from == null ? null : available_from.toISOString(),
-        available_to: available_to == null ? null : available_to.toISOString(),
+        available_from: available_from?.toISOString() ?? null,
+        available_to: available_to?.toISOString() ?? null,
         production_date: new Date().toISOString(),
-        publish_date: available_from == null ? faker.date.future().toISOString() : available_from.toISOString(),
+        publish_date: available_from?.toISOString() ?? faker.date.future().toISOString(),
         usergroups: [
             {
                 usergroups_code: "public",

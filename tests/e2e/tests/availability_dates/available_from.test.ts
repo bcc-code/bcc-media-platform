@@ -9,7 +9,6 @@ authed(test)
 //Availability dates: from
 //-----------------------------------------------
 
-//available_from tests, let available_to be null
 test("check if available_from in future: not available", async (t) => {
     const apiResponse = await getApiResponsefromEpisodeWithAvailability("Test1: Available_from in future", faker.date.future(), null);
     t.is(apiResponse.errors[0].extensions.code, ApiErrorCodes.ItemNotPublished, "Episode that's available from the future gets the right error code");

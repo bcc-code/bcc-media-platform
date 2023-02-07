@@ -81,9 +81,7 @@ type GetLessonProgressGroupedByOrgRow struct {
 }
 
 // counts generates a count per orgid and age group
-//
-//	SUB Query: Get the last task of the lesson
-//
+//   SUB Query: Get the last task of the lesson
 // totals: Sum age groups for the orgs
 // Main Query: Calculate the % of answers per org for the task
 func (q *Queries) GetLessonProgressGroupedByOrg(ctx context.Context, arg GetLessonProgressGroupedByOrgParams) ([]GetLessonProgressGroupedByOrgRow, error) {

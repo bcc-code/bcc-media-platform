@@ -9,7 +9,6 @@ authed(test)
 //Availability dates: both from and to
 //-----------------------------------------------
 
-//Testing both of from and to
 test("check if available_from in future && available_to in the past: is not available", async(t) => {
     const apiResponse = await getApiResponsefromEpisodeWithAvailability("Test7: Available_from in future and Available_to past", faker.date.future(), faker.date.past());
     t.is(apiResponse.errors[0].extensions.code, ApiErrorCodes.ItemNotPublished, "Episode that's not available from future and to past");
