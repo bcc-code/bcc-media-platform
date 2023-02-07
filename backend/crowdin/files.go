@@ -12,6 +12,7 @@ type addStringRequest struct {
 	Text       string `json:"text"`
 	Identifier string `json:"identifier"`
 	FileId     int    `json:"fileId"`
+	Context    string `json:"context"`
 }
 
 type fileScheme struct {
@@ -170,6 +171,7 @@ func (c *Client) addString(projectId int, fileId int, s String) (r String, err e
 		Identifier: s.Identifier,
 		Text:       s.Text,
 		FileId:     fileId,
+		Context:    s.Context,
 	})
 	req.SetResult(Object[String]{})
 	res, err := req.Post(fmt.Sprintf("projects/%d/strings", projectId))
