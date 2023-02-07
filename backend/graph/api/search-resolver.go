@@ -163,7 +163,7 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 		Offset:   offset,
 		Type:     typeArg,
 		MinScore: minScore,
-	})
+	}, r.AnalyticsIDFactory(ctx))
 	if err != nil {
 		return nil, err
 	}

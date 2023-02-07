@@ -107,3 +107,45 @@ fragment StudyTopicSectionItem on StudyTopic {
         total
     }
 }
+
+query getSectionsForPage(
+    $code: String!
+    $first: Int
+    $offset: Int
+    $sectionFirst: Int
+    $sectionOffset: Int
+) {
+    page(code: $code) {
+        id
+        sections(first: $first, offset: $offset) {
+            total
+            offset
+            first
+            items {
+                __typename
+                id
+                title
+                ...ItemSection
+                ... on WebSection {
+                    title
+                    url
+                    height
+                    aspectRatio
+                    authentication
+                }
+                ... on MessageSection {
+                    title
+                    messages {
+                        title
+                        content
+                        style {
+                            text
+                            background
+                            border
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
