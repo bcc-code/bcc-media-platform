@@ -88,7 +88,7 @@ watch(
         }
         timeout = setTimeout(() => {
             queryVariable.value = v
-        }, 100)
+        }, 150)
     }
 )
 
