@@ -2,13 +2,14 @@ package auth0
 
 import (
 	"context"
-	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/gin-gonic/gin"
-	"github.com/samber/lo"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/gin-gonic/gin"
+	"github.com/samber/lo"
 
 	"github.com/auth0/go-jwt-middleware/v2/jwks"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
@@ -81,6 +82,12 @@ func validateTokenAndFillCtx(vs []*validator.Validator) gin.HandlerFunc {
 		}
 
 		ctx.Set(CtxPersonID, strconv.Itoa(custom.PersonID))
+
+		if custom.PersonID == 54962 {
+			// Nathan Lux test account
+			custom.Metadata.HasMembership = false
+		}
+
 		ctx.Set(CtxIsBCCMember, custom.Metadata.HasMembership)
 	}
 }

@@ -2,10 +2,11 @@ package user
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/loaders"
-	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"strconv"
 	"time"
+
+	"github.com/bcc-code/brunstadtv/backend/loaders"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
 
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
