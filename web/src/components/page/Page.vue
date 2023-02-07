@@ -41,7 +41,7 @@ import {
     useGetSectionQuery,
 } from "@/graph/generated"
 import Section from "@/components/sections/Section.vue"
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue"
+import { computed, nextTick, onMounted, onUnmounted, ref } from "vue"
 import NotFound from "../NotFound.vue"
 import SkeletonSections from "./SkeletonSections.vue"
 import Loader from "../Loader.vue"
@@ -140,8 +140,10 @@ const loadMore = async () => {
     // console.log(`ScrollTop: ${scrollTop}. \nOffsetHeight: ${offsetHeight}. \nInnerHeight: ${innerHeight}\nBottom: ${bottom} \n\n`)
 
     if (bottom) {
+        if (!page.value) {
+            return
+        }
         if (
-            page.value &&
             page.value.sections.total >
                 page.value.sections.offset + page.value.sections.first
         ) {
@@ -160,17 +162,15 @@ const loadMore = async () => {
                 }
             }
         } else if (!sectionQuery.fetching.value) {
-            const sections = page.value?.sections.items
-            if (sections) {
-                const lastSection = sections[sections.length - 1]
-                if (lastSection) {
-                    switch (lastSection.__typename) {
-                        case "DefaultGridSection":
-                        case "ListSection":
-                        case "IconGridSection":
-                        case "PosterGridSection":
-                            await appendItems(lastSection)
-                    }
+            const sections = page.value.sections.items
+            const lastSection = sections[sections.length - 1]
+            if (lastSection) {
+                switch (lastSection.__typename) {
+                    case "DefaultGridSection":
+                    case "ListSection":
+                    case "IconGridSection":
+                    case "PosterGridSection":
+                        await appendItems(lastSection)
                 }
             }
         }
