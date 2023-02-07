@@ -63,7 +63,12 @@ func Do(client *http.Client, requests Requests) []RequestRun {
 			Started:  time.Now(),
 		}
 
-		_, run.Error = client.Do(r.R)
+		res, err := client.Do(r.R)
+		if err != nil {
+			run.Error = err
+		}
+
+		defer res.Body.Close()
 
 		run.Ended = time.Now()
 

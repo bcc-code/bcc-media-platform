@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 func main() {
@@ -26,7 +27,7 @@ func main() {
 	reqs := graph.GetRequestsForDevices(devices)
 
 	var channels []chan []request.RequestRun
-	client := &http.Client{}
+	client := &http.Client{Timeout: time.Second * 5}
 	for _, r := range reqs {
 		ch := lo.Async(func() []request.RequestRun {
 			defer log.Print("Done")
