@@ -177,13 +177,6 @@ func main() {
 	cb := gobreaker.NewCircuitBreaker(gobreaker.Settings{
 		Name:    "Members",
 		Timeout: time.Second * 2,
-		ReadyToTrip: func(counts gobreaker.Counts) bool {
-			failureRatio := float64(counts.TotalFailures) / float64(counts.Requests)
-			return counts.Requests >= 3 && failureRatio >= 0.6
-		},
-		OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
-			log.L.Debug().Str("name", name).Str("from", from.String()).Str("to", to.String()).Msg("Circuit breaker state changed")
-		},
 	})
 	membersClient := members.New(config.Members, authClient, cb)
 
