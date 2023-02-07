@@ -478,6 +478,12 @@ const lockAnswers = async () => {
         let promises: Promise<any>[] = []
         for (var taskId in answers) {
             const alternativeId = answers[taskId]
+            if (alternativeId == null) {
+                throw new Error(
+                    `Tried to lock, but ${taskId} has null alternative selected.
+                    competitionAnswers: ${JSON.stringify(answers)}`
+                )
+            }
             promises.push(
                 completeTask({
                     taskId,
