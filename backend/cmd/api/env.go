@@ -87,6 +87,7 @@ type serviceSecrets struct {
 
 type redirectConfig struct {
 	JWTPrivateKeyRaw string
+	jwtPrivateKey    *rsa.PrivateKey
 	KeyID            string
 }
 
@@ -111,7 +112,10 @@ func toPrivateKey(key string) *rsa.PrivateKey {
 }
 
 func (r redirectConfig) GetPrivateKey() *rsa.PrivateKey {
-	return toPrivateKey(r.JWTPrivateKeyRaw)
+	if r.jwtPrivateKey == nil {
+		r.jwtPrivateKey = toPrivateKey(r.JWTPrivateKeyRaw)
+	}
+	return r.jwtPrivateKey
 }
 
 // GetVOD2Domain returns the configured VOD2Domain
