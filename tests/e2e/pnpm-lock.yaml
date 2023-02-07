@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@directus/sdk': ^10.3.1
+  '@faker-js/faker': ^7.6.0
   '@types/node': ^18.11.18
   '@types/node-fetch': 2.6.1
   ava: ^5.1.1
@@ -14,6 +15,7 @@ specifiers:
 
 devDependencies:
   '@directus/sdk': 10.3.1
+  '@faker-js/faker': 7.6.0
   '@types/node': 18.11.18
   '@types/node-fetch': 2.6.1
   ava: 5.1.1
@@ -39,6 +41,11 @@ packages:
       axios: 0.27.2
     transitivePeerDependencies:
       - debug
+    dev: true
+
+  /@faker-js/faker/7.6.0:
+    resolution: {integrity: sha512-XK6BTq1NDMo9Xqw/YkYyGjSsg44fbNwYRx7QK2CuoQgyy+f1rrTDHoExVM5PsyXCtfl2vs2vVJ0MN0yN6LppRw==}
+    engines: {node: '>=14.0.0', npm: '>=6.0.0'}
     dev: true
 
   /@jridgewell/resolve-uri/3.1.0:

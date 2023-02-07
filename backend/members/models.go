@@ -27,6 +27,6 @@ type Affiliation struct {
 // Organization
 type Organization struct {
 	OrgID int
-	Name  string
+	Name  string `json:"districtName"`
 	Type  string
 }

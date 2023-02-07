@@ -6,7 +6,7 @@ import { client } from "lib/directus"
 authed(test)
 
 test("create episode", async (t) => {
-    const title = "EPISODE"
+    const title = "Lorem Ipsum"
 
     const episode = await client.items("episodes").createOne({
         status: "published",
@@ -27,12 +27,19 @@ test("create episode", async (t) => {
 
     t.truthy(episode, "episode is not null")
 
-    const existing = await client.items("episodes").readOne(episode.id ?? 0)
+    const existing = await client.items("episodes").readOne(episode.id)
 
     t.truthy(existing, "episode exists")
 
     const queryString =
-        "query($episodeId: ID!){ episode(id: $episodeId) { title }}"
+        `
+        query($episodeId: ID!) {
+            episode(id: $episodeId) {
+                title
+                
+            }
+        }
+        `;
 
     const apiResponse = await query(queryString, {
         episodeId: episode.id!,
