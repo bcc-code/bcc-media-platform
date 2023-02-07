@@ -170,5 +170,9 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		ComputedDataLoader: loaders.NewListLoader(ctx, queries.GetComputedDataForGroups, func(i common.ComputedData) uuid.UUID {
 			return i.GroupID
 		}),
+
+		UserLoader: loaders.New(ctx, queries.GetUsers, loaders.WithKeyFunc(func(i common.User) string {
+			return i.PersonID
+		})),
 	}
 }

@@ -1367,3 +1367,14 @@ type UsersTaskanswer struct {
 	SelectedAlternatives interface{}  `db:"selected_alternatives" json:"selectedAlternatives"`
 	Locked               bool         `db:"locked" json:"locked"`
 }
+
+type UsersUser struct {
+	ID          string         `db:"id" json:"id"`
+	Email       string         `db:"email" json:"email"`
+	DisplayName null_v4.String `db:"display_name" json:"displayName"`
+	Age         null_v4.Int    `db:"age" json:"age"`
+	ChurchIds   interface{}    `db:"church_ids" json:"churchIds"`
+	ActiveBcc   sql.NullBool   `db:"active_bcc" json:"activeBcc"`
+	Roles       interface{}    `db:"roles" json:"roles"`
+	AgeGroup    null_v4.String `db:"age_group" json:"ageGroup"`
+}

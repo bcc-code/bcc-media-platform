@@ -7,12 +7,15 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/lib/pq"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getRoles = `-- name: GetRoles :many
-SELECT code, string_to_array(emails, E'\n')::text[] as emails  FROM usergroups
+SELECT code, string_to_array(emails, E'\n')::text[] as emails
+FROM usergroups
 `
 
 type GetRolesRow struct {
@@ -44,7 +47,9 @@ func (q *Queries) GetRoles(ctx context.Context) ([]GetRolesRow, error) {
 }
 
 const getRolesByEmail = `-- name: GetRolesByEmail :one
-SELECT array_agg(code)::text[] as groups FROM usergroups WHERE $1::text = ANY(string_to_array(emails, E'\n'))
+SELECT array_agg(code)::text[] as groups
+FROM usergroups
+WHERE $1::text = ANY (string_to_array(emails, E'\n'))
 `
 
 func (q *Queries) GetRolesByEmail(ctx context.Context, dollar_1 string) ([]string, error) {
@@ -55,7 +60,9 @@ func (q *Queries) GetRolesByEmail(ctx context.Context, dollar_1 string) ([]strin
 }
 
 const getRolesWithCode = `-- name: GetRolesWithCode :many
-SELECT code, string_to_array(emails, E'\n')::text[] as emails  FROM usergroups WHERE code = ANY($1::varchar[])
+SELECT code, string_to_array(emails, E'\n')::text[] as emails
+FROM usergroups
+WHERE code = ANY ($1::varchar[])
 `
 
 type GetRolesWithCodeRow struct {
@@ -73,6 +80,99 @@ func (q *Queries) GetRolesWithCode(ctx context.Context, dollar_1 []string) ([]Ge
 	for rows.Next() {
 		var i GetRolesWithCodeRow
 		if err := rows.Scan(&i.Code, pq.Array(&i.Emails)); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const insertUser = `-- name: InsertUser :exec
+INSERT INTO users.users (id, email, display_name, age, church_ids, active_bcc, roles, age_group)
+VALUES ($1, $2, $3, $4, $7::int[], $5, $8::varchar[], $6)
+ON CONFLICT (id) DO UPDATE SET email        = EXCLUDED.email,
+                               display_name = EXCLUDED.display_name,
+                               age          = excluded.age,
+                               church_ids   = excluded.church_ids,
+                               active_bcc   = excluded.active_bcc,
+                               roles        = excluded.roles,
+                               age_group    = excluded.age_group
+`
+
+type InsertUserParams struct {
+	ID          string         `db:"id" json:"id"`
+	Email       string         `db:"email" json:"email"`
+	DisplayName null_v4.String `db:"display_name" json:"displayName"`
+	Age         null_v4.Int    `db:"age" json:"age"`
+	ActiveBcc   sql.NullBool   `db:"active_bcc" json:"activeBcc"`
+	AgeGroup    null_v4.String `db:"age_group" json:"ageGroup"`
+	ChurchIds   []int32        `db:"church_ids" json:"churchIds"`
+	Roles       []string       `db:"roles" json:"roles"`
+}
+
+func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) error {
+	_, err := q.db.ExecContext(ctx, insertUser,
+		arg.ID,
+		arg.Email,
+		arg.DisplayName,
+		arg.Age,
+		arg.ActiveBcc,
+		arg.AgeGroup,
+		pq.Array(arg.ChurchIds),
+		pq.Array(arg.Roles),
+	)
+	return err
+}
+
+const getUsers = `-- name: getUsers :many
+SELECT u.id,
+       u.email,
+       u.display_name,
+       u.age,
+       u.age_group,
+       u.church_ids::int[] as church_ids,
+       u.active_bcc,
+       u.roles::varchar[]  as roles
+FROM users.users u
+WHERE u.id = ANY ($1::varchar[])
+`
+
+type getUsersRow struct {
+	ID          string         `db:"id" json:"id"`
+	Email       string         `db:"email" json:"email"`
+	DisplayName null_v4.String `db:"display_name" json:"displayName"`
+	Age         null_v4.Int    `db:"age" json:"age"`
+	AgeGroup    null_v4.String `db:"age_group" json:"ageGroup"`
+	ChurchIds   []int32        `db:"church_ids" json:"churchIds"`
+	ActiveBcc   sql.NullBool   `db:"active_bcc" json:"activeBcc"`
+	Roles       []string       `db:"roles" json:"roles"`
+}
+
+func (q *Queries) getUsers(ctx context.Context, dollar_1 []string) ([]getUsersRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUsers, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getUsersRow
+	for rows.Next() {
+		var i getUsersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.DisplayName,
+			&i.Age,
+			&i.AgeGroup,
+			pq.Array(&i.ChurchIds),
+			&i.ActiveBcc,
+			pq.Array(&i.Roles),
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

@@ -26,6 +26,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
+	"github.com/sony/gobreaker"
 	"go.opentelemetry.io/otel"
 )
 
@@ -84,7 +85,11 @@ func main() {
 	}
 
 	authClient := auth0.New(config.Auth0)
-	membersClient := members.New(config.Members, authClient)
+
+	breaker := gobreaker.NewCircuitBreaker(gobreaker.Settings{
+		Name: "Members",
+	})
+	membersClient := members.New(config.Members, authClient, breaker)
 	notificationUtils := notifications.NewUtils(queries, membersClient)
 
 	mh := &modelHandler{

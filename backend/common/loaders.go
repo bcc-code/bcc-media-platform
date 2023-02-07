@@ -63,6 +63,8 @@ type BatchLoaders struct {
 	AchievementGroupAchievementsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
 
 	ComputedDataLoader *loaders.Loader[uuid.UUID, []*ComputedData]
+
+	UserLoader *loaders.Loader[string, *User]
 }
 
 // FilteredLoaders contains loaders that will be filtered by permissions.

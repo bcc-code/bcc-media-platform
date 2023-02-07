@@ -7,6 +7,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bsm/redislock"
 	"github.com/gin-contrib/pprof"
+	"github.com/sony/gobreaker"
 	"net/http"
 	"os"
 	"strings"
@@ -172,7 +173,20 @@ func main() {
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
 	authClient := auth0.New(config.Auth0)
-	membersClient := members.New(config.Members, authClient)
+
+	cb := gobreaker.NewCircuitBreaker(gobreaker.Settings{
+		Name:    "Members",
+		Timeout: time.Second * 2,
+		ReadyToTrip: func(counts gobreaker.Counts) bool {
+			failureRatio := float64(counts.TotalFailures) / float64(counts.Requests)
+			return counts.Requests >= 3 && failureRatio >= 0.6
+		},
+		OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
+			log.L.Debug().Str("name", name).Str("from", from.String()).Str("to", to.String()).Msg("Circuit breaker state changed")
+		},
+	})
+	membersClient := members.New(config.Members, authClient, cb)
+
 	ls := initBatchLoaders(queries, membersClient)
 	searchService := search.New(queries, config.Algolia)
 	emailService := email.New(config.Email)
@@ -199,7 +213,7 @@ func main() {
 
 	r.Use(otelgin.Middleware("api"))
 	r.Use(authClient.ValidateToken())
-	r.Use(user.NewUserMiddleware(queries, ls.MemberLoader))
+	r.Use(user.NewUserMiddleware(queries, remoteCache, ls))
 	r.Use(user.NewProfileMiddleware(queries, remoteCache))
 	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
 	r.Use(applications.RoleMiddleware())
