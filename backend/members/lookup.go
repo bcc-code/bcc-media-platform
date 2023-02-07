@@ -157,7 +157,7 @@ func (c *Client) GetOrgs(ctx context.Context, min, max int) ([]Organization, err
 	out := []Organization{}
 	for {
 		print(".")
-		ms, err := get[[]Organization](ctx, c, fmt.Sprintf("orgs?limit=999&page=%d&fields=orgID,name,type", page))
+		ms, err := get[[]Organization](ctx, c, fmt.Sprintf("orgs?limit=999&page=%d&fields=orgID,districtName,type", page))
 		if err != nil {
 			return nil, err
 		}

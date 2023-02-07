@@ -49,7 +49,8 @@ func main() {
 	membersClient := members.New(config.Members, authClient)
 
 	//updateMemberData(ctx, *queries, *membersClient, db)
-	updateMemeberCountByAgeGroup(ctx, queries, membersClient, db)
+	//updateMemeberCountByAgeGroup(ctx, queries, membersClient, db)
+	updateOrganization(ctx, queries, membersClient)
 }
 
 func updateMemeberCountByAgeGroup(ctx context.Context, queries *sqlc.Queries, membersClient *members.Client, db *sql.DB) {
@@ -91,7 +92,7 @@ func updateMemeberCountByAgeGroup(ctx context.Context, queries *sqlc.Queries, me
 
 }
 
-func updateOrganization(ctx context.Context, queries sqlc.Queries, membersClient members.Client) {
+func updateOrganization(ctx context.Context, queries *sqlc.Queries, membersClient *members.Client) {
 	orgs, err := membersClient.GetOrgs(ctx, 0, 0)
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Members failed")
