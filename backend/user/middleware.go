@@ -2,10 +2,10 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
-	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/bcc-code/brunstadtv/backend/remotecache"
 
 	cache "github.com/Code-Hex/go-generics-cache"
@@ -103,7 +103,7 @@ var AgeGroups = map[int]string{
 
 // NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
-func NewUserMiddleware(queries *sqlc.Queries, memberLoader *loaders.Loader[int, *members.Member]) func(*gin.Context) {
+func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, ls *common.BatchLoaders) func(*gin.Context) {
 	return func(ctx *gin.Context) {
 		reqCtx, span := otel.Tracer("user/middleware").Start(ctx.Request.Context(), "run")
 		defer span.End()
@@ -136,78 +136,103 @@ func NewUserMiddleware(queries *sqlc.Queries, memberLoader *loaders.Loader[int, 
 			return
 		}
 
-		pid := ctx.GetString(auth0.CtxPersonID)
-		intID, _ := strconv.ParseInt(pid, 10, 32)
+		getUserFromMembers := func(o *remotecache.Options) (*common.User, error) {
+			o.SetTTL(time.Minute * 5)
+			pid := ctx.GetString(auth0.CtxPersonID)
+			intID, _ := strconv.ParseInt(pid, 10, 32)
 
-		roles = append(roles, RoleRegistered)
-		if ctx.GetBool(auth0.CtxIsBCCMember) {
-			roles = append(roles, RoleBCCMember)
+			roles = append(roles, RoleRegistered)
+			if ctx.GetBool(auth0.CtxIsBCCMember) {
+				roles = append(roles, RoleBCCMember)
+			}
+
+			u := &common.User{
+				PersonID:  pid,
+				Roles:     roles,
+				Anonymous: false,
+				ActiveBCC: ctx.GetBool(auth0.CtxIsBCCMember),
+				AgeGroup:  "unknown",
+			}
+
+			member, err := ls.MemberLoader.Get(ctx, int(intID))
+			if err != nil {
+				log.L.Info().Err(err).Msg("Failed to retrieve user from members.")
+				span.AddEvent("User failed to load from members")
+
+				dbUser, err := ls.UserLoader.Get(ctx, pid)
+				if err != nil {
+					log.L.Error().Err(err).Msg("Failed to retrieve user from database.")
+				}
+				if dbUser != nil {
+					u = dbUser
+				}
+
+				userCache.Set(userID, u, cache.WithExpiration(1*time.Minute))
+				ctx.Set(CtxUser, u)
+				return u, nil
+			}
+
+			email := member.Email
+
+			if email == "" {
+				// Explicit values make it easier to see that it was intended when debugging
+				email = "<MISSING>"
+			}
+
+			userRoles, err := GetRolesForEmail(reqCtx, queries, email)
+			if err != nil {
+				err = merry.Wrap(err)
+				log.L.Warn().Err(err).Str("email", email).Msg("Unable to get roles")
+			} else {
+				roles = append(roles, userRoles...)
+			}
+
+			u.Roles = roles
+			u.Email = email
+			u.DisplayName = member.DisplayName
+			u.Age = member.Age
+
+			ageGroupMin := 0
+			for minAge, group := range AgeGroups {
+				// Note: Maps are not iterated in a sorted order, so we have to find the lowed applicable
+				if u.Age >= minAge && minAge > ageGroupMin {
+					u.AgeGroup = group
+					ageGroupMin = minAge
+				}
+			}
+
+			u.ChurchIDs = lo.Map(lo.Filter(member.Affiliations, func(i members.Affiliation, _ int) bool {
+				return i.Active && i.OrgType == "Church"
+			}), func(i members.Affiliation, _ int) int {
+				return i.OrgID
+			})
+
+			err = queries.UpsertUser(ctx, sqlc.UpsertUserParams{
+				ID:          u.PersonID,
+				Roles:       u.Roles,
+				DisplayName: u.DisplayName,
+				ActiveBcc:   u.ActiveBCC,
+				Email:       u.Email,
+				AgeGroup:    u.AgeGroup,
+				Age:         int32(u.Age),
+				ChurchIds: lo.Map(u.ChurchIDs, func(i int, _ int) int32 {
+					return int32(i)
+				}),
+			})
+
+			if err != nil {
+				log.L.Error().Err(err).Send()
+			}
+
+			return u, nil
 		}
 
-		u := &common.User{
-			PersonID:  pid,
-			Roles:     roles,
-			Anonymous: false,
-			ActiveBCC: ctx.GetBool(auth0.CtxIsBCCMember),
-			AgeGroup:  "unknown",
-		}
-
-		member, err := memberLoader.Get(ctx, int(intID))
-		if err != nil {
-			log.L.Error().Err(err).Msg("Failed to retrieve user")
-			span.AddEvent("User failed to load")
-			userCache.Set(userID, u, cache.WithExpiration(1*time.Minute))
+		if u, err := remotecache.GetOrCreate[*common.User](ctx, remoteCache, fmt.Sprintf("users:%s", userID), getUserFromMembers); err == nil {
+			span.AddEvent("User loaded into cache")
+			userCache.Set(userID, u, cache.WithExpiration(60*time.Minute))
 			ctx.Set(CtxUser, u)
 			return
 		}
-
-		email := member.Email
-
-		if email == "" {
-			// Explicit values make it easier to see that it was intended when debugging
-			email = "<MISSING>"
-		}
-
-		userRoles, err := GetRolesForEmail(reqCtx, queries, email)
-		if err != nil {
-			err = merry.Wrap(err)
-			log.L.Warn().Err(err).Str("email", email).Msg("Unable to get roles")
-		} else {
-			roles = append(roles, userRoles...)
-		}
-
-		u.Roles = roles
-		u.Email = email
-		u.DisplayName = member.DisplayName
-
-		// Set AgeGroup and avoid passing identifying information through the application
-		if member.BirthDate != "" {
-			birthDate, err := time.Parse("2006-01-02", member.BirthDate)
-			if err != nil {
-				log.L.Error().Err(err).Msg("Error parsing birthday of user")
-			} else {
-				u.Age = time.Now().Year() - birthDate.Year()
-				ageGroupMin := 0
-				for minAge, group := range AgeGroups {
-					// Note: Maps are not iterated in a sorted order, so we have to find the lowed applicable
-					if u.Age >= minAge && minAge > ageGroupMin {
-						u.AgeGroup = group
-						ageGroupMin = minAge
-					}
-				}
-			}
-		}
-
-		u.ChurchIDs = lo.Map(lo.Filter(member.Affiliations, func(i members.Affiliation, _ int) bool {
-			return i.Active && i.OrgType == "Church"
-		}), func(i members.Affiliation, _ int) int {
-			return i.OrgID
-		})
-
-		// Add the user to the cache
-		span.AddEvent("User loaded into cache")
-		userCache.Set(userID, u, cache.WithExpiration(60*time.Minute))
-		ctx.Set(CtxUser, u)
 	}
 }
 

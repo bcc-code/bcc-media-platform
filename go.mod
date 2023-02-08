@@ -42,6 +42,7 @@ require (
 	github.com/rs/zerolog v1.29.0
 	github.com/samber/lo v1.37.0
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
+	github.com/sony/gobreaker v0.5.0
 	github.com/stretchr/testify v1.8.1
 	github.com/tabbed/pqtype v0.1.1
 	github.com/uptrace/uptrace-go v1.12.0
