@@ -45,7 +45,7 @@ const request = (query, variables) => {
     return http.post(options.url, JSON.stringify({query, variables}), {
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${options.token}`,
+            'Authorization': options.token ? `Bearer ${options.token}` : undefined,
             'x-user-data': JSON.stringify(user),
         }})
 }
