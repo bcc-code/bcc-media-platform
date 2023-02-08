@@ -1283,10 +1283,10 @@ export type GetCalendarDayQueryVariables = Exact<{
 
 export type GetCalendarDayQuery = { calendar?: { day: { entries: Array<{ __typename: 'EpisodeCalendarEntry', id: string, title: string, description: string, end: any, start: any, episode?: { id: string, title: string, number?: number | null, publishDate: any, productionDate: any, season?: { number: number, show: { id: string, type: ShowType, title: string } } | null } | null } | { __typename: 'SeasonCalendarEntry', id: string, title: string, description: string, end: any, start: any, season?: { id: string, number: number, title: string, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'ShowCalendarEntry', id: string, title: string, description: string, end: any, start: any, show?: { id: string, type: ShowType, title: string } | null } | { __typename: 'SimpleCalendarEntry', id: string, title: string, description: string, end: any, start: any }>, events: Array<{ id: string, title: string, start: string, end: string }> } } | null };
 
-export type GetAnalyticsIdQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAnalyticsIdQuery = { me: { analytics: { anonymousId: string } } };
+export type GetMeQuery = { me: { bccMember: boolean, analytics: { anonymousId: string } } };
 
 export type SendSupportEmailMutationVariables = Exact<{
   title: Scalars['String'];
@@ -1810,18 +1810,19 @@ export const GetCalendarDayDocument = gql`
 export function useGetCalendarDayQuery(options: Omit<Urql.UseQueryArgs<never, GetCalendarDayQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetCalendarDayQuery>({ query: GetCalendarDayDocument, ...options });
 };
-export const GetAnalyticsIdDocument = gql`
-    query getAnalyticsID {
+export const GetMeDocument = gql`
+    query getMe {
   me {
     analytics {
       anonymousId
     }
+    bccMember
   }
 }
     `;
 
-export function useGetAnalyticsIdQuery(options: Omit<Urql.UseQueryArgs<never, GetAnalyticsIdQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetAnalyticsIdQuery>({ query: GetAnalyticsIdDocument, ...options });
+export function useGetMeQuery(options: Omit<Urql.UseQueryArgs<never, GetMeQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetMeQuery>({ query: GetMeDocument, ...options });
 };
 export const SendSupportEmailDocument = gql`
     mutation sendSupportEmail($title: String!, $content: String!, $html: String!) {
