@@ -1377,4 +1377,5 @@ type UsersUser struct {
 	ActiveBcc   bool        `db:"active_bcc" json:"activeBcc"`
 	Roles       interface{} `db:"roles" json:"roles"`
 	AgeGroup    string      `db:"age_group" json:"ageGroup"`
+	UpdatedAt   time.Time   `db:"updated_at" json:"updatedAt"`
 }

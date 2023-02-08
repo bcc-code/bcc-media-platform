@@ -92,15 +92,16 @@ func (q *Queries) GetRolesWithCode(ctx context.Context, dollar_1 []string) ([]Ge
 }
 
 const upsertUser = `-- name: UpsertUser :exec
-INSERT INTO users.users (id, email, display_name, age, church_ids, active_bcc, roles, age_group)
-VALUES ($1, $2, $3, $4, $7::int[], $5, $8::varchar[], $6)
+INSERT INTO users.users (id, email, display_name, age, church_ids, active_bcc, roles, age_group, updated_at)
+VALUES ($1, $2, $3, $4, $7::int[], $5, $8::varchar[], $6, NOW())
 ON CONFLICT (id) DO UPDATE SET email        = excluded.email,
                                display_name = excluded.display_name,
                                age          = excluded.age,
                                church_ids   = excluded.church_ids,
                                active_bcc   = excluded.active_bcc,
                                roles        = excluded.roles,
-                               age_group    = excluded.age_group
+                               age_group    = excluded.age_group,
+                               updated_at   = NOW()
 `
 
 type UpsertUserParams struct {
