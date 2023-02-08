@@ -140,6 +140,9 @@ func (r *lessonResolver) Links(ctx context.Context, obj *model.Lesson, first *in
 	if err != nil {
 		return nil, err
 	}
+	links = lo.Filter(links, func(l *common.Link, _ int) bool {
+		return l != nil
+	})
 
 	return &model.LinkPagination{
 		Items: utils.MapWithCtx(ctx, links, func(ctx context.Context, link *common.Link) *model.Link {
