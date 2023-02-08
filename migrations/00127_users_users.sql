@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS "users"."users" (
 	"active_bcc" bool NOT NULL  ,
 	"roles" _varchar NOT NULL  ,
 	"age_group" varchar NOT NULL  ,
+	"updated_at" timestamp NOT NULL ,
 	CONSTRAINT "users_pk" PRIMARY KEY (id)
 );
 
