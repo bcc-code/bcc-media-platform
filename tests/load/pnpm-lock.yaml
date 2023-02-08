@@ -1,0 +1,19 @@
+lockfileVersion: 5.4
+
+specifiers:
+  '@types/k6': ^0.42.0
+  k6: ^0.0.0
+
+devDependencies:
+  '@types/k6': 0.42.0
+  k6: 0.0.0
+
+packages:
+
+  /@types/k6/0.42.0:
+    resolution: {integrity: sha512-btIVh1X3aC3iiYHL3J6vnWx65tFhTZyA6c3RjsizlVRAk80a83mL9ybwClUpxo/gl8C7nii1NGMGmmN7yH5doQ==}
+    dev: true
+
+  /k6/0.0.0:
+    resolution: {integrity: sha512-GAQSWayS2+LjbH5bkRi+pMPYyP1JSp7o+4j58ANZ762N/RH/SdlAT3CHHztnn8s/xgg8kYNM24Gd2IPo9b5W+g==}
+    dev: true

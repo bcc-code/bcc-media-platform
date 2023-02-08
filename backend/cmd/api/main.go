@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bsm/redislock"
@@ -200,6 +201,21 @@ func main() {
 	r.Use(otelgin.Middleware("api"))
 	r.Use(authClient.ValidateToken())
 	r.Use(user.NewUserMiddleware(queries, ls.MemberLoader))
+	if environment.Test() {
+		// Get the user object from headers
+		r.Use(func(ctx *gin.Context) {
+			if v, ok := ctx.Get(auth0.CtxAuthenticated); !ok || v.(bool) != true {
+				return
+			}
+
+			userStr := ctx.GetHeader("x-user-data")
+			if userStr != "" {
+				var u common.User
+				_ = json.Unmarshal([]byte(userStr), &u)
+				ctx.Set(user.CtxUser, &u)
+			}
+		})
+	}
 	r.Use(user.NewProfileMiddleware(queries, remoteCache))
 	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
 	r.Use(applications.RoleMiddleware())
