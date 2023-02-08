@@ -61,9 +61,12 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 		UpdatedAt: time.Now(),
 		Languages: languages,
 	}
-	err = r.Queries.SaveDevice(ginCtx, d)
-	if err != nil {
-		return nil, err
+
+	if !user.IsImpersonating(ginCtx) {
+		err = r.Queries.SaveDevice(ginCtx, d)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return &model.Device{
 		Token:     d.Token,
@@ -90,7 +93,9 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 	var episodeProgress *common.Progress
 	pl := r.ProfileLoaders(ctx).ProgressLoader
 	if progress == nil {
-		err = q.ClearProgress(ctx, episodeID)
+		if !user.IsImpersonating(ginCtx) {
+			err = q.ClearProgress(ctx, episodeID)
+		}
 	} else {
 		episodeProgress, err = pl.Get(ctx, utils.AsInt(e.ID))
 		if err != nil {
@@ -134,7 +139,9 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 			}
 		}
 
-		err = q.SaveProgress(ctx, *episodeProgress)
+		if !user.IsImpersonating(ginCtx) {
+			err = q.SaveProgress(ctx, *episodeProgress)
+		}
 	}
 	pl.Clear(ctx, episodeID)
 	pl.Prime(ctx, episodeID, episodeProgress)
@@ -152,6 +159,10 @@ func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title strin
 
 	if u.Anonymous {
 		return false, merry.New("User cannot be anonymous")
+	}
+
+	if user.IsImpersonating(ginCtx) {
+		return false, nil
 	}
 
 	err = r.EmailService.SendEmail(ctx, email.SendOptions{
@@ -214,14 +225,17 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		}
 	}
 
-	err = r.Queries.SetTaskCompleted(ctx, sqlc.SetTaskCompletedParams{
-		ProfileID:            p.ID,
-		TaskID:               task.ID,
-		SelectedAlternatives: selectedUUIDs,
-	})
+	ginCtx, _ := utils.GinCtx(ctx)
 
-	if err != nil {
-		return false, err
+	if !user.IsImpersonating(ginCtx) {
+		err = r.Queries.SetTaskCompleted(ctx, sqlc.SetTaskCompletedParams{
+			ProfileID:            p.ID,
+			TaskID:               task.ID,
+			SelectedAlternatives: selectedUUIDs,
+		})
+		if err != nil {
+			return false, err
+		}
 	}
 
 	r.Loaders.CompletedTasksLoader.Clear(ctx, p.ID)
@@ -246,11 +260,14 @@ func (r *mutationRootResolver) LockLessonAnswers(ctx context.Context, id string)
 		return false, err
 	}
 
-	err = r.Queries.SetAnswerLock(ctx, sqlc.SetAnswerLockParams{
-		Locked:    true,
-		ProfileID: p.ID,
-		LessonID:  utils.AsUuid(id),
-	})
+	ginCtx, _ := utils.GinCtx(ctx)
+	if !user.IsImpersonating(ginCtx) {
+		err = r.Queries.SetAnswerLock(ctx, sqlc.SetAnswerLockParams{
+			Locked:    true,
+			ProfileID: p.ID,
+			LessonID:  utils.AsUuid(id),
+		})
+	}
 
 	r.Loaders.CompletedAndLockedTasksLoader.Clear(ctx, p.ID)
 
@@ -321,12 +338,15 @@ func (r *mutationRootResolver) ConfirmAchievement(ctx context.Context, id string
 	ids = lo.Filter(ids, func(i *uuid.UUID, _ int) bool {
 		return i != nil && *i != uid
 	})
-	err = r.Queries.ConfirmAchievement(ctx, sqlc.ConfirmAchievementParams{
-		ProfileID:     p.ID,
-		AchievementID: uid,
-	})
-	if err != nil {
-		return nil, err
+	ginCtx, _ := utils.GinCtx(ctx)
+	if !user.IsImpersonating(ginCtx) {
+		err = r.Queries.ConfirmAchievement(ctx, sqlc.ConfirmAchievementParams{
+			ProfileID:     p.ID,
+			AchievementID: uid,
+		})
+		if err != nil {
+			return nil, err
+		}
 	}
 	r.Loaders.UnconfirmedAchievementsLoader.Clear(ctx, p.ID)
 	return &model.ConfirmAchievementResult{

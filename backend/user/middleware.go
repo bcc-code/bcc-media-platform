@@ -31,11 +31,12 @@ const (
 
 // Various hardcoded keys
 const (
-	CtxUser      = "ctx-user"
-	CacheRoles   = "roles"
-	CtxLanguages = "ctx-languages"
-	CtxProfiles  = "ctx-profiles"
-	CtxProfile   = "ctx-profile"
+	CtxUser          = "ctx-user"
+	CacheRoles       = "roles"
+	CtxLanguages     = "ctx-languages"
+	CtxProfiles      = "ctx-profiles"
+	CtxProfile       = "ctx-profile"
+	CtxImpersonating = "ctx-impersonating"
 )
 
 var userCache = cache.New[string, *common.User]()
@@ -61,6 +62,12 @@ func getRoles(ctx context.Context, queries *sqlc.Queries) (map[string][]string, 
 	span.AddEvent("loaded into cache")
 	rolesCache.Set(CacheRoles, allRoles, cache.WithExpiration(60*time.Minute))
 	return allRoles, nil
+}
+
+// IsImpersonating determines if the current request is on behalf of another user.
+func IsImpersonating(ctx *gin.Context) bool {
+	v, ok := ctx.Get(CtxImpersonating)
+	return ok && v.(bool)
 }
 
 // GetRolesForEmail returns all roles applicable for a specific email address.

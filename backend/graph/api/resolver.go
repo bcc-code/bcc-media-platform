@@ -437,14 +437,6 @@ func getEpisode(ctx context.Context, resolver *Resolver, episodeID string) (*com
 	return episode, nil
 }
 
-func parseUuid(uuidString *string) (uuid.UUID, error) {
-	uuidValue, err := uuid.Parse(*uuidString)
-	if err != nil {
-		return uuid.Nil, err
-	}
-	return uuidValue, nil
-}
-
 func (r *Resolver) sendMessage(ctx context.Context, itemID uuid.UUID, message *string, metadata map[string]any) (string, error) {
 	err := ratelimit.Endpoint(ctx, "messages:send:"+itemID.String(), 2, false)
 	if err != nil {
@@ -480,10 +472,12 @@ func (r *Resolver) sendMessage(ctx context.Context, itemID uuid.UUID, message *s
 		insertParams.AgeGroup = usr.AgeGroup
 	}
 
-	err = r.Queries.SetMessage(ctx, insertParams)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to save string to database")
-		return "", merry.New("Failed to generate unique ID")
+	if !user.IsImpersonating(gc) {
+		err = r.Queries.SetMessage(ctx, insertParams)
+		if err != nil {
+			log.L.Error().Err(err).Msg("Failed to save string to database")
+			return "", merry.New("Failed to generate unique ID")
+		}
 	}
 	return id, nil
 }
@@ -502,13 +496,16 @@ func (r *Resolver) updateMessage(ctx context.Context, id string, message *string
 		md.RawMessage, err = json.Encode(ctx, metadata)
 		md.Valid = err != nil
 	}
-	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
-		ID:       id,
-		Message:  str,
-		Metadata: md,
-	})
-	if err != nil {
-		return "", err
+	ginCtx, _ := utils.GinCtx(ctx)
+	if !user.IsImpersonating(ginCtx) {
+		err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
+			ID:       id,
+			Message:  str,
+			Metadata: md,
+		})
+		if err != nil {
+			return "", err
+		}
 	}
 	return id, err
 }

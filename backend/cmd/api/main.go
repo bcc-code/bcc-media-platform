@@ -213,6 +213,7 @@ func main() {
 				var u common.User
 				_ = json.Unmarshal([]byte(userStr), &u)
 				ctx.Set(user.CtxUser, &u)
+				ctx.Set(user.CtxImpersonating, true)
 			}
 		})
 	}
