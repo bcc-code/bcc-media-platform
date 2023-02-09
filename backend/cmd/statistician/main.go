@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/sony/gobreaker"
 
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/members"
@@ -46,7 +47,10 @@ func main() {
 	queries := sqlc.New(db)
 
 	authClient := auth0.New(config.Auth0)
-	membersClient := members.New(config.Members, authClient)
+	breaker := gobreaker.NewCircuitBreaker(gobreaker.Settings{
+		Name: "Members",
+	})
+	membersClient := members.New(config.Members, authClient, breaker)
 
 	//updateMemberData(ctx, *queries, *membersClient, db)
 	//updateMemeberCountByAgeGroup(ctx, queries, membersClient, db)
