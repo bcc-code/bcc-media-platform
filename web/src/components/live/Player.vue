@@ -3,7 +3,7 @@
     <div v-if="err" class="w-full h-full text-center text-xl">{{ err }}</div>
 </template>
 <script lang="ts" setup>
-import { useGetAnalyticsIdQuery } from "@/graph/generated"
+import { useGetMeQuery } from "@/graph/generated"
 import Auth from "@/services/auth"
 import { languageTo3letter } from "@/utils/languages"
 import { createPlayer, Player } from "bccm-video-player"
@@ -18,7 +18,7 @@ let player: Player | null = null
 
 const route = useRoute()
 
-const { data, executeQuery } = useGetAnalyticsIdQuery()
+const { data, executeQuery } = useGetMeQuery()
 
 const onSpaceBar = (event: KeyboardEvent) => {
     if (event.type === "keydown") {

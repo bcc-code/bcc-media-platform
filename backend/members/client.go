@@ -1,6 +1,9 @@
 package members
 
-import "context"
+import (
+	"context"
+	"github.com/sony/gobreaker"
+)
 
 type tokenProvider interface {
 	GetToken(ctx context.Context, audience string) (string, error)
@@ -15,12 +18,14 @@ type Config struct {
 type Client struct {
 	domain        string
 	tokenProvider tokenProvider
+	breaker       *gobreaker.CircuitBreaker
 }
 
 // New returns a new members client
-func New(config Config, tokenProvider tokenProvider) *Client {
+func New(config Config, tokenProvider tokenProvider, breaker *gobreaker.CircuitBreaker) *Client {
 	return &Client{
 		domain:        config.Domain,
 		tokenProvider: tokenProvider,
+		breaker:       breaker,
 	}
 }

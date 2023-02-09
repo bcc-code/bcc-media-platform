@@ -8,6 +8,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bsm/redislock"
 	"github.com/gin-contrib/pprof"
+	"github.com/sony/gobreaker"
 	"net/http"
 	"os"
 	"strings"
@@ -173,7 +174,13 @@ func main() {
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
 	authClient := auth0.New(config.Auth0)
-	membersClient := members.New(config.Members, authClient)
+
+	cb := gobreaker.NewCircuitBreaker(gobreaker.Settings{
+		Name:    "Members",
+		Timeout: time.Second * 2,
+	})
+	membersClient := members.New(config.Members, authClient, cb)
+
 	ls := initBatchLoaders(queries, membersClient)
 	searchService := search.New(queries, config.Algolia)
 	emailService := email.New(config.Email)
@@ -200,7 +207,7 @@ func main() {
 
 	r.Use(otelgin.Middleware("api"))
 	r.Use(authClient.ValidateToken())
-	r.Use(user.NewUserMiddleware(queries, ls.MemberLoader))
+	r.Use(user.NewUserMiddleware(queries, remoteCache, ls))
 	if environment.Test() {
 		// Get the user object from headers
 		r.Use(func(ctx *gin.Context) {

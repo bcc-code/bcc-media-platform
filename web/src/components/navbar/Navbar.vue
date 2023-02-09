@@ -432,10 +432,12 @@ import {
 import { computed, onMounted, ref } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
-import { useGetCalendarStatusQuery } from "@/graph/generated"
+import { useGetCalendarStatusQuery, useGetMeQuery } from "@/graph/generated"
 import ContactForm from "@/components/support/ContactForm.vue"
 
 const loading = ref(true)
+
+const { data: meQuery } = useGetMeQuery()
 
 const { query } = useSearch()
 
@@ -463,7 +465,7 @@ const navigation = computed(() => {
         },
     ]
 
-    if (authenticated.value) {
+    if (authenticated.value && meQuery.value?.me.bccMember) {
         n.push(
             {
                 name: "page.live",

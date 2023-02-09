@@ -12,7 +12,7 @@ import { Player } from "bccm-video-player"
 import playerFactory from "@/services/player"
 import {
     EpisodeContext,
-    useGetAnalyticsIdQuery,
+    useGetMeQuery,
     useUpdateEpisodeProgressMutation,
 } from "@/graph/generated"
 import { useAuth0 } from "@auth0/auth0-vue"
@@ -41,7 +41,7 @@ const lanTo3letter: {
     da: "dan",
 }
 
-const { data, executeQuery } = useGetAnalyticsIdQuery()
+const { data, executeQuery } = useGetMeQuery()
 
 const props = defineProps<{
     context: EpisodeContext
