@@ -33,7 +33,7 @@ async function createOneEpisode(p, c) {
 
     let availableFrom = null
     for (const date of [p.publish_date, p.available_from]) {
-        if (date && new Date(date).getTime() > new Date(availableFrom ?? 0).getTime()) {
+        if (!availableFrom || (date && new Date(date).getTime() > new Date(availableFrom ?? 0).getTime())) {
             availableFrom = date
         }
     }
@@ -150,7 +150,7 @@ async function updateOneEpisode(p, episodeKey, c) {
 
     let availableFrom = null
     for (const date of [p.publish_date, p.available_from]) {
-        if (date && new Date(date).getTime() > new Date(availableFrom ?? 0).getTime()) {
+        if (!availableFrom || (date && new Date(date).getTime() > new Date(availableFrom ?? 0).getTime())) {
             availableFrom = date
         }
     }
@@ -183,7 +183,12 @@ async function updateOneEpisode(p, episodeKey, c) {
     }
 
     if (p.status) {
-        patch.Status = getStatusFromNew(p.status)
+        let visibilityCodes = await getEpisodeUsergroups(c, "episodes_usergroups", p.id);
+        if (shouldDraft(visibilityCodes)) {
+            patch.Status = 0
+        } else {
+            patch.Status = getStatusFromNew(p.status)
+        }
     }
 
     if (epBeforeUpdate.type === "episode") {

@@ -97,7 +97,7 @@ export enum Visibility {
 }
 
 export function shouldDraft(ug_codes: string[]) {
-    return !ug_codes.some(ug => ["bcc-members", "public"].includes(ug))
+    return !ug_codes.some(ug => ["bcc-members", "public", "kids-early-access"].includes(ug))
 }
 
 export function ugCodesToVisibility(ug_codes: string[]) {
