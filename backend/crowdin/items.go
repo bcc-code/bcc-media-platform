@@ -2,7 +2,6 @@ package crowdin
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -247,7 +246,7 @@ func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, proj
 		return err
 	}
 
-	alts, err := c.q.GetQuestionAlternatives(ctx, lo.Map(originalTs, func(i sqlc.ListQuestionAlternativesOriginalTranslationsRow, _ int) uuid.UUID {
+	alts, err := c.q.GetQuestionAlternativesByIDs(ctx, lo.Map(originalTs, func(i sqlc.ListQuestionAlternativesOriginalTranslationsRow, _ int) uuid.UUID {
 		return i.ID
 	}))
 	if err != nil {
@@ -257,9 +256,9 @@ func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, proj
 	if err != nil {
 		return err
 	}
-	taskTitles := lo.Reduce(alts, func(m map[string]string, i common.QuestionAlternative, _ int) map[string]string {
+	taskTitles := lo.Reduce(alts, func(m map[string]string, i sqlc.GetQuestionAlternativesByIDsRow, _ int) map[string]string {
 		t, f := lo.Find(taskOriginals, func(t sqlc.ListTaskOriginalTranslationsRow) bool {
-			return t.ID == i.TaskID
+			return t.ID == i.TaskID.UUID
 		})
 		if !f {
 			return m

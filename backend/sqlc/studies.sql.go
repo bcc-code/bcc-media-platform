@@ -50,6 +50,54 @@ func (q *Queries) GetAnsweredTasks(ctx context.Context, arg GetAnsweredTasksPara
 	return items, nil
 }
 
+const getQuestionAlternativesByIDs = `-- name: GetQuestionAlternativesByIDs :many
+WITH ts AS (SELECT questionalternatives_id, json_object_agg(languages_code, title) AS title
+            FROM questionalternatives_translations
+            GROUP BY questionalternatives_id)
+SELECT qa.id, qa.title as original_title, qa.task_id, qa.is_correct, ts.title
+FROM questionalternatives qa
+         LEFT JOIN ts ON ts.questionalternatives_id = qa.id
+WHERE qa.id = ANY ($1::uuid[])
+ORDER BY qa.sort
+`
+
+type GetQuestionAlternativesByIDsRow struct {
+	ID            uuid.UUID             `db:"id" json:"id"`
+	OriginalTitle null_v4.String        `db:"original_title" json:"originalTitle"`
+	TaskID        uuid.NullUUID         `db:"task_id" json:"taskID"`
+	IsCorrect     bool                  `db:"is_correct" json:"isCorrect"`
+	Title         pqtype.NullRawMessage `db:"title" json:"title"`
+}
+
+func (q *Queries) GetQuestionAlternativesByIDs(ctx context.Context, dollar_1 []uuid.UUID) ([]GetQuestionAlternativesByIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getQuestionAlternativesByIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetQuestionAlternativesByIDsRow
+	for rows.Next() {
+		var i GetQuestionAlternativesByIDsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.OriginalTitle,
+			&i.TaskID,
+			&i.IsCorrect,
+			&i.Title,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSelectedAlternativesAndLockStatus = `-- name: GetSelectedAlternativesAndLockStatus :many
 SELECT ta.task_id, ta.selected_alternatives::uuid[] as selected_alternatives, ta.locked as locked
 FROM "users"."taskanswers" ta
