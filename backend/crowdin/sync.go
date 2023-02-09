@@ -62,9 +62,10 @@ func (c *Client) syncCollection(
 			l.Debug().Str("identifier", str.Identifier).Msg("String not found, updating")
 			missingStrings = append(missingStrings, str)
 		} else {
-			if strings.TrimSpace(s.Text) != strings.TrimSpace(str.Text) {
+			if strings.TrimSpace(s.Text) != strings.TrimSpace(str.Text) || strings.TrimSpace(s.Context) != strings.TrimSpace(str.Context) {
 				l.Debug().Str("source", str.Text).Str("value", s.Text).Msg("Texts are not identical, updating")
 				s.Text = str.Text
+				s.Context = str.Context
 				editStrings = append(editStrings, s)
 			}
 		}

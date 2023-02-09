@@ -128,6 +128,11 @@ func (c *Client) setString(projectId int, s String) (r String, err error) {
 			Op:    "replace",
 			Path:  "/text",
 		},
+		{
+			Value: s.Context,
+			Op:    "replace",
+			Path:  "/context",
+		},
 	})
 	req.SetResult(Object[String]{})
 	res, err := req.Patch(fmt.Sprintf("projects/%d/strings/%d", projectId, s.ID))
