@@ -135,9 +135,7 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 			}
 		}
 
-		if !user.IsImpersonating(ginCtx) {
-			err = q.SaveProgress(ctx, *episodeProgress)
-		}
+		err = q.SaveProgress(ctx, *episodeProgress)
 	}
 	pl.Clear(ctx, episodeID)
 	pl.Prime(ctx, episodeID, episodeProgress)
