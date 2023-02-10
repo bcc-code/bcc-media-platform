@@ -472,12 +472,10 @@ func (r *Resolver) sendMessage(ctx context.Context, itemID uuid.UUID, message *s
 		insertParams.AgeGroup = usr.AgeGroup
 	}
 
-	if !user.IsImpersonating(gc) {
-		err = r.Queries.SetMessage(ctx, insertParams)
-		if err != nil {
-			log.L.Error().Err(err).Msg("Failed to save string to database")
-			return "", merry.New("Failed to generate unique ID")
-		}
+	err = r.Queries.SetMessage(ctx, insertParams)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to save string to database")
+		return "", merry.New("Failed to generate unique ID")
 	}
 	return id, nil
 }
@@ -496,16 +494,13 @@ func (r *Resolver) updateMessage(ctx context.Context, id string, message *string
 		md.RawMessage, err = json.Encode(ctx, metadata)
 		md.Valid = err != nil
 	}
-	ginCtx, _ := utils.GinCtx(ctx)
-	if !user.IsImpersonating(ginCtx) {
-		err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
-			ID:       id,
-			Message:  str,
-			Metadata: md,
-		})
-		if err != nil {
-			return "", err
-		}
+	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
+		ID:       id,
+		Message:  str,
+		Metadata: md,
+	})
+	if err != nil {
+		return "", err
 	}
 	return id, err
 }

@@ -271,12 +271,9 @@ func getProfilesFromDatabase(ctx context.Context, queries *sqlc.Queries, user *c
 		UserID: user.PersonID,
 	}
 
-	ginCtx, _ := utils.GinCtx(ctx)
-	if !IsImpersonating(ginCtx) {
-		err = queries.SaveProfile(ctx, profile)
-		if err != nil {
-			return nil, err
-		}
+	err = queries.SaveProfile(ctx, profile)
+	if err != nil {
+		return nil, err
 	}
 
 	profiles = append(profiles, profile)
