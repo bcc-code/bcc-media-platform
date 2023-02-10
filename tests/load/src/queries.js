@@ -175,3 +175,11 @@ fragment SectionItem on SectionItem {
     }
 }
 `
+
+export const setEpisodeProgressQuery = `
+mutation ($id: ID!, $progress: Int!, $duration: Int!) {
+    setEpisodeProgress(id: $id, progress: $progress, duration: $duration) {
+        id
+        progress
+    }
+}`

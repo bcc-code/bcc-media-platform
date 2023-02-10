@@ -11,7 +11,8 @@ import (
 	"time"
 )
 
-var loaderCaches = &sync.Map{}
+var loaderCacheLock = &sync.Mutex{}
+var loaderCaches = map[string]any{}
 
 // LoaderCache is a cache for batchloaders
 type LoaderCache[K comparable, V any] struct {
@@ -33,11 +34,13 @@ func NewMemoryLoaderCache[K comparable, V any](ctx context.Context, cacheKey str
 }
 
 func (c *LoaderCache[K, V]) getCache() *cache.Cache[string, dataloader.Thunk[V]] {
-	if r, ok := loaderCaches.Load(c.cacheKey); ok {
+	loaderCacheLock.Lock()
+	defer loaderCacheLock.Unlock()
+	if r, ok := loaderCaches[c.cacheKey]; ok {
 		return r.(*cache.Cache[string, dataloader.Thunk[V]])
 	}
 	r := cache.New[string, dataloader.Thunk[V]]()
-	loaderCaches.Store(c.cacheKey, r)
+	loaderCaches[c.cacheKey] = r
 	return r
 }
 
