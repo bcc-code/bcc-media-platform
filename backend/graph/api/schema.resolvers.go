@@ -61,6 +61,7 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 		UpdatedAt: time.Now(),
 		Languages: languages,
 	}
+
 	err = r.Queries.SaveDevice(ginCtx, d)
 	if err != nil {
 		return nil, err
@@ -219,7 +220,6 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		TaskID:               task.ID,
 		SelectedAlternatives: selectedUUIDs,
 	})
-
 	if err != nil {
 		return false, err
 	}
