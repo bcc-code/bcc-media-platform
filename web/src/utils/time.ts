@@ -56,7 +56,9 @@ export const isoDate = (date: Date) => {
 export const isoDateString = (date: Date) => {
     const d = isoDate(date)
 
-    return `${d.year.toString().padStart(4, "0")}-${d.month.toString().padStart(2, "0")}-${d.date.toString().padStart(2, "0")}`
+    return `${d.year.toString().padStart(4, "0")}-${d.month
+        .toString()
+        .padStart(2, "0")}-${d.date.toString().padStart(2, "0")}`
 }
 
 export const toDateStamp = (str: string) => {

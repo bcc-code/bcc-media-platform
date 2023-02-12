@@ -162,9 +162,7 @@ const inEvent = (day: Date) => {
     for (const e of events) {
         const start = isoDateString(new Date(e.start))
         const end = isoDateString(new Date(e.end))
-        if (
-            start < dayString && end > dayString
-        ) {
+        if (start < dayString && end > dayString) {
             return true
         }
     }

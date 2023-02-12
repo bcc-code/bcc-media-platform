@@ -1,4 +1,4 @@
-const plugin = require('tailwindcss/plugin')
+const plugin = require("tailwindcss/plugin")
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -47,11 +47,13 @@ module.exports = {
     plugins: [
         require("@tailwindcss/line-clamp"),
         plugin(function ({ addVariant, e }) {
-            addVariant('embed', ({ modifySelectors, separator }) => {
+            addVariant("embed", ({ modifySelectors, separator }) => {
                 modifySelectors(({ className }) => {
-                    return `.embedded-page .${e(`embed${separator}${className}`)}`
+                    return `.embedded-page .${e(
+                        `embed${separator}${className}`
+                    )}`
                 })
             })
-        })
+        }),
     ],
 }

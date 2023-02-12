@@ -15,8 +15,8 @@ import "swiper/css/pagination"
 import "swiper/css/scrollbar"
 import i18n from "./i18n"
 
-import Vue3Lottie from 'vue3-lottie'
-import 'vue3-lottie/dist/style.css'
+import Vue3Lottie from "vue3-lottie"
+import "vue3-lottie/dist/style.css"
 
 const app = createApp(App)
 
