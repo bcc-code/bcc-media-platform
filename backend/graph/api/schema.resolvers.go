@@ -139,7 +139,21 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 	}
 	pl.Clear(ctx, episodeID)
 	pl.Prime(ctx, episodeID, episodeProgress)
-	r.Loaders.EpisodeProgressLoader.Clear(ctx, p.ID)
+	ids, err := r.Loaders.EpisodeProgressLoader.Get(ctx, p.ID)
+	if err != nil {
+		return nil, err
+	}
+	found := false
+	for _, i := range ids {
+		if i != nil && *i == episodeID {
+			found = true
+			break
+		}
+	}
+	if !found {
+		ids = append(ids, &episodeID)
+		r.Loaders.EpisodeProgressLoader.Prime(ctx, p.ID, ids)
+	}
 	return e, err
 }
 

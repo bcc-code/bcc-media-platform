@@ -16,12 +16,23 @@ export const options = {
             executor: 'ramping-vus',
             gracefulStop: '30s',
             stages: [
-                { target: 30, duration: '20s' },
-                { target: 30, duration: '60s' },
-                { target: 0, duration: '5s'}
+                { target: 100, duration: '50s' },
+                { target: 100, duration: '60s' },
+                { target: 0, duration: '20s'}
             ],
             gracefulRampDown: '30s',
             exec: 'pageload',
+        },
+        'user-data': {
+            executor: 'ramping-vus',
+            gracefulStop: '30s',
+            stages: [
+                { target: 100, duration: '50s' },
+                { target: 100, duration: '60s' },
+                { target: 0, duration: '20s'}
+            ],
+            gracefulRampDown: '30s',
+            exec: 'userdata',
         },
     },
     url: __ENV.API_ENDPOINT,
@@ -38,7 +49,13 @@ const request = (user, query, variables) => {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': options.token ? `Bearer ${options.token}` : undefined,
-            'x-user-data': JSON.stringify(user),
+            'x-user-data': JSON.stringify({
+                PersonID: user.PersonID,
+                DisplayName: user.DisplayName,
+                Email: user.Email,
+                Roles: user.Roles,
+                Anonymous: user.Anonymous,
+            }),
         }})
 }
 
@@ -57,6 +74,15 @@ const getUser = () => {
     return user
 }
 
+const isSuccess = (v) => {
+    if (v.errors) {
+        console.log(v.errors)
+        sleep(5)
+        return false
+    }
+    return true
+}
+
 export function pageload() {
     const user = getUser()
     let response
@@ -64,51 +90,34 @@ export function pageload() {
     // Page Load
     response = user.request(pageQuery, {code: "frontpage", first: 30, sectionFirst: 20})
 
+    isSuccess(response.json())
+
     check(response, {
         'error is null': r => !r.json()["errors"],
     })
+    
+    isSuccess(response.json())
+}
 
-    if (response.json()["errors"]) {
-        console.log(response.json().errors)
-        sleep(5)
-    }
+export function userdata() {
+    const user = getUser()
 
-    const episodes = response.json()["data"]["page"]["sections"]["items"].reduce((a, b) => {
-        if (b.items && b.items.items) {
-            a.push(...b["items"]["items"])
-        }
-        return a
-    }, []).filter(i => i["item"]["__typename"] === 'Episode')
-
-    let i = 0
-
-    for (const e of episodes) {
-        if (i >= 10) {
-            break
-        }
-        i++
-        sleep(0.1)
-        const progress = Math.floor(Math.random() * 100)
-        const r = user.request(setEpisodeProgressQuery, {
-            "id": e["id"],
-            "progress": progress,
-            "duration": e["item"]["duration"]
-        })
-        check(r, {
-            'returned episode id is equal': r => r.json()["data"]["setEpisodeProgress"]["id"] === e.id
-        })
-    }
-
-    response = user.request(`query {
+    let response = user.request(`query {
         me {
             email
         }
     }`, {})
 
     check(response, {
-        'email is email': r => r.json()["data"]["me"]["email"] === user.Email
+        'email is email': r => {
+            try {
+                return r.json()["data"]["me"]["email"] === user.Email
+            } catch (e) {
+                console.log(r.body.toString())
+                return false
+            }
+        }
     })
 
-    // Automatically added sleep
-    sleep(1)
+    isSuccess(response.json())
 }

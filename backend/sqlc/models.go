@@ -762,7 +762,6 @@ type FilterDataset struct {
 	ID            int32       `db:"id" json:"id"`
 	SeasonID      null_v4.Int `db:"season_id" json:"seasonID"`
 	ShowID        null_v4.Int `db:"show_id" json:"showID"`
-	Number        null_v4.Int `db:"number" json:"number"`
 	AgeratingCode string      `db:"agerating_code" json:"ageratingCode"`
 	Type          string      `db:"type" json:"type"`
 	PublishDate   time.Time   `db:"publish_date" json:"publishDate"`

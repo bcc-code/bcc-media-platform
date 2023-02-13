@@ -11,13 +11,19 @@
                 <div
                     class="bg-slate-800 relative rounded-2xl border-2 border-slate-700 cursor-pointer overflow-hidden"
                 >
-                    <div v-if="clicked === index" class="absolute w-full h-full flex">
-                        <Loader variant="spinner" class="m-auto h-16 w-16"></Loader>
+                    <div
+                        v-if="clicked === index"
+                        class="absolute w-full h-full flex"
+                    >
+                        <Loader
+                            variant="spinner"
+                            class="m-auto h-16 w-16"
+                        ></Loader>
                     </div>
                     <Image
                         class="rounded-lg m-2"
                         :class="{
-                            'opacity-50': clicked === index
+                            'opacity-50': clicked === index,
                         }"
                         :src="i.image"
                         size-source="width"

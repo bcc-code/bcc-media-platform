@@ -78,7 +78,7 @@ const getSectionsQuery = useGetSectionsForPageQuery({
         first: pageFirst,
         sectionFirst: 10,
         sectionOffset: 0,
-    }
+    },
 })
 
 const page = ref(null as GetPageQuery["page"] | null)
@@ -157,13 +157,9 @@ const loadMore = async () => {
             return
         }
 
-        if (
-            p.sections.total >
-                p.sections.offset + p.sections.first
-        ) {
+        if (p.sections.total > p.sections.offset + p.sections.first) {
             if (!fetching.value) {
-                pageOffset.value =
-                    p.sections.offset + p.sections.first
+                pageOffset.value = p.sections.offset + p.sections.first
                 await nextTick()
                 const r = await getSectionsQuery.executeQuery()
                 console.log(r)

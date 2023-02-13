@@ -1,4 +1,10 @@
-import { GetSectionQuery, SectionItemFragment, GetStudyTopicLessonStatusesQuery, GetStudyTopicLessonStatusesDocument, GetStudyTopicLessonStatusesQueryVariables } from "@/graph/generated"
+import {
+    GetSectionQuery,
+    SectionItemFragment,
+    GetStudyTopicLessonStatusesQuery,
+    GetStudyTopicLessonStatusesDocument,
+    GetStudyTopicLessonStatusesQueryVariables,
+} from "@/graph/generated"
 import router from "@/router"
 import { analytics, Page } from "@/services/analytics"
 import { createRequest } from "@urql/vue"
@@ -40,14 +46,25 @@ export const goToPage = (code: string) => {
 
 export const goToStudyTopic = async (id: string) => {
     // TODO: nothing is as permanent as a temporary solution lol
-    const result = await client.query<GetStudyTopicLessonStatusesQuery, GetStudyTopicLessonStatusesQueryVariables>(GetStudyTopicLessonStatusesDocument, { first: 100, id: id }).toPromise();
-    const uncompletedLessonWithEpisode = result.data?.studyTopic.lessons.items.find((el) => console.log(el.episodes.items) as any || !el.completed && el.episodes.items[0]?.locked == false);
-    var episodeId = uncompletedLessonWithEpisode?.episodes.items[0]?.id;
+    const result = await client
+        .query<
+            GetStudyTopicLessonStatusesQuery,
+            GetStudyTopicLessonStatusesQueryVariables
+        >(GetStudyTopicLessonStatusesDocument, { first: 100, id: id })
+        .toPromise()
+    const uncompletedLessonWithEpisode =
+        result.data?.studyTopic.lessons.items.find(
+            (el) =>
+                (console.log(el.episodes.items) as any) ||
+                (!el.completed && el.episodes.items[0]?.locked == false)
+        )
+    var episodeId = uncompletedLessonWithEpisode?.episodes.items[0]?.id
     console.log(uncompletedLessonWithEpisode)
     console.log(episodeId)
-    episodeId ??= result.data?.studyTopic.lessons.items[0]?.episodes.items[0]?.id;
+    episodeId ??=
+        result.data?.studyTopic.lessons.items[0]?.episodes.items[0]?.id
     if (episodeId == null) {
-        throw Error(`Failed finding an episode to navigate to for topic ${id}`);
+        throw Error(`Failed finding an episode to navigate to for topic ${id}`)
     }
 
     router.push({
@@ -113,6 +130,11 @@ export const comingSoon = (item: SectionItemFragment) => {
     return false
 }
 
-export const episodeComingSoon = (episode: { publishDate?: string | null | undefined }) => {
-    return episode.publishDate != null && new Date(episode.publishDate).getTime() > new Date().getTime()
+export const episodeComingSoon = (episode: {
+    publishDate?: string | null | undefined
+}) => {
+    return (
+        episode.publishDate != null &&
+        new Date(episode.publishDate).getTime() > new Date().getTime()
+    )
 }
