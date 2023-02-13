@@ -32,10 +32,11 @@ func RefreshView(ctx context.Context, s services, event cloudevents.Event) error
 	}
 
 	log.L.Debug().Str("ViewName", msg.ViewName).Msg("RefreshView")
-	switch msg.ViewName {
-	default:
-		err = merry.Wrap(ErrUnknownView)
-	}
+	err = s.GetQueries().RefreshView(ctx, msg.ViewName)
+	//switch msg.ViewName {
+	//default:
+	//	err = merry.Wrap(ErrUnknownView)
+	//}
 
 	return merry.Wrap(err)
 }
