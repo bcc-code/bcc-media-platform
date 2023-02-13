@@ -14,6 +14,7 @@ services:
     environment:
     - POSTGRES_USER=btv
     - POSTGRES_PASSWORD=btv123
+    - POSTGRES_HOST_AUTH_METHOD=trust
   redis:
     image: redis
     ports:
