@@ -123,19 +123,13 @@ func (c *Client) syncCollection(
 	}
 
 	for _, language := range project.TargetLanguages {
-		l.Debug().Msg("Syncing translations.")
-
 		lan := dbLanguage(language.ID)
 
 		existingTranslations, err := translationFactory(ctx, lan)
 
-		l.Debug().Int("count", len(existingTranslations)).Msg("Found existing translations")
-
 		ts := lo.Filter(crowdinTranslations, func(i Translation, _ int) bool {
 			return i.Collection == collection && i.Language == lan
 		})
-
-		l.Debug().Int("count", len(ts)).Msg("Retrieved translations")
 
 		var items []*simpleTranslation
 		for _, t := range ts {
