@@ -93,7 +93,7 @@ func (c *Client) buildProject(ctx context.Context, projectID int) ([]Translation
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	return handleBody(resp.Body, fmt.Sprintf("crowdin-build-%d", res.ID))
 }
@@ -103,9 +103,11 @@ func handleBody(body io.ReadCloser, fileName string) ([]Translation, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer out.Close()
+	defer func() {
+		_ = out.Close()
+	}()
 
-	io.Copy(out, body)
+	_, _ = io.Copy(out, body)
 
 	return GetTranslationsFromZip(out.Name())
 }
