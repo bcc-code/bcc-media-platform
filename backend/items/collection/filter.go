@@ -65,7 +65,7 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f comm
 
 	query := jsonlogic.GetSQLQueryFromFilter(filterObject)
 
-	from := fmt.Sprintf("filter_dataset('{%s}') t", strings.Join(roles, ","))
+	from := "filter_dataset t"
 	q := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("t.collection", "t.id").From(from).Where(query.Filter)
 
 	if !noLimit {

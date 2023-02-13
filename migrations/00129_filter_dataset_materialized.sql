@@ -106,39 +106,21 @@ CREATE OR REPLACE FUNCTION public.update_view(view character varying)
  LANGUAGE plpgsql
  SECURITY DEFINER
 AS $$
-DECLARE
-    lr timestamptz;
 BEGIN
-    SELECT last_refreshed INTO lr FROM materialized_views_meta WHERE view_name = view;
-    IF (
-            lr IS NULL OR
-            (SELECT MAX(date_updated) FROM shows) > lr OR
-            (SELECT MAX(date_updated) FROM seasons) > lr OR
-            (SELECT MAX(date_updated) FROM episodes) > lr OR
-            (SELECT MAX(date_updated) FROM pages) > lr OR
-            (SELECT MAX(date_updated) FROM links) > lr OR
-            (SELECT MAX(date_updated) FROM episodes_usergroups) > lr OR
-            (SELECT MAX(date_updated) FROM episodes_usergroups_download) > lr OR
-            (SELECT MAX(date_updated) FROM episodes_usergroups_earlyaccess) > (lr)) THEN
-        RAISE NOTICE 'Refreshing view';
-        CASE
-            WHEN view = 'filter_dataset' THEN
-                REFRESH MATERIALIZED VIEW CONCURRENTLY filter_dataset;
-            ELSE
-                RAISE EXCEPTION 'Invalid view';
-        END CASE;
-        INSERT INTO materialized_views_meta (last_refreshed, view_name)
-        VALUES (NOW(), view)
-        ON CONFLICT(view_name) DO UPDATE set last_refreshed = now();
-        RETURN true;
-    END IF;
-    RETURN false;
+    CASE
+        WHEN view = 'filter_dataset' THEN
+            REFRESH MATERIALIZED VIEW filter_dataset;
+        ELSE
+            RAISE EXCEPTION 'Invalid view';
+    END CASE;
+    INSERT INTO materialized_views_meta (last_refreshed, view_name)
+    VALUES (NOW(), view)
+    ON CONFLICT(view_name) DO UPDATE set last_refreshed = now();
+    RETURN true;
 END
 $$
 ;
 -- +goose StatementEnd
-ALTER FUNCTION "public"."update_view"(character varying) OWNER TO manager;
-GRANT EXECUTE ON FUNCTION "public"."update_view"(character varying) TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT EXECUTE ON FUNCTION "public"."update_view"(character varying) TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT EXECUTE ON FUNCTION "public"."update_view"(character varying) TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
@@ -240,14 +222,6 @@ UNION
      LEFT JOIN show_roles shr ON ((shr.id = sh.id)))
      LEFT JOIN show_availability av ON ((av.id = sh.id)))
      LEFT JOIN sh_tags ON ((sh_tags.id = sh.id)));
-ALTER VIEW IF EXISTS "public"."filter_dataset" OWNER TO btv;
-GRANT SELECT ON TABLE "public"."filter_dataset" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT INSERT ON TABLE "public"."filter_dataset" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON TABLE "public"."filter_dataset" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT DELETE ON TABLE "public"."filter_dataset" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."filter_dataset" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."filter_dataset" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."filter_dataset" TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT SELECT ON TABLE "public"."filter_dataset" TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON VIEW "public"."filter_dataset"  IS NULL;
@@ -293,9 +267,6 @@ END
 $$
 ;
 -- +goose StatementEnd
-
-ALTER FUNCTION "public"."update_access"(character varying) OWNER TO manager;
-GRANT EXECUTE ON FUNCTION "public"."update_access"(character varying) TO btv; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT EXECUTE ON FUNCTION "public"."update_access"(character varying) TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT EXECUTE ON FUNCTION "public"."update_access"(character varying) TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
