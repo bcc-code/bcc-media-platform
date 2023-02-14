@@ -50,6 +50,7 @@ func (localeString LocaleString) Any() bool {
 	return false
 }
 
+// Has returns a bool if the LocaleString contains a value for the specified key
 func (localeString LocaleString) Has(key string) bool {
 	_, ok := localeString[key]
 	return ok

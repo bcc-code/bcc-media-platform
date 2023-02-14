@@ -12,7 +12,7 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// ExternalServices used by the server
+// ExternalServices used by the Server
 type ExternalServices struct {
 	S3Client             *s3.Client
 	MediaPackageVOD      *mediapackagevod.Client

@@ -45,22 +45,22 @@ var (
 	}
 )
 
-// NewServer returns a new server for handling the HTTP requests
+// NewServer returns a new Server for handling the HTTP requests
 // Yes, go, I know it's "annoying to work with" but in this case you will have to deal with it
-func NewServer(s ExternalServices, c ConfigData) *server {
-	return &server{
+func NewServer(s ExternalServices, c ConfigData) *Server {
+	return &Server{
 		services: s,
 		config:   c,
 	}
 }
 
 // Server is the base for all HTTP handler
-type server struct {
+type Server struct {
 	services ExternalServices
 	config   ConfigData
 }
 
-func (s server) runIfNotLocked(ctx context.Context, lockID int, task func() error) error {
+func (s Server) runIfNotLocked(ctx context.Context, lockID int, task func() error) error {
 	var locker database.Lock
 	var err error
 	locker, err = database.NewLock(ctx, lockID, s.services.Database)
@@ -83,8 +83,8 @@ func (s server) runIfNotLocked(ctx context.Context, lockID int, task func() erro
 	return task()
 }
 
-// IngestVod processes the message for ingesting a VOD asset
-func (s server) ProcessMessage(c *gin.Context) {
+// ProcessMessage processes the message for ingesting a VOD asset
+func (s Server) ProcessMessage(c *gin.Context) {
 	ctx := c.Request.Context()
 	ctx, span := otel.Tracer("jobs/core").Start(ctx, "ProcessMessage")
 	defer span.End()
@@ -156,24 +156,26 @@ func (s server) ProcessMessage(c *gin.Context) {
 	}
 }
 
-func (s server) IngestEventMeta(c *gin.Context) {
+// IngestEventMeta ingests the event meta
+func (s Server) IngestEventMeta(c *gin.Context) {
 	jsonData, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		c.Error(err)
+		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 	}
 
 	event, err := externalevents.ParseEvent(jsonData)
 	if err != nil {
-		c.Error(err)
+		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 	}
 
-	// TODO: Do something wiht the data :D.
+	// TODO: Do something with the data :D.
 	log.L.Debug().Str("eventType", event.Type.S()).Msg("Got new event Meta")
 }
 
-func (s server) ProcessAwsMessage(c *gin.Context) {
+// ProcessAwsMessage process an event for AWS
+func (s Server) ProcessAwsMessage(c *gin.Context) {
 	ctx := c.Request.Context()
 	ctx, span := otel.Tracer("jobs/core").Start(ctx, "ProcessAWSMessage")
 	defer span.End()
@@ -187,10 +189,10 @@ func (s server) ProcessAwsMessage(c *gin.Context) {
 	}
 
 	var notificationPayload sns.Payload
-	err = json.Unmarshal([]byte(jsonData), &notificationPayload)
+	err = json.Unmarshal(jsonData, &notificationPayload)
 	if err != nil {
 		log.L.Error().Err(err).Send()
-		c.Error(err)
+		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -198,7 +200,7 @@ func (s server) ProcessAwsMessage(c *gin.Context) {
 	err = notificationPayload.VerifyPayload()
 	if err != nil {
 		log.L.Error().Err(err).Send()
-		c.Error(err)
+		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -210,7 +212,7 @@ func (s server) ProcessAwsMessage(c *gin.Context) {
 		_, err := notificationPayload.Subscribe()
 		if err != nil {
 			log.L.Error().Err(err).Send()
-			c.Error(err)
+			_ = c.Error(err)
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
@@ -221,14 +223,14 @@ func (s server) ProcessAwsMessage(c *gin.Context) {
 		n, err := pubsub.ParseMediaPackageNotification(notificationPayload.Message)
 		if err != nil {
 			log.L.Error().Err(err).Send()
-			c.Error(err)
+			_ = c.Error(err)
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
 		err = asset.UpdateIngestStatus(ctx, s.services, s.config, *n)
 		if err != nil {
 			log.L.Error().Err(err).Send()
-			c.Error(err)
+			_ = c.Error(err)
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
@@ -239,6 +241,6 @@ func (s server) ProcessAwsMessage(c *gin.Context) {
 }
 
 // ProcessScheduledTask processes the scheduled task.
-func (s server) ProcessScheduledTask(ctx *gin.Context) {
+func (s Server) ProcessScheduledTask(ctx *gin.Context) {
 	s.services.Scheduler.HandleRequest(ctx)
 }
