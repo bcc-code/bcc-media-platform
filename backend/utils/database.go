@@ -9,6 +9,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
+// DatabaseConfig contains configuration options for the database connection (Postgres)
 type DatabaseConfig struct {
 	ConnectionString   string
 	MaxConnections     *int

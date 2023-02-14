@@ -10,8 +10,8 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// Sentinel errors
 var (
+	// ErrNotFound an error for not finding objects
 	ErrNotFound = merry.Sentinel("No object was found")
 )
 
