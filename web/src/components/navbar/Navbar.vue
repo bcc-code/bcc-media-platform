@@ -2,9 +2,9 @@
     <Disclosure as="nav" v-slot="{ open }">
         <div
             class="mx-auto transition duration-200"
-            :class="[loading ? 'opacity-0' : 'opacity-100']"
+            :class="[loading || fetching ? 'opacity-0' : 'opacity-100']"
         >
-            <div class="lg:flex py-4">
+            <div class="lg:flex py-4" v-if="!fetching">
                 <div
                     class="flex lg:grid justify-between w-full"
                     style="grid-template-columns: 1fr auto 1fr"
@@ -437,7 +437,7 @@ import ContactForm from "@/components/support/ContactForm.vue"
 
 const loading = ref(true)
 
-const { data: meQuery } = useGetMeQuery()
+const { data: meQuery, fetching } = useGetMeQuery()
 
 const { query } = useSearch()
 

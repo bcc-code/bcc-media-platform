@@ -3,22 +3,19 @@
         <div class="flex lg:hidden w-full text-xl mb-4">
             <SearchInput class="mx-auto lg:w-96" v-model="query"></SearchInput>
         </div>
-        <div v-if="query" class="relative">
+        <div v-if="query && loaded" class="relative">
             <ShowSearchQuery
+                v-if="showSearchQuery.data.value"
                 class="mt-2 mb-8"
-                :class="{ hidden: !showCount && !episodeCount }"
-                :query="queryVariable"
-                :pause="pause"
-                @item-click=""
-                @count="(c) => (showCount = c)"
+                :queryString="queryVariable"
+                :result="showSearchQuery.data.value"
             ></ShowSearchQuery>
             <EpisodeSearchQuery
+                v-if="episodeSearchQuery.data.value"
                 class="mb-2"
-                :class="{ hidden: !showCount && !episodeCount }"
-                :query="queryVariable"
-                :pause="pause"
-                @item-click="(i, e) => clickEpisode(i, e.id)"
-                @count="(c) => (episodeCount = c)"
+                :queryString="queryVariable"
+                :result="episodeSearchQuery.data.value"
+                @item-click="clickEpisode"
             ></EpisodeSearchQuery>
             <NotFound
                 :link="false"
@@ -37,7 +34,7 @@
     </section>
 </template>
 <script lang="ts" setup>
-import { onMounted, ref, watch } from "vue"
+import { nextTick, onMounted, ref, watch } from "vue"
 import ShowSearchQuery from "@/components/search/ShowSearchQuery.vue"
 import EpisodeSearchQuery from "@/components/search/EpisodeSearchQuery.vue"
 import { useRoute, useRouter } from "vue-router"
@@ -49,6 +46,7 @@ import { analytics } from "@/services/analytics"
 import { goToEpisode } from "@/utils/items"
 import NotFound from "@/components/NotFound.vue"
 import { usePage } from "@/utils/page"
+import { useSearchQuery } from "@/graph/generated"
 
 const { t } = useI18n()
 const { query } = useSearch()
@@ -65,6 +63,8 @@ const clickEpisode = (index: number, id: string) => {
         elementType: "Episode",
         searchText: queryVariable.value,
     })
+
+    console.log(index, id)
 
     goToEpisode(id)
 }
@@ -97,8 +97,13 @@ const queryVariable = ref(queryString.value)
 const route = useRoute()
 const router = useRouter()
 
-onMounted(() => {
+const loaded = ref(false)
+
+onMounted(async () => {
     const q = route.query.q
+    query.value = ""
+    queryVariable.value = ""
+    await nextTick()
     if (q && typeof q === "string" && !query.value) {
         query.value = q
         queryVariable.value = q
@@ -111,6 +116,10 @@ onMounted(() => {
 
     const { setCurrent } = usePage()
     setCurrent("search")
+
+    console.log(queryVariable)
+    pause.value = false
+    loaded.value = true
 })
 
 watch(
@@ -121,4 +130,18 @@ watch(
 )
 
 const pause = ref(false)
+
+const showSearchQuery = useSearchQuery({
+    variables: {
+        query: queryVariable,
+        type: "show",
+    }
+})
+
+const episodeSearchQuery = useSearchQuery({
+    variables: {
+        query: queryVariable,
+        type: "episode",
+    }
+})
 </script>
