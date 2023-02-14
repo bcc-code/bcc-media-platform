@@ -760,6 +760,7 @@ type FaqsUsergroup struct {
 type FilterDataset struct {
 	Collection    string      `db:"collection" json:"collection"`
 	ID            int32       `db:"id" json:"id"`
+	Uuid          uuid.UUID   `db:"uuid" json:"uuid"`
 	SeasonID      null_v4.Int `db:"season_id" json:"seasonID"`
 	ShowID        null_v4.Int `db:"show_id" json:"showID"`
 	AgeratingCode string      `db:"agerating_code" json:"ageratingCode"`
@@ -1037,6 +1038,7 @@ type Season struct {
 	Label                null_v4.String `db:"label" json:"label"`
 	PublicTitle          null_v4.String `db:"public_title" json:"publicTitle"`
 	EpisodeNumberInTitle sql.NullBool   `db:"episode_number_in_title" json:"episodeNumberInTitle"`
+	Uuid                 uuid.UUID      `db:"uuid" json:"uuid"`
 }
 
 type SeasonAvailability struct {
@@ -1135,6 +1137,7 @@ type Show struct {
 	PublishDateInTitle      sql.NullBool   `db:"publish_date_in_title" json:"publishDateInTitle"`
 	Label                   null_v4.String `db:"label" json:"label"`
 	PublicTitle             null_v4.String `db:"public_title" json:"publicTitle"`
+	Uuid                    uuid.UUID      `db:"uuid" json:"uuid"`
 }
 
 type ShowAvailability struct {
