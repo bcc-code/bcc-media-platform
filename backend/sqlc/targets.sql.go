@@ -16,11 +16,11 @@ import (
 const getMemberIDs = `-- name: GetMemberIDs :many
 SELECT u.id
 FROM users.users u
-WHERE u.active_bcc = $1
+WHERE $1::bool = true OR u.active_bcc
 `
 
-func (q *Queries) GetMemberIDs(ctx context.Context, activeBcc bool) ([]string, error) {
-	rows, err := q.db.QueryContext(ctx, getMemberIDs, activeBcc)
+func (q *Queries) GetMemberIDs(ctx context.Context, everyone bool) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getMemberIDs, everyone)
 	if err != nil {
 		return nil, err
 	}

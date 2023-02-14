@@ -13,4 +13,4 @@ WHERE id = ANY ($1::uuid[]);
 -- name: GetMemberIDs :many
 SELECT u.id
 FROM users.users u
-WHERE u.active_bcc = $1;
+WHERE @everyone::bool = true OR u.active_bcc;
