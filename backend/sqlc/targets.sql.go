@@ -13,8 +13,39 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getMemberIDs = `-- name: GetMemberIDs :many
+SELECT u.id
+FROM users.users u
+WHERE $1::bool = true OR u.active_bcc
+`
+
+func (q *Queries) GetMemberIDs(ctx context.Context, everyone bool) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getMemberIDs, everyone)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTargets = `-- name: GetTargets :many
-WITH groups AS (SELECT targets_id, array_agg(usergroups_code)::varchar[] as codes FROM targets_usergroups GROUP BY targets_id)
+WITH groups AS (SELECT targets_id, array_agg(usergroups_code)::varchar[] as codes
+                FROM targets_usergroups
+                GROUP BY targets_id)
 SELECT t.id,
        t.label,
        t.type,
