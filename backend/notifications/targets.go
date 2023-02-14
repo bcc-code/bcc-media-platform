@@ -41,8 +41,8 @@ func (u *Utils) getTokensForGroups(ctx context.Context, codes []string) ([]commo
 	}
 	var personIDs []int
 	for _, g := range groups {
-		if g.Code == user.RoleBCCMember {
-			ids, err := u.queries.GetMemberIDs(ctx, true)
+		if g.Code == user.RoleBCCMember || g.Code == user.RoleRegistered {
+			ids, err := u.queries.GetMemberIDs(ctx, g.Code == user.RoleRegistered)
 			if err != nil {
 				return nil, err
 			}
@@ -64,6 +64,7 @@ func (u *Utils) getTokensForGroups(ctx context.Context, codes []string) ([]commo
 			}
 		}
 	}
+	personIDs = lo.Uniq(personIDs)
 	profiles, err := u.queries.GetProfilesForUserIDs(ctx, lo.Map(personIDs, func(i int, _ int) string {
 		return strconv.Itoa(i)
 	}))
