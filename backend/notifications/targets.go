@@ -3,6 +3,8 @@ package notifications
 import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/user"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"strconv"
@@ -19,6 +21,9 @@ func (u *Utils) ResolveTargets(ctx context.Context, targetIDs []uuid.UUID) ([]co
 	for _, t := range targets {
 		switch t.Type {
 		case "usergroups":
+			if lo.Contains(t.Codes, user.RoleBCCMember) {
+				devices = append(devices)
+			}
 			ds, err := u.getTokensForGroups(ctx, t.Codes)
 			if err != nil {
 				return nil, err
@@ -36,6 +41,19 @@ func (u *Utils) getTokensForGroups(ctx context.Context, codes []string) ([]commo
 	}
 	var personIDs []int
 	for _, g := range groups {
+		if g.Code == user.RoleBCCMember {
+			ids, err := u.queries.GetMemberIDs(ctx, true)
+			if err != nil {
+				return nil, err
+			}
+			personIDs = append(personIDs, lo.Map(ids, func(i string, _ int) int {
+				return utils.AsInt(i)
+			})...)
+		}
+		// In case someone has been explicitly been granted the bcc-members role
+		if len(g.Emails) == 0 {
+			continue
+		}
 		users, err := u.members.RetrieveByEmails(ctx, g.Emails)
 		if err != nil {
 			return nil, err
