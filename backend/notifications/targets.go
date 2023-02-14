@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/user"
-	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"strconv"
@@ -39,16 +38,14 @@ func (u *Utils) getTokensForGroups(ctx context.Context, codes []string) ([]commo
 	if err != nil {
 		return nil, err
 	}
-	var personIDs []int
+	var personIDs []string
 	for _, g := range groups {
 		if g.Code == user.RoleBCCMember || g.Code == user.RoleRegistered {
 			ids, err := u.queries.GetMemberIDs(ctx, g.Code == user.RoleRegistered)
 			if err != nil {
 				return nil, err
 			}
-			personIDs = append(personIDs, lo.Map(ids, func(i string, _ int) int {
-				return utils.AsInt(i)
-			})...)
+			personIDs = append(personIDs, ids...)
 		}
 		// In case someone has been explicitly been granted the bcc-members role
 		if len(g.Emails) == 0 {
@@ -60,14 +57,12 @@ func (u *Utils) getTokensForGroups(ctx context.Context, codes []string) ([]commo
 		}
 		if users != nil {
 			for _, u := range *users {
-				personIDs = append(personIDs, u.PersonID)
+				personIDs = append(personIDs, strconv.Itoa(u.PersonID))
 			}
 		}
 	}
 	personIDs = lo.Uniq(personIDs)
-	profiles, err := u.queries.GetProfilesForUserIDs(ctx, lo.Map(personIDs, func(i int, _ int) string {
-		return strconv.Itoa(i)
-	}))
+	profiles, err := u.queries.GetProfilesForUserIDs(ctx, personIDs)
 	if err != nil {
 		return nil, err
 	}
