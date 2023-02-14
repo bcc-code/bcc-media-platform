@@ -40,8 +40,8 @@ func (u *Utils) getTokensForGroups(ctx context.Context, codes []string) ([]commo
 	}
 	var personIDs []string
 	for _, g := range groups {
-		if g.Code == user.RoleBCCMember || g.Code == user.RoleRegistered {
-			ids, err := u.queries.GetMemberIDs(ctx, g.Code == user.RoleRegistered)
+		if everyone := g.Code == user.RoleRegistered; everyone || g.Code == user.RoleBCCMember {
+			ids, err := u.queries.GetMemberIDs(ctx, everyone)
 			if err != nil {
 				return nil, err
 			}
