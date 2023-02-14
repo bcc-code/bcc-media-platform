@@ -6,13 +6,12 @@
 
 --- BEGIN ALTER FUNCTION "public"."update_view"(character varying) ---
 
-DROP FUNCTION IF EXISTS "public"."update_view"(character varying);
-
+-- +goose StatementBegin
 CREATE OR REPLACE FUNCTION public.update_view(view character varying)
  RETURNS boolean
  LANGUAGE plpgsql
  SECURITY DEFINER
-AS $function$
+AS $$
 BEGIN
     CASE
         WHEN view = 'filter_dataset' THEN
@@ -25,8 +24,10 @@ BEGIN
     ON CONFLICT(view_name) DO UPDATE set last_refreshed = now();
     RETURN true;
 END
-$function$
+$$
 ;
+
+-- +goose StatementEnd
 GRANT EXECUTE ON FUNCTION "public"."update_view"(character varying) TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT EXECUTE ON FUNCTION "public"."update_view"(character varying) TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
@@ -41,13 +42,13 @@ COMMENT ON FUNCTION "public"."update_view"(character varying)  IS NULL;
 
 --- BEGIN ALTER FUNCTION "public"."update_view"(character varying) ---
 
-DROP FUNCTION IF EXISTS "public"."update_view"(character varying);
 
+-- +goose StatementBegin
 CREATE OR REPLACE FUNCTION public.update_view(view character varying)
  RETURNS boolean
  LANGUAGE plpgsql
  SECURITY DEFINER
-AS $function$
+AS $$
 BEGIN
     CASE
         WHEN view = 'filter_dataset' THEN
@@ -60,8 +61,9 @@ BEGIN
     ON CONFLICT(view_name) DO UPDATE set last_refreshed = now();
     RETURN true;
 END
-$function$
+$$
 ;
+-- +goose StatementEnd
 GRANT EXECUTE ON FUNCTION "public"."update_view"(character varying) TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT EXECUTE ON FUNCTION "public"."update_view"(character varying) TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
