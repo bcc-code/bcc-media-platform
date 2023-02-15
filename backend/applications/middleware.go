@@ -51,7 +51,7 @@ func RoleMiddleware() gin.HandlerFunc {
 
 		app, err := GetFromCtx(ctx)
 		if err != nil {
-			log.L.Error().Err(err).Msg("Apps not configured or no default app is set")
+			log.L.Warn().Err(err).Msg("Apps not configured or no default app is set")
 			// Means that this is not implemented or configured. Just ignore
 			ctx.Set(user.CtxRoles, userRoles)
 			return
