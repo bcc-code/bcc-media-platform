@@ -182,7 +182,7 @@ async function updateOneEpisode(p, episodeKey, c) {
         patch.Image = null
     }
 
-    if (p.status) {
+    if (p.status || p.status === 0) {
         let visibilityCodes = await getEpisodeUsergroups(c, "episodes_usergroups", episodeKey);
         if (shouldDraft(visibilityCodes)) {
             patch.Status = 0
