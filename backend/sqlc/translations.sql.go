@@ -479,6 +479,53 @@ func (q *Queries) ListLessonTranslations(ctx context.Context, dollar_1 []string)
 	return items, nil
 }
 
+const listLinkTranslations = `-- name: ListLinkTranslations :many
+WITH links AS (SELECT s.id
+               FROM links s
+               WHERE s.status = 'published')
+SELECT st.id, links_id as parent_id, languages_code, title, description
+FROM links_translations st
+         JOIN links e ON e.id = st.links_id
+WHERE st.languages_code = ANY ($1::varchar[])
+`
+
+type ListLinkTranslationsRow struct {
+	ID            int32          `db:"id" json:"id"`
+	ParentID      null_v4.Int    `db:"parent_id" json:"parentID"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         string         `db:"title" json:"title"`
+	Description   string         `db:"description" json:"description"`
+}
+
+func (q *Queries) ListLinkTranslations(ctx context.Context, dollar_1 []string) ([]ListLinkTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listLinkTranslations, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListLinkTranslationsRow
+	for rows.Next() {
+		var i ListLinkTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.LanguagesCode,
+			&i.Title,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listPageTranslations = `-- name: ListPageTranslations :many
 WITH pages AS (SELECT s.id
                FROM pages s

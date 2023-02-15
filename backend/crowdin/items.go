@@ -109,6 +109,10 @@ func (c *Client) syncPages(ctx context.Context, d *directus.Handler, project Pro
 	return c.syncCollection(ctx, d, project, directoryId, "pages", c.pagesTranslationFactory, crowdinTranslations, nil, pagesToDSItems, nil)
 }
 
+func (c *Client) syncLinks(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "links", c.linksTranslationFactory, crowdinTranslations, nil, linksToDSItems, nil)
+}
+
 func (c *Client) pagesTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
 	return dbToSimple(ctx, language, c.q.ListPageTranslations)
 }
@@ -125,6 +129,26 @@ func pagesToDSItems(translations []simpleTranslation) []directus.DSItem {
 				Description:   de,
 			},
 			PagesID: utils.AsInt(t.ParentID),
+		}
+	})
+}
+
+func (c *Client) linksTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
+	return dbToSimple(ctx, language, c.q.ListLinkTranslations)
+}
+
+func linksToDSItems(translations []simpleTranslation) []directus.DSItem {
+	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+		ti, _ := t.Values[TitleField]
+		de, _ := t.Values[DescriptionField]
+		return directus.LinksTranslation{
+			Translation: directus.Translation{
+				ID:            utils.AsInt(t.ID),
+				LanguagesCode: t.Language,
+				Title:         ti,
+				Description:   de,
+			},
+			LinksID: utils.AsInt(t.ParentID),
 		}
 	})
 }

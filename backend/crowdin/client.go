@@ -291,6 +291,10 @@ func (c *Client) Sync(ctx context.Context, d *directus.Handler) error {
 		if err != nil {
 			return err
 		}
+		err = c.syncLinks(ctx, d, project, directory.ID, crowdinTranslations)
+		if err != nil {
+			return err
+		}
 		err = c.syncTopics(ctx, d, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err

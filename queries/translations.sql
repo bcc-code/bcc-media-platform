@@ -80,6 +80,15 @@ FROM pages_translations
 WHERE pages_id = ANY ($1::int[])
   AND languages_code != 'no';
 
+-- name: ListLinkTranslations :many
+WITH links AS (SELECT s.id
+               FROM links s
+               WHERE s.status = 'published')
+SELECT st.id, links_id as parent_id, languages_code, title, description
+FROM links_translations st
+         JOIN links e ON e.id = st.links_id
+WHERE st.languages_code = ANY ($1::varchar[]);
+
 -- name: ListStudyTopicTranslations :many
 WITH items AS (SELECT i.id
                FROM studytopics i

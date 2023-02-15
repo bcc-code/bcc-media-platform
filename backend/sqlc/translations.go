@@ -123,6 +123,36 @@ func (r ListPageTranslationsRow) GetLanguage() string {
 }
 
 // GetKey for this item
+func (r ListLinkTranslationsRow) GetKey() string {
+	return strconv.Itoa(int(r.ID))
+}
+
+// GetParentKey for this item
+func (r ListLinkTranslationsRow) GetParentKey() string {
+	return strconv.Itoa(int(r.ParentID.Int64))
+}
+
+// GetValues for this entry
+func (r ListLinkTranslationsRow) GetValues() map[string]string {
+	ret := map[string]string{}
+
+	if r.Title != "" {
+		ret["title"] = r.Title
+	}
+
+	if r.Description != "" {
+		ret["description"] = r.Description
+	}
+
+	return ret
+}
+
+// GetLanguage for this item
+func (r ListLinkTranslationsRow) GetLanguage() string {
+	return r.LanguagesCode.String
+}
+
+// GetKey for this item
 func (r ListSectionTranslationsRow) GetKey() string {
 	return strconv.Itoa(int(r.ID))
 }
