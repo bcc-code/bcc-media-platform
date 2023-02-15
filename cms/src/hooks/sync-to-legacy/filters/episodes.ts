@@ -183,7 +183,7 @@ async function updateOneEpisode(p, episodeKey, c) {
     }
 
     if (p.status) {
-        let visibilityCodes = await getEpisodeUsergroups(c, "episodes_usergroups", p.id);
+        let visibilityCodes = await getEpisodeUsergroups(c, "episodes_usergroups", episodeKey);
         if (shouldDraft(visibilityCodes)) {
             patch.Status = 0
         } else {
