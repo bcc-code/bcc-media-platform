@@ -2,6 +2,7 @@ package loaders
 
 import (
 	"context"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/graph-gophers/dataloader/v7"
 )
 
@@ -143,6 +144,7 @@ func GetByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader
 	result, err := thunk()
 	if err != nil {
 		var empty t
+		log.L.Error().Err(err).Send()
 		return empty, err
 	}
 	return result, nil
@@ -153,6 +155,7 @@ func GetMany[k comparable, t any](ctx context.Context, loader *dataloader.Loader
 	thunk := loader.LoadMany(ctx, ids)
 	result, errs := thunk()
 	if len(errs) > 0 {
+		log.L.Error().Err(errs[0]).Send()
 		return nil, errs[0]
 	}
 
