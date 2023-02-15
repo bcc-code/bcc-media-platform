@@ -147,6 +147,7 @@ func jwksHandler(config *redirectConfig) gin.HandlerFunc {
 
 func main() {
 	ctx := context.Background()
+	start := time.Now()
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 
 	config := getEnvConfig()
@@ -263,6 +264,8 @@ func main() {
 	log.L.Debug().Msgf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 
 	span.End()
+
+	log.L.Info().Msgf("Time to start: %d", time.Now().Sub(start).Nanoseconds())
 
 	err = r.Run(":" + config.Port)
 	if err != nil {
