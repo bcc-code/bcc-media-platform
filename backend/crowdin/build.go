@@ -165,7 +165,6 @@ func GetTranslationsFromZip(zipFile string) ([]Translation, error) {
 		if !strings.HasSuffix(file.Name, ".csv") {
 			continue
 		}
-		log.L.Debug().Str("name", file.Name).Msg("Processing file")
 
 		csvMap, err := gocsv.CSVToMap(fileReader)
 		if err != nil {
