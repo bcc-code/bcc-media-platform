@@ -10,12 +10,6 @@ GRANT USAGE ON SEQUENCE "public"."images_id_seq" TO builder; --WARN: Grant\Revok
 GRANT UPDATE ON SEQUENCE "public"."images_id_seq" TO builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 --- END ALTER SEQUENCE "public"."images_id_seq" ---
 
---- BEGIN ALTER MATERIALIZED VIEW "public"."filter_dataset" ---
-
-REVOKE SELECT ON TABLE "public"."filter_dataset" FROM api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-
---- END ALTER MATERIALIZED VIEW "public"."filter_dataset" ---
-
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
 
 UPDATE "public"."directus_fields" SET "options" = '{"template":"{{label}}"}' WHERE "id" = 763;
@@ -35,12 +29,6 @@ REVOKE SELECT ON SEQUENCE "public"."images_id_seq" FROM builder; --WARN: Grant\R
 REVOKE USAGE ON SEQUENCE "public"."images_id_seq" FROM builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 REVOKE UPDATE ON SEQUENCE "public"."images_id_seq" FROM builder; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 --- END ALTER SEQUENCE "public"."images_id_seq" ---
-
---- BEGIN ALTER MATERIALIZED VIEW "public"."filter_dataset" ---
-
-GRANT SELECT ON TABLE "public"."filter_dataset" TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-
---- END ALTER MATERIALIZED VIEW "public"."filter_dataset" ---
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
 
