@@ -78,6 +78,9 @@ func graphqlHandler(
 		}
 		if userMessage := merry.UserMessage(err); userMessage != "" {
 			gqlError.Message = userMessage
+		} else {
+			log.L.Error().Err(err).Send()
+			gqlError.Message = "error occurred"
 		}
 		return gqlError
 	})
