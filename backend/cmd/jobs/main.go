@@ -123,6 +123,8 @@ func main() {
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
 
+	locker := redislock.New(rdb)
+
 	services := server.ExternalServices{
 		Database:             db,
 		S3Client:             s3Client,
@@ -131,6 +133,7 @@ func main() {
 		SearchService:        searchService,
 		DirectusEventHandler: directusEventHandler,
 		Queries:              queries,
+		RemoteCache:          remotecache.New(rdb, locker),
 		CrowdinClient:        crowdinClient,
 		Scheduler:            sr,
 	}

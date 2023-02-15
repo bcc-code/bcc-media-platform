@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"github.com/bcc-code/brunstadtv/backend/directus"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bcc-code/brunstadtv/backend/scheduler"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -20,6 +21,7 @@ type ExternalServices struct {
 	SearchService        *search.Service
 	DirectusEventHandler *directus.EventHandler
 	Database             *sql.DB
+	RemoteCache          *remotecache.Client
 	Queries              *sqlc.Queries
 	CrowdinClient        *crowdin.Client
 	Scheduler            *scheduler.Service

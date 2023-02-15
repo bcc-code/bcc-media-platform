@@ -3,7 +3,8 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"github.com/bcc-code/brunstadtv/backend/database"
+	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	sns "github.com/robbiet480/go.sns"
 	"io"
 	"net/http"
@@ -40,9 +41,6 @@ var (
 		events.TypeTranslationsSync: {},
 		events.TypeDirectusEvent:    {},
 	}
-	eventLockIDs = map[string]int{
-		events.TypeTranslationsSync: 20001,
-	}
 )
 
 // NewServer returns a new Server for handling the HTTP requests
@@ -60,26 +58,22 @@ type Server struct {
 	config   ConfigData
 }
 
-func (s Server) runIfNotLocked(ctx context.Context, lockID int, task func() error) error {
-	var locker database.Lock
-	var err error
-	locker, err = database.NewLock(ctx, lockID, s.services.Database)
+func (s Server) runIfNotLocked(ctx context.Context, lockID string, task func() error) error {
+	res, err := s.services.RemoteCache.Client().Get(ctx, lockID).Result()
+	if err != nil && err != remotecache.Nil {
+		return err
+	}
+	if res != "" {
+		log.L.Debug().Msg("Ignoring message as it is most likely running already")
+		return nil
+	}
+	_, err = s.services.RemoteCache.Client().Set(ctx, lockID, "running", time.Minute*10).Result()
 	if err != nil {
 		return err
 	}
-	var retrievedLock bool
-	retrievedLock, err = locker.Lock(ctx)
-	if err != nil || !retrievedLock {
-		log.L.Debug().Err(err).Msg("Ignoring message. Most likely locked")
-		return err
-	}
-	defer func(locker *database.Lock, ctx context.Context) {
-		err := locker.Unlock(ctx)
-		if err != nil {
-			log.L.Error().Err(err).Int("id", lockID).Msg("Failed to unlock lock")
-		}
-	}(&locker, ctx)
-
+	defer func() {
+		s.services.RemoteCache.Client().Del(ctx, lockID)
+	}()
 	return task()
 }
 
@@ -139,7 +133,7 @@ func (s Server) ProcessMessage(c *gin.Context) {
 	case events.TypeSearchReindex:
 		err = s.services.GetSearchService().Reindex(ctx)
 	case events.TypeTranslationsSync:
-		err = s.runIfNotLocked(ctx, eventLockIDs[events.TypeTranslationsSync], func() error {
+		err = s.runIfNotLocked(ctx, fmt.Sprintf("event:%s", e.Type()), func() error {
 			return crowdin.HandleEvent(ctx, s.services, e)
 		})
 	default:
