@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/user"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"strconv"
@@ -11,6 +12,7 @@ import (
 
 // ResolveTargets resolves targetIDs to device tokens
 func (u *Utils) ResolveTargets(ctx context.Context, targetIDs []uuid.UUID) ([]common.Device, error) {
+	log.L.Debug().Int("targetCount", len(targetIDs)).Msg("Resolving targets")
 	targets, err := u.queries.GetTargets(ctx, targetIDs)
 	if err != nil {
 		return nil, err
@@ -20,13 +22,11 @@ func (u *Utils) ResolveTargets(ctx context.Context, targetIDs []uuid.UUID) ([]co
 	for _, t := range targets {
 		switch t.Type {
 		case "usergroups":
-			if lo.Contains(t.Codes, user.RoleBCCMember) {
-				devices = append(devices)
-			}
 			ds, err := u.getTokensForGroups(ctx, t.Codes)
 			if err != nil {
 				return nil, err
 			}
+			log.L.Debug().Int("deviceCount", len(ds)).Msg("Resolved target, retrieved devices")
 			devices = append(devices, ds...)
 		}
 	}
@@ -41,6 +41,7 @@ func (u *Utils) getTokensForGroups(ctx context.Context, codes []string) ([]commo
 	var personIDs []string
 	for _, g := range groups {
 		if everyone := g.Code == user.RoleRegistered; everyone || g.Code == user.RoleBCCMember {
+			log.L.Debug().Bool("everyone", everyone).Msg("Retrieving members for notification targets")
 			ids, err := u.queries.GetMemberIDs(ctx, everyone)
 			if err != nil {
 				return nil, err
