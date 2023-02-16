@@ -14,8 +14,8 @@
         "goTo": "Mergi la",
         "send": "Trimite",
         "start": "Începe",
-        "skip": "",
-        "join": ""
+        "skip": "Sări peste",
+        "join": "Alătură-te"
     },
     "error": {
         "couldntSendYourMessage": "Nu am putut trimite mesajul dvs",
@@ -94,29 +94,29 @@
         "describeIssue": "Descrie problema in detaliu."
     },
     "study": {
-        "startStudy": "Începeți studiul",
-        "continueStudy": "Continuați studiul"
+        "startStudy": "Începe studiul",
+        "continueStudy": "Continuă studiul"
     },
     "competition": {
-        "title": "",
-        "description": "",
-        "howDoesItWork": "",
-        "onlyOnce": "",
-        "watchNextBroadcast": "",
-        "joinCompetition": "",
-        "terms": "",
-        "alreadySent": "",
-        "areYouSure": "",
-        "lookThouroughly": "",
-        "submitted": "",
-        "dontMiss": ""
+        "title": "Dublează-ți șansele",
+        "description": "Obține o șansă mai mare de a câștiga premiul exclusiv <strong>Aceste cuvintele ale Mele</strong> prin a răspunde corect.",
+        "howDoesItWork": "Cum funcționează?",
+        "onlyOnce": "Poți face testul doar o singură dată.",
+        "watchNextBroadcast": "Urmărește următoarea emisiune în direct din studio în care vei vedea răspunsurile corecte.",
+        "joinCompetition": "Alătură-te competiției",
+        "terms": "Participând, ești de acord ca numele tău să fie afișat în emisiune la anunțarea câștigătorului.",
+        "alreadySent": "Ai trimis deja răspunsul, dar încă poți vedea ce ai răspuns.",
+        "areYouSure": "Ești sigur?",
+        "lookThouroughly": "Verifică-ți răspunsurile cu atenție. Odată trimise, nu vei mai putea modifica răspunsul.",
+        "submitted": "Răspunsul tău a fost trimis!",
+        "dontMiss": "Nu pierde următoarea emisiune din studio, în care va fi anunțat răspunsul corect."
     },
     "lesson": {
         "related": "Resurse aferente",
         "watchAgain": {
             "title": "Vezi din nou",
-            "description": "Pentru o înțelegere mai profundă, vă recomandăm să vedeți filmarea de mai multe ori.",
-            "button": "Redă din nou"
+            "description": "Pentru o înțelegere mai profundă, îți recomandăm să vezi filmarea de mai multe ori.",
+            "button": "Redă"
         },
         "lessonActivityTitle": "Activitatea lecției",
         "textTaskPlaceholder": "Începe să scrii aici...",
@@ -138,7 +138,7 @@
         "privacyPolicy": "Politica de Confidențialitate",
         "information": "BCC Media este o fundație media din [Federația BCC](https://bcc.no) care produce și distribuie conținut cu valori pozitive și creștine.\n\nBCC Media este un transmițător înregistrat și respectă reglementările prevăzute în Legea Norvegiană de Difuzare. Organismul de supraveghere pentru această Lege este [Autoritatea Media Norvegiană](https://medietilsynet.no/).",
         "headOffice": "Sediul central",
-        "contactUs": "Contactaţi-ne",
+        "contactUs": "Contactează-ne",
         "downloadApp": "Descarcă aplicația noastră"
     },
     "share": {
@@ -149,12 +149,12 @@
     "feedback": {
         "appreciated": "Apreciem feedbackul tău.",
         "comment": "Adaugă un comentariu la experiența ta",
-        "episodeTitle": "Cum ați evalua acest episod?",
+        "episodeTitle": "Cum ai evalua acest episod?",
         "howEasyToUnderstand": "Cât de ușor a fost să înțelegi videoul?",
         "anonymousInfo": "Evaluarea ta va fi transmisă în mod anonim",
-        "placeholder": "Te rog să fi cât mai detaliat posibil pentru a ne ajuta să înțelegem."
+        "placeholder": "Te rugăm să fii cât mai detaliat posibil pentru a ne ajuta să înțelegem."
     },
-    "contactLocalBukIfWrong": "Contactează persoana responsabilă din asociața ta locală BUK dacă crezi că acest lucru este greșit.",
+    "contactLocalBukIfWrong": "Contactează persoana responsabilă din asociața ta locală BUK dacă tu crezi că acest lucru este greșit.",
     "thankYou": "Mulțumim!",
     "yourResponseHasBeenSubmitted": "Răspunsul tău a fost trimis.",
     "sending": "Se trimite",

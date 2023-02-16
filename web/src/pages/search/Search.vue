@@ -135,13 +135,13 @@ const showSearchQuery = useSearchQuery({
     variables: {
         query: queryVariable,
         type: "show",
-    }
+    },
 })
 
 const episodeSearchQuery = useSearchQuery({
     variables: {
         query: queryVariable,
         type: "episode",
-    }
+    },
 })
 </script>

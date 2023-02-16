@@ -14,8 +14,8 @@
         "goTo": "Gå til",
         "send": "Send",
         "start": "Start",
-        "skip": "",
-        "join": ""
+        "skip": "Spring over",
+        "join": "Deltag"
     },
     "error": {
         "couldntSendYourMessage": "Kunne ikke sende din besked",
@@ -98,18 +98,18 @@
         "continueStudy": "Fortsæt"
     },
     "competition": {
-        "title": "",
-        "description": "",
-        "howDoesItWork": "",
-        "onlyOnce": "",
-        "watchNextBroadcast": "",
-        "joinCompetition": "",
-        "terms": "",
-        "alreadySent": "",
-        "areYouSure": "",
-        "lookThouroughly": "",
-        "submitted": "",
-        "dontMiss": ""
+        "title": "Fordoble dine chancer",
+        "description": "Få en større chance for at vinde den eksklusive <strong>Disse mine ord</strong> præmie ved at svare korrekt. ",
+        "howDoesItWork": "Hvordan fungerer det?",
+        "onlyOnce": "Du kan kun tage quizzen én gang",
+        "watchNextBroadcast": "Se den næste livesending for at se de korrekte svar.",
+        "joinCompetition": "Deltag i konkurrencen",
+        "terms": "Ved at deltage samtykker du til at dit navn kan bruges i livesendingen, når vinderen skal annonceres.",
+        "alreadySent": "Du har allerede sendt dit svar, men du kan stadig se hvad du svarede.",
+        "areYouSure": "Er du sikker?",
+        "lookThouroughly": "Gennemgå dine svar omhyggeligt. Når du har indsendt, vil du ikke kunne ændre dit svar.",
+        "submitted": "Dit svar er blevet sendt!",
+        "dontMiss": "Gå ikke glip af næste studieudsendelse, hvor det rigtige svar vil blive offentliggjort."
     },
     "lesson": {
         "related": "Relateret indhold\n",
