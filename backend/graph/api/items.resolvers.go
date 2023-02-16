@@ -306,6 +306,11 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first 
 		return nil, err
 	}
 
+	if first == nil {
+		f := 100
+		first = &f
+	}
+
 	page := utils.Paginate(itemIDs, first, offset, dir)
 
 	episodes, err := r.Loaders.EpisodeLoader.GetMany(ctx, utils.PointerIntArrayToIntArray(page.Items))
