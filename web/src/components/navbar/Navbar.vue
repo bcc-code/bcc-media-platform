@@ -429,7 +429,7 @@ import {
     QuestionIcon,
     SearchIcon,
 } from "../icons"
-import { computed, onMounted, ref } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
 import { useGetCalendarStatusQuery, useGetMeQuery } from "@/graph/generated"
@@ -443,13 +443,7 @@ const { query } = useSearch()
 
 const { authenticated, signOut, signIn, user } = useAuth()
 
-onMounted(() => {
-    setTimeout(() => (loading.value = false), 100)
-})
-
-const showContactForm = ref(false)
-
-const navigation = computed(() => {
+const getNavigation = () => {
     const n: {
         name: string
         to: RouteLocationRaw
@@ -486,6 +480,18 @@ const navigation = computed(() => {
     }
 
     return n
+}
+
+onMounted(() => {
+    setTimeout(() => (loading.value = false), 100)
+})
+
+const showContactForm = ref(false)
+
+const navigation = ref(getNavigation())
+
+watch([meQuery, authenticated], () => {
+    navigation.value = getNavigation();
 })
 
 const { data } = useGetCalendarStatusQuery({
