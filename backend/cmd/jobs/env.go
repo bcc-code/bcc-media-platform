@@ -1,15 +1,17 @@
 package main
 
 import (
+	"os"
+	"strconv"
+	"strings"
+
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/search"
+	"github.com/bcc-code/brunstadtv/backend/statistics"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
-	"os"
-	"strconv"
-	"strings"
 )
 
 type awsConfig struct {
@@ -50,6 +52,7 @@ type envConfig struct {
 	Redis             utils.RedisConfig
 	Auth0             auth0.Config
 	Members           members.Config
+	BigQuery          statistics.BigQueryConfig
 }
 
 func getEnvConfig() envConfig {
@@ -118,6 +121,10 @@ func getEnvConfig() envConfig {
 		},
 		Members: members.Config{
 			Domain: os.Getenv("MEMBERS_API_DOMAIN"),
+		},
+		BigQuery: statistics.BigQueryConfig{
+			ProjectID: os.Getenv("BIGQUERY_PROJECT"), // Export disabed if empty
+			DatasetID: os.Getenv("BIGQUERY_DATASET"),
 		},
 	}
 }

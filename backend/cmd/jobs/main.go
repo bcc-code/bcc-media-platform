@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -19,6 +20,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/scheduler"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/brunstadtv/backend/statistics"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/brunstadtv/backend/version"
 	"github.com/bcc-code/mediabank-bridge/log"
@@ -75,6 +77,7 @@ func main() {
 	searchService := search.New(queries, config.Algolia)
 	directusEventHandler := directus.NewEventHandler()
 	crowdinClient := crowdin.New(config.Crowdin, directus.NewHandler(directusClient), queries, false)
+	statisticsHandler := statistics.NewDirectusHandler(ctx, config.BigQuery, queries)
 
 	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.CloudTasks.QueueID)
 
@@ -115,10 +118,22 @@ func main() {
 	}
 
 	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, searchService.IndexModel)
-	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, crowdinClient.HandleModelUpdate)
+
+	if config.Directus.BaseURL != "" {
+		directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, crowdinClient.HandleModelUpdate)
+	} else {
+		log.L.Warn().Err(err).Msg("Crowdin HandleModelUpdate is disabed becuase Directus base URL is missing")
+	}
 
 	directusEventHandler.On([]string{directus.EventItemsDelete}, searchService.DeleteModel)
 	directusEventHandler.On([]string{directus.EventItemsDelete}, crowdinClient.HandleModelDelete)
+
+	if statisticsHandler != nil {
+		log.L.Info().Msg("Registering BQ handler")
+		// If we are unable to initialize BQ then we do not listen
+		// Warning is emitted in the statistics.NewDirectusHandler call
+		directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate, directus.EventItemsDelete}, statisticsHandler.HandleDirectusEvent)
+	}
 
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
