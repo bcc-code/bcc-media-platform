@@ -5,6 +5,7 @@ import (
 
 	"cloud.google.com/go/bigquery"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/google/uuid"
 )
 
 var statsLanguages = []string{"no", "en", "de", "nl"}
@@ -82,5 +83,58 @@ func SeasonFromCommon(s common.Season, _ int) Season {
 		ImageFeatured: nullStr(s.Images.GetDefault(statsLanguages, common.ImageStyleFeatured)),
 		ImagePoster:   nullStr(s.Images.GetDefault(statsLanguages, common.ImageStylePoster)),
 		Updated:       time.Now(),
+	}
+}
+
+type Episode struct {
+	ID                    int                 `json:"id"`
+	UUID                  uuid.UUID           `json:"uuid"`
+	Unlisted              bool                `json:"unlisted"`
+	Type                  string              `json:"type"`
+	PreventPublicIndexing bool                `json:"preventPublicIndexing"`
+	SeasonID              bigquery.NullInt64  `json:"seasonId"`
+	PublishDate           time.Time           `json:"publishDate"`
+	ProductionDate        time.Time           `json:"productionDate"`
+	AvailableFrom         time.Time           `json:"availableFrom"`
+	AvailableTo           time.Time           `json:"availableTo"`
+	Number                int                 `json:"number"`
+	ImageIcon             bigquery.NullString `json:"image_icon"`
+	ImageFeatured         bigquery.NullString `json:"image_featured"`
+	ImagePoster           bigquery.NullString `json:"image_poster"`
+	Duration              int                 `json:"duration"`
+	AgeRating             string              `json:"ageRating"`
+	TagIDs                []int               `json:"tagIds"`
+	PublicTitle           bigquery.NullString `json:"publicTitle"`
+	Title                 bigquery.NullString `json:"title"`
+	Description           bigquery.NullString `json:"description"`
+	ExtraDescription      bigquery.NullString `json:"extraDescription"`
+	Updated               time.Time
+	Deleted               *time.Time
+}
+
+func EpisodeFromCommon(e common.Episode, _ int) Episode {
+	return Episode{
+		ID:                    e.ID,
+		UUID:                  e.UUID,
+		Unlisted:              e.Unlisted,
+		Type:                  e.Type,
+		PreventPublicIndexing: e.PreventPublicIndexing,
+		SeasonID:              bigquery.NullInt64(e.SeasonID.NullInt64),
+		PublishDate:           e.PublishDate,
+		ProductionDate:        e.ProductionDate,
+		AvailableFrom:         e.AvailableFrom,
+		AvailableTo:           e.AvailableTo,
+		Number:                int(e.Number.Int64),
+		ImageIcon:             nullStr(e.Images.GetDefault(statsLanguages, common.ImageStyleIcon)),
+		ImageFeatured:         nullStr(e.Images.GetDefault(statsLanguages, common.ImageStyleFeatured)),
+		ImagePoster:           nullStr(e.Images.GetDefault(statsLanguages, common.ImageStylePoster)),
+		Duration:              e.Duration,
+		AgeRating:             e.AgeRating,
+		TagIDs:                e.TagIDs,
+		PublicTitle:           nullStr(e.PublicTitle.Ptr()),
+		Title:                 nullStr(e.Title.GetValueOrNil(statsLanguages)),
+		Description:           nullStr(e.Description.GetValueOrNil(statsLanguages)),
+		ExtraDescription:      nullStr(e.ExtraDescription.GetValueOrNil(statsLanguages)),
+		Updated:               time.Now(),
 	}
 }

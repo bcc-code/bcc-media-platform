@@ -1,0 +1,94 @@
+[
+  {
+    "name": "ID",
+    "type": "INTEGER"
+  },
+  {
+    "name": "UUID",
+    "type": "STRING"
+  },
+  {
+    "name": "Unlisted",
+    "type": "BOOLEAN"
+  },
+  {
+    "name": "PreventPublicIndexing",
+    "type": "BOOLEAN"
+  },
+  {
+    "name": "PublishDate",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "ProductionDate",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "AvailableFrom",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "AvailableTo",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "SeasonID",
+    "type": "INTEGER"
+  },
+  {
+    "name": "Number",
+    "type": "INTEGER"
+  },
+  {
+    "name": "Duration",
+    "type": "INTEGER"
+  },
+  {
+    "name": "AgeRating",
+    "type": "STRING"
+  },
+  {
+    "name": "Type",
+    "type": "STRING"
+  },
+  {
+    "name": "TagIDs",
+    "type": "JSON"
+  },
+  {
+    "name": "PublicTitle",
+    "type": "STRING"
+  },
+  {
+    "name": "Title",
+    "type": "STRING"
+  },
+  {
+    "name": "Description",
+    "type": "STRING"
+  },
+  {
+    "name": "ExtraDescription",
+    "type": "STRING"
+  },
+  {
+    "name": "ImageIcon",
+    "type": "STRING"
+  },
+  {
+    "name": "ImageFeatured",
+    "type": "STRING"
+  },
+  {
+    "name": "ImagePoster",
+    "type": "STRING"
+  },
+  {
+    "name": "Updated",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "Deleted",
+    "type": "TIMESTAMP"
+  }
+]

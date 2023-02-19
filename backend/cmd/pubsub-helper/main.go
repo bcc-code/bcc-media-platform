@@ -204,6 +204,8 @@ func main() {
 		directusHook(projectId, topicId, "items.update", "shows", "1")
 	case "season.update":
 		directusHook(projectId, topicId, "items.update", "seasons", "1")
+	case "episode.update":
+		directusHook(projectId, topicId, "items.update", "episodes", "1")
 	default:
 		create(projectId, topicId)
 
