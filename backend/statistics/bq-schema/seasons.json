@@ -1,0 +1,54 @@
+[
+  {
+    "name": "ID",
+    "type": "INTEGER"
+  },
+  {
+    "name": "TagIDs",
+    "type": "JSON"
+  },
+  {
+    "name": "Number",
+    "type": "INTEGER"
+  },
+  {
+    "name": "ShowID",
+    "type": "INTEGER"
+  },
+  {
+    "name": "AgeRating",
+    "type": "STRING"
+  },
+  {
+    "name": "PublicTitle",
+    "type": "STRING"
+  },
+  {
+    "name": "Title",
+    "type": "STRING"
+  },
+  {
+    "name": "Description",
+    "type": "STRING"
+  },
+  {
+    "name": "ImageIcon",
+    "type": "STRING"
+  },
+  {
+    "name": "ImageFeatured",
+    "type": "STRING"
+  },
+  {
+    "name": "ImagePoster",
+    "type": "STRING"
+  },
+  {
+    "name": "Updated",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "Deleted",
+    "type": "TIMESTAMP"
+  }
+]
