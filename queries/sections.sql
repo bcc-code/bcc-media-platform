@@ -22,7 +22,7 @@ SELECT s.id,
        s.use_context,
        s.prepend_live_element,
        c.advanced_type,
-       COALESCE(s.secondary_titles, true),
+       COALESCE(s.secondary_titles, true)::bool as secondary_titles,
        t.title,
        t.description
 FROM sections s
