@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cloud.google.com/go/profiler"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -149,6 +150,10 @@ func main() {
 	ctx := context.Background()
 	start := time.Now()
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
+
+	if err := profiler.Start(profiler.Config{}); err != nil {
+		log.L.Warn().Err(err).Msg("Failed to start profiler")
+	}
 
 	config := getEnvConfig()
 
