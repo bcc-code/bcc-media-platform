@@ -68,6 +68,7 @@ require (
 	cloud.google.com/go/firestore v1.9.0 // indirect
 	cloud.google.com/go/iam v0.10.0 // indirect
 	cloud.google.com/go/longrunning v0.4.0 // indirect
+	cloud.google.com/go/profiler v0.3.1 // indirect
 	cloud.google.com/go/storage v1.29.0 // indirect
 	cloud.google.com/go/trace v1.8.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.35.0 // indirect
@@ -108,6 +109,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/flatbuffers v2.0.8+incompatible // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
+	github.com/google/pprof v0.0.0-20221118152302-e6195bd50e26 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.1 // indirect
 	github.com/googleapis/gax-go/v2 v2.7.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
