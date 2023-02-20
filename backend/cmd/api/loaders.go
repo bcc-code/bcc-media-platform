@@ -8,6 +8,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"sort"
 	"strings"
@@ -82,7 +83,18 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 		GetSelectedAlternativesLoader: loaders.New(ctx, profileQueries.GetSelectedAlternatives, loaders.WithMemoryCache(time.Second*1), loaders.WithName("selected-alternatives")),
 	}
 
-	profileLoaders.Set(profileID, ls, loaders.WithOnDelete(cancel))
+	ls.AchievementAchievedAtLoader.ClearAll()
+
+	profileLoaders.Set(profileID, ls, loaders.WithOnDelete(func() {
+		log.L.Debug().Msg("Clearing profile loader")
+
+		ls.TaskCompletedLoader.ClearAll()
+		ls.AchievementAchievedAtLoader.ClearAll()
+		ls.ProgressLoader.ClearAll()
+		ls.GetSelectedAlternativesLoader.ClearAll()
+
+		cancel()
+	}))
 
 	return ls
 }
