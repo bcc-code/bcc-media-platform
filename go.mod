@@ -5,6 +5,7 @@ go 1.19
 require (
 	cloud.google.com/go/bigquery v1.46.0
 	cloud.google.com/go/cloudtasks v1.9.0
+	cloud.google.com/go/profiler v0.3.1
 	cloud.google.com/go/pubsub v1.28.0
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/99designs/gqlgen v0.17.24
@@ -68,7 +69,6 @@ require (
 	cloud.google.com/go/firestore v1.9.0 // indirect
 	cloud.google.com/go/iam v0.10.0 // indirect
 	cloud.google.com/go/longrunning v0.4.0 // indirect
-	cloud.google.com/go/profiler v0.3.1 // indirect
 	cloud.google.com/go/storage v1.29.0 // indirect
 	cloud.google.com/go/trace v1.8.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.35.0 // indirect
