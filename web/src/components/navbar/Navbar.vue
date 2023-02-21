@@ -18,7 +18,7 @@
                         />
                     </div>
                     <div class="hidden lg:flex my-auto space-x-2">
-                        <div v-for="item in navigation" class="relative">
+                        <div v-for="item in getNavigation()" class="relative">
                             <NavLink
                                 :icon="item.icon"
                                 :to="item.to"
@@ -393,7 +393,7 @@
                 </div>
                 <div class="flex lg:hidden justify-between mx-8">
                     <NavLink
-                        v-for="item in navigation"
+                        v-for="item in getNavigation()"
                         :to="item.to"
                         :icon="item.icon"
                         :ping="item.ping"
@@ -487,12 +487,6 @@ onMounted(() => {
 })
 
 const showContactForm = ref(false)
-
-const navigation = ref(getNavigation())
-
-watch([meQuery, authenticated], () => {
-    navigation.value = getNavigation();
-})
 
 const { data } = useGetCalendarStatusQuery({
     variables: {
