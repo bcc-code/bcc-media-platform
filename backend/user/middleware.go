@@ -161,6 +161,25 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				AgeGroup:  "unknown",
 			}
 
+			saveUser := func() error {
+				return queries.UpsertUser(ctx, sqlc.UpsertUserParams{
+					ID:          u.PersonID,
+					Roles:       u.Roles,
+					DisplayName: u.DisplayName,
+					ActiveBcc:   u.ActiveBCC,
+					Email:       u.Email,
+					AgeGroup:    u.AgeGroup,
+					Age:         int32(u.Age),
+					ChurchIds: lo.Map(u.ChurchIDs, func(i int, _ int) int32 {
+						return int32(i)
+					}),
+				})
+			}
+
+			if !u.IsActiveBCC() {
+				return u, saveUser()
+			}
+
 			member, err := ls.MemberLoader.Get(ctx, int(intID))
 			if err != nil {
 				log.L.Info().Err(err).Msg("Failed to retrieve user from members.")
@@ -214,18 +233,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				return i.OrgID
 			})
 
-			err = queries.UpsertUser(ctx, sqlc.UpsertUserParams{
-				ID:          u.PersonID,
-				Roles:       u.Roles,
-				DisplayName: u.DisplayName,
-				ActiveBcc:   u.ActiveBCC,
-				Email:       u.Email,
-				AgeGroup:    u.AgeGroup,
-				Age:         int32(u.Age),
-				ChurchIds: lo.Map(u.ChurchIDs, func(i int, _ int) int32 {
-					return int32(i)
-				}),
-			})
+			err = saveUser()
 
 			if err != nil {
 				log.L.Error().Err(err).Send()
