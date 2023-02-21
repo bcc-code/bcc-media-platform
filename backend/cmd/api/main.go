@@ -151,7 +151,7 @@ func main() {
 	start := time.Now()
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 
-	if err := profiler.Start(profiler.Config{Service: "api"}); err != nil {
+	if err := profiler.Start(profiler.Config{Service: "api", DebugLogging: true}); err != nil {
 		log.L.Warn().Err(err).Msg("Failed to start profiler")
 	}
 
