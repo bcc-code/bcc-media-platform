@@ -443,6 +443,15 @@ const { query } = useSearch()
 
 const { authenticated, signOut, signIn, user } = useAuth()
 
+const isLive = computed(() => {
+    const now = new Date()
+    return (
+        data.value?.calendar?.day.entries.some(
+            (i) => new Date(i.start) < now && new Date(i.end) > now
+        ) === true
+    )
+})
+
 const getNavigation = () => {
     const n: {
         name: string
@@ -492,14 +501,5 @@ const { data } = useGetCalendarStatusQuery({
     variables: {
         day: new Date(),
     },
-})
-
-const isLive = computed(() => {
-    const now = new Date()
-    return (
-        data.value?.calendar?.day.entries.some(
-            (i) => new Date(i.start) < now && new Date(i.end) > now
-        ) === true
-    )
 })
 </script>

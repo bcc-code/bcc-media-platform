@@ -162,7 +162,6 @@ const loadMore = async () => {
                 pageOffset.value = p.sections.offset + p.sections.first
                 await nextTick()
                 const r = await getSectionsQuery.executeQuery()
-                console.log(r)
                 if (r.data.value && page.value) {
                     page.value.sections.items.push(
                         ...r.data.value.page.sections.items
