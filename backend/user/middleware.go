@@ -24,9 +24,10 @@ import (
 
 // All well-known roles as used in the DB
 const (
-	RolePublic     = "public"
-	RoleRegistered = "registered"
-	RoleBCCMember  = "bcc-members"
+	RolePublic       = "public"
+	RoleRegistered   = "registered"
+	RoleBCCMember    = "bcc-members"
+	RoleNonBCCMember = "non-bcc-members"
 )
 
 // Various hardcoded keys
@@ -151,6 +152,8 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 			roles = append(roles, RoleRegistered)
 			if ctx.GetBool(auth0.CtxIsBCCMember) {
 				roles = append(roles, RoleBCCMember)
+			} else {
+				roles = append(roles, RoleNonBCCMember)
 			}
 
 			u := &common.User{
