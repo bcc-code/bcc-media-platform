@@ -267,6 +267,7 @@ type ComplexityRoot struct {
 		RelatedItems          func(childComplexity int, first *int, offset *int) int
 		Season                func(childComplexity int) int
 		ShareRestriction      func(childComplexity int) int
+		Status                func(childComplexity int) int
 		Streams               func(childComplexity int) int
 		SubtitleLanguages     func(childComplexity int) int
 		Title                 func(childComplexity int) int
@@ -643,6 +644,7 @@ type ComplexityRoot struct {
 		LegacyID    func(childComplexity int) int
 		Number      func(childComplexity int) int
 		Show        func(childComplexity int) int
+		Status      func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
 
@@ -727,6 +729,7 @@ type ComplexityRoot struct {
 		LegacyID       func(childComplexity int) int
 		SeasonCount    func(childComplexity int) int
 		Seasons        func(childComplexity int, first *int, offset *int, dir *string) int
+		Status         func(childComplexity int) int
 		Title          func(childComplexity int) int
 		Type           func(childComplexity int) int
 	}
@@ -1923,6 +1926,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.ShareRestriction(childComplexity), true
+
+	case "Episode.status":
+		if e.complexity.Episode.Status == nil {
+			break
+		}
+
+		return e.complexity.Episode.Status(childComplexity), true
 
 	case "Episode.streams":
 		if e.complexity.Episode.Streams == nil {
@@ -3862,6 +3872,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Season.Show(childComplexity), true
 
+	case "Season.status":
+		if e.complexity.Season.Status == nil {
+			break
+		}
+
+		return e.complexity.Season.Status(childComplexity), true
+
 	case "Season.title":
 		if e.complexity.Season.Title == nil {
 			break
@@ -4270,6 +4287,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Show.Seasons(childComplexity, args["first"].(*int), args["offset"].(*int), args["dir"].(*string)), true
+
+	case "Show.status":
+		if e.complexity.Show.Status == nil {
+			break
+		}
+
+		return e.complexity.Show.Status(childComplexity), true
 
 	case "Show.title":
 		if e.complexity.Show.Title == nil {
@@ -5128,9 +5152,15 @@ enum ShowType {
     series
 }
 
+enum Status {
+    published
+    unlisted
+}
+
 type Show {
     id: ID!
     legacyID: ID
+    status: Status!
     type: ShowType!
     title: String!
     description: String!
@@ -5150,6 +5180,7 @@ type Show {
 type Season {
     id: ID!
     legacyID: ID
+    status: Status!
     ageRating: String!
     title: String!
     description: String!
@@ -5188,6 +5219,7 @@ enum ShareRestriction {
 type Episode {
     id: ID!
     uuid: String!
+    status: Status!
     type: EpisodeType!
     legacyID: ID
     legacyProgramID: ID
@@ -11375,6 +11407,50 @@ func (ec *executionContext) fieldContext_Episode_uuid(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_status(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Status)
+	fc.Result = res
+	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Status does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_type(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_type(ctx, field)
 	if err != nil {
@@ -12242,6 +12318,8 @@ func (ec *executionContext) fieldContext_Episode_season(ctx context.Context, fie
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Season_status(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
@@ -13056,6 +13134,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_id(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -13387,6 +13467,8 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 				return ec.fieldContext_Episode_id(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -13627,6 +13709,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_id(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -14324,6 +14408,8 @@ func (ec *executionContext) fieldContext_EpisodeSearchItem_show(ctx context.Cont
 				return ec.fieldContext_Show_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Show_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Show_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Show_type(ctx, field)
 			case "title":
@@ -14473,6 +14559,8 @@ func (ec *executionContext) fieldContext_EpisodeSearchItem_season(ctx context.Co
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Season_status(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
@@ -19763,6 +19851,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_id(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -22217,6 +22307,8 @@ func (ec *executionContext) fieldContext_QueryRoot_show(ctx context.Context, fie
 				return ec.fieldContext_Show_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Show_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Show_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Show_type(ctx, field)
 			case "title":
@@ -22298,6 +22390,8 @@ func (ec *executionContext) fieldContext_QueryRoot_season(ctx context.Context, f
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Season_status(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
@@ -22377,6 +22471,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_id(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -24448,6 +24544,50 @@ func (ec *executionContext) fieldContext_Season_legacyID(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Season_status(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Season_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Status)
+	fc.Result = res
+	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Season_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Season",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Status does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Season_ageRating(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Season_ageRating(ctx, field)
 	if err != nil {
@@ -24810,6 +24950,8 @@ func (ec *executionContext) fieldContext_Season_show(ctx context.Context, field 
 				return ec.fieldContext_Show_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Show_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Show_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Show_type(ctx, field)
 			case "title":
@@ -25215,6 +25357,8 @@ func (ec *executionContext) fieldContext_SeasonCalendarEntry_season(ctx context.
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Season_status(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
@@ -25506,6 +25650,8 @@ func (ec *executionContext) fieldContext_SeasonItem_season(ctx context.Context, 
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Season_status(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
@@ -25706,6 +25852,8 @@ func (ec *executionContext) fieldContext_SeasonPagination_items(ctx context.Cont
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Season_status(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
@@ -26287,6 +26435,8 @@ func (ec *executionContext) fieldContext_SeasonSearchItem_show(ctx context.Conte
 				return ec.fieldContext_Show_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Show_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Show_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Show_type(ctx, field)
 			case "title":
@@ -27114,6 +27264,50 @@ func (ec *executionContext) fieldContext_Show_legacyID(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Show_status(ctx context.Context, field graphql.CollectedField, obj *model.Show) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Show_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Status)
+	fc.Result = res
+	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Show_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Show",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Status does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Show_type(ctx context.Context, field graphql.CollectedField, obj *model.Show) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Show_type(ctx, field)
 	if err != nil {
@@ -27585,6 +27779,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 				return ec.fieldContext_Episode_id(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -27963,6 +28159,8 @@ func (ec *executionContext) fieldContext_ShowCalendarEntry_show(ctx context.Cont
 				return ec.fieldContext_Show_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Show_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Show_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Show_type(ctx, field)
 			case "title":
@@ -28256,6 +28454,8 @@ func (ec *executionContext) fieldContext_ShowItem_show(ctx context.Context, fiel
 				return ec.fieldContext_Show_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Show_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Show_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Show_type(ctx, field)
 			case "title":
@@ -30430,6 +30630,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_id(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -34649,6 +34851,13 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "status":
+
+			out.Values[i] = ec._Episode_status(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "type":
 
 			out.Values[i] = ec._Episode_type(ctx, field, obj)
@@ -38244,6 +38453,13 @@ func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Values[i] = ec._Season_legacyID(ctx, field, obj)
 
+		case "status":
+
+			out.Values[i] = ec._Season_status(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "ageRating":
 
 			out.Values[i] = ec._Season_ageRating(ctx, field, obj)
@@ -38913,6 +39129,13 @@ func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = ec._Show_legacyID(ctx, field, obj)
 
+		case "status":
+
+			out.Values[i] = ec._Show_status(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "type":
 
 			out.Values[i] = ec._Show_type(ctx, field, obj)
@@ -41865,6 +42088,16 @@ func (ec *executionContext) unmarshalNShowType2githubᚗcomᚋbccᚑcodeᚋbruns
 }
 
 func (ec *executionContext) marshalNShowType2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShowType(ctx context.Context, sel ast.SelectionSet, v model.ShowType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNStatus2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx context.Context, v interface{}) (model.Status, error) {
+	var res model.Status
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx context.Context, sel ast.SelectionSet, v model.Status) graphql.Marshaler {
 	return v
 }
 

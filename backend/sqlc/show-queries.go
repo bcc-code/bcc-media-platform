@@ -25,6 +25,7 @@ func (q *Queries) mapToShows(shows []getShowsRow) []common.Show {
 
 		return common.Show{
 			ID:                      int(e.ID),
+			Status:                  common.StatusFrom(e.Status),
 			Type:                    e.Type,
 			LegacyID:                e.LegacyID,
 			PublicTitle:             e.PublicTitle,

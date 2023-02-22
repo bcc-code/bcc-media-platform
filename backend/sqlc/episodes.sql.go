@@ -265,7 +265,7 @@ WITH ts AS (SELECT episodes_id,
                 GROUP BY episode_id)
 SELECT e.id,
        e.uuid,
-       e.status = 'unlisted'                             AS unlisted,
+       e.status,
        e.legacy_id,
        e.legacy_program_id,
        e.asset_id,
@@ -305,7 +305,7 @@ ORDER BY e.episode_number
 type getEpisodesRow struct {
 	ID                    int32                 `db:"id" json:"id"`
 	Uuid                  uuid.UUID             `db:"uuid" json:"uuid"`
-	Unlisted              bool                  `db:"unlisted" json:"unlisted"`
+	Status                string                `db:"status" json:"status"`
 	LegacyID              null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	LegacyProgramID       null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
 	AssetID               null_v4.Int           `db:"asset_id" json:"assetID"`
@@ -342,7 +342,7 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 		if err := rows.Scan(
 			&i.ID,
 			&i.Uuid,
-			&i.Unlisted,
+			&i.Status,
 			&i.LegacyID,
 			&i.LegacyProgramID,
 			&i.AssetID,
@@ -459,7 +459,7 @@ WITH ts AS (SELECT episodes_id,
                 GROUP BY episode_id)
 SELECT e.id,
        e.uuid,
-       e.status = 'unlisted'                                                                       AS unlisted,
+       e.status,
        e.legacy_id,
        e.legacy_program_id,
        e.asset_id,
@@ -467,22 +467,22 @@ SELECT e.id,
        e.publish_date,
        e.production_date,
        e.public_title,
-       s.episode_number_in_title                                                                   AS number_in_title,
-       COALESCE(e.prevent_public_indexing, false)::bool                                            as prevent_public_indexing,
-       ea.available_from::timestamp without time zone                                              AS available_from,
-       ea.available_to::timestamp without time zone                                                AS available_to,
+       s.episode_number_in_title                         AS number_in_title,
+       COALESCE(e.prevent_public_indexing, false)::bool  as prevent_public_indexing,
+       ea.available_from::timestamp without time zone    AS available_from,
+       ea.available_to::timestamp without time zone      AS available_to,
        COALESCE(e.publish_date_in_title, sh.publish_date_in_title, sh.type = 'event',
-                false)::bool                                                                       AS publish_date_in_title,
-       fs.filename_disk                                                                            as image_file_name,
+                false)::bool                             AS publish_date_in_title,
+       fs.filename_disk                                  as image_file_name,
        e.season_id,
        e.type,
-       COALESCE(img.json, '[]')                                                                    as images,
+       COALESCE(img.json, '[]')                          as images,
        ts.title,
        ts.description,
        ts.extra_description,
-       tags.tags::int[]                                                                            AS tag_ids,
-       assets.duration                                                                             as duration,
-       COALESCE(e.agerating_code, s.agerating_code, 'A')                                           as agerating
+       tags.tags::int[]                                  AS tag_ids,
+       assets.duration                                   as duration,
+       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
@@ -497,7 +497,7 @@ FROM episodes e
 type listEpisodesRow struct {
 	ID                    int32                 `db:"id" json:"id"`
 	Uuid                  uuid.UUID             `db:"uuid" json:"uuid"`
-	Unlisted              bool                  `db:"unlisted" json:"unlisted"`
+	Status                string                `db:"status" json:"status"`
 	LegacyID              null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	LegacyProgramID       null_v4.Int           `db:"legacy_program_id" json:"legacyProgramID"`
 	AssetID               null_v4.Int           `db:"asset_id" json:"assetID"`
@@ -534,7 +534,7 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.Uuid,
-			&i.Unlisted,
+			&i.Status,
 			&i.LegacyID,
 			&i.LegacyProgramID,
 			&i.AssetID,
