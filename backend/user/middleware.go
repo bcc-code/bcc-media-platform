@@ -156,6 +156,10 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				roles = append(roles, RoleNonBCCMember)
 			}
 
+			if pid == "" {
+				pid = ctx.GetString(auth0.CtxUserID)
+			}
+
 			u := &common.User{
 				PersonID:  pid,
 				Roles:     roles,
