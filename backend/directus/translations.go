@@ -11,7 +11,7 @@ import (
 type Translation struct {
 	ID            int    `json:"id,omitempty"`
 	Title         string `json:"title"`
-	Description   string `json:"description,omitempty"`
+	Description   string `json:"description"`
 	LanguagesCode string `json:"languages_code"`
 	//IsPrimary     bool   `json:"is_primary"`
 }
