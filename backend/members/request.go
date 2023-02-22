@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 	"io"
 	"net/http"
 	"time"
@@ -27,8 +28,8 @@ func sendRequest[t any](ctx context.Context, client *Client, req *http.Request) 
 		if err != nil {
 			return nil, err
 		}
+		defer utils.LogError(res.Body.Close)
 
-		defer res.Body.Close()
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
 			return nil, err

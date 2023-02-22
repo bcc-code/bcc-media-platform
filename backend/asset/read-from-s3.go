@@ -4,14 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
-
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/bcc-code/brunstadtv/backend/asset/smil"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"io"
 )
 
 func readJSONFromS3[T any](ctx context.Context, client *s3.Client, bucket *string, path string, obj *T) error {
@@ -33,7 +33,8 @@ func readJSONFromS3[T any](ctx context.Context, client *s3.Client, bucket *strin
 
 	}
 
-	jsonBytes, err := ioutil.ReadAll(jsonObjectOut.Body)
+	jsonBytes, err := io.ReadAll(jsonObjectOut.Body)
+	defer utils.LogError(jsonObjectOut.Body.Close)
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -65,7 +66,7 @@ func readSmilFroms3(ctx context.Context, client *s3.Client, bucket *string, path
 
 	}
 
-	xmlBytes, err := ioutil.ReadAll(smilObjectOut.Body)
+	xmlBytes, err := io.ReadAll(smilObjectOut.Body)
 	if err != nil {
 		return nil, merry.Wrap(err)
 	}

@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"io"
 	"net/http"
@@ -69,6 +70,7 @@ func get[T any](query string, variables map[string]any) *T {
 	if err != nil {
 		return nil
 	}
+	defer utils.LogError(res.Body.Close)
 
 	resString, err := io.ReadAll(res.Body)
 	if err != nil {

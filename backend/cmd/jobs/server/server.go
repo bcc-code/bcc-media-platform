@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/remotecache"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 	sns "github.com/robbiet480/go.sns"
 	"io"
 	"net/http"
@@ -153,6 +154,7 @@ func (s Server) ProcessMessage(c *gin.Context) {
 // IngestEventMeta ingests the event meta
 func (s Server) IngestEventMeta(c *gin.Context) {
 	jsonData, err := io.ReadAll(c.Request.Body)
+	defer utils.LogError(c.Request.Body.Close)
 	if err != nil {
 		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -175,6 +177,7 @@ func (s Server) ProcessAwsMessage(c *gin.Context) {
 	defer span.End()
 
 	jsonData, err := io.ReadAll(c.Request.Body)
+	defer utils.LogError(c.Request.Body.Close)
 
 	if err != nil {
 		log.L.Error().Err(err).Send()

@@ -93,7 +93,6 @@ func (c *Client) buildProject(ctx context.Context, projectID int) ([]Translation
 	if err != nil {
 		return nil, err
 	}
-	defer func() { _ = resp.Body.Close() }()
 
 	return handleBody(resp.Body, fmt.Sprintf("crowdin-build-%d", res.ID))
 }

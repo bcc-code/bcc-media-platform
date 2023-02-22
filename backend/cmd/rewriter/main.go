@@ -21,6 +21,7 @@ func (rw *rewriter) getDefaultHtml() (*html.Node, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer utils.LogError(res.Body.Close)
 	doc, err := html.Parse(res.Body)
 	if err != nil {
 		return nil, err

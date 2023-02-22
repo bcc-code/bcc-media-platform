@@ -7,6 +7,7 @@ import (
 	"fmt"
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 	"io"
 	"net/http"
 	"net/url"
@@ -36,6 +37,7 @@ func sendTokenRequest[t any](ctx context.Context, body t, endpoint string) (getT
 	if err != nil {
 		return getTokenResponse{}, err
 	}
+	defer utils.LogError(res.Body.Close)
 
 	result, err := io.ReadAll(res.Body)
 	if err != nil {
