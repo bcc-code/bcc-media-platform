@@ -112,36 +112,6 @@ var (
 var requestLocks = map[string]*sync.Mutex{}
 var requestCache = cache.New[string, any]()
 
-func withCache[r any](ctx context.Context, key string, factory func(ctx context.Context) (r, error), expiry time.Duration) (r, error) {
-	ctx, span := otel.Tracer("cache").Start(ctx, "simple")
-	defer span.End()
-	if result, ok := requestCache.Get(key); ok {
-		return result.(r), nil
-	}
-
-	lock, ok := requestLocks[key]
-	if !ok {
-		lock = &sync.Mutex{}
-		requestLocks[key] = lock
-	}
-	lock.Lock()
-	defer lock.Unlock()
-
-	if result, ok := requestCache.Get(key); ok {
-		return result.(r), nil
-	}
-
-	result, err := factory(ctx)
-	if err != nil {
-		// probably not the correct way to do this
-		return result, err
-	}
-
-	requestCache.Set(key, result, cache.WithExpiration(expiry))
-
-	return result, nil
-}
-
 type timedCacheEntry[t any] struct {
 	Cached time.Time
 	Entry  t
