@@ -67,6 +67,7 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 	episode := &Episode{
 		Chapters:              []*Chapter{}, // Currently not supported
 		ID:                    strconv.Itoa(e.ID),
+		Status:                statusFrom(e),
 		UUID:                  e.UUID.String(),
 		Type:                  episodeType,
 		PublishDate:           e.PublishDate.Format(time.RFC3339),

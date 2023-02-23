@@ -217,6 +217,7 @@ WITH ts AS (SELECT seasons_id,
                 GROUP BY season_id)
 SELECT s.id,
        s.legacy_id,
+       s.status,
        s.season_number,
        fs.filename_disk                as image_file_name,
        s.show_id,
@@ -238,6 +239,7 @@ WHERE s.id = ANY ($1::int[])
 type getSeasonsRow struct {
 	ID            int32           `db:"id" json:"id"`
 	LegacyID      null_v4.Int     `db:"legacy_id" json:"legacyID"`
+	Status        string          `db:"status" json:"status"`
 	SeasonNumber  int32           `db:"season_number" json:"seasonNumber"`
 	ImageFileName null_v4.String  `db:"image_file_name" json:"imageFileName"`
 	ShowID        int32           `db:"show_id" json:"showID"`
@@ -261,6 +263,7 @@ func (q *Queries) getSeasons(ctx context.Context, dollar_1 []int32) ([]getSeason
 		if err := rows.Scan(
 			&i.ID,
 			&i.LegacyID,
+			&i.Status,
 			&i.SeasonNumber,
 			&i.ImageFileName,
 			&i.ShowID,
@@ -303,6 +306,7 @@ WITH ts AS (SELECT seasons_id,
                 GROUP BY season_id)
 SELECT s.id,
        s.legacy_id,
+       s.status,
        s.season_number,
        fs.filename_disk                as image_file_name,
        s.show_id,
@@ -323,6 +327,7 @@ FROM seasons s
 type listSeasonsRow struct {
 	ID            int32           `db:"id" json:"id"`
 	LegacyID      null_v4.Int     `db:"legacy_id" json:"legacyID"`
+	Status        string          `db:"status" json:"status"`
 	SeasonNumber  int32           `db:"season_number" json:"seasonNumber"`
 	ImageFileName null_v4.String  `db:"image_file_name" json:"imageFileName"`
 	ShowID        int32           `db:"show_id" json:"showID"`
@@ -346,6 +351,7 @@ func (q *Queries) listSeasons(ctx context.Context) ([]listSeasonsRow, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.LegacyID,
+			&i.Status,
 			&i.SeasonNumber,
 			&i.ImageFileName,
 			&i.ShowID,

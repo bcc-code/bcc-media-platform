@@ -134,6 +134,7 @@ WITH ts AS (SELECT shows_id,
 SELECT sh.id,
        sh.legacy_id,
        sh.type,
+       sh.status,
        fs.filename_disk            as image_file_name,
        sh.public_title,
        tags.tags::int[]            AS tag_ids,
@@ -153,6 +154,7 @@ type getShowsRow struct {
 	ID                      int32                 `db:"id" json:"id"`
 	LegacyID                null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	Type                    string                `db:"type" json:"type"`
+	Status                  string                `db:"status" json:"status"`
 	ImageFileName           null_v4.String        `db:"image_file_name" json:"imageFileName"`
 	PublicTitle             null_v4.String        `db:"public_title" json:"publicTitle"`
 	TagIds                  []int32               `db:"tag_ids" json:"tagIds"`
@@ -175,6 +177,7 @@ func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]getShowsRow
 			&i.ID,
 			&i.LegacyID,
 			&i.Type,
+			&i.Status,
 			&i.ImageFileName,
 			&i.PublicTitle,
 			pq.Array(&i.TagIds),
@@ -248,6 +251,7 @@ WITH ts AS (SELECT shows_id,
 SELECT sh.id,
        sh.legacy_id,
        sh.type,
+       sh.status,
        fs.filename_disk            as image_file_name,
        sh.public_title,
        tags.tags::int[]            AS tag_ids,
@@ -266,6 +270,7 @@ type listShowsRow struct {
 	ID                      int32                 `db:"id" json:"id"`
 	LegacyID                null_v4.Int           `db:"legacy_id" json:"legacyID"`
 	Type                    string                `db:"type" json:"type"`
+	Status                  string                `db:"status" json:"status"`
 	ImageFileName           null_v4.String        `db:"image_file_name" json:"imageFileName"`
 	PublicTitle             null_v4.String        `db:"public_title" json:"publicTitle"`
 	TagIds                  []int32               `db:"tag_ids" json:"tagIds"`
@@ -288,6 +293,7 @@ func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
 			&i.ID,
 			&i.LegacyID,
 			&i.Type,
+			&i.Status,
 			&i.ImageFileName,
 			&i.PublicTitle,
 			pq.Array(&i.TagIds),

@@ -38,6 +38,7 @@ func ShowFrom(ctx context.Context, s *common.Show) *Show {
 
 	return &Show{
 		ID:          strconv.Itoa(s.ID),
+		Status:      statusFrom(s),
 		LegacyID:    legacyID,
 		Type:        ShowType(s.Type),
 		Title:       s.Title.Get(languages),

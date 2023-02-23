@@ -41,6 +41,7 @@ func SeasonFrom(ctx context.Context, s *common.Season) *Season {
 
 	return &Season{
 		ID:          strconv.Itoa(s.ID),
+		Status:      statusFrom(s),
 		LegacyID:    legacyID,
 		Title:       s.Title.Get(languages),
 		Description: s.Description.Get(languages),

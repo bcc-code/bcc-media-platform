@@ -30,6 +30,7 @@ var (
 // Show is the definition of the Show object
 type Show struct {
 	ID                      int          `json:"id"`
+	Status                  Status       `json:"status"`
 	Type                    string       `json:"type"`
 	TagIDs                  []int        `json:"tagIds"`
 	LegacyID                null.Int     `json:"legacyId"`
@@ -51,9 +52,15 @@ func (i Show) GetTagIDs() []int {
 	return i.TagIDs
 }
 
+// Unlisted returns true if item is unlisted
+func (i Show) Unlisted() bool {
+	return i.Status == StatusUnlisted
+}
+
 // Season is the definition of the Season object
 type Season struct {
 	ID          int          `json:"id"`
+	Status      Status       `json:"status"`
 	LegacyID    null.Int     `json:"legacyId"`
 	TagIDs      []int        `json:"tagIds"`
 	Number      int          `json:"number"`
@@ -76,11 +83,16 @@ func (i Season) GetTagIDs() []int {
 	return i.TagIDs
 }
 
+// Unlisted returns true if item is unlisted
+func (i Season) Unlisted() bool {
+	return i.Status == StatusUnlisted
+}
+
 // Episode is the definition of the Episode object
 type Episode struct {
 	ID                    int          `json:"id"`
 	UUID                  uuid.UUID    `json:"uuid"`
-	Unlisted              bool         `json:"unlisted"`
+	Status                Status       `json:"unlisted"`
 	Type                  string       `json:"type"`
 	PreventPublicIndexing bool         `json:"preventPublicIndexing"`
 	LegacyID              null.Int     `json:"legacyId"`
@@ -112,6 +124,11 @@ func (i Episode) GetKey() int {
 // GetTagIDs returns ids of related tags
 func (i Episode) GetTagIDs() []int {
 	return i.TagIDs
+}
+
+// Unlisted returns true if item is unlisted
+func (i Episode) Unlisted() bool {
+	return i.Status == StatusUnlisted
 }
 
 // File item type

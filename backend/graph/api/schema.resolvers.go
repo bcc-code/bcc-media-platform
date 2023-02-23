@@ -530,7 +530,7 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 			return nil, err
 		}
 		u := user.GetFromCtx(ginCtx)
-		if e.Unlisted && u.Anonymous {
+		if e.Unlisted() && u.Anonymous {
 			return nil, ErrItemNotFound
 		}
 	} else {

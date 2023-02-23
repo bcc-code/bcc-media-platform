@@ -322,6 +322,7 @@ type Device struct {
 type Episode struct {
 	ID                    string                 `json:"id"`
 	UUID                  string                 `json:"uuid"`
+	Status                Status                 `json:"status"`
 	Type                  EpisodeType            `json:"type"`
 	LegacyID              *string                `json:"legacyID"`
 	LegacyProgramID       *string                `json:"legacyProgramID"`
@@ -875,6 +876,7 @@ type SearchResult struct {
 type Season struct {
 	ID          string             `json:"id"`
 	LegacyID    *string            `json:"legacyID"`
+	Status      Status             `json:"status"`
 	AgeRating   string             `json:"ageRating"`
 	Title       string             `json:"title"`
 	Description string             `json:"description"`
@@ -1013,6 +1015,7 @@ type Settings struct {
 type Show struct {
 	ID             string            `json:"id"`
 	LegacyID       *string           `json:"legacyID"`
+	Status         Status            `json:"status"`
 	Type           ShowType          `json:"type"`
 	Title          string            `json:"title"`
 	Description    string            `json:"description"`
@@ -1531,6 +1534,47 @@ func (e *ShowType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ShowType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type Status string
+
+const (
+	StatusPublished Status = "published"
+	StatusUnlisted  Status = "unlisted"
+)
+
+var AllStatus = []Status{
+	StatusPublished,
+	StatusUnlisted,
+}
+
+func (e Status) IsValid() bool {
+	switch e {
+	case StatusPublished, StatusUnlisted:
+		return true
+	}
+	return false
+}
+
+func (e Status) String() string {
+	return string(e)
+}
+
+func (e *Status) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Status(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Status", str)
+	}
+	return nil
+}
+
+func (e Status) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
