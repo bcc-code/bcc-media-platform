@@ -116,7 +116,7 @@ func EpisodeFromCommon(e common.Episode, _ int) Episode {
 	return Episode{
 		ID:                    e.ID,
 		UUID:                  e.UUID,
-		Unlisted:              e.Unlisted,
+		Unlisted:              e.Unlisted(),
 		Type:                  e.Type,
 		PreventPublicIndexing: e.PreventPublicIndexing,
 		SeasonID:              bigquery.NullInt64(e.SeasonID.NullInt64),

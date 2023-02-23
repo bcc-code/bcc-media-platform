@@ -39,14 +39,9 @@ func SeasonFrom(ctx context.Context, s *common.Season) *Season {
 		})
 	}
 
-	status := StatusPublished
-	if s.Unlisted() {
-		status = StatusUnlisted
-	}
-
 	return &Season{
 		ID:          strconv.Itoa(s.ID),
-		Status:      status,
+		Status:      statusFrom(s),
 		LegacyID:    legacyID,
 		Title:       s.Title.Get(languages),
 		Description: s.Description.Get(languages),

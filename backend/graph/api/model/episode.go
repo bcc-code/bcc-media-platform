@@ -64,15 +64,10 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		episodeType = EpisodeTypeStandalone
 	}
 
-	status := StatusPublished
-	if e.Unlisted() {
-		status = StatusUnlisted
-	}
-
 	episode := &Episode{
 		Chapters:              []*Chapter{}, // Currently not supported
 		ID:                    strconv.Itoa(e.ID),
-		Status:                status,
+		Status:                statusFrom(e),
 		UUID:                  e.UUID.String(),
 		Type:                  episodeType,
 		PublishDate:           e.PublishDate.Format(time.RFC3339),

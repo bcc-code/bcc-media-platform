@@ -36,14 +36,9 @@ func ShowFrom(ctx context.Context, s *common.Show) *Show {
 		})
 	}
 
-	status := StatusPublished
-	if s.Unlisted() {
-		status = StatusUnlisted
-	}
-
 	return &Show{
 		ID:          strconv.Itoa(s.ID),
-		Status:      status,
+		Status:      statusFrom(s),
 		LegacyID:    legacyID,
 		Type:        ShowType(s.Type),
 		Title:       s.Title.Get(languages),
