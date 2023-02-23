@@ -148,6 +148,9 @@ async function updateOneEpisode(p, episodeKey, c) {
         return p;
     }
 
+    p.publish_date ??= epBeforeUpdate.publish_date;
+    p.available_from ??= epBeforeUpdate.available_from;
+
     let availableFrom = null
     for (const date of [p.publish_date, p.available_from]) {
         if (!availableFrom || (date && new Date(date).getTime() > new Date(availableFrom ?? 0).getTime())) {
