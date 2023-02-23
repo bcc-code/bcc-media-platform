@@ -57,6 +57,11 @@ func (i Show) Unlisted() bool {
 	return i.Status == StatusUnlisted
 }
 
+// GetStatus returns the status for this item
+func (i Show) GetStatus() Status {
+	return i.Status
+}
+
 // Season is the definition of the Season object
 type Season struct {
 	ID          int          `json:"id"`
@@ -86,6 +91,11 @@ func (i Season) GetTagIDs() []int {
 // Unlisted returns true if item is unlisted
 func (i Season) Unlisted() bool {
 	return i.Status == StatusUnlisted
+}
+
+// GetStatus returns the status for this item
+func (i Season) GetStatus() Status {
+	return i.Status
 }
 
 // Episode is the definition of the Episode object
@@ -129,6 +139,11 @@ func (i Episode) GetTagIDs() []int {
 // Unlisted returns true if item is unlisted
 func (i Episode) Unlisted() bool {
 	return i.Status == StatusUnlisted
+}
+
+// GetStatus returns the status for this item
+func (i Episode) GetStatus() Status {
+	return i.Status
 }
 
 // File item type
