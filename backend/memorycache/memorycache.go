@@ -9,38 +9,37 @@ import (
 var memoryCache = cache.New[string, any]()
 
 // Get retrieve a value from cache
-func Get[V any](key string) *V {
+func Get[V any](key string) (result V, success bool) {
 	if v, ok := memoryCache.Get(key); ok {
-		return v.(*V)
+		return v.(V), true
 	}
-	return nil
+	return
 }
 
 // Set return a value from cache
-func Set[V any](key string, value *V, opts ...cache.ItemOption) {
+func Set[V any](key string, value V, opts ...cache.ItemOption) {
 	memoryCache.Set(key, value, opts...)
 }
 
 // GetOrSet a value with a lock
-func GetOrSet[T any](ctx context.Context, key string, factory func(ctx context.Context) (T, error)) (*T, error) {
-	stored := Get[T](key)
-	if stored != nil {
+func GetOrSet[T any](ctx context.Context, key string, factory func(ctx context.Context) (T, error)) (T, error) {
+	stored, success := Get[T](key)
+	if success {
 		return stored, nil
 	}
 	lock := utils.Lock(key)
 	lock.Lock()
 	defer lock.Unlock()
 
-	stored = Get[T](key)
-	if stored != nil {
+	stored, success = Get[T](key)
+	if success {
 		return stored, nil
 	}
 
-	value, err := factory(ctx)
+	stored, err := factory(ctx)
 	if err != nil {
-		return nil, err
+		return stored, err
 	}
-	stored = &value
 	Set(key, stored)
 	return stored, nil
 }
