@@ -1233,6 +1233,8 @@ type Survey struct {
 	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
 	Description null_v4.String `db:"description" json:"description"`
 	Title       string         `db:"title" json:"title"`
+	From        time.Time      `db:"from" json:"from"`
+	To          time.Time      `db:"to" json:"to"`
 }
 
 type Surveyquestion struct {
@@ -1244,20 +1246,28 @@ type Surveyquestion struct {
 	Title       string         `db:"title" json:"title"`
 	Description null_v4.String `db:"description" json:"description"`
 	Type        string         `db:"type" json:"type"`
-	SurveyID    uuid.NullUUID  `db:"survey_id" json:"surveyID"`
+	SurveyID    uuid.UUID      `db:"survey_id" json:"surveyID"`
 	Sort        null_v4.Int    `db:"sort" json:"sort"`
 }
 
 type SurveyquestionsTranslation struct {
 	ID                int32          `db:"id" json:"id"`
-	SurveyquestionsID uuid.NullUUID  `db:"surveyquestions_id" json:"surveyquestionsID"`
-	LanguagesCode     null_v4.String `db:"languages_code" json:"languagesCode"`
+	SurveyquestionsID uuid.UUID      `db:"surveyquestions_id" json:"surveyquestionsID"`
+	LanguagesCode     string         `db:"languages_code" json:"languagesCode"`
+	Title             null_v4.String `db:"title" json:"title"`
+	Description       null_v4.String `db:"description" json:"description"`
+}
+
+type SurveysTarget struct {
+	ID        int32     `db:"id" json:"id"`
+	SurveysID uuid.UUID `db:"surveys_id" json:"surveysID"`
+	TargetsID uuid.UUID `db:"targets_id" json:"targetsID"`
 }
 
 type SurveysTranslation struct {
 	ID            int32          `db:"id" json:"id"`
-	SurveysID     uuid.NullUUID  `db:"surveys_id" json:"surveysID"`
-	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	SurveysID     uuid.UUID      `db:"surveys_id" json:"surveysID"`
+	LanguagesCode string         `db:"languages_code" json:"languagesCode"`
 	Title         null_v4.String `db:"title" json:"title"`
 	Description   null_v4.String `db:"description" json:"description"`
 }

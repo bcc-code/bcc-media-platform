@@ -54,8 +54,6 @@ CREATE TABLE IF NOT EXISTS "public"."surveys" (
 	CONSTRAINT "surveys_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id)
 );
 
-ALTER TABLE IF EXISTS "public"."surveys" OWNER TO btv;
-
 GRANT SELECT ON TABLE "public"."surveys" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."surveys" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."surveys" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -118,7 +116,7 @@ CREATE TABLE IF NOT EXISTS "public"."surveyquestions" (
 	"title" varchar(255) NOT NULL  ,
 	"description" varchar(255) NULL  ,
 	"type" varchar(255) NOT NULL  ,
-	"survey_id" uuid NULL  ,
+	"survey_id" uuid NOT NULL  ,
 	"sort" int4 NULL  ,
 	CONSTRAINT "surveyquestions_pkey" PRIMARY KEY (id) ,
 	CONSTRAINT "surveyquestions_user_created_foreign" FOREIGN KEY (user_created) REFERENCES directus_users(id) ,
@@ -190,8 +188,8 @@ COMMENT ON TABLE "public"."surveyquestions"  IS NULL;
 
 CREATE TABLE IF NOT EXISTS "public"."surveys_translations" (
 	"id" int4 NOT NULL DEFAULT nextval('surveys_translations_id_seq'::regclass) ,
-	"surveys_id" uuid NULL  ,
-	"languages_code" varchar(255) NULL  ,
+	"surveys_id" uuid NOT NULL  ,
+	"languages_code" varchar(255) NOT NULL  ,
 	"title" text NULL  ,
 	"description" text NULL  ,
 	CONSTRAINT "surveys_translations_pkey" PRIMARY KEY (id) ,
@@ -229,8 +227,10 @@ COMMENT ON TABLE "public"."surveys_translations"  IS NULL;
 
 CREATE TABLE IF NOT EXISTS "public"."surveyquestions_translations" (
 	"id" int4 NOT NULL DEFAULT nextval('surveyquestions_translations_id_seq'::regclass) ,
-	"surveyquestions_id" uuid NULL  ,
-	"languages_code" varchar(255) NULL  ,
+	"surveyquestions_id" uuid NOT NULL ,
+	"languages_code" varchar(255) NOT NULL ,
+    "title" text NULL  ,
+    "description" text NULL  ,
 	CONSTRAINT "surveyquestions_translations_pkey" PRIMARY KEY (id) ,
 	CONSTRAINT "surveyquestions_translations_languages_code_foreign" FOREIGN KEY (languages_code) REFERENCES languages(code) ON DELETE SET NULL ,
 	CONSTRAINT "surveyquestions_translations_surveyquestions_id_foreign" FOREIGN KEY (surveyquestions_id) REFERENCES surveyquestions(id) ON DELETE SET NULL
@@ -248,6 +248,12 @@ COMMENT ON COLUMN "public"."surveyquestions_translations"."surveyquestions_id"  
 
 
 COMMENT ON COLUMN "public"."surveyquestions_translations"."languages_code"  IS NULL;
+
+
+COMMENT ON COLUMN "public"."surveyquestions_translations"."title"  IS NULL;
+
+
+COMMENT ON COLUMN "public"."surveyquestions_translations"."description"  IS NULL;
 
 COMMENT ON CONSTRAINT "surveyquestions_translations_pkey" ON "public"."surveyquestions_translations" IS NULL;
 

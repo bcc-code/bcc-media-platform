@@ -153,6 +153,10 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 			return i.PersonID
 		}), loaders.WithName("member-loader")),
 
+		SurveyLoader: loaders.New(ctx, queries.GetSurveys, loaders.WithName("survey-loader"), loaders.WithKeyFunc(func(i common.Survey) uuid.UUID {
+			return i.ID
+		})),
+
 		FAQCategoryLoader:  loaders.NewLoader(ctx, queries.GetFAQCategories),
 		QuestionLoader:     loaders.NewLoader(ctx, queries.GetQuestions),
 		QuestionsLoader:    loaders.NewRelationLoader(ctx, queries.GetQuestionIDsForCategories, loaders.WithName("questions")),
