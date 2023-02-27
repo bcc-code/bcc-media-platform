@@ -50,3 +50,9 @@ FROM surveys s
 WHERE s.from < (NOW() + interval '7 day')
   AND s.to > NOW()
   AND roles.roles && @roles::varchar[];
+
+-- name: UpsertSurveyAnswer :exec
+INSERT INTO users.surveyquestionanswers (id, question_id, answer, updated_at)
+VALUES (@id::varchar(64), @question_id::uuid, @answer::text, now())
+ON CONFLICT(id) DO UPDATE SET answer     = EXCLUDED.answer,
+                              updated_at = EXCLUDED.updated_at;

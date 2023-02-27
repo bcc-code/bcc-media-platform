@@ -143,6 +143,10 @@ type ComplexityRoot struct {
 		AnonymousID func(childComplexity int) int
 	}
 
+	AnswerSurveyQuestionResult struct {
+		ID func(childComplexity int) int
+	}
+
 	Application struct {
 		ClientVersion func(childComplexity int) int
 		Code          func(childComplexity int) int
@@ -503,16 +507,18 @@ type ComplexityRoot struct {
 	}
 
 	MutationRoot struct {
-		CompleteTask          func(childComplexity int, id string, selectedAlternatives []string) int
-		ConfirmAchievement    func(childComplexity int, id string) int
-		LockLessonAnswers     func(childComplexity int, id string) int
-		SendEpisodeFeedback   func(childComplexity int, episodeID string, message *string, rating *int) int
-		SendSupportEmail      func(childComplexity int, title string, content string, html string) int
-		SendTaskMessage       func(childComplexity int, taskID string, message *string) int
-		SetDevicePushToken    func(childComplexity int, token string, languages []string) int
-		SetEpisodeProgress    func(childComplexity int, id string, progress *int, duration *int, context *model.EpisodeContext) int
-		UpdateEpisodeFeedback func(childComplexity int, id string, message *string, rating *int) int
-		UpdateTaskMessage     func(childComplexity int, id string, message string) int
+		AnswerSurveyQuestion       func(childComplexity int, id string, answer string) int
+		CompleteTask               func(childComplexity int, id string, selectedAlternatives []string) int
+		ConfirmAchievement         func(childComplexity int, id string) int
+		LockLessonAnswers          func(childComplexity int, id string) int
+		SendEpisodeFeedback        func(childComplexity int, episodeID string, message *string, rating *int) int
+		SendSupportEmail           func(childComplexity int, title string, content string, html string) int
+		SendTaskMessage            func(childComplexity int, taskID string, message *string) int
+		SetDevicePushToken         func(childComplexity int, token string, languages []string) int
+		SetEpisodeProgress         func(childComplexity int, id string, progress *int, duration *int, context *model.EpisodeContext) int
+		UpdateEpisodeFeedback      func(childComplexity int, id string, message *string, rating *int) int
+		UpdateSurveyQuestionAnswer func(childComplexity int, key string, answer string) int
+		UpdateTaskMessage          func(childComplexity int, id string, message string) int
 	}
 
 	Page struct {
@@ -1001,6 +1007,8 @@ type MutationRootResolver interface {
 	SendEpisodeFeedback(ctx context.Context, episodeID string, message *string, rating *int) (string, error)
 	UpdateEpisodeFeedback(ctx context.Context, id string, message *string, rating *int) (string, error)
 	ConfirmAchievement(ctx context.Context, id string) (*model.ConfirmAchievementResult, error)
+	AnswerSurveyQuestion(ctx context.Context, id string, answer string) (*model.AnswerSurveyQuestionResult, error)
+	UpdateSurveyQuestionAnswer(ctx context.Context, key string, answer string) (*model.AnswerSurveyQuestionResult, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -1343,6 +1351,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Analytics.AnonymousID(childComplexity), true
+
+	case "AnswerSurveyQuestionResult.id":
+		if e.complexity.AnswerSurveyQuestionResult.ID == nil {
+			break
+		}
+
+		return e.complexity.AnswerSurveyQuestionResult.ID(childComplexity), true
 
 	case "Application.clientVersion":
 		if e.complexity.Application.ClientVersion == nil {
@@ -3063,6 +3078,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MessageStyle.Text(childComplexity), true
 
+	case "MutationRoot.answerSurveyQuestion":
+		if e.complexity.MutationRoot.AnswerSurveyQuestion == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_answerSurveyQuestion_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.AnswerSurveyQuestion(childComplexity, args["id"].(string), args["answer"].(string)), true
+
 	case "MutationRoot.completeTask":
 		if e.complexity.MutationRoot.CompleteTask == nil {
 			break
@@ -3170,6 +3197,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MutationRoot.UpdateEpisodeFeedback(childComplexity, args["id"].(string), args["message"].(*string), args["rating"].(*int)), true
+
+	case "MutationRoot.updateSurveyQuestionAnswer":
+		if e.complexity.MutationRoot.UpdateSurveyQuestionAnswer == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_updateSurveyQuestionAnswer_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.UpdateSurveyQuestionAnswer(childComplexity, args["key"].(string), args["answer"].(string)), true
 
 	case "MutationRoot.updateTaskMessage":
 		if e.complexity.MutationRoot.UpdateTaskMessage == nil {
@@ -5419,6 +5458,35 @@ type Message {
     style: MessageStyle!
 }
 `, BuiltIn: false},
+	{Name: "../schema/mutations.graphqls", Input: `type MutationRoot {
+    setDevicePushToken(token: String!, languages: [String!]!): Device
+    setEpisodeProgress(id: ID!, progress: Int, duration: Int, context: EpisodeContext): Episode!
+
+    sendSupportEmail(title: String!, content: String!, html: String!): Boolean!
+
+    completeTask(
+        id: ID!,
+        selectedAlternatives: [String!],
+    ): Boolean!
+
+    lockLessonAnswers(id: ID!) : Boolean!
+
+    sendTaskMessage(taskId: ID!, message: String): ID!
+    updateTaskMessage(id: ID!, message: String!): ID!
+
+    sendEpisodeFeedback(episodeId: ID!, message: String, rating: Int): ID!
+    updateEpisodeFeedback(id: ID!, message: String, rating: Int): ID!
+
+    confirmAchievement(id: ID!): ConfirmAchievementResult!
+
+    answerSurveyQuestion(id: UUID!, answer: String!): AnswerSurveyQuestionResult!
+    updateSurveyQuestionAnswer(key: String!, answer: String!): AnswerSurveyQuestionResult!
+}
+
+type AnswerSurveyQuestionResult {
+    id: String!
+}
+`, BuiltIn: false},
 	{Name: "../schema/pages.graphqls", Input: `
 type Page{
     id: ID!
@@ -5808,28 +5876,6 @@ type QueryRoot{
   legacyIDLookup(options: LegacyIDLookupOptions): LegacyIDLookup!
 
   surveys: [Survey!]!
-}
-
-type MutationRoot {
-  setDevicePushToken(token: String!, languages: [String!]!): Device
-  setEpisodeProgress(id: ID!, progress: Int, duration: Int, context: EpisodeContext): Episode!
-
-  sendSupportEmail(title: String!, content: String!, html: String!): Boolean!
-
-  completeTask(
-    id: ID!,
-    selectedAlternatives: [String!],
-  ): Boolean!
-
-  lockLessonAnswers(id: ID!) : Boolean!
-
-  sendTaskMessage(taskId: ID!, message: String): ID!
-  updateTaskMessage(id: ID!, message: String!): ID!
-
-  sendEpisodeFeedback(episodeId: ID!, message: String, rating: Int): ID!
-  updateEpisodeFeedback(id: ID!, message: String, rating: Int): ID!
-
-  confirmAchievement(id: ID!): ConfirmAchievementResult!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -6635,6 +6681,30 @@ func (ec *executionContext) field_ListSection_items_args(ctx context.Context, ra
 	return args, nil
 }
 
+func (ec *executionContext) field_MutationRoot_answerSurveyQuestion_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNUUID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["answer"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("answer"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["answer"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_MutationRoot_completeTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -6875,6 +6945,30 @@ func (ec *executionContext) field_MutationRoot_updateEpisodeFeedback_args(ctx co
 		}
 	}
 	args["rating"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_updateSurveyQuestionAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["key"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["key"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["answer"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("answer"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["answer"] = arg1
 	return args, nil
 }
 
@@ -8941,6 +9035,50 @@ func (ec *executionContext) fieldContext_Analytics_anonymousId(ctx context.Conte
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AnswerSurveyQuestionResult_id(ctx context.Context, field graphql.CollectedField, obj *model.AnswerSurveyQuestionResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AnswerSurveyQuestionResult_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AnswerSurveyQuestionResult_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AnswerSurveyQuestionResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -20511,6 +20649,124 @@ func (ec *executionContext) fieldContext_MutationRoot_confirmAchievement(ctx con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_MutationRoot_confirmAchievement_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_answerSurveyQuestion(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_answerSurveyQuestion(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().AnswerSurveyQuestion(rctx, fc.Args["id"].(string), fc.Args["answer"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.AnswerSurveyQuestionResult)
+	fc.Result = res
+	return ec.marshalNAnswerSurveyQuestionResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAnswerSurveyQuestionResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_answerSurveyQuestion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AnswerSurveyQuestionResult_id(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AnswerSurveyQuestionResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_answerSurveyQuestion_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_updateSurveyQuestionAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_updateSurveyQuestionAnswer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().UpdateSurveyQuestionAnswer(rctx, fc.Args["key"].(string), fc.Args["answer"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.AnswerSurveyQuestionResult)
+	fc.Result = res
+	return ec.marshalNAnswerSurveyQuestionResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAnswerSurveyQuestionResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_updateSurveyQuestionAnswer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AnswerSurveyQuestionResult_id(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AnswerSurveyQuestionResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_updateSurveyQuestionAnswer_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -34803,6 +35059,34 @@ func (ec *executionContext) _Analytics(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
+var answerSurveyQuestionResultImplementors = []string{"AnswerSurveyQuestionResult"}
+
+func (ec *executionContext) _AnswerSurveyQuestionResult(ctx context.Context, sel ast.SelectionSet, obj *model.AnswerSurveyQuestionResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, answerSurveyQuestionResultImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AnswerSurveyQuestionResult")
+		case "id":
+
+			out.Values[i] = ec._AnswerSurveyQuestionResult_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var applicationImplementors = []string{"Application"}
 
 func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionSet, obj *model.Application) graphql.Marshaler {
@@ -37877,6 +38161,24 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._MutationRoot_confirmAchievement(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "answerSurveyQuestion":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_answerSurveyQuestion(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateSurveyQuestionAnswer":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_updateSurveyQuestionAnswer(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -41544,6 +41846,20 @@ func (ec *executionContext) marshalNAnalytics2ᚖgithubᚗcomᚋbccᚑcodeᚋbru
 		return graphql.Null
 	}
 	return ec._Analytics(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAnswerSurveyQuestionResult2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAnswerSurveyQuestionResult(ctx context.Context, sel ast.SelectionSet, v model.AnswerSurveyQuestionResult) graphql.Marshaler {
+	return ec._AnswerSurveyQuestionResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAnswerSurveyQuestionResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAnswerSurveyQuestionResult(ctx context.Context, sel ast.SelectionSet, v *model.AnswerSurveyQuestionResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AnswerSurveyQuestionResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNApplication2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐApplication(ctx context.Context, sel ast.SelectionSet, v model.Application) graphql.Marshaler {

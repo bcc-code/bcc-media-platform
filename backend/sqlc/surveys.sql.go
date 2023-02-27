@@ -66,6 +66,24 @@ func (q *Queries) GetSurveyIDsForRoles(ctx context.Context, roles []string) ([]u
 	return items, nil
 }
 
+const upsertSurveyAnswer = `-- name: UpsertSurveyAnswer :exec
+INSERT INTO users.surveyquestionanswers (id, question_id, answer, updated_at)
+VALUES ($1::varchar(64), $2::uuid, $3::text, now())
+ON CONFLICT(id) DO UPDATE SET answer     = EXCLUDED.answer,
+                              updated_at = EXCLUDED.updated_at
+`
+
+type UpsertSurveyAnswerParams struct {
+	ID         string    `db:"id" json:"id"`
+	QuestionID uuid.UUID `db:"question_id" json:"questionID"`
+	Answer     string    `db:"answer" json:"answer"`
+}
+
+func (q *Queries) UpsertSurveyAnswer(ctx context.Context, arg UpsertSurveyAnswerParams) error {
+	_, err := q.db.ExecContext(ctx, upsertSurveyAnswer, arg.ID, arg.QuestionID, arg.Answer)
+	return err
+}
+
 const getSurveyQuestionsForSurveyIDs = `-- name: getSurveyQuestionsForSurveyIDs :many
 WITH ts AS (SELECT ts.surveyquestions_id                           AS id,
                    json_object_agg(languages_code, ts.title)       AS title,

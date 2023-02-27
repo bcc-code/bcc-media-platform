@@ -19,4 +19,5 @@ var (
 	ErrItemNotPublished     = newError("item/not-published", "item is not published", "Item is not published!")
 	ErrItemNoAccess         = newError("item/no-access", "user has no access to this item", "You do not have access to this item!")
 	ErrTaskAlreadyCompleted = newError("task/already-completed", "task was already completed", "Task is already completed!")
+	ErrInvalidUUID          = newError("uuid/invalid", "invalid uuid passed", "UUID is invalid!")
 )

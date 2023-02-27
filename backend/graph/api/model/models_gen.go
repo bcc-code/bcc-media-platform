@@ -174,6 +174,10 @@ type Analytics struct {
 	AnonymousID string `json:"anonymousId"`
 }
 
+type AnswerSurveyQuestionResult struct {
+	ID string `json:"id"`
+}
+
 type Application struct {
 	ID            string `json:"id"`
 	Code          string `json:"code"`
