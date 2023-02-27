@@ -33,7 +33,7 @@
                 <div v-if="field">
                     <h3>Value</h3>
                     <div v-if="field.type === 'datetime-local' && relative">
-                        <v-input 
+                        <v-input
                             type="text"
                             :modelValue="selectedValue?.replace('relative:', '').replace('relativeneg:', '')"
                             @update:modelValue="(v) => {selectedValue = 'relative' + (relativeNegative ? '-' : '') + ':' + (v ?? ''); update()}"
@@ -90,8 +90,8 @@ const selectedOperator = ref(operator.value);
 const selectedProperty = ref((((props.value as TFilter)[operator.value][0] as Variable)?.var ?? null) as string | null)
 const selectedValue = ref(props.value[operator.value][1] as string | null);
 
-const relative = ref(selectedValue.value?.startsWith("relative"))
-const relativeNegative = ref(selectedValue.value?.startsWith("relativeneg"))
+const relative = ref(selectedValue.value?.toString().startsWith("relative"))
+const relativeNegative = ref(selectedValue.value?.toString().startsWith("relativeneg"))
 
 const field = computed(() => {
     const field = props.fields.find(f => f.column === selectedProperty.value);

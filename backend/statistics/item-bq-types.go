@@ -1,6 +1,7 @@
 package statistics
 
 import (
+	"encoding/json"
 	"time"
 
 	"cloud.google.com/go/bigquery"
@@ -22,11 +23,16 @@ func nullStr(s *string) bigquery.NullString {
 	}
 }
 
+func asJsonString[T any](o T) string {
+	out, _ := json.Marshal(o)
+	return string(out)
+}
+
 // Show is the definition of the Show object
 type Show struct {
 	ID            int                 `json:"id"`
 	Type          string              `json:"type"`
-	TagIDs        []int               `json:"tagIds"`
+	TagIDs        string              `json:"tagIds"`
 	PublicTitle   bigquery.NullString `json:"publicTitle"`
 	Title         bigquery.NullString `json:"title"`
 	Description   bigquery.NullString `json:"description"`
@@ -41,7 +47,7 @@ func ShowFromCommon(s common.Show, _ int) Show {
 	return Show{
 		ID:            s.ID,
 		Type:          s.Type,
-		TagIDs:        s.TagIDs,
+		TagIDs:        asJsonString(s.TagIDs),
 		PublicTitle:   nullStr(s.PublicTitle.Ptr()),
 		Title:         nullStr(s.Title.GetValueOrNil(statsLanguages)),
 		Description:   nullStr(s.Description.GetValueOrNil(statsLanguages)),
@@ -54,8 +60,8 @@ func ShowFromCommon(s common.Show, _ int) Show {
 
 // Season is the definition of the Season object
 type Season struct {
-	ID            int   `json:"id"`
-	TagIDs        []int `json:"tagIds"`
+	ID            int    `json:"id"`
+	TagIDs        string `json:"tagIds"`
 	Number        int
 	AgeRating     string
 	PublicTitle   bigquery.NullString `json:"publicTitle"`
@@ -72,7 +78,7 @@ type Season struct {
 func SeasonFromCommon(s common.Season, _ int) Season {
 	return Season{
 		ID:            s.ID,
-		TagIDs:        s.TagIDs,
+		TagIDs:        asJsonString(s.TagIDs),
 		Number:        s.Number,
 		AgeRating:     s.AgeRating,
 		ShowID:        s.ShowID,
@@ -103,7 +109,7 @@ type Episode struct {
 	ImagePoster           bigquery.NullString `json:"image_poster"`
 	Duration              int                 `json:"duration"`
 	AgeRating             string              `json:"ageRating"`
-	TagIDs                []int               `json:"tagIds"`
+	TagIDs                string              `json:"tagIds"`
 	PublicTitle           bigquery.NullString `json:"publicTitle"`
 	Title                 bigquery.NullString `json:"title"`
 	Description           bigquery.NullString `json:"description"`
@@ -130,7 +136,7 @@ func EpisodeFromCommon(e common.Episode, _ int) Episode {
 		ImagePoster:           nullStr(e.Images.GetDefault(statsLanguages, common.ImageStylePoster)),
 		Duration:              e.Duration,
 		AgeRating:             e.AgeRating,
-		TagIDs:                e.TagIDs,
+		TagIDs:                asJsonString(e.TagIDs),
 		PublicTitle:           nullStr(e.PublicTitle.Ptr()),
 		Title:                 nullStr(e.Title.GetValueOrNil(statsLanguages)),
 		Description:           nullStr(e.Description.GetValueOrNil(statsLanguages)),
