@@ -159,6 +159,7 @@ func (h *Handler) HandleAnswerExportToBQ(ctx context.Context) error {
 		return err
 	}
 
-	log.L.Debug().Int("new answer count", len(res)).Msg("Fetched answers to export")
-	return h.insert(ctx, res, "answers")
+	bqAnswers := lo.Map(res, answerRowToBQRow)
+	log.L.Debug().Int("new answer count", len(bqAnswers)).Msg("Fetched answers to export")
+	return h.insert(ctx, bqAnswers, "answers")
 }
