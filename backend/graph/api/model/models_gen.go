@@ -84,6 +84,13 @@ type SectionItemType interface {
 	IsSectionItemType()
 }
 
+type SurveyQuestion interface {
+	IsSurveyQuestion()
+	GetID() string
+	GetTitle() string
+	GetDescription() *string
+}
+
 type Task interface {
 	IsTask()
 	GetID() string
@@ -1132,6 +1139,34 @@ type StudyTopic struct {
 }
 
 func (StudyTopic) IsSectionItemType() {}
+
+type Survey struct {
+	ID          string  `json:"id"`
+	Title       string  `json:"title"`
+	Description *string `json:"description"`
+}
+
+type SurveyRatingQuestion struct {
+	ID          string  `json:"id"`
+	Title       string  `json:"title"`
+	Description *string `json:"description"`
+}
+
+func (SurveyRatingQuestion) IsSurveyQuestion()            {}
+func (this SurveyRatingQuestion) GetID() string           { return this.ID }
+func (this SurveyRatingQuestion) GetTitle() string        { return this.Title }
+func (this SurveyRatingQuestion) GetDescription() *string { return this.Description }
+
+type SurveyTextQuestion struct {
+	ID          string  `json:"id"`
+	Title       string  `json:"title"`
+	Description *string `json:"description"`
+}
+
+func (SurveyTextQuestion) IsSurveyQuestion()            {}
+func (this SurveyTextQuestion) GetID() string           { return this.ID }
+func (this SurveyTextQuestion) GetTitle() string        { return this.Title }
+func (this SurveyTextQuestion) GetDescription() *string { return this.Description }
 
 type TaskPagination struct {
 	Offset int    `json:"offset"`
