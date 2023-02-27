@@ -11,8 +11,8 @@ import (
 
 func surveyToItem(questionRows []getSurveyQuestionsForSurveyIDsRow) func(getSurveysRow, int) common.Survey {
 	return func(row getSurveysRow, _ int) common.Survey {
-		var title common.LocaleString
-		var description common.LocaleString
+		var title = common.LocaleString{}
+		var description = common.LocaleString{}
 		_ = json.Unmarshal(row.Title.RawMessage, &title)
 		_ = json.Unmarshal(row.Description.RawMessage, &description)
 		title["no"] = null.StringFrom(row.OriginalTitle)
@@ -34,8 +34,8 @@ func surveyToItem(questionRows []getSurveyQuestionsForSurveyIDsRow) func(getSurv
 }
 
 func surveyQuestionToItem(row getSurveyQuestionsForSurveyIDsRow, _ int) common.SurveyQuestion {
-	var title common.LocaleString
-	var d common.LocaleString
+	var title = common.LocaleString{}
+	var d = common.LocaleString{}
 	_ = json.Unmarshal(row.Title.RawMessage, &title)
 	_ = json.Unmarshal(row.Description.RawMessage, &d)
 	title["no"] = null.StringFrom(row.OriginalTitle)
