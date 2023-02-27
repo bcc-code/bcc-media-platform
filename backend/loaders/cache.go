@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	cache "github.com/Code-Hex/go-generics-cache"
+	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
 	"strings"
 	"sync"
@@ -22,15 +23,14 @@ type LoaderCache[K comparable, V any] struct {
 }
 
 // NewMemoryLoaderCache returns a new memory cache
-func NewMemoryLoaderCache[K comparable, V any](ctx context.Context, cacheKey string, expiration time.Duration) *dataloader.NoCache[K, V] {
-	return &dataloader.NoCache[K, V]{}
-	//lc := &LoaderCache[K, V]{
-	//	expiration:  expiration,
-	//	cacheKey:    cacheKey,
-	//	cachePrefix: uuid.New().String(),
-	//}
-	//lc.cache = lc.getCache()
-	//return lc
+func NewMemoryLoaderCache[K comparable, V any](ctx context.Context, cacheKey string, expiration time.Duration) dataloader.Cache[K, V] {
+	lc := &LoaderCache[K, V]{
+		expiration:  expiration,
+		cacheKey:    cacheKey,
+		cachePrefix: uuid.New().String(),
+	}
+	lc.cache = lc.getCache()
+	return lc
 }
 
 func (c *LoaderCache[K, V]) getCache() *cache.Cache[string, dataloader.Thunk[V]] {
