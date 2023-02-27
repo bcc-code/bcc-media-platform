@@ -112,36 +112,6 @@ var (
 var requestLocks = map[string]*sync.Mutex{}
 var requestCache = cache.New[string, any]()
 
-func withCache[r any](ctx context.Context, key string, factory func(ctx context.Context) (r, error), expiry time.Duration) (r, error) {
-	ctx, span := otel.Tracer("cache").Start(ctx, "simple")
-	defer span.End()
-	if result, ok := requestCache.Get(key); ok {
-		return result.(r), nil
-	}
-
-	lock, ok := requestLocks[key]
-	if !ok {
-		lock = &sync.Mutex{}
-		requestLocks[key] = lock
-	}
-	lock.Lock()
-	defer lock.Unlock()
-
-	if result, ok := requestCache.Get(key); ok {
-		return result.(r), nil
-	}
-
-	result, err := factory(ctx)
-	if err != nil {
-		// probably not the correct way to do this
-		return result, err
-	}
-
-	requestCache.Set(key, result, cache.WithExpiration(expiry))
-
-	return result, nil
-}
-
 type timedCacheEntry[t any] struct {
 	Cached time.Time
 	Entry  t
@@ -363,8 +333,8 @@ func resolveMessageSection(ctx context.Context, r *messageSectionResolver, s *co
 		// This code should just clear the cached entry from loader
 		// in case the specified timestamp is later than the stored.
 		key := fmt.Sprintf("section:%d:message_group", s.ID)
-		stored := memorycache.Get[time.Time](key)
-		if stored == nil || stored.Before(t.Truncate(truncateTime)) {
+		stored, success := memorycache.Get[time.Time](key)
+		if !success || stored.Before(t.Truncate(truncateTime)) {
 			r.Loaders.MessageGroupLoader.Clear(ctx, int(s.MessageID.Int64))
 			now := time.Now().Truncate(truncateTime)
 			memorycache.Set(key, &now, cache.WithExpiration(time.Minute*5))

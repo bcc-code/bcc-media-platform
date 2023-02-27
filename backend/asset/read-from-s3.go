@@ -63,7 +63,6 @@ func readSmilFroms3(ctx context.Context, client *s3.Client, bucket *string, path
 			log.L.Warn().Err(err).Str("path", path).Msg("Unable to retrieve json")
 		}
 		return nil, merry.Wrap(err)
-
 	}
 
 	xmlBytes, err := io.ReadAll(smilObjectOut.Body)

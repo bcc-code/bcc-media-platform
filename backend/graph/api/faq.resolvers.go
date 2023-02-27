@@ -5,18 +5,17 @@ package graph
 
 import (
 	"context"
-	"time"
-
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
 )
 
 // Categories is the resolver for the categories field.
 func (r *fAQResolver) Categories(ctx context.Context, obj *model.Faq, first *int, offset *int) (*model.FAQCategoryPagination, error) {
-	items, err := withCache(ctx, "categories", r.Queries.ListFAQCategories, time.Minute*5)
+	items, err := memorycache.GetOrSet(ctx, "categories", r.Queries.ListFAQCategories)
 	if err != nil {
 		return nil, err
 	}

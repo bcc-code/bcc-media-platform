@@ -640,9 +640,9 @@ func (r *queryRootResolver) AchievementGroups(ctx context.Context, first *int, o
 		return nil, err
 	}
 	if ids == nil {
-		ids = &[]uuid.UUID{}
+		ids = []uuid.UUID{}
 	}
-	page := utils.Paginate(*ids, first, offset, nil)
+	page := utils.Paginate(ids, first, offset, nil)
 
 	groups, err := r.Loaders.AchievementGroupLoader.GetMany(ctx, page.Items)
 	if err != nil {
