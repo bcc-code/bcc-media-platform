@@ -4,6 +4,7 @@ type Survey {
     description: String
     from: Date!
     to: Date!
+    questions: [SurveyQuestion!]!
 }
 
 interface SurveyQuestion {

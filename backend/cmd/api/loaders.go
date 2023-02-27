@@ -3,10 +3,13 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/bcc-code/brunstadtv/backend/members"
+	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
@@ -53,6 +56,12 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		EpisodeStudyLessonsLoader: loaders.NewRelationLoader(ctx, rq.GetLessonIDsForEpisodes, loaders.WithName("episode-study-lessons")),
 		StudyLessonLinksLoader:    loaders.NewRelationLoader(ctx, rq.GetLinkIDsForLessons, loaders.WithName("study-lesson-links")),
 		LinkStudyLessonsLoader:    loaders.NewRelationLoader(ctx, rq.GetLessonIDsForLinks, loaders.WithName("link-study-lessons")),
+
+		SurveyIDsLoader: func(ctx context.Context) ([]uuid.UUID, error) {
+			return memorycache.GetOrSet(ctx, fmt.Sprintf("surveyIDs:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
+				return queries.GetSurveyIDsForRoles(ctx, roles)
+			}, cache.WithExpiration(time.Minute*5))
+		},
 	}
 
 	// Canceling the context on delete stops janitors nested inside the loaders as well.

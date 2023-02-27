@@ -93,7 +93,7 @@ type FilteredLoaders struct {
 	LinkStudyLessonsLoader    *loaders.Loader[int, []*uuid.UUID]
 
 	// Lists
-	SurveyIDsLoader func(ctx context.Context) []uuid.UUID
+	SurveyIDsLoader func(ctx context.Context) ([]uuid.UUID, error)
 }
 
 // ProfileLoaders contains loaders per profile

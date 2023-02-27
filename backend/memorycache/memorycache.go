@@ -6,7 +6,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
-var memoryCache = cache.New[string, any]()
+var memoryCache = cache.New[string, any](cache.AsLRU[string, any]())
 
 // Get retrieve a value from cache
 func Get[V any](key string) (result V, success bool) {
@@ -22,7 +22,7 @@ func Set[V any](key string, value V, opts ...cache.ItemOption) {
 }
 
 // GetOrSet a value with a lock
-func GetOrSet[T any](ctx context.Context, key string, factory func(ctx context.Context) (T, error)) (T, error) {
+func GetOrSet[T any](ctx context.Context, key string, factory func(ctx context.Context) (T, error), opts ...cache.ItemOption) (T, error) {
 	stored, success := Get[T](key)
 	if success {
 		return stored, nil
@@ -40,6 +40,6 @@ func GetOrSet[T any](ctx context.Context, key string, factory func(ctx context.C
 	if err != nil {
 		return stored, err
 	}
-	Set(key, stored)
+	Set(key, stored, opts...)
 	return stored, nil
 }

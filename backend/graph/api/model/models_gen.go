@@ -1141,11 +1141,12 @@ type StudyTopic struct {
 func (StudyTopic) IsSectionItemType() {}
 
 type Survey struct {
-	ID          string  `json:"id"`
-	Title       string  `json:"title"`
-	Description *string `json:"description"`
-	From        string  `json:"from"`
-	To          string  `json:"to"`
+	ID          string           `json:"id"`
+	Title       string           `json:"title"`
+	Description *string          `json:"description"`
+	From        string           `json:"from"`
+	To          string           `json:"to"`
+	Questions   []SurveyQuestion `json:"questions"`
 }
 
 type SurveyRatingQuestion struct {
