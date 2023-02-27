@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/bcc-code/brunstadtv/backend/remotecache"
-	"github.com/bcc-code/brunstadtv/backend/utils"
-	sns "github.com/robbiet480/go.sns"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
+	"github.com/bcc-code/brunstadtv/backend/utils"
+	sns "github.com/robbiet480/go.sns"
 
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
@@ -133,6 +134,8 @@ func (s Server) ProcessMessage(c *gin.Context) {
 		err = s.services.GetDirectusEventHandler().ProcessCloudEvent(ctx, e)
 	case events.TypeSearchReindex:
 		err = s.services.GetSearchService().Reindex(ctx)
+	case events.TypeExportAnswersToBQ:
+		err = s.services.GetStatisticHandler().HandleAnswerExportToBQ(ctx)
 	case events.TypeTranslationsSync:
 		err = s.runIfNotLocked(ctx, fmt.Sprintf("event:%s", e.Type()), func() error {
 			return crowdin.HandleEvent(ctx, s.services, e)
