@@ -1,0 +1,23 @@
+type Survey {
+    id: UUID!
+    title: String!
+    description: String
+}
+
+interface SurveyQuestion {
+    id: UUID!
+    title: String!
+    description: String
+}
+
+type SurveyTextQuestion implements SurveyQuestion {
+    id: UUID!
+    title: String!
+    description: String
+}
+
+type SurveyRatingQuestion implements SurveyQuestion {
+    id: UUID!
+    title: String!
+    description: String
+}

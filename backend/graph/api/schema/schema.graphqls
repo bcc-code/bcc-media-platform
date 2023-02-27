@@ -17,6 +17,7 @@ scalar Language
 scalar Cursor
 scalar Date
 
+scalar UUID
 
 type Settings {
   audioLanguages: [Language!]!
