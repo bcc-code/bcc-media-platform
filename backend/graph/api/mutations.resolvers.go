@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"github.com/lib/pq"
 	"time"
 
 	merry "github.com/ansel1/merry/v2"
@@ -356,6 +357,9 @@ func (r *mutationRootResolver) AnswerSurveyQuestion(ctx context.Context, id stri
 		Answer:     answer,
 	})
 	if err != nil {
+		if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23503" {
+			return nil, common.ErrItemNotFound
+		}
 		return nil, err
 	}
 	return &model.AnswerSurveyQuestionResult{
