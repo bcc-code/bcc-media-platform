@@ -126,6 +126,8 @@ type QueryRoot{
   profile: Profile!
 
   legacyIDLookup(options: LegacyIDLookupOptions): LegacyIDLookup!
+
+  surveys: [Survey!]!
 }
 
 type MutationRoot {

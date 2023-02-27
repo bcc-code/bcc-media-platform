@@ -83,8 +83,6 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 		GetSelectedAlternativesLoader: loaders.New(ctx, profileQueries.GetSelectedAlternatives, loaders.WithMemoryCache(time.Second*1), loaders.WithName("selected-alternatives")),
 	}
 
-	ls.AchievementAchievedAtLoader.ClearAll()
-
 	profileLoaders.Set(profileID, ls, loaders.WithOnDelete(func() {
 		log.L.Debug().Msg("Clearing profile loader")
 

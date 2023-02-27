@@ -803,6 +803,11 @@ func (r *queryRootResolver) LegacyIDLookup(ctx context.Context, options *model.L
 	}, nil
 }
 
+// Surveys is the resolver for the surveys field.
+func (r *queryRootResolver) Surveys(ctx context.Context) ([]*model.Survey, error) {
+	panic("not implemented")
+}
+
 // MutationRoot returns generated.MutationRootResolver implementation.
 func (r *Resolver) MutationRoot() generated.MutationRootResolver { return &mutationRootResolver{r} }
 

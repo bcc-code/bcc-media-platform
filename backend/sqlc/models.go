@@ -1410,6 +1410,13 @@ type UsersProgress struct {
 	Context   pqtype.NullRawMessage `db:"context" json:"context"`
 }
 
+type UsersSurveyquestionanswer struct {
+	ID         string         `db:"id" json:"id"`
+	QuestionID uuid.UUID      `db:"question_id" json:"questionID"`
+	Answer     null_v4.String `db:"answer" json:"answer"`
+	UpdatedAt  null_v4.Time   `db:"updated_at" json:"updatedAt"`
+}
+
 type UsersTaskanswer struct {
 	ProfileID            uuid.UUID    `db:"profile_id" json:"profileID"`
 	TaskID               uuid.UUID    `db:"task_id" json:"taskID"`

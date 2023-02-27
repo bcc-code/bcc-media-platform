@@ -1144,6 +1144,8 @@ type Survey struct {
 	ID          string  `json:"id"`
 	Title       string  `json:"title"`
 	Description *string `json:"description"`
+	From        string  `json:"from"`
+	To          string  `json:"to"`
 }
 
 type SurveyRatingQuestion struct {
