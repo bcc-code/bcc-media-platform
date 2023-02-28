@@ -23,7 +23,7 @@ type Affiliation struct {
 	ChurchID  int
 }
 
-// Organization
+// Organization contains organizational data
 type Organization struct {
 	OrgID int
 	Name  string `json:"districtName"`

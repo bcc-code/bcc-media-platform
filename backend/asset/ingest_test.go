@@ -1,7 +1,7 @@
 package asset
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/bcc-code/brunstadtv/backend/asset/smil"
@@ -11,13 +11,13 @@ import (
 
 func TestSafeString(t *testing.T) {
 	pairs := map[string]string{
-		"":             "",
-		"918237981273": "918237981273",
-		":":            "_",
+		"":                 "",
+		"918237981273":     "918237981273",
+		":":                "_",
 		"		InTrO S01:E033": "INTRO_S01_E033",
-		"INTRO_S01_E033":  "INTRO_S01_E033",
-		"INTR😄O_S01_E033": "INTRO_S01_E033",
-		"😄😄😄😄😄":           "",
+		"INTRO_S01_E033":   "INTRO_S01_E033",
+		"INTR😄O_S01_E033":  "INTRO_S01_E033",
+		"😄😄😄😄😄":            "",
 	}
 
 	for in, out := range pairs {
@@ -47,7 +47,7 @@ func TestCalculateDuration(t *testing.T) {
 }
 
 func TestGetLanguagesFromVideoElement(t *testing.T) {
-	bytes, err := ioutil.ReadFile("./smil/testdata/smil2.xml")
+	bytes, err := os.ReadFile("./smil/testdata/smil2.xml")
 	assert.NoError(t, err)
 
 	smilObj, err := smil.Unmarshall(bytes)

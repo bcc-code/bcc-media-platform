@@ -35,10 +35,12 @@ func bqTableExistsOrCreate(ctx context.Context, dataset *bigquery.Dataset, table
 		return merry.Wrap(err)
 	}
 
-	tm := &bigquery.TableMetadata{}
+	tm := &bigquery.TableMetadata{
+		RequirePartitionFilter: false,
+	}
 	tm.Name = tableName
 	tm.Clustering = &bigquery.Clustering{Fields: []string{"Updated"}}
-	tm.TimePartitioning = &bigquery.TimePartitioning{Field: "Updated", Type: bigquery.YearPartitioningType, RequirePartitionFilter: false}
+	tm.TimePartitioning = &bigquery.TimePartitioning{Field: "Updated", Type: bigquery.YearPartitioningType}
 	tm.Schema = schema.Relax() // Make sure everyting is nullable. This is ok for stats
 
 	err = t.Create(ctx, tm)

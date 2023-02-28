@@ -65,12 +65,6 @@ func getRoles(ctx context.Context, queries *sqlc.Queries) (map[string][]string, 
 	return allRoles, nil
 }
 
-// IsImpersonating determines if the current request is on behalf of another user.
-func IsImpersonating(ctx *gin.Context) bool {
-	v, ok := ctx.Get(CtxImpersonating)
-	return ok && v.(bool)
-}
-
 // GetRolesForEmail returns all roles applicable for a specific email address.
 // The roles are fetched from a local cache or if that is not available from the DB
 func GetRolesForEmail(ctx context.Context, queries *sqlc.Queries, email string) ([]string, error) {

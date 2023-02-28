@@ -38,7 +38,7 @@ func (row getRedirectIDsForCodesRow) GetResult() uuid.UUID {
 	return row.ID
 }
 
-// GetApplicationIDsForCodes returns ids for the requested codes
+// GetRedirectIDsForCodes returns ids for the requested codes
 func (q *Queries) GetRedirectIDsForCodes(ctx context.Context, codes []string) ([]loaders.Conversion[string, uuid.UUID], error) {
 	rows, err := q.getRedirectIDsForCodes(ctx, codes)
 	if err != nil {

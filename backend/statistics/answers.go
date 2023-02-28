@@ -18,6 +18,7 @@ type latestExportedAnswerDateRow struct {
 	Updated time.Time
 }
 
+// GetAnswersSinceBQRow is a row
 type GetAnswersSinceBQRow struct {
 	Message  string      `bigquery:"message"`
 	ItemID   uuid.UUID   `bigquery:"item_id"`

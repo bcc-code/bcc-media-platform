@@ -5,7 +5,6 @@ import "strconv"
 // Stream types
 const (
 	HLSCmaf = "hls_cmaf"
-	HLSTs   = "hls_ts"
 	Dash    = "dash"
 )
 

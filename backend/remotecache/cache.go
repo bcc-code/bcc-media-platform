@@ -20,9 +20,6 @@ func (o *Options) SetTTL(ttl time.Duration) {
 // Nil is the error value in case the specified key does not exist
 var Nil = redis.Nil
 
-// KeepTTL keeps the old TTL
-var KeepTTL = redis.KeepTTL
-
 // Get the specified key. Returns Nil as error if not present
 func Get[T any](ctx context.Context, client *redis.Client, key string) (T, error) {
 	result := client.Get(ctx, key)

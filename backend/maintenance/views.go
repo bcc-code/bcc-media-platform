@@ -13,6 +13,7 @@ import (
 
 // Sentinel errors
 var (
+	// ErrUnknownView is an error for unknown views
 	ErrUnknownView = merry.Sentinel("Refresh of unknown view requested")
 )
 

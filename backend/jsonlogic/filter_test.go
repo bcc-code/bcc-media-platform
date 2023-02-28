@@ -3,7 +3,7 @@ package jsonlogic
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"testing"
 
@@ -31,7 +31,7 @@ func TestConvertToSQL(t *testing.T) {
 
 		fmt.Println("Successfully opened " + fileName.Name())
 
-		byteValue, _ := ioutil.ReadAll(jsonFile)
+		byteValue, _ := io.ReadAll(jsonFile)
 
 		var f filter
 		err = json.Unmarshal(byteValue, &f)

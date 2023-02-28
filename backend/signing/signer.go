@@ -27,15 +27,6 @@ type Config interface {
 	GetAzureSigningKey() string
 }
 
-func MustNewSigner(config Config) *Signer {
-	s, err := NewSigner(config)
-	if err != nil {
-		log.L.Panic().Err(err).Send()
-	}
-
-	return s
-}
-
 // NewSigner with all secret material configured
 func NewSigner(config Config) (*Signer, error) {
 	// Set up urlSigner for CDN urls access

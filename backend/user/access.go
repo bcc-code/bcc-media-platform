@@ -19,6 +19,7 @@ var (
 	ErrPublishDateInFuture = merry.Sentinel("Publish date in the future")
 )
 
+// CheckConditions defines which conditions that should be checked
 type CheckConditions struct {
 	FromDate    bool
 	PublishDate bool
