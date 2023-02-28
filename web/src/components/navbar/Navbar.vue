@@ -433,7 +433,7 @@ const isLive = computed(() => {
     )
 })
 
-const getNavigation = (showLive: boolean) => {
+const getNavigation = (showLive?: boolean) => {
     const n: {
         name: string
         to: RouteLocationRaw
