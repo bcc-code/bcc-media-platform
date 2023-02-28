@@ -9,7 +9,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/google/uuid"
 	"google.golang.org/api/iterator"
-	null "gopkg.in/guregu/null.v4"
 )
 
 var getLatestExportedAnswerDateSQL = "SELECT MAX(updated) as updated FROM `bccm-k8s-main.rudderstack_prod.answers`"
@@ -19,12 +18,12 @@ type latestExportedAnswerDateRow struct {
 }
 
 type GetAnswersSinceBQRow struct {
-	Message  string      `bigquery:"message"`
-	ItemID   uuid.UUID   `bigquery:"item_id"`
-	Rating   int32       `bigquery:"rating"`
-	AgeGroup null.String `bigquery:"age_group"`
-	OrgID    null.Int    `bigquery:"org_id"`
-	Updated  null.Time   `bigquery:"updated"`
+	Message  string    `bigquery:"message"`
+	ItemID   uuid.UUID `bigquery:"item_id"`
+	Rating   int32     `bigquery:"rating"`
+	AgeGroup string    `bigquery:"age_group"`
+	OrgID    int       `bigquery:"org_id"`
+	Updated  time.Time `bigquery:"updated"`
 }
 
 func answerRowToBQRow(r sqlc.GetAnswersSinceRow, _ int) GetAnswersSinceBQRow {
@@ -32,9 +31,9 @@ func answerRowToBQRow(r sqlc.GetAnswersSinceRow, _ int) GetAnswersSinceBQRow {
 		Message:  r.Message,
 		ItemID:   r.ItemID,
 		Rating:   r.Rating,
-		AgeGroup: r.AgeGroup,
-		OrgID:    r.OrgID,
-		Updated:  r.Updated,
+		AgeGroup: r.AgeGroup.String,
+		OrgID:    int(r.OrgID.Int64),
+		Updated:  r.Updated.Time,
 	}
 }
 
