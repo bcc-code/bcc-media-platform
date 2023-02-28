@@ -77,7 +77,7 @@ func main() {
 	searchService := search.New(queries, config.Algolia)
 	directusEventHandler := directus.NewEventHandler()
 	crowdinClient := crowdin.New(config.Crowdin, directus.NewHandler(directusClient), queries, false)
-	statisticsHandler := statistics.NewDirectusHandler(ctx, config.BigQuery, queries)
+	statisticsHandler := statistics.NewHandler(ctx, config.BigQuery, queries)
 
 	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.CloudTasks.QueueID)
 
@@ -151,6 +151,7 @@ func main() {
 		RemoteCache:          remotecache.New(rdb, locker),
 		CrowdinClient:        crowdinClient,
 		Scheduler:            sr,
+		StatisticsHandler:    statisticsHandler,
 	}
 
 	handlers := server.NewServer(services, serverConfig)

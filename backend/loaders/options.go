@@ -10,7 +10,7 @@ import (
 func getOptions[K comparable, V any](ctx context.Context, opts ...Option) []dataloader.Option[K, V] {
 	var options []dataloader.Option[K, V]
 
-	var cache *LoaderCache[K, V]
+	var cache dataloader.Cache[K, V]
 	var name string
 
 	for _, opt := range opts {

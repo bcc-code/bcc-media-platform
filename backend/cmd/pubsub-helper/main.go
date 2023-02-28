@@ -196,6 +196,8 @@ func main() {
 		refreshView(projectId, topicId)
 	case "syncTranslations":
 		simpleEvent(projectId, topicId, events.TypeTranslationsSync)
+	case "exportAnswers":
+		simpleEvent(projectId, topicId, events.TypeExportAnswersToBQ)
 	case "searchReindex":
 		simpleEvent(projectId, topicId, events.TypeSearchReindex)
 	case "ingest":

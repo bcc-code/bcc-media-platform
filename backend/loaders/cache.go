@@ -23,7 +23,7 @@ type LoaderCache[K comparable, V any] struct {
 }
 
 // NewMemoryLoaderCache returns a new memory cache
-func NewMemoryLoaderCache[K comparable, V any](ctx context.Context, cacheKey string, expiration time.Duration) *LoaderCache[K, V] {
+func NewMemoryLoaderCache[K comparable, V any](ctx context.Context, cacheKey string, expiration time.Duration) dataloader.Cache[K, V] {
 	lc := &LoaderCache[K, V]{
 		expiration:  expiration,
 		cacheKey:    cacheKey,
