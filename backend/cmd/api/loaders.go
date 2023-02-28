@@ -62,6 +62,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 				return queries.GetSurveyIDsForRoles(ctx, roles)
 			}, cache.WithExpiration(time.Minute*5))
 		},
+		SurveyQuestionsLoader: loaders.NewRelationLoader(ctx, rq.GetSurveyQuestionIDsForSurveyIDs, loaders.WithName("survey-questions-loader")),
 	}
 
 	// Canceling the context on delete stops janitors nested inside the loaders as well.

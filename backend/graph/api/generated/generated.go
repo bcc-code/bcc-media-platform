@@ -79,6 +79,7 @@ type ResolverRoot interface {
 	ShowCalendarEntry() ShowCalendarEntryResolver
 	SimpleCalendarEntry() SimpleCalendarEntryResolver
 	StudyTopic() StudyTopicResolver
+	Survey() SurveyResolver
 	TextTask() TextTaskResolver
 	VideoTask() VideoTaskResolver
 }
@@ -803,9 +804,16 @@ type ComplexityRoot struct {
 		Description func(childComplexity int) int
 		From        func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Questions   func(childComplexity int) int
+		Questions   func(childComplexity int, first *int, offset *int) int
 		Title       func(childComplexity int) int
 		To          func(childComplexity int) int
+	}
+
+	SurveyQuestionPagination struct {
+		First  func(childComplexity int) int
+		Items  func(childComplexity int) int
+		Offset func(childComplexity int) int
+		Total  func(childComplexity int) int
 	}
 
 	SurveyRatingQuestion struct {
@@ -1099,6 +1107,9 @@ type StudyTopicResolver interface {
 
 	Lessons(ctx context.Context, obj *model.StudyTopic, first *int, offset *int) (*model.LessonPagination, error)
 	Progress(ctx context.Context, obj *model.StudyTopic) (*model.LessonsProgress, error)
+}
+type SurveyResolver interface {
+	Questions(ctx context.Context, obj *model.Survey, first *int, offset *int) (*model.SurveyQuestionPagination, error)
 }
 type TextTaskResolver interface {
 	Completed(ctx context.Context, obj *model.TextTask) (bool, error)
@@ -4694,7 +4705,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Survey.Questions(childComplexity), true
+		args, err := ec.field_Survey_questions_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Survey.Questions(childComplexity, args["first"].(*int), args["offset"].(*int)), true
 
 	case "Survey.title":
 		if e.complexity.Survey.Title == nil {
@@ -4709,6 +4725,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Survey.To(childComplexity), true
+
+	case "SurveyQuestionPagination.first":
+		if e.complexity.SurveyQuestionPagination.First == nil {
+			break
+		}
+
+		return e.complexity.SurveyQuestionPagination.First(childComplexity), true
+
+	case "SurveyQuestionPagination.items":
+		if e.complexity.SurveyQuestionPagination.Items == nil {
+			break
+		}
+
+		return e.complexity.SurveyQuestionPagination.Items(childComplexity), true
+
+	case "SurveyQuestionPagination.offset":
+		if e.complexity.SurveyQuestionPagination.Offset == nil {
+			break
+		}
+
+		return e.complexity.SurveyQuestionPagination.Offset(childComplexity), true
+
+	case "SurveyQuestionPagination.total":
+		if e.complexity.SurveyQuestionPagination.Total == nil {
+			break
+		}
+
+		return e.complexity.SurveyQuestionPagination.Total(childComplexity), true
 
 	case "SurveyRatingQuestion.description":
 		if e.complexity.SurveyRatingQuestion.Description == nil {
@@ -6068,7 +6112,14 @@ type LinkTask implements Task {
     description: String
     from: Date!
     to: Date!
-    questions: [SurveyQuestion!]!
+    questions(first: Int, offset: Int): SurveyQuestionPagination! @goField(forceResolver: true)
+}
+
+type SurveyQuestionPagination implements Pagination {
+    first: Int!
+    offset: Int!
+    total: Int!
+    items: [SurveyQuestion!]!
 }
 
 interface SurveyQuestion {
@@ -7531,6 +7582,30 @@ func (ec *executionContext) field_StudyTopic_image_args(ctx context.Context, raw
 }
 
 func (ec *executionContext) field_StudyTopic_lessons_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Survey_questions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -30395,7 +30470,204 @@ func (ec *executionContext) _Survey_questions(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Questions, nil
+		return ec.resolvers.Survey().Questions(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.SurveyQuestionPagination)
+	fc.Result = res
+	return ec.marshalNSurveyQuestionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyQuestionPagination(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Survey_questions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Survey",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "first":
+				return ec.fieldContext_SurveyQuestionPagination_first(ctx, field)
+			case "offset":
+				return ec.fieldContext_SurveyQuestionPagination_offset(ctx, field)
+			case "total":
+				return ec.fieldContext_SurveyQuestionPagination_total(ctx, field)
+			case "items":
+				return ec.fieldContext_SurveyQuestionPagination_items(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SurveyQuestionPagination", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Survey_questions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyQuestionPagination_first(ctx context.Context, field graphql.CollectedField, obj *model.SurveyQuestionPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyQuestionPagination_first(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.First, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyQuestionPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyQuestionPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyQuestionPagination_offset(ctx context.Context, field graphql.CollectedField, obj *model.SurveyQuestionPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyQuestionPagination_offset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Offset, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyQuestionPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyQuestionPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyQuestionPagination_total(ctx context.Context, field graphql.CollectedField, obj *model.SurveyQuestionPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyQuestionPagination_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyQuestionPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyQuestionPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyQuestionPagination_items(ctx context.Context, field graphql.CollectedField, obj *model.SurveyQuestionPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyQuestionPagination_items(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Items, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30412,9 +30684,9 @@ func (ec *executionContext) _Survey_questions(ctx context.Context, field graphql
 	return ec.marshalNSurveyQuestion2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyQuestionᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Survey_questions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyQuestionPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Survey",
+		Object:     "SurveyQuestionPagination",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -34296,6 +34568,13 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._TaskPagination(ctx, sel, obj)
+	case model.SurveyQuestionPagination:
+		return ec._SurveyQuestionPagination(ctx, sel, &obj)
+	case *model.SurveyQuestionPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SurveyQuestionPagination(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -40840,14 +41119,14 @@ func (ec *executionContext) _Survey(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Survey_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 
 			out.Values[i] = ec._Survey_title(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "description":
 
@@ -40858,18 +41137,80 @@ func (ec *executionContext) _Survey(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Survey_from(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "to":
 
 			out.Values[i] = ec._Survey_to(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "questions":
+			field := field
 
-			out.Values[i] = ec._Survey_questions(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Survey_questions(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var surveyQuestionPaginationImplementors = []string{"SurveyQuestionPagination", "Pagination"}
+
+func (ec *executionContext) _SurveyQuestionPagination(ctx context.Context, sel ast.SelectionSet, obj *model.SurveyQuestionPagination) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, surveyQuestionPaginationImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SurveyQuestionPagination")
+		case "first":
+
+			out.Values[i] = ec._SurveyQuestionPagination_first(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "offset":
+
+			out.Values[i] = ec._SurveyQuestionPagination_offset(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "total":
+
+			out.Values[i] = ec._SurveyQuestionPagination_total(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "items":
+
+			out.Values[i] = ec._SurveyQuestionPagination_items(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -43553,6 +43894,20 @@ func (ec *executionContext) marshalNSurveyQuestion2ᚕgithubᚗcomᚋbccᚑcode�
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNSurveyQuestionPagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyQuestionPagination(ctx context.Context, sel ast.SelectionSet, v model.SurveyQuestionPagination) graphql.Marshaler {
+	return ec._SurveyQuestionPagination(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSurveyQuestionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyQuestionPagination(ctx context.Context, sel ast.SelectionSet, v *model.SurveyQuestionPagination) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SurveyQuestionPagination(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTask2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v model.Task) graphql.Marshaler {

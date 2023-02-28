@@ -4,36 +4,30 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
 )
 
-func surveyToItem(questionRows []getSurveyQuestionsForSurveyIDsRow) func(getSurveysRow, int) common.Survey {
-	return func(row getSurveysRow, _ int) common.Survey {
-		var title = common.LocaleString{}
-		var description = common.LocaleString{}
-		_ = json.Unmarshal(row.Title.RawMessage, &title)
-		_ = json.Unmarshal(row.Description.RawMessage, &description)
-		title["no"] = null.StringFrom(row.OriginalTitle)
-		description["no"] = row.OriginalDescription
+func surveyToItem(row getSurveysRow, _ int) common.Survey {
+	var title = common.LocaleString{}
+	var description = common.LocaleString{}
+	_ = json.Unmarshal(row.Title.RawMessage, &title)
+	_ = json.Unmarshal(row.Description.RawMessage, &description)
+	title["no"] = null.StringFrom(row.OriginalTitle)
+	description["no"] = row.OriginalDescription
 
-		questions := lo.Filter(questionRows, func(i getSurveyQuestionsForSurveyIDsRow, _ int) bool {
-			return i.SurveyID == row.ID
-		})
-
-		return common.Survey{
-			ID:          row.ID,
-			Title:       title,
-			Description: description,
-			From:        row.From,
-			To:          row.To,
-			Questions:   lo.Map(questions, surveyQuestionToItem),
-		}
+	return common.Survey{
+		ID:          row.ID,
+		Title:       title,
+		Description: description,
+		From:        row.From,
+		To:          row.To,
 	}
 }
 
-func surveyQuestionToItem(row getSurveyQuestionsForSurveyIDsRow, _ int) common.SurveyQuestion {
+func surveyQuestionToItem(row getSurveyQuestionsRow, _ int) common.SurveyQuestion {
 	var title = common.LocaleString{}
 	var d = common.LocaleString{}
 	_ = json.Unmarshal(row.Title.RawMessage, &title)
@@ -55,10 +49,25 @@ func (q *Queries) GetSurveys(ctx context.Context, ids []uuid.UUID) ([]common.Sur
 	if err != nil {
 		return nil, err
 	}
-	questionRows, err := q.getSurveyQuestionsForSurveyIDs(ctx, ids)
+	return lo.Map(rows, surveyToItem), nil
+}
+
+// GetSurveyQuestions returns survey questions
+func (q *Queries) GetSurveyQuestions(ctx context.Context, ids []uuid.UUID) ([]common.SurveyQuestion, error) {
+	rows, err := q.getSurveyQuestions(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
+	return lo.Map(rows, surveyQuestionToItem), nil
+}
 
-	return lo.Map(rows, surveyToItem(questionRows)), nil
+// GetSurveyQuestionIDsForSurveyIDs returns relation structs for the questions
+func (rq *RoleQueries) GetSurveyQuestionIDsForSurveyIDs(ctx context.Context, ids []uuid.UUID) ([]loaders.Relation[uuid.UUID, uuid.UUID], error) {
+	rows, err := rq.queries.getQuestionIDsForSurveyIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getQuestionIDsForSurveyIDsRow, _ int) loaders.Relation[uuid.UUID, uuid.UUID] {
+		return relation[uuid.UUID, uuid.UUID](i)
+	}), nil
 }

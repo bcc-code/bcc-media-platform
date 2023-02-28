@@ -386,7 +386,6 @@ type Survey struct {
 	Description LocaleString
 	From        time.Time
 	To          time.Time
-	Questions   []SurveyQuestion
 }
 
 // SurveyQuestion is a question in a survey

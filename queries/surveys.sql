@@ -15,7 +15,7 @@ FROM surveys s
          LEFT JOIN ts ON ts.id = s.id
 WHERE s.id = ANY (@ids::uuid[]);
 
--- name: getSurveyQuestionsForSurveyIDs :many
+-- name: getSurveyQuestions :many
 WITH ts AS (SELECT ts.surveyquestions_id                           AS id,
                    json_object_agg(languages_code, ts.title)       AS title,
                    json_object_agg(languages_code, ts.description) AS description
@@ -30,7 +30,13 @@ SELECT s.id,
        ts.description
 FROM surveyquestions s
          LEFT JOIN ts ON ts.id = s.id
-WHERE s.survey_id = ANY (@ids::uuid[]);
+WHERE s.id = ANY (@ids::uuid[]);
+
+-- name: getQuestionIDsForSurveyIDs :many
+SELECT q.id, q.survey_id AS parent_id
+FROM surveyquestions q
+WHERE q.survey_id = ANY (@ids::uuid[])
+ORDER BY q.sort;
 
 -- name: GetSurveyIDFromQuestionID :one
 SELECT q.survey_id
@@ -52,7 +58,6 @@ WHERE s.from < (NOW() + interval '7 day')
   AND roles.roles && @roles::varchar[];
 
 -- name: UpsertSurveyAnswer :exec
-INSERT INTO users.surveyquestionanswers (id, question_id, answer, updated_at)
-VALUES (@id::varchar(64), @question_id::uuid, @answer::text, now())
-ON CONFLICT(id) DO UPDATE SET answer     = EXCLUDED.answer,
-                              updated_at = EXCLUDED.updated_at;
+INSERT INTO users.surveyquestionanswers (profile_id, question_id, updated_at)
+VALUES (@profile_id::uuid, @question_id::uuid, now())
+ON CONFLICT(profile_id, question_id) DO UPDATE SET updated_at = EXCLUDED.updated_at;

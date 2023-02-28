@@ -67,24 +67,57 @@ func (q *Queries) GetSurveyIDsForRoles(ctx context.Context, roles []string) ([]u
 }
 
 const upsertSurveyAnswer = `-- name: UpsertSurveyAnswer :exec
-INSERT INTO users.surveyquestionanswers (id, question_id, answer, updated_at)
-VALUES ($1::varchar(64), $2::uuid, $3::text, now())
-ON CONFLICT(id) DO UPDATE SET answer     = EXCLUDED.answer,
-                              updated_at = EXCLUDED.updated_at
+INSERT INTO users.surveyquestionanswers (profile_id, question_id, updated_at)
+VALUES ($1::uuid, $2::uuid, now())
+ON CONFLICT(profile_id, question_id) DO UPDATE SET updated_at = EXCLUDED.updated_at
 `
 
 type UpsertSurveyAnswerParams struct {
-	ID         string    `db:"id" json:"id"`
+	ProfileID  uuid.UUID `db:"profile_id" json:"profileID"`
 	QuestionID uuid.UUID `db:"question_id" json:"questionID"`
-	Answer     string    `db:"answer" json:"answer"`
 }
 
 func (q *Queries) UpsertSurveyAnswer(ctx context.Context, arg UpsertSurveyAnswerParams) error {
-	_, err := q.db.ExecContext(ctx, upsertSurveyAnswer, arg.ID, arg.QuestionID, arg.Answer)
+	_, err := q.db.ExecContext(ctx, upsertSurveyAnswer, arg.ProfileID, arg.QuestionID)
 	return err
 }
 
-const getSurveyQuestionsForSurveyIDs = `-- name: getSurveyQuestionsForSurveyIDs :many
+const getQuestionIDsForSurveyIDs = `-- name: getQuestionIDsForSurveyIDs :many
+SELECT q.id, q.survey_id AS parent_id
+FROM surveyquestions q
+WHERE q.survey_id = ANY ($1::uuid[])
+ORDER BY q.sort
+`
+
+type getQuestionIDsForSurveyIDsRow struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getQuestionIDsForSurveyIDs(ctx context.Context, ids []uuid.UUID) ([]getQuestionIDsForSurveyIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getQuestionIDsForSurveyIDs, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getQuestionIDsForSurveyIDsRow
+	for rows.Next() {
+		var i getQuestionIDsForSurveyIDsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSurveyQuestions = `-- name: getSurveyQuestions :many
 WITH ts AS (SELECT ts.surveyquestions_id                           AS id,
                    json_object_agg(languages_code, ts.title)       AS title,
                    json_object_agg(languages_code, ts.description) AS description
@@ -99,10 +132,10 @@ SELECT s.id,
        ts.description
 FROM surveyquestions s
          LEFT JOIN ts ON ts.id = s.id
-WHERE s.survey_id = ANY ($1::uuid[])
+WHERE s.id = ANY ($1::uuid[])
 `
 
-type getSurveyQuestionsForSurveyIDsRow struct {
+type getSurveyQuestionsRow struct {
 	ID                  uuid.UUID             `db:"id" json:"id"`
 	OriginalTitle       string                `db:"original_title" json:"originalTitle"`
 	OriginalDescription null_v4.String        `db:"original_description" json:"originalDescription"`
@@ -112,15 +145,15 @@ type getSurveyQuestionsForSurveyIDsRow struct {
 	Description         pqtype.NullRawMessage `db:"description" json:"description"`
 }
 
-func (q *Queries) getSurveyQuestionsForSurveyIDs(ctx context.Context, ids []uuid.UUID) ([]getSurveyQuestionsForSurveyIDsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getSurveyQuestionsForSurveyIDs, pq.Array(ids))
+func (q *Queries) getSurveyQuestions(ctx context.Context, ids []uuid.UUID) ([]getSurveyQuestionsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSurveyQuestions, pq.Array(ids))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []getSurveyQuestionsForSurveyIDsRow
+	var items []getSurveyQuestionsRow
 	for rows.Next() {
-		var i getSurveyQuestionsForSurveyIDsRow
+		var i getSurveyQuestionsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.OriginalTitle,

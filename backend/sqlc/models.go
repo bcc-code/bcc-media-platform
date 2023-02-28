@@ -1411,10 +1411,9 @@ type UsersProgress struct {
 }
 
 type UsersSurveyquestionanswer struct {
-	ID         string         `db:"id" json:"id"`
-	QuestionID uuid.UUID      `db:"question_id" json:"questionID"`
-	Answer     null_v4.String `db:"answer" json:"answer"`
-	UpdatedAt  time.Time      `db:"updated_at" json:"updatedAt"`
+	ProfileID  uuid.UUID `db:"profile_id" json:"profileID"`
+	QuestionID uuid.UUID `db:"question_id" json:"questionID"`
+	UpdatedAt  time.Time `db:"updated_at" json:"updatedAt"`
 }
 
 type UsersTaskanswer struct {

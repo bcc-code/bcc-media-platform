@@ -9,7 +9,7 @@ import (
 )
 
 // SurveyQuestionFrom returns a gql question from a question
-func SurveyQuestionFrom(ctx context.Context, i common.SurveyQuestion) SurveyQuestion {
+func SurveyQuestionFrom(ctx context.Context, i *common.SurveyQuestion) SurveyQuestion {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
@@ -43,6 +43,5 @@ func SurveyFrom(ctx context.Context, i *common.Survey) *Survey {
 		Description: i.Description.GetValueOrNil(languages),
 		From:        i.From.Format(time.RFC3339),
 		To:          i.To.Format(time.RFC3339),
-		Questions:   utils.MapWithCtx(ctx, i.Questions, SurveyQuestionFrom),
 	}
 }

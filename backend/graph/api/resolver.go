@@ -424,7 +424,7 @@ func (r *Resolver) sendMessage(ctx context.Context, itemID uuid.UUID, message *s
 		md.Valid = err == nil
 	}
 
-	insertParams := sqlc.SetMessageParams{
+	insertParams := sqlc.UpsertMessageParams{
 		ID:       id,
 		Message:  str,
 		ItemID:   itemID,
@@ -442,7 +442,7 @@ func (r *Resolver) sendMessage(ctx context.Context, itemID uuid.UUID, message *s
 		insertParams.AgeGroup = usr.AgeGroup
 	}
 
-	err = r.Queries.SetMessage(ctx, insertParams)
+	err = r.Queries.UpsertMessage(ctx, insertParams)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to save string to database")
 		return "", merry.New("Failed to generate unique ID")
@@ -464,7 +464,7 @@ func (r *Resolver) updateMessage(ctx context.Context, id string, message *string
 		md.RawMessage, err = json.Encode(ctx, metadata)
 		md.Valid = err != nil
 	}
-	err = r.Queries.SetMessage(ctx, sqlc.SetMessageParams{
+	err = r.Queries.UpdateMessage(ctx, sqlc.UpdateMessageParams{
 		ID:       id,
 		Message:  str,
 		Metadata: md,

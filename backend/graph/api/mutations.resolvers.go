@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"github.com/lib/pq"
 	"time"
 
 	merry "github.com/ansel1/merry/v2"
@@ -19,6 +18,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/samber/lo"
 	null "gopkg.in/guregu/null.v4"
 )
@@ -342,7 +342,7 @@ func (r *mutationRootResolver) ConfirmAchievement(ctx context.Context, id string
 
 // AnswerSurveyQuestion is the resolver for the answerSurveyQuestion field.
 func (r *mutationRootResolver) AnswerSurveyQuestion(ctx context.Context, id string, answer string) (*model.AnswerSurveyQuestionResult, error) {
-	_, err := getProfile(ctx)
+	p, err := getProfile(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -350,16 +350,18 @@ func (r *mutationRootResolver) AnswerSurveyQuestion(ctx context.Context, id stri
 	if err != nil {
 		return nil, common.ErrInvalidUUID
 	}
-	key := utils.GenerateRandomSecureString(64)
 	err = r.Queries.UpsertSurveyAnswer(ctx, sqlc.UpsertSurveyAnswerParams{
-		ID:         key,
+		ProfileID:  p.ID,
 		QuestionID: uid,
-		Answer:     answer,
 	})
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23503" {
 			return nil, common.ErrItemNotFound
 		}
+		return nil, err
+	}
+	key, err := r.sendMessage(ctx, uid, &answer, nil)
+	if err != nil {
 		return nil, err
 	}
 	return &model.AnswerSurveyQuestionResult{
@@ -373,10 +375,7 @@ func (r *mutationRootResolver) UpdateSurveyQuestionAnswer(ctx context.Context, k
 	if err != nil {
 		return nil, err
 	}
-	err = r.Queries.UpsertSurveyAnswer(ctx, sqlc.UpsertSurveyAnswerParams{
-		ID:     key,
-		Answer: answer,
-	})
+	key, err = r.updateMessage(ctx, key, &answer, nil)
 	if err != nil {
 		return nil, err
 	}

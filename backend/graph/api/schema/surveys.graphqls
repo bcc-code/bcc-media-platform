@@ -4,7 +4,14 @@ type Survey {
     description: String
     from: Date!
     to: Date!
-    questions: [SurveyQuestion!]!
+    questions(first: Int, offset: Int): SurveyQuestionPagination! @goField(forceResolver: true)
+}
+
+type SurveyQuestionPagination implements Pagination {
+    first: Int!
+    offset: Int!
+    total: Int!
+    items: [SurveyQuestion!]!
 }
 
 interface SurveyQuestion {
