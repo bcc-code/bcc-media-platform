@@ -18,7 +18,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 	"github.com/samber/lo"
 	null "gopkg.in/guregu/null.v4"
 )
@@ -350,14 +349,18 @@ func (r *mutationRootResolver) AnswerSurveyQuestion(ctx context.Context, id stri
 	if err != nil {
 		return nil, common.ErrInvalidUUID
 	}
+	q, err := r.Loaders.SurveyQuestionLoader.Get(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	if q == nil {
+		return nil, common.ErrItemNotFound
+	}
 	err = r.Queries.UpsertSurveyAnswer(ctx, sqlc.UpsertSurveyAnswerParams{
 		ProfileID:  p.ID,
 		QuestionID: uid,
 	})
 	if err != nil {
-		if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23503" {
-			return nil, common.ErrItemNotFound
-		}
 		return nil, err
 	}
 	key, err := r.sendMessage(ctx, uid, &answer, nil)
