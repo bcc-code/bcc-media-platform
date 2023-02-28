@@ -86,6 +86,14 @@ COMMENT ON INDEX "public"."questionalternatives_translations_questionalternative
 
 --- BEGIN ALTER TABLE "public"."episodes_translations" ---
 
+WITH arr AS (
+    WITH agg AS (
+        SELECT episodes_id, languages_code, count(*) as count, min(id) as id, array_agg(title) as title FROM episodes_translations GROUP BY episodes_id, languages_code
+    )
+    SELECT agg.languages_code, agg.count, agg.id, agg.title[1], agg.title[2] FROM agg WHERE agg.count > 1
+)
+DELETE FROM episodes_translations WHERE id IN (SELECT arr.id FROM arr);
+
 CREATE UNIQUE INDEX episodes_translations_episodes_id_languages_code_uindex ON public.episodes_translations USING btree (episodes_id, languages_code);
 
 COMMENT ON INDEX "public"."episodes_translations_episodes_id_languages_code_uindex"  IS NULL;
@@ -111,6 +119,14 @@ ALTER TABLE IF EXISTS "public"."seasons_translations" ADD CONSTRAINT "seasons_tr
 
 COMMENT ON CONSTRAINT "seasons_translations_languages_code_foreign" ON "public"."seasons_translations" IS NULL;
 
+WITH arr AS (
+    WITH agg AS (
+        SELECT seasons_id, languages_code, count(*) as count, min(id) as id, array_agg(title) as title FROM seasons_translations GROUP BY seasons_id, languages_code
+    )
+    SELECT agg.languages_code, agg.count, agg.id, agg.title[1], agg.title[2] FROM agg WHERE agg.count > 1
+)
+DELETE FROM seasons_translations WHERE id IN (SELECT arr.id FROM arr);
+
 CREATE UNIQUE INDEX seasons_translations_seasons_id_languages_code_uindex ON public.seasons_translations USING btree (seasons_id, languages_code);
 
 COMMENT ON INDEX "public"."seasons_translations_seasons_id_languages_code_uindex"  IS NULL;
@@ -127,6 +143,14 @@ ALTER TABLE IF EXISTS "public"."sections_translations"
 ALTER TABLE IF EXISTS "public"."sections_translations" ADD CONSTRAINT "sections_translations_languages_code_foreign" FOREIGN KEY (languages_code) REFERENCES languages(code);
 
 COMMENT ON CONSTRAINT "sections_translations_languages_code_foreign" ON "public"."sections_translations" IS NULL;
+
+WITH arr AS (
+    WITH agg AS (
+        SELECT sections_id, languages_code, count(*) as count, min(id) as id, array_agg(title) as title FROM sections_translations GROUP BY sections_id, languages_code
+    )
+    SELECT agg.languages_code, agg.count, agg.id, agg.title[1], agg.title[2] FROM agg WHERE agg.count > 1
+)
+DELETE FROM sections_translations WHERE id IN (SELECT arr.id FROM arr);
 
 CREATE UNIQUE INDEX sections_translations_sections_id_languages_code_uindex ON public.sections_translations USING btree (sections_id, languages_code);
 
