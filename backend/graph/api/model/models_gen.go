@@ -84,6 +84,13 @@ type SectionItemType interface {
 	IsSectionItemType()
 }
 
+type SurveyQuestion interface {
+	IsSurveyQuestion()
+	GetID() string
+	GetTitle() string
+	GetDescription() *string
+}
+
 type Task interface {
 	IsTask()
 	GetID() string
@@ -165,6 +172,10 @@ func (this AlternativesTask) GetCompleted() bool { return this.Completed }
 
 type Analytics struct {
 	AnonymousID string `json:"anonymousId"`
+}
+
+type AnswerSurveyQuestionResult struct {
+	ID string `json:"id"`
 }
 
 type Application struct {
@@ -1132,6 +1143,49 @@ type StudyTopic struct {
 }
 
 func (StudyTopic) IsSectionItemType() {}
+
+type Survey struct {
+	ID          string                    `json:"id"`
+	Title       string                    `json:"title"`
+	Description *string                   `json:"description"`
+	From        string                    `json:"from"`
+	To          string                    `json:"to"`
+	Questions   *SurveyQuestionPagination `json:"questions"`
+}
+
+type SurveyQuestionPagination struct {
+	First  int              `json:"first"`
+	Offset int              `json:"offset"`
+	Total  int              `json:"total"`
+	Items  []SurveyQuestion `json:"items"`
+}
+
+func (SurveyQuestionPagination) IsPagination()       {}
+func (this SurveyQuestionPagination) GetTotal() int  { return this.Total }
+func (this SurveyQuestionPagination) GetFirst() int  { return this.First }
+func (this SurveyQuestionPagination) GetOffset() int { return this.Offset }
+
+type SurveyRatingQuestion struct {
+	ID          string  `json:"id"`
+	Title       string  `json:"title"`
+	Description *string `json:"description"`
+}
+
+func (SurveyRatingQuestion) IsSurveyQuestion()            {}
+func (this SurveyRatingQuestion) GetID() string           { return this.ID }
+func (this SurveyRatingQuestion) GetTitle() string        { return this.Title }
+func (this SurveyRatingQuestion) GetDescription() *string { return this.Description }
+
+type SurveyTextQuestion struct {
+	ID          string  `json:"id"`
+	Title       string  `json:"title"`
+	Description *string `json:"description"`
+}
+
+func (SurveyTextQuestion) IsSurveyQuestion()            {}
+func (this SurveyTextQuestion) GetID() string           { return this.ID }
+func (this SurveyTextQuestion) GetTitle() string        { return this.Title }
+func (this SurveyTextQuestion) GetDescription() *string { return this.Description }
 
 type TaskPagination struct {
 	Offset int    `json:"offset"`

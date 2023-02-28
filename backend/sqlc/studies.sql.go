@@ -161,35 +161,6 @@ func (q *Queries) SetAnswerLock(ctx context.Context, arg SetAnswerLockParams) er
 	return err
 }
 
-const setMessage = `-- name: SetMessage :exec
-INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at, metadata, age_group, org_id)
-VALUES ($1, $2, $3, NOW(), NOW(), $4, $5::TEXT, $6::int4)
-ON CONFLICT (id) DO UPDATE SET message    = EXCLUDED.message,
-                               metadata   = EXCLUDED.metadata,
-                               updated_at = EXCLUDED.updated_at
-`
-
-type SetMessageParams struct {
-	ID       string                `db:"id" json:"id"`
-	ItemID   uuid.UUID             `db:"item_id" json:"itemID"`
-	Message  string                `db:"message" json:"message"`
-	Metadata pqtype.NullRawMessage `db:"metadata" json:"metadata"`
-	AgeGroup string                `db:"age_group" json:"ageGroup"`
-	OrgID    int32                 `db:"org_id" json:"orgID"`
-}
-
-func (q *Queries) SetMessage(ctx context.Context, arg SetMessageParams) error {
-	_, err := q.db.ExecContext(ctx, setMessage,
-		arg.ID,
-		arg.ItemID,
-		arg.Message,
-		arg.Metadata,
-		arg.AgeGroup,
-		arg.OrgID,
-	)
-	return err
-}
-
 const setTaskCompleted = `-- name: SetTaskCompleted :exec
 INSERT INTO "users"."taskanswers" (profile_id, task_id, selected_alternatives, updated_at)
 VALUES ($1, $2, $3::uuid[], NOW())
@@ -205,6 +176,54 @@ type SetTaskCompletedParams struct {
 
 func (q *Queries) SetTaskCompleted(ctx context.Context, arg SetTaskCompletedParams) error {
 	_, err := q.db.ExecContext(ctx, setTaskCompleted, arg.ProfileID, arg.TaskID, pq.Array(arg.SelectedAlternatives))
+	return err
+}
+
+const updateMessage = `-- name: UpdateMessage :exec
+UPDATE users.messages
+SET message    = $1::text,
+    metadata   = $2,
+    updated_at = now()
+WHERE id = $3::varchar(32)
+`
+
+type UpdateMessageParams struct {
+	Message  string                `db:"message" json:"message"`
+	Metadata pqtype.NullRawMessage `db:"metadata" json:"metadata"`
+	ID       string                `db:"id" json:"id"`
+}
+
+func (q *Queries) UpdateMessage(ctx context.Context, arg UpdateMessageParams) error {
+	_, err := q.db.ExecContext(ctx, updateMessage, arg.Message, arg.Metadata, arg.ID)
+	return err
+}
+
+const upsertMessage = `-- name: UpsertMessage :exec
+INSERT INTO "users"."messages" (id, item_id, message, updated_at, created_at, metadata, age_group, org_id)
+VALUES ($1, $2, $3, NOW(), NOW(), $4, $5::TEXT, $6::int4)
+ON CONFLICT (id) DO UPDATE SET message    = EXCLUDED.message,
+                               metadata   = EXCLUDED.metadata,
+                               updated_at = EXCLUDED.updated_at
+`
+
+type UpsertMessageParams struct {
+	ID       string                `db:"id" json:"id"`
+	ItemID   uuid.UUID             `db:"item_id" json:"itemID"`
+	Message  string                `db:"message" json:"message"`
+	Metadata pqtype.NullRawMessage `db:"metadata" json:"metadata"`
+	AgeGroup string                `db:"age_group" json:"ageGroup"`
+	OrgID    int32                 `db:"org_id" json:"orgID"`
+}
+
+func (q *Queries) UpsertMessage(ctx context.Context, arg UpsertMessageParams) error {
+	_, err := q.db.ExecContext(ctx, upsertMessage,
+		arg.ID,
+		arg.ItemID,
+		arg.Message,
+		arg.Metadata,
+		arg.AgeGroup,
+		arg.OrgID,
+	)
 	return err
 }
 

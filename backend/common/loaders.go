@@ -1,6 +1,7 @@
 package common
 
 import (
+	"context"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/google/uuid"
@@ -37,6 +38,8 @@ type BatchLoaders struct {
 	ProfilesLoader                     *loaders.Loader[string, []*Profile]
 	MessageGroupLoader                 *loaders.Loader[int, *MessageGroup]
 	RedirectFromCodeLoader             *loaders.Loader[string, *Redirect]
+	SurveyLoader                       *loaders.Loader[uuid.UUID, *Survey]
+	SurveyQuestionLoader               *loaders.Loader[uuid.UUID, *SurveyQuestion]
 
 	MemberLoader *loaders.Loader[int, *members.Member]
 
@@ -83,12 +86,16 @@ type FilteredLoaders struct {
 	StudyLessonFilterLoader *loaders.Loader[uuid.UUID, *uuid.UUID]
 	StudyTasksLoader        *loaders.Loader[uuid.UUID, []*uuid.UUID]
 	StudyTaskFilterLoader   *loaders.Loader[uuid.UUID, *uuid.UUID]
+	SurveyQuestionsLoader   *loaders.Loader[uuid.UUID, []*uuid.UUID]
 
 	//Relations
 	StudyLessonEpisodesLoader *loaders.Loader[uuid.UUID, []*int]
 	EpisodeStudyLessonsLoader *loaders.Loader[int, []*uuid.UUID]
 	StudyLessonLinksLoader    *loaders.Loader[uuid.UUID, []*int]
 	LinkStudyLessonsLoader    *loaders.Loader[int, []*uuid.UUID]
+
+	// Lists
+	SurveyIDsLoader func(ctx context.Context) ([]uuid.UUID, error)
 }
 
 // ProfileLoaders contains loaders per profile

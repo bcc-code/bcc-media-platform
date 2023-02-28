@@ -4,6 +4,7 @@ import (
 	"context"
 	firebase "firebase.google.com/go"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
 	"strconv"
 	"time"
@@ -31,13 +32,12 @@ func NewService(ctx context.Context, firebaseProjectID string, queries *sqlc.Que
 
 // HandleModelUpdate handles updates
 func (s *Service) HandleModelUpdate(ctx context.Context, collection string, key string) error {
-	id, _ := strconv.ParseInt(key, 10, 64)
-	realItems, err := s.getEventItems(ctx, collection, int(id))
+	realItems, err := s.getEventItems(ctx, collection, key)
 	if err != nil {
 		return err
 	}
 	for _, ri := range realItems {
-		err = s.publishModelUpdate(ctx, ri.Collection, strconv.Itoa(ri.ID))
+		err = s.publishModelUpdate(ctx, ri.Collection, ri.ID)
 		if err != nil {
 			return err
 		}
@@ -46,22 +46,30 @@ func (s *Service) HandleModelUpdate(ctx context.Context, collection string, key 
 }
 
 type realItem struct {
-	ID         int
+	ID         string
 	Collection string
 }
 
-func (s *Service) getEventItems(ctx context.Context, collection string, id int) ([]*realItem, error) {
+func (s *Service) getEventItems(ctx context.Context, collection string, id string) ([]*realItem, error) {
 	switch collection {
 	case "sections":
 		return []*realItem{{ID: id, Collection: collection}}, nil
+	case "surveys":
+		return []*realItem{{ID: id, Collection: collection}}, nil
+	case "surveyquestions":
+		surveyID, err := s.queries.GetSurveyIDFromQuestionID(ctx, utils.AsUuid(id))
+		if err != nil {
+			return nil, err
+		}
+		return []*realItem{{ID: surveyID.String(), Collection: "surveys"}}, nil
 	case "messages":
-		ids, err := s.queries.GetSectionIDsWithMessageIDs(ctx, []int32{int32(id)})
+		ids, err := s.queries.GetSectionIDsWithMessageIDs(ctx, []int32{int32(utils.AsInt(id))})
 		if err != nil {
 			return nil, err
 		}
 		return lo.Map(ids, func(i int32, _ int) *realItem {
 			return &realItem{
-				ID:         int(i),
+				ID:         strconv.Itoa(int(i)),
 				Collection: "sections",
 			}
 		}), nil
@@ -72,7 +80,7 @@ func (s *Service) getEventItems(ctx context.Context, collection string, id int) 
 
 func (s *Service) publishModelUpdate(ctx context.Context, collection string, id string) error {
 	switch collection {
-	case "sections":
+	case "sections", "surveys":
 		break
 	default:
 		return nil

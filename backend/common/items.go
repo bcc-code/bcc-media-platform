@@ -378,3 +378,20 @@ type Message struct {
 	Title   LocaleString `json:"message"`
 	Content LocaleString `json:"details"`
 }
+
+// Survey is a survey
+type Survey struct {
+	ID          uuid.UUID `json:"id"`
+	Title       LocaleString
+	Description LocaleString
+	From        time.Time
+	To          time.Time
+}
+
+// SurveyQuestion is a question in a survey
+type SurveyQuestion struct {
+	ID          uuid.UUID `json:"id"`
+	Title       LocaleString
+	Description LocaleString
+	Type        string
+}
