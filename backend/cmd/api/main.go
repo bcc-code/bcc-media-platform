@@ -201,6 +201,9 @@ func main() {
 
 	log.L.Debug().Msg("Set up HTTP server")
 
+	if environment.Production() {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	r := gin.Default()
 
 	r.Use(utils.GinContextToContextMiddleware())
