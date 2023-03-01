@@ -2,6 +2,7 @@ package statistics
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"cloud.google.com/go/bigquery"
@@ -116,9 +117,21 @@ type Episode struct {
 	ExtraDescription      bigquery.NullString `json:"extraDescription"`
 	Updated               time.Time
 	Deleted               *time.Time
+	LegacyEpisodeID       bigquery.NullString
+	LegacyProgramID       bigquery.NullString
 }
 
 func EpisodeFromCommon(e common.Episode, _ int) Episode {
+	legacyEpisodeID := bigquery.NullString{
+		Valid:     e.LegacyID.Valid,
+		StringVal: fmt.Sprintf("E%d", e.LegacyID.ValueOrZero()),
+	}
+
+	legacyProgramID := bigquery.NullString{
+		Valid:     e.LegacyProgramID.Valid,
+		StringVal: fmt.Sprintf("P%d", e.LegacyProgramID.ValueOrZero()),
+	}
+
 	return Episode{
 		ID:                    e.ID,
 		UUID:                  e.UUID,
@@ -141,6 +154,8 @@ func EpisodeFromCommon(e common.Episode, _ int) Episode {
 		Title:                 nullStr(e.Title.GetValueOrNil(statsLanguages)),
 		Description:           nullStr(e.Description.GetValueOrNil(statsLanguages)),
 		ExtraDescription:      nullStr(e.ExtraDescription.GetValueOrNil(statsLanguages)),
+		LegacyEpisodeID:       legacyEpisodeID,
+		LegacyProgramID:       legacyProgramID,
 		Updated:               time.Now(),
 	}
 }
