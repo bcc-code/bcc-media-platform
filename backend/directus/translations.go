@@ -83,7 +83,6 @@ type TasksTranslation struct {
 type QuestionAlternativesTranslation struct {
 	ID                     string `json:"id,omitempty"`
 	Title                  string `json:"title"`
-	Description            string `json:"description,omitempty"`
 	LanguagesCode          string `json:"languages_code"`
 	QuestionAlternativesID string `json:"questionalternatives_id"`
 }
@@ -108,7 +107,8 @@ type AchievementGroupsTranslation struct {
 // ForUpdate for update
 func (i StudyTopicsTranslation) ForUpdate() any {
 	return map[string]string{
-		"title": i.Title,
+		"title":       i.Title,
+		"description": i.Description,
 	}
 }
 
@@ -125,7 +125,8 @@ func (StudyTopicsTranslation) TypeName() string {
 // ForUpdate for update
 func (i LessonsTranslation) ForUpdate() any {
 	return map[string]string{
-		"title": i.Title,
+		"title":       i.Title,
+		"description": i.Description,
 	}
 }
 
@@ -142,7 +143,8 @@ func (LessonsTranslation) TypeName() string {
 // ForUpdate for update
 func (i TasksTranslation) ForUpdate() any {
 	return map[string]string{
-		"title": i.Title,
+		"title":       i.Title,
+		"description": i.Description,
 	}
 }
 

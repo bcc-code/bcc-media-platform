@@ -316,12 +316,10 @@ func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, proj
 func alternativesToDSItems(translations []simpleTranslation) []directus.DSItem {
 	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
 		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
 		return directus.QuestionAlternativesTranslation{
 			ID:                     t.ID,
 			LanguagesCode:          t.Language,
 			Title:                  ti,
-			Description:            de,
 			QuestionAlternativesID: t.ParentID,
 		}
 	})
