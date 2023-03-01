@@ -18,6 +18,7 @@ import {
 import { useAuth0 } from "@auth0/auth0-vue"
 import { setProgress } from "@/utils/episodes"
 import { current as currentLanguage } from "@/services/language"
+import { getSessionId } from "rudder-sdk-js";
 
 const { isAuthenticated } = useAuth0()
 
@@ -124,6 +125,7 @@ const load = async () => {
                     tracking: {
                         isLive: false,
                         userId: data.value?.me.analytics.anonymousId,
+                        sessionId: getSessionId()?.toString() ?? undefined,
                         metadata: {
                             contentId: episodeId,
                             title: props.episode.title,
