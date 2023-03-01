@@ -8,6 +8,7 @@ export type Options = {
     tracking: {
         isLive: boolean,
         userId: string,
+        sessionId?: string,
         metadata: {
             contentId?: string,
             title?: string,
@@ -39,6 +40,7 @@ export function enableNPAW(player: VideoJsPlayer, options: Options) {
         "app.name": "web",
         "app.releaseVersion": "",//RELEASE_VERSION,
         "parse.manifest": true,
+        "extraparam.1": options.tracking.sessionId,
     }
     npaw.setOptions(defaults)
     npaw.setAdapter(new youboraVideoJsAdapter(player)) // Attach adapter

@@ -8,9 +8,10 @@ import Auth from "@/services/auth"
 import { languageTo3letter } from "@/utils/languages"
 import { createPlayer, Player } from "bccm-video-player"
 import "bccm-video-player/css"
-import { onMounted, onUnmounted, ref, watch } from "vue"
+import { onMounted, onUnmounted, ref } from "vue"
 import { useRoute } from "vue-router"
 import { current as currentLanguage } from "@/services/language"
+import { getSessionId } from "rudder-sdk-js";
 
 const err = ref(null as string | null)
 
@@ -83,6 +84,7 @@ onMounted(async () => {
             tracking: {
                 isLive: true,
                 userId: data.value?.me.analytics.anonymousId ?? "anonymous",
+                sessionId: getSessionId()?.toString() ?? undefined,
                 metadata: {},
             },
         },
