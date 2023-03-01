@@ -12,6 +12,7 @@ import (
 	"github.com/sony/gobreaker"
 	"net/http"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -144,6 +145,25 @@ func jwksHandler(config *redirectConfig) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, keySet)
 	}
+}
+
+func init() {
+	go func() {
+		ticker := time.NewTicker(time.Minute * 5)
+		for {
+			<-ticker.C
+			var stats runtime.MemStats
+			runtime.ReadMemStats(&stats)
+
+			log.L.Debug().
+				Uint64("alloc", stats.Alloc).
+				Uint64("total", stats.TotalAlloc).
+				Uint32("gc", stats.NumGC).
+				Uint64("sys", stats.Sys).
+				Int("routines", runtime.NumGoroutine()).
+				Msg("Printing memory stats")
+		}
+	}()
 }
 
 func main() {
