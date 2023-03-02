@@ -116,8 +116,6 @@ blocks:
           commands:
             - checkout
             - ./scripts/generate-cloud-build.sh
-      secrets:
-        - name: GoogleSemaphoreServiceAccount
       agent:
         machine:
           type: e1-standard-2
@@ -139,6 +137,8 @@ blocks:
             - npm i -g pnpm
             - cd ..
             - ./scripts/generate-web-builds.sh
+      secrets:
+        - name: GoogleSemaphoreServiceAccount
       epilogue:
         on_pass:
           commands:
