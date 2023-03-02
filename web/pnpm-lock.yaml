@@ -20,7 +20,7 @@ specifiers:
   '@urql/vue': ^1.0.4
   '@vitejs/plugin-vue': ^4.0.0
   autoprefixer: ^10.4.13
-  bccm-video-player: ^1.3.2
+  bccm-video-player: ^1.3.4
   eslint: ^8.35.0
   eslint-config-prettier: ^8.6.0
   eslint-plugin-prettier-vue: ^4.2.0
@@ -53,7 +53,7 @@ dependencies:
   '@types/showdown': 2.0.0
   '@urql/exchange-auth': 1.0.0_graphql@16.6.0
   '@urql/vue': 1.0.4_graphql@16.6.0+vue@3.2.47
-  bccm-video-player: 1.3.2
+  bccm-video-player: 1.3.4
   graphql: 16.6.0
   graphql-tag: 2.12.6_graphql@16.6.0
   rudder-sdk-js: 2.26.0
@@ -2390,8 +2390,8 @@ packages:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
     dev: true
 
-  /bccm-video-player/1.3.2:
-    resolution: {integrity: sha512-RG9KY83aOjH1FfrJikDOe7khb5PiMKWp1sBfELi0Id4W7m96SpANNVxVvKApJoGgmSXFFA4DoiQ7U6tjh6IJug==}
+  /bccm-video-player/1.3.4:
+    resolution: {integrity: sha512-V5WStLsFgihrBXhGDxQZIUXZceBPapsN83Of10iQC5NR9irhSIXak9KHpqOXCZxTkfmQUCxaU6Wi3Bl6BHF4UA==}
     dependencies:
       graphql: 16.6.0
       graphql-request: 5.2.0_graphql@16.6.0
@@ -2400,7 +2400,6 @@ packages:
       videojs-contrib-quality-levels: 2.2.1
       videojs-event-tracking: 1.0.3
       videojs-mux: 4.13.4
-      vue: 3.2.47
       youbora-adapter-videojs: 6.8.12
       youboralib: 6.8.42
     transitivePeerDependencies:

@@ -88,6 +88,7 @@ query getEpisode($episodeId: ID!, $context: EpisodeContext) {
             number
             description
             show {
+                id
                 title
                 type
                 description

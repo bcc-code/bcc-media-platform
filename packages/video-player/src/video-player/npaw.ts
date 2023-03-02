@@ -6,8 +6,8 @@ export type Options = {
     enabled?: boolean,
     accountCode?: string,
     tracking: {
-        isLive: boolean,
-        userId: string,
+        isLive?: boolean,
+        userId?: string,
         sessionId?: string,
         ageGroup?: string,
         metadata: {
@@ -23,14 +23,15 @@ export type Options = {
 }
 
 function toConfig(options: Options) {
+    const md = options.tracking.metadata
     return {
         "content.isLive": options.tracking.isLive === true,
-        "content.id": options.tracking.metadata.contentId, // prefixed by E or P. Episode 385 = E385. Program 52 = P52
-        "content.title": options.tracking.metadata.title,
-        "content.program": options.tracking.metadata.showTitle ?? options.tracking.metadata.title,
-        "content.tvShow": options.tracking.metadata.showId,
-        "content.season": options.tracking.metadata.seasonId ? `${options.tracking.metadata.seasonId} - ${options.tracking.metadata.seasonTitle}` : undefined,
-        "content.episodeTitle": options.tracking.metadata.episodeTitle,
+        "content.id": md.contentId, // prefixed by E or P. Episode 385 = E385. Program 52 = P52
+        "content.title": md.title,
+        "content.program": md.showTitle ?? md.title,
+        "content.tvShow": md.showId,
+        "content.season": md.seasonId ? `${md.seasonId} - ${md.seasonTitle}` : undefined,
+        "content.episodeTitle": md.episodeTitle,
         obfuscateIp: true,
         "user.name": options.tracking.userId,
         "app.name": "web",
@@ -41,11 +42,12 @@ function toConfig(options: Options) {
     }
 }
 
-export function enableNPAW(player: VideoJsPlayer, options: Options): typeof lib.Plugin {
+export function enableNPAW(player: VideoJsPlayer, options: Options) {
     if (!options.accountCode) {
         console.warn(
             "NPAW was not enabled because options.npaw.accountCode is invalid."
         )
+        return
     }
     const npaw = new lib.Plugin({ accountCode: options.accountCode })
 

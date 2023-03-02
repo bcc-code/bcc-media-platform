@@ -6,7 +6,7 @@ export const getEpisodeStreams = async (episodeID: string, client?: ApiClient) =
     const query = gql`
     query getEpisode($ID: ID!) {
         episode(id: $ID) {
-            imageUrl
+            image
             streams {
                 audioLanguages
                 subtitleLanguages
@@ -26,17 +26,19 @@ export const getEpisodeStreams = async (episodeID: string, client?: ApiClient) =
 
     const c = new GraphQLClient(client.endpoint, {headers})
 
-    const response = await c.request(query, {
+    const response = await c.request<{
+        episode: {
+            image: string;
+            streams: {
+                audioLanguages: string[];
+                subtitleLanguages: string[];
+                url: string;
+                type: "hls_cmaf" | "dash" | "hls_ts";
+            }[]
+        }
+    }>(query, {
         ID: episodeID,
     })
 
-    return response.episode as {
-        imageUrl: string;
-        streams: {
-            audioLanguages: string[];
-            subtitleLanguages: string[];
-            url: string;
-            type: "hls_cmaf" | "dash" | "hls_ts";
-        }[]
-    };
+    return response.episode;
 }

@@ -35,7 +35,7 @@ export class PlayerFactory {
                             src: stream.url,
                         },
                         videojs: {
-                            poster: episode.imageUrl
+                            poster: episode.image
                         }
                     } as Partial<Options>,
                     options.overrides
