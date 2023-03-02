@@ -90,5 +90,13 @@
   {
     "name": "Deleted",
     "type": "TIMESTAMP"
+  },
+  {
+    "name": "LegacyEpisodeID",
+    "type": "STRING"
+  },
+  {
+    "name": "LegacyProgramID",
+    "type": "STRING"
   }
 ]
