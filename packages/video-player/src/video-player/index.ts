@@ -3,10 +3,10 @@ import "video.js/dist/video-js.css"
 import "videojs-contrib-quality-levels"
 import "videojs-event-tracking"
 import "videojs-mux"
-import { enableNPAW, Options as NPAWOptions } from "./npaw"
+import {enableNPAW, Options as NPAWOptions, setOptions} from "./npaw"
 
 // External plugins
-import { CastLoader } from "@/video-player/utils"
+import { CastLoader } from "./utils"
 import registerChromecastPlugin from "@/../external-projects/videojs-chromecast"
 import hlsQualitySelector from "@/../external-projects/videojs-hls-quality-selector/src/plugin"
 
@@ -19,7 +19,7 @@ import "./skin/style.scss"
 import { isSmartTV } from "./utils/userAgent"
 
 if (!videojs.getPlugin("hlsQualitySelector")) {
-    // needed for demo. I dont understand why because it does the exact same as videojs-contrib-quality-levels.
+    // needed for demo. I don't understand why because it does the exact same as videojs-contrib-quality-levels.
     videojs.registerPlugin("hlsQualitySelector", hlsQualitySelector)
 }
 
@@ -133,6 +133,10 @@ const getDefaults = () => {
         },
     },
 } as Options}
+
+export function setNPAWOptions(player: Player, options: NPAWOptions) {
+    setOptions(player, options)
+}
 
 function createVideoElement(id: string, options: Options) {
     const videoEl = document.createElement("video")

@@ -47,15 +47,21 @@ export const getAgeGroup = (age?: number): AgeGroup => {
 class Analytics {
     private initialized = false
     private revision: string | null = null
+    private user: IdentifyData | null = null
 
     private get enabled() {
         const { accepted, statistics } = useCookies()
         return accepted.value && statistics.value
     }
 
+    public getUser() {
+        return this.user
+    }
+
     public setUser(user: IdentifyData) {
         this.initialized = true
         const data = Object.assign({}, user) as any
+        this.user = data
         delete data["id"]
         identify(user.id, data)
     }

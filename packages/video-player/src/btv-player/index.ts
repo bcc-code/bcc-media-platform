@@ -1,6 +1,6 @@
 import { getEpisodeStreams } from "./api"
 import { ApiClient, ApiClientOptions } from "./api/client"
-import { createPlayer, Options } from "@/video-player"
+import { createPlayer, Options } from "../video-player"
 import videojs from "video.js"
 export * from "./api"
 

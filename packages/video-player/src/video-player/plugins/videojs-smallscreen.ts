@@ -1,5 +1,5 @@
 import videojs from "video.js"
-import debounce from "@/video-player/utils/debounce.js"
+import debounce from "../utils/debounce.js"
 
 videojs.registerPlugin("smallScreen", function (options) {
     var controlBarClickHandler = (e: any) => {
