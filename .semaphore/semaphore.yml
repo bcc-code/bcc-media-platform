@@ -116,6 +116,8 @@ blocks:
           commands:
             - checkout
             - ./scripts/generate-cloud-build.sh
+      secrets:
+        - name: GoogleSemaphoreServiceAccount
       agent:
         machine:
           type: e1-standard-2
@@ -123,11 +125,15 @@ blocks:
   - name: Build Web
     dependencies: []
     task:
+      prologue:
+        commands:
+          - sem-version node 16
+          - checkout
+          - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
+          - gcloud auth configure-docker -q europe-west4-docker.pkg.dev
       jobs:
         - name: Build
           commands:
-            - sem-version node 16
-            - checkout
             - cd ./web
             - cache restore
             - npm i -g pnpm
