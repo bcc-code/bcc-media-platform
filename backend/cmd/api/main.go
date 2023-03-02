@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bsm/redislock"
@@ -21,10 +22,8 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwk"
 
 	"github.com/99designs/gqlgen/graphql/playground"
-	cache "github.com/Code-Hex/go-generics-cache"
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/members"
@@ -43,9 +42,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
 )
-
-// App global caches
-var generalCache = cache.New[string, any]()
 
 const filteredLoadersCtxKey = "filtered-loaders"
 const profileLoadersCtxKey = "profile-loaders"
@@ -97,20 +93,17 @@ func playgroundHandler() gin.HandlerFunc {
 	}
 }
 
+var apps []common.Application
+
 func getApplications(ctx context.Context, queries *sqlc.Queries) []common.Application {
-	var key = "applications"
-	cached, ok := generalCache.Get(key)
-	if ok {
-		return cached.([]common.Application)
-	} else {
-		apps, err := queries.ListApplications(ctx)
+	if apps == nil {
+		stored, err := queries.ListApplications(ctx)
 		if err != nil {
-			panic(err)
+			log.L.Panic().Err(err).Send()
 		}
-		// Cache with expiration in case the container lives too long.
-		generalCache.Set(key, apps, cache.WithExpiration(time.Minute*5))
-		return apps
+		apps = stored
 	}
+	return apps
 }
 
 func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code string) *common.Application {
