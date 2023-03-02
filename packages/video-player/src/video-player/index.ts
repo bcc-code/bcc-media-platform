@@ -7,7 +7,7 @@ import { enableNPAW, Options as NPAWOptions, setOptions } from "./npaw"
 
 // External plugins
 import { CastLoader } from "./utils"
-import registerChromecastPlugin from "@/../external-projects/videojs-chromecast"
+import registerChromecastPlugin from "@silvermine/videojs-chromecast"
 import hlsQualitySelector from "@/../external-projects/videojs-hls-quality-selector/src/plugin"
 
 // Internal plugins/extensions
