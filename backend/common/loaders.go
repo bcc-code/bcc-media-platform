@@ -45,6 +45,7 @@ type BatchLoaders struct {
 
 	EpisodeProgressLoader   *loaders.Loader[uuid.UUID, []*int]
 	EpisodeIDFromUuidLoader *loaders.Loader[uuid.UUID, *int]
+	ShowIDFromUuidLoader    *loaders.Loader[uuid.UUID, *int]
 	// Permissions
 	ShowPermissionLoader    *loaders.Loader[int, *Permissions[int]]
 	SeasonPermissionLoader  *loaders.Loader[int, *Permissions[int]]
@@ -70,6 +71,7 @@ type BatchLoaders struct {
 	UserLoader *loaders.Loader[string, *User]
 
 	// UserCollections
+	UserMyListCollectionID       *loaders.Loader[uuid.UUID, *uuid.UUID]
 	UserCollectionLoader         *loaders.Loader[uuid.UUID, *UserCollection]
 	UserCollectionEntryLoader    *loaders.Loader[uuid.UUID, *UserCollectionEntry]
 	UserCollectionIDsLoader      *loaders.Loader[uuid.UUID, []*uuid.UUID]
@@ -79,10 +81,12 @@ type BatchLoaders struct {
 // FilteredLoaders contains loaders that will be filtered by permissions.
 type FilteredLoaders struct {
 	EpisodeFilterLoader     *loaders.Loader[int, *int]
+	EpisodeUUIDFilterLoader *loaders.Loader[uuid.UUID, *uuid.UUID]
 	EpisodesLoader          *loaders.Loader[int, []*int]
 	SeasonFilterLoader      *loaders.Loader[int, *int]
 	SeasonsLoader           *loaders.Loader[int, []*int]
 	ShowFilterLoader        *loaders.Loader[int, *int]
+	ShowUUIDFilterLoader    *loaders.Loader[uuid.UUID, *uuid.UUID]
 	SectionsLoader          *loaders.Loader[int, []*int]
 	CollectionItemsLoader   *loaders.Loader[int, []*CollectionItem]
 	CollectionItemIDsLoader *loaders.Loader[int, []Identifier]

@@ -34,12 +34,14 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 	rq := queries.RoleQueries(roles)
 
 	ls := &common.FilteredLoaders{
-		ShowFilterLoader:    loaders.NewFilterLoader(ctx, rq.GetShowIDsWithRoles, loaders.WithName("show-filter")),
-		SeasonFilterLoader:  loaders.NewFilterLoader(ctx, rq.GetSeasonIDsWithRoles, loaders.WithName("season-filter")),
-		EpisodeFilterLoader: loaders.NewFilterLoader(ctx, rq.GetEpisodeIDsWithRoles, loaders.WithName("episode-filter")),
-		SeasonsLoader:       loaders.NewRelationLoader(ctx, rq.GetSeasonIDsForShowsWithRoles, loaders.WithName("seasons")),
-		SectionsLoader:      loaders.NewRelationLoader(ctx, rq.GetSectionIDsForPagesWithRoles, loaders.WithName("sections")),
-		EpisodesLoader:      loaders.NewRelationLoader(ctx, rq.GetEpisodeIDsForSeasonsWithRoles, loaders.WithName("episodes")),
+		ShowFilterLoader:        loaders.NewFilterLoader(ctx, rq.GetShowIDsWithRoles, loaders.WithName("show-filter")),
+		ShowUUIDFilterLoader:    loaders.NewFilterLoader(ctx, rq.GetShowUUIDsWithRoles, loaders.WithName("show-uuid-filter")),
+		SeasonFilterLoader:      loaders.NewFilterLoader(ctx, rq.GetSeasonIDsWithRoles, loaders.WithName("season-filter")),
+		EpisodeFilterLoader:     loaders.NewFilterLoader(ctx, rq.GetEpisodeIDsWithRoles, loaders.WithName("episode-filter")),
+		EpisodeUUIDFilterLoader: loaders.NewFilterLoader(ctx, rq.GetEpisodeUUIDsWithRoles, loaders.WithName("episode-uuid-filter")),
+		SeasonsLoader:           loaders.NewRelationLoader(ctx, rq.GetSeasonIDsForShowsWithRoles, loaders.WithName("seasons")),
+		SectionsLoader:          loaders.NewRelationLoader(ctx, rq.GetSectionIDsForPagesWithRoles, loaders.WithName("sections")),
+		EpisodesLoader:          loaders.NewRelationLoader(ctx, rq.GetEpisodeIDsForSeasonsWithRoles, loaders.WithName("episodes")),
 		CollectionItemsLoader: loaders.NewListLoader(ctx, rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
 			return i.CollectionID
 		}, loaders.WithName("collection-items")),
@@ -140,6 +142,7 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		CollectionIDFromSlugLoader: loaders.NewConversionLoader(ctx, queries.GetCollectionIDsForCodes, loaders.WithName("collection-id")),
 		EpisodeProgressLoader:      loaders.NewRelationLoader(ctx, queries.GetEpisodeIDsWithProgress, loaders.WithName("episode-progress")),
 		EpisodeIDFromUuidLoader:    loaders.NewConversionLoader(ctx, queries.GetEpisodeIDsForUuids, loaders.WithName("episode-uuids-ids")),
+		ShowIDFromUuidLoader:       loaders.NewConversionLoader(ctx, queries.GetShowIDsForUuids, loaders.WithName("show-uuids-ids")),
 		// Permissions
 		ShowPermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForShows, func(i common.Permissions[int]) int {
 			return i.ItemID
@@ -199,9 +202,10 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 			return i.PersonID
 		})),
 
-		UserCollectionLoader:         loaders.New(ctx, queries.GetUserCollections),
-		UserCollectionEntryLoader:    loaders.New(ctx, queries.GetUserCollectionEntries),
+		UserCollectionLoader:         loaders.New(ctx, queries.GetUserCollections, loaders.WithKeyFunc(func(i common.UserCollection) uuid.UUID { return i.ID })),
+		UserCollectionEntryLoader:    loaders.New(ctx, queries.GetUserCollectionEntries, loaders.WithKeyFunc(func(i common.UserCollectionEntry) uuid.UUID { return i.ID })),
 		UserCollectionIDsLoader:      loaders.NewRelationLoader(ctx, queries.GetUserCollectionIDsForProfileIDs, loaders.WithName("user-collection-ids")),
 		UserCollectionEntryIDsLoader: loaders.NewRelationLoader(ctx, queries.GetUserCollectionEntryIDsForUserCollectionIDs, loaders.WithName("user-collection-entry-ids")),
+		UserMyListCollectionID:       loaders.NewConversionLoader(ctx, queries.GetMyListCollectionForProfileIDs, loaders.WithName("user-my-list-id")),
 	}
 }

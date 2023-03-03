@@ -33,13 +33,16 @@ type UserCollection struct {
 
 // UserCollectionMetadata contains options that can specify extra options for a user
 type UserCollectionMetadata struct {
-	MyList bool
+	MyList bool `json:"myList"`
 }
 
 // UserCollectionEntry is an entry in a user collection
 type UserCollectionEntry struct {
-	ID     uuid.UUID
-	Type   string
-	ItemID uuid.UUID
-	Sort   int
+	ID           uuid.UUID
+	CollectionID uuid.UUID
+	Type         string
+	ItemID       uuid.UUID
+	Sort         int
+	UpdatedAt    time.Time
+	CreatedAt    time.Time
 }

@@ -8,12 +8,37 @@ SELECT ce.id, ce.collection_id, ce.updated_at, ce.created_at, ce.sort, ce.type, 
 FROM users.collectionentries ce
 WHERE ce.id = ANY (@ids::uuid[]);
 
+-- name: getMyListCollectionForProfileIDs :many
+SELECT c.id, c.profile_id AS parent_id
+FROM users.collections c
+WHERE c.profile_id = ANY (@profile_ids::uuid[])
+  AND metadata ->> 'myList' = 'true';
+
 -- name: getUserCollectionIDsForProfileIDs :many
 SELECT c.id, c.profile_id AS parent_id
 FROM users.collections c
-WHERE c.profile_id = ANY (@profile_ids::uuid[]);
+WHERE c.profile_id = ANY (@profile_ids::uuid[])
+  AND metadata ->> 'myList' != 'true';
 
 -- name: getUserCollectionEntryIDsForUserCollectionIDs :many
 SELECT ce.id, ce.collection_id AS parent_id
 FROM users.collectionentries ce
 WHERE ce.collection_id = ANY (@collection_ids::uuid[]);
+
+-- name: UpsertUserCollection :exec
+INSERT INTO users.collections (id, profile_id, updated_at, created_at, metadata, title)
+VALUES (@id, @profile_id, now(), now(), @metadata::json, @title)
+ON CONFLICT (id) DO UPDATE SET updated_at = now(),
+                               metadata   = EXCLUDED.metadata,
+                               title      = EXCLUDED.title;
+
+-- name: UpsertUserCollectionEntry :exec
+INSERT INTO users.collectionentries (id, collection_id, sort, type, item_id, created_at, updated_at)
+VALUES (@id, @collection_id, @sort, @type, @item_id, now(), now())
+ON CONFLICT(id) DO UPDATE SET sort       = EXCLUDED.sort,
+                              updated_at = EXCLUDED.updated_at;
+
+-- name: DeleteUserCollectionEntry :exec
+DELETE
+FROM users.collectionentries
+WHERE id = $1;

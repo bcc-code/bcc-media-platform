@@ -16,7 +16,7 @@ func AsUuid(s string) uuid.UUID {
 	return uid
 }
 
-// PointerArrayToArray converts an array of pointers to array
+// PointerArrayToArray converts an array of pointers to array. Nil values will be filtered out
 func PointerArrayToArray[K any](collection []*K) []K {
 	return lo.Map(lo.Filter(collection, func(i *K, _ int) bool {
 		return i != nil

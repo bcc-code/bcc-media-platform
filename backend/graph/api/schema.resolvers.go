@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -19,6 +20,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/google/uuid"
@@ -209,7 +211,7 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 			return nil, err
 		}
 		u := user.GetFromCtx(ginCtx)
-		if e.Unlisted() && u.Anonymous {
+		if e == nil || (e.Unlisted() && u.Anonymous) {
 			return nil, ErrItemNotFound
 		}
 	} else {
@@ -424,6 +426,67 @@ func (r *queryRootResolver) Me(ctx context.Context) (*model.User, error) {
 	}
 
 	return u, nil
+}
+
+// MyList is the resolver for the myList field.
+func (r *queryRootResolver) MyList(ctx context.Context) (*model.UserCollection, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return nil, err
+	}
+	l := r.Loaders.UserMyListCollectionID
+	id, err := l.Get(ctx, p.ID)
+	if id == nil {
+		uc := common.UserCollection{
+			ID:    uuid.New(),
+			Title: "my-list",
+			Metadata: common.UserCollectionMetadata{
+				MyList: true,
+			},
+			ProfileID: p.ID,
+		}
+		id = &uc.ID
+		l.Clear(ctx, p.ID)
+		l.Prime(ctx, p.ID, id)
+		md, _ := json.Marshal(uc.Metadata)
+		err = r.Queries.UpsertUserCollection(ctx, sqlc.UpsertUserCollectionParams{
+			ID:        uc.ID,
+			Metadata:  md,
+			ProfileID: uc.ProfileID,
+			Title:     uc.Title,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	return r.QueryRoot().UserCollection(ctx, id.String())
+}
+
+// UserCollection is the resolver for the userCollection field.
+func (r *queryRootResolver) UserCollection(ctx context.Context, id string) (*model.UserCollection, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return nil, err
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, common.ErrInvalidUUID
+	}
+	col, err := r.Loaders.UserCollectionLoader.Get(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	if col == nil {
+		return nil, common.ErrItemNotFound
+	}
+	if col.ProfileID != p.ID {
+		return nil, common.ErrItemNoAccess
+	}
+
+	return &model.UserCollection{
+		ID:    col.ID.String(),
+		Title: col.Title,
+	}, nil
 }
 
 // Config is the resolver for the config field.

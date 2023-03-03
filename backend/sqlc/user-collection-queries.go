@@ -37,10 +37,13 @@ func (q *Queries) GetUserCollectionEntries(ctx context.Context, ids []uuid.UUID)
 	}
 	return lo.Map(rows, func(i getUserCollectionEntriesRow, _ int) common.UserCollectionEntry {
 		return common.UserCollectionEntry{
-			ID:     i.ID,
-			Type:   i.Type,
-			ItemID: i.ItemID,
-			Sort:   int(i.Sort),
+			ID:           i.ID,
+			CollectionID: i.CollectionID,
+			UpdatedAt:    i.UpdatedAt,
+			CreatedAt:    i.CreatedAt,
+			Type:         i.Type,
+			ItemID:       i.ItemID,
+			Sort:         int(i.Sort),
 		}
 	}), nil
 }
@@ -64,5 +67,19 @@ func (q *Queries) GetUserCollectionEntryIDsForUserCollectionIDs(ctx context.Cont
 	}
 	return lo.Map(rows, func(i getUserCollectionEntryIDsForUserCollectionIDsRow, _ int) loaders.Relation[uuid.UUID, uuid.UUID] {
 		return relation[uuid.UUID, uuid.UUID](i)
+	}), nil
+}
+
+// GetMyListCollectionForProfileIDs returns the id for the profile my list collection
+func (q *Queries) GetMyListCollectionForProfileIDs(ctx context.Context, profileIDs []uuid.UUID) ([]loaders.Conversion[uuid.UUID, uuid.UUID], error) {
+	rows, err := q.getMyListCollectionForProfileIDs(ctx, profileIDs)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getMyListCollectionForProfileIDsRow, _ int) loaders.Conversion[uuid.UUID, uuid.UUID] {
+		return conversion[uuid.UUID, uuid.UUID]{
+			source: i.ParentID,
+			result: i.ID,
+		}
 	}), nil
 }

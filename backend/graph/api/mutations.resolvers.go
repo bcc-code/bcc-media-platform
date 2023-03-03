@@ -387,6 +387,59 @@ func (r *mutationRootResolver) UpdateSurveyQuestionAnswer(ctx context.Context, k
 	}, nil
 }
 
+// AddEpisodeToMyList is the resolver for the addEpisodeToMyList field.
+func (r *mutationRootResolver) AddEpisodeToMyList(ctx context.Context, episodeID string) (*model.AddToCollectionResult, error) {
+	e, err := r.addItemToCollection(ctx, "episode", episodeID)
+	if err != nil {
+		return nil, err
+	}
+	return &model.AddToCollectionResult{
+		ID: e.ID.String(),
+	}, nil
+}
+
+// AddShowToMyList is the resolver for the addShowToMyList field.
+func (r *mutationRootResolver) AddShowToMyList(ctx context.Context, showID string) (*model.AddToCollectionResult, error) {
+	e, err := r.addItemToCollection(ctx, "show", showID)
+	if err != nil {
+		return nil, err
+	}
+	return &model.AddToCollectionResult{
+		ID: e.ID.String(),
+	}, nil
+}
+
+// RemoveEntryFromMyList is the resolver for the removeEntryFromMyList field.
+func (r *mutationRootResolver) RemoveEntryFromMyList(ctx context.Context, entryID string) (*model.UserCollection, error) {
+	myList, err := r.QueryRoot().MyList(ctx)
+	if err != nil {
+		return nil, err
+	}
+	uid, err := uuid.Parse(entryID)
+	if err != nil {
+		return nil, err
+	}
+	listID := utils.AsUuid(myList.ID)
+	pointerEntryIDs, err := r.Loaders.UserCollectionEntryIDsLoader.Get(ctx, listID)
+	if err != nil {
+		return nil, err
+	}
+	entryIDs := utils.PointerArrayToArray(pointerEntryIDs)
+	if !lo.Contains(entryIDs, uid) {
+		return nil, common.ErrItemNotFound
+	}
+	pointerEntryIDs = lo.Filter(pointerEntryIDs, func(i *uuid.UUID, _ int) bool {
+		return *i != uid
+	})
+	err = r.Queries.DeleteUserCollectionEntry(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	r.Loaders.UserCollectionEntryIDsLoader.Clear(ctx, listID)
+	r.Loaders.UserCollectionEntryIDsLoader.Prime(ctx, listID, pointerEntryIDs)
+	return r.QueryRoot().MyList(ctx)
+}
+
 // MutationRoot returns generated.MutationRootResolver implementation.
 func (r *Resolver) MutationRoot() generated.MutationRootResolver { return &mutationRootResolver{r} }
 

@@ -141,6 +141,19 @@ WHERE e.id = ANY ($1::int[])
         (roles.roles_earlyaccess && $2::varchar[])
     );
 
+-- name: getEpisodeUUIDsWithRoles :many
+SELECT e.uuid
+FROM episodes e
+         LEFT JOIN episode_availability access ON access.id = e.id
+         LEFT JOIN episode_roles roles ON roles.id = e.id
+WHERE e.uuid = ANY ($1::uuid[])
+  AND access.published
+  AND access.available_to > now()
+  AND (
+        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+        (roles.roles_earlyaccess && $2::varchar[])
+    );
+
 -- name: getEpisodeIDsForLegacyProgramIDs :many
 SELECT e.id, e.legacy_program_id as legacy_id
 FROM episodes e

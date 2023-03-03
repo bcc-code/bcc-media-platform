@@ -98,6 +98,10 @@ type Task interface {
 	GetCompleted() bool
 }
 
+type UserCollectionEntryItem interface {
+	IsUserCollectionEntryItem()
+}
+
 type Achievement struct {
 	ID          string            `json:"id"`
 	Title       string            `json:"title"`
@@ -148,6 +152,10 @@ func (AchievementSection) IsSection()                   {}
 func (this AchievementSection) GetID() string           { return this.ID }
 func (this AchievementSection) GetTitle() *string       { return this.Title }
 func (this AchievementSection) GetDescription() *string { return this.Description }
+
+type AddToCollectionResult struct {
+	ID string `json:"id"`
+}
 
 type Alternative struct {
 	ID        string `json:"id"`
@@ -366,6 +374,8 @@ type Episode struct {
 }
 
 func (Episode) IsSectionItemType() {}
+
+func (Episode) IsUserCollectionEntryItem() {}
 
 type EpisodeCalendarEntry struct {
 	ID          string   `json:"id"`
@@ -1041,6 +1051,8 @@ type Show struct {
 
 func (Show) IsSectionItemType() {}
 
+func (Show) IsUserCollectionEntryItem() {}
+
 type ShowCalendarEntry struct {
 	ID          string `json:"id"`
 	Event       *Event `json:"event"`
@@ -1225,6 +1237,29 @@ type User struct {
 	Roles     []string   `json:"roles"`
 	Analytics *Analytics `json:"analytics"`
 }
+
+type UserCollection struct {
+	ID      string                         `json:"id"`
+	Title   string                         `json:"title"`
+	Entries *UserCollectionEntryPagination `json:"entries"`
+}
+
+type UserCollectionEntry struct {
+	ID   string                  `json:"id"`
+	Item UserCollectionEntryItem `json:"item"`
+}
+
+type UserCollectionEntryPagination struct {
+	Total  int                    `json:"total"`
+	Offset int                    `json:"offset"`
+	First  int                    `json:"first"`
+	Items  []*UserCollectionEntry `json:"items"`
+}
+
+func (UserCollectionEntryPagination) IsPagination()       {}
+func (this UserCollectionEntryPagination) GetTotal() int  { return this.Total }
+func (this UserCollectionEntryPagination) GetFirst() int  { return this.First }
+func (this UserCollectionEntryPagination) GetOffset() int { return this.Offset }
 
 type VideoTask struct {
 	ID             string   `json:"id"`

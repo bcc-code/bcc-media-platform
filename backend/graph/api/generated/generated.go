@@ -81,6 +81,8 @@ type ResolverRoot interface {
 	StudyTopic() StudyTopicResolver
 	Survey() SurveyResolver
 	TextTask() TextTaskResolver
+	UserCollection() UserCollectionResolver
+	UserCollectionEntry() UserCollectionEntryResolver
 	VideoTask() VideoTaskResolver
 }
 
@@ -122,6 +124,10 @@ type ComplexityRoot struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Title       func(childComplexity int) int
+	}
+
+	AddToCollectionResult struct {
+		ID func(childComplexity int) int
 	}
 
 	Alternative struct {
@@ -508,10 +514,13 @@ type ComplexityRoot struct {
 	}
 
 	MutationRoot struct {
+		AddEpisodeToMyList         func(childComplexity int, episodeID string) int
+		AddShowToMyList            func(childComplexity int, showID string) int
 		AnswerSurveyQuestion       func(childComplexity int, id string, answer string) int
 		CompleteTask               func(childComplexity int, id string, selectedAlternatives []string) int
 		ConfirmAchievement         func(childComplexity int, id string) int
 		LockLessonAnswers          func(childComplexity int, id string) int
+		RemoveEntryFromMyList      func(childComplexity int, entryID string) int
 		SendEpisodeFeedback        func(childComplexity int, episodeID string, message *string, rating *int) int
 		SendSupportEmail           func(childComplexity int, title string, content string, html string) int
 		SendTaskMessage            func(childComplexity int, taskID string, message *string) int
@@ -591,6 +600,7 @@ type ComplexityRoot struct {
 		Faq                 func(childComplexity int) int
 		LegacyIDLookup      func(childComplexity int, options *model.LegacyIDLookupOptions) int
 		Me                  func(childComplexity int) int
+		MyList              func(childComplexity int) int
 		Page                func(childComplexity int, id *string, code *string) int
 		PendingAchievements func(childComplexity int) int
 		Profile             func(childComplexity int) int
@@ -603,6 +613,7 @@ type ComplexityRoot struct {
 		StudyLesson         func(childComplexity int, id string) int
 		StudyTopic          func(childComplexity int, id string) int
 		Surveys             func(childComplexity int) int
+		UserCollection      func(childComplexity int, id string) int
 	}
 
 	Question struct {
@@ -857,6 +868,24 @@ type ComplexityRoot struct {
 		Settings  func(childComplexity int) int
 	}
 
+	UserCollection struct {
+		Entries func(childComplexity int, first *int, offset *int) int
+		ID      func(childComplexity int) int
+		Title   func(childComplexity int) int
+	}
+
+	UserCollectionEntry struct {
+		ID   func(childComplexity int) int
+		Item func(childComplexity int) int
+	}
+
+	UserCollectionEntryPagination struct {
+		First  func(childComplexity int) int
+		Items  func(childComplexity int) int
+		Offset func(childComplexity int) int
+		Total  func(childComplexity int) int
+	}
+
 	VideoTask struct {
 		Completed      func(childComplexity int) int
 		Description    func(childComplexity int) int
@@ -1017,6 +1046,9 @@ type MutationRootResolver interface {
 	ConfirmAchievement(ctx context.Context, id string) (*model.ConfirmAchievementResult, error)
 	AnswerSurveyQuestion(ctx context.Context, id string, answer string) (*model.AnswerSurveyQuestionResult, error)
 	UpdateSurveyQuestionAnswer(ctx context.Context, key string, answer string) (*model.AnswerSurveyQuestionResult, error)
+	AddEpisodeToMyList(ctx context.Context, episodeID string) (*model.AddToCollectionResult, error)
+	AddShowToMyList(ctx context.Context, showID string) (*model.AddToCollectionResult, error)
+	RemoveEntryFromMyList(ctx context.Context, entryID string) (*model.UserCollection, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -1053,6 +1085,8 @@ type QueryRootResolver interface {
 	Event(ctx context.Context, id string) (*model.Event, error)
 	Faq(ctx context.Context) (*model.Faq, error)
 	Me(ctx context.Context) (*model.User, error)
+	MyList(ctx context.Context) (*model.UserCollection, error)
+	UserCollection(ctx context.Context, id string) (*model.UserCollection, error)
 	Config(ctx context.Context) (*model.Config, error)
 	Profiles(ctx context.Context) ([]*model.Profile, error)
 	Profile(ctx context.Context) (*model.Profile, error)
@@ -1113,6 +1147,12 @@ type SurveyResolver interface {
 }
 type TextTaskResolver interface {
 	Completed(ctx context.Context, obj *model.TextTask) (bool, error)
+}
+type UserCollectionResolver interface {
+	Entries(ctx context.Context, obj *model.UserCollection, first *int, offset *int) (*model.UserCollectionEntryPagination, error)
+}
+type UserCollectionEntryResolver interface {
+	Item(ctx context.Context, obj *model.UserCollectionEntry) (model.UserCollectionEntryItem, error)
 }
 type VideoTaskResolver interface {
 	Completed(ctx context.Context, obj *model.VideoTask) (bool, error)
@@ -1285,6 +1325,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AchievementSection.Title(childComplexity), true
+
+	case "AddToCollectionResult.id":
+		if e.complexity.AddToCollectionResult.ID == nil {
+			break
+		}
+
+		return e.complexity.AddToCollectionResult.ID(childComplexity), true
 
 	case "Alternative.id":
 		if e.complexity.Alternative.ID == nil {
@@ -3089,6 +3136,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MessageStyle.Text(childComplexity), true
 
+	case "MutationRoot.addEpisodeToMyList":
+		if e.complexity.MutationRoot.AddEpisodeToMyList == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_addEpisodeToMyList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.AddEpisodeToMyList(childComplexity, args["episodeId"].(string)), true
+
+	case "MutationRoot.addShowToMyList":
+		if e.complexity.MutationRoot.AddShowToMyList == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_addShowToMyList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.AddShowToMyList(childComplexity, args["showId"].(string)), true
+
 	case "MutationRoot.answerSurveyQuestion":
 		if e.complexity.MutationRoot.AnswerSurveyQuestion == nil {
 			break
@@ -3136,6 +3207,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MutationRoot.LockLessonAnswers(childComplexity, args["id"].(string)), true
+
+	case "MutationRoot.removeEntryFromMyList":
+		if e.complexity.MutationRoot.RemoveEntryFromMyList == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_removeEntryFromMyList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.RemoveEntryFromMyList(childComplexity, args["entryId"].(string)), true
 
 	case "MutationRoot.sendEpisodeFeedback":
 		if e.complexity.MutationRoot.SendEpisodeFeedback == nil {
@@ -3622,6 +3705,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QueryRoot.Me(childComplexity), true
 
+	case "QueryRoot.myList":
+		if e.complexity.QueryRoot.MyList == nil {
+			break
+		}
+
+		return e.complexity.QueryRoot.MyList(childComplexity), true
+
 	case "QueryRoot.page":
 		if e.complexity.QueryRoot.Page == nil {
 			break
@@ -3745,6 +3835,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.QueryRoot.Surveys(childComplexity), true
+
+	case "QueryRoot.userCollection":
+		if e.complexity.QueryRoot.UserCollection == nil {
+			break
+		}
+
+		args, err := ec.field_QueryRoot_userCollection_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.UserCollection(childComplexity, args["id"].(string)), true
 
 	case "Question.answer":
 		if e.complexity.Question.Answer == nil {
@@ -4915,6 +5017,74 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Settings(childComplexity), true
 
+	case "UserCollection.entries":
+		if e.complexity.UserCollection.Entries == nil {
+			break
+		}
+
+		args, err := ec.field_UserCollection_entries_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.UserCollection.Entries(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+
+	case "UserCollection.id":
+		if e.complexity.UserCollection.ID == nil {
+			break
+		}
+
+		return e.complexity.UserCollection.ID(childComplexity), true
+
+	case "UserCollection.title":
+		if e.complexity.UserCollection.Title == nil {
+			break
+		}
+
+		return e.complexity.UserCollection.Title(childComplexity), true
+
+	case "UserCollectionEntry.id":
+		if e.complexity.UserCollectionEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.UserCollectionEntry.ID(childComplexity), true
+
+	case "UserCollectionEntry.item":
+		if e.complexity.UserCollectionEntry.Item == nil {
+			break
+		}
+
+		return e.complexity.UserCollectionEntry.Item(childComplexity), true
+
+	case "UserCollectionEntryPagination.first":
+		if e.complexity.UserCollectionEntryPagination.First == nil {
+			break
+		}
+
+		return e.complexity.UserCollectionEntryPagination.First(childComplexity), true
+
+	case "UserCollectionEntryPagination.items":
+		if e.complexity.UserCollectionEntryPagination.Items == nil {
+			break
+		}
+
+		return e.complexity.UserCollectionEntryPagination.Items(childComplexity), true
+
+	case "UserCollectionEntryPagination.offset":
+		if e.complexity.UserCollectionEntryPagination.Offset == nil {
+			break
+		}
+
+		return e.complexity.UserCollectionEntryPagination.Offset(childComplexity), true
+
+	case "UserCollectionEntryPagination.total":
+		if e.complexity.UserCollectionEntryPagination.Total == nil {
+			break
+		}
+
+		return e.complexity.UserCollectionEntryPagination.Total(childComplexity), true
+
 	case "VideoTask.completed":
 		if e.complexity.VideoTask.Completed == nil {
 			break
@@ -5525,10 +5695,19 @@ type Message {
 
     answerSurveyQuestion(id: UUID!, answer: String!): AnswerSurveyQuestionResult!
     updateSurveyQuestionAnswer(key: String!, answer: String!): AnswerSurveyQuestionResult!
+
+    addEpisodeToMyList(episodeId: ID!): AddToCollectionResult!
+    addShowToMyList(showId: ID!): AddToCollectionResult!
+
+    removeEntryFromMyList(entryId: UUID!): UserCollection!
 }
 
 type AnswerSurveyQuestionResult {
     id: String!
+}
+
+type AddToCollectionResult {
+    id: ID!
 }
 `, BuiltIn: false},
 	{Name: "../schema/pages.graphqls", Input: `
@@ -5912,6 +6091,10 @@ type QueryRoot{
 
   me: User!
 
+  myList: UserCollection!
+
+  userCollection(id: UUID!): UserCollection!
+
   config: Config!
 
   profiles: [Profile!]!
@@ -6138,6 +6321,31 @@ type SurveyRatingQuestion implements SurveyQuestion {
     id: UUID!
     title: String!
     description: String
+}
+`, BuiltIn: false},
+	{Name: "../schema/user-collections.graphqls", Input: `type UserCollection {
+    id: UUID!
+    title: String!
+#    updatedAt: Date!
+#    createdAt: Date!
+    entries(first: Int, offset: Int): UserCollectionEntryPagination! @goField(forceResolver: true)
+}
+
+union UserCollectionEntryItem = Show | Episode
+
+type UserCollectionEntry {
+    id: UUID!
+#    sort: Int!
+#    updatedAt: Date!
+#    createdAt: Date!
+    item: UserCollectionEntryItem! @goField(forceResolver: true)
+}
+
+type UserCollectionEntryPagination implements Pagination {
+    total: Int!
+    offset: Int!
+    first: Int!
+    items: [UserCollectionEntry!]!
 }
 `, BuiltIn: false},
 }
@@ -6732,6 +6940,36 @@ func (ec *executionContext) field_ListSection_items_args(ctx context.Context, ra
 	return args, nil
 }
 
+func (ec *executionContext) field_MutationRoot_addEpisodeToMyList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["episodeId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("episodeId"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["episodeId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_addShowToMyList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["showId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("showId"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["showId"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_MutationRoot_answerSurveyQuestion_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -6807,6 +7045,21 @@ func (ec *executionContext) field_MutationRoot_lockLessonAnswers_args(ctx contex
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_removeEntryFromMyList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["entryId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("entryId"))
+		arg0, err = ec.unmarshalNUUID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["entryId"] = arg0
 	return args, nil
 }
 
@@ -7470,6 +7723,21 @@ func (ec *executionContext) field_QueryRoot_studyTopic_args(ctx context.Context,
 	return args, nil
 }
 
+func (ec *executionContext) field_QueryRoot_userCollection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNUUID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Season_episodes_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -7606,6 +7874,30 @@ func (ec *executionContext) field_StudyTopic_lessons_args(ctx context.Context, r
 }
 
 func (ec *executionContext) field_Survey_questions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_UserCollection_entries_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -8621,6 +8913,50 @@ func (ec *executionContext) fieldContext_AchievementSection_description(ctx cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AddToCollectionResult_id(ctx context.Context, field graphql.CollectedField, obj *model.AddToCollectionResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AddToCollectionResult_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AddToCollectionResult_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AddToCollectionResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -20848,6 +21184,187 @@ func (ec *executionContext) fieldContext_MutationRoot_updateSurveyQuestionAnswer
 	return fc, nil
 }
 
+func (ec *executionContext) _MutationRoot_addEpisodeToMyList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_addEpisodeToMyList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().AddEpisodeToMyList(rctx, fc.Args["episodeId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.AddToCollectionResult)
+	fc.Result = res
+	return ec.marshalNAddToCollectionResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAddToCollectionResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_addEpisodeToMyList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AddToCollectionResult_id(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AddToCollectionResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_addEpisodeToMyList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_addShowToMyList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_addShowToMyList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().AddShowToMyList(rctx, fc.Args["showId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.AddToCollectionResult)
+	fc.Result = res
+	return ec.marshalNAddToCollectionResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAddToCollectionResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_addShowToMyList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AddToCollectionResult_id(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AddToCollectionResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_addShowToMyList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_removeEntryFromMyList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_removeEntryFromMyList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().RemoveEntryFromMyList(rctx, fc.Args["entryId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UserCollection)
+	fc.Result = res
+	return ec.marshalNUserCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_removeEntryFromMyList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_UserCollection_id(ctx, field)
+			case "title":
+				return ec.fieldContext_UserCollection_title(ctx, field)
+			case "entries":
+				return ec.fieldContext_UserCollection_entries(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserCollection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_removeEntryFromMyList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Page_id(ctx context.Context, field graphql.CollectedField, obj *model.Page) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Page_id(ctx, field)
 	if err != nil {
@@ -23784,6 +24301,121 @@ func (ec *executionContext) fieldContext_QueryRoot_me(ctx context.Context, field
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_myList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_myList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().MyList(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UserCollection)
+	fc.Result = res
+	return ec.marshalNUserCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_myList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_UserCollection_id(ctx, field)
+			case "title":
+				return ec.fieldContext_UserCollection_title(ctx, field)
+			case "entries":
+				return ec.fieldContext_UserCollection_entries(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserCollection", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_userCollection(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_userCollection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().UserCollection(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UserCollection)
+	fc.Result = res
+	return ec.marshalNUserCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_userCollection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_UserCollection_id(ctx, field)
+			case "title":
+				return ec.fieldContext_UserCollection_title(ctx, field)
+			case "entries":
+				return ec.fieldContext_UserCollection_entries(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserCollection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_userCollection_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -31704,6 +32336,429 @@ func (ec *executionContext) fieldContext_User_analytics(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _UserCollection_id(ctx context.Context, field graphql.CollectedField, obj *model.UserCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCollection_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNUUID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCollection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCollection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCollection_title(ctx context.Context, field graphql.CollectedField, obj *model.UserCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCollection_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCollection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCollection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCollection_entries(ctx context.Context, field graphql.CollectedField, obj *model.UserCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCollection_entries(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UserCollection().Entries(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UserCollectionEntryPagination)
+	fc.Result = res
+	return ec.marshalNUserCollectionEntryPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryPagination(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCollection_entries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCollection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_UserCollectionEntryPagination_total(ctx, field)
+			case "offset":
+				return ec.fieldContext_UserCollectionEntryPagination_offset(ctx, field)
+			case "first":
+				return ec.fieldContext_UserCollectionEntryPagination_first(ctx, field)
+			case "items":
+				return ec.fieldContext_UserCollectionEntryPagination_items(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserCollectionEntryPagination", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_UserCollection_entries_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCollectionEntry_id(ctx context.Context, field graphql.CollectedField, obj *model.UserCollectionEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCollectionEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNUUID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCollectionEntry_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCollectionEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCollectionEntry_item(ctx context.Context, field graphql.CollectedField, obj *model.UserCollectionEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCollectionEntry_item(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UserCollectionEntry().Item(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.UserCollectionEntryItem)
+	fc.Result = res
+	return ec.marshalNUserCollectionEntryItem2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryItem(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCollectionEntry_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCollectionEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UserCollectionEntryItem does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCollectionEntryPagination_total(ctx context.Context, field graphql.CollectedField, obj *model.UserCollectionEntryPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCollectionEntryPagination_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCollectionEntryPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCollectionEntryPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCollectionEntryPagination_offset(ctx context.Context, field graphql.CollectedField, obj *model.UserCollectionEntryPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCollectionEntryPagination_offset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Offset, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCollectionEntryPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCollectionEntryPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCollectionEntryPagination_first(ctx context.Context, field graphql.CollectedField, obj *model.UserCollectionEntryPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCollectionEntryPagination_first(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.First, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCollectionEntryPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCollectionEntryPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCollectionEntryPagination_items(ctx context.Context, field graphql.CollectedField, obj *model.UserCollectionEntryPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCollectionEntryPagination_items(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Items, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.UserCollectionEntry)
+	fc.Result = res
+	return ec.marshalNUserCollectionEntry2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCollectionEntryPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCollectionEntryPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_UserCollectionEntry_id(ctx, field)
+			case "item":
+				return ec.fieldContext_UserCollectionEntry_item(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserCollectionEntry", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _VideoTask_id(ctx context.Context, field graphql.CollectedField, obj *model.VideoTask) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_VideoTask_id(ctx, field)
 	if err != nil {
@@ -34575,6 +35630,13 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._SurveyQuestionPagination(ctx, sel, obj)
+	case model.UserCollectionEntryPagination:
+		return ec._UserCollectionEntryPagination(ctx, sel, &obj)
+	case *model.UserCollectionEntryPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UserCollectionEntryPagination(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -34859,6 +35921,29 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 	}
 }
 
+func (ec *executionContext) _UserCollectionEntryItem(ctx context.Context, sel ast.SelectionSet, obj model.UserCollectionEntryItem) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.Show:
+		return ec._Show(ctx, sel, &obj)
+	case *model.Show:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Show(ctx, sel, obj)
+	case model.Episode:
+		return ec._Episode(ctx, sel, &obj)
+	case *model.Episode:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Episode(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
@@ -35138,6 +36223,34 @@ func (ec *executionContext) _AchievementSection(ctx context.Context, sel ast.Sel
 
 			out.Values[i] = ec._AchievementSection_description(ctx, field, obj)
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var addToCollectionResultImplementors = []string{"AddToCollectionResult"}
+
+func (ec *executionContext) _AddToCollectionResult(ctx context.Context, sel ast.SelectionSet, obj *model.AddToCollectionResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, addToCollectionResultImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AddToCollectionResult")
+		case "id":
+
+			out.Values[i] = ec._AddToCollectionResult_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -36134,7 +37247,7 @@ func (ec *executionContext) _Device(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
-var episodeImplementors = []string{"Episode", "SectionItemType"}
+var episodeImplementors = []string{"Episode", "SectionItemType", "UserCollectionEntryItem"}
 
 func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, obj *model.Episode) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, episodeImplementors)
@@ -38463,6 +39576,33 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "addEpisodeToMyList":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_addEpisodeToMyList(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "addShowToMyList":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_addShowToMyList(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "removeEntryFromMyList":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_removeEntryFromMyList(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -39351,6 +40491,52 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._QueryRoot_me(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "myList":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_myList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "userCollection":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_userCollection(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -40456,7 +41642,7 @@ func (ec *executionContext) _Settings(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var showImplementors = []string{"Show", "SectionItemType"}
+var showImplementors = []string{"Show", "SectionItemType", "UserCollectionEntryItem"}
 
 func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj *model.Show) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, showImplementors)
@@ -41511,6 +42697,158 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
+var userCollectionImplementors = []string{"UserCollection"}
+
+func (ec *executionContext) _UserCollection(ctx context.Context, sel ast.SelectionSet, obj *model.UserCollection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userCollectionImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserCollection")
+		case "id":
+
+			out.Values[i] = ec._UserCollection_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "title":
+
+			out.Values[i] = ec._UserCollection_title(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "entries":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserCollection_entries(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var userCollectionEntryImplementors = []string{"UserCollectionEntry"}
+
+func (ec *executionContext) _UserCollectionEntry(ctx context.Context, sel ast.SelectionSet, obj *model.UserCollectionEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userCollectionEntryImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserCollectionEntry")
+		case "id":
+
+			out.Values[i] = ec._UserCollectionEntry_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "item":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserCollectionEntry_item(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var userCollectionEntryPaginationImplementors = []string{"UserCollectionEntryPagination", "Pagination"}
+
+func (ec *executionContext) _UserCollectionEntryPagination(ctx context.Context, sel ast.SelectionSet, obj *model.UserCollectionEntryPagination) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userCollectionEntryPaginationImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserCollectionEntryPagination")
+		case "total":
+
+			out.Values[i] = ec._UserCollectionEntryPagination_total(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "offset":
+
+			out.Values[i] = ec._UserCollectionEntryPagination_offset(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "first":
+
+			out.Values[i] = ec._UserCollectionEntryPagination_first(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "items":
+
+			out.Values[i] = ec._UserCollectionEntryPagination_items(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var videoTaskImplementors = []string{"VideoTask", "Task"}
 
 func (ec *executionContext) _VideoTask(ctx context.Context, sel ast.SelectionSet, obj *model.VideoTask) graphql.Marshaler {
@@ -42123,6 +43461,20 @@ func (ec *executionContext) marshalNAchievementPagination2ᚖgithubᚗcomᚋbcc�
 		return graphql.Null
 	}
 	return ec._AchievementPagination(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAddToCollectionResult2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAddToCollectionResult(ctx context.Context, sel ast.SelectionSet, v model.AddToCollectionResult) graphql.Marshaler {
+	return ec._AddToCollectionResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAddToCollectionResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAddToCollectionResult(ctx context.Context, sel ast.SelectionSet, v *model.AddToCollectionResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AddToCollectionResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNAlternative2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAlternativeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Alternative) graphql.Marshaler {
@@ -44019,6 +45371,98 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstad
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUserCollection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollection(ctx context.Context, sel ast.SelectionSet, v model.UserCollection) graphql.Marshaler {
+	return ec._UserCollection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUserCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollection(ctx context.Context, sel ast.SelectionSet, v *model.UserCollection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UserCollection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUserCollectionEntry2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UserCollectionEntry) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNUserCollectionEntry2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntry(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNUserCollectionEntry2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntry(ctx context.Context, sel ast.SelectionSet, v *model.UserCollectionEntry) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UserCollectionEntry(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUserCollectionEntryItem2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryItem(ctx context.Context, sel ast.SelectionSet, v model.UserCollectionEntryItem) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UserCollectionEntryItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUserCollectionEntryPagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryPagination(ctx context.Context, sel ast.SelectionSet, v model.UserCollectionEntryPagination) graphql.Marshaler {
+	return ec._UserCollectionEntryPagination(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUserCollectionEntryPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryPagination(ctx context.Context, sel ast.SelectionSet, v *model.UserCollectionEntryPagination) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UserCollectionEntryPagination(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

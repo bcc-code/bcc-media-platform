@@ -7,12 +7,110 @@ package sqlc
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
 )
+
+const deleteUserCollectionEntry = `-- name: DeleteUserCollectionEntry :exec
+DELETE
+FROM users.collectionentries
+WHERE id = $1
+`
+
+func (q *Queries) DeleteUserCollectionEntry(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteUserCollectionEntry, id)
+	return err
+}
+
+const upsertUserCollection = `-- name: UpsertUserCollection :exec
+INSERT INTO users.collections (id, profile_id, updated_at, created_at, metadata, title)
+VALUES ($1, $2, now(), now(), $3::json, $4)
+ON CONFLICT (id) DO UPDATE SET updated_at = now(),
+                               metadata   = EXCLUDED.metadata,
+                               title      = EXCLUDED.title
+`
+
+type UpsertUserCollectionParams struct {
+	ID        uuid.UUID       `db:"id" json:"id"`
+	ProfileID uuid.UUID       `db:"profile_id" json:"profileID"`
+	Metadata  json.RawMessage `db:"metadata" json:"metadata"`
+	Title     string          `db:"title" json:"title"`
+}
+
+func (q *Queries) UpsertUserCollection(ctx context.Context, arg UpsertUserCollectionParams) error {
+	_, err := q.db.ExecContext(ctx, upsertUserCollection,
+		arg.ID,
+		arg.ProfileID,
+		arg.Metadata,
+		arg.Title,
+	)
+	return err
+}
+
+const upsertUserCollectionEntry = `-- name: UpsertUserCollectionEntry :exec
+INSERT INTO users.collectionentries (id, collection_id, sort, type, item_id, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, now(), now())
+ON CONFLICT(id) DO UPDATE SET sort       = EXCLUDED.sort,
+                              updated_at = EXCLUDED.updated_at
+`
+
+type UpsertUserCollectionEntryParams struct {
+	ID           uuid.UUID `db:"id" json:"id"`
+	CollectionID uuid.UUID `db:"collection_id" json:"collectionID"`
+	Sort         int32     `db:"sort" json:"sort"`
+	Type         string    `db:"type" json:"type"`
+	ItemID       uuid.UUID `db:"item_id" json:"itemID"`
+}
+
+func (q *Queries) UpsertUserCollectionEntry(ctx context.Context, arg UpsertUserCollectionEntryParams) error {
+	_, err := q.db.ExecContext(ctx, upsertUserCollectionEntry,
+		arg.ID,
+		arg.CollectionID,
+		arg.Sort,
+		arg.Type,
+		arg.ItemID,
+	)
+	return err
+}
+
+const getMyListCollectionForProfileIDs = `-- name: getMyListCollectionForProfileIDs :many
+SELECT c.id, c.profile_id AS parent_id
+FROM users.collections c
+WHERE c.profile_id = ANY ($1::uuid[])
+  AND metadata ->> 'myList' = 'true'
+`
+
+type getMyListCollectionForProfileIDsRow struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getMyListCollectionForProfileIDs(ctx context.Context, profileIds []uuid.UUID) ([]getMyListCollectionForProfileIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getMyListCollectionForProfileIDs, pq.Array(profileIds))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getMyListCollectionForProfileIDsRow
+	for rows.Next() {
+		var i getMyListCollectionForProfileIDsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const getUserCollectionEntries = `-- name: getUserCollectionEntries :many
 SELECT ce.id, ce.collection_id, ce.updated_at, ce.created_at, ce.sort, ce.type, ce.item_id
@@ -99,6 +197,7 @@ const getUserCollectionIDsForProfileIDs = `-- name: getUserCollectionIDsForProfi
 SELECT c.id, c.profile_id AS parent_id
 FROM users.collections c
 WHERE c.profile_id = ANY ($1::uuid[])
+  AND metadata ->> 'myList' != 'true'
 `
 
 type getUserCollectionIDsForProfileIDsRow struct {
