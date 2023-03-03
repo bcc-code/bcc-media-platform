@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -208,8 +207,9 @@ func (c *Client) getFileForCollection(project Project, directoryId int, collecti
 }
 
 func prepareStr(source string) string {
-	reg := regexp.MustCompile("[^a-zA-Z\\d]+")
-	return reg.ReplaceAllString(source, "")
+	return source
+	//reg := regexp.MustCompile("[^a-zA-Z\\d]+")
+	//return reg.ReplaceAllString(source, "")
 }
 
 func strEqual(source string, compare string) bool {
