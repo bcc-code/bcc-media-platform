@@ -1346,6 +1346,25 @@ type UsersAchievement struct {
 	ConfirmedAt   null_v4.Time `db:"confirmed_at" json:"confirmedAt"`
 }
 
+type UsersCollection struct {
+	ID        uuid.UUID             `db:"id" json:"id"`
+	ProfileID uuid.UUID             `db:"profile_id" json:"profileID"`
+	UpdatedAt time.Time             `db:"updated_at" json:"updatedAt"`
+	CreatedAt time.Time             `db:"created_at" json:"createdAt"`
+	Metadata  pqtype.NullRawMessage `db:"metadata" json:"metadata"`
+	Title     string                `db:"title" json:"title"`
+}
+
+type UsersCollectionentry struct {
+	ID           uuid.UUID `db:"id" json:"id"`
+	CollectionID uuid.UUID `db:"collection_id" json:"collectionID"`
+	Sort         int32     `db:"sort" json:"sort"`
+	Type         string    `db:"type" json:"type"`
+	ItemID       uuid.UUID `db:"item_id" json:"itemID"`
+	CreatedAt    time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt    time.Time `db:"updated_at" json:"updatedAt"`
+}
+
 type UsersDevice struct {
 	Token     string    `db:"token" json:"token"`
 	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`

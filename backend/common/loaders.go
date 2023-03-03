@@ -68,6 +68,12 @@ type BatchLoaders struct {
 	ComputedDataLoader *loaders.Loader[uuid.UUID, []*ComputedData]
 
 	UserLoader *loaders.Loader[string, *User]
+
+	// UserCollections
+	UserCollectionLoader         *loaders.Loader[uuid.UUID, *UserCollection]
+	UserCollectionEntryLoader    *loaders.Loader[uuid.UUID, *UserCollectionEntry]
+	UserCollectionIDsLoader      *loaders.Loader[uuid.UUID, []*uuid.UUID]
+	UserCollectionEntryIDsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
 }
 
 // FilteredLoaders contains loaders that will be filtered by permissions.

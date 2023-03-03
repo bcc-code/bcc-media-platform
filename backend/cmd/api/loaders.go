@@ -198,5 +198,10 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		UserLoader: loaders.New(ctx, queries.GetUsers, loaders.WithKeyFunc(func(i common.User) string {
 			return i.PersonID
 		})),
+
+		UserCollectionLoader:         loaders.New(ctx, queries.GetUserCollections),
+		UserCollectionEntryLoader:    loaders.New(ctx, queries.GetUserCollectionEntries),
+		UserCollectionIDsLoader:      loaders.NewRelationLoader(ctx, queries.GetUserCollectionIDsForProfileIDs, loaders.WithName("user-collection-ids")),
+		UserCollectionEntryIDsLoader: loaders.NewRelationLoader(ctx, queries.GetUserCollectionEntryIDsForUserCollectionIDs, loaders.WithName("user-collection-entry-ids")),
 	}
 }

@@ -1,0 +1,13 @@
+type UserCollection {
+    id: UUID!
+    title: String!
+
+}
+
+union UserCollectionEntryItem = Show | Episode
+
+type UserCollectionEntry {
+    id: UUID!
+    sort: Int!
+    item: UserCollectionEntryItem! @goField(forceResolver: true)
+}
