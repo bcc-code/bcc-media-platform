@@ -133,6 +133,9 @@ COMMENT ON TABLE "users"."collectionentries" IS NULL;
 
 --- BEGIN DROP TABLE "users"."collectionentries" ---
 
+ALTER TABLE public.applications
+    DROP COLUMN uuid CASCADE;
+
 DROP TABLE IF EXISTS "users"."collectionentries";
 
 --- END DROP TABLE "users"."collectionentries" ---
