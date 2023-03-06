@@ -385,6 +385,7 @@ type EpisodeCalendarEntry struct {
 	Description string   `json:"description"`
 	Start       string   `json:"start"`
 	End         string   `json:"end"`
+	IsReplay    bool     `json:"isReplay"`
 	Episode     *Episode `json:"episode"`
 }
 

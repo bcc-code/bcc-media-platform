@@ -25,9 +25,10 @@ SELECT e.id,
        e.link_type,
        e.start,
        e.end,
-       ea.id AS episode_id,
-       se.id AS season_id,
-       sh.id AS show_id,
+       e.is_replay = true AS is_replay,
+       ea.id              AS episode_id,
+       se.id              AS season_id,
+       sh.id              AS show_id,
        t.title,
        t.description
 FROM calendarentries e
@@ -51,6 +52,7 @@ type getCalendarEntriesRow struct {
 	LinkType    null_v4.String        `db:"link_type" json:"linkType"`
 	Start       time.Time             `db:"start" json:"start"`
 	End         time.Time             `db:"end" json:"end"`
+	IsReplay    bool                  `db:"is_replay" json:"isReplay"`
 	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeID"`
 	SeasonID    null_v4.Int           `db:"season_id" json:"seasonID"`
 	ShowID      null_v4.Int           `db:"show_id" json:"showID"`
@@ -73,6 +75,7 @@ func (q *Queries) getCalendarEntries(ctx context.Context, arg getCalendarEntries
 			&i.LinkType,
 			&i.Start,
 			&i.End,
+			&i.IsReplay,
 			&i.EpisodeID,
 			&i.SeasonID,
 			&i.ShowID,
@@ -304,6 +307,7 @@ SELECT e.id,
        e.link_type,
        e.start,
        e.end,
+       e.is_replay = true AS is_replay,
        ea.id AS episode_id,
        se.id AS season_id,
        sh.id AS show_id,
@@ -324,6 +328,7 @@ type listCalendarEntriesRow struct {
 	LinkType    null_v4.String        `db:"link_type" json:"linkType"`
 	Start       time.Time             `db:"start" json:"start"`
 	End         time.Time             `db:"end" json:"end"`
+	IsReplay    bool                  `db:"is_replay" json:"isReplay"`
 	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeID"`
 	SeasonID    null_v4.Int           `db:"season_id" json:"seasonID"`
 	ShowID      null_v4.Int           `db:"show_id" json:"showID"`
@@ -346,6 +351,7 @@ func (q *Queries) listCalendarEntries(ctx context.Context, dollar_1 []string) ([
 			&i.LinkType,
 			&i.Start,
 			&i.End,
+			&i.IsReplay,
 			&i.EpisodeID,
 			&i.SeasonID,
 			&i.ShowID,
