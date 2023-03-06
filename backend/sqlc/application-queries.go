@@ -4,14 +4,30 @@ import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
+
+// ApplicationQueries contains queries specific to application
+type ApplicationQueries struct {
+	*Queries
+	applicationID uuid.UUID
+}
+
+// ApplicationQueries returns application-queries
+func (q *Queries) ApplicationQueries(applicationID uuid.UUID) *ApplicationQueries {
+	return &ApplicationQueries{
+		applicationID: applicationID,
+		Queries:       q,
+	}
+}
 
 func mapToApplications(applications []getApplicationsRow) []common.Application {
 	return lo.Map(applications, func(p getApplicationsRow, _ int) common.Application {
 
 		return common.Application{
 			ID:                  int(p.ID),
+			UUID:                p.Uuid,
 			Default:             p.Default,
 			Code:                p.Code,
 			Roles:               p.Roles,

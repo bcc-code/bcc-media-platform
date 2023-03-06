@@ -153,10 +153,6 @@ func (this AchievementSection) GetID() string           { return this.ID }
 func (this AchievementSection) GetTitle() *string       { return this.Title }
 func (this AchievementSection) GetDescription() *string { return this.Description }
 
-type AddToCollectionResult struct {
-	ID string `json:"id"`
-}
-
 type Alternative struct {
 	ID        string `json:"id"`
 	Title     string `json:"title"`

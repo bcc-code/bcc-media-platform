@@ -388,25 +388,21 @@ func (r *mutationRootResolver) UpdateSurveyQuestionAnswer(ctx context.Context, k
 }
 
 // AddEpisodeToMyList is the resolver for the addEpisodeToMyList field.
-func (r *mutationRootResolver) AddEpisodeToMyList(ctx context.Context, episodeID string) (*model.AddToCollectionResult, error) {
-	e, err := r.addItemToCollection(ctx, "episode", episodeID)
+func (r *mutationRootResolver) AddEpisodeToMyList(ctx context.Context, episodeID string) (*model.UserCollection, error) {
+	_, err := r.addItemToCollection(ctx, "episode", episodeID)
 	if err != nil {
 		return nil, err
 	}
-	return &model.AddToCollectionResult{
-		ID: e.ID.String(),
-	}, nil
+	return r.QueryRoot().MyList(ctx)
 }
 
 // AddShowToMyList is the resolver for the addShowToMyList field.
-func (r *mutationRootResolver) AddShowToMyList(ctx context.Context, showID string) (*model.AddToCollectionResult, error) {
-	e, err := r.addItemToCollection(ctx, "show", showID)
+func (r *mutationRootResolver) AddShowToMyList(ctx context.Context, showID string) (*model.UserCollection, error) {
+	_, err := r.addItemToCollection(ctx, "show", showID)
 	if err != nil {
 		return nil, err
 	}
-	return &model.AddToCollectionResult{
-		ID: e.ID.String(),
-	}, nil
+	return r.QueryRoot().MyList(ctx)
 }
 
 // RemoveEntryFromMyList is the resolver for the removeEntryFromMyList field.

@@ -45,6 +45,7 @@ import (
 
 const filteredLoadersCtxKey = "filtered-loaders"
 const profileLoadersCtxKey = "profile-loaders"
+const applicationLoadersCtxKey = "application-loaders"
 
 func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *loaders.Loader[int, *common.Collection]) func(ctx context.Context) *common.FilteredLoaders {
 	return func(ctx context.Context) *common.FilteredLoaders {
@@ -80,6 +81,30 @@ func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *comm
 		}
 		ls := getLoadersForProfile(queries, p.ID)
 		ginCtx.Set(profileLoadersCtxKey, ls)
+		return ls
+	}
+}
+
+func applicationLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *common.ApplicationLoaders {
+	return func(ctx context.Context) *common.ApplicationLoaders {
+		ginCtx, err := utils.GinCtx(ctx)
+		if err != nil {
+			log.L.Error().Err(err).Send()
+			return nil
+		}
+		a, err := applications.GetFromCtx(ginCtx)
+		if err != nil {
+			log.L.Error().Err(err).Send()
+			return nil
+		}
+		if a == nil {
+			return nil
+		}
+		if ls := ginCtx.Value(applicationLoadersCtxKey); ls != nil {
+			return ls.(*common.ApplicationLoaders)
+		}
+		ls := getApplicationLoaders(queries, a.UUID)
+		ginCtx.Set(applicationLoadersCtxKey, ls)
 		return ls
 	}
 }

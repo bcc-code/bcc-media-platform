@@ -4,6 +4,7 @@ WITH roles AS (SELECT r.applications_id,
                FROM applications_usergroups r
                GROUP BY r.applications_id)
 SELECT a.id::int                          AS id,
+       a.uuid                             AS uuid,
        a.code::varchar                    AS code,
        a.default                          AS "default",
        a.client_version,
@@ -23,6 +24,7 @@ WITH roles AS (SELECT r.applications_id,
                FROM applications_usergroups r
                GROUP BY r.applications_id)
 SELECT a.id::int                          AS id,
+       a.uuid                             AS uuid,
        a.code::varchar                    AS code,
        a.default                          AS "default",
        a.client_version,

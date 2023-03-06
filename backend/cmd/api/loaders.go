@@ -109,6 +109,27 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 	return ls
 }
 
+var applicationLoaders = loaders.NewCollection[uuid.UUID, *common.ApplicationLoaders](time.Minute)
+
+func getApplicationLoaders(queries *sqlc.Queries, applicationID uuid.UUID) *common.ApplicationLoaders {
+	if ls, ok := applicationLoaders.Get(applicationID); ok {
+		return ls
+	}
+
+	appQueries := queries.ApplicationQueries(applicationID)
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	ls := &common.ApplicationLoaders{
+		UserCollectionIDsLoader: loaders.NewRelationLoader(ctx, appQueries.GetUserCollectionIDsForProfileIDs, loaders.WithName("user-collection-ids")),
+		UserMyListCollectionID:  loaders.NewConversionLoader(ctx, appQueries.GetMyListCollectionForProfileIDs, loaders.WithName("user-my-list-id")),
+	}
+
+	applicationLoaders.Set(applicationID, ls, loaders.WithOnDelete(cancel))
+
+	return ls
+}
+
 func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *common.BatchLoaders {
 	ctx := context.Background()
 	return &common.BatchLoaders{
@@ -204,8 +225,6 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 
 		UserCollectionLoader:         loaders.New(ctx, queries.GetUserCollections, loaders.WithKeyFunc(func(i common.UserCollection) uuid.UUID { return i.ID })),
 		UserCollectionEntryLoader:    loaders.New(ctx, queries.GetUserCollectionEntries, loaders.WithKeyFunc(func(i common.UserCollectionEntry) uuid.UUID { return i.ID })),
-		UserCollectionIDsLoader:      loaders.NewRelationLoader(ctx, queries.GetUserCollectionIDsForProfileIDs, loaders.WithName("user-collection-ids")),
 		UserCollectionEntryIDsLoader: loaders.NewRelationLoader(ctx, queries.GetUserCollectionEntryIDsForUserCollectionIDs, loaders.WithName("user-collection-entry-ids")),
-		UserMyListCollectionID:       loaders.NewConversionLoader(ctx, queries.GetMyListCollectionForProfileIDs, loaders.WithName("user-my-list-id")),
 	}
 }

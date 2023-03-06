@@ -345,6 +345,7 @@ func (i Question) GetKey() int {
 // Application contains data for
 type Application struct {
 	ID                  int
+	UUID                uuid.UUID
 	Default             bool
 	Code                string
 	ClientVersion       string

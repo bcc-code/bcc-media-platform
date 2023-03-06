@@ -40,17 +40,18 @@ func graphqlHandler(
 	analyticsSalt string,
 ) gin.HandlerFunc {
 	resolver := graphapi.Resolver{
-		Queries:         queries,
-		Loaders:         loaders,
-		FilteredLoaders: filteredLoaderFactory(db, queries, loaders.CollectionLoader),
-		ProfileLoaders:  profileLoaderFactory(queries),
-		SearchService:   searchService,
-		EmailService:    emailService,
-		URLSigner:       urlSigner,
-		S3Client:        s3client,
-		APIConfig:       config.CDNConfig,
-		AWSConfig:       config.AWS,
-		RedirectConfig:  config.Redirect,
+		Queries:            queries,
+		Loaders:            loaders,
+		FilteredLoaders:    filteredLoaderFactory(db, queries, loaders.CollectionLoader),
+		ProfileLoaders:     profileLoaderFactory(queries),
+		ApplicationLoaders: applicationLoaderFactory(queries),
+		SearchService:      searchService,
+		EmailService:       emailService,
+		URLSigner:          urlSigner,
+		S3Client:           s3client,
+		APIConfig:          config.CDNConfig,
+		AWSConfig:          config.AWS,
+		RedirectConfig:     config.Redirect,
 		AnalyticsIDFactory: func(ctx context.Context) string {
 			ginCtx, err := utils.GinCtx(ctx)
 			p := user.GetProfileFromCtx(ginCtx)

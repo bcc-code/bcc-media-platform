@@ -38,8 +38,9 @@ func (r *Resolver) addItemToCollection(ctx context.Context, itemType string, ite
 	default:
 		return nil, common.ErrItemNotFound
 	}
+	entryID := uuid.New()
 	entry := &common.UserCollectionEntry{
-		ID:           uuid.New(),
+		ID:           entryID,
 		CollectionID: utils.AsUuid(myList.ID),
 		ItemID:       uid,
 		Type:         itemType,
@@ -53,5 +54,13 @@ func (r *Resolver) addItemToCollection(ctx context.Context, itemType string, ite
 	if err != nil {
 		return nil, err
 	}
+	myListID := utils.AsUuid(myList.ID)
+	ids, err := r.Loaders.UserCollectionEntryIDsLoader.Get(ctx, myListID)
+	if err != nil {
+		return nil, err
+	}
+	ids = append(ids, &entryID)
+	r.Loaders.UserCollectionEntryIDsLoader.Clear(ctx, myListID)
+	r.Loaders.UserCollectionEntryIDsLoader.Prime(ctx, myListID, ids)
 	return entry, nil
 }

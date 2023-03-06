@@ -23,12 +23,13 @@ type Device struct {
 
 // UserCollection is a collection created by a user
 type UserCollection struct {
-	ID        uuid.UUID
-	ProfileID uuid.UUID
-	Title     string
-	Metadata  UserCollectionMetadata
-	UpdatedAt time.Time
-	CreatedAt time.Time
+	ID            uuid.UUID
+	ApplicationID uuid.UUID
+	ProfileID     uuid.UUID
+	Title         string
+	Metadata      UserCollectionMetadata
+	UpdatedAt     time.Time
+	CreatedAt     time.Time
 }
 
 // UserCollectionMetadata contains options that can specify extra options for a user
