@@ -22,6 +22,11 @@ import (
 	null "gopkg.in/guregu/null.v4"
 )
 
+// Collection is the resolver for the collection field.
+func (r *addToCollectionResultResolver) Collection(ctx context.Context, obj *model.AddToCollectionResult) (*model.UserCollection, error) {
+	return r.QueryRoot().UserCollection(ctx, obj.Collection.ID)
+}
+
 // SetDevicePushToken is the resolver for the setDevicePushToken field.
 func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token string, languages []string) (*model.Device, error) {
 	ginCtx, err := utils.GinCtx(ctx)
@@ -388,21 +393,31 @@ func (r *mutationRootResolver) UpdateSurveyQuestionAnswer(ctx context.Context, k
 }
 
 // AddEpisodeToMyList is the resolver for the addEpisodeToMyList field.
-func (r *mutationRootResolver) AddEpisodeToMyList(ctx context.Context, episodeID string) (*model.UserCollection, error) {
-	_, err := r.addItemToCollection(ctx, "episode", episodeID)
+func (r *mutationRootResolver) AddEpisodeToMyList(ctx context.Context, episodeID string) (*model.AddToCollectionResult, error) {
+	e, err := r.addItemToCollection(ctx, "episode", episodeID)
 	if err != nil {
 		return nil, err
 	}
-	return r.QueryRoot().MyList(ctx)
+	return &model.AddToCollectionResult{
+		Collection: &model.UserCollection{
+			ID: e.CollectionID.String(),
+		},
+		EntryID: e.ID.String(),
+	}, nil
 }
 
 // AddShowToMyList is the resolver for the addShowToMyList field.
-func (r *mutationRootResolver) AddShowToMyList(ctx context.Context, showID string) (*model.UserCollection, error) {
-	_, err := r.addItemToCollection(ctx, "show", showID)
+func (r *mutationRootResolver) AddShowToMyList(ctx context.Context, showID string) (*model.AddToCollectionResult, error) {
+	e, err := r.addItemToCollection(ctx, "show", showID)
 	if err != nil {
 		return nil, err
 	}
-	return r.QueryRoot().MyList(ctx)
+	return &model.AddToCollectionResult{
+		Collection: &model.UserCollection{
+			ID: e.CollectionID.String(),
+		},
+		EntryID: e.ID.String(),
+	}, nil
 }
 
 // RemoveEntryFromMyList is the resolver for the removeEntryFromMyList field.
@@ -436,7 +451,13 @@ func (r *mutationRootResolver) RemoveEntryFromMyList(ctx context.Context, entryI
 	return r.QueryRoot().MyList(ctx)
 }
 
+// AddToCollectionResult returns generated.AddToCollectionResultResolver implementation.
+func (r *Resolver) AddToCollectionResult() generated.AddToCollectionResultResolver {
+	return &addToCollectionResultResolver{r}
+}
+
 // MutationRoot returns generated.MutationRootResolver implementation.
 func (r *Resolver) MutationRoot() generated.MutationRootResolver { return &mutationRootResolver{r} }
 
+type addToCollectionResultResolver struct{ *Resolver }
 type mutationRootResolver struct{ *Resolver }
