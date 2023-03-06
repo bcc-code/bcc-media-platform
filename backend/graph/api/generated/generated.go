@@ -286,6 +286,7 @@ type ComplexityRoot struct {
 		Episode     func(childComplexity int) int
 		Event       func(childComplexity int) int
 		ID          func(childComplexity int) int
+		IsReplay    func(childComplexity int) int
 		Start       func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
@@ -2052,6 +2053,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.EpisodeCalendarEntry.ID(childComplexity), true
+
+	case "EpisodeCalendarEntry.isReplay":
+		if e.complexity.EpisodeCalendarEntry.IsReplay == nil {
+			break
+		}
+
+		return e.complexity.EpisodeCalendarEntry.IsReplay(childComplexity), true
 
 	case "EpisodeCalendarEntry.start":
 		if e.complexity.EpisodeCalendarEntry.Start == nil {
@@ -5179,6 +5187,7 @@ type EpisodeCalendarEntry implements CalendarEntry {
     description: String! @goField(forceResolver: true)
     start: Date!
     end: Date!
+    isReplay: Boolean!
     episode: Episode @goField(forceResolver: true)
 }
 
@@ -13446,6 +13455,50 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_end(ctx context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EpisodeCalendarEntry_isReplay(ctx context.Context, field graphql.CollectedField, obj *model.EpisodeCalendarEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EpisodeCalendarEntry_isReplay(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsReplay, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EpisodeCalendarEntry_isReplay(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EpisodeCalendarEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -36579,6 +36632,13 @@ func (ec *executionContext) _EpisodeCalendarEntry(ctx context.Context, sel ast.S
 		case "end":
 
 			out.Values[i] = ec._EpisodeCalendarEntry_end(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "isReplay":
+
+			out.Values[i] = ec._EpisodeCalendarEntry_isReplay(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)

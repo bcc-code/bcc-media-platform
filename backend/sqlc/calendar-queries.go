@@ -82,6 +82,7 @@ func mapToCalendarEntries(items []getCalendarEntriesRow) []common.CalendarEntry 
 			Start:       i.Start,
 			End:         i.End,
 			Type:        i.LinkType,
+			IsReplay:    i.IsReplay,
 			ItemID:      itemID,
 		}
 	})

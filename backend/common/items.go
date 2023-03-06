@@ -310,6 +310,7 @@ type CalendarEntry struct {
 	Start       time.Time
 	End         time.Time
 	Type        null.String
+	IsReplay    bool
 	ItemID      null.Int
 }
 
