@@ -96,7 +96,6 @@ type Application struct {
 	Default                       bool           `db:"default" json:"default"`
 	SearchPageID                  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionID"`
-	Uuid                          uuid.UUID      `db:"uuid" json:"uuid"`
 }
 
 type ApplicationsUsergroup struct {
