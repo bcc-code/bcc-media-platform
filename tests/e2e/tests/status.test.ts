@@ -8,32 +8,19 @@ authed(test)
 //Status tests
 //-----------------------------------------------
 
-test("check if episode with status 'published': is available ", async (t) => {
-    const apiResponse = await getApiResponsefromEpisodeWithStatus("published");
+test("Status", async (t) => {
+    let apiResponse = await getApiResponsefromEpisodeWithStatus("published");
+    t.not(apiResponse.data.episode, null, "the episode (status: published) is null");
 
-    t.not(apiResponse.data.episode, null, "the episode (status: published) is not null");
-})
+    apiResponse = await getApiResponsefromEpisodeWithStatus("unlisted");
+    t.not(apiResponse.data.episode, null, "the episode (status: unlisted) is null");
 
-test("check if episode with status 'unlisted': is available", async (t) => {
-    const apiResponse = await getApiResponsefromEpisodeWithStatus("unlisted");
-    
-    t.not(apiResponse.data.episode, null, "the episode (status: unlisted) is not null");
-})
+    apiResponse = await getApiResponsefromEpisodeWithStatus("draft");
+    t.is(apiResponse.errors?.[0].extensions.code, ApiErrorCodes.ItemNotPublished, "the episode (status: draft) dosen't get the right error code");
 
-test("check if episode with status 'draft': is not available", async (t) => {
-    const apiResponse = await getApiResponsefromEpisodeWithStatus("draft");
+    apiResponse = await getApiResponsefromEpisodeWithStatus("archived");
+    t.is(apiResponse.errors?.[0].extensions.code, ApiErrorCodes.ItemNotPublished, "the episode (status: archived) dosen't get the right error code");
 
-    t.is(apiResponse.errors[0].extensions.code, ApiErrorCodes.ItemNotPublished, "the episode (status: draft) gets the right error code");
-})
-
-test("check if episode with status 'archived': is not available", async (t) => {
-    const apiResponse = await getApiResponsefromEpisodeWithStatus("archived");
-
-    t.is(apiResponse.errors[0].extensions.code, ApiErrorCodes.ItemNotPublished, "the episode (status: archived) gets the right error code");
-})
-
-test("make sure episode with status that dosen't exist does return null", async (t) => {
-    const apiResponse = await getApiResponsefromEpisodeWithStatus("NonexistantStatus");
-
-    t.is(apiResponse.errors[0].extensions.code, ApiErrorCodes.ItemNotPublished, "the episode with wrong status gets the right error code");
+    apiResponse = await getApiResponsefromEpisodeWithStatus("NonexistantStatus");
+    t.is(apiResponse.errors?.[0].extensions.code, ApiErrorCodes.ItemNotPublished, "the episode with wrong status dosen't get error code");
 })

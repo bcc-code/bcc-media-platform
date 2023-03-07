@@ -22,3 +22,12 @@ testing both:
 - [x] if available_from in future && available_to in the past: not available
 - [x] if available_from in future && available_to in the future: not available
 - [x] if available_from in the past && available_to in the past: not available
+
+
+# Publish date
+
+`publish_date`, for episodes that are available and status: published
+- [x] if publish_date in future: episode.streams[] should be empty, or give error
+- [x] if publish_date in the past: episode.streams[] should contain an item with a url
+- [x] if publish_date in the future: episode.title should be retrievable
+
