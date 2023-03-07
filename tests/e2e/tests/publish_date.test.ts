@@ -11,14 +11,12 @@ authed(test)
 //Publish date tests
 //-----------------------------------------------
 
-
-
 test("Publish Date", async (t) => {
     const asset = await client.items("assets").createOne({
         status: "published",
         name: faker.vehicle.type(),
         duration: 500,
-        streams: [{ type: "hls-cmaf", url: "https://tests.bcc.media/index.m3u8", service: "mediapackage", path: "/" }]
+        streams: [{ type: "hls_cmaf", url: "https://tests.bcc.media/index.m3u8", service: "mediapackage", path: "/" }]
     })
 
     const queryString =
@@ -28,7 +26,7 @@ test("Publish Date", async (t) => {
                 title
                 availableFrom
                 availableTo
-                imageUrl
+                description
                 streams {
                     url
                 }
@@ -38,11 +36,12 @@ test("Publish Date", async (t) => {
 
     //-----------------------------------------------
 
-    let episode = await createEpisodeWith("PublishDate Test1", null, null, faker.date.future(), asset.id);
+    let episode = await createEpisodeWith("PublishDate Test1", null, null, faker.date.future(10), asset.id);
     let apiResponse = await query(queryString, {
         episodeId: episode.id!,
     })
-    let streams = apiResponse.data.episode.streams as any[];
+    let streams = apiResponse.data?.episode.streams as any[];
+    t.truthy(apiResponse.data.episode.title, "episode.title can't be retrieved");
     t.is(apiResponse.errors?.[0].extensions.code, ApiErrorCodes.ItemNoAccess, "episode.streams[] dosen't get error or streams[] exists");
 
     //-----------------------------------------------
@@ -52,15 +51,6 @@ test("Publish Date", async (t) => {
         episodeId: episode.id!,
     })
     streams = apiResponse.data?.episode.streams as any[];
-    t.truthy(streams, "episode.streams[] dosen't exist. errors: " + JSON.stringify(apiResponse.errors));
+    t.true(streams.length > 0, "episode.streams[] dosen't exist. errors: " + JSON.stringify(apiResponse.errors));
 
-    //-----------------------------------------------
-
-    episode = await createEpisodeWith("PublishDate Test3", null, null, faker.date.future(), asset.id);
-    apiResponse = await query(queryString, {
-        episodeId: episode.id!,
-    })
-    t.truthy(apiResponse.data.episode.title, "episode.title can't be retrieved");
-    // check errors is
-    t.falsy(apiResponse.errors, "There were errors");
 })
