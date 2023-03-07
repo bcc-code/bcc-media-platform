@@ -10,6 +10,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
+	"log"
 	"os"
 	"strings"
 )
@@ -50,16 +51,21 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	index := os.Getenv("ELASTIC_INDEX")
-
-	req := esapi.IndicesCreateRequest{
-		Index: index,
-		Body:  strings.NewReader(indexSettings),
-	}
-
 	ctx := context.Background()
 
-	res, err := req.Do(ctx, es)
+	index := os.Getenv("ELASTIC_INDEX")
+
+	res, err := esapi.IndicesDeleteRequest{
+		Index: []string{index},
+	}.Do(ctx, es)
+	if err != nil {
+		panic(err)
+	}
+
+	res, err = esapi.IndicesCreateRequest{
+		Index: index,
+		Body:  strings.NewReader(indexSettings),
+	}.Do(ctx, es)
 	if err != nil {
 		panic(err)
 	}
@@ -109,6 +115,89 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	doSearch(ctx, es, index)
+}
+
+type searchResult struct {
+	Took     int  `json:"took"`
+	TimedOut bool `json:"timed_out"`
+	Shards   struct {
+		Total      int `json:"total"`
+		Successful int `json:"successful"`
+		Skipped    int `json:"skipped"`
+		Failed     int `json:"failed"`
+	} `json:"_shards"`
+	Hits struct {
+		Total struct {
+			Value    int    `json:"value"`
+			Relation string `json:"relation"`
+		} `json:"total"`
+		MaxScore float64 `json:"max_score"`
+		Hits     []struct {
+			Index     string  `json:"_index"`
+			Id        string  `json:"_id"`
+			Score     float64 `json:"_score"`
+			Highlight struct {
+				Text []string `json:"text"`
+			} `json:"highlight"`
+		} `json:"hits"`
+	} `json:"hits"`
+}
+
+func doSearch(ctx context.Context, es *elasticsearch.Client, index string) {
+	res, err := es.Search(
+		es.Search.WithBody(
+			strings.NewReader(
+				fmt.Sprintf(`{
+	"_source": false,
+	"query": {
+		"match": {
+			"text": {
+				"query": "%s"
+			}
+		}
+	},
+	"size": 10,
+	"from": 0,
+	"highlight": {
+	    "order": "score",
+		"type": "fvh",
+	    "fields": {
+	        "text": {}
+	    }
+	}
+}`, "gjerrighet"),
+			),
+		),
+		es.Search.WithIndex(index),
+		es.Search.WithPretty(),
+	)
+
+	if err != nil {
+		panic(err)
+	}
+	if res.IsError() {
+		var e map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			log.Fatalf("Error parsing the response body: %s", err)
+		} else {
+			// Print the response status and error information.
+			log.Fatalf("[%s] %s: %s",
+				res.Status(),
+				e["error"].(map[string]interface{})["type"],
+				e["error"].(map[string]interface{})["reason"],
+			)
+		}
+	}
+
+	fmt.Println(res)
+
+	//var r searchResult
+	//
+	//_ = json.NewDecoder(res.Body).Decode(&r)
+	//
+	//spew.Dump(r)
 }
 
 func segmentsToText(segments []segment) string {
