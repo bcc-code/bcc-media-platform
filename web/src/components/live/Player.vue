@@ -79,7 +79,7 @@ onMounted(async () => {
             autoplay: true,
         },
         npaw: {
-            enabled: true,
+            enabled: !!import.meta.env.VITE_NPAW_ACCOUNT_CODE,
             accountCode: import.meta.env.VITE_NPAW_ACCOUNT_CODE,
             tracking: {
                 isLive: true,
