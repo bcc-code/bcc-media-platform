@@ -10,15 +10,15 @@ authed(test)
 //-----------------------------------------------
 
 test("available from", async (t) => {
-    let episode = await createEpisodeWith("Test1: Available_from in future", faker.date.future(), null);
+    let episode = await createEpisodeWith({ title: "Available_from in future", availableFrom: faker.date.future(), availableTo: null });
     let apiResponse = await GetApiResonseforAvailability(episode.id);
     t.is(apiResponse.errors?.[0].extensions.code, ApiErrorCodes.ItemNotPublished, "Episode that's available from the future dosen't get the right error code");
 
-    episode = await createEpisodeWith("Test2 Available_from in past", faker.date.past(), null);
+    episode = await createEpisodeWith({ title: "Available_from in past", availableFrom: faker.date.past(), availableTo: null });
     apiResponse = await GetApiResonseforAvailability(episode.id);
     t.not(apiResponse.data.episode, null, "Episode that's available from the past is not available");
 
-    episode = await createEpisodeWith("Test3 Available_from null", null, null);
+    episode = await createEpisodeWith({ title: "Available_from null", availableFrom: null, availableTo: null });
     apiResponse = await GetApiResonseforAvailability(episode.id);
     t.not(apiResponse.data.episode, null, "Episode that's available from null is not available")
 })

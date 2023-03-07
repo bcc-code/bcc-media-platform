@@ -36,7 +36,7 @@ test("Publish Date", async (t) => {
 
     //-----------------------------------------------
 
-    let episode = await createEpisodeWith("PublishDate Test1", null, null, faker.date.future(10), asset.id);
+    let episode = await createEpisodeWith({ title: "publishDate future", availableFrom: null, availableTo: null, publishDate: faker.date.future(10), assetId: asset.id });
     let apiResponse = await query(queryString, {
         episodeId: episode.id!,
     })
@@ -46,7 +46,7 @@ test("Publish Date", async (t) => {
 
     //-----------------------------------------------
 
-    episode = await createEpisodeWith("PublishDate Test2", null, null, faker.date.past(), asset.id);
+    episode = await createEpisodeWith({ title: "publishDate past", availableFrom: null, availableTo: null, publishDate: faker.date.past(), assetId: asset.id });
     apiResponse = await query(queryString, {
         episodeId: episode.id!,
     })

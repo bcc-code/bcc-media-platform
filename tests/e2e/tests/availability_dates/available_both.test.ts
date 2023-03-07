@@ -10,15 +10,16 @@ authed(test)
 //-----------------------------------------------
 
 test("available from and to", async (t) => {
-    let episode = await createEpisodeWith("available_from in future and available_to past", faker.date.future(), faker.date.past());
+
+    let episode = await createEpisodeWith({ title: "available_from in future and available_to past", availableFrom: faker.date.future(), availableTo: faker.date.past() });
     let apiResponse = await GetApiResonseforAvailability(episode.id);
     t.is(apiResponse.errors?.[0].extensions.code, ApiErrorCodes.ItemNotPublished, "Episode available from future and to past dosen't get the right error code");
 
-    episode = await createEpisodeWith("available_from in future and available_to future", faker.date.future(), faker.date.future(10));
+    episode = await createEpisodeWith({ title: "available_from in future and available_to future", availableFrom: faker.date.future(), availableTo: faker.date.future(10) });
     apiResponse = await GetApiResonseforAvailability(episode.id);
     t.is(apiResponse.errors?.[0].extensions.code, ApiErrorCodes.ItemNotPublished, "Episode available from future and to future dosen't get the right error code");
 
-    episode = await createEpisodeWith("available_from in past and available_to past", faker.date.past(), faker.date.past());
+    episode = await createEpisodeWith({ title: "available_from in past and available_to past", availableFrom: faker.date.past(), availableTo: faker.date.past() });
     apiResponse = await GetApiResonseforAvailability(episode.id);
     t.is(apiResponse.errors?.[0].extensions.code, ApiErrorCodes.ItemNotPublished, "Episode available from past and to past dosen't get the right error code");
 })

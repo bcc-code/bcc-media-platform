@@ -36,13 +36,13 @@ export async function getApiResponsefromEpisodeWithStatus(status: string) {
     return apiResponse
 }
 
-export async function createEpisodeWith(title: string, available_from?: Date, available_to?: Date, publish_date?: Date, asset_id?: number) {
+export async function createEpisodeWith(args: { title: string, availableFrom?: Date, availableTo?: Date, publishDate?: Date, assetId?: number }) {
     const episode = await client.items("episodes").createOne({
         status: "published",
-        available_from: available_from?.toISOString() ?? null,
-        available_to: available_to?.toISOString() ?? null,
+        available_from: args.availableFrom?.toISOString() ?? null,
+        available_to: args.availableTo?.toISOString() ?? null,
         production_date: new Date().toISOString(),
-        publish_date: publish_date?.toISOString() ?? available_from?.toISOString() ?? faker.date.future().toISOString(),
+        publish_date: args.publishDate?.toISOString() ?? args.availableFrom?.toISOString() ?? faker.date.future().toISOString(),
         usergroups: [
             {
                 usergroups_code: "public",
@@ -51,10 +51,10 @@ export async function createEpisodeWith(title: string, available_from?: Date, av
         translations: [
             {
                 languages_code: "no",
-                title: title,
+                title: args.title,
             },
         ],
-        asset_id: asset_id
+        asset_id: args.assetId
     })
 
     return episode
