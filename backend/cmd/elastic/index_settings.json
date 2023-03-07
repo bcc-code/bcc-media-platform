@@ -3,23 +3,27 @@
     "analysis": {
       "analyzer": {
         "default": {
-          "tokenizer": "whitespace",
+          "tokenizer": "standard",
+          "char_filter": [
+            "segment_code"
+          ],
           "filter": [
-            "segment_code",
             "norwegian_stemmer"
           ]
         }
       },
       "filter": {
+        "norwegian_stemmer": {
+          "type": "stemmer",
+          "language": "norwegian"
+        }
+      },
+      "char_filter": {
         "segment_code": {
           "type": "pattern_replace",
           "pattern": "(\\{\\d*\\})",
           "replacement": "",
           "all": true
-        },
-        "norwegian_stemmer": {
-          "type": "stemmer",
-          "language": "norwegian"
         }
       }
     }
