@@ -42,7 +42,7 @@ test("Publish Date", async (t) => {
     })
     let streams = apiResponse.data?.episode.streams as any[];
     t.truthy(apiResponse.data.episode.title, "episode.title can't be retrieved");
-    t.is(apiResponse.errors?.[0].extensions.code, ApiErrorCodes.ItemNoAccess, "episode.streams[] dosen't get error or streams[] exists");
+    t.is(streams.length, 0, "episode.streams[] is not empty");
 
     //-----------------------------------------------
 
