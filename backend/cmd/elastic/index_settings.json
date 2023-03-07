@@ -1,0 +1,35 @@
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "default": {
+          "tokenizer": "whitespace",
+          "filter": [
+            "segment_code",
+            "norwegian_stemmer"
+          ]
+        }
+      },
+      "filter": {
+        "segment_code": {
+          "type": "pattern_replace",
+          "pattern": "(\\{\\d*\\})",
+          "replacement": "",
+          "all": true
+        },
+        "norwegian_stemmer": {
+          "type": "stemmer",
+          "language": "norwegian"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "text": {
+        "type": "text",
+        "analyzer": "default"
+      }
+    }
+  }
+}
