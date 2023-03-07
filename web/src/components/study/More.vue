@@ -145,6 +145,10 @@ const isProbablyAnimation = computed(
             "1753",
             "1761",
             "1762",
+            "1803",
+            "1808",
+            "1813",
+            "1814",
         ].includes(episode.value.id)
 )
 
