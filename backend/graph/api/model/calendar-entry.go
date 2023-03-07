@@ -56,6 +56,7 @@ func CalendarEntryFrom(ctx context.Context, i *common.CalendarEntry) CalendarEnt
 			Description: description,
 			Start:       start,
 			End:         end,
+			IsReplay:    i.IsReplay,
 			Episode: &Episode{
 				ID: itemID,
 			},

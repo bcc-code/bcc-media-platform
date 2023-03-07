@@ -136,7 +136,16 @@ const registerFeedbackSent = () => {
 const isProbablyAnimation = computed(
     () =>
         !episode.value.title.toLowerCase().includes("kåre") &&
-        episode.value.id !== "1724"
+        ![
+            "1724",
+            "1733",
+            "1735",
+            "1746",
+            "1750",
+            "1753",
+            "1761",
+            "1762",
+        ].includes(episode.value.id)
 )
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()

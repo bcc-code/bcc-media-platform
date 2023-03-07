@@ -2,7 +2,7 @@ package externalevents_test
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"os"
 	"testing"
 	"time"
@@ -16,7 +16,7 @@ func TestEventParsing(t *testing.T) {
 	for _, fileName := range files {
 		jsonFile, err := os.Open("./testdata/" + fileName.Name())
 		assert.NoError(t, err)
-		byteValue, _ := ioutil.ReadAll(jsonFile)
+		byteValue, _ := io.ReadAll(jsonFile)
 
 		_, err = externalevents.ParseEvent(byteValue)
 		assert.NoError(t, err)
@@ -54,7 +54,7 @@ func TestBibleParsing(t *testing.T) {
 	for _, test := range tests {
 		jsonFile, err := os.Open("./testdata/" + test.file)
 		assert.NoError(t, err)
-		byteValue, _ := ioutil.ReadAll(jsonFile)
+		byteValue, _ := io.ReadAll(jsonFile)
 
 		e, err := externalevents.ParseEvent(byteValue)
 		e.Data = json.RawMessage{} // We don't care about the raw message and it makes tests annoying
@@ -97,7 +97,7 @@ func TestSongParsing(t *testing.T) {
 	for _, test := range tests {
 		jsonFile, err := os.Open("./testdata/" + test.file)
 		assert.NoError(t, err)
-		byteValue, _ := ioutil.ReadAll(jsonFile)
+		byteValue, _ := io.ReadAll(jsonFile)
 
 		e, err := externalevents.ParseEvent(byteValue)
 		e.Data = json.RawMessage{} // We don't care about the raw message and it makes tests annoying

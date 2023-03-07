@@ -1,7 +1,8 @@
-query getAnalyticsID {
+query getMe {
     me {
         analytics {
             anonymousId
         }
+        bccMember
     }
 }

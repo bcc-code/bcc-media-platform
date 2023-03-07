@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/sony/gobreaker"
 
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/members"
@@ -46,10 +47,14 @@ func main() {
 	queries := sqlc.New(db)
 
 	authClient := auth0.New(config.Auth0)
-	membersClient := members.New(config.Members, authClient)
+	breaker := gobreaker.NewCircuitBreaker(gobreaker.Settings{
+		Name: "Members",
+	})
+	membersClient := members.New(config.Members, authClient, breaker)
 
 	//updateMemberData(ctx, *queries, *membersClient, db)
-	updateMemeberCountByAgeGroup(ctx, queries, membersClient, db)
+	//updateMemeberCountByAgeGroup(ctx, queries, membersClient, db)
+	updateOrganization(ctx, queries, membersClient)
 }
 
 func updateMemeberCountByAgeGroup(ctx context.Context, queries *sqlc.Queries, membersClient *members.Client, db *sql.DB) {
@@ -91,7 +96,7 @@ func updateMemeberCountByAgeGroup(ctx context.Context, queries *sqlc.Queries, me
 
 }
 
-func updateOrganization(ctx context.Context, queries sqlc.Queries, membersClient members.Client) {
+func updateOrganization(ctx context.Context, queries *sqlc.Queries, membersClient *members.Client) {
 	orgs, err := membersClient.GetOrgs(ctx, 0, 0)
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Members failed")
@@ -118,7 +123,7 @@ func updateMemberData(ctx context.Context, queries sqlc.Queries, membersClient m
 
 	intMemberIDs := utils.MapWith(memberIDs, utils.AsInt)
 
-	membersList, err := membersClient.RetrieveByID(ctx, intMemberIDs)
+	membersList, err := membersClient.RetrieveByIDs(ctx, intMemberIDs)
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Members failed")
 	}

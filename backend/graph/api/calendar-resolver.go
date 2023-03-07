@@ -2,15 +2,15 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
 	"time"
 )
 
-func getForPeriod[k comparable, t any](ctx context.Context, loader *batchloaders.BatchLoader[k, *t], factory func(ctx context.Context, from time.Time, to time.Time) ([]k, error), from time.Time, to time.Time) ([]*t, error) {
+func getForPeriod[k comparable, t any](ctx context.Context, loader *loaders.Loader[k, *t], factory func(ctx context.Context, from time.Time, to time.Time) ([]k, error), from time.Time, to time.Time) ([]*t, error) {
 	ids, err := factory(ctx, from, to)
 	if err != nil {
 		return nil, err
@@ -33,18 +33,18 @@ func getActiveDays(entries []*common.CalendarEntry, sourceTime time.Time) []stri
 		if !lo.Contains(days, dateString) {
 			days = append(days, dateString)
 		}
-		endDate := entry.End.In(location)
-		endDateString := endDate.Format("2006-01-02")
-		if !endDate.After(date) {
-			continue
-		}
-		for endDateString != dateString {
-			if !lo.Contains(days, endDateString) {
-				days = append(days, endDateString)
-			}
-			endDate = endDate.Add(time.Hour * -24)
-			endDateString = endDate.Format("2006-01-02")
-		}
+		//endDate := entry.End.In(location)
+		//endDateString := endDate.Format("2006-01-02")
+		//if !endDate.After(date) {
+		//	continue
+		//}
+		//for endDateString != dateString {
+		//	if !lo.Contains(days, endDateString) {
+		//		days = append(days, endDateString)
+		//	}
+		//	endDate = endDate.Add(time.Hour * -24)
+		//	endDateString = endDate.Format("2006-01-02")
+		//}
 	}
 
 	return lo.Map(days, func(date string, _ int) string {

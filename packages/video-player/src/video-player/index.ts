@@ -3,11 +3,11 @@ import "video.js/dist/video-js.css"
 import "videojs-contrib-quality-levels"
 import "videojs-event-tracking"
 import "videojs-mux"
-import { enableNPAW, Options as NPAWOptions } from "./npaw"
+import { enableNPAW, Options as NPAWOptions, setOptions } from "./npaw"
 
 // External plugins
-import { CastLoader } from "@/video-player/utils"
-import registerChromecastPlugin from "@/../external-projects/videojs-chromecast"
+import { CastLoader } from "./utils"
+import registerChromecastPlugin from "@silvermine/videojs-chromecast"
 import hlsQualitySelector from "@/../external-projects/videojs-hls-quality-selector/src/plugin"
 
 // Internal plugins/extensions
@@ -19,7 +19,7 @@ import "./skin/style.scss"
 import { isSmartTV } from "./utils/userAgent"
 
 if (!videojs.getPlugin("hlsQualitySelector")) {
-    // needed for demo. I dont understand why because it does the exact same as videojs-contrib-quality-levels.
+    // needed for demo. I don't understand why because it does the exact same as videojs-contrib-quality-levels.
     videojs.registerPlugin("hlsQualitySelector", hlsQualitySelector)
 }
 
@@ -87,52 +87,57 @@ const getDefaults = () => {
     }
 
     return {
-    src: {
-        type: "application/x-mpegURL",
-    },
-    autoplay: false,
-    languagePreferenceDefaults: {},
-    npaw: {
-        tracking: {
-            isLive: false,
-            metadata: {
-
-            },
-            userId: ""
+        src: {
+            type: "application/x-mpegURL",
         },
-    },
-    subtitles: [],
-    videojs: {
         autoplay: false,
-        controls: true,
-        fluid: true,
-        crossOrigin: "anonymous",
-        html5: {
-            vhs: {
-                experimentalBufferBasedABR: false, // will soon be default (https://github.com/videojs/http-streaming/issues/1112#issuecomment-821290575)
-                useBandwidthFromLocalStorage: true,
-                overrideNative: true,
-                limitRenditionByPlayerDimensions: true,
-                useDevicePixelRatio: true,
-                allowSeeksWithinUnsafeLiveWindow: true,
-                cacheEncryptionKeys: true, // TODO: remove this and fix caching headers. https://github.com/videojs/video.js/issues/6106#issuecomment-513304282
+        languagePreferenceDefaults: {},
+        npaw: {
+            tracking: {
+                isLive: false,
+                metadata: {
+
+                },
+                userId: ""
             },
-            nativeAudioTracks: false,
-            nativeVideoTracks: false,
         },
-        inactivityTimeout: isSmartTV() ? 60000 : 2000,
-        liveui: true,
-        liveTracker: {
-            trackingThreshold: 15, // default is 30, had issues because occassionally liveWindow is 29.97.
+        subtitles: [],
+        videojs: {
+            autoplay: false,
+            controls: true,
+            fluid: true,
+            crossOrigin: "anonymous",
+            html5: {
+                vhs: {
+                    experimentalBufferBasedABR: false, // will soon be default (https://github.com/videojs/http-streaming/issues/1112#issuecomment-821290575)
+                    useBandwidthFromLocalStorage: true,
+                    overrideNative: true,
+                    limitRenditionByPlayerDimensions: true,
+                    useDevicePixelRatio: true,
+                    allowSeeksWithinUnsafeLiveWindow: true,
+                    cacheEncryptionKeys: true, // TODO: remove this and fix caching headers. https://github.com/videojs/video.js/issues/6106#issuecomment-513304282
+                },
+                nativeAudioTracks: false,
+                nativeVideoTracks: false,
+            },
+            inactivityTimeout: isSmartTV() ? 60000 : 2000,
+            liveui: true,
+            liveTracker: {
+                trackingThreshold: 15, // default is 30, had issues because occassionally liveWindow is 29.97.
+            },
+            plugins,
+            responsive: true,
+            techOrder: castLoaded ? ["chromecast", "html5"] : ["html5"],
+            userActions: {
+                hotkeys: true,
+            },
         },
-        plugins,
-        responsive: true,
-        techOrder: castLoaded ? ["chromecast", "html5"] : ["html5"],
-        userActions: {
-            hotkeys: true,
-        },
-    },
-} as Options}
+    } as Options
+}
+
+export function setNPAWOptions(player: Player, options: NPAWOptions) {
+    setOptions(player, options)
+}
 
 function createVideoElement(id: string, options: Options) {
     const videoEl = document.createElement("video")
@@ -147,7 +152,7 @@ function createVideoElement(id: string, options: Options) {
 function setAudioTrackToLanguage(player: VideoJsPlayer, language?: string) {
     let track = null as videojs.VideojsAudioTrack | null
 
-    for (const t of Object.values((player.audioTracks() as unknown as {tracks_: any[]}).tracks_)) {
+    for (const t of Object.values((player.audioTracks() as unknown as { tracks_: any[] }).tracks_)) {
         if (t.language === language) {
             track = t
         }
@@ -161,7 +166,7 @@ function setAudioTrackToLanguage(player: VideoJsPlayer, language?: string) {
 function setSubtitleTrackToLanguage(player: VideoJsPlayer, language?: string) {
     const tracks = Object.values(player
         .remoteTextTracks()
-        )?.filter((t) => t.kind === "captions" || t.kind === "subtitles")
+    )?.filter((t) => t.kind === "captions" || t.kind === "subtitles")
     const track = tracks.find((t) => t.language?.substr(0, 3) === language)
     tracks.forEach(
         (t) => (t.mode = track && track.id === t.id ? "showing" : "hidden")

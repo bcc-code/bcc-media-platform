@@ -3,14 +3,15 @@
     <div v-if="err" class="w-full h-full text-center text-xl">{{ err }}</div>
 </template>
 <script lang="ts" setup>
-import { useGetAnalyticsIdQuery } from "@/graph/generated"
+import { useGetMeQuery } from "@/graph/generated"
 import Auth from "@/services/auth"
 import { languageTo3letter } from "@/utils/languages"
 import { createPlayer, Player } from "bccm-video-player"
 import "bccm-video-player/css"
-import { onMounted, onUnmounted, ref, watch } from "vue"
+import { onMounted, onUnmounted, ref } from "vue"
 import { useRoute } from "vue-router"
 import { current as currentLanguage } from "@/services/language"
+import { getSessionId } from "rudder-sdk-js";
 
 const err = ref(null as string | null)
 
@@ -18,7 +19,7 @@ let player: Player | null = null
 
 const route = useRoute()
 
-const { data, executeQuery } = useGetAnalyticsIdQuery()
+const { data, executeQuery } = useGetMeQuery()
 
 const onSpaceBar = (event: KeyboardEvent) => {
     if (event.type === "keydown") {
@@ -78,11 +79,12 @@ onMounted(async () => {
             autoplay: true,
         },
         npaw: {
-            enabled: true,
+            enabled: !!import.meta.env.VITE_NPAW_ACCOUNT_CODE,
             accountCode: import.meta.env.VITE_NPAW_ACCOUNT_CODE,
             tracking: {
                 isLive: true,
                 userId: data.value?.me.analytics.anonymousId ?? "anonymous",
+                sessionId: getSessionId()?.toString() ?? undefined,
                 metadata: {},
             },
         },

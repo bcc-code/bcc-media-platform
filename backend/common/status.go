@@ -7,6 +7,7 @@ type Status string
 const (
 	StatusDraft     = Status("draft")
 	StatusPublished = Status("published")
+	StatusUnlisted  = Status("unlisted")
 	StatusArchived  = Status("archived")
 )
 
@@ -33,6 +34,8 @@ func StatusFrom(s string) Status {
 		return StatusPublished
 	case StatusDraft:
 		return StatusDraft
+	case StatusUnlisted:
+		return StatusUnlisted
 	default:
 		return StatusArchived
 	}

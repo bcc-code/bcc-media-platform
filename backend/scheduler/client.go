@@ -5,8 +5,12 @@ import (
 	"cloud.google.com/go/cloudtasks/apiv2/cloudtaskspb"
 	"context"
 	"encoding/json"
+	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/api/iterator"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"strings"
 	"time"
 )
 
@@ -39,12 +43,41 @@ type QueuedItem struct {
 func (s *Service) Queue(ctx context.Context, collection string, id string, at time.Time) error {
 	client, _ := cloudtasks.NewClient(ctx)
 
+	it := client.ListTasks(ctx, &cloudtaskspb.ListTasksRequest{
+		Parent: s.queueID,
+	})
+
 	taskName := s.queueID + "/tasks/" + collection + "-" + id
+
+	for {
+		resp, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.L.Error().Err(err).Send()
+			break
+		}
+		if !strings.HasPrefix(resp.GetName(), taskName) {
+			log.L.Debug().Str("name", resp.GetName()).Msg("Ignoring existing task")
+			continue
+		}
+		if resp.ScheduleTime.AsTime().Equal(at) {
+			return nil
+		}
+		log.L.Debug().Str("name", resp.GetName()).Msg("Deleting existing task")
+		err = client.DeleteTask(ctx, &cloudtaskspb.DeleteTaskRequest{
+			Name: resp.Name,
+		})
+		if err != nil {
+			return err
+		}
+	}
 
 	task := &cloudtaskspb.CreateTaskRequest{
 		Parent: s.queueID,
 		Task: &cloudtaskspb.Task{
-			Name: taskName,
+			Name: taskName + "-" + utils.GenerateRandomSecureString(6),
 			ScheduleTime: &timestamppb.Timestamp{
 				Seconds: at.Unix(),
 			},
@@ -56,6 +89,7 @@ func (s *Service) Queue(ctx context.Context, collection string, id string, at ti
 			},
 		},
 	}
+	log.L.Debug().Str("name", task.Task.Name).Msg("Creating task")
 
 	body, err := json.Marshal(QueuedItem{Collection: collection, ID: id})
 

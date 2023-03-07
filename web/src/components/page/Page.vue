@@ -29,7 +29,7 @@
                 <NotFound :title="$t('page.notFound')"></NotFound>
             </div>
             <div v-else-if="error">{{ error.message }}</div>
-            <SkeletonSections class="px-4 lg:px-20" v-else></SkeletonSections>
+            <!-- <SkeletonSections class="px-4 lg:px-20" v-else></SkeletonSections> -->
         </transition>
     </section>
 </template>
@@ -39,9 +39,10 @@ import {
     GetSectionQuery,
     useGetPageQuery,
     useGetSectionQuery,
+    useGetSectionsForPageQuery,
 } from "@/graph/generated"
 import Section from "@/components/sections/Section.vue"
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue"
+import { computed, nextTick, onMounted, onUnmounted, ref } from "vue"
 import NotFound from "../NotFound.vue"
 import SkeletonSections from "./SkeletonSections.vue"
 import Loader from "../Loader.vue"
@@ -59,6 +60,17 @@ const pageFirst = ref(10)
 const pageOffset = ref(0)
 
 const { error, fetching, executeQuery } = useGetPageQuery({
+    pause: true,
+    variables: {
+        code: computed(() => props.pageId),
+        offset: 0,
+        first: 10,
+        sectionFirst: 10,
+        sectionOffset: 0,
+    },
+})
+
+const getSectionsQuery = useGetSectionsForPageQuery({
     pause: true,
     variables: {
         code: computed(() => props.pageId),
@@ -140,17 +152,17 @@ const loadMore = async () => {
     // console.log(`ScrollTop: ${scrollTop}. \nOffsetHeight: ${offsetHeight}. \nInnerHeight: ${innerHeight}\nBottom: ${bottom} \n\n`)
 
     if (bottom) {
-        if (
-            page.value &&
-            page.value.sections.total >
-                page.value.sections.offset + page.value.sections.first
-        ) {
+        const p = getSectionsQuery.data.value?.page ?? page.value
+        if (!p) {
+            return
+        }
+
+        if (p.sections.total > p.sections.offset + p.sections.first) {
             if (!fetching.value) {
-                pageOffset.value =
-                    page.value.sections.offset + page.value.sections.first
+                pageOffset.value = p.sections.offset + p.sections.first
                 await nextTick()
-                const r = await executeQuery()
-                if (r.data.value) {
+                const r = await getSectionsQuery.executeQuery()
+                if (r.data.value && page.value) {
                     page.value.sections.items.push(
                         ...r.data.value.page.sections.items
                     )
@@ -160,17 +172,15 @@ const loadMore = async () => {
                 }
             }
         } else if (!sectionQuery.fetching.value) {
-            const sections = page.value?.sections.items
-            if (sections) {
-                const lastSection = sections[sections.length - 1]
-                if (lastSection) {
-                    switch (lastSection.__typename) {
-                        case "DefaultGridSection":
-                        case "ListSection":
-                        case "IconGridSection":
-                        case "PosterGridSection":
-                            await appendItems(lastSection)
-                    }
+            const sections = p.sections.items
+            const lastSection = sections[sections.length - 1]
+            if (lastSection) {
+                switch (lastSection.__typename) {
+                    case "DefaultGridSection":
+                    case "ListSection":
+                    case "IconGridSection":
+                    case "PosterGridSection":
+                        await appendItems(lastSection)
                 }
             }
         }

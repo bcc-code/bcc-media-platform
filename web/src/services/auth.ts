@@ -61,7 +61,6 @@ export class Auth {
         localStorage.clear()
         try {
             return await logout({
-                localOnly: true,
                 returnTo: window.location.origin,
             })
         } finally {

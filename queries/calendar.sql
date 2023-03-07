@@ -9,6 +9,7 @@ SELECT e.id,
        e.link_type,
        e.start,
        e.end,
+       COALESCE(e.is_replay, false) = true AS is_replay,
        ea.id AS episode_id,
        se.id AS season_id,
        sh.id AS show_id,
@@ -33,9 +34,10 @@ SELECT e.id,
        e.link_type,
        e.start,
        e.end,
-       ea.id AS episode_id,
-       se.id AS season_id,
-       sh.id AS show_id,
+       COALESCE(e.is_replay, false) = true AS is_replay,
+       ea.id              AS episode_id,
+       se.id              AS season_id,
+       sh.id              AS show_id,
        t.title,
        t.description
 FROM calendarentries e
@@ -76,9 +78,7 @@ WHERE e.status = 'published'
 SELECT e.id
 FROM calendarentries e
 WHERE e.status = 'published'
-  AND ((e.start >= $1::timestamptz AND e.start <= $2::timestamptz)
-    OR (e.end >= $1::timestamptz AND e.end <= $2::timestamptz)
-    OR (e.start <= $1::timestamptz AND e.end >= $2::timestamptz))
+  AND (e.start >= $1::timestamptz AND e.start <= $2::timestamptz)
 ORDER BY e.start;
 
 -- name: listEvents :many

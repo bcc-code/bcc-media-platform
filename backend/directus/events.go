@@ -51,6 +51,7 @@ func (handler *EventHandler) On(events []string, callback EventHandlerFunc) {
 
 // Sentinel errors
 var (
+	// ErrErrorDuringProcessing returns a sentinel error for processing errors
 	ErrErrorDuringProcessing = merry.Sentinel("Error while processing directus event")
 )
 

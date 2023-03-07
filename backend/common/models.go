@@ -60,6 +60,14 @@ type Availability struct {
 	PublishedOn time.Time
 }
 
+// Permissions contains permissions that restrict access to items
+type Permissions[k comparable] struct {
+	ItemID       k
+	Type         ItemCollection
+	Availability Availability
+	Roles        Roles
+}
+
 // AppConfig contains configuration of the app.
 type AppConfig struct {
 	MinVersion string
@@ -86,6 +94,7 @@ type Notification struct {
 	TargetIDs     []uuid.UUID            `json:"targetIds"`
 }
 
+// Target specific groups
 type Target struct {
 	ID         uuid.UUID
 	Type       string
@@ -120,12 +129,14 @@ func (i Progress) GetKey() int {
 	return i.EpisodeID
 }
 
+// Redirect contains data for an authenticated redirect
 type Redirect struct {
 	ID        uuid.UUID
 	Code      string
 	TargetURL string
 }
 
+// GetKey returns the identifier for this object
 func (r Redirect) GetKey() uuid.UUID {
 	return r.ID
 }

@@ -74,14 +74,14 @@ import Loader from "../components/Loader.vue"
 import { init } from "@/services/language"
 import { onMounted } from "vue"
 import { analytics } from "@/services/analytics"
-import { useGetAnalyticsIdQuery } from "@/graph/generated"
+import { useGetMeQuery } from "@/graph/generated"
 import { loading as tLoading } from "@/i18n"
 import Footer from "@/components/Footer.vue"
 import Cookies from "@/components/Cookies.vue"
 
 const { loading, authenticated, shouldSignIn, signIn, cancelSignIn } = useAuth()
 
-const analyticsQuery = useGetAnalyticsIdQuery({
+const analyticsQuery = useGetMeQuery({
     pause: true,
 })
 

@@ -2,7 +2,7 @@ package smil
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path"
 	"strings"
@@ -30,12 +30,12 @@ func TestUnmarshall(t *testing.T) {
 		}
 
 		fmt.Println("Successfully Opened " + fileName)
-		// defer the closing of our xmlFile so that we can parse it later on
-		defer xmlFile.Close()
 
-		byteValue, _ := ioutil.ReadAll(xmlFile)
+		byteValue, _ := io.ReadAll(xmlFile)
 
 		_, err = Unmarshall(byteValue)
+		assert.NoError(t, err)
+		err = xmlFile.Close()
 		assert.NoError(t, err)
 	}
 

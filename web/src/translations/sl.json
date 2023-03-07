@@ -14,8 +14,8 @@
         "goTo": "Pojdi na",
         "send": "Pošlji",
         "start": "Začetek",
-        "skip": "",
-        "join": ""
+        "skip": "Preskoči",
+        "join": "Pridruži se"
     },
     "error": {
         "couldntSendYourMessage": "Sporočila ni bilo mogoče poslati",
@@ -98,18 +98,18 @@
         "continueStudy": "Nadaljuj preučevanje"
     },
     "competition": {
-        "title": "",
-        "description": "",
-        "howDoesItWork": "",
-        "onlyOnce": "",
-        "watchNextBroadcast": "",
-        "joinCompetition": "",
-        "terms": "",
-        "alreadySent": "",
-        "areYouSure": "",
-        "lookThouroughly": "",
-        "submitted": "",
-        "dontMiss": ""
+        "title": "Podvoji svoje možnosti",
+        "description": "Če pravilno odgovoriš, imaš večjo možnost dobiti posebno nagrado <strong>Te moje besede</strong>.",
+        "howDoesItWork": "Kako deluje?",
+        "onlyOnce": "Samo enkrat lahko rešuješ kviz.",
+        "watchNextBroadcast": "Oglej si naslednjo oddajo v studiu v živo, da izveš pravilne odgovore.",
+        "joinCompetition": "Priduži se tekmovanju",
+        "terms": "S sodelovanjem se strinjaš, da se lahko tvoje ime objavi v oddaji, v kateri bo razglašen zmagovalec.",
+        "alreadySent": "Si že odgovoril, ampak še vedno si lahko ogledaš, kaj si odgovoril.",
+        "areYouSure": "Si prepričan?",
+        "lookThouroughly": "Svoje odgovore pozorno preglej. Ko so oddani, jih ne bo moreš več spreminjati.",
+        "submitted": "Tvoj odgovor je bil oddan!",
+        "dontMiss": "Ne zamudi naslednje oddaje v studiu, ko bodo objavljeni pravilni odgovori."
     },
     "lesson": {
         "related": "Povezane možnosti",

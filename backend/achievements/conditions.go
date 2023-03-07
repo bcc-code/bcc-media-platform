@@ -17,6 +17,7 @@ const (
 	CollectionTasks   = "tasks"
 )
 
+// Action defines what type of activity has happened that might trigger a new Achievement
 type Action struct {
 	Collection string
 	Action     string

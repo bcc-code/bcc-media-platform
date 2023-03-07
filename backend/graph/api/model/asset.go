@@ -22,23 +22,23 @@ type cdnConfig interface {
 	GetVOD2Domain() string
 }
 
-// FileFrom converts Assetfile rows to the GQL equvivalents
-func FileFrom(ctx context.Context, signer signatureProvider, cdnDomain string, file *common.File) *File {
+// FileFrom converts AssetFile rows to the GQL equivalents
+func FileFrom(_ context.Context, signer signatureProvider, cdnDomain string, file *common.File) *File {
 	var subLang *string
 	if file.SubtitleLanguage.Valid {
 		l := file.SubtitleLanguage.String
 		subLang = &l
 	}
 
-	url := url.URL{
+	u := url.URL{
 		Path:   file.Path,
 		Host:   cdnDomain,
 		Scheme: "https",
 	}
 
-	policy := sign.NewCannedPolicy(url.String(), time.Now().Add(time.Hour))
+	policy := sign.NewCannedPolicy(u.String(), time.Now().Add(time.Hour))
 
-	signed, err := signer.SignWithPolicy(url.String(), policy)
+	signed, err := signer.SignWithPolicy(u.String(), policy)
 	if err != nil {
 		panic(err)
 	}
@@ -53,8 +53,8 @@ func FileFrom(ctx context.Context, signer signatureProvider, cdnDomain string, f
 	}
 }
 
-// StreamFrom converts Assetfile rows to the GQL equvivalents
-func StreamFrom(ctx context.Context, signer signatureProvider, cdn cdnConfig, stream *common.Stream) (*Stream, error) {
+// StreamFrom converts AssetFile rows to the GQL equivalents
+func StreamFrom(_ context.Context, signer signatureProvider, cdn cdnConfig, stream *common.Stream) (*Stream, error) {
 	signedURL := ""
 	var err error
 

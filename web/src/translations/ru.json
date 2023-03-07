@@ -1,21 +1,21 @@
 {
     "buttons": {
-        "save": "",
-        "login": "",
-        "logout": "",
-        "stayLoggedOut": "",
+        "save": "Сохранить",
+        "login": "Войти",
+        "logout": "Выйти",
+        "stayLoggedOut": "Не выходить из системы",
         "cancel": "Отмена",
-        "submit": "",
+        "submit": "Отправить",
         "back": "Назад",
         "next": "Дальше",
         "continue": "Продолжить",
         "close": "Закрыть",
         "download": "Скачать",
-        "goTo": "Перейти к",
+        "goTo": "Перейти",
         "send": "Отправить",
-        "start": "",
-        "skip": "",
-        "join": ""
+        "start": "Начать",
+        "skip": "Пропустить",
+        "join": "Присоединиться"
     },
     "error": {
         "couldntSendYourMessage": "Не удалось отправить ваше сообщение",
@@ -23,46 +23,46 @@
         "checkNetwork": "Проверьте подключение к Интернету и повторите попытку."
     },
     "dashboard": {
-        "loggedOut": ""
+        "loggedOut": "Вы вышли из системы"
     },
     "page": {
-        "home": "",
-        "search": "",
-        "live": "",
-        "calendar": "",
-        "faq": "",
-        "notFound": "",
-        "explore": "",
-        "watchNow": "",
+        "home": "Главная",
+        "search": "Поиск",
+        "live": "Прямой эфир",
+        "calendar": "Календарь",
+        "faq": "ЧАВО",
+        "notFound": "Страница не найдена",
+        "explore": "Исследовать",
+        "watchNow": "Смотреть сейчас",
         "aboutUs": "О нас"
     },
     "section": {
         "item": {
-            "episode": "",
-            "season": ""
+            "episode": "0 серий | 1 серия | {count} серий",
+            "season": "0 сезонов | 1 сезон | {count} сезона"
         }
     },
     "notFound": {
-        "title": "",
-        "description": "",
-        "returnHome": ""
+        "title": "Не найдено",
+        "description": "Возможно, вы не вошли в систему или у вас отсутствуют какие-либо разрешения.",
+        "returnHome": "Вернуться домой"
     },
     "common": {
-        "new": "",
-        "newEpisodes": ""
+        "new": "Новика",
+        "newEpisodes": "Новые эпизоды"
     },
     "episode": {
-        "details": "",
-        "episode": "",
-        "episodes": "",
-        "videos": "",
-        "seriesDescription": "",
-        "releaseDate": "",
-        "availableFrom": "",
-        "availableTo": "",
-        "ageRating": "",
-        "notFound": "",
-        "comingSoon": "",
+        "details": "Подробности",
+        "episode": "Эпизод",
+        "episodes": "Эпизоды",
+        "videos": "Видео",
+        "seriesDescription": "Описание серии",
+        "releaseDate": "Дата выхода",
+        "availableFrom": "Доступно с",
+        "availableTo": "Доступно до",
+        "ageRating": "Рейтинг",
+        "notFound": "Эпизод не найден",
+        "comingSoon": "Скоро выйдут",
         "noAccess": {
             "oops": "Ой!",
             "mustBeLoggedIn": "Вы должны войти в систему, чтобы смотреть этот контент",
@@ -71,51 +71,51 @@
         }
     },
     "live": {
-        "now": ""
+        "now": "Сейчас"
     },
     "calendar": {
-        "noScheduledEvents": "",
-        "thisWeek": "",
-        "timeTableIsLocalTime": ""
+        "noScheduledEvents": "Нет запланированных мероприятий",
+        "thisWeek": "На этой неделе",
+        "timeTableIsLocalTime": "Расписание телепрограммы указано по вашему местному времени."
     },
     "search": {
-        "programs": "",
-        "episodes": "",
+        "programs": "Программы",
+        "episodes": "Эпизоды",
         "cancel": "Отмена",
-        "emptyQuery": "",
-        "noResults": "",
-        "tryAdjustingQuery": ""
+        "emptyQuery": "Поисковый запрос пуст.",
+        "noResults": "Нет результатов поиска",
+        "tryAdjustingQuery": "Попробуйте изменить поисковый запрос"
     },
     "support": {
-        "contact": "",
-        "title": "",
-        "subject": "",
-        "content": "",
-        "describeIssue": ""
+        "contact": "Связаться с поддержкой",
+        "title": "Название",
+        "subject": "Тема",
+        "content": "Содержание",
+        "describeIssue": "Подробно опишите вашу проблему."
     },
     "study": {
         "startStudy": "Начать изучение",
         "continueStudy": "Продолжить изучение"
     },
     "competition": {
-        "title": "",
-        "description": "",
-        "howDoesItWork": "",
-        "onlyOnce": "",
-        "watchNextBroadcast": "",
-        "joinCompetition": "",
-        "terms": "",
-        "alreadySent": "",
-        "areYouSure": "",
-        "lookThouroughly": "",
-        "submitted": "",
-        "dontMiss": ""
+        "title": "Удвой свои шансы",
+        "description": "Увеличь свои шансы выиграть эксклюзивный приз <strong>Эти Мои слова</strong>, отвечая правильно.",
+        "howDoesItWork": "Как это работает?",
+        "onlyOnce": "Ты можешь пройти викторину только один раз.",
+        "watchNextBroadcast": "Смотри следующую прямую трансляцию, чтобы узнать правильные ответы.",
+        "joinCompetition": "Присоединяйся к конкурсу",
+        "terms": "Участвуя, ты соглашаешься с тем, что твое имя может быть показано в трансляции при объявлении победителя.",
+        "alreadySent": "Ты уже отправил ответ, но все еще можешь увидеть его.",
+        "areYouSure": "Ты уверен(а)?",
+        "lookThouroughly": "Внимательно просмотри свои ответы. После отправки ты не сможешь изменить свой ответ.",
+        "submitted": "Твой ответ отправлен!",
+        "dontMiss": "Не пропусти следующую трансляцию, на которой будет объявлен правильный ответ."
     },
     "lesson": {
-        "related": "",
+        "related": "Связанные ресурсы",
         "watchAgain": {
-            "title": "",
-            "description": "",
+            "title": "Посмотреть снова",
+            "description": "Для более глубокого понимания рекомендуем посмотреть видео несколько раз.",
             "button": "Посмотреть снова"
         },
         "lessonActivityTitle": "Задание по уроку",
@@ -155,8 +155,8 @@
         "placeholder": "Пожалуйста, напишите как можно более подробно, чтобы помочь нам понять."
     },
     "contactLocalBukIfWrong": "Свяжитесь с ответственным за BUK в вашей поместной церкви, если считаете, что здесь есть ошибка.",
-    "thankYou": "",
-    "yourResponseHasBeenSubmitted": "",
+    "thankYou": "Спасибо!",
+    "yourResponseHasBeenSubmitted": "Ответ отправлен.",
     "sending": "Отправка",
     "defaultInputPlaceholder": "Начните печатать здесь..."
 }

@@ -112,7 +112,7 @@
                                     )
                                 "
                                 :current-id="episode.id"
-                                @item-click="(i) => setEpisode(i.id)"
+                                @item-click="(i) => setEpisode(uuid ? (i as any).uuid : i.id)"
                             ></ItemList>
                         </div>
                         <div
@@ -127,7 +127,7 @@
                             <ItemList
                                 :items="seasonEpisodes"
                                 :current-id="episode.id"
-                                @item-click="(i) => setEpisode(i.id)"
+                                @item-click="(i) => setEpisode(uuid ? (i as any).uuid : i.id)"
                             ></ItemList>
                         </div>
                     </Transition>
@@ -165,6 +165,7 @@ import { episodeComingSoon } from "../../utils/items"
 const props = defineProps<{
     initialEpisodeId: string
     context: EpisodeContext
+    uuid?: boolean
     autoPlay?: boolean
 }>()
 

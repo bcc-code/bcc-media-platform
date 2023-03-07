@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
+	"strconv"
 
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
 )
@@ -26,10 +28,14 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			image = null.StringFrom(fmt.Sprintf("https://%s/%s", q.getImageCDNDomain(), e.ImageFileName.String))
 		}
 
+		if e.NumberInTitle.Valid && e.NumberInTitle.Bool && e.EpisodeNumber.Valid {
+			title = title.Prefix(strconv.Itoa(int(e.EpisodeNumber.Int64)) + ". ")
+		}
+
 		return common.Episode{
 			ID:                    int(e.ID),
 			UUID:                  e.Uuid,
-			Unlisted:              e.Unlisted,
+			Status:                common.StatusFrom(e.Status),
 			Type:                  e.Type,
 			LegacyID:              e.LegacyID,
 			LegacyProgramID:       e.LegacyProgramID,
@@ -88,7 +94,7 @@ func (row getEpisodeIDsForSeasonsRow) GetRelationID() int {
 }
 
 // GetEpisodeIDsForSeasonsWithRoles returns episodeIDs for season filtered by roles
-func (rq *RoleQueries) GetEpisodeIDsForSeasonsWithRoles(ctx context.Context, ids []int) ([]batchloaders.Relation[int, int], error) {
+func (rq *RoleQueries) GetEpisodeIDsForSeasonsWithRoles(ctx context.Context, ids []int) ([]loaders.Relation[int, int], error) {
 	rows, err := rq.queries.getEpisodeIDsForSeasonsWithRoles(ctx, getEpisodeIDsForSeasonsWithRolesParams{
 		Column1: intToInt32(ids),
 		Column2: rq.roles,
@@ -96,7 +102,7 @@ func (rq *RoleQueries) GetEpisodeIDsForSeasonsWithRoles(ctx context.Context, ids
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getEpisodeIDsForSeasonsWithRolesRow, _ int) batchloaders.Relation[int, int] {
+	return lo.Map(rows, func(i getEpisodeIDsForSeasonsWithRolesRow, _ int) loaders.Relation[int, int] {
 		return getEpisodeIDsForSeasonsRow(i)
 	}), nil
 }
@@ -139,34 +145,59 @@ func (q *Queries) GetPermissionsForEpisodes(ctx context.Context, ids []int) ([]c
 	}), nil
 }
 
+type conversion[S comparable, R comparable] struct {
+	source S
+	result R
+}
+
 // GetOriginal returns the requested string
-func (row getEpisodeIDsForLegacyIDsRow) GetOriginal() int {
-	return int(row.LegacyID.Int64)
+func (c conversion[S, R]) GetOriginal() S {
+	return c.source
 }
 
 // GetResult returns the id from the query
-func (row getEpisodeIDsForLegacyIDsRow) GetResult() int {
-	return int(row.ID)
+func (c conversion[S, R]) GetResult() R {
+	return c.result
 }
 
 // GetEpisodeIDsForLegacyIDs returns ids for the requested codes
-func (q *Queries) GetEpisodeIDsForLegacyIDs(ctx context.Context, ids []int) ([]batchloaders.Conversion[int, int], error) {
+func (q *Queries) GetEpisodeIDsForLegacyIDs(ctx context.Context, ids []int) ([]loaders.Conversion[int, int], error) {
 	rows, err := q.getEpisodeIDsForLegacyIDs(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getEpisodeIDsForLegacyIDsRow, _ int) batchloaders.Conversion[int, int] {
-		return i
+	return lo.Map(rows, func(i getEpisodeIDsForLegacyIDsRow, _ int) loaders.Conversion[int, int] {
+		return conversion[int, int]{
+			source: int(i.LegacyID.ValueOrZero()),
+			result: int(i.ID),
+		}
 	}), nil
 }
 
 // GetEpisodeIDsForLegacyProgramIDs returns ids for the requested codes
-func (q *Queries) GetEpisodeIDsForLegacyProgramIDs(ctx context.Context, ids []int) ([]batchloaders.Conversion[int, int], error) {
+func (q *Queries) GetEpisodeIDsForLegacyProgramIDs(ctx context.Context, ids []int) ([]loaders.Conversion[int, int], error) {
 	rows, err := q.getEpisodeIDsForLegacyProgramIDs(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getEpisodeIDsForLegacyProgramIDsRow, _ int) batchloaders.Conversion[int, int] {
-		return getEpisodeIDsForLegacyIDsRow(i)
+	return lo.Map(rows, func(i getEpisodeIDsForLegacyProgramIDsRow, _ int) loaders.Conversion[int, int] {
+		return conversion[int, int]{
+			source: int(i.LegacyID.ValueOrZero()),
+			result: int(i.ID),
+		}
+	}), nil
+}
+
+// GetEpisodeIDsForUuids returns episodeIds for specified uuids
+func (q *Queries) GetEpisodeIDsForUuids(ctx context.Context, uuids []uuid.UUID) ([]loaders.Conversion[uuid.UUID, int], error) {
+	rows, err := q.getEpisodeIDsForUuids(ctx, uuids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getEpisodeIDsForUuidsRow, _ int) loaders.Conversion[uuid.UUID, int] {
+		return conversion[uuid.UUID, int]{
+			source: i.Original,
+			result: int(i.Result),
+		}
 	}), nil
 }

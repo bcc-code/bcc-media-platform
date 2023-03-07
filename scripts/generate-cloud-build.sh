@@ -8,7 +8,7 @@ function deploy {
 	echo "- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'" >> $CB
 	echo "  waitFor: ['-']" >> $CB
 	echo "  entrypoint: gcloud" >> $CB
-	echo "  args: ['run', 'deploy', '\$_${1}_SERVICE', '--no-traffic', '--image', '$(cat ${2})', '--region', 'europe-west4']" >> $CB
+	echo "  args: ['run', 'deploy', '\$_${1}_SERVICE', '--project', '\$_PROJECT_ID', '--no-traffic', '--image', '$(cat ${2})', '--region', 'europe-west4']" >> $CB
 }
 
 function route {

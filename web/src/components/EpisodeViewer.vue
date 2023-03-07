@@ -6,20 +6,22 @@
     ></div>
 </template>
 <script lang="ts" setup>
-import { addError } from "@/utils/error"
-import { onMounted, onUnmounted, onUpdated, ref } from "vue"
-import { Player } from "bccm-video-player"
+import {addError} from "@/utils/error"
+import {onMounted, onUnmounted, onUpdated, ref} from "vue"
+import {Player, setNPAWOptions} from "bccm-video-player"
 import playerFactory from "@/services/player"
 import {
     EpisodeContext,
-    useGetAnalyticsIdQuery,
+    useGetMeQuery,
     useUpdateEpisodeProgressMutation,
 } from "@/graph/generated"
-import { useAuth0 } from "@auth0/auth0-vue"
-import { setProgress } from "@/utils/episodes"
-import { current as currentLanguage } from "@/services/language"
+import {useAuth0} from "@auth0/auth0-vue"
+import {setProgress} from "@/utils/episodes"
+import {current as currentLanguage} from "@/services/language"
+import {getSessionId} from "rudder-sdk-js";
+import { analytics } from "@/services/analytics"
 
-const { isAuthenticated } = useAuth0()
+const {isAuthenticated} = useAuth0()
 
 const lanTo3letter: {
     [key: string]: string
@@ -41,7 +43,7 @@ const lanTo3letter: {
     da: "dan",
 }
 
-const { data, executeQuery } = useGetAnalyticsIdQuery()
+const {data, executeQuery} = useGetMeQuery()
 
 const props = defineProps<{
     context: EpisodeContext
@@ -51,8 +53,10 @@ const props = defineProps<{
         duration: number
         progress?: number | null
         season?: {
+            id: string
             title: string
             show: {
+                id: string
                 title: string
             }
         } | null
@@ -64,7 +68,7 @@ const player = ref(null as Player | null)
 
 const current = ref(null as string | null)
 
-const { executeMutation } = useUpdateEpisodeProgressMutation()
+const {executeMutation} = useUpdateEpisodeProgressMutation()
 
 const updateEpisodeProgress = async (episode: {
     id: string
@@ -107,34 +111,50 @@ const load = async () => {
             await executeQuery()
         }
 
-        player.value?.dispose()
-        player.value = await playerFactory.create("video-player", {
-            episodeId: episodeId,
-            overrides: {
-                languagePreferenceDefaults: {
-                    audio: lanTo3letter[currentLanguage.value.code],
-                    subtitles: lanTo3letter[currentLanguage.value.code],
-                },
-                videojs: {
-                    autoplay: props.autoPlay,
-                },
-                npaw: {
-                    enabled: true,
-                    accountCode: import.meta.env.VITE_NPAW_ACCOUNT_CODE,
-                    tracking: {
-                        isLive: false,
-                        userId: data.value?.me.analytics.anonymousId,
-                        metadata: {
-                            contentId: episodeId,
-                            title: props.episode.title,
-                            episodeTitle: props.episode.title,
-                            seasonTitle: props.episode.season?.title,
-                            showTitle: props.episode.season?.show.title,
-                        },
+        const options = {
+            languagePreferenceDefaults: {
+                audio: lanTo3letter[currentLanguage.value.code],
+                subtitles: lanTo3letter[currentLanguage.value.code],
+            },
+            videojs: {
+                autoplay: props.autoPlay,
+            },
+            npaw: {
+                enabled: !!import.meta.env.VITE_NPAW_ACCOUNT_CODE,
+                accountCode: import.meta.env.VITE_NPAW_ACCOUNT_CODE,
+                tracking: {
+                    isLive: false,
+                    userId: data.value?.me.analytics.anonymousId!,
+                    sessionId: getSessionId()?.toString() ?? undefined,
+                    ageGroup: analytics.getUser()?.ageGroup,
+                    metadata: {
+                        contentId: episodeId,
+                        title: props.episode.title,
+                        episodeTitle: props.episode.title,
+                        seasonTitle: props.episode.season?.title,
+                        seasonId: props.episode.season?.id,
+                        showTitle: props.episode.season?.show.title,
+                        showId: props.episode.season?.show.id,
                     },
                 },
             },
+        }
+
+        player.value?.dispose()
+        player.value = await playerFactory.create("video-player", {
+            episodeId: episodeId,
+            overrides: options,
         })
+
+        // create a event when player is created
+        const vodPlayer = new CustomEvent("vodPlayer", {
+            detail: player.value,
+            bubbles: false,
+            cancelable: true,
+            composed: false,
+        })
+        window.dispatchEvent(vodPlayer)
+
         lastProgress = props.episode.progress
         player.value.currentTime(lastProgress)
 

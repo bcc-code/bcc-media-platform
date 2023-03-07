@@ -1,0 +1,32 @@
+ [
+      {
+        "mode": "NULLABLE",
+        "name": "age_group",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "org_id",
+        "type": "INTEGER"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "rating",
+        "type": "INTEGER"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "item_id",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "message",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "updated",
+        "type": "TIMESTAMP"
+      }
+    ]

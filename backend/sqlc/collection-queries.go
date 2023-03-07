@@ -3,8 +3,8 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/samber/lo"
 )
 
@@ -86,12 +86,12 @@ func (row getCollectionIDsForCodesRow) GetResult() int {
 }
 
 // GetCollectionIDsForCodes returns ids for the requested codes
-func (q *Queries) GetCollectionIDsForCodes(ctx context.Context, codes []string) ([]batchloaders.Conversion[string, int], error) {
+func (q *Queries) GetCollectionIDsForCodes(ctx context.Context, codes []string) ([]loaders.Conversion[string, int], error) {
 	rows, err := q.getCollectionIDsForCodes(ctx, codes)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getCollectionIDsForCodesRow, _ int) batchloaders.Conversion[string, int] {
+	return lo.Map(rows, func(i getCollectionIDsForCodesRow, _ int) loaders.Conversion[string, int] {
 		return i
 	}), nil
 }

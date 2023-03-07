@@ -11,7 +11,7 @@ import (
 type Translation struct {
 	ID            int    `json:"id,omitempty"`
 	Title         string `json:"title"`
-	Description   string `json:"description,omitempty"`
+	Description   string `json:"description"`
 	LanguagesCode string `json:"languages_code"`
 	//IsPrimary     bool   `json:"is_primary"`
 }
@@ -46,6 +46,12 @@ type PagesTranslation struct {
 	PagesID int `json:"pages_id"`
 }
 
+// LinksTranslation extends Translation
+type LinksTranslation struct {
+	Translation
+	LinksID int `json:"links_id"`
+}
+
 // StudyTopicsTranslation struct
 type StudyTopicsTranslation struct {
 	ID            string `json:"id,omitempty"`
@@ -77,7 +83,6 @@ type TasksTranslation struct {
 type QuestionAlternativesTranslation struct {
 	ID                     string `json:"id,omitempty"`
 	Title                  string `json:"title"`
-	Description            string `json:"description,omitempty"`
 	LanguagesCode          string `json:"languages_code"`
 	QuestionAlternativesID string `json:"questionalternatives_id"`
 }
@@ -102,7 +107,8 @@ type AchievementGroupsTranslation struct {
 // ForUpdate for update
 func (i StudyTopicsTranslation) ForUpdate() any {
 	return map[string]string{
-		"title": i.Title,
+		"title":       i.Title,
+		"description": i.Description,
 	}
 }
 
@@ -119,7 +125,8 @@ func (StudyTopicsTranslation) TypeName() string {
 // ForUpdate for update
 func (i LessonsTranslation) ForUpdate() any {
 	return map[string]string{
-		"title": i.Title,
+		"title":       i.Title,
+		"description": i.Description,
 	}
 }
 
@@ -136,7 +143,8 @@ func (LessonsTranslation) TypeName() string {
 // ForUpdate for update
 func (i TasksTranslation) ForUpdate() any {
 	return map[string]string{
-		"title": i.Title,
+		"title":       i.Title,
+		"description": i.Description,
 	}
 }
 
@@ -246,6 +254,11 @@ func (SectionsTranslation) TypeName() string {
 // TypeName shows_translations
 func (PagesTranslation) TypeName() string {
 	return "pages_translations"
+}
+
+// TypeName shows_translations
+func (LinksTranslation) TypeName() string {
+	return "links_translations"
 }
 
 // GetLanguage retrieves the configured language for this translation

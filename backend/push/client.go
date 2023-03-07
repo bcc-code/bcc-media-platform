@@ -34,26 +34,6 @@ func NewService(ctx context.Context, firebaseProjectID string, queries *sqlc.Que
 	return service, nil
 }
 
-func notificationToPayload(notification common.Notification) map[string]string {
-	var payload = map[string]string{}
-	for lan, val := range notification.Title {
-		if val.Valid {
-			payload["title_"+lan] = val.ValueOrZero()
-		}
-	}
-	for lan, val := range notification.Description {
-		if val.Valid {
-			payload["description_"+lan] = val.ValueOrZero()
-		}
-	}
-	for lan, val := range notification.Images {
-		if val.Valid {
-			payload["image_"+lan] = val.String
-		}
-	}
-	return payload
-}
-
 func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Message) error {
 	client, err := s.app.Messaging(ctx)
 	if err != nil {
@@ -77,7 +57,7 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 		ranges = append(ranges, messages[i:r])
 	}
 
-	errors := parallel.Map(ranges, func(r []*messaging.Message, _ int) []error {
+	batchSendMessages := func(r []*messaging.Message, _ int) []error {
 		res, err := client.SendAll(ctx, r)
 		//TODO: Implement error handling
 		if err != nil {
@@ -85,11 +65,13 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 		}
 		// Just return errors for now. This part filters the responses and only returns errors that arent nil.
 		return lo.Map(lo.Filter(res.Responses, func(r *messaging.SendResponse, _ int) bool {
-			return r.Error != nil
+			return r.Error != nil && !messaging.IsRegistrationTokenNotRegistered(r.Error) && !messaging.IsMismatchedCredential(r.Error)
 		}), func(r *messaging.SendResponse, _ int) error {
 			return r.Error
 		})
-	})
+	}
+
+	errors := parallel.Map(ranges, batchSendMessages)
 
 	for _, errs := range errors {
 		if len(errs) > 0 {

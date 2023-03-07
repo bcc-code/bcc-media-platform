@@ -14,8 +14,8 @@
         "goTo": "Ir para",
         "send": "Enviar",
         "start": "Começar",
-        "skip": "",
-        "join": ""
+        "skip": "Pular",
+        "join": "Partícipe"
     },
     "error": {
         "couldntSendYourMessage": "Não foi possível enviar sua mensagem",
@@ -98,18 +98,18 @@
         "continueStudy": "Continuar estudo"
     },
     "competition": {
-        "title": "",
-        "description": "",
-        "howDoesItWork": "",
-        "onlyOnce": "",
-        "watchNextBroadcast": "",
-        "joinCompetition": "",
-        "terms": "",
-        "alreadySent": "",
-        "areYouSure": "",
-        "lookThouroughly": "",
-        "submitted": "",
-        "dontMiss": ""
+        "title": "Dobre suas chances",
+        "description": "Tenha uma chance maior de ganhar o prêmio exclusivo <strong>Estas minhas palavras</strong> respondendo corretamente.",
+        "howDoesItWork": "Como funciona?",
+        "onlyOnce": "Você só pode fazer o teste uma vez.",
+        "watchNextBroadcast": "Assista à próxima transmissão de estúdio ao vivo para ver as respostas certas.",
+        "joinCompetition": "Participe da competição",
+        "terms": "Ao participar você concorda que seu nome pode ser mostrado na transmissão ao anunciar o vencedor.",
+        "alreadySent": "Você já enviou, mas ainda pode ver o que respondeu.",
+        "areYouSure": "Tem certeza?",
+        "lookThouroughly": "Revise suas respostas cuidadosamente. Depois de enviada, você não poderá alterar sua resposta.",
+        "submitted": "Sua resposta foi enviada!",
+        "dontMiss": "Não perca a próxima transmissão do estúdio, onde a resposta correta será anunciada."
     },
     "lesson": {
         "related": "Recursos relacionados ",

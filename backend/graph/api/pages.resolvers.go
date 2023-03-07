@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
@@ -92,7 +91,7 @@ func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSectio
 
 // URL is the resolver for the url field.
 func (r *linkResolver) URL(ctx context.Context, obj *model.Link) (string, error) {
-	l, err := batchloaders.GetByID(ctx, r.Loaders.LinkLoader, utils.AsInt(obj.ID))
+	l, err := r.Loaders.LinkLoader.Get(ctx, utils.AsInt(obj.ID))
 	if err != nil {
 		return "", err
 	}
@@ -139,7 +138,7 @@ func (r *linkResolver) URL(ctx context.Context, obj *model.Link) (string, error)
 
 // Image is the resolver for the image field.
 func (r *linkResolver) Image(ctx context.Context, obj *model.Link, style *model.ImageStyle) (*string, error) {
-	l, err := batchloaders.GetByID(ctx, r.Loaders.LinkLoader, utils.AsInt(obj.ID))
+	l, err := r.Loaders.LinkLoader.Get(ctx, utils.AsInt(obj.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +163,7 @@ func (r *listSectionResolver) Items(ctx context.Context, obj *model.ListSection,
 
 // Messages is the resolver for the messages field.
 func (r *messageSectionResolver) Messages(ctx context.Context, obj *model.MessageSection) ([]*model.Message, error) {
-	s, err := batchloaders.GetByID(ctx, r.Loaders.SectionLoader, utils.AsInt(obj.ID))
+	s, err := r.Loaders.SectionLoader.Get(ctx, utils.AsInt(obj.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +172,7 @@ func (r *messageSectionResolver) Messages(ctx context.Context, obj *model.Messag
 
 // Image is the resolver for the image field.
 func (r *pageResolver) Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error) {
-	e, err := batchloaders.GetByID(ctx, r.Loaders.PageLoader, utils.AsInt(obj.ID))
+	e, err := r.Loaders.PageLoader.Get(ctx, utils.AsInt(obj.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -187,14 +186,14 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 		return nil, err
 	}
 
-	itemIDs, err := batchloaders.GetForKey(ctx, r.FilteredLoaders(ctx).SectionsLoader, int(intID))
+	itemIDs, err := r.FilteredLoaders(ctx).SectionsLoader.Get(ctx, int(intID))
 	if err != nil {
 		return nil, err
 	}
 
 	page := utils.Paginate(itemIDs, first, offset, nil)
 
-	sections, err := batchloaders.GetMany(ctx, r.Loaders.SectionLoader, utils.PointerIntArrayToIntArray(page.Items))
+	sections, err := r.Loaders.SectionLoader.GetMany(ctx, utils.PointerIntArrayToIntArray(page.Items))
 	if err != nil {
 		return nil, err
 	}

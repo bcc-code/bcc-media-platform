@@ -3,7 +3,7 @@
         <h1
             class="text-2xl font-medium mb-2"
             :class="{
-                hidden: result.length === 0,
+                hidden: result.search.result.length === 0,
             }"
         >
             {{ t("search.programs") }}
@@ -16,7 +16,7 @@
             :breakpoints="breakpoints('medium')"
             navigation
         >
-            <SwiperSlide v-for="(i, index) in result">
+            <SwiperSlide v-for="(i, index) in result.search.result">
                 <div
                     class="cursor-pointer"
                     @click="onclick(index, i.id)"
@@ -46,8 +46,8 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { useGetDefaultEpisodeIdQuery, useSearchQuery } from "@/graph/generated"
-import { computed, nextTick, ref, watch } from "vue"
+import { SearchQuery, useGetDefaultEpisodeIdQuery } from "@/graph/generated"
+import { nextTick, ref } from "vue"
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { Navigation } from "swiper"
 import { useI18n } from "vue-i18n"
@@ -59,52 +59,9 @@ import Image from "../Image.vue"
 const { t } = useI18n()
 
 const props = defineProps<{
-    query: string
-    pause: boolean
+    queryString: string
+    result: SearchQuery
 }>()
-
-const emit = defineEmits<{
-    (e: "count", v: number): void
-}>()
-
-const queryString = ref(props.query)
-
-const { data, pause, resume } = useSearchQuery({
-    pause: props.pause,
-    variables: {
-        query: queryString,
-        type: "show",
-    },
-})
-
-watch(
-    () => props.query,
-    () => {
-        queryString.value = props.query
-    }
-)
-
-watch(
-    () => props.pause,
-    () => {
-        if (props.pause) {
-            pause()
-        } else {
-            resume()
-        }
-    }
-)
-
-const result = computed(() => {
-    return data.value?.search.result ?? []
-})
-
-watch(
-    () => data.value,
-    () => {
-        emit("count", data.value?.search.hits ?? 0)
-    }
-)
 
 const modules = [Navigation]
 
@@ -129,7 +86,7 @@ const onclick = async (index: number, id: string) => {
         elementType: "Show",
         group: "shows",
         elementPosition: index,
-        searchText: queryString.value,
+        searchText: props.queryString,
     })
 
     showId.value = id

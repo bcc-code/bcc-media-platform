@@ -79,6 +79,7 @@ type ResolverRoot interface {
 	ShowCalendarEntry() ShowCalendarEntryResolver
 	SimpleCalendarEntry() SimpleCalendarEntryResolver
 	StudyTopic() StudyTopicResolver
+	Survey() SurveyResolver
 	TextTask() TextTaskResolver
 	VideoTask() VideoTaskResolver
 }
@@ -141,6 +142,10 @@ type ComplexityRoot struct {
 
 	Analytics struct {
 		AnonymousID func(childComplexity int) int
+	}
+
+	AnswerSurveyQuestionResult struct {
+		ID func(childComplexity int) int
 	}
 
 	Application struct {
@@ -267,10 +272,12 @@ type ComplexityRoot struct {
 		RelatedItems          func(childComplexity int, first *int, offset *int) int
 		Season                func(childComplexity int) int
 		ShareRestriction      func(childComplexity int) int
+		Status                func(childComplexity int) int
 		Streams               func(childComplexity int) int
 		SubtitleLanguages     func(childComplexity int) int
 		Title                 func(childComplexity int) int
 		Type                  func(childComplexity int) int
+		UUID                  func(childComplexity int) int
 	}
 
 	EpisodeCalendarEntry struct {
@@ -279,6 +286,7 @@ type ComplexityRoot struct {
 		Episode     func(childComplexity int) int
 		Event       func(childComplexity int) int
 		ID          func(childComplexity int) int
+		IsReplay    func(childComplexity int) int
 		Start       func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
@@ -501,16 +509,18 @@ type ComplexityRoot struct {
 	}
 
 	MutationRoot struct {
-		CompleteTask          func(childComplexity int, id string, selectedAlternatives []string) int
-		ConfirmAchievement    func(childComplexity int, id string) int
-		LockLessonAnswers     func(childComplexity int, id string) int
-		SendEpisodeFeedback   func(childComplexity int, episodeID string, message *string, rating *int) int
-		SendSupportEmail      func(childComplexity int, title string, content string, html string) int
-		SendTaskMessage       func(childComplexity int, taskID string, message *string) int
-		SetDevicePushToken    func(childComplexity int, token string, languages []string) int
-		SetEpisodeProgress    func(childComplexity int, id string, progress *int, duration *int, context *model.EpisodeContext) int
-		UpdateEpisodeFeedback func(childComplexity int, id string, message *string, rating *int) int
-		UpdateTaskMessage     func(childComplexity int, id string, message string) int
+		AnswerSurveyQuestion       func(childComplexity int, id string, answer string) int
+		CompleteTask               func(childComplexity int, id string, selectedAlternatives []string) int
+		ConfirmAchievement         func(childComplexity int, id string) int
+		LockLessonAnswers          func(childComplexity int, id string) int
+		SendEpisodeFeedback        func(childComplexity int, episodeID string, message *string, rating *int) int
+		SendSupportEmail           func(childComplexity int, title string, content string, html string) int
+		SendTaskMessage            func(childComplexity int, taskID string, message *string) int
+		SetDevicePushToken         func(childComplexity int, token string, languages []string) int
+		SetEpisodeProgress         func(childComplexity int, id string, progress *int, duration *int, context *model.EpisodeContext) int
+		UpdateEpisodeFeedback      func(childComplexity int, id string, message *string, rating *int) int
+		UpdateSurveyQuestionAnswer func(childComplexity int, key string, answer string) int
+		UpdateTaskMessage          func(childComplexity int, id string, message string) int
 	}
 
 	Page struct {
@@ -593,6 +603,7 @@ type ComplexityRoot struct {
 		Show                func(childComplexity int, id string) int
 		StudyLesson         func(childComplexity int, id string) int
 		StudyTopic          func(childComplexity int, id string) int
+		Surveys             func(childComplexity int) int
 	}
 
 	Question struct {
@@ -642,6 +653,7 @@ type ComplexityRoot struct {
 		LegacyID    func(childComplexity int) int
 		Number      func(childComplexity int) int
 		Show        func(childComplexity int) int
+		Status      func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
 
@@ -726,6 +738,7 @@ type ComplexityRoot struct {
 		LegacyID       func(childComplexity int) int
 		SeasonCount    func(childComplexity int) int
 		Seasons        func(childComplexity int, first *int, offset *int, dir *string) int
+		Status         func(childComplexity int) int
 		Title          func(childComplexity int) int
 		Type           func(childComplexity int) int
 	}
@@ -785,6 +798,34 @@ type ComplexityRoot struct {
 		Images      func(childComplexity int) int
 		Lessons     func(childComplexity int, first *int, offset *int) int
 		Progress    func(childComplexity int) int
+		Title       func(childComplexity int) int
+	}
+
+	Survey struct {
+		Description func(childComplexity int) int
+		From        func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Questions   func(childComplexity int, first *int, offset *int) int
+		Title       func(childComplexity int) int
+		To          func(childComplexity int) int
+	}
+
+	SurveyQuestionPagination struct {
+		First  func(childComplexity int) int
+		Items  func(childComplexity int) int
+		Offset func(childComplexity int) int
+		Total  func(childComplexity int) int
+	}
+
+	SurveyRatingQuestion struct {
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Title       func(childComplexity int) int
+	}
+
+	SurveyTextQuestion struct {
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
 
@@ -975,6 +1016,8 @@ type MutationRootResolver interface {
 	SendEpisodeFeedback(ctx context.Context, episodeID string, message *string, rating *int) (string, error)
 	UpdateEpisodeFeedback(ctx context.Context, id string, message *string, rating *int) (string, error)
 	ConfirmAchievement(ctx context.Context, id string) (*model.ConfirmAchievementResult, error)
+	AnswerSurveyQuestion(ctx context.Context, id string, answer string) (*model.AnswerSurveyQuestionResult, error)
+	UpdateSurveyQuestionAnswer(ctx context.Context, key string, answer string) (*model.AnswerSurveyQuestionResult, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -1015,6 +1058,7 @@ type QueryRootResolver interface {
 	Profiles(ctx context.Context) ([]*model.Profile, error)
 	Profile(ctx context.Context) (*model.Profile, error)
 	LegacyIDLookup(ctx context.Context, options *model.LegacyIDLookupOptions) (*model.LegacyIDLookup, error)
+	Surveys(ctx context.Context) ([]*model.Survey, error)
 }
 type QuestionResolver interface {
 	Category(ctx context.Context, obj *model.Question) (*model.FAQCategory, error)
@@ -1064,6 +1108,9 @@ type StudyTopicResolver interface {
 
 	Lessons(ctx context.Context, obj *model.StudyTopic, first *int, offset *int) (*model.LessonPagination, error)
 	Progress(ctx context.Context, obj *model.StudyTopic) (*model.LessonsProgress, error)
+}
+type SurveyResolver interface {
+	Questions(ctx context.Context, obj *model.Survey, first *int, offset *int) (*model.SurveyQuestionPagination, error)
 }
 type TextTaskResolver interface {
 	Completed(ctx context.Context, obj *model.TextTask) (bool, error)
@@ -1316,6 +1363,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Analytics.AnonymousID(childComplexity), true
+
+	case "AnswerSurveyQuestionResult.id":
+		if e.complexity.AnswerSurveyQuestionResult.ID == nil {
+			break
+		}
+
+		return e.complexity.AnswerSurveyQuestionResult.ID(childComplexity), true
 
 	case "Application.clientVersion":
 		if e.complexity.Application.ClientVersion == nil {
@@ -1923,6 +1977,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Episode.ShareRestriction(childComplexity), true
 
+	case "Episode.status":
+		if e.complexity.Episode.Status == nil {
+			break
+		}
+
+		return e.complexity.Episode.Status(childComplexity), true
+
 	case "Episode.streams":
 		if e.complexity.Episode.Streams == nil {
 			break
@@ -1950,6 +2011,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.Type(childComplexity), true
+
+	case "Episode.uuid":
+		if e.complexity.Episode.UUID == nil {
+			break
+		}
+
+		return e.complexity.Episode.UUID(childComplexity), true
 
 	case "EpisodeCalendarEntry.description":
 		if e.complexity.EpisodeCalendarEntry.Description == nil {
@@ -1985,6 +2053,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.EpisodeCalendarEntry.ID(childComplexity), true
+
+	case "EpisodeCalendarEntry.isReplay":
+		if e.complexity.EpisodeCalendarEntry.IsReplay == nil {
+			break
+		}
+
+		return e.complexity.EpisodeCalendarEntry.IsReplay(childComplexity), true
 
 	case "EpisodeCalendarEntry.start":
 		if e.complexity.EpisodeCalendarEntry.Start == nil {
@@ -3022,6 +3097,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MessageStyle.Text(childComplexity), true
 
+	case "MutationRoot.answerSurveyQuestion":
+		if e.complexity.MutationRoot.AnswerSurveyQuestion == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_answerSurveyQuestion_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.AnswerSurveyQuestion(childComplexity, args["id"].(string), args["answer"].(string)), true
+
 	case "MutationRoot.completeTask":
 		if e.complexity.MutationRoot.CompleteTask == nil {
 			break
@@ -3129,6 +3216,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MutationRoot.UpdateEpisodeFeedback(childComplexity, args["id"].(string), args["message"].(*string), args["rating"].(*int)), true
+
+	case "MutationRoot.updateSurveyQuestionAnswer":
+		if e.complexity.MutationRoot.UpdateSurveyQuestionAnswer == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_updateSurveyQuestionAnswer_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.UpdateSurveyQuestionAnswer(childComplexity, args["key"].(string), args["answer"].(string)), true
 
 	case "MutationRoot.updateTaskMessage":
 		if e.complexity.MutationRoot.UpdateTaskMessage == nil {
@@ -3648,6 +3747,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QueryRoot.StudyTopic(childComplexity, args["id"].(string)), true
 
+	case "QueryRoot.surveys":
+		if e.complexity.QueryRoot.Surveys == nil {
+			break
+		}
+
+		return e.complexity.QueryRoot.Surveys(childComplexity), true
+
 	case "Question.answer":
 		if e.complexity.Question.Answer == nil {
 			break
@@ -3853,6 +3959,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Season.Show(childComplexity), true
+
+	case "Season.status":
+		if e.complexity.Season.Status == nil {
+			break
+		}
+
+		return e.complexity.Season.Status(childComplexity), true
 
 	case "Season.title":
 		if e.complexity.Season.Title == nil {
@@ -4263,6 +4376,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Show.Seasons(childComplexity, args["first"].(*int), args["offset"].(*int), args["dir"].(*string)), true
 
+	case "Show.status":
+		if e.complexity.Show.Status == nil {
+			break
+		}
+
+		return e.complexity.Show.Status(childComplexity), true
+
 	case "Show.title":
 		if e.complexity.Show.Title == nil {
 			break
@@ -4566,6 +4686,123 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.StudyTopic.Title(childComplexity), true
+
+	case "Survey.description":
+		if e.complexity.Survey.Description == nil {
+			break
+		}
+
+		return e.complexity.Survey.Description(childComplexity), true
+
+	case "Survey.from":
+		if e.complexity.Survey.From == nil {
+			break
+		}
+
+		return e.complexity.Survey.From(childComplexity), true
+
+	case "Survey.id":
+		if e.complexity.Survey.ID == nil {
+			break
+		}
+
+		return e.complexity.Survey.ID(childComplexity), true
+
+	case "Survey.questions":
+		if e.complexity.Survey.Questions == nil {
+			break
+		}
+
+		args, err := ec.field_Survey_questions_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Survey.Questions(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+
+	case "Survey.title":
+		if e.complexity.Survey.Title == nil {
+			break
+		}
+
+		return e.complexity.Survey.Title(childComplexity), true
+
+	case "Survey.to":
+		if e.complexity.Survey.To == nil {
+			break
+		}
+
+		return e.complexity.Survey.To(childComplexity), true
+
+	case "SurveyQuestionPagination.first":
+		if e.complexity.SurveyQuestionPagination.First == nil {
+			break
+		}
+
+		return e.complexity.SurveyQuestionPagination.First(childComplexity), true
+
+	case "SurveyQuestionPagination.items":
+		if e.complexity.SurveyQuestionPagination.Items == nil {
+			break
+		}
+
+		return e.complexity.SurveyQuestionPagination.Items(childComplexity), true
+
+	case "SurveyQuestionPagination.offset":
+		if e.complexity.SurveyQuestionPagination.Offset == nil {
+			break
+		}
+
+		return e.complexity.SurveyQuestionPagination.Offset(childComplexity), true
+
+	case "SurveyQuestionPagination.total":
+		if e.complexity.SurveyQuestionPagination.Total == nil {
+			break
+		}
+
+		return e.complexity.SurveyQuestionPagination.Total(childComplexity), true
+
+	case "SurveyRatingQuestion.description":
+		if e.complexity.SurveyRatingQuestion.Description == nil {
+			break
+		}
+
+		return e.complexity.SurveyRatingQuestion.Description(childComplexity), true
+
+	case "SurveyRatingQuestion.id":
+		if e.complexity.SurveyRatingQuestion.ID == nil {
+			break
+		}
+
+		return e.complexity.SurveyRatingQuestion.ID(childComplexity), true
+
+	case "SurveyRatingQuestion.title":
+		if e.complexity.SurveyRatingQuestion.Title == nil {
+			break
+		}
+
+		return e.complexity.SurveyRatingQuestion.Title(childComplexity), true
+
+	case "SurveyTextQuestion.description":
+		if e.complexity.SurveyTextQuestion.Description == nil {
+			break
+		}
+
+		return e.complexity.SurveyTextQuestion.Description(childComplexity), true
+
+	case "SurveyTextQuestion.id":
+		if e.complexity.SurveyTextQuestion.ID == nil {
+			break
+		}
+
+		return e.complexity.SurveyTextQuestion.ID(childComplexity), true
+
+	case "SurveyTextQuestion.title":
+		if e.complexity.SurveyTextQuestion.Title == nil {
+			break
+		}
+
+		return e.complexity.SurveyTextQuestion.Title(childComplexity), true
 
 	case "TaskPagination.first":
 		if e.complexity.TaskPagination.First == nil {
@@ -4950,6 +5187,7 @@ type EpisodeCalendarEntry implements CalendarEntry {
     description: String! @goField(forceResolver: true)
     start: Date!
     end: Date!
+    isReplay: Boolean!
     episode: Episode @goField(forceResolver: true)
 }
 
@@ -5120,9 +5358,15 @@ enum ShowType {
     series
 }
 
+enum Status {
+    published
+    unlisted
+}
+
 type Show {
     id: ID!
     legacyID: ID
+    status: Status!
     type: ShowType!
     title: String!
     description: String!
@@ -5142,6 +5386,7 @@ type Show {
 type Season {
     id: ID!
     legacyID: ID
+    status: Status!
     ageRating: String!
     title: String!
     description: String!
@@ -5179,6 +5424,8 @@ enum ShareRestriction {
 
 type Episode {
     id: ID!
+    uuid: String!
+    status: Status!
     type: EpisodeType!
     legacyID: ID
     legacyProgramID: ID
@@ -5262,6 +5509,35 @@ type Message {
     title: String!
     content: String!
     style: MessageStyle!
+}
+`, BuiltIn: false},
+	{Name: "../schema/mutations.graphqls", Input: `type MutationRoot {
+    setDevicePushToken(token: String!, languages: [String!]!): Device
+    setEpisodeProgress(id: ID!, progress: Int, duration: Int, context: EpisodeContext): Episode!
+
+    sendSupportEmail(title: String!, content: String!, html: String!): Boolean!
+
+    completeTask(
+        id: ID!,
+        selectedAlternatives: [String!],
+    ): Boolean!
+
+    lockLessonAnswers(id: ID!) : Boolean!
+
+    sendTaskMessage(taskId: ID!, message: String): ID!
+    updateTaskMessage(id: ID!, message: String!): ID!
+
+    sendEpisodeFeedback(episodeId: ID!, message: String, rating: Int): ID!
+    updateEpisodeFeedback(id: ID!, message: String, rating: Int): ID!
+
+    confirmAchievement(id: ID!): ConfirmAchievementResult!
+
+    answerSurveyQuestion(id: UUID!, answer: String!): AnswerSurveyQuestionResult!
+    updateSurveyQuestionAnswer(key: String!, answer: String!): AnswerSurveyQuestionResult!
+}
+
+type AnswerSurveyQuestionResult {
+    id: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/pages.graphqls", Input: `
@@ -5542,6 +5818,7 @@ scalar Language
 scalar Cursor
 scalar Date
 
+scalar UUID
 
 type Settings {
   audioLanguages: [Language!]!
@@ -5650,28 +5927,8 @@ type QueryRoot{
   profile: Profile!
 
   legacyIDLookup(options: LegacyIDLookupOptions): LegacyIDLookup!
-}
 
-type MutationRoot {
-  setDevicePushToken(token: String!, languages: [String!]!): Device
-  setEpisodeProgress(id: ID!, progress: Int, duration: Int, context: EpisodeContext): Episode!
-
-  sendSupportEmail(title: String!, content: String!, html: String!): Boolean!
-
-  completeTask(
-    id: ID!,
-    selectedAlternatives: [String!],
-  ): Boolean!
-
-  lockLessonAnswers(id: ID!) : Boolean!
-
-  sendTaskMessage(taskId: ID!, message: String): ID!
-  updateTaskMessage(id: ID!, message: String!): ID!
-
-  sendEpisodeFeedback(episodeId: ID!, message: String, rating: Int): ID!
-  updateEpisodeFeedback(id: ID!, message: String, rating: Int): ID!
-
-  confirmAchievement(id: ID!): ConfirmAchievementResult!
+  surveys: [Survey!]!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -5855,6 +6112,40 @@ type LinkTask implements Task {
     completed: Boolean! @goField(forceResolver: true)
     link: Link! @goField(forceResolver: true)
     secondaryTitle: String
+    description: String
+}
+`, BuiltIn: false},
+	{Name: "../schema/surveys.graphqls", Input: `type Survey {
+    id: UUID!
+    title: String!
+    description: String
+    from: Date!
+    to: Date!
+    questions(first: Int, offset: Int): SurveyQuestionPagination! @goField(forceResolver: true)
+}
+
+type SurveyQuestionPagination implements Pagination {
+    first: Int!
+    offset: Int!
+    total: Int!
+    items: [SurveyQuestion!]!
+}
+
+interface SurveyQuestion {
+    id: UUID!
+    title: String!
+    description: String
+}
+
+type SurveyTextQuestion implements SurveyQuestion {
+    id: UUID!
+    title: String!
+    description: String
+}
+
+type SurveyRatingQuestion implements SurveyQuestion {
+    id: UUID!
+    title: String!
     description: String
 }
 `, BuiltIn: false},
@@ -6450,6 +6741,30 @@ func (ec *executionContext) field_ListSection_items_args(ctx context.Context, ra
 	return args, nil
 }
 
+func (ec *executionContext) field_MutationRoot_answerSurveyQuestion_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNUUID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["answer"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("answer"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["answer"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_MutationRoot_completeTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -6690,6 +7005,30 @@ func (ec *executionContext) field_MutationRoot_updateEpisodeFeedback_args(ctx co
 		}
 	}
 	args["rating"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_updateSurveyQuestionAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["key"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["key"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["answer"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("answer"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["answer"] = arg1
 	return args, nil
 }
 
@@ -7252,6 +7591,30 @@ func (ec *executionContext) field_StudyTopic_image_args(ctx context.Context, raw
 }
 
 func (ec *executionContext) field_StudyTopic_lessons_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Survey_questions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -8756,6 +9119,50 @@ func (ec *executionContext) fieldContext_Analytics_anonymousId(ctx context.Conte
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AnswerSurveyQuestionResult_id(ctx context.Context, field graphql.CollectedField, obj *model.AnswerSurveyQuestionResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AnswerSurveyQuestionResult_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AnswerSurveyQuestionResult_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AnswerSurveyQuestionResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -11322,6 +11729,94 @@ func (ec *executionContext) fieldContext_Episode_id(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_uuid(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_uuid(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UUID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_uuid(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Episode_status(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Status)
+	fc.Result = res
+	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Status does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_type(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_type(ctx, field)
 	if err != nil {
@@ -12189,6 +12684,8 @@ func (ec *executionContext) fieldContext_Episode_season(ctx context.Context, fie
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Season_status(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
@@ -12963,6 +13460,50 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_end(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _EpisodeCalendarEntry_isReplay(ctx context.Context, field graphql.CollectedField, obj *model.EpisodeCalendarEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EpisodeCalendarEntry_isReplay(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsReplay, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EpisodeCalendarEntry_isReplay(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EpisodeCalendarEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _EpisodeCalendarEntry_episode(ctx context.Context, field graphql.CollectedField, obj *model.EpisodeCalendarEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_EpisodeCalendarEntry_episode(ctx, field)
 	if err != nil {
@@ -13001,6 +13542,10 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -13330,6 +13875,10 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -13568,6 +14117,10 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -14265,6 +14818,8 @@ func (ec *executionContext) fieldContext_EpisodeSearchItem_show(ctx context.Cont
 				return ec.fieldContext_Show_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Show_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Show_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Show_type(ctx, field)
 			case "title":
@@ -14414,6 +14969,8 @@ func (ec *executionContext) fieldContext_EpisodeSearchItem_season(ctx context.Co
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Season_status(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
@@ -19702,6 +20259,10 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -20216,6 +20777,124 @@ func (ec *executionContext) fieldContext_MutationRoot_confirmAchievement(ctx con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_MutationRoot_confirmAchievement_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_answerSurveyQuestion(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_answerSurveyQuestion(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().AnswerSurveyQuestion(rctx, fc.Args["id"].(string), fc.Args["answer"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.AnswerSurveyQuestionResult)
+	fc.Result = res
+	return ec.marshalNAnswerSurveyQuestionResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAnswerSurveyQuestionResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_answerSurveyQuestion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AnswerSurveyQuestionResult_id(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AnswerSurveyQuestionResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_answerSurveyQuestion_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_updateSurveyQuestionAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_updateSurveyQuestionAnswer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().UpdateSurveyQuestionAnswer(rctx, fc.Args["key"].(string), fc.Args["answer"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.AnswerSurveyQuestionResult)
+	fc.Result = res
+	return ec.marshalNAnswerSurveyQuestionResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAnswerSurveyQuestionResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_updateSurveyQuestionAnswer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AnswerSurveyQuestionResult_id(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AnswerSurveyQuestionResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_updateSurveyQuestionAnswer_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -22156,6 +22835,8 @@ func (ec *executionContext) fieldContext_QueryRoot_show(ctx context.Context, fie
 				return ec.fieldContext_Show_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Show_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Show_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Show_type(ctx, field)
 			case "title":
@@ -22237,6 +22918,8 @@ func (ec *executionContext) fieldContext_QueryRoot_season(ctx context.Context, f
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Season_status(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
@@ -22314,6 +22997,10 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -23361,6 +24048,64 @@ func (ec *executionContext) fieldContext_QueryRoot_legacyIDLookup(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _QueryRoot_surveys(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_surveys(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().Surveys(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Survey)
+	fc.Result = res
+	return ec.marshalNSurvey2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_surveys(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Survey_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Survey_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Survey_description(ctx, field)
+			case "from":
+				return ec.fieldContext_Survey_from(ctx, field)
+			case "to":
+				return ec.fieldContext_Survey_to(ctx, field)
+			case "questions":
+				return ec.fieldContext_Survey_questions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Survey", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _QueryRoot___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_QueryRoot___type(ctx, field)
 	if err != nil {
@@ -24385,6 +25130,50 @@ func (ec *executionContext) fieldContext_Season_legacyID(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Season_status(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Season_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Status)
+	fc.Result = res
+	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Season_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Season",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Status does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Season_ageRating(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Season_ageRating(ctx, field)
 	if err != nil {
@@ -24747,6 +25536,8 @@ func (ec *executionContext) fieldContext_Season_show(ctx context.Context, field 
 				return ec.fieldContext_Show_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Show_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Show_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Show_type(ctx, field)
 			case "title":
@@ -25152,6 +25943,8 @@ func (ec *executionContext) fieldContext_SeasonCalendarEntry_season(ctx context.
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Season_status(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
@@ -25443,6 +26236,8 @@ func (ec *executionContext) fieldContext_SeasonItem_season(ctx context.Context, 
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Season_status(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
@@ -25643,6 +26438,8 @@ func (ec *executionContext) fieldContext_SeasonPagination_items(ctx context.Cont
 				return ec.fieldContext_Season_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Season_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Season_status(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Season_ageRating(ctx, field)
 			case "title":
@@ -26224,6 +27021,8 @@ func (ec *executionContext) fieldContext_SeasonSearchItem_show(ctx context.Conte
 				return ec.fieldContext_Show_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Show_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Show_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Show_type(ctx, field)
 			case "title":
@@ -27051,6 +27850,50 @@ func (ec *executionContext) fieldContext_Show_legacyID(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Show_status(ctx context.Context, field graphql.CollectedField, obj *model.Show) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Show_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Status)
+	fc.Result = res
+	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Show_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Show",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Status does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Show_type(ctx context.Context, field graphql.CollectedField, obj *model.Show) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Show_type(ctx, field)
 	if err != nil {
@@ -27520,6 +28363,10 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -27898,6 +28745,8 @@ func (ec *executionContext) fieldContext_ShowCalendarEntry_show(ctx context.Cont
 				return ec.fieldContext_Show_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Show_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Show_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Show_type(ctx, field)
 			case "title":
@@ -28191,6 +29040,8 @@ func (ec *executionContext) fieldContext_ShowItem_show(ctx context.Context, fiel
 				return ec.fieldContext_Show_id(ctx, field)
 			case "legacyID":
 				return ec.fieldContext_Show_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Show_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Show_type(ctx, field)
 			case "title":
@@ -29441,6 +30292,722 @@ func (ec *executionContext) fieldContext_StudyTopic_progress(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Survey_id(ctx context.Context, field graphql.CollectedField, obj *model.Survey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Survey_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNUUID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Survey_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Survey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Survey_title(ctx context.Context, field graphql.CollectedField, obj *model.Survey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Survey_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Survey_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Survey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Survey_description(ctx context.Context, field graphql.CollectedField, obj *model.Survey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Survey_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Survey_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Survey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Survey_from(ctx context.Context, field graphql.CollectedField, obj *model.Survey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Survey_from(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.From, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNDate2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Survey_from(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Survey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Survey_to(ctx context.Context, field graphql.CollectedField, obj *model.Survey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Survey_to(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.To, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNDate2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Survey_to(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Survey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Survey_questions(ctx context.Context, field graphql.CollectedField, obj *model.Survey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Survey_questions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Survey().Questions(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.SurveyQuestionPagination)
+	fc.Result = res
+	return ec.marshalNSurveyQuestionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyQuestionPagination(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Survey_questions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Survey",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "first":
+				return ec.fieldContext_SurveyQuestionPagination_first(ctx, field)
+			case "offset":
+				return ec.fieldContext_SurveyQuestionPagination_offset(ctx, field)
+			case "total":
+				return ec.fieldContext_SurveyQuestionPagination_total(ctx, field)
+			case "items":
+				return ec.fieldContext_SurveyQuestionPagination_items(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SurveyQuestionPagination", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Survey_questions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyQuestionPagination_first(ctx context.Context, field graphql.CollectedField, obj *model.SurveyQuestionPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyQuestionPagination_first(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.First, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyQuestionPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyQuestionPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyQuestionPagination_offset(ctx context.Context, field graphql.CollectedField, obj *model.SurveyQuestionPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyQuestionPagination_offset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Offset, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyQuestionPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyQuestionPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyQuestionPagination_total(ctx context.Context, field graphql.CollectedField, obj *model.SurveyQuestionPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyQuestionPagination_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyQuestionPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyQuestionPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyQuestionPagination_items(ctx context.Context, field graphql.CollectedField, obj *model.SurveyQuestionPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyQuestionPagination_items(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Items, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.SurveyQuestion)
+	fc.Result = res
+	return ec.marshalNSurveyQuestion2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyQuestionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyQuestionPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyQuestionPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyRatingQuestion_id(ctx context.Context, field graphql.CollectedField, obj *model.SurveyRatingQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyRatingQuestion_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNUUID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyRatingQuestion_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyRatingQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyRatingQuestion_title(ctx context.Context, field graphql.CollectedField, obj *model.SurveyRatingQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyRatingQuestion_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyRatingQuestion_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyRatingQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyRatingQuestion_description(ctx context.Context, field graphql.CollectedField, obj *model.SurveyRatingQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyRatingQuestion_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyRatingQuestion_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyRatingQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyTextQuestion_id(ctx context.Context, field graphql.CollectedField, obj *model.SurveyTextQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyTextQuestion_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNUUID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyTextQuestion_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyTextQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyTextQuestion_title(ctx context.Context, field graphql.CollectedField, obj *model.SurveyTextQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyTextQuestion_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyTextQuestion_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyTextQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyTextQuestion_description(ctx context.Context, field graphql.CollectedField, obj *model.SurveyTextQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyTextQuestion_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyTextQuestion_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyTextQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TaskPagination_offset(ctx context.Context, field graphql.CollectedField, obj *model.TaskPagination) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TaskPagination_offset(ctx, field)
 	if err != nil {
@@ -30363,6 +31930,10 @@ func (ec *executionContext) fieldContext_VideoTask_episode(ctx context.Context, 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
 			case "type":
 				return ec.fieldContext_Episode_type(ctx, field)
 			case "legacyID":
@@ -33050,6 +34621,13 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._TaskPagination(ctx, sel, obj)
+	case model.SurveyQuestionPagination:
+		return ec._SurveyQuestionPagination(ctx, sel, &obj)
+	case *model.SurveyQuestionPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SurveyQuestionPagination(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -33255,6 +34833,29 @@ func (ec *executionContext) _SectionItemType(ctx context.Context, sel ast.Select
 			return graphql.Null
 		}
 		return ec._StudyTopic(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _SurveyQuestion(ctx context.Context, sel ast.SelectionSet, obj model.SurveyQuestion) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.SurveyTextQuestion:
+		return ec._SurveyTextQuestion(ctx, sel, &obj)
+	case *model.SurveyTextQuestion:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SurveyTextQuestion(ctx, sel, obj)
+	case model.SurveyRatingQuestion:
+		return ec._SurveyRatingQuestion(ctx, sel, &obj)
+	case *model.SurveyRatingQuestion:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SurveyRatingQuestion(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -33779,6 +35380,34 @@ func (ec *executionContext) _Analytics(ctx context.Context, sel ast.SelectionSet
 				return innerFunc(ctx)
 
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var answerSurveyQuestionResultImplementors = []string{"AnswerSurveyQuestionResult"}
+
+func (ec *executionContext) _AnswerSurveyQuestionResult(ctx context.Context, sel ast.SelectionSet, obj *model.AnswerSurveyQuestionResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, answerSurveyQuestionResultImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AnswerSurveyQuestionResult")
+		case "id":
+
+			out.Values[i] = ec._AnswerSurveyQuestionResult_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -34575,6 +36204,20 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "uuid":
+
+			out.Values[i] = ec._Episode_uuid(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "status":
+
+			out.Values[i] = ec._Episode_status(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "type":
 
 			out.Values[i] = ec._Episode_type(ctx, field, obj)
@@ -34989,6 +36632,13 @@ func (ec *executionContext) _EpisodeCalendarEntry(ctx context.Context, sel ast.S
 		case "end":
 
 			out.Values[i] = ec._EpisodeCalendarEntry_end(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "isReplay":
+
+			out.Values[i] = ec._EpisodeCalendarEntry_isReplay(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -36855,6 +38505,24 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "answerSurveyQuestion":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_answerSurveyQuestion(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateSurveyQuestionAnswer":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_updateSurveyQuestionAnswer(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -37848,6 +39516,29 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "surveys":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_surveys(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -38170,6 +39861,13 @@ func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Values[i] = ec._Season_legacyID(ctx, field, obj)
 
+		case "status":
+
+			out.Values[i] = ec._Season_status(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "ageRating":
 
 			out.Values[i] = ec._Season_ageRating(ctx, field, obj)
@@ -38839,6 +40537,13 @@ func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = ec._Show_legacyID(ctx, field, obj)
 
+		case "status":
+
+			out.Values[i] = ec._Show_status(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "type":
 
 			out.Values[i] = ec._Show_type(ctx, field, obj)
@@ -39448,6 +41153,206 @@ func (ec *executionContext) _StudyTopic(ctx context.Context, sel ast.SelectionSe
 				return innerFunc(ctx)
 
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var surveyImplementors = []string{"Survey"}
+
+func (ec *executionContext) _Survey(ctx context.Context, sel ast.SelectionSet, obj *model.Survey) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, surveyImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Survey")
+		case "id":
+
+			out.Values[i] = ec._Survey_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "title":
+
+			out.Values[i] = ec._Survey_title(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "description":
+
+			out.Values[i] = ec._Survey_description(ctx, field, obj)
+
+		case "from":
+
+			out.Values[i] = ec._Survey_from(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "to":
+
+			out.Values[i] = ec._Survey_to(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "questions":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Survey_questions(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var surveyQuestionPaginationImplementors = []string{"SurveyQuestionPagination", "Pagination"}
+
+func (ec *executionContext) _SurveyQuestionPagination(ctx context.Context, sel ast.SelectionSet, obj *model.SurveyQuestionPagination) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, surveyQuestionPaginationImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SurveyQuestionPagination")
+		case "first":
+
+			out.Values[i] = ec._SurveyQuestionPagination_first(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "offset":
+
+			out.Values[i] = ec._SurveyQuestionPagination_offset(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "total":
+
+			out.Values[i] = ec._SurveyQuestionPagination_total(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "items":
+
+			out.Values[i] = ec._SurveyQuestionPagination_items(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var surveyRatingQuestionImplementors = []string{"SurveyRatingQuestion", "SurveyQuestion"}
+
+func (ec *executionContext) _SurveyRatingQuestion(ctx context.Context, sel ast.SelectionSet, obj *model.SurveyRatingQuestion) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, surveyRatingQuestionImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SurveyRatingQuestion")
+		case "id":
+
+			out.Values[i] = ec._SurveyRatingQuestion_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "title":
+
+			out.Values[i] = ec._SurveyRatingQuestion_title(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "description":
+
+			out.Values[i] = ec._SurveyRatingQuestion_description(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var surveyTextQuestionImplementors = []string{"SurveyTextQuestion", "SurveyQuestion"}
+
+func (ec *executionContext) _SurveyTextQuestion(ctx context.Context, sel ast.SelectionSet, obj *model.SurveyTextQuestion) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, surveyTextQuestionImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SurveyTextQuestion")
+		case "id":
+
+			out.Values[i] = ec._SurveyTextQuestion_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "title":
+
+			out.Values[i] = ec._SurveyTextQuestion_title(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "description":
+
+			out.Values[i] = ec._SurveyTextQuestion_description(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -40342,6 +42247,20 @@ func (ec *executionContext) marshalNAnalytics2ᚖgithubᚗcomᚋbccᚑcodeᚋbru
 		return graphql.Null
 	}
 	return ec._Analytics(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAnswerSurveyQuestionResult2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAnswerSurveyQuestionResult(ctx context.Context, sel ast.SelectionSet, v model.AnswerSurveyQuestionResult) graphql.Marshaler {
+	return ec._AnswerSurveyQuestionResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAnswerSurveyQuestionResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐAnswerSurveyQuestionResult(ctx context.Context, sel ast.SelectionSet, v *model.AnswerSurveyQuestionResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AnswerSurveyQuestionResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNApplication2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐApplication(ctx context.Context, sel ast.SelectionSet, v model.Application) graphql.Marshaler {
@@ -41794,6 +43713,16 @@ func (ec *executionContext) marshalNShowType2githubᚗcomᚋbccᚑcodeᚋbrunsta
 	return v
 }
 
+func (ec *executionContext) unmarshalNStatus2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx context.Context, v interface{}) (model.Status, error) {
+	var res model.Status
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx context.Context, sel ast.SelectionSet, v model.Status) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNStream2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐStreamᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Stream) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -41919,6 +43848,128 @@ func (ec *executionContext) marshalNStudyTopic2ᚖgithubᚗcomᚋbccᚑcodeᚋbr
 	return ec._StudyTopic(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNSurvey2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Survey) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSurvey2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurvey(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNSurvey2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurvey(ctx context.Context, sel ast.SelectionSet, v *model.Survey) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Survey(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSurveyQuestion2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyQuestion(ctx context.Context, sel ast.SelectionSet, v model.SurveyQuestion) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SurveyQuestion(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSurveyQuestion2ᚕgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyQuestionᚄ(ctx context.Context, sel ast.SelectionSet, v []model.SurveyQuestion) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSurveyQuestion2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyQuestion(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNSurveyQuestionPagination2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyQuestionPagination(ctx context.Context, sel ast.SelectionSet, v model.SurveyQuestionPagination) graphql.Marshaler {
+	return ec._SurveyQuestionPagination(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSurveyQuestionPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyQuestionPagination(ctx context.Context, sel ast.SelectionSet, v *model.SurveyQuestionPagination) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SurveyQuestionPagination(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNTask2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v model.Task) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -41999,6 +44050,21 @@ func (ec *executionContext) marshalNTasksProgress2ᚖgithubᚗcomᚋbccᚑcode�
 		return graphql.Null
 	}
 	return ec._TasksProgress(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUUID2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUUID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {

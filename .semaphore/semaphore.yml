@@ -123,16 +123,22 @@ blocks:
   - name: Build Web
     dependencies: []
     task:
+      prologue:
+        commands:
+          - sem-version node 16
+          - checkout
+          - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
+          - gcloud auth configure-docker -q europe-west4-docker.pkg.dev
       jobs:
         - name: Build
           commands:
-            - sem-version node 16
-            - checkout
             - cd ./web
             - cache restore
             - npm i -g pnpm
             - cd ..
             - ./scripts/generate-web-builds.sh
+      secrets:
+        - name: GoogleSemaphoreServiceAccount
       epilogue:
         on_pass:
           commands:
@@ -148,3 +154,5 @@ promotions:
       when: branch = 'master' AND result = 'passed'
   - name: Deploy to PROD
     pipeline_file: deploy-prod.yml
+    auto_promote:
+      when: branch = 'master' AND result = 'passed'

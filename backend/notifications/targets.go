@@ -3,6 +3,8 @@ package notifications
 import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/user"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"strconv"
@@ -10,6 +12,7 @@ import (
 
 // ResolveTargets resolves targetIDs to device tokens
 func (u *Utils) ResolveTargets(ctx context.Context, targetIDs []uuid.UUID) ([]common.Device, error) {
+	log.L.Debug().Int("targetCount", len(targetIDs)).Msg("Resolving targets")
 	targets, err := u.queries.GetTargets(ctx, targetIDs)
 	if err != nil {
 		return nil, err
@@ -23,6 +26,7 @@ func (u *Utils) ResolveTargets(ctx context.Context, targetIDs []uuid.UUID) ([]co
 			if err != nil {
 				return nil, err
 			}
+			log.L.Debug().Int("deviceCount", len(ds)).Msg("Resolved target, retrieved devices")
 			devices = append(devices, ds...)
 		}
 	}
@@ -34,21 +38,32 @@ func (u *Utils) getTokensForGroups(ctx context.Context, codes []string) ([]commo
 	if err != nil {
 		return nil, err
 	}
-	var personIDs []int
+	var personIDs []string
 	for _, g := range groups {
+		if everyone := g.Code == user.RoleRegistered; everyone || g.Code == user.RoleBCCMember {
+			log.L.Debug().Bool("everyone", everyone).Msg("Retrieving members for notification targets")
+			ids, err := u.queries.GetMemberIDs(ctx, everyone)
+			if err != nil {
+				return nil, err
+			}
+			personIDs = append(personIDs, ids...)
+		}
+		// In case someone has been explicitly been granted the bcc-members role
+		if len(g.Emails) == 0 {
+			continue
+		}
 		users, err := u.members.RetrieveByEmails(ctx, g.Emails)
 		if err != nil {
 			return nil, err
 		}
 		if users != nil {
 			for _, u := range *users {
-				personIDs = append(personIDs, u.PersonID)
+				personIDs = append(personIDs, strconv.Itoa(u.PersonID))
 			}
 		}
 	}
-	profiles, err := u.queries.GetProfilesForUserIDs(ctx, lo.Map(personIDs, func(i int, _ int) string {
-		return strconv.Itoa(i)
-	}))
+	personIDs = lo.Uniq(personIDs)
+	profiles, err := u.queries.GetProfilesForUserIDs(ctx, personIDs)
 	if err != nil {
 		return nil, err
 	}

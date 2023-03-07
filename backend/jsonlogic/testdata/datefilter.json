@@ -1,0 +1,16 @@
+{
+  "in": {
+    "and": [
+      {
+        ">": [
+          {
+            "var": "publish_date"
+          },
+          "relativeneg:2 days"
+        ]
+      }
+    ]
+  },
+  "out": "(t.\"publish_date\" > (NOW() - interval '2 days'))",
+  "args": null
+}

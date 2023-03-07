@@ -1,15 +1,17 @@
 package main
 
 import (
+	"os"
+	"strconv"
+	"strings"
+
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
 	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/search"
+	"github.com/bcc-code/brunstadtv/backend/statistics"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
-	"os"
-	"strconv"
-	"strings"
 )
 
 type awsConfig struct {
@@ -19,10 +21,6 @@ type awsConfig struct {
 	MediapackageSourceARN string
 	IngestBucket          string
 	StorageBucket         string
-}
-
-type postgres struct {
-	ConnectionString string
 }
 
 type directusConfig struct {
@@ -43,7 +41,7 @@ type envConfig struct {
 	Directus          directusConfig
 	Port              string
 	DeleteIngestFiles bool
-	DB                postgres
+	DB                utils.DatabaseConfig
 	Algolia           search.Config
 	Crowdin           crowdin.Config
 	Firebase          firebase
@@ -54,6 +52,7 @@ type envConfig struct {
 	Redis             utils.RedisConfig
 	Auth0             auth0.Config
 	Members           members.Config
+	BigQuery          statistics.BigQueryConfig
 }
 
 func getEnvConfig() envConfig {
@@ -84,8 +83,10 @@ func getEnvConfig() envConfig {
 			BaseURL: os.Getenv("DIRECTUS_URL"),
 			Key:     os.Getenv("DIRECTUS_KEY"),
 		},
-		DB: postgres{
-			ConnectionString: os.Getenv("DB_CONNECTION_STRING"),
+		DB: utils.DatabaseConfig{
+			ConnectionString:   os.Getenv("DB_CONNECTION_STRING"),
+			MaxConnections:     utils.AsIntOrNil(os.Getenv("DB_MAX_CONS")),
+			MaxIdleConnections: utils.AsIntOrNil(os.Getenv("DB_MAX_IDLE_CONS")),
 		},
 		Algolia: search.Config{
 			AppID:  os.Getenv("ALGOLIA_APP_ID"),
@@ -120,6 +121,10 @@ func getEnvConfig() envConfig {
 		},
 		Members: members.Config{
 			Domain: os.Getenv("MEMBERS_API_DOMAIN"),
+		},
+		BigQuery: statistics.BigQueryConfig{
+			ProjectID: os.Getenv("BIGQUERY_PROJECT"), // Export disabed if empty
+			DatasetID: os.Getenv("BIGQUERY_DATASET"),
 		},
 	}
 }

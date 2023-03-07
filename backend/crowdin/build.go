@@ -93,7 +93,6 @@ func (c *Client) buildProject(ctx context.Context, projectID int) ([]Translation
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	return handleBody(resp.Body, fmt.Sprintf("crowdin-build-%d", res.ID))
 }
@@ -103,9 +102,11 @@ func handleBody(body io.ReadCloser, fileName string) ([]Translation, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer out.Close()
+	defer func() {
+		_ = out.Close()
+	}()
 
-	io.Copy(out, body)
+	_, _ = io.Copy(out, body)
 
 	return GetTranslationsFromZip(out.Name())
 }
@@ -163,7 +164,6 @@ func GetTranslationsFromZip(zipFile string) ([]Translation, error) {
 		if !strings.HasSuffix(file.Name, ".csv") {
 			continue
 		}
-		log.L.Debug().Str("name", file.Name).Msg("Processing file")
 
 		csvMap, err := gocsv.CSVToMap(fileReader)
 		if err != nil {

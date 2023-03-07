@@ -2,7 +2,7 @@
     <Disclosure as="nav" v-slot="{ open }">
         <div
             class="mx-auto transition duration-200"
-            :class="[loading ? 'opacity-0' : 'opacity-100']"
+            v-if="!fetching"
         >
             <div class="lg:flex py-4">
                 <div
@@ -18,7 +18,7 @@
                         />
                     </div>
                     <div class="hidden lg:flex my-auto space-x-2">
-                        <div v-for="item in navigation" class="relative">
+                        <div v-for="item in getNavigation(authenticated && meQuery?.me.bccMember)" class="relative">
                             <NavLink
                                 :icon="item.icon"
                                 :to="item.to"
@@ -162,23 +162,6 @@
                                                 </p>
                                             </button>
                                         </MenuItem>
-                                        <!-- <MenuItem v-slot="{ active }">
-                                            <button
-                                                :class="[
-                                                    active
-                                                        ? 'bg-violet-500 text-white'
-                                                        : 'text-gray-900',
-                                                    'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
-                                                ]"
-                                            >
-                                                <SettingsIcon
-                                                    class="h-6"
-                                                ></SettingsIcon>
-                                                <p class="ml-2 text-base">
-                                                    {{$t("settings")}}
-                                                </p>
-                                            </button>
-                                        </MenuItem> -->
                                         <MenuItem
                                             v-slot="{ active }"
                                             @click="showContactForm = true"
@@ -393,7 +376,7 @@
                 </div>
                 <div class="flex lg:hidden justify-between mx-8">
                     <NavLink
-                        v-for="item in navigation"
+                        v-for="item in getNavigation(authenticated && meQuery?.me.bccMember)"
                         :to="item.to"
                         :icon="item.icon"
                         :ping="item.ping"
@@ -429,25 +412,28 @@ import {
     QuestionIcon,
     SearchIcon,
 } from "../icons"
-import { computed, onMounted, ref } from "vue"
+import { computed, ref } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
-import { useGetCalendarStatusQuery } from "@/graph/generated"
+import { useGetCalendarStatusQuery, useGetMeQuery } from "@/graph/generated"
 import ContactForm from "@/components/support/ContactForm.vue"
 
-const loading = ref(true)
+const { data: meQuery, fetching, executeQuery } = useGetMeQuery()
 
 const { query } = useSearch()
 
 const { authenticated, signOut, signIn, user } = useAuth()
 
-onMounted(() => {
-    setTimeout(() => (loading.value = false), 100)
+const isLive = computed(() => {
+    const now = new Date()
+    return (
+        data.value?.calendar?.day.entries.some(
+            (i) => new Date(i.start) < now && new Date(i.end) > now
+        ) === true
+    )
 })
 
-const showContactForm = ref(false)
-
-const navigation = computed(() => {
+const getNavigation = (showLive?: boolean) => {
     const n: {
         name: string
         to: RouteLocationRaw
@@ -463,7 +449,7 @@ const navigation = computed(() => {
         },
     ]
 
-    if (authenticated.value) {
+    if (showLive) {
         n.push(
             {
                 name: "page.live",
@@ -484,20 +470,13 @@ const navigation = computed(() => {
     }
 
     return n
-})
+}
+
+const showContactForm = ref(false)
 
 const { data } = useGetCalendarStatusQuery({
     variables: {
         day: new Date(),
     },
-})
-
-const isLive = computed(() => {
-    const now = new Date()
-    return (
-        data.value?.calendar?.day.entries.some(
-            (i) => new Date(i.start) < now && new Date(i.end) > now
-        ) === true
-    )
 })
 </script>

@@ -54,13 +54,3 @@ func (l *Lock) Unlock(ctx context.Context) error {
 func (l *Lock) Close() error {
 	return l.conn.Close()
 }
-
-// NewLock returns a Lock with *sql.Conn
-func NewLock(ctx context.Context, id int, db *sql.DB) (Lock, error) {
-	// Obtain a connection from the DB connection pool and store it and use it for lock and unlock operations
-	conn, err := db.Conn(ctx)
-	if err != nil {
-		return Lock{}, err
-	}
-	return Lock{id: id, conn: conn}, nil
-}

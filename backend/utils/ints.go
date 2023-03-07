@@ -21,11 +21,23 @@ func AsInt(intString string) int {
 	return int(intID64)
 }
 
+// AsIntOrNil returns an int or pointer
+func AsIntOrNil(intString string) *int {
+	i, err := strconv.ParseInt(intString, 10, 64)
+	if err != nil {
+		return nil
+	}
+	intI := int(i)
+	return &intI
+}
+
 // AsNullInt implies that the pointer string should contain a number if not null
 func AsNullInt(intString *string) null.Int {
 	var i null.Int
 	if intString != nil {
-		i.SetValid(int64(AsInt(*intString)))
+		if v := AsIntOrNil(*intString); v != nil {
+			i.SetValid(int64(*v))
+		}
 	}
 	return i
 }

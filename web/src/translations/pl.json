@@ -14,8 +14,8 @@
         "goTo": "Przejdź do",
         "send": "Wyślij",
         "start": "Start",
-        "skip": "",
-        "join": ""
+        "skip": "Pomiń",
+        "join": "Dołącz"
     },
     "error": {
         "couldntSendYourMessage": "Nie udało się wysłać wiadomości",
@@ -98,18 +98,18 @@
         "continueStudy": "Kontynuuj naukę"
     },
     "competition": {
-        "title": "",
-        "description": "",
-        "howDoesItWork": "",
-        "onlyOnce": "",
-        "watchNextBroadcast": "",
-        "joinCompetition": "",
-        "terms": "",
-        "alreadySent": "",
-        "areYouSure": "",
-        "lookThouroughly": "",
-        "submitted": "",
-        "dontMiss": ""
+        "title": "Podwój swoje szanse",
+        "description": "Zdobądź większą szansę na wygranie ekskluzywnej nagrody <strong>Tych słów moich</strong>, udzielając poprawnych odpowiedzi.",
+        "howDoesItWork": "Jak to działa?",
+        "onlyOnce": "Do quizu możesz podejść tylko raz.",
+        "watchNextBroadcast": "Obejrzyj najbliższy przekaz ze studio na żywo, aby poznać prawidłowe odpowiedzi.",
+        "joinCompetition": "Dołącz do konkursu",
+        "terms": "Biorąc udział w konkursie zgadzasz się, aby twoje imię i nazwisko zostało pokazane na przekazie podczas ogłaszania zwycięzcy.",
+        "alreadySent": "Twoja odpowiedź została już wysłana, ale nadal możesz zobaczyć, co odpowiedziałeś.",
+        "areYouSure": "Czy jesteś pewien?",
+        "lookThouroughly": "Sprawdź dokładnie swoje odpowiedzi. Po wysłaniu nie będziesz mógł ich zmienić.",
+        "submitted": "Twoja odpowiedź została wysłana!",
+        "dontMiss": "Nie przegap kolejnego przekazu ze studio, gdzie zostanie ogłoszona prawidłowa odpowiedź."
     },
     "lesson": {
         "related": "Powiązane materiały",
@@ -123,7 +123,7 @@
         "question": "Pytanie",
         "wrongAnswerMessage": "Ajj, było blisko. Spróbuj jeszcze raz!",
         "correctAnswerMessage": "Dobra robota!",
-        "noLocalGroupFound": ""
+        "noLocalGroupFound": "Nie znaleziono żadnej grupy lokalnej"
     },
     "cookies": {
         "title": "Ta strona używa ciasteczek",
@@ -150,11 +150,11 @@
         "appreciated": "Doceniamy twój feedback.",
         "comment": "Dodaj komentarz",
         "episodeTitle": "Jak oceniłbyś ten odcinek?",
-        "howEasyToUnderstand": "",
+        "howEasyToUnderstand": "Jak łatwo było zrozumieć ten film?",
         "anonymousInfo": "Twoja ocena zostanie zapisana anonimowo",
         "placeholder": "Prosimy o szczegółowy opis, który będzie łatwiejszy do zrozumienia."
     },
-    "contactLocalBukIfWrong": "",
+    "contactLocalBukIfWrong": "Skontaktuj się z osobą odpowiedzialną za twoją grupę BUK, jeśli uważasz, że powinno być inaczej.",
     "thankYou": "Dziękujemy!",
     "yourResponseHasBeenSubmitted": "Zapisano twoją odpowiedź.",
     "sending": "Wysyłam",

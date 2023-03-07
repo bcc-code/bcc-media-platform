@@ -85,8 +85,9 @@ const props = defineProps<{
     letter: String
     text: String
     selected: Boolean
-    correct: Boolean | undefined
+    correct: Boolean | null | undefined
     competitionMode: Boolean
+    locked: Boolean
 }>()
 
 const confetti = ref()
@@ -116,7 +117,7 @@ const handleClick = () => {
         } else {
             navigator.vibrate(20)
         }
-    } else if (props.correct === false) {
+    } else if (props.correct === false || props.locked) {
         shake()
         if (flutter != null) {
             flutter.hapticFeedback("mediumImpact")

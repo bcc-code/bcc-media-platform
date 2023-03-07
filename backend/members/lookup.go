@@ -36,8 +36,8 @@ type listOfMembersByIDFilter struct {
 	PersonID map[string]any `json:"personID"`
 }
 
-// RetrieveByID retrieves a batch of members by ID
-func (c *Client) RetrieveByID(ctx context.Context, ids []int) ([]Member, error) {
+// RetrieveByIDs retrieves a batch of members by ID
+func (c *Client) RetrieveByIDs(ctx context.Context, ids []int) ([]Member, error) {
 	chunkedIds := lo.Chunk(ids, 800)
 	out := []Member{}
 
@@ -50,7 +50,7 @@ func (c *Client) RetrieveByID(ctx context.Context, ids []int) ([]Member, error) 
 
 		encoded, _ := json.Marshal(filter)
 
-		ms, err := get[[]Member](ctx, c, fmt.Sprintf("persons?limit=999&fields=personID,age,affiliations.*&filter=%s", encoded))
+		ms, err := get[[]Member](ctx, c, fmt.Sprintf("persons?limit=999&filter=%s", encoded))
 		if err != nil {
 			return nil, merry.Wrap(err)
 
@@ -157,7 +157,7 @@ func (c *Client) GetOrgs(ctx context.Context, min, max int) ([]Organization, err
 	out := []Organization{}
 	for {
 		print(".")
-		ms, err := get[[]Organization](ctx, c, fmt.Sprintf("orgs?limit=999&page=%d&fields=orgID,name,type", page))
+		ms, err := get[[]Organization](ctx, c, fmt.Sprintf("orgs?limit=999&page=%d&fields=orgID,districtName,type", page))
 		if err != nil {
 			return nil, err
 		}

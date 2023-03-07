@@ -3,7 +3,7 @@
         <h1
             class="text-2xl font-medium mb-2"
             :class="{
-                hidden: result.length === 0,
+                hidden: result.search.result.length === 0,
             }"
         >
             {{ t("search.episodes") }}
@@ -11,13 +11,13 @@
         <div class="grid lg:grid-cols-4 gap-4">
             <div
                 class="flex lg:hidden"
-                v-for="(i, index) in data?.search.result"
+                v-for="(i, index) in result.search.result"
                 :key="i.id"
             >
                 <div
                     v-if="i.__typename === 'EpisodeSearchItem'"
                     class="cursor-pointer flex"
-                    @click="$emit('itemClick', index, i)"
+                    @click="$emit('itemClick', index, i.id)"
                 >
                     <div class="relative mb-1 w-1/2 pr-2 py-2">
                         <img
@@ -49,13 +49,13 @@
             </div>
             <div
                 class="lg:flex hidden mb-4"
-                v-for="(i, index) in data?.search.result"
+                v-for="(i, index) in result.search.result"
                 :key="i.id"
             >
                 <div
                     v-if="i.__typename === 'EpisodeSearchItem'"
                     class="cursor-pointer"
-                    @click="$emit('itemClick', index, i)"
+                    @click="$emit('itemClick', index, i.id)"
                 >
                     <div class="relative mb-1">
                         <div
@@ -92,67 +92,18 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { SearchQuery, useSearchQuery } from "@/graph/generated"
-import { analytics } from "@/services/analytics"
-import { computed, ref, watch } from "vue"
+import { SearchQuery, SearchResult } from "@/graph/generated"
 import { useI18n } from "vue-i18n"
 
 const { t } = useI18n()
 
-const props = defineProps<{
-    query: string
-    pause: boolean
+defineProps<{
+    result: SearchQuery
 }>()
 
-const emit = defineEmits<{
-    (
-        e: "itemClick",
-        index: number,
-        episode: SearchQuery["search"]["result"][0] & {
-            __typename: "EpisodeSearchItem"
-        }
-    ): void
-    (e: "count", v: number): void
+defineEmits<{
+    (e: "itemClick", index: number, id: string): void
 }>()
-
-const queryString = ref(props.query)
-
-const { data, pause, resume } = useSearchQuery({
-    pause: props.pause,
-    variables: {
-        query: queryString,
-        type: "episode",
-    },
-})
-
-watch(
-    () => props.query,
-    () => {
-        queryString.value = props.query
-    }
-)
-
-watch(
-    () => props.pause,
-    () => {
-        if (props.pause) {
-            pause()
-        } else {
-            resume()
-        }
-    }
-)
-
-watch(
-    () => data.value,
-    () => {
-        emit("count", data.value?.search.hits ?? 0)
-    }
-)
-
-const result = computed(() => {
-    return data.value?.search.result ?? []
-})
 
 const adminOn = localStorage.getItem("admin") === "true"
 

@@ -1,45 +1,69 @@
 import { VideoJsPlayer } from "video.js"
-import youboralib from "youboralib"
-import youboraVideoJsAdapter from "youbora-adapter-videojs"
+import lib from "youboralib"
+import Adapter from "youbora-adapter-videojs"
 
 export type Options = {
     enabled?: boolean,
     accountCode?: string,
     tracking: {
-        isLive: boolean,
-        userId: string,
+        isLive?: boolean,
+        userId?: string,
+        sessionId?: string,
+        ageGroup?: string,
         metadata: {
             contentId?: string,
             title?: string,
             episodeTitle?: string,
+            seasonId?: string,
             seasonTitle?: string,
             showTitle?: string,
+            showId?: string,
         },
+    }
+}
+
+function toConfig(options: Options) {
+    const md = options.tracking.metadata
+    return {
+        "content.isLive": options.tracking.isLive === true,
+        "content.id": md.contentId, // prefixed by E or P. Episode 385 = E385. Program 52 = P52
+        "content.title": md.title,
+        "content.program": md.showTitle ?? md.title,
+        "content.tvShow": md.showId,
+        "content.season": md.seasonId ? `${md.seasonId} - ${md.seasonTitle}` : undefined,
+        "content.episodeTitle": md.episodeTitle,
+        obfuscateIp: true,
+        "user.name": options.tracking.userId,
+        "app.name": "web",
+        "app.releaseVersion": "",//RELEASE_VERSION,
+        "parse.manifest": true,
+        "extraparam.1": options.tracking.sessionId,
+        "extraparam.2": options.tracking.ageGroup,
     }
 }
 
 export function enableNPAW(player: VideoJsPlayer, options: Options) {
     if (!options.accountCode) {
         console.warn(
-            "NPAW was not enabled because options.npaw.accountCode is invalid. The value was: " +
-                options.accountCode
+            "NPAW was not enabled because options.npaw.accountCode is invalid."
         )
+        return
     }
-    const npaw = new youboralib.Plugin({ accountCode: options.accountCode })
-    const defaults = {
-        "content.isLive": options.tracking.isLive === true,
-        "content.id": options.tracking.metadata.contentId, // prefixed by E or P. Episode 385 = E385. Program 52 = P52
-        "content.title": options.tracking.metadata.title,
-        "content.program": options.tracking.metadata.showTitle ?? options.tracking.metadata.title,
-        "content.tvShow": options.tracking.metadata.showTitle,
-        "content.season": options.tracking.metadata.seasonTitle,
-        "content.episodeTitle": options.tracking.metadata.episodeTitle,
-        obfuscateIp: true,
-        "user.name": options.tracking.userId,
-        "app.name": "web",
-        "app.releaseVersion": "",//RELEASE_VERSION,
-        "parse.manifest": true,
-    }
+    const npaw = new lib.Plugin({ accountCode: options.accountCode })
+
+    const defaults = toConfig(options)
+
     npaw.setOptions(defaults)
-    npaw.setAdapter(new youboraVideoJsAdapter(player)) // Attach adapter
+    npaw.setAdapter(new Adapter(player)) // Attach adapter
+
+    ;(player as any)._npaw = npaw
+}
+
+export function setOptions(player: VideoJsPlayer, options: Options) {
+    const npaw = (player as any)._npaw;
+    if (!npaw) {
+        return
+    }
+
+    Object.assign(npaw.options, toConfig(options))
 }

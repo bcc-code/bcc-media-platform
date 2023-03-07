@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 
 	"cloud.google.com/go/pubsub"
+	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/davecgh/go-spew/spew"
@@ -145,6 +146,35 @@ func simpleEvent(projectID string, topicID string, event string) {
 	fmt.Printf("Sent: %v\n", err)
 }
 
+func directusHook(projectID string, topicID string, event string, collection string, id string) {
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, projectID)
+	if err != nil {
+		fmt.Printf("pubsub.NewClient: %v", err)
+	}
+	defer client.Close()
+
+	e := cloudevents.NewEvent()
+	e.SetID(uuid.New().String())
+	e.SetSource("pubsub-helper")
+	e.SetType(events.TypeDirectusEvent)
+	e.SetData(cloudevents.ApplicationJSON, directus.Event{
+		Event:      event,
+		Collection: collection,
+		ID:         id,
+	})
+
+	data, err := json.Marshal(e)
+	spew.Dump(string(data))
+	topic := client.Topic(topicID)
+	msg := topic.Publish(ctx, &pubsub.Message{
+		Data: data,
+	})
+
+	_, err = msg.Get(ctx)
+	fmt.Printf("Sent: %v\n", err)
+}
+
 func main() {
 	task := flag.String("task", "", "")
 	host := flag.String("host", "", "")
@@ -166,10 +196,18 @@ func main() {
 		refreshView(projectId, topicId)
 	case "syncTranslations":
 		simpleEvent(projectId, topicId, events.TypeTranslationsSync)
+	case "exportAnswers":
+		simpleEvent(projectId, topicId, events.TypeExportAnswersToBQ)
 	case "searchReindex":
 		simpleEvent(projectId, topicId, events.TypeSearchReindex)
 	case "ingest":
 		send(projectId, topicId)
+	case "show.update":
+		directusHook(projectId, topicId, "items.update", "shows", "1")
+	case "season.update":
+		directusHook(projectId, topicId, "items.update", "seasons", "1")
+	case "episode.update":
+		directusHook(projectId, topicId, "items.update", "episodes", "1")
 	default:
 		create(projectId, topicId)
 

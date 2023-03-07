@@ -65,7 +65,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { useGetAnalyticsIdQuery } from "@/graph/generated"
+import { useGetMeQuery } from "@/graph/generated"
 import { analytics } from "@/services/analytics"
 import { useCookies } from "@/services/cookies"
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue"
@@ -73,7 +73,7 @@ import { VButton } from "."
 
 const { accepted, preferences, statistics } = useCookies()
 
-const { executeQuery } = useGetAnalyticsIdQuery()
+const { executeQuery } = useGetMeQuery()
 
 const accept = () => {
     accepted.value = true

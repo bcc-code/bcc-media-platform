@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { provideClient } from "@urql/vue"
 import client from "@/graph/client"
+import {useAuth} from "@/services/auth";
+
+const { loading } = useAuth()
+
 provideClient(client)
 </script>
 
 <template>
-    <router-view></router-view>
+    <router-view v-if="!loading"></router-view>
 </template>
 
 <style lang="css">

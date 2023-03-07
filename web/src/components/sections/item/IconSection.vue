@@ -5,14 +5,26 @@
             <div
                 v-for="(i, index) in item.items.items"
                 class="overflow-clip w-20 lg:w-40 hover:opacity-90 transition"
-                @click="$emit('clickItem', index)"
+                @click="click(index)"
                 ref="sectionItem"
             >
                 <div
-                    class="bg-slate-800 rounded-2xl border-2 border-slate-700 p-2 cursor-pointer overflow-hidden"
+                    class="bg-slate-800 relative rounded-2xl border-2 border-slate-700 cursor-pointer overflow-hidden"
                 >
+                    <div
+                        v-if="clicked === index"
+                        class="absolute w-full h-full flex"
+                    >
+                        <Loader
+                            variant="spinner"
+                            class="m-auto h-16 w-16"
+                        ></Loader>
+                    </div>
                     <Image
-                        class="rounded-lg"
+                        class="rounded-lg m-2"
+                        :class="{
+                            'opacity-50': clicked === index,
+                        }"
                         :src="i.image"
                         size-source="width"
                     />
@@ -35,19 +47,27 @@ import SectionTitle from "./SectionTitle.vue"
 import { onMounted, ref } from "vue"
 import { getImageSize } from "@/utils/images"
 import Image from "@/components/Image.vue"
+import Loader from "@/components/Loader.vue"
 
 defineProps<{
     position: number
     item: Section & { __typename: "IconSection" }
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
     (event: "clickItem", index: number): void
 }>()
 
 const sectionItem = ref(null as HTMLDivElement[] | null)
 
 const imageSize = ref(0)
+
+const clicked = ref(-1)
+
+const click = (index: number) => {
+    emit("clickItem", index)
+    clicked.value = index
+}
 
 onMounted(() => {
     const div = sectionItem.value?.[0]

@@ -30,6 +30,7 @@ var (
 // Show is the definition of the Show object
 type Show struct {
 	ID                      int          `json:"id"`
+	Status                  Status       `json:"status"`
 	Type                    string       `json:"type"`
 	TagIDs                  []int        `json:"tagIds"`
 	LegacyID                null.Int     `json:"legacyId"`
@@ -51,9 +52,20 @@ func (i Show) GetTagIDs() []int {
 	return i.TagIDs
 }
 
+// Unlisted returns true if item is unlisted
+func (i Show) Unlisted() bool {
+	return i.Status == StatusUnlisted
+}
+
+// GetStatus returns the status for this item
+func (i Show) GetStatus() Status {
+	return i.Status
+}
+
 // Season is the definition of the Season object
 type Season struct {
 	ID          int          `json:"id"`
+	Status      Status       `json:"status"`
 	LegacyID    null.Int     `json:"legacyId"`
 	TagIDs      []int        `json:"tagIds"`
 	Number      int          `json:"number"`
@@ -76,11 +88,21 @@ func (i Season) GetTagIDs() []int {
 	return i.TagIDs
 }
 
+// Unlisted returns true if item is unlisted
+func (i Season) Unlisted() bool {
+	return i.Status == StatusUnlisted
+}
+
+// GetStatus returns the status for this item
+func (i Season) GetStatus() Status {
+	return i.Status
+}
+
 // Episode is the definition of the Episode object
 type Episode struct {
 	ID                    int          `json:"id"`
 	UUID                  uuid.UUID    `json:"uuid"`
-	Unlisted              bool         `json:"unlisted"`
+	Status                Status       `json:"unlisted"`
 	Type                  string       `json:"type"`
 	PreventPublicIndexing bool         `json:"preventPublicIndexing"`
 	LegacyID              null.Int     `json:"legacyId"`
@@ -112,6 +134,16 @@ func (i Episode) GetKey() int {
 // GetTagIDs returns ids of related tags
 func (i Episode) GetTagIDs() []int {
 	return i.TagIDs
+}
+
+// Unlisted returns true if item is unlisted
+func (i Episode) Unlisted() bool {
+	return i.Status == StatusUnlisted
+}
+
+// GetStatus returns the status for this item
+func (i Episode) GetStatus() Status {
+	return i.Status
 }
 
 // File item type
@@ -278,6 +310,7 @@ type CalendarEntry struct {
 	Start       time.Time
 	End         time.Time
 	Type        null.String
+	IsReplay    bool
 	ItemID      null.Int
 }
 
@@ -345,4 +378,21 @@ type Message struct {
 	Style   string       `json:"style"`
 	Title   LocaleString `json:"message"`
 	Content LocaleString `json:"details"`
+}
+
+// Survey is a survey
+type Survey struct {
+	ID          uuid.UUID `json:"id"`
+	Title       LocaleString
+	Description LocaleString
+	From        time.Time
+	To          time.Time
+}
+
+// SurveyQuestion is a question in a survey
+type SurveyQuestion struct {
+	ID          uuid.UUID `json:"id"`
+	Title       LocaleString
+	Description LocaleString
+	Type        string
 }

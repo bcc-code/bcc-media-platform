@@ -32,7 +32,7 @@ type searchHit struct {
 }
 
 // Search sends a search query to the engine and returns related results
-func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (searchResult common.SearchResult, err error) {
+func (service *Service) Search(ctx *gin.Context, query common.SearchQuery, userToken string) (searchResult common.SearchResult, err error) {
 	roles := user.GetRolesFromCtx(ctx)
 
 	if len(roles) == 0 {
@@ -57,6 +57,7 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery) (sear
 		opt.Filters(filterString),
 		opt.AttributesToHighlight(highlightFields...),
 		opt.GetRankingInfo(true),
+		opt.UserToken(userToken),
 	}
 	if query.Limit != nil {
 		opts = append(opts, opt.Length(*query.Limit))

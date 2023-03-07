@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
 )
@@ -25,6 +25,7 @@ func (q *Queries) mapToSeasons(seasons []getSeasonsRow) []common.Season {
 
 		return common.Season{
 			ID:          int(e.ID),
+			Status:      common.StatusFrom(e.Status),
 			LegacyID:    e.LegacyID,
 			PublicTitle: e.PublicTitle,
 			Title:       title,
@@ -72,7 +73,7 @@ func (row getSeasonIDsForShowsRow) GetRelationID() int {
 }
 
 // GetSeasonIDsForShowsWithRoles returns episodeIDs for season filtered by roles
-func (rq *RoleQueries) GetSeasonIDsForShowsWithRoles(ctx context.Context, ids []int) ([]batchloaders.Relation[int, int], error) {
+func (rq *RoleQueries) GetSeasonIDsForShowsWithRoles(ctx context.Context, ids []int) ([]loaders.Relation[int, int], error) {
 	rows, err := rq.queries.getSeasonIDsForShowsWithRoles(ctx, getSeasonIDsForShowsWithRolesParams{
 		Column1: intToInt32(ids),
 		Column2: rq.roles,
@@ -80,7 +81,7 @@ func (rq *RoleQueries) GetSeasonIDsForShowsWithRoles(ctx context.Context, ids []
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getSeasonIDsForShowsWithRolesRow, _ int) batchloaders.Relation[int, int] {
+	return lo.Map(rows, func(i getSeasonIDsForShowsWithRolesRow, _ int) loaders.Relation[int, int] {
 		return getSeasonIDsForShowsRow(i)
 	}), nil
 }

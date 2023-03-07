@@ -4,9 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/bcc-code/brunstadtv/backend/batchloaders"
-
-	"github.com/graph-gophers/dataloader/v7"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -21,6 +19,7 @@ var (
 	ErrPublishDateInFuture = merry.Sentinel("Publish date in the future")
 )
 
+// CheckConditions defines which conditions that should be checked
 type CheckConditions struct {
 	FromDate    bool
 	PublishDate bool
@@ -29,7 +28,7 @@ type CheckConditions struct {
 // ValidateAccess returns error if user in context does not have access to the specified item
 func ValidateAccess[k comparable](
 	ctx context.Context,
-	permissionLoader *dataloader.Loader[k, *common.Permissions[k]],
+	permissionLoader *loaders.Loader[k, *common.Permissions[k]],
 	id k,
 	conditions CheckConditions,
 ) error {
@@ -39,7 +38,7 @@ func ValidateAccess[k comparable](
 	}
 	rs := GetRolesFromCtx(ginCtx)
 
-	perms, err := batchloaders.GetByID(ctx, permissionLoader, id)
+	perms, err := permissionLoader.Get(ctx, id)
 	if err != nil {
 		return err
 	}

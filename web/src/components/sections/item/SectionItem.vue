@@ -21,6 +21,9 @@
                 class="relative mb-1 rounded-md w-full overflow-hidden hover:opacity-90 transition"
                 :class="aspect"
             >
+                <div v-if="clicked" class="absolute w-full h-full flex">
+                    <Loader variant="spinner" class="m-auto h-16 w-16"></Loader>
+                </div>
                 <Image
                     :src="i.image"
                     class="rounded-md"
@@ -62,6 +65,7 @@
 <script lang="ts" setup>
 import ProgressBar from "@/components/episodes/ProgressBar.vue"
 import Image from "@/components/Image.vue"
+import Loader from "@/components/Loader.vue"
 import { SectionItemFragment } from "@/graph/generated"
 import { comingSoon } from "@/utils/items"
 import { LockClosedIcon } from "@heroicons/vue/24/solid"

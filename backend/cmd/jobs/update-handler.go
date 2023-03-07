@@ -6,11 +6,10 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/notifications"
 	"github.com/bcc-code/brunstadtv/backend/push"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bcc-code/brunstadtv/backend/scheduler"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/go-redsync/redsync/v4"
 	"github.com/google/uuid"
 	"time"
 )
@@ -19,7 +18,7 @@ type modelHandler struct {
 	queries           *sqlc.Queries
 	push              *push.Service
 	scheduler         *scheduler.Service
-	locker            *redsync.Redsync
+	remoteCache       *remotecache.Client
 	members           *members.Client
 	notificationUtils *notifications.Utils
 }
@@ -31,12 +30,12 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 		if err != nil {
 			return err
 		}
-		lock, err := utils.RedisLock(h.locker, "notification-model-update")
+		lock, err := h.remoteCache.Lock(ctx, "notification-model-update")
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to retrieve redis lock")
 		} else {
 			// We want to keep running the function, but unlocking will fail if the lock failed
-			defer utils.UnlockRedisLock(lock)
+			defer remotecache.Release(ctx, lock)
 		}
 		ns, err := h.queries.GetNotifications(ctx, []uuid.UUID{id})
 		if err != nil {

@@ -12,6 +12,7 @@ type addStringRequest struct {
 	Text       string `json:"text"`
 	Identifier string `json:"identifier"`
 	FileId     int    `json:"fileId"`
+	Context    string `json:"context"`
 }
 
 type fileScheme struct {
@@ -127,6 +128,11 @@ func (c *Client) setString(projectId int, s String) (r String, err error) {
 			Op:    "replace",
 			Path:  "/text",
 		},
+		{
+			Value: s.Context,
+			Op:    "replace",
+			Path:  "/context",
+		},
 	})
 	req.SetResult(Object[String]{})
 	res, err := req.Patch(fmt.Sprintf("projects/%d/strings/%d", projectId, s.ID))
@@ -170,6 +176,7 @@ func (c *Client) addString(projectId int, fileId int, s String) (r String, err e
 		Identifier: s.Identifier,
 		Text:       s.Text,
 		FileId:     fileId,
+		Context:    s.Context,
 	})
 	req.SetResult(Object[String]{})
 	res, err := req.Post(fmt.Sprintf("projects/%d/strings", projectId))

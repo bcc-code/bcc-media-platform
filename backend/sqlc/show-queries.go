@@ -25,6 +25,7 @@ func (q *Queries) mapToShows(shows []getShowsRow) []common.Show {
 
 		return common.Show{
 			ID:                      int(e.ID),
+			Status:                  common.StatusFrom(e.Status),
 			Type:                    e.Type,
 			LegacyID:                e.LegacyID,
 			PublicTitle:             e.PublicTitle,
@@ -60,7 +61,7 @@ func (q *Queries) ListShows(ctx context.Context) ([]common.Show, error) {
 	})), nil
 }
 
-// ListAllPermittedShows returns a list of common.Show
+// ListAllPermittedShowIDs returns a list of common.Show
 func (q *Queries) ListAllPermittedShowIDs(ctx context.Context, permissions []string) ([]int, error) {
 	ids, err := q.listAllPermittedShowIDs(ctx, permissions)
 	if err != nil {

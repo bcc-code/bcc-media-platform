@@ -44,18 +44,19 @@ export const episodesToListItems = (
 ): ListItem[] => {
     const items = episodes.map(
         (i) =>
-        ({
-            id: i.id,
-            type: "Episode",
-            title: i.title,
-            image: i.image,
-            ageRating: i.ageRating,
-            duration: i.duration,
-            number: i.number,
-            progress: i.progress,
-            description: i.description,
-            publishDate: i.publishDate
-        } as ListItem)
+            ({
+                id: i.id,
+                uuid: i.uuid,
+                type: "Episode",
+                title: i.title,
+                image: i.image,
+                ageRating: i.ageRating,
+                duration: i.duration,
+                number: i.number,
+                progress: i.progress,
+                description: i.description,
+                publishDate: i.publishDate,
+            } as ListItem)
     )
 
     return items

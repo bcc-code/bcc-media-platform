@@ -50,6 +50,7 @@ func (localeString LocaleString) Any() bool {
 	return false
 }
 
+// Has returns a bool if the LocaleString contains a value for the specified key
 func (localeString LocaleString) Has(key string) bool {
 	_, ok := localeString[key]
 	return ok
@@ -81,4 +82,15 @@ func (localeString LocaleString) AsJSON() []byte {
 	}
 
 	return j
+}
+
+// Prefix all entries with prefix, returns new map after
+func (localeString LocaleString) Prefix(prefix string) LocaleString {
+	var r = LocaleString{}
+	for key, val := range localeString {
+		if val.Valid {
+			r[key] = null.StringFrom(prefix + val.String)
+		}
+	}
+	return r
 }

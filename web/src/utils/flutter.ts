@@ -1,6 +1,11 @@
 import { FlutterWebView } from "@/flutter"
 
-type HapticFeedbackType = 'lightImpact' | 'mediumImpact' | 'vibrate' | 'selectionClick' | 'heavyImpact';
+type HapticFeedbackType =
+    | "lightImpact"
+    | "mediumImpact"
+    | "vibrate"
+    | "selectionClick"
+    | "heavyImpact"
 
 class FlutterMain {
     handlerName = "flutter_main"
@@ -10,13 +15,17 @@ class FlutterMain {
     }
 
     navigate(path: String): Promise<any> | null {
-        var promise = this.webView.callHandler(this.handlerName, "navigate", path);
-        return !promise?.then ? null : promise;
+        var promise = this.webView.callHandler(
+            this.handlerName,
+            "navigate",
+            path
+        )
+        return !promise?.then ? null : promise
     }
 
     push(path: String): Promise<any> {
-        var promise = this.webView.callHandler(this.handlerName, "push", path);
-        return !promise?.then ? null : promise;
+        var promise = this.webView.callHandler(this.handlerName, "push", path)
+        return !promise?.then ? null : promise
     }
 
     getAccessToken(): Promise<String | null> {
@@ -31,8 +40,14 @@ class FlutterMain {
         return this.webView.callHandler(this.handlerName, "share_image", url)
     }
 
-    hapticFeedback(hapticFeedbackType: HapticFeedbackType): Promise<boolean | null> {
-        return this.webView.callHandler(this.handlerName, "haptic_feedback", hapticFeedbackType)
+    hapticFeedback(
+        hapticFeedbackType: HapticFeedbackType
+    ): Promise<boolean | null> {
+        return this.webView.callHandler(
+            this.handlerName,
+            "haptic_feedback",
+            hapticFeedbackType
+        )
     }
 }
 
@@ -60,14 +75,18 @@ class FlutterStudy {
 export const flutterStudy =
     window.flutter_inappwebview != null
         ? new FlutterStudy(window.flutter_inappwebview)
-        : null;
+        : null
 
-function addQueryParameter(url: string, name: string, value: string | number | boolean) {
-    const separator = url.indexOf('?') === -1 ? '?' : '&';
-    return `${url}${separator}${name}=${encodeURIComponent(value)}`;
+function addQueryParameter(
+    url: string,
+    name: string,
+    value: string | number | boolean
+) {
+    const separator = url.indexOf("?") === -1 ? "?" : "&"
+    return `${url}${separator}${name}=${encodeURIComponent(value)}`
 }
 
 export const openInBrowser = (url: string) => {
-    const newUrl = addQueryParameter(url, 'launch_url', 'true');
+    const newUrl = addQueryParameter(url, "launch_url", "true")
     window.location.assign(newUrl)
-};
+}

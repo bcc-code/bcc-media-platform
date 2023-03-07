@@ -1,6 +1,6 @@
 import { getEpisodeStreams } from "./api"
 import { ApiClient, ApiClientOptions } from "./api/client"
-import { createPlayer, Options } from "@/video-player"
+import { createPlayer, Options } from "../video-player"
 import videojs from "video.js"
 export * from "./api"
 
@@ -35,7 +35,7 @@ export class PlayerFactory {
                             src: stream.url,
                         },
                         videojs: {
-                            poster: episode.imageUrl
+                            poster: episode.image
                         }
                     } as Partial<Options>,
                     options.overrides

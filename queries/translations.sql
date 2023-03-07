@@ -3,9 +3,9 @@ WITH episodes AS (SELECT e.id
                   FROM episodes e
                            LEFT JOIN seasons s ON s.id = e.season_id
                            LEFT JOIN shows sh ON sh.id = s.show_id
-                  WHERE e.status = 'published'
-                    AND s.status = 'published'
-                    AND sh.status = 'published')
+                  WHERE e.status = ANY ('{published,unlisted}')
+                    AND s.status = ANY ('{published,unlisted}')
+                    AND sh.status = ANY ('{published,unlisted}'))
 SELECT et.id, episodes_id as parent_id, languages_code, title, description, extra_description
 FROM episodes_translations et
          JOIN episodes e ON e.id = et.episodes_id
@@ -21,8 +21,8 @@ WHERE episodes_id = ANY ($1::int[])
 WITH seasons AS (SELECT s.id
                  FROM seasons s
                           LEFT JOIN shows sh ON sh.id = s.show_id
-                 WHERE s.status = 'published'
-                   AND sh.status = 'published')
+                 WHERE s.status = ANY ('{published,unlisted}')
+                   AND sh.status = ANY ('{published,unlisted}'))
 SELECT et.id, seasons_id as parent_id, languages_code, title, description
 FROM seasons_translations et
          JOIN seasons e ON e.id = et.seasons_id
@@ -37,7 +37,7 @@ WHERE seasons_id = ANY ($1::int[])
 -- name: ListShowTranslations :many
 WITH shows AS (SELECT s.id
                FROM shows s
-               WHERE s.status = 'published')
+               WHERE s.status = ANY ('{published,unlisted}'))
 SELECT et.id, shows_id as parent_id, languages_code, title, description
 FROM shows_translations et
          JOIN shows e ON e.id = et.shows_id
@@ -68,7 +68,7 @@ WHERE sections_id = ANY ($1::int[])
 -- name: ListPageTranslations :many
 WITH pages AS (SELECT s.id
                FROM pages s
-               WHERE s.status = 'published')
+               WHERE s.status = ANY ('{published,unlisted}'))
 SELECT st.id, pages_id as parent_id, languages_code, title, description
 FROM pages_translations st
          JOIN pages e ON e.id = st.pages_id
@@ -80,10 +80,19 @@ FROM pages_translations
 WHERE pages_id = ANY ($1::int[])
   AND languages_code != 'no';
 
+-- name: ListLinkTranslations :many
+WITH links AS (SELECT s.id
+               FROM links s
+               WHERE s.status = ANY ('{published,unlisted}'))
+SELECT st.id, links_id as parent_id, languages_code, title, description
+FROM links_translations st
+         JOIN links e ON e.id = st.links_id
+WHERE st.languages_code = ANY ($1::varchar[]);
+
 -- name: ListStudyTopicTranslations :many
 WITH items AS (SELECT i.id
                FROM studytopics i
-               WHERE i.status = 'published')
+               WHERE i.status = ANY ('{published,unlisted}'))
 SELECT ts.id, studytopics_id as parent_id, languages_code, title, description
 FROM studytopics_translations ts
          JOIN items i ON i.id = ts.studytopics_id
@@ -92,7 +101,7 @@ WHERE ts.languages_code = ANY ($1::varchar[]);
 -- name: ListLessonTranslations :many
 WITH lessons AS (SELECT s.id
                  FROM lessons s
-                 WHERE s.status = 'published')
+                 WHERE s.status = ANY ('{published,unlisted}'))
 SELECT st.id, lessons_id as parent_id, languages_code, title, description
 FROM lessons_translations st
          JOIN lessons e ON e.id = st.lessons_id
@@ -101,7 +110,7 @@ WHERE st.languages_code = ANY ($1::varchar[]);
 -- name: ListTaskTranslations :many
 WITH items AS (SELECT i.id
                FROM tasks i
-               WHERE i.status = 'published')
+               WHERE i.status = ANY ('{published,unlisted}'))
 SELECT ts.id, tasks_id as parent_id, languages_code, title, description
 FROM tasks_translations ts
          JOIN items i ON i.id = ts.tasks_id
@@ -134,7 +143,7 @@ WHERE ts.languages_code = ANY ($1::varchar[]);
 -- name: ListStudyTopicOriginalTranslations :many
 SELECT items.id, items.title, items.description
 FROM studytopics items
-WHERE status = 'published';
+WHERE status = ANY ('{published,unlisted}');
 
 -- name: ClearStudyTopicTranslations :exec
 DELETE
@@ -144,7 +153,7 @@ WHERE ts.studytopics_id = ANY ($1::uuid[]);
 -- name: ListLessonOriginalTranslations :many
 SELECT items.id, items.title, items.description
 FROM lessons items
-WHERE status = 'published';
+WHERE status = ANY ('{published,unlisted}');
 
 -- name: ClearLessonTranslations :exec
 DELETE
@@ -154,7 +163,7 @@ WHERE ts.lessons_id = ANY ($1::uuid[]);
 -- name: ListTaskOriginalTranslations :many
 SELECT items.id, items.title, items.description
 FROM tasks items
-WHERE status = 'published';
+WHERE status = ANY ('{published,unlisted}');
 
 -- name: ClearTaskTranslations :exec
 DELETE
@@ -165,7 +174,7 @@ WHERE ts.tasks_id = ANY ($1::uuid[]);
 SELECT items.id, items.title
 FROM questionalternatives items
          JOIN tasks t ON t.id = items.task_id
-WHERE t.status = 'published';
+WHERE t.status = ANY ('{published,unlisted}');
 
 -- name: ClearQuestionAlternativeTranslations :exec
 DELETE
@@ -175,7 +184,7 @@ WHERE ts.questionalternatives_id = ANY ($1::uuid[]);
 -- name: ListAchievementOriginalTranslations :many
 SELECT items.id, items.title, items.description
 FROM achievements items
-WHERE status = 'published';
+WHERE status = ANY ('{published,unlisted}');
 
 -- name: ClearAchievementTranslations :exec
 DELETE
@@ -185,7 +194,7 @@ WHERE ts.achievements_id = ANY ($1::uuid[]);
 -- name: ListAchievementGroupOriginalTranslations :many
 SELECT items.id, items.title
 FROM achievementgroups items
-WHERE status = 'published';
+WHERE status = ANY ('{published,unlisted}');
 
 -- name: ClearAchievementGroupTranslations :exec
 DELETE

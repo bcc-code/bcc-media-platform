@@ -8,7 +8,6 @@ type result[t any] struct {
 type Member struct {
 	PersonID     int
 	Age          int
-	BirthDate    string
 	Email        string
 	DisplayName  string
 	Affiliations []Affiliation
@@ -24,9 +23,9 @@ type Affiliation struct {
 	ChurchID  int
 }
 
-// Organization
+// Organization contains organizational data
 type Organization struct {
 	OrgID int
-	Name  string
+	Name  string `json:"districtName"`
 	Type  string
 }

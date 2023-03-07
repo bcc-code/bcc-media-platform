@@ -4,7 +4,7 @@ package main
 
 import (
 	"context"
-	"database/sql"
+
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -16,17 +16,19 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/notifications"
 	"github.com/bcc-code/brunstadtv/backend/push"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bcc-code/brunstadtv/backend/scheduler"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/brunstadtv/backend/statistics"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/brunstadtv/backend/version"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bsm/redislock"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redsync/redsync/v4"
-	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
+	"github.com/sony/gobreaker"
 	"go.opentelemetry.io/otel"
 )
 
@@ -66,22 +68,8 @@ func main() {
 	mediaPackageVOD := mediapackagevod.NewFromConfig(awsConfig)
 
 	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key, debugDirectus)
-	rdb := utils.MustCreateRedisClient(ctx, config.Redis)
-
-	db, err := sql.Open("postgres", config.DB.ConnectionString)
-	if err != nil {
-		log.L.Error().Err(err)
-		return
-	}
-	db.SetMaxIdleConns(2)
-	// TODO: What makes sense here? We should gather some metrics over time
-	db.SetMaxOpenConns(10)
-
-	err = db.PingContext(ctx)
-	if err != nil {
-		log.L.Panic().Err(err).Msg("Ping failed")
-		return
-	}
+	rdb, rdbChan := utils.MustCreateRedisClient(ctx, config.Redis)
+	db, dbChan := utils.MustCreateDBClient(ctx, config.DB)
 
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.ImageCDNDomain)
@@ -89,6 +77,7 @@ func main() {
 	searchService := search.New(queries, config.Algolia)
 	directusEventHandler := directus.NewEventHandler()
 	crowdinClient := crowdin.New(config.Crowdin, directus.NewHandler(directusClient), queries, false)
+	statisticsHandler := statistics.NewHandler(ctx, config.BigQuery, queries)
 
 	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.CloudTasks.QueueID)
 
@@ -97,18 +86,20 @@ func main() {
 		log.L.Panic().Err(err).Msg("Failed to initialize push service")
 		return
 	}
-	pool := goredis.NewPool(rdb)
-	rs := redsync.New(pool)
 
 	authClient := auth0.New(config.Auth0)
-	membersClient := members.New(config.Members, authClient)
+
+	breaker := gobreaker.NewCircuitBreaker(gobreaker.Settings{
+		Name: "Members",
+	})
+	membersClient := members.New(config.Members, authClient, breaker)
 	notificationUtils := notifications.NewUtils(queries, membersClient)
 
 	mh := &modelHandler{
 		scheduler:         sr,
 		push:              pushService,
 		queries:           queries,
-		locker:            rs,
+		remoteCache:       remotecache.New(rdb, redislock.New(rdb)),
 		members:           membersClient,
 		notificationUtils: notificationUtils,
 	}
@@ -127,13 +118,27 @@ func main() {
 	}
 
 	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, searchService.IndexModel)
-	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, crowdinClient.HandleModelUpdate)
+
+	if config.Directus.BaseURL != "" {
+		directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, crowdinClient.HandleModelUpdate)
+	} else {
+		log.L.Warn().Err(err).Msg("Crowdin HandleModelUpdate is disabed becuase Directus base URL is missing")
+	}
 
 	directusEventHandler.On([]string{directus.EventItemsDelete}, searchService.DeleteModel)
 	directusEventHandler.On([]string{directus.EventItemsDelete}, crowdinClient.HandleModelDelete)
 
+	if statisticsHandler != nil {
+		log.L.Info().Msg("Registering BQ handler")
+		// If we are unable to initialize BQ then we do not listen
+		// Warning is emitted in the statistics.NewDirectusHandler call
+		directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate, directus.EventItemsDelete}, statisticsHandler.HandleDirectusEvent)
+	}
+
 	log.L.Debug().Msg("Set up HTTP server")
 	router := gin.Default()
+
+	locker := redislock.New(rdb)
 
 	services := server.ExternalServices{
 		Database:             db,
@@ -143,8 +148,10 @@ func main() {
 		SearchService:        searchService,
 		DirectusEventHandler: directusEventHandler,
 		Queries:              queries,
+		RemoteCache:          remotecache.New(rdb, locker),
 		CrowdinClient:        crowdinClient,
 		Scheduler:            sr,
+		StatisticsHandler:    statisticsHandler,
 	}
 
 	handlers := server.NewServer(services, serverConfig)
@@ -158,6 +165,15 @@ func main() {
 	}
 
 	router.GET("/versionz", version.GinHandler)
+
+	err = <-dbChan
+	if err != nil {
+		panic(err)
+	}
+	err = <-rdbChan
+	if err != nil {
+		panic(err)
+	}
 
 	span.End()
 

@@ -17,7 +17,7 @@ WITH ts AS (SELECT episodes_id,
                 GROUP BY episode_id)
 SELECT e.id,
        e.uuid,
-       e.status = 'unlisted'                                                                 AS unlisted,
+       e.status,
        e.legacy_id,
        e.legacy_program_id,
        e.asset_id,
@@ -25,20 +25,22 @@ SELECT e.id,
        e.publish_date,
        e.production_date,
        e.public_title,
-       COALESCE(e.prevent_public_indexing, false)                                            as prevent_public_indexing,
-       ea.available_from::timestamp without time zone                                        AS available_from,
-       ea.available_to::timestamp without time zone                                          AS available_to,
-       COALESCE(e.publish_date_in_title, sh.publish_date_in_title, sh.type = 'event', false) AS publish_date_in_title,
-       fs.filename_disk                                                                      as image_file_name,
+       s.episode_number_in_title                         AS number_in_title,
+       COALESCE(e.prevent_public_indexing, false)::bool  as prevent_public_indexing,
+       ea.available_from::timestamp without time zone    AS available_from,
+       ea.available_to::timestamp without time zone      AS available_to,
+       COALESCE(e.publish_date_in_title, sh.publish_date_in_title, sh.type = 'event',
+                false)::bool                             AS publish_date_in_title,
+       fs.filename_disk                                  as image_file_name,
        e.season_id,
        e.type,
-       COALESCE(img.json, '[]')                                                              as images,
+       COALESCE(img.json, '[]')                          as images,
        ts.title,
        ts.description,
        ts.extra_description,
-       tags.tags::int[]                                                                      AS tag_ids,
-       assets.duration                                                                       as duration,
-       COALESCE(e.agerating_code, s.agerating_code, 'A')                                     as agerating
+       tags.tags::int[]                                  AS tag_ids,
+       assets.duration                                   as duration,
+       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
@@ -68,7 +70,7 @@ WITH ts AS (SELECT episodes_id,
                 GROUP BY episode_id)
 SELECT e.id,
        e.uuid,
-       e.status = 'unlisted'                                                                 AS unlisted,
+       e.status,
        e.legacy_id,
        e.legacy_program_id,
        e.asset_id,
@@ -76,20 +78,22 @@ SELECT e.id,
        e.publish_date,
        e.production_date,
        e.public_title,
-       COALESCE(e.prevent_public_indexing, false)                                            as prevent_public_indexing,
-       ea.available_from::timestamp without time zone                                        AS available_from,
-       ea.available_to::timestamp without time zone                                          AS available_to,
-       COALESCE(e.publish_date_in_title, sh.publish_date_in_title, sh.type = 'event', false) AS publish_date_in_title,
-       fs.filename_disk                                                                      as image_file_name,
+       s.episode_number_in_title                         AS number_in_title,
+       COALESCE(e.prevent_public_indexing, false)::bool  as prevent_public_indexing,
+       ea.available_from::timestamp without time zone    AS available_from,
+       ea.available_to::timestamp without time zone      AS available_to,
+       COALESCE(e.publish_date_in_title, sh.publish_date_in_title, sh.type = 'event',
+                false)::bool                             AS publish_date_in_title,
+       fs.filename_disk                                  as image_file_name,
        e.season_id,
        e.type,
-       COALESCE(img.json, '[]')                                                              as images,
+       COALESCE(img.json, '[]')                          as images,
        ts.title,
        ts.description,
        ts.extra_description,
-       tags.tags::int[]                                                                      AS tag_ids,
-       assets.duration                                                                       as duration,
-       COALESCE(e.agerating_code, s.agerating_code, 'A')                                     as agerating
+       tags.tags::int[]                                  AS tag_ids,
+       assets.duration                                   as duration,
+       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
@@ -153,7 +157,7 @@ SELECT e.id,
        access.published::bool             AS published,
        access.available_from::timestamp   AS available_from,
        access.available_to::timestamp     AS available_to,
-	   access.published_on::timestamp     AS published_on,
+       access.published_on::timestamp     AS published_on,
        roles.roles::varchar[]             AS usergroups,
        roles.roles_download::varchar[]    AS usergroups_downloads,
        roles.roles_earlyaccess::varchar[] AS usergroups_earlyaccess
@@ -161,3 +165,8 @@ FROM episodes e
          LEFT JOIN episode_availability access ON access.id = e.id
          LEFT JOIN episode_roles roles ON roles.id = e.id
 WHERE e.id = ANY ($1::int[]);
+
+-- name: getEpisodeIDsForUuids :many
+SELECT e.id as result, e.uuid as original
+FROM episodes e
+WHERE e.uuid = ANY (@ids::uuid[]);

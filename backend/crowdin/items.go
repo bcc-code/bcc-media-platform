@@ -2,7 +2,6 @@ package crowdin
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -110,6 +109,10 @@ func (c *Client) syncPages(ctx context.Context, d *directus.Handler, project Pro
 	return c.syncCollection(ctx, d, project, directoryId, "pages", c.pagesTranslationFactory, crowdinTranslations, nil, pagesToDSItems, nil)
 }
 
+func (c *Client) syncLinks(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "links", c.linksTranslationFactory, crowdinTranslations, nil, linksToDSItems, nil)
+}
+
 func (c *Client) pagesTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
 	return dbToSimple(ctx, language, c.q.ListPageTranslations)
 }
@@ -126,6 +129,26 @@ func pagesToDSItems(translations []simpleTranslation) []directus.DSItem {
 				Description:   de,
 			},
 			PagesID: utils.AsInt(t.ParentID),
+		}
+	})
+}
+
+func (c *Client) linksTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
+	return dbToSimple(ctx, language, c.q.ListLinkTranslations)
+}
+
+func linksToDSItems(translations []simpleTranslation) []directus.DSItem {
+	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+		ti, _ := t.Values[TitleField]
+		de, _ := t.Values[DescriptionField]
+		return directus.LinksTranslation{
+			Translation: directus.Translation{
+				ID:            utils.AsInt(t.ID),
+				LanguagesCode: t.Language,
+				Title:         ti,
+				Description:   de,
+			},
+			LinksID: utils.AsInt(t.ParentID),
 		}
 	})
 }
@@ -247,7 +270,7 @@ func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, proj
 		return err
 	}
 
-	alts, err := c.q.GetQuestionAlternatives(ctx, lo.Map(originalTs, func(i sqlc.ListQuestionAlternativesOriginalTranslationsRow, _ int) uuid.UUID {
+	alts, err := c.q.GetQuestionAlternativesByIDs(ctx, lo.Map(originalTs, func(i sqlc.ListQuestionAlternativesOriginalTranslationsRow, _ int) uuid.UUID {
 		return i.ID
 	}))
 	if err != nil {
@@ -257,9 +280,9 @@ func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, proj
 	if err != nil {
 		return err
 	}
-	taskTitles := lo.Reduce(alts, func(m map[string]string, i common.QuestionAlternative, _ int) map[string]string {
+	taskTitles := lo.Reduce(alts, func(m map[string]string, i sqlc.GetQuestionAlternativesByIDsRow, _ int) map[string]string {
 		t, f := lo.Find(taskOriginals, func(t sqlc.ListTaskOriginalTranslationsRow) bool {
-			return t.ID == i.TaskID
+			return t.ID == i.TaskID.UUID
 		})
 		if !f {
 			return m
@@ -293,12 +316,10 @@ func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, proj
 func alternativesToDSItems(translations []simpleTranslation) []directus.DSItem {
 	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
 		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
 		return directus.QuestionAlternativesTranslation{
 			ID:                     t.ID,
 			LanguagesCode:          t.Language,
 			Title:                  ti,
-			Description:            de,
 			QuestionAlternativesID: t.ParentID,
 		}
 	})
