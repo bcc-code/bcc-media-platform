@@ -227,6 +227,83 @@ func topicsToDSItems(translations []simpleTranslation) []directus.DSItem {
 	})
 }
 
+func (c *Client) syncSurveys(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "surveys", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListSurveyOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListSurveyOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID: t.ID.String(),
+					Values: map[string]string{
+						TitleField:       t.Title,
+						DescriptionField: t.Description.ValueOrZero(),
+					},
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
+		return dbToSimple(ctx, language, c.q.ListSurveyTranslations)
+	}, crowdinTranslations, nil, surveysToDSItems, nil)
+}
+
+func surveysToDSItems(translations []simpleTranslation) []directus.DSItem {
+	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+		ti, _ := t.Values[TitleField]
+		de, _ := t.Values[DescriptionField]
+		return directus.SurveysTranslation{
+			ID:            t.ID,
+			LanguagesCode: t.Language,
+			Title:         ti,
+			Description:   de,
+			SurveysID:     t.ParentID,
+		}
+	})
+}
+
+func (c *Client) syncSurveyQuestions(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "surveyquestions", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListSurveyQuestionOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListSurveyQuestionOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID: t.ID.String(),
+					Values: map[string]string{
+						TitleField:       t.Title,
+						DescriptionField: t.Description.ValueOrZero(),
+						PlaceholderField: t.Placeholder.ValueOrZero(),
+					},
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
+		return dbToSimple(ctx, language, c.q.ListSurveyQuestionTranslations)
+	}, crowdinTranslations, nil, surveyQuestionsToDSItems, nil)
+}
+
+func surveyQuestionsToDSItems(translations []simpleTranslation) []directus.DSItem {
+	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+		ti, _ := t.Values[TitleField]
+		de, _ := t.Values[DescriptionField]
+		ph, _ := t.Values[PlaceholderField]
+		return directus.SurveyQuestionsTranslation{
+			ID:                t.ID,
+			LanguagesCode:     t.Language,
+			Title:             ti,
+			Description:       de,
+			Placeholder:       ph,
+			SurveyQuestionsID: t.ParentID,
+		}
+	})
+}
+
 func (c *Client) syncTasks(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
 	return c.syncCollection(ctx, d, project, directoryId, "tasks", func(ctx context.Context, language string) ([]simpleTranslation, error) {
 		if language == "no" {

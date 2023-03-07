@@ -1237,6 +1237,7 @@ type Surveyquestion struct {
 	Type        string         `db:"type" json:"type"`
 	SurveyID    uuid.UUID      `db:"survey_id" json:"surveyID"`
 	Sort        null_v4.Int    `db:"sort" json:"sort"`
+	Placeholder null_v4.String `db:"placeholder" json:"placeholder"`
 }
 
 type SurveyquestionsTranslation struct {
@@ -1245,6 +1246,7 @@ type SurveyquestionsTranslation struct {
 	LanguagesCode     string         `db:"languages_code" json:"languagesCode"`
 	Title             null_v4.String `db:"title" json:"title"`
 	Description       null_v4.String `db:"description" json:"description"`
+	Placeholder       null_v4.String `db:"placeholder" json:"placeholder"`
 }
 
 type SurveysTarget struct {

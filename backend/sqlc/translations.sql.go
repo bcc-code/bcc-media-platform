@@ -128,6 +128,28 @@ func (q *Queries) ClearStudyTopicTranslations(ctx context.Context, dollar_1 []uu
 	return err
 }
 
+const clearSurveyQuestionTranslations = `-- name: ClearSurveyQuestionTranslations :exec
+DELETE
+FROM surveyquestions_translations ts
+WHERE ts.surveyquestions_id = ANY ($1::uuid[])
+`
+
+func (q *Queries) ClearSurveyQuestionTranslations(ctx context.Context, dollar_1 []uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearSurveyQuestionTranslations, pq.Array(dollar_1))
+	return err
+}
+
+const clearSurveyTranslations = `-- name: ClearSurveyTranslations :exec
+DELETE
+FROM surveys_translations ts
+WHERE ts.surveys_id = ANY ($1::uuid[])
+`
+
+func (q *Queries) ClearSurveyTranslations(ctx context.Context, dollar_1 []uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearSurveyTranslations, pq.Array(dollar_1))
+	return err
+}
+
 const clearTaskTranslations = `-- name: ClearTaskTranslations :exec
 DELETE
 FROM tasks_translations ts
@@ -814,6 +836,175 @@ func (q *Queries) ListStudyTopicTranslations(ctx context.Context, dollar_1 []str
 	var items []ListStudyTopicTranslationsRow
 	for rows.Next() {
 		var i ListStudyTopicTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.LanguagesCode,
+			&i.Title,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listSurveyOriginalTranslations = `-- name: ListSurveyOriginalTranslations :many
+SELECT items.id, items.title, items.description
+FROM surveys items
+WHERE status = ANY ('{published,unlisted}')
+`
+
+type ListSurveyOriginalTranslationsRow struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) ListSurveyOriginalTranslations(ctx context.Context) ([]ListSurveyOriginalTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listSurveyOriginalTranslations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListSurveyOriginalTranslationsRow
+	for rows.Next() {
+		var i ListSurveyOriginalTranslationsRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listSurveyQuestionOriginalTranslations = `-- name: ListSurveyQuestionOriginalTranslations :many
+SELECT items.id, items.title, items.description, items.placeholder
+FROM surveyquestions items
+`
+
+type ListSurveyQuestionOriginalTranslationsRow struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+	Placeholder null_v4.String `db:"placeholder" json:"placeholder"`
+}
+
+func (q *Queries) ListSurveyQuestionOriginalTranslations(ctx context.Context) ([]ListSurveyQuestionOriginalTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listSurveyQuestionOriginalTranslations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListSurveyQuestionOriginalTranslationsRow
+	for rows.Next() {
+		var i ListSurveyQuestionOriginalTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Description,
+			&i.Placeholder,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listSurveyQuestionTranslations = `-- name: ListSurveyQuestionTranslations :many
+SELECT ts.id, surveyquestions_id as parent_id, languages_code, ts.title, ts.description, ts.placeholder
+FROM surveyquestions_translations ts
+         JOIN surveyquestions items ON items.id = ts.surveyquestions_id
+         JOIN surveys s ON s.id = items.survey_id AND s.status = ANY ('{published,unlisted}')
+WHERE ts.languages_code = ANY ($1::varchar[])
+`
+
+type ListSurveyQuestionTranslationsRow struct {
+	ID            int32          `db:"id" json:"id"`
+	ParentID      uuid.UUID      `db:"parent_id" json:"parentID"`
+	LanguagesCode string         `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
+	Placeholder   null_v4.String `db:"placeholder" json:"placeholder"`
+}
+
+func (q *Queries) ListSurveyQuestionTranslations(ctx context.Context, dollar_1 []string) ([]ListSurveyQuestionTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listSurveyQuestionTranslations, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListSurveyQuestionTranslationsRow
+	for rows.Next() {
+		var i ListSurveyQuestionTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.LanguagesCode,
+			&i.Title,
+			&i.Description,
+			&i.Placeholder,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listSurveyTranslations = `-- name: ListSurveyTranslations :many
+WITH items AS (SELECT i.id
+               FROM surveys i
+               WHERE i.status = ANY ('{published,unlisted}'))
+SELECT ts.id, surveys_id as parent_id, languages_code, title, description
+FROM surveys_translations ts
+         JOIN items i ON i.id = ts.surveys_id
+WHERE ts.languages_code = ANY ($1::varchar[])
+`
+
+type ListSurveyTranslationsRow struct {
+	ID            int32          `db:"id" json:"id"`
+	ParentID      uuid.UUID      `db:"parent_id" json:"parentID"`
+	LanguagesCode string         `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) ListSurveyTranslations(ctx context.Context, dollar_1 []string) ([]ListSurveyTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listSurveyTranslations, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListSurveyTranslationsRow
+	for rows.Next() {
+		var i ListSurveyTranslationsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ParentID,

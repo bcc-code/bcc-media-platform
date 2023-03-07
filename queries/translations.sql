@@ -200,3 +200,39 @@ WHERE status = ANY ('{published,unlisted}');
 DELETE
 FROM achievementgroups_translations ts
 WHERE ts.achievementgroups_id = ANY ($1::uuid[]);
+
+
+-- name: ListSurveyOriginalTranslations :many
+SELECT items.id, items.title, items.description
+FROM surveys items
+WHERE status = ANY ('{published,unlisted}');
+
+-- name: ClearSurveyTranslations :exec
+DELETE
+FROM surveys_translations ts
+WHERE ts.surveys_id = ANY ($1::uuid[]);
+
+-- name: ListSurveyTranslations :many
+WITH items AS (SELECT i.id
+               FROM surveys i
+               WHERE i.status = ANY ('{published,unlisted}'))
+SELECT ts.id, surveys_id as parent_id, languages_code, title, description
+FROM surveys_translations ts
+         JOIN items i ON i.id = ts.surveys_id
+WHERE ts.languages_code = ANY ($1::varchar[]);
+
+-- name: ListSurveyQuestionOriginalTranslations :many
+SELECT items.id, items.title, items.description, items.placeholder
+FROM surveyquestions items;
+
+-- name: ClearSurveyQuestionTranslations :exec
+DELETE
+FROM surveyquestions_translations ts
+WHERE ts.surveyquestions_id = ANY ($1::uuid[]);
+
+-- name: ListSurveyQuestionTranslations :many
+SELECT ts.id, surveyquestions_id as parent_id, languages_code, ts.title, ts.description, ts.placeholder
+FROM surveyquestions_translations ts
+         JOIN surveyquestions items ON items.id = ts.surveyquestions_id
+         JOIN surveys s ON s.id = items.survey_id AND s.status = ANY ('{published,unlisted}')
+WHERE ts.languages_code = ANY ($1::varchar[]);
