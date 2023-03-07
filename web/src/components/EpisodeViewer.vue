@@ -110,7 +110,7 @@ const load = async () => {
         if (!data.value) {
             await executeQuery()
         }
-        
+
         const options = {
             languagePreferenceDefaults: {
                 audio: lanTo3letter[currentLanguage.value.code],
@@ -120,7 +120,7 @@ const load = async () => {
                 autoplay: props.autoPlay,
             },
             npaw: {
-                enabled: true,
+                enabled: !!import.meta.env.VITE_NPAW_ACCOUNT_CODE,
                 accountCode: import.meta.env.VITE_NPAW_ACCOUNT_CODE,
                 tracking: {
                     isLive: false,

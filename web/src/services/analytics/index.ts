@@ -11,14 +11,16 @@ import { getRevision } from "../revision"
 
 const isLoading = ref(true)
 
-ready(() => {
-    isLoading.value = false
-})
-
-load(
-    import.meta.env.VITE_RUDDERSTACK_WRITE_KEY,
-    import.meta.env.VITE_RUDDERSTACK_DATA_PLANE_URL
-)
+const shouldLoad = import.meta.env.VITE_RUDDERSTACK_WRITE_KEY && import.meta.env.VITE_RUDDERSTACK_DATA_PLANE_URL;
+if (shouldLoad) {
+    ready(() => {
+        isLoading.value = false
+    })
+    load(
+        import.meta.env.VITE_RUDDERSTACK_WRITE_KEY,
+        import.meta.env.VITE_RUDDERSTACK_DATA_PLANE_URL
+    )
+}
 
 export const getAgeGroup = (age?: number): AgeGroup => {
     const breakpoints: {
@@ -50,6 +52,7 @@ class Analytics {
     private user: IdentifyData | null = null
 
     private get enabled() {
+        if (!shouldLoad) return false;
         const { accepted, statistics } = useCookies()
         return accepted.value && statistics.value
     }

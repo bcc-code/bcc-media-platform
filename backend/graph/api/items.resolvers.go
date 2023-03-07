@@ -112,7 +112,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 
 // Files is the resolver for the files field.
 func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode) ([]*model.File, error) {
-	err := user.ValidateAccess(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID), user.CheckConditions{FromDate: true})
+	err := user.ValidateAccess(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID), user.CheckConditions{FromDate: true, PublishDate: true})
 	if err != nil {
 		return nil, err
 	}
