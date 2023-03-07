@@ -152,22 +152,39 @@ func doSearch(ctx context.Context, es *elasticsearch.Client, index string) {
 				fmt.Sprintf(`{
 	"_source": false,
 	"query": {
-		"match": {
-			"text": {
-				"query": "%s"
-			}
-		}
+	    "bool": {
+	        "should": [
+	           {
+	               "match": {
+	                   "text": {
+	                       "query": "%s",
+	                       "boost": 3
+	                   }
+	               }
+	           },
+	           {
+	               "match": {
+	                   "text": {
+	                       "query": "%s",
+	                       "fuzziness": "AUTO",
+	                       "boost": 2
+	                   }
+	               }
+	           }
+            ]
+	    }
 	},
 	"size": 10,
 	"from": 0,
 	"highlight": {
-	    "order": "score",
+		"order": "score",
 		"type": "fvh",
-	    "fields": {
-	        "text": {}
-	    }
+		"boundary_scanner": "word",
+		"fields": {
+			"text": {}
+		}
 	}
-}`, "gjerrighet"),
+}`, "gjerrighet", "gjerrighet"),
 			),
 		),
 		es.Search.WithIndex(index),
