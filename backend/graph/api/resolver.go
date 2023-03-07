@@ -204,7 +204,9 @@ func resolverFor[k comparable, t any, r any](ctx context.Context, ls *itemLoader
 	}
 
 	if t, ok := any(obj).(loaders.HasKey[k]); ok && ls.Permissions != nil {
-		err = user.ValidateAccess(ctx, ls.Permissions, t.GetKey(), user.CheckConditions{})
+		err = user.ValidateAccess(ctx, ls.Permissions, t.GetKey(), user.CheckConditions{
+			FromDate: true,
+		})
 		if err != nil {
 			return res, err
 		}
@@ -233,7 +235,9 @@ func itemsResolverFor[k comparable, kr comparable, t any, r any](ctx context.Con
 
 	ids := lo.Map(lo.Filter(itemIds, func(i *k, _ int) bool {
 		if ls.Permissions != nil {
-			return user.ValidateAccess(ctx, ls.Permissions, *i, user.CheckConditions{}) == nil
+			return user.ValidateAccess(ctx, ls.Permissions, *i, user.CheckConditions{
+				FromDate: true,
+			}) == nil
 		}
 		return true
 	}), func(i *k, _ int) k {
