@@ -21,6 +21,7 @@ import (
 const (
 	TitleField       = "title"
 	DescriptionField = "description"
+	PlaceholderField = "placeholder"
 )
 
 // Config for the client
@@ -315,6 +316,15 @@ func (c *Client) Sync(ctx context.Context, d *directus.Handler) error {
 		if err != nil {
 			return err
 		}
+		err = c.syncSurveys(ctx, d, project, directory.ID, crowdinTranslations)
+		if err != nil {
+			return err
+		}
+		err = c.syncSurveyQuestions(ctx, d, project, directory.ID, crowdinTranslations)
+		if err != nil {
+			return err
+		}
+
 	}
 	log.L.Debug().Msg("Translation sync: Done")
 	return nil

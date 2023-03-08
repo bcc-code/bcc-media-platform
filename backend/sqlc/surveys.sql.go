@@ -126,6 +126,7 @@ WITH ts AS (SELECT ts.surveyquestions_id                           AS id,
 SELECT s.id,
        s.title       AS original_title,
        s.description AS original_description,
+       s.placeholder AS original_placeholder,
        s.survey_id,
        s.type,
        ts.title,
@@ -139,6 +140,7 @@ type getSurveyQuestionsRow struct {
 	ID                  uuid.UUID             `db:"id" json:"id"`
 	OriginalTitle       string                `db:"original_title" json:"originalTitle"`
 	OriginalDescription null_v4.String        `db:"original_description" json:"originalDescription"`
+	OriginalPlaceholder null_v4.String        `db:"original_placeholder" json:"originalPlaceholder"`
 	SurveyID            uuid.UUID             `db:"survey_id" json:"surveyID"`
 	Type                string                `db:"type" json:"type"`
 	Title               pqtype.NullRawMessage `db:"title" json:"title"`
@@ -158,6 +160,7 @@ func (q *Queries) getSurveyQuestions(ctx context.Context, ids []uuid.UUID) ([]ge
 			&i.ID,
 			&i.OriginalTitle,
 			&i.OriginalDescription,
+			&i.OriginalPlaceholder,
 			&i.SurveyID,
 			&i.Type,
 			&i.Title,

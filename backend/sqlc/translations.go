@@ -213,6 +213,70 @@ func (r ListStudyTopicTranslationsRow) GetLanguage() string {
 }
 
 // GetKey for this item
+func (r ListSurveyTranslationsRow) GetKey() string {
+	return strconv.Itoa(int(r.ID))
+}
+
+// GetParentKey for this item
+func (r ListSurveyTranslationsRow) GetParentKey() string {
+	return r.ParentID.String()
+}
+
+// GetValues for this entry
+func (r ListSurveyTranslationsRow) GetValues() map[string]string {
+	ret := map[string]string{}
+
+	if r.Title.Valid {
+		ret["title"] = r.Title.String
+	}
+
+	if r.Description.Valid {
+		ret["description"] = r.Description.String
+	}
+
+	return ret
+}
+
+// GetLanguage for this item
+func (r ListSurveyTranslationsRow) GetLanguage() string {
+	return r.LanguagesCode
+}
+
+// GetKey for this item
+func (r ListSurveyQuestionTranslationsRow) GetKey() string {
+	return strconv.Itoa(int(r.ID))
+}
+
+// GetParentKey for this item
+func (r ListSurveyQuestionTranslationsRow) GetParentKey() string {
+	return r.ParentID.String()
+}
+
+// GetValues for this entry
+func (r ListSurveyQuestionTranslationsRow) GetValues() map[string]string {
+	ret := map[string]string{}
+
+	if r.Title.Valid {
+		ret["title"] = r.Title.String
+	}
+
+	if r.Description.Valid {
+		ret["description"] = r.Description.String
+	}
+
+	if r.Placeholder.Valid {
+		ret["placeholder"] = r.Placeholder.String
+	}
+
+	return ret
+}
+
+// GetLanguage for this item
+func (r ListSurveyQuestionTranslationsRow) GetLanguage() string {
+	return r.LanguagesCode
+}
+
+// GetKey for this item
 func (r ListLessonTranslationsRow) GetKey() string {
 	return strconv.Itoa(int(r.ID))
 }

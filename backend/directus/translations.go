@@ -104,6 +104,62 @@ type AchievementGroupsTranslation struct {
 	AchievementGroupsID string `json:"achievementgroups_id"`
 }
 
+// SurveysTranslation struct
+type SurveysTranslation struct {
+	ID            string `json:"id,omitempty"`
+	Title         string `json:"title"`
+	Description   string `json:"description,omitempty"`
+	LanguagesCode string `json:"languages_code"`
+	SurveysID     string `json:"surveys_id"`
+}
+
+// SurveyQuestionsTranslation struct
+type SurveyQuestionsTranslation struct {
+	ID                string `json:"id,omitempty"`
+	Title             string `json:"title"`
+	Description       string `json:"description"`
+	LanguagesCode     string `json:"languages_code"`
+	Placeholder       string `json:"placeholder"`
+	SurveyQuestionsID string `json:"surveyquestions_id"`
+}
+
+// ForUpdate for update
+func (i SurveysTranslation) ForUpdate() any {
+	return map[string]string{
+		"title":       i.Title,
+		"description": i.Description,
+	}
+}
+
+// UID for unique id
+func (i SurveysTranslation) UID() string {
+	return i.ID
+}
+
+// TypeName string
+func (SurveysTranslation) TypeName() string {
+	return "surveys_translations"
+}
+
+// ForUpdate for update
+func (i SurveyQuestionsTranslation) ForUpdate() any {
+	return map[string]string{
+		"title":       i.Title,
+		"description": i.Description,
+		"placeholder": i.Placeholder,
+	}
+}
+
+// UID for unique id
+func (i SurveyQuestionsTranslation) UID() string {
+	return i.ID
+}
+
+// TypeName string
+func (SurveyQuestionsTranslation) TypeName() string {
+	return "surveyquestions_translations"
+}
+
 // ForUpdate for update
 func (i StudyTopicsTranslation) ForUpdate() any {
 	return map[string]string{
