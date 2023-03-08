@@ -26,7 +26,7 @@ func (q *Queries) DeleteUserCollectionEntry(ctx context.Context, id uuid.UUID) e
 
 const upsertUserCollection = `-- name: UpsertUserCollection :exec
 INSERT INTO users.collections (id, application_id, profile_id, updated_at, created_at, my_list, title)
-VALUES ($1, $2,  $3, now(), now(), $4, $5)
+VALUES ($1, $2, $3, now(), now(), $4, $5)
 ON CONFLICT (id) DO UPDATE SET updated_at = now(),
                                metadata   = EXCLUDED.metadata,
                                title      = EXCLUDED.title
@@ -169,6 +169,7 @@ const getUserCollectionEntryIDsForUserCollectionIDs = `-- name: getUserCollectio
 SELECT ce.id, ce.collection_id AS parent_id
 FROM users.collectionentries ce
 WHERE ce.collection_id = ANY ($1::uuid[])
+ORDER BY ce.updated_at DESC
 `
 
 type getUserCollectionEntryIDsForUserCollectionIDsRow struct {
