@@ -1,5 +1,5 @@
 -- name: getUserCollections :many
-SELECT c.id, c.application_id, c.profile_id, c.updated_at, c.created_at, c.title, c.metadata
+SELECT c.id, c.application_id, c.profile_id, c.updated_at, c.created_at, c.title, c.my_list
 FROM users.collections c
 WHERE id = ANY (@ids::uuid[]);
 
@@ -13,14 +13,14 @@ SELECT c.id, c.profile_id AS parent_id
 FROM users.collections c
 WHERE c.application_id = @application_id
   AND c.profile_id = ANY (@profile_ids::uuid[])
-  AND metadata ->> 'myList' = 'true';
+  AND my_list;
 
 -- name: getUserCollectionIDsForProfileIDs :many
 SELECT c.id, c.profile_id AS parent_id
 FROM users.collections c
 WHERE c.application_id = @application_id
   AND c.profile_id = ANY (@profile_ids::uuid[])
-  AND metadata ->> 'myList' != 'true';
+  AND my_list;
 
 -- name: getUserCollectionEntryIDsForUserCollectionIDs :many
 SELECT ce.id, ce.collection_id AS parent_id
@@ -28,8 +28,8 @@ FROM users.collectionentries ce
 WHERE ce.collection_id = ANY (@collection_ids::uuid[]);
 
 -- name: UpsertUserCollection :exec
-INSERT INTO users.collections (id, application_id, profile_id, updated_at, created_at, metadata, title)
-VALUES (@id, @application_id,  @profile_id, now(), now(), @metadata::json, @title)
+INSERT INTO users.collections (id, application_id, profile_id, updated_at, created_at, my_list, title)
+VALUES (@id, @application_id,  @profile_id, now(), now(), @my_list, @title)
 ON CONFLICT (id) DO UPDATE SET updated_at = now(),
                                metadata   = EXCLUDED.metadata,
                                title      = EXCLUDED.title;

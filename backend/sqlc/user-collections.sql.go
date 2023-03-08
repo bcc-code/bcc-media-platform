@@ -7,12 +7,10 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/tabbed/pqtype"
 )
 
 const deleteUserCollectionEntry = `-- name: DeleteUserCollectionEntry :exec
@@ -27,19 +25,19 @@ func (q *Queries) DeleteUserCollectionEntry(ctx context.Context, id uuid.UUID) e
 }
 
 const upsertUserCollection = `-- name: UpsertUserCollection :exec
-INSERT INTO users.collections (id, application_id, profile_id, updated_at, created_at, metadata, title)
-VALUES ($1, $2,  $3, now(), now(), $4::json, $5)
+INSERT INTO users.collections (id, application_id, profile_id, updated_at, created_at, my_list, title)
+VALUES ($1, $2,  $3, now(), now(), $4, $5)
 ON CONFLICT (id) DO UPDATE SET updated_at = now(),
                                metadata   = EXCLUDED.metadata,
                                title      = EXCLUDED.title
 `
 
 type UpsertUserCollectionParams struct {
-	ID            uuid.UUID       `db:"id" json:"id"`
-	ApplicationID uuid.UUID       `db:"application_id" json:"applicationID"`
-	ProfileID     uuid.UUID       `db:"profile_id" json:"profileID"`
-	Metadata      json.RawMessage `db:"metadata" json:"metadata"`
-	Title         string          `db:"title" json:"title"`
+	ID            uuid.UUID `db:"id" json:"id"`
+	ApplicationID uuid.UUID `db:"application_id" json:"applicationID"`
+	ProfileID     uuid.UUID `db:"profile_id" json:"profileID"`
+	MyList        bool      `db:"my_list" json:"myList"`
+	Title         string    `db:"title" json:"title"`
 }
 
 func (q *Queries) UpsertUserCollection(ctx context.Context, arg UpsertUserCollectionParams) error {
@@ -47,7 +45,7 @@ func (q *Queries) UpsertUserCollection(ctx context.Context, arg UpsertUserCollec
 		arg.ID,
 		arg.ApplicationID,
 		arg.ProfileID,
-		arg.Metadata,
+		arg.MyList,
 		arg.Title,
 	)
 	return err
@@ -84,7 +82,7 @@ SELECT c.id, c.profile_id AS parent_id
 FROM users.collections c
 WHERE c.application_id = $1
   AND c.profile_id = ANY ($2::uuid[])
-  AND metadata ->> 'myList' = 'true'
+  AND my_list
 `
 
 type getMyListCollectionForProfileIDsParams struct {
@@ -206,7 +204,7 @@ SELECT c.id, c.profile_id AS parent_id
 FROM users.collections c
 WHERE c.application_id = $1
   AND c.profile_id = ANY ($2::uuid[])
-  AND metadata ->> 'myList' != 'true'
+  AND my_list
 `
 
 type getUserCollectionIDsForProfileIDsParams struct {
@@ -243,19 +241,19 @@ func (q *Queries) getUserCollectionIDsForProfileIDs(ctx context.Context, arg get
 }
 
 const getUserCollections = `-- name: getUserCollections :many
-SELECT c.id, c.application_id, c.profile_id, c.updated_at, c.created_at, c.title, c.metadata
+SELECT c.id, c.application_id, c.profile_id, c.updated_at, c.created_at, c.title, c.my_list
 FROM users.collections c
 WHERE id = ANY ($1::uuid[])
 `
 
 type getUserCollectionsRow struct {
-	ID            uuid.UUID             `db:"id" json:"id"`
-	ApplicationID uuid.UUID             `db:"application_id" json:"applicationID"`
-	ProfileID     uuid.UUID             `db:"profile_id" json:"profileID"`
-	UpdatedAt     time.Time             `db:"updated_at" json:"updatedAt"`
-	CreatedAt     time.Time             `db:"created_at" json:"createdAt"`
-	Title         string                `db:"title" json:"title"`
-	Metadata      pqtype.NullRawMessage `db:"metadata" json:"metadata"`
+	ID            uuid.UUID `db:"id" json:"id"`
+	ApplicationID uuid.UUID `db:"application_id" json:"applicationID"`
+	ProfileID     uuid.UUID `db:"profile_id" json:"profileID"`
+	UpdatedAt     time.Time `db:"updated_at" json:"updatedAt"`
+	CreatedAt     time.Time `db:"created_at" json:"createdAt"`
+	Title         string    `db:"title" json:"title"`
+	MyList        bool      `db:"my_list" json:"myList"`
 }
 
 func (q *Queries) getUserCollections(ctx context.Context, ids []uuid.UUID) ([]getUserCollectionsRow, error) {
@@ -274,7 +272,7 @@ func (q *Queries) getUserCollections(ctx context.Context, ids []uuid.UUID) ([]ge
 			&i.UpdatedAt,
 			&i.CreatedAt,
 			&i.Title,
-			&i.Metadata,
+			&i.MyList,
 		); err != nil {
 			return nil, err
 		}

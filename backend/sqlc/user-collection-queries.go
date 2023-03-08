@@ -2,7 +2,6 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/google/uuid"
@@ -16,8 +15,6 @@ func (q *Queries) GetUserCollections(ctx context.Context, ids []uuid.UUID) ([]co
 		return nil, err
 	}
 	return lo.Map(rows, func(i getUserCollectionsRow, _ int) common.UserCollection {
-		var metadata common.UserCollectionMetadata
-		_ = json.Unmarshal(i.Metadata.RawMessage, &metadata)
 		return common.UserCollection{
 			ID:            i.ID,
 			ApplicationID: i.ApplicationID,
@@ -25,7 +22,7 @@ func (q *Queries) GetUserCollections(ctx context.Context, ids []uuid.UUID) ([]co
 			Title:         i.Title,
 			CreatedAt:     i.CreatedAt,
 			UpdatedAt:     i.UpdatedAt,
-			Metadata:      metadata,
+			Metadata:      common.UserCollectionMetadata{MyList: i.MyList},
 		}
 	}), nil
 }

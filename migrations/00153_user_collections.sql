@@ -8,7 +8,8 @@
 ALTER TABLE public.applications
     ADD COLUMN uuid uuid NULL;
 
-UPDATE public.applications SET uuid = gen_random_uuid();
+UPDATE public.applications
+SET uuid = gen_random_uuid();
 
 alter table public.applications
     alter column uuid set not null;
@@ -28,7 +29,7 @@ CREATE TABLE IF NOT EXISTS "users"."collections"
     "profile_id"     uuid      NOT NULL,
     "updated_at"     timestamp NOT NULL,
     "created_at"     timestamp NOT NULL,
-    "metadata"       json      NULL,
+    "my_list"        bool      NOT NULL,
     "title"          text      NOT NULL,
     CONSTRAINT "collections_pk" PRIMARY KEY (id),
     CONSTRAINT "collections_applications_id_fk" FOREIGN KEY (application_id) REFERENCES public.applications (uuid) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -56,9 +57,6 @@ COMMENT ON COLUMN "users"."collections"."updated_at" IS NULL;
 
 
 COMMENT ON COLUMN "users"."collections"."created_at" IS NULL;
-
-
-COMMENT ON COLUMN "users"."collections"."metadata" IS NULL;
 
 
 COMMENT ON COLUMN "users"."collections"."title" IS NULL;

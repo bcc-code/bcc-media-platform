@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -457,11 +456,10 @@ func (r *queryRootResolver) MyList(ctx context.Context) (*model.UserCollection, 
 		id = &uc.ID
 		l.Clear(ctx, p.ID)
 		l.Prime(ctx, p.ID, id)
-		md, _ := json.Marshal(uc.Metadata)
 		err = r.Queries.UpsertUserCollection(ctx, sqlc.UpsertUserCollectionParams{
 			ID:            uc.ID,
 			ApplicationID: uc.ApplicationID,
-			Metadata:      md,
+			MyList:        uc.Metadata.MyList,
 			ProfileID:     uc.ProfileID,
 			Title:         uc.Title,
 		})
