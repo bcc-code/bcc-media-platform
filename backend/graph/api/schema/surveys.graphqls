@@ -2,8 +2,6 @@ type Survey {
     id: UUID!
     title: String!
     description: String
-    from: Date!
-    to: Date!
     questions(first: Int, offset: Int): SurveyQuestionPagination! @goField(forceResolver: true)
 }
 
@@ -30,4 +28,15 @@ type SurveyRatingQuestion implements SurveyQuestion {
     id: UUID!
     title: String!
     description: String
+}
+
+interface Prompt {
+    id: UUID!
+    title: String!
+}
+
+type SurveyPrompt implements Prompt {
+    id: UUID!
+    title: String!
+    survey: Survey! @goField(forceResolver: true)
 }

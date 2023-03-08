@@ -60,6 +60,12 @@ type Pagination interface {
 	GetOffset() int
 }
 
+type Prompt interface {
+	IsPrompt()
+	GetID() string
+	GetTitle() string
+}
+
 type SearchResultItem interface {
 	IsSearchResultItem()
 	GetID() string
@@ -1162,10 +1168,18 @@ type Survey struct {
 	ID          string                    `json:"id"`
 	Title       string                    `json:"title"`
 	Description *string                   `json:"description"`
-	From        string                    `json:"from"`
-	To          string                    `json:"to"`
 	Questions   *SurveyQuestionPagination `json:"questions"`
 }
+
+type SurveyPrompt struct {
+	ID     string  `json:"id"`
+	Title  string  `json:"title"`
+	Survey *Survey `json:"survey"`
+}
+
+func (SurveyPrompt) IsPrompt()             {}
+func (this SurveyPrompt) GetID() string    { return this.ID }
+func (this SurveyPrompt) GetTitle() string { return this.Title }
 
 type SurveyQuestionPagination struct {
 	First  int              `json:"first"`

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -13,6 +14,8 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
 	"sort"
 	"strings"
 	"time"
@@ -59,9 +62,9 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		StudyLessonLinksLoader:    loaders.NewRelationLoader(ctx, rq.GetLinkIDsForLessons, loaders.WithName("study-lesson-links")),
 		LinkStudyLessonsLoader:    loaders.NewRelationLoader(ctx, rq.GetLessonIDsForLinks, loaders.WithName("link-study-lessons")),
 
-		SurveyIDsLoader: func(ctx context.Context) ([]uuid.UUID, error) {
-			return memorycache.GetOrSet(ctx, fmt.Sprintf("surveyIDs:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
-				return queries.GetSurveyIDsForRoles(ctx, roles)
+		PromptIDsLoader: func(ctx context.Context) ([]uuid.UUID, error) {
+			return memorycache.GetOrSet(ctx, fmt.Sprintf("promptIDs:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
+				return queries.GetPromptIDsForRoles(ctx, roles)
 			}, cache.WithExpiration(time.Minute*5))
 		},
 		SurveyQuestionsLoader: loaders.NewRelationLoader(ctx, rq.GetSurveyQuestionIDsForSurveyIDs, loaders.WithName("survey-questions-loader")),
@@ -193,6 +196,10 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 			return i.ID
 		})),
 
+		PromptLoader: loaders.New(ctx, mapDbResponseWith(queries.GetPrompts, promptRowToPrompt), loaders.WithKeyFunc(func(i common.Prompt) uuid.UUID {
+			return i.ID
+		})),
+
 		FAQCategoryLoader:  loaders.NewLoader(ctx, queries.GetFAQCategories),
 		QuestionLoader:     loaders.NewLoader(ctx, queries.GetQuestions),
 		QuestionsLoader:    loaders.NewRelationLoader(ctx, queries.GetQuestionIDsForCategories, loaders.WithName("questions")),
@@ -230,5 +237,37 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		UserCollectionLoader:         loaders.New(ctx, queries.GetUserCollections, loaders.WithKeyFunc(func(i common.UserCollection) uuid.UUID { return i.ID })),
 		UserCollectionEntryLoader:    loaders.New(ctx, queries.GetUserCollectionEntries, loaders.WithKeyFunc(func(i common.UserCollectionEntry) uuid.UUID { return i.ID })),
 		UserCollectionEntryIDsLoader: loaders.NewRelationLoader(ctx, queries.GetUserCollectionEntryIDsForUserCollectionIDs, loaders.WithName("user-collection-entry-ids")),
+	}
+}
+
+func promptRowToPrompt(i sqlc.GetPromptsRow, _ int) common.Prompt {
+	var t = common.LocaleString{}
+	var d = common.LocaleString{}
+	_ = json.Unmarshal(i.Title.RawMessage, &t)
+	_ = json.Unmarshal(i.SecondaryTitle.RawMessage, &d)
+
+	t["no"] = null.StringFrom(i.OriginalTitle)
+	if i.OriginalSecondaryTitle.Valid {
+		d["no"] = null.StringFrom(i.OriginalSecondaryTitle.String)
+	}
+
+	return common.Prompt{
+		ID:             i.ID,
+		Title:          t,
+		SecondaryTitle: d,
+		SurveyID:       i.SurveyID,
+		From:           i.From,
+		To:             i.To,
+		Type:           i.Type,
+	}
+}
+
+func mapDbResponseWith[K comparable, T any, R any](factory func(ctx context.Context, keys []K) ([]T, error), mapWith func(T, int) R) func(ctx context.Context, keys []K) ([]R, error) {
+	return func(ctx context.Context, keys []K) ([]R, error) {
+		rows, err := factory(ctx, keys)
+		if err != nil {
+			return nil, err
+		}
+		return lo.Map(rows, mapWith), nil
 	}
 }

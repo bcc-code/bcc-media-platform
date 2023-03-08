@@ -553,17 +553,17 @@ func (r *queryRootResolver) LegacyIDLookup(ctx context.Context, options *model.L
 	}, nil
 }
 
-// Surveys is the resolver for the surveys field.
-func (r *queryRootResolver) Surveys(ctx context.Context) ([]*model.Survey, error) {
-	ids, err := r.FilteredLoaders(ctx).SurveyIDsLoader(ctx)
+// Prompts is the resolver for the prompts field.
+func (r *queryRootResolver) Prompts(ctx context.Context) ([]model.Prompt, error) {
+	ids, err := r.FilteredLoaders(ctx).PromptIDsLoader(ctx)
 	if err != nil {
 		return nil, err
 	}
-	surveys, err := r.Loaders.SurveyLoader.GetMany(ctx, ids)
+	surveys, err := r.Loaders.PromptLoader.GetMany(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return utils.MapWithCtx(ctx, surveys, model.SurveyFrom), nil
+	return utils.MapWithCtx(ctx, surveys, model.PromptFrom), nil
 }
 
 // QueryRoot returns generated.QueryRootResolver implementation.

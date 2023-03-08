@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -30,7 +29,20 @@ func (r *surveyResolver) Questions(ctx context.Context, obj *model.Survey, first
 	}, nil
 }
 
+// Survey is the resolver for the survey field.
+func (r *surveyPromptResolver) Survey(ctx context.Context, obj *model.SurveyPrompt) (*model.Survey, error) {
+	s, err := r.Loaders.SurveyLoader.Get(ctx, utils.AsUuid(obj.Survey.ID))
+	if err != nil {
+		return nil, err
+	}
+	return model.SurveyFrom(ctx, s), nil
+}
+
 // Survey returns generated.SurveyResolver implementation.
 func (r *Resolver) Survey() generated.SurveyResolver { return &surveyResolver{r} }
 
+// SurveyPrompt returns generated.SurveyPromptResolver implementation.
+func (r *Resolver) SurveyPrompt() generated.SurveyPromptResolver { return &surveyPromptResolver{r} }
+
 type surveyResolver struct{ *Resolver }
+type surveyPromptResolver struct{ *Resolver }
