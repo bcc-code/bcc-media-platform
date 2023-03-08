@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/loaders"
+	"github.com/google/uuid"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
@@ -71,7 +73,7 @@ func (q *Queries) ListAllPermittedShowIDs(ctx context.Context, permissions []str
 	return lo.Map(ids, func(i int32, _ int) int { return int(i) }), nil
 }
 
-// GetShowIDsWithRoles returns episodeIDs for season filtered by roles
+// GetShowIDsWithRoles returns ids for season filtered by roles
 func (rq *RoleQueries) GetShowIDsWithRoles(ctx context.Context, ids []int) ([]int, error) {
 	rows, err := rq.queries.getShowIDsWithRoles(ctx, getShowIDsWithRolesParams{
 		Column1: intToInt32(ids),
@@ -81,6 +83,18 @@ func (rq *RoleQueries) GetShowIDsWithRoles(ctx context.Context, ids []int) ([]in
 		return nil, err
 	}
 	return int32ToInt(rows), nil
+}
+
+// GetShowUUIDsWithRoles returns ids for season filtered by roles
+func (rq *RoleQueries) GetShowUUIDsWithRoles(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := rq.queries.getShowUUIDsWithRoles(ctx, getShowUUIDsWithRolesParams{
+		Column1: ids,
+		Column2: rq.roles,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
 }
 
 // GetPermissionsForShows returns permissions for specified episodes
@@ -104,6 +118,20 @@ func (q *Queries) GetPermissionsForShows(ctx context.Context, ids []int) ([]comm
 				Download:    i.UsergroupsDownloads,
 				EarlyAccess: i.UsergroupsEarlyaccess,
 			},
+		}
+	}), nil
+}
+
+// GetShowIDsForUuids returns episodeIds for specified uuids
+func (q *Queries) GetShowIDsForUuids(ctx context.Context, uuids []uuid.UUID) ([]loaders.Conversion[uuid.UUID, int], error) {
+	rows, err := q.getShowIDsForUuids(ctx, uuids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getShowIDsForUuidsRow, _ int) loaders.Conversion[uuid.UUID, int] {
+		return conversion[uuid.UUID, int]{
+			source: i.Original,
+			result: int(i.Result),
 		}
 	}), nil
 }

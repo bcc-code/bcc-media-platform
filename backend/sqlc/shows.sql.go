@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/tabbed/pqtype"
 	null_v4 "gopkg.in/guregu/null.v4"
@@ -73,6 +74,40 @@ func (q *Queries) getPermissionsForShows(ctx context.Context, dollar_1 []int32) 
 	return items, nil
 }
 
+const getShowIDsForUuids = `-- name: getShowIDsForUuids :many
+SELECT e.id as result, e.uuid as original
+FROM shows e
+WHERE e.uuid = ANY ($1::uuid[])
+`
+
+type getShowIDsForUuidsRow struct {
+	Result   int32     `db:"result" json:"result"`
+	Original uuid.UUID `db:"original" json:"original"`
+}
+
+func (q *Queries) getShowIDsForUuids(ctx context.Context, ids []uuid.UUID) ([]getShowIDsForUuidsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getShowIDsForUuids, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getShowIDsForUuidsRow
+	for rows.Next() {
+		var i getShowIDsForUuidsRow
+		if err := rows.Scan(&i.Result, &i.Original); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getShowIDsWithRoles = `-- name: getShowIDsWithRoles :many
 SELECT sh.id
 FROM shows sh
@@ -105,6 +140,48 @@ func (q *Queries) getShowIDsWithRoles(ctx context.Context, arg getShowIDsWithRol
 			return nil, err
 		}
 		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getShowUUIDsWithRoles = `-- name: getShowUUIDsWithRoles :many
+SELECT sh.uuid
+FROM shows sh
+         LEFT JOIN show_availability access ON access.id = sh.id
+         LEFT JOIN show_roles roles ON roles.id = sh.id
+WHERE sh.uuid = ANY ($1::uuid[])
+  AND access.published
+  AND access.available_to > now()
+  AND (
+        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+        (roles.roles_earlyaccess && $2::varchar[])
+    )
+`
+
+type getShowUUIDsWithRolesParams struct {
+	Column1 []uuid.UUID `db:"column_1" json:"column1"`
+	Column2 []string    `db:"column_2" json:"column2"`
+}
+
+func (q *Queries) getShowUUIDsWithRoles(ctx context.Context, arg getShowUUIDsWithRolesParams) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getShowUUIDsWithRoles, pq.Array(arg.Column1), pq.Array(arg.Column2))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var uuid uuid.UUID
+		if err := rows.Scan(&uuid); err != nil {
+			return nil, err
+		}
+		items = append(items, uuid)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

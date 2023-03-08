@@ -119,6 +119,18 @@ func (rq *RoleQueries) GetEpisodeIDsWithRoles(ctx context.Context, ids []int) ([
 	return int32ToInt(rows), nil
 }
 
+// GetEpisodeUUIDsWithRoles returns ids for episodes filtered by roles
+func (rq *RoleQueries) GetEpisodeUUIDsWithRoles(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := rq.queries.getEpisodeUUIDsWithRoles(ctx, getEpisodeUUIDsWithRolesParams{
+		Column1: ids,
+		Column2: rq.roles,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
+}
+
 // GetPermissionsForEpisodes returns permissions for specified episodes
 func (q *Queries) GetPermissionsForEpisodes(ctx context.Context, ids []int) ([]common.Permissions[int], error) {
 	items, err := q.getPermissionsForEpisodes(ctx, intToInt32(ids))

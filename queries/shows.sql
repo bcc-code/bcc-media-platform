@@ -79,6 +79,19 @@ WHERE sh.id = ANY ($1::int[])
         (roles.roles_earlyaccess && $2::varchar[])
     );
 
+-- name: getShowUUIDsWithRoles :many
+SELECT sh.uuid
+FROM shows sh
+         LEFT JOIN show_availability access ON access.id = sh.id
+         LEFT JOIN show_roles roles ON roles.id = sh.id
+WHERE sh.uuid = ANY ($1::uuid[])
+  AND access.published
+  AND access.available_to > now()
+  AND (
+        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+        (roles.roles_earlyaccess && $2::varchar[])
+    );
+
 -- name: getPermissionsForShows :many
 SELECT sh.id,
        sh.status = 'unlisted'             AS unlisted,
@@ -101,3 +114,8 @@ FROM shows sh
 WHERE access.available_from < NOW()
   AND access.available_to > NOW()
   AND roles.roles && ($1::character varying[]);
+
+-- name: getShowIDsForUuids :many
+SELECT e.id as result, e.uuid as original
+FROM shows e
+WHERE e.uuid = ANY (@ids::uuid[]);

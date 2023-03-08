@@ -96,6 +96,7 @@ type Application struct {
 	Default                       bool           `db:"default" json:"default"`
 	SearchPageID                  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionID"`
+	Uuid                          uuid.UUID      `db:"uuid" json:"uuid"`
 }
 
 type ApplicationsUsergroup struct {
@@ -1346,6 +1347,26 @@ type UsersAchievement struct {
 	AchievedAt    time.Time    `db:"achieved_at" json:"achievedAt"`
 	ConditionIds  []uuid.UUID  `db:"condition_ids" json:"conditionIds"`
 	ConfirmedAt   null_v4.Time `db:"confirmed_at" json:"confirmedAt"`
+}
+
+type UsersCollection struct {
+	ID            uuid.UUID `db:"id" json:"id"`
+	ApplicationID uuid.UUID `db:"application_id" json:"applicationID"`
+	ProfileID     uuid.UUID `db:"profile_id" json:"profileID"`
+	UpdatedAt     time.Time `db:"updated_at" json:"updatedAt"`
+	CreatedAt     time.Time `db:"created_at" json:"createdAt"`
+	MyList        bool      `db:"my_list" json:"myList"`
+	Title         string    `db:"title" json:"title"`
+}
+
+type UsersCollectionentry struct {
+	ID           uuid.UUID `db:"id" json:"id"`
+	CollectionID uuid.UUID `db:"collection_id" json:"collectionID"`
+	Sort         int32     `db:"sort" json:"sort"`
+	Type         string    `db:"type" json:"type"`
+	ItemID       uuid.UUID `db:"item_id" json:"itemID"`
+	CreatedAt    time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt    time.Time `db:"updated_at" json:"updatedAt"`
 }
 
 type UsersDevice struct {
