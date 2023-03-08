@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"github.com/bcc-code/brunstadtv/backend/email"
+	"github.com/elastic/go-elasticsearch/v8"
 	"os"
 	"strings"
 
@@ -64,6 +65,7 @@ type envConfig struct {
 	AnalyticsSalt string
 	Email         email.Config
 	Redirect      *redirectConfig
+	Search        elasticsearch.Config
 }
 
 type cdnConfig struct {
@@ -215,5 +217,9 @@ func getEnvConfig() envConfig {
 			KeyID:            os.Getenv("REDIRECT_JWT_KEY_ID"),
 		},
 		AnalyticsSalt: os.Getenv("ANALYTICS_SALT"),
+		Search: elasticsearch.Config{
+			Addresses: []string{os.Getenv("ELASTIC_HOST")},
+			APIKey:    os.Getenv("ELASTIC_APIKEY"),
+		},
 	}
 }

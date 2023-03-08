@@ -9,6 +9,27 @@
           ],
           "filter": [
             "norwegian_stemmer",
+            "english_stemmer",
+            "asciifolding"
+          ]
+        },
+        "default-no": {
+          "tokenizer": "standard",
+          "char_filter": [
+            "segment_code"
+          ],
+          "filter": [
+            "norwegian_stemmer",
+            "asciifolding"
+          ]
+        },
+        "default-en": {
+          "tokenizer": "standard",
+          "char_filter": [
+            "segment_code"
+          ],
+          "filter": [
+            "english_stemmer",
             "asciifolding"
           ]
         }
@@ -17,6 +38,10 @@
         "norwegian_stemmer": {
           "type": "stemmer",
           "language": "norwegian"
+        },
+        "english_stemmer": {
+          "type": "stemmer",
+          "language": "english"
         }
       },
       "char_filter": {
@@ -32,9 +57,18 @@
   "mappings": {
     "properties": {
       "text": {
-        "type": "text",
-        "analyzer": "default",
-        "term_vector": "with_positions_offsets"
+        "properties": {
+          "no": {
+            "type": "text",
+            "analyzer": "default-no",
+            "term_vector": "with_positions_offsets"
+          },
+          "en": {
+            "type": "text",
+            "analyzer": "default-en",
+            "term_vector": "with_positions_offsets"
+          }
+        }
       }
     }
   }

@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/applications"
+	"github.com/bcc-code/brunstadtv/backend/elastic"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bsm/redislock"
@@ -157,6 +158,10 @@ func main() {
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
 	db, dbChan := utils.MustCreateDBClient(ctx, config.DB)
 	redisClient, rdbChan := utils.MustCreateRedisClient(ctx, config.Redis)
+	es := elastic.New(config.Search)
+	esChan := lo.Async(func() error {
+		return es.Ping(ctx)
+	})
 	locker := redislock.New(redisClient)
 	remoteCache := remotecache.New(redisClient, locker)
 	jwkChan := lo.Async(func() gin.HandlerFunc {
@@ -249,6 +254,14 @@ func main() {
 	r.POST("/public", publicGraphqlHandler(ls))
 	r.GET("/versionz", version.GinHandler)
 
+	r.GET("/search/:query", func(ctx *gin.Context) {
+		res, err := es.Search(ctx, "kaare", ctx.Param("query"))
+		if err != nil {
+			log.L.Error().Err(err).Send()
+		}
+		ctx.JSON(200, res)
+	})
+
 	if os.Getenv("PPROF") == "TRUE" {
 		pprof.Register(r, "debug/pprof")
 	}
@@ -260,6 +273,10 @@ func main() {
 		panic(err)
 	}
 	err = <-rdbChan
+	if err != nil {
+		panic(err)
+	}
+	err = <-esChan
 	if err != nil {
 		panic(err)
 	}

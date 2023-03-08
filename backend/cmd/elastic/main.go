@@ -6,10 +6,12 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
+	"gopkg.in/guregu/null.v4"
 	"log"
 	"os"
 	"strings"
@@ -35,7 +37,7 @@ type segment struct {
 }
 
 type indexDocument struct {
-	Text string `json:"text"`
+	Text common.LocaleString `json:"text"`
 }
 
 //go:embed index_settings.json
@@ -98,7 +100,7 @@ func main() {
 		_ = json.Unmarshal(contents, &doc)
 
 		marshalled, _ := json.Marshal(indexDocument{
-			Text: segmentsToText(doc.Segments),
+			Text: common.LocaleString{"no": null.StringFrom(segmentsToText(doc.Segments))},
 		})
 
 		err = bi.Add(ctx, esutil.BulkIndexerItem{
@@ -155,20 +157,18 @@ func doSearch(ctx context.Context, es *elasticsearch.Client, index string) {
 	    "bool": {
 	        "should": [
 	           {
-	               "match": {
-	                   "text": {
-	                       "query": "%s",
-	                       "boost": 3
-	                   }
+	               "multi_match": {
+					   "query": "%s",
+					   "boost": 3,
+						"fields": ["text.no", "text.en"]
 	               }
 	           },
 	           {
-	               "match": {
-	                   "text": {
-	                       "query": "%s",
-	                       "fuzziness": "AUTO",
-	                       "boost": 2
-	                   }
+	               "multi_match": {
+					   "query": "%s",
+					   "boost": 2,
+						"fields": ["text.no", "text.en"],
+						"fuzziness": "1"
 	               }
 	           }
             ]
@@ -181,7 +181,7 @@ func doSearch(ctx context.Context, es *elasticsearch.Client, index string) {
 		"type": "fvh",
 		"boundary_scanner": "word",
 		"fields": {
-			"text": {}
+			"text.no": {}
 		}
 	}
 }`, "gjerrighet", "gjerrighet"),
