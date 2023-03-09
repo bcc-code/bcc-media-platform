@@ -236,7 +236,7 @@ func main() {
 
 	r.Use(otelgin.Middleware("api"))
 	r.Use(authClient.ValidateToken())
-	r.Use(user.NewUserMiddleware(queries, remoteCache, ls))
+	r.Use(user.NewUserMiddleware(queries, remoteCache, ls, authClient))
 	if environment.Test() {
 		// Get the user object from headers
 		r.Use(func(ctx *gin.Context) {
