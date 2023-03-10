@@ -341,13 +341,18 @@ DELETE FROM "public"."directus_relations" WHERE "id" = 334;
 
 --- BEGIN ALTER TABLE "public"."surveys" ---
 
-ALTER TABLE IF EXISTS "public"."surveys" ADD COLUMN IF NOT EXISTS "from" timestamp NOT NULL  ; --WARN: Add a new column not nullable without a default value can occure in a sql error during execution!
+ALTER TABLE IF EXISTS "public"."surveys" ADD COLUMN IF NOT EXISTS "from" timestamp  ; --WARN: Add a new column not nullable without a default value can occure in a sql error during execution!
 
 COMMENT ON COLUMN "public"."surveys"."from"  IS NULL;
 
-ALTER TABLE IF EXISTS "public"."surveys" ADD COLUMN IF NOT EXISTS "to" timestamp NOT NULL  ; --WARN: Add a new column not nullable without a default value can occure in a sql error during execution!
+ALTER TABLE IF EXISTS "public"."surveys" ADD COLUMN IF NOT EXISTS "to" timestamp  ; --WARN: Add a new column not nullable without a default value can occure in a sql error during execution!
 
 COMMENT ON COLUMN "public"."surveys"."to"  IS NULL;
+
+UPDATE "public"."surveys" SET "to" = NOW(), "from" = NOW();
+
+ALTER TABLE IF EXISTS "public"."surveys" ALTER COLUMN "to" SET NOT NULL  ;
+ALTER TABLE IF EXISTS "public"."surveys" ALTER COLUMN "from" SET NOT NULL  ;
 
 --- END ALTER TABLE "public"."surveys" ---
 
