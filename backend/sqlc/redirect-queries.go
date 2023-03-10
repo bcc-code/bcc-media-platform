@@ -9,12 +9,13 @@ import (
 	"github.com/samber/lo"
 )
 
-func mapToRedirects(redirects []Redirect) []common.Redirect {
-	return lo.Map(redirects, func(r Redirect, _ int) common.Redirect {
+func mapToRedirects(redirects []getRedirectsRow) []common.Redirect {
+	return lo.Map(redirects, func(r getRedirectsRow, _ int) common.Redirect {
 		return common.Redirect{
-			Code:      r.Code,
-			ID:        r.ID,
-			TargetURL: r.TargetUrl,
+			Code:         r.Code,
+			ID:           r.ID,
+			TargetURL:    r.TargetUrl,
+			IncludeToken: r.IncludeToken,
 		}
 	})
 }

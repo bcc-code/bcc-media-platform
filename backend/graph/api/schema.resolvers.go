@@ -116,31 +116,33 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
 	}
 
-	// Build a JWT!
-	tok, err := jwt.NewBuilder().
-		Claim("person_id", profile.UserID).
-		Issuer("https://api.brunstad.tv/").
-		IssuedAt(time.Now()).
-		Expiration(time.Now().Add(30 * time.Second)).
-		Build()
-	if err != nil {
-		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. TOKEN-ERROR"))
-	}
-
-	// Sign a JWT!
-	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.RS256, r.RedirectConfig.GetPrivateKey()))
-	if err != nil {
-		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. TOKEN-SIGN-ERROR"))
-	}
-
 	// Add JWT to url
 	url, err := url.Parse(redir.TargetURL)
 	if err != nil {
 		return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. URL-PARSE"))
 	}
-	q := url.Query()
-	q.Add("token", string(signed))
-	url.RawQuery = q.Encode()
+
+	if redir.IncludeToken {
+		// Build a JWT!
+		tok, err := jwt.NewBuilder().
+			Claim("person_id", profile.UserID).
+			Issuer("https://api.brunstad.tv/").
+			IssuedAt(time.Now()).
+			Expiration(time.Now().Add(30 * time.Second)).
+			Build()
+		if err != nil {
+			return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. TOKEN-ERROR"))
+		}
+
+		// Sign a JWT!
+		signed, err := jwt.Sign(tok, jwt.WithKey(jwa.RS256, r.RedirectConfig.GetPrivateKey()))
+		if err != nil {
+			return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. TOKEN-SIGN-ERROR"))
+		}
+		q := url.Query()
+		q.Add("token", string(signed))
+		url.RawQuery = q.Encode()
+	}
 
 	return &model.RedirectLink{
 		URL: url.String(),
