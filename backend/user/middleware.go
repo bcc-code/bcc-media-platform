@@ -31,6 +31,9 @@ const (
 	RoleNonBCCMember = "non-bcc-members"
 )
 
+// DefaultRoles are default roles in the system.
+var DefaultRoles = []string{RolePublic, RoleRegistered, RoleBCCMember, RoleNonBCCMember}
+
 // Various hardcoded keys
 const (
 	CtxUser          = "ctx-user"
@@ -167,13 +170,14 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 
 			saveUser := func() error {
 				return queries.UpsertUser(ctx, sqlc.UpsertUserParams{
-					ID:          u.PersonID,
-					Roles:       u.Roles,
-					DisplayName: u.DisplayName,
-					ActiveBcc:   u.ActiveBCC,
-					Email:       u.Email,
-					AgeGroup:    u.AgeGroup,
-					Age:         int32(u.Age),
+					ID:            u.PersonID,
+					Roles:         u.Roles,
+					DisplayName:   u.DisplayName,
+					ActiveBcc:     u.ActiveBCC,
+					EmailVerified: u.EmailVerified,
+					Email:         u.Email,
+					AgeGroup:      u.AgeGroup,
+					Age:           int32(u.Age),
 					ChurchIds: lo.Map(u.ChurchIDs, func(i int, _ int) int32 {
 						return int32(i)
 					}),
@@ -186,6 +190,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 					return nil, err
 				}
 				u.Email = info.Email
+				u.EmailVerified = info.EmailVerified
 				u.DisplayName = info.Nickname
 			} else {
 				member, err := ls.MemberLoader.Get(ctx, int(intID))
@@ -206,6 +211,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 					return u, nil
 				}
 				u.Email = member.Email
+				u.EmailVerified = member.EmailVerified
 				u.DisplayName = member.DisplayName
 				u.Age = member.Age
 				u.ChurchIDs = lo.Map(lo.Filter(member.Affiliations, func(i members.Affiliation, _ int) bool {
@@ -228,7 +234,13 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				roles = append(roles, userRoles...)
 			}
 
-			u.Roles = roles
+			if !u.EmailVerified {
+				u.Roles = lo.Filter(roles, func(i string, _ int) bool {
+					return lo.Contains(DefaultRoles, i)
+				})
+			} else {
+				u.Roles = roles
+			}
 
 			ageGroupMin := 0
 			for minAge, group := range AgeGroups {
