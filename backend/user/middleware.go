@@ -31,9 +31,6 @@ const (
 	RoleNonBCCMember = "non-bcc-members"
 )
 
-// DefaultRoles are default roles in the system.
-var DefaultRoles = []string{RolePublic, RoleRegistered, RoleBCCMember, RoleNonBCCMember}
-
 // Various hardcoded keys
 const (
 	CtxUser          = "ctx-user"
@@ -226,21 +223,17 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				u.Email = "<MISSING>"
 			}
 
-			userRoles, err := GetRolesForEmail(reqCtx, queries, u.Email)
-			if err != nil {
-				err = merry.Wrap(err)
-				log.L.Warn().Err(err).Str("email", u.Email).Msg("Unable to get roles")
-			} else {
-				roles = append(roles, userRoles...)
+			if u.EmailVerified {
+				userRoles, err := GetRolesForEmail(reqCtx, queries, u.Email)
+				if err != nil {
+					err = merry.Wrap(err)
+					log.L.Warn().Err(err).Str("email", u.Email).Msg("Unable to get roles")
+				} else {
+					roles = append(roles, userRoles...)
+				}
 			}
 
-			if !u.EmailVerified {
-				u.Roles = lo.Filter(roles, func(i string, _ int) bool {
-					return lo.Contains(DefaultRoles, i)
-				})
-			} else {
-				u.Roles = roles
-			}
+			u.Roles = roles
 
 			ageGroupMin := 0
 			for minAge, group := range AgeGroups {
@@ -251,7 +244,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				}
 			}
 
-			err = saveUser()
+			err := saveUser()
 
 			if err != nil {
 				log.L.Error().Err(err).Send()
