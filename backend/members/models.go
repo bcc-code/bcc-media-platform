@@ -6,11 +6,12 @@ type result[t any] struct {
 
 // Member is a member with related data
 type Member struct {
-	PersonID     int
-	Age          int
-	Email        string
-	DisplayName  string
-	Affiliations []Affiliation
+	PersonID      int
+	Age           int
+	Email         string
+	EmailVerified bool `json:"emailVerified"`
+	DisplayName   string
+	Affiliations  []Affiliation
 }
 
 // Affiliation is an affiliation to an entity

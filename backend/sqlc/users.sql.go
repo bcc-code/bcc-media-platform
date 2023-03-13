@@ -92,39 +92,44 @@ func (q *Queries) GetRolesWithCode(ctx context.Context, dollar_1 []string) ([]Ge
 }
 
 const upsertUser = `-- name: UpsertUser :exec
-INSERT INTO users.users (id, email, display_name, age, church_ids, active_bcc, roles, age_group, updated_at)
-VALUES ($1, $2, $3, $4, $7::int[], $5, $8::varchar[], $6, NOW())
-ON CONFLICT (id) DO UPDATE SET email        = excluded.email,
-                               display_name = excluded.display_name,
-                               age          = excluded.age,
-                               church_ids   = excluded.church_ids,
-                               active_bcc   = excluded.active_bcc,
-                               roles        = excluded.roles,
-                               age_group    = excluded.age_group,
-                               updated_at   = NOW()
+INSERT INTO users.users (id, email, email_verified, display_name, age, church_ids, active_bcc, roles, age_group,
+                         updated_at)
+VALUES ($1, $2, $3, $4, $5, $6::int[], $7, $8::varchar[],
+        $9, NOW())
+ON CONFLICT (id) DO UPDATE SET email          = excluded.email,
+                               email_verified = excluded.email_verified,
+                               display_name   = excluded.display_name,
+                               age            = excluded.age,
+                               church_ids     = excluded.church_ids,
+                               active_bcc     = excluded.active_bcc,
+                               roles          = excluded.roles,
+                               age_group      = excluded.age_group,
+                               updated_at     = NOW()
 `
 
 type UpsertUserParams struct {
-	ID          string   `db:"id" json:"id"`
-	Email       string   `db:"email" json:"email"`
-	DisplayName string   `db:"display_name" json:"displayName"`
-	Age         int32    `db:"age" json:"age"`
-	ActiveBcc   bool     `db:"active_bcc" json:"activeBcc"`
-	AgeGroup    string   `db:"age_group" json:"ageGroup"`
-	ChurchIds   []int32  `db:"church_ids" json:"churchIds"`
-	Roles       []string `db:"roles" json:"roles"`
+	ID            string   `db:"id" json:"id"`
+	Email         string   `db:"email" json:"email"`
+	EmailVerified bool     `db:"email_verified" json:"emailVerified"`
+	DisplayName   string   `db:"display_name" json:"displayName"`
+	Age           int32    `db:"age" json:"age"`
+	ChurchIds     []int32  `db:"church_ids" json:"churchIds"`
+	ActiveBcc     bool     `db:"active_bcc" json:"activeBcc"`
+	Roles         []string `db:"roles" json:"roles"`
+	AgeGroup      string   `db:"age_group" json:"ageGroup"`
 }
 
 func (q *Queries) UpsertUser(ctx context.Context, arg UpsertUserParams) error {
 	_, err := q.db.ExecContext(ctx, upsertUser,
 		arg.ID,
 		arg.Email,
+		arg.EmailVerified,
 		arg.DisplayName,
 		arg.Age,
-		arg.ActiveBcc,
-		arg.AgeGroup,
 		pq.Array(arg.ChurchIds),
+		arg.ActiveBcc,
 		pq.Array(arg.Roles),
+		arg.AgeGroup,
 	)
 	return err
 }
