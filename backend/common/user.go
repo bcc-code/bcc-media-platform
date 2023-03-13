@@ -2,15 +2,16 @@ package common
 
 // User represents an actual user in the system
 type User struct {
-	DisplayName string
-	Roles       []string
-	Email       string
-	PersonID    string
-	Anonymous   bool
-	ActiveBCC   bool
-	AgeGroup    string
-	ChurchIDs   []int
-	Age         int
+	DisplayName   string
+	Roles         []string
+	Email         string
+	EmailVerified bool
+	PersonID      string
+	Anonymous     bool
+	ActiveBCC     bool
+	AgeGroup      string
+	ChurchIDs     []int
+	Age           int
 }
 
 // IsAnonymous user?

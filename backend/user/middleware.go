@@ -167,13 +167,14 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 
 			saveUser := func() error {
 				return queries.UpsertUser(ctx, sqlc.UpsertUserParams{
-					ID:          u.PersonID,
-					Roles:       u.Roles,
-					DisplayName: u.DisplayName,
-					ActiveBcc:   u.ActiveBCC,
-					Email:       u.Email,
-					AgeGroup:    u.AgeGroup,
-					Age:         int32(u.Age),
+					ID:            u.PersonID,
+					Roles:         u.Roles,
+					DisplayName:   u.DisplayName,
+					ActiveBcc:     u.ActiveBCC,
+					EmailVerified: u.EmailVerified,
+					Email:         u.Email,
+					AgeGroup:      u.AgeGroup,
+					Age:           int32(u.Age),
 					ChurchIds: lo.Map(u.ChurchIDs, func(i int, _ int) int32 {
 						return int32(i)
 					}),
@@ -186,6 +187,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 					return nil, err
 				}
 				u.Email = info.Email
+				u.EmailVerified = info.EmailVerified
 				u.DisplayName = info.Nickname
 			} else {
 				member, err := ls.MemberLoader.Get(ctx, int(intID))
@@ -206,6 +208,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 					return u, nil
 				}
 				u.Email = member.Email
+				u.EmailVerified = member.EmailVerified
 				u.DisplayName = member.DisplayName
 				u.Age = member.Age
 				u.ChurchIDs = lo.Map(lo.Filter(member.Affiliations, func(i members.Affiliation, _ int) bool {
@@ -220,12 +223,14 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				u.Email = "<MISSING>"
 			}
 
-			userRoles, err := GetRolesForEmail(reqCtx, queries, u.Email)
-			if err != nil {
-				err = merry.Wrap(err)
-				log.L.Warn().Err(err).Str("email", u.Email).Msg("Unable to get roles")
-			} else {
-				roles = append(roles, userRoles...)
+			if u.EmailVerified {
+				userRoles, err := GetRolesForEmail(reqCtx, queries, u.Email)
+				if err != nil {
+					err = merry.Wrap(err)
+					log.L.Warn().Err(err).Str("email", u.Email).Msg("Unable to get roles")
+				} else {
+					roles = append(roles, userRoles...)
+				}
 			}
 
 			u.Roles = roles
@@ -239,7 +244,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				}
 			}
 
-			err = saveUser()
+			err := saveUser()
 
 			if err != nil {
 				log.L.Error().Err(err).Send()

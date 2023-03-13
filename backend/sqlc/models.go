@@ -1027,14 +1027,15 @@ type QuestionalternativesTranslation struct {
 }
 
 type Redirect struct {
-	ID          uuid.UUID    `db:"id" json:"id"`
-	Status      string       `db:"status" json:"status"`
-	UserCreated uuid.UUID    `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.UUID    `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time `db:"date_updated" json:"dateUpdated"`
-	TargetUrl   string       `db:"target_url" json:"targetUrl"`
-	Code        string       `db:"code" json:"code"`
+	ID           uuid.UUID    `db:"id" json:"id"`
+	Status       string       `db:"status" json:"status"`
+	UserCreated  uuid.UUID    `db:"user_created" json:"userCreated"`
+	DateCreated  null_v4.Time `db:"date_created" json:"dateCreated"`
+	UserUpdated  uuid.UUID    `db:"user_updated" json:"userUpdated"`
+	DateUpdated  null_v4.Time `db:"date_updated" json:"dateUpdated"`
+	TargetUrl    string       `db:"target_url" json:"targetUrl"`
+	Code         string       `db:"code" json:"code"`
+	IncludeToken sql.NullBool `db:"include_token" json:"includeToken"`
 }
 
 type Season struct {
@@ -1442,13 +1443,14 @@ type UsersTaskanswer struct {
 }
 
 type UsersUser struct {
-	ID          string      `db:"id" json:"id"`
-	Email       string      `db:"email" json:"email"`
-	DisplayName string      `db:"display_name" json:"displayName"`
-	Age         int32       `db:"age" json:"age"`
-	ChurchIds   interface{} `db:"church_ids" json:"churchIds"`
-	ActiveBcc   bool        `db:"active_bcc" json:"activeBcc"`
-	Roles       interface{} `db:"roles" json:"roles"`
-	AgeGroup    string      `db:"age_group" json:"ageGroup"`
-	UpdatedAt   time.Time   `db:"updated_at" json:"updatedAt"`
+	ID            string      `db:"id" json:"id"`
+	Email         string      `db:"email" json:"email"`
+	DisplayName   string      `db:"display_name" json:"displayName"`
+	Age           int32       `db:"age" json:"age"`
+	ChurchIds     interface{} `db:"church_ids" json:"churchIds"`
+	ActiveBcc     bool        `db:"active_bcc" json:"activeBcc"`
+	Roles         interface{} `db:"roles" json:"roles"`
+	AgeGroup      string      `db:"age_group" json:"ageGroup"`
+	UpdatedAt     time.Time   `db:"updated_at" json:"updatedAt"`
+	EmailVerified bool        `db:"email_verified" json:"emailVerified"`
 }
