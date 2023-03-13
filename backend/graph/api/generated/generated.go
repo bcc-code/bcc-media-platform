@@ -6022,6 +6022,22 @@ type SectionItemPagination implements Pagination {
     name: String!
 }
 `, BuiltIn: false},
+	{Name: "../schema/prompts.graphqls", Input: `
+interface Prompt {
+    id: UUID!
+    title: String!
+    from: Date!
+    to: Date!
+}
+
+type SurveyPrompt implements Prompt {
+    id: UUID!
+    title: String!
+    from: Date!
+    to: Date!
+    survey: Survey! @goField(forceResolver: true)
+}
+`, BuiltIn: false},
 	{Name: "../schema/schema.graphqls", Input: `directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
     | FIELD_DEFINITION
 
@@ -6372,21 +6388,6 @@ type SurveyRatingQuestion implements SurveyQuestion {
     id: UUID!
     title: String!
     description: String
-}
-
-interface Prompt {
-    id: UUID!
-    title: String!
-    from: Date!
-    to: Date!
-}
-
-type SurveyPrompt implements Prompt {
-    id: UUID!
-    title: String!
-    from: Date!
-    to: Date!
-    survey: Survey! @goField(forceResolver: true)
 }
 `, BuiltIn: false},
 	{Name: "../schema/user-collections.graphqls", Input: `type UserCollection {
