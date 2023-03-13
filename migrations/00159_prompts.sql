@@ -15,7 +15,6 @@ CREATE SEQUENCE IF NOT EXISTS "public"."prompts_targets_id_seq"
 	CACHE 1
 	NO CYCLE;
 
-ALTER SEQUENCE "public"."prompts_targets_id_seq" OWNER TO directus;
 GRANT SELECT ON SEQUENCE "public"."prompts_targets_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT USAGE ON SEQUENCE "public"."prompts_targets_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON SEQUENCE "public"."prompts_targets_id_seq" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
