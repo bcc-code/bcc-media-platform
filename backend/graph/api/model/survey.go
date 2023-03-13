@@ -5,6 +5,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"time"
 )
 
 // SurveyQuestionFrom returns a gql question from a question
@@ -49,12 +50,16 @@ func PromptFrom(ctx context.Context, i *common.Prompt) Prompt {
 
 	title := i.Title.Get(languages)
 	//secondaryTitle := i.SecondaryTitle.GetValueOrNil(languages)
+	from := i.From.Format(time.RFC3339)
+	to := i.To.Format(time.RFC3339)
 
 	switch i.Type {
 	case "survey":
 		return &SurveyPrompt{
 			ID:    i.ID.String(),
 			Title: title,
+			From:  from,
+			To:    to,
 			Survey: &Survey{
 				ID: i.SurveyID.UUID.String(),
 			},
@@ -64,6 +69,8 @@ func PromptFrom(ctx context.Context, i *common.Prompt) Prompt {
 	return &SurveyPrompt{
 		ID:    i.ID.String(),
 		Title: title,
+		From:  from,
+		To:    to,
 		Survey: &Survey{
 			ID: i.SurveyID.UUID.String(),
 		},

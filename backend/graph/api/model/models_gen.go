@@ -64,6 +64,8 @@ type Prompt interface {
 	IsPrompt()
 	GetID() string
 	GetTitle() string
+	GetFrom() string
+	GetTo() string
 }
 
 type SearchResultItem interface {
@@ -1174,12 +1176,16 @@ type Survey struct {
 type SurveyPrompt struct {
 	ID     string  `json:"id"`
 	Title  string  `json:"title"`
+	From   string  `json:"from"`
+	To     string  `json:"to"`
 	Survey *Survey `json:"survey"`
 }
 
 func (SurveyPrompt) IsPrompt()             {}
 func (this SurveyPrompt) GetID() string    { return this.ID }
 func (this SurveyPrompt) GetTitle() string { return this.Title }
+func (this SurveyPrompt) GetFrom() string  { return this.From }
+func (this SurveyPrompt) GetTo() string    { return this.To }
 
 type SurveyQuestionPagination struct {
 	First  int              `json:"first"`
