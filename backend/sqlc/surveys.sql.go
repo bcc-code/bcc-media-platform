@@ -15,36 +15,23 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const getSurveyIDFromQuestionID = `-- name: GetSurveyIDFromQuestionID :one
-SELECT q.survey_id
-FROM surveyquestions q
-WHERE q.id = $1::uuid
-`
-
-func (q *Queries) GetSurveyIDFromQuestionID(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
-	row := q.db.QueryRowContext(ctx, getSurveyIDFromQuestionID, id)
-	var survey_id uuid.UUID
-	err := row.Scan(&survey_id)
-	return survey_id, err
-}
-
-const getSurveyIDsForRoles = `-- name: GetSurveyIDsForRoles :many
-WITH roles AS (SELECT st.surveys_id,
+const getPromptIDsForRoles = `-- name: GetPromptIDsForRoles :many
+WITH roles AS (SELECT pt.prompts_id,
                       array_agg(u.usergroups_code) AS roles
-               FROM surveys_targets st
-                        LEFT JOIN targets t ON st.targets_id = st.targets_id AND t.type = 'usergroups'
-                        LEFT JOIN targets_usergroups u ON u.targets_id = t.id
-               GROUP BY st.surveys_id)
-SELECT s.id
-FROM surveys s
-         LEFT JOIN roles ON roles.surveys_id = s.id
-WHERE s.from < (NOW() + interval '7 day')
-  AND s.to > NOW()
+               FROM prompts_targets pt
+                        LEFT JOIN targets_usergroups u ON u.targets_id = pt.targets_id
+               GROUP BY pt.prompts_id)
+SELECT p.id
+FROM prompts p
+         LEFT JOIN roles ON roles.prompts_id = p.id
+WHERE p.status = 'published'
+  AND p.from < (NOW() + interval '7 day')
+  AND p.to > NOW()
   AND roles.roles && $1::varchar[]
 `
 
-func (q *Queries) GetSurveyIDsForRoles(ctx context.Context, roles []string) ([]uuid.UUID, error) {
-	rows, err := q.db.QueryContext(ctx, getSurveyIDsForRoles, pq.Array(roles))
+func (q *Queries) GetPromptIDsForRoles(ctx context.Context, roles []string) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getPromptIDsForRoles, pq.Array(roles))
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +51,84 @@ func (q *Queries) GetSurveyIDsForRoles(ctx context.Context, roles []string) ([]u
 		return nil, err
 	}
 	return items, nil
+}
+
+const getPrompts = `-- name: GetPrompts :many
+WITH ts AS (SELECT ts.prompts_id                                       AS id,
+                   json_object_agg(languages_code, ts.title)           AS title,
+                   json_object_agg(languages_code, ts.secondary_title) AS secondary_title
+            FROM prompts_translations ts
+            GROUP BY ts.prompts_id)
+SELECT p.id,
+       p.title           as original_title,
+       p.secondary_title as original_secondary_title,
+       p.from,
+       p.to,
+       p.type,
+       p.survey_id,
+       ts.title,
+       ts.secondary_title
+FROM prompts p
+         LEFT JOIN ts ON ts.id = p.id
+WHERE p.id = ANY ($1::uuid[])
+`
+
+type GetPromptsRow struct {
+	ID                     uuid.UUID             `db:"id" json:"id"`
+	OriginalTitle          string                `db:"original_title" json:"originalTitle"`
+	OriginalSecondaryTitle null_v4.String        `db:"original_secondary_title" json:"originalSecondaryTitle"`
+	From                   time.Time             `db:"from" json:"from"`
+	To                     time.Time             `db:"to" json:"to"`
+	Type                   string                `db:"type" json:"type"`
+	SurveyID               uuid.NullUUID         `db:"survey_id" json:"surveyID"`
+	Title                  pqtype.NullRawMessage `db:"title" json:"title"`
+	SecondaryTitle         pqtype.NullRawMessage `db:"secondary_title" json:"secondaryTitle"`
+}
+
+func (q *Queries) GetPrompts(ctx context.Context, ids []uuid.UUID) ([]GetPromptsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPrompts, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetPromptsRow
+	for rows.Next() {
+		var i GetPromptsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.OriginalTitle,
+			&i.OriginalSecondaryTitle,
+			&i.From,
+			&i.To,
+			&i.Type,
+			&i.SurveyID,
+			&i.Title,
+			&i.SecondaryTitle,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSurveyIDFromQuestionID = `-- name: GetSurveyIDFromQuestionID :one
+SELECT q.survey_id
+FROM surveyquestions q
+WHERE q.id = $1::uuid
+`
+
+func (q *Queries) GetSurveyIDFromQuestionID(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, getSurveyIDFromQuestionID, id)
+	var survey_id uuid.UUID
+	err := row.Scan(&survey_id)
+	return survey_id, err
 }
 
 const upsertSurveyAnswer = `-- name: UpsertSurveyAnswer :exec
@@ -188,8 +253,6 @@ WITH ts AS (SELECT ts.surveys_id                                   AS id,
 SELECT s.id,
        s.title       AS original_title,
        s.description AS original_description,
-       s.from,
-       s.to,
        ts.title,
        ts.description
 FROM surveys s
@@ -201,8 +264,6 @@ type getSurveysRow struct {
 	ID                  uuid.UUID             `db:"id" json:"id"`
 	OriginalTitle       string                `db:"original_title" json:"originalTitle"`
 	OriginalDescription null_v4.String        `db:"original_description" json:"originalDescription"`
-	From                time.Time             `db:"from" json:"from"`
-	To                  time.Time             `db:"to" json:"to"`
 	Title               pqtype.NullRawMessage `db:"title" json:"title"`
 	Description         pqtype.NullRawMessage `db:"description" json:"description"`
 }
@@ -220,8 +281,6 @@ func (q *Queries) getSurveys(ctx context.Context, ids []uuid.UUID) ([]getSurveys
 			&i.ID,
 			&i.OriginalTitle,
 			&i.OriginalDescription,
-			&i.From,
-			&i.To,
 			&i.Title,
 			&i.Description,
 		); err != nil {

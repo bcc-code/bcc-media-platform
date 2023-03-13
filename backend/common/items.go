@@ -386,8 +386,6 @@ type Survey struct {
 	ID          uuid.UUID `json:"id"`
 	Title       LocaleString
 	Description LocaleString
-	From        time.Time
-	To          time.Time
 }
 
 // SurveyQuestion is a question in a survey
@@ -396,4 +394,15 @@ type SurveyQuestion struct {
 	Title       LocaleString
 	Description LocaleString
 	Type        string
+}
+
+// Prompt is a prompt that shows up in app
+type Prompt struct {
+	ID             uuid.UUID `json:"id"`
+	Type           string
+	Title          LocaleString
+	SecondaryTitle LocaleString
+	SurveyID       uuid.NullUUID
+	From           time.Time
+	To             time.Time
 }
