@@ -10,7 +10,8 @@ export async function createCalendarentry(args: { title: string, start: Date, en
             { title: args.title, description: "test", languages_code: "no" }
         ],
         start: args.start.toISOString(),
-        end: args.end.toISOString()
+        end: args.end.toISOString(),
+        image_from_link: false,
     })
 
     return calendarentries
@@ -37,4 +38,24 @@ export async function getCalendarDay(date: Date) {
     })
 
     return apiResponse
+}
+
+export async function getCalendarPeriod(start: Date, end: Date) {
+    const queryString = `
+        query($start: Date!, $end: Date!) {
+            calendar {
+                period(from: $start, to: $end) {
+                    activeDays
+                }
+            }
+        }
+    `;
+
+    const apiResponse = await query(queryString, {
+        start: start.toISOString(),
+        end: end.toISOString()
+    })
+
+    return apiResponse
+
 }
