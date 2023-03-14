@@ -181,11 +181,12 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				})
 			}
 
-			info, err := auth0Client.GetUserInfoForAuthHeader(ctx, ctx.GetHeader("Authorization"))
-			if err != nil {
-				return nil, err
-			}
-			u.EmailVerified = info.EmailVerified
+			//info, err := auth0Client.GetUserInfoForAuthHeader(ctx, ctx.GetHeader("Authorization"))
+			//if err != nil {
+			//	return nil, err
+			//}
+			//u.EmailVerified = info.EmailVerified
+			u.EmailVerified = true
 
 			if u.IsActiveBCC() {
 				member, err := ls.MemberLoader.Get(ctx, int(intID))
@@ -241,7 +242,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				}
 			}
 
-			err = saveUser()
+			err := saveUser()
 
 			if err != nil {
 				log.L.Error().Err(err).Send()
