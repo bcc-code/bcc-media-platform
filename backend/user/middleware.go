@@ -214,6 +214,14 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				}), func(i members.Affiliation, _ int) int {
 					return i.OrgID
 				})
+			} else {
+				info, err := auth0Client.GetUserInfoForAuthHeader(ctx, ctx.GetHeader("Authorization"))
+				if err != nil {
+					return nil, err
+				}
+				u.PersonID = info.Sub
+				u.Email = info.Email
+				u.DisplayName = info.Nickname
 			}
 
 			if u.Email == "" {
