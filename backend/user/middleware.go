@@ -181,15 +181,13 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				})
 			}
 
-			if !u.IsActiveBCC() {
-				info, err := auth0Client.GetUserInfoForAuthHeader(ctx, ctx.GetHeader("Authorization"))
-				if err != nil {
-					return nil, err
-				}
-				u.Email = info.Email
-				u.EmailVerified = info.EmailVerified
-				u.DisplayName = info.Nickname
-			} else {
+			info, err := auth0Client.GetUserInfoForAuthHeader(ctx, ctx.GetHeader("Authorization"))
+			if err != nil {
+				return nil, err
+			}
+			u.EmailVerified = info.EmailVerified
+
+			if u.IsActiveBCC() {
 				member, err := ls.MemberLoader.Get(ctx, int(intID))
 				if err != nil {
 					log.L.Info().Err(err).Msg("Failed to retrieve user from members.")
@@ -208,7 +206,6 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 					return u, nil
 				}
 				u.Email = member.Email
-				u.EmailVerified = member.EmailVerified
 				u.DisplayName = member.DisplayName
 				u.Age = member.Age
 				u.ChurchIDs = lo.Map(lo.Filter(member.Affiliations, func(i members.Affiliation, _ int) bool {
@@ -244,7 +241,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				}
 			}
 
-			err := saveUser()
+			err = saveUser()
 
 			if err != nil {
 				log.L.Error().Err(err).Send()
