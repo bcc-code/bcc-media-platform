@@ -1,5 +1,11 @@
 -- name: getRedirects :many
-SELECT * FROM redirects WHERE status = 'published' AND id = ANY ($1::uuid[]);
+SELECT r.id, r.code, r.target_url, COALESCE(r.include_token, true)::bool as include_token
+FROM redirects r
+WHERE r.status = 'published'
+  AND r.id = ANY ($1::uuid[]);
 
 -- name: getRedirectIDsForCodes :many
-SELECT id, code FROM redirects WHERE status = 'published' AND code = ANY ($1::varchar[]);
+SELECT id, code
+FROM redirects
+WHERE status = 'published'
+  AND code = ANY ($1::varchar[]);

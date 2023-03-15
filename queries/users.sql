@@ -25,13 +25,16 @@ FROM users.users u
 WHERE u.id = ANY ($1::varchar[]);
 
 -- name: UpsertUser :exec
-INSERT INTO users.users (id, email, display_name, age, church_ids, active_bcc, roles, age_group, updated_at)
-VALUES ($1, $2, $3, $4, @church_ids::int[], $5, @roles::varchar[], $6, NOW())
-ON CONFLICT (id) DO UPDATE SET email        = excluded.email,
-                               display_name = excluded.display_name,
-                               age          = excluded.age,
-                               church_ids   = excluded.church_ids,
-                               active_bcc   = excluded.active_bcc,
-                               roles        = excluded.roles,
-                               age_group    = excluded.age_group,
-                               updated_at   = NOW();
+INSERT INTO users.users (id, email, email_verified, display_name, age, church_ids, active_bcc, roles, age_group,
+                         updated_at)
+VALUES (@id, @email, @email_verified, @display_name, @age, @church_ids::int[], @active_bcc, @roles::varchar[],
+        @age_group, NOW())
+ON CONFLICT (id) DO UPDATE SET email          = excluded.email,
+                               email_verified = excluded.email_verified,
+                               display_name   = excluded.display_name,
+                               age            = excluded.age,
+                               church_ids     = excluded.church_ids,
+                               active_bcc     = excluded.active_bcc,
+                               roles          = excluded.roles,
+                               age_group      = excluded.age_group,
+                               updated_at     = NOW();

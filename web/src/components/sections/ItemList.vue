@@ -13,9 +13,10 @@
                 @click="$emit('itemClick', i)"
                 :key="i.id"
             >
-                <WithProgressBar
-                    class="w-1/3 aspect-video text-xs"
-                    :item="
+                <div class="w-1/3">
+                    <WithProgressBar
+                        class="aspect-video text-xs"
+                        :item="
                         i.duration == null
                             ? undefined
                             : {
@@ -24,21 +25,22 @@
                                   id: i.id,
                               }
                     "
-                >
-                    <Pill
-                        class="absolute -top-1 -right-1 pointer-events-none"
-                        v-if="episodeComingSoon(i)"
-                        >{{ $t("episode.comingSoon") }}</Pill
                     >
-                    <Image
-                        v-if="i.image"
-                        :src="i.image"
-                        size-source="width"
-                        class="rounded-lg"
-                        :class="episodeComingSoon(i) ? 'opacity-50' : ''"
-                        :ratio="9 / 16"
-                    />
-                </WithProgressBar>
+                        <Pill
+                            class="absolute -top-1 -right-1 pointer-events-none"
+                            v-if="episodeComingSoon(i)"
+                        >{{ $t("episode.comingSoon") }}</Pill
+                        >
+                        <Image
+                            v-if="i.image"
+                            :src="i.image"
+                            size-source="width"
+                            class="rounded-lg"
+                            :class="episodeComingSoon(i) ? 'opacity-50' : ''"
+                            :ratio="9 / 16"
+                        />
+                    </WithProgressBar>
+                </div>
                 <div
                     class="w-2/3 ml-4"
                     :class="episodeComingSoon(i) ? 'opacity-50' : ''"

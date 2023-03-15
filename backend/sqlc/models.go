@@ -982,6 +982,35 @@ type PagesTranslation struct {
 	Title         null_v4.String `db:"title" json:"title"`
 }
 
+type Prompt struct {
+	ID             uuid.UUID      `db:"id" json:"id"`
+	Status         string         `db:"status" json:"status"`
+	UserCreated    uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated    null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated    uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated    null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Title          string         `db:"title" json:"title"`
+	SecondaryTitle null_v4.String `db:"secondary_title" json:"secondaryTitle"`
+	Type           string         `db:"type" json:"type"`
+	SurveyID       uuid.NullUUID  `db:"survey_id" json:"surveyID"`
+	From           time.Time      `db:"from" json:"from"`
+	To             time.Time      `db:"to" json:"to"`
+}
+
+type PromptsTarget struct {
+	ID        int32         `db:"id" json:"id"`
+	PromptsID uuid.NullUUID `db:"prompts_id" json:"promptsID"`
+	TargetsID uuid.NullUUID `db:"targets_id" json:"targetsID"`
+}
+
+type PromptsTranslation struct {
+	ID             int32          `db:"id" json:"id"`
+	PromptsID      uuid.NullUUID  `db:"prompts_id" json:"promptsID"`
+	LanguagesCode  null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title          null_v4.String `db:"title" json:"title"`
+	SecondaryTitle null_v4.String `db:"secondary_title" json:"secondaryTitle"`
+}
+
 type Questionalternative struct {
 	ID        uuid.UUID      `db:"id" json:"id"`
 	TaskID    uuid.NullUUID  `db:"task_id" json:"taskID"`
@@ -998,14 +1027,15 @@ type QuestionalternativesTranslation struct {
 }
 
 type Redirect struct {
-	ID          uuid.UUID    `db:"id" json:"id"`
-	Status      string       `db:"status" json:"status"`
-	UserCreated uuid.UUID    `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.UUID    `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time `db:"date_updated" json:"dateUpdated"`
-	TargetUrl   string       `db:"target_url" json:"targetUrl"`
-	Code        string       `db:"code" json:"code"`
+	ID           uuid.UUID    `db:"id" json:"id"`
+	Status       string       `db:"status" json:"status"`
+	UserCreated  uuid.UUID    `db:"user_created" json:"userCreated"`
+	DateCreated  null_v4.Time `db:"date_created" json:"dateCreated"`
+	UserUpdated  uuid.UUID    `db:"user_updated" json:"userUpdated"`
+	DateUpdated  null_v4.Time `db:"date_updated" json:"dateUpdated"`
+	TargetUrl    string       `db:"target_url" json:"targetUrl"`
+	Code         string       `db:"code" json:"code"`
+	IncludeToken sql.NullBool `db:"include_token" json:"includeToken"`
 }
 
 type Season struct {
@@ -1223,8 +1253,6 @@ type Survey struct {
 	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
 	Description null_v4.String `db:"description" json:"description"`
 	Title       string         `db:"title" json:"title"`
-	From        time.Time      `db:"from" json:"from"`
-	To          time.Time      `db:"to" json:"to"`
 }
 
 type Surveyquestion struct {
@@ -1248,12 +1276,6 @@ type SurveyquestionsTranslation struct {
 	Title             null_v4.String `db:"title" json:"title"`
 	Description       null_v4.String `db:"description" json:"description"`
 	Placeholder       null_v4.String `db:"placeholder" json:"placeholder"`
-}
-
-type SurveysTarget struct {
-	ID        int32     `db:"id" json:"id"`
-	SurveysID uuid.UUID `db:"surveys_id" json:"surveysID"`
-	TargetsID uuid.UUID `db:"targets_id" json:"targetsID"`
 }
 
 type SurveysTranslation struct {
@@ -1421,13 +1443,14 @@ type UsersTaskanswer struct {
 }
 
 type UsersUser struct {
-	ID          string      `db:"id" json:"id"`
-	Email       string      `db:"email" json:"email"`
-	DisplayName string      `db:"display_name" json:"displayName"`
-	Age         int32       `db:"age" json:"age"`
-	ChurchIds   interface{} `db:"church_ids" json:"churchIds"`
-	ActiveBcc   bool        `db:"active_bcc" json:"activeBcc"`
-	Roles       interface{} `db:"roles" json:"roles"`
-	AgeGroup    string      `db:"age_group" json:"ageGroup"`
-	UpdatedAt   time.Time   `db:"updated_at" json:"updatedAt"`
+	ID            string      `db:"id" json:"id"`
+	Email         string      `db:"email" json:"email"`
+	DisplayName   string      `db:"display_name" json:"displayName"`
+	Age           int32       `db:"age" json:"age"`
+	ChurchIds     interface{} `db:"church_ids" json:"churchIds"`
+	ActiveBcc     bool        `db:"active_bcc" json:"activeBcc"`
+	Roles         interface{} `db:"roles" json:"roles"`
+	AgeGroup      string      `db:"age_group" json:"ageGroup"`
+	UpdatedAt     time.Time   `db:"updated_at" json:"updatedAt"`
+	EmailVerified bool        `db:"email_verified" json:"emailVerified"`
 }

@@ -22,8 +22,6 @@ func surveyToItem(row getSurveysRow, _ int) common.Survey {
 		ID:          row.ID,
 		Title:       title,
 		Description: description,
-		From:        row.From,
-		To:          row.To,
 	}
 }
 

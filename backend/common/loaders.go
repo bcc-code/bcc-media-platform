@@ -74,6 +74,8 @@ type BatchLoaders struct {
 	UserCollectionLoader         *loaders.Loader[uuid.UUID, *UserCollection]
 	UserCollectionEntryLoader    *loaders.Loader[uuid.UUID, *UserCollectionEntry]
 	UserCollectionEntryIDsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
+
+	PromptLoader *loaders.Loader[uuid.UUID, *Prompt]
 }
 
 // ApplicationLoaders contains loaders specific to applications
@@ -109,7 +111,7 @@ type FilteredLoaders struct {
 	LinkStudyLessonsLoader    *loaders.Loader[int, []*uuid.UUID]
 
 	// Lists
-	SurveyIDsLoader func(ctx context.Context) ([]uuid.UUID, error)
+	PromptIDsLoader func(ctx context.Context) ([]uuid.UUID, error)
 }
 
 // ProfileLoaders contains loaders per profile

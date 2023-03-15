@@ -5,7 +5,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"time"
 )
 
 // SurveyQuestionFrom returns a gql question from a question
@@ -41,7 +40,5 @@ func SurveyFrom(ctx context.Context, i *common.Survey) *Survey {
 		ID:          i.ID.String(),
 		Title:       i.Title.Get(languages),
 		Description: i.Description.GetValueOrNil(languages),
-		From:        i.From.Format(time.RFC3339),
-		To:          i.To.Format(time.RFC3339),
 	}
 }
