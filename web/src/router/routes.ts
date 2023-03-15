@@ -84,6 +84,12 @@ export default [
                 component: () => import("@/components/study/Lesson.vue"),
                 props: true,
             },
+            {
+                name: "pc23-greeting",
+                path: "pc23-greeting",
+                component: () => import("@/components/study/tasks/SpecialGreeting.vue"),
+                props: true,
+            },
         ],
     },
     {

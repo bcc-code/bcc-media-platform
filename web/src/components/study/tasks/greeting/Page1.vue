@@ -1,6 +1,6 @@
 <template>
     <div
-        class="point-events-none h-screen snap-center relative flex flex-col items-center"
+        class="point-events-none h-screen snap-center relative flex flex-col items-center mb-48"
         :ref="(el) => (targetScrollEl = el as any)"
     >
         <template v-if="targetScrollEl != null">

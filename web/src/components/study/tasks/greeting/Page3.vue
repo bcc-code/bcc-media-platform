@@ -1,6 +1,6 @@
 <template>
     <div
-        class="point-events-none mt-24 h-screen snap-start relative flex flex-col"
+        class="point-events-none h-screen snap-start relative flex flex-col"
         :ref="(el) => (targetScrollEl = el as any)"
     >
         <template v-if="targetScrollEl != null">
@@ -28,6 +28,7 @@
                     :parentScrollEl="parentScrollEl"
                     :targetScrollEl="targetScrollEl!"
                     :scrollHandler="animateBg(0.7)"
+                    class="transition-opacity duration-300"
                 >
                     <div class="relative">
                         <img
@@ -62,10 +63,13 @@ const animate = (ratio: number) => (diff: number) => {
 const animateBg = (ratio: number) => (diff: number) => {
     console.log(`animateBg ${diff} ${window.innerHeight}`)
     let y = -diff * ratio
-    if (diff > 0) {
-        y = -diff * (ratio * -2)
+    let style = `transform: translate(0, ${y}px);`
+    if (diff > 1000) {
+        style += `opacity: 0`
+    } else {
+        style += `opacity: 1`
     }
-    return `transform: translate(0, ${y}px);`
+    return style
 }
 </script>
 

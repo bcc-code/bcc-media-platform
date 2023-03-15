@@ -1,5 +1,6 @@
 <template>
     <div class="p-4 pb-0 w-full h-full">
+        <SpecialGreeting v-if="showGreeting" />
         <div
             v-if="showNoLocalGroupFound"
             class="h-full flex flex-col justify-center items-center pb-8 embed:pb-52"
@@ -74,11 +75,13 @@ import { TaskFragment, useCompleteTaskMutation } from "@/graph/generated"
 import { computed, onMounted, ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { openInBrowser } from "@/utils/flutter"
+import SpecialGreeting from "./SpecialGreeting.vue"
 
 const { t } = useI18n()
 const { executeMutation: completeTask } = useCompleteTaskMutation()
 
 const showNoLocalGroupFound = ref(false)
+const showGreeting = ref(false)
 
 const props = defineProps<{
     task: TaskFragment
@@ -95,6 +98,12 @@ const task = computed(() => {
 console.log(task.value.title)
 
 const openLink = () => {
+    if (task.value.link.url === "pc23-greeting") {
+        completeTask({ taskId: task.value.id })
+        openInBrowser("/embed/pc23-greeting")
+        //showGreeting.value = true
+        return
+    }
     if (task.value.link.url === "no-local-group-found") {
         showNoLocalGroupFound.value = true
         return
