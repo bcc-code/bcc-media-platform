@@ -1,5 +1,5 @@
 <template>
-    <div :style="style" ref="root"><slot> </slot></div>
+    <div ref="root"><slot> </slot></div>
 </template>
 
 <script setup lang="ts">
