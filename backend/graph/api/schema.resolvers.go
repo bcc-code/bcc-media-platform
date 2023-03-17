@@ -424,6 +424,7 @@ func (r *queryRootResolver) Me(ctx context.Context) (*model.User, error) {
 
 	if usr.Email != "" {
 		u.Email = &usr.Email
+		u.EmailVerified = usr.EmailVerified
 	}
 
 	return u, nil
