@@ -203,6 +203,11 @@ type Application struct {
 	SearchPage    *Page  `json:"searchPage"`
 }
 
+type BirthOptions struct {
+	Year  int `json:"year"`
+	Month int `json:"month"`
+}
+
 type Calendar struct {
 	Period *CalendarPeriod `json:"period"`
 	Day    *CalendarDay    `json:"day"`
@@ -747,6 +752,11 @@ type MessageStyle struct {
 	Text       string `json:"text"`
 	Background string `json:"background"`
 	Border     string `json:"border"`
+}
+
+type NameOptions struct {
+	First string `json:"first"`
+	Last  string `json:"last"`
 }
 
 type Page struct {

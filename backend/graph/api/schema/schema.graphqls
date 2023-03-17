@@ -30,6 +30,7 @@ type User {
   bccMember: Boolean!
   audience: String
   email: String
+  emailVerified: Boolean!
   settings: Settings!
   roles: [String!]!
   analytics: Analytics!

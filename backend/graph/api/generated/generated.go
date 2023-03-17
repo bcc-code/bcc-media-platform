@@ -533,6 +533,8 @@ type ComplexityRoot struct {
 		UpdateEpisodeFeedback      func(childComplexity int, id string, message *string, rating *int) int
 		UpdateSurveyQuestionAnswer func(childComplexity int, key string, answer string) int
 		UpdateTaskMessage          func(childComplexity int, id string, message string) int
+		UpdateUserMetadata         func(childComplexity int, birthData *model.BirthOptions, nameData *model.NameOptions) int
+		VerifyEmail                func(childComplexity int) int
 	}
 
 	Page struct {
@@ -1062,6 +1064,8 @@ type MutationRootResolver interface {
 	AddEpisodeToMyList(ctx context.Context, episodeID string) (*model.AddToCollectionResult, error)
 	AddShowToMyList(ctx context.Context, showID string) (*model.AddToCollectionResult, error)
 	RemoveEntryFromMyList(ctx context.Context, entryID string) (*model.UserCollection, error)
+	UpdateUserMetadata(ctx context.Context, birthData *model.BirthOptions, nameData *model.NameOptions) (bool, error)
+	VerifyEmail(ctx context.Context) (bool, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -3346,6 +3350,25 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MutationRoot.UpdateTaskMessage(childComplexity, args["id"].(string), args["message"].(string)), true
 
+	case "MutationRoot.updateUserMetadata":
+		if e.complexity.MutationRoot.UpdateUserMetadata == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_updateUserMetadata_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.UpdateUserMetadata(childComplexity, args["birthData"].(*model.BirthOptions), args["nameData"].(*model.NameOptions)), true
+
+	case "MutationRoot.verifyEmail":
+		if e.complexity.MutationRoot.VerifyEmail == nil {
+			break
+		}
+
+		return e.complexity.MutationRoot.VerifyEmail(childComplexity), true
+
 	case "Page.code":
 		if e.complexity.Page.Code == nil {
 			break
@@ -5249,8 +5272,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputBirthOptions,
 		ec.unmarshalInputEpisodeContext,
 		ec.unmarshalInputLegacyIDLookupOptions,
+		ec.unmarshalInputNameOptions,
 	)
 	first := true
 
@@ -5752,6 +5777,9 @@ type Message {
     addShowToMyList(showId: ID!): AddToCollectionResult!
 
     removeEntryFromMyList(entryId: UUID!): UserCollection!
+
+    updateUserMetadata(birthData: BirthOptions, nameData: NameOptions): Boolean!
+    verifyEmail: Boolean!
 }
 
 type AnswerSurveyQuestionResult {
@@ -5761,6 +5789,16 @@ type AnswerSurveyQuestionResult {
 type AddToCollectionResult {
     entryId: UUID!
     collection: UserCollection! @goField(forceResolver: true)
+}
+
+input BirthOptions {
+    year: Int!
+    month: Int!
+}
+
+input NameOptions {
+    first: String!
+    last: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/pages.graphqls", Input: `
@@ -7364,6 +7402,30 @@ func (ec *executionContext) field_MutationRoot_updateTaskMessage_args(ctx contex
 		}
 	}
 	args["message"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_updateUserMetadata_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.BirthOptions
+	if tmp, ok := rawArgs["birthData"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("birthData"))
+		arg0, err = ec.unmarshalOBirthOptions2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐBirthOptions(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["birthData"] = arg0
+	var arg1 *model.NameOptions
+	if tmp, ok := rawArgs["nameData"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameData"))
+		arg1, err = ec.unmarshalONameOptions2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐNameOptions(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["nameData"] = arg1
 	return args, nil
 }
 
@@ -21532,6 +21594,105 @@ func (ec *executionContext) fieldContext_MutationRoot_removeEntryFromMyList(ctx 
 	return fc, nil
 }
 
+func (ec *executionContext) _MutationRoot_updateUserMetadata(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_updateUserMetadata(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().UpdateUserMetadata(rctx, fc.Args["birthData"].(*model.BirthOptions), fc.Args["nameData"].(*model.NameOptions))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_updateUserMetadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_updateUserMetadata_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_verifyEmail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_verifyEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().VerifyEmail(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_verifyEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Page_id(ctx context.Context, field graphql.CollectedField, obj *model.Page) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Page_id(ctx, field)
 	if err != nil {
@@ -35544,6 +35705,42 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputBirthOptions(ctx context.Context, obj interface{}) (model.BirthOptions, error) {
+	var it model.BirthOptions
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"year", "month"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "year":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
+			it.Year, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "month":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("month"))
+			it.Month, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputEpisodeContext(ctx context.Context, obj interface{}) (model.EpisodeContext, error) {
 	var it model.EpisodeContext
 	asMap := map[string]interface{}{}
@@ -35599,6 +35796,42 @@ func (ec *executionContext) unmarshalInputLegacyIDLookupOptions(ctx context.Cont
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("programID"))
 			it.ProgramID, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNameOptions(ctx context.Context, obj interface{}) (model.NameOptions, error) {
+	var it model.NameOptions
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"first", "last"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "first":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+			it.First, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "last":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+			it.Last, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -39936,6 +40169,24 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._MutationRoot_removeEntryFromMyList(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateUserMetadata":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_updateUserMetadata(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "verifyEmail":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_verifyEmail(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -46132,6 +46383,14 @@ func (ec *executionContext) marshalOAchievementGroup2ᚖgithubᚗcomᚋbccᚑcod
 	return ec._AchievementGroup(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOBirthOptions2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐBirthOptions(ctx context.Context, v interface{}) (*model.BirthOptions, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputBirthOptions(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -46378,6 +46637,14 @@ func (ec *executionContext) marshalOMessage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbr
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalONameOptions2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐNameOptions(ctx context.Context, v interface{}) (*model.NameOptions, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputNameOptions(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v *model.Page) graphql.Marshaler {

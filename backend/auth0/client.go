@@ -2,10 +2,11 @@ package auth0
 
 // Config is the configuration for the client
 type Config struct {
-	ClientID     string
-	ClientSecret string
-	Domain       string
-	Audiences    []string
+	ClientID           string
+	ClientSecret       string
+	Domain             string
+	ManagementAudience string
+	Audiences          []string
 }
 
 // Client is the auth client

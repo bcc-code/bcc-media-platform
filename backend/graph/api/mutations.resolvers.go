@@ -5,6 +5,8 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/brunstadtv/backend/ratelimit"
 	"time"
 
 	merry "github.com/ansel1/merry/v2"
@@ -449,6 +451,41 @@ func (r *mutationRootResolver) RemoveEntryFromMyList(ctx context.Context, entryI
 	r.Loaders.UserCollectionEntryIDsLoader.Clear(ctx, listID)
 	r.Loaders.UserCollectionEntryIDsLoader.Prime(ctx, listID, pointerEntryIDs)
 	return r.QueryRoot().MyList(ctx)
+}
+
+// UpdateUserMetadata is the resolver for the updateUserMetadata field.
+func (r *mutationRootResolver) UpdateUserMetadata(ctx context.Context, birthData *model.BirthOptions, nameData *model.NameOptions) (bool, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return false, err
+	}
+	u := user.GetFromCtx(ginCtx)
+	if u.IsRegistered() && !u.IsActiveBCC() {
+		_, err = r.AuthClient.SetUserMetadata(ctx, ginCtx.GetString(auth0.CtxUserID), auth0.UserMetadata{
+			BirthMonth: birthData.Month,
+			BirthYear:  birthData.Year,
+		})
+		return err == nil, err
+	}
+	return false, nil
+}
+
+// VerifyEmail is the resolver for the verifyEmail field.
+func (r *mutationRootResolver) VerifyEmail(ctx context.Context) (bool, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return false, err
+	}
+	u := user.GetFromCtx(ginCtx)
+	if u.EmailVerified {
+		return false, merry.New("email already verified", merry.WithUserMessage("Email already verified"))
+	}
+	err = ratelimit.Endpoint(ctx, "verify-email", 1, false)
+	if err != nil {
+		return false, err
+	}
+	err = r.AuthClient.SendVerificationEmail(ctx, ginCtx.GetString(auth0.CtxUserID))
+	return true, err
 }
 
 // AddToCollectionResult returns generated.AddToCollectionResultResolver implementation.
