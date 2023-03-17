@@ -5,16 +5,16 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/auth0"
-	"github.com/bcc-code/brunstadtv/backend/ratelimit"
 	"time"
 
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/achievements"
+	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/email"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/ratelimit"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -454,7 +454,7 @@ func (r *mutationRootResolver) RemoveEntryFromMyList(ctx context.Context, entryI
 }
 
 // UpdateUserMetadata is the resolver for the updateUserMetadata field.
-func (r *mutationRootResolver) UpdateUserMetadata(ctx context.Context, birthData *model.BirthOptions, nameData *model.NameOptions) (bool, error) {
+func (r *mutationRootResolver) UpdateUserMetadata(ctx context.Context, birthData model.BirthOptions, nameData model.NameOptions) (bool, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return false, err

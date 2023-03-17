@@ -27,7 +27,7 @@ type MutationRoot {
 
     removeEntryFromMyList(entryId: UUID!): UserCollection!
 
-    updateUserMetadata(birthData: BirthOptions, nameData: NameOptions): Boolean!
+    updateUserMetadata(birthData: BirthOptions!, nameData: NameOptions!): Boolean!
     verifyEmail: Boolean!
 }
 

@@ -1260,14 +1260,15 @@ func (this TextTask) GetTitle() string   { return this.Title }
 func (this TextTask) GetCompleted() bool { return this.Completed }
 
 type User struct {
-	ID        *string    `json:"id"`
-	Anonymous bool       `json:"anonymous"`
-	BccMember bool       `json:"bccMember"`
-	Audience  *string    `json:"audience"`
-	Email     *string    `json:"email"`
-	Settings  *Settings  `json:"settings"`
-	Roles     []string   `json:"roles"`
-	Analytics *Analytics `json:"analytics"`
+	ID            *string    `json:"id"`
+	Anonymous     bool       `json:"anonymous"`
+	BccMember     bool       `json:"bccMember"`
+	Audience      *string    `json:"audience"`
+	Email         *string    `json:"email"`
+	EmailVerified bool       `json:"emailVerified"`
+	Settings      *Settings  `json:"settings"`
+	Roles         []string   `json:"roles"`
+	Analytics     *Analytics `json:"analytics"`
 }
 
 type UserCollection struct {

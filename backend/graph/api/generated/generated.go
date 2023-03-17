@@ -533,7 +533,7 @@ type ComplexityRoot struct {
 		UpdateEpisodeFeedback      func(childComplexity int, id string, message *string, rating *int) int
 		UpdateSurveyQuestionAnswer func(childComplexity int, key string, answer string) int
 		UpdateTaskMessage          func(childComplexity int, id string, message string) int
-		UpdateUserMetadata         func(childComplexity int, birthData *model.BirthOptions, nameData *model.NameOptions) int
+		UpdateUserMetadata         func(childComplexity int, birthData model.BirthOptions, nameData model.NameOptions) int
 		VerifyEmail                func(childComplexity int) int
 	}
 
@@ -870,14 +870,15 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		Analytics func(childComplexity int) int
-		Anonymous func(childComplexity int) int
-		Audience  func(childComplexity int) int
-		BccMember func(childComplexity int) int
-		Email     func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Roles     func(childComplexity int) int
-		Settings  func(childComplexity int) int
+		Analytics     func(childComplexity int) int
+		Anonymous     func(childComplexity int) int
+		Audience      func(childComplexity int) int
+		BccMember     func(childComplexity int) int
+		Email         func(childComplexity int) int
+		EmailVerified func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Roles         func(childComplexity int) int
+		Settings      func(childComplexity int) int
 	}
 
 	UserCollection struct {
@@ -1064,7 +1065,7 @@ type MutationRootResolver interface {
 	AddEpisodeToMyList(ctx context.Context, episodeID string) (*model.AddToCollectionResult, error)
 	AddShowToMyList(ctx context.Context, showID string) (*model.AddToCollectionResult, error)
 	RemoveEntryFromMyList(ctx context.Context, entryID string) (*model.UserCollection, error)
-	UpdateUserMetadata(ctx context.Context, birthData *model.BirthOptions, nameData *model.NameOptions) (bool, error)
+	UpdateUserMetadata(ctx context.Context, birthData model.BirthOptions, nameData model.NameOptions) (bool, error)
 	VerifyEmail(ctx context.Context) (bool, error)
 }
 type PageResolver interface {
@@ -3360,7 +3361,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.MutationRoot.UpdateUserMetadata(childComplexity, args["birthData"].(*model.BirthOptions), args["nameData"].(*model.NameOptions)), true
+		return e.complexity.MutationRoot.UpdateUserMetadata(childComplexity, args["birthData"].(model.BirthOptions), args["nameData"].(model.NameOptions)), true
 
 	case "MutationRoot.verifyEmail":
 		if e.complexity.MutationRoot.VerifyEmail == nil {
@@ -5070,6 +5071,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Email(childComplexity), true
 
+	case "User.emailVerified":
+		if e.complexity.User.EmailVerified == nil {
+			break
+		}
+
+		return e.complexity.User.EmailVerified(childComplexity), true
+
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
@@ -5778,7 +5786,7 @@ type Message {
 
     removeEntryFromMyList(entryId: UUID!): UserCollection!
 
-    updateUserMetadata(birthData: BirthOptions, nameData: NameOptions): Boolean!
+    updateUserMetadata(birthData: BirthOptions!, nameData: NameOptions!): Boolean!
     verifyEmail: Boolean!
 }
 
@@ -6108,6 +6116,7 @@ type User {
   bccMember: Boolean!
   audience: String
   email: String
+  emailVerified: Boolean!
   settings: Settings!
   roles: [String!]!
   analytics: Analytics!
@@ -7408,19 +7417,19 @@ func (ec *executionContext) field_MutationRoot_updateTaskMessage_args(ctx contex
 func (ec *executionContext) field_MutationRoot_updateUserMetadata_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.BirthOptions
+	var arg0 model.BirthOptions
 	if tmp, ok := rawArgs["birthData"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("birthData"))
-		arg0, err = ec.unmarshalOBirthOptions2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐBirthOptions(ctx, tmp)
+		arg0, err = ec.unmarshalNBirthOptions2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐBirthOptions(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["birthData"] = arg0
-	var arg1 *model.NameOptions
+	var arg1 model.NameOptions
 	if tmp, ok := rawArgs["nameData"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameData"))
-		arg1, err = ec.unmarshalONameOptions2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐNameOptions(ctx, tmp)
+		arg1, err = ec.unmarshalNNameOptions2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐNameOptions(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -21608,7 +21617,7 @@ func (ec *executionContext) _MutationRoot_updateUserMetadata(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MutationRoot().UpdateUserMetadata(rctx, fc.Args["birthData"].(*model.BirthOptions), fc.Args["nameData"].(*model.NameOptions))
+		return ec.resolvers.MutationRoot().UpdateUserMetadata(rctx, fc.Args["birthData"].(model.BirthOptions), fc.Args["nameData"].(model.NameOptions))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24620,6 +24629,8 @@ func (ec *executionContext) fieldContext_QueryRoot_me(ctx context.Context, field
 				return ec.fieldContext_User_audience(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "emailVerified":
+				return ec.fieldContext_User_emailVerified(ctx, field)
 			case "settings":
 				return ec.fieldContext_User_settings(ctx, field)
 			case "roles":
@@ -32645,6 +32656,50 @@ func (ec *executionContext) fieldContext_User_email(ctx context.Context, field g
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_emailVerified(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_emailVerified(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EmailVerified, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_emailVerified(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -43309,6 +43364,13 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = ec._User_email(ctx, field, obj)
 
+		case "emailVerified":
+
+			out.Values[i] = ec._User_emailVerified(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "settings":
 
 			out.Values[i] = ec._User_settings(ctx, field, obj)
@@ -44211,6 +44273,11 @@ func (ec *executionContext) marshalNApplication2ᚖgithubᚗcomᚋbccᚑcodeᚋb
 		return graphql.Null
 	}
 	return ec._Application(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNBirthOptions2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐBirthOptions(ctx context.Context, v interface{}) (model.BirthOptions, error) {
+	res, err := ec.unmarshalInputBirthOptions(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
@@ -45163,6 +45230,11 @@ func (ec *executionContext) marshalNMessageStyle2ᚖgithubᚗcomᚋbccᚑcodeᚋ
 		return graphql.Null
 	}
 	return ec._MessageStyle(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNNameOptions2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐNameOptions(ctx context.Context, v interface{}) (model.NameOptions, error) {
+	res, err := ec.unmarshalInputNameOptions(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNPage2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v model.Page) graphql.Marshaler {
@@ -46383,14 +46455,6 @@ func (ec *executionContext) marshalOAchievementGroup2ᚖgithubᚗcomᚋbccᚑcod
 	return ec._AchievementGroup(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOBirthOptions2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐBirthOptions(ctx context.Context, v interface{}) (*model.BirthOptions, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputBirthOptions(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -46637,14 +46701,6 @@ func (ec *executionContext) marshalOMessage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbr
 	}
 
 	return ret
-}
-
-func (ec *executionContext) unmarshalONameOptions2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐNameOptions(ctx context.Context, v interface{}) (*model.NameOptions, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputNameOptions(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v *model.Page) graphql.Marshaler {
