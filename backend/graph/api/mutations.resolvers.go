@@ -461,9 +461,16 @@ func (r *mutationRootResolver) UpdateUserMetadata(ctx context.Context, birthData
 	}
 	u := user.GetFromCtx(ginCtx)
 	if u.IsRegistered() && !u.IsActiveBCC() {
-		_, err = r.AuthClient.SetUserMetadata(ctx, ginCtx.GetString(auth0.CtxUserID), auth0.UserMetadata{
-			BirthMonth: birthData.Month,
-			BirthYear:  birthData.Year,
+		displayName := nameData.First + " " + nameData.Last
+		_, err = r.AuthClient.UpdateUser(ctx, ginCtx.GetString(auth0.CtxUserID), auth0.UserInfo{
+			GivenName:  nameData.First,
+			FamilyName: nameData.Last,
+			Name:       displayName,
+			Nickname:   displayName,
+			UserMetadata: auth0.UserMetadata{
+				BirthMonth: birthData.Month,
+				BirthYear:  birthData.Year,
+			},
 		})
 		return err == nil, err
 	}

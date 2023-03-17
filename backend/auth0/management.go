@@ -54,10 +54,14 @@ func (c *Client) GetUser(ctx context.Context, sub string) (UserInfo, error) {
 	return sendManagementRequest[UserInfo](ctx, c, http.MethodGet, "users/"+sub, nil)
 }
 
-// SetUserMetadata updates user metadata
-func (c *Client) SetUserMetadata(ctx context.Context, sub string, metadata UserMetadata) (UserInfo, error) {
+// UpdateUser updates user
+func (c *Client) UpdateUser(ctx context.Context, sub string, info UserInfo) (UserInfo, error) {
 	return sendManagementRequest[UserInfo](ctx, c, http.MethodPatch, sub, map[string]any{
-		"user_metadata": metadata,
+		"name":          info.Name,
+		"given_name":    info.GivenName,
+		"family_name":   info.FamilyName,
+		"nickname":      info.Nickname,
+		"user_metadata": info.UserMetadata,
 	})
 }
 
