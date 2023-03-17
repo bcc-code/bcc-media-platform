@@ -61,6 +61,11 @@ export type AchievementSection = Section & {
   title?: Maybe<Scalars['String']>;
 };
 
+export type AddToCollectionResult = {
+  collection: UserCollection;
+  entryId: Scalars['UUID'];
+};
+
 export type Alternative = {
   id: Scalars['ID'];
   isCorrect?: Maybe<Scalars['Boolean']>;
@@ -315,6 +320,7 @@ export type EpisodeCalendarEntry = CalendarEntry & {
   episode?: Maybe<Episode>;
   event?: Maybe<Event>;
   id: Scalars['ID'];
+  isReplay: Scalars['Boolean'];
   start: Scalars['Date'];
   title: Scalars['String'];
 };
@@ -679,10 +685,13 @@ export type MessageStyle = {
 };
 
 export type MutationRoot = {
+  addEpisodeToMyList: AddToCollectionResult;
+  addShowToMyList: AddToCollectionResult;
   answerSurveyQuestion: AnswerSurveyQuestionResult;
   completeTask: Scalars['Boolean'];
   confirmAchievement: ConfirmAchievementResult;
   lockLessonAnswers: Scalars['Boolean'];
+  removeEntryFromMyList: UserCollection;
   sendEpisodeFeedback: Scalars['ID'];
   sendSupportEmail: Scalars['Boolean'];
   sendTaskMessage: Scalars['ID'];
@@ -691,6 +700,16 @@ export type MutationRoot = {
   updateEpisodeFeedback: Scalars['ID'];
   updateSurveyQuestionAnswer: AnswerSurveyQuestionResult;
   updateTaskMessage: Scalars['ID'];
+};
+
+
+export type MutationRootAddEpisodeToMyListArgs = {
+  episodeId: Scalars['ID'];
+};
+
+
+export type MutationRootAddShowToMyListArgs = {
+  showId: Scalars['ID'];
 };
 
 
@@ -713,6 +732,11 @@ export type MutationRootConfirmAchievementArgs = {
 
 export type MutationRootLockLessonAnswersArgs = {
   id: Scalars['ID'];
+};
+
+
+export type MutationRootRemoveEntryFromMyListArgs = {
+  entryId: Scalars['UUID'];
 };
 
 
@@ -852,6 +876,13 @@ export type Profile = {
   name: Scalars['String'];
 };
 
+export type Prompt = {
+  from: Scalars['Date'];
+  id: Scalars['UUID'];
+  title: Scalars['String'];
+  to: Scalars['Date'];
+};
+
 export type QueryRoot = {
   achievement: Achievement;
   achievementGroup: AchievementGroup;
@@ -866,10 +897,12 @@ export type QueryRoot = {
   faq: Faq;
   legacyIDLookup: LegacyIdLookup;
   me: User;
+  myList: UserCollection;
   page: Page;
   pendingAchievements: Array<Achievement>;
   profile: Profile;
   profiles: Array<Profile>;
+  prompts: Array<Prompt>;
   redirect: RedirectLink;
   search: SearchResult;
   season: Season;
@@ -877,7 +910,7 @@ export type QueryRoot = {
   show: Show;
   studyLesson: Lesson;
   studyTopic: StudyTopic;
-  surveys: Array<Survey>;
+  userCollection: UserCollection;
 };
 
 
@@ -967,6 +1000,11 @@ export type QueryRootStudyLessonArgs = {
 
 export type QueryRootStudyTopicArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryRootUserCollectionArgs = {
+  id: Scalars['UUID'];
 };
 
 export type Question = {
@@ -1250,17 +1288,23 @@ export type StudyTopicLessonsArgs = {
 
 export type Survey = {
   description?: Maybe<Scalars['String']>;
-  from: Scalars['Date'];
   id: Scalars['UUID'];
   questions: SurveyQuestionPagination;
   title: Scalars['String'];
-  to: Scalars['Date'];
 };
 
 
 export type SurveyQuestionsArgs = {
   first?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
+};
+
+export type SurveyPrompt = Prompt & {
+  from: Scalars['Date'];
+  id: Scalars['UUID'];
+  survey: Survey;
+  title: Scalars['String'];
+  to: Scalars['Date'];
 };
 
 export type SurveyQuestion = {
@@ -1321,6 +1365,32 @@ export type User = {
   id?: Maybe<Scalars['ID']>;
   roles: Array<Scalars['String']>;
   settings: Settings;
+};
+
+export type UserCollection = {
+  entries: UserCollectionEntryPagination;
+  id: Scalars['UUID'];
+  title: Scalars['String'];
+};
+
+
+export type UserCollectionEntriesArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+};
+
+export type UserCollectionEntry = {
+  id: Scalars['UUID'];
+  item: UserCollectionEntryItem;
+};
+
+export type UserCollectionEntryItem = Episode | Show;
+
+export type UserCollectionEntryPagination = Pagination & {
+  first: Scalars['Int'];
+  items: Array<UserCollectionEntry>;
+  offset: Scalars['Int'];
+  total: Scalars['Int'];
 };
 
 export type VideoTask = Task & {
@@ -1390,7 +1460,7 @@ export type GetEpisodeQueryVariables = Exact<{
 }>;
 
 
-export type GetEpisodeQuery = { episode: { description: string, number?: number | null, progress?: number | null, ageRating: string, productionDate: any, productionDateInTitle: boolean, availableFrom: any, availableTo: any, shareRestriction: ShareRestriction, id: string, uuid: string, title: string, image?: string | null, publishDate: any, duration: number, lessons: { items: Array<{ id: string, progress: { total: number, completed: number } }> }, context?: { __typename: 'ContextCollection', id: string, slug?: string | null, items?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null } | { __typename: 'Season', id: string } | null, relatedItems?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null, season?: { id: string, title: string, number: number, description: string, show: { id: string, title: string, type: ShowType, description: string, seasons: { items: Array<{ id: string, title: string, number: number }> } } } | null } };
+export type GetEpisodeQuery = { episode: { description: string, number?: number | null, progress?: number | null, locked: boolean, ageRating: string, productionDate: any, productionDateInTitle: boolean, availableFrom: any, availableTo: any, shareRestriction: ShareRestriction, id: string, uuid: string, title: string, image?: string | null, publishDate: any, duration: number, lessons: { items: Array<{ id: string, progress: { total: number, completed: number } }> }, context?: { __typename: 'ContextCollection', id: string, slug?: string | null, items?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null } | { __typename: 'Season', id: string } | null, relatedItems?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, defaultEpisode: { id: string }, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null, season?: { id: string, title: string, number: number, description: string, show: { id: string, title: string, type: ShowType, description: string, seasons: { items: Array<{ id: string, title: string, number: number }> } } } | null } };
 
 export type UpdateEpisodeProgressMutationVariables = Exact<{
   episodeId: Scalars['ID'];
@@ -1939,6 +2009,7 @@ export const GetEpisodeDocument = gql`
     description
     number
     progress
+    locked
     ageRating
     productionDate
     productionDateInTitle
