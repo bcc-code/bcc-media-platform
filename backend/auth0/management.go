@@ -8,7 +8,12 @@ import (
 	"github.com/ansel1/merry/v2"
 	"io"
 	"net/http"
+	"time"
 )
+
+var httpClient = &http.Client{
+	Timeout: time.Second * 5,
+}
 
 func sendManagementRequest[T any](ctx context.Context, client *Client, method, path string, body any) (result T, err error) {
 	var bodyReader io.Reader
@@ -34,7 +39,7 @@ func sendManagementRequest[T any](ctx context.Context, client *Client, method, p
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := httpClient.Do(req)
 	if err != nil {
 		return
 	}

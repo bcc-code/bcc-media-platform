@@ -528,13 +528,13 @@ type ComplexityRoot struct {
 		SendEpisodeFeedback        func(childComplexity int, episodeID string, message *string, rating *int) int
 		SendSupportEmail           func(childComplexity int, title string, content string, html string) int
 		SendTaskMessage            func(childComplexity int, taskID string, message *string) int
+		SendVerificationEmail      func(childComplexity int) int
 		SetDevicePushToken         func(childComplexity int, token string, languages []string) int
 		SetEpisodeProgress         func(childComplexity int, id string, progress *int, duration *int, context *model.EpisodeContext) int
 		UpdateEpisodeFeedback      func(childComplexity int, id string, message *string, rating *int) int
 		UpdateSurveyQuestionAnswer func(childComplexity int, key string, answer string) int
 		UpdateTaskMessage          func(childComplexity int, id string, message string) int
 		UpdateUserMetadata         func(childComplexity int, birthData model.BirthOptions, nameData model.NameOptions) int
-		VerifyEmail                func(childComplexity int) int
 	}
 
 	Page struct {
@@ -1066,7 +1066,7 @@ type MutationRootResolver interface {
 	AddShowToMyList(ctx context.Context, showID string) (*model.AddToCollectionResult, error)
 	RemoveEntryFromMyList(ctx context.Context, entryID string) (*model.UserCollection, error)
 	UpdateUserMetadata(ctx context.Context, birthData model.BirthOptions, nameData model.NameOptions) (bool, error)
-	VerifyEmail(ctx context.Context) (bool, error)
+	SendVerificationEmail(ctx context.Context) (bool, error)
 }
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
@@ -3291,6 +3291,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MutationRoot.SendTaskMessage(childComplexity, args["taskId"].(string), args["message"].(*string)), true
 
+	case "MutationRoot.sendVerificationEmail":
+		if e.complexity.MutationRoot.SendVerificationEmail == nil {
+			break
+		}
+
+		return e.complexity.MutationRoot.SendVerificationEmail(childComplexity), true
+
 	case "MutationRoot.setDevicePushToken":
 		if e.complexity.MutationRoot.SetDevicePushToken == nil {
 			break
@@ -3362,13 +3369,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MutationRoot.UpdateUserMetadata(childComplexity, args["birthData"].(model.BirthOptions), args["nameData"].(model.NameOptions)), true
-
-	case "MutationRoot.verifyEmail":
-		if e.complexity.MutationRoot.VerifyEmail == nil {
-			break
-		}
-
-		return e.complexity.MutationRoot.VerifyEmail(childComplexity), true
 
 	case "Page.code":
 		if e.complexity.Page.Code == nil {
@@ -5787,7 +5787,7 @@ type Message {
     removeEntryFromMyList(entryId: UUID!): UserCollection!
 
     updateUserMetadata(birthData: BirthOptions!, nameData: NameOptions!): Boolean!
-    verifyEmail: Boolean!
+    sendVerificationEmail: Boolean!
 }
 
 type AnswerSurveyQuestionResult {
@@ -21658,8 +21658,8 @@ func (ec *executionContext) fieldContext_MutationRoot_updateUserMetadata(ctx con
 	return fc, nil
 }
 
-func (ec *executionContext) _MutationRoot_verifyEmail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MutationRoot_verifyEmail(ctx, field)
+func (ec *executionContext) _MutationRoot_sendVerificationEmail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_sendVerificationEmail(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -21672,7 +21672,7 @@ func (ec *executionContext) _MutationRoot_verifyEmail(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MutationRoot().VerifyEmail(rctx)
+		return ec.resolvers.MutationRoot().SendVerificationEmail(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21689,7 +21689,7 @@ func (ec *executionContext) _MutationRoot_verifyEmail(ctx context.Context, field
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MutationRoot_verifyEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MutationRoot_sendVerificationEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MutationRoot",
 		Field:      field,
@@ -40238,10 +40238,10 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "verifyEmail":
+		case "sendVerificationEmail":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._MutationRoot_verifyEmail(ctx, field)
+				return ec._MutationRoot_sendVerificationEmail(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {

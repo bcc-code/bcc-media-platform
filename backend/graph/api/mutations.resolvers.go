@@ -477,8 +477,8 @@ func (r *mutationRootResolver) UpdateUserMetadata(ctx context.Context, birthData
 	return false, nil
 }
 
-// VerifyEmail is the resolver for the verifyEmail field.
-func (r *mutationRootResolver) VerifyEmail(ctx context.Context) (bool, error) {
+// SendVerificationEmail is the resolver for the sendVerificationEmail field.
+func (r *mutationRootResolver) SendVerificationEmail(ctx context.Context) (bool, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return false, err
