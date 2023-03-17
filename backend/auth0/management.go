@@ -74,6 +74,7 @@ type jobResponse struct {
 
 // SendVerificationEmail sends a verification email to the specified user
 func (c *Client) SendVerificationEmail(ctx context.Context, sub string) error {
+	// TODO: implement verification emails for socials (should most likely not be necessary though)
 	_, err := sendManagementRequest[jobResponse](ctx, c, http.MethodPost, "jobs/verification-email", map[string]any{
 		"user_id": sub,
 	})
