@@ -6,6 +6,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	cache "github.com/Code-Hex/go-generics-cache"
 	"net/url"
 	"strconv"
 	"time"
@@ -63,7 +64,7 @@ func (r *queryRootResolver) Application(ctx context.Context) (*model.Application
 
 // Languages is the resolver for the languages field.
 func (r *queryRootResolver) Languages(ctx context.Context) ([]string, error) {
-	languages, err := memorycache.GetOrSet(ctx, "languages", r.Queries.GetLanguages)
+	languages, err := memorycache.GetOrSet(ctx, "languages", r.Queries.GetLanguages, cache.WithExpiration(time.Minute*5))
 	if err != nil {
 		return nil, err
 	}
