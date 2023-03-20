@@ -602,6 +602,7 @@ type ComplexityRoot struct {
 		Event               func(childComplexity int, id string) int
 		Export              func(childComplexity int, groups []string) int
 		Faq                 func(childComplexity int) int
+		Languages           func(childComplexity int) int
 		LegacyIDLookup      func(childComplexity int, options *model.LegacyIDLookupOptions) int
 		Me                  func(childComplexity int) int
 		MyList              func(childComplexity int) int
@@ -1079,6 +1080,7 @@ type PosterTaskResolver interface {
 }
 type QueryRootResolver interface {
 	Application(ctx context.Context) (*model.Application, error)
+	Languages(ctx context.Context) ([]string, error)
 	Export(ctx context.Context, groups []string) (*model.Export, error)
 	Redirect(ctx context.Context, id string) (*model.RedirectLink, error)
 	Page(ctx context.Context, id *string, code *string) (*model.Page, error)
@@ -3716,6 +3718,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QueryRoot.Faq(childComplexity), true
 
+	case "QueryRoot.languages":
+		if e.complexity.QueryRoot.Languages == nil {
+			break
+		}
+
+		return e.complexity.QueryRoot.Languages(childComplexity), true
+
 	case "QueryRoot.legacyIDLookup":
 		if e.complexity.QueryRoot.LegacyIDLookup == nil {
 			break
@@ -6099,6 +6108,8 @@ type RedirectParam {
 
 type QueryRoot{
   application: Application!
+  languages: [Language!]!
+
   export(
     # Only export for this groups. The groups will be filtered by the groups the users has access to.
     # NOT IMPLEMENTED YET!
@@ -23172,6 +23183,50 @@ func (ec *executionContext) fieldContext_QueryRoot_application(ctx context.Conte
 				return ec.fieldContext_Application_searchPage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_languages(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_languages(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().Languages(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNLanguage2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_languages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Language does not have child fields")
 		},
 	}
 	return fc, nil
@@ -40398,6 +40453,29 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._QueryRoot_application(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "languages":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_languages(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

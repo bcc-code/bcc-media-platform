@@ -59,6 +59,8 @@ type RedirectParam {
 
 type QueryRoot{
   application: Application!
+  languages: [Language!]!
+
   export(
     # Only export for this groups. The groups will be filtered by the groups the users has access to.
     # NOT IMPLEMENTED YET!
