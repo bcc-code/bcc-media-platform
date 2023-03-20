@@ -64,13 +64,11 @@ func (r *queryRootResolver) Application(ctx context.Context) (*model.Application
 
 // Languages is the resolver for the languages field.
 func (r *queryRootResolver) Languages(ctx context.Context) ([]string, error) {
-	languages, err := memorycache.GetOrSet(ctx, "languages", r.Queries.GetLanguages, cache.WithExpiration(time.Minute*5))
+	languages, err := memorycache.GetOrSet(ctx, "languages", r.Queries.GetLanguageKeys, cache.WithExpiration(time.Minute*5))
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(languages, func(i sqlc.Language, _ int) string {
-		return i.Code
-	}), nil
+	return languages, nil
 }
 
 // Export is the resolver for the export field.

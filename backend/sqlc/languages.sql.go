@@ -10,7 +10,7 @@ import (
 )
 
 const getLanguageKeys = `-- name: GetLanguageKeys :many
-SELECT code FROM languages
+SELECT code FROM languages WHERE code != ''
 `
 
 func (q *Queries) GetLanguageKeys(ctx context.Context) ([]string, error) {
@@ -37,7 +37,7 @@ func (q *Queries) GetLanguageKeys(ctx context.Context) ([]string, error) {
 }
 
 const getLanguages = `-- name: GetLanguages :many
-SELECT code, legacy_2_letter_code, legacy_3_letter_code, name FROM languages
+SELECT code, legacy_2_letter_code, legacy_3_letter_code, name FROM languages WHERE code != ''
 `
 
 func (q *Queries) GetLanguages(ctx context.Context) ([]Language, error) {
