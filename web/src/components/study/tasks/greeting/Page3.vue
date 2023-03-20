@@ -1,47 +1,42 @@
 <template>
     <div
-        class="point-events-none h-screen snap-start relative flex flex-col"
+        class="point-events-none h-full snap-start relative flex flex-col mb-48"
         :ref="(el) => (targetScrollEl = el as any)"
     >
         <template v-if="targetScrollEl != null">
-            <div class="mt-24 px-16 text-left">
-                <Parallax
-                    :parentScrollEl="parentScrollEl"
-                    :targetScrollEl="targetScrollEl!"
-                    :scrollHandler="animate(-0.7)"
-                >
-                    <p class="mt-3 text-2xl">
-                        <span class="bg-[#FEECD0] bg-opacity-0"
-                            >Du har gjennom de siste ukene fått lys om hvordan
-                            du kan bygge ditt liv på fjell og har fått et
-                            tydelig bilde av hva som kreves av deg for å være en
-                            sann disippel.</span
-                        >
-                    </p>
-                </Parallax>
+            <div
+                class="mt-24 px-16 text-left z-20"
+                data-swiper-parallax-y="-250"
+            >
+                <p class="mt-3 text-xl">
+                    <span class="bg-[#FEECD0] bg-opacity-70"
+                        >Du har gjennom de siste ukene fått lys om hvordan du
+                        kan bygge ditt liv på fjell og har fått et tydelig bilde
+                        av hva som kreves av deg for å være en sann
+                        disippel.</span
+                    >
+                </p>
             </div>
             <div
-                class="relative left-0 top-[-100px] -z-50"
-                style="width: 100vw"
+                class="absolute bottom-0 z-10"
+                style="width: 100%"
+                data-swiper-parallax-y="-10"
             >
-                <Parallax
-                    :parentScrollEl="parentScrollEl"
-                    :targetScrollEl="targetScrollEl!"
-                    :scrollHandler="animateBg(0.7)"
-                    class="transition-opacity duration-300"
-                >
-                    <div class="relative">
-                        <img
-                            src="https://static.bcc.media/images/pc23/camp_moment.jpg"
-                            class="select-none"
-                            style="min-width: 100%"
-                        />
-                        <div
-                            class="absolute left-0 top-0 bg-gradient-to-b from-white h-full opacity-75"
-                            style="width: 100vw"
-                        ></div>
-                    </div>
-                </Parallax>
+                <div class="relative">
+                    <img
+                        src="https://static.bcc.media/images/pc23/camp_moment_v2.jpg"
+                        class="select-none"
+                        style="
+                            min-width: 200%;
+                            margin-left: 30%;
+                            transform: translateX(-30%);
+                        "
+                    />
+                    <div
+                        class="absolute left-0 top-0 bg-gradient-to-b from-white h-full opacity-75"
+                        style="width: 100%"
+                    ></div>
+                </div>
             </div>
         </template>
     </div>
@@ -51,8 +46,6 @@
 import { ref } from "vue"
 import SotmShapeLong from "./SotmShapeLong.vue"
 import Parallax from "./Parallax.vue"
-
-const props = defineProps<{ parentScrollEl: Element }>()
 
 const targetScrollEl = ref<Element | null>(null)
 

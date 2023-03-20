@@ -28,7 +28,7 @@ class FlutterMain {
         return !promise?.then ? null : promise
     }
 
-    getAccessToken(): Promise<String | null> {
+    getAccessToken(): Promise<string | null> {
         return this.webView.callHandler(this.handlerName, "get_access_token")
     }
 

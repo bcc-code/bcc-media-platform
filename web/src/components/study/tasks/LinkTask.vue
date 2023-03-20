@@ -74,8 +74,9 @@ import { VButton } from "@/components"
 import { TaskFragment, useCompleteTaskMutation } from "@/graph/generated"
 import { computed, onMounted, ref } from "vue"
 import { useI18n } from "vue-i18n"
-import { openInBrowser } from "@/utils/flutter"
+import { flutter, openInBrowser } from "@/utils/flutter"
 import SpecialGreeting from "./SpecialGreeting.vue"
+import { getUserInfo } from "@/utils/userinfo"
 
 const { t } = useI18n()
 const { executeMutation: completeTask } = useCompleteTaskMutation()
@@ -95,20 +96,37 @@ const emit = defineEmits<{
 const task = computed(() => {
     return (props.task.__typename == "LinkTask" ? props.task : undefined)!
 })
-console.log(task.value.title)
+
+// loads immediately, but only if pc23-greeting
+const getUserInfoPromise =
+    task.value.link.url === "pc23-greeting" ? getUserInfo() : null
+const openPC23Greeting = async () => {
+    try {
+        const response = await getUserInfoPromise
+        const name = response?.given_name
+        if (name != null) {
+            flutter
+                ? openInBrowser(`/embed/pc23-greeting?name=${name}`)
+                : window.location.assign(`/embed/pc23-greeting?name=${name}`)
+            return
+        }
+    } catch (e) {
+        console.error(e)
+    }
+    openInBrowser(`/embed/pc23-greeting`)
+}
 
 const openLink = () => {
+    completeTask({ taskId: task.value.id })
     if (task.value.link.url === "pc23-greeting") {
-        completeTask({ taskId: task.value.id })
-        openInBrowser("/embed/pc23-greeting")
-        //showGreeting.value = true
+        // Temporary
+        openPC23Greeting()
         return
     }
     if (task.value.link.url === "no-local-group-found") {
         showNoLocalGroupFound.value = true
         return
     }
-    completeTask({ taskId: task.value.id })
     openInBrowser(
         task.value.link.url.replace("https://t.me/+", "https://t.me/joinchat/")
     )

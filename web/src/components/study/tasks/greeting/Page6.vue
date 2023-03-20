@@ -6,12 +6,13 @@
     >
         <div class="py-8 px-12 text-left">
             <p class="mt-3 text-xl" data-swiper-parallax-y="-200">
-                <span class="bg-[#FEECD0] bg-opacity-75"
-                    >Du kan glede deg til noen innholdsrike dager full av
-                    samfunn, oppbyggelse og trivsel. Denne campen er
-                    høydepunktet og selve avslutningen for prosjektet om
-                    Bergprekenen som du også har vært med på.</span
-                >
+                <span class="bg-[#FEECD0] bg-opacity-75">
+                    Salige er de som hungrer og tørster efter rettferdighet; for
+                    de skal mettes.
+                </span>
+            </p>
+            <p class="mt-3 text-xl" data-swiper-parallax-y="-200">
+                <span class="bg-[#FEECD0] bg-opacity-75"> Matteus 5:6 </span>
             </p>
         </div>
         <div class="h-24">&nbsp;</div>
@@ -36,19 +37,19 @@
                 </SotmShapeLong>
             </div> -->
         <div
-            class="absolute left-[-20%] bottom-[50px] -z-50"
+            class="absolute left-[-25%] bottom-[80px] -z-50"
             data-swiper-parallax-y="-50"
-            style="width: 70%"
+            style="width: 60%"
         >
-            <SotmShapeLong color="#B16B35" style="transform: rotate(-210deg)">
+            <SotmShapeLong color="#B16B35" style="transform: rotate(-222deg)">
             </SotmShapeLong>
         </div>
         <div
-            class="absolute left-[-30%] bottom-[-55px] -z-10"
+            class="absolute left-[-35%] bottom-[-20px] -z-10"
             data-swiper-parallax-y="-100"
-            style="width: 70%"
+            style="width: 58%"
         >
-            <SotmShapeLong color="#536C5B" style="transform: rotate(-210deg)">
+            <SotmShapeLong color="#536C5B" style="transform: rotate(-222deg)">
             </SotmShapeLong>
         </div>
     </div>
