@@ -83,6 +83,7 @@ type ResolverRoot interface {
 	Survey() SurveyResolver
 	SurveyPrompt() SurveyPromptResolver
 	TextTask() TextTaskResolver
+	User() UserResolver
 	UserCollection() UserCollectionResolver
 	UserCollectionEntry() UserCollectionEntryResolver
 	VideoTask() VideoTaskResolver
@@ -1173,6 +1174,9 @@ type SurveyPromptResolver interface {
 }
 type TextTaskResolver interface {
 	Completed(ctx context.Context, obj *model.TextTask) (bool, error)
+}
+type UserResolver interface {
+	EmailVerified(ctx context.Context, obj *model.User) (bool, error)
 }
 type UserCollectionResolver interface {
 	Entries(ctx context.Context, obj *model.UserCollection, first *int, offset *int) (*model.UserCollectionEntryPagination, error)
@@ -6155,7 +6159,7 @@ type User {
   bccMember: Boolean!
   audience: String
   email: String
-  emailVerified: Boolean!
+  emailVerified: Boolean! @goField(forceResolver: true)
   settings: Settings!
   roles: [String!]!
   analytics: Analytics!
@@ -32769,7 +32773,7 @@ func (ec *executionContext) _User_emailVerified(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.EmailVerified, nil
+		return ec.resolvers.User().EmailVerified(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -32790,8 +32794,8 @@ func (ec *executionContext) fieldContext_User_emailVerified(ctx context.Context,
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
 		},
@@ -43596,14 +43600,14 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_anonymous(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "bccMember":
 
 			out.Values[i] = ec._User_bccMember(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "audience":
 
@@ -43614,53 +43618,66 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_email(ctx, field, obj)
 
 		case "emailVerified":
+			field := field
 
-			out.Values[i] = ec._User_emailVerified(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_emailVerified(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "settings":
 
 			out.Values[i] = ec._User_settings(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "roles":
 
 			out.Values[i] = ec._User_roles(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "analytics":
 
 			out.Values[i] = ec._User_analytics(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "gender":
 
 			out.Values[i] = ec._User_gender(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "firstName":
 
 			out.Values[i] = ec._User_firstName(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "displayName":
 
 			out.Values[i] = ec._User_displayName(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
