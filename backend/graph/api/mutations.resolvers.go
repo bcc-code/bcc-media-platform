@@ -9,10 +9,12 @@ import (
 
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/achievements"
+	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/email"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/ratelimit"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
@@ -449,6 +451,49 @@ func (r *mutationRootResolver) RemoveEntryFromMyList(ctx context.Context, entryI
 	r.Loaders.UserCollectionEntryIDsLoader.Clear(ctx, listID)
 	r.Loaders.UserCollectionEntryIDsLoader.Prime(ctx, listID, pointerEntryIDs)
 	return r.QueryRoot().MyList(ctx)
+}
+
+// UpdateUserMetadata is the resolver for the updateUserMetadata field.
+func (r *mutationRootResolver) UpdateUserMetadata(ctx context.Context, birthData model.BirthOptions, nameData model.NameOptions) (bool, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return false, err
+	}
+	u := user.GetFromCtx(ginCtx)
+	if u.IsRegistered() && !u.IsActiveBCC() {
+		displayName := nameData.First + " " + nameData.Last
+		_, err = r.AuthClient.UpdateUser(ctx, ginCtx.GetString(auth0.CtxUserID), auth0.UserInfo{
+			GivenName:  nameData.First,
+			FamilyName: nameData.Last,
+			Name:       displayName,
+			Nickname:   displayName,
+			UserMetadata: auth0.UserMetadata{
+				BirthMonth:      birthData.Month,
+				BirthYear:       birthData.Year,
+				MediaSubscriber: true,
+			},
+		})
+		return err == nil, err
+	}
+	return false, nil
+}
+
+// SendVerificationEmail is the resolver for the sendVerificationEmail field.
+func (r *mutationRootResolver) SendVerificationEmail(ctx context.Context) (bool, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return false, err
+	}
+	u := user.GetFromCtx(ginCtx)
+	if u.EmailVerified {
+		return false, merry.New("email already verified", merry.WithUserMessage("Email already verified"))
+	}
+	err = ratelimit.Endpoint(ctx, "verify-email", 1, false)
+	if err != nil {
+		return false, err
+	}
+	err = r.AuthClient.SendVerificationEmail(ctx, ginCtx.GetString(auth0.CtxUserID))
+	return true, err
 }
 
 // AddToCollectionResult returns generated.AddToCollectionResultResolver implementation.

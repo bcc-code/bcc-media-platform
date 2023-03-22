@@ -170,10 +170,11 @@ func getEnvConfig() envConfig {
 			MaxIdleConnections: utils.AsIntOrNil(os.Getenv("DB_MAX_IDLE_CONS")),
 		},
 		Auth0: auth0.Config{
-			ClientID:     os.Getenv("AUTH0_CLIENT_ID"),
-			ClientSecret: os.Getenv("AUTH0_CLIENT_SECRET"),
-			Domain:       os.Getenv("AUTH0_DOMAIN"),
-			Audiences:    aud,
+			ClientID:           os.Getenv("AUTH0_CLIENT_ID"),
+			ClientSecret:       os.Getenv("AUTH0_CLIENT_SECRET"),
+			Domain:             os.Getenv("AUTH0_DOMAIN"),
+			Audiences:          aud,
+			ManagementAudience: os.Getenv("AUTH0_MANAGEMENT_AUDIENCE"),
 		},
 		AWS: awsConfig{
 			TempBucket: os.Getenv("AWS_TEMP_BUCKET"),

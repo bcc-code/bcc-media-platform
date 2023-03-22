@@ -36,6 +36,7 @@ type User {
   bccMember: Boolean!
   audience: String
   email: String
+  emailVerified: Boolean! @goField(forceResolver: true)
   settings: Settings!
   roles: [String!]!
   analytics: Analytics!

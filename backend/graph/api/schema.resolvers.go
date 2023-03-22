@@ -445,6 +445,7 @@ func (r *queryRootResolver) Me(ctx context.Context) (*model.User, error) {
 
 	if usr.Email != "" {
 		u.Email = &usr.Email
+		u.EmailVerified = usr.EmailVerified
 	}
 
 	return u, nil
@@ -589,7 +590,26 @@ func (r *queryRootResolver) Prompts(ctx context.Context) ([]model.Prompt, error)
 	return utils.MapWithCtx(ctx, surveys, model.PromptFrom), nil
 }
 
+// EmailVerified is the resolver for the emailVerified field.
+func (r *userResolver) EmailVerified(ctx context.Context, obj *model.User) (bool, error) {
+	if obj.EmailVerified || obj.Anonymous || obj.ID == nil {
+		return obj.EmailVerified, nil
+	}
+	return memorycache.GetOrSet(ctx, "userinfo:email_verified:"+*obj.ID, func(ctx context.Context) (bool, error) {
+		ginCtx, _ := utils.GinCtx(ctx)
+		info, err := r.AuthClient.GetUser(ctx, ginCtx.GetString(auth0.CtxUserID))
+		if err != nil {
+			return false, err
+		}
+		return info.EmailVerified, nil
+	}, cache.WithExpiration(time.Second*2))
+}
+
 // QueryRoot returns generated.QueryRootResolver implementation.
 func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
 
+// User returns generated.UserResolver implementation.
+func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
+
 type queryRootResolver struct{ *Resolver }
+type userResolver struct{ *Resolver }

@@ -1,46 +1,39 @@
 package auth0
 
-import (
-	"context"
-	"encoding/json"
-	"fmt"
-	"github.com/ansel1/merry/v2"
-	"net/http"
-	"time"
-)
-
 // UserInfo contains information about a user
 type UserInfo struct {
-	Sub           string    `json:"sub"`
-	Nickname      string    `json:"nickname"`
-	Name          string    `json:"name"`
-	Picture       string    `json:"picture"`
-	UpdatedAt     time.Time `json:"updated_at"`
-	Email         string    `json:"email"`
-	EmailVerified bool      `json:"email_verified"`
-	//ClaimsPersonId        null.Int    `json:"https://login.bcc.no/claims/personId"`
-	//ClaimsHasMembership   bool        `json:"https://login.bcc.no/claims/hasMembership"`
-	//ClaimsChurchId        null.Int    `json:"https://login.bcc.no/claims/churchId"`
-	//ClaimsChurchName      null.String `json:"https://login.bcc.no/claims/churchName"`
-	//ClaimsCountryIso2Code null.String `json:"https://login.bcc.no/claims/CountryIso2Code"`
-	//AppMetadata           struct{}    `json:"https://members.bcc.no/app_metadata"`
+	UserId        string `json:"user_id"`
+	Email         string `json:"email"`
+	EmailVerified bool   `json:"email_verified"`
+	Username      string `json:"username"`
+	PhoneNumber   string `json:"phone_number"`
+	PhoneVerified bool   `json:"phone_verified"`
+	CreatedAt     string `json:"created_at"`
+	UpdatedAt     string `json:"updated_at"`
+	Identities    []struct {
+		Connection string `json:"connection"`
+		UserId     string `json:"user_id"`
+		Provider   string `json:"provider"`
+		IsSocial   bool   `json:"isSocial"`
+	} `json:"identities"`
+	AppMetadata struct {
+	} `json:"app_metadata"`
+	UserMetadata UserMetadata `json:"user_metadata"`
+	Picture      string       `json:"picture"`
+	Name         string       `json:"name"`
+	Nickname     string       `json:"nickname"`
+	Multifactor  []string     `json:"multifactor"`
+	LastIp       string       `json:"last_ip"`
+	LastLogin    string       `json:"last_login"`
+	LoginsCount  int          `json:"logins_count"`
+	Blocked      bool         `json:"blocked"`
+	GivenName    string       `json:"given_name"`
+	FamilyName   string       `json:"family_name"`
 }
 
-// GetUserInfoForAuthHeader returns info for the user
-func (c *Client) GetUserInfoForAuthHeader(ctx context.Context, authHeader string) (UserInfo, error) {
-	var result UserInfo
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://%s/userinfo", c.config.Domain), nil)
-	if err != nil {
-		return result, err
-	}
-	req.Header.Set("Authorization", authHeader)
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return result, err
-	}
-	if res.StatusCode < 200 || res.StatusCode > 299 {
-		return result, merry.New("Error occurred trying to fetch user info for access token", merry.WithHTTPCode(res.StatusCode))
-	}
-	err = json.NewDecoder(res.Body).Decode(&result)
-	return result, err
+// UserMetadata is the user metadata
+type UserMetadata struct {
+	BirthYear       int  `json:"birth_year"`
+	BirthMonth      int  `json:"birth_month"`
+	MediaSubscriber bool `json:"media_subscriber"`
 }

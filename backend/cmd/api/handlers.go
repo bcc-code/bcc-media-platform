@@ -8,6 +8,7 @@ import (
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/analytics"
+	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/email"
 	graphadmin "github.com/bcc-code/brunstadtv/backend/graph/admin"
@@ -38,6 +39,7 @@ func graphqlHandler(
 	config envConfig,
 	s3client *s3.Client,
 	analyticsSalt string,
+	authClient *auth0.Client,
 ) gin.HandlerFunc {
 	resolver := graphapi.Resolver{
 		Queries:            queries,
@@ -52,6 +54,7 @@ func graphqlHandler(
 		APIConfig:          config.CDNConfig,
 		AWSConfig:          config.AWS,
 		RedirectConfig:     config.Redirect,
+		AuthClient:         authClient,
 		AnalyticsIDFactory: func(ctx context.Context) string {
 			ginCtx, err := utils.GinCtx(ctx)
 			p := user.GetProfileFromCtx(ginCtx)
