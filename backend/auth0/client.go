@@ -14,11 +14,6 @@ type Client struct {
 	config Config
 }
 
-// GetClientID returns the clientID for this application
-func (c *Client) GetClientID() string {
-	return c.config.ClientID
-}
-
 // New returns a new Auth client
 func New(config Config) *Client {
 	return &Client{
