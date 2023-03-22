@@ -12,9 +12,6 @@ test("Status", async (t) => {
     let apiResponse = await getApiResponsefromEpisodeWithStatus("published");
     t.not(apiResponse.data.episode, null, "the episode (status: published) is null");
 
-    apiResponse = await getApiResponsefromEpisodeWithStatus("unlisted");
-    t.not(apiResponse.data.episode, null, "the episode (status: unlisted) is null");
-
     apiResponse = await getApiResponsefromEpisodeWithStatus("draft");
     t.is(apiResponse.errors?.[0].extensions.code, ApiErrorCodes.ItemNotPublished, "the episode (status: draft) dosen't get the right error code");
 

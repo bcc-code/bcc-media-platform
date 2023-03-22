@@ -15,20 +15,24 @@ WHERE code = ANY ($1::varchar[]);
 -- name: getUsers :many
 SELECT u.id,
        u.email,
+       u.email_verified,
        u.display_name,
        u.age,
        u.age_group,
        u.church_ids::int[] as church_ids,
        u.active_bcc,
+       u.first_name,
+       u.gender,
        u.roles::varchar[]  as roles
 FROM users.users u
 WHERE u.id = ANY ($1::varchar[]);
 
 -- name: UpsertUser :exec
-INSERT INTO users.users (id, email, email_verified, display_name, age, church_ids, active_bcc, roles, age_group,
-                         updated_at)
-VALUES (@id, @email, @email_verified, @display_name, @age, @church_ids::int[], @active_bcc, @roles::varchar[],
-        @age_group, NOW())
+INSERT INTO users.users (id, email, email_verified, first_name, display_name, age, church_ids, active_bcc, roles,
+                         age_group, gender, updated_at)
+VALUES (@id, @email, @email_verified, @first_name, @display_name, @age, @church_ids::int[], @active_bcc,
+        @roles::varchar[],
+        @age_group, @gender, NOW())
 ON CONFLICT (id) DO UPDATE SET email          = excluded.email,
                                email_verified = excluded.email_verified,
                                display_name   = excluded.display_name,
@@ -37,4 +41,5 @@ ON CONFLICT (id) DO UPDATE SET email          = excluded.email,
                                active_bcc     = excluded.active_bcc,
                                roles          = excluded.roles,
                                age_group      = excluded.age_group,
+                               gender         = excluded.gender,
                                updated_at     = NOW();

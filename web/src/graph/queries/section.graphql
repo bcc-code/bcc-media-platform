@@ -12,6 +12,7 @@ fragment SectionItem on SectionItem {
             publishDate
             progress
             duration
+            locked
             ageRating
             description
             season {

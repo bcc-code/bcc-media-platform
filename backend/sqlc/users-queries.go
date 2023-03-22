@@ -18,15 +18,18 @@ func (q *Queries) GetUsers(ctx context.Context, ids []string) ([]common.User, er
 			ag = "unknown"
 		}
 		return common.User{
-			PersonID:    i.ID,
-			Anonymous:   false,
-			Roles:       i.Roles,
-			Age:         int(i.Age),
-			AgeGroup:    ag,
-			ActiveBCC:   i.ActiveBcc,
-			Email:       i.Email,
-			ChurchIDs:   int32ToInt(i.ChurchIds),
-			DisplayName: i.DisplayName,
+			PersonID:      i.ID,
+			Gender:        i.Gender,
+			FirstName:     i.FirstName,
+			EmailVerified: i.EmailVerified,
+			Anonymous:     false,
+			Roles:         i.Roles,
+			Age:           int(i.Age),
+			AgeGroup:      ag,
+			ActiveBCC:     i.ActiveBcc,
+			Email:         i.Email,
+			ChurchIDs:     int32ToInt(i.ChurchIds),
+			DisplayName:   i.DisplayName,
 		}
 	}), nil
 }

@@ -124,7 +124,7 @@ export const comingSoon = (item: SectionItemFragment) => {
     switch (item.item.__typename) {
         case "Episode":
             return (
-                new Date(item.item.publishDate).getTime() > new Date().getTime()
+                item.item.locked && new Date(item.item.publishDate).getTime() > new Date().getTime()
             )
     }
     return false

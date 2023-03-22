@@ -203,11 +203,6 @@ type Application struct {
 	SearchPage    *Page  `json:"searchPage"`
 }
 
-type BirthOptions struct {
-	Year  int `json:"year"`
-	Month int `json:"month"`
-}
-
 type Calendar struct {
 	Period *CalendarPeriod `json:"period"`
 	Day    *CalendarDay    `json:"day"`
@@ -754,11 +749,6 @@ type MessageStyle struct {
 	Border     string `json:"border"`
 }
 
-type NameOptions struct {
-	First string `json:"first"`
-	Last  string `json:"last"`
-}
-
 type Page struct {
 	ID          string             `json:"id"`
 	Code        string             `json:"code"`
@@ -1260,15 +1250,17 @@ func (this TextTask) GetTitle() string   { return this.Title }
 func (this TextTask) GetCompleted() bool { return this.Completed }
 
 type User struct {
-	ID            *string    `json:"id"`
-	Anonymous     bool       `json:"anonymous"`
-	BccMember     bool       `json:"bccMember"`
-	Audience      *string    `json:"audience"`
-	Email         *string    `json:"email"`
-	EmailVerified bool       `json:"emailVerified"`
-	Settings      *Settings  `json:"settings"`
-	Roles         []string   `json:"roles"`
-	Analytics     *Analytics `json:"analytics"`
+	ID          *string    `json:"id"`
+	Anonymous   bool       `json:"anonymous"`
+	BccMember   bool       `json:"bccMember"`
+	Audience    *string    `json:"audience"`
+	Email       *string    `json:"email"`
+	Settings    *Settings  `json:"settings"`
+	Roles       []string   `json:"roles"`
+	Analytics   *Analytics `json:"analytics"`
+	Gender      Gender     `json:"gender"`
+	FirstName   string     `json:"firstName"`
+	DisplayName string     `json:"displayName"`
 }
 
 type UserCollection struct {
@@ -1404,6 +1396,49 @@ func (e *EpisodeType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e EpisodeType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type Gender string
+
+const (
+	GenderMale    Gender = "male"
+	GenderFemale  Gender = "female"
+	GenderUnknown Gender = "unknown"
+)
+
+var AllGender = []Gender{
+	GenderMale,
+	GenderFemale,
+	GenderUnknown,
+}
+
+func (e Gender) IsValid() bool {
+	switch e {
+	case GenderMale, GenderFemale, GenderUnknown:
+		return true
+	}
+	return false
+}
+
+func (e Gender) String() string {
+	return string(e)
+}
+
+func (e *Gender) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Gender(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Gender", str)
+	}
+	return nil
+}
+
+func (e Gender) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

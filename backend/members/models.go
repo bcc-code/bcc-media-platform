@@ -9,8 +9,10 @@ type Member struct {
 	PersonID      int
 	Age           int
 	Email         string
-	EmailVerified bool `json:"emailVerified"`
-	DisplayName   string
+	EmailVerified bool   `json:"emailVerified"`
+	DisplayName   string `json:"displayName"`
+	FirstName     string `json:"firstName"`
+	Gender        string `json:"gender"`
 	Affiliations  []Affiliation
 }
 

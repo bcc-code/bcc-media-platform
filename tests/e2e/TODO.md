@@ -31,3 +31,18 @@ testing both:
 - [x] if publish_date in the past: episode.streams[] should contain an item with a url
 - [x] if publish_date in the future: episode.title should be retrievable
 
+# Calendar
+
+Date format: 2023-03-10T00:00:00Z
+
+Calendar entries
+- Store variables for title, start, end, etc.
+- Create entry for a specific date with the title, start, end, etc.
+- Run graphql query for `day(day: $date)` with the same date
+- Assert that an entry exists with the same data in the graphql response
+
+Calendar periods
+- Create array with a few different days within a month.
+- Iterate through the array, create calendar entries for them, data doesnt matter.
+- Run graphql query for `period(from: $from, to: $to)`
+- Assert that the `data.calendar.period.activeDays` array contains the exact same days as in step 1.

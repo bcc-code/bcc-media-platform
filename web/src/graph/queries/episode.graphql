@@ -51,6 +51,7 @@ query getEpisode($episodeId: ID!, $context: EpisodeContext) {
         description
         number
         progress
+        locked
         ageRating
         productionDate
         productionDateInTitle
