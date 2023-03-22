@@ -24,6 +24,12 @@ type Settings {
   subtitleLanguages: [Language!]!
 }
 
+enum Gender {
+  male
+  female
+  unknown
+}
+
 type User {
   id: ID
   anonymous: Boolean!
@@ -33,6 +39,9 @@ type User {
   settings: Settings!
   roles: [String!]!
   analytics: Analytics!
+  gender: Gender!
+  firstName: String!
+  displayName: String!
 }
 
 input LegacyIDLookupOptions {

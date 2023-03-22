@@ -1453,4 +1453,6 @@ type UsersUser struct {
 	AgeGroup      string      `db:"age_group" json:"ageGroup"`
 	UpdatedAt     time.Time   `db:"updated_at" json:"updatedAt"`
 	EmailVerified bool        `db:"email_verified" json:"emailVerified"`
+	Gender        string      `db:"gender" json:"gender"`
+	FirstName     string      `db:"first_name" json:"firstName"`
 }

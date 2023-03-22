@@ -163,6 +163,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				Anonymous: false,
 				ActiveBCC: ctx.GetBool(auth0.CtxIsBCCMember),
 				AgeGroup:  "unknown",
+				Gender:    "unknown",
 			}
 
 			saveUser := func() error {
@@ -170,11 +171,13 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 					ID:            u.PersonID,
 					Roles:         u.Roles,
 					DisplayName:   u.DisplayName,
+					FirstName:     u.FirstName,
 					ActiveBcc:     u.ActiveBCC,
 					EmailVerified: u.EmailVerified,
 					Email:         u.Email,
 					AgeGroup:      u.AgeGroup,
 					Age:           int32(u.Age),
+					Gender:        u.Gender,
 					ChurchIds: lo.Map(u.ChurchIDs, func(i int, _ int) int32 {
 						return int32(i)
 					}),
@@ -205,6 +208,15 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 					userCache.Set(userID, u, cache.WithExpiration(1*time.Minute))
 					ctx.Set(CtxUser, u)
 					return u, nil
+				}
+				u.FirstName = member.FirstName
+				switch member.Gender {
+				case "Male":
+					u.Gender = "male"
+				case "Female":
+					u.Gender = "female"
+				default:
+					u.Gender = "unknown"
 				}
 				u.Email = member.Email
 				u.DisplayName = member.DisplayName

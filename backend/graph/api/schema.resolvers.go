@@ -6,11 +6,11 @@ package graph
 import (
 	"context"
 	"fmt"
-	cache "github.com/Code-Hex/go-generics-cache"
 	"net/url"
 	"strconv"
 	"time"
 
+	"github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/achievements"
 	"github.com/bcc-code/brunstadtv/backend/applications"
@@ -418,14 +418,25 @@ func (r *queryRootResolver) Me(ctx context.Context) (*model.User, error) {
 	usr := user.GetFromCtx(gc)
 
 	u := &model.User{
-		Anonymous: usr.IsAnonymous(),
-		BccMember: usr.IsActiveBCC(),
-		Roles:     usr.Roles,
-		Analytics: &model.Analytics{},
+		Anonymous:   usr.IsAnonymous(),
+		BccMember:   usr.IsActiveBCC(),
+		Roles:       usr.Roles,
+		DisplayName: usr.DisplayName,
+		FirstName:   usr.FirstName,
+		Analytics:   &model.Analytics{},
 	}
 
 	if pid := gc.GetString(auth0.CtxUserID); pid != "" {
 		u.ID = &pid
+	}
+
+	switch usr.Gender {
+	case "male":
+		u.Gender = model.GenderMale
+	case "female":
+		u.Gender = model.GenderFemale
+	default:
+		u.Gender = model.GenderUnknown
 	}
 
 	//if aud := gc.GetString(auth0.CtxAudience); aud != "" {
