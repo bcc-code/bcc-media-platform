@@ -33,6 +33,7 @@ type UserInfo struct {
 
 // UserMetadata is the user metadata
 type UserMetadata struct {
-	BirthYear  int `json:"birth_year"`
-	BirthMonth int `json:"birth_month"`
+	BirthYear       int  `json:"birth_year"`
+	BirthMonth      int  `json:"birth_month"`
+	MediaSubscriber bool `json:"media_subscriber"`
 }

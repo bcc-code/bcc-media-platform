@@ -468,8 +468,9 @@ func (r *mutationRootResolver) UpdateUserMetadata(ctx context.Context, birthData
 			Name:       displayName,
 			Nickname:   displayName,
 			UserMetadata: auth0.UserMetadata{
-				BirthMonth: birthData.Month,
-				BirthYear:  birthData.Year,
+				BirthMonth:      birthData.Month,
+				BirthYear:       birthData.Year,
+				MediaSubscriber: true,
 			},
 		})
 		return err == nil, err
