@@ -14,7 +14,7 @@ type Client struct {
 	config Config
 }
 
-// New returns a new Auth client
+// New creates a new auth client with the given config
 func New(config Config) *Client {
 	return &Client{
 		config,

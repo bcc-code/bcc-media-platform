@@ -4,11 +4,12 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
-	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/google/uuid"
 	"math"
 	"math/rand"
 	"strconv"
+
+	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/google/uuid"
 )
 
 // GenerateID for use in analytics based on profileID
