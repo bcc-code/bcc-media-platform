@@ -3,16 +3,19 @@
         "apps": [],
         "details": [
             {
+                "appID": "KJ6LCYQ3A8.tv.brunstad.app.v4",
+                "paths": [
+                    "NOT /tvlogin/*",
+                    "/*",
+                    "NOT /w/*"
+                ]
+            },
+            {
                 "appID": "KJ6LCYQ3A8.tv.brunstad.app",
                 "paths": [
-                    "/",
-                    "/live",
-                    "/search",
-                    "/series/*",
-                    "/tvlogin/*",
-                    "/program/*",
-                    "/support",
-                    "/r/*"
+                    "NOT /tvlogin/*",
+                    "/*",
+                    "NOT /w/*"
                 ]
             }
         ]
