@@ -61,8 +61,13 @@ func graphqlHandler(
 			if err != nil || p == nil {
 				return "anonymous"
 			}
+			u := user.GetFromCtx(ginCtx)
 
-			return analytics.GenerateID(p.ID, analyticsSalt)
+			aID := analytics.GenerateID(p.ID, analyticsSalt)
+			if u.IsActiveBCC() {
+				return aID
+			}
+			return "ext-" + aID
 		},
 	}
 
