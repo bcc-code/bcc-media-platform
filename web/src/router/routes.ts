@@ -100,4 +100,9 @@ export default [
         component: () => import("@/pages/redirect/Redirect.vue"),
         props: true,
     },
+    {
+        name: "login",
+        path: "/login",
+        component: () => import("@/pages/Login.vue")
+    }
 ] as RouteRecordRaw[]
