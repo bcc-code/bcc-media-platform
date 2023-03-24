@@ -6,6 +6,8 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 // Constants for string keys
@@ -23,6 +25,33 @@ type Action struct {
 	Action     string
 }
 
+type achievedResult struct {
+	ID           uuid.UUID
+	ConditionIDs []uuid.UUID
+}
+
+func listToAchievedResult[T any](ctx context.Context, queries *sqlc.Queries, action Action, profileID uuid.UUID, factory func(ctx context.Context, id uuid.UUID) ([]T, error)) ([]achievedResult, error) {
+	rows, err := factory(ctx, profileID)
+	if err != nil {
+		return nil, err
+	}
+	achieved, err := queries.GetAchievementsWithConditionAchieved(ctx, sqlc.GetAchievementsWithConditionAchievedParams{
+		ProfileID:  profileID,
+		Action:     action.Action,
+		Collection: action.Collection,
+		Amount:     int32(len(rows)),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(achieved, func(i sqlc.GetAchievementsWithConditionAchievedRow, _ int) achievedResult {
+		return achievedResult{
+			ID:           i.ID,
+			ConditionIDs: i.ConditionIds,
+		}
+	}), nil
+}
+
 // CheckNewAchievements achieved since last check
 func CheckNewAchievements(ctx context.Context, queries *sqlc.Queries, loaders *common.BatchLoaders, action Action) error {
 	ginCtx, _ := utils.GinCtx(ctx)
@@ -31,43 +60,27 @@ func CheckNewAchievements(ctx context.Context, queries *sqlc.Queries, loaders *c
 		return nil
 	}
 
-	var amount int
+	var achieved []achievedResult
+	var err error
+
 	switch action.Collection {
 	case CollectionTopics:
 		switch action.Action {
 		case ActionCompleted:
-			ids, err := loaders.CompletedTopicsLoader.Get(ctx, p.ID)
-			if err != nil {
-				return err
-			}
-			amount = len(ids)
+			achieved, err = listToAchievedResult(ctx, queries, action, p.ID, loaders.CompletedTopicsLoader.Get)
 		}
 	case CollectionLessons:
 		switch action.Action {
 		case ActionCompleted:
-			ids, err := loaders.CompletedLessonsLoader.Get(ctx, p.ID)
-			if err != nil {
-				return err
-			}
-			amount = len(ids)
+			achieved, err = listToAchievedResult(ctx, queries, action, p.ID, loaders.CompletedLessonsLoader.Get)
 		}
 	case CollectionTasks:
 		switch action.Action {
 		case ActionCompleted:
-			ids, err := loaders.CompletedTasksLoader.Get(ctx, p.ID)
-			if err != nil {
-				return err
-			}
-			amount = len(ids)
+			achieved, err = listToAchievedResult(ctx, queries, action, p.ID, loaders.CompletedTasksLoader.Get)
 		}
 	}
 
-	achieved, err := queries.GetAchievementsWithConditionAchieved(ctx, sqlc.GetAchievementsWithConditionAchievedParams{
-		ProfileID:  p.ID,
-		Action:     action.Action,
-		Collection: action.Collection,
-		Amount:     int32(amount),
-	})
 	if err != nil {
 		return err
 	}
@@ -75,7 +88,7 @@ func CheckNewAchievements(ctx context.Context, queries *sqlc.Queries, loaders *c
 		err = queries.SetAchievementAchieved(ctx, sqlc.SetAchievementAchievedParams{
 			AchievementID: a.ID,
 			ProfileID:     p.ID,
-			ConditionIds:  a.ConditionIds,
+			ConditionIds:  a.ConditionIDs,
 		})
 		if err != nil {
 			return err

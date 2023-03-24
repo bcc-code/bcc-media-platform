@@ -293,6 +293,13 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 			userCache.Set(userID, u, cache.WithExpiration(60*time.Minute))
 			ctx.Set(CtxUser, u)
 			return
+		} else {
+			log.L.Error().Err(err).Send()
+			ctx.Set(CtxUser, &common.User{
+				Roles:     roles,
+				Anonymous: true,
+				ActiveBCC: false,
+			})
 		}
 	}
 }
