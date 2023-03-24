@@ -236,14 +236,13 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				u.DisplayName = info.Nickname
 				u.EmailVerified = info.EmailVerified
 
-				if info.UserMetadata.BirthYear != 0 && info.UserMetadata.BirthMonth != 0 {
-					t, _ := time.Parse("2006-1", fmt.Sprintf("%d-%d", info.UserMetadata.BirthYear, info.UserMetadata.BirthMonth))
-
-					u.Age = time.Now().Year() - t.Year()
-
-					if t.Month() > time.Now().Month() {
-						u.Age -= 1
+				if by, ok := info.UserMetadata["birth_year"]; ok {
+					var year int
+					switch t := by.(type) {
+					case float64:
+						year = int(t)
 					}
+					u.Age = time.Now().Year() - year
 				}
 			}
 
