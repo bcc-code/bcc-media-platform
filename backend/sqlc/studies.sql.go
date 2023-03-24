@@ -348,18 +348,19 @@ const getCompletedTopics = `-- name: getCompletedTopics :many
 WITH total AS (SELECT l.topic_id,
                       COUNT(t.id) task_count
                FROM tasks t
-                        LEFT JOIN lessons l ON l.id = t.lesson_id
+                        JOIN lessons l ON l.id = t.lesson_id
+               WHERE t.status = 'published'
                GROUP BY l.topic_id),
-     completed AS (SELECT t.lesson_id, ta.profile_id, COUNT(t.id) completed_count
+     completed AS (SELECT l.topic_id, ta.profile_id, COUNT(t.id) completed_count
                    FROM tasks t
-                            LEFT JOIN users.taskanswers ta ON ta.task_id = t.id
-                            LEFT JOIN lessons l ON l.id = t.lesson_id
-                   GROUP BY t.lesson_id, ta.profile_id)
-SELECT total.topic_id::uuid as id, completed.profile_id::uuid as parent_id
+                            JOIN "users"."taskanswers" ta ON ta.task_id = t.id
+                            JOIN lessons l ON t.lesson_id = l.id
+                   GROUP BY l.topic_id, ta.profile_id)
+SELECT completed.topic_id::uuid as id, completed.profile_id::uuid as parent_id
 FROM completed
-         LEFT JOIN total ON total.topic_id = completed.lesson_id
-WHERE completed.lesson_id = ANY ($1::uuid[])
-  AND completed.completed_count = total.task_count
+         JOIN total ON total.topic_id = completed.topic_id
+WHERE completed.profile_id = ANY ($1::uuid[])
+  AND completed.completed_count >= total.task_count
 `
 
 type getCompletedTopicsRow struct {
@@ -367,8 +368,8 @@ type getCompletedTopicsRow struct {
 	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
 }
 
-func (q *Queries) getCompletedTopics(ctx context.Context, dollar_1 []uuid.UUID) ([]getCompletedTopicsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getCompletedTopics, pq.Array(dollar_1))
+func (q *Queries) getCompletedTopics(ctx context.Context, profileIds []uuid.UUID) ([]getCompletedTopicsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCompletedTopics, pq.Array(profileIds))
 	if err != nil {
 		return nil, err
 	}

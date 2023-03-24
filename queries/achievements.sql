@@ -14,7 +14,7 @@ WITH ts AS (SELECT achievements_id,
                 GROUP BY achievement_id)
 SELECT a.id,
        a.group_id,
-       a.title as original_title,
+       a.title       as original_title,
        a.description as original_description,
        ts.title,
        ts.description,
@@ -83,7 +83,7 @@ SET confirmed_at = NOW()
 WHERE profile_id = $1
   AND achievement_id = $2;
 
--- name: GetAchievementsWithConditionAchieved :many
+-- name: GetAchievementsWithConditionAmountAchieved :many
 SELECT c.achievement_id AS id, array_agg(c.id)::uuid[] AS condition_ids
 FROM "public"."achievementconditions" c
          LEFT JOIN "users"."achievements" achieved
@@ -92,6 +92,17 @@ WHERE achieved IS NULL
   AND c.collection = $2
   AND c.action = $3
   AND c.amount <= $4
+GROUP BY c.achievement_id;
+
+-- name: GetAchievementsWithTopicsCompletedAchieved :many
+SELECT c.achievement_id AS id, array_agg(c.id)::uuid[] AS condition_ids
+FROM "public"."achievementconditions" c
+         LEFT JOIN "users"."achievements" achieved
+                   ON achieved.profile_id = @profile_id AND achieved.achievement_id = c.achievement_id
+         LEFT JOIN "public"."achievementconditions_studytopics" t ON t.achievementconditions_id = c.id
+WHERE achieved IS NULL
+  AND c.collection = 'topics'
+  AND t.studytopics_id = ANY (@topic_ids::uuid[])
 GROUP BY c.achievement_id;
 
 -- name: SetAchievementAchieved :exec

@@ -8,11 +8,13 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
 )
 
 // Constants for string keys
 const (
-	ActionCompleted = "completed"
+	ActionCompleted      = "completed"
+	ActionCompletedItems = "completed_items"
 
 	CollectionTopics  = "topics"
 	CollectionLessons = "lessons"
@@ -30,21 +32,39 @@ type achievedResult struct {
 	ConditionIDs []uuid.UUID
 }
 
-func listToAchievedResult[T any](ctx context.Context, queries *sqlc.Queries, action Action, profileID uuid.UUID, factory func(ctx context.Context, id uuid.UUID) ([]T, error)) ([]achievedResult, error) {
+func amountToAchievedResult[T any](ctx context.Context, queries *sqlc.Queries, action Action, profileID uuid.UUID, factory func(ctx context.Context, id uuid.UUID) ([]T, error)) ([]achievedResult, error) {
 	rows, err := factory(ctx, profileID)
 	if err != nil {
 		return nil, err
 	}
-	achieved, err := queries.GetAchievementsWithConditionAchieved(ctx, sqlc.GetAchievementsWithConditionAchievedParams{
-		ProfileID:  profileID,
-		Action:     action.Action,
-		Collection: action.Collection,
-		Amount:     int32(len(rows)),
+	achieved, err := queries.GetAchievementsWithConditionAmountAchieved(ctx, sqlc.GetAchievementsWithConditionAmountAchievedParams{
+		ProfileID: profileID,
+		Amount:    null.IntFrom(int64(len(rows))),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(achieved, func(i sqlc.GetAchievementsWithConditionAchievedRow, _ int) achievedResult {
+	return lo.Map(achieved, func(i sqlc.GetAchievementsWithConditionAmountAchievedRow, _ int) achievedResult {
+		return achievedResult{
+			ID:           i.ID,
+			ConditionIDs: i.ConditionIds,
+		}
+	}), nil
+}
+
+func completedTopicIDsToAchievedResult(ctx context.Context, queries *sqlc.Queries, profileID uuid.UUID, factory func(ctx context.Context, id uuid.UUID) ([]*uuid.UUID, error)) ([]achievedResult, error) {
+	rows, err := factory(ctx, profileID)
+	if err != nil {
+		return nil, err
+	}
+	achieved, err := queries.GetAchievementsWithTopicsCompletedAchieved(ctx, sqlc.GetAchievementsWithTopicsCompletedAchievedParams{
+		ProfileID: profileID,
+		TopicIds:  utils.PointerArrayToArray(rows),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(achieved, func(i sqlc.GetAchievementsWithTopicsCompletedAchievedRow, _ int) achievedResult {
 		return achievedResult{
 			ID:           i.ID,
 			ConditionIDs: i.ConditionIds,
@@ -67,17 +87,19 @@ func CheckNewAchievements(ctx context.Context, queries *sqlc.Queries, loaders *c
 	case CollectionTopics:
 		switch action.Action {
 		case ActionCompleted:
-			achieved, err = listToAchievedResult(ctx, queries, action, p.ID, loaders.CompletedTopicsLoader.Get)
+			achieved, err = amountToAchievedResult(ctx, queries, action, p.ID, loaders.CompletedTopicsLoader.Get)
+		case ActionCompletedItems:
+			achieved, err = completedTopicIDsToAchievedResult(ctx, queries, p.ID, loaders.CompletedTopicsLoader.Get)
 		}
 	case CollectionLessons:
 		switch action.Action {
 		case ActionCompleted:
-			achieved, err = listToAchievedResult(ctx, queries, action, p.ID, loaders.CompletedLessonsLoader.Get)
+			achieved, err = amountToAchievedResult(ctx, queries, action, p.ID, loaders.CompletedLessonsLoader.Get)
 		}
 	case CollectionTasks:
 		switch action.Action {
 		case ActionCompleted:
-			achieved, err = listToAchievedResult(ctx, queries, action, p.ID, loaders.CompletedTasksLoader.Get)
+			achieved, err = amountToAchievedResult(ctx, queries, action, p.ID, loaders.CompletedTasksLoader.Get)
 		}
 	}
 
@@ -100,6 +122,10 @@ func CheckNewAchievements(ctx context.Context, queries *sqlc.Queries, loaders *c
 // CheckAllAchievements checks if any achievement has been achieved
 func CheckAllAchievements(ctx context.Context, queries *sqlc.Queries, loaders *common.BatchLoaders) error {
 	actions := []Action{
+		{
+			Collection: CollectionTopics,
+			Action:     ActionCompletedItems,
+		},
 		{
 			Collection: CollectionLessons,
 			Action:     ActionCompleted,
