@@ -42,7 +42,6 @@ type AddToCollectionResult {
 
 input BirthOptions {
     year: Int!
-    month: Int!
 }
 
 input NameOptions {

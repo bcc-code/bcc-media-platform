@@ -204,8 +204,7 @@ type Application struct {
 }
 
 type BirthOptions struct {
-	Year  int `json:"year"`
-	Month int `json:"month"`
+	Year int `json:"year"`
 }
 
 type Calendar struct {

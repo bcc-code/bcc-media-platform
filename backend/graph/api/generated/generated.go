@@ -5838,7 +5838,6 @@ type AddToCollectionResult {
 
 input BirthOptions {
     year: Int!
-    month: Int!
 }
 
 input NameOptions {
@@ -35997,7 +35996,7 @@ func (ec *executionContext) unmarshalInputBirthOptions(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"year", "month"}
+	fieldsInOrder := [...]string{"year"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36009,14 +36008,6 @@ func (ec *executionContext) unmarshalInputBirthOptions(ctx context.Context, obj 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
 			it.Year, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "month":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("month"))
-			it.Month, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
