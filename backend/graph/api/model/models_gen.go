@@ -1259,18 +1259,19 @@ func (this TextTask) GetTitle() string   { return this.Title }
 func (this TextTask) GetCompleted() bool { return this.Completed }
 
 type User struct {
-	ID            *string    `json:"id"`
-	Anonymous     bool       `json:"anonymous"`
-	BccMember     bool       `json:"bccMember"`
-	Audience      *string    `json:"audience"`
-	Email         *string    `json:"email"`
-	EmailVerified bool       `json:"emailVerified"`
-	Settings      *Settings  `json:"settings"`
-	Roles         []string   `json:"roles"`
-	Analytics     *Analytics `json:"analytics"`
-	Gender        Gender     `json:"gender"`
-	FirstName     string     `json:"firstName"`
-	DisplayName   string     `json:"displayName"`
+	ID                    *string    `json:"id"`
+	Anonymous             bool       `json:"anonymous"`
+	BccMember             bool       `json:"bccMember"`
+	Audience              *string    `json:"audience"`
+	Email                 *string    `json:"email"`
+	EmailVerified         bool       `json:"emailVerified"`
+	Settings              *Settings  `json:"settings"`
+	Roles                 []string   `json:"roles"`
+	Analytics             *Analytics `json:"analytics"`
+	Gender                Gender     `json:"gender"`
+	FirstName             string     `json:"firstName"`
+	DisplayName           string     `json:"displayName"`
+	CompletedRegistration bool       `json:"completedRegistration"`
 }
 
 type UserCollection struct {

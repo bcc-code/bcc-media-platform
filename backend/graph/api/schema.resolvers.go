@@ -448,6 +448,8 @@ func (r *queryRootResolver) Me(ctx context.Context) (*model.User, error) {
 		u.EmailVerified = usr.EmailVerified
 	}
 
+	u.CompletedRegistration = usr.IsActiveBCC() || usr.CompletedRegistration
+
 	return u, nil
 }
 

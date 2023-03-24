@@ -872,18 +872,19 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		Analytics     func(childComplexity int) int
-		Anonymous     func(childComplexity int) int
-		Audience      func(childComplexity int) int
-		BccMember     func(childComplexity int) int
-		DisplayName   func(childComplexity int) int
-		Email         func(childComplexity int) int
-		EmailVerified func(childComplexity int) int
-		FirstName     func(childComplexity int) int
-		Gender        func(childComplexity int) int
-		ID            func(childComplexity int) int
-		Roles         func(childComplexity int) int
-		Settings      func(childComplexity int) int
+		Analytics             func(childComplexity int) int
+		Anonymous             func(childComplexity int) int
+		Audience              func(childComplexity int) int
+		BccMember             func(childComplexity int) int
+		CompletedRegistration func(childComplexity int) int
+		DisplayName           func(childComplexity int) int
+		Email                 func(childComplexity int) int
+		EmailVerified         func(childComplexity int) int
+		FirstName             func(childComplexity int) int
+		Gender                func(childComplexity int) int
+		ID                    func(childComplexity int) int
+		Roles                 func(childComplexity int) int
+		Settings              func(childComplexity int) int
 	}
 
 	UserCollection struct {
@@ -5080,6 +5081,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.BccMember(childComplexity), true
 
+	case "User.completedRegistration":
+		if e.complexity.User.CompletedRegistration == nil {
+			break
+		}
+
+		return e.complexity.User.CompletedRegistration(childComplexity), true
+
 	case "User.displayName":
 		if e.complexity.User.DisplayName == nil {
 			break
@@ -6165,6 +6173,7 @@ type User {
   gender: Gender!
   firstName: String!
   displayName: String!
+  completedRegistration: Boolean!
 }
 
 input LegacyIDLookupOptions {
@@ -24734,6 +24743,8 @@ func (ec *executionContext) fieldContext_QueryRoot_me(ctx context.Context, field
 				return ec.fieldContext_User_firstName(ctx, field)
 			case "displayName":
 				return ec.fieldContext_User_displayName(ctx, field)
+			case "completedRegistration":
+				return ec.fieldContext_User_completedRegistration(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -33071,6 +33082,50 @@ func (ec *executionContext) fieldContext_User_displayName(ctx context.Context, f
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_completedRegistration(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_completedRegistration(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CompletedRegistration, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_completedRegistration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -43666,6 +43721,13 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "displayName":
 
 			out.Values[i] = ec._User_displayName(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "completedRegistration":
+
+			out.Values[i] = ec._User_completedRegistration(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
