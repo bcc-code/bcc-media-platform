@@ -244,11 +244,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 					}
 					u.Age = time.Now().Year() - year
 				}
-				if completedRegistration, ok := info.UserMetadata["media_subscriber"]; ok {
-					if v, _ := completedRegistration.(bool); v {
-						u.CompletedRegistration = true
-					}
-				}
+				u.CompletedRegistration = info.CompletedRegistration()
 			}
 
 			if u.Email == "" {

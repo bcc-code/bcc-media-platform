@@ -36,3 +36,13 @@ type UserMetadata struct {
 	BirthYear       int  `json:"birth_year"`
 	MediaSubscriber bool `json:"media_subscriber"`
 }
+
+// CompletedRegistration returns true if the user has completed registration
+func (info UserInfo) CompletedRegistration() bool {
+	if completedRegistration, ok := info.UserMetadata["media_subscriber"]; ok {
+		if v, _ := completedRegistration.(bool); v {
+			return true
+		}
+	}
+	return false
+}

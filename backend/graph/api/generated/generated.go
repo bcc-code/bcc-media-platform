@@ -1178,6 +1178,8 @@ type TextTaskResolver interface {
 }
 type UserResolver interface {
 	EmailVerified(ctx context.Context, obj *model.User) (bool, error)
+
+	CompletedRegistration(ctx context.Context, obj *model.User) (bool, error)
 }
 type UserCollectionResolver interface {
 	Entries(ctx context.Context, obj *model.UserCollection, first *int, offset *int) (*model.UserCollectionEntryPagination, error)
@@ -6173,7 +6175,7 @@ type User {
   gender: Gender!
   firstName: String!
   displayName: String!
-  completedRegistration: Boolean!
+  completedRegistration: Boolean! @goField(forceResolver: true)
 }
 
 input LegacyIDLookupOptions {
@@ -33101,7 +33103,7 @@ func (ec *executionContext) _User_completedRegistration(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CompletedRegistration, nil
+		return ec.resolvers.User().CompletedRegistration(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -33122,8 +33124,8 @@ func (ec *executionContext) fieldContext_User_completedRegistration(ctx context.
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
 		},
@@ -43726,12 +43728,25 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "completedRegistration":
+			field := field
 
-			out.Values[i] = ec._User_completedRegistration(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_completedRegistration(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
