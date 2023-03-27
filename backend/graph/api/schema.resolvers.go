@@ -126,6 +126,8 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
 	}
 
+	usr := user.GetFromCtx(ginCtx)
+
 	// Add JWT to url
 	url, err := url.Parse(redir.TargetURL)
 	if err != nil {
@@ -136,6 +138,8 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 		// Build a JWT!
 		tok, err := jwt.NewBuilder().
 			Claim("person_id", profile.UserID).
+			Claim("gender", usr.Gender).
+			Claim("first_name", usr.FirstName).
 			Issuer("https://api.brunstad.tv/").
 			IssuedAt(time.Now()).
 			Expiration(time.Now().Add(30 * time.Second)).
