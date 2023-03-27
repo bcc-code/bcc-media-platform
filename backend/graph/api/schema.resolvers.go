@@ -606,14 +606,23 @@ func (r *userResolver) EmailVerified(ctx context.Context, obj *model.User) (bool
 	if obj.EmailVerified || obj.Anonymous || obj.ID == nil {
 		return obj.EmailVerified, nil
 	}
-	return memorycache.GetOrSet(ctx, "userinfo:email_verified:"+*obj.ID, func(ctx context.Context) (bool, error) {
-		ginCtx, _ := utils.GinCtx(ctx)
-		info, err := r.AuthClient.GetUser(ctx, ginCtx.GetString(auth0.CtxUserID))
-		if err != nil {
-			return false, err
-		}
-		return info.EmailVerified, nil
-	}, cache.WithExpiration(time.Second*2))
+	userinfo, err := r.getUserInfo(ctx, *obj.ID)
+	if err != nil {
+		return false, err
+	}
+	return userinfo.EmailVerified, nil
+}
+
+// CompletedRegistration is the resolver for the completedRegistration field.
+func (r *userResolver) CompletedRegistration(ctx context.Context, obj *model.User) (bool, error) {
+	if obj.CompletedRegistration || obj.Anonymous || obj.ID == nil {
+		return obj.EmailVerified, nil
+	}
+	userinfo, err := r.getUserInfo(ctx, *obj.ID)
+	if err != nil {
+		return false, err
+	}
+	return userinfo.CompletedRegistration(), nil
 }
 
 // QueryRoot returns generated.QueryRootResolver implementation.

@@ -485,3 +485,14 @@ func (r *Resolver) updateMessage(ctx context.Context, id string, message *string
 	}
 	return id, err
 }
+
+func (r *Resolver) getUserInfo(ctx context.Context, userID string) (auth0.UserInfo, error) {
+	return memorycache.GetOrSet(ctx, "userinfo:"+userID, func(ctx context.Context) (auth0.UserInfo, error) {
+		ginCtx, _ := utils.GinCtx(ctx)
+		info, err := r.AuthClient.GetUser(ctx, ginCtx.GetString(auth0.CtxUserID))
+		if err != nil {
+			return auth0.UserInfo{}, err
+		}
+		return info, nil
+	}, cache.WithExpiration(time.Second*2))
+}

@@ -43,7 +43,7 @@ type User {
   gender: Gender!
   firstName: String!
   displayName: String!
-  completedRegistration: Boolean!
+  completedRegistration: Boolean! @goField(forceResolver: true)
 }
 
 input LegacyIDLookupOptions {
