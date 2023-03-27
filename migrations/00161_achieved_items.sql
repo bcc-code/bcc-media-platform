@@ -30,8 +30,8 @@ CREATE TABLE IF NOT EXISTS "public"."achievementconditions_studytopics" (
 	"achievementconditions_id" uuid NULL  ,
 	"studytopics_id" uuid NULL  ,
 	CONSTRAINT "achievementconditions_studytopics_pkey" PRIMARY KEY (id) ,
-	CONSTRAINT "achievementconditions_studytopics_studytopics_id_foreign" FOREIGN KEY (studytopics_id) REFERENCES studytopics(id) ON DELETE SET NULL ,
-	CONSTRAINT "achievementconditions_studytopics_achievem__2e3395b2_foreign" FOREIGN KEY (achievementconditions_id) REFERENCES achievementconditions(id) ON DELETE SET NULL
+	CONSTRAINT "achievementconditions_studytopics_studytopics_id_foreign" FOREIGN KEY (studytopics_id) REFERENCES studytopics(id) ON DELETE CASCADE ,
+	CONSTRAINT "achievementconditions_studytopics_achievem__2e3395b2_foreign" FOREIGN KEY (achievementconditions_id) REFERENCES achievementconditions(id) ON DELETE CASCADE
 );
 
 GRANT SELECT ON TABLE "public"."achievementconditions_studytopics" TO directus, api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
