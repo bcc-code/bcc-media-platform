@@ -67,7 +67,7 @@ func (q *Queries) GetAchievedAchievements(ctx context.Context, arg GetAchievedAc
 	return items, nil
 }
 
-const getAchievementsWithConditionAchieved = `-- name: GetAchievementsWithConditionAchieved :many
+const getAchievementsWithConditionAmountAchieved = `-- name: GetAchievementsWithConditionAmountAchieved :many
 SELECT c.achievement_id AS id, array_agg(c.id)::uuid[] AS condition_ids
 FROM "public"."achievementconditions" c
          LEFT JOIN "users"."achievements" achieved
@@ -79,20 +79,20 @@ WHERE achieved IS NULL
 GROUP BY c.achievement_id
 `
 
-type GetAchievementsWithConditionAchievedParams struct {
-	ProfileID  uuid.UUID `db:"profile_id" json:"profileID"`
-	Collection string    `db:"collection" json:"collection"`
-	Action     string    `db:"action" json:"action"`
-	Amount     int32     `db:"amount" json:"amount"`
+type GetAchievementsWithConditionAmountAchievedParams struct {
+	ProfileID  uuid.UUID   `db:"profile_id" json:"profileID"`
+	Collection string      `db:"collection" json:"collection"`
+	Action     string      `db:"action" json:"action"`
+	Amount     null_v4.Int `db:"amount" json:"amount"`
 }
 
-type GetAchievementsWithConditionAchievedRow struct {
+type GetAchievementsWithConditionAmountAchievedRow struct {
 	ID           uuid.UUID   `db:"id" json:"id"`
 	ConditionIds []uuid.UUID `db:"condition_ids" json:"conditionIds"`
 }
 
-func (q *Queries) GetAchievementsWithConditionAchieved(ctx context.Context, arg GetAchievementsWithConditionAchievedParams) ([]GetAchievementsWithConditionAchievedRow, error) {
-	rows, err := q.db.QueryContext(ctx, getAchievementsWithConditionAchieved,
+func (q *Queries) GetAchievementsWithConditionAmountAchieved(ctx context.Context, arg GetAchievementsWithConditionAmountAchievedParams) ([]GetAchievementsWithConditionAmountAchievedRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAchievementsWithConditionAmountAchieved,
 		arg.ProfileID,
 		arg.Collection,
 		arg.Action,
@@ -102,9 +102,54 @@ func (q *Queries) GetAchievementsWithConditionAchieved(ctx context.Context, arg 
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetAchievementsWithConditionAchievedRow
+	var items []GetAchievementsWithConditionAmountAchievedRow
 	for rows.Next() {
-		var i GetAchievementsWithConditionAchievedRow
+		var i GetAchievementsWithConditionAmountAchievedRow
+		if err := rows.Scan(&i.ID, pq.Array(&i.ConditionIds)); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAchievementsWithTopicsCompletedAchieved = `-- name: GetAchievementsWithTopicsCompletedAchieved :many
+SELECT c.achievement_id AS id, array_agg(c.id)::uuid[] AS condition_ids
+FROM "public"."achievementconditions" c
+         LEFT JOIN "users"."achievements" achieved
+                   ON achieved.profile_id = $1 AND achieved.achievement_id = c.achievement_id
+         LEFT JOIN "public"."achievementconditions_studytopics" t ON t.achievementconditions_id = c.id
+WHERE achieved IS NULL
+  AND c.collection = 'topics'
+  AND t.studytopics_id = ANY ($2::uuid[])
+GROUP BY c.achievement_id
+`
+
+type GetAchievementsWithTopicsCompletedAchievedParams struct {
+	ProfileID uuid.UUID   `db:"profile_id" json:"profileID"`
+	TopicIds  []uuid.UUID `db:"topic_ids" json:"topicIds"`
+}
+
+type GetAchievementsWithTopicsCompletedAchievedRow struct {
+	ID           uuid.UUID   `db:"id" json:"id"`
+	ConditionIds []uuid.UUID `db:"condition_ids" json:"conditionIds"`
+}
+
+func (q *Queries) GetAchievementsWithTopicsCompletedAchieved(ctx context.Context, arg GetAchievementsWithTopicsCompletedAchievedParams) ([]GetAchievementsWithTopicsCompletedAchievedRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAchievementsWithTopicsCompletedAchieved, arg.ProfileID, pq.Array(arg.TopicIds))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAchievementsWithTopicsCompletedAchievedRow
+	for rows.Next() {
+		var i GetAchievementsWithTopicsCompletedAchievedRow
 		if err := rows.Scan(&i.ID, pq.Array(&i.ConditionIds)); err != nil {
 			return nil, err
 		}
@@ -328,7 +373,7 @@ WITH ts AS (SELECT achievements_id,
                 GROUP BY achievement_id)
 SELECT a.id,
        a.group_id,
-       a.title as original_title,
+       a.title       as original_title,
        a.description as original_description,
        ts.title,
        ts.description,

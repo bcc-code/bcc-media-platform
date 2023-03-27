@@ -6,6 +6,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/ratelimit"
 	"net/url"
 	"strconv"
 	"time"
@@ -279,6 +280,10 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 // PendingAchievements is the resolver for the pendingAchievements field.
 func (r *queryRootResolver) PendingAchievements(ctx context.Context) ([]*model.Achievement, error) {
 	p, err := getProfile(ctx)
+	if err != nil {
+		return nil, err
+	}
+	err = ratelimit.Endpoint(ctx, "pending_achievements", 5, false)
 	if err != nil {
 		return nil, err
 	}
