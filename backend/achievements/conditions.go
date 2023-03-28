@@ -40,6 +40,7 @@ func amountToAchievedResult[T any](ctx context.Context, queries *sqlc.Queries, a
 	achieved, err := queries.GetAchievementsWithConditionAmountAchieved(ctx, sqlc.GetAchievementsWithConditionAmountAchievedParams{
 		ProfileID:  profileID,
 		Collection: action.Collection,
+		Action:     action.Action,
 		Amount:     null.IntFrom(int64(len(rows))),
 	})
 	if err != nil {
