@@ -354,10 +354,6 @@ func (r *mutationRootResolver) ConfirmAchievement(ctx context.Context, id string
 	ids = lo.Filter(ids, func(i *uuid.UUID, _ int) bool {
 		return i != nil && *i != uid
 	})
-	err = ratelimit.Clear(ctx, r.RemoteCache, "pending_achievements")
-	if err != nil {
-		log.L.Error().Err(err).Send()
-	}
 	err = r.Queries.ConfirmAchievement(ctx, sqlc.ConfirmAchievementParams{
 		ProfileID:     p.ID,
 		AchievementID: uid,
