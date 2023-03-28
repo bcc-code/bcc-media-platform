@@ -59,13 +59,9 @@ export class Auth {
     public static async signOut() {
         const { logout } = useAuth0()
         localStorage.clear()
-        try {
-            return await logout({
-                returnTo: window.location.origin,
-            })
-        } finally {
-            location.reload()
-        }
+        return await logout({
+            returnTo: window.location.origin,
+        })
     }
 
     public static loading() {
