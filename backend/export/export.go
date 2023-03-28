@@ -286,7 +286,7 @@ func exportCurrentApplication(ctx *gin.Context, liteQueries *sqlexport.Queries) 
 func exportSections(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries) ([]int, []int, error) {
 	filteredLoaders := q.GetFilteredLoaders(ctx)
 	pages, err := q.GetQueries().ListPages(ctx)
-	if err != err {
+	if err != nil {
 		return nil, nil, err
 	}
 
