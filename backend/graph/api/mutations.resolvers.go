@@ -227,6 +227,11 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		}
 	}
 
+	completedIDs, err := r.Loaders.CompletedTasksLoader.Get(ctx, p.ID)
+	completed := lo.SomeBy(completedIDs, func(id *uuid.UUID) bool {
+		return id != nil && *id == task.ID
+	})
+
 	err = r.Queries.SetTaskCompleted(ctx, sqlc.SetTaskCompletedParams{
 		ProfileID:            p.ID,
 		TaskID:               task.ID,
@@ -240,13 +245,29 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 	r.Loaders.CompletedAndLockedTasksLoader.Clear(ctx, p.ID)
 	r.Loaders.CompletedLessonsLoader.Clear(ctx, p.ID)
 
-	err = achievements.CheckNewAchievements(ctx, r.Queries, r.Loaders, achievements.Action{
-		Collection: achievements.CollectionLessons,
-		Action:     achievements.ActionCompleted,
-	})
+	if !completed {
+		// Check study specific achievements
+		actions := []achievements.Action{
+			{
+				Collection: achievements.CollectionTopics,
+				Action:     achievements.ActionCompletedItems,
+			},
+			{
+				Collection: achievements.CollectionLessons,
+				Action:     achievements.ActionCompleted,
+			},
+			{
+				Collection: achievements.CollectionTasks,
+				Action:     achievements.ActionCompleted,
+			},
+		}
 
-	if err != nil {
-		return true, err
+		for _, a := range actions {
+			err = achievements.CheckNewAchievements(ctx, r.Queries, r.Loaders, a)
+			if err != nil {
+				return true, err
+			}
+		}
 	}
 	return true, nil
 }
