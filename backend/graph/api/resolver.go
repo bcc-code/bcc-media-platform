@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"strconv"
 	"sync"
 	"time"
@@ -62,6 +63,7 @@ type Resolver struct {
 	AnalyticsIDFactory func(ctx context.Context) string
 	RedirectConfig     redirectConfig
 	AuthClient         *auth0.Client
+	RemoteCache        *remotecache.Client
 }
 
 func (r *Resolver) GetQueries() *sqlc.Queries {

@@ -18,6 +18,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/graph/gqltracer"
 	graphpublic "github.com/bcc-code/brunstadtv/backend/graph/public"
 	graphpublicgenerated "github.com/bcc-code/brunstadtv/backend/graph/public/generated"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/signing"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
@@ -40,6 +41,7 @@ func graphqlHandler(
 	s3client *s3.Client,
 	analyticsSalt string,
 	authClient *auth0.Client,
+	remoteCache *remotecache.Client,
 ) gin.HandlerFunc {
 	resolver := graphapi.Resolver{
 		Queries:            queries,
@@ -55,6 +57,7 @@ func graphqlHandler(
 		AWSConfig:          config.AWS,
 		RedirectConfig:     config.Redirect,
 		AuthClient:         authClient,
+		RemoteCache:        remoteCache,
 		AnalyticsIDFactory: func(ctx context.Context) string {
 			ginCtx, err := utils.GinCtx(ctx)
 			p := user.GetProfileFromCtx(ginCtx)

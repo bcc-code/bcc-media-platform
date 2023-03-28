@@ -283,7 +283,7 @@ func (r *queryRootResolver) PendingAchievements(ctx context.Context) ([]*model.A
 	if err != nil {
 		return nil, err
 	}
-	err = ratelimit.Endpoint(ctx, "pending_achievements", 5, false)
+	err = ratelimit.Remote(ctx, r.RemoteCache, "pending_achievements", 5, false)
 	if err != nil {
 		return nil, err
 	}
