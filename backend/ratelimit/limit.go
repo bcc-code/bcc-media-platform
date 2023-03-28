@@ -46,15 +46,8 @@ func Middleware() gin.HandlerFunc {
 	}
 }
 
-// Endpoint protects a specific endpoint from public clients
-func Endpoint(ctx context.Context, endpoint string, rateLimit int, anonymousOnly bool) error {
-	ginCtx, _ := utils.GinCtx(ctx)
-
+func getUniqueKeyForCtx(ginCtx *gin.Context) string {
 	u := user.GetFromCtx(ginCtx)
-
-	if anonymousOnly && !u.Anonymous {
-		return nil
-	}
 
 	var key string
 	if u.Anonymous {
@@ -67,6 +60,20 @@ func Endpoint(ctx context.Context, endpoint string, rateLimit int, anonymousOnly
 		p := user.GetProfileFromCtx(ginCtx)
 		key = p.ID.String()
 	}
+	return key
+}
+
+// Endpoint protects a specific endpoint from public clients
+func Endpoint(ctx context.Context, endpoint string, rateLimit int, anonymousOnly bool) error {
+	ginCtx, _ := utils.GinCtx(ctx)
+
+	u := user.GetFromCtx(ginCtx)
+
+	if anonymousOnly && !u.Anonymous {
+		return nil
+	}
+
+	key := getUniqueKeyForCtx(ginCtx)
 
 	limit, _ := limitCache.Get(endpoint + ":" + key)
 	if limit.Increment >= rateLimit {
@@ -90,17 +97,7 @@ func Remote(ctx context.Context, remoteClient *remotecache.Client, endpoint stri
 		return nil
 	}
 
-	var key string
-	if u.Anonymous {
-		key = ginCtx.Request.Header.Get("X-Forwarded-For")
-
-		if key == "" {
-			key = ginCtx.ClientIP()
-		}
-	} else {
-		p := user.GetProfileFromCtx(ginCtx)
-		key = p.ID.String()
-	}
+	key := getUniqueKeyForCtx(ginCtx)
 
 	cacheKey := "ratelimit:" + endpoint + ":" + key
 
@@ -123,19 +120,7 @@ func Remote(ctx context.Context, remoteClient *remotecache.Client, endpoint stri
 func Clear(ctx context.Context, remoteClient *remotecache.Client, endpoint string) error {
 	ginCtx, _ := utils.GinCtx(ctx)
 
-	u := user.GetFromCtx(ginCtx)
-
-	var key string
-	if u.Anonymous {
-		key = ginCtx.Request.Header.Get("X-Forwarded-For")
-
-		if key == "" {
-			key = ginCtx.ClientIP()
-		}
-	} else {
-		p := user.GetProfileFromCtx(ginCtx)
-		key = p.ID.String()
-	}
+	key := getUniqueKeyForCtx(ginCtx)
 
 	cacheKey := "ratelimit:" + endpoint + ":" + key
 
