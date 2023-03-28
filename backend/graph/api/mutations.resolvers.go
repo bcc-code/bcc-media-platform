@@ -483,6 +483,9 @@ func (r *mutationRootResolver) SendVerificationEmail(ctx context.Context) (bool,
 		return false, err
 	}
 	u := user.GetFromCtx(ginCtx)
+	if u.Anonymous {
+		return false, merry.New("user is anonymous", merry.WithUserMessage("Cannot be unauthenticated for this request"))
+	}
 	if u.EmailVerified {
 		return false, merry.New("email already verified", merry.WithUserMessage("Email already verified"))
 	}
