@@ -1,5 +1,8 @@
 .PHONY: help
 
+include .env
+export
+
 help:
 	@echo "Sorry, can't help you"
 
@@ -11,7 +14,7 @@ release:
 
 install:
 	docker compose up -d --wait
-	cd ./migrations && PGPASSWORD=btv123 make install
+	cd ./migrations && make install
 
 init:
 	docker compose up -d --wait
@@ -19,17 +22,15 @@ init:
 
 diff:
 	./scripts/db_diff.sh $(name)
-	cd ./migrations
-	cd ./backend && make ./sqlc/.generated
 
 migrate.up:
-	cd ./migrations && goose postgres "postgres://btv:btv123@localhost:5432/btv?sslmode=disable" up
+	cd ./migrations && goose postgres "postgres://localhost:${PGPORT}/${PGDATABASE}?sslmode=disable" up
 
 migrate.down:
-	cd ./migrations && goose postgres "postgres://btv:btv123@localhost:5432/btv?sslmode=disable" down
+	cd ./migrations && goose postgres "postgres://localhost:${PGPORT}/${PGDATABASE}?sslmode=disable" down
 
 migrate.status:
-	cd ./migrations && goose postgres "postgres://btv:btv123@localhost:5432/btv?sslmode=disable" status
+	cd ./migrations && goose postgres "postgres://localhost:${PGPORT}/${PGDATABASE}?sslmode=disable" status
 
 sync.staging:
 	cd ./scripts/staging-sync/ && ./copy.sh
