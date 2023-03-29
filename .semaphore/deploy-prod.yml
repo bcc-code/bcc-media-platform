@@ -26,19 +26,19 @@ blocks:
         commands:
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
     dependencies: []
-#  - name: Web
-#    run:
-#      when: branch = 'master'
-#    task:
-#      jobs:
-#        - name: deploy
-#          commands:
-#            - checkout
-#            - ./scripts/deploy-web.sh prod
-#      secrets:
-#        - name: GoogleSemaphoreServiceAccount
-#      prologue:
-#        commands:
-#          - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
-#    dependencies:
-#      - Backend
+  - name: Web
+    run:
+      when: branch = 'master'
+    task:
+      jobs:
+        - name: deploy
+          commands:
+            - checkout
+            - ./scripts/deploy-web.sh prod
+      secrets:
+        - name: GoogleSemaphoreServiceAccount
+      prologue:
+        commands:
+          - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
+    dependencies:
+      - Backend

@@ -23,15 +23,15 @@ blocks:
       prologue:
         commands:
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
-#  - name: Web
-#    task:
-#      jobs:
-#        - name: deploy
-#          commands:
-#            - checkout
-#            - ./scripts/deploy-web.sh sta
-#      secrets:
-#        - name: GoogleSemaphoreServiceAccount
-#      prologue:
-#        commands:
-#          - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
+  - name: Web
+    task:
+      jobs:
+        - name: deploy
+          commands:
+            - checkout
+            - ./scripts/deploy-web.sh sta
+      secrets:
+        - name: GoogleSemaphoreServiceAccount
+      prologue:
+        commands:
+          - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
