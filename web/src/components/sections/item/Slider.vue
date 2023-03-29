@@ -62,7 +62,7 @@
 </template>
 <script lang="ts" setup>
 import { Section } from "../types"
-import TSwiper, { Navigation, Pagination, Lazy, SwiperOptions } from "swiper"
+import TSwiper, { Navigation, Pagination, SwiperOptions } from "swiper"
 import { Swiper, SwiperSlide } from "swiper/vue"
 import breakpoints from "./breakpoints"
 import { computed, ref } from "vue"
@@ -91,7 +91,7 @@ const effectiveBreakpoints = computed(() => {
     return props.breakpoints ?? breakpoints(props.item.size)
 })
 
-const modules = [Navigation, Pagination, Lazy]
+const modules = [Navigation, Pagination]
 
 const onswipe = (swiper: TSwiper) => {
     swiper.on("progress", () => {

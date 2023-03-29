@@ -45,7 +45,6 @@ module.exports = {
         },
     },
     plugins: [
-        require("@tailwindcss/line-clamp"),
         plugin(function ({ addVariant, e }) {
             addVariant("embed", ({ modifySelectors, separator }) => {
                 modifySelectors(({ className }) => {

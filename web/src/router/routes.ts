@@ -4,7 +4,7 @@ export default [
     {
         name: "main",
         path: "/",
-        component: () => import("@/layout/StackedLayout.vue"),
+        component: () => import( "@/layout/StackedLayout.vue"),
         children: [
             {
                 name: "page",

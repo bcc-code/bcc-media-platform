@@ -52,7 +52,9 @@ export class Auth {
         const { loginWithRedirect } = useAuth0()
 
         await loginWithRedirect({
-            prompt: silent ? "none" : undefined,
+            authorizationParams: {
+                prompt: silent ? "none" : undefined,
+            }
         })
     }
 
@@ -60,7 +62,9 @@ export class Auth {
         const { logout } = useAuth0()
         localStorage.clear()
         return await logout({
-            returnTo: window.location.origin,
+            logoutParams: {
+                returnTo: window.location.origin,
+            }
         })
     }
 

@@ -98,6 +98,10 @@ export type Application = {
   searchPage?: Maybe<Page>;
 };
 
+export type BirthOptions = {
+  year: Scalars['Int'];
+};
+
 export type Calendar = {
   day: CalendarDay;
   period: CalendarPeriod;
@@ -452,6 +456,12 @@ export type File = {
   url: Scalars['String'];
 };
 
+export enum Gender {
+  Female = 'female',
+  Male = 'male',
+  Unknown = 'unknown'
+}
+
 export type GlobalConfig = {
   liveOnline: Scalars['Boolean'];
   npawEnabled: Scalars['Boolean'];
@@ -695,11 +705,13 @@ export type MutationRoot = {
   sendEpisodeFeedback: Scalars['ID'];
   sendSupportEmail: Scalars['Boolean'];
   sendTaskMessage: Scalars['ID'];
+  sendVerificationEmail: Scalars['Boolean'];
   setDevicePushToken?: Maybe<Device>;
   setEpisodeProgress: Episode;
   updateEpisodeFeedback: Scalars['ID'];
   updateSurveyQuestionAnswer: AnswerSurveyQuestionResult;
   updateTaskMessage: Scalars['ID'];
+  updateUserMetadata: Scalars['Boolean'];
 };
 
 
@@ -790,6 +802,17 @@ export type MutationRootUpdateSurveyQuestionAnswerArgs = {
 export type MutationRootUpdateTaskMessageArgs = {
   id: Scalars['ID'];
   message: Scalars['String'];
+};
+
+
+export type MutationRootUpdateUserMetadataArgs = {
+  birthData: BirthOptions;
+  nameData: NameOptions;
+};
+
+export type NameOptions = {
+  first: Scalars['String'];
+  last: Scalars['String'];
 };
 
 export type Page = {
@@ -1362,7 +1385,12 @@ export type User = {
   anonymous: Scalars['Boolean'];
   audience?: Maybe<Scalars['String']>;
   bccMember: Scalars['Boolean'];
+  completedRegistration: Scalars['Boolean'];
+  displayName: Scalars['String'];
   email?: Maybe<Scalars['String']>;
+  emailVerified: Scalars['Boolean'];
+  firstName: Scalars['String'];
+  gender: Gender;
   id?: Maybe<Scalars['ID']>;
   roles: Array<Scalars['String']>;
   settings: Settings;
@@ -1671,14 +1699,6 @@ export type ApplicationQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ApplicationQuery = { application: { code: string, page?: { code: string } | null, searchPage?: { code: string } | null } };
-
-export type GetCalendarPeriodQueryVariables = Exact<{
-  from: Scalars['Date'];
-  to: Scalars['Date'];
-}>;
-
-
-export type GetCalendarPeriodQuery = { calendar?: { period: { activeDays: Array<any>, events: Array<{ id: string, start: string, end: string, title: string }> } } | null };
 
 export const SimpleEpisodeFragmentDoc = gql`
     fragment SimpleEpisode on Episode {
@@ -2432,23 +2452,4 @@ export const ApplicationDocument = gql`
 
 export function useApplicationQuery(options: Omit<Urql.UseQueryArgs<never, ApplicationQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<ApplicationQuery>({ query: ApplicationDocument, ...options });
-};
-export const GetCalendarPeriodDocument = gql`
-    query getCalendarPeriod($from: Date!, $to: Date!) {
-  calendar {
-    period(from: $from, to: $to) {
-      activeDays
-      events {
-        id
-        start
-        end
-        title
-      }
-    }
-  }
-}
-    `;
-
-export function useGetCalendarPeriodQuery(options: Omit<Urql.UseQueryArgs<never, GetCalendarPeriodQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetCalendarPeriodQuery>({ query: GetCalendarPeriodDocument, ...options });
 };
