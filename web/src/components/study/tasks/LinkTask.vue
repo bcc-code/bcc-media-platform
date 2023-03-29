@@ -97,13 +97,29 @@ const task = computed(() => {
     return (props.task.__typename == "LinkTask" ? props.task : undefined)!
 })
 
-const isRedirectLink = task.value.link.url.indexOf("/r/") !== -1
+console.log("href: " + location.href)
+const isSpecialGreetingLink =
+    task.value.link.url.indexOf(
+        "lesson/2b4d070b-ac92-4c78-ac0b-26abe9de4b89"
+    ) !== -1
+
+const isRedirectLink =
+    task.value.link.url.indexOf("/r/") !== -1 || isSpecialGreetingLink
 let redirectCode: string | null = null
-if (isRedirectLink) {
+
+;(() => {
+    if (!isRedirectLink) {
+        return
+    }
+    if (isSpecialGreetingLink) {
+        redirectCode = "pc23-greeting"
+        return
+    }
     const url = new URL(task.value.link.url) // https://something.com/r/something/blabla
     const pathSegments = url.pathname.split("/") // ["", "r", "something", "blabla"]
     redirectCode = pathSegments[2] // "something"
-}
+})()
+
 const redirectQuery = useGetRedirectUrlQuery({
     pause: !isRedirectLink,
     variables: {
