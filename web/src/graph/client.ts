@@ -6,14 +6,9 @@ import {
     fetchExchange,
 } from "@urql/vue"
 import {AuthConfig, authExchange, AuthUtilities} from "@urql/exchange-auth"
-import { makeOperation } from "@urql/vue"
 import { Auth } from "../services/auth"
 import { current } from "@/services/language"
 import { flutter } from "@/utils/flutter"
-
-type AuthState = {
-    token: string
-}
 
 const authExchangeFunction = async (utils: AuthUtilities): Promise<AuthConfig> => {
     let token = await Auth.getToken()
@@ -31,7 +26,7 @@ const authExchangeFunction = async (utils: AuthUtilities): Promise<AuthConfig> =
             return false
         },
         async refreshAuth() {
-            token = await Auth.getToken()
+            token = flutter ? await flutter.getAccessToken() : await Auth.getToken()
         }
     }
 }
