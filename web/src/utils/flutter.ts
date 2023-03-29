@@ -1,4 +1,5 @@
 import { FlutterWebView } from "@/flutter"
+import settings from "@/services/settings"
 
 type HapticFeedbackType =
     | "lightImpact"
@@ -87,6 +88,7 @@ function addQueryParameter(
 }
 
 export const openInBrowser = (url: string) => {
-    const newUrl = addQueryParameter(url, "launch_url", "true")
+    let newUrl = addQueryParameter(url, "launch_url", "true")
+    newUrl = addQueryParameter(newUrl, "locale", settings.locale)
     window.location.assign(newUrl)
 }

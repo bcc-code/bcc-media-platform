@@ -70,7 +70,11 @@
 
 <script lang="ts" setup>
 import { VButton } from "@/components"
-import { TaskFragment, useCompleteTaskMutation } from "@/graph/generated"
+import {
+    TaskFragment,
+    useCompleteTaskMutation,
+    useGetRedirectUrlQuery,
+} from "@/graph/generated"
 import { computed, onMounted, ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { openInBrowser } from "@/utils/flutter"
@@ -92,14 +96,37 @@ const emit = defineEmits<{
 const task = computed(() => {
     return (props.task.__typename == "LinkTask" ? props.task : undefined)!
 })
+
+const isRedirectLink = task.value.link.url.indexOf("/r/") !== -1
+let redirectCode: string | null = null
+if (isRedirectLink) {
+    const url = new URL(task.value.link.url) // https://something.com/r/something/blabla
+    const pathSegments = url.pathname.split("/") // ["", "r", "something", "blabla"]
+    redirectCode = pathSegments[2] // "something"
+}
+const redirectQuery = useGetRedirectUrlQuery({
+    pause: !isRedirectLink,
+    variables: {
+        code: redirectCode ?? "",
+    },
+})
 console.log(task.value.title)
 
-const openLink = () => {
+const openLink = async () => {
+    completeTask({ taskId: task.value.id })
+    if (isRedirectLink) {
+        console.log("redirectCode: " + redirectCode)
+        const redirect = await redirectQuery
+        console.log("redirect: " + JSON.stringify(redirect))
+        const url = redirect.data.value?.redirect.url
+        if (url == null) throw Error("Redirect url was null")
+        openInBrowser(url.replace("https://t.me/+", "https://t.me/joinchat/"))
+        return
+    }
     if (task.value.link.url === "no-local-group-found") {
         showNoLocalGroupFound.value = true
         return
     }
-    completeTask({ taskId: task.value.id })
     openInBrowser(
         task.value.link.url.replace("https://t.me/+", "https://t.me/joinchat/")
     )
