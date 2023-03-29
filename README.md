@@ -1,7 +1,7 @@
 [![Build Status](https://bccmedia.semaphoreci.com/badges/brunstadtv/branches/develop.svg?style=shields&key=ca08f58c-7627-45e3-ab5e-3bfae64cc963)](https://bccmedia.semaphoreci.com/projects/brunstadtv)
 
 
-# BrunstadTV
+# BCC Media
 
 ## Prerequisites
 - `make`
@@ -27,7 +27,7 @@ To install the database and run the initial migrations. This will clean the exis
 
 ## Services
 
-BrunstadTV is split into different services which are responsible for different parts of the application.
+BCC Media is split into different services which are responsible for different parts of the application.
 
 
 ### [Jobs](./backend/cmd/jobs)
