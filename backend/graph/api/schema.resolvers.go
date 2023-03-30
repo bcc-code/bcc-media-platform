@@ -6,14 +6,12 @@ package graph
 import (
 	"context"
 	"fmt"
-	"github.com/bcc-code/brunstadtv/backend/ratelimit"
 	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
-	"github.com/bcc-code/brunstadtv/backend/achievements"
 	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -280,14 +278,6 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 // PendingAchievements is the resolver for the pendingAchievements field.
 func (r *queryRootResolver) PendingAchievements(ctx context.Context) ([]*model.Achievement, error) {
 	p, err := getProfile(ctx)
-	if err != nil {
-		return nil, err
-	}
-	err = ratelimit.Endpoint(ctx, "pending_achievements", 5, false)
-	if err != nil {
-		return nil, err
-	}
-	err = achievements.CheckAllAchievements(ctx, r.Queries, r.Loaders)
 	if err != nil {
 		return nil, err
 	}
