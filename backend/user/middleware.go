@@ -237,12 +237,10 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				u.EmailVerified = info.EmailVerified
 
 				if by, ok := info.UserMetadata["birth_year"]; ok {
-					var year int
-					switch t := by.(type) {
-					case float64:
-						year = int(t)
+					year, err := strconv.ParseInt(by, 10, 64)
+					if err == nil {
+						u.Age = time.Now().Year() - int(year)
 					}
-					u.Age = time.Now().Year() - year
 				}
 				u.CompletedRegistration = info.CompletedRegistration()
 			}

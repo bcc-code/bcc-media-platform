@@ -18,31 +18,29 @@ type UserInfo struct {
 	} `json:"identities"`
 	AppMetadata struct {
 	} `json:"app_metadata"`
-	UserMetadata map[string]any `json:"user_metadata"`
-	Picture      string         `json:"picture"`
-	Name         string         `json:"name"`
-	Nickname     string         `json:"nickname"`
-	Multifactor  []string       `json:"multifactor"`
-	LastIp       string         `json:"last_ip"`
-	LastLogin    string         `json:"last_login"`
-	LoginsCount  int            `json:"logins_count"`
-	Blocked      bool           `json:"blocked"`
-	GivenName    string         `json:"given_name"`
-	FamilyName   string         `json:"family_name"`
+	UserMetadata map[string]string `json:"user_metadata"`
+	Picture      string            `json:"picture"`
+	Name         string            `json:"name"`
+	Nickname     string            `json:"nickname"`
+	Multifactor  []string          `json:"multifactor"`
+	LastIp       string            `json:"last_ip"`
+	LastLogin    string            `json:"last_login"`
+	LoginsCount  int               `json:"logins_count"`
+	Blocked      bool              `json:"blocked"`
+	GivenName    string            `json:"given_name"`
+	FamilyName   string            `json:"family_name"`
 }
 
 // UserMetadata is the user metadata
 type UserMetadata struct {
-	BirthYear       int  `json:"birth_year"`
-	MediaSubscriber bool `json:"media_subscriber"`
+	BirthYear       string `json:"birth_year"`
+	MediaSubscriber string `json:"media_subscriber"`
 }
 
 // CompletedRegistration returns true if the user has completed registration
 func (info UserInfo) CompletedRegistration() bool {
 	if completedRegistration, ok := info.UserMetadata["media_subscriber"]; ok {
-		if v, _ := completedRegistration.(bool); v {
-			return true
-		}
+		return completedRegistration == "true"
 	}
 	return false
 }

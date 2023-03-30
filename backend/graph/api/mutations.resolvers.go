@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	merry "github.com/ansel1/merry/v2"
@@ -490,8 +491,8 @@ func (r *mutationRootResolver) UpdateUserMetadata(ctx context.Context, birthData
 			Name:       displayName,
 			Nickname:   displayName,
 		}, auth0.UserMetadata{
-			BirthYear:       birthData.Year,
-			MediaSubscriber: true,
+			BirthYear:       strconv.Itoa(birthData.Year),
+			MediaSubscriber: "true",
 		})
 		return err == nil, err
 	}
