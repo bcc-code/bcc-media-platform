@@ -269,6 +269,7 @@ func main() {
 		s3Client,
 		config.AnalyticsSalt,
 		authClient,
+		remoteCache,
 	))
 	r.GET("/", playgroundHandler())
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, ls))

@@ -4,6 +4,7 @@ import (
 	"context"
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/gin-gonic/gin"
@@ -45,15 +46,8 @@ func Middleware() gin.HandlerFunc {
 	}
 }
 
-// Endpoint protects a specific endpoint from public clients
-func Endpoint(ctx context.Context, endpoint string, rateLimit int, anonymousOnly bool) error {
-	ginCtx, _ := utils.GinCtx(ctx)
-
+func getUniqueKeyForCtx(ginCtx *gin.Context) string {
 	u := user.GetFromCtx(ginCtx)
-
-	if anonymousOnly && !u.Anonymous {
-		return nil
-	}
 
 	var key string
 	if u.Anonymous {
@@ -66,6 +60,20 @@ func Endpoint(ctx context.Context, endpoint string, rateLimit int, anonymousOnly
 		p := user.GetProfileFromCtx(ginCtx)
 		key = p.ID.String()
 	}
+	return key
+}
+
+// Endpoint protects a specific endpoint from public clients
+func Endpoint(ctx context.Context, endpoint string, rateLimit int, anonymousOnly bool) error {
+	ginCtx, _ := utils.GinCtx(ctx)
+
+	u := user.GetFromCtx(ginCtx)
+
+	if anonymousOnly && !u.Anonymous {
+		return nil
+	}
+
+	key := getUniqueKeyForCtx(ginCtx)
 
 	limit, _ := limitCache.Get(endpoint + ":" + key)
 	if limit.Increment >= rateLimit {
@@ -76,5 +84,49 @@ func Endpoint(ctx context.Context, endpoint string, rateLimit int, anonymousOnly
 
 	limitCache.Set(endpoint+":"+key, limit, cache.WithExpiration(time.Minute*5))
 
+	return nil
+}
+
+// Remote protects a specific endpoint from public clients, with remote client
+func Remote(ctx context.Context, remoteClient *remotecache.Client, endpoint string, rateLimit int, anonymousOnly bool) error {
+	ginCtx, _ := utils.GinCtx(ctx)
+
+	u := user.GetFromCtx(ginCtx)
+
+	if anonymousOnly && !u.Anonymous {
+		return nil
+	}
+
+	key := getUniqueKeyForCtx(ginCtx)
+
+	cacheKey := "ratelimit:" + endpoint + ":" + key
+
+	limit, err := remoteClient.Client().Get(ctx, cacheKey).Int()
+	if err != nil && err != remotecache.Nil {
+		return err
+	}
+	if limit >= rateLimit {
+		return merry.New("Rate limit exceeded", merry.WithUserMessage("Too many requests"), merry.WithHTTPCode(429))
+	}
+
+	limit++
+
+	_, err = remoteClient.Client().Set(ctx, cacheKey, limit, time.Minute*1).Result()
+
+	return err
+}
+
+// Clear the specified remote entry
+func Clear(ctx context.Context, remoteClient *remotecache.Client, endpoint string) error {
+	ginCtx, _ := utils.GinCtx(ctx)
+
+	key := getUniqueKeyForCtx(ginCtx)
+
+	cacheKey := "ratelimit:" + endpoint + ":" + key
+
+	_, err := remoteClient.Client().Del(ctx, cacheKey).Result()
+	if err != nil && err != remotecache.Nil {
+		return err
+	}
 	return nil
 }
