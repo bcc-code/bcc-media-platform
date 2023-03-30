@@ -510,7 +510,7 @@ func (r *mutationRootResolver) SendVerificationEmail(ctx context.Context) (bool,
 	if u.EmailVerified {
 		return false, merry.New("email already verified", merry.WithUserMessage("Email already verified"))
 	}
-	err = ratelimit.Endpoint(ctx, "verify-email", 1, false)
+	err = ratelimit.Endpoint(ctx, "verify-email", 3, false)
 	if err != nil {
 		return false, err
 	}
