@@ -431,7 +431,7 @@ async function nextTask() {
     const skipSave = currentTask.value.__typename == "AlternativesTask"
     if (!isLastTask.value) {
         // intentionally not awaiting
-        if (!skipSave) completeTask({ taskId: currentTask.value.id })
+        if (!skipSave) await completeTask({ taskId: currentTask.value.id })
         currentTask.value.completed = true
         currentTaskIndex.value += 1
         isCurrentStepDone.value = false
@@ -459,8 +459,8 @@ async function nextTask() {
 const skipCompetition = () => {
     tasks.value
         .filter((t) => t.__typename == "AlternativesTask" && t.competitionMode)
-        .forEach((t) =>
-            completeTask({ taskId: t.id, selectedAlternatives: [] })
+        .forEach(async (t) =>
+            await completeTask({ taskId: t.id, selectedAlternatives: [] })
         )
     const lastCompetitionTaskIndex = findLastIndex(
         tasks.value,

@@ -129,13 +129,14 @@ const redirectQuery = useGetRedirectUrlQuery({
 console.log(task.value.title)
 
 const openLink = async () => {
-    completeTask({ taskId: task.value.id })
+    const t = completeTask({ taskId: task.value.id })
     if (isRedirectLink) {
         console.log("redirectCode: " + redirectCode)
         const redirect = await redirectQuery
         console.log("redirect: " + JSON.stringify(redirect))
         const url = redirect.data.value?.redirect.url
         if (url == null) throw Error("Redirect url was null")
+        await t
         openInBrowser(url.replace("https://t.me/+", "https://t.me/joinchat/"))
         return
     }
@@ -143,6 +144,7 @@ const openLink = async () => {
         showNoLocalGroupFound.value = true
         return
     }
+    await t
     openInBrowser(
         task.value.link.url.replace("https://t.me/+", "https://t.me/joinchat/")
     )

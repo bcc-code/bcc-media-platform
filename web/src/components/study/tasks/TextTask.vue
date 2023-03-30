@@ -120,11 +120,11 @@ const submit = () => {
     executeMutation({
         message: messageInput.value,
         taskId: task.value.id,
-    }).then((val) => {
+    }).then(async (val) => {
         if (val.error != null) {
             return
         }
-        completeTask({ taskId: task.value.id })
+        await completeTask({ taskId: task.value.id })
         isDone.value = true
         val.data?.sendTaskMessage
     })

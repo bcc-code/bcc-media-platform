@@ -92,7 +92,7 @@ const task = computed(() => {
 })
 
 const openLink = async () => {
-    completeTask({ taskId: task.value.id })
+    await completeTask({ taskId: task.value.id })
     if (flutter) {
         var promise = flutter.push(
             `/embed/${task.value.episode.id}?hide_bottom_section=true&autoplay=true`
