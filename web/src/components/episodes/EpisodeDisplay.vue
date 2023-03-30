@@ -218,7 +218,7 @@ const seasonQuery = useGetSeasonOnEpisodePageQuery({
     pause: true,
     variables: {
         seasonId,
-        firstEpisodes: 50,
+        firstEpisodes: 100,
     },
 })
 
