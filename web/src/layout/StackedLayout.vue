@@ -4,14 +4,13 @@
             v-if="!tLoading"
             class="relative flex-grow flex-shrink-0"
             :class="[
-                !loading && shouldSignIn()
+                !shouldSignIn()
                     ? 'overflow-hidden'
                     : 'overflow-auto',
             ]"
         >
-            <Navbar class="lg:px-20" v-if="!loading"></Navbar>
+            <Navbar class="lg:px-20"></Navbar>
             <div
-                v-if="!loading"
                 class="overflow-x-hidden flex-grow flex-shrink-0"
             >
                 <router-view v-slot="{ Component }">
@@ -20,34 +19,8 @@
                     </transition>
                 </router-view>
             </div>
-            <div v-if="!loading && shouldSignIn()">
-                <div
-                    class="fixed inset-0 flex text-2xl w-full h-full bg-black bg-opacity-50 z-50 bg-blur backdrop-blur-sm fixed"
-                >
-                    <div
-                        class="mx-auto my-auto flex flex-col bg-background p-4 rounded-lg gap-4"
-                    >
-                        <h1 class="text-xl text-center mb-2 mt-2">
-                            {{ $t("dashboard.loggedOut") }}
-                        </h1>
-                        <div class="flex gap-2">
-                            <button
-                                class="ml-auto text-lg px-2 py-1 bg-primary rounded-lg hover:scale-105"
-                                @click="signIn()"
-                            >
-                                {{ $t("buttons.login") }}
-                            </button>
-                            <button
-                                class="text-lg px-2 py-1 bg-slate-800 rounded-lg hover:scale-105"
-                                @click="cancelSignIn()"
-                            >
-                                {{ $t("buttons.stayLoggedOut") }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="text-red-500" v-if="errors && !loading">
+            <ShouldSignInPopup></ShouldSignInPopup>
+            <div class="text-red-500" v-if="errors">
                 <p v-for="(error, i) in errors">
                     {{ error.title }}
                     <span @click="removeError(i)" class="cursor-pointer"
@@ -78,19 +51,22 @@ import { useGetMeQuery } from "@/graph/generated"
 import { loading as tLoading } from "@/i18n"
 import Footer from "@/components/Footer.vue"
 import Cookies from "@/components/Cookies.vue"
+import { useCalendar } from "@/composables/calendar"
+import ShouldSignInPopup from "@/components/ShouldSignInPopup.vue"
 
-const { loading, authenticated, shouldSignIn, signIn, cancelSignIn } = useAuth()
+const { authenticated, shouldSignIn } = useAuth()
 
 const analyticsQuery = useGetMeQuery({
     pause: true,
 })
 
-onMounted(() =>
-    analytics.initialize(async () => {
-        while (loading.value) {
-            await new Promise((r) => setTimeout(r, 100))
-        }
+const { load } = useCalendar()
 
+onMounted(async () => {
+    if (authenticated.value) {
+        await load()
+    }
+    analytics.initialize(async () => {
         let analyticsId: string | null = null
         if (authenticated.value) {
             const result = await analyticsQuery.executeQuery()
@@ -100,7 +76,7 @@ onMounted(() =>
         }
         return analyticsId
     })
-)
+})
 
 init()
 </script>

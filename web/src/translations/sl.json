@@ -56,6 +56,7 @@
         "episode": "Del",
         "episodes": "Deli",
         "videos": "Videoposnetki",
+        "liveNow": "V živo",
         "seriesDescription": "Opis serije",
         "releaseDate": "Datum izida",
         "availableFrom": "Na voljo od",
@@ -112,7 +113,7 @@
         "dontMiss": "Ne zamudi naslednje oddaje v studiu, ko bodo objavljeni pravilni odgovori."
     },
     "lesson": {
-        "related": "Povezane možnosti",
+        "related": "Povezani viri",
         "watchAgain": {
             "title": "Poglej znova",
             "description": "Za globlje razumevanje priporočamo večkraten ogled videa.",

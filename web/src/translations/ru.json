@@ -56,6 +56,7 @@
         "episode": "Эпизод",
         "episodes": "Эпизоды",
         "videos": "Видео",
+        "liveNow": "В прямом эфире",
         "seriesDescription": "Описание серии",
         "releaseDate": "Дата выхода",
         "availableFrom": "Доступно с",
@@ -79,7 +80,7 @@
         "timeTableIsLocalTime": "Расписание телепрограммы указано по вашему местному времени."
     },
     "search": {
-        "programs": "Программы",
+        "programs": "Передачи",
         "episodes": "Эпизоды",
         "cancel": "Отмена",
         "emptyQuery": "Поисковый запрос пуст.",

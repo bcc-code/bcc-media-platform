@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!loading" class="flex h-screen w-screen">
+    <div class="flex h-screen w-screen">
         <Execute
             class="h-full w-full"
             v-if="authenticated"
@@ -19,5 +19,5 @@ provideClient(client)
 
 defineProps<{ code: string }>()
 
-const { authenticated, loading, signIn } = useAuth()
+const { authenticated, signIn } = useAuth()
 </script>
