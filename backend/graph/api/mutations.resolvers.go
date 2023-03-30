@@ -489,7 +489,7 @@ func (r *mutationRootResolver) UpdateUserMetadata(ctx context.Context, birthData
 			GivenName:  nameData.First,
 			FamilyName: nameData.Last,
 			Name:       displayName,
-			Nickname:   displayName,
+			Nickname:   nameData.First,
 		}, auth0.UserMetadata{
 			BirthYear:       strconv.Itoa(birthData.Year),
 			MediaSubscriber: "true",
