@@ -232,7 +232,15 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		return id != nil && *id == task.ID
 	})
 
-	var achievementErr error
+	err = r.Queries.SetTaskCompleted(ctx, sqlc.SetTaskCompletedParams{
+		ProfileID:            p.ID,
+		TaskID:               task.ID,
+		SelectedAlternatives: selectedUUIDs,
+	})
+	if err != nil {
+		return false, err
+	}
+
 	if !completed {
 		// Check study specific achievements
 		actions := []achievements.Action{
@@ -251,23 +259,12 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		}
 
 		for _, a := range actions {
-			achievementErr = achievements.CheckNewAchievements(ctx, r.Queries, r.Loaders, a)
-			if achievementErr != nil {
-				break
+			err = achievements.CheckNewAchievements(ctx, r.Queries, r.Loaders, a)
+			if err != nil {
+				log.L.Error().Err(err).Send()
+				return false, err
 			}
 		}
-	}
-
-	err = r.Queries.SetTaskCompleted(ctx, sqlc.SetTaskCompletedParams{
-		ProfileID:            p.ID,
-		TaskID:               task.ID,
-		SelectedAlternatives: selectedUUIDs,
-	})
-	if err != nil {
-		return false, err
-	}
-	if achievementErr != nil {
-		return false, achievementErr
 	}
 
 	r.Loaders.CompletedTasksLoader.Clear(ctx, p.ID)
