@@ -52,12 +52,15 @@ import { loading as tLoading } from "@/i18n"
 import Footer from "@/components/Footer.vue"
 import Cookies from "@/components/Cookies.vue"
 import ShouldSignInPopup from "@/components/ShouldSignInPopup.vue"
+import { useCalendar } from "@/composables/calendar"
 
 const { authenticated, shouldSignIn } = useAuth()
 
 const analyticsQuery = useGetMeQuery({
     pause: true,
 })
+
+const { load } = useCalendar()
 
 onMounted(async () => {
     analytics.initialize(async () => {
@@ -70,6 +73,7 @@ onMounted(async () => {
         }
         return analyticsId
     })
+    await load()
 })
 
 init()
