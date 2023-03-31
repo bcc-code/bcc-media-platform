@@ -606,7 +606,7 @@ func (r *userResolver) EmailVerified(ctx context.Context, obj *model.User) (bool
 // CompletedRegistration is the resolver for the completedRegistration field.
 func (r *userResolver) CompletedRegistration(ctx context.Context, obj *model.User) (bool, error) {
 	if obj.CompletedRegistration || obj.Anonymous || obj.ID == nil {
-		return obj.EmailVerified, nil
+		return obj.CompletedRegistration, nil
 	}
 	userinfo, err := r.getUserInfo(ctx, *obj.ID)
 	if err != nil {
