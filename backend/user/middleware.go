@@ -150,7 +150,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 			if ctx.GetBool(auth0.CtxIsBCCMember) {
 				roles = append(roles, RoleBCCMember)
 			} else {
-				roles = append(roles, RoleNonBCCMember)
+				roles = append(roles, RoleNonBCCMember, RolePublic)
 			}
 
 			if pid == "" || pid == "0" {
