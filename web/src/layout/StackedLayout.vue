@@ -51,7 +51,6 @@ import { useGetMeQuery } from "@/graph/generated"
 import { loading as tLoading } from "@/i18n"
 import Footer from "@/components/Footer.vue"
 import Cookies from "@/components/Cookies.vue"
-import { useCalendar } from "@/composables/calendar"
 import ShouldSignInPopup from "@/components/ShouldSignInPopup.vue"
 
 const { authenticated, shouldSignIn } = useAuth()
@@ -60,12 +59,7 @@ const analyticsQuery = useGetMeQuery({
     pause: true,
 })
 
-const { load } = useCalendar()
-
 onMounted(async () => {
-    if (authenticated.value) {
-        await load()
-    }
     analytics.initialize(async () => {
         let analyticsId: string | null = null
         if (authenticated.value) {
