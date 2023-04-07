@@ -14,8 +14,8 @@
         <div
             class="flex flex-col mt-2 transition"
             :class="{
-                'cursor-pointer': !comingSoon(i),
-                'pointer-events-none': comingSoon(i),
+                'cursor-pointer': !comingSoon(i) || isLive(i, currentDay),
+                'pointer-events-none': comingSoon(i) && !isLive(i, currentDay),
                 'opacity-50': clicked,
             }"
             @click="isLive(i, currentDay) ? $router.push('/live') : !comingSoon(i) ? click() : undefined"
@@ -40,7 +40,7 @@
                     :item="i.item"
                 />
                 <div
-                    v-if="comingSoon(i) && i.item.__typename === 'Episode'"
+                    v-if="!isLive(i, currentDay) && comingSoon(i) && i.item.__typename === 'Episode'"
                     class="absolute flex top-0 h-full w-full bg-black bg-opacity-80"
                 >
                     <div
