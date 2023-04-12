@@ -5,10 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/ansel1/merry/v2"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/ansel1/merry/v2"
 )
 
 var httpClient = &http.Client{
@@ -85,7 +86,8 @@ type jobResponse struct {
 func (c *Client) SendVerificationEmail(ctx context.Context, sub string) error {
 	// TODO: implement verification emails for socials (should most likely not be necessary though)
 	_, err := sendManagementRequest[jobResponse](ctx, c, http.MethodPost, "jobs/verification-email", map[string]any{
-		"user_id": sub,
+		"user_id":   sub,
+		"client_id": c.config.ClientID,
 	})
 	return err
 }
