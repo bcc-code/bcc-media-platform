@@ -3,6 +3,7 @@ package jsonlogic
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/Masterminds/squirrel"
@@ -44,7 +45,16 @@ func toSquirrelQuery(operator string, property string, value any) (squirrel.Sqli
 		return squirrel.Eq{
 			property: value,
 		}, nil
-	case "!=", "notin":
+	case "!=":
+		var v string
+		switch t := value.(type) {
+		case string:
+			v = t
+		case float64:
+			v = strconv.Itoa(int(t))
+		}
+		return squirrel.Expr(fmt.Sprintf("%s is distinct from %s", property, pq.QuoteLiteral(v))), nil
+	case "notin":
 		return squirrel.NotEq{
 			property: value,
 		}, nil
