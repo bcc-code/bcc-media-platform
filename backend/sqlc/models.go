@@ -757,8 +757,8 @@ type FilterDataset struct {
 	Collection    string         `db:"collection" json:"collection"`
 	ID            int32          `db:"id" json:"id"`
 	Uuid          uuid.UUID      `db:"uuid" json:"uuid"`
-	SeasonID      null_v4.Int    `db:"season_id" json:"seasonID"`
-	ShowID        null_v4.Int    `db:"show_id" json:"showID"`
+	SeasonID      int32          `db:"season_id" json:"seasonID"`
+	ShowID        int32          `db:"show_id" json:"showID"`
 	AgeratingCode null_v4.String `db:"agerating_code" json:"ageratingCode"`
 	Type          string         `db:"type" json:"type"`
 	PublishDate   time.Time      `db:"publish_date" json:"publishDate"`
