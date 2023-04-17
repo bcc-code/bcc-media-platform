@@ -179,11 +179,14 @@ func main() {
 
 	log.L.Info().Msg("Setting up tracing!")
 	utils.MustSetupTracing("BTV-API", config.Tracing)
+
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
 	db, dbChan := utils.MustCreateDBClient(ctx, config.DB)
+
 	redisClient, rdbChan := utils.MustCreateRedisClient(ctx, config.Redis)
 	locker := redislock.New(redisClient)
 	remoteCache := remotecache.New(redisClient, locker)
+
 	jwkChan := lo.Async(func() gin.HandlerFunc {
 		handler := jwksHandler(config.Redirect)
 		log.L.Info().Msg("JWK generated")
