@@ -79,13 +79,6 @@ func (s *Service) getEventItems(ctx context.Context, collection string, id strin
 }
 
 func (s *Service) publishModelUpdate(ctx context.Context, collection string, id string) error {
-	switch collection {
-	case "sections", "surveys":
-		break
-	default:
-		return nil
-	}
-
 	date := time.Now().Truncate(time.Second * 1)
 	dateString := date.Format(time.RFC3339)
 

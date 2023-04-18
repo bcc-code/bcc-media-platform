@@ -11,7 +11,7 @@ import "bccm-video-player/css"
 import { onMounted, onUnmounted, ref } from "vue"
 import { useRoute } from "vue-router"
 import { current as currentLanguage } from "@/services/language"
-import { getSessionId } from "rudder-sdk-js";
+import { getSessionId } from "rudder-sdk-js"
 
 const err = ref(null as string | null)
 

@@ -125,19 +125,26 @@ export const comingSoon = (item: SectionItemFragment) => {
     switch (item.item.__typename) {
         case "Episode":
             return (
-                item.item.locked && new Date(item.item.publishDate).getTime() > new Date().getTime()
+                item.item.locked &&
+                new Date(item.item.publishDate).getTime() > new Date().getTime()
             )
     }
     return false
 }
 
-export const isLive = (item: SectionItemFragment, currentDay: NonNullable<GetCalendarDayQuery["calendar"]>["day"] | null) => {
-    if (!currentDay) return false;
+export const isLive = (
+    item: SectionItemFragment,
+    currentDay: NonNullable<GetCalendarDayQuery["calendar"]>["day"] | null
+) => {
+    if (!currentDay) return false
     switch (item.item.__typename) {
         case "Episode":
-            if (!item.item.locked) return false;
+            if (!item.item.locked) return false
             for (const e of currentDay.entries ?? []) {
-                if (e.__typename === "EpisodeCalendarEntry" && e.episode?.id === item.item.id) {
+                if (
+                    e.__typename === "EpisodeCalendarEntry" &&
+                    e.episode?.id === item.item.id
+                ) {
                     const now = new Date().getTime()
                     const start = new Date(e.start).getTime()
                     const end = new Date(e.end).getTime()

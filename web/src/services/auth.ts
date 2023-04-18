@@ -54,7 +54,7 @@ export class Auth {
         await loginWithRedirect({
             authorizationParams: {
                 prompt: silent ? "none" : undefined,
-            }
+            },
         })
     }
 
@@ -64,7 +64,7 @@ export class Auth {
         return await logout({
             logoutParams: {
                 returnTo: window.location.origin,
-            }
+            },
         })
     }
 

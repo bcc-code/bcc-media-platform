@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { provideClient } from "@urql/vue"
 import client from "@/graph/client"
-import {useAuth} from "@/services/auth";
+import { useAuth } from "@/services/auth"
 
 const { loading } = useAuth()
 
