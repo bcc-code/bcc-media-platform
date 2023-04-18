@@ -5,29 +5,33 @@ import {
     dedupExchange,
     fetchExchange,
 } from "@urql/vue"
-import {AuthConfig, authExchange, AuthUtilities} from "@urql/exchange-auth"
+import { AuthConfig, authExchange, AuthUtilities } from "@urql/exchange-auth"
 import { Auth } from "../services/auth"
 import { current } from "@/services/language"
 import { flutter } from "@/utils/flutter"
 
-const authExchangeFunction = async (utils: AuthUtilities): Promise<AuthConfig> => {
+const authExchangeFunction = async (
+    utils: AuthUtilities
+): Promise<AuthConfig> => {
     let token = await Auth.getToken()
     return {
         willAuthError(): boolean {
             return true
         },
         addAuthToOperation(operation) {
-            if (!token) return operation;
+            if (!token) return operation
             return utils.appendHeaders(operation, {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
             })
         },
         didAuthError(error, operation): boolean {
             return false
         },
         async refreshAuth() {
-            token = flutter ? await flutter.getAccessToken() : await Auth.getToken()
-        }
+            token = flutter
+                ? await flutter.getAccessToken()
+                : await Auth.getToken()
+        },
     }
 }
 

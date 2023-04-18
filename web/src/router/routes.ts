@@ -4,7 +4,7 @@ export default [
     {
         name: "main",
         path: "/",
-        component: () => import( "@/layout/StackedLayout.vue"),
+        component: () => import("@/layout/StackedLayout.vue"),
         children: [
             {
                 name: "page",
@@ -103,6 +103,6 @@ export default [
     {
         name: "login",
         path: "/login",
-        component: () => import("@/pages/Login.vue")
-    }
+        component: () => import("@/pages/Login.vue"),
+    },
 ] as RouteRecordRaw[]

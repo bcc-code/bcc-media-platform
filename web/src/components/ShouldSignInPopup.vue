@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useAuth } from '@/services/auth';
+import { useAuth } from "@/services/auth"
 const { shouldSignIn, signIn, cancelSignIn } = useAuth()
 </script>
 <template>
