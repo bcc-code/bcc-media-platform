@@ -36,7 +36,11 @@ WHERE ce.collections_id = ANY ($1::int[])
         AND ea.available_to > now()
         AND er.roles && $2::varchar[] AND ea.available_from < now()
     ))
-  AND ce.collection != 'seasons'
+  AND (ce.collection != 'seasons' OR (
+        sa.published
+        AND sa.available_to > now()
+        AND sr.roles && $2::varchar[] AND sa.available_from < now()
+    ))
   AND (ce.collection != 'shows' OR (
         sha.published
         AND sha.available_to > now()
