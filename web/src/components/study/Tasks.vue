@@ -459,8 +459,9 @@ async function nextTask() {
 const skipCompetition = () => {
     tasks.value
         .filter((t) => t.__typename == "AlternativesTask" && t.competitionMode)
-        .forEach(async (t) =>
-            await completeTask({ taskId: t.id, selectedAlternatives: [] })
+        .forEach(
+            async (t) =>
+                await completeTask({ taskId: t.id, selectedAlternatives: [] })
         )
     const lastCompetitionTaskIndex = findLastIndex(
         tasks.value,

@@ -10,7 +10,7 @@ const plugin = createAuth0({
         audience: auth0.audience,
         redirect_uri: location.origin,
         scope: "church profile country",
-    }
+    },
 })
 
 export default plugin

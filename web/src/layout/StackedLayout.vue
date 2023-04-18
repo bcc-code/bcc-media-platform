@@ -3,16 +3,10 @@
         <div
             v-if="!tLoading"
             class="relative flex-grow flex-shrink-0"
-            :class="[
-                !shouldSignIn()
-                    ? 'overflow-hidden'
-                    : 'overflow-auto',
-            ]"
+            :class="[!shouldSignIn() ? 'overflow-hidden' : 'overflow-auto']"
         >
             <Navbar class="lg:px-20"></Navbar>
-            <div
-                class="overflow-x-hidden flex-grow flex-shrink-0"
-            >
+            <div class="overflow-x-hidden flex-grow flex-shrink-0">
                 <router-view v-slot="{ Component }">
                     <transition name="slide-fade" mode="out-in">
                         <component :key="$route.name" :is="Component" />

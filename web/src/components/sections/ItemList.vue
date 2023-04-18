@@ -17,19 +17,19 @@
                     <WithProgressBar
                         class="aspect-video text-xs"
                         :item="
-                        i.duration == null
-                            ? undefined
-                            : {
-                                  duration: i.duration,
-                                  progress: i.progress,
-                                  id: i.id,
-                              }
-                    "
+                            i.duration == null
+                                ? undefined
+                                : {
+                                      duration: i.duration,
+                                      progress: i.progress,
+                                      id: i.id,
+                                  }
+                        "
                     >
                         <Pill
                             class="absolute -top-1 -right-1 pointer-events-none"
                             v-if="episodeComingSoon(i)"
-                        >{{ $t("episode.comingSoon") }}</Pill
+                            >{{ $t("episode.comingSoon") }}</Pill
                         >
                         <Image
                             v-if="i.image"

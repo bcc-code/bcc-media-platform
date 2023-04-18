@@ -1,8 +1,11 @@
 <template>
     <div class="relative">
-        <Pill color="bg-red" class="absolute -top-1 -right-1 pointer-events-none" v-if="isLive(i, currentDay)">{{
-            $t("episode.liveNow")
-        }}</Pill>
+        <Pill
+            color="bg-red"
+            class="absolute -top-1 -right-1 pointer-events-none"
+            v-if="isLive(i, currentDay)"
+            >{{ $t("episode.liveNow") }}</Pill
+        >
         <NewPill
             class="absolute -top-1 -right-1 pointer-events-none"
             :item="i"
@@ -18,7 +21,13 @@
                 'pointer-events-none': comingSoon(i) && !isLive(i, currentDay),
                 'opacity-50': clicked,
             }"
-            @click="isLive(i, currentDay) ? $router.push('/live') : !comingSoon(i) ? click() : undefined"
+            @click="
+                isLive(i, currentDay)
+                    ? $router.push('/live')
+                    : !comingSoon(i)
+                    ? click()
+                    : undefined
+            "
         >
             <div
                 class="relative mb-1 rounded-md w-full overflow-hidden hover:opacity-90 transition"
@@ -40,7 +49,11 @@
                     :item="i.item"
                 />
                 <div
-                    v-if="!isLive(i, currentDay) && comingSoon(i) && i.item.__typename === 'Episode'"
+                    v-if="
+                        !isLive(i, currentDay) &&
+                        comingSoon(i) &&
+                        i.item.__typename === 'Episode'
+                    "
                     class="absolute flex top-0 h-full w-full bg-black bg-opacity-80"
                 >
                     <div
@@ -91,7 +104,7 @@ const props = withDefaults(
     { secondaryTitles: false }
 )
 
-const { currentDay } = useCalendar();
+const { currentDay } = useCalendar()
 
 const clicked = ref(false)
 

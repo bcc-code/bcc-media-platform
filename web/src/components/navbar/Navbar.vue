@@ -1,9 +1,6 @@
 <template>
     <Disclosure as="nav" v-slot="{ open }">
-        <div
-            class="mx-auto transition duration-200"
-            v-if="!fetching"
-        >
+        <div class="mx-auto transition duration-200" v-if="!fetching">
             <div class="lg:flex py-4">
                 <div
                     class="flex lg:grid justify-between w-full"
@@ -18,7 +15,12 @@
                         />
                     </div>
                     <div class="hidden lg:flex my-auto space-x-2">
-                        <div v-for="item in getNavigation(authenticated && meQuery?.me.bccMember)" class="relative">
+                        <div
+                            v-for="item in getNavigation(
+                                authenticated && meQuery?.me.bccMember
+                            )"
+                            class="relative"
+                        >
                             <NavLink
                                 :icon="item.icon"
                                 :to="item.to"
@@ -376,7 +378,9 @@
                 </div>
                 <div class="flex lg:hidden justify-between mx-8">
                     <NavLink
-                        v-for="item in getNavigation(authenticated && meQuery?.me.bccMember)"
+                        v-for="item in getNavigation(
+                            authenticated && meQuery?.me.bccMember
+                        )"
                         :to="item.to"
                         :icon="item.icon"
                         :ping="item.ping"

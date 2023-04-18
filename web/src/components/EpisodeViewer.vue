@@ -6,22 +6,22 @@
     ></div>
 </template>
 <script lang="ts" setup>
-import {addError} from "@/utils/error"
-import {onMounted, onUnmounted, onUpdated, ref} from "vue"
-import {Player, setNPAWOptions} from "bccm-video-player"
+import { addError } from "@/utils/error"
+import { onMounted, onUnmounted, onUpdated, ref } from "vue"
+import { Player, setNPAWOptions } from "bccm-video-player"
 import playerFactory from "@/services/player"
 import {
     EpisodeContext,
     useGetMeQuery,
     useUpdateEpisodeProgressMutation,
 } from "@/graph/generated"
-import {useAuth0} from "@auth0/auth0-vue"
-import {setProgress} from "@/utils/episodes"
-import {current as currentLanguage} from "@/services/language"
-import {getSessionId} from "rudder-sdk-js";
+import { useAuth0 } from "@auth0/auth0-vue"
+import { setProgress } from "@/utils/episodes"
+import { current as currentLanguage } from "@/services/language"
+import { getSessionId } from "rudder-sdk-js"
 import { analytics } from "@/services/analytics"
 
-const {isAuthenticated} = useAuth0()
+const { isAuthenticated } = useAuth0()
 
 const lanTo3letter: {
     [key: string]: string
@@ -43,7 +43,7 @@ const lanTo3letter: {
     da: "dan",
 }
 
-const {data, executeQuery} = useGetMeQuery()
+const { data, executeQuery } = useGetMeQuery()
 
 const props = defineProps<{
     context: EpisodeContext
@@ -68,7 +68,7 @@ const player = ref(null as Player | null)
 
 const current = ref(null as string | null)
 
-const {executeMutation} = useUpdateEpisodeProgressMutation()
+const { executeMutation } = useUpdateEpisodeProgressMutation()
 
 const updateEpisodeProgress = async (episode: {
     id: string
