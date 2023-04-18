@@ -4,7 +4,7 @@ run:
 	npx directus start
 
 install:
-	pnpm i
+	npm ci
 	cd ./custom && make install
 
 build:
