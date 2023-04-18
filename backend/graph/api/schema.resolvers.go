@@ -188,6 +188,19 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 
 // Section is the resolver for the section field.
 func (r *queryRootResolver) Section(ctx context.Context, id string, timestamp *string) (model.Section, error) {
+	if timestamp != nil {
+		intID, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		_, err = withCacheAndTimestamp(ctx, "section:"+id, func(ctx context.Context) (bool, error) {
+			r.Loaders.SectionLoader.Clear(ctx, int(intID))
+			return true, nil
+		}, time.Minute, timestamp)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Section]{
 		Item:        r.Loaders.SectionLoader,
 		Permissions: r.Loaders.SectionPermissionLoader,
