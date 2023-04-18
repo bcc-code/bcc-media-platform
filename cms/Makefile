@@ -9,7 +9,7 @@ install:
 
 build:
 	rm -rf ./extensions
-	pnpm build
+	npm run build
 	cd ./custom && make build
 
 init:
