@@ -20,6 +20,7 @@ blocks:
             - cd cms
             - cache restore
             - nvm install 16.15
+            - npm i -g pnpm@8.3.0
             - make install
             - make build
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:$SEMAPHORE_GIT_BRANCH .'
