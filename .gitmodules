@@ -1,6 +1,3 @@
-[submodule "packages/video-player/external-projects/videojs-chromecast"]
-	path = packages/video-player/external-projects/videojs-chromecast
-	url = https://github.com/bcc-code/videojs-chromecast
 [submodule "packages/video-player/external-projects/videojs-hls-quality-selector"]
 	path = packages/video-player/external-projects/videojs-hls-quality-selector
 	url = https://github.com/bcc-code/videojs-hls-quality-selector
