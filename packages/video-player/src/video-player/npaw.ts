@@ -18,6 +18,7 @@ export type Options = {
             seasonTitle?: string,
             showTitle?: string,
             showId?: string,
+            overrides?: { [key: string]: string }
         },
     }
 }
@@ -39,6 +40,7 @@ function toConfig(options: Options) {
         "parse.manifest": true,
         "extraparam.1": options.tracking.sessionId,
         "extraparam.2": options.tracking.ageGroup,
+        ...md.overrides
     }
 }
 
