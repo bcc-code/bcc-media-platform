@@ -6,6 +6,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"net/url"
 	"strconv"
 	"time"
@@ -592,6 +593,13 @@ func (r *queryRootResolver) Prompts(ctx context.Context, timestamp *string) ([]m
 	loaders := r.FilteredLoaders(ctx)
 	if timestamp != nil {
 		withTimestampExpiration(ctx, "prompts:"+loaders.GetKey(), timestamp, func() {
+			ids, err := loaders.PromptIDsLoader(ctx)
+			if err != nil {
+				log.L.Error().Err(err).Send()
+			}
+			for _, id := range ids {
+				r.Loaders.PromptLoader.Clear(ctx, id)
+			}
 			memorycache.Delete(fmt.Sprintf("promptIDs:roles:%s", loaders.GetKey()))
 		})
 	}
