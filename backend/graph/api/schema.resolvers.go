@@ -193,13 +193,9 @@ func (r *queryRootResolver) Section(ctx context.Context, id string, timestamp *s
 		if err != nil {
 			return nil, err
 		}
-		_, err = withCacheAndTimestamp(ctx, "section:"+id, func(ctx context.Context) (bool, error) {
+		withTimestampExpiration(ctx, "section:"+id, timestamp, func() {
 			r.Loaders.SectionLoader.Clear(ctx, int(intID))
-			return true, nil
-		}, time.Minute, timestamp)
-		if err != nil {
-			return nil, err
-		}
+		})
 	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Section]{
 		Item:        r.Loaders.SectionLoader,
