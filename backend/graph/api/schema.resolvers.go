@@ -592,8 +592,14 @@ func (r *queryRootResolver) LegacyIDLookup(ctx context.Context, options *model.L
 }
 
 // Prompts is the resolver for the prompts field.
-func (r *queryRootResolver) Prompts(ctx context.Context) ([]model.Prompt, error) {
-	ids, err := r.FilteredLoaders(ctx).PromptIDsLoader(ctx)
+func (r *queryRootResolver) Prompts(ctx context.Context, timestamp *string) ([]model.Prompt, error) {
+	loaders := r.FilteredLoaders(ctx)
+	if timestamp != nil {
+		withTimestampExpiration(ctx, "prompts:"+loaders.GetKey(), timestamp, func() {
+			memorycache.Delete(fmt.Sprintf("promptIDs:roles:%s", loaders.GetKey()))
+		})
+	}
+	ids, err := loaders.PromptIDsLoader(ctx)
 	if err != nil {
 		return nil, err
 	}
