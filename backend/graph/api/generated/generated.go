@@ -288,6 +288,7 @@ type ComplexityRoot struct {
 		Title                 func(childComplexity int) int
 		Type                  func(childComplexity int) int
 		UUID                  func(childComplexity int) int
+		Watched               func(childComplexity int) int
 	}
 
 	EpisodeCalendarEntry struct {
@@ -989,6 +990,7 @@ type EpisodeResolver interface {
 	Season(ctx context.Context, obj *model.Episode) (*model.Season, error)
 
 	Progress(ctx context.Context, obj *model.Episode) (*int, error)
+	Watched(ctx context.Context, obj *model.Episode) (bool, error)
 
 	Context(ctx context.Context, obj *model.Episode) (model.EpisodeContextUnion, error)
 	RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error)
@@ -2104,6 +2106,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.UUID(childComplexity), true
+
+	case "Episode.watched":
+		if e.complexity.Episode.Watched == nil {
+			break
+		}
+
+		return e.complexity.Episode.Watched(childComplexity), true
 
 	case "EpisodeCalendarEntry.description":
 		if e.complexity.EpisodeCalendarEntry.Description == nil {
@@ -5740,6 +5749,7 @@ type Episode {
     season: Season @goField(forceResolver: true)
     duration: Int!
     progress: Int @goField(forceResolver: true)
+    watched: Boolean! @goField(forceResolver: true)
     audioLanguages: [Language!]!
     subtitleLanguages: [Language!]!
     context: EpisodeContextUnion @goField(forceResolver: true)
@@ -13371,6 +13381,50 @@ func (ec *executionContext) fieldContext_Episode_progress(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_watched(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_watched(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Episode().Watched(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_watched(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_audioLanguages(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_audioLanguages(ctx, field)
 	if err != nil {
@@ -14163,6 +14217,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_duration(ctx, field)
 			case "progress":
 				return ec.fieldContext_Episode_progress(ctx, field)
+			case "watched":
+				return ec.fieldContext_Episode_watched(ctx, field)
 			case "audioLanguages":
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
@@ -14496,6 +14552,8 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 				return ec.fieldContext_Episode_duration(ctx, field)
 			case "progress":
 				return ec.fieldContext_Episode_progress(ctx, field)
+			case "watched":
+				return ec.fieldContext_Episode_watched(ctx, field)
 			case "audioLanguages":
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
@@ -14738,6 +14796,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_duration(ctx, field)
 			case "progress":
 				return ec.fieldContext_Episode_progress(ctx, field)
+			case "watched":
+				return ec.fieldContext_Episode_watched(ctx, field)
 			case "audioLanguages":
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
@@ -20880,6 +20940,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_duration(ctx, field)
 			case "progress":
 				return ec.fieldContext_Episode_progress(ctx, field)
+			case "watched":
+				return ec.fieldContext_Episode_watched(ctx, field)
 			case "audioLanguages":
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
@@ -23946,6 +24008,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_duration(ctx, field)
 			case "progress":
 				return ec.fieldContext_Episode_progress(ctx, field)
+			case "watched":
+				return ec.fieldContext_Episode_watched(ctx, field)
 			case "audioLanguages":
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
@@ -29423,6 +29487,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 				return ec.fieldContext_Episode_duration(ctx, field)
 			case "progress":
 				return ec.fieldContext_Episode_progress(ctx, field)
+			case "watched":
+				return ec.fieldContext_Episode_watched(ctx, field)
 			case "audioLanguages":
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
@@ -33775,6 +33841,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_duration(ctx, field)
 			case "progress":
 				return ec.fieldContext_Episode_progress(ctx, field)
+			case "watched":
+				return ec.fieldContext_Episode_watched(ctx, field)
 			case "audioLanguages":
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
@@ -38388,6 +38456,26 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 					}
 				}()
 				res = ec._Episode_progress(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "watched":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_watched(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 

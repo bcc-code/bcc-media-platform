@@ -158,6 +158,19 @@ func (r *episodeResolver) Progress(ctx context.Context, obj *model.Episode) (*in
 	return &progress.Progress, nil
 }
 
+// Watched is the resolver for the watched field.
+func (r *episodeResolver) Watched(ctx context.Context, obj *model.Episode) (bool, error) {
+	profileLoaders := r.ProfileLoaders(ctx)
+	if profileLoaders == nil {
+		return false, nil
+	}
+	progress, err := profileLoaders.ProgressLoader.Get(ctx, utils.AsInt(obj.ID))
+	if err != nil || progress == nil {
+		return false, err
+	}
+	return progress.Watched > 0, nil
+}
+
 // Context is the resolver for the context field.
 func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode) (model.EpisodeContextUnion, error) {
 	var collectionId *int
