@@ -132,40 +132,47 @@ const { data } = useGetLiveCalendarRangeQuery({
     },
 })
 
-const startEvent = (day: Date) => {
+const startEvent = (date: Date) => {
     const events = data.value?.calendar?.period.events ?? []
-    const dayString = isoDateString(day)
+    const day = parseInt(isoDateString(date).substring(8, 10))
     for (const e of events) {
-        const start = isoDateString(new Date(e.start))
-        if (start === dayString) {
+        const start = parseInt(
+            isoDateString(new Date(e.start)).substring(8, 10)
+        )
+        if (start === day) {
             return e.start
         }
     }
     return false
 }
 
-const endEvent = (day: Date) => {
+const endEvent = (date: Date) => {
     const events = data.value?.calendar?.period.events ?? []
-    const dayString = isoDateString(day)
+    const day = parseInt(isoDateString(date).substring(8, 10))
     for (const e of events) {
-        const end = isoDateString(new Date(e.end))
-        if (end === dayString) {
+        const end = parseInt(isoDateString(new Date(e.end)).substring(8, 10))
+        if (end === day) {
             return e.end
         }
     }
     return false
 }
 
-const inEvent = (day: Date) => {
+const inEvent = (date: Date) => {
     const events = data.value?.calendar?.period.events ?? []
-    const dayString = isoDateString(day)
+    const day = parseInt(isoDateString(date).substring(8, 10))
+
     for (const e of events) {
-        const start = isoDateString(new Date(e.start))
-        const end = isoDateString(new Date(e.end))
-        if (start < dayString && end > dayString) {
+        const start = parseInt(
+            isoDateString(new Date(e.start)).substring(8, 10)
+        )
+        const end = parseInt(isoDateString(new Date(e.end)).substring(8, 10))
+
+        if (start < day && end > day) {
             return true
         }
     }
+
     return false
 }
 
