@@ -376,6 +376,7 @@ type Episode struct {
 	Season                *Season                `json:"season"`
 	Duration              int                    `json:"duration"`
 	Progress              *int                   `json:"progress"`
+	Watched               bool                   `json:"watched"`
 	AudioLanguages        []string               `json:"audioLanguages"`
 	SubtitleLanguages     []string               `json:"subtitleLanguages"`
 	Context               EpisodeContextUnion    `json:"context"`
