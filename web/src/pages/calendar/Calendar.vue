@@ -134,10 +134,8 @@ const { data } = useGetLiveCalendarRangeQuery({
 
 const startEvent = (date: Date) => {
     const events = data.value?.calendar?.period.events ?? []
-    //const day = isoDateString(date)
     const day = parseInt(isoDateString(date).substring(8, 10))
     for (const e of events) {
-        //const start = isoDateString(new Date(e.start))
         const start = parseInt(
             isoDateString(new Date(e.start)).substring(8, 10)
         )
@@ -150,10 +148,8 @@ const startEvent = (date: Date) => {
 
 const endEvent = (date: Date) => {
     const events = data.value?.calendar?.period.events ?? []
-    //const day = isoDateString(date)
     const day = parseInt(isoDateString(date).substring(8, 10))
     for (const e of events) {
-        //const end = isoDateString(new Date(e.end))
         const end = parseInt(isoDateString(new Date(e.end)).substring(8, 10))
         if (end === day) {
             return e.end
@@ -164,12 +160,9 @@ const endEvent = (date: Date) => {
 
 const inEvent = (date: Date) => {
     const events = data.value?.calendar?.period.events ?? []
-    //const day = isoDateString(date)
     const day = parseInt(isoDateString(date).substring(8, 10))
 
     for (const e of events) {
-        /*const start = isoDateString(new Date(e.start))
-        const end = isoDateString(new Date(e.end))*/
         const start = parseInt(
             isoDateString(new Date(e.start)).substring(8, 10)
         )
