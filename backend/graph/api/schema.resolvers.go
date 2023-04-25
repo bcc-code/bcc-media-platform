@@ -592,7 +592,7 @@ func (r *queryRootResolver) LegacyIDLookup(ctx context.Context, options *model.L
 func (r *queryRootResolver) Prompts(ctx context.Context, timestamp *string) ([]model.Prompt, error) {
 	loaders := r.FilteredLoaders(ctx)
 	if timestamp != nil {
-		withTimestampExpiration(ctx, "prompts:"+loaders.GetKey(), timestamp, func() {
+		withTimestampExpiration(ctx, "prompts:"+loaders.Key, timestamp, func() {
 			ids, err := loaders.PromptIDsLoader(ctx)
 			if err != nil {
 				log.L.Error().Err(err).Send()
@@ -600,7 +600,7 @@ func (r *queryRootResolver) Prompts(ctx context.Context, timestamp *string) ([]m
 			for _, id := range ids {
 				r.Loaders.PromptLoader.Clear(ctx, id)
 			}
-			memorycache.Delete(fmt.Sprintf("promptIDs:roles:%s", loaders.GetKey()))
+			memorycache.Delete(fmt.Sprintf("promptIDs:roles:%s", loaders.Key))
 		})
 	}
 	ids, err := loaders.PromptIDsLoader(ctx)

@@ -86,7 +86,7 @@ type ApplicationLoaders struct {
 
 // FilteredLoaders contains loaders that will be filtered by permissions.
 type FilteredLoaders struct {
-	GetKey func() string
+	Key string
 
 	EpisodeFilterLoader     *loaders.Loader[int, *int]
 	EpisodeUUIDFilterLoader *loaders.Loader[uuid.UUID, *uuid.UUID]
