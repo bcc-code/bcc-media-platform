@@ -5605,118 +5605,7 @@ type GlobalConfig {
 #    name: String!
 #}
 `, BuiltIn: false},
-	{Name: "../schema/export.graphqls", Input: `type Export {
-  dbVersion: String!
-  url: String!
-}
-`, BuiltIn: false},
-	{Name: "../schema/faq.graphqls", Input: `type Question {
-    id: ID!
-    category: FAQCategory! @goField(forceResolver: true)
-    question: String!
-    answer: String!
-}
-
-type QuestionPagination implements Pagination {
-    total: Int!
-    first: Int!
-    offset: Int!
-    items: [Question!]!
-}
-
-type FAQCategoryPagination implements Pagination {
-    total: Int!
-    first: Int!
-    offset: Int!
-    items: [FAQCategory!]!
-}
-
-type FAQCategory {
-    id: ID!
-    title: String!
-    questions(
-        first: Int
-        offset: Int
-    ): QuestionPagination @goField(forceResolver: true)
-}
-
-type FAQ {
-    categories(
-        first: Int
-        Offset: Int
-    ): FAQCategoryPagination @goField(forceResolver: true)
-
-    category(
-        id: ID!
-    ): FAQCategory! @goField(forceResolver: true)
-
-    question(
-        id: ID!
-    ): Question! @goField(forceResolver: true)
-}`, BuiltIn: false},
-	{Name: "../schema/items.graphqls", Input: `enum ImageStyle {
-    poster
-    featured
-    default
-}
-
-enum ShowType {
-    event
-    series
-}
-
-enum Status {
-    published
-    unlisted
-}
-
-type Show {
-    id: ID!
-    legacyID: ID
-    status: Status!
-    type: ShowType!
-    title: String!
-    description: String!
-    image(style: ImageStyle): String @goField(forceResolver: true)
-    imageUrl: String @deprecated(reason: "Replaced by the image field")
-    images: [Image!]!
-    episodeCount: Int! @goField(forceResolver: true)
-    seasonCount: Int! @goField(forceResolver: true)
-    seasons(
-        first: Int
-        offset: Int
-        dir: String
-    ): SeasonPagination! @goField(forceResolver: true)
-    defaultEpisode: Episode! @goField(forceResolver: true)
-}
-
-type Season {
-    id: ID!
-    legacyID: ID
-    status: Status!
-    ageRating: String!
-    title: String!
-    description: String!
-    image(style: ImageStyle): String @goField(forceResolver: true)
-    imageUrl: String @deprecated(reason: "Replaced by the image field")
-    images: [Image!]!
-    number: Int!
-    show: Show! @goField(forceResolver: true)
-    episodes(
-        first: Int
-        offset: Int
-        dir: String
-    ): EpisodePagination! @goField(forceResolver: true)
-}
-
-type SeasonPagination implements Pagination {
-    total: Int!
-    first: Int!
-    offset: Int!
-    items: [Season!]!
-}
-
-enum EpisodeType {
+	{Name: "../schema/episodes.graphqls", Input: `enum EpisodeType {
     episode
     standalone
 }
@@ -5788,9 +5677,10 @@ type File {
     mimeType: String!
 }
 
-type Image {
-    style: String!
-    url: String!
+enum StreamType {
+    hls_ts
+    hls_cmaf
+    dash
 }
 
 type Stream {
@@ -5800,13 +5690,56 @@ type Stream {
     subtitleLanguages: [Language!]!
     type: StreamType!
 }
-
-enum StreamType {
-    hls_ts
-    hls_cmaf
-    dash
+`, BuiltIn: false},
+	{Name: "../schema/export.graphqls", Input: `type Export {
+  dbVersion: String!
+  url: String!
 }
 `, BuiltIn: false},
+	{Name: "../schema/faq.graphqls", Input: `type Question {
+    id: ID!
+    category: FAQCategory! @goField(forceResolver: true)
+    question: String!
+    answer: String!
+}
+
+type QuestionPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [Question!]!
+}
+
+type FAQCategoryPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [FAQCategory!]!
+}
+
+type FAQCategory {
+    id: ID!
+    title: String!
+    questions(
+        first: Int
+        offset: Int
+    ): QuestionPagination @goField(forceResolver: true)
+}
+
+type FAQ {
+    categories(
+        first: Int
+        Offset: Int
+    ): FAQCategoryPagination @goField(forceResolver: true)
+
+    category(
+        id: ID!
+    ): FAQCategory! @goField(forceResolver: true)
+
+    question(
+        id: ID!
+    ): Question! @goField(forceResolver: true)
+}`, BuiltIn: false},
 	{Name: "../schema/messages.graphqls", Input: `type MessageStyle {
     text: String!
     background: String!
@@ -6171,6 +6104,22 @@ type Settings {
   subtitleLanguages: [Language!]!
 }
 
+type Image {
+  style: String!
+  url: String!
+}
+
+enum ImageStyle {
+  poster
+  featured
+  default
+}
+
+enum Status {
+  published
+  unlisted
+}
+
 enum Gender {
   male
   female
@@ -6361,6 +6310,57 @@ type SearchResult {
     hits: Int!
     page: Int!
     result: [SearchResultItem!]!
+}
+`, BuiltIn: false},
+	{Name: "../schema/seasons.graphqls", Input: `type Season {
+    id: ID!
+    legacyID: ID
+    status: Status!
+    ageRating: String!
+    title: String!
+    description: String!
+    image(style: ImageStyle): String @goField(forceResolver: true)
+    imageUrl: String @deprecated(reason: "Replaced by the image field")
+    images: [Image!]!
+    number: Int!
+    show: Show! @goField(forceResolver: true)
+    episodes(
+        first: Int
+        offset: Int
+        dir: String
+    ): EpisodePagination! @goField(forceResolver: true)
+}
+
+type SeasonPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [Season!]!
+}
+`, BuiltIn: false},
+	{Name: "../schema/shows.graphqls", Input: `enum ShowType {
+    event
+    series
+}
+
+type Show {
+    id: ID!
+    legacyID: ID
+    status: Status!
+    type: ShowType!
+    title: String!
+    description: String!
+    image(style: ImageStyle): String @goField(forceResolver: true)
+    imageUrl: String @deprecated(reason: "Replaced by the image field")
+    images: [Image!]!
+    episodeCount: Int! @goField(forceResolver: true)
+    seasonCount: Int! @goField(forceResolver: true)
+    seasons(
+        first: Int
+        offset: Int
+        dir: String
+    ): SeasonPagination! @goField(forceResolver: true)
+    defaultEpisode: Episode! @goField(forceResolver: true)
 }
 `, BuiltIn: false},
 	{Name: "../schema/studies.graphqls", Input: `type StudyTopic {
@@ -36520,6 +36520,13 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._CollectionItemPagination(ctx, sel, obj)
+	case model.EpisodePagination:
+		return ec._EpisodePagination(ctx, sel, &obj)
+	case *model.EpisodePagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._EpisodePagination(ctx, sel, obj)
 	case model.QuestionPagination:
 		return ec._QuestionPagination(ctx, sel, &obj)
 	case *model.QuestionPagination:
@@ -36534,20 +36541,6 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._FAQCategoryPagination(ctx, sel, obj)
-	case model.SeasonPagination:
-		return ec._SeasonPagination(ctx, sel, &obj)
-	case *model.SeasonPagination:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SeasonPagination(ctx, sel, obj)
-	case model.EpisodePagination:
-		return ec._EpisodePagination(ctx, sel, &obj)
-	case *model.EpisodePagination:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._EpisodePagination(ctx, sel, obj)
 	case model.SectionPagination:
 		return ec._SectionPagination(ctx, sel, &obj)
 	case *model.SectionPagination:
@@ -36569,6 +36562,13 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._SectionItemPagination(ctx, sel, obj)
+	case model.SeasonPagination:
+		return ec._SeasonPagination(ctx, sel, &obj)
+	case *model.SeasonPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SeasonPagination(ctx, sel, obj)
 	case model.LessonPagination:
 		return ec._LessonPagination(ctx, sel, &obj)
 	case *model.LessonPagination:

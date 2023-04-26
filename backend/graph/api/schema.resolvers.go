@@ -6,7 +6,6 @@ package graph
 import (
 	"context"
 	"fmt"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"net/url"
 	"strconv"
 	"time"
@@ -23,6 +22,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"

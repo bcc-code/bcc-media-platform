@@ -24,6 +24,22 @@ type Settings {
   subtitleLanguages: [Language!]!
 }
 
+type Image {
+  style: String!
+  url: String!
+}
+
+enum ImageStyle {
+  poster
+  featured
+  default
+}
+
+enum Status {
+  published
+  unlisted
+}
+
 enum Gender {
   male
   female
