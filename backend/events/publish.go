@@ -73,6 +73,8 @@ func (s *Service) getEventItems(ctx context.Context, collection string, id strin
 				Collection: "sections",
 			}
 		}), nil
+	case "prompts":
+		return []*realItem{{ID: id, Collection: collection}}, nil
 	default:
 		return nil, nil
 	}

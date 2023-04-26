@@ -6,6 +6,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"net/url"
 	"strconv"
 	"time"
@@ -188,6 +189,15 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 
 // Section is the resolver for the section field.
 func (r *queryRootResolver) Section(ctx context.Context, id string, timestamp *string) (model.Section, error) {
+	if timestamp != nil {
+		intID, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		withTimestampExpiration(ctx, "section:"+id, timestamp, func() {
+			r.Loaders.SectionLoader.Clear(ctx, int(intID))
+		})
+	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Section]{
 		Item:        r.Loaders.SectionLoader,
 		Permissions: r.Loaders.SectionPermissionLoader,
@@ -579,8 +589,21 @@ func (r *queryRootResolver) LegacyIDLookup(ctx context.Context, options *model.L
 }
 
 // Prompts is the resolver for the prompts field.
-func (r *queryRootResolver) Prompts(ctx context.Context) ([]model.Prompt, error) {
-	ids, err := r.FilteredLoaders(ctx).PromptIDsLoader(ctx)
+func (r *queryRootResolver) Prompts(ctx context.Context, timestamp *string) ([]model.Prompt, error) {
+	loaders := r.FilteredLoaders(ctx)
+	if timestamp != nil {
+		withTimestampExpiration(ctx, "prompts:"+loaders.Key, timestamp, func() {
+			ids, err := loaders.PromptIDsLoader(ctx)
+			if err != nil {
+				log.L.Error().Err(err).Send()
+			}
+			for _, id := range ids {
+				r.Loaders.PromptLoader.Clear(ctx, id)
+			}
+			memorycache.Delete(fmt.Sprintf("promptIDs:roles:%s", loaders.Key))
+		})
+	}
+	ids, err := loaders.PromptIDsLoader(ctx)
 	if err != nil {
 		return nil, err
 	}

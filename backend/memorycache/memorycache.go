@@ -21,6 +21,11 @@ func Set[V any](key string, value V, opts ...cache.ItemOption) {
 	memoryCache.Set(key, value, opts...)
 }
 
+// Delete a value from cache
+func Delete(key string) {
+	memoryCache.Delete(key)
+}
+
 // GetOrSet a value with a lock
 func GetOrSet[T any](ctx context.Context, key string, factory func(ctx context.Context) (T, error), opts ...cache.ItemOption) (T, error) {
 	stored, success := Get[T](key)

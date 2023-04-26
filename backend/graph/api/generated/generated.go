@@ -614,7 +614,7 @@ type ComplexityRoot struct {
 		PendingAchievements func(childComplexity int) int
 		Profile             func(childComplexity int) int
 		Profiles            func(childComplexity int) int
-		Prompts             func(childComplexity int) int
+		Prompts             func(childComplexity int, timestamp *string) int
 		Redirect            func(childComplexity int, id string) int
 		Search              func(childComplexity int, queryString string, first *int, offset *int, typeArg *string, minScore *int) int
 		Season              func(childComplexity int, id string) int
@@ -1118,7 +1118,7 @@ type QueryRootResolver interface {
 	Profiles(ctx context.Context) ([]*model.Profile, error)
 	Profile(ctx context.Context) (*model.Profile, error)
 	LegacyIDLookup(ctx context.Context, options *model.LegacyIDLookupOptions) (*model.LegacyIDLookup, error)
-	Prompts(ctx context.Context) ([]model.Prompt, error)
+	Prompts(ctx context.Context, timestamp *string) ([]model.Prompt, error)
 }
 type QuestionResolver interface {
 	Category(ctx context.Context, obj *model.Question) (*model.FAQCategory, error)
@@ -3832,7 +3832,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.QueryRoot.Prompts(childComplexity), true
+		args, err := ec.field_QueryRoot_prompts_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.Prompts(childComplexity, args["timestamp"].(*string)), true
 
 	case "QueryRoot.redirect":
 		if e.complexity.QueryRoot.Redirect == nil {
@@ -6286,7 +6291,7 @@ type QueryRoot{
 
   legacyIDLookup(options: LegacyIDLookupOptions): LegacyIDLookup!
 
-  prompts: [Prompt!]!
+  prompts(timestamp: Date): [Prompt!]!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -7776,6 +7781,21 @@ func (ec *executionContext) field_QueryRoot_page_args(ctx context.Context, rawAr
 		}
 	}
 	args["code"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_QueryRoot_prompts_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["timestamp"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
+		arg0, err = ec.unmarshalODate2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["timestamp"] = arg0
 	return args, nil
 }
 
@@ -25154,7 +25174,7 @@ func (ec *executionContext) _QueryRoot_prompts(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Prompts(rctx)
+		return ec.resolvers.QueryRoot().Prompts(rctx, fc.Args["timestamp"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -25180,6 +25200,17 @@ func (ec *executionContext) fieldContext_QueryRoot_prompts(ctx context.Context, 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_prompts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
