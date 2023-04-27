@@ -58,12 +58,12 @@ func send(projectID, topicID string) {
 	e.SetSource(events.SourceMediaBanken)
 	e.SetType(events.TypeAssetDelivered)
 	e.SetData(cloudevents.ApplicationJSON, &events.AssetDelivered{
-		//JSONMetaPath: "randomstring/sample.json",
-		JSONMetaPath: "muxed-test/BIEX_S01_E02_Trailer.smil",
+		JSONMetaPath: "230319_TestSeq01_0caf653e1a915d34/230319_TestSeq01.json",
+		//JSONMetaPath: "muxed-test/BIEX_S01_E02_Trailer.smil",
 	})
 
 	data, err := json.Marshal(e)
-	spew.Dump(string(data))
+	println(string(data))
 	topic := client.Topic(topicID)
 	msg := topic.Publish(ctx, &pubsub.Message{
 		Data: data,

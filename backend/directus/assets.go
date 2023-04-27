@@ -2,9 +2,10 @@ package directus
 
 import (
 	"fmt"
-	"github.com/bcc-code/brunstadtv/backend/common"
 	"net/url"
 	"strconv"
+
+	"github.com/bcc-code/brunstadtv/backend/common"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/go-resty/resty/v2"
@@ -19,7 +20,6 @@ var (
 type Asset struct {
 	ID              int           `json:"id,omitempty"`
 	Name            string        `json:"name"`
-	Files           []AssetFile   `json:"files,omitempty"`
 	Duration        int64         `json:"duration"`
 	MediabankenID   string        `json:"mediabanken_id"`
 	EncodingVersion string        `json:"encoding_version"`
@@ -30,7 +30,6 @@ type Asset struct {
 
 // ForUpdate prepares a copy of the struct for Directus update op
 func (a Asset) ForUpdate() interface{} {
-	a.Files = nil
 	return a
 }
 
@@ -59,7 +58,6 @@ func FindAssetByAWSArn(c *resty.Client, arn string) (*Asset, error) {
 
 	qq.Add("fields[]", "id")
 	qq.Add("fields[]", "name")
-	qq.Add("fields[]", "files")
 	qq.Add("fields[]", "duration")
 	qq.Add("fields[]", "mediabanken_id")
 	qq.Add("fields[]", "encoding_version")
@@ -103,7 +101,6 @@ func FindNewestAssetByMediabankenID(c *resty.Client, mediabankenID string) (*Ass
 
 	qq.Add("fields[]", "id")
 	qq.Add("fields[]", "main_storage_path")
-	qq.Add("fields[]", "files.path")
 
 	qq.Add("filter", fmt.Sprintf(`{"_and":[{"mediabanken_id":{"_eq":"%s"}}, {"status": {"_eq": "%s"}}]}`, mediabankenID, common.StatusPublished))
 
