@@ -63,9 +63,7 @@ func send(projectID, topicID string) {
 	})
 
 	data, err := json.Marshal(e)
-	spew.Dump(string(data))
 	println(string(data))
-	return
 	topic := client.Topic(topicID)
 	msg := topic.Publish(ctx, &pubsub.Message{
 		Data: data,
