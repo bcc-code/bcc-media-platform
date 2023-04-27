@@ -4,6 +4,7 @@ WITH ts AS (SELECT episodes_id,
                    json_object_agg(languages_code, description)       AS description,
                    json_object_agg(languages_code, extra_description) AS extra_description
             FROM episodes_translations
+            WHERE episodes_id = ANY ($1::int[])
             GROUP BY episodes_id),
      tags AS (SELECT episodes_id,
                      array_agg(tags_id) AS tags
@@ -11,7 +12,8 @@ WITH ts AS (SELECT episodes_id,
               GROUP BY episodes_id),
      images AS (WITH images AS (SELECT episode_id, style, language, filename_disk
                                 FROM images img
-                                         JOIN directus_files df on img.file = df.id)
+                                         JOIN directus_files df on img.file = df.id
+                                WHERE episode_id = ANY ($1::int[]))
                 SELECT episode_id, json_agg(images) as json
                 FROM images
                 GROUP BY episode_id)
