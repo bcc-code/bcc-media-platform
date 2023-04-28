@@ -32,7 +32,6 @@ ORDER BY ce.updated_at DESC;
 INSERT INTO users.collections (id, application_id, profile_id, updated_at, created_at, my_list, title)
 VALUES (@id, @application_id, @profile_id, now(), now(), @my_list, @title)
 ON CONFLICT (id) DO UPDATE SET updated_at = now(),
-                               metadata   = EXCLUDED.metadata,
                                title      = EXCLUDED.title;
 
 -- name: UpsertUserCollectionEntry :exec

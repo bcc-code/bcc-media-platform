@@ -28,7 +28,6 @@ const upsertUserCollection = `-- name: UpsertUserCollection :exec
 INSERT INTO users.collections (id, application_id, profile_id, updated_at, created_at, my_list, title)
 VALUES ($1, $2, $3, now(), now(), $4, $5)
 ON CONFLICT (id) DO UPDATE SET updated_at = now(),
-                               metadata   = EXCLUDED.metadata,
                                title      = EXCLUDED.title
 `
 
