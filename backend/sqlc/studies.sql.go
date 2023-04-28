@@ -391,6 +391,55 @@ func (q *Queries) getCompletedTopics(ctx context.Context, profileIds []uuid.UUID
 	return items, nil
 }
 
+const getDefaultLessonIDForTopicIDs = `-- name: getDefaultLessonIDForTopicIDs :many
+WITH completed AS (SELECT DISTINCT ON (task.lesson_id) task.lesson_id
+                   FROM users.taskanswers answer
+                            JOIN tasks task ON task.id = answer.task_id
+                            JOIN lessons lesson ON lesson.id = task.lesson_id
+                   WHERE lesson.topic_id = ANY ($1::uuid[])
+                     AND answer.profile_id = $2::uuid
+                   ORDER BY task.lesson_id, lesson.sort)
+SELECT DISTINCT ON (l.topic_id) l.topic_id as source, l.id as result
+FROM lessons l
+         LEFT JOIN completed c on c.lesson_id = l.id
+WHERE c.lesson_id IS NULL
+  AND l.topic_id = ANY ($1::uuid[])
+ORDER BY l.topic_id, l.sort
+`
+
+type getDefaultLessonIDForTopicIDsParams struct {
+	TopicIds  []uuid.UUID `db:"topic_ids" json:"topicIds"`
+	ProfileID uuid.UUID   `db:"profile_id" json:"profileID"`
+}
+
+type getDefaultLessonIDForTopicIDsRow struct {
+	Source uuid.UUID `db:"source" json:"source"`
+	Result uuid.UUID `db:"result" json:"result"`
+}
+
+func (q *Queries) getDefaultLessonIDForTopicIDs(ctx context.Context, arg getDefaultLessonIDForTopicIDsParams) ([]getDefaultLessonIDForTopicIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getDefaultLessonIDForTopicIDs, pq.Array(arg.TopicIds), arg.ProfileID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getDefaultLessonIDForTopicIDsRow
+	for rows.Next() {
+		var i getDefaultLessonIDForTopicIDsRow
+		if err := rows.Scan(&i.Source, &i.Result); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getEpisodesForLessons = `-- name: getEpisodesForLessons :many
 SELECT rl.item       AS id,
        rl.lessons_id AS parent_id

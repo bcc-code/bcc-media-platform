@@ -641,19 +641,22 @@ type LegacyIDLookupOptions struct {
 }
 
 type Lesson struct {
-	ID          string             `json:"id"`
-	Title       string             `json:"title"`
-	Description string             `json:"description"`
-	Image       *string            `json:"image"`
-	Tasks       *TaskPagination    `json:"tasks"`
-	Topic       *StudyTopic        `json:"topic"`
-	Episodes    *EpisodePagination `json:"episodes"`
-	Links       *LinkPagination    `json:"links"`
-	Progress    *TasksProgress     `json:"progress"`
-	Completed   bool               `json:"completed"`
-	Locked      bool               `json:"locked"`
-	Previous    *Lesson            `json:"previous"`
-	Next        *Lesson            `json:"next"`
+	ID          string          `json:"id"`
+	Title       string          `json:"title"`
+	Description string          `json:"description"`
+	Image       *string         `json:"image"`
+	Tasks       *TaskPagination `json:"tasks"`
+	Topic       *StudyTopic     `json:"topic"`
+	// The default episode.
+	// Should not be used actively in lists, as it could affect query speeds.
+	DefaultEpisode *Episode           `json:"defaultEpisode"`
+	Episodes       *EpisodePagination `json:"episodes"`
+	Links          *LinkPagination    `json:"links"`
+	Progress       *TasksProgress     `json:"progress"`
+	Completed      bool               `json:"completed"`
+	Locked         bool               `json:"locked"`
+	Previous       *Lesson            `json:"previous"`
+	Next           *Lesson            `json:"next"`
 }
 
 type LessonPagination struct {
@@ -916,18 +919,21 @@ type SearchResult struct {
 }
 
 type Season struct {
-	ID          string             `json:"id"`
-	LegacyID    *string            `json:"legacyID"`
-	Status      Status             `json:"status"`
-	AgeRating   string             `json:"ageRating"`
-	Title       string             `json:"title"`
-	Description string             `json:"description"`
-	Image       *string            `json:"image"`
-	ImageURL    *string            `json:"imageUrl"`
-	Images      []*Image           `json:"images"`
-	Number      int                `json:"number"`
-	Show        *Show              `json:"show"`
-	Episodes    *EpisodePagination `json:"episodes"`
+	ID          string   `json:"id"`
+	LegacyID    *string  `json:"legacyID"`
+	Status      Status   `json:"status"`
+	AgeRating   string   `json:"ageRating"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Image       *string  `json:"image"`
+	ImageURL    *string  `json:"imageUrl"`
+	Images      []*Image `json:"images"`
+	Number      int      `json:"number"`
+	Show        *Show    `json:"show"`
+	// The default episode.
+	// Should not be used actively in lists, as it could affect query speeds.
+	DefaultEpisode *Episode           `json:"defaultEpisode"`
+	Episodes       *EpisodePagination `json:"episodes"`
 }
 
 func (Season) IsEpisodeContextUnion() {}
@@ -1055,19 +1061,21 @@ type Settings struct {
 }
 
 type Show struct {
-	ID             string            `json:"id"`
-	LegacyID       *string           `json:"legacyID"`
-	Status         Status            `json:"status"`
-	Type           ShowType          `json:"type"`
-	Title          string            `json:"title"`
-	Description    string            `json:"description"`
-	Image          *string           `json:"image"`
-	ImageURL       *string           `json:"imageUrl"`
-	Images         []*Image          `json:"images"`
-	EpisodeCount   int               `json:"episodeCount"`
-	SeasonCount    int               `json:"seasonCount"`
-	Seasons        *SeasonPagination `json:"seasons"`
-	DefaultEpisode *Episode          `json:"defaultEpisode"`
+	ID           string            `json:"id"`
+	LegacyID     *string           `json:"legacyID"`
+	Status       Status            `json:"status"`
+	Type         ShowType          `json:"type"`
+	Title        string            `json:"title"`
+	Description  string            `json:"description"`
+	Image        *string           `json:"image"`
+	ImageURL     *string           `json:"imageUrl"`
+	Images       []*Image          `json:"images"`
+	EpisodeCount int               `json:"episodeCount"`
+	SeasonCount  int               `json:"seasonCount"`
+	Seasons      *SeasonPagination `json:"seasons"`
+	// The default episode.
+	// Should not be used actively in lists, as it could affect query speeds.
+	DefaultEpisode *Episode `json:"defaultEpisode"`
 }
 
 func (Show) IsSectionItemType() {}
@@ -1166,13 +1174,16 @@ type Stream struct {
 }
 
 type StudyTopic struct {
-	ID          string            `json:"id"`
-	Title       string            `json:"title"`
-	Description string            `json:"description"`
-	Image       *string           `json:"image"`
-	Images      []*Image          `json:"images"`
-	Lessons     *LessonPagination `json:"lessons"`
-	Progress    *LessonsProgress  `json:"progress"`
+	ID          string   `json:"id"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Image       *string  `json:"image"`
+	Images      []*Image `json:"images"`
+	// The default lesson.
+	// Should not be used actively in lists, as it could affect query speeds.
+	DefaultLesson *Lesson           `json:"defaultLesson"`
+	Lessons       *LessonPagination `json:"lessons"`
+	Progress      *LessonsProgress  `json:"progress"`
 }
 
 func (StudyTopic) IsSectionItemType() {}

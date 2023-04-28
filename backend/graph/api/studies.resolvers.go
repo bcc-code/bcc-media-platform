@@ -107,6 +107,21 @@ func (r *lessonResolver) Topic(ctx context.Context, obj *model.Lesson) (*model.S
 	return r.QueryRoot().StudyTopic(ctx, obj.Topic.ID)
 }
 
+// DefaultEpisode is the resolver for the defaultEpisode field.
+func (r *lessonResolver) DefaultEpisode(ctx context.Context, obj *model.Lesson) (*model.Episode, error) {
+	episodeIDs, err := r.GetFilteredLoaders(ctx).StudyLessonEpisodesLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	if len(episodeIDs) == 0 {
+		return nil, nil
+	}
+	if episodeIDs[0] == nil {
+		return nil, nil
+	}
+	return r.QueryRoot().Episode(ctx, strconv.Itoa(*episodeIDs[0]), nil)
+}
+
 // Episodes is the resolver for the episodes field.
 func (r *lessonResolver) Episodes(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.EpisodePagination, error) {
 	ids, err := r.GetFilteredLoaders(ctx).StudyLessonEpisodesLoader.Get(ctx, utils.AsUuid(obj.ID))
@@ -318,6 +333,29 @@ func (r *studyTopicResolver) Image(ctx context.Context, obj *model.StudyTopic, s
 		return nil, err
 	}
 	return imageOrFallback(ctx, e.Images, style), nil
+}
+
+// DefaultLesson is the resolver for the defaultLesson field.
+func (r *studyTopicResolver) DefaultLesson(ctx context.Context, obj *model.StudyTopic) (*model.Lesson, error) {
+	uid := utils.AsUuid(obj.ID)
+	lessonID, err := r.GetProfileLoaders(ctx).TopicDefaultLessonLoader.Get(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	if lessonID == nil {
+		lessonIDs, err := r.GetFilteredLoaders(ctx).StudyLessonsLoader.Get(ctx, uid)
+		if err != nil {
+			return nil, err
+		}
+		if len(lessonIDs) == 0 {
+			return nil, ErrItemNotFound
+		}
+		lessonID = lessonIDs[0]
+	}
+	if lessonID == nil {
+		return nil, ErrItemNotFound
+	}
+	return r.QueryRoot().StudyLesson(ctx, lessonID.String())
 }
 
 // Lessons is the resolver for the lessons field.
