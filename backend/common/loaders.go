@@ -118,10 +118,10 @@ type FilteredLoaders struct {
 
 // ProfileLoaders contains loaders per profile
 type ProfileLoaders struct {
-	ProgressLoader                *loaders.Loader[int, *Progress]
-	TaskCompletedLoader           *loaders.Loader[uuid.UUID, *uuid.UUID]
-	AchievementAchievedAtLoader   *loaders.Loader[uuid.UUID, *Achieved]
-	GetSelectedAlternativesLoader *loaders.Loader[uuid.UUID, *SelectedAlternatives]
+	ProgressLoader              *loaders.Loader[int, *Progress]
+	TaskCompletedLoader         *loaders.Loader[uuid.UUID, *uuid.UUID]
+	AchievementAchievedAtLoader *loaders.Loader[uuid.UUID, *Achieved]
+	SelectedAlternativesLoader  *loaders.Loader[uuid.UUID, *SelectedAlternatives]
 
 	SeasonDefaultEpisodeLoader *loaders.Loader[int, *int]
 	ShowDefaultEpisodeLoader   *loaders.Loader[int, *int]

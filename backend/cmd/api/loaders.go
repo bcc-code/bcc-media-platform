@@ -95,8 +95,8 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 				Column2:   ids,
 			})
 		}, loaders.WithMemoryCache(time.Second*5), loaders.WithName("task-completed")),
-		AchievementAchievedAtLoader:   loaders.New(ctx, profileQueries.GetAchievementsAchievedAt, loaders.WithMemoryCache(time.Second*5), loaders.WithName("achieved-at")),
-		GetSelectedAlternativesLoader: loaders.New(ctx, profileQueries.GetSelectedAlternatives, loaders.WithMemoryCache(time.Second*1), loaders.WithName("selected-alternatives")),
+		AchievementAchievedAtLoader: loaders.New(ctx, profileQueries.GetAchievementsAchievedAt, loaders.WithMemoryCache(time.Second*5), loaders.WithName("achieved-at")),
+		SelectedAlternativesLoader:  loaders.New(ctx, profileQueries.GetSelectedAlternatives, loaders.WithMemoryCache(time.Second*1), loaders.WithName("selected-alternatives")),
 
 		SeasonDefaultEpisodeLoader: loaders.NewConversionLoader(ctx, profileQueries.DefaultEpisodeIDForSeasonIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("season-default-episodes")),
 		ShowDefaultEpisodeLoader:   loaders.NewConversionLoader(ctx, profileQueries.DefaultEpisodeIDForShowIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("show-default-episodes")),
@@ -104,7 +104,18 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 		TopicDefaultLessonLoader: loaders.NewConversionLoader(ctx, profileQueries.GetDefaultLessonIDForTopicIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("topic-default-lessons")),
 	}
 
-	profileLoaders.Set(profileID, ls, loaders.WithOnDelete(cancel))
+	profileLoaders.Set(profileID, ls, loaders.WithOnDelete(func() {
+		ls.AchievementAchievedAtLoader.ClearAll()
+		ls.ProgressLoader.ClearAll()
+		ls.TaskCompletedLoader.ClearAll()
+		ls.ShowDefaultEpisodeLoader.ClearAll()
+		ls.SeasonDefaultEpisodeLoader.ClearAll()
+		ls.TopicDefaultLessonLoader.ClearAll()
+		ls.SelectedAlternativesLoader.ClearAll()
+
+		// This shouldn't do anything, but could trigger something down the line
+		cancel()
+	}))
 
 	return ls
 }

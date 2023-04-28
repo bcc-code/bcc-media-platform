@@ -26,17 +26,17 @@ func NewMemoryLoaderCache[K comparable, V any](ctx context.Context, cacheKey str
 	return &LoaderCache[K, V]{
 		expiration:  expiration,
 		cachePrefix: uuid.New().String(),
-		cache:       getCache[V](ctx, cacheKey),
+		cache:       getCache[V](cacheKey),
 	}
 }
 
-func getCache[V any](ctx context.Context, cacheKey string) *cache.Cache[string, dataloader.Thunk[V]] {
+func getCache[V any](cacheKey string) *cache.Cache[string, dataloader.Thunk[V]] {
 	loaderCacheLock.Lock()
 	defer loaderCacheLock.Unlock()
 	if r, ok := loaderCaches[cacheKey]; ok {
 		return r.(*cache.Cache[string, dataloader.Thunk[V]])
 	}
-	r := cache.NewContext[string, dataloader.Thunk[V]](ctx)
+	r := cache.New[string, dataloader.Thunk[V]]()
 	loaderCaches[cacheKey] = r
 	return r
 }

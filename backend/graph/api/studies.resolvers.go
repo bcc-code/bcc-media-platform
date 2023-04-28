@@ -34,7 +34,7 @@ func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
-	selectedRow, err := r.GetProfileLoaders(ctx).GetSelectedAlternativesLoader.Get(ctx, utils.AsUuid(obj.ID))
+	selectedRow, err := r.GetProfileLoaders(ctx).SelectedAlternativesLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.
 
 // Locked is the resolver for the locked field.
 func (r *alternativesTaskResolver) Locked(ctx context.Context, obj *model.AlternativesTask) (bool, error) {
-	selectedRow, err := r.GetProfileLoaders(ctx).GetSelectedAlternativesLoader.Get(ctx, utils.AsUuid(obj.ID))
+	selectedRow, err := r.GetProfileLoaders(ctx).SelectedAlternativesLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil || selectedRow == nil {
 		return false, err
 	}
