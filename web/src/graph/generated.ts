@@ -281,6 +281,7 @@ export type Episode = {
   /** @deprecated Replaced by the image field */
   imageUrl?: Maybe<Scalars['String']>;
   images: Array<Image>;
+  inMyList: Scalars['Boolean'];
   legacyID?: Maybe<Scalars['ID']>;
   legacyProgramID?: Maybe<Scalars['ID']>;
   lessons: LessonPagination;
@@ -299,6 +300,7 @@ export type Episode = {
   title: Scalars['String'];
   type: EpisodeType;
   uuid: Scalars['String'];
+  watched: Scalars['Boolean'];
 };
 
 
@@ -573,6 +575,11 @@ export type LegacyIdLookupOptions = {
 
 export type Lesson = {
   completed: Scalars['Boolean'];
+  /**
+   * The default episode.
+   * Should not be used actively in lists, as it could affect query speeds.
+   */
+  defaultEpisode?: Maybe<Episode>;
   description: Scalars['String'];
   episodes: EpisodePagination;
   id: Scalars['ID'];
@@ -987,6 +994,11 @@ export type QueryRootPageArgs = {
 };
 
 
+export type QueryRootPromptsArgs = {
+  timestamp?: InputMaybe<Scalars['Date']>;
+};
+
+
 export type QueryRootRedirectArgs = {
   id: Scalars['String'];
 };
@@ -1081,6 +1093,11 @@ export type SearchResultItem = {
 
 export type Season = {
   ageRating: Scalars['String'];
+  /**
+   * The default episode.
+   * Should not be used actively in lists, as it could affect query speeds.
+   */
+  defaultEpisode: Episode;
   description: Scalars['String'];
   episodes: EpisodePagination;
   id: Scalars['ID'];
@@ -1197,6 +1214,10 @@ export enum ShareRestriction {
 }
 
 export type Show = {
+  /**
+   * The default episode.
+   * Should not be used actively in lists, as it could affect query speeds.
+   */
   defaultEpisode: Episode;
   description: Scalars['String'];
   episodeCount: Scalars['Int'];
@@ -1290,6 +1311,11 @@ export enum StreamType {
 }
 
 export type StudyTopic = {
+  /**
+   * The default lesson.
+   * Should not be used actively in lists, as it could affect query speeds.
+   */
+  defaultLesson: Lesson;
   description: Scalars['String'];
   id: Scalars['ID'];
   image?: Maybe<Scalars['String']>;
@@ -1654,6 +1680,13 @@ export type GetStudyTopicLessonStatusesQueryVariables = Exact<{
 
 
 export type GetStudyTopicLessonStatusesQuery = { studyTopic: { lessons: { items: Array<{ id: string, completed: boolean, episodes: { items: Array<{ id: string, locked: boolean }> } }> } } };
+
+export type GetDefaultEpisodeForTopicQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetDefaultEpisodeForTopicQuery = { studyTopic: { defaultLesson: { defaultEpisode?: { id: string } | null } } };
 
 export type GetFirstSotmLessonForConsentQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2359,6 +2392,21 @@ export const GetStudyTopicLessonStatusesDocument = gql`
 
 export function useGetStudyTopicLessonStatusesQuery(options: Omit<Urql.UseQueryArgs<never, GetStudyTopicLessonStatusesQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetStudyTopicLessonStatusesQuery>({ query: GetStudyTopicLessonStatusesDocument, ...options });
+};
+export const GetDefaultEpisodeForTopicDocument = gql`
+    query getDefaultEpisodeForTopic($id: ID!) {
+  studyTopic(id: $id) {
+    defaultLesson {
+      defaultEpisode {
+        id
+      }
+    }
+  }
+}
+    `;
+
+export function useGetDefaultEpisodeForTopicQuery(options: Omit<Urql.UseQueryArgs<never, GetDefaultEpisodeForTopicQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetDefaultEpisodeForTopicQuery>({ query: GetDefaultEpisodeForTopicDocument, ...options });
 };
 export const GetFirstSotmLessonForConsentDocument = gql`
     query getFirstSOTMLessonForConsent {

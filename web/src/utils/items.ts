@@ -1,14 +1,13 @@
 import {
     GetSectionQuery,
     SectionItemFragment,
-    GetStudyTopicLessonStatusesQuery,
-    GetStudyTopicLessonStatusesDocument,
-    GetStudyTopicLessonStatusesQueryVariables,
     GetCalendarDayQuery,
+    GetDefaultEpisodeForTopicDocument,
+    GetDefaultEpisodeForTopicQuery,
+    GetDefaultEpisodeForTopicQueryVariables,
 } from "@/graph/generated"
 import router from "@/router"
 import { analytics, Page } from "@/services/analytics"
-import { createRequest } from "@urql/vue"
 import client from "@/graph/client"
 
 export const goToEpisode = (
@@ -47,24 +46,15 @@ export const goToPage = (code: string) => {
 
 export const goToStudyTopic = async (id: string) => {
     // TODO: nothing is as permanent as a temporary solution lol
+    // although things can be improved :) 
     const result = await client
         .query<
-            GetStudyTopicLessonStatusesQuery,
-            GetStudyTopicLessonStatusesQueryVariables
-        >(GetStudyTopicLessonStatusesDocument, { first: 100, id: id })
+            GetDefaultEpisodeForTopicQuery,
+            GetDefaultEpisodeForTopicQueryVariables
+        >(GetDefaultEpisodeForTopicDocument, { id: id })
         .toPromise()
-    const uncompletedLessonWithEpisode =
-        result.data?.studyTopic.lessons.items.find(
-            (el) =>
-                (console.log(el.episodes.items) as any) ||
-                (!el.completed && el.episodes.items[0]?.locked == false)
-        )
-    var episodeId = uncompletedLessonWithEpisode?.episodes.items[0]?.id
-    console.log(uncompletedLessonWithEpisode)
-    console.log(episodeId)
-    episodeId ??=
-        result.data?.studyTopic.lessons.items[0]?.episodes.items[0]?.id
-    if (episodeId == null) {
+    const episodeId = result.data?.studyTopic.defaultLesson.defaultEpisode?.id
+    if (!episodeId) {
         throw Error(`Failed finding an episode to navigate to for topic ${id}`)
     }
 
@@ -76,7 +66,7 @@ export const goToStudyTopic = async (id: string) => {
     })
 }
 
-export const goToSectionItem = (
+export const goToSectionItem = async (
     item: {
         index: number
         item: SectionItemFragment
@@ -116,7 +106,7 @@ export const goToSectionItem = (
             goToPage(item.item.item.code)
             break
         case "StudyTopic":
-            goToStudyTopic(item.item.item.id)
+            await goToStudyTopic(item.item.item.id)
             break
     }
 }

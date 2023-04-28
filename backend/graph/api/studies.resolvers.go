@@ -215,18 +215,11 @@ func (r *lessonResolver) Completed(ctx context.Context, obj *model.Lesson) (bool
 
 // Locked is the resolver for the locked field.
 func (r *lessonResolver) Locked(ctx context.Context, obj *model.Lesson) (bool, error) {
-	pr, err := r.Previous(ctx, obj)
-	if err != nil {
-		return false, err
+	lockedByPrevious, err := isLessonLockedByPrevious(ctx, r, obj)
+	if err != nil || lockedByPrevious {
+		return lockedByPrevious, err
 	}
-	if pr == nil {
-		return false, nil
-	}
-	prCompleted, err := r.Completed(ctx, pr)
-	if err != nil {
-		return false, err
-	}
-	return !prCompleted, nil
+	return isLessonLockedByEpisode(ctx, r, obj)
 }
 
 // Previous is the resolver for the previous field.
@@ -355,7 +348,29 @@ func (r *studyTopicResolver) DefaultLesson(ctx context.Context, obj *model.Study
 	if lessonID == nil {
 		return nil, ErrItemNotFound
 	}
-	return r.QueryRoot().StudyLesson(ctx, lessonID.String())
+
+	// Retrieve the first non-completed lesson
+	lesson, err := r.QueryRoot().StudyLesson(ctx, lessonID.String())
+	if err != nil {
+		return nil, err
+	}
+	locked, err := r.Lesson().Locked(ctx, lesson)
+	if err != nil {
+		return nil, err
+	}
+
+	// If this lesson is locked, check the previous one, with a maximum depth of 5
+	for i := 0; locked && i < 5; i++ {
+		lesson, err = r.Lesson().Previous(ctx, lesson)
+		if err != nil {
+			return nil, err
+		}
+		if lesson == nil {
+			return nil, ErrItemNotFound
+		}
+		locked, err = r.Lesson().Locked(ctx, lesson)
+	}
+	return lesson, nil
 }
 
 // Lessons is the resolver for the lessons field.
