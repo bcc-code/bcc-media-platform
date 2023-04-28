@@ -17,30 +17,27 @@ var loaderCaches = map[string]any{}
 // LoaderCache is a cache for batchloaders
 type LoaderCache[K comparable, V any] struct {
 	expiration  time.Duration
-	cacheKey    string
 	cachePrefix string
 	cache       *cache.Cache[string, dataloader.Thunk[V]]
 }
 
 // NewMemoryLoaderCache returns a new memory cache
 func NewMemoryLoaderCache[K comparable, V any](ctx context.Context, cacheKey string, expiration time.Duration) dataloader.Cache[K, V] {
-	lc := &LoaderCache[K, V]{
+	return &LoaderCache[K, V]{
 		expiration:  expiration,
-		cacheKey:    cacheKey,
 		cachePrefix: uuid.New().String(),
+		cache:       getCache[V](ctx, cacheKey),
 	}
-	lc.cache = lc.getCache()
-	return lc
 }
 
-func (c *LoaderCache[K, V]) getCache() *cache.Cache[string, dataloader.Thunk[V]] {
+func getCache[V any](ctx context.Context, cacheKey string) *cache.Cache[string, dataloader.Thunk[V]] {
 	loaderCacheLock.Lock()
 	defer loaderCacheLock.Unlock()
-	if r, ok := loaderCaches[c.cacheKey]; ok {
+	if r, ok := loaderCaches[cacheKey]; ok {
 		return r.(*cache.Cache[string, dataloader.Thunk[V]])
 	}
-	r := cache.New[string, dataloader.Thunk[V]]()
-	loaderCaches[c.cacheKey] = r
+	r := cache.NewContext[string, dataloader.Thunk[V]](ctx)
+	loaderCaches[cacheKey] = r
 	return r
 }
 
@@ -70,7 +67,7 @@ func (c *LoaderCache[K, V]) Delete(_ context.Context, key K) bool {
 
 // Clear clears the entire cache
 func (c *LoaderCache[K, V]) Clear() {
-	for _, key := range c.getCache().Keys() {
+	for _, key := range c.cache.Keys() {
 		if c.isKey(key) {
 			c.cache.Delete(key)
 		}

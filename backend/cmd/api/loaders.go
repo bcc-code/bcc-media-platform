@@ -12,7 +12,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
@@ -105,19 +104,7 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 		TopicDefaultLessonLoader: loaders.NewConversionLoader(ctx, profileQueries.GetDefaultLessonIDForTopicIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("topic-default-lessons")),
 	}
 
-	profileLoaders.Set(profileID, ls, loaders.WithOnDelete(func() {
-		log.L.Debug().Msg("Clearing profile loader")
-
-		ls.TaskCompletedLoader.ClearAll()
-		ls.AchievementAchievedAtLoader.ClearAll()
-		ls.ProgressLoader.ClearAll()
-		ls.GetSelectedAlternativesLoader.ClearAll()
-
-		ls.SeasonDefaultEpisodeLoader.ClearAll()
-		ls.ShowDefaultEpisodeLoader.ClearAll()
-
-		cancel()
-	}))
+	profileLoaders.Set(profileID, ls, loaders.WithOnDelete(cancel))
 
 	return ls
 }
