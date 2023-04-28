@@ -77,3 +77,37 @@ func (pq *ProfileQueries) ClearProgress(ctx context.Context, episodeID int) erro
 		EpisodeID: int32(episodeID),
 	})
 }
+
+// DefaultEpisodeIDForSeasonIDs returns the default episodeIDs for the specified keys
+func (pq *ProfileQueries) DefaultEpisodeIDForSeasonIDs(ctx context.Context, seasonIDs []int) ([]loaders.Conversion[int, int], error) {
+	rows, err := pq.queries.getDefaultEpisodeIDForSeasonIDs(ctx, getDefaultEpisodeIDForSeasonIDsParams{
+		ProfileID: pq.profileID,
+		SeasonIds: intToInt32(seasonIDs),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(row getDefaultEpisodeIDForSeasonIDsRow, _ int) loaders.Conversion[int, int] {
+		return conversion[int, int]{
+			source: int(row.ParentID),
+			result: int(row.ID),
+		}
+	}), nil
+}
+
+// DefaultEpisodeIDForShowIDs returns the default episodeIDs for the specified keys
+func (pq *ProfileQueries) DefaultEpisodeIDForShowIDs(ctx context.Context, seasonIDs []int) ([]loaders.Conversion[int, int], error) {
+	rows, err := pq.queries.getDefaultEpisodeIDForShowIDs(ctx, getDefaultEpisodeIDForShowIDsParams{
+		ProfileID: pq.profileID,
+		ShowIds:   intToInt32(seasonIDs),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(row getDefaultEpisodeIDForShowIDsRow, _ int) loaders.Conversion[int, int] {
+		return conversion[int, int]{
+			source: int(row.ParentID),
+			result: int(row.ID),
+		}
+	}), nil
+}
