@@ -74,9 +74,13 @@ export class Auth {
     }
 
     public static async getToken() {
-        const { getAccessTokenSilently, isAuthenticated } = useAuth0()
+        const { getAccessTokenSilently, isAuthenticated, loginWithRedirect } = useAuth0()
         if (isAuthenticated.value) {
-            return await getAccessTokenSilently()
+            try {
+                return await getAccessTokenSilently()
+            } catch {
+                await loginWithRedirect()
+            }
         }
         return null
     }
