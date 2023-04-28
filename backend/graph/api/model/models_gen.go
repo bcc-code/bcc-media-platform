@@ -385,6 +385,7 @@ type Episode struct {
 	Number                *int                   `json:"number"`
 	Lessons               *LessonPagination      `json:"lessons"`
 	ShareRestriction      ShareRestriction       `json:"shareRestriction"`
+	InMyList              bool                   `json:"inMyList"`
 }
 
 func (Episode) IsSectionItemType() {}

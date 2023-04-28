@@ -286,6 +286,20 @@ func (r *episodeResolver) ShareRestriction(ctx context.Context, obj *model.Episo
 	return model.ShareRestrictionPublic, nil
 }
 
+// InMyList is the resolver for the inMyList field.
+func (r *episodeResolver) InMyList(ctx context.Context, obj *model.Episode) (bool, error) {
+	myList, err := r.QueryRoot().MyList(ctx)
+	if err != nil {
+		return false, err
+	}
+	list, err := r.Loaders.UserCollectionEntryIDsLoader.Get(ctx, utils.AsUuid(myList.ID))
+	if err != nil {
+		return false, err
+	}
+	listIDs := utils.PointerArrayToArray(list)
+	return lo.Contains(listIDs, utils.AsUuid(obj.UUID)), nil
+}
+
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
 
