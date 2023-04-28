@@ -5,6 +5,9 @@ import {
     GetDefaultEpisodeForTopicDocument,
     GetDefaultEpisodeForTopicQuery,
     GetDefaultEpisodeForTopicQueryVariables,
+    GetDefaultEpisodeForShowQuery,
+    GetDefaultEpisodeForShowQueryVariables,
+    GetDefaultEpisodeForShowDocument,
 } from "@/graph/generated"
 import router from "@/router"
 import { analytics, Page } from "@/services/analytics"
@@ -66,6 +69,25 @@ export const goToStudyTopic = async (id: string) => {
     })
 }
 
+export const goToShow = async (id: string) => {
+    // TODO: nothing is as permanent as a temporary solution lol
+    // although things can be improved :) 
+    const result = await client
+        .query<
+            GetDefaultEpisodeForShowQuery,
+            GetDefaultEpisodeForShowQueryVariables
+        >(GetDefaultEpisodeForShowDocument, { id: id })
+        .toPromise()
+    const episodeId = result.data?.show.defaultEpisode.id
+
+    router.push({
+        name: "episode-page",
+        params: {
+            episodeId,
+        },
+    })
+}
+
 export const goToSectionItem = async (
     item: {
         index: number
@@ -100,7 +122,7 @@ export const goToSectionItem = async (
             goToEpisode(item.item.id, section?.options)
             break
         case "Show":
-            goToEpisode(item.item.item.defaultEpisode.id)
+            await goToShow(item.item.item.id)
             break
         case "Page":
             goToPage(item.item.item.code)

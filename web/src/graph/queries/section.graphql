@@ -42,9 +42,6 @@ fragment SectionItem on SectionItem {
             id
             episodeCount
             seasonCount
-            defaultEpisode {
-                id
-            }
             seasons(first: 1, dir: "desc") {
                 items {
                     episodes(first: 1, dir: "desc") {
