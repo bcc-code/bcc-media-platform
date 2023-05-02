@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
@@ -29,6 +30,11 @@ func (r *seasonResolver) Image(ctx context.Context, obj *model.Season, style *mo
 // Show is the resolver for the show field.
 func (r *seasonResolver) Show(ctx context.Context, obj *model.Season) (*model.Show, error) {
 	return r.QueryRoot().Show(ctx, obj.Show.ID)
+}
+
+// DefaultEpisode is the resolver for the defaultEpisode field.
+func (r *seasonResolver) DefaultEpisode(ctx context.Context, obj *model.Season) (*model.Episode, error) {
+	panic(fmt.Errorf("not implemented: DefaultEpisode - defaultEpisode"))
 }
 
 // Episodes is the resolver for the episodes field.

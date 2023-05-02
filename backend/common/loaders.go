@@ -122,4 +122,9 @@ type ProfileLoaders struct {
 	TaskCompletedLoader           *loaders.Loader[uuid.UUID, *uuid.UUID]
 	AchievementAchievedAtLoader   *loaders.Loader[uuid.UUID, *Achieved]
 	GetSelectedAlternativesLoader *loaders.Loader[uuid.UUID, *SelectedAlternatives]
+
+	SeasonDefaultEpisodeLoader *loaders.Loader[int, *int]
+	ShowDefaultEpisodeLoader   *loaders.Loader[int, *int]
+
+	TopicDefaultLessonLoader *loaders.Loader[uuid.UUID, *uuid.UUID]
 }

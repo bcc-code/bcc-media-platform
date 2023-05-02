@@ -33,17 +33,102 @@ func (q *Queries) deleteProgress(ctx context.Context, arg deleteProgressParams) 
 	return err
 }
 
+const getDefaultEpisodeIDForSeasonIDs = `-- name: getDefaultEpisodeIDForSeasonIDs :many
+SELECT DISTINCT ON (ep.season_id) p.episode_id as id, ep.season_id::int as parent_id
+FROM users.progress p
+         JOIN episodes ep ON ep.id = p.episode_id
+WHERE p.profile_id = $1
+  AND ep.season_id = ANY ($2::int[])
+ORDER BY ep.season_id, p.updated_at DESC
+`
+
+type getDefaultEpisodeIDForSeasonIDsParams struct {
+	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
+	SeasonIds []int32   `db:"season_ids" json:"seasonIds"`
+}
+
+type getDefaultEpisodeIDForSeasonIDsRow struct {
+	ID       int32 `db:"id" json:"id"`
+	ParentID int32 `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getDefaultEpisodeIDForSeasonIDs(ctx context.Context, arg getDefaultEpisodeIDForSeasonIDsParams) ([]getDefaultEpisodeIDForSeasonIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getDefaultEpisodeIDForSeasonIDs, arg.ProfileID, pq.Array(arg.SeasonIds))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getDefaultEpisodeIDForSeasonIDsRow
+	for rows.Next() {
+		var i getDefaultEpisodeIDForSeasonIDsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getDefaultEpisodeIDForShowIDs = `-- name: getDefaultEpisodeIDForShowIDs :many
+SELECT DISTINCT ON (p.show_id) p.episode_id as id, p.show_id::int as parent_id
+FROM users.progress p
+WHERE p.profile_id = $1
+  AND p.show_id = ANY ($2::int[])
+ORDER BY p.show_id, p.updated_at DESC
+`
+
+type getDefaultEpisodeIDForShowIDsParams struct {
+	ProfileID uuid.UUID `db:"profile_id" json:"profileID"`
+	ShowIds   []int32   `db:"show_ids" json:"showIds"`
+}
+
+type getDefaultEpisodeIDForShowIDsRow struct {
+	ID       int32 `db:"id" json:"id"`
+	ParentID int32 `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getDefaultEpisodeIDForShowIDs(ctx context.Context, arg getDefaultEpisodeIDForShowIDsParams) ([]getDefaultEpisodeIDForShowIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getDefaultEpisodeIDForShowIDs, arg.ProfileID, pq.Array(arg.ShowIds))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getDefaultEpisodeIDForShowIDsRow
+	for rows.Next() {
+		var i getDefaultEpisodeIDForShowIDsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getEpisodeIDsWithProgress = `-- name: getEpisodeIDsWithProgress :many
 WITH uniques AS (SELECT DISTINCT ON (p.show_id, p.profile_id) p.show_id, p.profile_id, p.episode_id
                  FROM users.progress p
-                 WHERE p.show_id IS NOT NULL AND p.profile_id = ANY ($1::uuid[])
+                 WHERE p.show_id IS NOT NULL
+                   AND p.profile_id = ANY ($1::uuid[])
                  ORDER BY p.show_id, p.profile_id, p.updated_at DESC)
 SELECT p.episode_id, p.profile_id, p.show_id, p.progress, p.duration
 FROM users.progress p
          LEFT JOIN uniques u ON u.show_id = p.show_id AND u.profile_id = p.profile_id
 WHERE p.profile_id = ANY ($1::uuid[])
   AND (u IS NULL OR u.episode_id = p.episode_id)
-  AND p.progress > 10 AND p.duration > 20
+  AND p.progress > 10
+  AND p.duration > 20
   AND ((p.progress::float / p.duration) > 0.8) != true
 ORDER BY p.updated_at DESC
 `
@@ -86,7 +171,14 @@ func (q *Queries) getEpisodeIDsWithProgress(ctx context.Context, profileIds []uu
 }
 
 const getProgressForProfile = `-- name: getProgressForProfile :many
-SELECT p.episode_id, p.show_id, p.progress, p.duration, p.watched, p.updated_at, p.watched_at, p.context
+SELECT p.episode_id,
+       p.show_id,
+       p.progress,
+       p.duration,
+       p.watched,
+       p.updated_at,
+       p.watched_at,
+       p.context
 FROM "users"."progress" p
 WHERE p.profile_id = $1::uuid
   AND p.episode_id = ANY ($2::int[])

@@ -20,13 +20,7 @@ func getEpisodeIDFromSeason(ctx context.Context, ls *common.FilteredLoaders, sID
 	return eIDs[0], nil
 }
 
-// DefaultEpisodeID returns the default episode for the show
-func DefaultEpisodeID(ctx context.Context, ls *common.FilteredLoaders, show *common.Show) (*int, error) {
-	// TODO: this should respect continue watching as well, or previously shown episodes
-	sIDs, err := ls.SeasonsLoader.Get(ctx, show.ID)
-	if err != nil || len(sIDs) == 0 {
-		return nil, err
-	}
+func getDefaultEpisodeString(show *common.Show) string {
 	var defaultEpisode string
 	if show.DefaultEpisodeBehaviour.Valid {
 		defaultEpisode = show.DefaultEpisodeBehaviour.String
@@ -38,26 +32,50 @@ func DefaultEpisodeID(ctx context.Context, ls *common.FilteredLoaders, show *com
 			defaultEpisode = "first-of-last"
 		}
 	}
+	return defaultEpisode
+}
+
+// DefaultSeasonID retrieves the default seasonID from show
+func DefaultSeasonID(ctx context.Context, ls *common.FilteredLoaders, show *common.Show) (*int, error) {
+	sIDs, err := ls.SeasonsLoader.Get(ctx, show.ID)
+	if err != nil || len(sIDs) == 0 {
+		return nil, err
+	}
+	var sId *int
+	switch getDefaultEpisodeString(show) {
+	case "first-of-first", "last-of-first":
+		sId = sIDs[0]
+	case "first-of-last", "last-of-last":
+		sId, _ = lo.Last(sIDs)
+	}
+
+	return sId, err
+}
+
+// DefaultEpisodeID returns the default episode for the show
+func DefaultEpisodeID(ctx context.Context, ls *common.FilteredLoaders, show *common.Show) (*int, error) {
+	sId, err := DefaultSeasonID(ctx, ls, show)
+	if err != nil {
+		return nil, err
+	}
 	var eId *int
-	switch defaultEpisode {
-	case "first-of-first":
-		eId, err = getEpisodeIDFromSeason(ctx, ls, sIDs[0], true)
-	case "last-of-first":
-		eId, err = getEpisodeIDFromSeason(ctx, ls, sIDs[0], false)
-	case "first-of-last":
-		sID, _ := lo.Last(sIDs)
-		eId, err = getEpisodeIDFromSeason(ctx, ls, sID, true)
-	case "last-of-last":
-		sID, _ := lo.Last(sIDs)
-		eId, err = getEpisodeIDFromSeason(ctx, ls, sID, false)
+	switch getDefaultEpisodeString(show) {
+	case "first-of-first", "first-of-last":
+		eId, err = getEpisodeIDFromSeason(ctx, ls, sId, true)
+	case "last-of-first", "last-of-last":
+		eId, err = getEpisodeIDFromSeason(ctx, ls, sId, false)
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	for i := 0; i < len(sIDs) && eId == nil && err == nil; i++ {
-		eId, err = getEpisodeIDFromSeason(ctx, ls, sIDs[i], true)
+	if eId == nil {
+		var sIDs []*int
+		sIDs, err = ls.SeasonsLoader.Get(ctx, show.ID)
+		for i := 0; i < len(sIDs) && eId == nil && err == nil; i++ {
+			eId, err = getEpisodeIDFromSeason(ctx, ls, sIDs[i], true)
+		}
 	}
 
 	return eId, err

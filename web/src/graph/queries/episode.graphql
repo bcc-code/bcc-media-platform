@@ -120,3 +120,11 @@ mutation updateEpisodeProgress(
         progress
     }
 }
+
+query getDefaultEpisodeForShow($id: ID!) {
+    show(id: $id) {
+        defaultEpisode {
+            id
+        }
+    }
+}

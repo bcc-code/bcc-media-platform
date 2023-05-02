@@ -87,9 +87,15 @@ func (r *showResolver) DefaultEpisode(ctx context.Context, obj *model.Show) (*mo
 		return nil, err
 	}
 	ls := r.FilteredLoaders(ctx)
-	eID, err := show.DefaultEpisodeID(ctx, ls, s)
+	eID, err := r.GetProfileLoaders(ctx).ShowDefaultEpisodeLoader.Get(ctx, s.ID)
 	if err != nil {
 		return nil, err
+	}
+	if eID == nil {
+		eID, err = show.DefaultEpisodeID(ctx, ls, s)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if eID == nil {
 		return nil, merry.New("invalid default episode")

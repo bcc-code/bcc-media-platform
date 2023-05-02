@@ -439,19 +439,20 @@ type ComplexityRoot struct {
 	}
 
 	Lesson struct {
-		Completed   func(childComplexity int) int
-		Description func(childComplexity int) int
-		Episodes    func(childComplexity int, first *int, offset *int) int
-		ID          func(childComplexity int) int
-		Image       func(childComplexity int, style *model.ImageStyle) int
-		Links       func(childComplexity int, first *int, offset *int) int
-		Locked      func(childComplexity int) int
-		Next        func(childComplexity int) int
-		Previous    func(childComplexity int) int
-		Progress    func(childComplexity int) int
-		Tasks       func(childComplexity int, first *int, offset *int) int
-		Title       func(childComplexity int) int
-		Topic       func(childComplexity int) int
+		Completed      func(childComplexity int) int
+		DefaultEpisode func(childComplexity int) int
+		Description    func(childComplexity int) int
+		Episodes       func(childComplexity int, first *int, offset *int) int
+		ID             func(childComplexity int) int
+		Image          func(childComplexity int, style *model.ImageStyle) int
+		Links          func(childComplexity int, first *int, offset *int) int
+		Locked         func(childComplexity int) int
+		Next           func(childComplexity int) int
+		Previous       func(childComplexity int) int
+		Progress       func(childComplexity int) int
+		Tasks          func(childComplexity int, first *int, offset *int) int
+		Title          func(childComplexity int) int
+		Topic          func(childComplexity int) int
 	}
 
 	LessonPagination struct {
@@ -663,18 +664,19 @@ type ComplexityRoot struct {
 	}
 
 	Season struct {
-		AgeRating   func(childComplexity int) int
-		Description func(childComplexity int) int
-		Episodes    func(childComplexity int, first *int, offset *int, dir *string) int
-		ID          func(childComplexity int) int
-		Image       func(childComplexity int, style *model.ImageStyle) int
-		ImageURL    func(childComplexity int) int
-		Images      func(childComplexity int) int
-		LegacyID    func(childComplexity int) int
-		Number      func(childComplexity int) int
-		Show        func(childComplexity int) int
-		Status      func(childComplexity int) int
-		Title       func(childComplexity int) int
+		AgeRating      func(childComplexity int) int
+		DefaultEpisode func(childComplexity int) int
+		Description    func(childComplexity int) int
+		Episodes       func(childComplexity int, first *int, offset *int, dir *string) int
+		ID             func(childComplexity int) int
+		Image          func(childComplexity int, style *model.ImageStyle) int
+		ImageURL       func(childComplexity int) int
+		Images         func(childComplexity int) int
+		LegacyID       func(childComplexity int) int
+		Number         func(childComplexity int) int
+		Show           func(childComplexity int) int
+		Status         func(childComplexity int) int
+		Title          func(childComplexity int) int
 	}
 
 	SeasonCalendarEntry struct {
@@ -812,13 +814,14 @@ type ComplexityRoot struct {
 	}
 
 	StudyTopic struct {
-		Description func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Image       func(childComplexity int, style *model.ImageStyle) int
-		Images      func(childComplexity int) int
-		Lessons     func(childComplexity int, first *int, offset *int) int
-		Progress    func(childComplexity int) int
-		Title       func(childComplexity int) int
+		DefaultLesson func(childComplexity int) int
+		Description   func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Image         func(childComplexity int, style *model.ImageStyle) int
+		Images        func(childComplexity int) int
+		Lessons       func(childComplexity int, first *int, offset *int) int
+		Progress      func(childComplexity int) int
+		Title         func(childComplexity int) int
 	}
 
 	Survey struct {
@@ -1036,6 +1039,7 @@ type LessonResolver interface {
 	Image(ctx context.Context, obj *model.Lesson, style *model.ImageStyle) (*string, error)
 	Tasks(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.TaskPagination, error)
 	Topic(ctx context.Context, obj *model.Lesson) (*model.StudyTopic, error)
+	DefaultEpisode(ctx context.Context, obj *model.Lesson) (*model.Episode, error)
 	Episodes(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.EpisodePagination, error)
 	Links(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.LinkPagination, error)
 	Progress(ctx context.Context, obj *model.Lesson) (*model.TasksProgress, error)
@@ -1132,6 +1136,7 @@ type SeasonResolver interface {
 	Image(ctx context.Context, obj *model.Season, style *model.ImageStyle) (*string, error)
 
 	Show(ctx context.Context, obj *model.Season) (*model.Show, error)
+	DefaultEpisode(ctx context.Context, obj *model.Season) (*model.Episode, error)
 	Episodes(ctx context.Context, obj *model.Season, first *int, offset *int, dir *string) (*model.EpisodePagination, error)
 }
 type SeasonCalendarEntryResolver interface {
@@ -1168,6 +1173,7 @@ type SimpleCalendarEntryResolver interface {
 type StudyTopicResolver interface {
 	Image(ctx context.Context, obj *model.StudyTopic, style *model.ImageStyle) (*string, error)
 
+	DefaultLesson(ctx context.Context, obj *model.StudyTopic) (*model.Lesson, error)
 	Lessons(ctx context.Context, obj *model.StudyTopic, first *int, offset *int) (*model.LessonPagination, error)
 	Progress(ctx context.Context, obj *model.StudyTopic) (*model.LessonsProgress, error)
 }
@@ -2814,6 +2820,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Lesson.Completed(childComplexity), true
 
+	case "Lesson.defaultEpisode":
+		if e.complexity.Lesson.DefaultEpisode == nil {
+			break
+		}
+
+		return e.complexity.Lesson.DefaultEpisode(childComplexity), true
+
 	case "Lesson.description":
 		if e.complexity.Lesson.Description == nil {
 			break
@@ -4077,6 +4090,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Season.AgeRating(childComplexity), true
 
+	case "Season.defaultEpisode":
+		if e.complexity.Season.DefaultEpisode == nil {
+			break
+		}
+
+		return e.complexity.Season.DefaultEpisode(childComplexity), true
+
 	case "Season.description":
 		if e.complexity.Season.Description == nil {
 			break
@@ -4817,6 +4837,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Stream.URL(childComplexity), true
+
+	case "StudyTopic.defaultLesson":
+		if e.complexity.StudyTopic.DefaultLesson == nil {
+			break
+		}
+
+		return e.complexity.StudyTopic.DefaultLesson(childComplexity), true
 
 	case "StudyTopic.description":
 		if e.complexity.StudyTopic.Description == nil {
@@ -6334,6 +6361,12 @@ type SearchResult {
     images: [Image!]!
     number: Int!
     show: Show! @goField(forceResolver: true)
+
+    """
+    The default episode.
+    Should not be used actively in lists, as it could affect query speeds.
+    """
+    defaultEpisode: Episode! @goField(forceResolver: true)
     episodes(
         first: Int
         offset: Int
@@ -6370,6 +6403,11 @@ type Show {
         offset: Int
         dir: String
     ): SeasonPagination! @goField(forceResolver: true)
+
+    """
+    The default episode.
+    Should not be used actively in lists, as it could affect query speeds.
+    """
     defaultEpisode: Episode! @goField(forceResolver: true)
 }
 `, BuiltIn: false},
@@ -6379,6 +6417,12 @@ type Show {
     description: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
     images: [Image!]!
+
+    """
+    The default lesson.
+    Should not be used actively in lists, as it could affect query speeds.
+    """
+    defaultLesson: Lesson! @goField(forceResolver: true)
     lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
 
     progress: LessonsProgress! @goField(forceResolver: true)
@@ -6391,6 +6435,12 @@ type Lesson {
     image(style: ImageStyle): String @goField(forceResolver: true)
     tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
     topic: StudyTopic! @goField(forceResolver: true)
+
+    """
+    The default episode.
+    Should not be used actively in lists, as it could affect query speeds.
+    """
+    defaultEpisode: Episode @goField(forceResolver: true)
     episodes(first: Int, offset: Int): EpisodePagination! @goField(forceResolver: true)
     links(first: Int, offset: Int): LinkPagination! @goField(forceResolver: true)
 
@@ -13317,6 +13367,8 @@ func (ec *executionContext) fieldContext_Episode_season(ctx context.Context, fie
 				return ec.fieldContext_Season_number(ctx, field)
 			case "show":
 				return ec.fieldContext_Season_show(ctx, field)
+			case "defaultEpisode":
+				return ec.fieldContext_Season_defaultEpisode(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Season_episodes(ctx, field)
 			}
@@ -15702,6 +15754,8 @@ func (ec *executionContext) fieldContext_EpisodeSearchItem_season(ctx context.Co
 				return ec.fieldContext_Season_number(ctx, field)
 			case "show":
 				return ec.fieldContext_Season_show(ctx, field)
+			case "defaultEpisode":
+				return ec.fieldContext_Season_defaultEpisode(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Season_episodes(ctx, field)
 			}
@@ -18647,12 +18701,125 @@ func (ec *executionContext) fieldContext_Lesson_topic(ctx context.Context, field
 				return ec.fieldContext_StudyTopic_image(ctx, field)
 			case "images":
 				return ec.fieldContext_StudyTopic_images(ctx, field)
+			case "defaultLesson":
+				return ec.fieldContext_StudyTopic_defaultLesson(ctx, field)
 			case "lessons":
 				return ec.fieldContext_StudyTopic_lessons(ctx, field)
 			case "progress":
 				return ec.fieldContext_StudyTopic_progress(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type StudyTopic", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Lesson_defaultEpisode(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_defaultEpisode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Lesson().DefaultEpisode(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Episode)
+	fc.Result = res
+	return ec.marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_defaultEpisode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
+			case "type":
+				return ec.fieldContext_Episode_type(ctx, field)
+			case "legacyID":
+				return ec.fieldContext_Episode_legacyID(ctx, field)
+			case "legacyProgramID":
+				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "locked":
+				return ec.fieldContext_Episode_locked(ctx, field)
+			case "publishDate":
+				return ec.fieldContext_Episode_publishDate(ctx, field)
+			case "productionDate":
+				return ec.fieldContext_Episode_productionDate(ctx, field)
+			case "productionDateInTitle":
+				return ec.fieldContext_Episode_productionDateInTitle(ctx, field)
+			case "availableFrom":
+				return ec.fieldContext_Episode_availableFrom(ctx, field)
+			case "availableTo":
+				return ec.fieldContext_Episode_availableTo(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "title":
+				return ec.fieldContext_Episode_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Episode_description(ctx, field)
+			case "extraDescription":
+				return ec.fieldContext_Episode_extraDescription(ctx, field)
+			case "image":
+				return ec.fieldContext_Episode_image(ctx, field)
+			case "imageUrl":
+				return ec.fieldContext_Episode_imageUrl(ctx, field)
+			case "streams":
+				return ec.fieldContext_Episode_streams(ctx, field)
+			case "files":
+				return ec.fieldContext_Episode_files(ctx, field)
+			case "chapters":
+				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "season":
+				return ec.fieldContext_Episode_season(ctx, field)
+			case "duration":
+				return ec.fieldContext_Episode_duration(ctx, field)
+			case "progress":
+				return ec.fieldContext_Episode_progress(ctx, field)
+			case "watched":
+				return ec.fieldContext_Episode_watched(ctx, field)
+			case "audioLanguages":
+				return ec.fieldContext_Episode_audioLanguages(ctx, field)
+			case "subtitleLanguages":
+				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "context":
+				return ec.fieldContext_Episode_context(ctx, field)
+			case "relatedItems":
+				return ec.fieldContext_Episode_relatedItems(ctx, field)
+			case "images":
+				return ec.fieldContext_Episode_images(ctx, field)
+			case "number":
+				return ec.fieldContext_Episode_number(ctx, field)
+			case "lessons":
+				return ec.fieldContext_Episode_lessons(ctx, field)
+			case "shareRestriction":
+				return ec.fieldContext_Episode_shareRestriction(ctx, field)
+			case "inMyList":
+				return ec.fieldContext_Episode_inMyList(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
 	}
 	return fc, nil
@@ -18974,6 +19141,8 @@ func (ec *executionContext) fieldContext_Lesson_previous(ctx context.Context, fi
 				return ec.fieldContext_Lesson_tasks(ctx, field)
 			case "topic":
 				return ec.fieldContext_Lesson_topic(ctx, field)
+			case "defaultEpisode":
+				return ec.fieldContext_Lesson_defaultEpisode(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Lesson_episodes(ctx, field)
 			case "links":
@@ -19043,6 +19212,8 @@ func (ec *executionContext) fieldContext_Lesson_next(ctx context.Context, field 
 				return ec.fieldContext_Lesson_tasks(ctx, field)
 			case "topic":
 				return ec.fieldContext_Lesson_topic(ctx, field)
+			case "defaultEpisode":
+				return ec.fieldContext_Lesson_defaultEpisode(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Lesson_episodes(ctx, field)
 			case "links":
@@ -19247,6 +19418,8 @@ func (ec *executionContext) fieldContext_LessonPagination_items(ctx context.Cont
 				return ec.fieldContext_Lesson_tasks(ctx, field)
 			case "topic":
 				return ec.fieldContext_Lesson_topic(ctx, field)
+			case "defaultEpisode":
+				return ec.fieldContext_Lesson_defaultEpisode(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Lesson_episodes(ctx, field)
 			case "links":
@@ -23983,6 +24156,8 @@ func (ec *executionContext) fieldContext_QueryRoot_season(ctx context.Context, f
 				return ec.fieldContext_Season_number(ctx, field)
 			case "show":
 				return ec.fieldContext_Season_show(ctx, field)
+			case "defaultEpisode":
+				return ec.fieldContext_Season_defaultEpisode(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Season_episodes(ctx, field)
 			}
@@ -24562,6 +24737,8 @@ func (ec *executionContext) fieldContext_QueryRoot_studyTopic(ctx context.Contex
 				return ec.fieldContext_StudyTopic_image(ctx, field)
 			case "images":
 				return ec.fieldContext_StudyTopic_images(ctx, field)
+			case "defaultLesson":
+				return ec.fieldContext_StudyTopic_defaultLesson(ctx, field)
 			case "lessons":
 				return ec.fieldContext_StudyTopic_lessons(ctx, field)
 			case "progress":
@@ -24635,6 +24812,8 @@ func (ec *executionContext) fieldContext_QueryRoot_studyLesson(ctx context.Conte
 				return ec.fieldContext_Lesson_tasks(ctx, field)
 			case "topic":
 				return ec.fieldContext_Lesson_topic(ctx, field)
+			case "defaultEpisode":
+				return ec.fieldContext_Lesson_defaultEpisode(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Lesson_episodes(ctx, field)
 			case "links":
@@ -26738,6 +26917,120 @@ func (ec *executionContext) fieldContext_Season_show(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Season_defaultEpisode(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Season_defaultEpisode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Season().DefaultEpisode(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Episode)
+	fc.Result = res
+	return ec.marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Season_defaultEpisode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Season",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
+			case "type":
+				return ec.fieldContext_Episode_type(ctx, field)
+			case "legacyID":
+				return ec.fieldContext_Episode_legacyID(ctx, field)
+			case "legacyProgramID":
+				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "locked":
+				return ec.fieldContext_Episode_locked(ctx, field)
+			case "publishDate":
+				return ec.fieldContext_Episode_publishDate(ctx, field)
+			case "productionDate":
+				return ec.fieldContext_Episode_productionDate(ctx, field)
+			case "productionDateInTitle":
+				return ec.fieldContext_Episode_productionDateInTitle(ctx, field)
+			case "availableFrom":
+				return ec.fieldContext_Episode_availableFrom(ctx, field)
+			case "availableTo":
+				return ec.fieldContext_Episode_availableTo(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "title":
+				return ec.fieldContext_Episode_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Episode_description(ctx, field)
+			case "extraDescription":
+				return ec.fieldContext_Episode_extraDescription(ctx, field)
+			case "image":
+				return ec.fieldContext_Episode_image(ctx, field)
+			case "imageUrl":
+				return ec.fieldContext_Episode_imageUrl(ctx, field)
+			case "streams":
+				return ec.fieldContext_Episode_streams(ctx, field)
+			case "files":
+				return ec.fieldContext_Episode_files(ctx, field)
+			case "chapters":
+				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "season":
+				return ec.fieldContext_Episode_season(ctx, field)
+			case "duration":
+				return ec.fieldContext_Episode_duration(ctx, field)
+			case "progress":
+				return ec.fieldContext_Episode_progress(ctx, field)
+			case "watched":
+				return ec.fieldContext_Episode_watched(ctx, field)
+			case "audioLanguages":
+				return ec.fieldContext_Episode_audioLanguages(ctx, field)
+			case "subtitleLanguages":
+				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "context":
+				return ec.fieldContext_Episode_context(ctx, field)
+			case "relatedItems":
+				return ec.fieldContext_Episode_relatedItems(ctx, field)
+			case "images":
+				return ec.fieldContext_Episode_images(ctx, field)
+			case "number":
+				return ec.fieldContext_Episode_number(ctx, field)
+			case "lessons":
+				return ec.fieldContext_Episode_lessons(ctx, field)
+			case "shareRestriction":
+				return ec.fieldContext_Episode_shareRestriction(ctx, field)
+			case "inMyList":
+				return ec.fieldContext_Episode_inMyList(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Season_episodes(ctx context.Context, field graphql.CollectedField, obj *model.Season) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Season_episodes(ctx, field)
 	if err != nil {
@@ -27134,6 +27427,8 @@ func (ec *executionContext) fieldContext_SeasonCalendarEntry_season(ctx context.
 				return ec.fieldContext_Season_number(ctx, field)
 			case "show":
 				return ec.fieldContext_Season_show(ctx, field)
+			case "defaultEpisode":
+				return ec.fieldContext_Season_defaultEpisode(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Season_episodes(ctx, field)
 			}
@@ -27427,6 +27722,8 @@ func (ec *executionContext) fieldContext_SeasonItem_season(ctx context.Context, 
 				return ec.fieldContext_Season_number(ctx, field)
 			case "show":
 				return ec.fieldContext_Season_show(ctx, field)
+			case "defaultEpisode":
+				return ec.fieldContext_Season_defaultEpisode(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Season_episodes(ctx, field)
 			}
@@ -27629,6 +27926,8 @@ func (ec *executionContext) fieldContext_SeasonPagination_items(ctx context.Cont
 				return ec.fieldContext_Season_number(ctx, field)
 			case "show":
 				return ec.fieldContext_Season_show(ctx, field)
+			case "defaultEpisode":
+				return ec.fieldContext_Season_defaultEpisode(ctx, field)
 			case "episodes":
 				return ec.fieldContext_Season_episodes(ctx, field)
 			}
@@ -31349,6 +31648,80 @@ func (ec *executionContext) fieldContext_StudyTopic_images(ctx context.Context, 
 				return ec.fieldContext_Image_url(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Image", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _StudyTopic_defaultLesson(ctx context.Context, field graphql.CollectedField, obj *model.StudyTopic) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StudyTopic_defaultLesson(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.StudyTopic().DefaultLesson(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Lesson)
+	fc.Result = res
+	return ec.marshalNLesson2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐLesson(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StudyTopic_defaultLesson(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StudyTopic",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Lesson_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Lesson_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Lesson_description(ctx, field)
+			case "image":
+				return ec.fieldContext_Lesson_image(ctx, field)
+			case "tasks":
+				return ec.fieldContext_Lesson_tasks(ctx, field)
+			case "topic":
+				return ec.fieldContext_Lesson_topic(ctx, field)
+			case "defaultEpisode":
+				return ec.fieldContext_Lesson_defaultEpisode(ctx, field)
+			case "episodes":
+				return ec.fieldContext_Lesson_episodes(ctx, field)
+			case "links":
+				return ec.fieldContext_Lesson_links(ctx, field)
+			case "progress":
+				return ec.fieldContext_Lesson_progress(ctx, field)
+			case "completed":
+				return ec.fieldContext_Lesson_completed(ctx, field)
+			case "locked":
+				return ec.fieldContext_Lesson_locked(ctx, field)
+			case "previous":
+				return ec.fieldContext_Lesson_previous(ctx, field)
+			case "next":
+				return ec.fieldContext_Lesson_next(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Lesson", field.Name)
 		},
 	}
 	return fc, nil
@@ -39911,6 +40284,23 @@ func (ec *executionContext) _Lesson(ctx context.Context, sel ast.SelectionSet, o
 				return innerFunc(ctx)
 
 			})
+		case "defaultEpisode":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Lesson_defaultEpisode(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "episodes":
 			field := field
 
@@ -42222,6 +42612,26 @@ func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, o
 				return innerFunc(ctx)
 
 			})
+		case "defaultEpisode":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Season_defaultEpisode(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "episodes":
 			field := field
 
@@ -43391,6 +43801,26 @@ func (ec *executionContext) _StudyTopic(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "defaultLesson":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._StudyTopic_defaultLesson(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "lessons":
 			field := field
 

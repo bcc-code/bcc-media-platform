@@ -336,3 +336,20 @@ func (pq *ProfileQueries) GetSelectedAlternatives(ctx context.Context, ids []uui
 		}
 	}), nil
 }
+
+// GetDefaultLessonIDForTopicIDs returns the default lessonID
+func (pq *ProfileQueries) GetDefaultLessonIDForTopicIDs(ctx context.Context, ids []uuid.UUID) ([]loaders.Conversion[uuid.UUID, uuid.UUID], error) {
+	rows, err := pq.queries.getDefaultLessonIDForTopicIDs(ctx, getDefaultLessonIDForTopicIDsParams{
+		ProfileID: pq.profileID,
+		TopicIds:  ids,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(row getDefaultLessonIDForTopicIDsRow, _ int) loaders.Conversion[uuid.UUID, uuid.UUID] {
+		return conversion[uuid.UUID, uuid.UUID]{
+			source: row.Source,
+			result: row.Result,
+		}
+	}), nil
+}

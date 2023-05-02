@@ -91,6 +91,16 @@ query GetStudyTopicLessonStatuses($id: ID!, $first: Int!) {
     }
 }
 
+query getDefaultEpisodeForTopic($id: ID!) {
+    studyTopic(id: $id) {
+        defaultLesson {
+            defaultEpisode {
+                id
+            }
+        }
+    }
+}
+
 query getFirstSOTMLessonForConsent {
     studyLesson(id: "5677226a-990b-4c24-b057-a5b0beab63f1") {
         tasks {

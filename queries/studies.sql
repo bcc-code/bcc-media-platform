@@ -236,3 +236,18 @@ WHERE (task_id, profile_id) IN (SELECT ta.task_id, ta.profile_id
                                 WHERE ta.profile_id = @profile_id::uuid
                                   AND t.lesson_id = @lesson_id::uuid
                                   AND t.competition_mode = true);
+
+-- name: getDefaultLessonIDForTopicIDs :many
+WITH completed AS (SELECT DISTINCT ON (task.lesson_id) task.lesson_id
+                   FROM users.taskanswers answer
+                            JOIN tasks task ON task.id = answer.task_id
+                            JOIN lessons lesson ON lesson.id = task.lesson_id
+                   WHERE lesson.topic_id = ANY (@topic_ids::uuid[])
+                     AND answer.profile_id = @profile_id::uuid
+                   ORDER BY task.lesson_id, lesson.sort)
+SELECT DISTINCT ON (l.topic_id) l.topic_id as source, l.id as result
+FROM lessons l
+         LEFT JOIN completed c on c.lesson_id = l.id
+WHERE c.lesson_id IS NULL
+  AND l.topic_id = ANY (@topic_ids::uuid[])
+ORDER BY l.topic_id, l.sort;
