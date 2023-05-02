@@ -38,6 +38,7 @@ SELECT DISTINCT ON (ep.season_id) p.episode_id as id, ep.season_id::int as paren
 FROM users.progress p
          JOIN episodes ep ON ep.id = p.episode_id
 WHERE p.profile_id = $1
+  AND ep.status == 'published'
   AND ep.season_id = ANY ($2::int[])
 ORDER BY ep.season_id, p.updated_at DESC
 `
@@ -78,7 +79,9 @@ func (q *Queries) getDefaultEpisodeIDForSeasonIDs(ctx context.Context, arg getDe
 const getDefaultEpisodeIDForShowIDs = `-- name: getDefaultEpisodeIDForShowIDs :many
 SELECT DISTINCT ON (p.show_id) p.episode_id as id, p.show_id::int as parent_id
 FROM users.progress p
+         JOIN episodes ep ON ep.id = p.episode_id
 WHERE p.profile_id = $1
+  AND ep.status == 'published'
   AND p.show_id = ANY ($2::int[])
 ORDER BY p.show_id, p.updated_at DESC
 `

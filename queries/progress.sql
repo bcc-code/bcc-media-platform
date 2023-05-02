@@ -52,12 +52,15 @@ SELECT DISTINCT ON (ep.season_id) p.episode_id as id, ep.season_id::int as paren
 FROM users.progress p
          JOIN episodes ep ON ep.id = p.episode_id
 WHERE p.profile_id = @profile_id
+  AND ep.status == 'published'
   AND ep.season_id = ANY (@season_ids::int[])
 ORDER BY ep.season_id, p.updated_at DESC;
 
 -- name: getDefaultEpisodeIDForShowIDs :many
 SELECT DISTINCT ON (p.show_id) p.episode_id as id, p.show_id::int as parent_id
 FROM users.progress p
+         JOIN episodes ep ON ep.id = p.episode_id
 WHERE p.profile_id = @profile_id
+  AND ep.status == 'published'
   AND p.show_id = ANY (@show_ids::int[])
 ORDER BY p.show_id, p.updated_at DESC;
