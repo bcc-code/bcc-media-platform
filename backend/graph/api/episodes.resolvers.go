@@ -296,8 +296,21 @@ func (r *episodeResolver) InMyList(ctx context.Context, obj *model.Episode) (boo
 	if err != nil {
 		return false, err
 	}
-	listIDs := utils.PointerArrayToArray(list)
-	return lo.Contains(listIDs, utils.AsUuid(obj.UUID)), nil
+	entryIDs := utils.PointerArrayToArray(list)
+	chunks := lo.Chunk(entryIDs, 20)
+	uid := utils.AsUuid(obj.UUID)
+	for _, chunk := range chunks {
+		entries, err := r.Loaders.UserCollectionEntryLoader.GetMany(ctx, chunk)
+		if err != nil {
+			return false, err
+		}
+		for _, entry := range entries {
+			if entry.ItemID == uid {
+				return true, nil
+			}
+		}
+	}
+	return false, nil
 }
 
 // Episode returns generated.EpisodeResolver implementation.
