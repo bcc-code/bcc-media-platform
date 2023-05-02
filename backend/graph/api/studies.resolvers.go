@@ -107,6 +107,21 @@ func (r *lessonResolver) Topic(ctx context.Context, obj *model.Lesson) (*model.S
 	return r.QueryRoot().StudyTopic(ctx, obj.Topic.ID)
 }
 
+// DefaultEpisode is the resolver for the defaultEpisode field.
+func (r *lessonResolver) DefaultEpisode(ctx context.Context, obj *model.Lesson) (*model.Episode, error) {
+	episodeIDs, err := r.GetFilteredLoaders(ctx).StudyLessonEpisodesLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	if len(episodeIDs) == 0 {
+		return nil, nil
+	}
+	if episodeIDs[0] == nil {
+		return nil, nil
+	}
+	return r.QueryRoot().Episode(ctx, strconv.Itoa(*episodeIDs[0]), nil)
+}
+
 // Episodes is the resolver for the episodes field.
 func (r *lessonResolver) Episodes(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.EpisodePagination, error) {
 	ids, err := r.GetFilteredLoaders(ctx).StudyLessonEpisodesLoader.Get(ctx, utils.AsUuid(obj.ID))
@@ -200,18 +215,11 @@ func (r *lessonResolver) Completed(ctx context.Context, obj *model.Lesson) (bool
 
 // Locked is the resolver for the locked field.
 func (r *lessonResolver) Locked(ctx context.Context, obj *model.Lesson) (bool, error) {
-	pr, err := r.Previous(ctx, obj)
-	if err != nil {
-		return false, err
+	lockedByPrevious, err := isLessonLockedByPrevious(ctx, r, obj)
+	if err != nil || lockedByPrevious {
+		return lockedByPrevious, err
 	}
-	if pr == nil {
-		return false, nil
-	}
-	prCompleted, err := r.Completed(ctx, pr)
-	if err != nil {
-		return false, err
-	}
-	return !prCompleted, nil
+	return isLessonLockedByEpisode(ctx, r, obj)
 }
 
 // Previous is the resolver for the previous field.
@@ -318,6 +326,51 @@ func (r *studyTopicResolver) Image(ctx context.Context, obj *model.StudyTopic, s
 		return nil, err
 	}
 	return imageOrFallback(ctx, e.Images, style), nil
+}
+
+// DefaultLesson is the resolver for the defaultLesson field.
+func (r *studyTopicResolver) DefaultLesson(ctx context.Context, obj *model.StudyTopic) (*model.Lesson, error) {
+	uid := utils.AsUuid(obj.ID)
+	lessonID, err := r.GetProfileLoaders(ctx).TopicDefaultLessonLoader.Get(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	if lessonID == nil {
+		lessonIDs, err := r.GetFilteredLoaders(ctx).StudyLessonsLoader.Get(ctx, uid)
+		if err != nil {
+			return nil, err
+		}
+		if len(lessonIDs) == 0 {
+			return nil, ErrItemNotFound
+		}
+		lessonID = lessonIDs[0]
+	}
+	if lessonID == nil {
+		return nil, ErrItemNotFound
+	}
+
+	// Retrieve the first non-completed lesson
+	lesson, err := r.QueryRoot().StudyLesson(ctx, lessonID.String())
+	if err != nil {
+		return nil, err
+	}
+	locked, err := r.Lesson().Locked(ctx, lesson)
+	if err != nil {
+		return nil, err
+	}
+
+	// If this lesson is locked, check the previous one, with a maximum depth of 5
+	for i := 0; locked && i < 5; i++ {
+		lesson, err = r.Lesson().Previous(ctx, lesson)
+		if err != nil {
+			return nil, err
+		}
+		if lesson == nil {
+			return nil, ErrItemNotFound
+		}
+		locked, err = r.Lesson().Locked(ctx, lesson)
+	}
+	return lesson, nil
 }
 
 // Lessons is the resolver for the lessons field.
