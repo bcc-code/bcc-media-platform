@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"github.com/ansel1/merry"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -119,7 +120,14 @@ func (r *lessonResolver) DefaultEpisode(ctx context.Context, obj *model.Lesson) 
 	if episodeIDs[0] == nil {
 		return nil, nil
 	}
-	return r.QueryRoot().Episode(ctx, strconv.Itoa(*episodeIDs[0]), nil)
+	episode, err := r.QueryRoot().Episode(ctx, strconv.Itoa(*episodeIDs[0]), nil)
+	// Permission based errors that shouldn't trigger a failed response
+	if merry.Is(err, common.ErrItemNotPublished) ||
+		merry.Is(err, common.ErrItemNotFound) ||
+		merry.Is(err, common.ErrItemNoAccess) {
+		return nil, nil
+	}
+	return episode, err
 }
 
 // Episodes is the resolver for the episodes field.
