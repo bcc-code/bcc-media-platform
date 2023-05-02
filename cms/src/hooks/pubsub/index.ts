@@ -1,5 +1,5 @@
 import { handleEvent } from "./publish";
-import { HookConfig } from "@directus/shared/types"
+import { HookConfig } from "@directus/types"
 
 type Translation = "shows_translations" | "seasons_translations" | "episodes_translations"
 type Object = "shows" | "seasons" | "episodes" | "messages"

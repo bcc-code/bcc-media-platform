@@ -1,4 +1,4 @@
-import { HookConfig } from '@directus/shared/types';
+import { HookConfig } from '@directus/types';
 import { createEpisodeTranslation, createSeasonTranslation, createShowTranslation, updateEpisodeTranslation, updateSeasonTranslation, updateShowTranslation } from './filters/translations';
 import { createShow, deleteShow, updateShow } from './filters/shows';
 import { createEpisode, deleteEpisode, updateEpisodes } from './filters/episodes';

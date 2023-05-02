@@ -2,7 +2,7 @@ import { oldKnex } from "../oldKnex";
 import { isObjectUseless } from "../utils";
 import episodes from '../../../btv';
 import { VideoEntity } from "@/Database";
-import { ItemsService } from "directus";
+import { ItemsService } from "@directus/utils"
 
 enum EncodingVersion {
     AMS = 0,

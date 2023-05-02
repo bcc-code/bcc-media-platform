@@ -1,4 +1,4 @@
-import { EndpointConfig, Accountability } from "@directus/shared/types"
+import { EndpointConfig, Accountability } from "@directus/types"
 import axios from "axios"
 
 const apiPath = process.env.API_PATH;

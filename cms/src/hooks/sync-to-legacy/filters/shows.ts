@@ -2,7 +2,7 @@ import { oldKnex } from "../oldKnex";
 import { createLocalizable, getStatusFromNew, isObjectUseless } from "../utils";
 import episodes from '../../../btv';
 import {  SeriesEntity } from "@/Database";
-import { ItemsService } from "directus";
+import { ItemsService } from "@directus/utils";
 
 
 export async function updateShow (p, m, c) {

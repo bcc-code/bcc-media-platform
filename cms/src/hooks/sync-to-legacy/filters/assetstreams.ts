@@ -2,7 +2,7 @@ import { oldKnex } from "../oldKnex";
 import {  isObjectUseless } from "../utils";
 import episodes from '../../../btv';
 import {  VideoUrlEntity } from "@/Database";
-import { ItemsService } from "directus";
+import { ItemsService } from "@directus/utils";
 
 export async function createAssetstream(p, m, c) {
     if (m.collection != "assetstreams") {
