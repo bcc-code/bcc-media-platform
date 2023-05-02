@@ -460,10 +460,28 @@ func (r *mutationRootResolver) RemoveEntryFromMyList(ctx context.Context, entryI
 	if err != nil {
 		return nil, err
 	}
+
 	entryIDs := utils.PointerArrayToArray(pointerEntryIDs)
+	if !lo.Contains(entryIDs, uid) {
+		chunks := lo.Chunk(entryIDs, 20)
+		for _, chunk := range chunks {
+			entries, err := r.Loaders.UserCollectionEntryLoader.GetMany(ctx, chunk)
+			if err != nil {
+				return nil, err
+			}
+			for _, entry := range entries {
+				if entry.ItemID == uid {
+					uid = entry.ID
+					break
+				}
+			}
+		}
+	}
+	// Make sure the entry is found
 	if !lo.Contains(entryIDs, uid) {
 		return nil, common.ErrItemNotFound
 	}
+
 	pointerEntryIDs = lo.Filter(pointerEntryIDs, func(i *uuid.UUID, _ int) bool {
 		return *i != uid
 	})
