@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
@@ -34,7 +33,34 @@ func (r *seasonResolver) Show(ctx context.Context, obj *model.Season) (*model.Sh
 
 // DefaultEpisode is the resolver for the defaultEpisode field.
 func (r *seasonResolver) DefaultEpisode(ctx context.Context, obj *model.Season) (*model.Episode, error) {
-	panic(fmt.Errorf("not implemented: DefaultEpisode - defaultEpisode"))
+	s, err := r.Loaders.SeasonLoader.Get(ctx, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	ls := r.FilteredLoaders(ctx)
+	var eID *int
+	if p, _ := getProfile(ctx); p != nil {
+		eID, err = r.GetProfileLoaders(ctx).SeasonDefaultEpisodeLoader.Get(ctx, s.ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if eID == nil {
+		eIDs, err := ls.EpisodesLoader.Get(ctx, s.ID)
+		if err != nil {
+			return nil, err
+		}
+		for _, id := range eIDs {
+			if id != nil {
+				eID = id
+				break
+			}
+		}
+	}
+	if eID == nil {
+		return nil, ErrItemNotFound
+	}
+	return r.QueryRoot().Episode(ctx, strconv.Itoa(*eID), nil)
 }
 
 // Episodes is the resolver for the episodes field.

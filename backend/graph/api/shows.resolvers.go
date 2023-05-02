@@ -87,9 +87,12 @@ func (r *showResolver) DefaultEpisode(ctx context.Context, obj *model.Show) (*mo
 		return nil, err
 	}
 	ls := r.FilteredLoaders(ctx)
-	eID, err := r.GetProfileLoaders(ctx).ShowDefaultEpisodeLoader.Get(ctx, s.ID)
-	if err != nil {
-		return nil, err
+	var eID *int
+	if p, _ := getProfile(ctx); p != nil {
+		eID, err = r.GetProfileLoaders(ctx).ShowDefaultEpisodeLoader.Get(ctx, s.ID)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if eID == nil {
 		eID, err = show.DefaultEpisodeID(ctx, ls, s)
