@@ -94,16 +94,24 @@ func (r *showResolver) DefaultEpisode(ctx context.Context, obj *model.Show) (*mo
 			return nil, err
 		}
 	}
-	if eID == nil {
+	var episode *model.Episode
+	if eID != nil {
+		episode, _ = r.QueryRoot().Episode(ctx, strconv.Itoa(*eID), nil)
+	}
+	if episode == nil {
 		eID, err = show.DefaultEpisodeID(ctx, ls, s)
 		if err != nil {
 			return nil, err
 		}
+		if eID == nil {
+			return nil, ErrItemNotFound
+		}
+		episode, _ = r.QueryRoot().Episode(ctx, strconv.Itoa(*eID), nil)
 	}
-	if eID == nil {
+	if episode == nil {
 		return nil, merry.New("invalid default episode")
 	}
-	return r.QueryRoot().Episode(ctx, strconv.Itoa(*eID), nil)
+	return episode, nil
 }
 
 // Show returns generated.ShowResolver implementation.
