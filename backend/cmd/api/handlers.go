@@ -82,7 +82,6 @@ func graphqlHandler(
 	h.Use(tracer)
 	h.SetErrorPresenter(func(ctx context.Context, err error) *gqlerror.Error {
 		gqlError := graphql.DefaultErrorPresenter(ctx, err)
-		log.L.Warn().Err(gqlError).Msg("Error occurred when processing GraphQL request")
 		if code := merry.Value(err, "code"); code != nil {
 			if gqlError.Extensions == nil {
 				gqlError.Extensions = map[string]any{}
@@ -90,6 +89,7 @@ func graphqlHandler(
 			gqlError.Extensions["code"] = code
 		}
 		if userMessage := merry.UserMessage(err); userMessage != "" {
+			log.L.Warn().Err(gqlError).Msg("GraphQL exception: " + userMessage)
 			gqlError.Message = userMessage
 		} else {
 			if _, ok := err.(*gqlerror.Error); ok {
