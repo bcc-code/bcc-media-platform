@@ -606,6 +606,7 @@ type Image struct {
 
 type ItemSectionMetadata struct {
 	ContinueWatching   bool   `json:"continueWatching"`
+	MyList             bool   `json:"myList"`
 	SecondaryTitles    bool   `json:"secondaryTitles"`
 	CollectionID       string `json:"collectionId"`
 	UseContext         bool   `json:"useContext"`

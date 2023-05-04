@@ -229,6 +229,7 @@ type Section struct {
 // SectionOptions contains options for this section
 type SectionOptions struct {
 	SecondaryTitles    bool
+	MyList             bool
 	ContinueWatching   bool
 	UseContext         bool
 	PrependLiveElement bool

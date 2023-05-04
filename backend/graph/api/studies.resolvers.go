@@ -5,9 +5,9 @@ package graph
 
 import (
 	"context"
-	"github.com/ansel1/merry"
 	"strconv"
 
+	"github.com/ansel1/merry"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
