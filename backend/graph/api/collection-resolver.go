@@ -67,91 +67,59 @@ func filterWithIds(col *common.Collection, entries []collection.Entry, ids []*in
 	return newEntries
 }
 
-func sectionCollectionEntryResolver(
-	ctx context.Context,
-	ls *common.BatchLoaders,
-	filteredLoaders *common.FilteredLoaders,
-	appLoaders *common.ApplicationLoaders,
-	section *common.Section,
-	first *int,
-	offset *int,
-) (*utils.PaginationResult[*model.SectionItem], error) {
-	if !section.CollectionID.Valid {
-		return &utils.PaginationResult[*model.SectionItem]{}, nil
-	}
-
-	collectionId := int(section.CollectionID.ValueOrZero())
-
-	col, err := ls.CollectionLoader.Get(ctx, collectionId)
+func resolveContinueWatchingCollection(ctx context.Context, ls *common.BatchLoaders) ([]*int, error) {
+	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
 	}
-
-	entries, err := collection.GetCollectionEntries(ctx, ls, filteredLoaders, collectionId)
+	profile := user.GetProfileFromCtx(ginCtx)
+	if profile == nil {
+		return nil, err
+	}
+	ids, err := ls.EpisodeProgressLoader.Get(ctx, profile.ID)
 	if err != nil {
 		return nil, err
 	}
+	return ids, nil
+}
 
-	switch col.AdvancedType.String {
-	case "continue_watching":
-		ginCtx, err := utils.GinCtx(ctx)
-		if err != nil {
-			break
-		}
-		profile := user.GetProfileFromCtx(ginCtx)
-		if profile == nil {
-			break
-		}
-		ids, err := ls.EpisodeProgressLoader.Get(ctx, profile.ID)
-		if err != nil {
-			return nil, err
-		}
-		entries = filterWithIds(col, entries, ids)
-	case "my_list":
-		ginCtx, err := utils.GinCtx(ctx)
-		if err != nil {
-			break
-		}
-		profile := user.GetProfileFromCtx(ginCtx)
-		if profile == nil {
-			entries = []collection.Entry{}
-			break
-		}
-		myListID, err := appLoaders.UserMyListCollectionID.Get(ctx, profile.ID)
-		if err != nil || myListID == nil {
-			entries = []collection.Entry{}
-			break
-		}
-		entryIDs, err := ls.UserCollectionEntryIDsLoader.Get(ctx, *myListID)
-		if err != nil {
-			return nil, err
-		}
-		collectionEntries, err := ls.UserCollectionEntryLoader.GetMany(ctx, utils.PointerArrayToArray(entryIDs))
-		if err != nil {
-			return nil, err
-		}
-		// UUIDs, but only for episodes
-		uuids := lo.Map(lo.Filter(collectionEntries, func(i *common.UserCollectionEntry, _ int) bool {
-			return i.Type == "episode"
-		}), func(i *common.UserCollectionEntry, _ int) uuid.UUID {
-			return i.ItemID
-		})
-		ids, err := ls.EpisodeIDFromUuidLoader.GetMany(ctx, uuids)
-		if err != nil {
-			return nil, err
-		}
-
-		entries = filterWithIds(col, entries, ids)
+func resolveMyListCollection(ctx context.Context, ls *common.BatchLoaders, appLoaders *common.ApplicationLoaders) ([]*int, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
 	}
+	profile := user.GetProfileFromCtx(ginCtx)
+	if profile == nil {
+		return nil, nil
+	}
+	myListID, err := appLoaders.UserMyListCollectionID.Get(ctx, profile.ID)
+	if err != nil || myListID == nil {
+		return nil, err
+	}
+	entryIDs, err := ls.UserCollectionEntryIDsLoader.Get(ctx, *myListID)
+	if err != nil {
+		return nil, err
+	}
+	collectionEntries, err := ls.UserCollectionEntryLoader.GetMany(ctx, utils.PointerArrayToArray(entryIDs))
+	if err != nil {
+		return nil, err
+	}
+	// UUIDs, but only for episodes
+	uuids := lo.Map(lo.Filter(collectionEntries, func(i *common.UserCollectionEntry, _ int) bool {
+		return i.Type == "episode"
+	}), func(i *common.UserCollectionEntry, _ int) uuid.UUID {
+		return i.ItemID
+	})
+	ids, err := ls.EpisodeIDFromUuidLoader.GetMany(ctx, uuids)
+	if err != nil {
+		return nil, err
+	}
+	return ids, nil
+}
 
-	pagination := utils.Paginate(entries, first, offset, nil)
-
-	imageStyle := sectionStyleToImageStyle(section.Style)
-
-	preloadLoaders(ctx, ls, pagination.Items)
-
+func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoaders, entries []collection.Entry, imageStyle string) ([]*model.SectionItem, error) {
 	var items []*model.SectionItem
-	for _, e := range pagination.Items {
+	for _, e := range entries {
 		var item *model.SectionItem
 		switch e.Collection {
 		case "pages":
@@ -218,6 +186,59 @@ func sectionCollectionEntryResolver(
 		if item != nil {
 			items = append(items, item)
 		}
+	}
+	return items, nil
+}
+
+func sectionCollectionEntryResolver(
+	ctx context.Context,
+	ls *common.BatchLoaders,
+	filteredLoaders *common.FilteredLoaders,
+	appLoaders *common.ApplicationLoaders,
+	section *common.Section,
+	first *int,
+	offset *int,
+) (*utils.PaginationResult[*model.SectionItem], error) {
+	if !section.CollectionID.Valid {
+		return &utils.PaginationResult[*model.SectionItem]{}, nil
+	}
+
+	collectionId := int(section.CollectionID.ValueOrZero())
+
+	col, err := ls.CollectionLoader.Get(ctx, collectionId)
+	if err != nil {
+		return nil, err
+	}
+
+	entries, err := collection.GetCollectionEntries(ctx, ls, filteredLoaders, collectionId)
+	if err != nil {
+		return nil, err
+	}
+
+	switch col.AdvancedType.String {
+	case "continue_watching":
+		ids, err := resolveContinueWatchingCollection(ctx, ls)
+		if err != nil {
+			return nil, err
+		}
+		entries = filterWithIds(col, entries, ids)
+	case "my_list":
+		ids, err := resolveMyListCollection(ctx, ls, appLoaders)
+		if err != nil {
+			return nil, err
+		}
+		entries = filterWithIds(col, entries, ids)
+	}
+
+	pagination := utils.Paginate(entries, first, offset, nil)
+
+	imageStyle := sectionStyleToImageStyle(section.Style)
+
+	preloadLoaders(ctx, ls, pagination.Items)
+
+	items, err := mapCollectionEntriesToSectionItems(ctx, ls, pagination.Items, imageStyle)
+	if err != nil {
+		return nil, err
 	}
 
 	return &utils.PaginationResult[*model.SectionItem]{
