@@ -5,9 +5,9 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"strconv"
 
-	"github.com/ansel1/merry"
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
@@ -122,9 +122,9 @@ func (r *lessonResolver) DefaultEpisode(ctx context.Context, obj *model.Lesson) 
 	}
 	episode, err := r.QueryRoot().Episode(ctx, strconv.Itoa(*episodeIDs[0]), nil)
 	// Permission based errors that shouldn't trigger a failed response
-	if merry.Is(err, common.ErrItemNotPublished) ||
-		merry.Is(err, common.ErrItemNotFound) ||
-		merry.Is(err, common.ErrItemNoAccess) {
+	if errors.Is(err, common.ErrItemNotPublished) ||
+		errors.Is(err, common.ErrItemNotFound) ||
+		errors.Is(err, common.ErrItemNoAccess) {
 		return nil, nil
 	}
 	return episode, err
