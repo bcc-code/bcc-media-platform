@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"github.com/google/uuid"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
@@ -37,23 +38,31 @@ func (r *fAQResolver) Categories(ctx context.Context, obj *model.Faq, first *int
 
 // Category is the resolver for the category field.
 func (r *fAQResolver) Category(ctx context.Context, obj *model.Faq, id string) (*model.FAQCategory, error) {
-	return resolverForIntID(ctx, &itemLoaders[int, common.FAQCategory]{
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	return resolverFor(ctx, &itemLoaders[uuid.UUID, common.FAQCategory]{
 		Item: r.Loaders.FAQCategoryLoader,
-	}, id, model.FAQCategoryFrom)
+	}, uid, model.FAQCategoryFrom)
 }
 
 // Question is the resolver for the question field.
 func (r *fAQResolver) Question(ctx context.Context, obj *model.Faq, id string) (*model.Question, error) {
-	return resolverForIntID(ctx, &itemLoaders[int, common.Question]{
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	return resolverFor(ctx, &itemLoaders[uuid.UUID, common.Question]{
 		Item: r.Loaders.QuestionLoader,
-	}, id, model.QuestionFrom)
+	}, uid, model.QuestionFrom)
 }
 
 // Questions is the resolver for the questions field.
 func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *model.FAQCategory, first *int, offset *int) (*model.QuestionPagination, error) {
-	items, err := itemsResolverForIntID(ctx, &itemLoaders[int, common.Question]{
+	items, err := itemsResolverFor(ctx, &itemLoaders[uuid.UUID, common.Question]{
 		Item: r.Loaders.QuestionLoader,
-	}, r.Loaders.QuestionsLoader, obj.ID, model.QuestionFrom)
+	}, r.Loaders.QuestionsLoader, utils.AsUuid(obj.ID), model.QuestionFrom)
 	if err != nil {
 		return nil, err
 	}

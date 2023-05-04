@@ -321,25 +321,25 @@ func (i CalendarEntry) GetKey() int {
 
 // FAQCategory contains the name of the FAQ category
 type FAQCategory struct {
-	ID    int
+	ID    uuid.UUID
 	Title LocaleString
 }
 
 // GetKey returns the key for this item
-func (i FAQCategory) GetKey() int {
+func (i FAQCategory) GetKey() uuid.UUID {
 	return i.ID
 }
 
 // Question contains question data
 type Question struct {
-	ID         int
-	CategoryID int
+	ID         uuid.UUID
+	CategoryID uuid.UUID
 	Question   LocaleString
 	Answer     LocaleString
 }
 
 // GetKey returns the key for this item
-func (i Question) GetKey() int {
+func (i Question) GetKey() uuid.UUID {
 	return i.ID
 }
 
