@@ -477,6 +477,84 @@ func achievementGroupsToDSItems(translations []simpleTranslation) []directus.DSI
 	})
 }
 
+func (c *Client) syncFAQs(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "faqs", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListFAQOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListFAQOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID: t.ID.String(),
+					Values: map[string]string{
+						"question": t.Question,
+						"answer":   t.Answer,
+					},
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
+		return dbToSimple(ctx, language, c.q.ListFAQTranslations)
+	}, crowdinTranslations, nil, faqsToDSItems, func(ctx context.Context, keys []string) error {
+		return c.q.ClearFAQTranslations(ctx, utils.MapWith(keys, utils.AsUuid))
+	})
+}
+
+func faqsToDSItems(translations []simpleTranslation) []directus.DSItem {
+	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+		q, _ := t.Values["question"]
+		a, _ := t.Values["answer"]
+		return directus.FaqsTranslation{
+			ID:            t.ID,
+			LanguagesCode: t.Language,
+			Question:      q,
+			Answer:        a,
+			FaqsID:        t.ParentID,
+		}
+	})
+}
+
+func (c *Client) syncFAQCategories(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "faqcategories", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListFAQCategoryOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListFAQCategoryOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID: t.ID.String(),
+					Values: map[string]string{
+						"title":       t.Title,
+						"description": t.Description.String,
+					},
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
+		return dbToSimple(ctx, language, c.q.ListFAQCategoryTranslations)
+	}, crowdinTranslations, nil, faqCategoriesToDSItems, func(ctx context.Context, keys []string) error {
+		return c.q.ClearFAQCategoryTranslations(ctx, utils.MapWith(keys, utils.AsUuid))
+	})
+}
+
+func faqCategoriesToDSItems(translations []simpleTranslation) []directus.DSItem {
+	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+		ti, _ := t.Values["title"]
+		d, _ := t.Values["description"]
+		return directus.FaqCategoriesTranslation{
+			ID:              t.ID,
+			LanguagesCode:   t.Language,
+			Title:           ti,
+			Description:     d,
+			FaqCategoriesID: t.ParentID,
+		}
+	})
+}
+
 type dbT interface {
 	GetKey() string
 	GetParentKey() string
