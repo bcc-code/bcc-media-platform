@@ -8,6 +8,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"strconv"
 )
@@ -46,10 +47,31 @@ func sectionStyleToImageStyle(style string) common.ImageStyle {
 	}
 }
 
+func filterWithIds(col *common.Collection, entries []collection.Entry, ids []*int) []collection.Entry {
+	limit := 20
+	if col.Filter != nil && col.Filter.Limit != nil {
+		limit = *col.Filter.Limit
+	}
+	var newEntries []collection.Entry
+	for _, id := range utils.PointerArrayToArray(ids) {
+		entry, found := lo.Find(entries, func(e collection.Entry) bool {
+			return e.Collection == "episodes" && e.ID == strconv.Itoa(id)
+		})
+		if found {
+			newEntries = append(newEntries, entry)
+			if len(newEntries) >= limit {
+				break
+			}
+		}
+	}
+	return newEntries
+}
+
 func sectionCollectionEntryResolver(
 	ctx context.Context,
 	ls *common.BatchLoaders,
 	filteredLoaders *common.FilteredLoaders,
+	appLoaders *common.ApplicationLoaders,
 	section *common.Section,
 	first *int,
 	offset *int,
@@ -84,24 +106,42 @@ func sectionCollectionEntryResolver(
 		if err != nil {
 			return nil, err
 		}
+		entries = filterWithIds(col, entries, ids)
+	case "my_list":
+		ginCtx, err := utils.GinCtx(ctx)
+		if err != nil {
+			break
+		}
+		profile := user.GetProfileFromCtx(ginCtx)
+		if profile == nil {
+			entries = []collection.Entry{}
+			break
+		}
+		myListID, err := appLoaders.UserMyListCollectionID.Get(ctx, profile.ID)
+		if err != nil || myListID == nil {
+			entries = []collection.Entry{}
+			break
+		}
+		entryIDs, err := ls.UserCollectionEntryIDsLoader.Get(ctx, *myListID)
+		if err != nil {
+			return nil, err
+		}
+		collectionEntries, err := ls.UserCollectionEntryLoader.GetMany(ctx, utils.PointerArrayToArray(entryIDs))
+		if err != nil {
+			return nil, err
+		}
+		// UUIDs, but only for episodes
+		uuids := lo.Map(lo.Filter(collectionEntries, func(i *common.UserCollectionEntry, _ int) bool {
+			return i.Type == "episode"
+		}), func(i *common.UserCollectionEntry, _ int) uuid.UUID {
+			return i.ItemID
+		})
+		ids, err := ls.EpisodeIDFromUuidLoader.GetMany(ctx, uuids)
+		if err != nil {
+			return nil, err
+		}
 
-		limit := 20
-		if col.Filter != nil && col.Filter.Limit != nil {
-			limit = *col.Filter.Limit
-		}
-		var newEntries []collection.Entry
-		for _, id := range utils.PointerIntArrayToIntArray(ids) {
-			entry, found := lo.Find(entries, func(e collection.Entry) bool {
-				return e.Collection == "episodes" && e.ID == strconv.Itoa(id)
-			})
-			if found {
-				newEntries = append(newEntries, entry)
-				if len(newEntries) >= limit {
-					break
-				}
-			}
-		}
-		entries = newEntries
+		entries = filterWithIds(col, entries, ids)
 	}
 
 	pagination := utils.Paginate(entries, first, offset, nil)
@@ -254,7 +294,7 @@ func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, 
 		return nil, err
 	}
 
-	pagination, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), section, first, offset)
+	pagination, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), r.ApplicationLoaders(ctx), section, first, offset)
 	if err != nil {
 		return nil, err
 	}
