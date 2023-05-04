@@ -24,7 +24,9 @@ func ParseAcceptLanguage(acceptLanguage string) []string {
 		trimmedLangQStr := strings.Trim(langQStr, " ")
 		langQ := strings.Split(trimmedLangQStr, ";")
 		lq := langQ[0]
-		lq2 := strings.Split(lq, "-")
+		lq2 := strings.FieldsFunc(lq, func(char rune) bool {
+			return char == '-' || char == '_'
+		})
 		lqs = append(lqs, parseLanguageCode(lq2[0]))
 	}
 
