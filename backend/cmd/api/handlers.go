@@ -82,7 +82,7 @@ func graphqlHandler(
 	h.Use(tracer)
 	h.SetErrorPresenter(func(ctx context.Context, err error) *gqlerror.Error {
 		gqlError := graphql.DefaultErrorPresenter(ctx, err)
-		log.L.Error().Err(gqlError).Msg("Error occurred when processing GraphQL request")
+		log.L.Warn().Err(gqlError).Msg("Error occurred when processing GraphQL request")
 		if code := merry.Value(err, "code"); code != nil {
 			if gqlError.Extensions == nil {
 				gqlError.Extensions = map[string]any{}
