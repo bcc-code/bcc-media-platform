@@ -23,6 +23,12 @@ func ParseAcceptLanguage(acceptLanguage string) []string {
 	for _, langQStr := range langQStrings {
 		trimmedLangQStr := strings.Trim(langQStr, " ")
 		langQ := strings.Split(trimmedLangQStr, ";")
+
+		if len(langQ) == 0 {
+			lqs = append(lqs, "en") // Fallback to english
+			return lqs
+		}
+
 		lq := langQ[0]
 		lq2 := strings.FieldsFunc(lq, func(char rune) bool {
 			return char == '-' || char == '_'
