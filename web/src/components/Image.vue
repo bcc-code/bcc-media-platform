@@ -2,7 +2,7 @@
     <div
         class="bg-primary-light overflow-hidden"
         :class="[!loaded ? 'border-1 border border-slate-700 opacity-50' : '']"
-        ref="container"
+        ref="imageContainer"
     >
         <img
             ref="image"
@@ -30,33 +30,36 @@ const props = defineProps<{
 const loaded = ref(false)
 
 const image = ref(null as HTMLImageElement | null)
-const container = ref(null as HTMLDivElement | null)
-
-onMounted(() => {
-    const i = image.value
-    if (!i) {
-        return
-    }
-    i.onerror = () => {}
-    i.onload = () => {
-        loaded.value = true
-    }
-    if (props.src) {
-        i.src = effectiveSrc.value
-    }
+const imageContainer = ref(null as HTMLDivElement | null)
+const parentDimensions = ref({
+    height: 100,
+    width: 100,
 })
 
-const parentDimensions = computed(() => {
-    const dimensions = {
-        height: 100,
-        width: 100,
-    }
-    const rect = container.value?.parentElement?.getBoundingClientRect()
-    if (rect) {
-        dimensions.height = rect.height
-        dimensions.width = rect.width
-    }
-    return dimensions
+onMounted(() => {
+    setTimeout(() => {
+        const dimensions = {
+            height: 100,
+            width: 100,
+        }
+        const parent = imageContainer.value
+        if (parent) {
+            dimensions.height = parent.clientHeight
+            dimensions.width = parent.clientWidth
+        }
+        parentDimensions.value = dimensions
+        const i = image.value
+        if (!i) {
+            return
+        }
+        i.onerror = () => {}
+        i.onload = () => {
+            loaded.value = true
+        }
+        if (props.src) {
+            i.src = effectiveSrc.value
+        }
+    }, 50)
 })
 
 const effectiveSrc = computed(() => {
