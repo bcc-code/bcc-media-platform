@@ -33,6 +33,10 @@ func ParseAcceptLanguage(acceptLanguage string) []string {
 		lq2 := strings.FieldsFunc(lq, func(char rune) bool {
 			return char == '-' || char == '_'
 		})
+		if len(lq2) == 0 {
+			lqs = append(lqs, "en") // Fallback to english
+			return lqs
+		}
 		lqs = append(lqs, parseLanguageCode(lq2[0]))
 	}
 
