@@ -30,7 +30,7 @@ func NewCollectionItemLoader(ctx context.Context, db *sql.DB, collectionLoader *
 		if err == nil {
 			parallel.ForEach(collections, func(i *common.Collection, _ int) {
 				var identifiers []common.Identifier
-				if i.Type == "query" || i.Filter != nil {
+				if i.Type == "query" && i.Filter != nil {
 					identifiers, err = GetItemIDsForFilter(ctx, db, roles, *i.Filter, i.AdvancedType.String == "continue_watching")
 					if err != nil {
 						log.L.Error().Err(err).
