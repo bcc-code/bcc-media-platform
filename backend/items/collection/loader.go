@@ -34,7 +34,7 @@ func NewCollectionItemLoader(ctx context.Context, db *sql.DB, collectionLoader *
 					if i.Filter == nil {
 						i.Filter = &common.Filter{}
 					}
-					identifiers, err = GetItemIDsForFilter(ctx, db, roles, *i.Filter, i.AdvancedType.String == "continue_watching")
+					identifiers, err = GetItemIDsForFilter(ctx, db, roles, *i.Filter, i.AdvancedType.String == "continue_watching" || i.AdvancedType.String == "my_list")
 					if err != nil {
 						log.L.Error().Err(err).
 							Msg("Failed to select itemIds from collection")
