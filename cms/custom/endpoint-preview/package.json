@@ -1,0 +1,27 @@
+{
+	"name": "directus-extension-endpoint-preview",
+	"description": "Please enter a description for your extension",
+	"icon": "extension",
+	"version": "1.0.0",
+	"keywords": [
+		"directus",
+		"directus-extension",
+		"directus-custom-endpoint"
+	],
+	"directus:extension": {
+		"type": "endpoint",
+    "path": "../../extensions/endpoints/preview/index.js",
+		"source": "src/index.ts",
+		"host": "^10.0.0"
+	},
+	"scripts": {
+		"build": "directus-extension build",
+		"dev": "directus-extension build -w --no-minify",
+		"link": "directus-extension link"
+	},
+	"devDependencies": {
+		"@directus/extensions-sdk": "10.0.0",
+		"@types/node": "^20.1.1",
+		"typescript": "^5.0.4"
+	}
+}
