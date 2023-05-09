@@ -10,7 +10,7 @@
 	],
 	"directus:extension": {
 		"type": "hook",
-    "path": "../../extensions/hooks/sync-to-legacy/index.js",
+		"path": "../../extensions/hooks/sync-to-legacy/index.js",
 		"source": "src/index.ts",
 		"host": "^10.0.0"
 	},

@@ -1,4 +1,3 @@
-import {defineHook} from '@directus/extensions-sdk';
 import {
     createEpisodeTranslation,
     createSeasonTranslation,
@@ -23,7 +22,7 @@ import {createAsset, deleteAsset, updateAsset} from './filters/assets';
 import {createAssetstream, deleteAssetstream, updateAssetstream} from './filters/assetstreams';
 import {createEpisodeTag, deleteEpisodeTag, updateTag} from './filters/tags';
 
-export default defineHook(({filter}) => {
+export default (({filter}) => {
     if (process.env.LEGACY_SYNC === "off") {
         return
     }
