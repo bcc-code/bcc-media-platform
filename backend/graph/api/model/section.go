@@ -28,6 +28,7 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 	case "item":
 		metadata := &ItemSectionMetadata{
 			SecondaryTitles:    s.Options.SecondaryTitles,
+			MyList:             s.Options.MyList,
 			ContinueWatching:   s.Options.ContinueWatching,
 			CollectionID:       strconv.Itoa(int(s.CollectionID.Int64)),
 			UseContext:         s.Options.UseContext,
