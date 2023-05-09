@@ -417,3 +417,61 @@ func (r ListAchievementGroupTranslationsRow) GetValues() map[string]string {
 func (r ListAchievementGroupTranslationsRow) GetLanguage() string {
 	return r.LanguagesCode.String
 }
+
+// GetKey for this item
+func (r ListFAQTranslationsRow) GetKey() string {
+	return strconv.Itoa(int(r.ID))
+}
+
+// GetParentKey for this item
+func (r ListFAQTranslationsRow) GetParentKey() string {
+	return r.ParentID.UUID.String()
+}
+
+// GetValues for this entry
+func (r ListFAQTranslationsRow) GetValues() map[string]string {
+	ret := map[string]string{}
+
+	if r.Question.Valid {
+		ret["question"] = r.Question.String
+	}
+	if r.Answer.Valid {
+		ret["answer"] = r.Answer.String
+	}
+
+	return ret
+}
+
+// GetLanguage for this item
+func (r ListFAQTranslationsRow) GetLanguage() string {
+	return r.LanguagesCode.String
+}
+
+// GetKey for this item
+func (r ListFAQCategoryTranslationsRow) GetKey() string {
+	return strconv.Itoa(int(r.ID))
+}
+
+// GetParentKey for this item
+func (r ListFAQCategoryTranslationsRow) GetParentKey() string {
+	return r.ParentID.UUID.String()
+}
+
+// GetValues for this entry
+func (r ListFAQCategoryTranslationsRow) GetValues() map[string]string {
+	ret := map[string]string{}
+
+	if r.Title.Valid {
+		ret["title"] = r.Title.String
+	}
+	if r.Description.Valid {
+		ret["description"] = r.Description.String
+	}
+
+	return ret
+}
+
+// GetLanguage for this item
+func (r ListFAQCategoryTranslationsRow) GetLanguage() string {
+	return r.LanguagesCode.String
+}

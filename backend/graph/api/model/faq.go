@@ -5,7 +5,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
-	"strconv"
 )
 
 // FAQCategoryFrom returns a gql category from category
@@ -14,7 +13,7 @@ func FAQCategoryFrom(ctx context.Context, i *common.FAQCategory) *FAQCategory {
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
 	return &FAQCategory{
-		ID:    strconv.Itoa(i.ID),
+		ID:    i.ID.String(),
 		Title: i.Title.Get(languages),
 	}
 }
@@ -25,9 +24,9 @@ func QuestionFrom(ctx context.Context, i *common.Question) *Question {
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
 	return &Question{
-		ID: strconv.Itoa(i.ID),
+		ID: i.ID.String(),
 		Category: &FAQCategory{
-			ID: strconv.Itoa(i.CategoryID),
+			ID: i.CategoryID.String(),
 		},
 		Question: i.Question.Get(languages),
 		Answer:   i.Answer.Get(languages),

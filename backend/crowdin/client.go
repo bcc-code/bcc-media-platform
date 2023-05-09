@@ -324,7 +324,14 @@ func (c *Client) Sync(ctx context.Context, d *directus.Handler) error {
 		if err != nil {
 			return err
 		}
-
+		err = c.syncFAQs(ctx, d, project, directory.ID, crowdinTranslations)
+		if err != nil {
+			return err
+		}
+		err = c.syncFAQCategories(ctx, d, project, directory.ID, crowdinTranslations)
+		if err != nil {
+			return err
+		}
 	}
 	log.L.Debug().Msg("Translation sync: Done")
 	return nil
