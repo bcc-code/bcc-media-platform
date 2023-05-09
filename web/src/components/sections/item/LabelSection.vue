@@ -3,13 +3,13 @@
         <h1 class="text-lg" v-if="item.title">
             {{ item.title }}
         </h1>
-        <div class="flex gap-2">
+        <div class="flex gap-2 items-center">
             <div
                 v-for="(i, index) in item.items.items"
                 class="bg-slate-800 px-3 py-0.5 border border-1 border-slate-700 rounded rounded-full cursor-pointer"
                 @click="$emit('clickItem', index)"
             >
-                <p class="text-lg">{{ i.title }}</p>
+                <p class="text-lg text-center">{{ i.title }}</p>
             </div>
         </div>
     </section>
