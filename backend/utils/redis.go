@@ -17,7 +17,7 @@ type RedisConfig struct {
 }
 
 // MustCreateRedisClient throws a panic if redis is not reachable
-func MustCreateRedisClient(ctx context.Context, config RedisConfig) (*redis.Client, chan error) {
+func MustCreateRedisClient(ctx context.Context, config RedisConfig) (*redis.Client, <-chan error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     config.Address,
 		Username: config.Username,
