@@ -1,4 +1,5 @@
-import { EndpointConfig, Accountability } from "@directus/types"
+// @ts-ignore
+import type { EndpointConfig, Accountability } from "@directus/types"
 import axios from "axios"
 
 const apiPath = process.env.API_PATH;

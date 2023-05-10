@@ -8,7 +8,7 @@
 	],
 	"directus:extension": {
 		"type": "interface",
-		"path": "../../extensions/interfaces/query-builder/index.js",
+		"path": "../../../cms/extensions/interfaces/query-builder/index.js",
 		"source": "src/index.ts",
 		"host": "^9.14.1"
 	},

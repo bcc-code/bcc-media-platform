@@ -1,5 +1,5 @@
 import {LanguageEntity, LocalizedStringEntity} from './Database'
-import * as knex from 'knex'
+import knex, {Knex} from 'knex'
 
 export function getStatusFromOld(status: number): string {
     switch (status) {
@@ -8,7 +8,7 @@ export function getStatusFromOld(status: number): string {
         case 1:
             return "published"
         default:
-            "draft"
+            return "draft"
     }
 }
 
@@ -21,7 +21,7 @@ export function getStatusFromNew(status: string): number {
     }
 }
 
-export async function upsertLS(oldKnex: knex.Knex<any, unknown[]>, parentId: number, lang: LanguageEntity, value: string) {
+export async function upsertLS(oldKnex: Knex<any, unknown[]>, parentId: number, lang: LanguageEntity, value: string) {
     if (value == undefined) {
         value = ""
     }
@@ -69,7 +69,7 @@ export async function ensureLocalizablesExist(oldKnex: knex.Knex<any, unknown[]>
     return ids
 } */
 
-export async function createLocalizable(oldKnex: knex.Knex<any, unknown[]>): Promise<number> {
+export async function createLocalizable(oldKnex: Knex<any, unknown[]>): Promise<number> {
     let result = await oldKnex<LocalizedStringEntity>("LocalizableString").insert({}).returning<[{ Id: number }]>("Id")
     return result[0].Id
 }

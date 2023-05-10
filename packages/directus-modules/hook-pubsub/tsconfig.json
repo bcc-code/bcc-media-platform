@@ -3,6 +3,7 @@
 		"target": "ES2019",
 		"lib": ["ES2019", "DOM"],
 		"moduleResolution": "node",
+    "strict": true,
 		"rootDir": "./src"
 	},
 	"include": ["./src/**/*.ts"]

@@ -1,6 +1,5 @@
 import { handleEvent } from "./publish";
-// @ts-ignore
-import { HookConfig } from "@directus/types"
+import { defineHook } from "@directus/extensions-sdk"
 
 type Translation = "shows_translations" | "seasons_translations" | "episodes_translations"
 type Object = "shows" | "seasons" | "episodes" | "messages"
@@ -15,7 +14,7 @@ export interface Event {
     collection: Collection;
 }
 
-const hooks: HookConfig = ({action}) => {
+export default defineHook(({action}, context) => {
     if (!process.env.PUBSUB_PROJECT_ID) {
         console.log("Missing configuration for publishing hooks to pubsub")
         return
@@ -24,6 +23,4 @@ const hooks: HookConfig = ({action}) => {
     action("items.create", handleEvent("items.create"))
     action("items.update", handleEvent("items.update"))
     action("items.delete", handleEvent("items.delete"))
-}
-
-export default hooks
+})

@@ -5,12 +5,12 @@ run:
 
 install:
 	npm ci
-	cd ./custom && make install
+	cd ../packages/directus-modules && make install
 
 build:
 	rm -rf ./extensions
 	#npm run build
-	cd ./custom && make build
+	cd ../packages/directus-modules && make build
 
 init:
 	make install

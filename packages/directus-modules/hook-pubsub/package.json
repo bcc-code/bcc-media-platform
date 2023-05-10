@@ -1,5 +1,5 @@
 {
-	"name": "directus-extension-hook-sync-to-legacy",
+	"name": "directus-extension-hook-pubsub",
 	"description": "Please enter a description for your extension",
 	"icon": "extension",
 	"version": "1.0.0",
@@ -10,7 +10,7 @@
 	],
 	"directus:extension": {
 		"type": "hook",
-		"path": "../../extensions/hooks/sync-to-legacy/index.js",
+		"path": "../../../cms/extensions/hooks/pubsub/index.js",
 		"source": "src/index.ts",
 		"host": "^10.0.0"
 	},
@@ -22,6 +22,15 @@
 	"devDependencies": {
 		"@directus/extensions-sdk": "10.0.0",
 		"@types/node": "^20.1.1",
+		"@types/uuid": "^9.0.1",
 		"typescript": "^5.0.4"
+	},
+	"dependencies": {
+		"@directus/types": "^10.0.0",
+		"@google-cloud/pubsub": "^3.5.2",
+		"cloudevents": "^7.0.0"
+	},
+	"peerDependencies": {
+		"axios": "^1.4.0"
 	}
 }
