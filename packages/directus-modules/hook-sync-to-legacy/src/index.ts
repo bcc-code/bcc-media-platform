@@ -23,9 +23,9 @@ import {createAssetstream, deleteAssetstream, updateAssetstream} from './filters
 import {createEpisodeTag, deleteEpisodeTag, updateTag} from './filters/tags';
 
 export default (({filter}) => {
-    // if (process.env.LEGACY_SYNC === "off") {
-    //     return
-    // }
+    if (process.env.LEGACY_SYNC === "off") {
+        return
+    }
 
     filter('items.create', createShow)
     filter('items.create', createSeason)
