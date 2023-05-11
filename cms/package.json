@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "directus": "^10.0.0",
+    "directus": "^9.26.0",
     "knex": "^2.4.2",
     "pg": "^8.7.3"
   },
