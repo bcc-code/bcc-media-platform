@@ -4,7 +4,7 @@ run:
 	npx directus start
 
 install:
-	npm ci
+	pnpm i
 	cd ../packages/directus-modules && make install
 
 build:
