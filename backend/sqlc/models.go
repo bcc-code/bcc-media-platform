@@ -142,6 +142,7 @@ type Assetfile struct {
 	UserCreated        uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	Resolution         null_v4.String        `db:"resolution" json:"resolution"`
+	Size               int32                 `db:"size" json:"size"`
 }
 
 type Assetstream struct {

@@ -386,6 +386,7 @@ type ComplexityRoot struct {
 		FileName         func(childComplexity int) int
 		ID               func(childComplexity int) int
 		MimeType         func(childComplexity int) int
+		Resolution       func(childComplexity int) int
 		Size             func(childComplexity int) int
 		SubtitleLanguage func(childComplexity int) int
 		URL              func(childComplexity int) int
@@ -2595,6 +2596,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.File.MimeType(childComplexity), true
+
+	case "File.resolution":
+		if e.complexity.File.Resolution == nil {
+			break
+		}
+
+		return e.complexity.File.Resolution(childComplexity), true
 
 	case "File.size":
 		if e.complexity.File.Size == nil {
@@ -5720,6 +5728,7 @@ type File {
     size: Int
     fileName: String!
     mimeType: String!
+    resolution: String
 }
 
 enum StreamType {
@@ -13267,6 +13276,8 @@ func (ec *executionContext) fieldContext_Episode_files(ctx context.Context, fiel
 				return ec.fieldContext_File_fileName(ctx, field)
 			case "mimeType":
 				return ec.fieldContext_File_mimeType(ctx, field)
+			case "resolution":
+				return ec.fieldContext_File_resolution(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type File", field.Name)
 		},
@@ -17194,6 +17205,47 @@ func (ec *executionContext) _File_mimeType(ctx context.Context, field graphql.Co
 }
 
 func (ec *executionContext) fieldContext_File_mimeType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "File",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _File_resolution(ctx context.Context, field graphql.CollectedField, obj *model.File) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_File_resolution(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Resolution, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_File_resolution(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "File",
 		Field:      field,
@@ -36683,10 +36735,11 @@ func (ec *executionContext) unmarshalInputBirthOptions(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
-			it.Year, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Year = data
 		}
 	}
 
@@ -36711,10 +36764,11 @@ func (ec *executionContext) unmarshalInputEpisodeContext(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("collectionId"))
-			it.CollectionID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CollectionID = data
 		}
 	}
 
@@ -36739,18 +36793,20 @@ func (ec *executionContext) unmarshalInputLegacyIDLookupOptions(ctx context.Cont
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("episodeID"))
-			it.EpisodeID, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.EpisodeID = data
 		case "programID":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("programID"))
-			it.ProgramID, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ProgramID = data
 		}
 	}
 
@@ -36775,18 +36831,20 @@ func (ec *executionContext) unmarshalInputNameOptions(ctx context.Context, obj i
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-			it.First, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.First = data
 		case "last":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-			it.Last, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Last = data
 		}
 	}
 
@@ -39923,6 +39981,10 @@ func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "resolution":
+
+			out.Values[i] = ec._File_resolution(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

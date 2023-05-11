@@ -69,6 +69,7 @@ type File {
     size: Int
     fileName: String!
     mimeType: String!
+    resolution: String
 }
 
 enum StreamType {
