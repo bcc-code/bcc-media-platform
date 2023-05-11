@@ -13,14 +13,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@google-cloud/pubsub": "^3.0.1",
-    "@rmp135/sql-ts": "^1.13.0",
-    "cloudevents": "^6.0.2",
-    "directus": "^9.13.0",
-    "knex": "^2.0.0",
-    "pg": "^8.7.3",
-    "tedious": "^15.1.2",
-    "uuid": "^9.0.0"
+    "directus": "^9.26.0",
+    "knex": "^2.4.2",
+    "pg": "^8.7.3"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.5",

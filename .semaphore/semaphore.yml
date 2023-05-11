@@ -16,11 +16,13 @@ blocks:
       jobs:
         - name: build
           commands:
+            - corepack enable
+            - corepack prepare pnpm@latest-8 --activate
             - checkout
             - cd cms
-            - cache restore
-            - nvm install 16.15
+            - cache restore node-$(checksum pnpm-lock.yaml)
             - make install
+            - cache store node-$(checksum pnpm-lock.yaml) $(pnpm store path)
             - make build
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:$SEMAPHORE_GIT_BRANCH .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" '
