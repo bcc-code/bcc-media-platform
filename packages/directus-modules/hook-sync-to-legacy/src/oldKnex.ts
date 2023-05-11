@@ -1,3 +1,6 @@
+// This is imported as an external dependency, so knex is not bundled with this module,
+// but implicitly imported when booted with directus
+
 // @ts-ignore
 import knex from "knex";
 
