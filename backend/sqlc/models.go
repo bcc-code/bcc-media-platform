@@ -141,6 +141,7 @@ type Assetfile struct {
 	Type               string                `db:"type" json:"type"`
 	UserCreated        uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	Resolution         null_v4.String        `db:"resolution" json:"resolution"`
 }
 
 type Assetstream struct {
