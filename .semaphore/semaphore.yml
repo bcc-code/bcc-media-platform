@@ -36,7 +36,7 @@ blocks:
       secrets:
         - name: GoogleSemaphoreServiceAccount
     run:
-      when: 'change_in([''/cms/'', ''/migrations/''])'
+      when: 'change_in([''/cms/'', ''/migrations/'', ''/packages/directus-modules/''])'
     dependencies: []
   - name: Build Backend
     task:
