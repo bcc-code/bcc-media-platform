@@ -2,21 +2,12 @@ import {oldKnex} from "../oldKnex";
 import {createLocalizable, getStatusFromNew, isObjectUseless} from "../utils";
 import * as episodes from '../btv';
 import {SeriesEntity} from "../Database";
-// @ts-ignore
-import {ItemsService} from "@directus/api";
-
 
 export async function updateShow(p, m, c) {
     // get legacy id
-    const itemsService = new ItemsService<episodes.components["schemas"]["ItemsShows"]>("shows", {
-        knex: c.database as any,
-        schema: c.schema,
-    });
-    let showBeforeUpdate = await itemsService.readOne(Number(m.keys[0]), {fields: ['*.*.*']})
-
+    let showBeforeUpdate = (await c.database("shows").select("*").where("id", Number(m.keys[0])))[0]
 
     // update it in original
-
     let patch: Partial<SeriesEntity> = {
         Published: p.publish_date as unknown as Date,
         AvailableTo: p.available_to as unknown as Date,
@@ -41,7 +32,6 @@ export async function updateShow(p, m, c) {
 
     if (!isObjectUseless(patch)) {
         let a = await oldKnex<SeriesEntity>("Series").where("Id", showBeforeUpdate.legacy_id).update(patch).returning("*")
-
     }
 };
 

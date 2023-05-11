@@ -1,7 +1,6 @@
 import {oldKnex} from "../oldKnex";
 import {upsertLS} from "../utils";
-import {Knex} from "knex";
-
+import type {Knex} from "knex";
 
 export async function createEpisodeTag(p, m, c) {
     if (m.collection != "episodes_tags") {

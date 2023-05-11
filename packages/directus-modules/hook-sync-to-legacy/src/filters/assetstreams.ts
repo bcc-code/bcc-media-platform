@@ -2,8 +2,6 @@ import {oldKnex} from "../oldKnex";
 import {isObjectUseless} from "../utils";
 import * as episodes from '../btv';
 import {VideoUrlEntity} from "../Database";
-// @ts-ignore
-import {ItemsService} from "@directus/api";
 
 export async function createAssetstream(p, m, c) {
     if (m.collection != "assetstreams") {
@@ -50,11 +48,7 @@ export async function updateAssetstream(p, m, c) {
     }
 
     // get legacy id
-    const itemsService = new ItemsService<episodes.components["schemas"]["ItemsAssetstreams"]>("assetstreams", {
-        knex: c.database as any,
-        schema: c.schema,
-    });
-    let assetstreamBeforeUpdate = await itemsService.readOne(Number(m.keys[0]), {fields: ['*.*.*']}) as any
+    let assetstreamBeforeUpdate = (await c.database("assetstreams").select("*").where("id", Number(p.keys[0])))[0]
     let asset = (await c.database("assets").select("*").where("id", p.asset_id))[0];
 
 

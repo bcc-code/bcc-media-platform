@@ -3,9 +3,6 @@ import {isObjectUseless} from "../utils";
 import * as episodes from '../btv';
 import {VideoEntity} from "../Database";
 
-// @ts-ignore
-import {ItemsService} from "@directus/api"
-
 enum EncodingVersion {
     AMS = 0,
     BTV = 1
@@ -55,12 +52,7 @@ export async function updateAsset(p, m, c) {
     }
 
     // get legacy id
-    const itemsService = new ItemsService<episodes.components["schemas"]["ItemsAssets"]>("assets", {
-        knex: c.database as any,
-        schema: c.schema,
-    });
-    let assetBeforeUpdate = await itemsService.readOne(Number(m.keys[0]), {fields: ['*.*.*']})
-
+    let assetBeforeUpdate = (await c.database("assets").select("*").where("id", Number(m.keys[0])))[0]
 
     let patch: Partial<VideoEntity> = {
         EncodingStatus: 2,
