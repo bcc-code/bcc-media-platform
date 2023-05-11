@@ -1,3 +1,4 @@
+// @ts-ignore
 import knex from "knex";
 
 export const oldKnex = knex({

@@ -1,4 +1,5 @@
 import {LanguageEntity, LocalizedStringEntity} from './Database'
+// @ts-ignore
 import type {Knex} from 'knex'
 
 export function getStatusFromOld(status: number): string {
