@@ -288,7 +288,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 		}()
 		if u, err := remotecache.GetOrCreate[*common.User](ctx, remoteCache, fmt.Sprintf("users:%s", userID), getUserFromMembers); err == nil {
 			span.AddEvent("User loaded into cache")
-			userCache.Set(userID, u, cache.WithExpiration(60*time.Minute))
+			userCache.Set(userID, u, cache.WithExpiration(60*time.Second))
 			ctx.Set(CtxUser, u)
 			return
 		} else {

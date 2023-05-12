@@ -14,7 +14,6 @@ require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/XSAM/otelsql v0.22.0
 	github.com/algolia/algoliasearch-client-go/v3 v3.28.1
-	github.com/ansel1/merry v1.7.0
 	github.com/ansel1/merry/v2 v2.1.1
 	github.com/auth0/go-jwt-middleware/v2 v2.1.0
 	github.com/aws/aws-sdk-go v1.44.259

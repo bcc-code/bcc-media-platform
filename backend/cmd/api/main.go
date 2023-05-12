@@ -5,8 +5,10 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/brunstadtv/backend/applications"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
+	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bsm/redislock"
 	"github.com/gin-contrib/pprof"
@@ -118,15 +120,10 @@ func playgroundHandler() gin.HandlerFunc {
 	}
 }
 
-var apps []common.Application
-
 func getApplications(ctx context.Context, queries *sqlc.Queries) []common.Application {
-	if apps == nil {
-		stored, err := queries.ListApplications(ctx)
-		if err != nil {
-			log.L.Panic().Err(err).Send()
-		}
-		apps = stored
+	apps, err := memorycache.GetOrSet(ctx, "applications", queries.ListApplications, cache.WithExpiration(time.Minute*2))
+	if err != nil {
+		log.L.Panic().Err(err).Send()
 	}
 	return apps
 }

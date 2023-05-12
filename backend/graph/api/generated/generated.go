@@ -421,6 +421,7 @@ type ComplexityRoot struct {
 	ItemSectionMetadata struct {
 		CollectionID       func(childComplexity int) int
 		ContinueWatching   func(childComplexity int) int
+		MyList             func(childComplexity int) int
 		PrependLiveElement func(childComplexity int) int
 		SecondaryTitles    func(childComplexity int) int
 		UseContext         func(childComplexity int) int
@@ -2744,6 +2745,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ItemSectionMetadata.ContinueWatching(childComplexity), true
+
+	case "ItemSectionMetadata.myList":
+		if e.complexity.ItemSectionMetadata.MyList == nil {
+			break
+		}
+
+		return e.complexity.ItemSectionMetadata.MyList(childComplexity), true
 
 	case "ItemSectionMetadata.prependLiveElement":
 		if e.complexity.ItemSectionMetadata.PrependLiveElement == nil {
@@ -5856,6 +5864,7 @@ type Page{
 
 type ItemSectionMetadata {
     continueWatching: Boolean!
+    myList: Boolean!
     secondaryTitles: Boolean!
     collectionId: ID!
     useContext: Boolean!
@@ -10485,6 +10494,8 @@ func (ec *executionContext) fieldContext_CardListSection_metadata(ctx context.Co
 			switch field.Name {
 			case "continueWatching":
 				return ec.fieldContext_ItemSectionMetadata_continueWatching(ctx, field)
+			case "myList":
+				return ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
 			case "secondaryTitles":
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
@@ -10773,6 +10784,8 @@ func (ec *executionContext) fieldContext_CardSection_metadata(ctx context.Contex
 			switch field.Name {
 			case "continueWatching":
 				return ec.fieldContext_ItemSectionMetadata_continueWatching(ctx, field)
+			case "myList":
+				return ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
 			case "secondaryTitles":
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
@@ -11768,6 +11781,8 @@ func (ec *executionContext) fieldContext_DefaultGridSection_metadata(ctx context
 			switch field.Name {
 			case "continueWatching":
 				return ec.fieldContext_ItemSectionMetadata_continueWatching(ctx, field)
+			case "myList":
+				return ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
 			case "secondaryTitles":
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
@@ -12056,6 +12071,8 @@ func (ec *executionContext) fieldContext_DefaultSection_metadata(ctx context.Con
 			switch field.Name {
 			case "continueWatching":
 				return ec.fieldContext_ItemSectionMetadata_continueWatching(ctx, field)
+			case "myList":
+				return ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
 			case "secondaryTitles":
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
@@ -16679,6 +16696,8 @@ func (ec *executionContext) fieldContext_FeaturedSection_metadata(ctx context.Co
 			switch field.Name {
 			case "continueWatching":
 				return ec.fieldContext_ItemSectionMetadata_continueWatching(ctx, field)
+			case "myList":
+				return ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
 			case "secondaryTitles":
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
@@ -17357,6 +17376,8 @@ func (ec *executionContext) fieldContext_IconGridSection_metadata(ctx context.Co
 			switch field.Name {
 			case "continueWatching":
 				return ec.fieldContext_ItemSectionMetadata_continueWatching(ctx, field)
+			case "myList":
+				return ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
 			case "secondaryTitles":
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
@@ -17645,6 +17666,8 @@ func (ec *executionContext) fieldContext_IconSection_metadata(ctx context.Contex
 			switch field.Name {
 			case "continueWatching":
 				return ec.fieldContext_ItemSectionMetadata_continueWatching(ctx, field)
+			case "myList":
+				return ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
 			case "secondaryTitles":
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
@@ -17939,6 +17962,50 @@ func (ec *executionContext) fieldContext_ItemSectionMetadata_continueWatching(ct
 	return fc, nil
 }
 
+func (ec *executionContext) _ItemSectionMetadata_myList(ctx context.Context, field graphql.CollectedField, obj *model.ItemSectionMetadata) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MyList, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ItemSectionMetadata_myList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ItemSectionMetadata",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ItemSectionMetadata_secondaryTitles(ctx context.Context, field graphql.CollectedField, obj *model.ItemSectionMetadata) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 	if err != nil {
@@ -18197,6 +18264,8 @@ func (ec *executionContext) fieldContext_LabelSection_metadata(ctx context.Conte
 			switch field.Name {
 			case "continueWatching":
 				return ec.fieldContext_ItemSectionMetadata_continueWatching(ctx, field)
+			case "myList":
+				return ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
 			case "secondaryTitles":
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
@@ -20342,6 +20411,8 @@ func (ec *executionContext) fieldContext_ListSection_metadata(ctx context.Contex
 			switch field.Name {
 			case "continueWatching":
 				return ec.fieldContext_ItemSectionMetadata_continueWatching(ctx, field)
+			case "myList":
+				return ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
 			case "secondaryTitles":
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
@@ -20770,6 +20841,8 @@ func (ec *executionContext) fieldContext_MessageSection_metadata(ctx context.Con
 			switch field.Name {
 			case "continueWatching":
 				return ec.fieldContext_ItemSectionMetadata_continueWatching(ctx, field)
+			case "myList":
+				return ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
 			case "secondaryTitles":
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
@@ -22908,6 +22981,8 @@ func (ec *executionContext) fieldContext_PosterGridSection_metadata(ctx context.
 			switch field.Name {
 			case "continueWatching":
 				return ec.fieldContext_ItemSectionMetadata_continueWatching(ctx, field)
+			case "myList":
+				return ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
 			case "secondaryTitles":
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
@@ -23196,6 +23271,8 @@ func (ec *executionContext) fieldContext_PosterSection_metadata(ctx context.Cont
 			switch field.Name {
 			case "continueWatching":
 				return ec.fieldContext_ItemSectionMetadata_continueWatching(ctx, field)
+			case "myList":
+				return ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
 			case "secondaryTitles":
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
@@ -34502,6 +34579,8 @@ func (ec *executionContext) fieldContext_WebSection_metadata(ctx context.Context
 			switch field.Name {
 			case "continueWatching":
 				return ec.fieldContext_ItemSectionMetadata_continueWatching(ctx, field)
+			case "myList":
+				return ec.fieldContext_ItemSectionMetadata_myList(ctx, field)
 			case "secondaryTitles":
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
@@ -40065,6 +40144,13 @@ func (ec *executionContext) _ItemSectionMetadata(ctx context.Context, sel ast.Se
 		case "continueWatching":
 
 			out.Values[i] = ec._ItemSectionMetadata_continueWatching(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "myList":
+
+			out.Values[i] = ec._ItemSectionMetadata_myList(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

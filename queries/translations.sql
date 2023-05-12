@@ -236,3 +236,46 @@ FROM surveyquestions_translations ts
          JOIN surveyquestions items ON items.id = ts.surveyquestions_id
          JOIN surveys s ON s.id = items.survey_id AND s.status = ANY ('{published,unlisted}')
 WHERE ts.languages_code = ANY ($1::varchar[]);
+
+----------
+-- FAQ ---
+----------
+
+-- name: ListFAQOriginalTranslations :many
+SELECT items.id, items.question, items.answer
+FROM faqs items
+WHERE status = ANY ('{published,unlisted}');
+
+-- name: ListFAQTranslations :many
+WITH items AS (SELECT i.id
+               FROM faqs i
+               WHERE i.status = ANY ('{published,unlisted}'))
+SELECT ts.id, faqs_id as parent_id, languages_code, question, answer
+FROM faqs_translations ts
+         JOIN items i ON i.id = ts.faqs_id
+WHERE ts.languages_code = ANY ($1::varchar[]);
+
+-- name: ClearFAQTranslations :exec
+DELETE
+FROM faqs_translations ts
+WHERE ts.faqs_id = ANY ($1::uuid[]);
+
+
+-- name: ListFAQCategoryOriginalTranslations :many
+SELECT items.id, items.title, items.description
+FROM faqcategories items
+WHERE status = ANY ('{published,unlisted}');
+
+-- name: ListFAQCategoryTranslations :many
+WITH items AS (SELECT i.id
+               FROM faqcategories i
+               WHERE i.status = ANY ('{published,unlisted}'))
+SELECT ts.id, faqcategories_id as parent_id, languages_code, title, description
+FROM faqcategories_translations ts
+         JOIN items i ON i.id = ts.faqcategories_id
+WHERE ts.languages_code = ANY ($1::varchar[]);
+
+-- name: ClearFAQCategoryTranslations :exec
+DELETE
+FROM faqcategories_translations ts
+WHERE ts.faqcategories_id = ANY ($1::uuid[]);

@@ -104,6 +104,24 @@ type AchievementGroupsTranslation struct {
 	AchievementGroupsID string `json:"achievementgroups_id"`
 }
 
+// FaqsTranslation struct
+type FaqsTranslation struct {
+	ID            string `json:"id,omitempty"`
+	Question      string `json:"question"`
+	Answer        string `json:"answer"`
+	LanguagesCode string `json:"languages_code"`
+	FaqsID        string `json:"faqs_id"`
+}
+
+// FaqCategoriesTranslation struct
+type FaqCategoriesTranslation struct {
+	ID              string `json:"id,omitempty"`
+	Title           string `json:"title"`
+	Description     string `json:"description"`
+	LanguagesCode   string `json:"languages_code"`
+	FaqCategoriesID string `json:"faqcategories_id"`
+}
+
 // SurveysTranslation struct
 type SurveysTranslation struct {
 	ID            string `json:"id,omitempty"`
@@ -264,6 +282,42 @@ func (i AchievementGroupsTranslation) UID() string {
 // TypeName string
 func (AchievementGroupsTranslation) TypeName() string {
 	return "achievementgroups_translations"
+}
+
+// ForUpdate for update
+func (i FaqsTranslation) ForUpdate() any {
+	return map[string]string{
+		"question": i.Question,
+		"answer":   i.Answer,
+	}
+}
+
+// UID unique id
+func (i FaqsTranslation) UID() string {
+	return i.ID
+}
+
+// TypeName string
+func (FaqsTranslation) TypeName() string {
+	return "faqs_translations"
+}
+
+// ForUpdate for update
+func (i FaqCategoriesTranslation) ForUpdate() any {
+	return map[string]string{
+		"title":       i.Title,
+		"description": i.Description,
+	}
+}
+
+// UID unique id
+func (i FaqCategoriesTranslation) UID() string {
+	return i.ID
+}
+
+// TypeName string
+func (FaqCategoriesTranslation) TypeName() string {
+	return "faqcategories_translations"
 }
 
 type update struct {
