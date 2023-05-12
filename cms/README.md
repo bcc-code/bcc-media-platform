@@ -1,5 +1,5 @@
 
-# BrunstadTV CMS
+# BCC Media CMS
 
 # Local setup
 
@@ -15,9 +15,9 @@ If using windows (without wsl), you also need:
 
 ## Setup
 
-Run `make init`, which sets up the database and migrates it to the latest version.
+Run `make init` to build extensions and install them.
 
-Tip: You can quickly destroy your local db and run migrations again with `make reset`.
+Directus has no control over migrations, so run `make init` and `make migrate.up` in `/` to set up the database.
 
 ## Start the cms
 
