@@ -49,6 +49,7 @@ gum confirm "Really drop the btv database? Note that this will disconnect any co
 if [[ $DB_RESET == true ]]; then
 	gum style --bold "DROP database..."
 
+	# We need to disconnect all users before we can drop the database
 	echo "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = '${LOCALDB}' AND pid <> pg_backend_pid();" | psql -U btv -h localhost -d template1
 	echo "DROP DATABASE IF EXISTS ${LOCALDB};" | psql -h localhost -d template1
 	echo ":heavy_check_mark:  Database dropped" | gum format -t emoji
@@ -61,6 +62,13 @@ for f in $(find /Users/matjaz/prog/bcc.media/brunstadtv/scripts/../migrations/sp
 		psql -h localhost -d template1 -f $f
 	fi
 done
+
+gum confirm "Really create the btv database?" && RUN=true || RUN=false
+if [[ $RUN == true ]]; then
+	gum style --bold "Create database..."
+	echo "CREATE DATABASE btv WITH OWNER = manager ENCODING = 'UTF8' CONNECTION LIMIT = -1 IS_TEMPLATE = False;" | psql -h localhost -d template1
+	echo ":heavy_check_mark:  Database created" | gum format -t emoji
+fi
 
 gum confirm "Run migrations?" && RUN=true || RUN=false
 if [[ $RUN == true ]]; then
