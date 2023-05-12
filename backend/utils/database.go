@@ -17,7 +17,7 @@ type DatabaseConfig struct {
 }
 
 // MustCreateDBClient returns also a channel for async pinging
-func MustCreateDBClient(ctx context.Context, config DatabaseConfig) (*sql.DB, chan error) {
+func MustCreateDBClient(ctx context.Context, config DatabaseConfig) (*sql.DB, <-chan error) {
 	log.L.Debug().Str("DBConnString", config.ConnectionString).Msg("Connection to DB")
 
 	db, err := otelsql.Open("postgres", config.ConnectionString, otelsql.WithAttributes(
