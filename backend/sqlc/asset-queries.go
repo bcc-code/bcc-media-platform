@@ -2,6 +2,7 @@ package sqlc
 
 import (
 	"context"
+
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
 )
@@ -18,6 +19,8 @@ func toFiles(items []getFilesForAssetsRow) []common.File {
 			Path:             f.Path,
 			Storage:          f.Storage,
 			MimeType:         f.MimeType,
+			Size:             int(f.Size),
+			Resolution:       f.Resolution.String,
 		}
 	})
 }
