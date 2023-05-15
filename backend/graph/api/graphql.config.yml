@@ -1,0 +1,7 @@
+schema: schema/*
+extensions:
+  endpoints:
+    Debug:
+      url: "http://localhost:8077/query"
+    Production:
+      url: "https://api.brunstad.tv/query"
