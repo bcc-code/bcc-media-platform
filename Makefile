@@ -6,9 +6,6 @@ help:
 run:
 	@echo "No 'run' here. Try switching to a subfolder like 'cms' or 'backend' and doing 'make run' there."
 
-release:
-	./scripts/new-release.sh
-
 install:
 	docker compose up -d --wait
 	cd ./migrations && PGPASSWORD=btv123 make install
@@ -21,6 +18,9 @@ diff:
 	./scripts/db_diff.sh $(name)
 	cd ./migrations
 	cd ./backend && make ./sqlc/.generated
+
+db.init:
+	./scripts/db_manage.sh
 
 migrate.up:
 	cd ./migrations && goose postgres "postgres://btv:btv123@localhost:5432/btv?sslmode=disable" up

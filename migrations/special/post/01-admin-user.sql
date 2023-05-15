@@ -1,3 +1,4 @@
+-- Create the default directus admin user
 INSERT INTO public.directus_users (id, first_name, last_name, email, password, location, title, description, tags,
                                    avatar, language, theme, tfa_secret, status, role, token, last_access, last_page,
                                    provider, external_identifier, auth_data, email_notifications)
