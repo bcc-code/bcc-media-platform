@@ -7,7 +7,6 @@ package graph
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -310,8 +309,18 @@ func (r *episodeResolver) InMyList(ctx context.Context, obj *model.Episode) (boo
 
 // Next is the resolver for the next field.
 func (r *episodeResolver) Next(ctx context.Context, obj *model.Episode) ([]*model.Episode, error) {
-
-	panic(fmt.Errorf("not implemented: Next - next"))
+	next, err := r.getNextEpisodes(ctx, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	var episodes []*model.Episode
+	for _, id := range next {
+		ep, err := r.QueryRoot().Episode(ctx, strconv.Itoa(id), nil)
+		if err == nil && ep != nil {
+			episodes = append(episodes, ep)
+		}
+	}
+	return episodes, nil
 }
 
 // Episode returns generated.EpisodeResolver implementation.

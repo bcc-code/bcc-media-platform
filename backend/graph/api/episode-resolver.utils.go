@@ -12,6 +12,10 @@ func (r *episodeResolver) getEpisodeContext(ctx context.Context, episodeId strin
 	episodeContext, ok := ginCtx.Value(episodeContextKey).(common.EpisodeContext)
 
 	if !ok {
+		_, err := getProfile(ctx)
+		if err != nil {
+			return episodeContext, nil
+		}
 		progress, err := r.ProfileLoaders(ctx).ProgressLoader.Get(ctx, utils.AsInt(episodeId))
 		if err != nil {
 			return episodeContext, err
@@ -31,7 +35,7 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeId string)
 	}
 
 	if episodeContext.CollectionID.Valid {
-		items, err := r.Loaders.CollectionItemLoader.Get(ctx, int(episodeContext.CollectionID.Int64))
+		items, err := r.GetFilteredLoaders(ctx).CollectionItemsLoader.Get(ctx, int(episodeContext.CollectionID.Int64))
 		if err != nil {
 			return nil, err
 		}
@@ -39,7 +43,7 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeId string)
 			return i.Type == common.TypeEpisode
 		})
 		_, index, found := lo.FindIndexOf(items, func(i *common.CollectionItem) bool {
-			return i.ID == utils.AsInt(episodeId)
+			return i.ItemID == episodeId
 		})
 		if !found || index >= len(items)-1 {
 			return nil, nil
