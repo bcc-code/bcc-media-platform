@@ -113,11 +113,11 @@ type UserCollectionEntryItem interface {
 type Achievement struct {
 	ID          string            `json:"id"`
 	Title       string            `json:"title"`
-	Description *string           `json:"description"`
-	Image       *string           `json:"image"`
+	Description *string           `json:"description,omitempty"`
+	Image       *string           `json:"image,omitempty"`
 	Achieved    bool              `json:"achieved"`
-	AchievedAt  *string           `json:"achievedAt"`
-	Group       *AchievementGroup `json:"group"`
+	AchievedAt  *string           `json:"achievedAt,omitempty"`
+	Group       *AchievementGroup `json:"group,omitempty"`
 }
 
 type AchievementGroup struct {
@@ -152,8 +152,8 @@ func (this AchievementPagination) GetOffset() int { return this.Offset }
 
 type AchievementSection struct {
 	ID          string  `json:"id"`
-	Title       *string `json:"title"`
-	Description *string `json:"description"`
+	Title       *string `json:"title,omitempty"`
+	Description *string `json:"description,omitempty"`
 }
 
 func (AchievementSection) IsSection()                   {}
@@ -169,7 +169,7 @@ type AddToCollectionResult struct {
 type Alternative struct {
 	ID        string `json:"id"`
 	Title     string `json:"title"`
-	IsCorrect *bool  `json:"isCorrect"`
+	IsCorrect *bool  `json:"isCorrect,omitempty"`
 	Selected  bool   `json:"selected"`
 }
 
@@ -199,8 +199,8 @@ type Application struct {
 	ID            string `json:"id"`
 	Code          string `json:"code"`
 	ClientVersion string `json:"clientVersion"`
-	Page          *Page  `json:"page"`
-	SearchPage    *Page  `json:"searchPage"`
+	Page          *Page  `json:"page,omitempty"`
+	SearchPage    *Page  `json:"searchPage,omitempty"`
 }
 
 type BirthOptions struct {
@@ -224,9 +224,9 @@ type CalendarPeriod struct {
 
 type CardListSection struct {
 	ID          string                 `json:"id"`
-	Metadata    *ItemSectionMetadata   `json:"metadata"`
-	Title       *string                `json:"title"`
-	Description *string                `json:"description"`
+	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
+	Title       *string                `json:"title,omitempty"`
+	Description *string                `json:"description,omitempty"`
 	Size        CardSectionSize        `json:"size"`
 	Items       *SectionItemPagination `json:"items"`
 }
@@ -244,9 +244,9 @@ func (this CardListSection) GetItems() *SectionItemPagination { return this.Item
 
 type CardSection struct {
 	ID          string                 `json:"id"`
-	Metadata    *ItemSectionMetadata   `json:"metadata"`
-	Title       *string                `json:"title"`
-	Description *string                `json:"description"`
+	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
+	Title       *string                `json:"title,omitempty"`
+	Description *string                `json:"description,omitempty"`
 	Size        CardSectionSize        `json:"size"`
 	Items       *SectionItemPagination `json:"items"`
 }
@@ -270,8 +270,8 @@ type Chapter struct {
 
 type Collection struct {
 	ID    string                    `json:"id"`
-	Slug  *string                   `json:"slug"`
-	Items *CollectionItemPagination `json:"items"`
+	Slug  *string                   `json:"slug,omitempty"`
+	Items *CollectionItemPagination `json:"items,omitempty"`
 }
 
 type CollectionItemPagination struct {
@@ -296,17 +296,17 @@ type ConfirmAchievementResult struct {
 
 type ContextCollection struct {
 	ID    string                 `json:"id"`
-	Slug  *string                `json:"slug"`
-	Items *SectionItemPagination `json:"items"`
+	Slug  *string                `json:"slug,omitempty"`
+	Items *SectionItemPagination `json:"items,omitempty"`
 }
 
 func (ContextCollection) IsEpisodeContextUnion() {}
 
 type DefaultGridSection struct {
 	ID          string                 `json:"id"`
-	Metadata    *ItemSectionMetadata   `json:"metadata"`
-	Title       *string                `json:"title"`
-	Description *string                `json:"description"`
+	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
+	Title       *string                `json:"title,omitempty"`
+	Description *string                `json:"description,omitempty"`
 	Size        GridSectionSize        `json:"size"`
 	Items       *SectionItemPagination `json:"items"`
 }
@@ -328,9 +328,9 @@ func (this DefaultGridSection) GetSize() GridSectionSize { return this.Size }
 
 type DefaultSection struct {
 	ID          string                 `json:"id"`
-	Metadata    *ItemSectionMetadata   `json:"metadata"`
-	Title       *string                `json:"title"`
-	Description *string                `json:"description"`
+	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
+	Title       *string                `json:"title,omitempty"`
+	Description *string                `json:"description,omitempty"`
 	Size        SectionSize            `json:"size"`
 	Items       *SectionItemPagination `json:"items"`
 }
@@ -356,8 +356,8 @@ type Episode struct {
 	UUID                  string                 `json:"uuid"`
 	Status                Status                 `json:"status"`
 	Type                  EpisodeType            `json:"type"`
-	LegacyID              *string                `json:"legacyID"`
-	LegacyProgramID       *string                `json:"legacyProgramID"`
+	LegacyID              *string                `json:"legacyID,omitempty"`
+	LegacyProgramID       *string                `json:"legacyProgramID,omitempty"`
 	Locked                bool                   `json:"locked"`
 	PublishDate           string                 `json:"publishDate"`
 	ProductionDate        string                 `json:"productionDate"`
@@ -368,21 +368,21 @@ type Episode struct {
 	Title                 string                 `json:"title"`
 	Description           string                 `json:"description"`
 	ExtraDescription      string                 `json:"extraDescription"`
-	Image                 *string                `json:"image"`
-	ImageURL              *string                `json:"imageUrl"`
+	Image                 *string                `json:"image,omitempty"`
+	ImageURL              *string                `json:"imageUrl,omitempty"`
 	Streams               []*Stream              `json:"streams"`
 	Files                 []*File                `json:"files"`
 	Chapters              []*Chapter             `json:"chapters"`
-	Season                *Season                `json:"season"`
+	Season                *Season                `json:"season,omitempty"`
 	Duration              int                    `json:"duration"`
-	Progress              *int                   `json:"progress"`
+	Progress              *int                   `json:"progress,omitempty"`
 	Watched               bool                   `json:"watched"`
 	AudioLanguages        []string               `json:"audioLanguages"`
 	SubtitleLanguages     []string               `json:"subtitleLanguages"`
-	Context               EpisodeContextUnion    `json:"context"`
-	RelatedItems          *SectionItemPagination `json:"relatedItems"`
+	Context               EpisodeContextUnion    `json:"context,omitempty"`
+	RelatedItems          *SectionItemPagination `json:"relatedItems,omitempty"`
 	Images                []*Image               `json:"images"`
-	Number                *int                   `json:"number"`
+	Number                *int                   `json:"number,omitempty"`
 	Lessons               *LessonPagination      `json:"lessons"`
 	ShareRestriction      ShareRestriction       `json:"shareRestriction"`
 	InMyList              bool                   `json:"inMyList"`
@@ -394,13 +394,13 @@ func (Episode) IsUserCollectionEntryItem() {}
 
 type EpisodeCalendarEntry struct {
 	ID          string   `json:"id"`
-	Event       *Event   `json:"event"`
+	Event       *Event   `json:"event,omitempty"`
 	Title       string   `json:"title"`
 	Description string   `json:"description"`
 	Start       string   `json:"start"`
 	End         string   `json:"end"`
 	IsReplay    bool     `json:"isReplay"`
-	Episode     *Episode `json:"episode"`
+	Episode     *Episode `json:"episode,omitempty"`
 }
 
 func (EpisodeCalendarEntry) IsCalendarEntry()            {}
@@ -412,14 +412,14 @@ func (this EpisodeCalendarEntry) GetStart() string       { return this.Start }
 func (this EpisodeCalendarEntry) GetEnd() string         { return this.End }
 
 type EpisodeContext struct {
-	CollectionID *string `json:"collectionId"`
+	CollectionID *string `json:"collectionId,omitempty"`
 }
 
 type EpisodeItem struct {
 	ID       string   `json:"id"`
 	Sort     int      `json:"sort"`
 	Title    string   `json:"title"`
-	ImageURL *string  `json:"imageUrl"`
+	ImageURL *string  `json:"imageUrl,omitempty"`
 	Images   []*Image `json:"images"`
 	Episode  *Episode `json:"episode"`
 }
@@ -454,23 +454,23 @@ func (this EpisodePagination) GetOffset() int { return this.Offset }
 
 type EpisodeSearchItem struct {
 	ID              string  `json:"id"`
-	LegacyID        *string `json:"legacyID"`
-	LegacyProgramID *string `json:"legacyProgramID"`
+	LegacyID        *string `json:"legacyID,omitempty"`
+	LegacyProgramID *string `json:"legacyProgramID,omitempty"`
 	Duration        int     `json:"duration"`
 	AgeRating       string  `json:"ageRating"`
 	Collection      string  `json:"collection"`
 	Title           string  `json:"title"`
-	Header          *string `json:"header"`
-	Description     *string `json:"description"`
-	Highlight       *string `json:"highlight"`
-	Image           *string `json:"image"`
+	Header          *string `json:"header,omitempty"`
+	Description     *string `json:"description,omitempty"`
+	Highlight       *string `json:"highlight,omitempty"`
+	Image           *string `json:"image,omitempty"`
 	URL             string  `json:"url"`
-	ShowID          *string `json:"showId"`
-	ShowTitle       *string `json:"showTitle"`
-	Show            *Show   `json:"show"`
-	SeasonID        *string `json:"seasonId"`
-	SeasonTitle     *string `json:"seasonTitle"`
-	Season          *Season `json:"season"`
+	ShowID          *string `json:"showId,omitempty"`
+	ShowTitle       *string `json:"showTitle,omitempty"`
+	Show            *Show   `json:"show,omitempty"`
+	SeasonID        *string `json:"seasonId,omitempty"`
+	SeasonTitle     *string `json:"seasonTitle,omitempty"`
+	Season          *Season `json:"season,omitempty"`
 }
 
 func (EpisodeSearchItem) IsSearchResultItem()          {}
@@ -498,7 +498,7 @@ type Export struct {
 }
 
 type Faq struct {
-	Categories *FAQCategoryPagination `json:"categories"`
+	Categories *FAQCategoryPagination `json:"categories,omitempty"`
 	Category   *FAQCategory           `json:"category"`
 	Question   *Question              `json:"question"`
 }
@@ -506,7 +506,7 @@ type Faq struct {
 type FAQCategory struct {
 	ID        string              `json:"id"`
 	Title     string              `json:"title"`
-	Questions *QuestionPagination `json:"questions"`
+	Questions *QuestionPagination `json:"questions,omitempty"`
 }
 
 type FAQCategoryPagination struct {
@@ -523,9 +523,9 @@ func (this FAQCategoryPagination) GetOffset() int { return this.Offset }
 
 type FeaturedSection struct {
 	ID          string                 `json:"id"`
-	Metadata    *ItemSectionMetadata   `json:"metadata"`
-	Title       *string                `json:"title"`
-	Description *string                `json:"description"`
+	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
+	Title       *string                `json:"title,omitempty"`
+	Description *string                `json:"description,omitempty"`
 	Size        SectionSize            `json:"size"`
 	Items       *SectionItemPagination `json:"items"`
 }
@@ -545,8 +545,8 @@ type File struct {
 	ID               string  `json:"id"`
 	URL              string  `json:"url"`
 	AudioLanguage    string  `json:"audioLanguage"`
-	SubtitleLanguage *string `json:"subtitleLanguage"`
-	Size             *int    `json:"size"`
+	SubtitleLanguage *string `json:"subtitleLanguage,omitempty"`
+	Size             *int    `json:"size,omitempty"`
 	FileName         string  `json:"fileName"`
 	MimeType         string  `json:"mimeType"`
 }
@@ -558,9 +558,9 @@ type GlobalConfig struct {
 
 type IconGridSection struct {
 	ID          string                 `json:"id"`
-	Metadata    *ItemSectionMetadata   `json:"metadata"`
-	Title       *string                `json:"title"`
-	Description *string                `json:"description"`
+	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
+	Title       *string                `json:"title,omitempty"`
+	Description *string                `json:"description,omitempty"`
 	Size        GridSectionSize        `json:"size"`
 	Items       *SectionItemPagination `json:"items"`
 }
@@ -582,9 +582,9 @@ func (this IconGridSection) GetSize() GridSectionSize { return this.Size }
 
 type IconSection struct {
 	ID          string                 `json:"id"`
-	Metadata    *ItemSectionMetadata   `json:"metadata"`
-	Title       *string                `json:"title"`
-	Description *string                `json:"description"`
+	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
+	Title       *string                `json:"title,omitempty"`
+	Description *string                `json:"description,omitempty"`
 	Items       *SectionItemPagination `json:"items"`
 }
 
@@ -615,9 +615,9 @@ type ItemSectionMetadata struct {
 
 type LabelSection struct {
 	ID          string                 `json:"id"`
-	Metadata    *ItemSectionMetadata   `json:"metadata"`
-	Title       *string                `json:"title"`
-	Description *string                `json:"description"`
+	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
+	Title       *string                `json:"title,omitempty"`
+	Description *string                `json:"description,omitempty"`
 	Items       *SectionItemPagination `json:"items"`
 }
 
@@ -637,27 +637,27 @@ type LegacyIDLookup struct {
 }
 
 type LegacyIDLookupOptions struct {
-	EpisodeID *int `json:"episodeID"`
-	ProgramID *int `json:"programID"`
+	EpisodeID *int `json:"episodeID,omitempty"`
+	ProgramID *int `json:"programID,omitempty"`
 }
 
 type Lesson struct {
 	ID          string          `json:"id"`
 	Title       string          `json:"title"`
 	Description string          `json:"description"`
-	Image       *string         `json:"image"`
+	Image       *string         `json:"image,omitempty"`
 	Tasks       *TaskPagination `json:"tasks"`
 	Topic       *StudyTopic     `json:"topic"`
 	// The default episode.
 	// Should not be used actively in lists, as it could affect query speeds.
-	DefaultEpisode *Episode           `json:"defaultEpisode"`
+	DefaultEpisode *Episode           `json:"defaultEpisode,omitempty"`
 	Episodes       *EpisodePagination `json:"episodes"`
 	Links          *LinkPagination    `json:"links"`
 	Progress       *TasksProgress     `json:"progress"`
 	Completed      bool               `json:"completed"`
 	Locked         bool               `json:"locked"`
-	Previous       *Lesson            `json:"previous"`
-	Next           *Lesson            `json:"next"`
+	Previous       *Lesson            `json:"previous,omitempty"`
+	Next           *Lesson            `json:"next,omitempty"`
 }
 
 type LessonPagination struct {
@@ -681,9 +681,9 @@ type Link struct {
 	ID          string   `json:"id"`
 	URL         string   `json:"url"`
 	Title       string   `json:"title"`
-	Description *string  `json:"description"`
+	Description *string  `json:"description,omitempty"`
 	Type        LinkType `json:"type"`
-	Image       *string  `json:"image"`
+	Image       *string  `json:"image,omitempty"`
 }
 
 func (Link) IsSectionItemType() {}
@@ -705,8 +705,8 @@ type LinkTask struct {
 	Title          string  `json:"title"`
 	Completed      bool    `json:"completed"`
 	Link           *Link   `json:"link"`
-	SecondaryTitle *string `json:"secondaryTitle"`
-	Description    *string `json:"description"`
+	SecondaryTitle *string `json:"secondaryTitle,omitempty"`
+	Description    *string `json:"description,omitempty"`
 }
 
 func (LinkTask) IsTask()                 {}
@@ -716,9 +716,9 @@ func (this LinkTask) GetCompleted() bool { return this.Completed }
 
 type ListSection struct {
 	ID          string                 `json:"id"`
-	Metadata    *ItemSectionMetadata   `json:"metadata"`
-	Title       *string                `json:"title"`
-	Description *string                `json:"description"`
+	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
+	Title       *string                `json:"title,omitempty"`
+	Description *string                `json:"description,omitempty"`
 	Size        SectionSize            `json:"size"`
 	Items       *SectionItemPagination `json:"items"`
 }
@@ -742,10 +742,10 @@ type Message struct {
 
 type MessageSection struct {
 	ID          string               `json:"id"`
-	Metadata    *ItemSectionMetadata `json:"metadata"`
-	Title       *string              `json:"title"`
-	Description *string              `json:"description"`
-	Messages    []*Message           `json:"messages"`
+	Metadata    *ItemSectionMetadata `json:"metadata,omitempty"`
+	Title       *string              `json:"title,omitempty"`
+	Description *string              `json:"description,omitempty"`
+	Messages    []*Message           `json:"messages,omitempty"`
 }
 
 func (MessageSection) IsSection()                   {}
@@ -768,8 +768,8 @@ type Page struct {
 	ID          string             `json:"id"`
 	Code        string             `json:"code"`
 	Title       string             `json:"title"`
-	Description *string            `json:"description"`
-	Image       *string            `json:"image"`
+	Description *string            `json:"description,omitempty"`
+	Image       *string            `json:"image,omitempty"`
 	Images      []*Image           `json:"images"`
 	Sections    *SectionPagination `json:"sections"`
 }
@@ -778,8 +778,8 @@ func (Page) IsSectionItemType() {}
 
 type PageDetailsSection struct {
 	ID          string  `json:"id"`
-	Title       *string `json:"title"`
-	Description *string `json:"description"`
+	Title       *string `json:"title,omitempty"`
+	Description *string `json:"description,omitempty"`
 }
 
 func (PageDetailsSection) IsSection()                   {}
@@ -791,7 +791,7 @@ type PageItem struct {
 	ID       string   `json:"id"`
 	Sort     int      `json:"sort"`
 	Title    string   `json:"title"`
-	ImageURL *string  `json:"imageUrl"`
+	ImageURL *string  `json:"imageUrl,omitempty"`
 	Images   []*Image `json:"images"`
 	Page     *Page    `json:"page"`
 }
@@ -814,9 +814,9 @@ func (this PageItem) GetImages() []*Image {
 
 type PosterGridSection struct {
 	ID          string                 `json:"id"`
-	Metadata    *ItemSectionMetadata   `json:"metadata"`
-	Title       *string                `json:"title"`
-	Description *string                `json:"description"`
+	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
+	Title       *string                `json:"title,omitempty"`
+	Description *string                `json:"description,omitempty"`
 	Size        GridSectionSize        `json:"size"`
 	Items       *SectionItemPagination `json:"items"`
 }
@@ -838,9 +838,9 @@ func (this PosterGridSection) GetSize() GridSectionSize { return this.Size }
 
 type PosterSection struct {
 	ID          string                 `json:"id"`
-	Metadata    *ItemSectionMetadata   `json:"metadata"`
-	Title       *string                `json:"title"`
-	Description *string                `json:"description"`
+	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
+	Title       *string                `json:"title,omitempty"`
+	Description *string                `json:"description,omitempty"`
 	Size        SectionSize            `json:"size"`
 	Items       *SectionItemPagination `json:"items"`
 }
@@ -921,13 +921,13 @@ type SearchResult struct {
 
 type Season struct {
 	ID          string   `json:"id"`
-	LegacyID    *string  `json:"legacyID"`
+	LegacyID    *string  `json:"legacyID,omitempty"`
 	Status      Status   `json:"status"`
 	AgeRating   string   `json:"ageRating"`
 	Title       string   `json:"title"`
 	Description string   `json:"description"`
-	Image       *string  `json:"image"`
-	ImageURL    *string  `json:"imageUrl"`
+	Image       *string  `json:"image,omitempty"`
+	ImageURL    *string  `json:"imageUrl,omitempty"`
 	Images      []*Image `json:"images"`
 	Number      int      `json:"number"`
 	Show        *Show    `json:"show"`
@@ -943,12 +943,12 @@ func (Season) IsSectionItemType() {}
 
 type SeasonCalendarEntry struct {
 	ID          string  `json:"id"`
-	Event       *Event  `json:"event"`
+	Event       *Event  `json:"event,omitempty"`
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
 	Start       string  `json:"start"`
 	End         string  `json:"end"`
-	Season      *Season `json:"season"`
+	Season      *Season `json:"season,omitempty"`
 }
 
 func (SeasonCalendarEntry) IsCalendarEntry()            {}
@@ -963,7 +963,7 @@ type SeasonItem struct {
 	ID       string   `json:"id"`
 	Sort     int      `json:"sort"`
 	Title    string   `json:"title"`
-	ImageURL *string  `json:"imageUrl"`
+	ImageURL *string  `json:"imageUrl,omitempty"`
 	Images   []*Image `json:"images"`
 	Season   *Season  `json:"season"`
 }
@@ -998,14 +998,14 @@ func (this SeasonPagination) GetOffset() int { return this.Offset }
 
 type SeasonSearchItem struct {
 	ID          string  `json:"id"`
-	LegacyID    *string `json:"legacyID"`
+	LegacyID    *string `json:"legacyID,omitempty"`
 	AgeRating   string  `json:"ageRating"`
 	Collection  string  `json:"collection"`
 	Title       string  `json:"title"`
-	Header      *string `json:"header"`
-	Description *string `json:"description"`
-	Highlight   *string `json:"highlight"`
-	Image       *string `json:"image"`
+	Header      *string `json:"header,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Highlight   *string `json:"highlight,omitempty"`
+	Image       *string `json:"image,omitempty"`
 	URL         string  `json:"url"`
 	ShowID      string  `json:"showId"`
 	ShowTitle   string  `json:"showTitle"`
@@ -1028,7 +1028,7 @@ type SectionItem struct {
 	Sort        int             `json:"sort"`
 	Title       string          `json:"title"`
 	Description string          `json:"description"`
-	Image       *string         `json:"image"`
+	Image       *string         `json:"image,omitempty"`
 	Item        SectionItemType `json:"item"`
 }
 
@@ -1063,13 +1063,13 @@ type Settings struct {
 
 type Show struct {
 	ID           string            `json:"id"`
-	LegacyID     *string           `json:"legacyID"`
+	LegacyID     *string           `json:"legacyID,omitempty"`
 	Status       Status            `json:"status"`
 	Type         ShowType          `json:"type"`
 	Title        string            `json:"title"`
 	Description  string            `json:"description"`
-	Image        *string           `json:"image"`
-	ImageURL     *string           `json:"imageUrl"`
+	Image        *string           `json:"image,omitempty"`
+	ImageURL     *string           `json:"imageUrl,omitempty"`
 	Images       []*Image          `json:"images"`
 	EpisodeCount int               `json:"episodeCount"`
 	SeasonCount  int               `json:"seasonCount"`
@@ -1085,12 +1085,12 @@ func (Show) IsUserCollectionEntryItem() {}
 
 type ShowCalendarEntry struct {
 	ID          string `json:"id"`
-	Event       *Event `json:"event"`
+	Event       *Event `json:"event,omitempty"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Start       string `json:"start"`
 	End         string `json:"end"`
-	Show        *Show  `json:"show"`
+	Show        *Show  `json:"show,omitempty"`
 }
 
 func (ShowCalendarEntry) IsCalendarEntry()            {}
@@ -1105,7 +1105,7 @@ type ShowItem struct {
 	ID       string   `json:"id"`
 	Sort     int      `json:"sort"`
 	Title    string   `json:"title"`
-	ImageURL *string  `json:"imageUrl"`
+	ImageURL *string  `json:"imageUrl,omitempty"`
 	Images   []*Image `json:"images"`
 	Show     *Show    `json:"show"`
 }
@@ -1128,13 +1128,13 @@ func (this ShowItem) GetImages() []*Image {
 
 type ShowSearchItem struct {
 	ID          string  `json:"id"`
-	LegacyID    *string `json:"legacyID"`
+	LegacyID    *string `json:"legacyID,omitempty"`
 	Collection  string  `json:"collection"`
 	Title       string  `json:"title"`
-	Header      *string `json:"header"`
-	Description *string `json:"description"`
-	Highlight   *string `json:"highlight"`
-	Image       *string `json:"image"`
+	Header      *string `json:"header,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Highlight   *string `json:"highlight,omitempty"`
+	Image       *string `json:"image,omitempty"`
 	URL         string  `json:"url"`
 }
 
@@ -1151,7 +1151,7 @@ func (this ShowSearchItem) GetURL() string          { return this.URL }
 
 type SimpleCalendarEntry struct {
 	ID          string `json:"id"`
-	Event       *Event `json:"event"`
+	Event       *Event `json:"event,omitempty"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Start       string `json:"start"`
@@ -1178,7 +1178,7 @@ type StudyTopic struct {
 	ID          string   `json:"id"`
 	Title       string   `json:"title"`
 	Description string   `json:"description"`
-	Image       *string  `json:"image"`
+	Image       *string  `json:"image,omitempty"`
 	Images      []*Image `json:"images"`
 	// The default lesson.
 	// Should not be used actively in lists, as it could affect query speeds.
@@ -1192,7 +1192,7 @@ func (StudyTopic) IsSectionItemType() {}
 type Survey struct {
 	ID          string                    `json:"id"`
 	Title       string                    `json:"title"`
-	Description *string                   `json:"description"`
+	Description *string                   `json:"description,omitempty"`
 	Questions   *SurveyQuestionPagination `json:"questions"`
 }
 
@@ -1225,7 +1225,7 @@ func (this SurveyQuestionPagination) GetOffset() int { return this.Offset }
 type SurveyRatingQuestion struct {
 	ID          string  `json:"id"`
 	Title       string  `json:"title"`
-	Description *string `json:"description"`
+	Description *string `json:"description,omitempty"`
 }
 
 func (SurveyRatingQuestion) IsSurveyQuestion()            {}
@@ -1236,7 +1236,7 @@ func (this SurveyRatingQuestion) GetDescription() *string { return this.Descript
 type SurveyTextQuestion struct {
 	ID          string  `json:"id"`
 	Title       string  `json:"title"`
-	Description *string `json:"description"`
+	Description *string `json:"description,omitempty"`
 }
 
 func (SurveyTextQuestion) IsSurveyQuestion()            {}
@@ -1273,11 +1273,11 @@ func (this TextTask) GetTitle() string   { return this.Title }
 func (this TextTask) GetCompleted() bool { return this.Completed }
 
 type User struct {
-	ID                    *string    `json:"id"`
+	ID                    *string    `json:"id,omitempty"`
 	Anonymous             bool       `json:"anonymous"`
 	BccMember             bool       `json:"bccMember"`
-	Audience              *string    `json:"audience"`
-	Email                 *string    `json:"email"`
+	Audience              *string    `json:"audience,omitempty"`
+	Email                 *string    `json:"email,omitempty"`
 	EmailVerified         bool       `json:"emailVerified"`
 	Settings              *Settings  `json:"settings"`
 	Roles                 []string   `json:"roles"`
@@ -1316,8 +1316,8 @@ type VideoTask struct {
 	Title          string   `json:"title"`
 	Completed      bool     `json:"completed"`
 	Episode        *Episode `json:"episode"`
-	SecondaryTitle *string  `json:"secondaryTitle"`
-	Description    *string  `json:"description"`
+	SecondaryTitle *string  `json:"secondaryTitle,omitempty"`
+	Description    *string  `json:"description,omitempty"`
 }
 
 func (VideoTask) IsTask()                 {}
@@ -1327,13 +1327,13 @@ func (this VideoTask) GetCompleted() bool { return this.Completed }
 
 type WebSection struct {
 	ID             string               `json:"id"`
-	Metadata       *ItemSectionMetadata `json:"metadata"`
-	Title          *string              `json:"title"`
-	Description    *string              `json:"description"`
+	Metadata       *ItemSectionMetadata `json:"metadata,omitempty"`
+	Title          *string              `json:"title,omitempty"`
+	Description    *string              `json:"description,omitempty"`
 	URL            string               `json:"url"`
 	WidthRatio     float64              `json:"widthRatio"`
-	AspectRatio    *float64             `json:"aspectRatio"`
-	Height         *int                 `json:"height"`
+	AspectRatio    *float64             `json:"aspectRatio,omitempty"`
+	Height         *int                 `json:"height,omitempty"`
 	Authentication bool                 `json:"authentication"`
 }
 

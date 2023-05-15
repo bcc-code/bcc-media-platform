@@ -25,13 +25,13 @@ install-dep-macos:
 	brew install sqlc
 
 gql.api:
-	cd graph/api && gqlgen
+	cd graph/api && go run github.com/99designs/gqlgen
 
 gql.public:
-	cd graph/public && gqlgen
+	cd graph/public && go run github.com/99designs/gqlgen
 
 gql.admin:
-	cd graph/admin && gqlgen
+	cd graph/admin && go run github.com/99designs/gqlgen
 
 gql: gql.api gql.public gql.admin
 

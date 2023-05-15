@@ -36683,10 +36683,11 @@ func (ec *executionContext) unmarshalInputBirthOptions(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
-			it.Year, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Year = data
 		}
 	}
 
@@ -36711,10 +36712,11 @@ func (ec *executionContext) unmarshalInputEpisodeContext(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("collectionId"))
-			it.CollectionID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CollectionID = data
 		}
 	}
 
@@ -36739,18 +36741,20 @@ func (ec *executionContext) unmarshalInputLegacyIDLookupOptions(ctx context.Cont
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("episodeID"))
-			it.EpisodeID, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.EpisodeID = data
 		case "programID":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("programID"))
-			it.ProgramID, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ProgramID = data
 		}
 	}
 
@@ -36775,18 +36779,20 @@ func (ec *executionContext) unmarshalInputNameOptions(ctx context.Context, obj i
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-			it.First, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.First = data
 		case "last":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-			it.Last, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Last = data
 		}
 	}
 
