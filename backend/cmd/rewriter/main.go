@@ -176,6 +176,19 @@ func metaHandler[T any](rw *rewriter, factory func(string) *T, optFactory func(*
 	}
 }
 
+func defaultHandler(rw *rewriter) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		h, err := rw.getDefaultHtmlString()
+		if err != nil {
+			log.L.Error().Err(err).Msg("error occurred trying to retrieve default html")
+		}
+
+		ctx.Header("Content-Type", "text/html")
+		ctx.String(200, h)
+		return
+	}
+}
+
 func episodeHandler(rw *rewriter) gin.HandlerFunc {
 	return metaHandler(rw, getEpisode, metaForEpisode)
 }
@@ -201,6 +214,7 @@ func main() {
 	r := gin.Default()
 
 	r.GET("episode/:id", episodeHandler(rw))
+	r.GET("episode/:id/*default", defaultHandler(rw))
 
 	r.GET("/versionz", version.GinHandler)
 
