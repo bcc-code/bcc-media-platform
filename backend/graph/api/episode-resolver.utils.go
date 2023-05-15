@@ -7,33 +7,39 @@ import (
 	"github.com/samber/lo"
 )
 
-func (r *episodeResolver) getEpisodeContext(ctx context.Context, episodeId string) (common.EpisodeContext, error) {
+func (r *episodeResolver) getEpisodeContext(ctx context.Context, episodeID string) (common.EpisodeContext, error) {
 	ginCtx, _ := utils.GinCtx(ctx)
 	episodeContext, ok := ginCtx.Value(episodeContextKey).(common.EpisodeContext)
 
-	if !ok {
-		_, err := getProfile(ctx)
-		if err != nil {
-			return episodeContext, nil
-		}
-		progress, err := r.ProfileLoaders(ctx).ProgressLoader.Get(ctx, utils.AsInt(episodeId))
-		if err != nil {
-			return episodeContext, err
-		}
-		if progress != nil {
-			episodeContext = progress.Context
-		}
+	if ok {
+		return episodeContext, nil
+	}
+
+	_, err := getProfile(ctx)
+	if err != nil {
+		return episodeContext, nil
+	}
+	progress, err := r.ProfileLoaders(ctx).ProgressLoader.Get(ctx, utils.AsInt(episodeID))
+	if err != nil {
+		return episodeContext, err
+	}
+	if progress != nil {
+		episodeContext = progress.Context
 	}
 
 	return episodeContext, nil
 }
 
-func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeId string) ([]int, error) {
-	episodeContext, err := r.getEpisodeContext(ctx, episodeId)
+func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string) ([]int, error) {
+	episodeContext, err := r.getEpisodeContext(ctx, episodeID)
 	if err != nil {
 		return nil, err
 	}
 
+	var episodeIDs []int
+
+	// If the EpisodeContext has a valid CollectionID, use the collectionID to retrieve episodeIDs
+	// else, use the episodes in the season (if any)
 	if episodeContext.CollectionID.Valid {
 		items, err := r.GetFilteredLoaders(ctx).CollectionItemsLoader.Get(ctx, int(episodeContext.CollectionID.Int64))
 		if err != nil {
@@ -42,32 +48,25 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeId string)
 		items = lo.Filter(items, func(i *common.CollectionItem, _ int) bool {
 			return i.Type == common.TypeEpisode
 		})
-		_, index, found := lo.FindIndexOf(items, func(i *common.CollectionItem) bool {
-			return i.ItemID == episodeId
+		episodeIDs = lo.Map(items, func(i *common.CollectionItem, _ int) int {
+			return utils.AsInt(i.ItemID)
 		})
-		if !found || index >= len(items)-1 {
-			return nil, nil
+	} else {
+		episode, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(episodeID))
+		if err != nil || !episode.SeasonID.Valid {
+			return nil, err
 		}
-		item := items[index+1]
-		return []int{utils.AsInt(item.ItemID)}, nil
+		episodePointerIDs, err := r.GetFilteredLoaders(ctx).EpisodesLoader.Get(ctx, int(episode.SeasonID.Int64))
+		if err != nil {
+			return nil, err
+		}
+		episodeIDs = utils.PointerArrayToArray(episodePointerIDs)
 	}
 
-	episode, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(episodeId))
-	if err != nil {
-		return nil, err
-	}
-
-	if !episode.SeasonID.Valid {
+	// Get the index and try to get the next episodeID in the array
+	index := lo.IndexOf(episodeIDs, utils.AsInt(episodeID))
+	if index < 0 || index >= len(episodeIDs)-1 {
 		return nil, nil
 	}
-	episodeIDs, err := r.GetFilteredLoaders(ctx).EpisodesLoader.Get(ctx, int(episode.SeasonID.Int64))
-	if err != nil {
-		return nil, err
-	}
-	ids := utils.PointerArrayToArray(episodeIDs)
-	index := lo.IndexOf(ids, episode.ID)
-	if index < 0 || index >= len(ids)-1 {
-		return nil, nil
-	}
-	return []int{ids[index+1]}, nil
+	return []int{episodeIDs[index+1]}, nil
 }
