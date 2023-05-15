@@ -546,7 +546,7 @@ type File struct {
 	URL              string  `json:"url"`
 	AudioLanguage    string  `json:"audioLanguage"`
 	SubtitleLanguage *string `json:"subtitleLanguage,omitempty"`
-	Size             *int    `json:"size,omitempty"`
+	Size             int     `json:"size"`
 	FileName         string  `json:"fileName"`
 	MimeType         string  `json:"mimeType"`
 	Resolution       *string `json:"resolution,omitempty"`

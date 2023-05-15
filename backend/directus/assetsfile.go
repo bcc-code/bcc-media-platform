@@ -13,6 +13,8 @@ type AssetFile struct {
 	ExtraMetadata    string `json:"extra_metadata,omitempty"`
 	AudioLanguage    string `json:"audio_language_id"`
 	SubtitleLanguage string `json:"subtitle_language_id"`
+	Size             int64  `json:"size"`
+	Resolution       string `json:"resolution"`
 }
 
 // UID returns the id of the Asset

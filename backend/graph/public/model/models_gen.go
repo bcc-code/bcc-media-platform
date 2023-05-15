@@ -6,23 +6,23 @@ type Episode struct {
 	ID     string  `json:"id"`
 	Index  bool    `json:"index"`
 	Title  string  `json:"title"`
-	Image  *string `json:"image"`
-	Number *int    `json:"number"`
-	Season *Season `json:"season"`
+	Image  *string `json:"image,omitempty"`
+	Number *int    `json:"number,omitempty"`
+	Season *Season `json:"season,omitempty"`
 }
 
 type Season struct {
 	ID     string  `json:"id"`
 	Title  string  `json:"title"`
-	Image  *string `json:"image"`
+	Image  *string `json:"image,omitempty"`
 	Number int     `json:"number"`
-	Show   *Show   `json:"show"`
+	Show   *Show   `json:"show,omitempty"`
 }
 
 type Show struct {
 	ID    string  `json:"id"`
 	Title string  `json:"title"`
-	Image *string `json:"image"`
+	Image *string `json:"image,omitempty"`
 }
 
 type Version struct {
