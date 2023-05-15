@@ -5725,7 +5725,7 @@ type File {
     url: String!
     audioLanguage: Language!
     subtitleLanguage: Language
-    size: Int
+    size: Int!
     fileName: String!
     mimeType: String!
     resolution: String
@@ -17109,11 +17109,14 @@ func (ec *executionContext) _File_size(ctx context.Context, field graphql.Collec
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_File_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -39967,6 +39970,9 @@ func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = ec._File_size(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "fileName":
 
 			out.Values[i] = ec._File_fileName(ctx, field, obj)
