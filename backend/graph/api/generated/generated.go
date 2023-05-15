@@ -275,6 +275,7 @@ type ComplexityRoot struct {
 		LegacyProgramID       func(childComplexity int) int
 		Lessons               func(childComplexity int, first *int, offset *int) int
 		Locked                func(childComplexity int) int
+		Next                  func(childComplexity int) int
 		Number                func(childComplexity int) int
 		ProductionDate        func(childComplexity int) int
 		ProductionDateInTitle func(childComplexity int) int
@@ -1003,6 +1004,7 @@ type EpisodeResolver interface {
 	Lessons(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.LessonPagination, error)
 	ShareRestriction(ctx context.Context, obj *model.Episode) (model.ShareRestriction, error)
 	InMyList(ctx context.Context, obj *model.Episode) (bool, error)
+	Next(ctx context.Context, obj *model.Episode) ([]*model.Episode, error)
 }
 type EpisodeCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Event, error)
@@ -2019,6 +2021,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.Locked(childComplexity), true
+
+	case "Episode.next":
+		if e.complexity.Episode.Next == nil {
+			break
+		}
+
+		return e.complexity.Episode.Next(childComplexity), true
 
 	case "Episode.number":
 		if e.complexity.Episode.Number == nil {
@@ -5697,6 +5706,8 @@ type Episode {
     lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
     shareRestriction: ShareRestriction! @goField(forceResolver: true)
     inMyList: Boolean! @goField(forceResolver: true)
+
+    next: [Episode!]! @goField(forceResolver: true)
 }
 
 type EpisodePagination implements Pagination {
@@ -13959,6 +13970,122 @@ func (ec *executionContext) fieldContext_Episode_inMyList(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_next(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_next(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Episode().Next(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Episode)
+	fc.Result = res
+	return ec.marshalNEpisode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_next(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
+			case "type":
+				return ec.fieldContext_Episode_type(ctx, field)
+			case "legacyID":
+				return ec.fieldContext_Episode_legacyID(ctx, field)
+			case "legacyProgramID":
+				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "locked":
+				return ec.fieldContext_Episode_locked(ctx, field)
+			case "publishDate":
+				return ec.fieldContext_Episode_publishDate(ctx, field)
+			case "productionDate":
+				return ec.fieldContext_Episode_productionDate(ctx, field)
+			case "productionDateInTitle":
+				return ec.fieldContext_Episode_productionDateInTitle(ctx, field)
+			case "availableFrom":
+				return ec.fieldContext_Episode_availableFrom(ctx, field)
+			case "availableTo":
+				return ec.fieldContext_Episode_availableTo(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "title":
+				return ec.fieldContext_Episode_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Episode_description(ctx, field)
+			case "extraDescription":
+				return ec.fieldContext_Episode_extraDescription(ctx, field)
+			case "image":
+				return ec.fieldContext_Episode_image(ctx, field)
+			case "imageUrl":
+				return ec.fieldContext_Episode_imageUrl(ctx, field)
+			case "streams":
+				return ec.fieldContext_Episode_streams(ctx, field)
+			case "files":
+				return ec.fieldContext_Episode_files(ctx, field)
+			case "chapters":
+				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "season":
+				return ec.fieldContext_Episode_season(ctx, field)
+			case "duration":
+				return ec.fieldContext_Episode_duration(ctx, field)
+			case "progress":
+				return ec.fieldContext_Episode_progress(ctx, field)
+			case "watched":
+				return ec.fieldContext_Episode_watched(ctx, field)
+			case "audioLanguages":
+				return ec.fieldContext_Episode_audioLanguages(ctx, field)
+			case "subtitleLanguages":
+				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "context":
+				return ec.fieldContext_Episode_context(ctx, field)
+			case "relatedItems":
+				return ec.fieldContext_Episode_relatedItems(ctx, field)
+			case "images":
+				return ec.fieldContext_Episode_images(ctx, field)
+			case "number":
+				return ec.fieldContext_Episode_number(ctx, field)
+			case "lessons":
+				return ec.fieldContext_Episode_lessons(ctx, field)
+			case "shareRestriction":
+				return ec.fieldContext_Episode_shareRestriction(ctx, field)
+			case "inMyList":
+				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "next":
+				return ec.fieldContext_Episode_next(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _EpisodeCalendarEntry_id(ctx context.Context, field graphql.CollectedField, obj *model.EpisodeCalendarEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_EpisodeCalendarEntry_id(ctx, field)
 	if err != nil {
@@ -14380,6 +14507,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "next":
+				return ec.fieldContext_Episode_next(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -14717,6 +14846,8 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "next":
+				return ec.fieldContext_Episode_next(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -14963,6 +15094,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "next":
+				return ec.fieldContext_Episode_next(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -18887,6 +19020,8 @@ func (ec *executionContext) fieldContext_Lesson_defaultEpisode(ctx context.Conte
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "next":
+				return ec.fieldContext_Episode_next(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -21286,6 +21421,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "next":
+				return ec.fieldContext_Episode_next(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -24362,6 +24499,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "next":
+				return ec.fieldContext_Episode_next(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -27101,6 +27240,8 @@ func (ec *executionContext) fieldContext_Season_defaultEpisode(ctx context.Conte
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "next":
+				return ec.fieldContext_Episode_next(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -29978,6 +30119,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "next":
+				return ec.fieldContext_Episode_next(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -34408,6 +34551,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "next":
+				return ec.fieldContext_Episode_next(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
@@ -39149,6 +39294,26 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 					}
 				}()
 				res = ec._Episode_inMyList(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "next":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_next(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
