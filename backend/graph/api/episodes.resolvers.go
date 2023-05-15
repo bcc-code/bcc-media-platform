@@ -174,17 +174,9 @@ func (r *episodeResolver) Watched(ctx context.Context, obj *model.Episode) (bool
 func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode) (model.EpisodeContextUnion, error) {
 	var collectionId *int
 
-	ginCtx, _ := utils.GinCtx(ctx)
-	episodeContext, ok := ginCtx.Value(episodeContextKey).(common.EpisodeContext)
-
-	if !ok {
-		progress, err := r.ProfileLoaders(ctx).ProgressLoader.Get(ctx, utils.AsInt(obj.ID))
-		if err != nil {
-			return nil, err
-		}
-		if progress != nil {
-			episodeContext = progress.Context
-		}
+	episodeContext, err := r.getEpisodeContext(ctx, obj.ID)
+	if err != nil {
+		return nil, err
 	}
 
 	if episodeContext.CollectionID.Valid {
@@ -197,6 +189,7 @@ func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode) (mode
 		if err != nil {
 			return nil, err
 		}
+		ginCtx, _ := utils.GinCtx(ctx)
 		languages := user.GetLanguagesFromCtx(ginCtx)
 
 		strID := strconv.Itoa(*collectionId)
@@ -312,6 +305,22 @@ func (r *episodeResolver) InMyList(ctx context.Context, obj *model.Episode) (boo
 		}
 	}
 	return false, nil
+}
+
+// Next is the resolver for the next field.
+func (r *episodeResolver) Next(ctx context.Context, obj *model.Episode) ([]*model.Episode, error) {
+	next, err := r.getNextEpisodes(ctx, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	var episodes []*model.Episode
+	for _, id := range next {
+		ep, err := r.QueryRoot().Episode(ctx, strconv.Itoa(id), nil)
+		if err == nil && ep != nil {
+			episodes = append(episodes, ep)
+		}
+	}
+	return episodes, nil
 }
 
 // Episode returns generated.EpisodeResolver implementation.
