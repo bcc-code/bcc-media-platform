@@ -316,7 +316,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 		result, err := s3client.HeadObject(ctx, &s3.HeadObjectInput{
 			Bucket: config.GetIngestBucket(),
-			Key:    aws.String(source),
+			Key:    aws.String(path.Join(assetMeta.BasePath, m.Path)),
 		})
 
 		fileSizeInBytes := int64(-1)
