@@ -199,6 +199,11 @@ func (s Server) ProcessAwsMessage(c *gin.Context) {
 
 	err = notificationPayload.VerifyPayload()
 	if err != nil {
+
+		// TEMP DEBUG
+		log.L.Debug().Str("payload", string(jsonData)).Msg("Could not verify payload")
+
+		err = merry.Wrap(err)
 		log.L.Error().Err(err).Send()
 		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusBadRequest)
