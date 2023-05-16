@@ -157,6 +157,8 @@ type File struct {
 	Path             string      `json:"path"`
 	Storage          string      `json:"storage"`
 	MimeType         string      `json:"mimeType"`
+	Resolution       string      `json:"resolution"`
+	Size             int         `json:"size"`
 }
 
 // Stream item type

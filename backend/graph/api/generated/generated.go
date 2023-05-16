@@ -387,6 +387,7 @@ type ComplexityRoot struct {
 		FileName         func(childComplexity int) int
 		ID               func(childComplexity int) int
 		MimeType         func(childComplexity int) int
+		Resolution       func(childComplexity int) int
 		Size             func(childComplexity int) int
 		SubtitleLanguage func(childComplexity int) int
 		URL              func(childComplexity int) int
@@ -2604,6 +2605,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.File.MimeType(childComplexity), true
+
+	case "File.resolution":
+		if e.complexity.File.Resolution == nil {
+			break
+		}
+
+		return e.complexity.File.Resolution(childComplexity), true
 
 	case "File.size":
 		if e.complexity.File.Size == nil {
@@ -5728,9 +5736,10 @@ type File {
     url: String!
     audioLanguage: Language!
     subtitleLanguage: Language
-    size: Int
+    size: Int!
     fileName: String!
     mimeType: String!
+    resolution: String
 }
 
 enum StreamType {
@@ -13278,6 +13287,8 @@ func (ec *executionContext) fieldContext_Episode_files(ctx context.Context, fiel
 				return ec.fieldContext_File_fileName(ctx, field)
 			case "mimeType":
 				return ec.fieldContext_File_mimeType(ctx, field)
+			case "resolution":
+				return ec.fieldContext_File_resolution(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type File", field.Name)
 		},
@@ -17231,11 +17242,14 @@ func (ec *executionContext) _File_size(ctx context.Context, field graphql.Collec
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_File_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17327,6 +17341,47 @@ func (ec *executionContext) _File_mimeType(ctx context.Context, field graphql.Co
 }
 
 func (ec *executionContext) fieldContext_File_mimeType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "File",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _File_resolution(ctx context.Context, field graphql.CollectedField, obj *model.File) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_File_resolution(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Resolution, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_File_resolution(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "File",
 		Field:      field,
@@ -40080,6 +40135,9 @@ func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = ec._File_size(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "fileName":
 
 			out.Values[i] = ec._File_fileName(ctx, field, obj)
@@ -40094,6 +40152,10 @@ func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "resolution":
+
+			out.Values[i] = ec._File_resolution(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

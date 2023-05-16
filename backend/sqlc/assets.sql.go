@@ -16,7 +16,7 @@ import (
 )
 
 const getFilesForAssets = `-- name: getFilesForAssets :many
-SELECT 0::int as episodes_id, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated
+SELECT 0::int as episodes_id, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated, f.resolution, f.size
 FROM assets a
          JOIN assetfiles f ON a.id = f.asset_id
 WHERE a.id = ANY ($1::int[])
@@ -37,6 +37,8 @@ type getFilesForAssetsRow struct {
 	Type               string                `db:"type" json:"type"`
 	UserCreated        uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	Resolution         null_v4.String        `db:"resolution" json:"resolution"`
+	Size               int32                 `db:"size" json:"size"`
 }
 
 func (q *Queries) getFilesForAssets(ctx context.Context, dollar_1 []int32) ([]getFilesForAssetsRow, error) {
@@ -63,6 +65,8 @@ func (q *Queries) getFilesForAssets(ctx context.Context, dollar_1 []int32) ([]ge
 			&i.Type,
 			&i.UserCreated,
 			&i.UserUpdated,
+			&i.Resolution,
+			&i.Size,
 		); err != nil {
 			return nil, err
 		}
@@ -78,7 +82,7 @@ func (q *Queries) getFilesForAssets(ctx context.Context, dollar_1 []int32) ([]ge
 }
 
 const getFilesForEpisodes = `-- name: getFilesForEpisodes :many
-SELECT e.id AS episodes_id, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated
+SELECT e.id AS episodes_id, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated, f.resolution, f.size
 FROM episodes e
          JOIN assets a ON e.asset_id = a.id
          JOIN assetfiles f ON a.id = f.asset_id
@@ -100,6 +104,8 @@ type getFilesForEpisodesRow struct {
 	Type               string                `db:"type" json:"type"`
 	UserCreated        uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	Resolution         null_v4.String        `db:"resolution" json:"resolution"`
+	Size               int32                 `db:"size" json:"size"`
 }
 
 func (q *Queries) getFilesForEpisodes(ctx context.Context, dollar_1 []int32) ([]getFilesForEpisodesRow, error) {
@@ -126,6 +132,8 @@ func (q *Queries) getFilesForEpisodes(ctx context.Context, dollar_1 []int32) ([]
 			&i.Type,
 			&i.UserCreated,
 			&i.UserUpdated,
+			&i.Resolution,
+			&i.Size,
 		); err != nil {
 			return nil, err
 		}

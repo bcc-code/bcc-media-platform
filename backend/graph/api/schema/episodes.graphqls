@@ -68,9 +68,10 @@ type File {
     url: String!
     audioLanguage: Language!
     subtitleLanguage: Language
-    size: Int
+    size: Int!
     fileName: String!
     mimeType: String!
+    resolution: String
 }
 
 enum StreamType {
