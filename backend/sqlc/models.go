@@ -634,6 +634,8 @@ type Episode struct {
 	PublicTitle              null_v4.String        `db:"public_title" json:"publicTitle"`
 	PreventPublicIndexing    sql.NullBool          `db:"prevent_public_indexing" json:"preventPublicIndexing"`
 	Uuid                     uuid.UUID             `db:"uuid" json:"uuid"`
+	ContentType              null_v4.String        `db:"content_type" json:"contentType"`
+	Audience                 null_v4.String        `db:"audience" json:"audience"`
 }
 
 type EpisodeAvailability struct {
