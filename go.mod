@@ -40,7 +40,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pressly/goose/v3 v3.11.2
 	github.com/redis/go-redis/v9 v9.0.4
-	github.com/robbiet480/go.sns v0.0.0-20230331191542-1474227da6b5
+	github.com/robbiet480/go.sns v0.0.0-20221010181423-5d7c717f43d9
 	github.com/rs/zerolog v1.29.1
 	github.com/samber/lo v1.38.1
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible

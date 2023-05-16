@@ -837,8 +837,8 @@ github.com/redis/go-redis/v9 v9.0.4/go.mod h1:WqMKv5vnQbRuZstUwxQI195wHy+t4PuXDO
 github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec h1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
-github.com/robbiet480/go.sns v0.0.0-20230331191542-1474227da6b5 h1:Keg6iOCQEzfOTKPqgU8N/Gbf0p35b3rmhCKheDD3kEw=
-github.com/robbiet480/go.sns v0.0.0-20230331191542-1474227da6b5/go.mod h1:9CDhL7uDVy8vEVDNPJzxq89dPaPBWP6hxQcC8woBHus=
+github.com/robbiet480/go.sns v0.0.0-20221010181423-5d7c717f43d9 h1:UDsH6Bf+7BsO9PzhEdKzDHuyveLPsEXCVtQBrw7Ya10=
+github.com/robbiet480/go.sns v0.0.0-20221010181423-5d7c717f43d9/go.mod h1:9CDhL7uDVy8vEVDNPJzxq89dPaPBWP6hxQcC8woBHus=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=
