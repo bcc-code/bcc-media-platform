@@ -50,6 +50,8 @@ func FileFrom(_ context.Context, signer signatureProvider, cdnDomain string, fil
 		AudioLanguage:    file.AudioLanguage.String,
 		SubtitleLanguage: subLang,
 		MimeType:         file.MimeType,
+		Resolution:       &file.Resolution,
+		Size:             file.Size,
 	}
 }
 
