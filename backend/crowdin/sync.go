@@ -35,8 +35,8 @@ func (c *Client) syncCollection(
 		return err
 	}
 	if !found {
-		l.Debug().Msg("Creating file")
-		if c.readonly {
+		l.Debug().Msg("Creating file (if not empty)")
+		if c.readonly || len(sourceTranslations) <= 0 {
 			return nil
 		}
 		_, err := c.createFile(project.ID, directoryId, collection, convertTsToStrings(sourceTranslations, collection, contextFactory))
