@@ -62,8 +62,8 @@ type config interface {
 type ingestFileMeta struct {
 	Mime             string `json:"mime"`
 	Path             string `json:"path"`
-	AudioLanguge     string `json:"audio_language"`
-	SubtitleLanguage string `json:"subtitle_language"`
+	AudioLanguge     string `json:"audiolanguage"`
+	SubtitleLanguage string `json:"subtitlelanguage"`
 	Resolution       string `json:"resolution"`
 }
 

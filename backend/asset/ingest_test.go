@@ -122,5 +122,6 @@ func TestParseJson2(t *testing.T) {
 
 	for _, file := range obj.Files {
 		assert.Equal(t, "1920x1080", file.Resolution)
+		assert.NotEmpty(t, file.AudioLanguge)
 	}
 }
