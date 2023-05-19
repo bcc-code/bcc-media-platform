@@ -40,7 +40,9 @@ SELECT e.id,
        ts.extra_description,
        tags.tags::int[]                                  AS tag_ids,
        assets.duration                                   as duration,
-       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating
+       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating,
+       audience,
+       content_type
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
@@ -95,7 +97,9 @@ SELECT e.id,
        ts.extra_description,
        tags.tags::int[]                                  AS tag_ids,
        assets.duration                                   as duration,
-       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating
+       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating,
+       audience,
+       content_type
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id

@@ -124,6 +124,8 @@ type Episode struct {
 	Title                 LocaleString `json:"title"`
 	Description           LocaleString `json:"description"`
 	ExtraDescription      LocaleString `json:"extraDescription"`
+	ContentType           null.String  `json:"contentType"`
+	Audience              null.String  `json:"audience"`
 }
 
 // GetKey returns the key for this item

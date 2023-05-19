@@ -332,7 +332,9 @@ SELECT e.id,
        ts.extra_description,
        tags.tags::int[]                                  AS tag_ids,
        assets.duration                                   as duration,
-       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating
+       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating,
+       audience,
+       content_type
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
@@ -372,6 +374,8 @@ type getEpisodesRow struct {
 	TagIds                []int32               `db:"tag_ids" json:"tagIds"`
 	Duration              null_v4.Int           `db:"duration" json:"duration"`
 	Agerating             string                `db:"agerating" json:"agerating"`
+	Audience              null_v4.String        `db:"audience" json:"audience"`
+	ContentType           null_v4.String        `db:"content_type" json:"contentType"`
 }
 
 func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpisodesRow, error) {
@@ -409,6 +413,8 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			pq.Array(&i.TagIds),
 			&i.Duration,
 			&i.Agerating,
+			&i.Audience,
+			&i.ContentType,
 		); err != nil {
 			return nil, err
 		}
@@ -526,7 +532,9 @@ SELECT e.id,
        ts.extra_description,
        tags.tags::int[]                                  AS tag_ids,
        assets.duration                                   as duration,
-       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating
+       COALESCE(e.agerating_code, s.agerating_code, 'A') as agerating,
+       audience,
+       content_type
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
@@ -564,6 +572,8 @@ type listEpisodesRow struct {
 	TagIds                []int32               `db:"tag_ids" json:"tagIds"`
 	Duration              null_v4.Int           `db:"duration" json:"duration"`
 	Agerating             string                `db:"agerating" json:"agerating"`
+	Audience              null_v4.String        `db:"audience" json:"audience"`
+	ContentType           null_v4.String        `db:"content_type" json:"contentType"`
 }
 
 func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
@@ -601,6 +611,8 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 			pq.Array(&i.TagIds),
 			&i.Duration,
 			&i.Agerating,
+			&i.Audience,
+			&i.ContentType,
 		); err != nil {
 			return nil, err
 		}

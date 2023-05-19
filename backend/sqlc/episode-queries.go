@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"strconv"
+
+	"github.com/google/uuid"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/loaders"
@@ -56,6 +57,8 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			Images:                q.getImages(e.Images),
 			AgeRating:             e.Agerating,
 			Duration:              int(e.Duration.ValueOrZero()),
+			Audience:              e.Audience,
+			ContentType:           e.ContentType,
 			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
 				return int(id)
 			}),

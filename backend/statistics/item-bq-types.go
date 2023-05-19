@@ -119,6 +119,8 @@ type Episode struct {
 	Deleted               *time.Time
 	LegacyEpisodeID       bigquery.NullString
 	LegacyProgramID       bigquery.NullString
+	Audience              bigquery.NullString `json:"audience"`
+	ContentType           bigquery.NullString `json:"contentType"`
 }
 
 func EpisodeFromCommon(e common.Episode, _ int) Episode {
@@ -157,5 +159,7 @@ func EpisodeFromCommon(e common.Episode, _ int) Episode {
 		LegacyEpisodeID:       legacyEpisodeID,
 		LegacyProgramID:       legacyProgramID,
 		Updated:               time.Now(),
+		Audience:              nullStr(e.Audience.Ptr()),
+		ContentType:           nullStr(e.ContentType.Ptr()),
 	}
 }
