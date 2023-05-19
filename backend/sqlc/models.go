@@ -986,11 +986,6 @@ type Page struct {
 	Status      string         `db:"status" json:"status"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	Collection  null_v4.String `db:"collection" json:"collection"`
-	EpisodeID   null_v4.Int    `db:"episode_id" json:"episodeID"`
-	SeasonID    null_v4.Int    `db:"season_id" json:"seasonID"`
-	ShowID      null_v4.Int    `db:"show_id" json:"showID"`
-	Type        null_v4.String `db:"type" json:"type"`
 	Label       null_v4.String `db:"label" json:"label"`
 }
 
