@@ -119,7 +119,7 @@ const start = computed(() => {
     return toISOStringWithTimezone(weeks.value[0][0])
 })
 
-const end = computed(() => {
+let end = computed(() => {
     const d = new Date(weeks.value[weeks.value.length - 1][6])
     d.setHours(23, 59, 59)
     return toISOStringWithTimezone(d)
@@ -151,6 +151,7 @@ const endEvent = (date: Date) => {
     const day = parseInt(isoDateString(date).substring(8, 10))
     for (const e of events) {
         const end = parseInt(isoDateString(new Date(e.end)).substring(8, 10))
+
         if (end === day) {
             return e.end
         }
@@ -166,7 +167,17 @@ const inEvent = (date: Date) => {
         const start = parseInt(
             isoDateString(new Date(e.start)).substring(8, 10)
         )
-        const end = parseInt(isoDateString(new Date(e.end)).substring(8, 10))
+
+        let end = parseInt(isoDateString(new Date(e.end)).substring(8, 10))
+
+        if (
+            parseInt(isoDateString(new Date(e.end)).substring(0, 4)) !=
+                parseInt(isoDateString(date).substring(0, 4)) &&
+            parseInt(isoDateString(new Date(e.end)).substring(5, 7)) !=
+                parseInt(isoDateString(date).substring(5, 7))
+        ) {
+            end = 32
+        }
 
         if (start < day && end > day) {
             return true
