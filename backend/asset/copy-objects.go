@@ -36,36 +36,39 @@ func copyObjects(
 			for tries <= 3 {
 				_, err := s3client.CopyObject(ctx, f)
 
-				if err != nil {
-					if awsErr, ok := err.(awserr.Error); ok {
-						if awsErr.Code() == "NoSuchKey" {
-							log.L.Warn().
-								Err(err).
-								Str("dst bucket", *f.Bucket).
-								Str("source path", *f.CopySource).
-								Str("dst path", *f.Key).
-								Int("tries", tries).
-								Msg("File copy failed due to missing file")
+				if err == nil {
+					break
+				}
 
-							// For some reason the system notifies us before the files are available
-							// so we wait a bit and try again
-							// This should be removed once https://www.notion.so/bccmedia/Export-Asset-for-Downloading-6a82bb779dd4474d910c53d36551f05f?pvs=4#eab1f760803a4b8dbf3bad487549d9a2 has been fixed
-							time.Sleep(60 * time.Second)
-							tries += 1
-							continue
-						}
-					}
-
-					log.L.Error().
+				// We have an error
+				if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() != "NoSuchKey" {
+					log.L.Warn().
 						Err(err).
 						Str("dst bucket", *f.Bucket).
 						Str("source path", *f.CopySource).
 						Str("dst path", *f.Key).
-						Msg("File copy failed")
+						Int("tries", tries).
+						Msg("File copy failed due to missing file")
 
-					copyErrors = append(copyErrors, merry.Wrap(err))
-					return
+					// For some reason the system notifies us before the files are available
+					// so we wait a bit and try again
+					// This should be removed once https://www.notion.so/bccmedia/Export-Asset-for-Downloading-6a82bb779dd4474d910c53d36551f05f?pvs=4#eab1f760803a4b8dbf3bad487549d9a2 has been fixed
+					time.Sleep(60 * time.Second)
+					tries += 1
+					continue
 				}
+
+				log.L.Error().
+					Err(err).
+					Str("dst bucket", *f.Bucket).
+					Str("source path", *f.CopySource).
+					Str("dst path", *f.Key).
+					Msg("File copy failed")
+
+				copyErrors = append(copyErrors, merry.Wrap(err))
+
+				// We have an error that we can't handle so just return from the function
+				return
 			}
 
 			log.L.Info().
