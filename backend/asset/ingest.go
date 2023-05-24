@@ -300,7 +300,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	for _, fileMeta := range assetMeta.Files {
 		m := fileMeta
 		target := path.Join(storagePrefix, "mux", path.Base(m.Path))
-		source := path.Join("/", *config.GetIngestBucket(), assetMeta.BasePath, m.Path)
+		source := path.Join(*config.GetIngestBucket(), assetMeta.BasePath, m.Path)
 
 		coi := &s3.CopyObjectInput{
 			Bucket:     config.GetStorageBucket(),
