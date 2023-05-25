@@ -76,8 +76,8 @@ type BatchLoaders struct {
 	UserCollectionEntryLoader    *loaders.Loader[uuid.UUID, *UserCollectionEntry]
 	UserCollectionEntryIDsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
 
-	ProfileCollectionIDsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
-	ProfileMyListCollectionID  *loaders.Loader[uuid.UUID, *uuid.UUID]
+	ProfileUserCollectionIDsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
+	ProfileMyListCollectionID      *loaders.Loader[uuid.UUID, *uuid.UUID]
 
 	PromptLoader *loaders.Loader[uuid.UUID, *Prompt]
 }
