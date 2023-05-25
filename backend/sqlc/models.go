@@ -103,7 +103,7 @@ type Application struct {
 	SearchPageID                  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionID"`
 	Uuid                          uuid.UUID      `db:"uuid" json:"uuid"`
-	GroupID                       uuid.NullUUID  `db:"group_id" json:"groupID"`
+	GroupID                       uuid.UUID      `db:"group_id" json:"groupID"`
 }
 
 type Applicationgroup struct {
