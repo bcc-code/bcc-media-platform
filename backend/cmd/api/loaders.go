@@ -134,6 +134,9 @@ func getApplicationLoaders(queries *sqlc.Queries, applicationID uuid.UUID) *comm
 	ctx, cancel := context.WithCancel(context.Background())
 
 	ls := &common.ApplicationLoaders{
+		ProfilesLoader: loaders.NewListLoader(ctx, appQueries.GetProfilesForUserIDs, func(i common.Profile) string {
+			return i.UserID
+		}),
 		UserCollectionIDsLoader: loaders.NewRelationLoader(ctx, appQueries.GetUserCollectionIDsForProfileIDs, loaders.WithName("user-collection-ids")),
 		UserMyListCollectionID:  loaders.NewConversionLoader(ctx, appQueries.GetMyListCollectionForProfileIDs, loaders.WithName("user-my-list-id")),
 	}
@@ -149,6 +152,8 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		// App
 		ApplicationLoader:           loaders.New(ctx, queries.GetApplications),
 		ApplicationIDFromCodeLoader: loaders.NewConversionLoader(ctx, queries.GetApplicationIDsForCodes, loaders.WithName("application-id")),
+		ApplicationGroupLoader:      loaders.New(ctx, queries.GetApplicationGroups),
+
 		//Redirect
 		RedirectLoader:           loaders.New(ctx, queries.GetRedirects),
 		RedirectIDFromCodeLoader: loaders.NewConversionLoader(ctx, queries.GetRedirectIDsForCodes, loaders.WithName("redirect-id")),
@@ -214,10 +219,8 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		QuestionLoader:     loaders.NewLoader(ctx, queries.GetQuestions),
 		QuestionsLoader:    loaders.NewRelationLoader(ctx, queries.GetQuestionIDsForCategories, loaders.WithName("questions")),
 		MessageGroupLoader: loaders.NewLoader(ctx, queries.GetMessageGroups),
+
 		// User Data
-		ProfilesLoader: loaders.NewListLoader(ctx, queries.GetProfilesForUserIDs, func(i common.Profile) string {
-			return i.UserID
-		}),
 		StudyTopicLoader:  loaders.New(ctx, queries.GetTopics),
 		StudyLessonLoader: loaders.New(ctx, queries.GetLessons),
 		StudyTaskLoader:   loaders.New(ctx, queries.GetTasks),

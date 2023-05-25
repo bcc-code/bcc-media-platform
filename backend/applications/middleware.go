@@ -12,7 +12,9 @@ import (
 )
 
 // CtxApp is the context key containing application
-const CtxApp = "app"
+const (
+	CtxApp = "app"
+)
 
 // ApplicationMiddleware fills the context with the current application
 func ApplicationMiddleware(

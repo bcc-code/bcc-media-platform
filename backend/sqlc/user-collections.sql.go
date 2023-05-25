@@ -25,24 +25,24 @@ func (q *Queries) DeleteUserCollectionEntry(ctx context.Context, id uuid.UUID) e
 }
 
 const upsertUserCollection = `-- name: UpsertUserCollection :exec
-INSERT INTO users.collections (id, application_id, profile_id, updated_at, created_at, my_list, title)
+INSERT INTO users.collections (id, applicationgroup_id, profile_id, updated_at, created_at, my_list, title)
 VALUES ($1, $2, $3, now(), now(), $4, $5)
 ON CONFLICT (id) DO UPDATE SET updated_at = now(),
                                title      = EXCLUDED.title
 `
 
 type UpsertUserCollectionParams struct {
-	ID            uuid.UUID `db:"id" json:"id"`
-	ApplicationID uuid.UUID `db:"application_id" json:"applicationID"`
-	ProfileID     uuid.UUID `db:"profile_id" json:"profileID"`
-	MyList        bool      `db:"my_list" json:"myList"`
-	Title         string    `db:"title" json:"title"`
+	ID                 uuid.UUID `db:"id" json:"id"`
+	ApplicationgroupID uuid.UUID `db:"applicationgroup_id" json:"applicationgroupID"`
+	ProfileID          uuid.UUID `db:"profile_id" json:"profileID"`
+	MyList             bool      `db:"my_list" json:"myList"`
+	Title              string    `db:"title" json:"title"`
 }
 
 func (q *Queries) UpsertUserCollection(ctx context.Context, arg UpsertUserCollectionParams) error {
 	_, err := q.db.ExecContext(ctx, upsertUserCollection,
 		arg.ID,
-		arg.ApplicationID,
+		arg.ApplicationgroupID,
 		arg.ProfileID,
 		arg.MyList,
 		arg.Title,
@@ -79,14 +79,14 @@ func (q *Queries) UpsertUserCollectionEntry(ctx context.Context, arg UpsertUserC
 const getMyListCollectionForProfileIDs = `-- name: getMyListCollectionForProfileIDs :many
 SELECT c.id, c.profile_id AS parent_id
 FROM users.collections c
-WHERE c.application_id = $1
+WHERE c.applicationgroup_id = $1
   AND c.profile_id = ANY ($2::uuid[])
   AND my_list
 `
 
 type getMyListCollectionForProfileIDsParams struct {
-	ApplicationID uuid.UUID   `db:"application_id" json:"applicationID"`
-	ProfileIds    []uuid.UUID `db:"profile_ids" json:"profileIds"`
+	ApplicationgroupID uuid.UUID   `db:"applicationgroup_id" json:"applicationgroupID"`
+	ProfileIds         []uuid.UUID `db:"profile_ids" json:"profileIds"`
 }
 
 type getMyListCollectionForProfileIDsRow struct {
@@ -95,7 +95,7 @@ type getMyListCollectionForProfileIDsRow struct {
 }
 
 func (q *Queries) getMyListCollectionForProfileIDs(ctx context.Context, arg getMyListCollectionForProfileIDsParams) ([]getMyListCollectionForProfileIDsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getMyListCollectionForProfileIDs, arg.ApplicationID, pq.Array(arg.ProfileIds))
+	rows, err := q.db.QueryContext(ctx, getMyListCollectionForProfileIDs, arg.ApplicationgroupID, pq.Array(arg.ProfileIds))
 	if err != nil {
 		return nil, err
 	}
@@ -202,14 +202,14 @@ func (q *Queries) getUserCollectionEntryIDsForUserCollectionIDs(ctx context.Cont
 const getUserCollectionIDsForProfileIDs = `-- name: getUserCollectionIDsForProfileIDs :many
 SELECT c.id, c.profile_id AS parent_id
 FROM users.collections c
-WHERE c.application_id = $1
+WHERE c.applicationgroup_id = $1
   AND c.profile_id = ANY ($2::uuid[])
   AND my_list
 `
 
 type getUserCollectionIDsForProfileIDsParams struct {
-	ApplicationID uuid.UUID   `db:"application_id" json:"applicationID"`
-	ProfileIds    []uuid.UUID `db:"profile_ids" json:"profileIds"`
+	ApplicationgroupID uuid.UUID   `db:"applicationgroup_id" json:"applicationgroupID"`
+	ProfileIds         []uuid.UUID `db:"profile_ids" json:"profileIds"`
 }
 
 type getUserCollectionIDsForProfileIDsRow struct {
@@ -218,7 +218,7 @@ type getUserCollectionIDsForProfileIDsRow struct {
 }
 
 func (q *Queries) getUserCollectionIDsForProfileIDs(ctx context.Context, arg getUserCollectionIDsForProfileIDsParams) ([]getUserCollectionIDsForProfileIDsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getUserCollectionIDsForProfileIDs, arg.ApplicationID, pq.Array(arg.ProfileIds))
+	rows, err := q.db.QueryContext(ctx, getUserCollectionIDsForProfileIDs, arg.ApplicationgroupID, pq.Array(arg.ProfileIds))
 	if err != nil {
 		return nil, err
 	}
@@ -241,19 +241,19 @@ func (q *Queries) getUserCollectionIDsForProfileIDs(ctx context.Context, arg get
 }
 
 const getUserCollections = `-- name: getUserCollections :many
-SELECT c.id, c.application_id, c.profile_id, c.updated_at, c.created_at, c.title, c.my_list
+SELECT c.id, c.applicationgroup_id, c.profile_id, c.updated_at, c.created_at, c.title, c.my_list
 FROM users.collections c
 WHERE id = ANY ($1::uuid[])
 `
 
 type getUserCollectionsRow struct {
-	ID            uuid.UUID `db:"id" json:"id"`
-	ApplicationID uuid.UUID `db:"application_id" json:"applicationID"`
-	ProfileID     uuid.UUID `db:"profile_id" json:"profileID"`
-	UpdatedAt     time.Time `db:"updated_at" json:"updatedAt"`
-	CreatedAt     time.Time `db:"created_at" json:"createdAt"`
-	Title         string    `db:"title" json:"title"`
-	MyList        bool      `db:"my_list" json:"myList"`
+	ID                 uuid.UUID `db:"id" json:"id"`
+	ApplicationgroupID uuid.UUID `db:"applicationgroup_id" json:"applicationgroupID"`
+	ProfileID          uuid.UUID `db:"profile_id" json:"profileID"`
+	UpdatedAt          time.Time `db:"updated_at" json:"updatedAt"`
+	CreatedAt          time.Time `db:"created_at" json:"createdAt"`
+	Title              string    `db:"title" json:"title"`
+	MyList             bool      `db:"my_list" json:"myList"`
 }
 
 func (q *Queries) getUserCollections(ctx context.Context, ids []uuid.UUID) ([]getUserCollectionsRow, error) {
@@ -267,7 +267,7 @@ func (q *Queries) getUserCollections(ctx context.Context, ids []uuid.UUID) ([]ge
 		var i getUserCollectionsRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.ApplicationID,
+			&i.ApplicationgroupID,
 			&i.ProfileID,
 			&i.UpdatedAt,
 			&i.CreatedAt,

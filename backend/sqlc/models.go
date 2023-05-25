@@ -121,12 +121,6 @@ type ApplicationgroupsUsergroup struct {
 	UsergroupsCode      null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
 }
 
-type ApplicationsUsergroup struct {
-	ID             int32          `db:"id" json:"id"`
-	ApplicationsID null_v4.Int    `db:"applications_id" json:"applicationsID"`
-	UsergroupsCode null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
-}
-
 type Asset struct {
 	DateCreated     time.Time      `db:"date_created" json:"dateCreated"`
 	DateUpdated     time.Time      `db:"date_updated" json:"dateUpdated"`
@@ -1403,13 +1397,13 @@ type UsersAchievement struct {
 }
 
 type UsersCollection struct {
-	ID            uuid.UUID `db:"id" json:"id"`
-	ApplicationID uuid.UUID `db:"application_id" json:"applicationID"`
-	ProfileID     uuid.UUID `db:"profile_id" json:"profileID"`
-	UpdatedAt     time.Time `db:"updated_at" json:"updatedAt"`
-	CreatedAt     time.Time `db:"created_at" json:"createdAt"`
-	MyList        bool      `db:"my_list" json:"myList"`
-	Title         string    `db:"title" json:"title"`
+	ID                 uuid.UUID `db:"id" json:"id"`
+	ProfileID          uuid.UUID `db:"profile_id" json:"profileID"`
+	UpdatedAt          time.Time `db:"updated_at" json:"updatedAt"`
+	CreatedAt          time.Time `db:"created_at" json:"createdAt"`
+	MyList             bool      `db:"my_list" json:"myList"`
+	Title              string    `db:"title" json:"title"`
+	ApplicationgroupID uuid.UUID `db:"applicationgroup_id" json:"applicationgroupID"`
 }
 
 type UsersCollectionentry struct {
@@ -1442,9 +1436,10 @@ type UsersMessage struct {
 }
 
 type UsersProfile struct {
-	ID     uuid.UUID `db:"id" json:"id"`
-	UserID string    `db:"user_id" json:"userID"`
-	Name   string    `db:"name" json:"name"`
+	ID                 uuid.UUID `db:"id" json:"id"`
+	UserID             string    `db:"user_id" json:"userID"`
+	Name               string    `db:"name" json:"name"`
+	ApplicationgroupID uuid.UUID `db:"applicationgroup_id" json:"applicationgroupID"`
 }
 
 type UsersProgress struct {

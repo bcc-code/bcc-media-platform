@@ -7,9 +7,10 @@ import (
 
 // Profile is the entry point for most user-specific content
 type Profile struct {
-	ID     uuid.UUID
-	UserID string
-	Name   string
+	ID                 uuid.UUID
+	UserID             string
+	Name               string
+	ApplicationGroupID uuid.UUID
 }
 
 // Device is a profile-linked device with a token for notifications
@@ -23,13 +24,13 @@ type Device struct {
 
 // UserCollection is a collection created by a user
 type UserCollection struct {
-	ID            uuid.UUID
-	ApplicationID uuid.UUID
-	ProfileID     uuid.UUID
-	Title         string
-	Metadata      UserCollectionMetadata
-	UpdatedAt     time.Time
-	CreatedAt     time.Time
+	ID                 uuid.UUID
+	ApplicationGroupID uuid.UUID
+	ProfileID          uuid.UUID
+	Title              string
+	Metadata           UserCollectionMetadata
+	UpdatedAt          time.Time
+	CreatedAt          time.Time
 }
 
 // UserCollectionMetadata contains options that can specify extra options for a user

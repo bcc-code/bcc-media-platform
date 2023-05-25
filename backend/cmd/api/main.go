@@ -10,6 +10,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/bcc-code/brunstadtv/backend/remotecache"
+	"github.com/bcc-code/brunstadtv/backend/user/middleware"
 	"github.com/bsm/redislock"
 	"github.com/gin-contrib/pprof"
 	"github.com/sony/gobreaker"
@@ -236,7 +237,8 @@ func main() {
 
 	r.Use(otelgin.Middleware("api"))
 	r.Use(authClient.ValidateToken())
-	r.Use(user.NewUserMiddleware(queries, remoteCache, ls, authClient))
+	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
+	r.Use(middleware.NewUserMiddleware(queries, remoteCache, ls, authClient))
 	if environment.Test() {
 		// Get the user object from headers
 		r.Use(func(ctx *gin.Context) {
@@ -253,8 +255,7 @@ func main() {
 			}
 		})
 	}
-	r.Use(user.NewProfileMiddleware(queries, remoteCache))
-	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
+	r.Use(middleware.NewProfileMiddleware(queries, remoteCache))
 	r.Use(applications.RoleMiddleware())
 	r.Use(ratelimit.Middleware())
 

@@ -13,21 +13,42 @@ import (
 )
 
 const getProfiles = `-- name: getProfiles :many
-SELECT id, user_id, name
-FROM users.profiles
-WHERE user_id = ANY ($1::varchar[])
+SELECT p.id,
+       p.user_id,
+       p.name,
+       p.applicationgroup_id AS application_group_id
+FROM users.profiles p
+WHERE applicationgroup_id = $1::uuid
+  AND user_id = ANY ($2::varchar[])
 `
 
-func (q *Queries) getProfiles(ctx context.Context, dollar_1 []string) ([]UsersProfile, error) {
-	rows, err := q.db.QueryContext(ctx, getProfiles, pq.Array(dollar_1))
+type getProfilesParams struct {
+	ApplicationgroupID uuid.UUID `db:"applicationgroup_id" json:"applicationgroupID"`
+	UserID             []string  `db:"user_id" json:"userID"`
+}
+
+type getProfilesRow struct {
+	ID                 uuid.UUID `db:"id" json:"id"`
+	UserID             string    `db:"user_id" json:"userID"`
+	Name               string    `db:"name" json:"name"`
+	ApplicationGroupID uuid.UUID `db:"application_group_id" json:"applicationGroupID"`
+}
+
+func (q *Queries) getProfiles(ctx context.Context, arg getProfilesParams) ([]getProfilesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getProfiles, arg.ApplicationgroupID, pq.Array(arg.UserID))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []UsersProfile
+	var items []getProfilesRow
 	for rows.Next() {
-		var i UsersProfile
-		if err := rows.Scan(&i.ID, &i.UserID, &i.Name); err != nil {
+		var i getProfilesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.ApplicationGroupID,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -42,18 +63,24 @@ func (q *Queries) getProfiles(ctx context.Context, dollar_1 []string) ([]UsersPr
 }
 
 const saveProfile = `-- name: saveProfile :exec
-INSERT INTO users.profiles (id, user_id, name)
-VALUES ($1::uuid, $2::varchar, $3::varchar)
-ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name
+INSERT INTO users.profiles (id, user_id, name, applicationgroup_id)
+VALUES ($1::uuid, $2::varchar, $3::varchar, $4::uuid)
+ON CONFLICT (id, applicationgroup_id) DO UPDATE SET name = EXCLUDED.name
 `
 
 type saveProfileParams struct {
-	Column1 uuid.UUID `db:"column_1" json:"column1"`
-	Column2 string    `db:"column_2" json:"column2"`
-	Column3 string    `db:"column_3" json:"column3"`
+	ID                 uuid.UUID `db:"id" json:"id"`
+	UserID             string    `db:"user_id" json:"userID"`
+	Name               string    `db:"name" json:"name"`
+	ApplicationgroupID uuid.UUID `db:"applicationgroup_id" json:"applicationgroupID"`
 }
 
 func (q *Queries) saveProfile(ctx context.Context, arg saveProfileParams) error {
-	_, err := q.db.ExecContext(ctx, saveProfile, arg.Column1, arg.Column2, arg.Column3)
+	_, err := q.db.ExecContext(ctx, saveProfile,
+		arg.ID,
+		arg.UserID,
+		arg.Name,
+		arg.ApplicationgroupID,
+	)
 	return err
 }
