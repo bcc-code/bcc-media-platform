@@ -112,6 +112,7 @@ type Applicationgroup struct {
 	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
 	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
 	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	Label       string        `db:"label" json:"label"`
 }
 
 type ApplicationgroupsUsergroup struct {
