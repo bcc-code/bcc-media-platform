@@ -92,7 +92,7 @@ func resolveMyListCollection(ctx context.Context, ls *common.BatchLoaders) ([]*i
 	if profile == nil {
 		return nil, nil
 	}
-	myListID, err := ls.UserMyListCollectionID.Get(ctx, profile.ID)
+	myListID, err := ls.ProfileMyListCollectionID.Get(ctx, profile.ID)
 	if err != nil || myListID == nil {
 		return nil, err
 	}

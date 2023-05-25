@@ -477,7 +477,7 @@ func (r *queryRootResolver) MyList(ctx context.Context) (*model.UserCollection, 
 	if err != nil {
 		return nil, err
 	}
-	l := r.GetLoaders().UserMyListCollectionID
+	l := r.GetLoaders().ProfileMyListCollectionID
 	id, err := l.Get(ctx, p.ID)
 	if id == nil {
 		uc := common.UserCollection{
