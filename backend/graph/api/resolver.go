@@ -53,7 +53,6 @@ type Resolver struct {
 	Loaders            *common.BatchLoaders
 	FilteredLoaders    func(ctx context.Context) *common.FilteredLoaders
 	ProfileLoaders     func(ctx context.Context) *common.ProfileLoaders
-	ApplicationLoaders func(ctx context.Context) *common.ApplicationLoaders
 	SearchService      searchProvider
 	EmailService       *email.Service
 	URLSigner          *signing.Signer
@@ -80,10 +79,6 @@ func (r *Resolver) GetFilteredLoaders(ctx context.Context) *common.FilteredLoade
 
 func (r *Resolver) GetProfileLoaders(ctx context.Context) *common.ProfileLoaders {
 	return r.ProfileLoaders(ctx)
-}
-
-func (r *Resolver) GetApplicationLoaders(ctx context.Context) *common.ApplicationLoaders {
-	return r.ApplicationLoaders(ctx)
 }
 
 func (r *Resolver) GetS3Client() *s3.Client {

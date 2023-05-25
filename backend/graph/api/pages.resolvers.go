@@ -44,7 +44,7 @@ func (r *collectionResolver) Items(ctx context.Context, obj *model.Collection, f
 
 // Items is the resolver for the items field.
 func (r *contextCollectionResolver) Items(ctx context.Context, obj *model.ContextCollection, first *int, offset *int) (*model.SectionItemPagination, error) {
-	pagination, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), r.GetApplicationLoaders(ctx), &common.Section{
+	pagination, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), &common.Section{
 		Style:        "default",
 		CollectionID: utils.AsNullInt(&obj.ID),
 	}, first, offset)

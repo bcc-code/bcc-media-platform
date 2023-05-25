@@ -88,30 +88,6 @@ func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *comm
 	}
 }
 
-func applicationLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *common.ApplicationLoaders {
-	return func(ctx context.Context) *common.ApplicationLoaders {
-		ginCtx, err := utils.GinCtx(ctx)
-		if err != nil {
-			log.L.Error().Err(err).Send()
-			return nil
-		}
-		a, err := applications.GetFromCtx(ginCtx)
-		if err != nil {
-			log.L.Error().Err(err).Send()
-			return nil
-		}
-		if a == nil {
-			return nil
-		}
-		if ls := ginCtx.Value(applicationLoadersCtxKey); ls != nil {
-			return ls.(*common.ApplicationLoaders)
-		}
-		ls := getApplicationLoaders(queries, a.UUID)
-		ginCtx.Set(applicationLoadersCtxKey, ls)
-		return ls
-	}
-}
-
 // Defining the Playground handler
 func playgroundHandler() gin.HandlerFunc {
 	h := playground.Handler("GraphQL", "/query")

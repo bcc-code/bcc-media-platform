@@ -47,11 +47,8 @@ func (q *Queries) GetUserCollectionEntries(ctx context.Context, ids []uuid.UUID)
 }
 
 // GetUserCollectionIDsForProfileIDs returns collection ids for profiles
-func (aq *ApplicationQueries) GetUserCollectionIDsForProfileIDs(ctx context.Context, profileIDs []uuid.UUID) ([]loaders.Relation[uuid.UUID, uuid.UUID], error) {
-	rows, err := aq.getUserCollectionIDsForProfileIDs(ctx, getUserCollectionIDsForProfileIDsParams{
-		ProfileIds:         profileIDs,
-		ApplicationgroupID: aq.groupID,
-	})
+func (q *Queries) GetUserCollectionIDsForProfileIDs(ctx context.Context, profileIDs []uuid.UUID) ([]loaders.Relation[uuid.UUID, uuid.UUID], error) {
+	rows, err := q.getUserCollectionIDsForProfileIDs(ctx, profileIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -72,11 +69,8 @@ func (q *Queries) GetUserCollectionEntryIDsForUserCollectionIDs(ctx context.Cont
 }
 
 // GetMyListCollectionForProfileIDs returns the id for the profile my list collection
-func (aq *ApplicationQueries) GetMyListCollectionForProfileIDs(ctx context.Context, profileIDs []uuid.UUID) ([]loaders.Conversion[uuid.UUID, uuid.UUID], error) {
-	rows, err := aq.getMyListCollectionForProfileIDs(ctx, getMyListCollectionForProfileIDsParams{
-		ProfileIds:         profileIDs,
-		ApplicationgroupID: aq.groupID,
-	})
+func (q *Queries) GetMyListCollectionForProfileIDs(ctx context.Context, profileIDs []uuid.UUID) ([]loaders.Conversion[uuid.UUID, uuid.UUID], error) {
+	rows, err := q.getMyListCollectionForProfileIDs(ctx, profileIDs)
 	if err != nil {
 		return nil, err
 	}

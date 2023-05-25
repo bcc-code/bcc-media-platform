@@ -11,15 +11,13 @@ WHERE ce.id = ANY (@ids::uuid[]);
 -- name: getMyListCollectionForProfileIDs :many
 SELECT c.id, c.profile_id AS parent_id
 FROM users.collections c
-WHERE c.applicationgroup_id = @applicationgroup_id
-  AND c.profile_id = ANY (@profile_ids::uuid[])
+WHERE c.profile_id = ANY (@profile_ids::uuid[])
   AND my_list;
 
 -- name: getUserCollectionIDsForProfileIDs :many
 SELECT c.id, c.profile_id AS parent_id
 FROM users.collections c
-WHERE c.applicationgroup_id = @applicationgroup_id
-  AND c.profile_id = ANY (@profile_ids::uuid[])
+WHERE c.profile_id = ANY (@profile_ids::uuid[])
   AND my_list;
 
 -- name: getUserCollectionEntryIDsForUserCollectionIDs :many

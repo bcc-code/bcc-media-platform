@@ -79,23 +79,17 @@ func (q *Queries) UpsertUserCollectionEntry(ctx context.Context, arg UpsertUserC
 const getMyListCollectionForProfileIDs = `-- name: getMyListCollectionForProfileIDs :many
 SELECT c.id, c.profile_id AS parent_id
 FROM users.collections c
-WHERE c.applicationgroup_id = $1
-  AND c.profile_id = ANY ($2::uuid[])
+WHERE c.profile_id = ANY ($1::uuid[])
   AND my_list
 `
-
-type getMyListCollectionForProfileIDsParams struct {
-	ApplicationgroupID uuid.UUID   `db:"applicationgroup_id" json:"applicationgroupID"`
-	ProfileIds         []uuid.UUID `db:"profile_ids" json:"profileIds"`
-}
 
 type getMyListCollectionForProfileIDsRow struct {
 	ID       uuid.UUID `db:"id" json:"id"`
 	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
 }
 
-func (q *Queries) getMyListCollectionForProfileIDs(ctx context.Context, arg getMyListCollectionForProfileIDsParams) ([]getMyListCollectionForProfileIDsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getMyListCollectionForProfileIDs, arg.ApplicationgroupID, pq.Array(arg.ProfileIds))
+func (q *Queries) getMyListCollectionForProfileIDs(ctx context.Context, profileIds []uuid.UUID) ([]getMyListCollectionForProfileIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getMyListCollectionForProfileIDs, pq.Array(profileIds))
 	if err != nil {
 		return nil, err
 	}
@@ -202,23 +196,17 @@ func (q *Queries) getUserCollectionEntryIDsForUserCollectionIDs(ctx context.Cont
 const getUserCollectionIDsForProfileIDs = `-- name: getUserCollectionIDsForProfileIDs :many
 SELECT c.id, c.profile_id AS parent_id
 FROM users.collections c
-WHERE c.applicationgroup_id = $1
-  AND c.profile_id = ANY ($2::uuid[])
+WHERE c.profile_id = ANY ($1::uuid[])
   AND my_list
 `
-
-type getUserCollectionIDsForProfileIDsParams struct {
-	ApplicationgroupID uuid.UUID   `db:"applicationgroup_id" json:"applicationgroupID"`
-	ProfileIds         []uuid.UUID `db:"profile_ids" json:"profileIds"`
-}
 
 type getUserCollectionIDsForProfileIDsRow struct {
 	ID       uuid.UUID `db:"id" json:"id"`
 	ParentID uuid.UUID `db:"parent_id" json:"parentID"`
 }
 
-func (q *Queries) getUserCollectionIDsForProfileIDs(ctx context.Context, arg getUserCollectionIDsForProfileIDsParams) ([]getUserCollectionIDsForProfileIDsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getUserCollectionIDsForProfileIDs, arg.ApplicationgroupID, pq.Array(arg.ProfileIds))
+func (q *Queries) getUserCollectionIDsForProfileIDs(ctx context.Context, profileIds []uuid.UUID) ([]getUserCollectionIDsForProfileIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserCollectionIDsForProfileIDs, pq.Array(profileIds))
 	if err != nil {
 		return nil, err
 	}

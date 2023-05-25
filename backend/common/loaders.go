@@ -76,14 +76,10 @@ type BatchLoaders struct {
 	UserCollectionEntryLoader    *loaders.Loader[uuid.UUID, *UserCollectionEntry]
 	UserCollectionEntryIDsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
 
-	PromptLoader *loaders.Loader[uuid.UUID, *Prompt]
-}
-
-// ApplicationLoaders contains loaders specific to applications
-type ApplicationLoaders struct {
-	ProfilesLoader          *loaders.Loader[string, []*Profile]
 	UserCollectionIDsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
 	UserMyListCollectionID  *loaders.Loader[uuid.UUID, *uuid.UUID]
+
+	PromptLoader *loaders.Loader[uuid.UUID, *Prompt]
 }
 
 // FilteredLoaders contains loaders that will be filtered by permissions.
