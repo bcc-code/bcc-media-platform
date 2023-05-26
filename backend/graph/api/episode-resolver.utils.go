@@ -80,8 +80,16 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string)
 	if index < 0 {
 		return nil, nil
 	}
+	// If the episode is the last episode in the show, look for alternative episodes
 	if index >= len(episodeIDs)-1 {
-		return r.getNextFromShowCollection(ctx, episodeID)
+		ids, err := r.getNextFromShowCollection(ctx, episodeID)
+		if err != nil {
+			return nil, err
+		}
+		if len(ids) > 0 {
+			return ids, nil
+		}
+		return r.getRelatedEpisodes(ctx, episodeID)
 	}
 	return []int{episodeIDs[index+1]}, nil
 }
@@ -114,4 +122,30 @@ func (r *episodeResolver) getNextFromShowCollection(ctx context.Context, episode
 	return []int{
 		utils.AsInt(episodeEntries[randomIndex].ID),
 	}, nil
+}
+
+func (r *episodeResolver) getRelatedEpisodes(ctx context.Context, episodeID string) ([]int, error) {
+	intID := utils.AsInt(episodeID)
+	episode, err := r.Loaders.EpisodeLoader.Get(ctx, intID)
+	if err != nil {
+		return nil, err
+	}
+	episodeGroupIDs, err := r.GetFilteredLoaders(ctx).TagEpisodesLoader.GetMany(ctx, episode.TagIDs)
+	if err != nil {
+		return nil, err
+	}
+	episodeIDs := lo.Reduce(episodeGroupIDs, func(a []int, b []*int, _ int) []int {
+		return append(a, utils.PointerArrayToArray(b)...)
+	}, []int{})
+	// Uncomment if we want all episodes to be treated equally.
+	// Keep it commented out to weigh episode with more common tags higher.
+	//episodeIDs = lo.Uniq(episodeIDs)
+	episodeIDs = lo.Filter(episodeIDs, func(i int, _ int) bool {
+		return i != intID
+	})
+	if len(episodeIDs) <= 0 {
+		return nil, nil
+	}
+	randomIndex := rand.Intn(len(episodeIDs))
+	return []int{episodeIDs[randomIndex]}, nil
 }
