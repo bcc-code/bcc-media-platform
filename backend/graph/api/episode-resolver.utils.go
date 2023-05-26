@@ -56,11 +56,21 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string)
 		if err != nil || !episode.SeasonID.Valid {
 			return nil, err
 		}
-		episodePointerIDs, err := r.GetFilteredLoaders(ctx).EpisodesLoader.Get(ctx, int(episode.SeasonID.Int64))
+		season, err := r.Loaders.SeasonLoader.Get(ctx, int(episode.SeasonID.Int64))
+		if err != nil || season == nil {
+			return nil, err
+		}
+		seasonIDs, err := r.GetFilteredLoaders(ctx).SeasonsLoader.Get(ctx, season.ShowID)
 		if err != nil {
 			return nil, err
 		}
-		episodeIDs = utils.PointerArrayToArray(episodePointerIDs)
+		episodePointerIDs, err := r.GetFilteredLoaders(ctx).EpisodesLoader.GetMany(ctx, utils.PointerArrayToArray(seasonIDs))
+		if err != nil {
+			return nil, err
+		}
+		episodeIDs = lo.Reduce(episodePointerIDs, func(a []int, b []*int, _ int) []int {
+			return append(a, utils.PointerArrayToArray(b)...)
+		}, []int{})
 	}
 
 	// Get the index and try to get the next episodeID in the array
