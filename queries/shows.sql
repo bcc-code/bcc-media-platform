@@ -24,7 +24,8 @@ SELECT sh.id,
        COALESCE(images.json, '[]') as images,
        ts.title,
        ts.description,
-       sh.default_episode_behaviour
+       sh.default_episode_behaviour,
+       sh.related_collection_id
 FROM shows sh
          LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
@@ -58,7 +59,8 @@ SELECT sh.id,
        COALESCE(images.json, '[]') as images,
        ts.title,
        ts.description,
-       sh.default_episode_behaviour
+       sh.default_episode_behaviour,
+       sh.related_collection_id
 FROM shows sh
          LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id

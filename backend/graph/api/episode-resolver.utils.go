@@ -3,8 +3,10 @@ package graph
 import (
 	"context"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
+	"math/rand"
 )
 
 func (r *episodeResolver) getEpisodeContext(ctx context.Context, episodeID string) (common.EpisodeContext, error) {
@@ -75,8 +77,41 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string)
 
 	// Get the index and try to get the next episodeID in the array
 	index := lo.IndexOf(episodeIDs, utils.AsInt(episodeID))
-	if index < 0 || index >= len(episodeIDs)-1 {
+	if index < 0 {
 		return nil, nil
 	}
+	if index >= len(episodeIDs)-1 {
+		return r.getNextFromShowCollection(ctx, episodeID)
+	}
 	return []int{episodeIDs[index+1]}, nil
+}
+
+func (r *episodeResolver) getNextFromShowCollection(ctx context.Context, episodeID string) ([]int, error) {
+	intID := utils.AsInt(episodeID)
+	episode, err := r.Loaders.EpisodeLoader.Get(ctx, intID)
+	if err != nil || !episode.SeasonID.Valid {
+		return nil, err
+	}
+	season, err := r.Loaders.SeasonLoader.Get(ctx, int(episode.SeasonID.Int64))
+	if err != nil || season == nil {
+		return nil, err
+	}
+	show, err := r.Loaders.ShowLoader.Get(ctx, season.ShowID)
+	if err != nil || show == nil || !show.RelatedCollectionID.Valid {
+		return nil, err
+	}
+	entries, err := collection.GetCollectionEntries(ctx, r.Loaders, r.GetFilteredLoaders(ctx), int(show.RelatedCollectionID.Int64))
+	if err != nil {
+		return nil, err
+	}
+	episodeEntries := lo.Filter(entries, func(i collection.Entry, _ int) bool {
+		return i.Collection == common.TypeEpisode && i.ID != episodeID
+	})
+	if len(episodeEntries) <= 0 {
+		return nil, nil
+	}
+	randomIndex := rand.Intn(len(episodeEntries))
+	return []int{
+		utils.AsInt(episodeEntries[randomIndex].ID),
+	}, nil
 }
