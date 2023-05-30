@@ -1,9 +1,9 @@
 -- +goose Up
 
-ALTER TABLE assets_files ADD COLUMN size_bigint BIGINT;
-UPDATE assets_files SET size_bigint = size;
-ALTER TABLE assets_files DROP COLUMN size;
-ALTER TABLE assets_files RENAME COLUMN size_bigint TO size;
+ALTER TABLE assetfiles ADD COLUMN size_bigint BIGINT;
+UPDATE assetfiles SET size_bigint = size;
+ALTER TABLE assetfiles DROP COLUMN size;
+ALTER TABLE assetfiles RENAME COLUMN size_bigint TO size;
 
 -- +goose Down
 
