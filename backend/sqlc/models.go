@@ -103,6 +103,22 @@ type Application struct {
 	SearchPageID                  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionID"`
 	Uuid                          uuid.UUID      `db:"uuid" json:"uuid"`
+	GroupID                       uuid.NullUUID  `db:"group_id" json:"groupID"`
+}
+
+type Applicationgroup struct {
+	ID          uuid.UUID     `db:"id" json:"id"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	Label       string        `db:"label" json:"label"`
+}
+
+type ApplicationgroupsUsergroup struct {
+	ID                  int32          `db:"id" json:"id"`
+	ApplicationgroupsID uuid.NullUUID  `db:"applicationgroups_id" json:"applicationgroupsID"`
+	UsergroupsCode      null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
 }
 
 type ApplicationsUsergroup struct {

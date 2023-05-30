@@ -15,7 +15,6 @@ build:
 init:
 	make install
 	make build
-	cd ./custom && make init
 
 reset:
 	make init
