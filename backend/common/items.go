@@ -40,6 +40,7 @@ type Show struct {
 	Image                   null.String  `json:"image"`
 	Images                  Images       `json:"images"`
 	DefaultEpisodeBehaviour null.String  `json:"defaultEpisode"`
+	RelatedCollectionID     null.Int     `json:"relatedCollectionId"`
 }
 
 // GetKey returns the key for this item

@@ -1183,6 +1183,7 @@ type Show struct {
 	Label                   null_v4.String `db:"label" json:"label"`
 	PublicTitle             null_v4.String `db:"public_title" json:"publicTitle"`
 	Uuid                    uuid.UUID      `db:"uuid" json:"uuid"`
+	RelatedCollectionID     null_v4.Int    `db:"related_collection_id" json:"relatedCollectionID"`
 }
 
 type ShowAvailability struct {
