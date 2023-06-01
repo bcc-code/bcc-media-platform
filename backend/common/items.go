@@ -424,3 +424,13 @@ type Prompt struct {
 	From           time.Time
 	To             time.Time
 }
+
+// Game contains details for a game
+type Game struct {
+	ID           uuid.UUID `json:"id"`
+	Title        LocaleString
+	Description  LocaleString
+	Images       Images
+	Url          string
+	RequiresAuth bool
+}

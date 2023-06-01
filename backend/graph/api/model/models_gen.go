@@ -386,7 +386,8 @@ type Episode struct {
 	Lessons               *LessonPagination      `json:"lessons"`
 	ShareRestriction      ShareRestriction       `json:"shareRestriction"`
 	InMyList              bool                   `json:"inMyList"`
-	Next                  []*Episode             `json:"next"`
+	// Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
+	Next []*Episode `json:"next"`
 }
 
 func (Episode) IsSectionItemType() {}
@@ -552,6 +553,17 @@ type File struct {
 	MimeType         string  `json:"mimeType"`
 	Resolution       *string `json:"resolution,omitempty"`
 }
+
+type Game struct {
+	ID           string  `json:"id"`
+	Title        string  `json:"title"`
+	Description  *string `json:"description,omitempty"`
+	URL          string  `json:"url"`
+	RequiresAuth bool    `json:"requiresAuth"`
+	Image        *string `json:"image,omitempty"`
+}
+
+func (Game) IsSectionItemType() {}
 
 type GlobalConfig struct {
 	LiveOnline  bool `json:"liveOnline"`

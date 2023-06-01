@@ -16,8 +16,9 @@ func LessonFrom(ctx context.Context, lesson *common.Lesson) *Lesson {
 	title := lesson.Title.Get(languages)
 
 	return &Lesson{
-		ID:    id,
-		Title: title,
+		ID:          id,
+		Title:       title,
+		Description: lesson.Description.Get(languages),
 		Topic: &StudyTopic{
 			ID: lesson.TopicID.String(),
 		},

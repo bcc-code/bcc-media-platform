@@ -235,7 +235,7 @@ type LinkPagination implements Pagination {
     items: [Link!]!
 }
 
-union SectionItemType = Show | Season | Episode | Page | Link | StudyTopic
+union SectionItemType = Show | Season | Episode | Page | Link | StudyTopic | Game
 
 type SectionItem {
     id: ID!
