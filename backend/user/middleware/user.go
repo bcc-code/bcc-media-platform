@@ -1,64 +1,30 @@
-package user
+package middleware
 
 import (
+	"context"
+	"fmt"
+	cache "github.com/Code-Hex/go-generics-cache"
+	"github.com/ansel1/merry/v2"
+	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/members"
+	"github.com/bcc-code/brunstadtv/backend/remotecache"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
+	"github.com/samber/lo"
+	"go.opentelemetry.io/otel"
+	"strconv"
+	"sync"
+	"time"
 )
 
-// All well-known roles as used in the DB
-const (
-	RolePublic       = "public"
-	RoleRegistered   = "registered"
-	RoleBCCMember    = "bcc-members"
-	RoleNonBCCMember = "non-bcc-members"
-)
+var userCacheLocks = utils.SyncMap[string, *sync.Mutex]{}
 
-// Various hardcoded keys
-const (
-	CtxUser          = "ctx-user"
-	CacheRoles       = "roles"
-	CtxLanguages     = "ctx-languages"
-	CtxImpersonating = "ctx-impersonating"
-	CtxProfiles      = "ctx-profiles"
-	CtxProfile       = "ctx-profile"
-)
-
-// GetAcceptedLanguagesFromCtx as sent by the user
-func GetAcceptedLanguagesFromCtx(ctx *gin.Context) []string {
-	accLang := ctx.GetHeader("Accept-Language")
-	return utils.ParseAcceptLanguage(accLang)
-}
-
-// AgeGroups contains the different age groups keyed by the minimum age.
-var AgeGroups = map[int]string{
-	65: "65+",
-	51: "51 - 64",
-	37: "37 - 50",
-	26: "26 - 36",
-	19: "19 - 25",
-	13: "13 - 18",
-	10: "10 - 12",
-	0:  "0 - 9",
-}
-
-func ageFromBirthDate(birthDate string) int {
-	date, err := time.Parse("2006-04-02", birthDate)
-	if err != nil {
-		return 0
-	}
-	now := time.Now()
-
-	// years since birth
-	years := now.Year() - date.Year()
-
-	// if the user hasn't had their birthday yet this year, subtract a year
-	if now.Month() < date.Month() || (now.Month() == date.Month() && now.Day() < date.Day()) {
-		years--
-	}
-
-	return years
-}
+var userCache = cache.New[string, *common.User]()
+var rolesCache = cache.New[string, map[string][]string]()
 
 // NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
@@ -72,13 +38,13 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 		authed := ctx.GetBool(auth0.CtxAuthenticated)
 
 		// This can't be on the user object because that is cached for too long
-		ctx.Set(CtxLanguages, GetAcceptedLanguagesFromCtx(ctx))
+		ctx.Set(user.CtxLanguages, user.GetAcceptedLanguagesFromCtx(ctx))
 
 		// If the user is anonymous we just create a simple object and bail
 		if !authed {
 			span.AddEvent("Anonymous")
-			roles = append(roles, RolePublic)
-			ctx.Set(CtxUser,
+			roles = append(roles, user.RolePublic)
+			ctx.Set(user.CtxUser,
 				&common.User{
 					Roles:     roles,
 					Anonymous: true,
@@ -91,7 +57,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 
 		if u, ok := userCache.Get(userID); ok {
 			span.AddEvent("User From Cache")
-			ctx.Set(CtxUser, u)
+			ctx.Set(user.CtxUser, u)
 			return
 		}
 
@@ -100,11 +66,11 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 			pid := ctx.GetString(auth0.CtxPersonID)
 			intID, _ := strconv.ParseInt(pid, 10, 32)
 
-			roles = append(roles, RoleRegistered)
+			roles = append(roles, user.RoleRegistered)
 			if ctx.GetBool(auth0.CtxIsBCCMember) {
-				roles = append(roles, RoleBCCMember)
+				roles = append(roles, user.RoleBCCMember)
 			} else {
-				roles = append(roles, RoleNonBCCMember, RolePublic)
+				roles = append(roles, user.RoleNonBCCMember, user.RolePublic)
 			}
 
 			if pid == "" || pid == "0" {
@@ -160,7 +126,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 					}
 
 					userCache.Set(userID, u, cache.WithExpiration(1*time.Minute))
-					ctx.Set(CtxUser, u)
+					ctx.Set(user.CtxUser, u)
 					return u, nil
 				}
 				u.FirstName = member.FirstName
@@ -174,24 +140,12 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				}
 				u.Email = member.Email
 				u.DisplayName = member.DisplayName
-
-				u.Age = ageFromBirthDate(member.BirthDate)
-
-				now := time.Now()
-				affiliations := lo.Filter(member.Affiliations, func(i members.Affiliation, _ int) bool {
-					return (i.ValidTo == nil || i.ValidTo.After(now)) && (i.ValidFrom == nil || i.ValidFrom.Before(now))
+				u.Age = member.Age
+				u.ChurchIDs = lo.Map(lo.Filter(member.Affiliations, func(i members.Affiliation, _ int) bool {
+					return i.Active && i.OrgType == "Church"
+				}), func(i members.Affiliation, _ int) int {
+					return i.OrgID
 				})
-				organizations, err := ls.OrganizationLoader.GetMany(ctx, lo.Map(affiliations, func(i members.Affiliation, _ int) uuid.UUID {
-					return i.OrgUid
-				}))
-				if err != nil {
-					return nil, err
-				}
-				for _, org := range organizations {
-					if org != nil && org.Type == "Church" {
-						u.ChurchIDs = append(u.ChurchIDs, org.OrgID)
-					}
-				}
 			} else {
 				info, err := auth0Client.GetUser(ctx, ctx.GetString(auth0.CtxUserID))
 				if err != nil {
@@ -229,8 +183,8 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 			u.Roles = roles
 
 			ageGroupMin := 0
-			for minAge, group := range AgeGroups {
-				// Note: Maps are not iterated in a sorted order, so we have to find the lowed applicable
+			for minAge, group := range user.AgeGroups {
+				// Note: Maps are not iterated in a sorted order, so we have to find the lowest applicable range
 				if u.Age >= minAge && minAge > ageGroupMin {
 					u.AgeGroup = group
 					ageGroupMin = minAge
@@ -255,11 +209,11 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 		if u, err := remotecache.GetOrCreate[*common.User](ctx, remoteCache, fmt.Sprintf("users:%s", userID), getUserFromMembers); err == nil {
 			span.AddEvent("User loaded into cache")
 			userCache.Set(userID, u, cache.WithExpiration(60*time.Second))
-			ctx.Set(CtxUser, u)
+			ctx.Set(user.CtxUser, u)
 			return
 		} else {
 			log.L.Error().Err(err).Send()
-			ctx.Set(CtxUser, &common.User{
+			ctx.Set(user.CtxUser, &common.User{
 				Roles:     roles,
 				Anonymous: true,
 				ActiveBCC: false,
@@ -268,40 +222,44 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 	}
 }
 
-// GetFromCtx gets the user stored in the context by the middleware
-func GetFromCtx(ctx *gin.Context) *common.User {
-	u, ok := ctx.Get(CtxUser)
-	if !ok {
-		return nil
+func getRoles(ctx context.Context, queries *sqlc.Queries) (map[string][]string, error) {
+	ctx, span := otel.Tracer("user").Start(ctx, "getRoles")
+	defer span.End()
+
+	if roles, ok := rolesCache.Get(user.CacheRoles); ok {
+		span.AddEvent("from cache")
+		return roles, nil
 	}
 
-	return u.(*common.User)
+	allRoles := map[string][]string{}
+	roles, err := queries.GetRoles(ctx)
+	if err != nil {
+		return nil, merry.Wrap(err)
+	}
+
+	lo.ForEach(roles, func(x sqlc.GetRolesRow, _ int) { allRoles[x.Code] = x.Emails })
+
+	span.AddEvent("loaded into cache")
+	rolesCache.Set(user.CacheRoles, allRoles, cache.WithExpiration(60*time.Minute))
+	return allRoles, nil
 }
 
-// GetProfileFromCtx returns the current profile
-func GetProfileFromCtx(ctx *gin.Context) *common.Profile {
-	p, ok := ctx.Get(CtxProfile)
-	if !ok {
-		return nil
-	}
-	return p.(*common.Profile)
-}
+// GetRolesForEmail returns all roles applicable for a specific email address.
+// The roles are fetched from a local cache or if that is not available from the DB
+func GetRolesForEmail(ctx context.Context, queries *sqlc.Queries, email string) ([]string, error) {
+	ctx, span := otel.Tracer("user").Start(ctx, "GetRolesForEmail")
+	defer span.End()
+	var rtnRoles []string
 
-// GetProfilesFromCtx returns the current profile
-func GetProfilesFromCtx(ctx *gin.Context) []common.Profile {
-	p, ok := ctx.Get(CtxProfiles)
-	if !ok {
-		return nil
-	}
-	return p.([]common.Profile)
-}
-
-// GetLanguagesFromCtx as provided in the request
-func GetLanguagesFromCtx(ctx *gin.Context) []string {
-	l, ok := ctx.Get(CtxLanguages)
-	if !ok {
-		return []string{}
+	allRoles, err := getRoles(ctx, queries)
+	if err != nil {
+		return rtnRoles, merry.Wrap(err)
 	}
 
-	return l.([]string)
+	for k, emails := range allRoles {
+		if lo.Contains(emails, email) {
+			rtnRoles = append(rtnRoles, k)
+		}
+	}
+	return rtnRoles, nil
 }

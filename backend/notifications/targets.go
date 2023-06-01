@@ -34,6 +34,13 @@ func (u *Utils) ResolveTargets(ctx context.Context, targetIDs []uuid.UUID) ([]co
 }
 
 func (u *Utils) getTokensForGroups(ctx context.Context, codes []string) ([]common.Device, error) {
+	apps, err := u.queries.ListApplications(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defaultApp, _ := lo.Find(apps, func(i common.Application) bool {
+		return i.Default
+	})
 	groups, err := u.queries.GetRolesWithCode(ctx, codes)
 	if err != nil {
 		return nil, err
@@ -63,7 +70,7 @@ func (u *Utils) getTokensForGroups(ctx context.Context, codes []string) ([]commo
 		}
 	}
 	personIDs = lo.Uniq(personIDs)
-	profiles, err := u.queries.GetProfilesForUserIDs(ctx, personIDs)
+	profiles, err := u.queries.ApplicationQueries(defaultApp.GroupID).GetProfilesForUserIDs(ctx, personIDs)
 	if err != nil {
 		return nil, err
 	}

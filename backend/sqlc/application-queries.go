@@ -11,14 +11,14 @@ import (
 // ApplicationQueries contains queries specific to application
 type ApplicationQueries struct {
 	*Queries
-	applicationID uuid.UUID
+	groupID uuid.UUID
 }
 
 // ApplicationQueries returns application-queries
-func (q *Queries) ApplicationQueries(applicationID uuid.UUID) *ApplicationQueries {
+func (q *Queries) ApplicationQueries(groupID uuid.UUID) *ApplicationQueries {
 	return &ApplicationQueries{
-		applicationID: applicationID,
-		Queries:       q,
+		groupID: groupID,
+		Queries: q,
 	}
 }
 
@@ -28,13 +28,14 @@ func mapToApplications(applications []getApplicationsRow) []common.Application {
 		return common.Application{
 			ID:                  int(p.ID),
 			UUID:                p.Uuid,
+			GroupID:             p.GroupID,
 			Default:             p.Default,
 			Code:                p.Code,
-			Roles:               p.Roles,
 			ClientVersion:       p.ClientVersion.ValueOrZero(),
 			DefaultPageID:       p.DefaultPageID,
 			SearchPageID:        p.SearchPageID,
 			RelatedCollectionID: p.StandaloneRelatedCollectionID,
+			Roles:               p.Roles,
 		}
 	})
 }
@@ -57,6 +58,20 @@ func (q *Queries) ListApplications(ctx context.Context) ([]common.Application, e
 	return mapToApplications(lo.Map(apps, func(p listApplicationsRow, _ int) getApplicationsRow {
 		return getApplicationsRow(p)
 	})), nil
+}
+
+// GetApplicationGroups returns application groups
+func (q *Queries) GetApplicationGroups(ctx context.Context, ids []uuid.UUID) ([]common.ApplicationGroup, error) {
+	rows, err := q.getApplicationGroups(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getApplicationGroupsRow, _ int) common.ApplicationGroup {
+		return common.ApplicationGroup{
+			ID:    i.ID,
+			Roles: i.Roles,
+		}
+	}), nil
 }
 
 // GetOriginal returns the requested string

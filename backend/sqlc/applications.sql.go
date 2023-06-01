@@ -13,6 +13,46 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getApplicationGroups = `-- name: getApplicationGroups :many
+WITH roles AS (SELECT r.applicationgroups_id,
+                      array_agg(DISTINCT r.usergroups_code) as roles
+               FROM applicationgroups_usergroups r
+               GROUP BY r.applicationgroups_id)
+SELECT g.id,
+       COALESCE(r.roles, '{}')::varchar[] AS roles
+FROM applicationgroups g
+         LEFT JOIN roles r ON g.id = r.applicationgroups_id
+WHERE g.id = ANY ($1::uuid[])
+`
+
+type getApplicationGroupsRow struct {
+	ID    uuid.UUID `db:"id" json:"id"`
+	Roles []string  `db:"roles" json:"roles"`
+}
+
+func (q *Queries) getApplicationGroups(ctx context.Context, id []uuid.UUID) ([]getApplicationGroupsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getApplicationGroups, pq.Array(id))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getApplicationGroupsRow
+	for rows.Next() {
+		var i getApplicationGroupsRow
+		if err := rows.Scan(&i.ID, pq.Array(&i.Roles)); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getApplicationIDsForCodes = `-- name: getApplicationIDsForCodes :many
 SELECT p.id, p.code
 FROM applications p
@@ -48,12 +88,13 @@ func (q *Queries) getApplicationIDsForCodes(ctx context.Context, dollar_1 []stri
 }
 
 const getApplications = `-- name: getApplications :many
-WITH roles AS (SELECT r.applications_id,
+WITH roles AS (SELECT r.applicationgroups_id,
                       array_agg(DISTINCT r.usergroups_code) as roles
-               FROM applications_usergroups r
-               GROUP BY r.applications_id)
+               FROM applicationgroups_usergroups r
+               GROUP BY r.applicationgroups_id)
 SELECT a.id::int                          AS id,
        a.uuid                             AS uuid,
+       a.group_id                         AS group_id,
        a.code::varchar                    AS code,
        a.default                          AS "default",
        a.client_version,
@@ -63,7 +104,8 @@ SELECT a.id::int                          AS id,
        a.standalone_related_collection_id AS standalone_related_collection_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
-         LEFT JOIN roles r ON a.id = r.applications_id
+         JOIN applicationgroups g ON g.id = a.group_id
+         LEFT JOIN roles r ON g.id = r.applicationgroups_id
 WHERE a.id = ANY ($1::int[])
   AND a.status = 'published'
 `
@@ -71,6 +113,7 @@ WHERE a.id = ANY ($1::int[])
 type getApplicationsRow struct {
 	ID                            int32          `db:"id" json:"id"`
 	Uuid                          uuid.UUID      `db:"uuid" json:"uuid"`
+	GroupID                       uuid.UUID      `db:"group_id" json:"groupID"`
 	Code                          string         `db:"code" json:"code"`
 	Default                       bool           `db:"default" json:"default"`
 	ClientVersion                 null_v4.String `db:"client_version" json:"clientVersion"`
@@ -93,6 +136,7 @@ func (q *Queries) getApplications(ctx context.Context, dollar_1 []int32) ([]getA
 		if err := rows.Scan(
 			&i.ID,
 			&i.Uuid,
+			&i.GroupID,
 			&i.Code,
 			&i.Default,
 			&i.ClientVersion,
@@ -116,12 +160,13 @@ func (q *Queries) getApplications(ctx context.Context, dollar_1 []int32) ([]getA
 }
 
 const listApplications = `-- name: listApplications :many
-WITH roles AS (SELECT r.applications_id,
+WITH roles AS (SELECT r.applicationgroups_id,
                       array_agg(DISTINCT r.usergroups_code) as roles
-               FROM applications_usergroups r
-               GROUP BY r.applications_id)
+               FROM applicationgroups_usergroups r
+               GROUP BY r.applicationgroups_id)
 SELECT a.id::int                          AS id,
        a.uuid                             AS uuid,
+       a.group_id                         AS group_id,
        a.code::varchar                    AS code,
        a.default                          AS "default",
        a.client_version,
@@ -131,13 +176,15 @@ SELECT a.id::int                          AS id,
        a.standalone_related_collection_id AS standalone_related_collection_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
-         LEFT JOIN roles r ON a.id = r.applications_id
+         JOIN applicationgroups g ON g.id = a.group_id
+         LEFT JOIN roles r ON g.id = r.applicationgroups_id
 WHERE a.status = 'published'
 `
 
 type listApplicationsRow struct {
 	ID                            int32          `db:"id" json:"id"`
 	Uuid                          uuid.UUID      `db:"uuid" json:"uuid"`
+	GroupID                       uuid.UUID      `db:"group_id" json:"groupID"`
 	Code                          string         `db:"code" json:"code"`
 	Default                       bool           `db:"default" json:"default"`
 	ClientVersion                 null_v4.String `db:"client_version" json:"clientVersion"`
@@ -160,6 +207,7 @@ func (q *Queries) listApplications(ctx context.Context) ([]listApplicationsRow, 
 		if err := rows.Scan(
 			&i.ID,
 			&i.Uuid,
+			&i.GroupID,
 			&i.Code,
 			&i.Default,
 			&i.ClientVersion,

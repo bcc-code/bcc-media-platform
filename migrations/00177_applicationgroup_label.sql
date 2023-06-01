@@ -6,7 +6,7 @@
 
 --- BEGIN ALTER TABLE "public"."applicationgroups" ---
 
-ALTER TABLE IF EXISTS "public"."applicationgroups" ADD COLUMN IF NOT EXISTS "label" text NOT NULL  ; --WARN: Add a new column not nullable without a default value can occure in a sql error during execution!
+ALTER TABLE IF EXISTS "public"."applicationgroups" ADD COLUMN IF NOT EXISTS "label" text NOT NULL DEFAULT ''; --WARN: Add a new column not nullable without a default value can occure in a sql error during execution!
 
 COMMENT ON COLUMN "public"."applicationgroups"."label"  IS NULL;
 

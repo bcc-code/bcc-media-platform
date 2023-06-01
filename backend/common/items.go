@@ -40,6 +40,7 @@ type Show struct {
 	Image                   null.String  `json:"image"`
 	Images                  Images       `json:"images"`
 	DefaultEpisodeBehaviour null.String  `json:"defaultEpisode"`
+	RelatedCollectionID     null.Int     `json:"relatedCollectionId"`
 }
 
 // GetKey returns the key for this item
@@ -352,6 +353,7 @@ func (i Question) GetKey() uuid.UUID {
 type Application struct {
 	ID                  int
 	UUID                uuid.UUID
+	GroupID             uuid.UUID
 	Default             bool
 	Code                string
 	ClientVersion       string
@@ -363,6 +365,17 @@ type Application struct {
 
 // GetKey returns the key for this item
 func (i Application) GetKey() int {
+	return i.ID
+}
+
+// ApplicationGroup contains data for
+type ApplicationGroup struct {
+	ID    uuid.UUID
+	Roles []string
+}
+
+// GetKey returns the key for this item
+func (i ApplicationGroup) GetKey() uuid.UUID {
 	return i.ID
 }
 
