@@ -31,7 +31,6 @@ require (
 	github.com/glebarez/go-sqlite v1.21.1
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/gocarina/gocsv v0.0.0-20230510095315-7f30c79fd20c
-	github.com/goodsign/monday v1.0.1
 	github.com/google/uuid v1.3.0
 	github.com/graph-gophers/dataloader/v7 v7.1.0
 	github.com/lestrrat-go/jwx/v2 v2.0.9
