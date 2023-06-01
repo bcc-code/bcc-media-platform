@@ -106,6 +106,24 @@ var AgeGroups = map[int]string{
 	0:  "0 - 9",
 }
 
+func ageFromBirthDate(birthDate string) int {
+	date, err := time.Parse("2006-04-02", birthDate)
+	if err != nil {
+		return 0
+	}
+	now := time.Now()
+
+	// years since birth
+	years := now.Year() - date.Year()
+
+	// if the user hasn't had their birthday yet this year, subtract a year
+	if now.Month() < date.Month() || (now.Month() == date.Month() && now.Day() < date.Day()) {
+		years--
+	}
+
+	return years
+}
+
 // NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
 func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, ls *common.BatchLoaders, auth0Client *auth0.Client) func(*gin.Context) {
@@ -220,12 +238,24 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				}
 				u.Email = member.Email
 				u.DisplayName = member.DisplayName
-				u.Age = member.Age
-				u.ChurchIDs = lo.Map(lo.Filter(member.Affiliations, func(i members.Affiliation, _ int) bool {
-					return i.Active && i.OrgType == "Church"
-				}), func(i members.Affiliation, _ int) int {
-					return i.OrgID
+
+				u.Age = ageFromBirthDate(member.BirthDate)
+
+				now := time.Now()
+				affiliations := lo.Filter(member.Affiliations, func(i members.Affiliation, _ int) bool {
+					return (i.ValidTo == nil || i.ValidTo.After(now)) && (i.ValidFrom == nil || i.ValidFrom.Before(now))
 				})
+				organizations, err := ls.OrganizationLoader.GetMany(ctx, lo.Map(affiliations, func(i members.Affiliation, _ int) uuid.UUID {
+					return i.OrgUid
+				}))
+				if err != nil {
+					return nil, err
+				}
+				for _, org := range organizations {
+					if org != nil && org.Type == "Church" {
+						u.ChurchIDs = append(u.ChurchIDs, org.OrgID)
+					}
+				}
 			} else {
 				info, err := auth0Client.GetUser(ctx, ctx.GetString(auth0.CtxUserID))
 				if err != nil {

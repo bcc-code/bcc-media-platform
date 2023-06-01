@@ -194,9 +194,13 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 			return i.ItemID
 		}, loaders.WithName("section-permission")),
 
-		MemberLoader: loaders.New(ctx, membersClient.RetrieveByIDs, loaders.WithKeyFunc(func(i members.Member) int {
+		MemberLoader: loaders.New(ctx, membersClient.GetMembersByIDs, loaders.WithKeyFunc(func(i members.Member) int {
 			return i.PersonID
 		}), loaders.WithName("member-loader")),
+
+		OrganizationLoader: loaders.New(ctx, membersClient.GetOrganizationsByIDs, loaders.WithKeyFunc(func(i members.Organization) uuid.UUID {
+			return i.Uid
+		})),
 
 		SurveyLoader: loaders.New(ctx, queries.GetSurveys, loaders.WithName("survey-loader"), loaders.WithKeyFunc(func(i common.Survey) uuid.UUID {
 			return i.ID
