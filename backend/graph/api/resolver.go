@@ -241,14 +241,6 @@ func itemsResolverFor[k comparable, kr comparable, t any, r any](ctx context.Con
 	return utils.MapWithCtx(ctx, items, converter), err
 }
 
-func itemsResolverForIntID[t any, r any](ctx context.Context, loaders *itemLoaders[int, t], listLoader *loaders.Loader[int, []*int], id string, converter func(context.Context, *t) r) ([]r, error) {
-	intID, err := strconv.ParseInt(id, 10, 32)
-	if err != nil {
-		return nil, err
-	}
-	return itemsResolverFor(ctx, loaders, listLoader, int(intID), converter)
-}
-
 func imageOrFallback(ctx context.Context, images common.Images, style *model.ImageStyle, fallbacks ...common.Images) *string {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)

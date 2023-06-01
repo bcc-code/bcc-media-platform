@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"github.com/goodsign/monday"
 	"time"
 )
 
@@ -26,11 +25,4 @@ func SmallestTime(timeStamps ...time.Time) time.Time {
 		}
 	}
 	return smallest
-}
-
-var locales = map[string]monday.Locale{
-	"en": monday.LocaleEnGB,
-	"no": monday.LocaleNbNO,
-	"nl": monday.LocaleNlNL,
-	"fr": monday.LocaleFrFR,
 }
