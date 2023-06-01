@@ -246,6 +246,53 @@ func (q *Queries) getEpisodeIDsWithRoles(ctx context.Context, arg getEpisodeIDsW
 	return items, nil
 }
 
+const getEpisodeIDsWithTagIDs = `-- name: getEpisodeIDsWithTagIDs :many
+SELECT t.episodes_id AS id, t.tags_id AS parent_id
+FROM episodes_tags t
+         LEFT JOIN episode_availability access ON access.id = t.episodes_id
+         LEFT JOIN episode_roles roles ON roles.id = t.episodes_id
+WHERE t.tags_id = ANY ($1::int[])
+  AND access.published
+  AND access.available_to > now()
+  AND (
+        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+        (roles.roles_earlyaccess && $2::varchar[])
+    )
+`
+
+type getEpisodeIDsWithTagIDsParams struct {
+	TagIds []int32  `db:"tag_ids" json:"tagIds"`
+	Roles  []string `db:"roles" json:"roles"`
+}
+
+type getEpisodeIDsWithTagIDsRow struct {
+	ID       int32 `db:"id" json:"id"`
+	ParentID int32 `db:"parent_id" json:"parentID"`
+}
+
+func (q *Queries) getEpisodeIDsWithTagIDs(ctx context.Context, arg getEpisodeIDsWithTagIDsParams) ([]getEpisodeIDsWithTagIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeIDsWithTagIDs, pq.Array(arg.TagIds), pq.Array(arg.Roles))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getEpisodeIDsWithTagIDsRow
+	for rows.Next() {
+		var i getEpisodeIDsWithTagIDsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getEpisodeUUIDsWithRoles = `-- name: getEpisodeUUIDsWithRoles :many
 SELECT e.uuid
 FROM episodes e

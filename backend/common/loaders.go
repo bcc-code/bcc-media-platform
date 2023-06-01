@@ -89,6 +89,7 @@ type FilteredLoaders struct {
 	EpisodeFilterLoader     *loaders.Loader[int, *int]
 	EpisodeUUIDFilterLoader *loaders.Loader[uuid.UUID, *uuid.UUID]
 	EpisodesLoader          *loaders.Loader[int, []*int]
+	TagEpisodesLoader       *loaders.Loader[int, []*int]
 	SeasonFilterLoader      *loaders.Loader[int, *int]
 	SeasonsLoader           *loaders.Loader[int, []*int]
 	ShowFilterLoader        *loaders.Loader[int, *int]

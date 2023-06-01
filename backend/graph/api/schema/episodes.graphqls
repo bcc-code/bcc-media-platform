@@ -47,6 +47,9 @@ type Episode {
     shareRestriction: ShareRestriction! @goField(forceResolver: true)
     inMyList: Boolean! @goField(forceResolver: true)
 
+    """
+    Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
+    """
     next: [Episode!]! @goField(forceResolver: true)
 }
 

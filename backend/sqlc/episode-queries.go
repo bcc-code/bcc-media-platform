@@ -216,3 +216,20 @@ func (q *Queries) GetEpisodeIDsForUuids(ctx context.Context, uuids []uuid.UUID) 
 		}
 	}), nil
 }
+
+// GetEpisodeIDsWithTagIDs returns episodeIDs with the specified tags.
+func (rq *RoleQueries) GetEpisodeIDsWithTagIDs(ctx context.Context, ids []int) ([]loaders.Relation[int, int], error) {
+	rows, err := rq.queries.getEpisodeIDsWithTagIDs(ctx, getEpisodeIDsWithTagIDsParams{
+		Roles:  rq.roles,
+		TagIds: intToInt32(ids),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getEpisodeIDsWithTagIDsRow, _ int) loaders.Relation[int, int] {
+		return relation[int, int]{
+			ID:       int(i.ID),
+			ParentID: int(i.ParentID),
+		}
+	}), nil
+}
