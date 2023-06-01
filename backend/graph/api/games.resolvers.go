@@ -6,7 +6,7 @@ package graph
 
 import (
 	"context"
-	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
@@ -14,7 +14,11 @@ import (
 
 // Image is the resolver for the image field.
 func (r *gameResolver) Image(ctx context.Context, obj *model.Game, style *model.ImageStyle) (*string, error) {
-	panic(fmt.Errorf("not implemented: Image - image"))
+	e, err := r.Loaders.GameLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	return imageOrFallback(ctx, e.Images, style), nil
 }
 
 // Game returns generated.GameResolver implementation.
