@@ -103,7 +103,7 @@ type Application struct {
 	SearchPageID                  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionID"`
 	Uuid                          uuid.UUID      `db:"uuid" json:"uuid"`
-	GroupID                       uuid.NullUUID  `db:"group_id" json:"groupID"`
+	GroupID                       uuid.UUID      `db:"group_id" json:"groupID"`
 }
 
 type Applicationgroup struct {
@@ -119,12 +119,6 @@ type ApplicationgroupsUsergroup struct {
 	ID                  int32          `db:"id" json:"id"`
 	ApplicationgroupsID uuid.NullUUID  `db:"applicationgroups_id" json:"applicationgroupsID"`
 	UsergroupsCode      null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
-}
-
-type ApplicationsUsergroup struct {
-	ID             int32          `db:"id" json:"id"`
-	ApplicationsID null_v4.Int    `db:"applications_id" json:"applicationsID"`
-	UsergroupsCode null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
 }
 
 type Asset struct {
@@ -1403,13 +1397,13 @@ type UsersAchievement struct {
 }
 
 type UsersCollection struct {
-	ID            uuid.UUID `db:"id" json:"id"`
-	ApplicationID uuid.UUID `db:"application_id" json:"applicationID"`
-	ProfileID     uuid.UUID `db:"profile_id" json:"profileID"`
-	UpdatedAt     time.Time `db:"updated_at" json:"updatedAt"`
-	CreatedAt     time.Time `db:"created_at" json:"createdAt"`
-	MyList        bool      `db:"my_list" json:"myList"`
-	Title         string    `db:"title" json:"title"`
+	ID                 uuid.UUID `db:"id" json:"id"`
+	ProfileID          uuid.UUID `db:"profile_id" json:"profileID"`
+	UpdatedAt          time.Time `db:"updated_at" json:"updatedAt"`
+	CreatedAt          time.Time `db:"created_at" json:"createdAt"`
+	MyList             bool      `db:"my_list" json:"myList"`
+	Title              string    `db:"title" json:"title"`
+	ApplicationgroupID uuid.UUID `db:"applicationgroup_id" json:"applicationgroupID"`
 }
 
 type UsersCollectionentry struct {
@@ -1442,9 +1436,10 @@ type UsersMessage struct {
 }
 
 type UsersProfile struct {
-	ID     uuid.UUID `db:"id" json:"id"`
-	UserID string    `db:"user_id" json:"userID"`
-	Name   string    `db:"name" json:"name"`
+	ID                 uuid.UUID `db:"id" json:"id"`
+	UserID             string    `db:"user_id" json:"userID"`
+	Name               string    `db:"name" json:"name"`
+	ApplicationgroupID uuid.UUID `db:"applicationgroup_id" json:"applicationgroupID"`
 }
 
 type UsersProgress struct {

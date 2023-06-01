@@ -9,8 +9,10 @@ import (
 
 // BatchLoaders contains loaders for the different items
 type BatchLoaders struct {
-	ApplicationLoader                  *loaders.Loader[int, *Application]
-	ApplicationIDFromCodeLoader        *loaders.Loader[string, *int]
+	ApplicationLoader           *loaders.Loader[int, *Application]
+	ApplicationIDFromCodeLoader *loaders.Loader[string, *int]
+	ApplicationGroupLoader      *loaders.Loader[uuid.UUID, *ApplicationGroup]
+
 	RedirectLoader                     *loaders.Loader[uuid.UUID, *Redirect]
 	RedirectIDFromCodeLoader           *loaders.Loader[string, *uuid.UUID]
 	PageLoader                         *loaders.Loader[int, *Page]
@@ -35,7 +37,6 @@ type BatchLoaders struct {
 	FAQCategoryLoader                  *loaders.Loader[uuid.UUID, *FAQCategory]
 	QuestionLoader                     *loaders.Loader[uuid.UUID, *Question]
 	QuestionsLoader                    *loaders.Loader[uuid.UUID, []*uuid.UUID]
-	ProfilesLoader                     *loaders.Loader[string, []*Profile]
 	MessageGroupLoader                 *loaders.Loader[int, *MessageGroup]
 	RedirectFromCodeLoader             *loaders.Loader[string, *Redirect]
 	SurveyLoader                       *loaders.Loader[uuid.UUID, *Survey]
@@ -75,13 +76,10 @@ type BatchLoaders struct {
 	UserCollectionEntryLoader    *loaders.Loader[uuid.UUID, *UserCollectionEntry]
 	UserCollectionEntryIDsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
 
-	PromptLoader *loaders.Loader[uuid.UUID, *Prompt]
-}
+	ProfileUserCollectionIDsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
+	ProfileMyListCollectionID      *loaders.Loader[uuid.UUID, *uuid.UUID]
 
-// ApplicationLoaders contains loaders specific to applications
-type ApplicationLoaders struct {
-	UserCollectionIDsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
-	UserMyListCollectionID  *loaders.Loader[uuid.UUID, *uuid.UUID]
+	PromptLoader *loaders.Loader[uuid.UUID, *Prompt]
 }
 
 // FilteredLoaders contains loaders that will be filtered by permissions.

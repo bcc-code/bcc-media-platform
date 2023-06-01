@@ -10,6 +10,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/bcc-code/brunstadtv/backend/remotecache"
+	"github.com/bcc-code/brunstadtv/backend/user/middleware"
 	"github.com/bsm/redislock"
 	"github.com/gin-contrib/pprof"
 	"github.com/sony/gobreaker"
@@ -83,30 +84,6 @@ func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *comm
 		}
 		ls := getLoadersForProfile(queries, p.ID)
 		ginCtx.Set(profileLoadersCtxKey, ls)
-		return ls
-	}
-}
-
-func applicationLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *common.ApplicationLoaders {
-	return func(ctx context.Context) *common.ApplicationLoaders {
-		ginCtx, err := utils.GinCtx(ctx)
-		if err != nil {
-			log.L.Error().Err(err).Send()
-			return nil
-		}
-		a, err := applications.GetFromCtx(ginCtx)
-		if err != nil {
-			log.L.Error().Err(err).Send()
-			return nil
-		}
-		if a == nil {
-			return nil
-		}
-		if ls := ginCtx.Value(applicationLoadersCtxKey); ls != nil {
-			return ls.(*common.ApplicationLoaders)
-		}
-		ls := getApplicationLoaders(queries, a.UUID)
-		ginCtx.Set(applicationLoadersCtxKey, ls)
 		return ls
 	}
 }
@@ -236,7 +213,8 @@ func main() {
 
 	r.Use(otelgin.Middleware("api"))
 	r.Use(authClient.ValidateToken())
-	r.Use(user.NewUserMiddleware(queries, remoteCache, ls, authClient))
+	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
+	r.Use(middleware.NewUserMiddleware(queries, remoteCache, ls, authClient))
 	if environment.Test() {
 		// Get the user object from headers
 		r.Use(func(ctx *gin.Context) {
@@ -253,8 +231,7 @@ func main() {
 			}
 		})
 	}
-	r.Use(user.NewProfileMiddleware(queries, remoteCache))
-	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
+	r.Use(middleware.NewProfileMiddleware(queries, remoteCache))
 	r.Use(applications.RoleMiddleware())
 	r.Use(ratelimit.Middleware())
 

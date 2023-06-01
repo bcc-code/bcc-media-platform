@@ -477,13 +477,13 @@ func (r *queryRootResolver) MyList(ctx context.Context) (*model.UserCollection, 
 	if err != nil {
 		return nil, err
 	}
-	l := r.GetApplicationLoaders(ctx).UserMyListCollectionID
+	l := r.GetLoaders().ProfileMyListCollectionID
 	id, err := l.Get(ctx, p.ID)
 	if id == nil {
 		uc := common.UserCollection{
-			ID:            uuid.New(),
-			ApplicationID: app.UUID,
-			Title:         "my-list",
+			ID:                 uuid.New(),
+			ApplicationGroupID: app.GroupID,
+			Title:              "my-list",
 			Metadata: common.UserCollectionMetadata{
 				MyList: true,
 			},
@@ -493,11 +493,11 @@ func (r *queryRootResolver) MyList(ctx context.Context) (*model.UserCollection, 
 		l.Clear(ctx, p.ID)
 		l.Prime(ctx, p.ID, id)
 		err = r.Queries.UpsertUserCollection(ctx, sqlc.UpsertUserCollectionParams{
-			ID:            uc.ID,
-			ApplicationID: uc.ApplicationID,
-			MyList:        uc.Metadata.MyList,
-			ProfileID:     uc.ProfileID,
-			Title:         uc.Title,
+			ID:                 uc.ID,
+			ApplicationgroupID: uc.ApplicationGroupID,
+			MyList:             uc.Metadata.MyList,
+			ProfileID:          uc.ProfileID,
+			Title:              uc.Title,
 		})
 		if err != nil {
 			return nil, err
