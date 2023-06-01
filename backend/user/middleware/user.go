@@ -184,7 +184,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 
 			ageGroupMin := 0
 			for minAge, group := range user.AgeGroups {
-				// Note: Maps are not iterated in a sorted order, so we have to find the lowed applicable
+				// Note: Maps are not iterated in a sorted order, so we have to find the lowest applicable range
 				if u.Age >= minAge && minAge > ageGroupMin {
 					u.AgeGroup = group
 					ageGroupMin = minAge
