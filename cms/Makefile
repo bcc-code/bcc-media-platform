@@ -1,7 +1,7 @@
 .PHONY: run init reset s
 
 run:
-	npx directus start
+	pnpm directus start
 
 install:
 	pnpm i
