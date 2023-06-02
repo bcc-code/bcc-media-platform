@@ -4,8 +4,8 @@
         <div class="flex gap-4">
             <div v-for="(i, index) in filteredItems">
                 <StudyTopicCardLarge
-                    v-if="item.cardSize == 'large'"
-                    :item="(i.item as StudyTopicSectionItemFragment)"
+                    v-if="item.cardSize == 'large' && i.item.__typename === 'StudyTopic'"
+                    :item="i.item"
                     @click="$emit('clickItem', index)"
                     ref="sectionItem"
                 >

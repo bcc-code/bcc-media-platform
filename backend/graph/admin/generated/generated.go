@@ -286,6 +286,7 @@ enum Collection {
     shows,
     seasons,
     episodes,
+    games,
 }
 
 type CollectionItem {
