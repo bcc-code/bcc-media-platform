@@ -17,7 +17,7 @@ const props = defineProps<{
 const api = useApi();
 
 const factory = async () => {
-	const result = await api.get("/preview/asset/" + props.primaryKey)
+	const result = await api.get("/tools/preview/asset/" + props.primaryKey)
 
 	return result.data;
 }
