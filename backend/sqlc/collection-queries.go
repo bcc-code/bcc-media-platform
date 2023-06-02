@@ -66,8 +66,8 @@ func (q *Queries) GetItemsForCollections(ctx context.Context, ids []int) ([]comm
 // GetItemsForCollectionsWithRoles returns []common.CollectionItem for specified collections
 func (rq *RoleQueries) GetItemsForCollectionsWithRoles(ctx context.Context, ids []int) ([]common.CollectionItem, error) {
 	items, err := rq.queries.getCollectionEntriesForCollectionsWithRoles(ctx, getCollectionEntriesForCollectionsWithRolesParams{
-		Column1: intToInt32(ids),
-		Column2: rq.roles,
+		Collectionids: intToInt32(ids),
+		Roles:         rq.roles,
 	})
 	if err != nil {
 		return nil, err
