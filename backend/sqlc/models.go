@@ -152,7 +152,7 @@ type Assetfile struct {
 	UserCreated        uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	Resolution         null_v4.String        `db:"resolution" json:"resolution"`
-	Size               int32                 `db:"size" json:"size"`
+	Size               null_v4.Int           `db:"size" json:"size"`
 }
 
 type Assetstream struct {
@@ -338,6 +338,7 @@ type DirectusCollection struct {
 	Sort                  null_v4.Int           `db:"sort" json:"sort"`
 	Group                 null_v4.String        `db:"group" json:"group"`
 	Collapse              string                `db:"collapse" json:"collapse"`
+	PreviewUrl            null_v4.String        `db:"preview_url" json:"previewUrl"`
 }
 
 type DirectusDashboard struct {
@@ -491,7 +492,7 @@ type DirectusPreset struct {
 	LayoutOptions   pqtype.NullRawMessage `db:"layout_options" json:"layoutOptions"`
 	RefreshInterval null_v4.Int           `db:"refresh_interval" json:"refreshInterval"`
 	Filter          pqtype.NullRawMessage `db:"filter" json:"filter"`
-	Icon            string                `db:"icon" json:"icon"`
+	Icon            null_v4.String        `db:"icon" json:"icon"`
 	Color           null_v4.String        `db:"color" json:"color"`
 }
 
@@ -558,7 +559,6 @@ type DirectusSetting struct {
 	MapboxKey             null_v4.String        `db:"mapbox_key" json:"mapboxKey"`
 	ModuleBar             pqtype.NullRawMessage `db:"module_bar" json:"moduleBar"`
 	ProjectDescriptor     null_v4.String        `db:"project_descriptor" json:"projectDescriptor"`
-	TranslationStrings    pqtype.NullRawMessage `db:"translation_strings" json:"translationStrings"`
 	DefaultLanguage       string                `db:"default_language" json:"defaultLanguage"`
 	CustomAspectRatios    pqtype.NullRawMessage `db:"custom_aspect_ratios" json:"customAspectRatios"`
 }
@@ -576,6 +576,13 @@ type DirectusShare struct {
 	DateEnd     null_v4.Time   `db:"date_end" json:"dateEnd"`
 	TimesUsed   null_v4.Int    `db:"times_used" json:"timesUsed"`
 	MaxUses     null_v4.Int    `db:"max_uses" json:"maxUses"`
+}
+
+type DirectusTranslation struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	Language string    `db:"language" json:"language"`
+	Key      string    `db:"key" json:"key"`
+	Value    string    `db:"value" json:"value"`
 }
 
 type DirectusUser struct {
