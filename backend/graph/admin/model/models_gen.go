@@ -43,17 +43,19 @@ const (
 	CollectionShows    Collection = "shows"
 	CollectionSeasons  Collection = "seasons"
 	CollectionEpisodes Collection = "episodes"
+	CollectionGames    Collection = "games"
 )
 
 var AllCollection = []Collection{
 	CollectionShows,
 	CollectionSeasons,
 	CollectionEpisodes,
+	CollectionGames,
 }
 
 func (e Collection) IsValid() bool {
 	switch e {
-	case CollectionShows, CollectionSeasons, CollectionEpisodes:
+	case CollectionShows, CollectionSeasons, CollectionEpisodes, CollectionGames:
 		return true
 	}
 	return false

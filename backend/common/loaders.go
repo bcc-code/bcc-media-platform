@@ -41,6 +41,7 @@ type BatchLoaders struct {
 	RedirectFromCodeLoader             *loaders.Loader[string, *Redirect]
 	SurveyLoader                       *loaders.Loader[uuid.UUID, *Survey]
 	SurveyQuestionLoader               *loaders.Loader[uuid.UUID, *SurveyQuestion]
+	GameLoader                         *loaders.Loader[uuid.UUID, *Game]
 
 	MemberLoader       *loaders.Loader[int, *members.Member]
 	OrganizationLoader *loaders.Loader[uuid.UUID, *members.Organization]

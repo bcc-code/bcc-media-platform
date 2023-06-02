@@ -1,0 +1,7 @@
+schema: schema.graphqls
+extensions:
+  endpoints:
+    Debug:
+      url: "http://localhost:8077/admin"
+    Production:
+      url: "https://api.brunstad.tv/admin"

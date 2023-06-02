@@ -201,6 +201,10 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		QuestionsLoader:    loaders.NewRelationLoader(ctx, queries.GetQuestionIDsForCategories, loaders.WithName("questions")),
 		MessageGroupLoader: loaders.NewLoader(ctx, queries.GetMessageGroups),
 
+		GameLoader: loaders.New(ctx, queries.GetGames, loaders.WithKeyFunc(func(i common.Game) uuid.UUID {
+			return i.ID
+		})),
+
 		// User Data
 		StudyTopicLoader:  loaders.New(ctx, queries.GetTopics),
 		StudyLessonLoader: loaders.New(ctx, queries.GetLessons),

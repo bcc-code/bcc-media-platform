@@ -19,7 +19,7 @@ func toFiles(items []getFilesForAssetsRow) []common.File {
 			Path:             f.Path,
 			Storage:          f.Storage,
 			MimeType:         f.MimeType,
-			Size:             int(f.Size.Int64),
+			Size:             int(f.Size),
 			Resolution:       f.Resolution.String,
 		}
 	})

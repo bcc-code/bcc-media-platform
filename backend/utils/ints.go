@@ -21,6 +21,16 @@ func AsInt(intString string) int {
 	return int(intID64)
 }
 
+// MapAsInt is for usage in lo.Map
+func MapAsInt(intString string, _ int) int {
+	return AsInt(intString)
+}
+
+// MapAsIntegers is for usage in lo.Map
+func MapAsIntegers(intStrings []string) []int {
+	return lo.Map(intStrings, MapAsInt)
+}
+
 // AsIntOrNil returns an int or pointer
 func AsIntOrNil(intString string) *int {
 	i, err := strconv.ParseInt(intString, 10, 64)

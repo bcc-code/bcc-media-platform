@@ -182,6 +182,16 @@ func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoa
 				continue
 			}
 			item = model.StudyTopicSectionItemFrom(ctx, i, e.Sort, imageStyle)
+		case "games":
+			i, err := ls.GameLoader.Get(ctx, utils.AsUuid(e.ID))
+			if err != nil {
+				return nil, err
+			}
+			if i == nil {
+				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				continue
+			}
+			item = model.GameSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		}
 		if item != nil {
 			items = append(items, item)

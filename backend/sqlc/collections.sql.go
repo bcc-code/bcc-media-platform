@@ -50,6 +50,10 @@ func (q *Queries) getCollectionEntriesForCollections(ctx context.Context, dollar
 }
 
 const getCollectionEntriesForCollectionsWithRoles = `-- name: getCollectionEntriesForCollectionsWithRoles :many
+WITH game_roles AS (SELECT r.games_id,
+                           array_agg(r.usergroups_code) AS roles
+                    FROM games_usergroups r
+                    GROUP BY r.games_id)
 SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
 FROM collections_entries ce
          LEFT JOIN episode_roles er ON ce.collection = 'episodes' AND er.id::varchar = ce.item
@@ -58,6 +62,7 @@ FROM collections_entries ce
          LEFT JOIN season_availability sa ON ce.collection = 'seasons' AND sa.id::varchar = ce.item
          LEFT JOIN show_roles shr ON ce.collection = 'shows' AND shr.id::varchar = ce.item
          LEFT JOIN show_availability sha ON ce.collection = 'shows' AND sha.id::varchar = ce.item
+         LEFT JOIN game_roles gr ON ce.collection = 'games' AND gr.games_id::varchar = ce.item
 WHERE ce.collections_id = ANY ($1::int[])
   AND (ce.collection != 'episodes' OR (
         ea.published
@@ -74,16 +79,17 @@ WHERE ce.collections_id = ANY ($1::int[])
         AND sha.available_to > now()
         AND shr.roles && $2::varchar[] AND sha.available_from < now()
     ))
+  AND (ce.collection != 'games' OR (gr.roles && $2::varchar[]))
 ORDER BY ce.sort
 `
 
 type getCollectionEntriesForCollectionsWithRolesParams struct {
-	Column1 []int32  `db:"column_1" json:"column1"`
-	Column2 []string `db:"column_2" json:"column2"`
+	Collectionids []int32  `db:"collectionids" json:"collectionids"`
+	Roles         []string `db:"roles" json:"roles"`
 }
 
 func (q *Queries) getCollectionEntriesForCollectionsWithRoles(ctx context.Context, arg getCollectionEntriesForCollectionsWithRolesParams) ([]CollectionsEntry, error) {
-	rows, err := q.db.QueryContext(ctx, getCollectionEntriesForCollectionsWithRoles, pq.Array(arg.Column1), pq.Array(arg.Column2))
+	rows, err := q.db.QueryContext(ctx, getCollectionEntriesForCollectionsWithRoles, pq.Array(arg.Collectionids), pq.Array(arg.Roles))
 	if err != nil {
 		return nil, err
 	}

@@ -25,6 +25,11 @@
         }"
     >
     </ShowTitle>
+    <div v-else>
+        <h1 class="text-sm md:text-md lg:text-lg line-clamp-2">
+            {{ i.title }}
+        </h1>
+    </div>
 </template>
 <script lang="ts" setup>
 import EpisodeTitle from "../../episodes/EpisodeTitle.vue"

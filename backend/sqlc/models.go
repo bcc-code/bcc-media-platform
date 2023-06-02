@@ -152,7 +152,7 @@ type Assetfile struct {
 	UserCreated        uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	Resolution         null_v4.String        `db:"resolution" json:"resolution"`
-	Size               null_v4.Int           `db:"size" json:"size"`
+	Size               int32                 `db:"size" json:"size"`
 }
 
 type Assetstream struct {
@@ -800,6 +800,38 @@ type FilterDataset struct {
 	Tags          interface{}    `db:"tags" json:"tags"`
 }
 
+type Game struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Status      string         `db:"status" json:"status"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+	LinkID      int32          `db:"link_id" json:"linkID"`
+}
+
+type GamesStyledimage struct {
+	ID             int32         `db:"id" json:"id"`
+	GamesID        uuid.NullUUID `db:"games_id" json:"gamesID"`
+	StyledimagesID uuid.NullUUID `db:"styledimages_id" json:"styledimagesID"`
+}
+
+type GamesTranslation struct {
+	ID            int32          `db:"id" json:"id"`
+	GamesID       uuid.UUID      `db:"games_id" json:"gamesID"`
+	LanguagesCode string         `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
+}
+
+type GamesUsergroup struct {
+	ID             int32     `db:"id" json:"id"`
+	GamesID        uuid.UUID `db:"games_id" json:"gamesID"`
+	UsergroupsCode string    `db:"usergroups_code" json:"usergroupsCode"`
+}
+
 type Globalconfig struct {
 	DateUpdated time.Time    `db:"date_updated" json:"dateUpdated"`
 	ID          int32        `db:"id" json:"id"`
@@ -877,16 +909,17 @@ type LessonsTranslation struct {
 }
 
 type Link struct {
-	ID                  int32          `db:"id" json:"id"`
-	Status              string         `db:"status" json:"status"`
-	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated         null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated         null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Url                 string         `db:"url" json:"url"`
-	Type                null_v4.String `db:"type" json:"type"`
-	ComputeddatagroupID uuid.NullUUID  `db:"computeddatagroup_id" json:"computeddatagroupID"`
-	Label               null_v4.String `db:"label" json:"label"`
+	ID                     int32          `db:"id" json:"id"`
+	Status                 string         `db:"status" json:"status"`
+	UserCreated            uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated            null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated            uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated            null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Url                    string         `db:"url" json:"url"`
+	Type                   null_v4.String `db:"type" json:"type"`
+	ComputeddatagroupID    uuid.NullUUID  `db:"computeddatagroup_id" json:"computeddatagroupID"`
+	Label                  null_v4.String `db:"label" json:"label"`
+	RequiresAuthentication bool           `db:"requires_authentication" json:"requiresAuthentication"`
 }
 
 type LinksTranslation struct {
@@ -1275,6 +1308,17 @@ type StudytopicsTranslation struct {
 	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
 	Title         null_v4.String `db:"title" json:"title"`
 	Description   null_v4.String `db:"description" json:"description"`
+}
+
+type Styledimage struct {
+	ID          uuid.UUID     `db:"id" json:"id"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	Style       string        `db:"style" json:"style"`
+	Language    string        `db:"language" json:"language"`
+	File        uuid.UUID     `db:"file" json:"file"`
 }
 
 type Survey struct {
