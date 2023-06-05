@@ -621,6 +621,7 @@ type ComplexityRoot struct {
 		Event               func(childComplexity int, id string) int
 		Export              func(childComplexity int, groups []string) int
 		Faq                 func(childComplexity int) int
+		Game                func(childComplexity int, id string) int
 		Languages           func(childComplexity int) int
 		LegacyIDLookup      func(childComplexity int, options *model.LegacyIDLookupOptions) int
 		Me                  func(childComplexity int) int
@@ -1126,6 +1127,7 @@ type QueryRootResolver interface {
 	Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error)
 	Collection(ctx context.Context, id *string, slug *string) (*model.Collection, error)
 	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
+	Game(ctx context.Context, id string) (*model.Game, error)
 	PendingAchievements(ctx context.Context) ([]*model.Achievement, error)
 	Achievement(ctx context.Context, id string) (*model.Achievement, error)
 	AchievementGroup(ctx context.Context, id string) (*model.AchievementGroup, error)
@@ -3869,6 +3871,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QueryRoot.Faq(childComplexity), true
 
+	case "QueryRoot.game":
+		if e.complexity.QueryRoot.Game == nil {
+			break
+		}
+
+		args, err := ec.field_QueryRoot_game_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.Game(childComplexity, args["id"].(string)), true
+
 	case "QueryRoot.languages":
 		if e.complexity.QueryRoot.Languages == nil {
 			break
@@ -6221,14 +6235,14 @@ type SurveyPrompt implements Prompt {
     | FIELD_DEFINITION
 
 schema{
-  query: QueryRoot
-  mutation: MutationRoot
+    query: QueryRoot
+    mutation: MutationRoot
 }
 
 interface Pagination {
-  total: Int!
-  first: Int!
-  offset: Int!
+    total: Int!
+    first: Int!
+    offset: Int!
 }
 
 scalar Language
@@ -6239,147 +6253,151 @@ scalar Date
 scalar UUID
 
 type Settings {
-  audioLanguages: [Language!]!
-  subtitleLanguages: [Language!]!
+    audioLanguages: [Language!]!
+    subtitleLanguages: [Language!]!
 }
 
 type Image {
-  style: String!
-  url: String!
+    style: String!
+    url: String!
 }
 
 enum ImageStyle {
-  poster
-  featured
-  default
+    poster
+    featured
+    default
 }
 
 enum Status {
-  published
-  unlisted
+    published
+    unlisted
 }
 
 enum Gender {
-  male
-  female
-  unknown
+    male
+    female
+    unknown
 }
 
 type User {
-  id: ID
-  anonymous: Boolean!
-  bccMember: Boolean!
-  audience: String
-  email: String
-  emailVerified: Boolean! @goField(forceResolver: true)
-  settings: Settings!
-  roles: [String!]!
-  analytics: Analytics!
-  gender: Gender!
-  firstName: String!
-  displayName: String!
-  completedRegistration: Boolean! @goField(forceResolver: true)
+    id: ID
+    anonymous: Boolean!
+    bccMember: Boolean!
+    audience: String
+    email: String
+    emailVerified: Boolean! @goField(forceResolver: true)
+    settings: Settings!
+    roles: [String!]!
+    analytics: Analytics!
+    gender: Gender!
+    firstName: String!
+    displayName: String!
+    completedRegistration: Boolean! @goField(forceResolver: true)
 }
 
 input LegacyIDLookupOptions {
-  episodeID: Int
-  programID: Int
+    episodeID: Int
+    programID: Int
 }
 
 type LegacyIDLookup {
-  id: ID!
+    id: ID!
 }
 
 input EpisodeContext {
-  collectionId: String
+    collectionId: String
 }
 
 type RedirectLink {
-  url: String!
+    url: String!
 }
 
 type RedirectParam {
-  key: String!
-  value: String!
+    key: String!
+    value: String!
 }
 
 type QueryRoot{
-  application: Application!
-  languages: [Language!]!
+    application: Application!
+    languages: [Language!]!
 
-  export(
-    # Only export for this groups. The groups will be filtered by the groups the users has access to.
-    # NOT IMPLEMENTED YET!
-    groups: [String!]
-  ): Export!
+    export(
+        # Only export for this groups. The groups will be filtered by the groups the users has access to.
+        # NOT IMPLEMENTED YET!
+        groups: [String!]
+    ): Export!
 
-  redirect(id: String!): RedirectLink!
+    redirect(id: String!): RedirectLink!
 
-  page(
-    id: ID
-    code: String
-  ): Page!
+    page(
+        id: ID
+        code: String
+    ): Page!
 
-  section(
-    id: ID!
-    timestamp: String
-  ): Section!
+    section(
+        id: ID!
+        timestamp: String
+    ): Section!
 
-  show(
-    id: ID!
-  ): Show!
+    show(
+        id: ID!
+    ): Show!
 
-  season(
-    id: ID!
-  ): Season!
+    season(
+        id: ID!
+    ): Season!
 
-  episode(
-    id: ID!
-    context: EpisodeContext
-  ): Episode!
+    episode(
+        id: ID!
+        context: EpisodeContext
+    ): Episode!
 
-  collection(
-    id: ID
-    slug: String
-  ): Collection!
+    collection(
+        id: ID
+        slug: String
+    ): Collection!
 
-  search(
-    queryString: String!
-    first: Int
-    offset: Int
-    type: String
-    minScore: Int
-  ): SearchResult!
+    search(
+        queryString: String!
+        first: Int
+        offset: Int
+        type: String
+        minScore: Int
+    ): SearchResult!
 
-  pendingAchievements: [Achievement!]!
+    game(
+        id: UUID!
+    ): Game!
 
-  achievement(id: ID!): Achievement!
+    pendingAchievements: [Achievement!]!
 
-  achievementGroup(id: ID!): AchievementGroup!
-  achievementGroups(first: Int, offset: Int): AchievementGroupPagination!
+    achievement(id: ID!): Achievement!
 
-  studyTopic(id: ID!): StudyTopic!
-  studyLesson(id: ID!): Lesson!
+    achievementGroup(id: ID!): AchievementGroup!
+    achievementGroups(first: Int, offset: Int): AchievementGroupPagination!
 
-  calendar: Calendar
-  event(id: ID!): Event
+    studyTopic(id: ID!): StudyTopic!
+    studyLesson(id: ID!): Lesson!
 
-  faq: FAQ!
+    calendar: Calendar
+    event(id: ID!): Event
 
-  me: User!
+    faq: FAQ!
 
-  myList: UserCollection!
+    me: User!
 
-  userCollection(id: UUID!): UserCollection!
+    myList: UserCollection!
 
-  config: Config!
+    userCollection(id: UUID!): UserCollection!
 
-  profiles: [Profile!]!
-  profile: Profile!
+    config: Config!
 
-  legacyIDLookup(options: LegacyIDLookupOptions): LegacyIDLookup!
+    profiles: [Profile!]!
+    profile: Profile!
 
-  prompts(timestamp: Date): [Prompt!]!
+    legacyIDLookup(options: LegacyIDLookupOptions): LegacyIDLookup!
+
+    prompts(timestamp: Date): [Prompt!]!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -7919,6 +7937,21 @@ func (ec *executionContext) field_QueryRoot_export_args(ctx context.Context, raw
 		}
 	}
 	args["groups"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_QueryRoot_game_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNUUID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -25066,6 +25099,73 @@ func (ec *executionContext) fieldContext_QueryRoot_search(ctx context.Context, f
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_QueryRoot_search_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_game(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_game(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().Game(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Game)
+	fc.Result = res
+	return ec.marshalNGame2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐGame(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_game(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Game_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Game_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Game_description(ctx, field)
+			case "url":
+				return ec.fieldContext_Game_url(ctx, field)
+			case "image":
+				return ec.fieldContext_Game_image(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Game", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_game_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -42600,6 +42700,29 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "game":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_game(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "pendingAchievements":
 			field := field
 
@@ -46643,6 +46766,20 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 		}
 	}
 	return graphql.WrapContextMarshaler(ctx, res)
+}
+
+func (ec *executionContext) marshalNGame2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐGame(ctx context.Context, sel ast.SelectionSet, v model.Game) graphql.Marshaler {
+	return ec._Game(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGame2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐGame(ctx context.Context, sel ast.SelectionSet, v *model.Game) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Game(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNGender2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐGender(ctx context.Context, v interface{}) (model.Gender, error) {

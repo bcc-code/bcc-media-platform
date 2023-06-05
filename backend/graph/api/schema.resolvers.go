@@ -293,6 +293,11 @@ func (r *queryRootResolver) Search(ctx context.Context, queryString string, firs
 	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)
 }
 
+// Game is the resolver for the game field.
+func (r *queryRootResolver) Game(ctx context.Context, id string) (*model.Game, error) {
+	return uuidItemLoader(ctx, r.Loaders.GameLoader, model.GameFrom, id)
+}
+
 // PendingAchievements is the resolver for the pendingAchievements field.
 func (r *queryRootResolver) PendingAchievements(ctx context.Context) ([]*model.Achievement, error) {
 	p, err := getProfile(ctx)
@@ -312,34 +317,12 @@ func (r *queryRootResolver) PendingAchievements(ctx context.Context) ([]*model.A
 
 // Achievement is the resolver for the achievement field.
 func (r *queryRootResolver) Achievement(ctx context.Context, id string) (*model.Achievement, error) {
-	uid, err := uuid.Parse(id)
-	if err != nil {
-		return nil, err
-	}
-	achievement, err := r.Loaders.AchievementLoader.Get(ctx, uid)
-	if err != nil {
-		return nil, err
-	}
-	if achievement == nil {
-		return nil, common.ErrItemNotFound
-	}
-	return model.AchievementFrom(ctx, achievement), nil
+	return uuidItemLoader(ctx, r.Loaders.AchievementLoader, model.AchievementFrom, id)
 }
 
 // AchievementGroup is the resolver for the achievementGroup field.
 func (r *queryRootResolver) AchievementGroup(ctx context.Context, id string) (*model.AchievementGroup, error) {
-	uid, err := uuid.Parse(id)
-	if err != nil {
-		return nil, err
-	}
-	group, err := r.Loaders.AchievementGroupLoader.Get(ctx, uid)
-	if err != nil {
-		return nil, err
-	}
-	if group == nil {
-		return nil, common.ErrItemNotFound
-	}
-	return model.AchievementGroupFrom(ctx, group), nil
+	return uuidItemLoader(ctx, r.Loaders.AchievementGroupLoader, model.AchievementGroupFrom, id)
 }
 
 // AchievementGroups is the resolver for the achievementGroups field.
@@ -394,18 +377,7 @@ func (r *queryRootResolver) StudyLesson(ctx context.Context, id string) (*model.
 	if err != nil {
 		return nil, err
 	}
-	uid, err := uuid.Parse(id)
-	if err != nil {
-		return nil, err
-	}
-	lesson, err := r.Loaders.StudyLessonLoader.Get(ctx, uid)
-	if err != nil {
-		return nil, err
-	}
-	if lesson == nil {
-		return nil, ErrItemNotFound
-	}
-	return model.LessonFrom(ctx, lesson), nil
+	return uuidItemLoader(ctx, r.Loaders.StudyLessonLoader, model.LessonFrom, id)
 }
 
 // Calendar is the resolver for the calendar field.

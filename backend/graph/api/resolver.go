@@ -473,3 +473,32 @@ func (r *Resolver) getUserInfo(ctx context.Context, userID string) (auth0.UserIn
 		return info, nil
 	}, cache.WithExpiration(time.Second*2))
 }
+
+func uuidItemLoader[T any, R any](
+	ctx context.Context,
+	loader *loaders.Loader[uuid.UUID, *T],
+	converter func(context.Context, *T) *R,
+	idString string) (*R, error) {
+	return itemLoader(ctx, loader, converter, uuid.Parse, idString)
+}
+
+func itemLoader[K comparable, T any, R any](
+	ctx context.Context,
+	loader *loaders.Loader[K, *T],
+	converter func(context.Context, *T) *R,
+	idValidator func(i string) (K, error),
+	idString string,
+) (*R, error) {
+	uid, err := idValidator(idString)
+	if err != nil {
+		return nil, err
+	}
+	i, err := loader.Get(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	if i == nil {
+		return nil, ErrItemNotFound
+	}
+	return converter(ctx, i), nil
+}
