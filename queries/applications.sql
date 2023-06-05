@@ -12,6 +12,7 @@ SELECT a.id::int                          AS id,
        a.status = 'published'             AS published,
        a.page_id                          AS default_page_id,
        a.search_page_id                   AS search_page_id,
+       a.games_page_id                    AS games_page_id,
        a.standalone_related_collection_id AS standalone_related_collection_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
@@ -34,6 +35,7 @@ SELECT a.id::int                          AS id,
        a.status = 'published'             AS published,
        a.page_id                          AS default_page_id,
        a.search_page_id                   AS search_page_id,
+       a.games_page_id                    AS games_page_id,
        a.standalone_related_collection_id AS standalone_related_collection_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a

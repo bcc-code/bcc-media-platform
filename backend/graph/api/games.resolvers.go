@@ -6,10 +6,10 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/utils"
 
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/brunstadtv/backend/utils"
 )
 
 // Image is the resolver for the image field.

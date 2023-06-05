@@ -3,6 +3,5 @@ type Game {
     title: String!
     description: String
     url: String!
-    requiresAuth: Boolean!
     image(style: ImageStyle): String @goField(forceResolver: true)
 }

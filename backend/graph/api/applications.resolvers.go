@@ -27,6 +27,14 @@ func (r *applicationResolver) SearchPage(ctx context.Context, obj *gqlmodel.Appl
 	return nil, nil
 }
 
+// GamesPage is the resolver for the gamesPage field.
+func (r *applicationResolver) GamesPage(ctx context.Context, obj *gqlmodel.Application) (*gqlmodel.Page, error) {
+	if obj.GamesPage != nil {
+		return r.QueryRoot().Page(ctx, &obj.SearchPage.ID, nil)
+	}
+	return nil, nil
+}
+
 // Application returns generated.ApplicationResolver implementation.
 func (r *Resolver) Application() generated.ApplicationResolver { return &applicationResolver{r} }
 

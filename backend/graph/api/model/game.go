@@ -13,11 +13,10 @@ func GameFrom(ctx context.Context, game *common.Game) *Game {
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
 	return &Game{
-		ID:           game.ID.String(),
-		Title:        game.Title.Get(languages),
-		Description:  game.Description.GetValueOrNil(languages),
-		RequiresAuth: game.RequiresAuth,
-		URL:          game.Url,
+		ID:          game.ID.String(),
+		Title:       game.Title.Get(languages),
+		Description: game.Description.GetValueOrNil(languages),
+		URL:         game.Url,
 	}
 }
 

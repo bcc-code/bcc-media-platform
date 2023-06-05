@@ -201,6 +201,7 @@ type Application struct {
 	ClientVersion string `json:"clientVersion"`
 	Page          *Page  `json:"page,omitempty"`
 	SearchPage    *Page  `json:"searchPage,omitempty"`
+	GamesPage     *Page  `json:"gamesPage,omitempty"`
 }
 
 type BirthOptions struct {
@@ -555,12 +556,11 @@ type File struct {
 }
 
 type Game struct {
-	ID           string  `json:"id"`
-	Title        string  `json:"title"`
-	Description  *string `json:"description,omitempty"`
-	URL          string  `json:"url"`
-	RequiresAuth bool    `json:"requiresAuth"`
-	Image        *string `json:"image,omitempty"`
+	ID          string  `json:"id"`
+	Title       string  `json:"title"`
+	Description *string `json:"description,omitempty"`
+	URL         string  `json:"url"`
+	Image       *string `json:"image,omitempty"`
 }
 
 func (Game) IsSectionItemType() {}

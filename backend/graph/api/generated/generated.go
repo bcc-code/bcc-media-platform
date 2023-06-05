@@ -162,6 +162,7 @@ type ComplexityRoot struct {
 	Application struct {
 		ClientVersion func(childComplexity int) int
 		Code          func(childComplexity int) int
+		GamesPage     func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Page          func(childComplexity int) int
 		SearchPage    func(childComplexity int) int
@@ -395,12 +396,11 @@ type ComplexityRoot struct {
 	}
 
 	Game struct {
-		Description  func(childComplexity int) int
-		ID           func(childComplexity int) int
-		Image        func(childComplexity int, style *model.ImageStyle) int
-		RequiresAuth func(childComplexity int) int
-		Title        func(childComplexity int) int
-		URL          func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Image       func(childComplexity int, style *model.ImageStyle) int
+		Title       func(childComplexity int) int
+		URL         func(childComplexity int) int
 	}
 
 	GlobalConfig struct {
@@ -968,6 +968,7 @@ type AnalyticsResolver interface {
 type ApplicationResolver interface {
 	Page(ctx context.Context, obj *model.Application) (*model.Page, error)
 	SearchPage(ctx context.Context, obj *model.Application) (*model.Page, error)
+	GamesPage(ctx context.Context, obj *model.Application) (*model.Page, error)
 }
 type CalendarResolver interface {
 	Period(ctx context.Context, obj *model.Calendar, from string, to string) (*model.CalendarPeriod, error)
@@ -1497,6 +1498,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Application.Code(childComplexity), true
+
+	case "Application.gamesPage":
+		if e.complexity.Application.GamesPage == nil {
+			break
+		}
+
+		return e.complexity.Application.GamesPage(childComplexity), true
 
 	case "Application.id":
 		if e.complexity.Application.ID == nil {
@@ -2672,13 +2680,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Game.Image(childComplexity, args["style"].(*model.ImageStyle)), true
-
-	case "Game.requiresAuth":
-		if e.complexity.Game.RequiresAuth == nil {
-			break
-		}
-
-		return e.complexity.Game.RequiresAuth(childComplexity), true
 
 	case "Game.title":
 		if e.complexity.Game.Title == nil {
@@ -5570,6 +5571,7 @@ type ConfirmAchievementResult {
     clientVersion: String!
     page: Page @goField(forceResolver: true)
     searchPage: Page @goField(forceResolver: true)
+    gamesPage: Page @goField(forceResolver: true)
 }
 `, BuiltIn: false},
 	{Name: "../schema/calendar.graphqls", Input: `type CalendarPeriod {
@@ -5873,7 +5875,6 @@ type FAQ {
     title: String!
     description: String
     url: String!
-    requiresAuth: Boolean!
     image(style: ImageStyle): String @goField(forceResolver: true)
 }
 `, BuiltIn: false},
@@ -10169,6 +10170,63 @@ func (ec *executionContext) _Application_searchPage(ctx context.Context, field g
 }
 
 func (ec *executionContext) fieldContext_Application_searchPage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Page_id(ctx, field)
+			case "code":
+				return ec.fieldContext_Page_code(ctx, field)
+			case "title":
+				return ec.fieldContext_Page_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Page_description(ctx, field)
+			case "image":
+				return ec.fieldContext_Page_image(ctx, field)
+			case "images":
+				return ec.fieldContext_Page_images(ctx, field)
+			case "sections":
+				return ec.fieldContext_Page_sections(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Application_gamesPage(ctx context.Context, field graphql.CollectedField, obj *model.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_gamesPage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Application().GamesPage(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Page)
+	fc.Result = res
+	return ec.marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_gamesPage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -17654,50 +17712,6 @@ func (ec *executionContext) fieldContext_Game_url(ctx context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _Game_requiresAuth(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Game_requiresAuth(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.RequiresAuth, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Game_requiresAuth(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Game",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Game_image(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Game_image(ctx, field)
 	if err != nil {
@@ -24340,6 +24354,8 @@ func (ec *executionContext) fieldContext_QueryRoot_application(ctx context.Conte
 				return ec.fieldContext_Application_page(ctx, field)
 			case "searchPage":
 				return ec.fieldContext_Application_searchPage(ctx, field)
+			case "gamesPage":
+				return ec.fieldContext_Application_gamesPage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -38629,6 +38645,23 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 				return innerFunc(ctx)
 
 			})
+		case "gamesPage":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Application_gamesPage(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -40561,13 +40594,6 @@ func (ec *executionContext) _Game(ctx context.Context, sel ast.SelectionSet, obj
 		case "url":
 
 			out.Values[i] = ec._Game_url(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "requiresAuth":
-
-			out.Values[i] = ec._Game_requiresAuth(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)

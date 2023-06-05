@@ -101,6 +101,7 @@ SELECT a.id::int                          AS id,
        a.status = 'published'             AS published,
        a.page_id                          AS default_page_id,
        a.search_page_id                   AS search_page_id,
+       a.games_page_id                    AS games_page_id,
        a.standalone_related_collection_id AS standalone_related_collection_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
@@ -120,6 +121,7 @@ type getApplicationsRow struct {
 	Published                     bool           `db:"published" json:"published"`
 	DefaultPageID                 null_v4.Int    `db:"default_page_id" json:"defaultPageID"`
 	SearchPageID                  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
+	GamesPageID                   null_v4.Int    `db:"games_page_id" json:"gamesPageID"`
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionID"`
 	Roles                         []string       `db:"roles" json:"roles"`
 }
@@ -143,6 +145,7 @@ func (q *Queries) getApplications(ctx context.Context, dollar_1 []int32) ([]getA
 			&i.Published,
 			&i.DefaultPageID,
 			&i.SearchPageID,
+			&i.GamesPageID,
 			&i.StandaloneRelatedCollectionID,
 			pq.Array(&i.Roles),
 		); err != nil {
@@ -173,6 +176,7 @@ SELECT a.id::int                          AS id,
        a.status = 'published'             AS published,
        a.page_id                          AS default_page_id,
        a.search_page_id                   AS search_page_id,
+       a.games_page_id                    AS games_page_id,
        a.standalone_related_collection_id AS standalone_related_collection_id,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
@@ -191,6 +195,7 @@ type listApplicationsRow struct {
 	Published                     bool           `db:"published" json:"published"`
 	DefaultPageID                 null_v4.Int    `db:"default_page_id" json:"defaultPageID"`
 	SearchPageID                  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
+	GamesPageID                   null_v4.Int    `db:"games_page_id" json:"gamesPageID"`
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionID"`
 	Roles                         []string       `db:"roles" json:"roles"`
 }
@@ -214,6 +219,7 @@ func (q *Queries) listApplications(ctx context.Context) ([]listApplicationsRow, 
 			&i.Published,
 			&i.DefaultPageID,
 			&i.SearchPageID,
+			&i.GamesPageID,
 			&i.StandaloneRelatedCollectionID,
 			pq.Array(&i.Roles),
 		); err != nil {

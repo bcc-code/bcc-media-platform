@@ -359,6 +359,7 @@ type Application struct {
 	ClientVersion       string
 	DefaultPageID       null.Int
 	SearchPageID        null.Int
+	GamesPageID         null.Int
 	RelatedCollectionID null.Int
 	Roles               []string
 }

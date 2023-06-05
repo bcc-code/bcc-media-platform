@@ -53,12 +53,19 @@ func (r *queryRootResolver) Application(ctx context.Context) (*model.Application
 			ID: strconv.Itoa(int(app.SearchPageID.Int64)),
 		}
 	}
+	var gamesPage *model.Page
+	if app.GamesPageID.Valid {
+		gamesPage = &model.Page{
+			ID: strconv.Itoa(int(app.GamesPageID.Int64)),
+		}
+	}
 
 	return &model.Application{
 		ID:            strconv.Itoa(app.ID),
 		Code:          app.Code,
 		Page:          page,
 		SearchPage:    searchPage,
+		GamesPage:     gamesPage,
 		ClientVersion: app.ClientVersion,
 	}, nil
 }

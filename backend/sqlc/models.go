@@ -104,6 +104,7 @@ type Application struct {
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionID"`
 	Uuid                          uuid.UUID      `db:"uuid" json:"uuid"`
 	GroupID                       uuid.UUID      `db:"group_id" json:"groupID"`
+	GamesPageID                   null_v4.Int    `db:"games_page_id" json:"gamesPageID"`
 }
 
 type Applicationgroup struct {
