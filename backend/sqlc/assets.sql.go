@@ -38,7 +38,7 @@ type getFilesForAssetsRow struct {
 	UserCreated        uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	Resolution         null_v4.String        `db:"resolution" json:"resolution"`
-	Size               null_v4.Int           `db:"size" json:"size"`
+	Size               int64                 `db:"size" json:"size"`
 }
 
 func (q *Queries) getFilesForAssets(ctx context.Context, dollar_1 []int32) ([]getFilesForAssetsRow, error) {
@@ -105,7 +105,7 @@ type getFilesForEpisodesRow struct {
 	UserCreated        uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	Resolution         null_v4.String        `db:"resolution" json:"resolution"`
-	Size               null_v4.Int           `db:"size" json:"size"`
+	Size               int64                 `db:"size" json:"size"`
 }
 
 func (q *Queries) getFilesForEpisodes(ctx context.Context, dollar_1 []int32) ([]getFilesForEpisodesRow, error) {

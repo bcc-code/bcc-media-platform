@@ -153,7 +153,7 @@ type Assetfile struct {
 	UserCreated        uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	Resolution         null_v4.String        `db:"resolution" json:"resolution"`
-	Size               null_v4.Int           `db:"size" json:"size"`
+	Size               int64                 `db:"size" json:"size"`
 }
 
 type Assetstream struct {
@@ -1428,22 +1428,6 @@ type TasksTranslation struct {
 	Title          null_v4.String `db:"title" json:"title"`
 	SecondaryTitle null_v4.String `db:"secondary_title" json:"secondaryTitle"`
 	Description    null_v4.String `db:"description" json:"description"`
-}
-
-type Timedmetadatum struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	Status      string         `db:"status" json:"status"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Label       string         `db:"label" json:"label"`
-	Type        null_v4.String `db:"type" json:"type"`
-	Highlight   bool           `db:"highlight" json:"highlight"`
-	Title       string         `db:"title" json:"title"`
-	Description null_v4.String `db:"description" json:"description"`
-	AssetID     int32          `db:"asset_id" json:"assetID"`
-	Timestamp   time.Time      `db:"timestamp" json:"timestamp"`
 }
 
 type Usergroup struct {
