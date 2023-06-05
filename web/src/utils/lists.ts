@@ -5,7 +5,7 @@ import {
 
 export type ListItem = {
     id: string
-    type: "Episode" | "Season" | "Show" | "Page" | "Link" | "StudyTopic"
+    type: "Episode" | "Season" | "Show" | "Page" | "Link" | "StudyTopic" | "Game"
     title: string
     image?: string | null
     progress?: number | null
