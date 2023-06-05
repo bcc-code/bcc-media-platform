@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS "public"."timedmetadata"
     "user_updated" uuid         NULL,
     "date_updated" timestamptz  NULL,
     "label"        text         NOT NULL,
-    "type"         varchar(255) NULL     DEFAULT 'chapter'::character varying,
+    "type"         varchar(255) NOT NULL DEFAULT 'chapter'::character varying,
     "highlight"    bool         NOT NULL DEFAULT false,
     "title"        text         NOT NULL,
     "description"  varchar(255) NULL,
@@ -72,6 +72,7 @@ COMMENT ON COLUMN "public"."timedmetadata"."asset_id" IS NULL;
 
 
 COMMENT ON COLUMN "public"."timedmetadata"."timestamp" IS NULL;
+
 
 COMMENT ON CONSTRAINT "timedmetadata_pkey" ON "public"."timedmetadata" IS NULL;
 
@@ -296,9 +297,9 @@ INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", 
                                         "note", "conditions", "required", "group", "validation", "validation_message")
 VALUES (1237, 'assets', 'timedmetadata', 'o2m', 'list-o2m', '{
   "enableSelect": false,
-  "template": "{{timestamp}} - {{label}}"
+  "template": "{{timestamp}} - {{label}}"
 }', 'related-values', '{
-  "template": "{{timestamp}} - {{label}}"
+  "template": "{{timestamp}} - {{label}}"
 }', false, false, 8, 'full', NULL, NULL, NULL, false, NULL, NULL, NULL);
 
 UPDATE "public"."directus_fields"

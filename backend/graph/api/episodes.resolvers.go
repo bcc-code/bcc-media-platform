@@ -133,6 +133,31 @@ func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode) ([]*mod
 	return out, nil
 }
 
+// Chapters is the resolver for the chapters field.
+func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*model.Chapter, error) {
+	i, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(obj.ID))
+	if err != nil || !i.AssetID.Valid {
+		return nil, err
+	}
+	metadataItems, err := r.Loaders.AssetTimedMetadataLoader.Get(ctx, int(i.AssetID.Int64))
+	if err != nil {
+		return nil, err
+	}
+	metadataItems = lo.Filter(metadataItems, func(i *common.TimedMetadata, _ int) bool {
+		return i.Type == "chapter"
+	})
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+	return lo.Map(metadataItems, func(i *common.TimedMetadata, _ int) *model.Chapter {
+		return &model.Chapter{
+			ID:          i.ID.String(),
+			Title:       i.Title.Get(languages),
+			Description: i.Description.GetValueOrNil(languages),
+			Start:       i.Timestamp,
+		}
+	}), nil
+}
+
 // Season is the resolver for the season field.
 func (r *episodeResolver) Season(ctx context.Context, obj *model.Episode) (*model.Season, error) {
 	if obj.Season != nil {

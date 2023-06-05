@@ -1430,6 +1430,14 @@ type TasksTranslation struct {
 	Description    null_v4.String `db:"description" json:"description"`
 }
 
+type TimedmetadataTranslation struct {
+	ID              int32          `db:"id" json:"id"`
+	TimedmetadataID uuid.NullUUID  `db:"timedmetadata_id" json:"timedmetadataID"`
+	LanguagesCode   null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title           null_v4.String `db:"title" json:"title"`
+	Description     null_v4.String `db:"description" json:"description"`
+}
+
 type Timedmetadatum struct {
 	ID          uuid.UUID      `db:"id" json:"id"`
 	Status      string         `db:"status" json:"status"`
@@ -1438,7 +1446,7 @@ type Timedmetadatum struct {
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
 	Label       string         `db:"label" json:"label"`
-	Type        null_v4.String `db:"type" json:"type"`
+	Type        string         `db:"type" json:"type"`
 	Highlight   bool           `db:"highlight" json:"highlight"`
 	Title       string         `db:"title" json:"title"`
 	Description null_v4.String `db:"description" json:"description"`
