@@ -329,16 +329,6 @@ COMMENT ON TABLE "public"."games_styledimages" IS NULL;
 
 --- END CREATE TABLE "public"."games_styledimages" ---
 
---- BEGIN ALTER TABLE "public"."assetfiles" ---
-
-ALTER TABLE IF EXISTS "public"."assetfiles"
-    ALTER COLUMN "size" SET NOT NULL,
-    --WARN: Change column data type can occure in a casting error, the suggested casting expression is the default one and may not fit your needs!,
-    ALTER COLUMN "size" SET DATA TYPE int4 USING "size"::int4,
-    ALTER COLUMN "size" SET DEFAULT 0;
-
---- END ALTER TABLE "public"."assetfiles" ---
-
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
 
 INSERT INTO "public"."directus_collections" ("collection", "icon", "note", "display_template", "hidden", "singleton",
@@ -786,16 +776,6 @@ VALUES (369, 'games', 'link_id', 'links', NULL, NULL, NULL, NULL, NULL, 'nullify
 /*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/
 /***    CREATED ON: 2023-06-01T11:52:16.264Z             ***/
 /***********************************************************/
-
---- BEGIN ALTER TABLE "public"."assetfiles" ---
-
-ALTER TABLE IF EXISTS "public"."assetfiles"
-    ALTER COLUMN "size" DROP NOT NULL,
-    --WARN: Change column data type can occure in a casting error, the suggested casting expression is the default one and may not fit your needs!,
-    ALTER COLUMN "size" SET DATA TYPE int8 USING "size"::int8,
-    ALTER COLUMN "size" DROP DEFAULT;
-
---- END ALTER TABLE "public"."assetfiles" ---
 
 --- BEGIN ALTER TABLE "public"."links" ---
 
