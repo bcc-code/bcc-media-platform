@@ -117,7 +117,7 @@ import TaskButton from "./TaskButton.vue"
 import { Page } from "./Lesson.vue"
 import { VButton } from ".."
 import { computed, ref } from "vue"
-import { flutter } from "@/utils/flutter"
+import { appWebView } from "@/utils/flutter"
 import router from "@/router"
 import FeedbackRatingAndForm from "../feedback/FeedbackRatingAndForm.vue"
 
@@ -158,8 +158,8 @@ const emit = defineEmits<{
 }>()
 
 const playAgain = () => {
-    if (flutter) {
-        flutter.navigate("/episode/" + episode.value.id)
+    if (appWebView) {
+        appWebView.navigate("/episode/" + episode.value.id)
         return
     }
     router.push("/episode/" + episode.value.id)
