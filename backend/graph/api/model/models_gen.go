@@ -1070,11 +1070,6 @@ func (this SectionPagination) GetTotal() int  { return this.Total }
 func (this SectionPagination) GetFirst() int  { return this.First }
 func (this SectionPagination) GetOffset() int { return this.Offset }
 
-type Settings struct {
-	AudioLanguages    []string `json:"audioLanguages"`
-	SubtitleLanguages []string `json:"subtitleLanguages"`
-}
-
 type Show struct {
 	ID           string            `json:"id"`
 	LegacyID     *string           `json:"legacyID,omitempty"`
@@ -1293,7 +1288,6 @@ type User struct {
 	Audience              *string    `json:"audience,omitempty"`
 	Email                 *string    `json:"email,omitempty"`
 	EmailVerified         bool       `json:"emailVerified"`
-	Settings              *Settings  `json:"settings"`
 	Roles                 []string   `json:"roles"`
 	Analytics             *Analytics `json:"analytics"`
 	Gender                Gender     `json:"gender"`

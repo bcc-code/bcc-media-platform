@@ -594,35 +594,7 @@ func (r *queryRootResolver) Prompts(ctx context.Context, timestamp *string) ([]m
 	return utils.MapWithCtx(ctx, surveys, model.PromptFrom), nil
 }
 
-// EmailVerified is the resolver for the emailVerified field.
-func (r *userResolver) EmailVerified(ctx context.Context, obj *model.User) (bool, error) {
-	if obj.EmailVerified || obj.Anonymous || obj.ID == nil {
-		return obj.EmailVerified, nil
-	}
-	userinfo, err := r.getUserInfo(ctx, *obj.ID)
-	if err != nil {
-		return false, err
-	}
-	return userinfo.EmailVerified, nil
-}
-
-// CompletedRegistration is the resolver for the completedRegistration field.
-func (r *userResolver) CompletedRegistration(ctx context.Context, obj *model.User) (bool, error) {
-	if obj.CompletedRegistration || obj.Anonymous || obj.ID == nil {
-		return obj.CompletedRegistration, nil
-	}
-	userinfo, err := r.getUserInfo(ctx, *obj.ID)
-	if err != nil {
-		return false, err
-	}
-	return userinfo.CompletedRegistration(), nil
-}
-
 // QueryRoot returns generated.QueryRootResolver implementation.
 func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
 
-// User returns generated.UserResolver implementation.
-func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
-
 type queryRootResolver struct{ *Resolver }
-type userResolver struct{ *Resolver }

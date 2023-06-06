@@ -758,11 +758,6 @@ type ComplexityRoot struct {
 		Total  func(childComplexity int) int
 	}
 
-	Settings struct {
-		AudioLanguages    func(childComplexity int) int
-		SubtitleLanguages func(childComplexity int) int
-	}
-
 	Show struct {
 		DefaultEpisode func(childComplexity int) int
 		Description    func(childComplexity int) int
@@ -903,7 +898,6 @@ type ComplexityRoot struct {
 		Gender                func(childComplexity int) int
 		ID                    func(childComplexity int) int
 		Roles                 func(childComplexity int) int
-		Settings              func(childComplexity int) int
 	}
 
 	UserCollection struct {
@@ -4592,20 +4586,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SectionPagination.Total(childComplexity), true
 
-	case "Settings.audioLanguages":
-		if e.complexity.Settings.AudioLanguages == nil {
-			break
-		}
-
-		return e.complexity.Settings.AudioLanguages(childComplexity), true
-
-	case "Settings.subtitleLanguages":
-		if e.complexity.Settings.SubtitleLanguages == nil {
-			break
-		}
-
-		return e.complexity.Settings.SubtitleLanguages(childComplexity), true
-
 	case "Show.defaultEpisode":
 		if e.complexity.Show.DefaultEpisode == nil {
 			break
@@ -5289,13 +5269,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Roles(childComplexity), true
 
-	case "User.settings":
-		if e.complexity.User.Settings == nil {
-			break
-		}
-
-		return e.complexity.User.Settings(childComplexity), true
-
 	case "UserCollection.entries":
 		if e.complexity.UserCollection.Entries == nil {
 			break
@@ -5892,6 +5865,29 @@ type FAQ {
     image(style: ImageStyle): String @goField(forceResolver: true)
 }
 `, BuiltIn: false},
+	{Name: "../schema/items.graphqls", Input: `enum LinkType {
+    text
+    audio
+    video
+    other
+}
+
+type Link {
+    id: ID!
+    url: String! @goField(forceResolver: true)
+    title: String!
+    description: String
+    type: LinkType!
+    image(style: ImageStyle): String @goField(forceResolver: true)
+}
+
+type LinkPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [Link!]!
+}
+`, BuiltIn: false},
 	{Name: "../schema/messages.graphqls", Input: `type MessageStyle {
     text: String!
     background: String!
@@ -5969,188 +5965,6 @@ type Page{
     ): SectionPagination! @goField(forceResolver: true)
 }
 
-type ItemSectionMetadata {
-    continueWatching: Boolean!
-    myList: Boolean!
-    secondaryTitles: Boolean!
-    collectionId: ID!
-    useContext: Boolean!
-    prependLiveElement: Boolean!
-}
-
-interface Section{
-    id: ID!
-    title: String
-    description: String
-}
-
-type SectionPagination implements Pagination {
-    total: Int!
-    first: Int!
-    offset: Int!
-    items: [Section!]!
-}
-
-enum SectionSize {
-    small
-    medium
-}
-
-enum CardSectionSize {
-    large
-    mini
-}
-
-enum GridSectionSize {
-    half
-}
-
-interface ItemSection implements Section {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type PosterSection implements Section & ItemSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    size: SectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type FeaturedSection implements Section & ItemSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    size: SectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type DefaultSection implements Section & ItemSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    size: SectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type CardSection implements Section & ItemSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    size: CardSectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type ListSection implements Section & ItemSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    size: SectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type CardListSection implements Section & ItemSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    size: CardSectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-interface GridSection implements Section & ItemSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    size: GridSectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type DefaultGridSection implements Section & ItemSection & GridSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    size: GridSectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type PosterGridSection implements Section & ItemSection & GridSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    size: GridSectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type IconGridSection implements Section & ItemSection & GridSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    size: GridSectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type IconSection implements Section & ItemSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type LabelSection implements Section & ItemSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type MessageSection implements Section {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    messages: [Message!] @goField(forceResolver: true)
-}
-
-type WebSection implements Section {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    url: String!
-    widthRatio: Float!
-    aspectRatio: Float
-    height: Int
-    authentication: Boolean!
-}
-
-type AchievementSection implements Section {
-    id: ID!
-    title: String
-    description: String
-}
-
-type PageDetailsSection implements Section {
-    id: ID!
-    title: String
-    description: String
-}
-
 type Collection {
     id: ID!
     slug: String
@@ -6167,47 +5981,6 @@ type ContextCollection {
         first: Int,
         offset: Int,
     ): SectionItemPagination @goField(forceResolver: true)
-}
-
-enum LinkType {
-    text
-    audio
-    video
-    other
-}
-
-type Link {
-    id: ID!
-    url: String! @goField(forceResolver: true)
-    title: String!
-    description: String
-    type: LinkType!
-    image(style: ImageStyle): String @goField(forceResolver: true)
-}
-
-type LinkPagination implements Pagination {
-    total: Int!
-    first: Int!
-    offset: Int!
-    items: [Link!]!
-}
-
-union SectionItemType = Show | Season | Episode | Page | Link | StudyTopic | Game
-
-type SectionItem {
-    id: ID!
-    sort: Int!
-    title: String!
-    description: String!
-    image: String @goField(forceResolver: true)
-    item: SectionItemType!
-}
-
-type SectionItemPagination implements Pagination {
-    first: Int!
-    offset: Int!
-    total: Int!
-    items: [SectionItem!]!
 }
 `, BuiltIn: false},
 	{Name: "../schema/profiles.graphqls", Input: `type Profile {
@@ -6246,16 +6019,8 @@ interface Pagination {
 }
 
 scalar Language
-
-scalar Cursor
 scalar Date
-
 scalar UUID
-
-type Settings {
-    audioLanguages: [Language!]!
-    subtitleLanguages: [Language!]!
-}
 
 type Image {
     style: String!
@@ -6271,28 +6036,6 @@ enum ImageStyle {
 enum Status {
     published
     unlisted
-}
-
-enum Gender {
-    male
-    female
-    unknown
-}
-
-type User {
-    id: ID
-    anonymous: Boolean!
-    bccMember: Boolean!
-    audience: String
-    email: String
-    emailVerified: Boolean! @goField(forceResolver: true)
-    settings: Settings!
-    roles: [String!]!
-    analytics: Analytics!
-    gender: Gender!
-    firstName: String!
-    displayName: String!
-    completedRegistration: Boolean! @goField(forceResolver: true)
 }
 
 input LegacyIDLookupOptions {
@@ -6501,6 +6244,206 @@ type SeasonPagination implements Pagination {
     items: [Season!]!
 }
 `, BuiltIn: false},
+	{Name: "../schema/sections.graphqls", Input: `type ItemSectionMetadata {
+    continueWatching: Boolean!
+    myList: Boolean!
+    secondaryTitles: Boolean!
+    collectionId: ID!
+    useContext: Boolean!
+    prependLiveElement: Boolean!
+}
+
+interface Section{
+    id: ID!
+    title: String
+    description: String
+}
+
+type SectionPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [Section!]!
+}
+
+enum SectionSize {
+    small
+    medium
+}
+
+enum CardSectionSize {
+    large
+    mini
+}
+
+enum GridSectionSize {
+    half
+}
+
+interface ItemSection implements Section {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type PosterSection implements Section & ItemSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    size: SectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type FeaturedSection implements Section & ItemSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    size: SectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type DefaultSection implements Section & ItemSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    size: SectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type CardSection implements Section & ItemSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    size: CardSectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type ListSection implements Section & ItemSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    size: SectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type CardListSection implements Section & ItemSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    size: CardSectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+interface GridSection implements Section & ItemSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    size: GridSectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type DefaultGridSection implements Section & ItemSection & GridSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    size: GridSectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type PosterGridSection implements Section & ItemSection & GridSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    size: GridSectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type IconGridSection implements Section & ItemSection & GridSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    size: GridSectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type IconSection implements Section & ItemSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type LabelSection implements Section & ItemSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type MessageSection implements Section {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    messages: [Message!] @goField(forceResolver: true)
+}
+
+type WebSection implements Section {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    url: String!
+    widthRatio: Float!
+    aspectRatio: Float
+    height: Int
+    authentication: Boolean!
+}
+
+type AchievementSection implements Section {
+    id: ID!
+    title: String
+    description: String
+}
+
+type PageDetailsSection implements Section {
+    id: ID!
+    title: String
+    description: String
+}
+
+union SectionItemType = Show | Season | Episode | Page | Link | StudyTopic | Game
+
+type SectionItem {
+    id: ID!
+    sort: Int!
+    title: String!
+    description: String!
+    image: String @goField(forceResolver: true)
+    item: SectionItemType!
+}
+
+type SectionItemPagination implements Pagination {
+    first: Int!
+    offset: Int!
+    total: Int!
+    items: [SectionItem!]!
+}
+`, BuiltIn: false},
 	{Name: "../schema/shows.graphqls", Input: `enum ShowType {
     event
     series
@@ -6690,11 +6633,32 @@ type SurveyRatingQuestion implements SurveyQuestion {
     description: String
 }
 `, BuiltIn: false},
-	{Name: "../schema/user-collections.graphqls", Input: `type UserCollection {
+	{Name: "../schema/users.graphqls", Input: `enum Gender {
+    male
+    female
+    unknown
+}
+
+type User {
+    id: ID
+    anonymous: Boolean!
+    bccMember: Boolean!
+    audience: String
+    email: String
+    emailVerified: Boolean! @goField(forceResolver: true)
+    roles: [String!]!
+    analytics: Analytics!
+    gender: Gender!
+    firstName: String!
+    displayName: String!
+    completedRegistration: Boolean! @goField(forceResolver: true)
+}
+
+type UserCollection {
     id: UUID!
     title: String!
-#    updatedAt: Date!
-#    createdAt: Date!
+    #    updatedAt: Date!
+    #    createdAt: Date!
     entries(first: Int, offset: Int): UserCollectionEntryPagination! @goField(forceResolver: true)
 }
 
@@ -6702,9 +6666,9 @@ union UserCollectionEntryItem = Show | Episode
 
 type UserCollectionEntry {
     id: UUID!
-#    sort: Int!
-#    updatedAt: Date!
-#    createdAt: Date!
+    #    sort: Int!
+    #    updatedAt: Date!
+    #    createdAt: Date!
     item: UserCollectionEntryItem! @goField(forceResolver: true)
 }
 
@@ -25803,8 +25767,6 @@ func (ec *executionContext) fieldContext_QueryRoot_me(ctx context.Context, field
 				return ec.fieldContext_User_email(ctx, field)
 			case "emailVerified":
 				return ec.fieldContext_User_emailVerified(ctx, field)
-			case "settings":
-				return ec.fieldContext_User_settings(ctx, field)
 			case "roles":
 				return ec.fieldContext_User_roles(ctx, field)
 			case "analytics":
@@ -29889,94 +29851,6 @@ func (ec *executionContext) fieldContext_SectionPagination_items(ctx context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Settings_audioLanguages(ctx context.Context, field graphql.CollectedField, obj *model.Settings) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Settings_audioLanguages(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.AudioLanguages, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalNLanguage2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Settings_audioLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Settings",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Language does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Settings_subtitleLanguages(ctx context.Context, field graphql.CollectedField, obj *model.Settings) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Settings_subtitleLanguages(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SubtitleLanguages, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalNLanguage2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Settings_subtitleLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Settings",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Language does not have child fields")
 		},
 	}
 	return fc, nil
@@ -34098,56 +33972,6 @@ func (ec *executionContext) fieldContext_User_emailVerified(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _User_settings(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_settings(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Settings, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Settings)
-	fc.Result = res
-	return ec.marshalNSettings2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSettings(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_settings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "audioLanguages":
-				return ec.fieldContext_Settings_audioLanguages(ctx, field)
-			case "subtitleLanguages":
-				return ec.fieldContext_Settings_subtitleLanguages(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Settings", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _User_roles(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_roles(ctx, field)
 	if err != nil {
@@ -37739,13 +37563,6 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._FAQCategoryPagination(ctx, sel, obj)
-	case model.SectionPagination:
-		return ec._SectionPagination(ctx, sel, &obj)
-	case *model.SectionPagination:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SectionPagination(ctx, sel, obj)
 	case model.LinkPagination:
 		return ec._LinkPagination(ctx, sel, &obj)
 	case *model.LinkPagination:
@@ -37753,13 +37570,6 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._LinkPagination(ctx, sel, obj)
-	case model.SectionItemPagination:
-		return ec._SectionItemPagination(ctx, sel, &obj)
-	case *model.SectionItemPagination:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SectionItemPagination(ctx, sel, obj)
 	case model.SeasonPagination:
 		return ec._SeasonPagination(ctx, sel, &obj)
 	case *model.SeasonPagination:
@@ -37767,6 +37577,20 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._SeasonPagination(ctx, sel, obj)
+	case model.SectionPagination:
+		return ec._SectionPagination(ctx, sel, &obj)
+	case *model.SectionPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SectionPagination(ctx, sel, obj)
+	case model.SectionItemPagination:
+		return ec._SectionItemPagination(ctx, sel, &obj)
+	case *model.SectionItemPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SectionItemPagination(ctx, sel, obj)
 	case model.LessonPagination:
 		return ec._LessonPagination(ctx, sel, &obj)
 	case *model.LessonPagination:
@@ -44070,41 +43894,6 @@ func (ec *executionContext) _SectionPagination(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var settingsImplementors = []string{"Settings"}
-
-func (ec *executionContext) _Settings(ctx context.Context, sel ast.SelectionSet, obj *model.Settings) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, settingsImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Settings")
-		case "audioLanguages":
-
-			out.Values[i] = ec._Settings_audioLanguages(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "subtitleLanguages":
-
-			out.Values[i] = ec._Settings_subtitleLanguages(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var showImplementors = []string{"Show", "SectionItemType", "UserCollectionEntryItem"}
 
 func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj *model.Show) graphql.Marshaler {
@@ -45223,13 +45012,6 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 				return innerFunc(ctx)
 
 			})
-		case "settings":
-
-			out.Values[i] = ec._User_settings(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
 		case "roles":
 
 			out.Values[i] = ec._User_roles(ctx, field, obj)
@@ -47646,16 +47428,6 @@ func (ec *executionContext) unmarshalNSectionSize2githubᚗcomᚋbccᚑcodeᚋbr
 
 func (ec *executionContext) marshalNSectionSize2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSectionSize(ctx context.Context, sel ast.SelectionSet, v model.SectionSize) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) marshalNSettings2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐSettings(ctx context.Context, sel ast.SelectionSet, v *model.Settings) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Settings(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNShareRestriction2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐShareRestriction(ctx context.Context, v interface{}) (model.ShareRestriction, error) {
