@@ -1430,6 +1430,30 @@ type TasksTranslation struct {
 	Description    null_v4.String `db:"description" json:"description"`
 }
 
+type TimedmetadataTranslation struct {
+	ID              int32          `db:"id" json:"id"`
+	TimedmetadataID uuid.NullUUID  `db:"timedmetadata_id" json:"timedmetadataID"`
+	LanguagesCode   null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title           null_v4.String `db:"title" json:"title"`
+	Description     null_v4.String `db:"description" json:"description"`
+}
+
+type Timedmetadatum struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Status      string         `db:"status" json:"status"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Label       string         `db:"label" json:"label"`
+	Type        string         `db:"type" json:"type"`
+	Highlight   bool           `db:"highlight" json:"highlight"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+	AssetID     int32          `db:"asset_id" json:"assetID"`
+	Timestamp   time.Time      `db:"timestamp" json:"timestamp"`
+}
+
 type Usergroup struct {
 	Code        string         `db:"code" json:"code"`
 	DateCreated time.Time      `db:"date_created" json:"dateCreated"`

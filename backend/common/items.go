@@ -178,6 +178,16 @@ type Stream struct {
 	EncryptionKeyID   null.String `json:"encryptionKeyId"`
 }
 
+// TimedMetadata item type
+type TimedMetadata struct {
+	ID          uuid.UUID
+	Type        string
+	AssetID     int
+	Timestamp   int
+	Title       LocaleString `json:"title"`
+	Description LocaleString `json:"description"`
+}
+
 // Page is the definition of the Page object
 type Page struct {
 	ID          int          `json:"id"`

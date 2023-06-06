@@ -30,9 +30,11 @@ type Episode {
     extraDescription: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
     imageUrl: String @deprecated(reason: "Replaced by the image field")
+
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)
-    chapters: [Chapter!]!
+    chapters: [Chapter!]! @goField(forceResolver: true)
+
     season: Season @goField(forceResolver: true)
     duration: Int!
     progress: Int @goField(forceResolver: true)
@@ -61,9 +63,10 @@ type EpisodePagination implements Pagination {
 }
 
 type Chapter {
-    id: ID!
+    id: UUID!
     start: Int!
     title: String!
+    description: String
 }
 
 type File {

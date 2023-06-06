@@ -145,12 +145,17 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		EpisodeIDFromLegacyIDLoader:        loaders.NewConversionLoader(ctx, queries.GetEpisodeIDsForLegacyIDs, loaders.WithName("episode-legacyid")),
 		LinkLoader:                         loaders.New(ctx, queries.GetLinks),
 		EventLoader:                        loaders.New(ctx, queries.GetEvents),
+
 		FilesLoader: loaders.NewListLoader(ctx, queries.GetFilesForEpisodes, func(row common.File) int {
 			return row.EpisodeID
 		}),
 		StreamsLoader: loaders.NewListLoader(ctx, queries.GetStreamsForEpisodes, func(row common.Stream) int {
 			return row.EpisodeID
 		}),
+		AssetTimedMetadataLoader: loaders.NewListLoader(ctx, queries.GetTimedMetadataForAssets, func(row common.TimedMetadata) int {
+			return row.AssetID
+		}),
+
 		CollectionLoader: loaders.New(ctx, queries.GetCollections),
 		CollectionItemLoader: loaders.NewListLoader(ctx, queries.GetItemsForCollections, func(row common.CollectionItem) int {
 			return row.CollectionID

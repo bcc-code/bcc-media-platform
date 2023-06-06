@@ -264,9 +264,10 @@ func (this CardSection) GetMetadata() *ItemSectionMetadata { return this.Metadat
 func (this CardSection) GetItems() *SectionItemPagination { return this.Items }
 
 type Chapter struct {
-	ID    string `json:"id"`
-	Start int    `json:"start"`
-	Title string `json:"title"`
+	ID          string  `json:"id"`
+	Start       int     `json:"start"`
+	Title       string  `json:"title"`
+	Description *string `json:"description,omitempty"`
 }
 
 type Collection struct {
