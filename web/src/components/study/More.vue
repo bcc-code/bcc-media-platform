@@ -117,7 +117,7 @@ import TaskButton from "./TaskButton.vue"
 import { Page } from "./Lesson.vue"
 import { VButton } from ".."
 import { computed, ref } from "vue"
-import { appWebView } from "@/utils/flutter"
+import { appWebView } from "@/utils/webview"
 import router from "@/router"
 import FeedbackRatingAndForm from "../feedback/FeedbackRatingAndForm.vue"
 

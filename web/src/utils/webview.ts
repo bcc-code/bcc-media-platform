@@ -9,7 +9,7 @@ type HapticFeedbackType =
     | "heavyImpact"
 
 class AppWebView {
-    handlerName = "flutter_main"
+    handlerName: string
     webview: WebViewCommunication
     constructor(handlerName: string, webView: WebViewCommunication) {
         this.webview = webView

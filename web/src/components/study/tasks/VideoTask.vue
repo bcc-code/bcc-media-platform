@@ -70,7 +70,7 @@ import { computed, getCurrentInstance, onMounted, Ref, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import Alternative from "./Alternative.vue"
 import Loader from "@/components/Loader.vue"
-import { appWebView } from "@/utils/flutter"
+import { appWebView } from "@/utils/webview"
 
 var selectedIndex = ref<number>()
 

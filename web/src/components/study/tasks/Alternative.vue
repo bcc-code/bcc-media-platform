@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { appWebView } from "@/utils/flutter"
+import { appWebView } from "@/utils/webview"
 import { computed, ref, VNodeRef, VueElement } from "vue"
 import { Vue3Lottie as LottieAnimation } from "vue3-lottie"
 import confettiAnimation from "./confetti.json"

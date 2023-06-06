@@ -270,7 +270,7 @@ import { useTitle } from "@/utils/title"
 import { analytics } from "@/services/analytics"
 import AlternativesTask from "./tasks/AlternativesTask.vue"
 import PosterTask from "./tasks/PosterTask.vue"
-import { flutterStudy } from "@/utils/flutter"
+import { flutterStudy } from "@/utils/webview"
 import {
     GetStudyLessonQuery,
     useCompleteTaskMutation,

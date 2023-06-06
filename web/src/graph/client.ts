@@ -8,7 +8,7 @@ import {
 import { AuthConfig, authExchange, AuthUtilities } from "@urql/exchange-auth"
 import { Auth } from "../services/auth"
 import { current } from "@/services/language"
-import { appWebView } from "@/utils/flutter"
+import { appWebView } from "@/utils/webview"
 
 const authExchangeFunction = async (
     utils: AuthUtilities

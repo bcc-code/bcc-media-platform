@@ -16,7 +16,7 @@
 <script lang="ts" setup>
 import router from "@/router"
 import settings from "@/services/settings"
-import { appWebView } from "@/utils/flutter"
+import { appWebView } from "@/utils/webview"
 import { onMounted, ref } from "vue"
 import { init } from "@/services/language"
 import Loader from "@/components/Loader.vue"

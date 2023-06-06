@@ -54,7 +54,7 @@
 
 <script lang="ts" setup>
 import { LessonLinkFragment } from "@/graph/generated"
-import { appWebView, openInBrowser } from "@/utils/flutter"
+import { appWebView, openInBrowser } from "@/utils/webview"
 
 const props = defineProps<{ link: LessonLinkFragment }>()
 
