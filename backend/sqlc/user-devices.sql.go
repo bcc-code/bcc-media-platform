@@ -13,8 +13,23 @@ import (
 	"github.com/lib/pq"
 )
 
+const deleteDevices = `-- name: DeleteDevices :exec
+DELETE
+FROM users.devices d
+WHERE d.token = ANY ($1::varchar[])
+`
+
+func (q *Queries) DeleteDevices(ctx context.Context, tokens []string) error {
+	_, err := q.db.ExecContext(ctx, deleteDevices, pq.Array(tokens))
+	return err
+}
+
 const getDevicesForProfiles = `-- name: getDevicesForProfiles :many
-SELECT token, profile_id, updated_at, name, languages FROM users.devices d WHERE d.profile_id = ANY($1::uuid[]) AND d.updated_at > (NOW() - interval '1 month') ORDER BY updated_at DESC
+SELECT token, profile_id, updated_at, name, languages
+FROM users.devices d
+WHERE d.profile_id = ANY ($1::uuid[])
+  AND d.updated_at > (NOW() - interval '1 month')
+ORDER BY updated_at DESC
 `
 
 func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUID) ([]UsersDevice, error) {
@@ -47,7 +62,10 @@ func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUI
 }
 
 const listDevices = `-- name: listDevices :many
-SELECT token, profile_id, updated_at, name, languages FROM users.devices d WHERE d.updated_at > (NOW() - interval '1 month') ORDER BY updated_at DESC
+SELECT token, profile_id, updated_at, name, languages
+FROM users.devices d
+WHERE d.updated_at > (NOW() - interval '1 month')
+ORDER BY updated_at DESC
 `
 
 func (q *Queries) listDevices(ctx context.Context) ([]UsersDevice, error) {
@@ -82,7 +100,9 @@ func (q *Queries) listDevices(ctx context.Context) ([]UsersDevice, error) {
 const setDeviceToken = `-- name: setDeviceToken :exec
 INSERT INTO users.devices (token, languages, profile_id, updated_at, name)
 VALUES ($1, $2, $3, $4, $5)
-ON CONFLICT (token, profile_id) DO UPDATE SET updated_at = EXCLUDED.updated_at, name = EXCLUDED.name, languages = EXCLUDED.languages
+ON CONFLICT (token, profile_id) DO UPDATE SET updated_at = EXCLUDED.updated_at,
+                                              name       = EXCLUDED.name,
+                                              languages  = EXCLUDED.languages
 `
 
 type setDeviceTokenParams struct {
