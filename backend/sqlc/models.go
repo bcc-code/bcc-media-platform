@@ -20,7 +20,7 @@ type Achievement struct {
 	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	GroupID     uuid.NullUUID  `db:"group_id" json:"GroupID"`
+	GroupID     uuid.NullUUID  `db:"group_id" json:"groupID"`
 	Title       string         `db:"title" json:"title"`
 	Description null_v4.String `db:"description" json:"description"`
 	Sort        null_v4.Int    `db:"sort" json:"sort"`
@@ -103,7 +103,7 @@ type Application struct {
 	SearchPageID                  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionID"`
 	Uuid                          uuid.UUID      `db:"uuid" json:"uuid"`
-	GroupID                       uuid.UUID      `db:"group_id" json:"GroupID"`
+	GroupID                       uuid.UUID      `db:"group_id" json:"groupID"`
 	GamesPageID                   null_v4.Int    `db:"games_page_id" json:"gamesPageID"`
 }
 
@@ -302,7 +302,7 @@ type Computeddatum struct {
 	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
 	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	GroupID     uuid.UUID      `db:"group_id" json:"GroupID"`
+	GroupID     uuid.UUID      `db:"group_id" json:"groupID"`
 	Value       string         `db:"value" json:"value"`
 	Label       null_v4.String `db:"label" json:"label"`
 }

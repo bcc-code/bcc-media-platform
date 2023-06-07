@@ -10,4 +10,4 @@ WHERE applicationgroup_id = @applicationgroup_id::uuid
 -- name: saveProfile :exec
 INSERT INTO users.profiles (id, user_id, name, applicationgroup_id)
 VALUES (@id::uuid, @user_id::varchar, @name::varchar, @applicationgroup_id::uuid)
-ON CONFLICT (id, applicationgroup_id) DO UPDATE SET name = EXCLUDED.name;
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;

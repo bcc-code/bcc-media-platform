@@ -65,7 +65,7 @@ func (q *Queries) getProfiles(ctx context.Context, arg getProfilesParams) ([]get
 const saveProfile = `-- name: saveProfile :exec
 INSERT INTO users.profiles (id, user_id, name, applicationgroup_id)
 VALUES ($1::uuid, $2::varchar, $3::varchar, $4::uuid)
-ON CONFLICT (id, applicationgroup_id) DO UPDATE SET name = EXCLUDED.name
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name
 `
 
 type saveProfileParams struct {

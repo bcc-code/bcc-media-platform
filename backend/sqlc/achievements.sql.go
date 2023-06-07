@@ -389,7 +389,7 @@ ORDER BY sort
 
 type getAchievementsRow struct {
 	ID                  uuid.UUID             `db:"id" json:"id"`
-	GroupID             uuid.NullUUID         `db:"group_id" json:"GroupID"`
+	GroupID             uuid.NullUUID         `db:"group_id" json:"groupID"`
 	OriginalTitle       string                `db:"original_title" json:"originalTitle"`
 	OriginalDescription null_v4.String        `db:"original_description" json:"originalDescription"`
 	Title               pqtype.NullRawMessage `db:"title" json:"title"`

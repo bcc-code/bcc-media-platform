@@ -114,7 +114,7 @@ WHERE a.id = ANY ($1::int[])
 type getApplicationsRow struct {
 	ID                            int32          `db:"id" json:"id"`
 	Uuid                          uuid.UUID      `db:"uuid" json:"uuid"`
-	GroupID                       uuid.UUID      `db:"group_id" json:"GroupID"`
+	GroupID                       uuid.UUID      `db:"group_id" json:"groupID"`
 	Code                          string         `db:"code" json:"code"`
 	Default                       bool           `db:"default" json:"default"`
 	ClientVersion                 null_v4.String `db:"client_version" json:"clientVersion"`
@@ -188,7 +188,7 @@ WHERE a.status = 'published'
 type listApplicationsRow struct {
 	ID                            int32          `db:"id" json:"id"`
 	Uuid                          uuid.UUID      `db:"uuid" json:"uuid"`
-	GroupID                       uuid.UUID      `db:"group_id" json:"GroupID"`
+	GroupID                       uuid.UUID      `db:"group_id" json:"groupID"`
 	Code                          string         `db:"code" json:"code"`
 	Default                       bool           `db:"default" json:"default"`
 	ClientVersion                 null_v4.String `db:"client_version" json:"clientVersion"`
