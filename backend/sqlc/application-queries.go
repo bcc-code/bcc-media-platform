@@ -11,13 +11,13 @@ import (
 // ApplicationQueries contains queries specific to application
 type ApplicationQueries struct {
 	*Queries
-	groupID uuid.UUID
+	GroupID uuid.UUID
 }
 
 // ApplicationQueries returns application-queries
 func (q *Queries) ApplicationQueries(groupID uuid.UUID) *ApplicationQueries {
 	return &ApplicationQueries{
-		groupID: groupID,
+		GroupID: groupID,
 		Queries: q,
 	}
 }

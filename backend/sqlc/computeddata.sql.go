@@ -28,7 +28,7 @@ WHERE g.id = ANY ($1::uuid[])
 `
 
 type getComputedForGroupsRow struct {
-	GroupID    uuid.UUID       `db:"group_id" json:"groupID"`
+	GroupID    uuid.UUID       `db:"group_id" json:"GroupID"`
 	ID         uuid.UUID       `db:"id" json:"id"`
 	Result     string          `db:"result" json:"result"`
 	Conditions json.RawMessage `db:"conditions" json:"conditions"`
