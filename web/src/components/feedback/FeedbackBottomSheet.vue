@@ -94,8 +94,6 @@ import swipeModal from "@takuma-ru/vue-swipe-modal"
 import { useSendEpisodeFeedbackMutation } from "@/graph/generated"
 import { exec } from "child_process"
 import Loader from "../Loader.vue"
-import { flutter } from "@/utils/flutter"
-
 const { fetching, executeMutation, error, data } =
     useSendEpisodeFeedbackMutation()
 

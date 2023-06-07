@@ -70,7 +70,7 @@ import { computed, getCurrentInstance, onMounted, Ref, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import Alternative from "./Alternative.vue"
 import Loader from "@/components/Loader.vue"
-import { flutter } from "@/utils/flutter"
+import { appWebView } from "@/utils/flutter"
 
 var selectedIndex = ref<number>()
 
@@ -93,8 +93,8 @@ const task = computed(() => {
 
 const openLink = async () => {
     await completeTask({ taskId: task.value.id })
-    if (flutter) {
-        var promise = flutter.push(
+    if (appWebView) {
+        var promise = appWebView.push(
             `/embed/${task.value.episode.id}?hide_bottom_section=true&autoplay=true`
         )
         if (promise.then != null) {

@@ -16,7 +16,7 @@
 <script lang="ts" setup>
 import router from "@/router"
 import settings from "@/services/settings"
-import { flutter } from "@/utils/flutter"
+import { appWebView } from "@/utils/flutter"
 import { onMounted, ref } from "vue"
 import { init } from "@/services/language"
 import Loader from "@/components/Loader.vue"
@@ -27,7 +27,7 @@ if (!!router.currentRoute.value.query["bg"]) {
     document.body.style.setProperty("--tw-bg-opacity", "1")
 }
 onMounted(async () => {
-    const flutterLocale = await flutter?.getLocale()
+    const flutterLocale = await appWebView?.getLocale()
     console.time("embedInitLocale")
     if (flutterLocale) {
         settings.locale = flutterLocale
