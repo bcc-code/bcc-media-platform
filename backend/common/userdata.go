@@ -7,10 +7,9 @@ import (
 
 // Profile is the entry point for most user-specific content
 type Profile struct {
-	ID                 uuid.UUID
-	UserID             string
-	Name               string
-	ApplicationGroupID uuid.UUID
+	ID     uuid.UUID
+	UserID string
+	Name   string
 }
 
 // Device is a profile-linked device with a token for notifications
