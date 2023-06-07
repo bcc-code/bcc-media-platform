@@ -7,7 +7,6 @@ package graph
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -58,40 +57,7 @@ func (r *episodeResolver) AvailableFrom(ctx context.Context, obj *model.Episode)
 
 // Title is the resolver for the title field.
 func (r *episodeResolver) Title(ctx context.Context, obj *model.Episode) (string, error) {
-	ep, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(obj.ID))
-	if err != nil {
-		return "", err
-	}
-	ginCtx, _ := utils.GinCtx(ctx)
-	languages := user.GetLanguagesFromCtx(ginCtx)
-
-	title := ep.Title.Get(languages)
-
-	if !ep.Number.Valid {
-		return title, nil
-	}
-
-	episodeContext, err := r.getEpisodeContext(ctx, obj.ID)
-	if err != nil {
-		return "", err
-	}
-
-	if !episodeContext.CollectionID.Valid {
-		if ep.NumberInTitle {
-			return fmt.Sprintf("%d. %s", ep.Number.Int64, title), nil
-		}
-		return title, nil
-	}
-
-	col, err := r.Loaders.CollectionLoader.Get(ctx, int(episodeContext.CollectionID.Int64))
-	if err != nil || col == nil {
-		return title, err
-	}
-	if col.NumberInTitles {
-		return fmt.Sprintf("%d. %s", ep.Number.Int64, title), nil
-	}
-
-	return title, nil
+	return r.getTitleFromContext(ctx, obj)
 }
 
 // Image is the resolver for the image field.
