@@ -23,12 +23,13 @@ func mapToCollections(collections []getCollectionsRow) []common.Collection {
 		}
 
 		return common.Collection{
-			ID:           int(e.ID),
-			Type:         e.FilterType.ValueOrZero(),
-			AdvancedType: e.AdvancedType,
-			Filter:       filter,
-			Title:        title,
-			Slugs:        slugs,
+			ID:             int(e.ID),
+			Type:           e.FilterType.ValueOrZero(),
+			AdvancedType:   e.AdvancedType,
+			Filter:         filter,
+			Title:          title,
+			Slugs:          slugs,
+			NumberInTitles: e.NumberInTitles,
 		}
 	})
 }

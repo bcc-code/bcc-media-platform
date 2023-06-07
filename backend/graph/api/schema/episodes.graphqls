@@ -25,7 +25,7 @@ type Episode {
     availableFrom: Date! @goField(forceResolver: true)
     availableTo: Date!
     ageRating: String!
-    title: String!
+    title: String! @goField(forceResolver: true)
     description: String!
     extraDescription: String!
     image(style: ImageStyle): String @goField(forceResolver: true)

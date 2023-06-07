@@ -163,6 +163,7 @@ SELECT c.id,
        c.date_updated,
        c.filter_type,
        c.query_filter,
+       c.number_in_titles,
        ts.title,
        ts.slugs
 FROM collections c
@@ -171,14 +172,15 @@ WHERE c.id = ANY ($1::int[])
 `
 
 type getCollectionsRow struct {
-	ID           int32                 `db:"id" json:"id"`
-	AdvancedType null_v4.String        `db:"advanced_type" json:"advancedType"`
-	DateCreated  time.Time             `db:"date_created" json:"dateCreated"`
-	DateUpdated  time.Time             `db:"date_updated" json:"dateUpdated"`
-	FilterType   null_v4.String        `db:"filter_type" json:"filterType"`
-	QueryFilter  pqtype.NullRawMessage `db:"query_filter" json:"queryFilter"`
-	Title        pqtype.NullRawMessage `db:"title" json:"title"`
-	Slugs        pqtype.NullRawMessage `db:"slugs" json:"slugs"`
+	ID             int32                 `db:"id" json:"id"`
+	AdvancedType   null_v4.String        `db:"advanced_type" json:"advancedType"`
+	DateCreated    time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated    time.Time             `db:"date_updated" json:"dateUpdated"`
+	FilterType     null_v4.String        `db:"filter_type" json:"filterType"`
+	QueryFilter    pqtype.NullRawMessage `db:"query_filter" json:"queryFilter"`
+	NumberInTitles bool                  `db:"number_in_titles" json:"numberInTitles"`
+	Title          pqtype.NullRawMessage `db:"title" json:"title"`
+	Slugs          pqtype.NullRawMessage `db:"slugs" json:"slugs"`
 }
 
 func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]getCollectionsRow, error) {
@@ -197,6 +199,7 @@ func (q *Queries) getCollections(ctx context.Context, dollar_1 []int32) ([]getCo
 			&i.DateUpdated,
 			&i.FilterType,
 			&i.QueryFilter,
+			&i.NumberInTitles,
 			&i.Title,
 			&i.Slugs,
 		); err != nil {

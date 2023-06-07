@@ -996,6 +996,8 @@ type EpisodeResolver interface {
 
 	AvailableFrom(ctx context.Context, obj *model.Episode) (string, error)
 
+	Title(ctx context.Context, obj *model.Episode) (string, error)
+
 	Image(ctx context.Context, obj *model.Episode, style *model.ImageStyle) (*string, error)
 
 	Streams(ctx context.Context, obj *model.Episode) ([]*model.Stream, error)
@@ -5750,7 +5752,7 @@ type Episode {
     availableFrom: Date! @goField(forceResolver: true)
     availableTo: Date!
     ageRating: String!
-    title: String!
+    title: String! @goField(forceResolver: true)
     description: String!
     extraDescription: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
@@ -13161,7 +13163,7 @@ func (ec *executionContext) _Episode_title(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
+		return ec.resolvers.Episode().Title(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13182,8 +13184,8 @@ func (ec *executionContext) fieldContext_Episode_title(ctx context.Context, fiel
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -39469,12 +39471,25 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
+			field := field
 
-			out.Values[i] = ec._Episode_title(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_title(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "description":
 
 			out.Values[i] = ec._Episode_description(ctx, field, obj)
