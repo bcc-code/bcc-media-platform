@@ -165,14 +165,20 @@ func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title strin
 	}
 	u := user.GetFromCtx(ginCtx)
 
+	var e string
+	var n string
 	if u.Anonymous {
-		return false, merry.New("User cannot be anonymous")
+		e = "anonymous@brunstad.tv"
+		n = "Anonymous User"
+	} else {
+		e = u.Email
+		n = u.DisplayName
 	}
 
 	err = r.EmailService.SendEmail(ctx, email.SendOptions{
 		From: email.Recipient{
-			Name:  u.DisplayName,
-			Email: u.Email,
+			Name:  n,
+			Email: e,
 		},
 		To: email.Recipient{
 			Name:  "Support",
