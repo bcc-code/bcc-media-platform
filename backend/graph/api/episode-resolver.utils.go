@@ -2,10 +2,13 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
 	"github.com/bcc-code/brunstadtv/backend/items/collection"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
 	"math/rand"
 )
 
@@ -148,4 +151,41 @@ func (r *episodeResolver) getRelatedEpisodes(ctx context.Context, episodeID stri
 	}
 	randomIndex := rand.Intn(len(episodeIDs))
 	return []int{episodeIDs[randomIndex]}, nil
+}
+
+func (r *episodeResolver) getTitleFromContext(ctx context.Context, obj *model.Episode) (string, error) {
+	episode, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(obj.ID))
+	if err != nil {
+		return "", err
+	}
+
+	if obj.Number == nil {
+		return obj.Title, nil
+	}
+
+	episodeContext, err := r.getEpisodeContext(ctx, obj.ID)
+	if err != nil {
+		return "", err
+	}
+
+	if episodeContext.CollectionID.Valid {
+		return r.getTitleWithCollection(ctx, obj, episodeContext.CollectionID)
+	}
+
+	if episode.NumberInTitle {
+		return fmt.Sprintf("%d. %s", *obj.Number, obj.Title), nil
+	}
+
+	return obj.Title, nil
+}
+
+func (r *episodeResolver) getTitleWithCollection(ctx context.Context, episode *model.Episode, collectionID null.Int) (string, error) {
+	col, err := r.Loaders.CollectionLoader.Get(ctx, int(collectionID.Int64))
+	if err != nil || col == nil {
+		return episode.Title, err
+	}
+	if col.NumberInTitles {
+		return fmt.Sprintf("%d. %s", *episode.Number, episode.Title), nil
+	}
+	return episode.Title, nil
 }

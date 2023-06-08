@@ -117,7 +117,7 @@ func resolveMyListCollection(ctx context.Context, ls *common.BatchLoaders) ([]*i
 	return ids, nil
 }
 
-func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoaders, entries []collection.Entry, imageStyle string) ([]*model.SectionItem, error) {
+func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoaders, entries []collection.Entry, imageStyle string, numberInTitle bool) ([]*model.SectionItem, error) {
 	var items []*model.SectionItem
 	for _, e := range entries {
 		var item *model.SectionItem
@@ -161,7 +161,7 @@ func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoa
 				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
 				continue
 			}
-			item = model.EpisodeSectionItemFrom(ctx, i, e.Sort, imageStyle)
+			item = model.EpisodeSectionItemFrom(ctx, i, e.Sort, imageStyle, numberInTitle)
 		case "links":
 			i, err := ls.LinkLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
@@ -245,7 +245,7 @@ func sectionCollectionEntryResolver(
 
 	preloadLoaders(ctx, ls, pagination.Items)
 
-	items, err := mapCollectionEntriesToSectionItems(ctx, ls, pagination.Items, imageStyle)
+	items, err := mapCollectionEntriesToSectionItems(ctx, ls, pagination.Items, imageStyle, col.NumberInTitles)
 	if err != nil {
 		return nil, err
 	}

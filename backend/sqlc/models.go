@@ -233,16 +233,17 @@ type Category struct {
 }
 
 type Collection struct {
-	DateCreated  time.Time             `db:"date_created" json:"dateCreated"`
-	DateUpdated  time.Time             `db:"date_updated" json:"dateUpdated"`
-	ID           int32                 `db:"id" json:"id"`
-	Sort         null_v4.Int           `db:"sort" json:"sort"`
-	UserCreated  uuid.NullUUID         `db:"user_created" json:"userCreated"`
-	UserUpdated  uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
-	FilterType   null_v4.String        `db:"filter_type" json:"filterType"`
-	Name         null_v4.String        `db:"name" json:"name"`
-	QueryFilter  pqtype.NullRawMessage `db:"query_filter" json:"queryFilter"`
-	AdvancedType null_v4.String        `db:"advanced_type" json:"advancedType"`
+	DateCreated    time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated    time.Time             `db:"date_updated" json:"dateUpdated"`
+	ID             int32                 `db:"id" json:"id"`
+	Sort           null_v4.Int           `db:"sort" json:"sort"`
+	UserCreated    uuid.NullUUID         `db:"user_created" json:"userCreated"`
+	UserUpdated    uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	FilterType     null_v4.String        `db:"filter_type" json:"filterType"`
+	Name           null_v4.String        `db:"name" json:"name"`
+	QueryFilter    pqtype.NullRawMessage `db:"query_filter" json:"queryFilter"`
+	AdvancedType   null_v4.String        `db:"advanced_type" json:"advancedType"`
+	NumberInTitles bool                  `db:"number_in_titles" json:"numberInTitles"`
 }
 
 type CollectionsEntry struct {

@@ -101,32 +101,35 @@ func (i Season) GetStatus() Status {
 
 // Episode is the definition of the Episode object
 type Episode struct {
-	ID                    int          `json:"id"`
-	UUID                  uuid.UUID    `json:"uuid"`
-	Status                Status       `json:"unlisted"`
-	Type                  string       `json:"type"`
-	PreventPublicIndexing bool         `json:"preventPublicIndexing"`
-	LegacyID              null.Int     `json:"legacyId"`
-	LegacyProgramID       null.Int     `json:"legacyProgramId"`
-	SeasonID              null.Int     `json:"seasonId"`
-	PublishDateInTitle    bool         `json:"publishDateInTitle"`
-	PublishDate           time.Time    `json:"publishDate"`
-	ProductionDate        time.Time    `json:"productionDate"`
-	AvailableFrom         time.Time    `json:"availableFrom"`
-	AvailableTo           time.Time    `json:"availableTo"`
-	Number                null.Int     `json:"number"`
-	Duration              int          `json:"duration"`
-	AgeRating             string       `json:"ageRating"`
-	AssetID               null.Int     `json:"assetId"`
-	Image                 null.String  `json:"image"`
-	Images                Images       `json:"images"`
-	TagIDs                []int        `json:"tagIds"`
-	PublicTitle           null.String  `json:"publicTitle"`
-	Title                 LocaleString `json:"title"`
-	Description           LocaleString `json:"description"`
-	ExtraDescription      LocaleString `json:"extraDescription"`
-	ContentType           null.String  `json:"contentType"`
-	Audience              null.String  `json:"audience"`
+	ID                    int         `json:"id"`
+	UUID                  uuid.UUID   `json:"uuid"`
+	Status                Status      `json:"unlisted"`
+	Type                  string      `json:"type"`
+	PreventPublicIndexing bool        `json:"preventPublicIndexing"`
+	LegacyID              null.Int    `json:"legacyId"`
+	LegacyProgramID       null.Int    `json:"legacyProgramId"`
+	SeasonID              null.Int    `json:"seasonId"`
+	PublishDateInTitle    bool        `json:"publishDateInTitle"`
+	PublishDate           time.Time   `json:"publishDate"`
+	ProductionDate        time.Time   `json:"productionDate"`
+	AvailableFrom         time.Time   `json:"availableFrom"`
+	AvailableTo           time.Time   `json:"availableTo"`
+	Number                null.Int    `json:"number"`
+	Duration              int         `json:"duration"`
+	AgeRating             string      `json:"ageRating"`
+	AssetID               null.Int    `json:"assetId"`
+	Image                 null.String `json:"image"`
+	Images                Images      `json:"images"`
+	TagIDs                []int       `json:"tagIds"`
+
+	PublicTitle      null.String  `json:"publicTitle"`
+	Title            LocaleString `json:"title"`
+	Description      LocaleString `json:"description"`
+	ExtraDescription LocaleString `json:"extraDescription"`
+	NumberInTitle    bool         `json:"numberInTitle"`
+
+	ContentType null.String `json:"contentType"`
+	Audience    null.String `json:"audience"`
 }
 
 // GetKey returns the key for this item
@@ -257,12 +260,13 @@ func (i Section) GetKey() int {
 
 // Collection is the definition of the Collection object
 type Collection struct {
-	ID           int          `json:"id"`
-	Slugs        LocaleString `json:"slugs"`
-	Title        LocaleString `json:"title"`
-	Type         string       `json:"type"`
-	AdvancedType null.String  `json:"advancedType"`
-	Filter       *Filter      `json:"filter"`
+	ID             int          `json:"id"`
+	Slugs          LocaleString `json:"slugs"`
+	Title          LocaleString `json:"title"`
+	Type           string       `json:"type"`
+	AdvancedType   null.String  `json:"advancedType"`
+	Filter         *Filter      `json:"filter"`
+	NumberInTitles bool         `json:"numberInTitles"`
 }
 
 // GetKey returns the key for this item

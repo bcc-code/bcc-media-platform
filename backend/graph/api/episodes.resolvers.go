@@ -55,6 +55,11 @@ func (r *episodeResolver) AvailableFrom(ctx context.Context, obj *model.Episode)
 	return "1800-01-01T00:00:00Z", nil
 }
 
+// Title is the resolver for the title field.
+func (r *episodeResolver) Title(ctx context.Context, obj *model.Episode) (string, error) {
+	return r.getTitleFromContext(ctx, obj)
+}
+
 // Image is the resolver for the image field.
 func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *model.ImageStyle) (*string, error) {
 	e, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(obj.ID))

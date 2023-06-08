@@ -10,6 +10,7 @@ SELECT c.id,
        c.date_updated,
        c.filter_type,
        c.query_filter,
+       c.number_in_titles,
        ts.title,
        ts.slugs
 FROM collections c

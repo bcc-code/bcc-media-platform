@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -110,7 +111,7 @@ func EpisodeItemFrom(ctx context.Context, e *common.Episode, sort int) *EpisodeI
 }
 
 // EpisodeSectionItemFrom returns a SectionItem
-func EpisodeSectionItemFrom(ctx context.Context, s *common.Episode, sort int, sectionStyle string) *SectionItem {
+func EpisodeSectionItemFrom(ctx context.Context, s *common.Episode, sort int, sectionStyle string, numberInTitle bool) *SectionItem {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
@@ -121,10 +122,15 @@ func EpisodeSectionItemFrom(ctx context.Context, s *common.Episode, sort int, se
 		img = episode.ImageURL
 	}
 
+	title := episode.Title
+	if numberInTitle && episode.Number != nil {
+		title = fmt.Sprintf("%d. %s", *episode.Number, title)
+	}
+
 	return &SectionItem{
 		ID:          episode.ID,
 		Item:        episode,
-		Title:       episode.Title,
+		Title:       title,
 		Description: episode.Description,
 		Image:       img,
 		Sort:        sort,
