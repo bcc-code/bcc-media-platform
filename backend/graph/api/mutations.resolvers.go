@@ -165,6 +165,11 @@ func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title strin
 	}
 	u := user.GetFromCtx(ginCtx)
 
+	err = ratelimit.Endpoint(ctx, "support-email", 2, true)
+	if err != nil {
+		return false, err
+	}
+
 	var e string
 	var n string
 	if u.Anonymous {
