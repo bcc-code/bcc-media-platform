@@ -50,10 +50,12 @@ WHERE f.status = 'published'
   AND fc.status = 'published'
   AND f.id = ANY (@ids::uuid[]);
 
--- name: getQuestionIDsForCategories :many
+-- name: getQuestionIDsForCategoriesWithRoles :many
 SELECT f.id, f.category_id
 FROM faqs f
-         LEFT JOIN faqcategories fc on f.category_id = fc.id
+         LEFT JOIN (SELECT r.faqs_id, array_agg(r.usergroups_code) AS roles FROM faqs_usergroups r GROUP BY r.faqs_id) r
+                   ON r.faqs_id = f.id
 WHERE f.status = 'published'
-  AND fc.status = 'published'
-  AND f.category_id = ANY ($1::uuid[]);
+  AND f.category_id = ANY (@category_ids::uuid[])
+  AND r.roles && @roles::varchar[];
+

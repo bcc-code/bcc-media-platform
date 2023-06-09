@@ -61,20 +61,23 @@ func (r *fAQResolver) Question(ctx context.Context, obj *model.Faq, id string) (
 
 // Questions is the resolver for the questions field.
 func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *model.FAQCategory, first *int, offset *int) (*model.QuestionPagination, error) {
-	items, err := itemsResolverFor(ctx, &itemLoaders[uuid.UUID, common.Question]{
-		Item: r.Loaders.QuestionLoader,
-	}, r.Loaders.QuestionsLoader, utils.AsUuid(obj.ID), model.QuestionFrom)
+	itemIDs, err := r.GetFilteredLoaders(ctx).FAQQuestionsLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
 
-	page := utils.Paginate(items, first, offset, nil)
+	page := utils.Paginate(itemIDs, first, offset, nil)
+
+	items, err := r.Loaders.QuestionLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	if err != nil {
+		return nil, err
+	}
 
 	return &model.QuestionPagination{
 		Total:  page.Total,
 		First:  page.First,
 		Offset: page.Offset,
-		Items:  page.Items,
+		Items:  utils.MapWithCtx(ctx, items, model.QuestionFrom),
 	}, nil
 }
 

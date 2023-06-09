@@ -69,29 +69,35 @@ func (q *Queries) getFAQCategories(ctx context.Context, ids []uuid.UUID) ([]getF
 	return items, nil
 }
 
-const getQuestionIDsForCategories = `-- name: getQuestionIDsForCategories :many
+const getQuestionIDsForCategoriesWithRoles = `-- name: getQuestionIDsForCategoriesWithRoles :many
 SELECT f.id, f.category_id
 FROM faqs f
-         LEFT JOIN faqcategories fc on f.category_id = fc.id
+         LEFT JOIN (SELECT r.faqs_id, array_agg(r.usergroups_code) AS roles FROM faqs_usergroups r GROUP BY r.faqs_id) r
+                   ON r.faqs_id = f.id
 WHERE f.status = 'published'
-  AND fc.status = 'published'
   AND f.category_id = ANY ($1::uuid[])
+  AND r.roles && $2::varchar[]
 `
 
-type getQuestionIDsForCategoriesRow struct {
+type getQuestionIDsForCategoriesWithRolesParams struct {
+	CategoryIds []uuid.UUID `db:"category_ids" json:"categoryIds"`
+	Roles       []string    `db:"roles" json:"roles"`
+}
+
+type getQuestionIDsForCategoriesWithRolesRow struct {
 	ID         uuid.UUID `db:"id" json:"id"`
 	CategoryID uuid.UUID `db:"category_id" json:"categoryID"`
 }
 
-func (q *Queries) getQuestionIDsForCategories(ctx context.Context, dollar_1 []uuid.UUID) ([]getQuestionIDsForCategoriesRow, error) {
-	rows, err := q.db.QueryContext(ctx, getQuestionIDsForCategories, pq.Array(dollar_1))
+func (q *Queries) getQuestionIDsForCategoriesWithRoles(ctx context.Context, arg getQuestionIDsForCategoriesWithRolesParams) ([]getQuestionIDsForCategoriesWithRolesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getQuestionIDsForCategoriesWithRoles, pq.Array(arg.CategoryIds), pq.Array(arg.Roles))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []getQuestionIDsForCategoriesRow
+	var items []getQuestionIDsForCategoriesWithRolesRow
 	for rows.Next() {
-		var i getQuestionIDsForCategoriesRow
+		var i getQuestionIDsForCategoriesWithRolesRow
 		if err := rows.Scan(&i.ID, &i.CategoryID); err != nil {
 			return nil, err
 		}

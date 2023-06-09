@@ -39,7 +39,6 @@ type BatchLoaders struct {
 	EventLoader            *loaders.Loader[int, *Event]
 	FAQCategoryLoader      *loaders.Loader[uuid.UUID, *FAQCategory]
 	QuestionLoader         *loaders.Loader[uuid.UUID, *Question]
-	QuestionsLoader        *loaders.Loader[uuid.UUID, []*uuid.UUID]
 	MessageGroupLoader     *loaders.Loader[int, *MessageGroup]
 	RedirectFromCodeLoader *loaders.Loader[string, *Redirect]
 	SurveyLoader           *loaders.Loader[uuid.UUID, *Survey]
@@ -109,6 +108,8 @@ type FilteredLoaders struct {
 	StudyTasksLoader        *loaders.Loader[uuid.UUID, []*uuid.UUID]
 	StudyTaskFilterLoader   *loaders.Loader[uuid.UUID, *uuid.UUID]
 	SurveyQuestionsLoader   *loaders.Loader[uuid.UUID, []*uuid.UUID]
+
+	FAQQuestionsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
 
 	//Relations
 	StudyLessonEpisodesLoader *loaders.Loader[uuid.UUID, []*int]
