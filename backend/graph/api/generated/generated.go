@@ -5871,7 +5871,7 @@ type FAQ {
     ): Question! @goField(forceResolver: true)
 }`, BuiltIn: false},
 	{Name: "../schema/games.graphqls", Input: `type Game {
-    id: UUID!
+    id: ID!
     title: String!
     description: String
     url: String!
@@ -17620,7 +17620,7 @@ func (ec *executionContext) _Game_id(ctx context.Context, field graphql.Collecte
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNUUID2string(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Game_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17630,7 +17630,7 @@ func (ec *executionContext) fieldContext_Game_id(ctx context.Context, field grap
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UUID does not have child fields")
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
