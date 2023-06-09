@@ -71,6 +71,11 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 				return queries.GetPromptIDsForRoles(ctx, roles)
 			}, cache.WithExpiration(time.Minute*5))
 		},
+		FAQCategoryIDsLoader: func(ctx context.Context) ([]uuid.UUID, error) {
+			return memorycache.GetOrSet(ctx, fmt.Sprintf("categoryIDs:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
+				return queries.ListFAQCategoryIDsForRoles(ctx, roles)
+			}, cache.WithExpiration(time.Minute*5))
+		},
 		SurveyQuestionsLoader: loaders.NewRelationLoader(ctx, rq.GetSurveyQuestionIDsForSurveyIDs, loaders.WithName("survey-questions-loader")),
 	}
 

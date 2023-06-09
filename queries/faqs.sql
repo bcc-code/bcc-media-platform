@@ -12,23 +12,19 @@ SELECT c.id,
        t.description
 FROM faqcategories c
          LEFT JOIN t ON c.id = t.faqcategories_id
-WHERE c.status = 'published'
-  AND c.id = ANY (@ids::uuid[]);
+WHERE c.id = ANY (@ids::uuid[]);
 
--- name: listFAQCategories :many
-WITH t AS (SELECT ts.faqcategories_id,
-                  json_object_agg(ts.languages_code, ts.title)       AS title,
-                  json_object_agg(ts.languages_code, ts.description) AS description
-           FROM faqcategories_translations ts
-           GROUP BY ts.faqcategories_id)
-SELECT c.id,
-       c.title       as original_title,
-       c.description as original_description,
-       t.title,
-       t.description
+-- name: ListFAQCategoryIDsForRoles :many
+SELECT c.id
 FROM faqcategories c
-         LEFT JOIN t ON c.id = t.faqcategories_id
-WHERE c.status = 'published';
+         LEFT JOIN (SELECT f.category_id,
+                           array_agg(DISTINCT r.usergroups_code) AS roles
+                    FROM faqs_usergroups r
+                             JOIN faqs f ON f.id = r.faqs_id AND f.status = 'published'
+                    GROUP BY f.category_id) r
+                   ON r.category_id = c.id
+WHERE c.status = 'published'
+  AND r.roles && @roles::varchar[];
 
 -- name: getQuestions :many
 WITH t AS (SELECT ts.faqs_id,

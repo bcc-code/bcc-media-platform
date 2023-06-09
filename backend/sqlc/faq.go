@@ -36,17 +36,6 @@ func (q *Queries) GetFAQCategories(ctx context.Context, ids []uuid.UUID) ([]comm
 	return mapToCategories(items), nil
 }
 
-// ListFAQCategories retrieves all categories
-func (q *Queries) ListFAQCategories(ctx context.Context) ([]common.FAQCategory, error) {
-	items, err := q.listFAQCategories(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return mapToCategories(lo.Map(items, func(i listFAQCategoriesRow, _ int) getFAQCategoriesRow {
-		return getFAQCategoriesRow(i)
-	})), nil
-}
-
 func mapToQuestions(items []getQuestionsRow) []common.Question {
 	return lo.Map(items, func(i getQuestionsRow, _ int) common.Question {
 		var question = common.LocaleString{}

@@ -10,30 +10,28 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
 	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
-	"github.com/bcc-code/brunstadtv/backend/memorycache"
 	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 )
 
 // Categories is the resolver for the categories field.
 func (r *fAQResolver) Categories(ctx context.Context, obj *model.Faq, first *int, offset *int) (*model.FAQCategoryPagination, error) {
-	items, err := memorycache.GetOrSet(ctx, "categories", r.Queries.ListFAQCategories)
+	ids, err := r.GetFilteredLoaders(ctx).FAQCategoryIDsLoader(ctx)
 	if err != nil {
 		return nil, err
 	}
+	page := utils.Paginate(ids, first, offset, nil)
 
-	cats := utils.MapWithCtx(ctx, lo.Map(items, func(i common.FAQCategory, _ int) *common.FAQCategory {
-		return &i
-	}), model.FAQCategoryFrom)
-
-	page := utils.Paginate(cats, first, offset, nil)
+	items, err := r.GetLoaders().FAQCategoryLoader.GetMany(ctx, page.Items)
+	if err != nil {
+		return nil, err
+	}
 
 	return &model.FAQCategoryPagination{
 		Total:  page.Total,
 		First:  page.First,
 		Offset: page.Offset,
-		Items:  page.Items,
+		Items:  utils.MapWithCtx(ctx, items, model.FAQCategoryFrom),
 	}, nil
 }
 
