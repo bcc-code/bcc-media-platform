@@ -34,6 +34,7 @@ func (q *Queries) GetGames(ctx context.Context, ids []uuid.UUID) ([]common.Game,
 			RequiresAuth: i.RequiresAuthentication,
 			Title:        title,
 			Description:  description,
+			Images:       q.getImages(i.Images.RawMessage),
 		}
 	}), nil
 }
