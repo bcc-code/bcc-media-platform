@@ -64,6 +64,10 @@ const props = defineProps<{
     autoPlay?: boolean
 }>()
 
+const emit = defineEmits<{
+    (e: "next"): void
+}>()
+
 const player = ref(null as Player | null)
 
 const current = ref(null as string | null)
@@ -165,9 +169,9 @@ const load = async () => {
         if (isAuthenticated.value) {
             player.value.on("timeupdate", checkProgress)
         }
-        if (player.value === null) {
-            addError("No available VOD for this episode")
-        }
+        player.value.on("ended", () => {
+            emit("next")
+        })
         loaded.value = true
     }
 }

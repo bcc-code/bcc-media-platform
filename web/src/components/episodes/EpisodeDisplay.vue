@@ -9,9 +9,10 @@
             ></div>
             <EpisodeViewer
                 :context="context"
-                :auto-play="autoPlay"
+                :auto-play="true"
                 class="drop-shadow-xl overflow-hidden"
                 :episode="episode"
+                @next="loadNext"
             ></EpisodeViewer>
         </div>
         <div class="flex flex-col">
@@ -289,4 +290,12 @@ const effectiveView = computed({
         view.value = v
     },
 })
+
+const loadNext = async () => {
+    const nextId = episode.value?.next[0]?.id
+    if (nextId) {
+        episodeId.value = nextId
+        await load();
+    }
+}
 </script>
