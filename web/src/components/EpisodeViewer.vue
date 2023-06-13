@@ -6,9 +6,8 @@
     ></div>
 </template>
 <script lang="ts" setup>
-import { addError } from "@/utils/error"
 import { onMounted, onUnmounted, onUpdated, ref } from "vue"
-import { Player, setNPAWOptions } from "bccm-video-player"
+import { Player } from "bccm-video-player"
 import playerFactory from "@/services/player"
 import {
     EpisodeContext,

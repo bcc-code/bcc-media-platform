@@ -295,6 +295,7 @@ const loadNext = async () => {
     const nextId = episode.value?.next[0]?.id
     if (nextId) {
         episodeId.value = nextId
+        await nextTick();
         await load();
     }
 }
