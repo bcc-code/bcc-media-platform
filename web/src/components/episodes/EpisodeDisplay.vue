@@ -1,11 +1,11 @@
 <template>
     <section
-        class="max-w-screen-2xl mx-auto rounded rounded-2xl"
+        class="max-w-screen-2xl mx-auto rounded-2xl"
         v-if="episode"
     >
         <div class="relative aspect-video w-full">
             <div
-                class="h-full w-full bg-secondary rounded rounded-xl opacity-10 absolute"
+                class="h-full w-full bg-secondary rounded-xl opacity-10 absolute"
             ></div>
             <EpisodeViewer
                 :context="context"
