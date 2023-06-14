@@ -165,7 +165,7 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 }
 
 // SendSupportEmail is the resolver for the sendSupportEmail field.
-func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title string, content string, html string) (bool, error) {
+func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title string, content string, html string, options *model.EmailOptions) (bool, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return false, err
@@ -180,8 +180,13 @@ func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title strin
 	var e string
 	var n string
 	if u.Anonymous {
-		e = "anonymous@brunstad.tv"
-		n = "Anonymous User"
+		if options != nil {
+			e = options.Email
+			n = options.Name
+		} else {
+			e = "anonymous@brunstad.tv"
+			n = "Anonymous User"
+		}
 	} else {
 		e = u.Email
 		n = u.DisplayName

@@ -353,6 +353,11 @@ type Device struct {
 	UpdatedAt string `json:"updatedAt"`
 }
 
+type EmailOptions struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
 type Episode struct {
 	ID                    string                 `json:"id"`
 	UUID                  string                 `json:"uuid"`

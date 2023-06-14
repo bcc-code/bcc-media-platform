@@ -544,7 +544,7 @@ type ComplexityRoot struct {
 		LockLessonAnswers          func(childComplexity int, id string) int
 		RemoveEntryFromMyList      func(childComplexity int, entryID string) int
 		SendEpisodeFeedback        func(childComplexity int, episodeID string, message *string, rating *int) int
-		SendSupportEmail           func(childComplexity int, title string, content string, html string) int
+		SendSupportEmail           func(childComplexity int, title string, content string, html string, options *model.EmailOptions) int
 		SendTaskMessage            func(childComplexity int, taskID string, message *string) int
 		SendVerificationEmail      func(childComplexity int) int
 		SetDevicePushToken         func(childComplexity int, token string, languages []string) int
@@ -1082,7 +1082,7 @@ type MessageSectionResolver interface {
 type MutationRootResolver interface {
 	SetDevicePushToken(ctx context.Context, token string, languages []string) (*model.Device, error)
 	SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int, context *model.EpisodeContext) (*model.Episode, error)
-	SendSupportEmail(ctx context.Context, title string, content string, html string) (bool, error)
+	SendSupportEmail(ctx context.Context, title string, content string, html string, options *model.EmailOptions) (bool, error)
 	CompleteTask(ctx context.Context, id string, selectedAlternatives []string) (bool, error)
 	LockLessonAnswers(ctx context.Context, id string) (bool, error)
 	SendTaskMessage(ctx context.Context, taskID string, message *string) (string, error)
@@ -3412,7 +3412,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.MutationRoot.SendSupportEmail(childComplexity, args["title"].(string), args["content"].(string), args["html"].(string)), true
+		return e.complexity.MutationRoot.SendSupportEmail(childComplexity, args["title"].(string), args["content"].(string), args["html"].(string), args["options"].(*model.EmailOptions)), true
 
 	case "MutationRoot.sendTaskMessage":
 		if e.complexity.MutationRoot.SendTaskMessage == nil {
@@ -5461,6 +5461,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputBirthOptions,
+		ec.unmarshalInputEmailOptions,
 		ec.unmarshalInputEpisodeContext,
 		ec.unmarshalInputLegacyIDLookupOptions,
 		ec.unmarshalInputNameOptions,
@@ -5917,7 +5918,7 @@ type Message {
     setDevicePushToken(token: String!, languages: [String!]!): Device
     setEpisodeProgress(id: ID!, progress: Int, duration: Int, context: EpisodeContext): Episode!
 
-    sendSupportEmail(title: String!, content: String!, html: String!): Boolean!
+    sendSupportEmail(title: String!, content: String!, html: String!, options: EmailOptions): Boolean!
 
     completeTask(
         id: ID!,
@@ -5962,6 +5963,11 @@ input BirthOptions {
 input NameOptions {
     first: String!
     last: String!
+}
+
+input EmailOptions {
+    name: String!
+    email: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/pages.graphqls", Input: `
@@ -7485,6 +7491,15 @@ func (ec *executionContext) field_MutationRoot_sendSupportEmail_args(ctx context
 		}
 	}
 	args["html"] = arg2
+	var arg3 *model.EmailOptions
+	if tmp, ok := rawArgs["options"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("options"))
+		arg3, err = ec.unmarshalOEmailOptions2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEmailOptions(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["options"] = arg3
 	return args, nil
 }
 
@@ -21933,7 +21948,7 @@ func (ec *executionContext) _MutationRoot_sendSupportEmail(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MutationRoot().SendSupportEmail(rctx, fc.Args["title"].(string), fc.Args["content"].(string), fc.Args["html"].(string))
+		return ec.resolvers.MutationRoot().SendSupportEmail(rctx, fc.Args["title"].(string), fc.Args["content"].(string), fc.Args["html"].(string), fc.Args["options"].(*model.EmailOptions))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -37246,6 +37261,44 @@ func (ec *executionContext) unmarshalInputBirthOptions(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputEmailOptions(ctx context.Context, obj interface{}) (model.EmailOptions, error) {
+	var it model.EmailOptions
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "email"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputEpisodeContext(ctx context.Context, obj interface{}) (model.EpisodeContext, error) {
 	var it model.EpisodeContext
 	asMap := map[string]interface{}{}
@@ -48291,6 +48344,14 @@ func (ec *executionContext) marshalODevice2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunst
 		return graphql.Null
 	}
 	return ec._Device(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOEmailOptions2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEmailOptions(ctx context.Context, v interface{}) (*model.EmailOptions, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputEmailOptions(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v *model.Episode) graphql.Marshaler {
