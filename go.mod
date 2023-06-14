@@ -33,7 +33,7 @@ require (
 	github.com/gocarina/gocsv v0.0.0-20230510095315-7f30c79fd20c
 	github.com/google/uuid v1.3.0
 	github.com/graph-gophers/dataloader/v7 v7.1.0
-	github.com/lestrrat-go/jwx/v2 v2.0.9
+	github.com/lestrrat-go/jwx/v2 v2.0.11
 	github.com/lib/pq v1.10.9
 	github.com/microcosm-cc/bluemonday v1.0.23
 	github.com/mitchellh/mapstructure v1.5.0
@@ -44,7 +44,7 @@ require (
 	github.com/samber/lo v1.38.1
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/sony/gobreaker v0.5.0
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.8.4
 	github.com/tabbed/pqtype v0.1.1
 	github.com/uptrace/uptrace-go v1.15.0
 	github.com/vektah/gqlparser/v2 v2.5.1
@@ -144,6 +144,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/sendgrid/rest v2.6.9+incompatible // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
