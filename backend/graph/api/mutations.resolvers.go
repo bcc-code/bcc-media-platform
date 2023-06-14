@@ -179,14 +179,12 @@ func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title strin
 
 	var e string
 	var n string
-	if u.Anonymous {
-		if options != nil {
-			e = options.Email
-			n = options.Name
-		} else {
-			e = "anonymous@brunstad.tv"
-			n = "Anonymous User"
-		}
+	if options != nil {
+		e = options.Email
+		n = options.Name
+	} else if u.Anonymous {
+		e = "anonymous@brunstad.tv"
+		n = "Anonymous User"
 	} else {
 		e = u.Email
 		n = u.DisplayName
