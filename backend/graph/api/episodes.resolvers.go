@@ -314,7 +314,7 @@ func (r *episodeResolver) ShareRestriction(ctx context.Context, obj *model.Episo
 func (r *episodeResolver) InMyList(ctx context.Context, obj *model.Episode) (bool, error) {
 	myList, err := r.QueryRoot().MyList(ctx)
 	if err != nil {
-		return false, err
+		return false, nil
 	}
 	list, err := r.Loaders.UserCollectionEntryIDsLoader.Get(ctx, utils.AsUuid(myList.ID))
 	if err != nil {
