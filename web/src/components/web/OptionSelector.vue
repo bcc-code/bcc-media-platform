@@ -17,6 +17,8 @@ const currentOption = ref<string>()
 
 const { t } = useI18n()
 
+const updated = ref(false)
+
 const optionValue = computed({
     get() {
         return currentOption.value
@@ -24,9 +26,9 @@ const optionValue = computed({
     set(v) {
         currentOption.value = v
         if (v == t("requests.other")) {
-            emit("update:modelValue", "")
+            value.value = ""
         } else {
-            emit("update:modelValue", v ?? "")
+            value.value = v ?? ""
         }
     },
 })
@@ -36,6 +38,7 @@ const value = computed({
         return props.modelValue
     },
     set(v) {
+        updated.value = true
         emit("update:modelValue", v)
     },
 })
@@ -47,7 +50,8 @@ const value = computed({
         <select
             class="p-2 px-4 rounded bg-bcc-2"
             :class="{
-                'outline outline-1 outline-red': required && !optionValue,
+                'outline outline-1 outline-red':
+                    required && updated && !optionValue,
             }"
             v-model="optionValue"
         >
@@ -59,7 +63,7 @@ const value = computed({
             v-model="value"
             class="p-2 px-4 rounded bg-background"
             :class="{
-                'outline outline-1 outline-red': required && !value,
+                'outline outline-1 outline-red': required && updated && !value,
             }"
             type="text"
             placeholder="..."

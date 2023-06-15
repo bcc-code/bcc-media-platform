@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from "vue"
+import { computed, ref } from "vue"
 
 const props = defineProps<{
     modelValue?: string
@@ -11,11 +11,14 @@ const emit = defineEmits<{
     (e: "update:modelValue", v?: string): void
 }>()
 
+const updated = ref(false)
+
 const value = computed({
     get() {
         return props.modelValue
     },
     set(v) {
+        updated.value = true
         emit("update:modelValue", v)
     },
 })
@@ -34,7 +37,7 @@ const value = computed({
             type="text"
             class="p-2 px-4 rounded bg-bcc-2"
             :class="{
-                'outline-red': required && !value,
+                'outline-red': required && updated && !value,
             }"
         />
     </div>
