@@ -116,7 +116,7 @@ const agendaConfirmed = ref(false)
 
 <template>
     <section
-        class="flex flex-col h-screen"
+        class="flex flex-col h-screen w-screen bg-bcc-1"
         v-if="isAuthenticated && data?.me.bccMember"
     >
         <div class="max-w-4xl m-auto w-full flex flex-col gap-8">
