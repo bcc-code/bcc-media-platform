@@ -6,6 +6,7 @@ const props = defineProps<{
     modelValue: string
     options: string[]
     allowAny: boolean
+    required?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -43,7 +44,13 @@ const value = computed({
 <template>
     <div class="flex flex-col gap-2">
         <label><slot></slot></label>
-        <select class="p-2 px-4 rounded bg-background" v-model="optionValue">
+        <select
+            class="p-2 px-4 rounded bg-bcc-2"
+            :class="{
+                'outline outline-1 outline-red': required && !optionValue,
+            }"
+            v-model="optionValue"
+        >
             <option v-for="opt in options">{{ opt }}</option>
             <option v-if="allowAny">{{ $t("requests.other") }}</option>
         </select>
@@ -51,6 +58,9 @@ const value = computed({
             v-if="currentOption === $t('requests.other')"
             v-model="value"
             class="p-2 px-4 rounded bg-background"
+            :class="{
+                'outline outline-1 outline-red': required && !value,
+            }"
             type="text"
             placeholder="..."
         />

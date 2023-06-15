@@ -161,15 +161,14 @@
     "sending": "Sending",
     "defaultInputPlaceholder": "Start typing here...",
     "requests": {
-        "fullName": "Full name",
+        "name": "Your name",
         "email": "Email",
         "role": "Your role",
-        "material": "What material do you need?",
-        "materialUrl": "URL to the material (if applicable)",
-        "materialUsageHow": "How do you plan to use the material?",
-        "materialUsageHowDescription": "Shown partially/fully, edited...",
-        "materialUsageWhere": "Where are you going to use the material?",
-        "materialUsageWhen": "When are you going to use the material?",
+        "what": "What do you need?",
+        "how": "How do you plan to use the material?",
+        "howDescription": "Shown partially/fully, edited...",
+        "where": "Where are you going to use the material?",
+        "when": "When are you going to use the material?",
         "clear": "Clear",
         "send": "Send",
         "editor": "Editor",
@@ -179,6 +178,10 @@
         "local": "Local",
         "mediaResponsible": "Media responsible",
         "other": "Other",
-        "confirmSend": "Send material request?"
+        "confirmSend": "Send material request?",
+        "title": "Request for material",
+        "description": "Form for requesting audio, picture and video materials from BCC Media",
+        "receitTitle": "Request received",
+        "receitDescription": "Our team will contact you within 7 working days. An automatic reply has been sent to your email."
     }
 }

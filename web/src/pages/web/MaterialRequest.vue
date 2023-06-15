@@ -30,9 +30,7 @@ if (!isAuthenticated.value) {
 const form = reactive({
     name: user.value?.name ?? "",
     role: "",
-    email: user.value?.email ?? "",
     material: "",
-    materialUrl: "",
     materialUsageHow: "",
     materialUsageWhere: "",
     materialUsageWhen: "",
@@ -40,15 +38,22 @@ const form = reactive({
 
 const clear = () => {
     form.name = user.value?.name ?? ""
-    form.email = user.value?.email ?? ""
     form.role = ""
     form.material = ""
-    form.materialUrl = ""
     form.materialUsageHow = ""
     form.materialUsageWhen = ""
     form.materialUsageWhere = ""
 }
 
+const canSend = computed(() => {
+    return (
+        !!form.material &&
+        !!form.materialUsageHow &&
+        !!form.role &&
+        !!form.materialUsageWhen &&
+        !!form.materialUsageWhere
+    )
+})
 const { executeMutation } = useSendSupportEmailMutation()
 
 const html = computed(() => {
@@ -64,20 +69,12 @@ const html = computed(() => {
                 <td>${form.name}</td>
             </tr>
             <tr>
-                <td>Email</td>
-                <td>${form.email}</td>
-            </tr>
-            <tr>
                 <td>Role</td>
                 <td>${form.role}</td>
             </tr>
             <tr>
                 <td>What</td>
                 <td>${form.material}</td>
-            </tr>
-            <tr>
-                <td>URL</td>
-                <td>${form.materialUrl}</td>
             </tr>
             <tr>
                 <td>How</td>
@@ -98,6 +95,8 @@ const html = computed(() => {
 
 const showSend = ref(false)
 
+const showConfirmation = ref(false)
+
 const send = async () => {
     await executeMutation({
         title: "Material request",
@@ -105,70 +104,85 @@ const send = async () => {
         html: html.value,
     })
     showSend.value = false
+    showConfirmation.value = true
+    clear()
 }
 </script>
 
 <template>
     <section
-        class="flex p-8 h-screen"
+        class="flex p-8 h-screen bg-bcc-bg-1"
         v-if="isAuthenticated && data?.me.bccMember"
     >
         <div class="max-w-4xl m-auto w-full flex flex-col gap-8">
-            <div class="rounded bg-background-2 p-6">
-                <h1 class="text-2xl font-bold text-center">Material request</h1>
+            <div class="rounded bg-bcc p-6">
+                <div class="text-center mb-4">
+                    <h1 class="text-2xl font-bold mb-2">
+                        {{ $t("requests.title") }}
+                    </h1>
+                    <small class="text-sm">{{
+                        $t("requests.description")
+                    }}</small>
+                </div>
                 <div class="flex flex-col md:grid grid-cols-2 gap-8">
-                    <TextInput v-model="form.name">{{
-                        $t("requests.fullName")
-                    }}</TextInput>
-                    <TextInput v-model="form.email">{{
-                        $t("requests.email")
+                    <TextInput v-model="form.name" readonly>{{
+                        $t("requests.name")
                     }}</TextInput>
                     <OptionSelector
                         v-model="form.role"
+                        allow-any
+                        required
                         :options="[
                             $t('requests.editor'),
                             $t('requests.director'),
                             $t('requests.producer'),
                             $t('requests.mediaResponsible'),
                         ]"
-                        :allow-any="true"
-                        >{{ $t("requests.role") }}</OptionSelector
+                        >{{ $t("requests.role")
+                        }}<span class="ml-1 text-red">*</span></OptionSelector
                     >
-                    <TextInput class="col-span-2" v-model="form.material">{{
-                        $t("requests.material")
-                    }}</TextInput>
-                    <TextInput class="col-span-2" v-model="form.materialUrl">{{
-                        $t("requests.materialUrl")
-                    }}</TextInput>
+                    <TextArea
+                        class="col-span-2"
+                        v-model="form.material"
+                        required
+                        >{{ $t("requests.what") }}</TextArea
+                    >
                     <div class="col-span-2">
-                        <TextArea v-model="form.materialUsageHow">{{
-                            $t("requests.materialUsageHow")
+                        <TextArea v-model="form.materialUsageHow" required>{{
+                            $t("requests.how")
                         }}</TextArea>
-                        <small class="text-gray">{{
-                            $t("requests.materialUsageHowDescription")
+                        <small class="text-slate-300 text-sm">{{
+                            $t("requests.howDescription")
                         }}</small>
                     </div>
                     <OptionSelector
                         v-model="form.materialUsageWhere"
+                        required
+                        allow-any
                         :options="[
                             $t('requests.eventCamp'),
                             $t('requests.local'),
                         ]"
-                        :allow-any="true"
-                        >{{ $t("requests.materialUsageWhere") }}</OptionSelector
+                        >{{ $t("requests.where")
+                        }}<span class="ml-1 text-red">*</span></OptionSelector
                     >
-                    <DateSelector v-model="form.materialUsageWhen">{{
-                        $t("requests.materialUsageWhen")
-                    }}</DateSelector>
+                    <DateSelector v-model="form.materialUsageWhen" required
+                        >{{ $t("requests.when")
+                        }}<span class="ml-1 text-red">*</span></DateSelector
+                    >
                     <div class="flex col-span-2">
                         <button
-                            class="ml-auto bg-slate-700 rounded p-2 px-8 hover:-translate-y-0.5 transition"
+                            class="ml-auto bg-bcc-1 rounded p-2 px-8 hover:-translate-y-0.5 transition"
                             @click="clear"
                         >
                             {{ $t("requests.clear") }}
                         </button>
                         <button
                             class="ml-4 bg-green-500 rounded p-2 px-8 hover:-translate-y-0.5 transition"
+                            :class="{
+                                'opacity-50 cursor-not-allowed': !canSend,
+                            }"
+                            :disabled="!canSend"
                             @click="showSend = true"
                         >
                             {{ $t("requests.send") }}
@@ -176,14 +190,30 @@ const send = async () => {
                     </div>
                 </div>
             </div>
-            <div class="rounded bg-background-2 p-6">
+            <!-- <div class="rounded bg-background-2 p-6">
                 <div v-html="html" class="text-gray"></div>
-            </div>
+            </div> -->
         </div>
     </section>
     <Modal v-model:open="showSend" @confirm="send">
-        <template #preview>
+        <template #description>
             <div v-html="html" class="text-gray"></div>
+        </template>
+    </Modal>
+    <Modal v-model:open="showConfirmation" @confirm="showConfirmation = false">
+        <template #title>
+            {{ $t("requests.receitTitle") }}
+        </template>
+        <template #description>
+            <p>{{ $t("requests.receitDescription") }}</p>
+        </template>
+        <template #actions>
+            <button
+                class="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium"
+                @click="showConfirmation = false"
+            >
+                {{ $t("buttons.close") }}
+            </button>
         </template>
     </Modal>
 </template>

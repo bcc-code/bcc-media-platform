@@ -27,6 +27,11 @@ module.exports = {
                     DEFAULT: "#202a39",
                     hover: "#202a39cc",
                 },
+                bcc: {
+                    DEFAULT: "#004e48",
+                    1: "#1e1e1e",
+                    2: "#012625",
+                },
                 // from figma:
                 "tint-1": "var(--color-tint-1)",
                 "tint-2": "var(--color-tint-2)",

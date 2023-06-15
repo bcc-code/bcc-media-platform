@@ -33,29 +33,33 @@
                                 as="h3"
                                 class="text-lg font-medium leading-6 text-gray-900"
                             >
-                                {{ $t("requests.confirmSend") }}
+                                <slot name="title">
+                                    {{ $t("requests.confirmSend") }}
+                                </slot>
                             </DialogTitle>
                             <div class="mt-2">
                                 <p class="text-sm text-gray-500">
-                                    <slot name="preview"></slot>
+                                    <slot name="description"></slot>
                                 </p>
                             </div>
 
                             <div class="mt-4 flex gap-4">
-                                <button
-                                    type="button"
-                                    class="inline-flex justify-center rounded-md border border-transparent bg-slate-800 px-4 py-2 text-sm font-medium"
-                                    @click="closeModal"
-                                >
-                                    {{ $t("buttons.cancel") }}
-                                </button>
-                                <button
-                                    type="button"
-                                    class="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium"
-                                    @click="$emit('confirm')"
-                                >
-                                    {{ $t("requests.send") }}
-                                </button>
+                                <slot name="actions">
+                                    <button
+                                        type="button"
+                                        class="inline-flex justify-center rounded-md border border-transparent bg-slate-800 px-4 py-2 text-sm font-medium"
+                                        @click="closeModal"
+                                    >
+                                        {{ $t("buttons.cancel") }}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium"
+                                        @click="$emit('confirm')"
+                                    >
+                                        {{ $t("requests.send") }}
+                                    </button>
+                                </slot>
                             </div>
                         </DialogPanel>
                     </TransitionChild>

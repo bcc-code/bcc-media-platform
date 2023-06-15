@@ -3,6 +3,7 @@ import { computed } from "vue"
 
 const props = defineProps<{
     modelValue?: string
+    required?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -23,12 +24,16 @@ const value = computed({
     <div class="flex flex-col gap-2">
         <label>
             <slot></slot>
+            <span v-if="required" class="ml-1 text-red">*</span>
         </label>
 
         <textarea
             v-model="value"
             type="text"
-            class="p-2 px-4 rounded bg-background"
+            class="p-2 px-4 rounded bg-bcc-2"
+            :class="{
+                'outline outline-1 outline-red': required && !value,
+            }"
         />
     </div>
 </template>
