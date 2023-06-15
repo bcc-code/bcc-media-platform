@@ -51,7 +51,8 @@ const canSend = computed(() => {
         !!form.materialUsageHow &&
         !!form.role &&
         !!form.materialUsageWhen &&
-        !!form.materialUsageWhere
+        !!form.materialUsageWhere &&
+        agendaConfirmed.value
     )
 })
 const { executeMutation } = useSendSupportEmailMutation()
@@ -107,6 +108,8 @@ const send = async () => {
     showConfirmation.value = true
     clear()
 }
+
+const agendaConfirmed = ref(false)
 </script>
 
 <template>
@@ -171,22 +174,40 @@ const send = async () => {
                         }}<span class="ml-1 text-red">*</span></DateSelector
                     >
                     <div class="flex col-span-2">
-                        <button
-                            class="ml-auto bg-bcc-1 rounded p-2 px-8 hover:-translate-y-0.5 transition"
-                            @click="clear"
-                        >
-                            {{ $t("requests.clear") }}
-                        </button>
-                        <button
-                            class="ml-4 bg-green-500 rounded p-2 px-8 hover:-translate-y-0.5 transition"
-                            :class="{
-                                'opacity-50 cursor-not-allowed': !canSend,
-                            }"
-                            :disabled="!canSend"
-                            @click="showSend = true"
-                        >
-                            {{ $t("requests.send") }}
-                        </button>
+                        <div class="ml-auto block md:flex gap-4">
+                            <div
+                                @click="agendaConfirmed = !agendaConfirmed"
+                                class="flex mb-1 gap-1 rounded-xl px-2 py-1 bg-bcc-2 my-auto hover:-translate-y-0.5 transition"
+                            >
+                                <input
+                                    name="agenda"
+                                    type="checkbox"
+                                    class="cursor-pointer"
+                                    v-model="agendaConfirmed"
+                                />
+                                <label
+                                    for="agenda"
+                                    class="my-auto cursor-pointer"
+                                    >{{ $t("requests.confirmAgenda") }}</label
+                                >
+                            </div>
+                            <button
+                                class="bg-bcc-1 rounded p-2 px-8 hover:-translate-y-0.5 transition"
+                                @click="clear"
+                            >
+                                {{ $t("requests.clear") }}
+                            </button>
+                            <button
+                                class="bg-green-500 rounded p-2 px-8 hover:-translate-y-0.5 transition"
+                                :class="{
+                                    'opacity-50 cursor-not-allowed': !canSend,
+                                }"
+                                :disabled="!canSend"
+                                @click="showSend = true"
+                            >
+                                {{ $t("requests.send") }}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
