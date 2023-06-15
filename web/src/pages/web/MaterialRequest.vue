@@ -102,7 +102,7 @@ const send = async () => {
 </script>
 
 <template>
-    <section class="flex p-8 h-screen">
+    <section class="flex p-8 h-screen" v-if="isAuthenticated">
         <div class="max-w-4xl m-auto w-full flex flex-col gap-8">
             <div class="rounded bg-background-2 p-6">
                 <h1 class="text-2xl font-bold text-center">Material request</h1>
