@@ -159,5 +159,26 @@
     "thankYou": "Hvala!",
     "yourResponseHasBeenSubmitted": "Tvoj odgovor je bil oddan.",
     "sending": "Pošiljam",
-    "defaultInputPlaceholder": "Napiši tukaj ..."
+    "defaultInputPlaceholder": "Napiši tukaj ...",
+    "requests": {
+        "fullName": "",
+        "email": "",
+        "role": "",
+        "material": "",
+        "materialUrl": "",
+        "materialUsageHow": "",
+        "materialUsageHowDescription": "",
+        "materialUsageWhere": "",
+        "materialUsageWhen": "",
+        "clear": "",
+        "send": "Pošlji",
+        "editor": "",
+        "director": "",
+        "producer": "",
+        "eventCamp": "",
+        "local": "",
+        "mediaResponsible": "",
+        "other": "",
+        "confirmSend": ""
+    }
 }

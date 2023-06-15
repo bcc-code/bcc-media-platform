@@ -159,5 +159,26 @@
     "thankYou": "Köszönjük!",
     "yourResponseHasBeenSubmitted": "A válaszodat elküldtük.",
     "sending": "Adás",
-    "defaultInputPlaceholder": "Itt kezdj el gépelni..."
+    "defaultInputPlaceholder": "Itt kezdj el gépelni...",
+    "requests": {
+        "fullName": "",
+        "email": "",
+        "role": "",
+        "material": "",
+        "materialUrl": "",
+        "materialUsageHow": "",
+        "materialUsageHowDescription": "",
+        "materialUsageWhere": "",
+        "materialUsageWhen": "",
+        "clear": "",
+        "send": "Küldés",
+        "editor": "",
+        "director": "",
+        "producer": "",
+        "eventCamp": "",
+        "local": "",
+        "mediaResponsible": "",
+        "other": "",
+        "confirmSend": ""
+    }
 }

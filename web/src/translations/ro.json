@@ -159,5 +159,26 @@
     "thankYou": "Mulțumim!",
     "yourResponseHasBeenSubmitted": "Răspunsul tău a fost trimis.",
     "sending": "Se trimite",
-    "defaultInputPlaceholder": "Începe să scrii aici..."
+    "defaultInputPlaceholder": "Începe să scrii aici...",
+    "requests": {
+        "fullName": "",
+        "email": "",
+        "role": "",
+        "material": "",
+        "materialUrl": "",
+        "materialUsageHow": "",
+        "materialUsageHowDescription": "",
+        "materialUsageWhere": "",
+        "materialUsageWhen": "",
+        "clear": "",
+        "send": "Trimite",
+        "editor": "",
+        "director": "",
+        "producer": "",
+        "eventCamp": "",
+        "local": "",
+        "mediaResponsible": "",
+        "other": "",
+        "confirmSend": ""
+    }
 }

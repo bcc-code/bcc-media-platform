@@ -159,5 +159,26 @@
     "thankYou": "Obrigada!",
     "yourResponseHasBeenSubmitted": "Sua resposta foi enviada ",
     "sending": "Enviado",
-    "defaultInputPlaceholder": "Começar a escrever aqui..."
+    "defaultInputPlaceholder": "Começar a escrever aqui...",
+    "requests": {
+        "fullName": "",
+        "email": "",
+        "role": "",
+        "material": "",
+        "materialUrl": "",
+        "materialUsageHow": "",
+        "materialUsageHowDescription": "",
+        "materialUsageWhere": "",
+        "materialUsageWhen": "",
+        "clear": "",
+        "send": "Enviar",
+        "editor": "",
+        "director": "",
+        "producer": "",
+        "eventCamp": "",
+        "local": "",
+        "mediaResponsible": "",
+        "other": "",
+        "confirmSend": ""
+    }
 }

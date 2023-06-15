@@ -159,5 +159,26 @@
     "thankYou": "Hartelijk dank!",
     "yourResponseHasBeenSubmitted": "Jouw antwoord is verzonden.",
     "sending": "Aan het verzenden",
-    "defaultInputPlaceholder": "Begin hier met typen..."
+    "defaultInputPlaceholder": "Begin hier met typen...",
+    "requests": {
+        "fullName": "",
+        "email": "",
+        "role": "",
+        "material": "",
+        "materialUrl": "",
+        "materialUsageHow": "",
+        "materialUsageHowDescription": "",
+        "materialUsageWhere": "",
+        "materialUsageWhen": "",
+        "clear": "",
+        "send": "Verzenden",
+        "editor": "",
+        "director": "",
+        "producer": "",
+        "eventCamp": "",
+        "local": "",
+        "mediaResponsible": "",
+        "other": "",
+        "confirmSend": ""
+    }
 }

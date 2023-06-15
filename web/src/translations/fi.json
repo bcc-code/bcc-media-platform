@@ -159,5 +159,26 @@
     "thankYou": "Kiitoksia!",
     "yourResponseHasBeenSubmitted": "Lähetetty.",
     "sending": "Lähetetään",
-    "defaultInputPlaceholder": "Kirjoita tähän..."
+    "defaultInputPlaceholder": "Kirjoita tähän...",
+    "requests": {
+        "fullName": "",
+        "email": "",
+        "role": "",
+        "material": "",
+        "materialUrl": "",
+        "materialUsageHow": "",
+        "materialUsageHowDescription": "",
+        "materialUsageWhere": "",
+        "materialUsageWhen": "",
+        "clear": "",
+        "send": "Lähetä",
+        "editor": "",
+        "director": "",
+        "producer": "",
+        "eventCamp": "",
+        "local": "",
+        "mediaResponsible": "",
+        "other": "",
+        "confirmSend": ""
+    }
 }
