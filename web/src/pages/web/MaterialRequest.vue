@@ -9,6 +9,8 @@ import {
     DateSelector,
 } from "@/components/web"
 import { useGetMeQuery, useSendSupportEmailMutation } from "@/graph/generated"
+import Footer from "@/components/Footer.vue"
+import Cookies from "@/components/Cookies.vue"
 
 const { user, isAuthenticated, loginWithRedirect } = useAuth0()
 
@@ -114,7 +116,7 @@ const agendaConfirmed = ref(false)
 
 <template>
     <section
-        class="flex p-8 h-screen bg-bcc-bg-1"
+        class="flex flex-col h-screen"
         v-if="isAuthenticated && data?.me.bccMember"
     >
         <div class="max-w-4xl m-auto w-full flex flex-col gap-8">
@@ -211,10 +213,9 @@ const agendaConfirmed = ref(false)
                     </div>
                 </div>
             </div>
-            <!-- <div class="rounded bg-background-2 p-6">
-                <div v-html="html" class="text-gray"></div>
-            </div> -->
         </div>
+        <Footer />
+        <Cookies />
     </section>
     <Modal v-model:open="showSend" @confirm="send">
         <template #description>
