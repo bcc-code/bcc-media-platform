@@ -159,5 +159,26 @@
     "thankYou": "Thank you!",
     "yourResponseHasBeenSubmitted": "Your response has been submitted.",
     "sending": "Sending",
-    "defaultInputPlaceholder": "Start typing here..."
+    "defaultInputPlaceholder": "Start typing here...",
+    "requests": {
+        "fullName": "Full name",
+        "email": "Email",
+        "role": "Your role",
+        "material": "What material do you need?",
+        "materialUrl": "URL to the material (if applicable)",
+        "materialUsageHow": "How do you plan to use the material?",
+        "materialUsageHowDescription": "Shown partially/fully, edited...",
+        "materialUsageWhere": "Where are you going to use the material?",
+        "materialUsageWhen": "When are you going to use the material?",
+        "clear": "Clear",
+        "send": "Send",
+        "editor": "Editor",
+        "director": "Director",
+        "producer": "Producer",
+        "eventCamp": "Event/camp",
+        "local": "Local",
+        "mediaResponsible": "Media responsible",
+        "other": "Other",
+        "confirmSend": "Send material request?"
+    }
 }

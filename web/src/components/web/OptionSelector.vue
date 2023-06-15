@@ -1,17 +1,20 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref } from "vue"
+import { useI18n } from "vue-i18n"
 
 const props = defineProps<{
-    modelValue: string;
-    options: string[];
-    allowAny: boolean;
+    modelValue: string
+    options: string[]
+    allowAny: boolean
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', v: string): void;
-}>();
+    (e: "update:modelValue", v: string): void
+}>()
 
 const currentOption = ref<string>()
+
+const { t } = useI18n()
 
 const optionValue = computed({
     get() {
@@ -19,12 +22,21 @@ const optionValue = computed({
     },
     set(v) {
         currentOption.value = v
-        if (v == 'Annet') {
-            emit("update:modelValue", "");
+        if (v == t("requests.other")) {
+            emit("update:modelValue", "")
         } else {
-            emit("update:modelValue", v ?? "");
+            emit("update:modelValue", v ?? "")
         }
-    }
+    },
+})
+
+const value = computed({
+    get() {
+        return props.modelValue
+    },
+    set(v) {
+        emit("update:modelValue", v)
+    },
 })
 </script>
 
@@ -33,8 +45,14 @@ const optionValue = computed({
         <label><slot></slot></label>
         <select class="p-2 px-4 rounded bg-background" v-model="optionValue">
             <option v-for="opt in options">{{ opt }}</option>
-            <option v-if="allowAny">Annet</option>
+            <option v-if="allowAny">{{ $t("requests.other") }}</option>
         </select>
-        <input v-if="currentOption === 'Annet'" :modelValue="modelValue" class="p-2 px-4 rounded bg-background" type="text" placeholder="..." />
+        <input
+            v-if="currentOption === $t('requests.other')"
+            v-model="value"
+            class="p-2 px-4 rounded bg-background"
+            type="text"
+            placeholder="..."
+        />
     </div>
 </template>
