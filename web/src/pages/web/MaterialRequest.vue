@@ -8,16 +8,23 @@ import {
     TextArea,
     DateSelector,
 } from "@/components/web"
-import { useSendSupportEmailMutation } from "@/graph/generated"
+import { useGetMeQuery, useSendSupportEmailMutation } from "@/graph/generated"
 
-const { user, isLoading, isAuthenticated, loginWithRedirect } = useAuth0()
+const { user, isAuthenticated, loginWithRedirect } = useAuth0()
 
-while (isLoading.value) {
+const { data, fetching } = useGetMeQuery()
+
+while (fetching.value) {
     await new Promise((r) => setTimeout(r, 500))
 }
 
 if (!isAuthenticated.value) {
-    loginWithRedirect()
+    // localStorage.setItem("redirect", "/web/material-request")
+    loginWithRedirect({
+        appState: {
+            target: "/web/material-request",
+        },
+    })
 }
 
 const form = reactive({
@@ -102,7 +109,10 @@ const send = async () => {
 </script>
 
 <template>
-    <section class="flex p-8 h-screen" v-if="isAuthenticated">
+    <section
+        class="flex p-8 h-screen"
+        v-if="isAuthenticated && data?.me.bccMember"
+    >
         <div class="max-w-4xl m-auto w-full flex flex-col gap-8">
             <div class="rounded bg-background-2 p-6">
                 <h1 class="text-2xl font-bold text-center">Material request</h1>
