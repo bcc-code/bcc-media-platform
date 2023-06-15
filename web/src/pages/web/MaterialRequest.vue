@@ -9,10 +9,9 @@ import {
     DateSelector,
 } from "@/components/web"
 import { useGetMeQuery, useSendSupportEmailMutation } from "@/graph/generated"
-import Footer from "@/components/Footer.vue"
-import Cookies from "@/components/Cookies.vue"
+import LanguageSelector from "@/components/LanguageSelector.vue"
 
-const { user, isAuthenticated, loginWithRedirect } = useAuth0()
+const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0()
 
 const { data, fetching } = useGetMeQuery()
 
@@ -108,7 +107,6 @@ const send = async () => {
     })
     showSend.value = false
     showConfirmation.value = true
-    clear()
 }
 
 const agendaConfirmed = ref(false)
@@ -116,18 +114,19 @@ const agendaConfirmed = ref(false)
 
 <template>
     <section
-        class="flex flex-col h-screen w-screen bg-bcc-1"
+        class="flex flex-col h-screen w-screen bg-bcc-1 font-archivo"
         v-if="isAuthenticated && data?.me.bccMember"
     >
         <div class="max-w-4xl m-auto w-full flex flex-col gap-8">
             <div class="rounded bg-bcc p-6">
-                <div class="text-center mb-4">
+                <div class="text-center mb-4 flex flex-col">
                     <h1 class="text-2xl font-bold mb-2">
                         {{ $t("requests.title") }}
                     </h1>
                     <small class="text-sm">{{
                         $t("requests.description")
                     }}</small>
+                    <LanguageSelector class="ml-auto"></LanguageSelector>
                 </div>
                 <div class="flex flex-col md:grid grid-cols-2 gap-8">
                     <TextInput v-model="form.name" readonly>{{
@@ -156,9 +155,6 @@ const agendaConfirmed = ref(false)
                         <TextArea v-model="form.materialUsageHow" required>{{
                             $t("requests.how")
                         }}</TextArea>
-                        <small class="text-slate-300 text-sm">{{
-                            $t("requests.howDescription")
-                        }}</small>
                     </div>
                     <OptionSelector
                         v-model="form.materialUsageWhere"
@@ -200,7 +196,7 @@ const agendaConfirmed = ref(false)
                                 {{ $t("requests.clear") }}
                             </button>
                             <button
-                                class="bg-green-500 rounded p-2 px-8 hover:-translate-y-0.5 transition"
+                                class="bg-bcc-3 text-black rounded p-2 px-8 hover:-translate-y-0.5 transition"
                                 :class="{
                                     'opacity-50 cursor-not-allowed': !canSend,
                                 }"
@@ -214,15 +210,19 @@ const agendaConfirmed = ref(false)
                 </div>
             </div>
         </div>
-        <Footer />
-        <Cookies />
+        <!-- <Footer />
+        <Cookies /> -->
     </section>
-    <Modal v-model:open="showSend" @confirm="send">
+    <Modal v-model:open="showSend" class="font-archivo" @confirm="send">
         <template #description>
             <div v-html="html" class="text-gray"></div>
         </template>
     </Modal>
-    <Modal v-model:open="showConfirmation" @confirm="showConfirmation = false">
+    <Modal
+        v-model:open="showConfirmation"
+        class="font-archivo"
+        @confirm="showConfirmation = false"
+    >
         <template #title>
             {{ $t("requests.receitTitle") }}
         </template>
@@ -231,7 +231,7 @@ const agendaConfirmed = ref(false)
         </template>
         <template #actions>
             <button
-                class="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium"
+                class="inline-flex justify-center rounded-md border border-transparent text-black bg-bcc-3 px-4 py-2 text-sm font-medium"
                 @click="showConfirmation = false"
             >
                 {{ $t("buttons.close") }}
@@ -239,3 +239,7 @@ const agendaConfirmed = ref(false)
         </template>
     </Modal>
 </template>
+
+<style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Archivo&display=swap");
+</style>

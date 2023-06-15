@@ -280,7 +280,7 @@
                                     class="flex rounded-md text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
                                 >
                                     <img
-                                        class="w-8 h-8 rounded rounded-full overflow-hidden stroke-primary"
+                                        class="w-8 h-8 rounded-full overflow-hidden stroke-primary"
                                         v-if="authenticated && user.picture"
                                         :src="user.picture"
                                     />

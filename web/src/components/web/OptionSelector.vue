@@ -61,7 +61,7 @@ const value = computed({
         <input
             v-if="currentOption === $t('requests.other')"
             v-model="value"
-            class="p-2 px-4 rounded bg-background"
+            class="p-2 px-4 rounded bg-bcc-2"
             :class="{
                 'outline outline-1 outline-red': required && updated && !value,
             }"
