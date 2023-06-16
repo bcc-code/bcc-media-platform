@@ -10,6 +10,8 @@ import {
 } from "@/components/web"
 import { useGetMeQuery, useSendSupportEmailMutation } from "@/graph/generated"
 import LanguageSelector from "@/components/LanguageSelector.vue"
+import { useRouter } from "vue-router"
+import { useI18n } from "vue-i18n"
 
 const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0()
 
@@ -50,13 +52,14 @@ const canSend = computed(() => {
     return (
         !!form.material &&
         !!form.materialUsageHow &&
-        !!form.role &&
         !!form.materialUsageWhen &&
         !!form.materialUsageWhere &&
         agendaConfirmed.value
     )
 })
 const { executeMutation } = useSendSupportEmailMutation()
+
+const { t } = useI18n()
 
 const html = computed(() => {
     return `
@@ -67,28 +70,28 @@ const html = computed(() => {
         </thead>
         <tbody>
             <tr>
-                <td>Name</td>
+                <td>${t("requests.name")}</td>
                 <td>${form.name}</td>
             </tr>
             <tr>
-                <td>Role</td>
+                <td>${t("requests.role")}</td>
                 <td>${form.role}</td>
             </tr>
             <tr>
-                <td>What</td>
-                <td>${form.material}</td>
-            </tr>
-            <tr>
-                <td>How</td>
-                <td>${form.materialUsageHow}</td>
-            </tr>
-            <tr>
-                <td>Where</td>
+                <td>${t("requests.where")}</td>
                 <td>${form.materialUsageWhere}</td>
             </tr>
             <tr>
-                <td>When</td>
+                <td>${t("requests.when")}</td>
                 <td>${form.materialUsageWhen}</td>
+            </tr>
+            <tr>
+                <td>${t("requests.what")}</td>
+                <td>${form.material}</td>
+            </tr>
+            <tr>
+                <td>${t("requests.how")}</td>
+                <td>${form.materialUsageHow}</td>
             </tr>
         </tbody>
     </table>
@@ -100,11 +103,11 @@ const showSend = ref(false)
 const showConfirmation = ref(false)
 
 const send = async () => {
-    await executeMutation({
-        title: "Material request",
-        content: "",
-        html: html.value,
-    })
+    // await executeMutation({
+    //     title: "Material request",
+    //     content: "",
+    //     html: html.value,
+    // })
     showSend.value = false
     showConfirmation.value = true
 }
@@ -114,10 +117,16 @@ const agendaConfirmed = ref(false)
 
 <template>
     <section
-        class="flex flex-col h-screen w-screen bg-bcc-1 font-archivo"
+        class="flex flex-col min-h-screen w-screen bg-bcc-1 font-archivo"
         v-if="isAuthenticated && data?.me.bccMember"
     >
-        <div class="max-w-4xl m-auto w-full flex flex-col gap-8">
+        <div class="max-w-4xl m-auto w-full flex flex-col gap-8 py-8">
+            <img
+                @click="$router.push({ name: 'front-page' })"
+                class="hidden h-12 w-auto lg:block cursor-pointer hover:scale-105 transition"
+                src="/logo.svg"
+                alt="BCC Media"
+            />
             <div class="rounded bg-bcc p-6">
                 <div class="text-center mb-4 flex flex-col">
                     <h1 class="text-2xl font-bold mb-2">
@@ -135,27 +144,14 @@ const agendaConfirmed = ref(false)
                     <OptionSelector
                         v-model="form.role"
                         allow-any
-                        required
                         :options="[
                             $t('requests.editor'),
                             $t('requests.director'),
                             $t('requests.producer'),
                             $t('requests.mediaResponsible'),
                         ]"
-                        >{{ $t("requests.role")
-                        }}<span class="ml-1 text-red">*</span></OptionSelector
+                        >{{ $t("requests.role") }}</OptionSelector
                     >
-                    <TextArea
-                        class="col-span-2"
-                        v-model="form.material"
-                        required
-                        >{{ $t("requests.what") }}</TextArea
-                    >
-                    <div class="col-span-2">
-                        <TextArea v-model="form.materialUsageHow" required>{{
-                            $t("requests.how")
-                        }}</TextArea>
-                    </div>
                     <OptionSelector
                         v-model="form.materialUsageWhere"
                         required
@@ -171,6 +167,17 @@ const agendaConfirmed = ref(false)
                         >{{ $t("requests.when")
                         }}<span class="ml-1 text-red">*</span></DateSelector
                     >
+                    <TextArea
+                        class="col-span-2"
+                        v-model="form.material"
+                        required
+                        >{{ $t("requests.what") }}</TextArea
+                    >
+                    <div class="col-span-2">
+                        <TextArea v-model="form.materialUsageHow" required>{{
+                            $t("requests.how")
+                        }}</TextArea>
+                    </div>
                     <div class="flex col-span-2">
                         <div class="ml-auto block md:flex gap-4">
                             <div
@@ -221,7 +228,8 @@ const agendaConfirmed = ref(false)
     <Modal
         v-model:open="showConfirmation"
         class="font-archivo"
-        @confirm="showConfirmation = false"
+        @confirm="$router.push('/')"
+        @close="$router.push('/')"
     >
         <template #title>
             {{ $t("requests.receitTitle") }}
@@ -232,7 +240,7 @@ const agendaConfirmed = ref(false)
         <template #actions>
             <button
                 class="inline-flex justify-center rounded-md border border-transparent text-black bg-bcc-3 px-4 py-2 text-sm font-medium"
-                @click="showConfirmation = false"
+                @click="$router.push('/')"
             >
                 {{ $t("buttons.close") }}
             </button>

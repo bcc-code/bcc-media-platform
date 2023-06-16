@@ -86,10 +86,12 @@ defineProps<{
 const emit = defineEmits<{
     (e: "update:open", v: boolean): void
     (e: "confirm"): void
+    (e: "close"): void
 }>()
 
 function closeModal() {
     emit("update:open", false)
+    emit("close")
 }
 function openModal() {
     emit("update:open", true)
