@@ -229,8 +229,6 @@ INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field"
 
 INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field", "one_collection", "one_field", "one_collection_field", "one_allowed_collections", "junction_field", "sort_field", "one_deselect_action")  VALUES (148, 'applications_usergroups', 'usergroups_code', 'usergroups', NULL, NULL, NULL, 'applications_id', NULL, 'nullify');
 
-INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field", "one_collection", "one_field", "one_collection_field", "one_allowed_collections", "junction_field", "sort_field", "one_deselect_action")  VALUES (149, 'applications_usergroups', 'applications_id', 'applications', 'roles', NULL, NULL, 'usergroups_code', NULL, 'nullify');
-
 INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field", "one_collection", "one_field", "one_collection_field", "one_allowed_collections", "junction_field", "sort_field", "one_deselect_action")  VALUES (150, 'applications', 'page_id', 'pages', NULL, NULL, NULL, NULL, NULL, 'nullify');
 
 --- END SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
@@ -307,8 +305,6 @@ DELETE FROM "public"."directus_relations" WHERE "id" = 146;
 DELETE FROM "public"."directus_relations" WHERE "id" = 147;
 
 DELETE FROM "public"."directus_relations" WHERE "id" = 148;
-
-DELETE FROM "public"."directus_relations" WHERE "id" = 149;
 
 DELETE FROM "public"."directus_relations" WHERE "id" = 150;
 
