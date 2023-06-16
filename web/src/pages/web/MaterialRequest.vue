@@ -130,10 +130,11 @@ const lang = ref(
     ["no", "en"].includes(current.value.code) ? current.value.code : "en"
 )
 
+import en from "./terms/en"
+import no from "./terms/no"
+
 const loadTerms = async () => {
-    terms.value = (await import(
-        /* @vite-ignore */ "./terms/" + lang.value + ".json"
-    )) as Terms
+    terms.value = lang.value === "no" ? no : en
 }
 
 const agendaConfirmed = ref(false)
