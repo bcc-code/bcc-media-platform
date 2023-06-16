@@ -104,11 +104,11 @@ const showSend = ref(false)
 const showConfirmation = ref(false)
 
 const send = async () => {
-    // await executeMutation({
-    //     title: "Material request",
-    //     content: "",
-    //     html: html.value,
-    // })
+    await executeMutation({
+        title: "Material request",
+        content: "",
+        html: html.value,
+    })
     showSend.value = false
     showConfirmation.value = true
 }
