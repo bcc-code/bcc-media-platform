@@ -10,9 +10,11 @@ import {
 } from "@/components/web"
 import { useGetMeQuery, useSendSupportEmailMutation } from "@/graph/generated"
 import LanguageSelector from "@/components/LanguageSelector.vue"
-import { useRouter } from "vue-router"
 import { useI18n } from "vue-i18n"
 import { current } from "@/services/language"
+
+import en from "./terms/en"
+import no from "./terms/no"
 
 const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0()
 
@@ -129,9 +131,6 @@ type Terms = {
 const lang = ref(
     ["no", "en"].includes(current.value.code) ? current.value.code : "en"
 )
-
-import en from "./terms/en"
-import no from "./terms/no"
 
 const loadTerms = async () => {
     terms.value = lang.value === "no" ? no : en
