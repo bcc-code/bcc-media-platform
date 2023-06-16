@@ -29,8 +29,8 @@
             "dataCompare": {
                 "enable": true,
                 "tables": [
-                  { "tableName": "directus_collections", "tableSchema": "public", "tableKeyFields": ["collection"]},
                   { "tableName": "directus_fields", "tableSchema": "public", "tableKeyFields": ["id"]},
+                  { "tableName": "directus_collections", "tableSchema": "public", "tableKeyFields": ["collection"]},
                   { "tableName": "directus_migrations", "tableSchema": "public", "tableKeyFields": ["version"]},
                   { "tableName": "directus_permissions", "tableSchema": "public", "tableKeyFields": ["id"]},
                   { "tableName": "directus_relations", "tableSchema": "public", "tableKeyFields": ["id"]},
