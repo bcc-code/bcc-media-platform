@@ -12,6 +12,7 @@ import { useGetMeQuery, useSendSupportEmailMutation } from "@/graph/generated"
 import LanguageSelector from "@/components/LanguageSelector.vue"
 import { useRouter } from "vue-router"
 import { useI18n } from "vue-i18n"
+import { current } from "@/services/language"
 
 const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0()
 
@@ -53,8 +54,8 @@ const canSend = computed(() => {
         !!form.material &&
         !!form.materialUsageHow &&
         !!form.materialUsageWhen &&
-        !!form.materialUsageWhere &&
-        agendaConfirmed.value
+        !!form.materialUsageWhere
+        // agendaConfirmed.value
     )
 })
 const { executeMutation } = useSendSupportEmailMutation()
@@ -112,15 +113,46 @@ const send = async () => {
     showConfirmation.value = true
 }
 
+// const agendaConfirmed = ref(false)
+
+const termsAccepted = ref(
+    localStorage.getItem("requests-terms-accepted") === "true"
+)
+
+type Terms = {
+    title: string
+    subtitle: string
+    content: string
+    confirm: string
+}
+
+const lang = ref(
+    ["no", "en"].includes(current.value.code) ? current.value.code : "en"
+)
+
+const loadTerms = async () => {
+    terms.value = (await import(
+        /* @vite-ignore */ "./terms/" + lang.value + ".json"
+    )) as Terms
+}
+
 const agendaConfirmed = ref(false)
+const terms = ref<Terms>()
+
+await loadTerms()
+
+console.log(lang)
 </script>
 
 <template>
     <section
-        class="flex flex-col min-h-screen w-screen bg-bcc-1 font-archivo"
+        class="flex flex-col min-h-screen w-screen bg-bcc-1 font-archivo relative"
         v-if="isAuthenticated && data?.me.bccMember"
     >
-        <div class="max-w-4xl m-auto w-full flex flex-col gap-8 py-8">
+        <div
+            class="max-w-4xl m-auto w-full flex flex-col gap-8 py-8"
+            v-if="termsAccepted"
+        >
             <img
                 @click="$router.push({ name: 'front-page' })"
                 class="hidden h-12 w-auto lg:block cursor-pointer hover:scale-105 transition"
@@ -180,7 +212,7 @@ const agendaConfirmed = ref(false)
                     </div>
                     <div class="flex col-span-2">
                         <div class="ml-auto block md:flex gap-4">
-                            <div
+                            <!-- <div
                                 @click="agendaConfirmed = !agendaConfirmed"
                                 class="flex mb-1 gap-1 rounded-xl px-2 py-1 bg-bcc-2 my-auto hover:-translate-y-0.5 transition"
                             >
@@ -195,7 +227,7 @@ const agendaConfirmed = ref(false)
                                     class="my-auto cursor-pointer"
                                     >{{ $t("requests.confirmAgenda") }}</label
                                 >
-                            </div>
+                            </div> -->
                             <button
                                 class="bg-bcc-1 rounded p-2 px-8 hover:-translate-y-0.5 transition"
                                 @click="clear"
@@ -215,6 +247,58 @@ const agendaConfirmed = ref(false)
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div
+            v-else-if="terms"
+            class="max-w-4xl m-auto w-full flex flex-col p-8 rounded bg-bcc prose prose-invert"
+        >
+            <div>
+                <h1>{{ terms.title }}</h1>
+                <div class="flex">
+                    <h3 class="my-auto">{{ terms.subtitle }}</h3>
+                    <select
+                        class="ml-auto my-auto p-2 px-4 rounded bg-bcc-2"
+                        v-model="lang"
+                        @change="loadTerms"
+                    >
+                        <option value="no">Norsk</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+            </div>
+            <div
+                v-html="
+                    '<p>' + terms.content.replace(/\n/g, '</p><p>') + '</p>'
+                "
+            ></div>
+            <div class="flex gap-2">
+                <div
+                    @click="agendaConfirmed = !agendaConfirmed"
+                    class="ml-auto flex mb-1 gap-1 rounded-xl px-2 py-1 bg-bcc-2 my-auto hover:-translate-y-0.5 transition"
+                >
+                    <input
+                        name="agenda"
+                        type="checkbox"
+                        class="cursor-pointer"
+                        v-model="agendaConfirmed"
+                    />
+                    <label
+                        for="agenda"
+                        class="my-auto cursor-pointer text-sm"
+                        >{{ terms.confirm }}</label
+                    >
+                </div>
+                <button
+                    class="my-auto bg-bcc-3 text-black rounded p-2 px-8 hover:-translate-y-0.5 transition"
+                    :class="{
+                        'opacity-50 cursor-not-allowed': !agendaConfirmed,
+                    }"
+                    :disabled="!agendaConfirmed"
+                    @click="termsAccepted = true"
+                >
+                    {{ $t("buttons.continue") }}
+                </button>
             </div>
         </div>
         <!-- <Footer />

@@ -47,6 +47,7 @@
         "@graphql-codegen/typescript-operations": "^3.0.2",
         "@graphql-codegen/typescript-vue-urql": "^2.3.6",
         "@intlify/unplugin-vue-i18n": "^0.10.0",
+        "@tailwindcss/typography": "^0.5.9",
         "@types/node": "^18.15.11",
         "@vitejs/plugin-vue": "^4.1.0",
         "autoprefixer": "^10.4.14",
