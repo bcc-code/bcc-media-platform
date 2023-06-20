@@ -122,6 +122,15 @@ type FaqCategoriesTranslation struct {
 	FaqCategoriesID string `json:"faqcategories_id"`
 }
 
+// GamesTranslation struct
+type GamesTranslation struct {
+	ID            string `json:"id,omitempty"`
+	Title         string `json:"title"`
+	Description   string `json:"description"`
+	LanguagesCode string `json:"languages_code"`
+	GamesID       string `json:"games_id"`
+}
+
 // SurveysTranslation struct
 type SurveysTranslation struct {
 	ID            string `json:"id,omitempty"`
@@ -318,6 +327,24 @@ func (i FaqCategoriesTranslation) UID() string {
 // TypeName string
 func (FaqCategoriesTranslation) TypeName() string {
 	return "faqcategories_translations"
+}
+
+// ForUpdate for update
+func (i GamesTranslation) ForUpdate() any {
+	return map[string]string{
+		"title":       i.Title,
+		"description": i.Description,
+	}
+}
+
+// UID unique id
+func (i GamesTranslation) UID() string {
+	return i.ID
+}
+
+// TypeName string
+func (GamesTranslation) TypeName() string {
+	return "games_translations"
 }
 
 type update struct {

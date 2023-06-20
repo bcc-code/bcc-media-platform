@@ -279,3 +279,22 @@ WHERE ts.languages_code = ANY ($1::varchar[]);
 DELETE
 FROM faqcategories_translations ts
 WHERE ts.faqcategories_id = ANY ($1::uuid[]);
+
+-- name: ListGameOriginalTranslations :many
+SELECT items.id, items.title, items.description
+FROM games items
+WHERE status = ANY ('{published,unlisted}');
+
+-- name: ListGameTranslations :many
+WITH items AS (SELECT i.id
+               FROM games i
+               WHERE i.status = ANY ('{published,unlisted}'))
+SELECT ts.id, games_id as parent_id, languages_code, title, description
+FROM games_translations ts
+         JOIN items i ON i.id = ts.games_id
+WHERE ts.languages_code = ANY ($1::varchar[]);
+
+-- name: ClearGameTranslations :exec
+DELETE
+FROM games_translations ts
+WHERE ts.games_id = ANY ($1::uuid[]);

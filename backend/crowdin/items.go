@@ -555,6 +555,45 @@ func faqCategoriesToDSItems(translations []simpleTranslation) []directus.DSItem 
 	})
 }
 
+func (c *Client) syncGames(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, d, project, directoryId, "games", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+		if language == "no" {
+			ts, err := c.q.ListGameOriginalTranslations(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(ts, func(t sqlc.ListGameOriginalTranslationsRow, _ int) simpleTranslation {
+				return simpleTranslation{
+					ID: t.ID.String(),
+					Values: map[string]string{
+						"title":       t.Title,
+						"description": t.Description.String,
+					},
+					Language: "no",
+					ParentID: t.ID.String(),
+				}
+			}), nil
+		}
+		return dbToSimple(ctx, language, c.q.ListGameTranslations)
+	}, crowdinTranslations, nil, gamesToDSItems, func(ctx context.Context, keys []string) error {
+		return c.q.ClearGameTranslations(ctx, utils.MapWith(keys, utils.AsUuid))
+	})
+}
+
+func gamesToDSItems(translations []simpleTranslation) []directus.DSItem {
+	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
+		ti, _ := t.Values["title"]
+		d, _ := t.Values["description"]
+		return directus.GamesTranslation{
+			ID:            t.ID,
+			LanguagesCode: t.Language,
+			Title:         ti,
+			Description:   d,
+			GamesID:       t.ParentID,
+		}
+	})
+}
+
 type dbT interface {
 	GetKey() string
 	GetParentKey() string
