@@ -36,6 +36,7 @@ func executeQuery[t any](endpoint, query string, variables, headers map[string]s
 	_ = json.NewDecoder(res.Body).Decode(&result)
 
 	if result.Errors != nil {
+		log.L.Error().Any("vars", variables).Any("err", result.Errors).Send()
 		return 503, result.Data
 	}
 	return 200, result.Data

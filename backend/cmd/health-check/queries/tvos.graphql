@@ -1,5 +1,5 @@
-query GetPage($id: ID!) {
-    page(id: $id) {
+query GetPage($id: ID, $code: String) {
+    page(id: $id, code: $code) {
         id
         code
         title

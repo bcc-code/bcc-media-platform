@@ -3,7 +3,9 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
 	"os"
 )
 
@@ -29,6 +31,9 @@ type applicationResult struct {
 }
 
 func main() {
+
+	log.ConfigureGlobalLogger(zerolog.DebugLevel)
+
 	r := gin.Default()
 
 	r.GET("test", func(ctx *gin.Context) {
@@ -42,7 +47,7 @@ func main() {
 			ctx.Status(status)
 			return
 		}
-		status, app = executeQuery[applicationResult](apiEndpoint, webQuery, map[string]string{
+		status, _ = executeQuery[applicationResult](apiEndpoint, webQuery, map[string]string{
 			"code": app.Application.Page.Code,
 		}, map[string]string{
 			"x-application": "btv",
@@ -51,7 +56,7 @@ func main() {
 			ctx.Status(status)
 			return
 		}
-		status, app = executeQuery[applicationResult](apiEndpoint, appQuery, map[string]string{
+		status, _ = executeQuery[applicationResult](apiEndpoint, appQuery, map[string]string{
 			"code": app.Application.Page.Code,
 		}, map[string]string{
 			"x-application": "btv",
@@ -68,7 +73,7 @@ func main() {
 			ctx.Status(status)
 			return
 		}
-		status, app = executeQuery[applicationResult](apiEndpoint, tvosQuery, map[string]string{
+		status, _ = executeQuery[applicationResult](apiEndpoint, tvosQuery, map[string]string{
 			"code": app.Application.Page.Code,
 		}, map[string]string{
 			"x-application": "tvos",
