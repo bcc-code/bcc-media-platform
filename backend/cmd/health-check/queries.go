@@ -12,7 +12,7 @@ type apiResult struct {
 	Errors any
 }
 
-func executeQuery(endpoint, query string, variables map[string]string) {
+func executeQuery(endpoint, query string, variables map[string]string) int {
 	body, _ := json.Marshal(map[string]any{
 		"query":     query,
 		"variables": variables,
@@ -24,14 +24,15 @@ func executeQuery(endpoint, query string, variables map[string]string) {
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.L.Panic().Err(err).Send()
-		return
+		log.L.Error().Err(err).Send()
+		return 500
 	}
 
 	var result apiResult
 	_ = json.NewDecoder(res.Body).Decode(&result)
 
 	if result.Errors != nil {
-		panic(result.Errors)
+		return 503
 	}
+	return 200
 }
