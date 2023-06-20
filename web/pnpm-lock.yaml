@@ -2,8 +2,8 @@ lockfileVersion: '6.0'
 
 dependencies:
   '@auth0/auth0-vue':
-    specifier: ^2.1.0
-    version: 2.1.0(vue-router@4.2.2)
+    specifier: ^2.2.0
+    version: 2.2.0(vue-router@4.2.2)
   '@headlessui/vue':
     specifier: ^1.7.14
     version: 1.7.14(vue@3.3.4)
@@ -38,8 +38,8 @@ dependencies:
     specifier: ^2.12.6
     version: 2.12.6(graphql@16.6.0)
   rudder-sdk-js:
-    specifier: ^2.28.0
-    version: 2.28.0
+    specifier: ^2.35.0
+    version: 2.35.0
   showdown:
     specifier: ^2.1.0
     version: 2.1.0
@@ -178,8 +178,8 @@ packages:
     resolution: {integrity: sha512-NgD6Fkm5Xnbned1VjhEW8irm1/Y8AWtdSLexgLXNwwBVgfnYicCVBu8w75m2t+4QljXkTcI7IXVEFhVmxMuxaA==}
     dev: false
 
-  /@auth0/auth0-vue@2.1.0(vue-router@4.2.2):
-    resolution: {integrity: sha512-PQdhLylJAR10ILnz5DSxGcvX8siOl1UGK/O6mYu7+gysHCBO0u0uDP8oxuL1roFuSSkxVGXgDzn6YbcwEctkaA==}
+  /@auth0/auth0-vue@2.2.0(vue-router@4.2.2):
+    resolution: {integrity: sha512-a8kNj9wF/hJFD/izAZojOTNlny/sq3qvuV8KLUreoQ92uMQBYiHtuclVHbRqoYxl2bwCtFJccttEmyYW3gzHDA==}
     peerDependencies:
       vue-router: ^4.0.12
     peerDependenciesMeta:
@@ -4715,8 +4715,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /rudder-sdk-js@2.28.0:
-    resolution: {integrity: sha512-sYo297MXfBk+KoJC9tJdz5KIkrzUiTz47EKmoWy8vehH5ZBN5Y3LbpWdCeg3L/sbHwxfkOTljgZ8zEgEnkdNLg==}
+  /rudder-sdk-js@2.35.0:
+    resolution: {integrity: sha512-6J//P1RSnPl0Xpr6gpBIs/BNq5YZG1VSayOSiCtZUdE1wqU/u119vYzoMiUtg1k35FmJXNzUcu9WGKsn9ukPcA==}
     dev: false
 
   /run-async@2.4.1:

@@ -20,7 +20,7 @@
         "ts:upload": "CROWDIN_TOKEN=`cat .crowdin_token` && export CROWDIN_TOKEN && crowdin upload"
     },
     "dependencies": {
-        "@auth0/auth0-vue": "^2.1.0",
+        "@auth0/auth0-vue": "^2.2.0",
         "@headlessui/vue": "^1.7.14",
         "@heroicons/vue": "^2.0.18",
         "@sentry/tracing": "^7.56.0",
@@ -32,7 +32,7 @@
         "bccm-video-player": "1.4.0-test",
         "graphql": "^16.6.0",
         "graphql-tag": "^2.12.6",
-        "rudder-sdk-js": "^2.28.0",
+        "rudder-sdk-js": "^2.35.0",
         "showdown": "^2.1.0",
         "swiper": "^9.4.1",
         "vue": "^3.3.4",
