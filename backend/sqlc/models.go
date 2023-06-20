@@ -1456,14 +1456,15 @@ type Timedmetadatum struct {
 }
 
 type Usergroup struct {
-	Code        string         `db:"code" json:"code"`
-	DateCreated time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated time.Time      `db:"date_updated" json:"dateUpdated"`
-	Emails      null_v4.String `db:"emails" json:"emails"`
-	Name        string         `db:"name" json:"name"`
-	Sort        null_v4.Int    `db:"sort" json:"sort"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	Code                string         `db:"code" json:"code"`
+	DateCreated         time.Time      `db:"date_created" json:"dateCreated"`
+	DateUpdated         time.Time      `db:"date_updated" json:"dateUpdated"`
+	Emails              null_v4.String `db:"emails" json:"emails"`
+	Name                string         `db:"name" json:"name"`
+	Sort                null_v4.Int    `db:"sort" json:"sort"`
+	UserCreated         uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated         uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	ExplicitlyAvailable bool           `db:"explicitly_available" json:"explicitlyAvailable"`
 }
 
 type UsersAchievement struct {

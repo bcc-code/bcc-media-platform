@@ -18,9 +18,12 @@ import (
 	"github.com/samber/lo"
 	"go.opentelemetry.io/otel"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
+
+const explicitRolesHeader = "x-explicit-roles"
 
 var userCacheLocks = utils.SyncMap[string, *sync.Mutex]{}
 
@@ -45,6 +48,25 @@ func ageFromBirthDate(birthDate string) int {
 	return years
 }
 
+func getExplicitRolesFromContext(ctx *gin.Context, queries *sqlc.Queries) []string {
+	var result []string
+	if explicitRoles := ctx.GetHeader(explicitRolesHeader); explicitRoles != "" {
+		allRoles, err := getRoles(ctx, queries)
+		if err != nil {
+			log.L.Error().Err(err).Send()
+		} else {
+			specifiedRoles := strings.Split(explicitRoles, ",")
+
+			for _, r := range specifiedRoles {
+				if _, ok := allRoles["explicit:"+r]; ok {
+					result = append(result, r)
+				}
+			}
+		}
+	}
+	return result
+}
+
 // NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
 func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, ls *common.BatchLoaders, auth0Client *auth0.Client) func(*gin.Context) {
@@ -53,6 +75,11 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 		defer span.End()
 
 		var roles []string
+
+		explicitRoles := getExplicitRolesFromContext(ctx, queries)
+		if len(explicitRoles) > 0 {
+			roles = append(roles, explicitRoles...)
+		}
 
 		authed := ctx.GetBool(auth0.CtxAuthenticated)
 
@@ -268,7 +295,12 @@ func getRoles(ctx context.Context, queries *sqlc.Queries) (map[string][]string, 
 		return nil, merry.Wrap(err)
 	}
 
-	lo.ForEach(roles, func(x sqlc.GetRolesRow, _ int) { allRoles[x.Code] = x.Emails })
+	lo.ForEach(roles, func(x sqlc.GetRolesRow, _ int) {
+		if x.ExplicitlyAvailable {
+			allRoles["explicit:"+x.Code] = x.Emails
+		}
+		allRoles[x.Code] = x.Emails
+	})
 
 	span.AddEvent("loaded into cache")
 	rolesCache.Set(user.CacheRoles, allRoles, cache.WithExpiration(60*time.Minute))
