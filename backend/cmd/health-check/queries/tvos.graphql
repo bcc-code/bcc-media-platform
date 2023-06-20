@@ -1,0 +1,42 @@
+query GetPage($id: ID!) {
+    page(id: $id) {
+        id
+        code
+        title
+        description
+        sections(first: 100) {
+            items {
+                __typename
+                id
+                title
+                description
+                ...ItemSectionFragment
+            }
+        }
+    }
+}
+fragment ItemSectionFragment on ItemSection {
+    __typename
+    title
+    metadata {
+        prependLiveElement
+        useContext
+        collectionId
+    }
+    items {
+        items {
+            id
+            title
+            description
+            image
+            item {
+                __typename
+                ... on Episode {
+                    progress
+                    duration
+                    locked
+                }
+            }
+        }
+    }
+}
