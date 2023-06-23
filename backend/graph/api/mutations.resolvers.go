@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/brunstadtv/backend/applications"
 	"strconv"
 	"time"
 
@@ -190,6 +191,18 @@ func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title strin
 		n = u.DisplayName
 	}
 
+	app, err := applications.GetFromCtx(ginCtx)
+	if err != nil {
+		return false, err
+	}
+
+	var supportEmail string
+	if app.SupportEmail.Valid {
+		supportEmail = app.SupportEmail.String
+	} else {
+		supportEmail = "support@brunstad.tv"
+	}
+
 	err = r.EmailService.SendEmail(ctx, email.SendOptions{
 		From: email.Recipient{
 			Name:  n,
@@ -197,7 +210,7 @@ func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title strin
 		},
 		To: email.Recipient{
 			Name:  "Support",
-			Email: "support@brunstad.tv",
+			Email: supportEmail,
 		},
 		Title:       title,
 		Content:     content,

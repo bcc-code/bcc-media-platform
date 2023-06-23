@@ -103,6 +103,7 @@ SELECT a.id::int                          AS id,
        a.search_page_id                   AS search_page_id,
        a.games_page_id                    AS games_page_id,
        a.standalone_related_collection_id AS standalone_related_collection_id,
+       g.support_email                    AS support_email,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
          JOIN applicationgroups g ON g.id = a.group_id
@@ -123,6 +124,7 @@ type getApplicationsRow struct {
 	SearchPageID                  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
 	GamesPageID                   null_v4.Int    `db:"games_page_id" json:"gamesPageID"`
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionID"`
+	SupportEmail                  null_v4.String `db:"support_email" json:"supportEmail"`
 	Roles                         []string       `db:"roles" json:"roles"`
 }
 
@@ -147,6 +149,7 @@ func (q *Queries) getApplications(ctx context.Context, dollar_1 []int32) ([]getA
 			&i.SearchPageID,
 			&i.GamesPageID,
 			&i.StandaloneRelatedCollectionID,
+			&i.SupportEmail,
 			pq.Array(&i.Roles),
 		); err != nil {
 			return nil, err
@@ -178,6 +181,7 @@ SELECT a.id::int                          AS id,
        a.search_page_id                   AS search_page_id,
        a.games_page_id                    AS games_page_id,
        a.standalone_related_collection_id AS standalone_related_collection_id,
+       g.support_email                    AS support_email,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
          JOIN applicationgroups g ON g.id = a.group_id
@@ -197,6 +201,7 @@ type listApplicationsRow struct {
 	SearchPageID                  null_v4.Int    `db:"search_page_id" json:"searchPageID"`
 	GamesPageID                   null_v4.Int    `db:"games_page_id" json:"gamesPageID"`
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionID"`
+	SupportEmail                  null_v4.String `db:"support_email" json:"supportEmail"`
 	Roles                         []string       `db:"roles" json:"roles"`
 }
 
@@ -221,6 +226,7 @@ func (q *Queries) listApplications(ctx context.Context) ([]listApplicationsRow, 
 			&i.SearchPageID,
 			&i.GamesPageID,
 			&i.StandaloneRelatedCollectionID,
+			&i.SupportEmail,
 			pq.Array(&i.Roles),
 		); err != nil {
 			return nil, err

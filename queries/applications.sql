@@ -14,6 +14,7 @@ SELECT a.id::int                          AS id,
        a.search_page_id                   AS search_page_id,
        a.games_page_id                    AS games_page_id,
        a.standalone_related_collection_id AS standalone_related_collection_id,
+       g.support_email                    AS support_email,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
          JOIN applicationgroups g ON g.id = a.group_id
@@ -37,6 +38,7 @@ SELECT a.id::int                          AS id,
        a.search_page_id                   AS search_page_id,
        a.games_page_id                    AS games_page_id,
        a.standalone_related_collection_id AS standalone_related_collection_id,
+       g.support_email                    AS support_email,
        COALESCE(r.roles, '{}')::varchar[] AS roles
 FROM applications a
          JOIN applicationgroups g ON g.id = a.group_id

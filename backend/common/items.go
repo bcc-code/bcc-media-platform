@@ -375,6 +375,7 @@ type Application struct {
 	SearchPageID        null.Int
 	GamesPageID         null.Int
 	RelatedCollectionID null.Int
+	SupportEmail        null.String
 	Roles               []string
 }
 

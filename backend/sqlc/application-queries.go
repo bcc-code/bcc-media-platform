@@ -36,6 +36,7 @@ func mapToApplications(applications []getApplicationsRow) []common.Application {
 			SearchPageID:        p.SearchPageID,
 			GamesPageID:         p.GamesPageID,
 			RelatedCollectionID: p.StandaloneRelatedCollectionID,
+			SupportEmail:        p.SupportEmail,
 			Roles:               p.Roles,
 		}
 	})
