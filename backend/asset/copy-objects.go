@@ -41,7 +41,7 @@ func copyObjects(
 				}
 
 				// We have an error
-				if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() != "NoSuchKey" {
+				if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoSuchKey" {
 					log.L.Warn().
 						Err(err).
 						Str("dst bucket", *f.Bucket).
