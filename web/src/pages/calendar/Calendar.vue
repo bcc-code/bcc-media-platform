@@ -151,6 +151,7 @@ const endEvent = (date: Date) => {
     const day = parseInt(isoDateString(date).substring(8, 10))
     for (const e of events) {
         const end = parseInt(isoDateString(new Date(e.end)).substring(8, 10))
+
         if (end === day) {
             return e.end
         }
@@ -162,11 +163,26 @@ const inEvent = (date: Date) => {
     const events = data.value?.calendar?.period.events ?? []
     const day = parseInt(isoDateString(date).substring(8, 10))
 
+    const dayYear = parseInt(isoDateString(date).substring(0, 4))
+
+    const dayMonth = parseInt(isoDateString(date).substring(5, 7))
+
     for (const e of events) {
         const start = parseInt(
             isoDateString(new Date(e.start)).substring(8, 10)
         )
-        const end = parseInt(isoDateString(new Date(e.end)).substring(8, 10))
+
+        let end = parseInt(isoDateString(new Date(e.end)).substring(8, 10))
+
+        const endYear = parseInt(isoDateString(new Date(e.end)).substring(0, 4))
+
+        const endMonth = parseInt(
+            isoDateString(new Date(e.end)).substring(5, 7)
+        )
+
+        if (endYear != dayYear && endMonth != dayMonth) {
+            end = 32
+        }
 
         if (start < day && end > day) {
             return true
