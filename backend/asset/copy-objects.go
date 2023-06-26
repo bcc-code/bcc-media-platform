@@ -2,12 +2,13 @@ package asset
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"time"
 
 	"github.com/ansel1/merry/v2"
+	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"go.opentelemetry.io/otel"
 )
@@ -41,7 +42,8 @@ func copyObjects(
 				}
 
 				// We have an error
-				if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoSuchKey" {
+				var re *awshttp.ResponseError
+				if errors.As(err, &re) && re.ResponseError.Response.StatusCode == 404 {
 					log.L.Warn().
 						Err(err).
 						Str("dst bucket", *f.Bucket).
