@@ -7,7 +7,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/samber/lo"
 	"github.com/samber/lo/parallel"
 )
 
@@ -34,6 +33,11 @@ func NewService(ctx context.Context, firebaseProjectID string, queries *sqlc.Que
 	return service, nil
 }
 
+type failedToken struct {
+	Error error
+	Token string
+}
+
 func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Message) error {
 	client, err := s.app.Messaging(ctx)
 	if err != nil {
@@ -57,28 +61,43 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 		ranges = append(ranges, messages[i:r])
 	}
 
-	batchSendMessages := func(r []*messaging.Message, _ int) []error {
+	batchSendMessages := func(r []*messaging.Message) ([]failedToken, error) {
 		res, err := client.SendAll(ctx, r)
-		//TODO: Implement error handling
 		if err != nil {
-			return []error{err}
+			return nil, err
 		}
-		// Just return errors for now. This part filters the responses and only returns errors that arent nil.
-		return lo.Map(lo.Filter(res.Responses, func(r *messaging.SendResponse, _ int) bool {
-			return r.Error != nil && !messaging.IsRegistrationTokenNotRegistered(r.Error) && !messaging.IsMismatchedCredential(r.Error)
-		}), func(r *messaging.SendResponse, _ int) error {
-			return r.Error
-		})
+		var failedTokens []failedToken
+		for index, sr := range res.Responses {
+			if sr.Error != nil {
+				failedTokens = append(failedTokens, failedToken{
+					Error: sr.Error,
+					Token: r[index].Token,
+				})
+			}
+		}
+
+		return failedTokens, nil
 	}
 
-	errors := parallel.Map(ranges, batchSendMessages)
+	var unregisterTokens []string
 
-	for _, errs := range errors {
-		if len(errs) > 0 {
-			log.L.Error().Errs("errors", errs).Msg("Errors occurred when sending messages")
+	parallel.ForEach(ranges, func(i []*messaging.Message, _ int) {
+		failedTokens, err := batchSendMessages(i)
+		if err != nil {
+			log.L.Error().Err(err).Send()
 		}
-	}
+		for _, t := range failedTokens {
+			if messaging.IsRegistrationTokenNotRegistered(t.Error) {
+				unregisterTokens = append(unregisterTokens, t.Token)
+			} else {
+				log.L.Warn().Err(err).Send()
+			}
+		}
+	})
 
+	if len(unregisterTokens) > 0 {
+		return s.queries.DeleteDevices(ctx, unregisterTokens)
+	}
 	return nil
 }
 

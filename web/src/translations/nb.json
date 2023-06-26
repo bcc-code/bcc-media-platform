@@ -159,5 +159,26 @@
     "thankYou": "Tusen takk!",
     "yourResponseHasBeenSubmitted": "Ditt svar er sendt inn.",
     "sending": "Sender",
-    "defaultInputPlaceholder": "Begynn å skrive her..."
+    "defaultInputPlaceholder": "Begynn å skrive her...",
+    "requests": {
+        "fullName": "",
+        "email": "",
+        "role": "",
+        "material": "",
+        "materialUrl": "",
+        "materialUsageHow": "",
+        "materialUsageHowDescription": "",
+        "materialUsageWhere": "",
+        "materialUsageWhen": "",
+        "clear": "",
+        "send": "Send",
+        "editor": "",
+        "director": "",
+        "producer": "",
+        "eventCamp": "",
+        "local": "",
+        "mediaResponsible": "",
+        "other": "",
+        "confirmSend": ""
+    }
 }

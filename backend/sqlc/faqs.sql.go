@@ -14,6 +14,42 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const listFAQCategoryIDsForRoles = `-- name: ListFAQCategoryIDsForRoles :many
+SELECT c.id
+FROM faqcategories c
+         LEFT JOIN (SELECT f.category_id,
+                           array_agg(DISTINCT r.usergroups_code) AS roles
+                    FROM faqs_usergroups r
+                             JOIN faqs f ON f.id = r.faqs_id AND f.status = 'published'
+                    GROUP BY f.category_id) r
+                   ON r.category_id = c.id
+WHERE c.status = 'published'
+  AND r.roles && $1::varchar[]
+`
+
+func (q *Queries) ListFAQCategoryIDsForRoles(ctx context.Context, roles []string) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, listFAQCategoryIDsForRoles, pq.Array(roles))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getFAQCategories = `-- name: getFAQCategories :many
 WITH t AS (SELECT ts.faqcategories_id,
                   json_object_agg(ts.languages_code, ts.title)       AS title,
@@ -28,8 +64,7 @@ SELECT c.id,
        t.description
 FROM faqcategories c
          LEFT JOIN t ON c.id = t.faqcategories_id
-WHERE c.status = 'published'
-  AND c.id = ANY ($1::uuid[])
+WHERE c.id = ANY ($1::uuid[])
 `
 
 type getFAQCategoriesRow struct {
@@ -69,29 +104,35 @@ func (q *Queries) getFAQCategories(ctx context.Context, ids []uuid.UUID) ([]getF
 	return items, nil
 }
 
-const getQuestionIDsForCategories = `-- name: getQuestionIDsForCategories :many
+const getQuestionIDsForCategoriesWithRoles = `-- name: getQuestionIDsForCategoriesWithRoles :many
 SELECT f.id, f.category_id
 FROM faqs f
-         LEFT JOIN faqcategories fc on f.category_id = fc.id
+         LEFT JOIN (SELECT r.faqs_id, array_agg(r.usergroups_code) AS roles FROM faqs_usergroups r GROUP BY r.faqs_id) r
+                   ON r.faqs_id = f.id
 WHERE f.status = 'published'
-  AND fc.status = 'published'
   AND f.category_id = ANY ($1::uuid[])
+  AND r.roles && $2::varchar[]
 `
 
-type getQuestionIDsForCategoriesRow struct {
+type getQuestionIDsForCategoriesWithRolesParams struct {
+	CategoryIds []uuid.UUID `db:"category_ids" json:"categoryIds"`
+	Roles       []string    `db:"roles" json:"roles"`
+}
+
+type getQuestionIDsForCategoriesWithRolesRow struct {
 	ID         uuid.UUID `db:"id" json:"id"`
 	CategoryID uuid.UUID `db:"category_id" json:"categoryID"`
 }
 
-func (q *Queries) getQuestionIDsForCategories(ctx context.Context, dollar_1 []uuid.UUID) ([]getQuestionIDsForCategoriesRow, error) {
-	rows, err := q.db.QueryContext(ctx, getQuestionIDsForCategories, pq.Array(dollar_1))
+func (q *Queries) getQuestionIDsForCategoriesWithRoles(ctx context.Context, arg getQuestionIDsForCategoriesWithRolesParams) ([]getQuestionIDsForCategoriesWithRolesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getQuestionIDsForCategoriesWithRoles, pq.Array(arg.CategoryIds), pq.Array(arg.Roles))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []getQuestionIDsForCategoriesRow
+	var items []getQuestionIDsForCategoriesWithRolesRow
 	for rows.Next() {
-		var i getQuestionIDsForCategoriesRow
+		var i getQuestionIDsForCategoriesWithRolesRow
 		if err := rows.Scan(&i.ID, &i.CategoryID); err != nil {
 			return nil, err
 		}
@@ -152,59 +193,6 @@ func (q *Queries) getQuestions(ctx context.Context, ids []uuid.UUID) ([]getQuest
 			&i.OriginalAnswer,
 			&i.Question,
 			&i.Answer,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listFAQCategories = `-- name: listFAQCategories :many
-WITH t AS (SELECT ts.faqcategories_id,
-                  json_object_agg(ts.languages_code, ts.title)       AS title,
-                  json_object_agg(ts.languages_code, ts.description) AS description
-           FROM faqcategories_translations ts
-           GROUP BY ts.faqcategories_id)
-SELECT c.id,
-       c.title       as original_title,
-       c.description as original_description,
-       t.title,
-       t.description
-FROM faqcategories c
-         LEFT JOIN t ON c.id = t.faqcategories_id
-WHERE c.status = 'published'
-`
-
-type listFAQCategoriesRow struct {
-	ID                  uuid.UUID             `db:"id" json:"id"`
-	OriginalTitle       string                `db:"original_title" json:"originalTitle"`
-	OriginalDescription null_v4.String        `db:"original_description" json:"originalDescription"`
-	Title               pqtype.NullRawMessage `db:"title" json:"title"`
-	Description         pqtype.NullRawMessage `db:"description" json:"description"`
-}
-
-func (q *Queries) listFAQCategories(ctx context.Context) ([]listFAQCategoriesRow, error) {
-	rows, err := q.db.QueryContext(ctx, listFAQCategories)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []listFAQCategoriesRow
-	for rows.Next() {
-		var i listFAQCategoriesRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.OriginalTitle,
-			&i.OriginalDescription,
-			&i.Title,
-			&i.Description,
 		); err != nil {
 			return nil, err
 		}

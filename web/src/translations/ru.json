@@ -159,5 +159,26 @@
     "thankYou": "Спасибо!",
     "yourResponseHasBeenSubmitted": "Ответ отправлен.",
     "sending": "Отправка",
-    "defaultInputPlaceholder": "Начните печатать здесь..."
+    "defaultInputPlaceholder": "Начните печатать здесь...",
+    "requests": {
+        "fullName": "",
+        "email": "",
+        "role": "",
+        "material": "",
+        "materialUrl": "",
+        "materialUsageHow": "",
+        "materialUsageHowDescription": "",
+        "materialUsageWhere": "",
+        "materialUsageWhen": "",
+        "clear": "",
+        "send": "Отправить",
+        "editor": "",
+        "director": "",
+        "producer": "",
+        "eventCamp": "",
+        "local": "",
+        "mediaResponsible": "",
+        "other": "",
+        "confirmSend": ""
+    }
 }

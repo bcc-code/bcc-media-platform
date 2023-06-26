@@ -159,5 +159,30 @@
     "thankYou": "Thank you!",
     "yourResponseHasBeenSubmitted": "Your response has been submitted.",
     "sending": "Sending",
-    "defaultInputPlaceholder": "Start typing here..."
+    "defaultInputPlaceholder": "Start typing here...",
+    "requests": {
+        "name": "Your name",
+        "email": "Email",
+        "role": "Your role",
+        "what": "Material to be requested",
+        "how": "How will the material be used?",
+        "howDescription": "Shown partially/fully, edited...",
+        "where": "Where will the material be used?",
+        "when": "When will the material be used?",
+        "clear": "Clear",
+        "send": "Send",
+        "editor": "Editor",
+        "director": "Director",
+        "producer": "Producer",
+        "eventCamp": "Event/camp",
+        "local": "Local gathering",
+        "mediaResponsible": "Media responsible",
+        "other": "Other",
+        "confirmSend": "Send material request?",
+        "title": "Request for material",
+        "description": "Form for requesting audio, picture and video materials from BCC Media",
+        "receitTitle": "Request received",
+        "confirmAgenda": "I confirm that the material will only be used for the agreed purpose.",
+        "receitDescription": "Our team will contact you within 7 working days. An automatic reply has been sent to your email."
+    }
 }

@@ -159,5 +159,26 @@
     "thankYou": "Teşekkür ederim!",
     "yourResponseHasBeenSubmitted": "Yanıtınız gönderildi.",
     "sending": "Gönderiliyor",
-    "defaultInputPlaceholder": "Buraya yazmaya başlayın..."
+    "defaultInputPlaceholder": "Buraya yazmaya başlayın...",
+    "requests": {
+        "fullName": "",
+        "email": "",
+        "role": "",
+        "material": "",
+        "materialUrl": "",
+        "materialUsageHow": "",
+        "materialUsageHowDescription": "",
+        "materialUsageWhere": "",
+        "materialUsageWhen": "",
+        "clear": "",
+        "send": "Gönder",
+        "editor": "",
+        "director": "",
+        "producer": "",
+        "eventCamp": "",
+        "local": "",
+        "mediaResponsible": "",
+        "other": "",
+        "confirmSend": ""
+    }
 }

@@ -53,7 +53,6 @@ type Resolver struct {
 	Loaders            *common.BatchLoaders
 	FilteredLoaders    func(ctx context.Context) *common.FilteredLoaders
 	ProfileLoaders     func(ctx context.Context) *common.ProfileLoaders
-	ApplicationLoaders func(ctx context.Context) *common.ApplicationLoaders
 	SearchService      searchProvider
 	EmailService       *email.Service
 	URLSigner          *signing.Signer
@@ -80,10 +79,6 @@ func (r *Resolver) GetFilteredLoaders(ctx context.Context) *common.FilteredLoade
 
 func (r *Resolver) GetProfileLoaders(ctx context.Context) *common.ProfileLoaders {
 	return r.ProfileLoaders(ctx)
-}
-
-func (r *Resolver) GetApplicationLoaders(ctx context.Context) *common.ApplicationLoaders {
-	return r.ApplicationLoaders(ctx)
 }
 
 func (r *Resolver) GetS3Client() *s3.Client {
@@ -244,14 +239,6 @@ func itemsResolverFor[k comparable, kr comparable, t any, r any](ctx context.Con
 	items, err := ls.Item.GetMany(ctx, ids)
 
 	return utils.MapWithCtx(ctx, items, converter), err
-}
-
-func itemsResolverForIntID[t any, r any](ctx context.Context, loaders *itemLoaders[int, t], listLoader *loaders.Loader[int, []*int], id string, converter func(context.Context, *t) r) ([]r, error) {
-	intID, err := strconv.ParseInt(id, 10, 32)
-	if err != nil {
-		return nil, err
-	}
-	return itemsResolverFor(ctx, loaders, listLoader, int(intID), converter)
 }
 
 func imageOrFallback(ctx context.Context, images common.Images, style *model.ImageStyle, fallbacks ...common.Images) *string {
@@ -485,4 +472,33 @@ func (r *Resolver) getUserInfo(ctx context.Context, userID string) (auth0.UserIn
 		}
 		return info, nil
 	}, cache.WithExpiration(time.Second*2))
+}
+
+func uuidItemLoader[T any, R any](
+	ctx context.Context,
+	loader *loaders.Loader[uuid.UUID, *T],
+	converter func(context.Context, *T) *R,
+	idString string) (*R, error) {
+	return itemLoader(ctx, loader, converter, uuid.Parse, idString)
+}
+
+func itemLoader[K comparable, T any, R any](
+	ctx context.Context,
+	loader *loaders.Loader[K, *T],
+	converter func(context.Context, *T) *R,
+	idValidator func(i string) (K, error),
+	idString string,
+) (*R, error) {
+	uid, err := idValidator(idString)
+	if err != nil {
+		return nil, err
+	}
+	i, err := loader.Get(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	if i == nil {
+		return nil, ErrItemNotFound
+	}
+	return converter(ctx, i), nil
 }

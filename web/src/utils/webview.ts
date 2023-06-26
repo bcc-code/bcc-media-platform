@@ -1,4 +1,4 @@
-import { FlutterWebView } from "@/flutter"
+import { WebViewCommunication } from "@/flutter"
 import settings from "@/services/settings"
 
 type HapticFeedbackType =
@@ -8,15 +8,16 @@ type HapticFeedbackType =
     | "selectionClick"
     | "heavyImpact"
 
-class FlutterMain {
-    handlerName = "flutter_main"
-    webView: FlutterWebView
-    constructor(webView: FlutterWebView) {
-        this.webView = webView
+class AppWebView {
+    handlerName: string
+    webview: WebViewCommunication
+    constructor(handlerName: string, webView: WebViewCommunication) {
+        this.webview = webView
+        this.handlerName = handlerName
     }
 
     navigate(path: string): Promise<any> | null {
-        var promise = this.webView.callHandler(
+        var promise = this.webview.callHandler(
             this.handlerName,
             "navigate",
             path
@@ -25,26 +26,26 @@ class FlutterMain {
     }
 
     push(path: string): Promise<any> {
-        var promise = this.webView.callHandler(this.handlerName, "push", path)
+        var promise = this.webview.callHandler(this.handlerName, "push", path)
         return !promise?.then ? null : promise
     }
 
     getAccessToken(): Promise<string | null> {
-        return this.webView.callHandler(this.handlerName, "get_access_token")
+        return this.webview.callHandler(this.handlerName, "get_access_token")
     }
 
     getLocale(): Promise<string | null> {
-        return this.webView.callHandler(this.handlerName, "get_locale")
+        return this.webview.callHandler(this.handlerName, "get_locale")
     }
 
     shareImage(url: string): Promise<boolean | null> {
-        return this.webView.callHandler(this.handlerName, "share_image", url)
+        return this.webview.callHandler(this.handlerName, "share_image", url)
     }
 
     hapticFeedback(
         hapticFeedbackType: HapticFeedbackType
     ): Promise<boolean | null> {
-        return this.webView.callHandler(
+        return this.webview.callHandler(
             this.handlerName,
             "haptic_feedback",
             hapticFeedbackType
@@ -52,15 +53,18 @@ class FlutterMain {
     }
 }
 
-export const flutter =
+export const appWebView =
     window.flutter_inappwebview != null
-        ? new FlutterMain(window.flutter_inappwebview)
-        : null
+        ? new AppWebView('flutter_main', window.flutter_inappwebview)
+        : window.xamarin_webview != null
+            ? new AppWebView('main', window.xamarin_webview)
+            : null
+
 
 class FlutterStudy {
     handlerName = "flutter_study"
-    webView: FlutterWebView
-    constructor(webView: FlutterWebView) {
+    webView: WebViewCommunication
+    constructor(webView: WebViewCommunication) {
         this.webView = webView
     }
 

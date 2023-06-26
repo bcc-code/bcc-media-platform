@@ -46,7 +46,7 @@ const previewFactory = async () => {
 	let count = 0;
 	error.value = null;
 	try {
-		const r = await api.post("/preview/collection", {
+		const r = await api.post("/tools/preview/collection", {
 			filter: props.value,
 			collection: props.fieldCollection,
 		})

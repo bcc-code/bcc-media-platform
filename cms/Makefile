@@ -1,7 +1,7 @@
 .PHONY: run init reset s
 
 run:
-	npx directus start
+	pnpm directus start
 
 install:
 	pnpm i
@@ -15,7 +15,6 @@ build:
 init:
 	make install
 	make build
-	cd ./custom && make init
 
 reset:
 	make init

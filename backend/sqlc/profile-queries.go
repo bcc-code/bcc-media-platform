@@ -22,21 +22,29 @@ func (q *Queries) ProfileQueries(profileID uuid.UUID) *ProfileQueries {
 }
 
 // GetProfilesForUserIDs retrieves profiles for the specific users.
-func (q *Queries) GetProfilesForUserIDs(ctx context.Context, userIDs []string) ([]common.Profile, error) {
-	profiles, err := q.getProfiles(ctx, userIDs)
+func (aq *ApplicationQueries) GetProfilesForUserIDs(ctx context.Context, userIDs []string) ([]common.Profile, error) {
+	profiles, err := aq.getProfiles(ctx, getProfilesParams{
+		UserID:             userIDs,
+		ApplicationgroupID: aq.GroupID,
+	})
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(profiles, func(i UsersProfile, _ int) common.Profile {
-		return common.Profile(i)
+	return lo.Map(profiles, func(i getProfilesRow, _ int) common.Profile {
+		return common.Profile{
+			ID:     i.ID,
+			UserID: i.UserID,
+			Name:   i.Name,
+		}
 	}), nil
 }
 
 // SaveProfile creates or overwrites a profile in the database
-func (q *Queries) SaveProfile(ctx context.Context, profile common.Profile) error {
-	return q.saveProfile(ctx, saveProfileParams{
-		Column1: profile.ID,
-		Column2: profile.UserID,
-		Column3: profile.Name,
+func (aq *ApplicationQueries) SaveProfile(ctx context.Context, profile common.Profile) error {
+	return aq.saveProfile(ctx, saveProfileParams{
+		ID:                 profile.ID,
+		UserID:             profile.UserID,
+		Name:               profile.Name,
+		ApplicationgroupID: aq.GroupID,
 	})
 }

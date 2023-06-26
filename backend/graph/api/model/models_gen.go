@@ -201,6 +201,7 @@ type Application struct {
 	ClientVersion string `json:"clientVersion"`
 	Page          *Page  `json:"page,omitempty"`
 	SearchPage    *Page  `json:"searchPage,omitempty"`
+	GamesPage     *Page  `json:"gamesPage,omitempty"`
 }
 
 type BirthOptions struct {
@@ -263,9 +264,10 @@ func (this CardSection) GetMetadata() *ItemSectionMetadata { return this.Metadat
 func (this CardSection) GetItems() *SectionItemPagination { return this.Items }
 
 type Chapter struct {
-	ID    string `json:"id"`
-	Start int    `json:"start"`
-	Title string `json:"title"`
+	ID          string  `json:"id"`
+	Start       int     `json:"start"`
+	Title       string  `json:"title"`
+	Description *string `json:"description,omitempty"`
 }
 
 type Collection struct {
@@ -351,6 +353,11 @@ type Device struct {
 	UpdatedAt string `json:"updatedAt"`
 }
 
+type EmailOptions struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
 type Episode struct {
 	ID                    string                 `json:"id"`
 	UUID                  string                 `json:"uuid"`
@@ -386,7 +393,8 @@ type Episode struct {
 	Lessons               *LessonPagination      `json:"lessons"`
 	ShareRestriction      ShareRestriction       `json:"shareRestriction"`
 	InMyList              bool                   `json:"inMyList"`
-	Next                  []*Episode             `json:"next"`
+	// Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
+	Next []*Episode `json:"next"`
 }
 
 func (Episode) IsSectionItemType() {}
@@ -552,6 +560,16 @@ type File struct {
 	MimeType         string  `json:"mimeType"`
 	Resolution       *string `json:"resolution,omitempty"`
 }
+
+type Game struct {
+	ID          string  `json:"id"`
+	Title       string  `json:"title"`
+	Description *string `json:"description,omitempty"`
+	URL         string  `json:"url"`
+	Image       *string `json:"image,omitempty"`
+}
+
+func (Game) IsSectionItemType() {}
 
 type GlobalConfig struct {
 	LiveOnline  bool `json:"liveOnline"`
@@ -1058,11 +1076,6 @@ func (this SectionPagination) GetTotal() int  { return this.Total }
 func (this SectionPagination) GetFirst() int  { return this.First }
 func (this SectionPagination) GetOffset() int { return this.Offset }
 
-type Settings struct {
-	AudioLanguages    []string `json:"audioLanguages"`
-	SubtitleLanguages []string `json:"subtitleLanguages"`
-}
-
 type Show struct {
 	ID           string            `json:"id"`
 	LegacyID     *string           `json:"legacyID,omitempty"`
@@ -1281,7 +1294,6 @@ type User struct {
 	Audience              *string    `json:"audience,omitempty"`
 	Email                 *string    `json:"email,omitempty"`
 	EmailVerified         bool       `json:"emailVerified"`
-	Settings              *Settings  `json:"settings"`
 	Roles                 []string   `json:"roles"`
 	Analytics             *Analytics `json:"analytics"`
 	Gender                Gender     `json:"gender"`

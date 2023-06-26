@@ -25,7 +25,11 @@
 		"typescript": "^5.0.4"
 	},
 	"peerDependencies": {
-		"axios": "^1.4.0",
-    "@directus/types": "^9.26.0"
-  }
+		"@directus/types": "^9.26.0",
+		"axios": "^1.4.0"
+	},
+	"dependencies": {
+		"@google-cloud/pubsub": "^3.7.0",
+		"cloudevents": "^7.0.1"
+	}
 }

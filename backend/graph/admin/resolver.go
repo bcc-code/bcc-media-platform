@@ -9,6 +9,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/user"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
@@ -20,7 +21,7 @@ type Resolver struct {
 }
 
 func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.Filter) ([]*model.CollectionItem, error) {
-	ids, err := collection.GetItemIDsForFilter(ctx, r.DB, nil, filter, false)
+	identifiers, err := collection.GetItemIDsForFilter(ctx, r.DB, nil, filter, false)
 	if err != nil {
 		return nil, err
 	}
@@ -33,28 +34,33 @@ func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.F
 	var items []*model.CollectionItem
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
-	getIDs := func(col string, ids []common.Identifier) []int {
+	getIDs := func(col string, ids []common.Identifier) []string {
 		return lo.Map(lo.Filter(ids, func(i common.Identifier, _ int) bool {
 			return i.Collection == col
-		}), func(i common.Identifier, _ int) int {
-			return utils.AsInt(i.ID)
+		}), func(i common.Identifier, _ int) string {
+			return i.ID
 		})
 	}
 
-	showIDs := getIDs("shows", ids)
-	if len(showIDs) > 0 {
-		r.Loaders.ShowLoader.LoadMany(ctx, showIDs)
-	}
-	seasonIDs := getIDs("seasons", ids)
-	if len(seasonIDs) > 0 {
-		r.Loaders.SeasonLoader.LoadMany(ctx, seasonIDs)
-	}
-	episodeIDs := getIDs("episodes", ids)
-	if len(episodeIDs) > 0 {
-		r.Loaders.EpisodeLoader.LoadMany(ctx, episodeIDs)
+	if ids := getIDs("shows", identifiers); len(ids) > 0 {
+		r.Loaders.ShowLoader.LoadMany(ctx, utils.MapAsIntegers(ids))
 	}
 
-	for _, e := range ids {
+	if ids := getIDs("seasons", identifiers); len(ids) > 0 {
+		r.Loaders.SeasonLoader.LoadMany(ctx, utils.MapAsIntegers(ids))
+	}
+
+	if ids := getIDs("episodes", identifiers); len(ids) > 0 {
+		r.Loaders.EpisodeLoader.LoadMany(ctx, utils.MapAsIntegers(ids))
+	}
+
+	if ids := getIDs("games", identifiers); len(ids) > 0 {
+		r.Loaders.GameLoader.LoadMany(ctx, lo.Map(ids, func(i string, _ int) uuid.UUID {
+			return utils.AsUuid(i)
+		}))
+	}
+
+	for _, e := range identifiers {
 		switch e.Collection {
 		case "shows":
 			i, err := r.Loaders.ShowLoader.Get(ctx, utils.AsInt(e.ID))
@@ -83,6 +89,16 @@ func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.F
 			}
 			items = append(items, &model.CollectionItem{
 				Collection: model.CollectionEpisodes,
+				ID:         e.ID,
+				Title:      i.Title.Get(languages),
+			})
+		case "games":
+			i, err := r.Loaders.GameLoader.Get(ctx, utils.AsUuid(e.ID))
+			if err != nil {
+				return nil, err
+			}
+			items = append(items, &model.CollectionItem{
+				Collection: model.CollectionGames,
 				ID:         e.ID,
 				Title:      i.Title.Get(languages),
 			})

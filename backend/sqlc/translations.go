@@ -475,3 +475,32 @@ func (r ListFAQCategoryTranslationsRow) GetValues() map[string]string {
 func (r ListFAQCategoryTranslationsRow) GetLanguage() string {
 	return r.LanguagesCode.String
 }
+
+// GetKey for this item
+func (r ListGameTranslationsRow) GetKey() string {
+	return strconv.Itoa(int(r.ID))
+}
+
+// GetParentKey for this item
+func (r ListGameTranslationsRow) GetParentKey() string {
+	return r.ParentID.String()
+}
+
+// GetValues for this entry
+func (r ListGameTranslationsRow) GetValues() map[string]string {
+	ret := map[string]string{}
+
+	if r.Title.Valid {
+		ret["title"] = r.Title.String
+	}
+	if r.Description.Valid {
+		ret["description"] = r.Description.String
+	}
+
+	return ret
+}
+
+// GetLanguage for this item
+func (r ListGameTranslationsRow) GetLanguage() string {
+	return r.LanguagesCode
+}

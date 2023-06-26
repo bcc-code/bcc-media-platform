@@ -1,17 +1,18 @@
 <template>
     <section
-        class="max-w-screen-2xl mx-auto rounded rounded-2xl"
+        class="max-w-screen-2xl mx-auto rounded-2xl"
         v-if="episode"
     >
         <div class="relative aspect-video w-full">
             <div
-                class="h-full w-full bg-secondary rounded rounded-xl opacity-10 absolute"
+                class="h-full w-full bg-secondary rounded-xl opacity-10 absolute"
             ></div>
             <EpisodeViewer
                 :context="context"
-                :auto-play="autoPlay"
+                :auto-play="true"
                 class="drop-shadow-xl overflow-hidden"
                 :episode="episode"
+                @next="loadNext"
             ></EpisodeViewer>
         </div>
         <div class="flex flex-col">
@@ -289,4 +290,13 @@ const effectiveView = computed({
         view.value = v
     },
 })
+
+const loadNext = async () => {
+    const nextId = episode.value?.next[0]?.id
+    if (nextId) {
+        episodeId.value = nextId
+        await nextTick();
+        await load();
+    }
+}
 </script>

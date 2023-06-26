@@ -69,6 +69,17 @@ func (q *Queries) ClearFAQTranslations(ctx context.Context, dollar_1 []uuid.UUID
 	return err
 }
 
+const clearGameTranslations = `-- name: ClearGameTranslations :exec
+DELETE
+FROM games_translations ts
+WHERE ts.games_id = ANY ($1::uuid[])
+`
+
+func (q *Queries) ClearGameTranslations(ctx context.Context, dollar_1 []uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearGameTranslations, pq.Array(dollar_1))
+	return err
+}
+
 const clearLessonTranslations = `-- name: ClearLessonTranslations :exec
 DELETE
 FROM lessons_translations ts
@@ -595,6 +606,88 @@ func (q *Queries) ListFAQTranslations(ctx context.Context, dollar_1 []string) ([
 			&i.LanguagesCode,
 			&i.Question,
 			&i.Answer,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listGameOriginalTranslations = `-- name: ListGameOriginalTranslations :many
+SELECT items.id, items.title, items.description
+FROM games items
+WHERE status = ANY ('{published,unlisted}')
+`
+
+type ListGameOriginalTranslationsRow struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) ListGameOriginalTranslations(ctx context.Context) ([]ListGameOriginalTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listGameOriginalTranslations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListGameOriginalTranslationsRow
+	for rows.Next() {
+		var i ListGameOriginalTranslationsRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listGameTranslations = `-- name: ListGameTranslations :many
+WITH items AS (SELECT i.id
+               FROM games i
+               WHERE i.status = ANY ('{published,unlisted}'))
+SELECT ts.id, games_id as parent_id, languages_code, title, description
+FROM games_translations ts
+         JOIN items i ON i.id = ts.games_id
+WHERE ts.languages_code = ANY ($1::varchar[])
+`
+
+type ListGameTranslationsRow struct {
+	ID            int32          `db:"id" json:"id"`
+	ParentID      uuid.UUID      `db:"parent_id" json:"parentID"`
+	LanguagesCode string         `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) ListGameTranslations(ctx context.Context, dollar_1 []string) ([]ListGameTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listGameTranslations, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListGameTranslationsRow
+	for rows.Next() {
+		var i ListGameTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.LanguagesCode,
+			&i.Title,
+			&i.Description,
 		); err != nil {
 			return nil, err
 		}

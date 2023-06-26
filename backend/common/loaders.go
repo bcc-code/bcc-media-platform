@@ -9,8 +9,10 @@ import (
 
 // BatchLoaders contains loaders for the different items
 type BatchLoaders struct {
-	ApplicationLoader                  *loaders.Loader[int, *Application]
-	ApplicationIDFromCodeLoader        *loaders.Loader[string, *int]
+	ApplicationLoader           *loaders.Loader[int, *Application]
+	ApplicationIDFromCodeLoader *loaders.Loader[string, *int]
+	ApplicationGroupLoader      *loaders.Loader[uuid.UUID, *ApplicationGroup]
+
 	RedirectLoader                     *loaders.Loader[uuid.UUID, *Redirect]
 	RedirectIDFromCodeLoader           *loaders.Loader[string, *uuid.UUID]
 	PageLoader                         *loaders.Loader[int, *Page]
@@ -29,19 +31,22 @@ type BatchLoaders struct {
 	EpisodeIDFromLegacyIDLoader        *loaders.Loader[int, *int]
 	EpisodeIDFromLegacyProgramIDLoader *loaders.Loader[int, *int]
 	LinkLoader                         *loaders.Loader[int, *Link]
-	FilesLoader                        *loaders.Loader[int, []*File]
-	StreamsLoader                      *loaders.Loader[int, []*Stream]
-	EventLoader                        *loaders.Loader[int, *Event]
-	FAQCategoryLoader                  *loaders.Loader[uuid.UUID, *FAQCategory]
-	QuestionLoader                     *loaders.Loader[uuid.UUID, *Question]
-	QuestionsLoader                    *loaders.Loader[uuid.UUID, []*uuid.UUID]
-	ProfilesLoader                     *loaders.Loader[string, []*Profile]
-	MessageGroupLoader                 *loaders.Loader[int, *MessageGroup]
-	RedirectFromCodeLoader             *loaders.Loader[string, *Redirect]
-	SurveyLoader                       *loaders.Loader[uuid.UUID, *Survey]
-	SurveyQuestionLoader               *loaders.Loader[uuid.UUID, *SurveyQuestion]
 
-	MemberLoader *loaders.Loader[int, *members.Member]
+	FilesLoader              *loaders.Loader[int, []*File]
+	StreamsLoader            *loaders.Loader[int, []*Stream]
+	AssetTimedMetadataLoader *loaders.Loader[int, []*TimedMetadata]
+
+	EventLoader            *loaders.Loader[int, *Event]
+	FAQCategoryLoader      *loaders.Loader[uuid.UUID, *FAQCategory]
+	QuestionLoader         *loaders.Loader[uuid.UUID, *Question]
+	MessageGroupLoader     *loaders.Loader[int, *MessageGroup]
+	RedirectFromCodeLoader *loaders.Loader[string, *Redirect]
+	SurveyLoader           *loaders.Loader[uuid.UUID, *Survey]
+	SurveyQuestionLoader   *loaders.Loader[uuid.UUID, *SurveyQuestion]
+	GameLoader             *loaders.Loader[uuid.UUID, *Game]
+
+	MemberLoader       *loaders.Loader[int, *members.Member]
+	OrganizationLoader *loaders.Loader[uuid.UUID, *members.Organization]
 
 	EpisodeProgressLoader   *loaders.Loader[uuid.UUID, []*int]
 	EpisodeIDFromUuidLoader *loaders.Loader[uuid.UUID, *int]
@@ -75,13 +80,10 @@ type BatchLoaders struct {
 	UserCollectionEntryLoader    *loaders.Loader[uuid.UUID, *UserCollectionEntry]
 	UserCollectionEntryIDsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
 
-	PromptLoader *loaders.Loader[uuid.UUID, *Prompt]
-}
+	ProfileUserCollectionIDsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
+	ProfileMyListCollectionID      *loaders.Loader[uuid.UUID, *uuid.UUID]
 
-// ApplicationLoaders contains loaders specific to applications
-type ApplicationLoaders struct {
-	UserCollectionIDsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
-	UserMyListCollectionID  *loaders.Loader[uuid.UUID, *uuid.UUID]
+	PromptLoader *loaders.Loader[uuid.UUID, *Prompt]
 }
 
 // FilteredLoaders contains loaders that will be filtered by permissions.
@@ -91,6 +93,7 @@ type FilteredLoaders struct {
 	EpisodeFilterLoader     *loaders.Loader[int, *int]
 	EpisodeUUIDFilterLoader *loaders.Loader[uuid.UUID, *uuid.UUID]
 	EpisodesLoader          *loaders.Loader[int, []*int]
+	TagEpisodesLoader       *loaders.Loader[int, []*int]
 	SeasonFilterLoader      *loaders.Loader[int, *int]
 	SeasonsLoader           *loaders.Loader[int, []*int]
 	ShowFilterLoader        *loaders.Loader[int, *int]
@@ -106,6 +109,8 @@ type FilteredLoaders struct {
 	StudyTaskFilterLoader   *loaders.Loader[uuid.UUID, *uuid.UUID]
 	SurveyQuestionsLoader   *loaders.Loader[uuid.UUID, []*uuid.UUID]
 
+	FAQQuestionsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
+
 	//Relations
 	StudyLessonEpisodesLoader *loaders.Loader[uuid.UUID, []*int]
 	EpisodeStudyLessonsLoader *loaders.Loader[int, []*uuid.UUID]
@@ -113,7 +118,8 @@ type FilteredLoaders struct {
 	LinkStudyLessonsLoader    *loaders.Loader[int, []*uuid.UUID]
 
 	// Lists
-	PromptIDsLoader func(ctx context.Context) ([]uuid.UUID, error)
+	PromptIDsLoader      func(ctx context.Context) ([]uuid.UUID, error)
+	FAQCategoryIDsLoader func(ctx context.Context) ([]uuid.UUID, error)
 }
 
 // ProfileLoaders contains loaders per profile

@@ -1,6 +1,6 @@
 <template>
     <section class="overflow-x-hidden">
-        <transition name="slide-fade">
+        <transition name="fade">
             <div
                 class="px-4 lg:px-20 flex flex-col gap-8 relative"
                 v-if="page && page.sections.items.length"

@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -38,7 +39,7 @@ type getFilesForAssetsRow struct {
 	UserCreated        uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	Resolution         null_v4.String        `db:"resolution" json:"resolution"`
-	Size               int32                 `db:"size" json:"size"`
+	Size               int64                 `db:"size" json:"size"`
 }
 
 func (q *Queries) getFilesForAssets(ctx context.Context, dollar_1 []int32) ([]getFilesForAssetsRow, error) {
@@ -105,7 +106,7 @@ type getFilesForEpisodesRow struct {
 	UserCreated        uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	Resolution         null_v4.String        `db:"resolution" json:"resolution"`
-	Size               int32                 `db:"size" json:"size"`
+	Size               int64                 `db:"size" json:"size"`
 }
 
 func (q *Queries) getFilesForEpisodes(ctx context.Context, dollar_1 []int32) ([]getFilesForEpisodesRow, error) {
@@ -161,7 +162,10 @@ WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs
                           LEFT JOIN assetstreams_subtitle_languages al ON al.assetstreams_id = s.id
                  WHERE al.languages_code IS NOT NULL
                  GROUP BY s.id)
-SELECT 0::int as episodes_id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id, s.extra_metadata, s.id, s.legacy_videourl_id, s.path, s.service, s.status, s.type, s.url, s.user_created, s.user_updated, COALESCE(al.langs, '{}')::text[] audio_languages, COALESCE(sl.langs, '{}')::text[] subtitle_languages
+SELECT 0::int as                        episodes_id,
+       s.asset_id, s.date_created, s.date_updated, s.encryption_key_id, s.extra_metadata, s.id, s.legacy_videourl_id, s.path, s.service, s.status, s.type, s.url, s.user_created, s.user_updated,
+       COALESCE(al.langs, '{}')::text[] audio_languages,
+       COALESCE(sl.langs, '{}')::text[] subtitle_languages
 FROM assets a
          JOIN assetstreams s ON a.id = s.asset_id
          LEFT JOIN audiolang al ON al.id = s.id
@@ -245,13 +249,16 @@ WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs
                           LEFT JOIN assetstreams_subtitle_languages al ON al.assetstreams_id = s.id
                  WHERE al.languages_code IS NOT NULL
                  GROUP BY s.id)
-SELECT e.id AS episodes_id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id, s.extra_metadata, s.id, s.legacy_videourl_id, s.path, s.service, s.status, s.type, s.url, s.user_created, s.user_updated, COALESCE(al.langs, '{}')::text[] audio_languages, COALESCE(sl.langs, '{}')::text[] subtitle_languages
+SELECT e.id AS                          episodes_id,
+       s.asset_id, s.date_created, s.date_updated, s.encryption_key_id, s.extra_metadata, s.id, s.legacy_videourl_id, s.path, s.service, s.status, s.type, s.url, s.user_created, s.user_updated,
+       COALESCE(al.langs, '{}')::text[] audio_languages,
+       COALESCE(sl.langs, '{}')::text[] subtitle_languages
 FROM episodes e
          JOIN assets a ON e.asset_id = a.id
          JOIN assetstreams s ON a.id = s.asset_id
          LEFT JOIN audiolang al ON al.id = s.id
          LEFT JOIN sublang sl ON sl.id = s.id
-WHERE e.id = ANY($1::int[])
+WHERE e.id = ANY ($1::int[])
 `
 
 type getStreamsForEpisodesRow struct {
@@ -301,6 +308,69 @@ func (q *Queries) getStreamsForEpisodes(ctx context.Context, dollar_1 []int32) (
 			&i.UserUpdated,
 			pq.Array(&i.AudioLanguages),
 			pq.Array(&i.SubtitleLanguages),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTimedMetadataForAssets = `-- name: getTimedMetadataForAssets :many
+SELECT md.id,
+       md.asset_id,
+       md.type,
+       md.title                            AS original_title,
+       md.description                      AS original_description,
+       (SELECT json_object_agg(ts.languages_code, ts.title)
+        FROM timedmetadata_translations ts
+        WHERE ts.timedmetadata_id = md.id) AS title,
+       (SELECT json_object_agg(ts.languages_code, ts.description)
+        FROM timedmetadata_translations ts
+        WHERE ts.timedmetadata_id = md.id) AS description,
+       md.timestamp,
+       md.highlight
+FROM timedmetadata md
+WHERE md.asset_id = ANY ($1::int[])
+`
+
+type getTimedMetadataForAssetsRow struct {
+	ID                  uuid.UUID       `db:"id" json:"id"`
+	AssetID             int32           `db:"asset_id" json:"assetID"`
+	Type                string          `db:"type" json:"type"`
+	OriginalTitle       string          `db:"original_title" json:"originalTitle"`
+	OriginalDescription null_v4.String  `db:"original_description" json:"originalDescription"`
+	Title               json.RawMessage `db:"title" json:"title"`
+	Description         json.RawMessage `db:"description" json:"description"`
+	Timestamp           time.Time       `db:"timestamp" json:"timestamp"`
+	Highlight           bool            `db:"highlight" json:"highlight"`
+}
+
+func (q *Queries) getTimedMetadataForAssets(ctx context.Context, assetIds []int32) ([]getTimedMetadataForAssetsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getTimedMetadataForAssets, pq.Array(assetIds))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getTimedMetadataForAssetsRow
+	for rows.Next() {
+		var i getTimedMetadataForAssetsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.AssetID,
+			&i.Type,
+			&i.OriginalTitle,
+			&i.OriginalDescription,
+			&i.Title,
+			&i.Description,
+			&i.Timestamp,
+			&i.Highlight,
 		); err != nil {
 			return nil, err
 		}

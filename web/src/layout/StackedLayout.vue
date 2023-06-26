@@ -8,7 +8,7 @@
             <Navbar class="lg:px-20"></Navbar>
             <div class="overflow-x-hidden flex-grow flex-shrink-0">
                 <router-view v-slot="{ Component }">
-                    <transition name="slide-fade" mode="out-in">
+                    <transition name="fade" mode="out-in">
                         <component :key="$route.name" :is="Component" />
                     </transition>
                 </router-view>

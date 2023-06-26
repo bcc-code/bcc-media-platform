@@ -58,6 +58,9 @@ query getEpisode($episodeId: ID!, $context: EpisodeContext) {
         availableFrom
         availableTo
         shareRestriction
+        next {
+            id
+        }
         lessons {
             items {
                 ...LessonProgressOverview

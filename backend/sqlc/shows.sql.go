@@ -218,7 +218,8 @@ SELECT sh.id,
        COALESCE(images.json, '[]') as images,
        ts.title,
        ts.description,
-       sh.default_episode_behaviour
+       sh.default_episode_behaviour,
+       sh.related_collection_id
 FROM shows sh
          LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
@@ -239,6 +240,7 @@ type getShowsRow struct {
 	Title                   pqtype.NullRawMessage `db:"title" json:"title"`
 	Description             pqtype.NullRawMessage `db:"description" json:"description"`
 	DefaultEpisodeBehaviour null_v4.String        `db:"default_episode_behaviour" json:"defaultEpisodeBehaviour"`
+	RelatedCollectionID     null_v4.Int           `db:"related_collection_id" json:"relatedCollectionID"`
 }
 
 func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]getShowsRow, error) {
@@ -262,6 +264,7 @@ func (q *Queries) getShows(ctx context.Context, dollar_1 []int32) ([]getShowsRow
 			&i.Title,
 			&i.Description,
 			&i.DefaultEpisodeBehaviour,
+			&i.RelatedCollectionID,
 		); err != nil {
 			return nil, err
 		}
@@ -335,7 +338,8 @@ SELECT sh.id,
        COALESCE(images.json, '[]') as images,
        ts.title,
        ts.description,
-       sh.default_episode_behaviour
+       sh.default_episode_behaviour,
+       sh.related_collection_id
 FROM shows sh
          LEFT JOIN tags ON tags.shows_id = sh.id
          LEFT JOIN ts ON sh.id = ts.shows_id
@@ -355,6 +359,7 @@ type listShowsRow struct {
 	Title                   pqtype.NullRawMessage `db:"title" json:"title"`
 	Description             pqtype.NullRawMessage `db:"description" json:"description"`
 	DefaultEpisodeBehaviour null_v4.String        `db:"default_episode_behaviour" json:"defaultEpisodeBehaviour"`
+	RelatedCollectionID     null_v4.Int           `db:"related_collection_id" json:"relatedCollectionID"`
 }
 
 func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
@@ -378,6 +383,7 @@ func (q *Queries) listShows(ctx context.Context) ([]listShowsRow, error) {
 			&i.Title,
 			&i.Description,
 			&i.DefaultEpisodeBehaviour,
+			&i.RelatedCollectionID,
 		); err != nil {
 			return nil, err
 		}

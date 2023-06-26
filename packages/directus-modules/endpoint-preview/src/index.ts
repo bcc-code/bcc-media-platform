@@ -1,6 +1,9 @@
 // @ts-ignore
 import type { EndpointConfig, Accountability } from "@directus/types"
 import axios from "axios"
+import {PubSub} from "@google-cloud/pubsub";
+import {randomUUID} from "crypto";
+import {CloudEvent} from "cloudevents";
 
 const apiPath = process.env.API_PATH;
 const apiSecret = process.env.API_SECRET;
@@ -29,10 +32,14 @@ const postQuery = async (query: string, variables: any) => {
     })
 }
 
+const projectId = process.env.PUBSUB_PROJECT_ID
+const topicId = process.env.PUBSUB_TOPIC_ID
+const pubsub = new PubSub({projectId})
+
 const endpointConfig: EndpointConfig = {
-    id: "preview",
+    id: "tools",
     handler: (router) => {
-        router.post("/collection", async (req, res) => {
+        router.post("/preview/collection", async (req, res) => {
             const userId = getUserId(req)
             if (userId == null) {
                 res.status(401).send("Unauthenticated")
@@ -70,7 +77,7 @@ const endpointConfig: EndpointConfig = {
             }))
         });
 
-        router.get("/asset/:assetId", async (req, res) => {
+        router.get("/preview/asset/:assetId", async (req, res) => {
             const userId = getUserId(req)
             if (userId == null) {
                 res.status(401).send("Unauthenticated")
@@ -101,6 +108,34 @@ const endpointConfig: EndpointConfig = {
             res.status(500).send(JSON.stringify({
                 error: "Couldn't fetch data from API"
             }))
+        })
+
+        router.get("/filters/refresh", async (req, res) => {
+            const userId = getUserId(req)
+            if (userId == null) {
+                res.status(401).send("Unauthenticated")
+                return
+            }
+
+            const topic = pubsub.topic(topicId!)
+
+            const event = new CloudEvent({
+                specversion: "1.0",
+                id: randomUUID(),
+                type: "view.refresh",
+                source: "directus",
+                datacontenttype: "application/json",
+                data: {
+                    "viewName": "filter_dataset",
+                    "force": false
+                }
+            })
+
+            await topic.publishMessage({
+                data: Buffer.from(JSON.stringify(event))
+            })
+
+            res.status(200).send()
         })
     }
 }

@@ -105,4 +105,16 @@ export default [
         path: "/login",
         component: () => import("@/pages/Login.vue"),
     },
+    {
+        name: "web",
+        path: "/web",
+        component: () => import("@/pages/Web.vue"),
+        children: [
+            {
+                name: "material-request",
+                path: "material-request",
+                component: () => import("@/pages/web/MaterialRequest.vue"),
+            }
+        ]
+    }
 ] as RouteRecordRaw[]

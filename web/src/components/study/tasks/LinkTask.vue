@@ -77,7 +77,7 @@ import {
 } from "@/graph/generated"
 import { computed, onMounted, ref } from "vue"
 import { useI18n } from "vue-i18n"
-import { openInBrowser } from "@/utils/flutter"
+import { openInBrowser } from "@/utils/webview"
 
 const { t } = useI18n()
 const { executeMutation: completeTask } = useCompleteTaskMutation()

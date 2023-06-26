@@ -80,7 +80,7 @@ import { computed, getCurrentInstance, onMounted, Ref, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import Alternative from "./Alternative.vue"
 import Loader from "@/components/Loader.vue"
-import { flutter, openInBrowser } from "@/utils/flutter"
+import { appWebView, openInBrowser } from "@/utils/webview"
 
 var selectedIndex = ref<number>()
 
@@ -114,7 +114,7 @@ const task = computed(() => {
 
 const download = async () => {
     downloading.value = true
-    const response = await flutter?.shareImage(task.value.image)
+    const response = await appWebView?.shareImage(task.value.image)
     downloading.value = false
     if (response == null || response == false) {
         openInBrowser(task.value.image + "?&dl")

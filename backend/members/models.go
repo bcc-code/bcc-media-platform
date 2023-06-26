@@ -1,5 +1,10 @@
 package members
 
+import (
+	"github.com/google/uuid"
+	"time"
+)
+
 type result[t any] struct {
 	Data t `json:"data"`
 }
@@ -7,7 +12,7 @@ type result[t any] struct {
 // Member is a member with related data
 type Member struct {
 	PersonID      int
-	Age           int
+	BirthDate     string
 	Email         string
 	EmailVerified bool   `json:"emailVerified"`
 	DisplayName   string `json:"displayName"`
@@ -19,11 +24,12 @@ type Member struct {
 // Affiliation is an affiliation to an entity
 type Affiliation struct {
 	Active    bool
-	OrgID     int
-	OrgType   string
+	OrgUid    uuid.UUID
+	PersonUid uuid.UUID
+	Uid       uuid.UUID
 	Type      string
-	ValidFrom string
-	ChurchID  int
+	ValidFrom *time.Time
+	ValidTo   *time.Time
 }
 
 // Organization contains organizational data
@@ -31,4 +37,5 @@ type Organization struct {
 	OrgID int
 	Name  string `json:"districtName"`
 	Type  string
+	Uid   uuid.UUID
 }

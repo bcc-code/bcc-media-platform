@@ -6,9 +6,8 @@
     ></div>
 </template>
 <script lang="ts" setup>
-import { addError } from "@/utils/error"
 import { onMounted, onUnmounted, onUpdated, ref } from "vue"
-import { Player, setNPAWOptions } from "bccm-video-player"
+import { Player } from "bccm-video-player"
 import playerFactory from "@/services/player"
 import {
     EpisodeContext,
@@ -62,6 +61,10 @@ const props = defineProps<{
         } | null
     }
     autoPlay?: boolean
+}>()
+
+const emit = defineEmits<{
+    (e: "next"): void
 }>()
 
 const player = ref(null as Player | null)
@@ -165,9 +168,9 @@ const load = async () => {
         if (isAuthenticated.value) {
             player.value.on("timeupdate", checkProgress)
         }
-        if (player.value === null) {
-            addError("No available VOD for this episode")
-        }
+        player.value.on("ended", () => {
+            emit("next")
+        })
         loaded.value = true
     }
 }

@@ -36,17 +36,6 @@ func (q *Queries) GetFAQCategories(ctx context.Context, ids []uuid.UUID) ([]comm
 	return mapToCategories(items), nil
 }
 
-// ListFAQCategories retrieves all categories
-func (q *Queries) ListFAQCategories(ctx context.Context) ([]common.FAQCategory, error) {
-	items, err := q.listFAQCategories(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return mapToCategories(lo.Map(items, func(i listFAQCategoriesRow, _ int) getFAQCategoriesRow {
-		return getFAQCategoriesRow(i)
-	})), nil
-}
-
 func mapToQuestions(items []getQuestionsRow) []common.Question {
 	return lo.Map(items, func(i getQuestionsRow, _ int) common.Question {
 		var question = common.LocaleString{}
@@ -76,22 +65,25 @@ func (q *Queries) GetQuestions(ctx context.Context, ids []uuid.UUID) ([]common.Q
 }
 
 // GetKey returns the id for this row
-func (row getQuestionIDsForCategoriesRow) GetKey() uuid.UUID {
+func (row getQuestionIDsForCategoriesWithRolesRow) GetKey() uuid.UUID {
 	return row.ID
 }
 
 // GetRelationID returns the relation id for this row
-func (row getQuestionIDsForCategoriesRow) GetRelationID() uuid.UUID {
+func (row getQuestionIDsForCategoriesWithRolesRow) GetRelationID() uuid.UUID {
 	return row.CategoryID
 }
 
 // GetQuestionIDsForCategories returns a list of episodes specified by seasons
-func (q *Queries) GetQuestionIDsForCategories(ctx context.Context, ids []uuid.UUID) ([]loaders.Relation[uuid.UUID, uuid.UUID], error) {
-	rows, err := q.getQuestionIDsForCategories(ctx, ids)
+func (rq *RoleQueries) GetQuestionIDsForCategories(ctx context.Context, ids []uuid.UUID) ([]loaders.Relation[uuid.UUID, uuid.UUID], error) {
+	rows, err := rq.queries.getQuestionIDsForCategoriesWithRoles(ctx, getQuestionIDsForCategoriesWithRolesParams{
+		Roles:       rq.roles,
+		CategoryIds: ids,
+	})
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getQuestionIDsForCategoriesRow, _ int) loaders.Relation[uuid.UUID, uuid.UUID] {
+	return lo.Map(rows, func(i getQuestionIDsForCategoriesWithRolesRow, _ int) loaders.Relation[uuid.UUID, uuid.UUID] {
 		return i
 	}), nil
 }

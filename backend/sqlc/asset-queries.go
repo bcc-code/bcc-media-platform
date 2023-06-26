@@ -81,3 +81,21 @@ func (q *Queries) GetStreamsForAssets(ctx context.Context, ids []int) ([]common.
 	}
 	return toStreams(streams), nil
 }
+
+// GetTimedMetadataForAssets returns metadata items for assets
+func (q *Queries) GetTimedMetadataForAssets(ctx context.Context, ids []int) ([]common.TimedMetadata, error) {
+	rows, err := q.getTimedMetadataForAssets(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getTimedMetadataForAssetsRow, _ int) common.TimedMetadata {
+		return common.TimedMetadata{
+			ID:          i.ID,
+			AssetID:     int(i.AssetID),
+			Type:        i.Type,
+			Timestamp:   i.Timestamp.Hour()*3600 + i.Timestamp.Minute()*60 + i.Timestamp.Second(),
+			Title:       toLocaleString(i.Title, i.OriginalTitle),
+			Description: toLocaleString(i.Description, i.OriginalDescription.String),
+		}
+	}), nil
+}

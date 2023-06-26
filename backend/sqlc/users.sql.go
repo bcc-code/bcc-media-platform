@@ -12,13 +12,14 @@ import (
 )
 
 const getRoles = `-- name: GetRoles :many
-SELECT code, string_to_array(emails, E'\n')::text[] as emails
+SELECT code, explicitly_available, string_to_array(emails, E'\n')::text[] as emails
 FROM usergroups
 `
 
 type GetRolesRow struct {
-	Code   string   `db:"code" json:"code"`
-	Emails []string `db:"emails" json:"emails"`
+	Code                string   `db:"code" json:"code"`
+	ExplicitlyAvailable bool     `db:"explicitly_available" json:"explicitlyAvailable"`
+	Emails              []string `db:"emails" json:"emails"`
 }
 
 func (q *Queries) GetRoles(ctx context.Context) ([]GetRolesRow, error) {
@@ -30,7 +31,7 @@ func (q *Queries) GetRoles(ctx context.Context) ([]GetRolesRow, error) {
 	var items []GetRolesRow
 	for rows.Next() {
 		var i GetRolesRow
-		if err := rows.Scan(&i.Code, pq.Array(&i.Emails)); err != nil {
+		if err := rows.Scan(&i.Code, &i.ExplicitlyAvailable, pq.Array(&i.Emails)); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -58,14 +59,15 @@ func (q *Queries) GetRolesByEmail(ctx context.Context, dollar_1 string) ([]strin
 }
 
 const getRolesWithCode = `-- name: GetRolesWithCode :many
-SELECT code, string_to_array(emails, E'\n')::text[] as emails
+SELECT code, explicitly_available, string_to_array(emails, E'\n')::text[] as emails
 FROM usergroups
 WHERE code = ANY ($1::varchar[])
 `
 
 type GetRolesWithCodeRow struct {
-	Code   string   `db:"code" json:"code"`
-	Emails []string `db:"emails" json:"emails"`
+	Code                string   `db:"code" json:"code"`
+	ExplicitlyAvailable bool     `db:"explicitly_available" json:"explicitlyAvailable"`
+	Emails              []string `db:"emails" json:"emails"`
 }
 
 func (q *Queries) GetRolesWithCode(ctx context.Context, dollar_1 []string) ([]GetRolesWithCodeRow, error) {
@@ -77,7 +79,7 @@ func (q *Queries) GetRolesWithCode(ctx context.Context, dollar_1 []string) ([]Ge
 	var items []GetRolesWithCodeRow
 	for rows.Next() {
 		var i GetRolesWithCodeRow
-		if err := rows.Scan(&i.Code, pq.Array(&i.Emails)); err != nil {
+		if err := rows.Scan(&i.Code, &i.ExplicitlyAvailable, pq.Array(&i.Emails)); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

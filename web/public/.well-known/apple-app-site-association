@@ -1,23 +1,44 @@
 {
     "applinks": {
-        "apps": [],
-        "details": [
+      "details": [
+        {
+          "appIDs": [
+            "KJ6LCYQ3A8.tv.brunstad.app"
+          ],
+          "components": [
             {
-                "appID": "KJ6LCYQ3A8.tv.brunstad.app.v4",
-                "paths": [
-                    "NOT /tvlogin/*",
-                    "/*",
-                    "NOT /w/*"
-                ]
+              "#": "force_web",
+              "exclude": true,
+              "comment": "Matches any URL whose fragment equals force_web and excludes it (instructs the OS not to open it as a universal link)"
             },
             {
-                "appID": "KJ6LCYQ3A8.tv.brunstad.app",
-                "paths": [
-                    "NOT /tvlogin/*",
-                    "/*",
-                    "NOT /w/*"
-                ]
+              "?": {
+                "force_web": "true"
+              },
+              "exlude": true,
+              "comment": "Matches any URL which has a query param with name 'force_web' and a value of exactly 'true' and excludes it"
+            },
+            {
+              "/": "/web/*",
+              "exclude": true,
+              "comment": "Matches any URL whose path starts with /web/ and excludes it"
+            },
+            {
+              "/": "/tvlogin/*",
+              "exclude": true,
+              "comment": "Matches any URL whose path starts with /tvlogin/ and excludes it"
+            },
+            {
+              "/": "/*",
+              "comment": "Matches any URL. Opens in any app listed under 'appIds'."
             }
-        ]
+          ]
+        }
+      ]
+    },
+    "webcredentials": {
+      "apps": [
+        "KJ6LCYQ3A8.tv.brunstad.app"
+      ]
     }
-}
+  }

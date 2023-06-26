@@ -83,7 +83,7 @@ func resolveContinueWatchingCollection(ctx context.Context, ls *common.BatchLoad
 	return ids, nil
 }
 
-func resolveMyListCollection(ctx context.Context, ls *common.BatchLoaders, appLoaders *common.ApplicationLoaders) ([]*int, error) {
+func resolveMyListCollection(ctx context.Context, ls *common.BatchLoaders) ([]*int, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func resolveMyListCollection(ctx context.Context, ls *common.BatchLoaders, appLo
 	if profile == nil {
 		return nil, nil
 	}
-	myListID, err := appLoaders.UserMyListCollectionID.Get(ctx, profile.ID)
+	myListID, err := ls.ProfileMyListCollectionID.Get(ctx, profile.ID)
 	if err != nil || myListID == nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func resolveMyListCollection(ctx context.Context, ls *common.BatchLoaders, appLo
 	return ids, nil
 }
 
-func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoaders, entries []collection.Entry, imageStyle string) ([]*model.SectionItem, error) {
+func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoaders, entries []collection.Entry, imageStyle string, numberInTitle bool) ([]*model.SectionItem, error) {
 	var items []*model.SectionItem
 	for _, e := range entries {
 		var item *model.SectionItem
@@ -161,7 +161,7 @@ func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoa
 				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
 				continue
 			}
-			item = model.EpisodeSectionItemFrom(ctx, i, e.Sort, imageStyle)
+			item = model.EpisodeSectionItemFrom(ctx, i, e.Sort, imageStyle, numberInTitle)
 		case "links":
 			i, err := ls.LinkLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
@@ -182,6 +182,16 @@ func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoa
 				continue
 			}
 			item = model.StudyTopicSectionItemFrom(ctx, i, e.Sort, imageStyle)
+		case "games":
+			i, err := ls.GameLoader.Get(ctx, utils.AsUuid(e.ID))
+			if err != nil {
+				return nil, err
+			}
+			if i == nil {
+				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				continue
+			}
+			item = model.GameSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		}
 		if item != nil {
 			items = append(items, item)
@@ -194,7 +204,6 @@ func sectionCollectionEntryResolver(
 	ctx context.Context,
 	ls *common.BatchLoaders,
 	filteredLoaders *common.FilteredLoaders,
-	appLoaders *common.ApplicationLoaders,
 	section *common.Section,
 	first *int,
 	offset *int,
@@ -223,7 +232,7 @@ func sectionCollectionEntryResolver(
 		}
 		entries = filterWithIds(col, entries, ids)
 	case "my_list":
-		ids, err := resolveMyListCollection(ctx, ls, appLoaders)
+		ids, err := resolveMyListCollection(ctx, ls)
 		if err != nil {
 			return nil, err
 		}
@@ -236,7 +245,7 @@ func sectionCollectionEntryResolver(
 
 	preloadLoaders(ctx, ls, pagination.Items)
 
-	items, err := mapCollectionEntriesToSectionItems(ctx, ls, pagination.Items, imageStyle)
+	items, err := mapCollectionEntriesToSectionItems(ctx, ls, pagination.Items, imageStyle, col.NumberInTitles)
 	if err != nil {
 		return nil, err
 	}
@@ -315,7 +324,7 @@ func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, 
 		return nil, err
 	}
 
-	pagination, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), r.ApplicationLoaders(ctx), section, first, offset)
+	pagination, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), section, first, offset)
 	if err != nil {
 		return nil, err
 	}

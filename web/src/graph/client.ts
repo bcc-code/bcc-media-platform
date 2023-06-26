@@ -8,7 +8,7 @@ import {
 import { AuthConfig, authExchange, AuthUtilities } from "@urql/exchange-auth"
 import { Auth } from "../services/auth"
 import { current } from "@/services/language"
-import { flutter } from "@/utils/flutter"
+import { appWebView } from "@/utils/webview"
 
 const authExchangeFunction = async (
     utils: AuthUtilities
@@ -28,8 +28,8 @@ const authExchangeFunction = async (
             return false
         },
         async refreshAuth() {
-            token = flutter
-                ? await flutter.getAccessToken()
+            token = appWebView
+                ? await appWebView.getAccessToken()
                 : await Auth.getToken()
         },
     }

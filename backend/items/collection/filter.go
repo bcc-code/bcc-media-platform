@@ -9,18 +9,34 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/bcc-code/brunstadtv/backend/jsonlogic"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"strconv"
 	"strings"
 )
+
+type filterDataSetRow struct {
+	Collection string
+	ID         int
+	UUID       uuid.UUID
+}
 
 func itemIdsFromRows(rows *sql.Rows) []common.Identifier {
 	var ids []common.Identifier
 
 	for rows.Next() {
-		var identifier common.Identifier
-		err := rows.Scan(&identifier.Collection, &identifier.ID)
+		var row filterDataSetRow
+		err := rows.Scan(&row.Collection, &row.ID, &row.UUID)
 		if err != nil {
-			log.L.Debug().Err(err).Msg("couldnt scan")
+			log.L.Debug().Err(err).Msg("couldn't scan")
+		}
+		identifier := common.Identifier{
+			Collection: row.Collection,
+		}
+		if row.ID != 0 {
+			identifier.ID = strconv.Itoa(row.ID)
+		} else {
+			identifier.ID = row.UUID.String()
 		}
 		ids = append(ids, identifier)
 	}
@@ -66,7 +82,7 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f comm
 	query := jsonlogic.GetSQLQueryFromFilter(filterObject)
 
 	from := "filter_dataset t"
-	q := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("t.collection", "t.id").From(from).Where(query.Filter)
+	q := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("t.collection", "t.id", "t.uuid").From(from).Where(query.Filter)
 
 	if !noLimit {
 		if f.Limit != nil && *f.Limit > 0 {

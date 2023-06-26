@@ -28,8 +28,6 @@ UPDATE "public"."directus_fields" SET "sort" = 3 WHERE "id" = 122;
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (782, 'episodes', 'production_date', NULL, NULL, NULL, NULL, NULL, false, false, 4, 'half', NULL, NULL, NULL, false, 'metadata', NULL, NULL);
 
-UPDATE "public"."directus_fields" SET "sort" = 4 WHERE "id" = 149;
-
 UPDATE "public"."directus_fields" SET "hidden" = true WHERE "id" = 210;
 
 UPDATE "public"."directus_fields" SET "hidden" = true WHERE "id" = 267;
@@ -58,8 +56,6 @@ UPDATE "public"."directus_fields" SET "sort" = 2 WHERE "id" = 122;
 UPDATE "public"."directus_fields" SET "sort" = 5 WHERE "id" = 126;
 
 UPDATE "public"."directus_fields" SET "sort" = 4 WHERE "id" = 127;
-
-UPDATE "public"."directus_fields" SET "sort" = 3 WHERE "id" = 149;
 
 UPDATE "public"."directus_fields" SET "hidden" = false WHERE "id" = 130;
 

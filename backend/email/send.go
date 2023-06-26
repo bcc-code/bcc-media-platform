@@ -28,7 +28,9 @@ func (s *Service) SendEmail(ctx context.Context, options SendOptions) error {
 	p := bluemonday.UGCPolicy()
 	html := p.Sanitize(options.HTMLContent)
 
-	message := mail.NewSingleEmail(from, options.Title, to, options.Content, html)
+	message := mail.NewSingleEmail(mail.NewEmail("App", "app@brunstad.tv"), options.Title, to, options.Content, html)
+
+	message.ReplyTo = from
 
 	_, err := s.client.Send(message)
 	return err

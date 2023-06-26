@@ -5,6 +5,9 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
     theme: {
         extend: {
+            fontFamily: {
+                archivo: ["Archivo", "sans-serif"],
+            },
             colors: {
                 primary: {
                     DEFAULT: "#6eb0e6",
@@ -26,6 +29,12 @@ module.exports = {
                 secondary: {
                     DEFAULT: "#202a39",
                     hover: "#202a39cc",
+                },
+                bcc: {
+                    DEFAULT: "#004e48",
+                    1: "#1e1e1e",
+                    2: "#012625",
+                    3: "#dbe1c0",
                 },
                 // from figma:
                 "tint-1": "var(--color-tint-1)",
@@ -54,5 +63,6 @@ module.exports = {
                 })
             })
         }),
+        require("@tailwindcss/typography"),
     ],
 }

@@ -47,6 +47,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		SeasonsLoader:           loaders.NewRelationLoader(ctx, rq.GetSeasonIDsForShowsWithRoles, loaders.WithName("seasons")),
 		SectionsLoader:          loaders.NewRelationLoader(ctx, rq.GetSectionIDsForPagesWithRoles, loaders.WithName("sections")),
 		EpisodesLoader:          loaders.NewRelationLoader(ctx, rq.GetEpisodeIDsForSeasonsWithRoles, loaders.WithName("episodes")),
+		TagEpisodesLoader:       loaders.NewRelationLoader(ctx, rq.GetEpisodeIDsWithTagIDs, loaders.WithName("tags-episodes")),
 		CollectionItemsLoader: loaders.NewListLoader(ctx, rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
 			return i.CollectionID
 		}, loaders.WithName("collection-items")),
@@ -63,10 +64,16 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		EpisodeStudyLessonsLoader: loaders.NewRelationLoader(ctx, rq.GetLessonIDsForEpisodes, loaders.WithName("episode-study-lessons")),
 		StudyLessonLinksLoader:    loaders.NewRelationLoader(ctx, rq.GetLinkIDsForLessons, loaders.WithName("study-lesson-links")),
 		LinkStudyLessonsLoader:    loaders.NewRelationLoader(ctx, rq.GetLessonIDsForLinks, loaders.WithName("link-study-lessons")),
+		FAQQuestionsLoader:        loaders.NewRelationLoader(ctx, rq.GetQuestionIDsForCategories, loaders.WithName("questions")),
 
 		PromptIDsLoader: func(ctx context.Context) ([]uuid.UUID, error) {
 			return memorycache.GetOrSet(ctx, fmt.Sprintf("promptIDs:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
 				return queries.GetPromptIDsForRoles(ctx, roles)
+			}, cache.WithExpiration(time.Minute*5))
+		},
+		FAQCategoryIDsLoader: func(ctx context.Context) ([]uuid.UUID, error) {
+			return memorycache.GetOrSet(ctx, fmt.Sprintf("categoryIDs:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
+				return queries.ListFAQCategoryIDsForRoles(ctx, roles)
 			}, cache.WithExpiration(time.Minute*5))
 		},
 		SurveyQuestionsLoader: loaders.NewRelationLoader(ctx, rq.GetSurveyQuestionIDsForSurveyIDs, loaders.WithName("survey-questions-loader")),
@@ -122,33 +129,14 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 	return ls
 }
 
-var applicationLoaders = loaders.NewCollection[uuid.UUID, *common.ApplicationLoaders](time.Minute)
-
-func getApplicationLoaders(queries *sqlc.Queries, applicationID uuid.UUID) *common.ApplicationLoaders {
-	if ls, ok := applicationLoaders.Get(applicationID); ok {
-		return ls
-	}
-
-	appQueries := queries.ApplicationQueries(applicationID)
-
-	ctx, cancel := context.WithCancel(context.Background())
-
-	ls := &common.ApplicationLoaders{
-		UserCollectionIDsLoader: loaders.NewRelationLoader(ctx, appQueries.GetUserCollectionIDsForProfileIDs, loaders.WithName("user-collection-ids")),
-		UserMyListCollectionID:  loaders.NewConversionLoader(ctx, appQueries.GetMyListCollectionForProfileIDs, loaders.WithName("user-my-list-id")),
-	}
-
-	applicationLoaders.Set(applicationID, ls, loaders.WithOnDelete(cancel))
-
-	return ls
-}
-
 func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *common.BatchLoaders {
 	ctx := context.Background()
 	return &common.BatchLoaders{
 		// App
 		ApplicationLoader:           loaders.New(ctx, queries.GetApplications),
 		ApplicationIDFromCodeLoader: loaders.NewConversionLoader(ctx, queries.GetApplicationIDsForCodes, loaders.WithName("application-id")),
+		ApplicationGroupLoader:      loaders.New(ctx, queries.GetApplicationGroups),
+
 		//Redirect
 		RedirectLoader:           loaders.New(ctx, queries.GetRedirects),
 		RedirectIDFromCodeLoader: loaders.NewConversionLoader(ctx, queries.GetRedirectIDsForCodes, loaders.WithName("redirect-id")),
@@ -163,12 +151,17 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		EpisodeIDFromLegacyIDLoader:        loaders.NewConversionLoader(ctx, queries.GetEpisodeIDsForLegacyIDs, loaders.WithName("episode-legacyid")),
 		LinkLoader:                         loaders.New(ctx, queries.GetLinks),
 		EventLoader:                        loaders.New(ctx, queries.GetEvents),
+
 		FilesLoader: loaders.NewListLoader(ctx, queries.GetFilesForEpisodes, func(row common.File) int {
 			return row.EpisodeID
 		}),
 		StreamsLoader: loaders.NewListLoader(ctx, queries.GetStreamsForEpisodes, func(row common.Stream) int {
 			return row.EpisodeID
 		}),
+		AssetTimedMetadataLoader: loaders.NewListLoader(ctx, queries.GetTimedMetadataForAssets, func(row common.TimedMetadata) int {
+			return row.AssetID
+		}),
+
 		CollectionLoader: loaders.New(ctx, queries.GetCollections),
 		CollectionItemLoader: loaders.NewListLoader(ctx, queries.GetItemsForCollections, func(row common.CollectionItem) int {
 			return row.CollectionID
@@ -194,9 +187,13 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 			return i.ItemID
 		}, loaders.WithName("section-permission")),
 
-		MemberLoader: loaders.New(ctx, membersClient.RetrieveByIDs, loaders.WithKeyFunc(func(i members.Member) int {
+		MemberLoader: loaders.New(ctx, membersClient.GetMembersByIDs, loaders.WithKeyFunc(func(i members.Member) int {
 			return i.PersonID
 		}), loaders.WithName("member-loader")),
+
+		OrganizationLoader: loaders.New(ctx, membersClient.GetOrganizationsByIDs, loaders.WithKeyFunc(func(i members.Organization) uuid.UUID {
+			return i.Uid
+		})),
 
 		SurveyLoader: loaders.New(ctx, queries.GetSurveys, loaders.WithName("survey-loader"), loaders.WithKeyFunc(func(i common.Survey) uuid.UUID {
 			return i.ID
@@ -212,12 +209,13 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 
 		FAQCategoryLoader:  loaders.NewLoader(ctx, queries.GetFAQCategories),
 		QuestionLoader:     loaders.NewLoader(ctx, queries.GetQuestions),
-		QuestionsLoader:    loaders.NewRelationLoader(ctx, queries.GetQuestionIDsForCategories, loaders.WithName("questions")),
 		MessageGroupLoader: loaders.NewLoader(ctx, queries.GetMessageGroups),
+
+		GameLoader: loaders.New(ctx, queries.GetGames, loaders.WithKeyFunc(func(i common.Game) uuid.UUID {
+			return i.ID
+		})),
+
 		// User Data
-		ProfilesLoader: loaders.NewListLoader(ctx, queries.GetProfilesForUserIDs, func(i common.Profile) string {
-			return i.UserID
-		}),
 		StudyTopicLoader:  loaders.New(ctx, queries.GetTopics),
 		StudyLessonLoader: loaders.New(ctx, queries.GetLessons),
 		StudyTaskLoader:   loaders.New(ctx, queries.GetTasks),
@@ -244,9 +242,11 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 			return i.PersonID
 		})),
 
-		UserCollectionLoader:         loaders.New(ctx, queries.GetUserCollections, loaders.WithKeyFunc(func(i common.UserCollection) uuid.UUID { return i.ID })),
-		UserCollectionEntryLoader:    loaders.New(ctx, queries.GetUserCollectionEntries, loaders.WithKeyFunc(func(i common.UserCollectionEntry) uuid.UUID { return i.ID })),
-		UserCollectionEntryIDsLoader: loaders.NewRelationLoader(ctx, queries.GetUserCollectionEntryIDsForUserCollectionIDs, loaders.WithName("user-collection-entry-ids")),
+		UserCollectionLoader:           loaders.New(ctx, queries.GetUserCollections, loaders.WithKeyFunc(func(i common.UserCollection) uuid.UUID { return i.ID })),
+		UserCollectionEntryLoader:      loaders.New(ctx, queries.GetUserCollectionEntries, loaders.WithKeyFunc(func(i common.UserCollectionEntry) uuid.UUID { return i.ID })),
+		UserCollectionEntryIDsLoader:   loaders.NewRelationLoader(ctx, queries.GetUserCollectionEntryIDsForUserCollectionIDs, loaders.WithName("user-collection-entry-ids")),
+		ProfileUserCollectionIDsLoader: loaders.NewRelationLoader(ctx, queries.GetUserCollectionIDsForProfileIDs, loaders.WithName("user-collection-ids")),
+		ProfileMyListCollectionID:      loaders.NewConversionLoader(ctx, queries.GetMyListCollectionForProfileIDs, loaders.WithName("user-my-list-id")),
 	}
 }
 
