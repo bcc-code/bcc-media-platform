@@ -119,7 +119,7 @@ const start = computed(() => {
     return toISOStringWithTimezone(weeks.value[0][0])
 })
 
-let end = computed(() => {
+const end = computed(() => {
     const d = new Date(weeks.value[weeks.value.length - 1][6])
     d.setHours(23, 59, 59)
     return toISOStringWithTimezone(d)
