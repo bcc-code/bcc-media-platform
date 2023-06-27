@@ -16,7 +16,7 @@
 <script lang="ts" setup>
 import router from "@/router"
 import settings from "@/services/settings"
-import { webViewMain } from "@/services/webviews/main_handler"
+import { webViewMain } from "@/services/webviews/mainHandler"
 import { onMounted, ref } from "vue"
 import { init } from "@/services/language"
 import Loader from "@/components/Loader.vue"
@@ -43,3 +43,4 @@ onMounted(async () => {
     --tw-bg-opacity: 0;
 }
 </style>
+@/services/webviews/mainHandler

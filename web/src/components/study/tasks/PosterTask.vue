@@ -80,7 +80,7 @@ import { computed, getCurrentInstance, onMounted, Ref, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import Alternative from "./Alternative.vue"
 import Loader from "@/components/Loader.vue"
-import { webViewMain, openInBrowser } from "@/services/webviews/main_handler"
+import { webViewMain, openInBrowser } from "@/services/webviews/mainHandler"
 
 var selectedIndex = ref<number>()
 
@@ -131,3 +131,4 @@ onMounted(async () => {
     }
 })
 </script>
+@/services/webviews/mainHandler

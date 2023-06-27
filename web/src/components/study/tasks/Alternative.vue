@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { webViewMain } from "@/services/webviews/main_handler"
+import { webViewMain } from "@/services/webviews/mainHandler"
 import { computed, ref, VNodeRef, VueElement } from "vue"
 import { Vue3Lottie as LottieAnimation } from "vue3-lottie"
 import confettiAnimation from "./confetti.json"
@@ -183,3 +183,4 @@ const conditionalClass = computed(() => {
     }
 }
 </style>
+@/services/webviews/mainHandler

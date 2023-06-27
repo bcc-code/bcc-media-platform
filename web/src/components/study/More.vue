@@ -117,7 +117,7 @@ import TaskButton from "./TaskButton.vue"
 import { Page } from "./Lesson.vue"
 import { VButton } from ".."
 import { computed, ref } from "vue"
-import { webViewMain } from "@/services/webviews/main_handler"
+import { webViewMain } from "@/services/webviews/mainHandler"
 import router from "@/router"
 import FeedbackRatingAndForm from "../feedback/FeedbackRatingAndForm.vue"
 
@@ -165,3 +165,4 @@ const playAgain = () => {
     router.push("/episode/" + episode.value.id)
 }
 </script>
+@/services/webviews/mainHandler

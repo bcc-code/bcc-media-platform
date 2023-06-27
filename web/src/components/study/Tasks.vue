@@ -270,7 +270,7 @@ import { useTitle } from "@/utils/title"
 import { analytics } from "@/services/analytics"
 import AlternativesTask from "./tasks/AlternativesTask.vue"
 import PosterTask from "./tasks/PosterTask.vue"
-import { webViewStudy } from "@/services/webviews/study_handler"
+import { webViewStudy } from "@/services/webviews/studyHandler"
 import {
     GetStudyLessonQuery,
     useCompleteTaskMutation,
@@ -505,3 +505,4 @@ const lockAnswers = async () => {
 
 const anyPreviousStep = computed(() => currentTaskIndex.value > 0)
 </script>
+@/services/webviews/studyHandler

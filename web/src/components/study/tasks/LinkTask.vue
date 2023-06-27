@@ -77,7 +77,7 @@ import {
 } from "@/graph/generated"
 import { computed, onMounted, ref } from "vue"
 import { useI18n } from "vue-i18n"
-import { openInBrowser } from "@/services/webviews/main_handler"
+import { openInBrowser } from "@/services/webviews/mainHandler"
 
 const { t } = useI18n()
 const { executeMutation: completeTask } = useCompleteTaskMutation()
@@ -153,3 +153,4 @@ onMounted(async () => {
     emit(`update:isDone`, true)
 })
 </script>
+@/services/webviews/mainHandler
