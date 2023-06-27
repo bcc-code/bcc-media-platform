@@ -58,7 +58,6 @@ function clearWebViewDataIfRequested() {
     const clearQueryParam = urlParams.get("webview_clear")?.toLowerCase() as any | null;
     if (clearQueryParam == "true") {
         sessionStorage.removeItem("webview_delayed_type");
-        return undefined;
     }
 }
 
