@@ -77,7 +77,7 @@ import {
 } from "@/graph/generated"
 import { computed, onMounted, ref } from "vue"
 import { useI18n } from "vue-i18n"
-import { openInBrowser } from "@/utils/webview"
+import { openInBrowser } from "@/services/webviews/main_handler"
 
 const { t } = useI18n()
 const { executeMutation: completeTask } = useCompleteTaskMutation()

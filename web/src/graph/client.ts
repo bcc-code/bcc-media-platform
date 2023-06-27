@@ -8,7 +8,7 @@ import {
 import { AuthConfig, authExchange, AuthUtilities } from "@urql/exchange-auth"
 import { Auth } from "../services/auth"
 import { current } from "@/services/language"
-import { appWebView } from "@/utils/webview"
+import { webViewMain } from "@/services/webviews/main_handler"
 
 const authExchangeFunction = async (
     utils: AuthUtilities
@@ -28,8 +28,8 @@ const authExchangeFunction = async (
             return false
         },
         async refreshAuth() {
-            token = appWebView
-                ? await appWebView.getAccessToken()
+            token = webViewMain
+                ? await webViewMain.getAccessToken()
                 : await Auth.getToken()
         },
     }
