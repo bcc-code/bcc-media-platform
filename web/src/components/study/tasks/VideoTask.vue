@@ -70,7 +70,7 @@ import { computed, getCurrentInstance, onMounted, Ref, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import Alternative from "./Alternative.vue"
 import Loader from "@/components/Loader.vue"
-import { appWebView } from "@/utils/webview"
+import { webViewMain } from "@/services/webviews/mainHandler"
 
 var selectedIndex = ref<number>()
 
@@ -93,8 +93,8 @@ const task = computed(() => {
 
 const openLink = async () => {
     await completeTask({ taskId: task.value.id })
-    if (appWebView) {
-        var promise = appWebView.push(
+    if (webViewMain) {
+        var promise = webViewMain.push(
             `/embed/${task.value.episode.id}?hide_bottom_section=true&autoplay=true`
         )
         if (promise.then != null) {
@@ -110,3 +110,4 @@ onMounted(async () => {
     emit(`update:isDone`, true)
 })
 </script>
+@/services/webviews/mainHandler

@@ -1,98 +1,74 @@
-import { WebViewCommunication } from "@/flutter"
-import settings from "@/services/settings"
+import { WebView, WebViewCommunication, WebViewType } from "@/webview"
 
-type HapticFeedbackType =
-    | "lightImpact"
-    | "mediumImpact"
-    | "vibrate"
-    | "selectionClick"
-    | "heavyImpact"
 
-class AppWebView {
-    handlerName: string
-    webview: WebViewCommunication
-    constructor(handlerName: string, webView: WebViewCommunication) {
-        this.webview = webView
-        this.handlerName = handlerName
+class DelayedWebViewCommunication implements WebViewCommunication {
+    webviewPromise: Promise<WebViewCommunication>;
+    constructor(webviewPromise: Promise<WebViewCommunication>) {
+        this.webviewPromise = webviewPromise;
     }
 
-    navigate(path: string): Promise<any> | null {
-        var promise = this.webview.callHandler(
-            this.handlerName,
-            "navigate",
-            path
-        )
-        return !promise?.then ? null : promise
-    }
-
-    push(path: string): Promise<any> {
-        var promise = this.webview.callHandler(this.handlerName, "push", path)
-        return !promise?.then ? null : promise
-    }
-
-    getAccessToken(): Promise<string | null> {
-        return this.webview.callHandler(this.handlerName, "get_access_token")
-    }
-
-    getLocale(): Promise<string | null> {
-        return this.webview.callHandler(this.handlerName, "get_locale")
-    }
-
-    shareImage(url: string): Promise<boolean | null> {
-        return this.webview.callHandler(this.handlerName, "share_image", url)
-    }
-
-    hapticFeedback(
-        hapticFeedbackType: HapticFeedbackType
-    ): Promise<boolean | null> {
-        return this.webview.callHandler(
-            this.handlerName,
-            "haptic_feedback",
-            hapticFeedbackType
-        )
+    async callHandler(handlerName: string, ...args: any[]) {
+        const webview = await this.webviewPromise
+        return webview.callHandler(handlerName, ...args)
     }
 }
 
-export const appWebView =
-    window.flutter_inappwebview != null
-        ? new AppWebView('flutter_main', window.flutter_inappwebview)
-        : window.xamarin_webview != null
-            ? new AppWebView('main', window.xamarin_webview)
-            : null
-
-
-class FlutterStudy {
-    handlerName = "flutter_study"
-    webView: WebViewCommunication
-    constructor(webView: WebViewCommunication) {
-        this.webView = webView
+function getWebView(): WebView | undefined {
+    if (window.flutter_inappwebview) {
+        return {
+            type: "flutter",
+            communication: window.flutter_inappwebview,
+        };
+    } else if (window.xamarin_webview) {
+        return {
+            type: "xamarin",
+            communication: window.xamarin_webview,
+        };
     }
+    return undefined;
+}
 
-    tasksCompleted() {
-        this.webView.callHandler(this.handlerName, "tasks_completed")
+function waitForWebview(): Promise<WebView> {
+    return new Promise((resolve, reject) => {
+        window.addEventListener("app_webview_ready", () => {
+            const webViewCommunication = getWebView();
+            if (webViewCommunication) {
+                resolve(webViewCommunication);
+            }
+            else {
+                reject();
+            }
+        })
+    });
+}
+
+function getDelayedWebViewType(): WebViewType | undefined {
+    const urlParams = new URLSearchParams(window.location.search)
+    const typeQueryParam = urlParams.get("webview_delayed_type")?.toLowerCase() as WebViewType | null;
+    if (typeQueryParam) {
+        sessionStorage.setItem("webview_delayed_type", typeQueryParam);
+        return typeQueryParam;
     }
-    /* 
-        pushThenTasksCompleted(path: String) {
-            this.webView.callHandler(this.handlerName, "tasks_completed")
-        } */
+    const storedType = sessionStorage.getItem("webview_delayed_type") as WebViewType | null;
+    return storedType ? storedType : undefined;
 }
 
-export const flutterStudy =
-    window.flutter_inappwebview != null
-        ? new FlutterStudy(window.flutter_inappwebview)
-        : null
-
-function addQueryParameter(
-    url: string,
-    name: string,
-    value: string | number | boolean
-) {
-    const separator = url.indexOf("?") === -1 ? "?" : "&"
-    return `${url}${separator}${name}=${encodeURIComponent(value)}`
+function clearWebViewDataIfRequested() {
+    const urlParams = new URLSearchParams(window.location.search)
+    const clearQueryParam = urlParams.get("webview_clear")?.toLowerCase() as any | null;
+    if (clearQueryParam == "true") {
+        sessionStorage.removeItem("webview_delayed_type");
+    }
 }
 
-export const openInBrowser = (url: string) => {
-    let newUrl = addQueryParameter(url, "launch_url", "true")
-    newUrl = addQueryParameter(newUrl, "locale", settings.locale)
-    window.location.assign(newUrl)
+clearWebViewDataIfRequested();
+let currentWebView = getWebView();
+const delayedWebViewType = getDelayedWebViewType();
+if (currentWebView == null && delayedWebViewType) {
+    currentWebView = {
+        type: delayedWebViewType,
+        communication: new DelayedWebViewCommunication(waitForWebview().then(webview => webview.communication)),
+    };
 }
+
+export { currentWebView };

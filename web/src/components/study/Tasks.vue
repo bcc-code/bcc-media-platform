@@ -270,7 +270,7 @@ import { useTitle } from "@/utils/title"
 import { analytics } from "@/services/analytics"
 import AlternativesTask from "./tasks/AlternativesTask.vue"
 import PosterTask from "./tasks/PosterTask.vue"
-import { flutterStudy } from "@/utils/webview"
+import { webViewStudy } from "@/services/webviews/studyHandler"
 import {
     GetStudyLessonQuery,
     useCompleteTaskMutation,
@@ -450,7 +450,7 @@ async function nextTask() {
         currentTask.value.completed = true
         savingTaskProgress.value = false
         if (!allCompletedBeforeStarting) {
-            flutterStudy?.tasksCompleted()
+            webViewStudy?.tasksCompleted()
         }
         emit("navigate", "more")
     }
@@ -505,3 +505,4 @@ const lockAnswers = async () => {
 
 const anyPreviousStep = computed(() => currentTaskIndex.value > 0)
 </script>
+@/services/webviews/studyHandler

@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { appWebView } from "@/utils/webview"
+import { webViewMain } from "@/services/webviews/mainHandler"
 import { computed, ref, VNodeRef, VueElement } from "vue"
 import { Vue3Lottie as LottieAnimation } from "vue3-lottie"
 import confettiAnimation from "./confetti.json"
@@ -112,21 +112,21 @@ const handleClick = () => {
         confetti.value.stop()
         confetti.value.play()
         scaleShake()
-        if (appWebView != null) {
-            appWebView.hapticFeedback("heavyImpact")
+        if (webViewMain) {
+            webViewMain.hapticFeedback("heavyImpact")
         } else {
             navigator.vibrate(20)
         }
     } else if (props.correct === false || props.locked) {
         shake()
-        if (appWebView != null) {
-            appWebView.hapticFeedback("mediumImpact")
+        if (webViewMain) {
+            webViewMain.hapticFeedback("mediumImpact")
         } else {
             navigator.vibrate(40)
         }
     } else {
-        if (appWebView != null) {
-            appWebView.hapticFeedback("lightImpact")
+        if (webViewMain) {
+            webViewMain.hapticFeedback("lightImpact")
         } else {
             navigator.vibrate(20)
         }
@@ -183,3 +183,4 @@ const conditionalClass = computed(() => {
     }
 }
 </style>
+@/services/webviews/mainHandler

@@ -5,8 +5,13 @@ declare global {
     }
 }
 
+export declare type WebViewType = "flutter" | "xamarin";
 export declare type WebViewCommunication = {
     callHandler(...args)
+}
+export declare type WebView = {
+    type: WebViewType
+    communication: WebViewCommunication
 }
 
 export { }
