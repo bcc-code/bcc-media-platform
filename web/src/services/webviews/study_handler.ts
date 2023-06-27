@@ -14,4 +14,4 @@ class WebViewStudyHandler {
     }
 }
 
-export const webViewStudy = currentWebView != null ? new WebViewStudyHandler(currentWebView) : null;
+export const webViewStudy = currentWebView ? new WebViewStudyHandler(currentWebView) : null;

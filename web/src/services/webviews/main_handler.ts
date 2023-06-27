@@ -69,4 +69,4 @@ export const openInBrowser = (url: string) => {
     window.location.assign(newUrl)
 }
 
-export const webViewMain = currentWebView != null ? new MainWebViewHandler(currentWebView) : null;
+export const webViewMain = currentWebView ? new MainWebViewHandler(currentWebView) : null;

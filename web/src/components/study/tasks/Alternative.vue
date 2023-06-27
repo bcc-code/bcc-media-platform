@@ -112,20 +112,20 @@ const handleClick = () => {
         confetti.value.stop()
         confetti.value.play()
         scaleShake()
-        if (webViewMain != null) {
+        if (webViewMain) {
             webViewMain.hapticFeedback("heavyImpact")
         } else {
             navigator.vibrate(20)
         }
     } else if (props.correct === false || props.locked) {
         shake()
-        if (webViewMain != null) {
+        if (webViewMain) {
             webViewMain.hapticFeedback("mediumImpact")
         } else {
             navigator.vibrate(40)
         }
     } else {
-        if (webViewMain != null) {
+        if (webViewMain) {
             webViewMain.hapticFeedback("lightImpact")
         } else {
             navigator.vibrate(20)

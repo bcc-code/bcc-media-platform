@@ -14,12 +14,12 @@ class DelayedWebViewCommunication implements WebViewCommunication {
 }
 
 function getWebView(): WebView | undefined {
-    if (window.flutter_inappwebview != null) {
+    if (window.flutter_inappwebview) {
         return {
             type: "flutter",
             communication: window.flutter_inappwebview,
         };
-    } else if (window.xamarin_webview != null) {
+    } else if (window.xamarin_webview) {
         return {
             type: "xamarin",
             communication: window.xamarin_webview,
@@ -32,7 +32,7 @@ function waitForWebview(): Promise<WebView> {
     return new Promise((resolve, reject) => {
         window.addEventListener("app_webview_ready", () => {
             const webViewCommunication = getWebView();
-            if (webViewCommunication != null) {
+            if (webViewCommunication) {
                 resolve(webViewCommunication);
             }
             else {
@@ -45,12 +45,12 @@ function waitForWebview(): Promise<WebView> {
 function getDelayedWebViewType(): WebViewType | undefined {
     const urlParams = new URLSearchParams(window.location.search)
     const typeQueryParam = urlParams.get("webview_delayed_type")?.toLowerCase() as WebViewType | null;
-    if (typeQueryParam != null) {
+    if (typeQueryParam) {
         sessionStorage.setItem("webview_delayed_type", typeQueryParam);
         return typeQueryParam;
     }
     const storedType = sessionStorage.getItem("webview_delayed_type") as WebViewType | null;
-    return storedType != null ? storedType : undefined;
+    return storedType ? storedType : undefined;
 }
 
 function clearWebViewDataIfRequested() {
@@ -65,7 +65,7 @@ function clearWebViewDataIfRequested() {
 clearWebViewDataIfRequested();
 let currentWebView = getWebView();
 const delayedWebViewType = getDelayedWebViewType();
-if (currentWebView == null && delayedWebViewType != null) {
+if (currentWebView == null && delayedWebViewType) {
     currentWebView = {
         type: delayedWebViewType,
         communication: new DelayedWebViewCommunication(waitForWebview().then(webview => webview.communication)),

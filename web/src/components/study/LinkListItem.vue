@@ -59,7 +59,7 @@ import { webViewMain, openInBrowser } from "@/services/webviews/main_handler"
 const props = defineProps<{ link: LessonLinkFragment }>()
 
 const openLink = () => {
-    if (webViewMain != null) {
+    if (webViewMain) {
         openInBrowser(props.link.url)
     } else {
         window.open(props.link.url, "_blank")?.focus()
