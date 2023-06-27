@@ -106,6 +106,24 @@ export default [
         component: () => import("@/pages/Login.vue"),
     },
     {
+        name: "embed-episode",
+        path: "/embed/:episodeId",
+        props: true,
+        component: () => import("@/pages/EpisodeEmbed.vue"),
+    },
+    {
+        name: "embed-episode-legacy",
+        path: "/embed/legacy/episode/:legacyId",
+        props: true,
+        component: () => import("@/pages/EpisodeEmbed.vue"),
+    },
+    {
+        name: "embed-episode-legacy",
+        path: "/embed/legacy/program/:programId",
+        props: true,
+        component: () => import("@/pages/EpisodeEmbed.vue"),
+    },
+    {
         name: "web",
         path: "/web",
         component: () => import("@/pages/Web.vue"),
@@ -114,7 +132,7 @@ export default [
                 name: "material-request",
                 path: "material-request",
                 component: () => import("@/pages/web/MaterialRequest.vue"),
-            }
-        ]
-    }
+            },
+        ],
+    },
 ] as RouteRecordRaw[]
