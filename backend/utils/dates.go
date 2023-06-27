@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"github.com/goodsign/monday"
+	"github.com/samber/lo"
+	"strings"
 	"time"
 )
 
@@ -25,4 +28,29 @@ func SmallestTime(timeStamps ...time.Time) time.Time {
 		}
 	}
 	return smallest
+}
+
+// FormatInLocale formats timestamp in locale
+func FormatInLocale(timeStamp time.Time, languages []string) string {
+	locales := monday.ListLocales()
+
+	var locale monday.Locale
+	for _, lang := range languages {
+		if lang == "no" {
+			lang = "nb"
+		}
+		l, found := lo.Find(locales, func(i monday.Locale) bool {
+			return strings.HasPrefix(string(i), lang)
+		})
+		if found {
+			locale = l
+			break
+		}
+	}
+
+	if locale == "" {
+		locale = monday.LocaleEnUS
+	}
+
+	return monday.Format(timeStamp, "2. January", locale)
 }

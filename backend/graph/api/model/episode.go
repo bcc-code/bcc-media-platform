@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/common"
@@ -65,6 +66,11 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		episodeType = EpisodeTypeStandalone
 	}
 
+	var title = e.Title.Get(languages)
+	if e.ProductionDateInTitle {
+		title = fmt.Sprintf("%s %s", strings.TrimSpace(title), utils.FormatInLocale(e.ProductionDate, languages))
+	}
+
 	episode := &Episode{
 		Chapters:              []*Chapter{}, // Currently not supported
 		ID:                    strconv.Itoa(e.ID),
@@ -75,10 +81,10 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		LegacyID:              legacyID,
 		LegacyProgramID:       legacyProgramID,
 		ProductionDate:        e.ProductionDate.Format(time.RFC3339),
-		ProductionDateInTitle: e.PublishDateInTitle,
+		ProductionDateInTitle: e.ProductionDateInTitle,
 		AvailableFrom:         e.AvailableFrom.Format(time.RFC3339),
 		AvailableTo:           e.AvailableTo.Format(time.RFC3339),
-		Title:                 e.Title.Get(languages),
+		Title:                 title,
 		Description:           e.Description.Get(languages),
 		ExtraDescription:      extraDescription,
 		Season:                season,

@@ -21,3 +21,12 @@ func TestLargestTime(t *testing.T) {
 		t.Fatalf("Smallest time wrong. Got %T, expected %T", smallest, t2)
 	}
 }
+
+func TestFormatInLocale(t *testing.T) {
+	date, _ := time.Parse("2006-01-02", "2000-06-27")
+	dateStr := FormatInLocale(date, []string{"no"})
+
+	if dateStr != "27. juni" {
+		t.Fatalf("Invalid format on date: %s", date)
+	}
+}

@@ -109,7 +109,7 @@ type Episode struct {
 	LegacyID              null.Int    `json:"legacyId"`
 	LegacyProgramID       null.Int    `json:"legacyProgramId"`
 	SeasonID              null.Int    `json:"seasonId"`
-	PublishDateInTitle    bool        `json:"publishDateInTitle"`
+	ProductionDateInTitle bool        `json:"publishDateInTitle"`
 	PublishDate           time.Time   `json:"publishDate"`
 	ProductionDate        time.Time   `json:"productionDate"`
 	AvailableFrom         time.Time   `json:"availableFrom"`
