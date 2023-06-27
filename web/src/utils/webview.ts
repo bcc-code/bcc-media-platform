@@ -46,10 +46,10 @@ function getDelayedWebViewType(): WebViewType | undefined {
     const urlParams = new URLSearchParams(window.location.search)
     const typeQueryParam = urlParams.get("webview_delayed_type")?.toLowerCase() as WebViewType | null;
     if (typeQueryParam != null) {
-        localStorage.setItem("webview_delayed_type", typeQueryParam);
+        sessionStorage.setItem("webview_delayed_type", typeQueryParam);
         return typeQueryParam;
     }
-    const storedType = localStorage.getItem("webview_delayed_type") as WebViewType | null;
+    const storedType = sessionStorage.getItem("webview_delayed_type") as WebViewType | null;
     return storedType != null ? storedType : undefined;
 }
 
@@ -57,7 +57,7 @@ function clearWebViewDataIfRequested() {
     const urlParams = new URLSearchParams(window.location.search)
     const clearQueryParam = urlParams.get("webview_clear")?.toLowerCase() as any | null;
     if (clearQueryParam == "true") {
-        localStorage.removeItem("webview_delayed_type");
+        sessionStorage.removeItem("webview_delayed_type");
         return undefined;
     }
 }
