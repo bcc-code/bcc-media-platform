@@ -48,6 +48,7 @@ const props = defineProps<{
     context: EpisodeContext
     episode: {
         id: string
+        uuid: string
         title: string
         duration: number
         progress?: number | null
@@ -106,7 +107,7 @@ const onSpaceBar = (event: KeyboardEvent) => {
 }
 
 const load = async () => {
-    const episodeId = props.episode.id
+    const episodeId = props.episode.uuid
     if (current.value !== episodeId) {
         loaded.value = false
         current.value = episodeId
