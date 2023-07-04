@@ -266,6 +266,11 @@ export type Device = {
   updatedAt: Scalars['Date'];
 };
 
+export type EmailOptions = {
+  email: Scalars['String'];
+  name: Scalars['String'];
+};
+
 export type Episode = {
   ageRating: Scalars['String'];
   audioLanguages: Array<Scalars['Language']>;
@@ -787,6 +792,7 @@ export type MutationRootSendEpisodeFeedbackArgs = {
 export type MutationRootSendSupportEmailArgs = {
   content: Scalars['String'];
   html: Scalars['String'];
+  options?: InputMaybe<EmailOptions>;
   title: Scalars['String'];
 };
 
