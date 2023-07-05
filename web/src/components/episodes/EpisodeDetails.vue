@@ -5,10 +5,9 @@
             <p>{{ d.value }}</p>
         </div>
         <div class="flex flex-col gap-1">
-            <h1 class="text-lg font-semibold">{{ t("episode.rating") }}</h1>
+            <h1 class="text-lg font-semibold">{{ t("episode.ageRating") }}</h1>
             <p class="flex">
                 <AgeRating :episode="episode" />
-                >{{ new Date(episode.publishDate).getFullYear() }}
             </p>
         </div>
     </section>
