@@ -77,3 +77,9 @@ SELECT md.id,
        md.highlight
 FROM timedmetadata md
 WHERE md.asset_id = ANY (@asset_ids::int[]);
+
+-- name: ListAssets :many
+SELECT * FROM assets;
+
+-- name: DeletePath :exec
+DELETE FROM assets WHERE main_storage_path = @path;

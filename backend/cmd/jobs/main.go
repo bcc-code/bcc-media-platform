@@ -162,6 +162,7 @@ func main() {
 		apiGroup.POST("aws", handlers.ProcessAwsMessage)
 		apiGroup.POST("eventmeta", handlers.IngestEventMeta) // TODO: Protect the endpoint with a simple api key or soimething
 		apiGroup.POST("tasks", handlers.ProcessScheduledTask)
+		apiGroup.POST("paths", handlers.ExportUnusedAssets)
 	}
 
 	router.GET("/versionz", version.GinHandler)

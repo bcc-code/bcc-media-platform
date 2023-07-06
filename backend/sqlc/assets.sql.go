@@ -16,6 +16,56 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const deletePath = `-- name: DeletePath :exec
+DELETE FROM assets WHERE main_storage_path = $1
+`
+
+func (q *Queries) DeletePath(ctx context.Context, path null_v4.String) error {
+	_, err := q.db.ExecContext(ctx, deletePath, path)
+	return err
+}
+
+const listAssets = `-- name: ListAssets :many
+SELECT date_created, date_updated, duration, encoding_version, id, legacy_id, main_storage_path, mediabanken_id, name, status, user_created, user_updated, aws_arn FROM assets
+`
+
+func (q *Queries) ListAssets(ctx context.Context) ([]Asset, error) {
+	rows, err := q.db.QueryContext(ctx, listAssets)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Asset
+	for rows.Next() {
+		var i Asset
+		if err := rows.Scan(
+			&i.DateCreated,
+			&i.DateUpdated,
+			&i.Duration,
+			&i.EncodingVersion,
+			&i.ID,
+			&i.LegacyID,
+			&i.MainStoragePath,
+			&i.MediabankenID,
+			&i.Name,
+			&i.Status,
+			&i.UserCreated,
+			&i.UserUpdated,
+			&i.AwsArn,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getFilesForAssets = `-- name: getFilesForAssets :many
 SELECT 0::int as episodes_id, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated, f.resolution, f.size
 FROM assets a
