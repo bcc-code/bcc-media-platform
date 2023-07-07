@@ -2,6 +2,22 @@ locals {
   aws_region = "eu-north-1"
 }
 
+provider "aws" {
+  region  = local.aws_region
+  profile = var.aws_profile
+}
+
+provider "aws" {
+  alias   = "us_east_1"
+  region  = "us-east-1"
+  profile = var.aws_profile
+}
+
+provider "google" {
+  //project = var.project
+  region = var.gcp-region
+}
+
 module "vod_cdn" {
   source               = "./vod-cdn"
   env                  = var.env
