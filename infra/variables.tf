@@ -15,13 +15,11 @@ variable "aws_profile" {
 }
 
 variable "tag" {
-  type    = string
-  default = ""
+  type = string
 }
 
 variable "branch" {
-  type    = string
-  default = ""
+  type = string
 }
 
 variable "mediapackage_url" {
@@ -77,28 +75,23 @@ variable "db" {
 }
 
 variable "db-tier" {
-  type    = string
-  default = "db-f1-micro"
+  type = string
 }
 
 variable "views_refresh_schedule" {
-  type    = string
-  default = "0 * * * *"
+  type = string
 }
 
 variable "search_reindex_schedule" {
-  type    = string
-  default = "0 0 * * *"
+  type = string
 }
 
 variable "translations_sync_schedule" {
-  type    = string
-  default = "0 * * * *"
+  type = string
 }
 
 variable "answers_sync_schedule" {
-  type    = string
-  default = "0 * * * *"
+  type = string
 }
 
 variable "base_platform_domain" {
@@ -130,18 +123,15 @@ variable "redis_database" {
 }
 
 variable "additional_cert_path" {
-  type    = string
-  default = ""
+  type = string
 }
 
 variable "additional_key_path" {
-  type    = string
-  default = ""
+  type = string
 }
 
 variable "monitoring_enabled" {
-  type    = bool
-  default = false
+  type = bool
 }
 
 variable "npaw_account_code" {
@@ -169,8 +159,7 @@ variable "unleash_proxy_client_key" {
 }
 
 variable "imgix_cdn_enable" {
-  type    = bool
-  default = false
+  type = bool
 }
 
 variable "imgix_backend_domain" {
