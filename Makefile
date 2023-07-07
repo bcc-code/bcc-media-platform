@@ -1,5 +1,8 @@
 .PHONY: help
 
+include .env
+export
+
 help:
 	@echo "Sorry, can't help you"
 
@@ -46,3 +49,18 @@ tests.rebuild:
 
 tests.run:
 	./scripts/tests-run.sh
+
+infra.dev:
+	cd $(INFRA_PATH_DEV) \
+		&& terragrunt init \
+		&& terragrunt apply
+
+infra.prod:
+	cd $(INFRA_PATH_PROD) \
+		&& terragrunt init \
+		&& terragrunt apply
+
+infra.sta:
+	cd $(INFRA_PATH_STA) \
+		&& terragrunt init \
+		&& terragrunt apply
