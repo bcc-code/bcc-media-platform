@@ -32,6 +32,10 @@ resource "google_sql_database_instance" "main" {
       update_track = "canary"
     }
   }
+
+  lifecycle {
+    ignore_changes = [settings[0].backup_configuration[0].location]
+  }
 }
 
 resource "google_sql_database" "directus" {

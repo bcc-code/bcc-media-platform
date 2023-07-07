@@ -174,6 +174,7 @@ resource "google_cloud_run_service" "unleash_server" {
       template[0].spec[0].containers[0].image, // The image is managed by the deploy, we just need an initial one
       traffic[0].latest_revision,
       traffic[0].revision_name,
+      template[0].spec[0].container_concurrency
     ]
   }
 }
