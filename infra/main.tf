@@ -1,42 +1,5 @@
-terraform {
-  backend "gcs" {}
-}
-
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0"
-    }
-    google = {
-      source  = "hashicorp/google"
-      version = "4.46.0"
-    }
-    postgresql = {
-      source  = "cyrilgdn/postgresql"
-      version = "1.16.0"
-    }
-  }
-}
-
 locals {
   aws_region = "eu-north-1"
-}
-
-provider "aws" {
-  region  = local.aws_region
-  profile = var.aws_profile
-}
-
-provider "aws" {
-  alias   = "us_east_1"
-  region  = "us-east-1"
-  profile = var.aws_profile
-}
-
-provider "google" {
-  //project = var.project
-  region = var.gcp-region
 }
 
 module "vod_cdn" {
