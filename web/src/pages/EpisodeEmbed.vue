@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useGetLegacyIdQuery } from "@/graph/generated"
 import player from "@/services/player"
+import { lanTo3letter } from "@/utils/languages"
 import { onMounted, ref } from "vue"
 
 const props = defineProps<{
@@ -10,6 +11,8 @@ const props = defineProps<{
 }>()
 
 const episodeId = ref<string>()
+
+const language = ref<string>()
 
 onMounted(async () => {
     if (props.episodeId) {
@@ -39,6 +42,11 @@ onMounted(async () => {
     } else {
         throw new Error("Missing episodeId")
     }
+    const q = new URLSearchParams(window.location.search)
+    const l = q.get("language")
+    if (l) {
+        language.value = lanTo3letter[l] ?? l
+    }
     await load()
 })
 
@@ -48,6 +56,12 @@ const load = async () => {
     }
     await player.create("embed-video-player", {
         episodeId: episodeId.value,
+        overrides: {
+            languagePreferenceDefaults: {
+                audio: language.value,
+                subtitles: language.value,
+            },
+        },
     })
 }
 </script>
