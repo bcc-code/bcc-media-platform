@@ -248,6 +248,11 @@ func main() {
 		authClient,
 		remoteCache,
 	))
+	r.GET("/test", func(ctx *gin.Context) {
+		ms, _ := membersClient.RetrieveByEmails(ctx, []string{"fredrik@vedvik.tech"})
+
+		ctx.JSON(200, ms)
+	})
 	r.GET("/", playgroundHandler())
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, ls))
 	r.POST("/public", publicGraphqlHandler(ls))
