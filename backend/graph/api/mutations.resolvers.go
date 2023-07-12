@@ -47,7 +47,7 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 	}
 
 	for i := 0; i < len(languages); i++ {
-		if len(languages[i]) != 2 {
+		if len(languages[i]) > 3 {
 			return nil, merry.New("invalid language", merry.WithUserMessage("Probably invalid language code"))
 		}
 		if i > 4 {
