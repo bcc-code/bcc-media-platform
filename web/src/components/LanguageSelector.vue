@@ -7,7 +7,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
     <Menu as="div" class="relative my-auto">
         <MenuButton
             :class="false ? '' : 'text-opacity-90'"
-            class="flex hover:bg-slate-800 transition rounded-xl text-base px-2 p-1 font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+            class="flex hover:bg-bcc-2 transition rounded text-base px-2 p-1 font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
         >
             <svg
                 width="24"

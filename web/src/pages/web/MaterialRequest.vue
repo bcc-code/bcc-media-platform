@@ -155,7 +155,7 @@ console.log(lang)
         >
             <img
                 @click="$router.push({ name: 'front-page' })"
-                class="hidden h-12 w-auto lg:block cursor-pointer hover:scale-105 transition"
+                class="h-8 lg:h-12 w-auto block cursor-pointer hover:scale-105 transition"
                 src="/logo.svg"
                 alt="BCC Media"
             />
@@ -229,13 +229,13 @@ console.log(lang)
                                 >
                             </div> -->
                             <button
-                                class="bg-bcc-1 rounded p-2 px-8 hover:-translate-y-0.5 transition"
+                                class="bg-bcc-1 rounded-full p-2 px-8 hover:-translate-y-0.5 transition"
                                 @click="clear"
                             >
                                 {{ $t("requests.clear") }}
                             </button>
                             <button
-                                class="bg-bcc-3 text-black rounded p-2 px-8 hover:-translate-y-0.5 transition"
+                                class="bg-bcc-3 text-black rounded-full p-2 px-8 hover:-translate-y-0.5 transition"
                                 :class="{
                                     'opacity-50 cursor-not-allowed': !canSend,
                                 }"
@@ -290,7 +290,7 @@ console.log(lang)
                     >
                 </div>
                 <button
-                    class="my-auto bg-bcc-3 text-black rounded p-2 px-8 hover:-translate-y-0.5 transition"
+                    class="my-auto bg-bcc-3 text-black rounded-full p-2 px-8 hover:-translate-y-0.5 transition"
                     :class="{
                         'opacity-50 cursor-not-allowed': !agendaConfirmed,
                     }"
@@ -306,7 +306,7 @@ console.log(lang)
     </section>
     <Modal v-model:open="showSend" class="font-archivo" @confirm="send">
         <template #description>
-            <div v-html="html" class="text-gray"></div>
+            <div v-html="html"></div>
         </template>
     </Modal>
     <Modal

@@ -27,7 +27,7 @@
                         leave-to="opacity-0 scale-95"
                     >
                         <DialogPanel
-                            class="w-full max-w-md transform overflow-hidden rounded-2xl bg-bcc-2 p-6 text-left align-middle shadow-xl transition-all"
+                            class="w-full max-w-md transform overflow-hidden rounded-2xl bg-bcc p-6 text-left align-middle shadow-xl transition-all"
                         >
                             <DialogTitle
                                 as="h3"
@@ -38,7 +38,7 @@
                                 </slot>
                             </DialogTitle>
                             <div class="mt-2">
-                                <p class="text-sm text-gray-500">
+                                <p class="text-sm">
                                     <slot name="description"></slot>
                                 </p>
                             </div>
@@ -47,14 +47,14 @@
                                 <slot name="actions">
                                     <button
                                         type="button"
-                                        class="inline-flex justify-center rounded-md border border-transparent bg-slate-800 px-4 py-2 text-sm font-medium"
+                                        class="inline-flex justify-center rounded-full border border-transparent bg-bcc-1 px-4 py-2 text-sm font-medium"
                                         @click="closeModal"
                                     >
                                         {{ $t("buttons.cancel") }}
                                     </button>
                                     <button
                                         type="button"
-                                        class="inline-flex justify-center rounded-md border border-transparent bg-bcc-3 text-black px-4 py-2 text-sm font-medium"
+                                        class="inline-flex justify-center rounded-full border border-transparent bg-bcc-3 text-black px-4 py-2 text-sm font-medium"
                                         @click="$emit('confirm')"
                                     >
                                         {{ $t("requests.send") }}
