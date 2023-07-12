@@ -28,7 +28,7 @@ const getDevicesForProfiles = `-- name: getDevicesForProfiles :many
 SELECT token, profile_id, updated_at, name, languages
 FROM users.devices d
 WHERE d.profile_id = ANY ($1::uuid[])
-  AND d.updated_at > (NOW() - interval '2 months')
+  AND d.updated_at > (NOW() - interval '6 months')
 ORDER BY updated_at DESC
 `
 
@@ -64,7 +64,7 @@ func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUI
 const listDevices = `-- name: listDevices :many
 SELECT token, profile_id, updated_at, name, languages
 FROM users.devices d
-WHERE d.updated_at > (NOW() - interval '2 months')
+WHERE d.updated_at > (NOW() - interval '6 months')
 ORDER BY updated_at DESC
 `
 

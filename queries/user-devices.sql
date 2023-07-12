@@ -9,13 +9,13 @@ ON CONFLICT (token, profile_id) DO UPDATE SET updated_at = EXCLUDED.updated_at,
 SELECT *
 FROM users.devices d
 WHERE d.profile_id = ANY ($1::uuid[])
-  AND d.updated_at > (NOW() - interval '2 months')
+  AND d.updated_at > (NOW() - interval '6 months')
 ORDER BY updated_at DESC;
 
 -- name: listDevices :many
 SELECT *
 FROM users.devices d
-WHERE d.updated_at > (NOW() - interval '2 months')
+WHERE d.updated_at > (NOW() - interval '6 months')
 ORDER BY updated_at DESC;
 
 -- name: DeleteDevices :exec
