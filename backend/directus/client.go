@@ -30,6 +30,7 @@ func New(url, key string, debug bool) *resty.Client {
 		SetBaseURL(url).
 		SetAuthToken(key).
 		SetRetryCount(5).
+		SetRetryMaxWaitTime(10).
 		EnableTrace().
 		SetDebug(false)
 	return rest
