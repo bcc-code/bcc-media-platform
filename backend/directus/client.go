@@ -3,6 +3,7 @@ package directus
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"strconv"
 
@@ -30,7 +31,7 @@ func New(url, key string, debug bool) *resty.Client {
 		SetBaseURL(url).
 		SetAuthToken(key).
 		SetRetryCount(10).
-		SetRetryMaxWaitTime(15).
+		SetRetryMaxWaitTime(15 * time.Second).
 		EnableTrace().
 		SetDebug(false)
 	return rest
