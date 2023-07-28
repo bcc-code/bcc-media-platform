@@ -72,12 +72,15 @@ func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *
 		if err != nil {
 			return nil, err
 		}
-		fallbacks = append(fallbacks, s.Images)
-		sh, err := r.Loaders.ShowLoader.Get(ctx, s.ShowID)
-		if err != nil {
-			return nil, err
+
+		if s != nil && s.Images != nil {
+			fallbacks = append(fallbacks, s.Images)
+			sh, err := r.Loaders.ShowLoader.Get(ctx, s.ShowID)
+			if err != nil {
+				return nil, err
+			}
+			fallbacks = append(fallbacks, sh.Images)
 		}
-		fallbacks = append(fallbacks, sh.Images)
 	}
 
 	return imageOrFallback(ctx, e.Images, style, fallbacks...), nil
