@@ -1558,6 +1558,13 @@ export type GetDefaultEpisodeForShowQueryVariables = Exact<{
 
 export type GetDefaultEpisodeForShowQuery = { show: { defaultEpisode: { id: string } } };
 
+export type GetEpisodeEmbedQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetEpisodeEmbedQuery = { episode: { files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }> } };
+
 export type SendEpisodeFeedbackMutationVariables = Exact<{
   episodeId: Scalars['ID'];
   rating: Scalars['Int'];
@@ -2183,6 +2190,25 @@ export const GetDefaultEpisodeForShowDocument = gql`
 
 export function useGetDefaultEpisodeForShowQuery(options: Omit<Urql.UseQueryArgs<never, GetDefaultEpisodeForShowQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetDefaultEpisodeForShowQuery>({ query: GetDefaultEpisodeForShowDocument, ...options });
+};
+export const GetEpisodeEmbedDocument = gql`
+    query getEpisodeEmbed($id: ID!) {
+  episode(id: $id) {
+    files {
+      id
+      url
+      fileName
+      audioLanguage
+      subtitleLanguage
+      size
+      resolution
+    }
+  }
+}
+    `;
+
+export function useGetEpisodeEmbedQuery(options: Omit<Urql.UseQueryArgs<never, GetEpisodeEmbedQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetEpisodeEmbedQuery>({ query: GetEpisodeEmbedDocument, ...options });
 };
 export const SendEpisodeFeedbackDocument = gql`
     mutation SendEpisodeFeedback($episodeId: ID!, $rating: Int!, $message: String) {
