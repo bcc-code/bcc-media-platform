@@ -18,7 +18,7 @@ const capFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-const getLanguages: (language: string) => Language[] = (language) => {
+export const getLanguages: (language: string) => Language[] = (language) => {
     if (typeof Intl.DisplayNames !== "undefined") {
         const displayNames = new Intl.DisplayNames([language], {
             type: "language",

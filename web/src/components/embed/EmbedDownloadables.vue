@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import { GetEpisodeEmbedQuery } from "@/graph/generated"
-import { languages as langs } from "@/services/language"
-import { computed, onMounted, ref } from "vue"
+import { getLanguages } from "@/services/language"
+import { computed, ref } from "vue"
 
 const props = defineProps<{
     episode: GetEpisodeEmbedQuery["episode"]
 }>()
+
+const langs = ref(getLanguages("en"))
 
 const languages = computed(() => {
     const r: string[] = []
