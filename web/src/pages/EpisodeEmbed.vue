@@ -3,6 +3,8 @@ import { useGetLegacyIdQuery } from "@/graph/generated"
 import player from "@/services/player"
 import { lanTo3letter } from "@/utils/languages"
 import { onMounted, ref } from "vue"
+import { useGetEpisodeEmbedQuery } from "@/graph/generated"
+import EmbedDownloadables from "@/components/embed/EmbedDownloadables.vue"
 
 const props = defineProps<{
     episodeId?: string
@@ -10,7 +12,7 @@ const props = defineProps<{
     programId?: number
 }>()
 
-const episodeId = ref<string>()
+const episodeId = ref<string>("")
 
 const language = ref<string>()
 
@@ -27,7 +29,7 @@ onMounted(async () => {
 
         const { data } = await executeQuery()
 
-        episodeId.value = data.value?.legacyIDLookup.id
+        episodeId.value = data.value?.legacyIDLookup.id ?? ""
     } else if (props.programId) {
         const { executeQuery } = useGetLegacyIdQuery({
             pause: true,
@@ -38,7 +40,7 @@ onMounted(async () => {
 
         const { data } = await executeQuery()
 
-        episodeId.value = data.value?.legacyIDLookup.id
+        episodeId.value = data.value?.legacyIDLookup.id ?? ""
     } else {
         throw new Error("Missing episodeId")
     }
@@ -48,6 +50,13 @@ onMounted(async () => {
         language.value = lanTo3letter[l] ?? l
     }
     await load()
+})
+
+const { data: episode, executeQuery } = useGetEpisodeEmbedQuery({
+    pause: true,
+    variables: {
+        id: episodeId,
+    },
 })
 
 const load = async () => {
@@ -63,11 +72,15 @@ const load = async () => {
             },
         },
     })
+    await executeQuery()
 }
 </script>
 
 <template>
     <section>
-        <div id="embed-video-player"></div>
+        <div>
+            <div id="embed-video-player"></div>
+        </div>
+        <EmbedDownloadables v-if="episode" :episode="episode.episode" />
     </section>
 </template>
