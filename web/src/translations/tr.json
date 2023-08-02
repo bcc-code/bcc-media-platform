@@ -17,6 +17,11 @@
         "skip": "",
         "join": ""
     },
+    "download": {
+        "resolution": "",
+        "language": "",
+        "progress": ""
+    },
     "error": {
         "couldntSendYourMessage": "Mesajınız gönderilemedi",
         "somethingWentWrong": "Bir şeyler yanlış gitti.",
@@ -161,15 +166,14 @@
     "sending": "Gönderiliyor",
     "defaultInputPlaceholder": "Buraya yazmaya başlayın...",
     "requests": {
-        "fullName": "",
+        "name": "",
         "email": "",
         "role": "",
-        "material": "",
-        "materialUrl": "",
-        "materialUsageHow": "",
-        "materialUsageHowDescription": "",
-        "materialUsageWhere": "",
-        "materialUsageWhen": "",
+        "what": "",
+        "how": "",
+        "howDescription": "",
+        "where": "",
+        "when": "",
         "clear": "",
         "send": "Gönder",
         "editor": "",
@@ -179,6 +183,11 @@
         "local": "",
         "mediaResponsible": "",
         "other": "",
-        "confirmSend": ""
+        "confirmSend": "",
+        "title": "",
+        "description": "",
+        "receitTitle": "",
+        "confirmAgenda": "",
+        "receitDescription": ""
     }
 }

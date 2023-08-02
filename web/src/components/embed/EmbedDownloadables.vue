@@ -2,9 +2,11 @@
 import { GetEpisodeEmbedQuery } from "@/graph/generated"
 import { getLanguages } from "@/services/language"
 import { computed, ref } from "vue"
+import { DocumentArrowDownIcon } from "@heroicons/vue/24/outline"
 
 const props = defineProps<{
     episode: GetEpisodeEmbedQuery["episode"]
+    showTitle?: boolean
 }>()
 
 const langs = ref(getLanguages("en"))
@@ -129,47 +131,74 @@ const downloadFile = (url: string, name: string) => {
         class="flex gap-4 p-4 overflow-y-scroll"
         v-if="episode.files.length"
     >
-        <div class="flex gap-4">
-            <h1 class="text-lg font-bold my-auto uppercase">
-                {{ $t("buttons.download") }}
-            </h1>
-            <select class="bg-primary p-2 rounded-md" v-model="language">
-                <option v-for="l in languages" :key="l.code" :value="l.code">
-                    {{ l.name }}
-                </option>
-            </select>
-        </div>
-        <select
-            class="bg-primary p-2 rounded-md"
-            v-model="file"
-            v-if="language"
+        <TransitionGroup
+            enter-active-class="duration-100 ease-out"
+            enter-from-class="transform opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="duration-50 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="transform opacity-0"
         >
-            <option v-for="f in files" :key="f.id" :value="f">
-                {{ f.resolution }}
-                <span v-if="f.size > 0">({{ fileSize(f.size) }})</span>
-            </option>
-        </select>
-        <button
-            class="bg-primary p-2 rounded-md"
-            :class="{
-                'opacity-50 cursor-not-allowed': downloading,
-            }"
-            v-if="file"
-            @click="downloadFile(file?.url, file?.fileName)"
-            :disabled="downloading"
-        >
-            {{ $t("buttons.download") }}
-        </button>
-        <div
-            class="w-64 flex bg-black my-auto h-8 rounded p-2"
-            v-if="file && downloading"
-        >
-            <div
-                class="bg-primary h-4 rounded my-auto"
-                :style="{
-                    width: (progress / file.size) * 100 + '%',
-                }"
-            ></div>
-        </div>
+            <div class="flex flex-col gap-2" v-if="showTitle">
+                <label class="opacity-0">{{ $t("buttons.download") }}</label>
+                <h1 class="text-lg font-bold my-auto uppercase">
+                    {{ $t("buttons.download") }}
+                </h1>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label>{{ $t("download.language") }}</label>
+                <select
+                    class="bg-primary-light p-2 h-12 rounded-md"
+                    v-model="language"
+                >
+                    <option
+                        v-for="l in languages"
+                        :key="l.code"
+                        :value="l.code"
+                    >
+                        {{ l.name }}
+                    </option>
+                </select>
+            </div>
+            <div class="flex flex-col gap-2" v-if="language" :key="language">
+                <label>{{ $t("download.resolution") }}</label>
+                <select
+                    class="bg-primary-light p-2 h-12 rounded-md"
+                    v-model="file"
+                >
+                    <option v-for="f in files" :key="f.id" :value="f">
+                        {{ f.resolution }}
+                        <span v-if="f.size > 0">({{ fileSize(f.size) }})</span>
+                    </option>
+                </select>
+            </div>
+            <div class="flex flex-col gap-2" v-if="file">
+                <label>{{ $t("buttons.download") }}</label>
+                <button
+                    class="bg-primary-light p-2 h-12 rounded-md gap-2"
+                    :class="{
+                        'opacity-50 cursor-not-allowed': downloading,
+                    }"
+                    @click="downloadFile(file?.url, file?.fileName)"
+                    :disabled="downloading"
+                >
+                    <!-- <span class="my-auto">{{ $t("buttons.download") }}</span> -->
+                    <DocumentArrowDownIcon class="h-6 w-6 mx-auto" />
+                </button>
+            </div>
+            <div class="flex flex-col gap-2" v-if="file && downloading">
+                <label>{{ $t("download.progress") }}</label>
+                <div
+                    class="w-64 flex bg-black bg-opacity-20 my-auto h-8 rounded p-2"
+                >
+                    <div
+                        class="bg-primary h-4 rounded my-auto"
+                        :style="{
+                            width: (progress / file.size) * 100 + '%',
+                        }"
+                    ></div>
+                </div>
+            </div>
+        </TransitionGroup>
     </section>
 </template>

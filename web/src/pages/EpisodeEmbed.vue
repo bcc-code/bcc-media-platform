@@ -81,6 +81,10 @@ const load = async () => {
         <div>
             <div id="embed-video-player"></div>
         </div>
-        <EmbedDownloadables v-if="episode" :episode="episode.episode" />
+        <EmbedDownloadables
+            v-if="episode"
+            show-title
+            :episode="episode.episode"
+        />
     </section>
 </template>

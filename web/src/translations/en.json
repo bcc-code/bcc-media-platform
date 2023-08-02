@@ -17,6 +17,11 @@
         "skip": "Skip",
         "join": "Join"
     },
+    "download": {
+        "resolution": "Resolution",
+        "language": "Language",
+        "progress": "Progress"
+    },
     "error": {
         "couldntSendYourMessage": "Couldn't send your message",
         "somethingWentWrong": "Something went wrong.",

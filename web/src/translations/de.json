@@ -17,6 +17,11 @@
         "skip": "Überspringen",
         "join": "Beitreten"
     },
+    "download": {
+        "resolution": "",
+        "language": "",
+        "progress": ""
+    },
     "error": {
         "couldntSendYourMessage": "Deine Nachricht konnte nicht gesendet werden",
         "somethingWentWrong": "Etwas ist schief gelaufen.",
@@ -161,15 +166,14 @@
     "sending": "Sendung",
     "defaultInputPlaceholder": "Schreibe hier...",
     "requests": {
-        "fullName": "",
+        "name": "",
         "email": "",
         "role": "",
-        "material": "",
-        "materialUrl": "",
-        "materialUsageHow": "",
-        "materialUsageHowDescription": "",
-        "materialUsageWhere": "",
-        "materialUsageWhen": "",
+        "what": "",
+        "how": "",
+        "howDescription": "",
+        "where": "",
+        "when": "",
         "clear": "",
         "send": "Senden",
         "editor": "",
@@ -179,6 +183,11 @@
         "local": "",
         "mediaResponsible": "",
         "other": "",
-        "confirmSend": ""
+        "confirmSend": "",
+        "title": "",
+        "description": "",
+        "receitTitle": "",
+        "confirmAgenda": "",
+        "receitDescription": ""
     }
 }

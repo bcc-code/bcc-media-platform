@@ -17,6 +17,11 @@
         "skip": "Pomiń",
         "join": "Dołącz"
     },
+    "download": {
+        "resolution": "",
+        "language": "",
+        "progress": ""
+    },
     "error": {
         "couldntSendYourMessage": "Nie udało się wysłać wiadomości",
         "somethingWentWrong": "Coś poszło nie tak.",
@@ -161,15 +166,14 @@
     "sending": "Wysyłam",
     "defaultInputPlaceholder": "Pisz tutaj...",
     "requests": {
-        "fullName": "",
+        "name": "",
         "email": "",
         "role": "",
-        "material": "",
-        "materialUrl": "",
-        "materialUsageHow": "",
-        "materialUsageHowDescription": "",
-        "materialUsageWhere": "",
-        "materialUsageWhen": "",
+        "what": "",
+        "how": "",
+        "howDescription": "",
+        "where": "",
+        "when": "",
         "clear": "",
         "send": "Wyślij",
         "editor": "",
@@ -179,6 +183,11 @@
         "local": "",
         "mediaResponsible": "",
         "other": "",
-        "confirmSend": ""
+        "confirmSend": "",
+        "title": "",
+        "description": "",
+        "receitTitle": "",
+        "confirmAgenda": "",
+        "receitDescription": ""
     }
 }

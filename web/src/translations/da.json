@@ -17,6 +17,11 @@
         "skip": "Spring over",
         "join": "Deltag"
     },
+    "download": {
+        "resolution": "",
+        "language": "",
+        "progress": ""
+    },
     "error": {
         "couldntSendYourMessage": "Kunne ikke sende din besked",
         "somethingWentWrong": "Noget gik galt...",
@@ -161,15 +166,14 @@
     "sending": "Sender",
     "defaultInputPlaceholder": "Begynd at skrive her...",
     "requests": {
-        "fullName": "",
+        "name": "",
         "email": "",
         "role": "",
-        "material": "",
-        "materialUrl": "",
-        "materialUsageHow": "",
-        "materialUsageHowDescription": "",
-        "materialUsageWhere": "",
-        "materialUsageWhen": "",
+        "what": "",
+        "how": "",
+        "howDescription": "",
+        "where": "",
+        "when": "",
         "clear": "",
         "send": "Send",
         "editor": "",
@@ -179,6 +183,11 @@
         "local": "",
         "mediaResponsible": "",
         "other": "",
-        "confirmSend": ""
+        "confirmSend": "",
+        "title": "",
+        "description": "",
+        "receitTitle": "",
+        "confirmAgenda": "",
+        "receitDescription": ""
     }
 }

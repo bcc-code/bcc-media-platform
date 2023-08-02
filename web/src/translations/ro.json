@@ -17,6 +17,11 @@
         "skip": "Sări peste",
         "join": "Alătură-te"
     },
+    "download": {
+        "resolution": "",
+        "language": "",
+        "progress": ""
+    },
     "error": {
         "couldntSendYourMessage": "Nu am putut trimite mesajul dvs",
         "somethingWentWrong": "Ceva a mers greșit.",
@@ -161,15 +166,14 @@
     "sending": "Se trimite",
     "defaultInputPlaceholder": "Începe să scrii aici...",
     "requests": {
-        "fullName": "",
+        "name": "",
         "email": "",
         "role": "",
-        "material": "",
-        "materialUrl": "",
-        "materialUsageHow": "",
-        "materialUsageHowDescription": "",
-        "materialUsageWhere": "",
-        "materialUsageWhen": "",
+        "what": "",
+        "how": "",
+        "howDescription": "",
+        "where": "",
+        "when": "",
         "clear": "",
         "send": "Trimite",
         "editor": "",
@@ -179,6 +183,11 @@
         "local": "",
         "mediaResponsible": "",
         "other": "",
-        "confirmSend": ""
+        "confirmSend": "",
+        "title": "",
+        "description": "",
+        "receitTitle": "",
+        "confirmAgenda": "",
+        "receitDescription": ""
     }
 }

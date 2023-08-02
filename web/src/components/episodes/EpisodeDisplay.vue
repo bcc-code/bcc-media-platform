@@ -1,8 +1,5 @@
 <template>
-    <section
-        class="max-w-screen-2xl mx-auto rounded-2xl"
-        v-if="episode"
-    >
+    <section class="max-w-screen-2xl mx-auto rounded-2xl" v-if="episode">
         <div class="relative aspect-video w-full">
             <div
                 class="h-full w-full bg-secondary rounded-xl opacity-10 absolute"
@@ -94,6 +91,18 @@
                     >
                         {{ $t("episode.details") }}
                     </button>
+                    <button
+                        v-if="episode.files.length > 0"
+                        class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
+                        :class="[
+                            effectiveView === 'download'
+                                ? 'opacity-100 border-opacity-40'
+                                : 'opacity-50 bg-opacity-0 border-opacity-0',
+                        ]"
+                        @click="effectiveView = 'download'"
+                    >
+                        {{ $t("buttons.download") }}
+                    </button>
                 </div>
                 <hr class="border-gray border-opacity-70" />
                 <div>
@@ -101,7 +110,7 @@
                         <EpisodeDetails
                             v-if="effectiveView === 'details'"
                             :episode="episode"
-                        ></EpisodeDetails>
+                        />
                         <div v-else-if="effectiveView === 'context'">
                             <ItemList
                                 :items="
@@ -130,6 +139,9 @@
                                 :current-id="episode.id"
                                 @item-click="(i) => setEpisode(uuid ? (i as any).uuid : i.id)"
                             ></ItemList>
+                        </div>
+                        <div v-else-if="effectiveView === 'download'">
+                            <EmbedDownloadables :episode="episode" />
                         </div>
                     </Transition>
                 </div>
@@ -162,6 +174,7 @@ import SharePopover from "./SharePopover.vue"
 import LessonButton from "../study/LessonButton.vue"
 import router from "@/router"
 import { episodeComingSoon } from "../../utils/items"
+import EmbedDownloadables from "../embed/EmbedDownloadables.vue"
 
 const props = defineProps<{
     initialEpisodeId: string
@@ -259,7 +272,7 @@ const load = async () => {
 }
 
 load()
-const view = ref(null as "episodes" | "details" | "context" | null)
+const view = ref(null as "episodes" | "details" | "context" | "download" | null)
 
 const effectiveView = computed({
     get() {
@@ -278,7 +291,8 @@ const effectiveView = computed({
                 }
                 break
             case "details":
-                return "details"
+            case "download":
+                return v
         }
 
         if (episode.value?.context?.__typename === "ContextCollection") {
@@ -295,8 +309,8 @@ const loadNext = async () => {
     const nextId = episode.value?.next[0]?.id
     if (nextId) {
         episodeId.value = nextId
-        await nextTick();
-        await load();
+        await nextTick()
+        await load()
     }
 }
 </script>

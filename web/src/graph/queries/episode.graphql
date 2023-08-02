@@ -58,6 +58,15 @@ query getEpisode($episodeId: ID!, $context: EpisodeContext) {
         availableFrom
         availableTo
         shareRestriction
+        files {
+            id
+            url
+            fileName
+            audioLanguage
+            subtitleLanguage
+            size
+            resolution
+        }
         next {
             id
         }
