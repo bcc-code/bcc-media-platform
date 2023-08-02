@@ -1,11 +1,17 @@
 {
-	"folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "../packages/video-player"
-		}
-	],
-	"settings": {}
+    "folders": [
+        {
+            "path": "."
+        },
+        {
+            "path": "../packages/video-player"
+        },
+        {
+            "path": "../cms"
+        },
+        {
+            "path": "../packages/directus-modules"
+        }
+    ],
+    "settings": {}
 }

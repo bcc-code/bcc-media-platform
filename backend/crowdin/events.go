@@ -24,6 +24,7 @@ var (
 type services interface {
 	GetCrowdinClient() *Client
 	GetDirectusClient() *resty.Client
+	GetTranslationHandler() TranslationHandler
 }
 
 // HandleEvent for events from PubSub (or other CloudEvent source)
@@ -31,8 +32,7 @@ func HandleEvent(ctx context.Context, services services, event cloudevents.Event
 	client := services.GetCrowdinClient()
 	switch event.Type() {
 	case events.TypeTranslationsSync:
-		handler := directus.NewHandler(services.GetDirectusClient())
-		return client.Sync(ctx, handler)
+		return client.Sync(ctx, services.GetTranslationHandler())
 	}
 	return merry.Wrap(ErrEventNotSupported)
 }

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
@@ -28,6 +29,23 @@ type ExternalServices struct {
 	CrowdinClient        *crowdin.Client
 	Scheduler            *scheduler.Service
 	StatisticsHandler    *statistics.Handler
+}
+
+func (e ExternalServices) GetTranslationHandler() crowdin.TranslationHandler {
+	return &translationHandler{}
+}
+
+type translationHandler struct {
+}
+
+// SaveTranslations saves translations
+func (h *translationHandler) SaveTranslations(ctx context.Context, translations []crowdin.SimpleTranslation) error {
+	return nil
+}
+
+// DeleteTranslations deletes translations
+func (h *translationHandler) DeleteTranslations(ctx context.Context, collection string, keys []string) error {
+	return nil
 }
 
 // GetS3Client as stored in the struct

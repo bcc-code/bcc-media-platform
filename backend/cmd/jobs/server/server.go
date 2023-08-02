@@ -60,6 +60,11 @@ type Server struct {
 	config   ConfigData
 }
 
+// GetTranslationHandler returns a translation handler
+func (s Server) GetTranslationHandler() crowdin.TranslationHandler {
+	return &translationHandler{}
+}
+
 func (s Server) runIfNotLocked(ctx context.Context, lockID string, task func() error) error {
 	res, err := s.services.RemoteCache.Client().Get(ctx, lockID).Result()
 	if err != nil && err != remotecache.Nil {

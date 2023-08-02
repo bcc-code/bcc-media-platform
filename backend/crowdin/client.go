@@ -129,7 +129,8 @@ func createItem[t any](client *Client, endpoint string, item t) (i t, err error)
 	return
 }
 
-type simpleTranslation struct {
+// SimpleTranslation contains info about the translation object as stored in the database
+type SimpleTranslation struct {
 	ID       string
 	ParentID string
 	Values   map[string]string
@@ -137,8 +138,8 @@ type simpleTranslation struct {
 	Changed  bool
 }
 
-func convertTsToStrings(ts []simpleTranslation, prefix string, contextFactory func(parentID string) string) []String {
-	return lo.Reduce(ts, func(stringObjects []String, t simpleTranslation, _ int) []String {
+func convertTsToStrings(ts []SimpleTranslation, prefix string, contextFactory func(parentID string) string) []String {
+	return lo.Reduce(ts, func(stringObjects []String, t SimpleTranslation, _ int) []String {
 		var values = t.Values
 		for key, value := range values {
 			if value != "" {
@@ -253,8 +254,8 @@ func (c *Client) getProject(projectId int) (i Project, err error) {
 	return
 }
 
-// Sync synchronizes translations from Directus to Crowdin
-func (c *Client) Sync(ctx context.Context, d *directus.Handler) error {
+// Sync synchronizes translations from Crowdin to Handler and Handler to Crowdin
+func (c *Client) Sync(ctx context.Context, handler TranslationHandler) error {
 	log.L.Debug().Msg("Translation sync: Started")
 	projectIds := c.config.ProjectIDs
 	for _, id := range projectIds {
@@ -272,67 +273,67 @@ func (c *Client) Sync(ctx context.Context, d *directus.Handler) error {
 			return err
 		}
 
-		err = c.syncEpisodes(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncEpisodes(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncSeasons(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncSeasons(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncShows(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncShows(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncSections(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncSections(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncPages(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncPages(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncLinks(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncLinks(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncTopics(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncTopics(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncLessons(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncLessons(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncTasks(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncTasks(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncAlternatives(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncAlternatives(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncAchievements(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncAchievements(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncSurveys(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncSurveys(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncSurveyQuestions(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncSurveyQuestions(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncFAQs(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncFAQs(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncFAQCategories(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncFAQCategories(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncGames(ctx, d, project, directory.ID, crowdinTranslations)
+		err = c.syncGames(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}

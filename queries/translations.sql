@@ -17,6 +17,13 @@ FROM episodes_translations
 WHERE episodes_id = ANY ($1::int[])
   AND languages_code != 'no';
 
+-- name: UpdateEpisodeTranslation :exec
+INSERT INTO episodes_translations (episodes_id, languages_code, title, description, extra_description)
+VALUES (@item_id, @language, @title, @description, @extra_description)
+ON CONFLICT (episodes_id, languages_code) DO UPDATE SET title             = EXCLUDED.title,
+                                                        description       = EXCLUDED.description,
+                                                        extra_description = EXCLUDED.extra_description;
+
 -- name: ListSeasonTranslations :many
 WITH seasons AS (SELECT s.id
                  FROM seasons s

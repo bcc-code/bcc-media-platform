@@ -1389,3 +1389,30 @@ func (q *Queries) ListTaskTranslations(ctx context.Context, dollar_1 []string) (
 	}
 	return items, nil
 }
+
+const updateEpisodeTranslation = `-- name: UpdateEpisodeTranslation :exec
+INSERT INTO episodes_translations (episodes_id, languages_code, title, description, extra_description)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (episodes_id, languages_code) DO UPDATE SET title             = EXCLUDED.title,
+                                                        description       = EXCLUDED.description,
+                                                        extra_description = EXCLUDED.extra_description
+`
+
+type UpdateEpisodeTranslationParams struct {
+	ItemID           int32          `db:"item_id" json:"itemID"`
+	Language         string         `db:"language" json:"language"`
+	Title            null_v4.String `db:"title" json:"title"`
+	Description      null_v4.String `db:"description" json:"description"`
+	ExtraDescription null_v4.String `db:"extra_description" json:"extraDescription"`
+}
+
+func (q *Queries) UpdateEpisodeTranslation(ctx context.Context, arg UpdateEpisodeTranslationParams) error {
+	_, err := q.db.ExecContext(ctx, updateEpisodeTranslation,
+		arg.ItemID,
+		arg.Language,
+		arg.Title,
+		arg.Description,
+		arg.ExtraDescription,
+	)
+	return err
+}
