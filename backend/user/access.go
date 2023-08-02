@@ -23,6 +23,7 @@ var (
 type CheckConditions struct {
 	FromDate    bool
 	PublishDate bool
+	Download    bool
 }
 
 // ValidateAccess returns error if user in context does not have access to the specified item
@@ -45,6 +46,10 @@ func ValidateAccess[k comparable](
 
 	roles := perms.Roles
 	availability := perms.Availability
+
+	if conditions.Download && len(lo.Intersect(rs, roles.Download)) == 0 {
+		return merry.Wrap(ErrItemNoAccess)
+	}
 
 	if len(lo.Intersect(rs, roles.EarlyAccess)) > 0 && (availability.Published || availability.Unlisted) {
 		return nil
