@@ -10,7 +10,7 @@ import (
 
 // TranslationHandler handles translations
 type TranslationHandler interface {
-	SaveTranslations(ctx context.Context, items []SimpleTranslation) error
+	SaveTranslations(ctx context.Context, collection string, items []SimpleTranslation) error
 	DeleteTranslations(ctx context.Context, collection string, keys []string) error
 }
 
@@ -23,7 +23,6 @@ func (c *Client) syncCollection(
 	translationFactory func(ctx context.Context, language string) ([]SimpleTranslation, error),
 	crowdinTranslations []Translation,
 	contextFactory func(identifier string) string,
-	deleteTranslations func(ctx context.Context, keys []string) error,
 ) error {
 	l := log.L.With().Int("project", project.ID).Str("collection", collection).Logger()
 	l.Debug().Msg("Syncing collection")
@@ -59,6 +58,7 @@ func (c *Client) syncCollection(
 
 	var missingStrings []String
 	var editStrings []String
+	var deleteStrings []String
 	for _, str := range dbStrings {
 		if s, found := lo.Find(fileStrings, func(s String) bool {
 			return s.Identifier == str.Identifier
@@ -72,6 +72,13 @@ func (c *Client) syncCollection(
 				s.Context = str.Context
 				editStrings = append(editStrings, s)
 			}
+		}
+	}
+	for _, str := range fileStrings {
+		if _, found := lo.Find(dbStrings, func(s String) bool {
+			return s.Identifier == str.Identifier
+		}); !found {
+			deleteStrings = append(deleteStrings, str)
 		}
 	}
 
@@ -98,14 +105,18 @@ func (c *Client) syncCollection(
 				return err
 			}
 		}
-		if deleteTranslations != nil {
-			err = deleteTranslations(ctx, lo.Map(editStrings, func(i String, _ int) string {
-				_, key, _ := partsFromIdentifier(i.Identifier)
-				return key
-			}))
-			if err != nil {
-				return err
-			}
+		err = handler.DeleteTranslations(ctx, collection, lo.Map(editStrings, func(i String, _ int) string {
+			_, key, _ := partsFromIdentifier(i.Identifier)
+			return key
+		}))
+		if err != nil {
+			return err
+		}
+	}
+	if len(deleteStrings) > 0 {
+		err = c.hideStrings(project.ID, deleteStrings)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -115,7 +126,7 @@ func (c *Client) syncCollection(
 		if length := len(queuedTranslations); length > 100 || (force && length > 0) {
 			l.Debug().Int("count", length).Msg("Pushing translations to database")
 			if !c.readonly {
-				err = handler.SaveTranslations(ctx, queuedTranslations)
+				err = handler.SaveTranslations(ctx, collection, queuedTranslations)
 				if err != nil {
 					return err
 				}

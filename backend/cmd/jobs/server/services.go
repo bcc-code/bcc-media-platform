@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/brunstadtv/backend/utils"
+	"gopkg.in/guregu/null.v4"
 
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -31,15 +33,57 @@ type ExternalServices struct {
 	StatisticsHandler    *statistics.Handler
 }
 
+// GetTranslationHandler returns the translation handler
 func (e ExternalServices) GetTranslationHandler() crowdin.TranslationHandler {
-	return &translationHandler{}
+	return &translationHandler{
+		e.GetQueries(),
+	}
 }
 
 type translationHandler struct {
+	db *sqlc.Queries
 }
 
 // SaveTranslations saves translations
-func (h *translationHandler) SaveTranslations(ctx context.Context, translations []crowdin.SimpleTranslation) error {
+func (h *translationHandler) SaveTranslations(ctx context.Context, collection string, translations []crowdin.SimpleTranslation) error {
+	for _, t := range translations {
+		title, _ := t.Values["title"]
+		description, _ := t.Values["description"]
+		var err error
+		switch collection {
+		case "episodes":
+			err = h.db.UpdateEpisodeTranslation(ctx, sqlc.UpdateEpisodeTranslationParams{
+				ItemID:      int32(utils.AsInt(t.ParentID)),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
+		case "seasons":
+			err = h.db.UpdateSeasonTranslation(ctx, sqlc.UpdateSeasonTranslationParams{
+				ItemID:      int32(utils.AsInt(t.ParentID)),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
+		case "shows":
+			err = h.db.UpdateShowTranslation(ctx, sqlc.UpdateShowTranslationParams{
+				ItemID:      int32(utils.AsInt(t.ParentID)),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
+		case "sections":
+			err = h.db.UpdateSectionTranslation(ctx, sqlc.UpdateSectionTranslationParams{
+				ItemID:      int32(utils.AsInt(t.ParentID)),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
+		}
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

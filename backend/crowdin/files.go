@@ -4,6 +4,7 @@ import (
 	"fmt"
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/samber/lo"
 	"strconv"
 	"time"
 )
@@ -35,7 +36,7 @@ type addFileRequest struct {
 }
 
 type patchRequest struct {
-	Value any    `json:"value"`
+	Value any    `json:"value,omitempty"`
 	Op    string `json:"op"`
 	Path  string `json:"path"`
 }
@@ -120,6 +121,33 @@ func (c *Client) getDirectories(projectId int) ([]Directory, error) {
 	})
 }
 
+func (c *Client) hideStrings(projectID int, strs []String) error {
+	chunks := lo.Chunk(strs, 20)
+	for _, chunk := range chunks {
+		req := c.c.R()
+		req.SetHeader("Content-Type", "application/json")
+		var body []patchRequest
+		for _, str := range chunk {
+			body = append(body, patchRequest{
+				Op:    "replace",
+				Path:  fmt.Sprintf("/%d/isHidden", str.ID),
+				Value: true,
+			})
+		}
+		req.SetResult(Object[[]Object[String]]{})
+		req.SetBody(body)
+		res, err := req.Patch(fmt.Sprintf("projects/%d/strings", projectID))
+		if err != nil {
+			return err
+		}
+		err = ensureSuccess(res)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (c *Client) setString(projectId int, s String) (r String, err error) {
 	req := c.c.R()
 	req.SetBody([]patchRequest{
@@ -132,6 +160,11 @@ func (c *Client) setString(projectId int, s String) (r String, err error) {
 			Value: s.Context,
 			Op:    "replace",
 			Path:  "/context",
+		},
+		{
+			Value: true,
+			Op:    "replace",
+			Path:  "/isHidden",
 		},
 	})
 	req.SetResult(Object[String]{})

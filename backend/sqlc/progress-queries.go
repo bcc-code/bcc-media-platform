@@ -7,7 +7,7 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/loaders"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/tabbed/pqtype"
+	"github.com/sqlc-dev/pqtype"
 	"gopkg.in/guregu/null.v4"
 )
 

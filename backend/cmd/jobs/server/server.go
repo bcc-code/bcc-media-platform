@@ -142,7 +142,7 @@ func (s Server) ProcessMessage(c *gin.Context) {
 	case events.TypeExportAnswersToBQ:
 		err = s.services.GetStatisticHandler().HandleAnswerExportToBQ(ctx)
 	case events.TypeTranslationsSync:
-		err = s.runIfNotLocked(ctx, fmt.Sprintf("event:%s", e.Type()), func() error {
+		err = s.runIfNotLocked(ctx, fmt.Sprintf("event:%s:%s", e.Type(), e.ID()), func() error {
 			return crowdin.HandleEvent(ctx, s.services, e)
 		})
 	default:
