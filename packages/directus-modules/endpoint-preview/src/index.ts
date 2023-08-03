@@ -1,40 +1,44 @@
 // @ts-ignore
 import type { EndpointConfig, Accountability } from "@directus/types"
 import axios from "axios"
-import {PubSub} from "@google-cloud/pubsub";
-import {randomUUID} from "crypto";
-import {CloudEvent} from "cloudevents";
+import { PubSub } from "@google-cloud/pubsub"
+import { randomUUID } from "crypto"
+import { CloudEvent } from "cloudevents"
 
-const apiPath = process.env.API_PATH;
-const apiSecret = process.env.API_SECRET;
+const apiPath = process.env.API_PATH
+const apiSecret = process.env.API_SECRET
 
 const getAccountability = (req: any) => {
-    return req.accountability as Accountability;
+    return req.accountability as Accountability
 }
 
 const getUserId = (req: any) => {
     try {
-        return getAccountability(req).user ?? null;
+        return getAccountability(req).user ?? null
     } catch {
         return null
     }
 }
 
 const postQuery = async (query: string, variables: any) => {
-    return await axios.post(apiPath + "admin", {
-        "query": query,
-        "variables": variables,
-    }, {
-        headers: {
-            "Content-Type": "application/json",
-            "X-Api-Key": apiSecret
+    return await axios.post(
+        apiPath + "admin",
+        {
+            query: query,
+            variables: variables,
+        },
+        {
+            headers: {
+                "Content-Type": "application/json",
+                "X-Api-Key": apiSecret,
+            },
         }
-    })
+    )
 }
 
 const projectId = process.env.PUBSUB_PROJECT_ID
 const topicId = process.env.PUBSUB_TOPIC_ID
-const pubsub = new PubSub({projectId})
+const pubsub = new PubSub({ projectId })
 
 const endpointConfig: EndpointConfig = {
     id: "tools",
@@ -45,10 +49,9 @@ const endpointConfig: EndpointConfig = {
                 res.status(401).send("Unauthenticated")
                 return
             }
-            const filter = req.body.filter;
+            const filter = req.body.filter
 
             try {
-
                 const body = `query($filter: String!) {
     preview {
         collection(filter: $filter) {
@@ -62,7 +65,7 @@ const endpointConfig: EndpointConfig = {
 }`
 
                 const result = await postQuery(body, {
-                    "filter": JSON.stringify(filter)
+                    filter: JSON.stringify(filter),
                 })
 
                 res.send(result.data.data.preview.collection.items)
@@ -72,10 +75,12 @@ const endpointConfig: EndpointConfig = {
                 console.log("Couldn't fetch data from API")
             }
 
-            res.status(500).send(JSON.stringify({
-                error: "Couldn't fetch data from API"
-            }))
-        });
+            res.status(500).send(
+                JSON.stringify({
+                    error: "Couldn't fetch data from API",
+                })
+            )
+        })
 
         router.get("/preview/asset/:assetId", async (req, res) => {
             const userId = getUserId(req)
@@ -85,7 +90,6 @@ const endpointConfig: EndpointConfig = {
             }
 
             try {
-
                 const body = `query($assetId: ID!) {
     preview {
         asset(id: $assetId) {
@@ -96,7 +100,7 @@ const endpointConfig: EndpointConfig = {
 }`
 
                 const result = await postQuery(body, {
-                    "assetId": req.params["assetId"],
+                    assetId: req.params["assetId"],
                 })
 
                 res.status(200).send(result.data.data.preview.asset)
@@ -105,9 +109,11 @@ const endpointConfig: EndpointConfig = {
                 console.log("Couldn't fetch data from API")
             }
 
-            res.status(500).send(JSON.stringify({
-                error: "Couldn't fetch data from API"
-            }))
+            res.status(500).send(
+                JSON.stringify({
+                    error: "Couldn't fetch data from API",
+                })
+            )
         })
 
         router.get("/filters/refresh", async (req, res) => {
@@ -126,18 +132,42 @@ const endpointConfig: EndpointConfig = {
                 source: "directus",
                 datacontenttype: "application/json",
                 data: {
-                    "viewName": "filter_dataset",
-                    "force": false
-                }
+                    viewName: "filter_dataset",
+                    force: false,
+                },
             })
 
             await topic.publishMessage({
-                data: Buffer.from(JSON.stringify(event))
+                data: Buffer.from(JSON.stringify(event)),
             })
 
             res.status(200).send()
         })
-    }
+
+        router.get("/translations/sync", async (req, res) => {
+            const userId = getUserId(req)
+            if (userId == null) {
+                res.status(401).send("Unauthenticated")
+                return
+            }
+
+            const topic = pubsub.topic(topicId!)
+
+            const event = new CloudEvent({
+                specversion: "1.0",
+                id: randomUUID(),
+                type: "translations.sync",
+                source: "directus",
+                datacontenttype: "application/json",
+            })
+
+            await topic.publishMessage({
+                data: Buffer.from(JSON.stringify(event)),
+            })
+
+            res.status(200).send()
+        })
+    },
 }
 
 export default endpointConfig

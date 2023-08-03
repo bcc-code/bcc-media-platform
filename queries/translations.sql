@@ -341,6 +341,12 @@ DELETE
 FROM surveys_translations ts
 WHERE ts.surveys_id = ANY ($1::uuid[]);
 
+-- name: UpdateSurveyTranslation :exec
+INSERT INTO surveys_translations (surveys_id, languages_code, title, description)
+VALUES (@item_id, @language, @title, @description)
+ON CONFLICT (surveys_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                       description = EXCLUDED.description;
+
 -- name: ListSurveyQuestionOriginalTranslations :many
 SELECT items.id,
        json_build_object('title', items.title, 'description', items.description, 'placeholder',
@@ -361,6 +367,12 @@ WHERE ts.languages_code = ANY ($1::varchar[]);
 DELETE
 FROM surveyquestions_translations ts
 WHERE ts.surveyquestions_id = ANY ($1::uuid[]);
+
+-- name: UpdateSurveyQuestionTranslation :exec
+INSERT INTO surveyquestions_translations (surveyquestions_id, languages_code, title, description)
+VALUES (@item_id, @language, @title, @description)
+ON CONFLICT (surveyquestions_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                               description = EXCLUDED.description;
 
 ----------
 -- FAQ ---
@@ -388,6 +400,12 @@ DELETE
 FROM faqs_translations ts
 WHERE ts.faqs_id = ANY ($1::uuid[]);
 
+-- name: UpdateFAQTranslation :exec
+INSERT INTO faqs_translations (faqs_id, languages_code, question, answer)
+VALUES (@item_id, @language, @question, @answer)
+ON CONFLICT (faqs_id, languages_code) DO UPDATE SET question = EXCLUDED.question,
+                                                    answer   = EXCLUDED.answer;
+
 -- name: ListFAQCategoryOriginalTranslations :many
 SELECT items.id, json_build_object('title', items.title, 'description', items.description) as values
 FROM faqcategories items
@@ -410,6 +428,12 @@ DELETE
 FROM faqcategories_translations ts
 WHERE ts.faqcategories_id = ANY ($1::uuid[]);
 
+-- name: UpdateFAQCategoryTranslation :exec
+INSERT INTO faqcategories_translations (faqcategories_id, languages_code, title, description)
+VALUES (@item_id, @language, @title, @description)
+ON CONFLICT (faqcategories_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                             description = EXCLUDED.description;
+
 -- name: ListGameOriginalTranslations :many
 SELECT items.id, json_build_object('title', items.title, 'description', items.description) as values
 FROM games items
@@ -431,3 +455,9 @@ WHERE ts.languages_code = ANY ($1::varchar[]);
 DELETE
 FROM games_translations ts
 WHERE ts.games_id = ANY ($1::uuid[]);
+
+-- name: UpdateGameTranslation :exec
+INSERT INTO games_translations (games_id, languages_code, title, description)
+VALUES (@item_id, @language, @title, @description)
+ON CONFLICT (games_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                     description = EXCLUDED.description;

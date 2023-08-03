@@ -79,6 +79,96 @@ func (h *translationHandler) SaveTranslations(ctx context.Context, collection st
 				Title:       null.StringFrom(title),
 				Description: null.StringFrom(description),
 			})
+		case "pages":
+			err = h.db.UpdatePageTranslation(ctx, sqlc.UpdatePageTranslationParams{
+				ItemID:      int32(utils.AsInt(t.ParentID)),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
+		case "links":
+			err = h.db.UpdateLinkTranslation(ctx, sqlc.UpdateLinkTranslationParams{
+				ItemID:      int32(utils.AsInt(t.ParentID)),
+				Language:    t.Language,
+				Title:       title,
+				Description: description,
+			})
+		case "studytopics":
+			err = h.db.UpdateStudyTopicTranslation(ctx, sqlc.UpdateStudyTopicTranslationParams{
+				ItemID:      utils.AsUuid(t.ParentID),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
+		case "lessons":
+			err = h.db.UpdateLessonTranslation(ctx, sqlc.UpdateLessonTranslationParams{
+				ItemID:      utils.AsUuid(t.ParentID),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
+		case "tasks":
+			err = h.db.UpdateTaskTranslation(ctx, sqlc.UpdateTaskTranslationParams{
+				ItemID:      utils.AsUuid(t.ParentID),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
+		case "questionalternatives":
+			err = h.db.UpdateAlternativeTranslation(ctx, sqlc.UpdateAlternativeTranslationParams{
+				ItemID:   utils.AsUuid(t.ParentID),
+				Language: t.Language,
+				Title:    null.StringFrom(title),
+			})
+		case "achievements":
+			err = h.db.UpdateAchievementTranslation(ctx, sqlc.UpdateAchievementTranslationParams{
+				ItemID:      utils.AsUuid(t.ParentID),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
+		case "achievementgroups":
+			err = h.db.UpdateAchievementGroupTranslation(ctx, sqlc.UpdateAchievementGroupTranslationParams{
+				ItemID:      utils.AsUuid(t.ParentID),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
+		case "surveys":
+			err = h.db.UpdateSurveyTranslation(ctx, sqlc.UpdateSurveyTranslationParams{
+				ItemID:      utils.AsUuid(t.ParentID),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
+		case "surveyquestions":
+			err = h.db.UpdateSurveyQuestionTranslation(ctx, sqlc.UpdateSurveyQuestionTranslationParams{
+				ItemID:      utils.AsUuid(t.ParentID),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
+		case "faqs":
+			err = h.db.UpdateFAQTranslation(ctx, sqlc.UpdateFAQTranslationParams{
+				ItemID:   utils.AsUuid(t.ParentID),
+				Language: t.Language,
+				Question: null.StringFrom(t.Values["question"]),
+				Answer:   null.StringFrom(t.Values["answer"]),
+			})
+		case "faqcategories":
+			err = h.db.UpdateFAQCategoryTranslation(ctx, sqlc.UpdateFAQCategoryTranslationParams{
+				ItemID:      utils.AsUuid(t.ParentID),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
+		case "games":
+			err = h.db.UpdateGameTranslation(ctx, sqlc.UpdateGameTranslationParams{
+				ItemID:      utils.AsUuid(t.ParentID),
+				Language:    t.Language,
+				Title:       null.StringFrom(title),
+				Description: null.StringFrom(description),
+			})
 		}
 		if err != nil {
 			return err

@@ -17,13 +17,6 @@ import (
 	"github.com/samber/lo"
 )
 
-// Fields
-const (
-	TitleField       = "title"
-	DescriptionField = "description"
-	PlaceholderField = "placeholder"
-)
-
 // Config for the client
 type Config struct {
 	Token      string
@@ -314,6 +307,10 @@ func (c *Client) Sync(ctx context.Context, handler TranslationHandler) error {
 			return err
 		}
 		err = c.syncAchievements(ctx, handler, project, directory.ID, crowdinTranslations)
+		if err != nil {
+			return err
+		}
+		err = c.syncAchievementGroups(ctx, handler, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}

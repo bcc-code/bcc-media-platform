@@ -77,7 +77,7 @@ func (c *Client) syncCollection(
 	for _, str := range fileStrings {
 		if _, found := lo.Find(dbStrings, func(s String) bool {
 			return s.Identifier == str.Identifier
-		}); !found {
+		}); !found && !str.IsHidden {
 			deleteStrings = append(deleteStrings, str)
 		}
 	}
@@ -114,6 +114,9 @@ func (c *Client) syncCollection(
 		}
 	}
 	if len(deleteStrings) > 0 {
+		l.Debug().Int("count", len(deleteStrings)).Strs("identifiers", lo.Map(deleteStrings, func(i String, _ int) string {
+			return i.Identifier
+		})).Msg("Hiding strings")
 		err = c.hideStrings(project.ID, deleteStrings)
 		if err != nil {
 			return err

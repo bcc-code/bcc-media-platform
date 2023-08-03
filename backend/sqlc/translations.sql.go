@@ -1493,6 +1493,78 @@ func (q *Queries) UpdateEpisodeTranslation(ctx context.Context, arg UpdateEpisod
 	return err
 }
 
+const updateFAQCategoryTranslation = `-- name: UpdateFAQCategoryTranslation :exec
+INSERT INTO faqcategories_translations (faqcategories_id, languages_code, title, description)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (faqcategories_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                             description = EXCLUDED.description
+`
+
+type UpdateFAQCategoryTranslationParams struct {
+	ItemID      uuid.UUID      `db:"item_id" json:"itemId"`
+	Language    string         `db:"language" json:"language"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) UpdateFAQCategoryTranslation(ctx context.Context, arg UpdateFAQCategoryTranslationParams) error {
+	_, err := q.db.ExecContext(ctx, updateFAQCategoryTranslation,
+		arg.ItemID,
+		arg.Language,
+		arg.Title,
+		arg.Description,
+	)
+	return err
+}
+
+const updateFAQTranslation = `-- name: UpdateFAQTranslation :exec
+INSERT INTO faqs_translations (faqs_id, languages_code, question, answer)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (faqs_id, languages_code) DO UPDATE SET question = EXCLUDED.question,
+                                                    answer   = EXCLUDED.answer
+`
+
+type UpdateFAQTranslationParams struct {
+	ItemID   uuid.UUID      `db:"item_id" json:"itemId"`
+	Language string         `db:"language" json:"language"`
+	Question null_v4.String `db:"question" json:"question"`
+	Answer   null_v4.String `db:"answer" json:"answer"`
+}
+
+func (q *Queries) UpdateFAQTranslation(ctx context.Context, arg UpdateFAQTranslationParams) error {
+	_, err := q.db.ExecContext(ctx, updateFAQTranslation,
+		arg.ItemID,
+		arg.Language,
+		arg.Question,
+		arg.Answer,
+	)
+	return err
+}
+
+const updateGameTranslation = `-- name: UpdateGameTranslation :exec
+INSERT INTO games_translations (games_id, languages_code, title, description)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (games_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                     description = EXCLUDED.description
+`
+
+type UpdateGameTranslationParams struct {
+	ItemID      uuid.UUID      `db:"item_id" json:"itemId"`
+	Language    string         `db:"language" json:"language"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) UpdateGameTranslation(ctx context.Context, arg UpdateGameTranslationParams) error {
+	_, err := q.db.ExecContext(ctx, updateGameTranslation,
+		arg.ItemID,
+		arg.Language,
+		arg.Title,
+		arg.Description,
+	)
+	return err
+}
+
 const updateLessonTranslation = `-- name: UpdateLessonTranslation :exec
 INSERT INTO lessons_translations (lessons_id, languages_code, title, description)
 VALUES ($1, $2, $3, $4)
@@ -1653,6 +1725,54 @@ type UpdateStudyTopicTranslationParams struct {
 
 func (q *Queries) UpdateStudyTopicTranslation(ctx context.Context, arg UpdateStudyTopicTranslationParams) error {
 	_, err := q.db.ExecContext(ctx, updateStudyTopicTranslation,
+		arg.ItemID,
+		arg.Language,
+		arg.Title,
+		arg.Description,
+	)
+	return err
+}
+
+const updateSurveyQuestionTranslation = `-- name: UpdateSurveyQuestionTranslation :exec
+INSERT INTO surveyquestions_translations (surveyquestions_id, languages_code, title, description)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (surveyquestions_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                               description = EXCLUDED.description
+`
+
+type UpdateSurveyQuestionTranslationParams struct {
+	ItemID      uuid.UUID      `db:"item_id" json:"itemId"`
+	Language    string         `db:"language" json:"language"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) UpdateSurveyQuestionTranslation(ctx context.Context, arg UpdateSurveyQuestionTranslationParams) error {
+	_, err := q.db.ExecContext(ctx, updateSurveyQuestionTranslation,
+		arg.ItemID,
+		arg.Language,
+		arg.Title,
+		arg.Description,
+	)
+	return err
+}
+
+const updateSurveyTranslation = `-- name: UpdateSurveyTranslation :exec
+INSERT INTO surveys_translations (surveys_id, languages_code, title, description)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (surveys_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                       description = EXCLUDED.description
+`
+
+type UpdateSurveyTranslationParams struct {
+	ItemID      uuid.UUID      `db:"item_id" json:"itemId"`
+	Language    string         `db:"language" json:"language"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) UpdateSurveyTranslation(ctx context.Context, arg UpdateSurveyTranslationParams) error {
+	_, err := q.db.ExecContext(ctx, updateSurveyTranslation,
 		arg.ItemID,
 		arg.Language,
 		arg.Title,

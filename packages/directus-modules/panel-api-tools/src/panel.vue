@@ -19,6 +19,14 @@
                 </v-card-text>
             </v-card>
         </v-list-item>
+        <v-list-item>
+            <v-card>
+                <v-card-title>Translations</v-card-title>
+                <v-card-text>
+                    <v-button :loading="loadingSyncTranslations" @click="syncTranslations">Refresh</v-button>
+                </v-card-text>
+            </v-card>
+        </v-list-item>
     </v-list>
 </template>
 
@@ -38,6 +46,14 @@ const refreshFilters = async () => {
     loadingRefreshFilters.value = true
     await get("/tools/filters/refresh")
     loadingRefreshFilters.value = false
+}
+
+const loadingSyncTranslations = ref(false);
+
+const syncTranslations = async () => {
+    loadingSyncTranslations.value = true;
+    await get("/tools/translations/sync");
+    loadingSyncTranslations.value = false;
 }
 </script>
 
