@@ -76,7 +76,7 @@ func main() {
 
 	searchService := search.New(queries, config.Algolia)
 	directusEventHandler := directus.NewEventHandler()
-	crowdinClient := crowdin.New(config.Crowdin, directus.NewHandler(directusClient), queries, false)
+	crowdinClient := crowdin.New(config.Crowdin, queries, false)
 	statisticsHandler := statistics.NewHandler(ctx, config.BigQuery, queries)
 
 	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.CloudTasks.QueueID)
@@ -118,15 +118,7 @@ func main() {
 	}
 
 	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, searchService.IndexModel)
-
-	if config.Directus.BaseURL != "" {
-		directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, crowdinClient.HandleModelUpdate)
-	} else {
-		log.L.Warn().Err(err).Msg("Crowdin HandleModelUpdate is disabed becuase Directus base URL is missing")
-	}
-
 	directusEventHandler.On([]string{directus.EventItemsDelete}, searchService.DeleteModel)
-	directusEventHandler.On([]string{directus.EventItemsDelete}, crowdinClient.HandleModelDelete)
 
 	if statisticsHandler != nil {
 		log.L.Info().Msg("Registering BQ handler")

@@ -9,9 +9,8 @@ import (
 )
 
 // TranslationHandler handles translations
-type TranslationHandler interface {
-	SaveTranslations(ctx context.Context, collection string, items []SimpleTranslation) error
-	DeleteTranslations(ctx context.Context, collection string, keys []string) error
+type TranslationHandler struct {
+	SaveTranslation func(ctx context.Context, item SimpleTranslation) error
 }
 
 func (c *Client) syncCollection(
@@ -105,13 +104,6 @@ func (c *Client) syncCollection(
 				return err
 			}
 		}
-		err = handler.DeleteTranslations(ctx, collection, lo.Map(editStrings, func(i String, _ int) string {
-			_, key, _ := partsFromIdentifier(i.Identifier)
-			return key
-		}))
-		if err != nil {
-			return err
-		}
 	}
 	if len(deleteStrings) > 0 {
 		l.Debug().Int("count", len(deleteStrings)).Strs("identifiers", lo.Map(deleteStrings, func(i String, _ int) string {
@@ -129,9 +121,11 @@ func (c *Client) syncCollection(
 		if length := len(queuedTranslations); length > 100 || (force && length > 0) {
 			l.Debug().Int("count", length).Msg("Pushing translations to database")
 			if !c.readonly {
-				err = handler.SaveTranslations(ctx, collection, queuedTranslations)
-				if err != nil {
-					return err
+				for _, t := range queuedTranslations {
+					err = handler.SaveTranslation(ctx, t)
+					if err != nil {
+						return err
+					}
 				}
 			}
 			queuedTranslations = nil

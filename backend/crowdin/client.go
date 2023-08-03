@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/brunstadtv/backend/utils"
+	"gopkg.in/guregu/null.v4"
 	"strconv"
 	"strings"
 	"time"
@@ -11,7 +13,6 @@ import (
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/go-resty/resty/v2"
 	"github.com/samber/lo"
@@ -26,7 +27,6 @@ type Config struct {
 // Client for crowdin interactions
 type Client struct {
 	c        *resty.Client
-	du       *directus.Handler
 	config   Config
 	q        *sqlc.Queries
 	readonly bool
@@ -43,12 +43,11 @@ func ensureSuccess(res *resty.Response) error {
 }
 
 // New client for requests
-func New(config Config, directusHandler *directus.Handler, queries *sqlc.Queries, readonly bool) *Client {
+func New(config Config, queries *sqlc.Queries, readonly bool) *Client {
 	c := resty.New().
 		SetBaseURL("https://api.crowdin.com/api/v2/").
 		SetAuthToken(config.Token)
 	return &Client{
-		du:       directusHandler,
 		c:        c,
 		config:   config,
 		q:        queries,
@@ -248,7 +247,7 @@ func (c *Client) getProject(projectId int) (i Project, err error) {
 }
 
 // Sync synchronizes translations from Crowdin to Handler and Handler to Crowdin
-func (c *Client) Sync(ctx context.Context, handler TranslationHandler) error {
+func (c *Client) Sync(ctx context.Context) error {
 	log.L.Debug().Msg("Translation sync: Started")
 	projectIds := c.config.ProjectIDs
 	for _, id := range projectIds {
@@ -266,71 +265,223 @@ func (c *Client) Sync(ctx context.Context, handler TranslationHandler) error {
 			return err
 		}
 
-		err = c.syncEpisodes(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncEpisodes(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateEpisodeTranslation(ctx, sqlc.UpdateEpisodeTranslationParams{
+					ItemID:      int32(utils.AsInt(t.ParentID)),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncSeasons(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncSeasons(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateSeasonTranslation(ctx, sqlc.UpdateSeasonTranslationParams{
+					ItemID:      int32(utils.AsInt(t.ParentID)),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncShows(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncShows(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateShowTranslation(ctx, sqlc.UpdateShowTranslationParams{
+					ItemID:      int32(utils.AsInt(t.ParentID)),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncSections(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncSections(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateSectionTranslation(ctx, sqlc.UpdateSectionTranslationParams{
+					ItemID:      int32(utils.AsInt(t.ParentID)),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncPages(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncPages(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdatePageTranslation(ctx, sqlc.UpdatePageTranslationParams{
+					ItemID:      int32(utils.AsInt(t.ParentID)),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncLinks(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncLinks(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateLinkTranslation(ctx, sqlc.UpdateLinkTranslationParams{
+					ItemID:      int32(utils.AsInt(t.ParentID)),
+					Language:    t.Language,
+					Title:       t.Values["title"],
+					Description: t.Values["description"],
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncTopics(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncTopics(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateStudyTopicTranslation(ctx, sqlc.UpdateStudyTopicTranslationParams{
+					ItemID:      utils.AsUuid(t.ParentID),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncLessons(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncLessons(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateLessonTranslation(ctx, sqlc.UpdateLessonTranslationParams{
+					ItemID:      utils.AsUuid(t.ParentID),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncTasks(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncTasks(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateTaskTranslation(ctx, sqlc.UpdateTaskTranslationParams{
+					ItemID:      utils.AsUuid(t.ParentID),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncAlternatives(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncAlternatives(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateAlternativeTranslation(ctx, sqlc.UpdateAlternativeTranslationParams{
+					ItemID:   utils.AsUuid(t.ParentID),
+					Language: t.Language,
+					Title:    null.StringFrom(t.Values["title"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncAchievements(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncAchievements(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateAchievementTranslation(ctx, sqlc.UpdateAchievementTranslationParams{
+					ItemID:      utils.AsUuid(t.ParentID),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncAchievementGroups(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncAchievementGroups(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateAchievementGroupTranslation(ctx, sqlc.UpdateAchievementGroupTranslationParams{
+					ItemID:      utils.AsUuid(t.ParentID),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncSurveys(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncSurveys(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateSurveyTranslation(ctx, sqlc.UpdateSurveyTranslationParams{
+					ItemID:      utils.AsUuid(t.ParentID),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncSurveyQuestions(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncSurveyQuestions(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateSurveyQuestionTranslation(ctx, sqlc.UpdateSurveyQuestionTranslationParams{
+					ItemID:      utils.AsUuid(t.ParentID),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncFAQs(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncFAQs(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateFAQTranslation(ctx, sqlc.UpdateFAQTranslationParams{
+					ItemID:   utils.AsUuid(t.ParentID),
+					Language: t.Language,
+					Question: null.StringFrom(t.Values["question"]),
+					Answer:   null.StringFrom(t.Values["answer"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncFAQCategories(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncFAQCategories(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateFAQCategoryTranslation(ctx, sqlc.UpdateFAQCategoryTranslationParams{
+					ItemID:      utils.AsUuid(t.ParentID),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
-		err = c.syncGames(ctx, handler, project, directory.ID, crowdinTranslations)
+		err = c.syncGames(ctx, TranslationHandler{
+			SaveTranslation: func(ctx context.Context, t SimpleTranslation) error {
+				return c.q.UpdateGameTranslation(ctx, sqlc.UpdateGameTranslationParams{
+					ItemID:      utils.AsUuid(t.ParentID),
+					Language:    t.Language,
+					Title:       null.StringFrom(t.Values["title"]),
+					Description: null.StringFrom(t.Values["description"]),
+				})
+			},
+		}, project, directory.ID, crowdinTranslations)
 		if err != nil {
 			return err
 		}
