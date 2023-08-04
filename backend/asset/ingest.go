@@ -24,7 +24,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
-	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	"github.com/bcc-code/mediabank-bridge/log"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -388,9 +387,9 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 			streamURL, _ := url.Parse(*e.Url)
 
-			streamType := directus.HLSCmaf
+			streamType := "hls_cmaf"
 			if strings.HasSuffix(*e.Url, "index.mpd") {
-				streamType = directus.Dash
+				streamType = "dash"
 			}
 
 			stream := sqlc.InsertAssetStreamParams{
