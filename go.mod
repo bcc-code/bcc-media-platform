@@ -47,7 +47,6 @@ require (
 	github.com/sony/gobreaker v0.5.0
 	github.com/sqlc-dev/pqtype v0.2.0
 	github.com/stretchr/testify v1.8.4
-	github.com/tabbed/pqtype v0.1.1
 	github.com/uptrace/uptrace-go v1.16.0
 	github.com/vektah/gqlparser/v2 v2.5.6
 	github.com/vmihailenco/msgpack/v5 v5.3.5

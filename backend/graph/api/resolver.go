@@ -14,7 +14,7 @@ import (
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/cloudevents/sdk-go/v2/event/datacodec/json"
 	"github.com/google/uuid"
-	"github.com/tabbed/pqtype"
+	"github.com/sqlc-dev/pqtype"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
