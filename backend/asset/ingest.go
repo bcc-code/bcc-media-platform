@@ -2,8 +2,11 @@ package asset
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"gopkg.in/guregu/null.v4"
 	"net/url"
 	"path"
 	"regexp"
@@ -25,7 +28,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/events"
 	"github.com/bcc-code/mediabank-bridge/log"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"go.opentelemetry.io/otel"
@@ -47,7 +49,7 @@ var (
 type externalServices interface {
 	GetS3Client() *s3.Client
 	GetMediaPackageVOD() *mediapackagevod.Client
-	GetDirectusClient() *resty.Client
+	GetQueries() *sqlc.Queries
 }
 
 type config interface {
@@ -131,10 +133,10 @@ func SafeString(s string) string {
 //
 // ```
 // If systemLanguage param is not present the return will be an empty array
-func GetLanguagesFromVideoElement(videoElement smil.Video) []directus.AssetStreamLanguage {
+func GetLanguagesFromVideoElement(videoElement smil.Video) []string {
 
-	systemLanguages := []string{}
-	languages := []directus.AssetStreamLanguage{}
+	var systemLanguages []string
+	var languages []string
 
 	if videoElement.IncludeAudio != "true" && videoElement.IncludeAudio != "" { // "" == "true" as per https://docs.aws.amazon.com/mediapackage/latest/ug/supported-inputs-vod-smil.html
 		return languages
@@ -146,10 +148,7 @@ func GetLanguagesFromVideoElement(videoElement smil.Video) []directus.AssetStrea
 	for i := range systemLanguages {
 		langCode := utils.LegacyLanguageCodeTo639_1(systemLanguages[i])
 		if langCode != "" {
-			languages = append(languages, directus.AssetStreamLanguage{
-				AssetStreamID: "+", // Directus requirement
-				LanguagesCode: directus.LanguagesCode{Code: langCode},
-			})
+			languages = append(languages, langCode)
 		}
 	}
 
@@ -166,6 +165,8 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		return merry.Wrap(err)
 	}
 
+	queries := services.GetQueries()
+
 	s3client := services.GetS3Client()
 
 	assetMeta := assetIngestJSONMeta{}
@@ -175,9 +176,9 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	}
 	assetMeta.CalculateDuration()
 
-	oldAsset, err := directus.FindNewestAssetByMediabankenID(services.GetDirectusClient(), assetMeta.ID)
+	oldAsset, err := queries.NewestPreviousAsset(ctx, assetMeta.ID)
 
-	if err != nil && !errors.Is(err, directus.ErrNotFound) {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}
 
@@ -195,10 +196,10 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	// they will replace the copy instructions and we will not unnecessarily copy old files
 	// that will just get replaced
 	log.L.Debug().Msg("Prepare to copy old files")
-	if oldAsset != nil {
+	if oldAsset.ID != 0 {
 		res, err := s3client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
 			Bucket: config.GetStorageBucket(),
-			Prefix: aws.String(oldAsset.MainStoragePath),
+			Prefix: aws.String(oldAsset.MainStoragePath.String),
 		})
 
 		if err != nil {
@@ -206,7 +207,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		}
 
 		for _, x := range res.Contents {
-			key := strings.Replace(*x.Key, oldAsset.MainStoragePath, storagePrefix, 1)
+			key := strings.Replace(*x.Key, oldAsset.MainStoragePath.String, storagePrefix, 1)
 			coi := &s3.CopyObjectInput{
 				Bucket:     config.GetStorageBucket(),
 				Key:        aws.String(key),
@@ -217,18 +218,15 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		}
 	}
 
-	// Create BASE Directus asset
-	a := &directus.Asset{
+	// Create BASE asset
+	assetID, err := queries.InsertAsset(ctx, sqlc.InsertAssetParams{
 		Name:            assetMeta.Title,
-		MediabankenID:   assetMeta.ID,
-		Duration:        assetMeta.DurationInS,
-		EncodingVersion: "btv",
-		MainStoragePath: storagePrefix,
-		Status:          common.StatusDraft,
-	}
-
-	log.L.Debug().Msg("Save Directus Asset object")
-	a, err = directus.SaveItem(ctx, services.GetDirectusClient(), *a, true)
+		MediabankenID:   null.StringFrom(assetMeta.ID),
+		Duration:        int32(assetMeta.DurationInS),
+		EncodingVersion: null.StringFrom("btv"),
+		MainStoragePath: null.StringFrom(storagePrefix),
+		Status:          null.StringFrom(string(common.StatusDraft)),
+	})
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -238,9 +236,9 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		{Key: aws.String(msg.JSONMetaPath)},
 	}
 
-	audioLanguages := []directus.AssetStreamLanguage{}
-	subLanguages := []directus.AssetStreamLanguage{}
-	assetfiles := []directus.AssetFile{}
+	var audioLanguages []string
+	var subLanguages []string
+	var assetfiles []sqlc.InsertAssetFileParams
 
 	// If we have a "smilFile" then we have defined streams
 	hasStreams := assetMeta.SmilFile != ""
@@ -286,10 +284,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			}
 
 			langCode := utils.LegacyLanguageCodeTo639_1(sub.SystemLanguage)
-			subLanguages = append(subLanguages, directus.AssetStreamLanguage{
-				LanguagesCode: directus.LanguagesCode{Code: langCode},
-				AssetStreamID: "+", // Directus requirement
-			})
+			subLanguages = append(subLanguages, langCode)
 
 			filesToCopy[*coi.Key] = coi
 			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
@@ -326,16 +321,16 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			fileSizeErrors = append(fileSizeErrors, merry.Wrap(err))
 		}
 
-		af := directus.AssetFile{
-			Path:             target,
-			Storage:          "s3_assets",
-			Type:             "video",
-			MimeType:         m.Mime,
-			AssetID:          a.ID,
-			AudioLanguage:    m.AudioLanguge,
-			SubtitleLanguage: m.SubtitleLanguage,
-			Resolution:       m.Resolution,
-			Size:             fileSizeInBytes,
+		af := sqlc.InsertAssetFileParams{
+			Path:               target,
+			Storage:            "s3_assets",
+			Type:               "video",
+			MimeType:           m.Mime,
+			AssetID:            assetID,
+			AudioLanguageID:    null.StringFrom(m.AudioLanguge),
+			SubtitleLanguageID: null.StringFrom(m.SubtitleLanguage),
+			Resolution:         null.StringFrom(m.Resolution),
+			Size:               fileSizeInBytes,
 		}
 
 		assetfiles = append(assetfiles, af)
@@ -375,7 +370,13 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		}
 
 		if asset.Arn != nil {
-			a.ARN = *asset.Arn
+			err = queries.UpdateAssetArn(ctx, sqlc.UpdateAssetArnParams{
+				ID:     assetID,
+				AwsArn: null.StringFromPtr(asset.Arn),
+			})
+			if err != nil {
+				return merry.Wrap(err)
+			}
 		}
 
 		// Insert all stream endpoints into the CMS
@@ -392,27 +393,37 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 				streamType = directus.Dash
 			}
 
-			stream := directus.AssetStream{
+			stream := sqlc.InsertAssetStreamParams{
 				Type:    streamType,
-				URL:     *e.Url,
+				Url:     *e.Url,
 				Path:    streamURL.Path,
 				Service: "mediapackage",
-				AudioLanguages: directus.CRUDArrays[directus.AssetStreamLanguage]{
-					Create: audioLanguages,
-					Update: []directus.AssetStreamLanguage{},
-					Delete: []int{},
-				},
-				SubtitleLanguages: directus.CRUDArrays[directus.AssetStreamLanguage]{
-					Create: subLanguages,
-					Update: []directus.AssetStreamLanguage{},
-					Delete: []int{},
-				},
-				AssetID: a.ID,
+				AssetID: assetID,
 			}
 
-			_, err := directus.SaveItem(ctx, services.GetDirectusClient(), stream, false)
+			streamID, err := queries.InsertAssetStream(ctx, stream)
 			if err != nil {
 				return merry.Wrap(err)
+			}
+
+			for _, l := range audioLanguages {
+				_, err = queries.InsertAssetStreamAudioLanguage(ctx, sqlc.InsertAssetStreamAudioLanguageParams{
+					AssetstreamsID: null.IntFrom(int64(streamID)),
+					LanguagesCode:  null.StringFrom(l),
+				})
+				if err != nil {
+					return merry.Wrap(err)
+				}
+			}
+
+			for _, l := range subLanguages {
+				_, err = queries.InsertAssetStreamSubtitleLanguage(ctx, sqlc.InsertAssetStreamSubtitleLanguageParams{
+					AssetstreamsID: null.IntFrom(int64(streamID)),
+					LanguagesCode:  null.StringFrom(l),
+				})
+				if err != nil {
+					return merry.Wrap(err)
+				}
 			}
 		}
 		log.L.Debug().Msg("Done creating streams")
@@ -420,19 +431,11 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 	log.L.Debug().Msg("Insert stuff into Directus")
 	for _, af := range assetfiles {
-		_, err = directus.SaveItem(ctx, services.GetDirectusClient(), af, false)
+		_, err = queries.InsertAssetFile(ctx, af)
 		if err != nil {
 			return merry.Wrap(err)
 		}
 	}
-
-	a.Status = common.StatusDraft
-	_, err = directus.SaveItem(ctx, services.GetDirectusClient(), *a, false)
-	if err != nil {
-		return merry.Wrap(err)
-	}
-
-	log.L.Debug().Msg("Inserted asset in DRAFT state")
 
 	deleteInputs := &s3.DeleteObjectsInput{
 		Bucket: config.GetIngestBucket(),
@@ -473,13 +476,16 @@ func UpdateIngestStatus(ctx context.Context, services externalServices, config c
 		return merry.Wrap(ErrResourcesEmpty)
 	}
 
-	asset, err := directus.FindAssetByAWSArn(services.GetDirectusClient(), event.Resources[0])
+	queries := services.GetQueries()
+
+	asset, err := queries.AssetIDByARN(ctx, event.Resources[0])
 	if err != nil {
 		log.L.Warn().Err(err).Strs("arn", event.Resources).Msg("Error finding the asset to update")
 		return merry.Wrap(err)
 	}
 
-	asset.Status = common.StatusPublished
-	_, err = directus.SaveItem(ctx, services.GetDirectusClient(), asset, false)
-	return err
+	return queries.UpdateAssetStatus(ctx, sqlc.UpdateAssetStatusParams{
+		ID:     asset,
+		Status: string(common.StatusPublished),
+	})
 }

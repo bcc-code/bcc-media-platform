@@ -57,60 +57,6 @@ type DSItem interface {
 	ForUpdate() interface{}
 }
 
-// SaveItem into Directus system
-func SaveItem[t DSItem](ctx context.Context, c *resty.Client, i t, unmashall bool) (*t, error) {
-	ctx, span := trace.StartSpan(ctx, "directus.SaveItem")
-	defer span.End()
-
-	// Define the wrapper structure as DS returns a `{ data: {}}` json
-	x := struct {
-		Data t
-	}{}
-
-	req := c.R()
-
-	if unmashall {
-		req.SetResult(x)
-	}
-
-	var err error
-	var res *resty.Response
-
-	if i.UID() != "" {
-		path := fmt.Sprintf("/items/%s/%s", i.TypeName(), i.UID())
-		req.SetBody(i.ForUpdate())
-		res, err = req.Patch(path)
-	} else {
-		path := fmt.Sprintf("/items/%s", i.TypeName())
-		req.SetBody(i)
-		res, err = req.Post(path)
-	}
-
-	if err != nil {
-		return nil, err
-	} else if res.IsError() {
-		return nil, merry.New(string(res.Body()))
-	}
-
-	if unmashall {
-		// Convert the result into a strong type and extract what we actually need
-		return &res.Result().(*struct{ Data t }).Data, nil
-	}
-
-	return nil, nil
-}
-
-// SaveItems iterates and individually updates items
-func SaveItems[t DSItem](ctx context.Context, c *resty.Client, items []t) error {
-	for _, item := range items {
-		_, err := SaveItem(ctx, c, item, false)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // GetItem by collection and id
 func GetItem[t DSItem](ctx context.Context, c *resty.Client, collection string, id int) (item t, err error) {
 	ctx, span := trace.StartSpan(ctx, "directus.ListItems")
