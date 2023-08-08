@@ -64,19 +64,48 @@ const clickEpisode = (index: number, id: string) => {
         searchText: queryVariable.value,
     })
 
-    console.log(index, id)
-
     goToEpisode(id)
 }
 
 let timeout = null as NodeJS.Timeout | null
 
+const queryVariable = ref(queryString.value)
+
+const route = useRoute()
+const router = useRouter()
+
+const loaded = ref(false)
+
+onMounted(async () => {
+    const q = route.query.q
+    queryVariable.value = ""
+    await nextTick()
+    if (q && typeof q === "string") {
+        queryVariable.value = q
+    }
+    setTitle(t("page.search"))
+    analytics.page({
+        id: "search",
+        title: t("page.search"),
+    })
+
+    const { setCurrent } = usePage()
+    setCurrent("search")
+
+    pause.value = false
+    loaded.value = true
+})
+
 watch(
     () => query.value,
     () => {
+        router.replace({ query: { q: query.value } })
+
         const v = query.value
 
         queryString.value = v
+
+        console.log("SET FROM QUERY")
 
         if (v && pause.value) {
             pause.value = false
@@ -89,43 +118,6 @@ watch(
         timeout = setTimeout(() => {
             queryVariable.value = v
         }, 150)
-    }
-)
-
-const queryVariable = ref(queryString.value)
-
-const route = useRoute()
-const router = useRouter()
-
-const loaded = ref(false)
-
-onMounted(async () => {
-    const q = route.query.q
-    query.value = ""
-    queryVariable.value = ""
-    await nextTick()
-    if (q && typeof q === "string" && !query.value) {
-        query.value = q
-        queryVariable.value = q
-    }
-    setTitle(t("page.search"))
-    analytics.page({
-        id: "search",
-        title: t("page.search"),
-    })
-
-    const { setCurrent } = usePage()
-    setCurrent("search")
-
-    console.log(queryVariable)
-    pause.value = false
-    loaded.value = true
-})
-
-watch(
-    () => query.value,
-    () => {
-        router.replace({ query: { q: query.value } })
     }
 )
 
