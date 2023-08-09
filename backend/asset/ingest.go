@@ -386,9 +386,9 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 			streamURL, _ := url.Parse(*e.Url)
 
-			streamType := "hls_cmaf"
+			streamType := common.TypeHLSCmaf
 			if strings.HasSuffix(*e.Url, "index.mpd") {
-				streamType = "dash"
+				streamType = common.TypeDash
 			}
 
 			stream := sqlc.InsertAssetStreamParams{
