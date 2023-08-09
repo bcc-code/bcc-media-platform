@@ -35,7 +35,6 @@ import (
 // Sentinel errors
 var (
 	ErrResourcesEmpty = merry.Sentinel("AWS assets list empty")
-	ErrDurationEmpty  = merry.Sentinel("duration string can not be empty")
 	ErrDuringCopy     = merry.Sentinel("error copying files on S3. See log for more details")
 )
 
@@ -79,6 +78,7 @@ type assetIngestJSONMeta struct {
 	DurationInS int64
 }
 
+// CalculateDuration calculates the asset duration and assigns it to the meta
 func (a *assetIngestJSONMeta) CalculateDuration() {
 	r := regexp.MustCompile(`([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2}):[0-9]{1,2}`)
 	matches := r.FindStringSubmatch(a.Duration)
@@ -245,7 +245,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	log.L.Debug().Str("smilFile", assetMeta.SmilFile).Msg("Smil Path")
 	if hasStreams {
 		smilPath := path.Join(assetMeta.BasePath, assetMeta.SmilFile)
-		smil, err := readSmilFroms3(ctx, s3client, config.GetIngestBucket(), smilPath)
+		smilValue, err := readSmilFroms3(ctx, s3client, config.GetIngestBucket(), smilPath)
 		if err != nil {
 			return merry.Wrap(err)
 		}
@@ -258,7 +258,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 		filesToCopy[*coi.Key] = coi
 
-		for _, file := range smil.Body.Switch.Videos {
+		for _, file := range smilValue.Body.Switch.Videos {
 			target := path.Join(storagePrefix, "stream", path.Base(file.Src))
 			src := path.Join(*config.GetIngestBucket(), assetMeta.BasePath, file.Src)
 			coi := &s3.CopyObjectInput{
@@ -273,7 +273,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{Key: aws.String(src)})
 		}
 
-		for _, sub := range smil.Body.Switch.Subs {
+		for _, sub := range smilValue.Body.Switch.Subs {
 			target := path.Join(storagePrefix, "stream", path.Base(sub.Src))
 			src := path.Join(*config.GetIngestBucket(), assetMeta.BasePath, sub.Src)
 			coi := &s3.CopyObjectInput{
@@ -290,7 +290,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		}
 	}
 
-	fileSizeErrors := []error{}
+	var fileSizeErrors []error
 	for _, fileMeta := range assetMeta.Files {
 		m := fileMeta
 		target := path.Join(storagePrefix, "mux", path.Base(m.Path))
@@ -461,7 +461,8 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	return nil
 }
 
-func UpdateIngestStatus(ctx context.Context, services externalServices, config config, event pubsub.MediaPackageInputNotification) error {
+// UpdateIngestStatus parses the event and updates the status of an asset in the database
+func UpdateIngestStatus(ctx context.Context, services externalServices, _ config, event pubsub.MediaPackageInputNotification) error {
 	ctx, span := otel.Tracer("asset").Start(ctx, "updateIngestStatus")
 	defer span.End()
 
