@@ -58,6 +58,7 @@ type String struct {
 	Text       string `json:"text"`
 	Identifier string `json:"identifier"`
 	Context    string `json:"context"`
+	IsHidden   bool   `json:"isHidden"`
 }
 
 // Approval model

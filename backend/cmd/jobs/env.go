@@ -23,11 +23,6 @@ type awsConfig struct {
 	StorageBucket         string
 }
 
-type directusConfig struct {
-	BaseURL string
-	Key     string
-}
-
 type firebase struct {
 	ProjectID string
 }
@@ -38,7 +33,6 @@ type cloudTasks struct {
 
 type envConfig struct {
 	AWS               awsConfig
-	Directus          directusConfig
 	Port              string
 	DeleteIngestFiles bool
 	DB                utils.DatabaseConfig
@@ -78,10 +72,6 @@ func getEnvConfig() envConfig {
 			MediapackageSourceARN: os.Getenv("AWS_MEDIAPACKAGE_SOURCE"),
 			IngestBucket:          os.Getenv("AWS_INGEST_BUCKET"),
 			StorageBucket:         os.Getenv("AWS_STORAGE_BUCKET"),
-		},
-		Directus: directusConfig{
-			BaseURL: os.Getenv("DIRECTUS_URL"),
-			Key:     os.Getenv("DIRECTUS_KEY"),
 		},
 		DB: utils.DatabaseConfig{
 			ConnectionString:   os.Getenv("DB_CONNECTION_STRING"),

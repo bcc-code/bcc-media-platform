@@ -131,13 +131,13 @@ func (s Server) ProcessMessage(c *gin.Context) {
 	case events.TypeRefreshView:
 		err = maintenance.RefreshView(ctx, s.services, e)
 	case events.TypeDirectusEvent:
-		err = s.services.GetDirectusEventHandler().ProcessCloudEvent(ctx, e)
+		err = s.services.GetEventHandler().ProcessCloudEvent(ctx, e)
 	case events.TypeSearchReindex:
 		err = s.services.GetSearchService().Reindex(ctx)
 	case events.TypeExportAnswersToBQ:
 		err = s.services.GetStatisticHandler().HandleAnswerExportToBQ(ctx)
 	case events.TypeTranslationsSync:
-		err = s.runIfNotLocked(ctx, fmt.Sprintf("event:%s", e.Type()), func() error {
+		err = s.runIfNotLocked(ctx, fmt.Sprintf("event:%s:%s", e.Type(), e.ID()), func() error {
 			return crowdin.HandleEvent(ctx, s.services, e)
 		})
 	default:

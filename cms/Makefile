@@ -7,6 +7,10 @@ install:
 	pnpm i
 	cd ../packages/directus-modules && make install
 
+update:
+	pnpm update
+	cd ../packages/directus-modules && make update
+
 build:
 	rm -rf ./extensions
 	#npm run build

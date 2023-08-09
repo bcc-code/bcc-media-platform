@@ -11,7 +11,7 @@
 	"type": "module",
 	"directus:extension": {
 		"type": "panel",
-    "path": "../../../cms/extensions/panels/api-tools/index.js",
+		"path": "../../../cms/extensions/panels/api-tools/index.js",
 		"source": "src/index.ts",
 		"host": "^10.1.3"
 	},
@@ -22,7 +22,7 @@
 	},
 	"devDependencies": {
 		"@directus/extensions-sdk": "10.1.3",
-		"typescript": "^5.1.3",
+		"typescript": "^5.1.6",
 		"vue": "^3.3.4"
 	}
 }

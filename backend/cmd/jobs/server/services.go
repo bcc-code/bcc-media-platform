@@ -2,32 +2,29 @@ package server
 
 import (
 	"database/sql"
-
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
-	"github.com/bcc-code/brunstadtv/backend/directus"
+	"github.com/bcc-code/brunstadtv/backend/events"
 	"github.com/bcc-code/brunstadtv/backend/remotecache"
 	"github.com/bcc-code/brunstadtv/backend/scheduler"
 	"github.com/bcc-code/brunstadtv/backend/search"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/statistics"
-	"github.com/go-resty/resty/v2"
 )
 
 // ExternalServices used by the Server
 type ExternalServices struct {
-	S3Client             *s3.Client
-	MediaPackageVOD      *mediapackagevod.Client
-	DirectusClient       *resty.Client
-	SearchService        *search.Service
-	DirectusEventHandler *directus.EventHandler
-	Database             *sql.DB
-	RemoteCache          *remotecache.Client
-	Queries              *sqlc.Queries
-	CrowdinClient        *crowdin.Client
-	Scheduler            *scheduler.Service
-	StatisticsHandler    *statistics.Handler
+	S3Client          *s3.Client
+	MediaPackageVOD   *mediapackagevod.Client
+	SearchService     *search.Service
+	EventHandler      *events.Handler
+	Database          *sql.DB
+	RemoteCache       *remotecache.Client
+	Queries           *sqlc.Queries
+	CrowdinClient     *crowdin.Client
+	Scheduler         *scheduler.Service
+	StatisticsHandler *statistics.Handler
 }
 
 // GetS3Client as stored in the struct
@@ -40,19 +37,14 @@ func (e ExternalServices) GetMediaPackageVOD() *mediapackagevod.Client {
 	return e.MediaPackageVOD
 }
 
-// GetDirectusClient as stored in the struct
-func (e ExternalServices) GetDirectusClient() *resty.Client {
-	return e.DirectusClient
-}
-
 // GetSearchService as stored in the struct
 func (e ExternalServices) GetSearchService() *search.Service {
 	return e.SearchService
 }
 
-// GetDirectusEventHandler as stored in the struct
-func (e ExternalServices) GetDirectusEventHandler() *directus.EventHandler {
-	return e.DirectusEventHandler
+// GetEventHandler as stored in the struct
+func (e ExternalServices) GetEventHandler() *events.Handler {
+	return e.EventHandler
 }
 
 // GetCrowdinClient as stored in the struct

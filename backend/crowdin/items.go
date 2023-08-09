@@ -2,346 +2,135 @@ package crowdin
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/directus"
+	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/bcc-code/brunstadtv/backend/utils"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
-func (c *Client) syncEpisodes(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "episodes", c.episodesTranslationFactory, crowdinTranslations, nil, episodesToDSItems, nil)
+func rawMessageToMap(msg json.RawMessage) map[string]string {
+	var r map[string]string
+	_ = json.Unmarshal(msg, &r)
+	if r == nil {
+		r = map[string]string{}
+	}
+	return r
 }
 
-func (c *Client) episodesTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) syncEpisodes(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "episodes", c.episodesTranslationFactory, crowdinTranslations, nil)
+}
+
+func (c *Client) episodesTranslationFactory(ctx context.Context, language string) ([]SimpleTranslation, error) {
 	return dbToSimple(ctx, language, c.q.ListEpisodeTranslations)
 }
 
-func episodesToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
-		return directus.EpisodesTranslation{
-			Translation: directus.Translation{
-				ID:            utils.AsInt(t.ID),
-				LanguagesCode: t.Language,
-				Title:         ti,
-				Description:   de,
-			},
-			EpisodesID: utils.AsInt(t.ParentID),
-		}
-	})
+func (c *Client) syncSeasons(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "seasons", c.seasonsTranslationFactory, crowdinTranslations, nil)
 }
 
-func (c *Client) syncSeasons(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "seasons", c.seasonsTranslationFactory, crowdinTranslations, nil, seasonsToDSItems, nil)
-}
-
-func (c *Client) seasonsTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) seasonsTranslationFactory(ctx context.Context, language string) ([]SimpleTranslation, error) {
 	return dbToSimple(ctx, language, c.q.ListSeasonTranslations)
 }
 
-func seasonsToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
-		return directus.SeasonsTranslation{
-			Translation: directus.Translation{
-				ID:            utils.AsInt(t.ID),
-				LanguagesCode: t.Language,
-				Title:         ti,
-				Description:   de,
-			},
-			SeasonsID: utils.AsInt(t.ParentID),
-		}
-	})
+func (c *Client) syncShows(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "shows", c.showsTranslationFactory, crowdinTranslations, nil)
 }
 
-func (c *Client) syncShows(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "shows", c.showsTranslationFactory, crowdinTranslations, nil, showsToDSItems, nil)
-}
-
-func (c *Client) showsTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) showsTranslationFactory(ctx context.Context, language string) ([]SimpleTranslation, error) {
 	return dbToSimple(ctx, language, c.q.ListShowTranslations)
 }
 
-func showsToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
-		return directus.ShowsTranslation{
-			Translation: directus.Translation{
-				ID:            utils.AsInt(t.ID),
-				LanguagesCode: t.Language,
-				Title:         ti,
-				Description:   de,
-			},
-			ShowsID: utils.AsInt(t.ParentID),
-		}
-	})
+func (c *Client) syncSections(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "sections", c.sectionsTranslationFactory, crowdinTranslations, nil)
 }
 
-func (c *Client) syncSections(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "sections", c.sectionsTranslationFactory, crowdinTranslations, nil, sectionsToDSItems, nil)
-}
-
-func (c *Client) sectionsTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) sectionsTranslationFactory(ctx context.Context, language string) ([]SimpleTranslation, error) {
 	return dbToSimple(ctx, language, c.q.ListSectionTranslations)
 }
 
-func sectionsToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
-		return directus.SectionsTranslation{
-			Translation: directus.Translation{
-				ID:            utils.AsInt(t.ID),
-				LanguagesCode: t.Language,
-				Title:         ti,
-				Description:   de,
-			},
-			SectionsID: utils.AsInt(t.ParentID),
-		}
-	})
+func (c *Client) syncPages(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "pages", c.pagesTranslationFactory, crowdinTranslations, nil)
 }
 
-func (c *Client) syncPages(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "pages", c.pagesTranslationFactory, crowdinTranslations, nil, pagesToDSItems, nil)
+func (c *Client) syncLinks(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "links", c.linksTranslationFactory, crowdinTranslations, nil)
 }
 
-func (c *Client) syncLinks(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "links", c.linksTranslationFactory, crowdinTranslations, nil, linksToDSItems, nil)
-}
-
-func (c *Client) pagesTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) pagesTranslationFactory(ctx context.Context, language string) ([]SimpleTranslation, error) {
 	return dbToSimple(ctx, language, c.q.ListPageTranslations)
 }
 
-func pagesToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
-		return directus.PagesTranslation{
-			Translation: directus.Translation{
-				ID:            utils.AsInt(t.ID),
-				LanguagesCode: t.Language,
-				Title:         ti,
-				Description:   de,
-			},
-			PagesID: utils.AsInt(t.ParentID),
-		}
-	})
-}
-
-func (c *Client) linksTranslationFactory(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) linksTranslationFactory(ctx context.Context, language string) ([]SimpleTranslation, error) {
 	return dbToSimple(ctx, language, c.q.ListLinkTranslations)
 }
 
-func linksToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
-		return directus.LinksTranslation{
-			Translation: directus.Translation{
-				ID:            utils.AsInt(t.ID),
-				LanguagesCode: t.Language,
-				Title:         ti,
-				Description:   de,
-			},
-			LinksID: utils.AsInt(t.ParentID),
-		}
-	})
-}
-
-func (c *Client) syncLessons(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "lessons", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) syncLessons(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "lessons", func(ctx context.Context, language string) ([]SimpleTranslation, error) {
 		if language == "no" {
 			ts, err := c.q.ListLessonOriginalTranslations(ctx)
 			if err != nil {
 				return nil, err
 			}
-			return lo.Map(ts, func(t sqlc.ListLessonOriginalTranslationsRow, _ int) simpleTranslation {
-				return simpleTranslation{
-					ID: t.ID.String(),
-					Values: map[string]string{
-						TitleField:       t.Title,
-						DescriptionField: t.Description.ValueOrZero(),
-					},
-					Language: "no",
-					ParentID: t.ID.String(),
-				}
-			}), nil
+			return mapToSimple(ts), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListLessonTranslations)
-	}, crowdinTranslations, nil, lessonsToDSItems, nil)
+	}, crowdinTranslations, nil)
 }
 
-func lessonsToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
-		return directus.LessonsTranslation{
-			ID:            t.ID,
-			LanguagesCode: t.Language,
-			Title:         ti,
-			Description:   de,
-			LessonsID:     t.ParentID,
-		}
-	})
-}
-
-func (c *Client) syncTopics(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "studytopics", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) syncTopics(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "studytopics", func(ctx context.Context, language string) ([]SimpleTranslation, error) {
 		if language == "no" {
 			ts, err := c.q.ListStudyTopicOriginalTranslations(ctx)
 			if err != nil {
 				return nil, err
 			}
-			return lo.Map(ts, func(t sqlc.ListStudyTopicOriginalTranslationsRow, _ int) simpleTranslation {
-				return simpleTranslation{
-					ID: t.ID.String(),
-					Values: map[string]string{
-						TitleField:       t.Title,
-						DescriptionField: t.Description.ValueOrZero(),
-					},
-					Language: "no",
-					ParentID: t.ID.String(),
-				}
-			}), nil
+			return mapToSimple(ts), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListStudyTopicTranslations)
-	}, crowdinTranslations, nil, topicsToDSItems, nil)
+	}, crowdinTranslations, nil)
 }
 
-func topicsToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
-		return directus.StudyTopicsTranslation{
-			ID:            t.ID,
-			LanguagesCode: t.Language,
-			Title:         ti,
-			Description:   de,
-			StudyTopicsID: t.ParentID,
-		}
-	})
-}
-
-func (c *Client) syncSurveys(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "surveys", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) syncSurveys(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "surveys", func(ctx context.Context, language string) ([]SimpleTranslation, error) {
 		if language == "no" {
 			ts, err := c.q.ListSurveyOriginalTranslations(ctx)
 			if err != nil {
 				return nil, err
 			}
-			return lo.Map(ts, func(t sqlc.ListSurveyOriginalTranslationsRow, _ int) simpleTranslation {
-				return simpleTranslation{
-					ID: t.ID.String(),
-					Values: map[string]string{
-						TitleField:       t.Title,
-						DescriptionField: t.Description.ValueOrZero(),
-					},
-					Language: "no",
-					ParentID: t.ID.String(),
-				}
-			}), nil
+			return mapToSimple(ts), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListSurveyTranslations)
-	}, crowdinTranslations, nil, surveysToDSItems, nil)
+	}, crowdinTranslations, nil)
 }
 
-func surveysToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
-		return directus.SurveysTranslation{
-			ID:            t.ID,
-			LanguagesCode: t.Language,
-			Title:         ti,
-			Description:   de,
-			SurveysID:     t.ParentID,
-		}
-	})
-}
-
-func (c *Client) syncSurveyQuestions(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "surveyquestions", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) syncSurveyQuestions(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "surveyquestions", func(ctx context.Context, language string) ([]SimpleTranslation, error) {
 		if language == "no" {
 			ts, err := c.q.ListSurveyQuestionOriginalTranslations(ctx)
 			if err != nil {
 				return nil, err
 			}
-			return lo.Map(ts, func(t sqlc.ListSurveyQuestionOriginalTranslationsRow, _ int) simpleTranslation {
-				return simpleTranslation{
-					ID: t.ID.String(),
-					Values: map[string]string{
-						TitleField:       t.Title,
-						DescriptionField: t.Description.ValueOrZero(),
-						PlaceholderField: t.Placeholder.ValueOrZero(),
-					},
-					Language: "no",
-					ParentID: t.ID.String(),
-				}
-			}), nil
+			return mapToSimple(ts), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListSurveyQuestionTranslations)
-	}, crowdinTranslations, nil, surveyQuestionsToDSItems, nil)
+	}, crowdinTranslations, nil)
 }
 
-func surveyQuestionsToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
-		ph, _ := t.Values[PlaceholderField]
-		return directus.SurveyQuestionsTranslation{
-			ID:                t.ID,
-			LanguagesCode:     t.Language,
-			Title:             ti,
-			Description:       de,
-			Placeholder:       ph,
-			SurveyQuestionsID: t.ParentID,
-		}
-	})
-}
-
-func (c *Client) syncTasks(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "tasks", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) syncTasks(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "tasks", func(ctx context.Context, language string) ([]SimpleTranslation, error) {
 		if language == "no" {
 			ts, err := c.q.ListTaskOriginalTranslations(ctx)
 			if err != nil {
 				return nil, err
 			}
-			return lo.Map(ts, func(t sqlc.ListTaskOriginalTranslationsRow, _ int) simpleTranslation {
-				return simpleTranslation{
-					ID: t.ID.String(),
-					Values: map[string]string{
-						TitleField:       t.Title.ValueOrZero(),
-						DescriptionField: t.Description.ValueOrZero(),
-					},
-					Language: "no",
-					ParentID: t.ID.String(),
-				}
-			}), nil
+			return mapToSimple(ts), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListTaskTranslations)
-	}, crowdinTranslations, nil, tasksToDSItems, nil)
+	}, crowdinTranslations, nil)
 }
 
-func tasksToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
-		return directus.TasksTranslation{
-			ID:            t.ID,
-			LanguagesCode: t.Language,
-			Title:         ti,
-			Description:   de,
-			TasksID:       t.ParentID,
-		}
-	})
-}
-
-func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
+func (c *Client) syncAlternatives(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
 	originalTs, err := c.q.ListQuestionAlternativesOriginalTranslations(ctx)
 	if err != nil {
 		return err
@@ -364,22 +153,13 @@ func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, proj
 		if !f {
 			return m
 		}
-		m[i.ID.String()] = t.Title.String
+		m[i.ID.String()] = rawMessageToMap(t.Values)["title"]
 		return m
 	}, map[string]string{})
 
-	return c.syncCollection(ctx, d, project, directoryId, "questionalternatives", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+	return c.syncCollection(ctx, handler, project, directoryId, "questionalternatives", func(ctx context.Context, language string) ([]SimpleTranslation, error) {
 		if language == "no" {
-			return lo.Map(originalTs, func(t sqlc.ListQuestionAlternativesOriginalTranslationsRow, _ int) simpleTranslation {
-				return simpleTranslation{
-					ID: t.ID.String(),
-					Values: map[string]string{
-						TitleField: t.Title.ValueOrZero(),
-					},
-					Language: "no",
-					ParentID: t.ID.String(),
-				}
-			}), nil
+			return mapToSimple(originalTs), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListAlternativeTranslations)
 	}, crowdinTranslations, func(id string) string {
@@ -387,211 +167,72 @@ func (c *Client) syncAlternatives(ctx context.Context, d *directus.Handler, proj
 			return "Question: " + t
 		}
 		return ""
-	}, alternativesToDSItems, nil)
-}
-
-func alternativesToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		return directus.QuestionAlternativesTranslation{
-			ID:                     t.ID,
-			LanguagesCode:          t.Language,
-			Title:                  ti,
-			QuestionAlternativesID: t.ParentID,
-		}
 	})
 }
 
-func (c *Client) syncAchievements(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "achievements", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) syncAchievements(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "achievements", func(ctx context.Context, language string) ([]SimpleTranslation, error) {
 		if language == "no" {
 			ts, err := c.q.ListAchievementOriginalTranslations(ctx)
 			if err != nil {
 				return nil, err
 			}
-			return lo.Map(ts, func(t sqlc.ListAchievementOriginalTranslationsRow, _ int) simpleTranslation {
-				return simpleTranslation{
-					ID: t.ID.String(),
-					Values: map[string]string{
-						TitleField:       t.Title,
-						DescriptionField: t.Description.ValueOrZero(),
-					},
-					Language: "no",
-					ParentID: t.ID.String(),
-				}
-			}), nil
+			return mapToSimple(ts), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListAchievementTranslations)
-	}, crowdinTranslations, nil, achievementsToDSItems, func(ctx context.Context, keys []string) error {
-		return c.q.ClearAchievementTranslations(ctx, utils.MapWith(keys, utils.AsUuid))
-	})
+	}, crowdinTranslations, nil)
 }
 
-func achievementsToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		de, _ := t.Values[DescriptionField]
-		return directus.AchievementsTranslation{
-			ID:             t.ID,
-			LanguagesCode:  t.Language,
-			Title:          ti,
-			Description:    de,
-			AchievementsID: t.ParentID,
-		}
-	})
-}
-
-func (c *Client) syncAchievementGroups(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "achievementgroups", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) syncAchievementGroups(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "achievementgroups", func(ctx context.Context, language string) ([]SimpleTranslation, error) {
 		if language == "no" {
 			ts, err := c.q.ListAchievementGroupOriginalTranslations(ctx)
 			if err != nil {
 				return nil, err
 			}
-			return lo.Map(ts, func(t sqlc.ListAchievementGroupOriginalTranslationsRow, _ int) simpleTranslation {
-				return simpleTranslation{
-					ID: t.ID.String(),
-					Values: map[string]string{
-						TitleField: t.Title.ValueOrZero(),
-					},
-					Language: "no",
-					ParentID: t.ID.String(),
-				}
-			}), nil
+			return mapToSimple(ts), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListAchievementGroupTranslations)
-	}, crowdinTranslations, nil, achievementGroupsToDSItems, func(ctx context.Context, keys []string) error {
-		return c.q.ClearAchievementGroupTranslations(ctx, utils.MapWith(keys, utils.AsUuid))
-	})
+	}, crowdinTranslations, nil)
 }
 
-func achievementGroupsToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values[TitleField]
-		return directus.AchievementGroupsTranslation{
-			ID:                  t.ID,
-			LanguagesCode:       t.Language,
-			Title:               ti,
-			AchievementGroupsID: t.ParentID,
-		}
-	})
-}
-
-func (c *Client) syncFAQs(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "faqs", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) syncFAQs(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "faqs", func(ctx context.Context, language string) ([]SimpleTranslation, error) {
 		if language == "no" {
 			ts, err := c.q.ListFAQOriginalTranslations(ctx)
 			if err != nil {
 				return nil, err
 			}
-			return lo.Map(ts, func(t sqlc.ListFAQOriginalTranslationsRow, _ int) simpleTranslation {
-				return simpleTranslation{
-					ID: t.ID.String(),
-					Values: map[string]string{
-						"question": t.Question,
-						"answer":   t.Answer,
-					},
-					Language: "no",
-					ParentID: t.ID.String(),
-				}
-			}), nil
+			return mapToSimple(ts), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListFAQTranslations)
-	}, crowdinTranslations, nil, faqsToDSItems, func(ctx context.Context, keys []string) error {
-		return c.q.ClearFAQTranslations(ctx, utils.MapWith(keys, utils.AsUuid))
-	})
+	}, crowdinTranslations, nil)
 }
 
-func faqsToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		q, _ := t.Values["question"]
-		a, _ := t.Values["answer"]
-		return directus.FaqsTranslation{
-			ID:            t.ID,
-			LanguagesCode: t.Language,
-			Question:      q,
-			Answer:        a,
-			FaqsID:        t.ParentID,
-		}
-	})
-}
-
-func (c *Client) syncFAQCategories(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "faqcategories", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) syncFAQCategories(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "faqcategories", func(ctx context.Context, language string) ([]SimpleTranslation, error) {
 		if language == "no" {
 			ts, err := c.q.ListFAQCategoryOriginalTranslations(ctx)
 			if err != nil {
 				return nil, err
 			}
-			return lo.Map(ts, func(t sqlc.ListFAQCategoryOriginalTranslationsRow, _ int) simpleTranslation {
-				return simpleTranslation{
-					ID: t.ID.String(),
-					Values: map[string]string{
-						"title":       t.Title,
-						"description": t.Description.String,
-					},
-					Language: "no",
-					ParentID: t.ID.String(),
-				}
-			}), nil
+			return mapToSimple(ts), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListFAQCategoryTranslations)
-	}, crowdinTranslations, nil, faqCategoriesToDSItems, func(ctx context.Context, keys []string) error {
-		return c.q.ClearFAQCategoryTranslations(ctx, utils.MapWith(keys, utils.AsUuid))
-	})
+	}, crowdinTranslations, nil)
 }
 
-func faqCategoriesToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values["title"]
-		d, _ := t.Values["description"]
-		return directus.FaqCategoriesTranslation{
-			ID:              t.ID,
-			LanguagesCode:   t.Language,
-			Title:           ti,
-			Description:     d,
-			FaqCategoriesID: t.ParentID,
-		}
-	})
-}
-
-func (c *Client) syncGames(ctx context.Context, d *directus.Handler, project Project, directoryId int, crowdinTranslations []Translation) error {
-	return c.syncCollection(ctx, d, project, directoryId, "games", func(ctx context.Context, language string) ([]simpleTranslation, error) {
+func (c *Client) syncGames(ctx context.Context, handler TranslationHandler, project Project, directoryId int, crowdinTranslations []Translation) error {
+	return c.syncCollection(ctx, handler, project, directoryId, "games", func(ctx context.Context, language string) ([]SimpleTranslation, error) {
 		if language == "no" {
 			ts, err := c.q.ListGameOriginalTranslations(ctx)
 			if err != nil {
 				return nil, err
 			}
-			return lo.Map(ts, func(t sqlc.ListGameOriginalTranslationsRow, _ int) simpleTranslation {
-				return simpleTranslation{
-					ID: t.ID.String(),
-					Values: map[string]string{
-						"title":       t.Title,
-						"description": t.Description.String,
-					},
-					Language: "no",
-					ParentID: t.ID.String(),
-				}
-			}), nil
+			return mapToSimple(ts), nil
 		}
 		return dbToSimple(ctx, language, c.q.ListGameTranslations)
-	}, crowdinTranslations, nil, gamesToDSItems, func(ctx context.Context, keys []string) error {
-		return c.q.ClearGameTranslations(ctx, utils.MapWith(keys, utils.AsUuid))
-	})
-}
-
-func gamesToDSItems(translations []simpleTranslation) []directus.DSItem {
-	return lo.Map(translations, func(t simpleTranslation, _ int) directus.DSItem {
-		ti, _ := t.Values["title"]
-		d, _ := t.Values["description"]
-		return directus.GamesTranslation{
-			ID:            t.ID,
-			LanguagesCode: t.Language,
-			Title:         ti,
-			Description:   d,
-			GamesID:       t.ParentID,
-		}
-	})
+	}, crowdinTranslations, nil)
 }
 
 type dbT interface {
@@ -601,17 +242,81 @@ type dbT interface {
 	GetValues() map[string]string
 }
 
-func dbToSimple[T dbT](ctx context.Context, language string, factory func(context.Context, []string) ([]T, error)) ([]simpleTranslation, error) {
+func mapToSimple[T any](items []T) []SimpleTranslation {
+	return lo.Map(items, func(i T, _ int) SimpleTranslation {
+		var v dbT
+		switch t := any(i).(type) {
+		case sqlc.ListEpisodeTranslationsRow:
+			v = sqlc.Int32TranslationRow(t)
+		case sqlc.ListSeasonTranslationsRow:
+			v = sqlc.Int32TranslationRow(t)
+		case sqlc.ListShowTranslationsRow:
+			v = sqlc.Int32TranslationRow(t)
+		case sqlc.ListSectionTranslationsRow:
+			v = sqlc.Int32TranslationRow(t)
+		case sqlc.ListPageTranslationsRow:
+			v = sqlc.Int32TranslationRow(t)
+		case sqlc.ListAchievementTranslationsRow:
+			v = sqlc.UuidTranslationRow(t)
+		case sqlc.ListAchievementGroupTranslationsRow:
+			v = sqlc.UuidTranslationRow(t)
+		case sqlc.ListSurveyTranslationsRow:
+			v = sqlc.UuidTranslationRow(t)
+		case sqlc.ListSurveyQuestionTranslationsRow:
+			v = sqlc.UuidTranslationRow(t)
+		case sqlc.ListAlternativeTranslationsRow:
+			v = sqlc.UuidTranslationRow(t)
+		case sqlc.ListStudyTopicTranslationsRow:
+			v = sqlc.UuidTranslationRow(t)
+		case sqlc.ListLessonTranslationsRow:
+			v = sqlc.UuidTranslationRow(t)
+		case sqlc.ListTaskTranslationsRow:
+			v = sqlc.UuidTranslationRow(t)
+		case sqlc.ListFAQTranslationsRow:
+			v = sqlc.UuidTranslationRow(t)
+		case sqlc.ListFAQCategoryTranslationsRow:
+			v = sqlc.UuidTranslationRow(t)
+		case sqlc.ListGameTranslationsRow:
+			v = sqlc.UuidTranslationRow(t)
+		case sqlc.ListLinkTranslationsRow:
+			v = sqlc.Int32TranslationRow(t)
+		case sqlc.ListStudyTopicOriginalTranslationsRow:
+			v = sqlc.OriginalTranslationRow(t)
+		case sqlc.ListLessonOriginalTranslationsRow:
+			v = sqlc.OriginalTranslationRow(t)
+		case sqlc.ListTaskOriginalTranslationsRow:
+			v = sqlc.OriginalTranslationRow(t)
+		case sqlc.ListSurveyOriginalTranslationsRow:
+			v = sqlc.OriginalTranslationRow(t)
+		case sqlc.ListSurveyQuestionOriginalTranslationsRow:
+			v = sqlc.OriginalTranslationRow(t)
+		case sqlc.ListQuestionAlternativesOriginalTranslationsRow:
+			v = sqlc.OriginalTranslationRow(t)
+		case sqlc.ListGameOriginalTranslationsRow:
+			v = sqlc.OriginalTranslationRow(t)
+		case sqlc.ListAchievementOriginalTranslationsRow:
+			v = sqlc.OriginalTranslationRow(t)
+		case sqlc.ListAchievementGroupOriginalTranslationsRow:
+			v = sqlc.OriginalTranslationRow(t)
+		case sqlc.ListFAQOriginalTranslationsRow:
+			v = sqlc.OriginalTranslationRow(t)
+		case sqlc.ListFAQCategoryOriginalTranslationsRow:
+			v = sqlc.OriginalTranslationRow(t)
+		}
+
+		return SimpleTranslation{
+			ID:       v.GetKey(),
+			Values:   v.GetValues(),
+			Language: v.GetLanguage(),
+			ParentID: v.GetParentKey(),
+		}
+	})
+}
+
+func dbToSimple[T any](ctx context.Context, language string, factory func(context.Context, []string) ([]T, error)) ([]SimpleTranslation, error) {
 	ts, err := factory(ctx, []string{language})
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(ts, func(t T, _ int) simpleTranslation {
-		return simpleTranslation{
-			ID:       t.GetKey(),
-			Values:   t.GetValues(),
-			Language: t.GetLanguage(),
-			ParentID: t.GetParentKey(),
-		}
-	}), nil
+	return mapToSimple(ts), nil
 }

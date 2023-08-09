@@ -1,4 +1,4 @@
-package directus
+package events
 
 import (
 	"context"
@@ -24,13 +24,13 @@ const (
 	EventItemsDelete = "items.delete"
 )
 
-// EventHandler for handling directus events
-type EventHandler struct {
+// Handler for handling directus events
+type Handler struct {
 }
 
-// NewEventHandler returns a new EventHandler
-func NewEventHandler() *EventHandler {
-	return &EventHandler{}
+// NewHandler returns a new Handler
+func NewHandler() *Handler {
+	return &Handler{}
 }
 
 var itemsEvents = map[string][]EventHandlerFunc{}
@@ -39,11 +39,11 @@ var itemsEvents = map[string][]EventHandlerFunc{}
 type EventHandlerFunc func(ctx context.Context, collection string, id string) error
 
 // On event, do this:
-func (handler *EventHandler) On(events []string, callback EventHandlerFunc) {
+func (handler *Handler) On(events []string, callback EventHandlerFunc) {
 	for _, event := range events {
 		switch event {
 		case EventItemsUpdate, EventItemsCreate, EventItemsDelete:
-			log.L.Debug().Str("event", event).Msg("Registering Directus webhook-listener for event")
+			log.L.Debug().Str("event", event).Msg("Registering webhook-listener for event")
 			itemsEvents[event] = append(itemsEvents[event], callback)
 		}
 	}
@@ -52,11 +52,11 @@ func (handler *EventHandler) On(events []string, callback EventHandlerFunc) {
 // Sentinel errors
 var (
 	// ErrErrorDuringProcessing returns a sentinel error for processing errors
-	ErrErrorDuringProcessing = merry.Sentinel("Error while processing directus event")
+	ErrErrorDuringProcessing = merry.Sentinel("Error while processing event")
 )
 
 // ProcessCloudEvent creates an Event from CloudEvent
-func (handler *EventHandler) ProcessCloudEvent(ctx context.Context, e cevent.Event) error {
+func (handler *Handler) ProcessCloudEvent(ctx context.Context, e cevent.Event) error {
 	var event Event
 	err := e.DataAs(&event)
 	if err != nil {
@@ -66,7 +66,7 @@ func (handler *EventHandler) ProcessCloudEvent(ctx context.Context, e cevent.Eve
 
 	errors := handler.Process(ctx, event)
 	if len(errors) > 0 {
-		log.L.Error().Errs("directus handler errors", errors).Msg("Errors while processing Directus event")
+		log.L.Error().Errs("directus handler errors", errors).Msg("Errors while processing event")
 		return merry.Wrap(ErrErrorDuringProcessing)
 	}
 
@@ -74,7 +74,7 @@ func (handler *EventHandler) ProcessCloudEvent(ctx context.Context, e cevent.Eve
 }
 
 // Process Event
-func (handler *EventHandler) Process(ctx context.Context, event Event) []error {
+func (handler *Handler) Process(ctx context.Context, event Event) []error {
 	log.L.Debug().Str("event", event.Event).Str("collection", event.Collection).Msg("Processing event")
 	var errors []error
 

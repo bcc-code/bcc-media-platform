@@ -4,22 +4,24 @@ import (
 	"context"
 	"strings"
 
-	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
 )
 
+// TranslationHandler handles translations
+type TranslationHandler struct {
+	SaveTranslation func(ctx context.Context, item SimpleTranslation) error
+}
+
 func (c *Client) syncCollection(
 	ctx context.Context,
-	d *directus.Handler,
+	handler TranslationHandler,
 	project Project,
 	directoryId int,
 	collection string,
-	translationFactory func(ctx context.Context, language string) ([]simpleTranslation, error),
+	translationFactory func(ctx context.Context, language string) ([]SimpleTranslation, error),
 	crowdinTranslations []Translation,
 	contextFactory func(identifier string) string,
-	toDSItems func(items []simpleTranslation) []directus.DSItem,
-	deleteTranslations func(ctx context.Context, keys []string) error,
 ) error {
 	l := log.L.With().Int("project", project.ID).Str("collection", collection).Logger()
 	l.Debug().Msg("Syncing collection")
@@ -55,6 +57,7 @@ func (c *Client) syncCollection(
 
 	var missingStrings []String
 	var editStrings []String
+	var deleteStrings []String
 	for _, str := range dbStrings {
 		if s, found := lo.Find(fileStrings, func(s String) bool {
 			return s.Identifier == str.Identifier
@@ -68,6 +71,13 @@ func (c *Client) syncCollection(
 				s.Context = str.Context
 				editStrings = append(editStrings, s)
 			}
+		}
+	}
+	for _, str := range fileStrings {
+		if _, found := lo.Find(dbStrings, func(s String) bool {
+			return s.Identifier == str.Identifier
+		}); !found && !str.IsHidden {
+			deleteStrings = append(deleteStrings, str)
 		}
 	}
 
@@ -94,27 +104,28 @@ func (c *Client) syncCollection(
 				return err
 			}
 		}
-		if deleteTranslations != nil {
-			err = deleteTranslations(ctx, lo.Map(editStrings, func(i String, _ int) string {
-				_, key, _ := partsFromIdentifier(i.Identifier)
-				return key
-			}))
-			if err != nil {
-				return err
-			}
+	}
+	if len(deleteStrings) > 0 {
+		l.Debug().Int("count", len(deleteStrings)).Strs("identifiers", lo.Map(deleteStrings, func(i String, _ int) string {
+			return i.Identifier
+		})).Msg("Hiding strings")
+		err = c.hideStrings(project.ID, deleteStrings)
+		if err != nil {
+			return err
 		}
 	}
 
-	var queuedTranslations []simpleTranslation
+	var queuedTranslations []SimpleTranslation
 
 	pushTranslations := func(force bool) error {
 		if length := len(queuedTranslations); length > 100 || (force && length > 0) {
 			l.Debug().Int("count", length).Msg("Pushing translations to database")
 			if !c.readonly {
-				items := toDSItems(queuedTranslations)
-				err = d.SaveTranslations(ctx, items)
-				if err != nil {
-					return err
+				for _, t := range queuedTranslations {
+					err = handler.SaveTranslation(ctx, t)
+					if err != nil {
+						return err
+					}
 				}
 			}
 			queuedTranslations = nil
@@ -131,26 +142,26 @@ func (c *Client) syncCollection(
 			return i.Collection == collection && i.Language == lan
 		})
 
-		var items []*simpleTranslation
+		var items []*SimpleTranslation
 		for _, t := range ts {
 			if t.Field == "extra_description" {
 				continue
 			}
-			_, found = lo.Find(sourceTranslations, func(i simpleTranslation) bool {
+			_, found = lo.Find(sourceTranslations, func(i SimpleTranslation) bool {
 				return i.ParentID == t.ID
 			})
 			if !found {
 				continue
 			}
-			item, found := lo.Find(items, func(i *simpleTranslation) bool {
+			item, found := lo.Find(items, func(i *SimpleTranslation) bool {
 				return i.ParentID == t.ID
 			})
 			if !found {
-				existingItem, found := lo.Find(existingTranslations, func(i simpleTranslation) bool {
+				existingItem, found := lo.Find(existingTranslations, func(i SimpleTranslation) bool {
 					return i.ParentID == t.ID
 				})
 				if !found {
-					item = &simpleTranslation{
+					item = &SimpleTranslation{
 						Language: dbLanguage(language.ID),
 						ParentID: t.ID,
 						Values:   map[string]string{},
@@ -173,13 +184,13 @@ func (c *Client) syncCollection(
 		queuedTranslations = append(queuedTranslations, lo.Map(
 			lo.Filter(
 				items,
-				func(i *simpleTranslation, _ int) bool {
-					return i.Changed && lo.SomeBy(sourceTranslations, func(t simpleTranslation) bool {
+				func(i *SimpleTranslation, _ int) bool {
+					return i.Changed && lo.SomeBy(sourceTranslations, func(t SimpleTranslation) bool {
 						return t.ParentID == i.ParentID
 					})
 				},
 			),
-			func(i *simpleTranslation, _ int) simpleTranslation {
+			func(i *SimpleTranslation, _ int) SimpleTranslation {
 				return *i
 			},
 		)...)
