@@ -126,6 +126,8 @@ ALTER TABLE IF EXISTS "public"."tasks_translations" DROP CONSTRAINT IF EXISTS "t
 
 DROP INDEX IF EXISTS tasks_translations_tasks_id_languages_code_uindex;
 
+DELETE FROM "public"."tasks_translations" WHERE "languages_code" IS NULL;
+
 ALTER TABLE IF EXISTS "public"."tasks_translations"
 	ALTER COLUMN "languages_code" SET NOT NULL;
 
