@@ -100,7 +100,7 @@ VALUES (@duration, @encoding_version, @legacy_id, @main_storage_path, @mediabank
         NOW())
 RETURNING id;
 
--- name: NewestPreviousAsset :one
+-- name: NewestPreviousAssetByMediabankenID :one
 SELECT *
 FROM assets
 WHERE mediabanken_id = @mediabanken_id::varchar

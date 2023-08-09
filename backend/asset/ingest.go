@@ -175,8 +175,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	}
 	assetMeta.CalculateDuration()
 
-	oldAsset, err := queries.NewestPreviousAsset(ctx, assetMeta.ID)
-
+	oldAsset, err := queries.NewestPreviousAssetByMediabankenID(ctx, assetMeta.ID)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}

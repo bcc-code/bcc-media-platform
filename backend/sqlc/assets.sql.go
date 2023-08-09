@@ -228,7 +228,7 @@ func (q *Queries) ListAssets(ctx context.Context) ([]Asset, error) {
 	return items, nil
 }
 
-const newestPreviousAsset = `-- name: NewestPreviousAsset :one
+const newestPreviousAssetByMediabankenID = `-- name: NewestPreviousAssetByMediabankenID :one
 SELECT date_created, date_updated, duration, encoding_version, id, legacy_id, main_storage_path, mediabanken_id, name, status, user_created, user_updated, aws_arn
 FROM assets
 WHERE mediabanken_id = $1::varchar
@@ -236,8 +236,8 @@ ORDER BY date_created DESC
 LIMIT 1
 `
 
-func (q *Queries) NewestPreviousAsset(ctx context.Context, mediabankenID string) (Asset, error) {
-	row := q.db.QueryRowContext(ctx, newestPreviousAsset, mediabankenID)
+func (q *Queries) NewestPreviousAssetByMediabankenID(ctx context.Context, mediabankenID string) (Asset, error) {
+	row := q.db.QueryRowContext(ctx, newestPreviousAssetByMediabankenID, mediabankenID)
 	var i Asset
 	err := row.Scan(
 		&i.DateCreated,
