@@ -8,6 +8,8 @@
 
 ALTER TABLE IF EXISTS "public"."pages_translations" DROP CONSTRAINT IF EXISTS "pages_translations_pages_id_foreign";
 
+DELETE FROM "public"."pages_translations" WHERE "pages_id" IS NULL;
+
 ALTER TABLE IF EXISTS "public"."pages_translations"
 	ALTER COLUMN "pages_id" SET NOT NULL;
 
@@ -32,6 +34,8 @@ ALTER TABLE IF EXISTS "public"."links_translations" DROP CONSTRAINT IF EXISTS "l
 
 DROP INDEX IF EXISTS links_translations_links_id_languages_code_uindex;
 
+DELETE FROM "public"."links_translations" WHERE "links_id" IS NULL;
+
 ALTER TABLE IF EXISTS "public"."links_translations"
 	ALTER COLUMN "links_id" SET NOT NULL;
 
@@ -49,6 +53,8 @@ COMMENT ON INDEX "public"."links_translations_links_id_languages_code_uindex"  I
 
 ALTER TABLE IF EXISTS "public"."achievementgroups_translations" DROP CONSTRAINT IF EXISTS "achievementgroups_translations_achievementgroups_id_foreign";
 
+DELETE FROM "public"."achievementgroups_translations" WHERE "achievementgroups_id" IS NULL;
+
 DROP INDEX IF EXISTS achievementgroups_translations_achievementgroups_id_languages_c;
 
 ALTER TABLE IF EXISTS "public"."achievementgroups_translations"
@@ -63,6 +69,8 @@ COMMENT ON CONSTRAINT "achievementgroups_translations_achievementgroups_id_forei
 ALTER TABLE IF EXISTS "public"."achievementgroups_translations" DROP CONSTRAINT IF EXISTS "achievementgroups_translations_languages_code_foreign";
 
 DROP INDEX IF EXISTS achievementgroups_translations_achievementgroups_id_languages_c;
+
+DELETE FROM "public"."achievementgroups_translations" WHERE "languages_code" IS NULL;
 
 ALTER TABLE IF EXISTS "public"."achievementgroups_translations"
     ALTER COLUMN "languages_code" SET NOT NULL;
@@ -84,6 +92,8 @@ ALTER TABLE IF EXISTS "public"."achievements_translations" DROP CONSTRAINT IF EX
 
 DROP INDEX IF EXISTS achievements_translations_achievements_id_languages_code_uindex;
 
+DELETE FROM "public"."achievements_translations" WHERE "achievements_id" IS NULL;
+
 ALTER TABLE IF EXISTS "public"."achievements_translations"
 	ALTER COLUMN "achievements_id" SET NOT NULL;
 
@@ -102,6 +112,8 @@ COMMENT ON INDEX "public"."achievements_translations_achievements_id_languages_c
 ALTER TABLE IF EXISTS "public"."tasks_translations" DROP CONSTRAINT IF EXISTS "tasks_translations_tasks_id_foreign";
 
 DROP INDEX IF EXISTS tasks_translations_tasks_id_languages_code_uindex;
+
+DELETE FROM "public"."tasks_translations" WHERE "tasks_id" IS NULL;
 
 ALTER TABLE IF EXISTS "public"."tasks_translations"
 	ALTER COLUMN "tasks_id" SET NOT NULL;
@@ -122,6 +134,8 @@ ALTER TABLE IF EXISTS "public"."studytopics_translations" DROP CONSTRAINT IF EXI
 
 DROP INDEX IF EXISTS studytopics_translations_studytopics_id_languages_code_uindex;
 
+DELETE FROM "public"."studytopics_translations" WHERE "studytopics_id" IS NULL;
+
 ALTER TABLE IF EXISTS "public"."studytopics_translations"
 	ALTER COLUMN "studytopics_id" SET NOT NULL;
 
@@ -140,6 +154,8 @@ COMMENT ON INDEX "public"."studytopics_translations_studytopics_id_languages_cod
 ALTER TABLE IF EXISTS "public"."lessons_translations" DROP CONSTRAINT IF EXISTS "lessons_translations_lessons_id_foreign";
 
 DROP INDEX IF EXISTS lessons_translations_lessons_id_languages_code_uindex;
+
+DELETE FROM "public"."lessons_translations" WHERE "lessons_id" IS NULL;
 
 ALTER TABLE IF EXISTS "public"."lessons_translations"
 	ALTER COLUMN "lessons_id" SET NOT NULL;
@@ -160,6 +176,9 @@ ALTER TABLE IF EXISTS "public"."questionalternatives_translations" DROP CONSTRAI
 
 DROP INDEX IF EXISTS questionalternatives_translations_questionalternatives_id_langu;
 
+DELETE FROM "public"."questionalternatives_translations" WHERE "questionalternatives_id" IS NULL;
+
+
 ALTER TABLE IF EXISTS "public"."questionalternatives_translations"
 	ALTER COLUMN "questionalternatives_id" SET NOT NULL;
 
@@ -177,6 +196,8 @@ COMMENT ON INDEX "public"."questionalternatives_translations_questionalternative
 
 ALTER TABLE IF EXISTS "public"."faqcategories_translations" DROP CONSTRAINT IF EXISTS "faqcategories_translations_faqcategories_id_foreign";
 
+DELETE FROM "public"."faqcategories_translations" WHERE "faqcategories_id" IS NULL;
+
 ALTER TABLE IF EXISTS "public"."faqcategories_translations"
 	ALTER COLUMN "faqcategories_id" SET NOT NULL;
 
@@ -189,6 +210,8 @@ COMMENT ON CONSTRAINT "faqcategories_translations_faqcategories_id_foreign" ON "
 --- BEGIN ALTER TABLE "public"."faqs_translations" ---
 
 ALTER TABLE IF EXISTS "public"."faqs_translations" DROP CONSTRAINT IF EXISTS "faqs_translations_faqs_id_foreign";
+
+DELETE FROM "public"."faqs_translations" WHERE "faqs_id" IS NULL;
 
 ALTER TABLE IF EXISTS "public"."faqs_translations"
 	ALTER COLUMN "faqs_id" SET NOT NULL;
