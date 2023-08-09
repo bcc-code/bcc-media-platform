@@ -397,7 +397,7 @@
     </Disclosure>
 </template>
 <script lang="ts" setup>
-import { RouteLocationRaw } from "vue-router"
+import { RouteLocationRaw, useRoute } from "vue-router"
 import NavLink from "./NavLink.vue"
 import {
     Disclosure,
@@ -416,7 +416,7 @@ import {
     QuestionIcon,
     SearchIcon,
 } from "../icons"
-import { computed, ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
 import { useGetCalendarStatusQuery, useGetMeQuery } from "@/graph/generated"
@@ -427,6 +427,15 @@ const { data: meQuery, fetching, executeQuery } = useGetMeQuery()
 const { query } = useSearch()
 
 const { authenticated, signOut, signIn, user } = useAuth()
+
+const route = useRoute()
+
+onMounted(() => {
+    const q = route.query.q
+    if (q && typeof q === "string") {
+        query.value = q
+    }
+})
 
 const isLive = computed(() => {
     const now = new Date()
