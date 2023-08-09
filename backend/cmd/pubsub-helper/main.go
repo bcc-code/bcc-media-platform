@@ -15,7 +15,6 @@ import (
 	"github.com/google/uuid"
 
 	"cloud.google.com/go/pubsub"
-	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/davecgh/go-spew/spew"
@@ -158,7 +157,7 @@ func directusHook(projectID string, topicID string, event string, collection str
 	e.SetID(uuid.New().String())
 	e.SetSource("pubsub-helper")
 	e.SetType(events.TypeDirectusEvent)
-	e.SetData(cloudevents.ApplicationJSON, directus.Event{
+	e.SetData(cloudevents.ApplicationJSON, events.Event{
 		Event:      event,
 		Collection: collection,
 		ID:         id,

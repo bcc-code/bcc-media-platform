@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/bcc-code/brunstadtv/backend/asset/smil"
-	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -55,54 +54,17 @@ func TestGetLanguagesFromVideoElement(t *testing.T) {
 	assert.NoError(t, err)
 
 	langs := GetLanguagesFromVideoElement(smilObj.Body.Switch.Videos[0])
-	assert.Equal(t, []directus.AssetStreamLanguage{
-		{
-			AssetStreamID: "+",
-			LanguagesCode: directus.LanguagesCode{
-				Code: "it",
-			},
-		},
-		{
-			AssetStreamID: "+",
-			LanguagesCode: directus.LanguagesCode{
-				Code: "de",
-			},
-		},
-		{
-			AssetStreamID: "+",
-			LanguagesCode: directus.LanguagesCode{
-				Code: "fr",
-			},
-		},
-	}, langs)
+	assert.Equal(t, []string{"it", "de", "fr"}, langs)
 
 	langs = GetLanguagesFromVideoElement(smilObj.Body.Switch.Videos[1])
-	assert.Equal(t, []directus.AssetStreamLanguage{
-		{
-			AssetStreamID: "+",
-			LanguagesCode: directus.LanguagesCode{
-				Code: "no",
-			},
-		},
-		{
-			AssetStreamID: "+",
-			LanguagesCode: directus.LanguagesCode{
-				Code: "fi",
-			},
-		},
-		{
-			AssetStreamID: "+",
-			LanguagesCode: directus.LanguagesCode{
-				Code: "sv",
-			},
-		},
-	}, langs)
+
+	assert.Equal(t, []string{"no", "fi", "sv"}, langs)
 
 	langs = GetLanguagesFromVideoElement(smilObj.Body.Switch.Videos[2])
-	assert.Equal(t, []directus.AssetStreamLanguage{}, langs)
+	assert.Equal(t, 0, len(langs))
 
 	langs = GetLanguagesFromVideoElement(smilObj.Body.Switch.Videos[3])
-	assert.Equal(t, []directus.AssetStreamLanguage{}, langs)
+	assert.Equal(t, 0, len(langs))
 }
 
 func TestParseJson(t *testing.T) {
